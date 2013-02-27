@@ -417,13 +417,6 @@ public class NaiveASTFlattener extends ASTVisitor {
 		return false;
 	}
 
-	public boolean visit(ExtraDimension node) {
-		this.buffer.append(" ");//$NON-NLS-1$
-		visitAnnotationsList(node.annotations());
-		this.buffer.append("[]"); //$NON-NLS-1$
-		return false;
-	}
-
 	/*
 	 * @see ASTVisitor#visit(AssertStatement)
 	 */
@@ -767,6 +760,13 @@ public class NaiveASTFlattener extends ASTVisitor {
 		return false;
 	}
 
+	public boolean visit(ExtraDimension node) {
+		this.buffer.append(" ");//$NON-NLS-1$
+		visitAnnotationsList(node.annotations());
+		this.buffer.append("[]"); //$NON-NLS-1$
+		return false;
+	}
+
 	/*
 	 * @see ASTVisitor#visit(FieldAccess)
 	 */
@@ -1047,7 +1047,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append(")");//$NON-NLS-1$
 		int size = node.getExtraDimensions();
 		if (node.getAST().apiLevel() >= AST.JLS8) {
-			List dimensions = node.extraDimensionInfos();
+			List dimensions = node.extraDimensions();
 			for (int i = 0; i < size; i++) {
 				visit((ExtraDimension) dimensions.get(i));
 			}
@@ -1372,16 +1372,11 @@ public class NaiveASTFlattener extends ASTVisitor {
 		node.getType().accept(this);
 		if (node.getAST().apiLevel() >= JLS3) {
 			if (node.isVarargs()) {
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391898
 				if (node.getAST().apiLevel() >= AST.JLS8) {
 					List annotations = node.varargsAnnotations();
 					if (annotations != null) {
-						this.buffer.append(' ');						
-						for (Iterator it = annotations.iterator(); it.hasNext(); ) {
-							Annotation annotation = (Annotation) it.next();
-							annotation.accept(this);
-							this.buffer.append(' ');
-						}
+						this.buffer.append(' ');
+						visitAnnotationsList(annotations);
 					}
 				}
 				this.buffer.append("...");//$NON-NLS-1$
@@ -1391,7 +1386,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 		node.getName().accept(this);
 		int size = node.getExtraDimensions();
 		if (node.getAST().apiLevel() >= AST.JLS8) {
-			List dimensions = node.extraDimensionInfos();
+			List dimensions = node.extraDimensions();
 			for (int i = 0; i < size; i++) {
 				visit((ExtraDimension) dimensions.get(i));
 			}
@@ -1753,14 +1748,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 */
 	public boolean visit(TypeParameter node) {
 		if (node.getAST().apiLevel() >= AST.JLS8) {
-			List annotations = node.annotations();
-			if (annotations != null) {
-				for (Iterator it = annotations.iterator(); it.hasNext(); ) {
-					Annotation annotation = (Annotation) it.next();
-					annotation.accept(this);
-					this.buffer.append(' ');
-				}
-			}
+			visitAnnotationsList(node.annotations());
 		}
 		node.getName().accept(this);
 		if (!node.typeBounds().isEmpty()) {
@@ -1820,7 +1808,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 		node.getName().accept(this);
 		int size = node.getExtraDimensions();
 		if (node.getAST().apiLevel() >= AST.JLS8) {
-			List dimensions = node.extraDimensionInfos();
+			List dimensions = node.extraDimensions();
 			for (int i = 0; i < size; i++) {
 				visit((ExtraDimension) dimensions.get(i));
 			}

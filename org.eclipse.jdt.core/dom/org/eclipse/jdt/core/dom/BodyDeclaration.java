@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -198,10 +198,10 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * Returns the modifiers explicitly specified on this declaration.
 	 * <p>
 	 * In the JLS3 API, this method is a convenience method that
-	 * computes these flags from <code>modifiers()</code>.
+	 * computes these flags from {@link #modifiers()}.
 	 * </p>
 	 *
-	 * @return the bit-wise or of <code>Modifier</code> constants
+	 * @return the bit-wise "or" of <code>Modifier</code> constants
 	 * @see Modifier
 	 */
 	public int getModifiers() {
@@ -227,12 +227,12 @@ public abstract class BodyDeclaration extends ASTNode {
 	/**
 	 * Sets the modifiers explicitly specified on this declaration (JLS2 API only).
 	 *
-	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
+	 * @param modifiers the given modifiers (bit-wise "or" of {@link Modifier} constants)
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
 	 * @see Modifier
 	 * @deprecated In the JLS3 API, this method is replaced by
-	 * {@link #modifiers()} which contains a list of a <code>Modifier</code> nodes.
+	 * {@link #modifiers()}, which contains a list of {@link Modifier} nodes.
 	 */
 	public void setModifiers(int modifiers) {
 		internalSetModifiers(modifiers);

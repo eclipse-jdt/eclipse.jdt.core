@@ -22,18 +22,18 @@ import java.util.Map;
 
 /**
  * Primitive type nodes. For JLS8 optional annotations indicated by {Annotation}
- * were added and are not present in ASTs of JLS2, JLS3 and JLS4 vintages.
+ * were added.
  * <pre>
  * PrimitiveType:
- *    <b>{Annotation} byte</b>
- *    <b>{Annotation} short</b>
- *    <b>{Annotation} char</b>
- *    <b>{Annotation} int</b>
- *    <b>{Annotation} long</b>
- *    <b>{Annotation} float</b>
- *    <b>{Annotation} double</b>
- *    <b>{Annotation} boolean</b>
- *    <b>{Annotation} void</b>
+ *    { Annotation } <b>byte</b>
+ *    { Annotation } <b>short</b>
+ *    { Annotation } <b>char</b>
+ *    { Annotation } <b>int</b>
+ *    { Annotation } <b>long</b>
+ *    { Annotation } <b>float</b>
+ *    { Annotation } <b>double</b>
+ *    { Annotation } <b>boolean</b>
+ *    { Annotation } <b>void</b>
  * </pre>
  * <p>
  * Note that due to the fact that AST nodes belong to a specific AST and
@@ -160,18 +160,18 @@ public class PrimitiveType extends AnnotatableType {
 	}
 
 	/**
+	 * The "annotations" structural property of this node type (element type: {@link Annotation}).
+	 * @since 3.9
+	 */
+	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
+			internalAnnotationsPropertyFactory(PrimitiveType.class);
+	
+	/**
 	 * The "primitiveTypeCode" structural property of this node type (type: {@link PrimitiveType.Code}).
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor PRIMITIVE_TYPE_CODE_PROPERTY =
 		new SimplePropertyDescriptor(PrimitiveType.class, "primitiveTypeCode", PrimitiveType.Code.class, MANDATORY); //$NON-NLS-1$
-	
-	/**
-	 * The "annotations" structural property of this node type (child type: {@link Annotation}).
-	 * @since 3.9
-	 */
-	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
-		new ChildListPropertyDescriptor(PrimitiveType.class, "annotations", Annotation.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -194,8 +194,8 @@ public class PrimitiveType extends AnnotatableType {
 		
 		propertyList = new ArrayList(3);
 		createPropertyList(PrimitiveType.class, propertyList);
-		addProperty(PRIMITIVE_TYPE_CODE_PROPERTY, propertyList);
 		addProperty(ANNOTATIONS_PROPERTY, propertyList);
+		addProperty(PRIMITIVE_TYPE_CODE_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);
 	}
 
@@ -232,9 +232,14 @@ public class PrimitiveType extends AnnotatableType {
 	 */
 	PrimitiveType(AST ast) {
 		super(ast);
-		if (ast.apiLevel >= AST.JLS8) {
-			this.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
-		}
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on AnnotatableType.
+	 * @since 3.9
+	 */
+	final ChildListPropertyDescriptor internalAnnotationsProperty() {
+		return ANNOTATIONS_PROPERTY;
 	}
 
 	/* (omit javadoc for this method)
@@ -254,6 +259,7 @@ public class PrimitiveType extends AnnotatableType {
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
 	}
+
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -283,11 +289,11 @@ public class PrimitiveType extends AnnotatableType {
 	ASTNode clone0(AST target) {
 		PrimitiveType result = new PrimitiveType(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setPrimitiveTypeCode(getPrimitiveTypeCode());
 		if (this.ast.apiLevel >= AST.JLS8) {
-			result.annotations.addAll(
+			result.annotations().addAll(
 					ASTNode.copySubtrees(target, annotations()));
 		}
+		result.setPrimitiveTypeCode(getPrimitiveTypeCode());
 		return result;
 	}
 
@@ -305,6 +311,7 @@ public class PrimitiveType extends AnnotatableType {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
+			// visit children in normal left to right reading order
 			if (this.ast.apiLevel >= AST.JLS8) {
 				acceptChildren(visitor, this.annotations);
 			}
@@ -350,6 +357,7 @@ public class PrimitiveType extends AnnotatableType {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return memSize() + (this.annotations == null ? 0 : this.annotations.listSize());
+		return memSize()
+				+ (this.annotations == null ? 0 : this.annotations.listSize());
 	}
 }

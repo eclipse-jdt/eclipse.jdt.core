@@ -57,20 +57,24 @@ import java.util.List;
  * type annotations. The annotatable extra dimensions are represented by {@link ExtraDimension}.
  * <pre>
  * MethodDeclaration:
- *    [ Javadoc ] { ExtendedModifier }
- *		  [ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
- *        ( Type | <b>void</b> ) Identifier <b>(</b>
- *        	[ ReceiverParameter ]
- *         	[ <b>, </b> FormalParameter { <b>,</b> FormalParameter } ] <b>)</b> { ExtraDimension }
- *        [ <b>throws</b> TypeName { <b>,</b> TypeName } ] ( Block | <b>;</b> )
- * ConstructorDeclaration:
- *    [ Javadoc ] { ExtendedModifier }
- *		  [ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
+ *    [ Javadoc ] { ExtendedModifier } [ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ] ( Type | <b>void</b> )
  *        Identifier <b>(</b>
- * 		  	[ ReceiverParameter ]
- * 			[ <b>, </b> FormalParameter { <b>,</b> FormalParameter } ] <b>)</b>
- *        [<b>throws</b> TypeName { <b>,</b> TypeName } ] Block
+ *            [ ReceiverParameter <b>,</b> ] [ FormalParameter { <b>,</b> FormalParameter } ]
+ *        <b>)</b> { ExtraDimension }
+ *        [ <b>throws</b> Type { <b>,</b> Type } ]
+ *        ( Block | <b>;</b> )
+ * ConstructorDeclaration:
+ *    [ Javadoc ] { ExtendedModifier } [ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
+ *        Identifier <b>(</b>
+ *            [ ReceiverParameter <b>,</b> ] [ FormalParameter { <b>,</b> FormalParameter } ]
+ *        <b>)</b> { ExtraDimension }
+ *        [ <b>throws</b> Type { <b>,</b> Type } ]
+ *        ( Block | <b>;</b> )
  * </pre>
+ * <p>
+ * The ReceiverParameter is represented as: <code>AnnotatableType [ SimpleName <b>.</b> ] <b>this</b></code><br>
+ * The FormalParameter is represented by a {@link SingleVariableDeclaration}.
+ * </p>
  * <p>
  * When a Javadoc comment is present, the source
  * range begins with the first character of the "/**" comment delimiter.
@@ -82,7 +86,6 @@ import java.util.List;
  * no modifiers). The source range extends through the last character of the
  * ";" token (if no body), or the last character of the block (if body).
  * </p>
- * <p>The FormalParameter is represented by a {@link SingleVariableDeclaration}.</p>
  *
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
@@ -139,16 +142,16 @@ public class MethodDeclaration extends BodyDeclaration {
 		new ChildPropertyDescriptor(MethodDeclaration.class, "returnType2", Type.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "extraDimensions" structural property of this node type (type: {@link Integer}).
+	 * The "extraDimensions" structural property of this node type (type: {@link Integer}) (below JLS8 only).
 	 *
 	 * @since 3.0
-	 * @deprecated in JLS8, use {@link MethodDeclaration#EXTRA_DIMENSION_INFOS_PROPERTY} instead.
+	 * @deprecated In JLS8 and later, use {@link MethodDeclaration#EXTRA_DIMENSION_INFOS_PROPERTY} instead.
 	 */
 	public static final SimplePropertyDescriptor EXTRA_DIMENSIONS_PROPERTY =
 		new SimplePropertyDescriptor(MethodDeclaration.class, "extraDimensions", int.class, MANDATORY); //$NON-NLS-1$
 	
 	/**
-	 * The "extraDimensionInfos" structural property of this node type (child type: {@link ExtraDimension}) (added in JLS8 API).
+	 * The "extraDimensionInfos" structural property of this node type (element type: {@link ExtraDimension}) (added in JLS8 API).
 	 * @since 3.9
 	 */
 	public static final ChildListPropertyDescriptor EXTRA_DIMENSION_INFOS_PROPERTY =
@@ -169,23 +172,22 @@ public class MethodDeclaration extends BodyDeclaration {
 		new ChildListPropertyDescriptor(MethodDeclaration.class, "parameters", SingleVariableDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "receiverType" structural property of this node type (element type:
-	 * {@link AnnotatableType}) (added in JLS8 API).
+	 * The "receiverType" structural property of this node type (child type: {@link AnnotatableType}) (added in JLS8 API).
 	 * @since 3.9
 	 */
 	public static final ChildPropertyDescriptor RECEIVER_TYPE_PROPERTY =
 			new ChildPropertyDescriptor(MethodDeclaration.class, "receiverType", AnnotatableType.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 	
 	/**
-	 * The "receiverQualifier" structural property of this node type (element type:
-	 * {@link SimpleName}) (added in JLS8 API).
+	 * The "receiverQualifier" structural property of this node type (child type: {@link SimpleName}) (added in JLS8 API).
 	 * @since 3.9
 	 */
 	public static final ChildPropertyDescriptor RECEIVER_QUALIFIER_PROPERTY =
 			new ChildPropertyDescriptor(MethodDeclaration.class, "receiverQualifier", SimpleName.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "thrownExceptions" structural property of this node type (element type: {@link Name}) (Available in JLS2, JLS3, and JLS4 Only).
+	 * The "thrownExceptions" structural property of this node type (element type: {@link Name}) (before JLS8 only).
+	 * @deprecated In JLS8 and later, use {@link MethodDeclaration#THROWN_EXCEPTION_TYPES_PROPERTY} instead.
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor THROWN_EXCEPTIONS_PROPERTY =
@@ -306,14 +308,18 @@ public class MethodDeclaration extends BodyDeclaration {
 	private SimpleName methodName = null;
 
 	/**
-	 * The explicit receiver type.
+	 * The explicit receiver type, or <code>null</code> if none.
+	 * Defaults to none.
+	 * @since 3.9
 	 */
-	private AnnotatableType receiverType = null;
+	private AnnotatableType optionalReceiverType = null;
 	
 	/**
-	 * Qualifying name if any of the explicit </code>this</code> parameter.
+	 * Qualifying name of the explicit </code>this</code> parameter, or <code>null</code> if none.
+	 * Defaults to none.
+	 * @since 3.9
 	 */
-	private SimpleName receiverQualifier = null;
+	private SimpleName optionalReceiverQualifier = null;
 
 	/**
 	 * The parameter declarations
@@ -325,8 +331,8 @@ public class MethodDeclaration extends BodyDeclaration {
 
 	/**
 	 * The return type.
-	 * JLS2 behevior: lazily initialized; defaults to void.
-	 * JLS3 behavior; lazily initialized; defaults to void; null allowed.
+	 * JLS2 behavior: lazily initialized; defaults to void.
+	 * JLS3 and later: lazily initialized; defaults to void; null allowed.
 	 * Note that this field is ignored for constructor declarations.
 	 */
 	private Type returnType = null;
@@ -347,28 +353,37 @@ public class MethodDeclaration extends BodyDeclaration {
 
 	/**
 	 * The number of array dimensions that appear after the parameters, rather
-	 * than after the return type itself; defaults to 0.
+	 * than after the return type itself; defaults to 0. Not used in JLS8 and later.
 	 *
 	 * @since 2.1
+	 * @deprecated In JLS8 and later, use {@link #extraDimensions} instead.
 	 */
 	private int extraArrayDimensions = 0;
 
 	/**
-	 * The extra dimensions this node has with optional annotations.
+	 * List of extra dimensions this node has with optional annotations
+	 * (element type: {@link ExtraDimension}).
+	 * Null before JLS8. Added in JLS8; defaults to an empty list
+	 * (see constructor).
 	 * 
 	 * @since 3.9
 	 */
-	protected ASTNode.NodeList extraDimensionInfos = null;
+	private ASTNode.NodeList extraDimensions = null;
 
 	/**
 	 * The list of thrown exception names (element type: {@link Name}).
-	 * Defaults to an empty list for api levels below JLS8.
+	 * Before JLS8: defaults to an empty list (see constructor).
+	 * JLS8 and later: null.
+	 * @deprecated In JLS8 and later, use {@link #thrownExceptionTypes} instead.
 	 */
 	private ASTNode.NodeList thrownExceptions = null;
 
 	/**
 	 * The list of thrown exception Types (element type: {@link Type}).
-	 * Defaults to an empty list at JLS8 and above.
+	 * Null before JLS8. Added in JLS8; defaults to an empty list
+	 * (see constructor).
+	 * 
+	 * @since 3.9
 	 */
 	private ASTNode.NodeList thrownExceptionTypes = null;
 
@@ -401,7 +416,7 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (ast.apiLevel < AST.JLS8) {
 			this.thrownExceptions = new ASTNode.NodeList(THROWN_EXCEPTIONS_PROPERTY);
 		} else {
-			this.extraDimensionInfos = new ASTNode.NodeList(EXTRA_DIMENSION_INFOS_PROPERTY);
+			this.extraDimensions = new ASTNode.NodeList(EXTRA_DIMENSION_INFOS_PROPERTY);
 			this.thrownExceptionTypes = new ASTNode.NodeList(THROWN_EXCEPTION_TYPES_PROPERTY);
 		}
 	}
@@ -492,16 +507,18 @@ public class MethodDeclaration extends BodyDeclaration {
 		}
 		if (property == RECEIVER_TYPE_PROPERTY) {
 			if (get) {
-				return this.receiverType;
+				return getReceiverType();
 			} else {
 				setReceiverType((AnnotatableType) child);
+				return null;
 			}
 		}
 		if (property == RECEIVER_QUALIFIER_PROPERTY) {
 			if (get) {
-				return this.receiverQualifier;
+				return getReceiverQualifier();
 			} else {
 				setReceiverQualifier((SimpleName) child);
+				return null;
 			}
 		}
 		if (property == BODY_PROPERTY) {
@@ -536,7 +553,7 @@ public class MethodDeclaration extends BodyDeclaration {
 			return thrownExceptionTypes();
 		}		
 		if (property == EXTRA_DIMENSION_INFOS_PROPERTY) {
-			return extraDimensionInfos();
+			return extraDimensions();
 		}
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
@@ -591,24 +608,22 @@ public class MethodDeclaration extends BodyDeclaration {
 					(Type) ASTNode.copySubtree(target, getReturnType2()));
 		}
 		result.setConstructor(isConstructor());
+		result.setName((SimpleName) getName().clone(target));
 		if (this.ast.apiLevel >= AST.JLS8) {
-			result.setReceiverType((AnnotatableType) ASTNode.copySubtree(target, this.receiverType));
-			result.setReceiverQualifier((SimpleName) ASTNode.copySubtree(target, this.receiverQualifier));
-			result.extraDimensionInfos.addAll(
-					ASTNode.copySubtrees(target, this.extraDimensionInfos));
+			result.setReceiverType((AnnotatableType) ASTNode.copySubtree(target, getReceiverType()));
+			result.setReceiverQualifier((SimpleName) ASTNode.copySubtree(target, getReceiverQualifier()));
+		}
+		result.parameters().addAll(
+			ASTNode.copySubtrees(target, parameters()));
+		if (this.ast.apiLevel >= AST.JLS8) {
+			result.extraDimensions().addAll(ASTNode.copySubtrees(target, extraDimensions()));
 		} else {
 			result.setExtraDimensions(getExtraDimensions());
 		}
-		result.setName((SimpleName) getName().clone(target));
-		result.parameters().addAll(
-			ASTNode.copySubtrees(target, parameters()));
-		if  (this.ast.apiLevel() < AST.JLS8) {
-			result.thrownExceptions().addAll(
-			ASTNode.copySubtrees(target, thrownExceptions()));			
+		if (this.ast.apiLevel() >= AST.JLS8) {
+			result.thrownExceptionTypes().addAll(ASTNode.copySubtrees(target, thrownExceptionTypes()));
 		} else {
-			result.thrownExceptionTypes().addAll(
-			ASTNode.copySubtrees(target, thrownExceptionTypes()));
-			
+			result.thrownExceptions().addAll(ASTNode.copySubtrees(target, thrownExceptions()));			
 		}
 		result.setBody(
 			(Block) ASTNode.copySubtree(target, getBody()));
@@ -641,15 +656,15 @@ public class MethodDeclaration extends BodyDeclaration {
 			// n.b. visit return type even for constructors
 			acceptChild(visitor, getName());
 			if (this.ast.apiLevel >= AST.JLS8) {
-				acceptChild(visitor, this.receiverType);
-				acceptChild(visitor, this.receiverQualifier);
+				acceptChild(visitor, this.optionalReceiverType);
+				acceptChild(visitor, this.optionalReceiverQualifier);
 			}
 			acceptChildren(visitor, this.parameters);
-			if (this.ast.apiLevel() < AST.JLS8) {
-				acceptChildren(visitor, this.thrownExceptions);				
-			} else {
-				acceptChildren(visitor, this.extraDimensionInfos);
+			if (this.ast.apiLevel() >= AST.JLS8) {
+				acceptChildren(visitor, this.extraDimensions);
 				acceptChildren(visitor, this.thrownExceptionTypes);				
+			} else {
+				acceptChildren(visitor, this.thrownExceptions);				
 			}
 			acceptChild(visitor, getBody());
 		}
@@ -741,7 +756,7 @@ public class MethodDeclaration extends BodyDeclaration {
 
 	/**
 	 * Returns the receiver type explicitly declared in the method or constructor 
-	 * declaration (JLS8 API only).
+	 * declaration (added in JLS8 API).
 	 *
 	 * If the receiver is not explicitly declared in the method or constructor 
 	 * declaration, <code>null</code> is returned.
@@ -752,29 +767,32 @@ public class MethodDeclaration extends BodyDeclaration {
 	 */
 	public AnnotatableType getReceiverType() {
 		unsupportedIn2_3_4();
-		return this.receiverType;
+		return this.optionalReceiverType;
 	}
 
 	/**
-	 * Sets the given type as the type of explicit receiver parameter. (JLS8 API only).
-	 *
-	 * @param receiverType type of explicit receiver parameter to be added to the method declaration
+	 * Sets or clears the given type as the type of explicit receiver parameter (added in JLS8 API).
+	 * <p>
+	 * A receiver type is only legal in Java code if it appears on an instance method or on a constructor of an inner class.
+	 * </p>
+	 * 
+	 * @param receiverType type of the explicit receiver parameter, or <code>null</code> if there is none
 	 * @exception UnsupportedOperationException if this operation is used below JLS8
 	 * @since 3.9
-
 	 */
 	public void setReceiverType(AnnotatableType receiverType) {
 		unsupportedIn2_3_4();
-		ASTNode oldChild = this.receiverType;
+		ASTNode oldChild = this.optionalReceiverType;
 		preReplaceChild(oldChild, receiverType, RECEIVER_TYPE_PROPERTY);
-		this.receiverType = receiverType;
+		this.optionalReceiverType = receiverType;
 		postReplaceChild(oldChild, receiverType, RECEIVER_TYPE_PROPERTY);
 	}
 
 	/**
-	 * Returns the qualifying name, if any, for the explicit receiver or null if not used. This method
-	 * always returns <code>null</code> for a non-constructor.
-	 * This API is supported in JLS8 only.
+	 * Returns the qualifying name, if any, for the explicit receiver or <code>null</code> if not used (added in JLS8 API).
+	 * <p>
+	 * A receiver qualifier is only legal in Java code if it appears on a constructor of an inner class.
+	 * </p>
 	 * 
 	 * @returns the qualifying name or <code>null</code> if a qualifier was not specified
 	 * @exception UnsupportedOperationException if this operation is used below JLS8
@@ -782,12 +800,11 @@ public class MethodDeclaration extends BodyDeclaration {
 	 */
 	public SimpleName getReceiverQualifier() {
 		unsupportedIn2_3_4();
-		return this.receiverQualifier;
+		return this.optionalReceiverQualifier;
 	}
 	
 	/**
-	 * Sets the given simple name as the qualifier for the receiver.
-	 * This API is supported in JLS8 only.
+	 * Sets the given simple name as the qualifier for the receiver (added in JLS8 API).
 	 * 
 	 * @param receiverQualifier explicit receiver parameter to be added to the method declaration
 	 * @exception UnsupportedOperationException if this operation is used below JLS8
@@ -795,9 +812,9 @@ public class MethodDeclaration extends BodyDeclaration {
 	 */
 	public void setReceiverQualifier(SimpleName receiverQualifier) {
 		unsupportedIn2_3_4();
-		ASTNode oldChild = this.receiverQualifier;
+		ASTNode oldChild = this.optionalReceiverQualifier;
 		preReplaceChild(oldChild, receiverQualifier, RECEIVER_QUALIFIER_PROPERTY);
-		this.receiverQualifier = receiverQualifier;
+		this.optionalReceiverQualifier = receiverQualifier;
 		postReplaceChild(oldChild, receiverQualifier, RECEIVER_QUALIFIER_PROPERTY);
 	}
 	
@@ -839,12 +856,27 @@ public class MethodDeclaration extends BodyDeclaration {
 
 	/**
 	 * Returns the live ordered list of thrown exception names in this method
-	 * declaration.
+	 * declaration (below JLS8 API only).
 	 *
 	 * @return the live list of exception names
 	 *    (element type: {@link Name})
+	 * @exception UnsupportedOperationException if this operation is used in
+	 *    a JLS8 or later AST
 	 */
+//TODO:	* @deprecated In the JLS8 API, this method is replaced by {@link #thrownExceptionTypes()}.
 	public List thrownExceptions() {
+		return internalThrownExceptions();
+	}
+
+	/**
+	 * Internal synonym for deprecated method. Used to avoid
+	 * deprecation warnings.
+	 * @exception UnsupportedOperationException if this operation is used in
+	 *    a JLS8 or later AST
+	 * @since 3.9
+	 */
+	/*package*/	List internalThrownExceptions() {
+		// more efficient than just calling supportedOnlyIn2_3_4() to check
 		if (this.thrownExceptions == null) {
 			supportedOnlyIn2_3_4();
 		}
@@ -892,6 +924,8 @@ public class MethodDeclaration extends BodyDeclaration {
 	/**
 	 * Internal synonym for deprecated method. Used to avoid
 	 * deprecation warnings.
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than JLS2
 	 * @since 3.1
 	 */
 	/*package*/ final Type internalGetReturnType() {
@@ -1025,15 +1059,22 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * ASTs, even though there are really syntactic variants of the same
 	 * method declaration.
 	 * </p>
+	 * <p>
+	 * In the JLS8 API, this method is a convenience method that
+	 * counts {@link #extraDimensions()}.
+	 * </p>
 	 *
 	 * @return the number of extra array dimensions
 	 * @since 2.1
 	 */
 	public int getExtraDimensions() {
-		if (this.ast.apiLevel >= AST.JLS8) {
-			return this.extraDimensionInfos.size();
+		// more efficient than checking getAST().API_LEVEL
+		if (this.extraDimensions == null) {
+			// JLS2,3,4 behavior - bona fide property
+			return this.extraArrayDimensions;
+		} else {
+			return this.extraDimensions.size();
 		}
-		return this.extraArrayDimensions;
 	}
 
 	/**
@@ -1051,11 +1092,17 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @param dimensions the number of array dimensions
 	 * @exception IllegalArgumentException if the number of dimensions is
 	 *    negative
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a JLS8 or later AST 
 	 * @since 2.1
-	 * @deprecated In the JLS8 API, use: {@link #extraDimensionInfos()}.
+	 * @deprecated In the JLS8 API, this method is replaced by
+	 * {@link #extraDimensions()} which contains a list of {@link ExtraDimension} nodes.
 	 */
 	public void setExtraDimensions(int dimensions) {
-		supportedOnlyIn2_3_4();
+		// more efficient than just calling supportedOnlyIn2_3_4() to check
+		if (this.extraDimensions != null) {
+			supportedOnlyIn2_3_4();
+		}
 		if (dimensions < 0) {
 			throw new IllegalArgumentException();
 		}
@@ -1065,14 +1112,18 @@ public class MethodDeclaration extends BodyDeclaration {
 	}
 
 	/**
-	 * Returns the live ordered list of extra dimensions with optional annotations (JLS8 API only).
+	 * Returns the live ordered list of extra dimensions with optional annotations (added in JLS8 API).
 	 * 
 	 * @return the live list of extra dimensions with optional annotations (element type: {@link ExtraDimension})
+	 * @exception UnsupportedOperationException if this operation is used below JLS8
 	 * @since 3.9
 	 */
-	public List extraDimensionInfos() {
-		unsupportedIn2_3_4();
-		return this.extraDimensionInfos;
+	public List extraDimensions() {
+		// more efficient than just calling unsupportedIn2_3_4() to check
+		if (this.extraDimensions == null) {
+			unsupportedIn2_3_4();
+		}
+		return this.extraDimensions;
 	}
 
 	/**
@@ -1148,13 +1199,13 @@ public class MethodDeclaration extends BodyDeclaration {
 			+ (this.modifiers == null ? 0 : this.modifiers.listSize())
 			+ (this.typeParameters == null ? 0 : this.typeParameters.listSize())
 			+ (this.methodName == null ? 0 : getName().treeSize())
-			+ (this.receiverType == null ? 0 : this.receiverType.treeSize())
-			+ (this.receiverQualifier == null ? 0 : this.receiverQualifier.treeSize())
+			+ (this.optionalReceiverType == null ? 0 : this.optionalReceiverType.treeSize())
+			+ (this.optionalReceiverQualifier == null ? 0 : this.optionalReceiverQualifier.treeSize())
 			+ (this.returnType == null ? 0 : this.returnType.treeSize())
 			+ this.parameters.listSize()
-			+ (this.ast.apiLevel < AST.JLS8 ? 
-					this.thrownExceptions.listSize() 
-					: this.extraDimensionInfos.listSize() + this.thrownExceptionTypes.listSize())
+			+ (this.ast.apiLevel < AST.JLS8
+					? this.thrownExceptions.listSize()
+					: this.extraDimensions.listSize() + this.thrownExceptionTypes.listSize())
 			+ (this.optionalBody == null ? 0 : getBody().treeSize());
 	}
 }

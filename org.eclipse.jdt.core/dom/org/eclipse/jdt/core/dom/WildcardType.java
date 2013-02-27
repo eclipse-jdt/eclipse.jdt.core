@@ -28,7 +28,7 @@ import java.util.List;
  * For JLS8 optional annotations were added:
  * <pre>
  * WildcardType:
- *    <b>{Annotation} ?</b> [ ( <b>extends</b> | <b>super</b>) Type ]
+ *    { Annotation } <b>?</b> [ ( <b>extends</b> | <b>super</b>) Type ]
  * </pre>
  * <p>
  * Not all node arrangements will represent legal Java constructs. In particular,
@@ -42,6 +42,13 @@ import java.util.List;
 public class WildcardType extends AnnotatableType {
 
 	/**
+	 * The "annotations" structural property of this node type (element type: {@link Annotation}).
+	 * @since 3.9
+	 */
+	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
+			internalAnnotationsPropertyFactory(WildcardType.class);
+	
+	/**
 	 * The "bound" structural property of this node type (child type: {@link Type}).
 	 */
 	public static final ChildPropertyDescriptor BOUND_PROPERTY =
@@ -52,13 +59,6 @@ public class WildcardType extends AnnotatableType {
 	 */
 	public static final SimplePropertyDescriptor UPPER_BOUND_PROPERTY =
 		new SimplePropertyDescriptor(WildcardType.class, "upperBound", boolean.class, MANDATORY); //$NON-NLS-1$
-	
-	/**
-	 * The "annotations" structural property of this node type (child type: {@link Annotation}).
-	 * @since 3.9
-	 */
-	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
-		new ChildListPropertyDescriptor(WildcardType.class, "annotations", Annotation.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -83,9 +83,9 @@ public class WildcardType extends AnnotatableType {
 		
 		propertyList = new ArrayList(4);
 		createPropertyList(WildcardType.class, propertyList);
+		addProperty(ANNOTATIONS_PROPERTY, propertyList);
 		addProperty(BOUND_PROPERTY, propertyList);
 		addProperty(UPPER_BOUND_PROPERTY, propertyList);
-		addProperty(ANNOTATIONS_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);
 	}
 
@@ -135,9 +135,14 @@ public class WildcardType extends AnnotatableType {
 	WildcardType(AST ast) {
 		super(ast);
 	    unsupportedIn2();
-	    if (ast.apiLevel >= AST.JLS8) {
-			this.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
-		}
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on AnnotatableType.
+	 * @since 3.9
+	 */
+	final ChildListPropertyDescriptor internalAnnotationsProperty() {
+		return ANNOTATIONS_PROPERTY;
 	}
 
 	/* (omit javadoc for this method)
@@ -203,11 +208,11 @@ public class WildcardType extends AnnotatableType {
 	ASTNode clone0(AST target) {
 		WildcardType result = new WildcardType(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setBound((Type) ASTNode.copySubtree(target, getBound()), isUpperBound());
 		if (this.ast.apiLevel >= AST.JLS8) {
-			result.annotations.addAll(
+			result.annotations().addAll(
 					ASTNode.copySubtrees(target, annotations()));
 		}
+		result.setBound((Type) ASTNode.copySubtree(target, getBound()), isUpperBound());
 		return result;
 	}
 

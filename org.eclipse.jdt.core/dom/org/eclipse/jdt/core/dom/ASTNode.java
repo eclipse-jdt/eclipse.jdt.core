@@ -128,10 +128,26 @@ import org.eclipse.jdt.internal.core.dom.NaiveASTFlattener;
  */
 public abstract class ASTNode {
 	/*
+	 * ATTENTION: When doing anything to the ASTNode hierarchy, do not try to
+	 * reinvent the wheel.
+	 * 
+	 * Look out for precedents with
+	 * - the same structural property type
+	 * - for child node properties: the same optionality (can be null / lazy initialization blurbs and impl.)
+	 * - the same declaring node type kind (abstract supertype or concrete type)
+	 * - a similar history (added in JLSx API, below JLSx only, replaced by {@link #xx})
+	 * ..., and copy what was done there. Most of the code and
+	 * Javadoc in this package should look like it was created by a code generator.
+	 * 
+	 * In subclasses of ASTNode, order properties by order of occurrence in source.
+	 * In general classes that list all AST node types, order alphabetically.  
+	 */
+
+	/*
 	 * INSTRUCTIONS FOR ADDING NEW CONCRETE AST NODE TYPES
 	 *
 	 * There are several things that need to be changed when a
-	 * new concrete AST node type (call it "FooBar"):
+	 * new concrete AST node type (call it "FooBar") is added:
 	 *
 	 * 1. Create the FooBar AST node type class.
 	 * The most effective way to do this is to copy a similar
@@ -146,7 +162,7 @@ public abstract class ASTNode {
 	 *
 	 * 4. Add AST.newFooBar() factory method.
 	 *
-	 * 5. Add ASTVisitor.visit(FooBar) and endVisit(FooBar) methods.
+	 * 5. Add ASTVisitor.visit(FooBar) and endVisit(FooBar) methods. Same for DefaultASTVisitor.
 	 *
 	 * 6. Add ASTMatcher.match(FooBar,Object) method.
 	 *
@@ -156,10 +172,55 @@ public abstract class ASTNode {
 	 * 8. Add NaiveASTFlattener.visit(FooBar) method to illustrate
 	 * how these nodes should be serialized.
 	 *
-	 * 9. Update the AST test suites.
+	 * 9. Update the AST test suites (ASTVisitorTest, etc.)
 	 *
 	 * The next steps are to update AST.parse* to start generating
 	 * the new type of nodes, and ASTRewrite to serialize them back out.
+	 */
+
+	/*
+	 * INSTRUCTIONS FOR ADDING A NEW PROPERTY TO AN AST NODE TYPE
+	 * 
+	 * For concrete node types, use e.g. properties of SimpleName or ClassInstanceCreation
+	 * as templates:
+	 * 
+	 * 1. Copy/paste the field, property descriptor, and getter/setter.
+	 * 
+	 * 2. Adjust everything to the new property name and type. In the field's
+	 * Javadoc, properly document default value, initialization, and applicable
+	 * API levels.
+	 * 
+	 * 3. Add/remove @since tags as necessary.
+	 * 
+	 * 4. Search for references to the members in the template, and add similar
+	 * references in corresponding places for the new property.
+	 * 
+	 * 
+	 * For abstract node types, use AbstractTypeDeclaration as a template:
+	 * 
+	 * 1. Same steps as above, but take extra care to copy and adjust the
+	 * *internal*() methods as well. 
+	 * 
+	 * 2. Search for references to the members in the template, and add similar
+	 * references in corresponding places for the new property (e.g. property
+	 * descriptor in each leaf type).
+	 */
+
+	/*
+	 * INSTRUCTIONS FOR REPLACING/DEPRECATING A PROPERTY OF AN AST NODE
+	 * 
+	 * To replace a simple property with a child list property, see e.g. how
+	 * SingleVariableDeclaration replaced MODIFIERS_PROPERTY with
+	 * MODIFIERS2_PROPERTY.
+	 * 
+	 * 1. Reuse the old property id.
+	 * 
+	 * 2. Deprecate all references to the old property, except for the old
+	 * getter, which should compute the value from the new property in
+	 * later API levels.
+	 * 
+	 * To completely replace a property, see how ClassInstanceCreation replaced
+	 * NAME_PROPERTY with TYPE_PROPERTY.
 	 */
 
 	/**
@@ -849,6 +910,8 @@ public abstract class ASTNode {
 				return EnumDeclaration.class;
 			case EXPRESSION_STATEMENT :
 				return ExpressionStatement.class;
+			case EXTRA_DIMENSION:
+				return ExtraDimension.class;
 			case FIELD_ACCESS :
 				return FieldAccess.class;
 			case FIELD_DECLARATION :
@@ -961,8 +1024,6 @@ public abstract class ASTNode {
 				return WhileStatement.class;
 			case WILDCARD_TYPE :
 				return WildcardType.class;
-			case EXTRA_DIMENSION:
-				return ExtraDimension.class;
 		}
 		throw new IllegalArgumentException();
 	}
@@ -1747,8 +1808,8 @@ public abstract class ASTNode {
 	 * Internal helper method that starts the building a list of
 	 * property descriptors for the given node type.
 	 *
-	 * @param nodeClass the class for a concrete node type
-	 * @param propertyList empty list
+	 * @param nodeClass the class for a concrete node type with n properties
+	 * @param propertyList empty list, with capacity for n+1 elements
 	 */
 	static void createPropertyList(Class nodeClass, List propertyList) {
 		// stuff nodeClass at head of list for future ref
@@ -2530,6 +2591,21 @@ public abstract class ASTNode {
 	 * This method must be implemented in subclasses.
 	 * </p>
 	 * <p>
+	 * General template for implementation on each concrete ASTNode class:
+	 * <pre>
+	 * <code>
+	 * ConcreteNodeType result = new ConcreteNodeType(target);
+	 * result.setSourceRange(getStartPosition(), getLength());
+	 * result.setChildProperty(
+	 *         (ChildPropertyType) ASTNode.copySubtree(target, getChildProperty()));
+	 * result.setSimpleProperty(isSimpleProperty());
+	 * result.childrenProperty().addAll(
+	 *         ASTNode.copySubtrees(target, childrenProperty()));
+	 * return result;
+	 * </code>
+	 * </pre>
+	 * </p>
+	 * <p>
 	 * This method does not report pre- and post-clone events.
 	 * All callers should instead call <code>clone(AST)</code>
 	 * to ensure that pre- and post-clone events are reported.
@@ -2575,7 +2651,7 @@ public abstract class ASTNode {
 	 * if (visitChildren) {
 	 *    // visit children in normal left to right reading order
 	 *    acceptChild(visitor, getProperty1());
-	 *    acceptChildren(visitor, rawListProperty);
+	 *    acceptChildren(visitor, this.rawListProperty);
 	 *    acceptChild(visitor, getProperty2());
 	 * }
 	 * visitor.endVisit(this);

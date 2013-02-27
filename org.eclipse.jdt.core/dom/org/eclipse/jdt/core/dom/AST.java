@@ -1359,6 +1359,8 @@ public final class AST {
 	 * By default, the union type has no types.
 	 *
 	 * @return a new unparented do statement node
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a JLS2 or JLS3 AST
 	 * @since 3.7.1
 	 */
 	public UnionType newUnionType() {

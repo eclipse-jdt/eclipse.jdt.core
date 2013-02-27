@@ -542,7 +542,7 @@ class ASTConverter {
 				int extraDimensions = retrieveExtraDimension(rightParenthesisPosition, method.bodyEnd);
 				if (this.ast.apiLevel >= AST.JLS8) {
 					setExtraAnnotatedDimensions(rightParenthesisPosition, this.scanner.currentPosition, typeReference,
-												methodDecl.extraDimensionInfos, extraDimensions);
+												methodDecl.extraDimensions(), extraDimensions);
 				} else {
 					internalSetExtraDimensions(methodDecl, extraDimensions);
 				}
@@ -868,7 +868,7 @@ class ASTConverter {
 		final int extraDimensions = retrieveExtraDimension(nameEnd + 1, typeSourceEnd);
 		if (this.ast.apiLevel >= AST.JLS8) {
 			setExtraAnnotatedDimensions(nameEnd + 1, this.scanner.currentPosition, argument.type,
-										variableDecl.extraDimensionInfos, extraDimensions);
+										variableDecl.extraDimensions(), extraDimensions);
 		} else {
 			internalSetExtraDimensions(variableDecl, extraDimensions);
 		}
@@ -890,7 +890,7 @@ class ASTConverter {
 			if (type.isAnnotatable()) {
 				AnnotatableType annotatableType = (AnnotatableType) type;
 				if (this.ast.apiLevel() >= AST.JLS8 && !annotatableType.annotations().isEmpty()) {
-					Iterator annotations = annotatableType.annotations.iterator();
+					Iterator annotations = annotatableType.annotations().iterator();
 					while (annotations.hasNext()) {
 						Annotation annotation = (Annotation) annotations.next();
 						annotation.setParent(null, null);
@@ -3039,7 +3039,7 @@ class ASTConverter {
 		final int extraDimensions = retrieveExtraDimension(nameEnd + 1, localDeclaration.type.sourceEnd);
 		if (this.ast.apiLevel >= AST.JLS8) {
 			setExtraAnnotatedDimensions(nameEnd + 1, this.scanner.currentPosition, localDeclaration.type,
-					variableDecl.extraDimensionInfos, extraDimensions);
+					variableDecl.extraDimensions(), extraDimensions);
 		} else {
 			internalSetExtraDimensions(variableDecl, extraDimensions);
 		}
@@ -3069,7 +3069,7 @@ class ASTConverter {
 		ExtraDimension dimension = this.ast.newExtraDimension();
 		for (int i = 0; i < length; i++) {
 			Annotation annot = convert(annotation[i]);
-			dimension.annotations.add(annot);
+			dimension.annotations().add(annot);
 		}
 		retrieveDimensionAndSetPositions(start, end, dimension);
 		return dimension;
@@ -3086,7 +3086,7 @@ class ASTConverter {
 		int extraDimensions = retrieveExtraDimension(fieldDeclaration.sourceEnd + 1, fieldDeclaration.declarationSourceEnd );
 		if (this.ast.apiLevel >= AST.JLS8) {
 			setExtraAnnotatedDimensions(fieldDeclaration.sourceEnd + 1, this.scanner.currentPosition,
-					fieldDeclaration.type, variableDeclarationFragment.extraDimensionInfos, extraDimensions);
+					fieldDeclaration.type, variableDeclarationFragment.extraDimensions(), extraDimensions);
 		} else {
 			internalSetExtraDimensions(variableDeclarationFragment, extraDimensions);
 		}
@@ -3129,7 +3129,7 @@ class ASTConverter {
 		int extraDimension = retrieveExtraDimension(localDeclaration.sourceEnd + 1, this.compilationUnitSourceLength);
 		if (this.ast.apiLevel >= AST.JLS8) {
 			setExtraAnnotatedDimensions(localDeclaration.sourceEnd + 1, this.scanner.currentPosition,
-					localDeclaration.type, variableDeclarationFragment.extraDimensionInfos, extraDimension);
+					localDeclaration.type, variableDeclarationFragment.extraDimensions(), extraDimension);
 		} else {
 			internalSetExtraDimensions(variableDeclarationFragment, extraDimension);
 		}
@@ -3208,7 +3208,7 @@ class ASTConverter {
 						int start = typeAnnotation.sourceStart;
 						int end = typeAnnotation.sourceEnd;
 						annotation.setSourceRange(start, end - start + 1);
-						type.annotations.add(annotation);
+						type.annotations().add(annotation);
 					}
 				}
 		}

@@ -1552,7 +1552,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		Annotation Annot = this.ast.newMarkerAnnotation();
 		Annot.setTypeName(this.ast.newSimpleName("NewAnnot1"));
 		x2.annotations().add(Annot);
-		x1.extraDimensionInfos().add(x2);
+		x1.extraDimensions().add(x2);
 		x2 = this.ast.newExtraDimension();
 		Annot = this.ast.newMarkerAnnotation();
 		Annot.setTypeName(this.ast.newSimpleName("NewAnnot2"));
@@ -1560,7 +1560,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		Annot = this.ast.newMarkerAnnotation();
 		Annot.setTypeName(this.ast.newSimpleName("NewAnnot3"));
 		x2.annotations().add(Annot);
-		x1.extraDimensionInfos().add(x2);
+		x1.extraDimensions().add(x2);
 		basicMatch(x1);
 	}
 }

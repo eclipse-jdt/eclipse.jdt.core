@@ -18,30 +18,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The extra dimension node. The extra dimensions, represented as <b>[]</b>, are allowed to have
+ * The extra dimension node. An extra dimension, represented as <b>[]</b>, can have
  * type annotations. This node type is supported only in JLS8 or later.
  * <p>
- * The extra dimension node is used to represent extra dimensions in the following nodes:
- * <pre>
- * 	SingleVariableDeclaration
- * 	VariableDeclarationFragment
- * 	MethodDeclaration
- * </pre>
- * For JLS8:
+ * The extra dimension node is used to represent an extra dimension in the following node types:
+ * {@link SingleVariableDeclaration}, {@link VariableDeclarationFragment}, {@link MethodDeclaration}.
+ * It is not used for annotations on an {@link ArrayType}, since that type extends {@link AnnotatableType} now.
+ * </p>
+ * 
  * <pre>
  * ExtraDimension:
- * 	{ Annotations } <b>[]</b>
+ * 	{ Annotation } <b>[]</b>
  * </pre>
- *</p>
- * @see AST#newExtraDimension()
+ *
  * @since 3.9
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class ExtraDimension extends ASTNode {
 
-
 	/**
-	 * The "annotations" structural property of this node type (child type: {@link Annotation}).
-	 * @since 3.9
+	 * The "annotations" structural property of this node type (element type: {@link Annotation}).
 	 */
 	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
 		new ChildListPropertyDescriptor(ExtraDimension.class, "annotations", Annotation.class, NO_CYCLE_RISK); //$NON-NLS-1$
@@ -50,12 +46,11 @@ public class ExtraDimension extends ASTNode {
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
-	 * @since 3.9
 	 */
 	private static final List PROPERTY_DESCRIPTORS_8_0;
 
 	static {
-		List propertyList = new ArrayList(3);
+		List propertyList = new ArrayList(2);
 		createPropertyList(ExtraDimension.class, propertyList);
 		addProperty(ANNOTATIONS_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);
@@ -69,44 +64,37 @@ public class ExtraDimension extends ASTNode {
 	 * <code>AST.JLS*</code> constants
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @since 3.9
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return PROPERTY_DESCRIPTORS_8_0;
 	}
 
 	/**
-	 * Create a new instance of ExtraDimension node (Supported only in level
-	 * JLS8 or above).  
+	 * The list of annotations for this dimension (element type: {@link Annotation}).
+	 * Defaults to an empty list.
+	 */
+	private ASTNode.NodeList annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
+
+	/**
+	 * Creates a new extra dimension node (Supported only in level
+	 * JLS8 or above).
+	 * <p>
+	 * N.B. This constructor is package-private.
+	 * </p>
 	 *
-	 * @param ast
+	 * @param ast the AST that is to own this node
 	 * @exception UnsupportedOperationException if this operation is used
 	 *            in a JLS2, JLS3 or JLS4 AST
-	 * @since 3.9
 	 */
 	ExtraDimension(AST ast) {
 		super(ast);
 		unsupportedIn2_3_4();
-		this.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
 	}
 
-	/**
-	 * The list of annotations for this dimension (element type:
-	 * {@link Annotation}).
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
 	 */
-	ASTNode.NodeList annotations = null;
-	
-	/**
-	 * Returns the live ordered list of annotations for this dimension.
-	 *
-	 * @return the live list of annotations (element type: {@link Annotation})
-	 * @since 3.9
-	 */
-	public List annotations() {
-		return this.annotations;
-	}
-
-	List internalStructuralPropertiesForType(int apiLevel) {
+	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
 
@@ -121,36 +109,59 @@ public class ExtraDimension extends ASTNode {
 		return super.internalGetChildListProperty(property);
 	}
 
-	int getNodeType0() {
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final int getNodeType0() {
 		return EXTRA_DIMENSION;
 	}
 
-	boolean subtreeMatch0(ASTMatcher matcher, Object other) {
-		return matcher.match(this, other);
-	}
-
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	ASTNode clone0(AST target) {
 		ExtraDimension result = new ExtraDimension(target);
-		result.annotations.addAll(
+		result.annotations().addAll(
 				ASTNode.copySubtrees(target, annotations()));
 		return result;
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
+			// visit children in normal left to right reading order
 			acceptChildren(visitor, this.annotations);
 		}
 		visitor.endVisit(this);
 	}
 
-	int treeSize() {
-		int size = memSize()
-				+ this.annotations.listSize();
-			return size;
+	/**
+	 * Returns the live ordered list of annotations for this dimension.
+	 *
+	 * @return the live list of annotations (element type: {@link Annotation})
+	 */
+	public List annotations() {
+		return this.annotations;
 	}
 
 	int memSize() {
-		return BASE_NODE_SIZE + 4;
+		return BASE_NODE_SIZE + 1 * 4;
+	}
+
+	int treeSize() {
+		return
+			memSize()
+			+ this.annotations.listSize();
 	}
 }

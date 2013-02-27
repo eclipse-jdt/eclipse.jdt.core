@@ -20,31 +20,37 @@ import java.util.List;
 
 /**
  * Type node for a named class type, a named interface type, or a type variable.
+ * <pre>
+ * SimpleType:
+ *    { Annotation } TypeName
+ * </pre>
  * <p>
- * This kind of node is used to convert a name (<code>Name</code>) into a type
- * (<code>Type</code>) by wrapping it.
+ * This kind of node is used to convert a name ({@link Name}) into a type
+ * ({@link Type}) by wrapping it.
  * </p>
  *
- * In JLS8, the SimpleType may have optional annotations.
+ * In JLS8 and later, the SimpleType may have optional annotations.
+ * If annotations are present, then the name must be a {@link SimpleName}. 
  * 
  * @since 2.0
+ * @see QualifiedType
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class SimpleType extends AnnotatableType {
 
+	/**
+	 * The "annotations" structural property of this node type (element type: {@link Annotation}).
+	 * @since 3.9
+	 */
+	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
+			internalAnnotationsPropertyFactory(SimpleType.class);
+	
 	/**
 	 * The "name" structural property of this node type (child type: {@link Name}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
 		new ChildPropertyDescriptor(SimpleType.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
-	
-	/**
-	 * The "annotations" structural property of this node type (child type: {@link Annotation}).
-	 * @since 3.9
-	 */
-	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
-		new ChildListPropertyDescriptor(SimpleType.class, "annotations", Annotation.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -68,8 +74,8 @@ public class SimpleType extends AnnotatableType {
 		
 		propertyList = new ArrayList(3);
 		createPropertyList(SimpleType.class, propertyList);
-		addProperty(NAME_PROPERTY, propertyList);
 		addProperty(ANNOTATIONS_PROPERTY, propertyList);
+		addProperty(NAME_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);
 	}
 
@@ -96,7 +102,7 @@ public class SimpleType extends AnnotatableType {
 
 	/**
 	 * The type name node; lazily initialized; defaults to a type with
-	 * an unspecfied, but legal, name.
+	 * an unspecified, but legal, name.
 	 */
 	private Name typeName = null;
 
@@ -111,9 +117,14 @@ public class SimpleType extends AnnotatableType {
 	 */
 	SimpleType(AST ast) {
 		super(ast);
-		if (ast.apiLevel >= AST.JLS8) {
-			this.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
-		}
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on AnnotatableType.
+	 * @since 3.9
+	 */
+	final ChildListPropertyDescriptor internalAnnotationsProperty() {
+		return ANNOTATIONS_PROPERTY;
 	}
 
 	/* (omit javadoc for this method)
@@ -163,11 +174,11 @@ public class SimpleType extends AnnotatableType {
 	ASTNode clone0(AST target) {
 		SimpleType result = new SimpleType(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setName((Name) (getName()).clone(target));
 		if (this.ast.apiLevel >= AST.JLS8) {
-			result.annotations.addAll(
+			result.annotations().addAll(
 					ASTNode.copySubtrees(target, annotations()));
 		}
+		result.setName((Name) (getName()).clone(target));
 		return result;
 	}
 
@@ -185,6 +196,7 @@ public class SimpleType extends AnnotatableType {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
+			// visit children in normal left to right reading order
 			if (this.ast.apiLevel >= AST.JLS8) {
 				acceptChildren(visitor, this.annotations);
 			}

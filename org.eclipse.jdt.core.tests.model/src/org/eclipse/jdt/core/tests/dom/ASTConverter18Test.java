@@ -1055,25 +1055,25 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		List fragments = field.fragments();
 		assertEquals("Incorrect no of fragments", 3, fragments.size());
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
-		assertExtraDimensionsEqual("Incorrect extra dimensions", fragment.extraDimensionInfos(), "@Annot2 @Annot3 [] @Annot3 @Annot2 [] @Annot4 []");
+		assertExtraDimensionsEqual("Incorrect extra dimensions", fragment.extraDimensions(), "@Annot2 @Annot3 [] @Annot3 @Annot2 [] @Annot4 []");
 		fragment = (VariableDeclarationFragment) fragments.get(1);
-		assertExtraDimensionsEqual("Incorrect extra dimensions", fragment.extraDimensionInfos(), "@Annot2 @Annot3 [] @Annot4 []");		
+		assertExtraDimensionsEqual("Incorrect extra dimensions", fragment.extraDimensions(), "@Annot2 @Annot3 [] @Annot4 []");		
 		fragment = (VariableDeclarationFragment) fragments.get(2);
-		assertExtraDimensionsEqual("Incorrect extra dimensions", fragment.extraDimensionInfos(), "[] [] []");
+		assertExtraDimensionsEqual("Incorrect extra dimensions", fragment.extraDimensions(), "[] [] []");
 		MethodDeclaration[] methods = type.getMethods();
 		assertEquals("Incorrect no of methods", 3, methods.length);
 		MethodDeclaration method = methods[0];
 		List parameters = method.parameters();
 		assertEquals("Incorrect no of parameters", 1, parameters.size());
-		assertExtraDimensionsEqual("Incorrect extra dimensions", ((SingleVariableDeclaration) parameters.get(0)).extraDimensionInfos(), "@Annot2 @Annot3 [] @Annot3 @Annot2 [] @Annot4 @Annot3 []");
+		assertExtraDimensionsEqual("Incorrect extra dimensions", ((SingleVariableDeclaration) parameters.get(0)).extraDimensions(), "@Annot2 @Annot3 [] @Annot3 @Annot2 [] @Annot4 @Annot3 []");
 
 		method = methods[1];
 		parameters = method.parameters();
 		assertEquals("Incorrect no of parameters", 1, parameters.size());
-		assertExtraDimensionsEqual("Incorrect extra dimensions", ((SingleVariableDeclaration) parameters.get(0)).extraDimensionInfos(), "[] []");
+		assertExtraDimensionsEqual("Incorrect extra dimensions", ((SingleVariableDeclaration) parameters.get(0)).extraDimensions(), "[] []");
 
 		method = methods[2];
-		assertExtraDimensionsEqual("Incorrect extra dimensions", method.extraDimensionInfos(), "@Annot1 @Annot2 [] []");
+		assertExtraDimensionsEqual("Incorrect extra dimensions", method.extraDimensions(), "@Annot1 @Annot2 [] []");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399600
 	public void test0010() throws JavaModelException {
@@ -1095,7 +1095,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		node = getASTNode(unit, 0, 0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration method = (MethodDeclaration) node;
-		assertExtraDimensionsEqual("Incorrect extra dimensions", method.extraDimensionInfos(), "@Marker [] @Marker []");
+		assertExtraDimensionsEqual("Incorrect extra dimensions", method.extraDimensions(), "@Marker [] @Marker []");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391894
 	public void test0011() throws JavaModelException {

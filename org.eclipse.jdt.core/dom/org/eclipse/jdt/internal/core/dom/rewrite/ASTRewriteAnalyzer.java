@@ -85,6 +85,12 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	 */
 	static final SimplePropertyDescriptor INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY = MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY;
 	/**
+	 * Internal synonym for deprecated constant MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY
+	 * to alleviate deprecated warnings.
+	 * @deprecated
+	 */
+	private static final ChildListPropertyDescriptor INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY = MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY;
+	/**
 	 * Internal synonym for deprecated constant SingleVariableDeclaration.EXTRA_DIMENSIONS_PROPERTY
 	 * to alleviate deprecated warnings.
 	 * @deprecated
@@ -1869,7 +1875,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			}
 
 			pos= getScanner().getTokenEndOffset(TerminalTokens.TokenNameRPAREN, pos);
-			ChildListPropertyDescriptor exceptionsProperty = apiLevel < AST.JLS8 ? MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY;
+			ChildListPropertyDescriptor exceptionsProperty = apiLevel < AST.JLS8 ? INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY;
 
 			if (apiLevel < AST.JLS8) {
 				int extraDims= rewriteExtraDimensions(node, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, pos);
@@ -2905,7 +2911,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				}
 			}
 		} else {
-			pos = rewriteExtraDimensionsInfo(node, pos, SingleVariableDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
+			pos = rewriteExtraDimensionsInfo(node, pos, SingleVariableDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
 		}
 
 		rewriteNode(node, SingleVariableDeclaration.INITIALIZER_PROPERTY, pos, this.formatter.VAR_INITIALIZER);
@@ -3308,7 +3314,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				}
 			}
 		} else {
-			pos = rewriteExtraDimensionsInfo(node, pos, VariableDeclarationFragment.EXTRA_DIMENSION_INFOS_PROPERTY);
+			pos = rewriteExtraDimensionsInfo(node, pos, VariableDeclarationFragment.EXTRA_DIMENSIONS2_PROPERTY);
 		}
 		rewriteNode(node, VariableDeclarationFragment.INITIALIZER_PROPERTY, pos, this.formatter.VAR_INITIALIZER);
 		return false;

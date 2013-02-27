@@ -330,37 +330,9 @@ public class ASTMatcher {
 			return false;
 		}
 		ArrayType o = (ArrayType) other;
-		switch(node.getAST().apiLevel) {
-			case AST.JLS2_INTERNAL :
-			case AST.JLS3_INTERNAL :
-			case AST.JLS4:
-				return safeSubtreeMatch(node.getComponentType(), o.getComponentType());
-			default:
-				return safeSubtreeMatch(node.getComponentType(), o.getComponentType()) &&
-						safeSubtreeListMatch(node.annotations(), o.annotations());
-		}
-	}
-
-	/**
-	 * Returns whether the given node and the other object match.
-	 * <p>
-	 * The default implementation provided by this class tests whether the
-	 * other object is a node of the same type with structurally isomorphic
-	 * child subtrees. Subclasses may override this method as needed.
-	 * </p>
-	 *
-	 * @param node the node
-	 * @param other the other object, or <code>null</code>
-	 * @return <code>true</code> if the subtree matches, or
-	 *   <code>false</code> if they do not match or the other object has a
-	 *   different node type or is <code>null</code>
-	 * @since 3.9
-	 */
-	public boolean match(ExtraDimension node, Object other) {
-		if (!(other instanceof ExtraDimension))
-			return false;
-		ExtraDimension o = (ExtraDimension) other;
-		return safeSubtreeListMatch(node.annotations(), o.annotations());
+		int level = node.getAST().apiLevel;
+		return safeSubtreeMatch(node.getComponentType(), o.getComponentType())
+				&& (level >= AST.JLS8 ? safeSubtreeListMatch(node.annotations(), o.annotations()) : true);
 	}
 
 	/**
@@ -728,32 +700,6 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.7.1
-	 */
-	public boolean match(UnionType node, Object other) {
-		if (!(other instanceof UnionType)) {
-			return false;
-		}
-		UnionType o = (UnionType) other;
-		return
-			safeSubtreeListMatch(
-				node.types(),
-				o.types());
-	}
-
-	/**
-	 * Returns whether the given node and the other object match.
-	 * <p>
-	 * The default implementation provided by this class tests whether the
-	 * other object is a node of the same type with structurally isomorphic
-	 * child subtrees. Subclasses may override this method as needed.
-	 * </p>
-	 *
-	 * @param node the node
-	 * @param other the other object, or <code>null</code>
-	 * @return <code>true</code> if the subtree matches, or
-	 *   <code>false</code> if they do not match or the other object has a
-	 *   different node type or is <code>null</code>
 	 */
 	public boolean match(DoStatement node, Object other) {
 		if (!(other instanceof DoStatement)) {
@@ -893,6 +839,29 @@ public class ASTMatcher {
 		}
 		ExpressionStatement o = (ExpressionStatement) other;
 		return safeSubtreeMatch(node.getExpression(), o.getExpression());
+	}
+
+	/**
+	 * Returns whether the given node and the other object match.
+	 * <p>
+	 * The default implementation provided by this class tests whether the
+	 * other object is a node of the same type with structurally isomorphic
+	 * child subtrees. Subclasses may override this method as needed.
+	 * </p>
+	 *
+	 * @param node the node
+	 * @param other the other object, or <code>null</code>
+	 * @return <code>true</code> if the subtree matches, or
+	 *   <code>false</code> if they do not match or the other object has a
+	 *   different node type or is <code>null</code>
+	 * @since 3.9
+	 */
+	public boolean match(ExtraDimension node, Object other) {
+		if (!(other instanceof ExtraDimension)) {
+			return false;
+		}
+		ExtraDimension o = (ExtraDimension) other;
+		return safeSubtreeListMatch(node.annotations(), o.annotations());
 	}
 
 	/**
@@ -1388,45 +1357,28 @@ public class ASTMatcher {
 		}
 		MethodDeclaration o = (MethodDeclaration) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.JLS2_INTERNAL) {
-			if (node.getModifiers() != o.getModifiers()) {
-				return false;
-			}
-			if (!safeSubtreeMatch(node.internalGetReturnType(), o.internalGetReturnType())) {
-				return false;
-			}
-		}
-		if (level >= AST.JLS3_INTERNAL) {
-			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
-				return false;
-			}
-			if (!safeSubtreeMatch(node.getReturnType2(), o.getReturnType2())) {
-				return false;
-			}
-			// n.b. compare type parameters even for constructors
-			if (!safeSubtreeListMatch(node.typeParameters(), o.typeParameters())) {
-				return false;
-			}
-		}
-		if (level >= AST.JLS8) {
-			if (!safeSubtreeMatch(node.getReceiverType(), o.getReceiverType())) {
-				return false;
-			}
-			if (!safeSubtreeMatch(node.getReceiverQualifier(), o.getReceiverQualifier())) {
-				return false;
-			}
-		}
-		return ((node.isConstructor() == o.isConstructor())
+		return node.isConstructor() == o.isConstructor()
 				&& safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())
+				&& (level >= AST.JLS3_INTERNAL
+						? safeSubtreeListMatch(node.modifiers(), o.modifiers())
+								&& safeSubtreeListMatch(node.typeParameters(), o.typeParameters())
+								// n.b. compare return type even for constructors
+								&& safeSubtreeMatch(node.getReturnType2(), o.getReturnType2())
+						: node.getModifiers() == o.getModifiers()
+								// n.b. compare return type even for constructors
+								&& safeSubtreeMatch(node.internalGetReturnType(), o.internalGetReturnType()))
 				&& safeSubtreeMatch(node.getName(), o.getName())
-				// n.b. compare return type even for constructors
+				&& (level >= AST.JLS8
+						? safeSubtreeMatch(node.getReceiverType(), o.getReceiverType())
+								&& safeSubtreeMatch(node.getReceiverQualifier(), o.getReceiverQualifier())
+						: true)
 				&& safeSubtreeListMatch(node.parameters(), o.parameters())
-				&& ((node.getAST().apiLevel < AST.JLS8) ?
-							(node.getExtraDimensions() == o.getExtraDimensions()
-								&& safeSubtreeListMatch(node.thrownExceptions(), o.thrownExceptions())) :
-							(safeSubtreeListMatch(node.extraDimensionInfos(), o.extraDimensionInfos())
-								&& safeSubtreeListMatch(node.thrownExceptionTypes(), o.thrownExceptionTypes())))
-				&& safeSubtreeMatch(node.getBody(), o.getBody()));
+				&& (level >= AST.JLS8
+						? safeSubtreeListMatch(node.extraDimensions(), o.extraDimensions())
+								&& safeSubtreeListMatch(node.thrownExceptionTypes(), o.thrownExceptionTypes())
+						: node.getExtraDimensions() == o.getExtraDimensions()
+								&& safeSubtreeListMatch(node.internalThrownExceptions(), o.internalThrownExceptions()))
+				&& safeSubtreeMatch(node.getBody(), o.getBody());
 	}
 
 	/**
@@ -1692,15 +1644,9 @@ public class ASTMatcher {
 			return false;
 		}
 		PrimitiveType o = (PrimitiveType) other;
-		switch(node.getAST().apiLevel) {
-			case AST.JLS2_INTERNAL :
-			case AST.JLS3_INTERNAL :
-			case AST.JLS4:
-				return (node.getPrimitiveTypeCode() == o.getPrimitiveTypeCode());
-			default:
-				return (node.getPrimitiveTypeCode() == o.getPrimitiveTypeCode()) &&
-						safeSubtreeListMatch(node.annotations(), o.annotations());
-		}		
+		int level = node.getAST().apiLevel;
+		return (level >= AST.JLS8 ? safeSubtreeListMatch(node.annotations(), o.annotations()) : true)
+				&& node.getPrimitiveTypeCode() == o.getPrimitiveTypeCode();
 	}
 
 	/**
@@ -1722,7 +1668,6 @@ public class ASTMatcher {
 			return false;
 		}
 		QualifiedName o = (QualifiedName) other;
-
 		return safeSubtreeMatch(node.getQualifier(), o.getQualifier())
 				&& safeSubtreeMatch(node.getName(), o.getName());
 	}
@@ -1747,20 +1692,10 @@ public class ASTMatcher {
 			return false;
 		}
 		QualifiedType o = (QualifiedType) other;
-		switch(node.getAST().apiLevel) {
-			case AST.JLS2_INTERNAL :
-			case AST.JLS3_INTERNAL :
-			case AST.JLS4:
-				return (
-						safeSubtreeMatch(node.getQualifier(), o.getQualifier())
-							&& safeSubtreeMatch(node.getName(), o.getName()));
-			default:
-				return (
-						safeSubtreeMatch(node.getQualifier(), o.getQualifier())
-							&& safeSubtreeMatch(node.getName(), o.getName())
-							&& safeSubtreeListMatch(node.annotations(), o.annotations()));
-		}
-		
+		int level = node.getAST().apiLevel;
+		return safeSubtreeMatch(node.getQualifier(), o.getQualifier())
+				&& (level >= AST.JLS8 ? safeSubtreeListMatch(node.annotations(), o.annotations()) : true)
+				&& safeSubtreeMatch(node.getName(), o.getName());
 	}
 
 	/**
@@ -1826,15 +1761,9 @@ public class ASTMatcher {
 			return false;
 		}
 		SimpleType o = (SimpleType) other;
-		switch(node.getAST().apiLevel) {
-			case AST.JLS2_INTERNAL :
-			case AST.JLS3_INTERNAL :
-			case AST.JLS4:
-				return safeSubtreeMatch(node.getName(), o.getName());
-			default:
-				return (safeSubtreeMatch(node.getName(), o.getName())) &&
-						safeSubtreeListMatch(node.annotations(), o.annotations());
-		}
+		int level = node.getAST().apiLevel;
+		return (level >= AST.JLS8 ? safeSubtreeListMatch(node.annotations(), o.annotations()) : true)
+				&& safeSubtreeMatch(node.getName(), o.getName());
 	}
 
 	/**
@@ -1885,27 +1814,21 @@ public class ASTMatcher {
 		}
 		SingleVariableDeclaration o = (SingleVariableDeclaration) other;
 		int level = node.getAST().apiLevel;
-		if (level == AST.JLS2_INTERNAL) {
-			if (node.getModifiers() != o.getModifiers()) {
-				return false;
-			}
-		}
-		if (level >= AST.JLS3_INTERNAL) {
-			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
-				return false;
-			}
-			if (node.isVarargs() != o.isVarargs()) {
-				return false;
-			}
-		}
-		return
-		    safeSubtreeMatch(node.getType(), o.getType())
+		return (level >= AST.JLS3_INTERNAL
+						? safeSubtreeListMatch(node.modifiers(), o.modifiers())
+						: node.getModifiers() == o.getModifiers())
+				&& safeSubtreeMatch(node.getType(), o.getType())
+				&& (level >= AST.JLS8 && node.isVarargs()
+						? safeSubtreeListMatch(node.varargsAnnotations(), o.varargsAnnotations())
+						: true)
+				&& (level >= AST.JLS3_INTERNAL
+						? node.isVarargs() == o.isVarargs()
+						: true)
 				&& safeSubtreeMatch(node.getName(), o.getName())
-	 			&& ((node.getAST().apiLevel < AST.JLS8) ?
-	 					node.getExtraDimensions() == o.getExtraDimensions() :
-	 						safeSubtreeListMatch(node.extraDimensionInfos(), o.extraDimensionInfos()))
-				&& safeSubtreeMatch(node.getInitializer(), o.getInitializer())
-				&& (level >= AST.JLS8 && node.isVarargs()) ? safeSubtreeListMatch(node.varargsAnnotations(), o.varargsAnnotations()) : true;		
+				&& ((level >= AST.JLS8)
+						? safeSubtreeListMatch(node.extraDimensions(), o.extraDimensions())
+						: node.getExtraDimensions() == o.getExtraDimensions())
+				&& safeSubtreeMatch(node.getInitializer(), o.getInitializer());
 	}
 
 	/**
@@ -2194,19 +2117,11 @@ public class ASTMatcher {
 			return false;
 		}
 		TryStatement o = (TryStatement) other;
-		switch(node.getAST().apiLevel) {
-			case AST.JLS2_INTERNAL :
-			case AST.JLS3_INTERNAL :
-				return (
-						safeSubtreeMatch(node.getBody(), o.getBody())
-							&& safeSubtreeListMatch(node.catchClauses(), o.catchClauses())
-							&& safeSubtreeMatch(node.getFinally(), o.getFinally()));
-		}
-		return (
-			safeSubtreeListMatch(node.resources(), o.resources())
-			&& safeSubtreeMatch(node.getBody(), o.getBody())
-			&& safeSubtreeListMatch(node.catchClauses(), o.catchClauses())
-			&& safeSubtreeMatch(node.getFinally(), o.getFinally()));
+		int level = node.getAST().apiLevel;
+		return (level >= AST.JLS4 ? safeSubtreeListMatch(node.resources(), o.resources()) : true)
+				&& safeSubtreeMatch(node.getBody(), o.getBody())
+				&& safeSubtreeListMatch(node.catchClauses(), o.catchClauses())
+				&& safeSubtreeMatch(node.getFinally(), o.getFinally());
 	}
 
 	/**
@@ -2325,17 +2240,33 @@ public class ASTMatcher {
 			return false;
 		}
 		TypeParameter o = (TypeParameter) other;
-		switch(node.getAST().apiLevel) {
-			case AST.JLS2_INTERNAL :
-			case AST.JLS3_INTERNAL :
-			case AST.JLS4:
-				return (safeSubtreeMatch(node.getName(), o.getName())
-						&& safeSubtreeListMatch(node.typeBounds(), o.typeBounds()));
-			default:
-				return (safeSubtreeMatch(node.getName(), o.getName())
-						&& safeSubtreeListMatch(node.typeBounds(), o.typeBounds())
-						&& safeSubtreeListMatch(node.annotations(), o.annotations()));
+		int level = node.getAST().apiLevel;
+		return (level >= AST.JLS8 ? safeSubtreeListMatch(node.annotations(), o.annotations()) : true)
+				&& safeSubtreeMatch(node.getName(), o.getName())
+				&& safeSubtreeListMatch(node.typeBounds(), o.typeBounds());
+	}
+
+	/**
+	 * Returns whether the given node and the other object match.
+	 * <p>
+	 * The default implementation provided by this class tests whether the
+	 * other object is a node of the same type with structurally isomorphic
+	 * child subtrees. Subclasses may override this method as needed.
+	 * </p>
+	 *
+	 * @param node the node
+	 * @param other the other object, or <code>null</code>
+	 * @return <code>true</code> if the subtree matches, or
+	 *   <code>false</code> if they do not match or the other object has a
+	 *   different node type or is <code>null</code>
+	 * @since 3.7.1
+	 */
+	public boolean match(UnionType node, Object other) {
+		if (!(other instanceof UnionType)) {
+			return false;
 		}
+		UnionType o = (UnionType) other;
+		return safeSubtreeListMatch(node.types(),	o.types());
 	}
 
 	/**
@@ -2395,11 +2326,12 @@ public class ASTMatcher {
 			return false;
 		}
 		VariableDeclarationFragment o = (VariableDeclarationFragment) other;
+		int level = node.getAST().apiLevel;
 		return safeSubtreeMatch(node.getName(), o.getName())
-			&& ((node.getAST().apiLevel < AST.JLS8) ?
-					node.getExtraDimensions() == o.getExtraDimensions() :
-						safeSubtreeListMatch(node.extraDimensionInfos(), o.extraDimensionInfos()))
-			&& safeSubtreeMatch(node.getInitializer(), o.getInitializer());
+				&& (level >= AST.JLS8
+						? safeSubtreeListMatch(node.extraDimensions(), o.extraDimensions())
+						: node.getExtraDimensions() == o.getExtraDimensions())
+				&& safeSubtreeMatch(node.getInitializer(), o.getInitializer());
 	}
 
 	/**
@@ -2480,17 +2412,10 @@ public class ASTMatcher {
 			return false;
 		}
 		WildcardType o = (WildcardType) other;
-		switch(node.getAST().apiLevel) {
-			case AST.JLS2_INTERNAL :
-			case AST.JLS3_INTERNAL :
-			case AST.JLS4:
-				return (node.isUpperBound() == o.isUpperBound()
-						&& safeSubtreeMatch(node.getBound(), o.getBound()));
-			default:
-				return (node.isUpperBound() == o.isUpperBound()
-						&& safeSubtreeMatch(node.getBound(), o.getBound()) &&
-						safeSubtreeListMatch(node.annotations(), o.annotations()));
-		}
+		int level = node.getAST().apiLevel;
+		return (level >= AST.JLS8 ? safeSubtreeListMatch(node.annotations(), o.annotations()) : true)
+				&& node.isUpperBound() == o.isUpperBound()
+				&& safeSubtreeMatch(node.getBound(), o.getBound());
 	}
 
 }

@@ -1760,7 +1760,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			ASTNode name= ast.newSimpleName("a");
 			rewrite.replace(fragment.getName(), name, null);
 
-			ListRewrite listRewrite= rewrite.getListRewrite(fragment, VariableDeclarationFragment.EXTRA_DIMENSION_INFOS_PROPERTY);
+			ListRewrite listRewrite= rewrite.getListRewrite(fragment, VariableDeclarationFragment.EXTRA_DIMENSIONS2_PROPERTY);
 			ExtraDimension dim= ast.newExtraDimension();
 			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
@@ -1782,7 +1782,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			assertTrue("Has no initializer", fragment.getInitializer() != null);
 			rewrite.remove(fragment.getInitializer(), null);
 
-			ListRewrite listRewrite= rewrite.getListRewrite(fragment, VariableDeclarationFragment.EXTRA_DIMENSION_INFOS_PROPERTY);
+			ListRewrite listRewrite= rewrite.getListRewrite(fragment, VariableDeclarationFragment.EXTRA_DIMENSIONS2_PROPERTY);
 			ExtraDimension dim= ast.newExtraDimension();
 			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
@@ -1799,7 +1799,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			Expression initializer= ast.newNullLiteral();
 			rewrite.set(fragment, VariableDeclarationFragment.INITIALIZER_PROPERTY, initializer, null);
 
-			ListRewrite listRewrite= rewrite.getListRewrite(fragment, VariableDeclarationFragment.EXTRA_DIMENSION_INFOS_PROPERTY);
+			ListRewrite listRewrite= rewrite.getListRewrite(fragment, VariableDeclarationFragment.EXTRA_DIMENSIONS2_PROPERTY);
 
 			ExtraDimension dim= ast.newExtraDimension();
 			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
@@ -1814,20 +1814,20 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		{ // remove one dimension and add annotations for the rest of the dimensions
 			VariableDeclarationFragment fragment= (VariableDeclarationFragment) fragments.get(4);
 
-			ExtraDimension dim= (ExtraDimension) fragment.extraDimensionInfos().get(1);
+			ExtraDimension dim= (ExtraDimension) fragment.extraDimensions().get(1);
 			ListRewrite listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
 			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
 			listRewrite.insertAt(markerAnnotation, 0, null);
 
-			dim= (ExtraDimension) fragment.extraDimensionInfos().get(2);
+			dim= (ExtraDimension) fragment.extraDimensions().get(2);
 			markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot2"));
 			listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
 			listRewrite.insertAt(markerAnnotation, 0, null);
 
-			listRewrite= rewrite.getListRewrite(fragment, VariableDeclarationFragment.EXTRA_DIMENSION_INFOS_PROPERTY);
-			listRewrite.remove((ExtraDimension) fragment.extraDimensionInfos().get(0), null);
+			listRewrite= rewrite.getListRewrite(fragment, VariableDeclarationFragment.EXTRA_DIMENSIONS2_PROPERTY);
+			listRewrite.remove((ExtraDimension) fragment.extraDimensions().get(0), null);
 		}
 		{ // remove a fragment
 			ListRewrite listRewrite= rewrite.getListRewrite(variableDeclStatement, VariableDeclarationStatement.FRAGMENTS_PROPERTY);
@@ -1881,19 +1881,19 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		{ // add modifier, move extra dimensions from one variable to another
 			SingleVariableDeclaration decl= (SingleVariableDeclaration) arguments.get(0);
 			SingleVariableDeclaration decl2= (SingleVariableDeclaration) arguments.get(1);
-			ExtraDimension dim= (ExtraDimension) decl2.extraDimensionInfos().get(0);
+			ExtraDimension dim= (ExtraDimension) decl2.extraDimensions().get(0);
 			ListRewrite listRewrite= rewrite.getListRewrite(decl, SingleVariableDeclaration.MODIFIERS2_PROPERTY);
 			listRewrite.insertFirst(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
 
-			listRewrite= rewrite.getListRewrite(decl2, SingleVariableDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
+			listRewrite= rewrite.getListRewrite(decl2, SingleVariableDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
 			listRewrite.remove(dim, null);
-			listRewrite= rewrite.getListRewrite(decl, SingleVariableDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
+			listRewrite= rewrite.getListRewrite(decl, SingleVariableDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
 			listRewrite.insertAt(dim, 0, null);
 		}
 		{ // move annotations from one dim to another
 			SingleVariableDeclaration decl= (SingleVariableDeclaration) arguments.get(2);
-			ExtraDimension dim1= (ExtraDimension) decl.extraDimensionInfos().get(0);
-			ExtraDimension dim2= (ExtraDimension) decl.extraDimensionInfos().get(1);
+			ExtraDimension dim1= (ExtraDimension) decl.extraDimensions().get(0);
+			ExtraDimension dim2= (ExtraDimension) decl.extraDimensions().get(1);
 			Annotation annot1= (Annotation) dim1.annotations().get(0);
 			Annotation annot2= (Annotation) dim2.annotations().get(0);
 
@@ -1905,8 +1905,8 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		}
 		{ // remove extra dim
 			SingleVariableDeclaration decl= (SingleVariableDeclaration) arguments.get(3);
-			ListRewrite listRewrite= rewrite.getListRewrite(decl, SingleVariableDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
-			listRewrite.remove((ExtraDimension) decl.extraDimensionInfos().get(0), null);
+			ListRewrite listRewrite= rewrite.getListRewrite(decl, SingleVariableDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
+			listRewrite.remove((ExtraDimension) decl.extraDimensions().get(0), null);
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);

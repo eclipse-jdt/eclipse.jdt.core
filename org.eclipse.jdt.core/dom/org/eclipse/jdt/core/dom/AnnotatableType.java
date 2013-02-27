@@ -20,11 +20,46 @@ import java.util.List;
  * Type node for an annotatable type.
  * <p>
  * Introduced in JLS8, type references that can be annotated are represented by 
- * AnnotatableType. For the list of types extending AnnotatableType, see {@link Type}</p>
+ * AnnotatableType. For the list of types extending AnnotatableType, see {@link Type}.</p>
  *
  * @since 3.9
  */
 public abstract class AnnotatableType extends Type {
+	
+	/**
+	 * The annotations (element type: {@link Annotation}).
+	 * Null in JLS < 8. Added in JLS8; defaults to an empty list
+	 * (see constructor).
+	 */
+	ASTNode.NodeList annotations = null;
+
+	/**
+	 * Creates and returns a structural property descriptor for the
+	 * "annotations" property declared on the given concrete node type (element type: {@link Annotation}).
+	 *
+	 * @return the property descriptor
+	 */
+	static final ChildListPropertyDescriptor internalAnnotationsPropertyFactory(Class nodeClass) {
+		return 	new ChildListPropertyDescriptor(nodeClass, "annotations", Annotation.class, CYCLE_RISK); //$NON-NLS-1$
+	}
+
+	/**
+	 * Returns the structural property descriptor for the "annotations" property
+	 * of this node (element type: {@link Annotation}).
+	 *
+	 * @return the property descriptor
+	 */
+	abstract ChildListPropertyDescriptor internalAnnotationsProperty();
+
+	/**
+	 * Returns the structural property descriptor for the "annotations" property
+	 * of this node (element type: {@link Annotation}).
+	 *
+	 * @return the property descriptor
+	 */
+	public final ChildListPropertyDescriptor getAnnotationsProperty() {
+		return internalAnnotationsProperty();
+	}
 
 	/**
 	 * Creates a new unparented node for an annotatable type owned by the given AST.
@@ -36,19 +71,19 @@ public abstract class AnnotatableType extends Type {
 	 */
 	AnnotatableType(AST ast) {
 		super(ast);
+		if (ast.apiLevel >= AST.JLS8) {
+			this.annotations = new ASTNode.NodeList(getAnnotationsProperty());
+		}
 	}
-	
-	ASTNode.NodeList annotations = null;
-	
+
 	/**
-	 * Returns the live ordered list of annotations for this Type node.
+	 * Returns the live ordered list of annotations for this Type node (added in JLS8 API).
 	 *
 	 * @return the live list of annotations (element type: {@link Annotation})
-	 * @exception UnsupportedOperationException if this operation is used
-	 *            in a JLS2, JLS3 or JLS4 AST
-	 * @since 3.9
+	 * @exception UnsupportedOperationException if this operation is used below JLS8
 	 */
 	public List annotations() {
+		// more efficient than just calling unsupportedIn2_3_4() to check
 		if (this.annotations == null) {
 			unsupportedIn2_3_4();
 		}

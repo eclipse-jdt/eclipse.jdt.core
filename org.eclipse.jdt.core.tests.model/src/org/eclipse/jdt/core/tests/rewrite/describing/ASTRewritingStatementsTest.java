@@ -93,7 +93,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			node.setExtraDimensions(dimensions);
 		} else {
 			while (dimensions > 0) {
-				node.extraDimensionInfos().add(node.getAST().newExtraDimension());
+				node.extraDimensions().add(node.getAST().newExtraDimension());
 			}
 		}
 	}

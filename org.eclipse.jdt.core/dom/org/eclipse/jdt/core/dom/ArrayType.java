@@ -28,10 +28,10 @@ import java.util.List;
  * ArrayType:
  *    Type <b>'['</b> <b>']'</b>
  * </pre>
- * For JLS8, optional annotations on dimensions were added:
+ * For JLS8, optional annotations on the dimension were added:
  * <pre>
  * ArrayType:
- *    Type {Annotation} <b>'['</b> <b>']'</b>
+ *    Type { Annotation } <b>'['</b> <b>']'</b>
  * </pre>
  *
  * @since 2.0
@@ -47,11 +47,11 @@ public class ArrayType extends AnnotatableType {
 		new ChildPropertyDescriptor(ArrayType.class, "componentType", Type.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "annotations" structural property of this node type (child type: {@link Annotation}).
+	 * The "annotations" structural property of this node type (element type: {@link Annotation}).
 	 * @since 3.9
 	 */
 	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
-		new ChildListPropertyDescriptor(ArrayType.class, "annotations", Annotation.class, CYCLE_RISK); //$NON-NLS-1$
+			internalAnnotationsPropertyFactory(ArrayType.class);
 	
 	/**
 	 * A list of property descriptors (element type:
@@ -104,7 +104,7 @@ public class ArrayType extends AnnotatableType {
 
 	/**
 	 * The component type; lazily initialized; defaults to a simple type with
-	 * an unspecfied, but legal, name.
+	 * an unspecified, but legal, name.
 	 */
 	private Type componentType = null;
 
@@ -119,9 +119,14 @@ public class ArrayType extends AnnotatableType {
 	 */
 	ArrayType(AST ast) {
 		super(ast);
-		if (ast.apiLevel >= AST.JLS8) {
-			this.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
-		}
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on AnnotatableType.
+	 * @since 3.9
+	 */
+	final ChildListPropertyDescriptor internalAnnotationsProperty() {
+		return ANNOTATIONS_PROPERTY;
 	}
 
 	/* (omit javadoc for this method)
@@ -130,6 +135,7 @@ public class ArrayType extends AnnotatableType {
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
+
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -172,7 +178,7 @@ public class ArrayType extends AnnotatableType {
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setComponentType((Type) getComponentType().clone(target));
 		if (this.ast.apiLevel >= AST.JLS8) {
-			result.annotations.addAll(
+			result.annotations().addAll(
 					ASTNode.copySubtrees(target, annotations()));
 		}
 		return result;
@@ -192,6 +198,7 @@ public class ArrayType extends AnnotatableType {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
+			// visit children in normal left to right reading order
 			acceptChild(visitor, getComponentType());
 			if (this.ast.apiLevel >= AST.JLS8) {
 				acceptChildren(visitor, this.annotations);
@@ -292,8 +299,8 @@ public class ArrayType extends AnnotatableType {
 	int treeSize() {
 		return
 			memSize()
-			+ (this.annotations == null ? 0 : this.annotations.listSize())
-			+ (this.componentType == null ? 0 : getComponentType().treeSize());
+			+ (this.componentType == null ? 0 : getComponentType().treeSize())
+			+ (this.annotations == null ? 0 : this.annotations.listSize());
 	}
 }
 

@@ -37,6 +37,12 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	 * @deprecated
 	 */
 	private static final SimplePropertyDescriptor INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY = MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY;
+	/**
+	 * Internal synonym for deprecated constant MethodDeclaration#THROWN_EXCEPTIONS_PROPERTY
+	 * to alleviate deprecated warnings.
+	 * @deprecated
+	 */
+	private static final ChildListPropertyDescriptor INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY = MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY;
 
 	public ASTRewritingMethodDeclTest(String name) {
 		super(name);
@@ -68,8 +74,9 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		return this.apiLevel < AST.JLS8 ? methodDecl.thrownExceptions() : methodDecl.thrownExceptionTypes(); 
 	} 
 
+	/** @deprecated using deprecated code */
 	private ChildListPropertyDescriptor getMethodThrownExceptionsProperty(AST ast) { 
-		return ast.apiLevel() < AST.JLS8 ? MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY; 
+		return ast.apiLevel() < AST.JLS8 ? INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY; 
 	} 
 
 	public void testMethodDeclChanges() throws Exception {
@@ -950,7 +957,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			assertTrue("must be 0 thrown exceptions", thrownExceptions.size() == 0);
 
 			Name newThrownException= ast.newSimpleName("InterruptedException");
-			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertFirst(newThrownException, null);
+			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertFirst(newThrownException, null);
 
 		}
 		{ // insert before second param & insert before first exception & add synchronized
@@ -972,7 +979,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			ASTNode firstException= (ASTNode) thrownExceptions.get(0);
 			Name newThrownException= ast.newSimpleName("InterruptedException");
-			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertBefore(newThrownException, firstException, null);
+			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertBefore(newThrownException, firstException, null);
 		}
 		{ // insert after last param & insert after first exception & add synchronized, static
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "hee");
@@ -992,7 +999,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			ASTNode firstException= (ASTNode) thrownExceptions.get(0);
 			Name newThrownException= ast.newSimpleName("InterruptedException");
-			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertAfter(newThrownException, firstException, null);
+			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertAfter(newThrownException, firstException, null);
 
 		}
 		{ // insert 2 params before first & insert between two exception
@@ -1014,7 +1021,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			ASTNode firstException= (ASTNode) thrownExceptions.get(0);
 			Name newThrownException= ast.newSimpleName("InterruptedException");
-			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertAfter(newThrownException, firstException, null);
+			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertAfter(newThrownException, firstException, null);
 		}
 		{ // insert 2 params after first & replace the second exception and insert new after
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "jee");
@@ -1034,7 +1041,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			assertTrue("must be 2 thrown exceptions", thrownExceptions.size() == 2);
 
 			Name newThrownException1= ast.newSimpleName("InterruptedException");
-			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException1, null);
+			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException1, null);
 
 			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
 			rewrite.replace((ASTNode) thrownExceptions.get(1), newThrownException2, null);
@@ -1060,7 +1067,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.remove(lastException, null);
 
 			Name newThrownException= ast.newSimpleName("InterruptedException");
-			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertBefore(newThrownException, lastException, null);
+			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertBefore(newThrownException, lastException, null);
 		}
 		{ // insert at first and last position & remove 2nd, add after 2nd, remove 3rd
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "lee");
@@ -1083,7 +1090,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.remove(lastException, null);
 
 			Name newThrownException= ast.newSimpleName("InterruptedException");
-			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertAfter(newThrownException, secondException, null);
+			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertAfter(newThrownException, secondException, null);
 
 		}
 
@@ -1473,7 +1480,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
 
 			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
-			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
+			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
 
 		}
 		{ // add extra dim, remove throws
@@ -1489,7 +1496,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
 
 			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
-			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
+			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
 
 		}
 		{ // add extra dim, remove throws
@@ -1509,7 +1516,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(4), null);
 
 			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
-			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
+			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
 
 		}
 		{ // remove params, add extra dim, remove throws
@@ -2979,14 +2986,14 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		}
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo4");
-			ExtraDimension dim= (ExtraDimension) methodDecl.extraDimensionInfos().get(0);
+			ExtraDimension dim= (ExtraDimension) methodDecl.extraDimensions().get(0);
 			ListRewrite listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
 
 			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot2"));
 			listRewrite.insertAt(markerAnnotation, 0, null);
 
-			dim= (ExtraDimension) methodDecl.extraDimensionInfos().get(1);
+			dim= (ExtraDimension) methodDecl.extraDimensions().get(1);
 			listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
 
 			markerAnnotation= ast.newMarkerAnnotation();
@@ -2995,23 +3002,23 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		}
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo5");
-			ExtraDimension dim= (ExtraDimension) methodDecl.extraDimensionInfos().get(0);
+			ExtraDimension dim= (ExtraDimension) methodDecl.extraDimensions().get(0);
 			Annotation annot= (Annotation) dim.annotations().get(0);
 			ListRewrite listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
 			listRewrite.remove(annot, null);
 
-			dim= (ExtraDimension) methodDecl.extraDimensionInfos().get(1);
+			dim= (ExtraDimension) methodDecl.extraDimensions().get(1);
 			listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
 			listRewrite.insertAt(annot, 1, null);
 		}
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo6");
-			ExtraDimension dim= (ExtraDimension) methodDecl.extraDimensionInfos().get(0);
+			ExtraDimension dim= (ExtraDimension) methodDecl.extraDimensions().get(0);
 			Annotation annot= (Annotation) dim.annotations().get(0);
 			ListRewrite listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
 			listRewrite.remove(annot, null);
 
-			dim= (ExtraDimension) methodDecl.extraDimensionInfos().get(1);
+			dim= (ExtraDimension) methodDecl.extraDimensions().get(1);
 			annot= (Annotation) dim.annotations().get(0);
 			listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
 			listRewrite.remove(annot, null);
@@ -3019,9 +3026,9 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo7");
 			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
-			ExtraDimension dim= (ExtraDimension) methodDecl.extraDimensionInfos().get(0);
+			ExtraDimension dim= (ExtraDimension) methodDecl.extraDimensions().get(0);
 			listRewrite.remove(dim, null);
-			dim= (ExtraDimension) methodDecl.extraDimensionInfos().get(1);
+			dim= (ExtraDimension) methodDecl.extraDimensions().get(1);
 			listRewrite.remove(dim, null);
 		}
 

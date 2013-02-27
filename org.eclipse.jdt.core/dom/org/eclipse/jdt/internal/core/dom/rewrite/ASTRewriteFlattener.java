@@ -42,6 +42,12 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 */
 	static final SimplePropertyDescriptor INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY = MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY;
 	/**
+	 * Internal synonym for deprecated constant MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY
+	 * to alleviate deprecated warnings.
+	 * @deprecated
+	 */
+	static final ChildListPropertyDescriptor INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY = MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY;
+	/**
 	 * Internal synonym for deprecated constant SingleVariableDeclaration.EXTRA_DIMENSIONS_PROPERTY
 	 * to alleviate deprecated warnings.
 	 * @deprecated
@@ -658,7 +664,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		visitExtraDimensions(node, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, MethodDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
 
 		ChildListPropertyDescriptor exceptionsProperty = node.getAST().apiLevel() <	AST.JLS8 ? 
-				MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY;
+				INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY;
 		visitList(node, exceptionsProperty, String.valueOf(','), " throws ", Util.EMPTY_STRING); //$NON-NLS-1$			
 		ASTNode body= getChildNode(node, MethodDeclaration.BODY_PROPERTY);
 		if (body == null) {
@@ -821,7 +827,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		}
 		this.result.append(' ');
 		getChildNode(node, SingleVariableDeclaration.NAME_PROPERTY).accept(this);
-		visitExtraDimensions(node, INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY, SingleVariableDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
+		visitExtraDimensions(node, INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY, SingleVariableDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
 		ASTNode initializer= getChildNode(node, SingleVariableDeclaration.INITIALIZER_PROPERTY);
 		if (initializer != null) {
 			this.result.append('=');
@@ -1063,7 +1069,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 */
 	public boolean visit(VariableDeclarationFragment node) {
 		getChildNode(node, VariableDeclarationFragment.NAME_PROPERTY).accept(this);
-		visitExtraDimensions(node, INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY, VariableDeclarationFragment.EXTRA_DIMENSION_INFOS_PROPERTY);
+		visitExtraDimensions(node, INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY, VariableDeclarationFragment.EXTRA_DIMENSIONS2_PROPERTY);
 		ASTNode initializer= getChildNode(node, VariableDeclarationFragment.INITIALIZER_PROPERTY);
 		if (initializer != null) {
 			this.result.append('=');
