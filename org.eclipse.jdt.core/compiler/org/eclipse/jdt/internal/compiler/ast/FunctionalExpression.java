@@ -38,7 +38,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
-public abstract class FunctionalExpression extends Expression implements ProblemSeverities, ReferenceContext, PolyExpression {
+public abstract class FunctionalExpression extends Expression implements ProblemSeverities, ReferenceContext {
 	
 	TypeBinding expectedType;
 	MethodBinding descriptor;

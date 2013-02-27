@@ -1117,6 +1117,10 @@ public void setExpressionContext(ExpressionContext context) {
 	// don't care. Subclasses that are poly expressions in specific contexts should listen in and make note.
 }
 
+public boolean isCompatibleWith(TypeBinding left, Scope scope) {
+	throw new UnsupportedOperationException("Unexpected control flow, should not have reached Expression.isCompatibleWith"); //$NON-NLS-1$
+}
+
 public void tagAsEllipsisArgument() {
 	// don't care. Subclasses that are poly expressions in specific contexts should listen in and make note.
 }

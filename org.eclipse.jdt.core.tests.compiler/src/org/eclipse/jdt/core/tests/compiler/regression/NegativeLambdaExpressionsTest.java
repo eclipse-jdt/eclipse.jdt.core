@@ -5605,6 +5605,69 @@ public void test401845e() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401847, [1.8][compiler] Polyconditionals not accepted in method invocation contexts.
+public void test401847() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Integer foo(X x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	int foo(I ...i) { return 10;}\n" +
+				"	int goo() { return 0;}\n" +
+				"	{\n" +
+				"		foo(true ? X::goo : X::goo);\n" +
+				"		foo(true ? x-> 1 : x->0);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	foo(true ? X::goo : X::goo);\n" + 
+			"	                    ^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	foo(true ? x-> 1 : x->0);\n" + 
+			"	                   ^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401847, [1.8][compiler] Polyconditionals not accepted in method invocation contexts.
+public void test401847a() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	String foo(X x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	int foo(I ...i) { return 10;}\n" +
+				"	int goo() { return 0;}\n" +
+				"	{\n" +
+				"		foo(true ? X::goo : X::goo);\n" +
+				"		foo(true ? x-> 1 : x->0);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	foo(true ? X::goo : X::goo);\n" + 
+			"	^^^\n" + 
+			"The method foo(I...) in the type X is not applicable for the arguments ((true ? X::goo : X::goo))\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	foo(true ? X::goo : X::goo);\n" + 
+			"	           ^^^^^^\n" + 
+			"The type of goo() from the type X is int, this is incompatible with the descriptor\'s return type: String\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
+			"	foo(true ? x-> 1 : x->0);\n" + 
+			"	^^^\n" + 
+			"The method foo(I...) in the type X is not applicable for the arguments ((true ? (<no type> x) -> 1 : (<no type> x) -> 0))\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

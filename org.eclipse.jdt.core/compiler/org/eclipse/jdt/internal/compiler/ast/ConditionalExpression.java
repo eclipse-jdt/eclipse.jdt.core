@@ -46,6 +46,8 @@ public class ConditionalExpression extends OperatorExpression {
 	private TypeBinding expectedType;
 	private ExpressionContext expressionContext = VANILLA_CONTEXT;
 	private boolean isPolyExpression = false;
+	private TypeBinding originalValueIfTrueType;
+	private TypeBinding originalValueIfFalseType;
 
 	public ConditionalExpression(
 		Expression condition,
@@ -414,68 +416,48 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 
 	public TypeBinding resolveType(BlockScope scope) {
 		// JLS3 15.25
-		this.constant = Constant.NotAConstant;
 		LookupEnvironment env = scope.environment();
 		final long sourceLevel = scope.compilerOptions().sourceLevel;
 		boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
 		boolean use18specifics = sourceLevel >= ClassFileConstants.JDK1_8;
-		TypeBinding conditionType = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
-		this.condition.computeConversion(scope, TypeBinding.BOOLEAN, conditionType);
-
-		if (this.valueIfTrue instanceof CastExpression) this.valueIfTrue.bits |= DisableUnnecessaryCastCheck; // will check later on
 		
 		if (use18specifics) {
 			if (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) {
-				/* 15.25.3 : Where a poly reference conditional expression appears in a context of a particular kind with target 
-				   type T (5), its second and third operand expressions similarly appear in a context of the same kind with target
-				   type T. We eagerly propagate the context and target type here, but that should be harmless. Nonpoly expressions
-				   won't respond to it at all. If someone down below does get influenced, then the conditional is poly.
-				*/
 				this.valueIfTrue.setExpressionContext(this.expressionContext);
 				this.valueIfTrue.setExpectedType(this.expectedType);
-
 				this.valueIfFalse.setExpressionContext(this.expressionContext);
 				this.valueIfFalse.setExpectedType(this.expectedType);
 			}
 		}
 		
-		TypeBinding originalValueIfTrueType = this.valueIfTrue.resolveType(scope);
+		if (this.constant != Constant.NotAConstant) {
+			this.constant = Constant.NotAConstant;
 
-		if (this.valueIfFalse instanceof CastExpression) this.valueIfFalse.bits |= DisableUnnecessaryCastCheck; // will check later on
-		TypeBinding originalValueIfFalseType = this.valueIfFalse.resolveType(scope);
+			TypeBinding conditionType = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
+			this.condition.computeConversion(scope, TypeBinding.BOOLEAN, conditionType);
 
-		if (conditionType == null || originalValueIfTrueType == null || originalValueIfFalseType == null)
-			return null;
+			if (this.valueIfTrue instanceof CastExpression) this.valueIfTrue.bits |= DisableUnnecessaryCastCheck; // will check later on
+			this.originalValueIfTrueType = this.valueIfTrue.resolveType(scope);
 
-		if (use18specifics && this.expectedType != null) { // so the story is still untold for invocations.
+			if (this.valueIfFalse instanceof CastExpression) this.valueIfFalse.bits |= DisableUnnecessaryCastCheck; // will check later on
+			this.originalValueIfFalseType = this.valueIfFalse.resolveType(scope);
+
+			if (conditionType == null || this.originalValueIfTrueType == null || this.originalValueIfFalseType == null)
+				return null;
 			
-			    TypeBinding trueType = originalValueIfTrueType;
-			    TypeBinding falseType = originalValueIfFalseType;
-			    if (this.valueIfTrue instanceof MessageSend) {
-			    	MessageSend message = (MessageSend) this.valueIfTrue;
-			    	if (message.binding instanceof ParameterizedGenericMethodBinding) {
-			    		ParameterizedGenericMethodBinding pgmb = (ParameterizedGenericMethodBinding) message.binding;
-			    		if (pgmb.inferredReturnType) {
-			    			trueType = pgmb.original().returnType;
-			    		}
-			    	}
-			    }
-			    if (this.valueIfFalse instanceof MessageSend) {
-			    	MessageSend message = (MessageSend) this.valueIfFalse;
-			    	if (message.binding instanceof ParameterizedGenericMethodBinding) {
-			    		ParameterizedGenericMethodBinding pgmb = (ParameterizedGenericMethodBinding) message.binding;
-			    		if (pgmb.inferredReturnType) {
-			    			falseType = pgmb.original().returnType;
-			    		}
-			    	}
-			    }
-			    
-			    if (!trueType.isPrimitiveOrBoxedPrimitiveType() || !falseType.isPrimitiveOrBoxedPrimitiveType()) // reference conditional ==> poly expression.
-			    	this.isPolyExpression = true;
+			if (this.originalValueIfTrueType.kind() == Binding.POLY_TYPE || this.originalValueIfFalseType.kind() == Binding.POLY_TYPE) {
+				this.isPolyExpression = true;
+				return new PolyTypeBinding(this);
+			}
+		} else {
+			if (this.originalValueIfTrueType.kind() == Binding.POLY_TYPE)
+				this.originalValueIfTrueType = this.valueIfTrue.resolveType(scope);
+			if (this.originalValueIfFalseType.kind() == Binding.POLY_TYPE)
+				this.originalValueIfFalseType = this.valueIfFalse.resolveType(scope);
 		}
 		
-		TypeBinding valueIfTrueType = originalValueIfTrueType;
-		TypeBinding valueIfFalseType = originalValueIfFalseType;
+		TypeBinding valueIfTrueType = this.originalValueIfTrueType;
+		TypeBinding valueIfFalseType = this.originalValueIfFalseType;
 		if (use15specifics && valueIfTrueType != valueIfFalseType) {
 			if (valueIfTrueType.isBaseType()) {
 				if (valueIfFalseType.isBaseType()) {
@@ -522,8 +504,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			this.constant = condConstant.booleanValue() ? trueConstant : falseConstant;
 		}
 		if (valueIfTrueType == valueIfFalseType) { // harmed the implicit conversion
-			this.valueIfTrue.computeConversion(scope, valueIfTrueType, originalValueIfTrueType);
-			this.valueIfFalse.computeConversion(scope, valueIfFalseType, originalValueIfFalseType);
+			this.valueIfTrue.computeConversion(scope, valueIfTrueType, this.originalValueIfTrueType);
+			this.valueIfFalse.computeConversion(scope, valueIfFalseType, this.originalValueIfFalseType);
 			if (valueIfTrueType == TypeBinding.BOOLEAN) {
 				this.optimizedIfTrueConstant = this.valueIfTrue.optimizedBooleanConstant();
 				this.optimizedIfFalseConstant = this.valueIfFalse.optimizedBooleanConstant();
@@ -546,16 +528,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			// (Short x Byte) or (Byte x Short)"
 			if ((valueIfTrueType == TypeBinding.BYTE && valueIfFalseType == TypeBinding.SHORT)
 				|| (valueIfTrueType == TypeBinding.SHORT && valueIfFalseType == TypeBinding.BYTE)) {
-				this.valueIfTrue.computeConversion(scope, TypeBinding.SHORT, originalValueIfTrueType);
-				this.valueIfFalse.computeConversion(scope, TypeBinding.SHORT, originalValueIfFalseType);
+				this.valueIfTrue.computeConversion(scope, TypeBinding.SHORT, this.originalValueIfTrueType);
+				this.valueIfFalse.computeConversion(scope, TypeBinding.SHORT, this.originalValueIfFalseType);
 				return this.resolvedType = TypeBinding.SHORT;
 			}
 			// <Byte|Short|Char> x constant(Int)  ---> <Byte|Short|Char>   and reciprocally
 			if ((valueIfTrueType == TypeBinding.BYTE || valueIfTrueType == TypeBinding.SHORT || valueIfTrueType == TypeBinding.CHAR)
 					&& (valueIfFalseType == TypeBinding.INT
 						&& this.valueIfFalse.isConstantValueOfTypeAssignableToType(valueIfFalseType, valueIfTrueType))) {
-				this.valueIfTrue.computeConversion(scope, valueIfTrueType, originalValueIfTrueType);
-				this.valueIfFalse.computeConversion(scope, valueIfTrueType, originalValueIfFalseType);
+				this.valueIfTrue.computeConversion(scope, valueIfTrueType, this.originalValueIfTrueType);
+				this.valueIfFalse.computeConversion(scope, valueIfTrueType, this.originalValueIfFalseType);
 				return this.resolvedType = valueIfTrueType;
 			}
 			if ((valueIfFalseType == TypeBinding.BYTE
@@ -563,35 +545,35 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 					|| valueIfFalseType == TypeBinding.CHAR)
 					&& (valueIfTrueType == TypeBinding.INT
 						&& this.valueIfTrue.isConstantValueOfTypeAssignableToType(valueIfTrueType, valueIfFalseType))) {
-				this.valueIfTrue.computeConversion(scope, valueIfFalseType, originalValueIfTrueType);
-				this.valueIfFalse.computeConversion(scope, valueIfFalseType, originalValueIfFalseType);
+				this.valueIfTrue.computeConversion(scope, valueIfFalseType, this.originalValueIfTrueType);
+				this.valueIfFalse.computeConversion(scope, valueIfFalseType, this.originalValueIfFalseType);
 				return this.resolvedType = valueIfFalseType;
 			}
 			// Manual binary numeric promotion
 			// int
 			if (BaseTypeBinding.isNarrowing(valueIfTrueType.id, T_int)
 					&& BaseTypeBinding.isNarrowing(valueIfFalseType.id, T_int)) {
-				this.valueIfTrue.computeConversion(scope, TypeBinding.INT, originalValueIfTrueType);
-				this.valueIfFalse.computeConversion(scope, TypeBinding.INT, originalValueIfFalseType);
+				this.valueIfTrue.computeConversion(scope, TypeBinding.INT, this.originalValueIfTrueType);
+				this.valueIfFalse.computeConversion(scope, TypeBinding.INT, this.originalValueIfFalseType);
 				return this.resolvedType = TypeBinding.INT;
 			}
 			// long
 			if (BaseTypeBinding.isNarrowing(valueIfTrueType.id, T_long)
 					&& BaseTypeBinding.isNarrowing(valueIfFalseType.id, T_long)) {
-				this.valueIfTrue.computeConversion(scope, TypeBinding.LONG, originalValueIfTrueType);
-				this.valueIfFalse.computeConversion(scope, TypeBinding.LONG, originalValueIfFalseType);
+				this.valueIfTrue.computeConversion(scope, TypeBinding.LONG, this.originalValueIfTrueType);
+				this.valueIfFalse.computeConversion(scope, TypeBinding.LONG, this.originalValueIfFalseType);
 				return this.resolvedType = TypeBinding.LONG;
 			}
 			// float
 			if (BaseTypeBinding.isNarrowing(valueIfTrueType.id, T_float)
 					&& BaseTypeBinding.isNarrowing(valueIfFalseType.id, T_float)) {
-				this.valueIfTrue.computeConversion(scope, TypeBinding.FLOAT, originalValueIfTrueType);
-				this.valueIfFalse.computeConversion(scope, TypeBinding.FLOAT, originalValueIfFalseType);
+				this.valueIfTrue.computeConversion(scope, TypeBinding.FLOAT, this.originalValueIfTrueType);
+				this.valueIfFalse.computeConversion(scope, TypeBinding.FLOAT, this.originalValueIfFalseType);
 				return this.resolvedType = TypeBinding.FLOAT;
 			}
 			// double
-			this.valueIfTrue.computeConversion(scope, TypeBinding.DOUBLE, originalValueIfTrueType);
-			this.valueIfFalse.computeConversion(scope, TypeBinding.DOUBLE, originalValueIfFalseType);
+			this.valueIfTrue.computeConversion(scope, TypeBinding.DOUBLE, this.originalValueIfTrueType);
+			this.valueIfFalse.computeConversion(scope, TypeBinding.DOUBLE, this.originalValueIfFalseType);
 			return this.resolvedType = TypeBinding.DOUBLE;
 		}
 		// Type references (null null is already tested)
@@ -622,19 +604,19 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				commonType = scope.lowerUpperBound(new TypeBinding[] { valueIfTrueType, valueIfFalseType });
 			}
 			if (commonType != null) {
-				this.valueIfTrue.computeConversion(scope, commonType, originalValueIfTrueType);
-				this.valueIfFalse.computeConversion(scope, commonType, originalValueIfFalseType);
+				this.valueIfTrue.computeConversion(scope, commonType, this.originalValueIfTrueType);
+				this.valueIfFalse.computeConversion(scope, commonType, this.originalValueIfFalseType);
 				return this.resolvedType = commonType.capture(scope, this.sourceEnd);
 			}
 		} else {
 			// < 1.5 : one operand must be convertible to the other
 			if (valueIfFalseType.isCompatibleWith(valueIfTrueType)) {
-				this.valueIfTrue.computeConversion(scope, valueIfTrueType, originalValueIfTrueType);
-				this.valueIfFalse.computeConversion(scope, valueIfTrueType, originalValueIfFalseType);
+				this.valueIfTrue.computeConversion(scope, valueIfTrueType, this.originalValueIfTrueType);
+				this.valueIfFalse.computeConversion(scope, valueIfTrueType, this.originalValueIfFalseType);
 				return this.resolvedType = valueIfTrueType;
 			} else if (valueIfTrueType.isCompatibleWith(valueIfFalseType)) {
-				this.valueIfTrue.computeConversion(scope, valueIfFalseType, originalValueIfTrueType);
-				this.valueIfFalse.computeConversion(scope, valueIfFalseType, originalValueIfFalseType);
+				this.valueIfTrue.computeConversion(scope, valueIfFalseType, this.originalValueIfTrueType);
+				this.valueIfFalse.computeConversion(scope, valueIfFalseType, this.originalValueIfFalseType);
 				return this.resolvedType = valueIfFalseType;
 			}
 		}
@@ -658,7 +640,15 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			return false;
 		
 		return this.isPolyExpression;
+	}
 	
+	public boolean isCompatibleWith(TypeBinding left, Scope scope) {
+		return this.valueIfTrue.isCompatibleWith(left, scope) && this.valueIfFalse.isCompatibleWith(left, scope);
+	}
+	
+	public void tagAsEllipsisArgument() {
+		this.valueIfTrue.tagAsEllipsisArgument();
+		this.valueIfFalse.tagAsEllipsisArgument();
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

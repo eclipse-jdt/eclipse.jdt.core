@@ -15,13 +15,13 @@
 
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import org.eclipse.jdt.internal.compiler.ast.PolyExpression;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 
 public class PolyTypeBinding extends TypeBinding {
 
-	PolyExpression expression;
+	Expression expression;
 	
-	public PolyTypeBinding(PolyExpression expression) {
+	public PolyTypeBinding(Expression expression) {
 		this.expression = expression;
 	}
 	
