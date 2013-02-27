@@ -15,7 +15,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>eclipse.jdt.core</artifactId>
-    <groupId>org.eclipse.jdt</groupId>
+    <groupId>eclipse.jdt.core</groupId>
     <version>3.8.0-SNAPSHOT</version>
   </parent>
   <groupId>org.eclipse.jdt</groupId>

@@ -22,7 +22,7 @@
     <relativePath>../eclipse-platform-parent</relativePath>
   </parent>
 
-  <groupId>org.eclipse.jdt</groupId>
+  <groupId>eclipse.jdt.core</groupId>
   <artifactId>eclipse.jdt.core</artifactId>
   <version>3.8.0-SNAPSHOT</version>
   <packaging>pom</packaging>
