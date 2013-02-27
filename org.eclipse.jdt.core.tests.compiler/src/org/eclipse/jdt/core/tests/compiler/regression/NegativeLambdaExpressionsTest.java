@@ -5446,6 +5446,165 @@ this.runNegativeTest(
 				"Zork cannot be resolved to a type\n" + 
 				"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401845, [1.8][compiler] Bad interaction between varargs and lambas/references
+public void test401845() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Integer foo(X x);\n" +
+				"}\n" +
+				"public class X extends Zork {\n" +
+				"	int foo(I ...i) { return 10;}\n" +
+				"	int goo() { return 0;}\n" +
+				"	{\n" +
+				"		foo(X::goo);\n" +
+				"		foo((x)-> {return 10;});\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	public class X extends Zork {\n" + 
+			"	                       ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401845, [1.8][compiler] Bad interaction between varargs and lambas/references
+public void test401845a() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Integer foo(X x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	int foo(I [] ...i) { return 10;}\n" +
+				"	int goo() { return 0;}\n" +
+				"	{\n" +
+				"		foo(X::goo);\n" +
+				"		foo((x)-> {return 10;});\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	foo(X::goo);\n" + 
+			"	^^^\n" + 
+			"The method foo(I[]...) in the type X is not applicable for the arguments (X::goo)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	foo((x)-> {return 10;});\n" + 
+			"	^^^\n" + 
+			"The method foo(I[]...) in the type X is not applicable for the arguments ((<no type> x) -> {\n" + 
+			"  return 10;\n" + 
+			"})\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401845, [1.8][compiler] Bad interaction between varargs and lambas/references
+public void test401845b() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Integer foo(X x);\n" +
+				"}\n" +
+				"public class X extends Zork {\n" +
+				"	X(I ...i) {}\n" +
+				"	int goo() { return 0;}\n" +
+				"	{\n" +
+				"		new X(X::goo);\n" +
+				"		new X((x)-> {return 10;});\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	public class X extends Zork {\n" + 
+			"	                       ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401845, [1.8][compiler] Bad interaction between varargs and lambas/references
+public void test401845c() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Integer foo(X x);\n" +
+				"}\n" +
+				"public class X extends Zork {\n" +
+				"	X(I ...i) {}\n" +
+				"   X() {\n" +
+				"       this((x)-> {return 10;});\n" +
+				"}\n" +
+				"	int goo() { return 0;}\n" +
+				"	{\n" +
+				"		new X(X::goo);\n" +
+				"		new X((x)-> {return 10;});\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	public class X extends Zork {\n" + 
+			"	                       ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401845, [1.8][compiler] Bad interaction between varargs and lambas/references
+public void test401845d() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Integer foo(X x);\n" +
+				"}\n" +
+				"public class X extends Zork {\n" +
+				"    class Y {\n" +
+				"        Y(I ... i) {}\n" +
+				"    }\n" +
+				"	int goo() { return 0;}\n" +
+				"	{\n" +
+				"		new X().new Y(X::goo);\n" +
+				"		new X().new Y((x)-> {return 10;});\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	public class X extends Zork {\n" + 
+			"	                       ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401845, [1.8][compiler] Bad interaction between varargs and lambas/references
+public void test401845e() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Integer foo(X x);\n" +
+				"}\n" +
+				"public class X extends Zork {\n" +
+				"	X(I ...i) {}\n" +
+				"   X() {\n" +
+				"       this((x)-> {return 10;});\n" +
+				"}\n" +
+				"	int goo() { return 0;}\n" +
+				"	{\n" +
+				"		new X(X::goo) {};\n" +
+				"		new X((x)-> {return 10;}){};\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	public class X extends Zork {\n" + 
+			"	                       ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

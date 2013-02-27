@@ -369,9 +369,11 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 
 		// will check for null after args are resolved
 		TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
+		boolean polyExpressionSeen = false;
 		if (this.arguments != null) {
 			int length = this.arguments.length;
 			argumentTypes = new TypeBinding[length];
+			TypeBinding argumentType;
 			for (int i = 0; i < length; i++) {
 				Expression argument = this.arguments[i];
 				if (argument instanceof CastExpression) {
@@ -379,9 +381,11 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					argsContainCast = true;
 				}
 				argument.setExpressionContext(INVOCATION_CONTEXT);
-				if ((argumentTypes[i] = argument.resolveType(scope)) == null){
+				if ((argumentType = argumentTypes[i] = argument.resolveType(scope)) == null){
 					hasError = true;
 				}
+				if (argumentType != null && argumentType.kind() == Binding.POLY_TYPE)
+					polyExpressionSeen = true;
 			}
 		}
 
@@ -446,12 +450,20 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			}
 			ReferenceBinding allocationType = (ReferenceBinding) receiverType;
 			if ((this.binding = scope.getConstructor(allocationType, argumentTypes, this)).isValidBinding()) {
-				for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
-					Expression argument = this.arguments[i];
-					if (argumentTypes[i] instanceof PolyTypeBinding) {
-						argument.setExpressionContext(INVOCATION_CONTEXT);
-						argument.setExpectedType(this.binding.parameters[i]);
-						argumentTypes[i] = argument.resolveType(scope);
+				if (polyExpressionSeen) {
+					boolean variableArity = this.binding.isVarargs();
+					final TypeBinding[] parameters = this.binding.parameters;
+					final int parametersLength = parameters.length;
+					for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
+						Expression argument = this.arguments[i];
+						TypeBinding parameterType = i < parametersLength ? parameters[i] : parameters[parametersLength - 1];
+						if (argumentTypes[i] instanceof PolyTypeBinding) {
+							argument.setExpressionContext(INVOCATION_CONTEXT);
+							if (variableArity && i >= parametersLength - 1)
+								argument.tagAsEllipsisArgument();
+							argument.setExpectedType(parameterType);
+							argumentTypes[i] = argument.resolveType(scope);
+						}
 					}
 				}
 				if (isMethodUseDeprecated(this.binding, scope, true)) {
@@ -529,12 +541,20 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			scope.problemReporter().invalidConstructor(this, inheritedBinding);
 			return this.resolvedType;
 		}
-		for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
-			Expression argument = this.arguments[i];
-			if (argumentTypes[i] instanceof PolyTypeBinding) {
-				argument.setExpressionContext(INVOCATION_CONTEXT);
-				argument.setExpectedType(inheritedBinding.parameters[i]);
-				argumentTypes[i] = argument.resolveType(scope);
+		if (polyExpressionSeen) {
+			boolean variableArity = inheritedBinding.isVarargs();
+			final TypeBinding[] parameters = inheritedBinding.parameters;
+			final int parametersLength = parameters.length;
+			for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
+				Expression argument = this.arguments[i];
+				TypeBinding parameterType = i < parametersLength ? parameters[i] : parameters[parametersLength - 1];
+				if (argumentTypes[i] instanceof PolyTypeBinding) {
+					argument.setExpressionContext(INVOCATION_CONTEXT);
+					if (variableArity && i >= parametersLength - 1)
+						argument.tagAsEllipsisArgument();
+					argument.setExpectedType(parameterType);
+					argumentTypes[i] = argument.resolveType(scope);
+				}
 			}
 		}
 		if ((inheritedBinding.tagBits & TagBits.HasMissingType) != 0) {

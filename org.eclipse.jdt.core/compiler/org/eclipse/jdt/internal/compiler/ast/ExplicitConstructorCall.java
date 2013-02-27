@@ -359,10 +359,12 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 			// arguments buffering for the method lookup
 			TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
 			boolean argsContainCast = false;
+			boolean polyExpressionSeen = false;
 			if (this.arguments != null) {
 				boolean argHasError = false; // typeChecks all arguments
 				int length = this.arguments.length;
 				argumentTypes = new TypeBinding[length];
+				TypeBinding argumentType;
 				for (int i = 0; i < length; i++) {
 					Expression argument = this.arguments[i];
 					if (argument instanceof CastExpression) {
@@ -370,9 +372,11 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 						argsContainCast = true;
 					}
 					argument.setExpressionContext(INVOCATION_CONTEXT);
-					if ((argumentTypes[i] = argument.resolveType(scope)) == null) {
+					if ((argumentType = argumentTypes[i] = argument.resolveType(scope)) == null) {
 						argHasError = true;
 					}
+					if (argumentType != null && argumentType.kind() == Binding.POLY_TYPE)
+						polyExpressionSeen = true;
 				}
 				if (argHasError) {
 					if (receiverType == null) {
@@ -410,12 +414,20 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				return;
 			}
 			if ((this.binding = scope.getConstructor(receiverType, argumentTypes, this)).isValidBinding()) {
-				for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
-					Expression argument = this.arguments[i];
-					if (argumentTypes[i] instanceof PolyTypeBinding) {
-						argument.setExpressionContext(INVOCATION_CONTEXT);
-						argument.setExpectedType(this.binding.parameters[i]);
-						argumentTypes[i] = argument.resolveType(scope);
+				if (polyExpressionSeen) {
+					boolean variableArity = this.binding.isVarargs();
+					final TypeBinding[] parameters = this.binding.parameters;
+					final int parametersLength = parameters.length;
+					for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
+						Expression argument = this.arguments[i];
+						TypeBinding parameterType = i < parametersLength ? parameters[i] : parameters[parametersLength - 1];
+						if (argumentTypes[i] instanceof PolyTypeBinding) {
+							argument.setExpressionContext(INVOCATION_CONTEXT);
+							if (variableArity && i >= parametersLength - 1)
+								argument.tagAsEllipsisArgument();
+							argument.setExpectedType(parameterType);
+							argumentTypes[i] = argument.resolveType(scope);
+						}
 					}
 				}
 				if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {

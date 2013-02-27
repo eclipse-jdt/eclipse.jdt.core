@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
@@ -46,6 +47,7 @@ public abstract class FunctionalExpression extends Expression implements Problem
 	protected ExpressionContext expressionContext = VANILLA_CONTEXT;
 	protected CompilationResult compilationResult;
 	protected BlockScope enclosingScope;
+	protected boolean ellipsisArgument;
 	protected static CompilationResult devNullCompilationResult;
 	
 	public FunctionalExpression(CompilationResult compilationResult) {
@@ -56,13 +58,16 @@ public abstract class FunctionalExpression extends Expression implements Problem
 	}
 
 	public void setExpectedType(TypeBinding expectedType) {
-		this.expectedType = expectedType;
+		this.expectedType = this.ellipsisArgument ? ((ArrayBinding) expectedType).elementsType() : expectedType;
 	}
 	
 	public void setExpressionContext(ExpressionContext context) {
 		this.expressionContext = context;
 	}
 	
+	public void tagAsEllipsisArgument() {
+		this.ellipsisArgument = true;
+	}
 	public boolean isPolyExpression() {
 		return this.expressionContext != VANILLA_CONTEXT;
 	}
