@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -13742,6 +13746,47 @@ public void testBug241834() throws CoreException {
 		deleteProject("P");
 		
 	}
+}
+	/**
+	 * @bug 402902:  [1.8][search] Search engine fails to annotation matches in extends/implements clauses
+	 * @test Ensures that the search for type use annotation finds matches 
+	 * in extends and implements clauses. 
+	 *		
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=402902"
+	 */
+public void testBug400902a() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400902/X.java",
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"import java.io.Serializable;\n" +
+			"@Marker1 @Marker public class X extends @Marker Object implements @Marker Serializable {\n" +
+			"	private static final long serialVersionUID = 1L;\n" +
+			"	int x = (@Marker int) 0;\n" +
+			" 	@Marker public class Y {}\n" +
+			"}\n" +
+			"@Target(ElementType.TYPE_USE)\n" +	
+			"@interface Marker {}\n" +
+			"@Target(ElementType.TYPE)\n" +	
+			"@interface Marker1 {}"
+		);
+	SearchPattern pattern = SearchPattern.createPattern(
+			"Marker",
+			ANNOTATION_TYPE,
+			REFERENCES,
+			EXACT_RULE);
+	new SearchEngine(this.workingCopies).search(pattern,
+	new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+	getJavaSearchWorkingCopiesScope(),
+	this.resultCollector,
+	null);
+	assertSearchResults(
+			"src/b400902/X.java b400902.X [Marker] EXACT_MATCH\n" +
+			"src/b400902/X.java b400902.X [Marker] EXACT_MATCH\n" +
+			"src/b400902/X.java b400902.X [Marker] EXACT_MATCH\n" +
+			"src/b400902/X.java b400902.X.x [Marker] EXACT_MATCH\n" +
+			"src/b400902/X.java b400902.X$Y [Marker] EXACT_MATCH" 
+	);	
 }
 // Add new tests in JavaSearchBugsTests2
 }
