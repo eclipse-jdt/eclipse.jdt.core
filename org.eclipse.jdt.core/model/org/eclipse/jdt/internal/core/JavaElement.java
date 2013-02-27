@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -816,14 +816,22 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		} catch (MalformedURLException e) {
 			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
 		} catch (FileNotFoundException e) {
-			// ignore. see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=120559
-		} catch(SocketException e) {
-			// ignore. see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=247845
-		} catch(UnknownHostException e) {
-			// ignore. see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=247845
-		} catch(ProtocolException e) {
-			// ignore. see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=247845
-		} catch(IOException e) {
+			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=120559 &
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400060
+			throw new JavaModelException(e, IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC);
+		} catch (SocketException e) {
+			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=247845 &
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400060
+			throw new JavaModelException(e, IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC);
+		} catch (UnknownHostException e) {
+			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=247845 &
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400060
+			throw new JavaModelException(e, IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC);
+		} catch (ProtocolException e) {
+			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=247845 &
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400060
+			throw new JavaModelException(e, IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC);
+		} catch (IOException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		} finally {
 			if (stream != null) {
