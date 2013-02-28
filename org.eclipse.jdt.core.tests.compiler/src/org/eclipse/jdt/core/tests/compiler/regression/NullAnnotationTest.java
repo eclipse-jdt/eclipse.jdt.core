@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 GK Software AG and others.
+ * Copyright (c) 2010, 2013 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5917,6 +5917,70 @@ public void testLambda_04() {
 			"	ISAM printer1 = (@NonNull int i) \n" + 
 			"	                 ^^^^^^^^^^^^\n" + 
 			"The nullness annotation @NonNull is not applicable for the primitive type int\n" + 
+			"----------\n");
+	}
+}
+
+// Lambda inherits null contract and has block with return statement 
+public void testLambda_05() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8) {
+		Map customOptions = getCompilerOptions();
+		runNegativeTestWithLibs(
+			new String[] {
+				"ISAM.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public interface ISAM {\n" +
+				"	@NonNull String toString(Object o);\n" +
+				"}\n",
+				"X.java",
+				"public class X {\n" +
+				"	void test() {\n" +
+				"		ISAM printer = (o) -> {\n" +
+				"			System.out.print(13);\n" +
+				"			return null; // error\n" +
+				"		};\n" +
+				"	}\n" +
+				"}\n"
+			}, 
+			customOptions,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	return null; // error\n" + 
+			"	       ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+			"----------\n");
+	}
+}
+// Lambda has no descriptor (overriding method from Object), don't bail out with NPE during analysis
+public void testLambda_05a() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8) {
+		Map customOptions = getCompilerOptions();
+		runNegativeTestWithLibs(
+			new String[] {
+				"ISAM.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public interface ISAM {\n" +
+				"	@NonNull String toString();\n" +
+				"}\n",
+				"X.java",
+				"public class X {\n" +
+				"	void test() {\n" +
+				"		ISAM printer = () -> {\n" +
+				"			System.out.print(13);\n" +
+				"			return null;\n" +
+				"		};\n" +
+				"	}\n" +
+				"}\n"
+			}, 
+			customOptions,
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	ISAM printer = () -> {\n" +
+			"			System.out.print(13);\n" +
+			"			return null;\n" +
+			"		};\n" +
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The target type of this expression must be a functional interface\n" +
 			"----------\n");
 	}
 }

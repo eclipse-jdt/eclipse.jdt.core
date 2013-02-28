@@ -236,11 +236,14 @@ public class LambdaExpression extends FunctionalExpression {
 				this.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 		} // TODO (stephan): else? (can that happen?)
 
-		if (!argumentsTypeElided && blockScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
-			AbstractMethodDeclaration.createArgumentBindings(this.arguments, this.binding, this.scope);
-			validateNullAnnotations();
-			// no application of null-ness default, hence also no warning regarding redundant null annotation
-			mergeParameterNullAnnotations(blockScope);
+		if (haveDescriptor && blockScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
+			if (!argumentsTypeElided) {
+				AbstractMethodDeclaration.createArgumentBindings(this.arguments, this.binding, this.scope);
+				validateNullAnnotations();
+				// no application of null-ness default, hence also no warning regarding redundant null annotation
+				mergeParameterNullAnnotations(blockScope);
+			}
+			this.binding.tagBits |= (this.descriptor.tagBits & TagBits.AnnotationNullMASK);
 		}
 
 		this.binding.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;

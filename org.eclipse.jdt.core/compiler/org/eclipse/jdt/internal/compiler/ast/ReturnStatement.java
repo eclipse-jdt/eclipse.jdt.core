@@ -26,6 +26,7 @@
  *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *								bug 394768 - [compiler][resource] Incorrect resource leak warning when creating stream in conditional
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *								bug 401030 - [1.8][null] Null analysis support for lambda methods. 
  *     Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -161,7 +162,7 @@ void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, int n
 		long tagBits;
 		MethodBinding methodBinding;
 		try {
-			methodBinding = scope.methodScope().referenceMethod().binding;
+			methodBinding = scope.methodScope().referenceMethodBinding();
 			tagBits = methodBinding.tagBits;
 		} catch (NullPointerException npe) {
 			// chain of references in try-block has several potential nulls;

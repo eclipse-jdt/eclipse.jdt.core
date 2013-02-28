@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@
  *								bug 374605 - Unreasonable warning for enum-based switch statements
  *								bug 382353 - [1.8][compiler] Implementation property modifiers should be accepted on default methods.
  *								bug 382354 - [1.8][compiler] Compiler silent on conflicting modifier
+ *								bug 401030 - [1.8][null] Null analysis support for lambda methods. 
  *     Jesper S Moller - Contributions for
  *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -517,10 +518,21 @@ public final int recordInitializationStates(FlowInfo flowInfo) {
 }
 
 /**
- *  Answer the reference method of this scope, or null if initialization scope.
+ *  Answer the reference method of this scope, or null if initialization scope or lambda scope.
  */
 public AbstractMethodDeclaration referenceMethod() {
 	if (this.referenceContext instanceof AbstractMethodDeclaration) return (AbstractMethodDeclaration) this.referenceContext;
+	return null;
+}
+
+/**
+ * Answers the binding of the reference method or reference lambda expression.
+ */
+public MethodBinding referenceMethodBinding() {
+	if (this.referenceContext instanceof LambdaExpression)
+		return ((LambdaExpression)this.referenceContext).binding;
+	if (this.referenceContext instanceof AbstractMethodDeclaration)
+		return ((AbstractMethodDeclaration)this.referenceContext).binding;
 	return null;
 }
 
