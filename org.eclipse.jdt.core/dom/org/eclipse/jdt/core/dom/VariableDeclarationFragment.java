@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Variable declaration fragment AST node type, used in field declarations,
  * local variable declarations, and <code>ForStatement</code> initializers.
- * It contrast to <code>SingleVariableDeclaration</code>, fragments are
+ * In contrast to <code>SingleVariableDeclaration</code>, fragments are
  * missing the modifiers and the type; these are located in the fragment's
  * parent node.
  *

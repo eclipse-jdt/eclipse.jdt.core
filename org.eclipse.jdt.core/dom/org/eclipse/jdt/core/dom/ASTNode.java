@@ -1856,7 +1856,7 @@ public abstract class ASTNode {
      * Use this method to prevent access to new properties that have been added in JLS3.
      * </p>
      * 
-     * @exception UnsupportedOperationException
+	 * @exception UnsupportedOperationException if this operation is used in a JLS2 AST
 	 * @since 3.0
      */
 	final void unsupportedIn2() {
@@ -1872,12 +1872,12 @@ public abstract class ASTNode {
      * Use this method to prevent access to new properties that have been added in JLS4.
      * </p>
      * 
-	 * @exception UnsupportedOperationException
+	 * @exception UnsupportedOperationException if this operation is used in a JLS2 or JLS3 AST
 	 * @since 3.7
 	 */
 	final void unsupportedIn2_3() {
 		if (this.ast.apiLevel <= AST.JLS3_INTERNAL) {
-			throw new UnsupportedOperationException("Operation only supported in JLS4 AST"); //$NON-NLS-1$
+			throw new UnsupportedOperationException("Operation only supported in JLS4 and later AST"); //$NON-NLS-1$
 		}
 	}
 	
@@ -1888,12 +1888,12 @@ public abstract class ASTNode {
      * Use this method to prevent access to new properties that have been added in JLS8.
      * </p>
      * 
-	 * @exception UnsupportedOperationException
+	 * @exception UnsupportedOperationException if this operation is used below JLS8
 	 * @since 3.9
 	 */
 	final void unsupportedIn2_3_4() {
 		if (this.ast.apiLevel < AST.JLS8) {
-			throw new UnsupportedOperationException("Operation only supported in JLS8 AST"); //$NON-NLS-1$
+			throw new UnsupportedOperationException("Operation only supported in JLS8 and later AST"); //$NON-NLS-1$
 		}
 	}
 	
@@ -1904,9 +1904,10 @@ public abstract class ASTNode {
      * Use this method to prevent access to deprecated properties (deprecated in JLS3).
      * </p>
      * 
-     * @exception UnsupportedOperationException
+	 * @exception UnsupportedOperationException if this operation is used in an AST later than JLS2
 	 * @since 3.0
      */
+	// In API Javadocs, add: * @deprecated In the JLS3 API, this method is replaced by {@link #replacement()}.
 	final void supportedOnlyIn2() {
 	  if (this.ast.apiLevel != AST.JLS2_INTERNAL) {
 	  	throw new UnsupportedOperationException("Operation only supported in JLS2 AST"); //$NON-NLS-1$
@@ -1920,9 +1921,10 @@ public abstract class ASTNode {
      * Use this method to prevent access to deprecated properties (deprecated in JLS8).
      * </p>
      * 
-     * @exception UnsupportedOperationException
+	 * @exception UnsupportedOperationException if this operation is used in an AST later than JLS4
      * @since 3.9
      */
+	// In API Javadocs, add: * @deprecated In the JLS8 API, this method is replaced by {@link #replacement()}.
 	final void supportedOnlyIn2_3_4() {
 	  if (this.ast.apiLevel >= AST.JLS8) {
 	  	throw new UnsupportedOperationException("Operation only supported in JLS2, JLS3 and JLS4 ASTs"); //$NON-NLS-1$
