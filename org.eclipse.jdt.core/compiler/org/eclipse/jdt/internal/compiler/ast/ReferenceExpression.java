@@ -14,6 +14,8 @@
  *     Jesper S Moller - Contributions for
  *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *                          Bug 384687 - [1.8] Wildcard type arguments should be rejected for lambda and reference expressions
+ *	   Stephan Herrmann - Contribution for
+ *							bug 402028 - [1.8][compiler] null analysis for reference expressions 
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.ast;
@@ -23,6 +25,8 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -55,6 +59,15 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		this.method = method;
 		this.sourceStart = lhs.sourceStart;
 		this.sourceEnd = sourceEnd;
+	}
+
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+		// static methods with receiver value never get here
+		if (this.haveReceiver) {
+			this.lhs.checkNPE(currentScope, flowContext, flowInfo);
+			this.lhs.analyseCode(currentScope, flowContext, flowInfo, true);
+		}
+		return flowInfo;
 	}
 
 	public TypeBinding resolveType(BlockScope scope) {

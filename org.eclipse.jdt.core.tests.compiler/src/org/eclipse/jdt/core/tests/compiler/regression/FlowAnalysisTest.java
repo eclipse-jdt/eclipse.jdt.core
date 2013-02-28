@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 IBM Corporation and others.
+ * Copyright (c) 2005, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -13,6 +17,7 @@
  *      						bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
  *								bug 383690 - [compiler] location of error re uninitialized final field should be aligned
  *								bug 391517 - java.lang.VerifyError on code that runs correctly in Eclipse 3.7 and eclipse 3.6
+ *								bug 402028 - [1.8][compiler] null analysis for reference expressions 
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -21,6 +26,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -2638,6 +2644,56 @@ public void testBug391517() {
 				"}"
 			}, 
 			"");
+}
+public void testReferenceExpression1() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8) {
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
+		runNegativeTest(
+			new String[] {
+				 "I.java",
+				 "public interface I {\n" +
+				 "	public void bar();\n" +
+				 "}\n",
+				 "X.java",
+				 "public class X {\n" +
+				 "	public void moo() {}\n" +
+				 "	public static void soo() {}\n" +
+				 "	void testAssignment() {\n" +
+				 "		X x;\n" +
+				 "		I i = x::moo; // x is unassigned\n" +
+				 "		i.bar();\n" +
+				 "		I i2 = X::soo;\n" + // OK
+				 "	}\n" +
+				 "	void testStatic() {\n" +
+				 "		X xs;\n" +
+				 "		I is = xs::soo;\n" +
+				 "	}\n" +
+				 "	void testUse() {\n" +
+				 "		X x1 = this, x2 = this; // x2 is not used, only x is\n" +
+				 "		I i = x1::moo;\n" +
+				 "		i.bar();\n" +
+				 "	}\n" +
+				 "}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	I i = x::moo; // x is unassigned\n" + 
+			"	      ^\n" + 
+			"The local variable x may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	I is = xs::soo;\n" + 
+			"	       ^^^^^^^\n" + 
+			"The method soo() from the type X should be accessed in a static way \n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 15)\n" + 
+			"	X x1 = this, x2 = this; // x2 is not used, only x is\n" + 
+			"	             ^^\n" + 
+			"The value of the local variable x2 is not used\n" + 
+			"----------\n",
+			null/*libs*/, true/*flush*/, options);
+	}
 }
 public static Class testClass() {
 	return FlowAnalysisTest.class;
