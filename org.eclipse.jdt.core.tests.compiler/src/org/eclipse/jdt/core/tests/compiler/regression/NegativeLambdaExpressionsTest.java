@@ -5668,6 +5668,58 @@ public void test401847a() {
 			"The method foo(I...) in the type X is not applicable for the arguments ((true ? (<no type> x) -> 1 : (<no type> x) -> 0))\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
+public void test401939() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"class X {\n" +
+				"	void foo(I i) {}\n" +
+				"	I i = ()->{ throw new RuntimeException(); }; // OK\n" +
+				"	{\n" +
+				"		foo(()->{ throw new RuntimeException(); });\n" +
+				"	}\n" +
+				"}\n",			},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 5)\n" + 
+				"	void foo(I i) {}\n" + 
+				"	           ^\n" + 
+				"The parameter i is hiding a field from type X\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
+public void test401939a() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"class X {\n" +
+				"	void foo(I i) {}\n" +
+				"	I i = ()->{ throw new RuntimeException(); }; // OK\n" +
+				"	{\n" +
+				"		foo(()->{ if (1 == 2) throw new RuntimeException(); });\n" +
+				"	}\n" +
+				"}\n",			},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 5)\n" + 
+				"	void foo(I i) {}\n" + 
+				"	           ^\n" + 
+				"The parameter i is hiding a field from type X\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\n" + 
+				"	foo(()->{ if (1 == 2) throw new RuntimeException(); });\n" + 
+				"	^^^\n" + 
+				"The method foo(I) in the type X is not applicable for the arguments (() -> {\n" + 
+				"  if ((1 == 2))\n" + 
+				"      throw new RuntimeException();\n" + 
+				"})\n" + 
+				"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

@@ -100,6 +100,15 @@ public class LambdaExpression extends FunctionalExpression {
 						}
 						return false;
 					}
+					public void endVisit(LambdaExpression expression, BlockScope dontCare) {
+						if (!this.voidReturnSeen && !this.valueReturnSeen) {  // () -> { throw new Exception(); } is value compatible.
+							Block block = (Block) LambdaExpression.this.body;
+							final Statement[] statements = block.statements;
+							final int statementsLength = statements == null ? 0 : statements.length;
+							Statement ultimateStatement = statementsLength == 0 ? null : statements[statementsLength - 1];
+							LambdaExpression.this.valueCompatible = ultimateStatement instanceof ThrowStatement; // for now, we will settle for a simplistic analysis.
+						}
+					}
 				};
 				this.traverse(visitor, blockScope);
 			} else {
