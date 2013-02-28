@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,15 +55,15 @@ public abstract class RewriteEvent {
 	public abstract boolean isListRewrite();
 
 	/**
-	 * @return Returns the original value. For lists this is a <code>List<code> of ASTNode's, for non-list
+	 * @return Returns the original value. For lists this is a List of ASTNodes, for non-list
 	 * events this can be an ASTNode (for node properties), Integer (for an integer property),
 	 * Boolean (for boolean node properties) or properties like Operator.
-	 * <code>null</code> is returned if the event is a insert event.
+	 * <code>null</code> is returned if the event is an insert event.
 	 */
 	public abstract Object getOriginalValue();
 
 	/**
-	 * @return Returns the new value. For lists this is a <code>List<code> of ASTNode's, for non-list
+	 * @return Returns the new value. For lists this is a List of ASTNodes, for non-list
 	 * events this can be an ASTNode (for node properties), Integer (for an integer property),
 	 * Boolean (for boolean node properties) or properties like Operator.
 	 * <code>null</code> is returned if the event is a remove event.

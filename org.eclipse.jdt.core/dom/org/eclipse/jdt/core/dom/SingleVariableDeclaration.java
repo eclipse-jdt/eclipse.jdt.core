@@ -70,7 +70,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 			new ChildPropertyDescriptor(SingleVariableDeclaration.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "varargsAnnotations" structural property of variable arguments of this node type (child type: {@link Annotation})
+	 * The "varargsAnnotations" structural property of variable arguments of this node type (element type: {@link Annotation})
 	 * (added in JLS8 API).
 	 * @since 3.9
 	 */
