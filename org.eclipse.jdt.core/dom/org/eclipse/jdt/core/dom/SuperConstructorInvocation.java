@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,12 +16,6 @@ import java.util.List;
 
 /**
  * Super constructor invocation statement AST node type.
- * For JLS2: * <pre>
- * SuperConstructorInvocation:
- *     [ Expression <b>.</b> ] <b>super</b>
- *         <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b> <b>;</b>
- * </pre>
- * For JLS3, type arguments are added:
  * <pre>
  * SuperConstructorInvocation:
  *     [ Expression <b>.</b> ]

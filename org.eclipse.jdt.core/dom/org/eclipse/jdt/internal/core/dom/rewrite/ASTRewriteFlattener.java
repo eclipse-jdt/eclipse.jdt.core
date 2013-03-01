@@ -21,44 +21,60 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ASTRewriteFlattener extends ASTVisitor {
 
-	/**
-	 * Internal synonynm for deprecated constant AST.JSL2
-	 * to alleviate deprecation warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int JLS2_INTERNAL = AST.JLS2;
-	
-	/**
-	 * Internal synonynm for deprecated constant AST.JSL3
-	 * to alleviate deprecation warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_FIELD_MODIFIERS_PROPERTY = FieldDeclaration.MODIFIERS_PROPERTY;
 
-	/**
-	 * Internal synonym for deprecated constant MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY
-	 * to alleviate deprecated warnings.
-	 * @deprecated
-	 */
-	static final SimplePropertyDescriptor INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY = MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY;
-	/**
-	 * Internal synonym for deprecated constant MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY
-	 * to alleviate deprecated warnings.
-	 * @deprecated
-	 */
-	static final ChildListPropertyDescriptor INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY = MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY;
-	/**
-	 * Internal synonym for deprecated constant SingleVariableDeclaration.EXTRA_DIMENSIONS_PROPERTY
-	 * to alleviate deprecated warnings.
-	 * @deprecated
-	 */
-	static final SimplePropertyDescriptor INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY = SingleVariableDeclaration.EXTRA_DIMENSIONS_PROPERTY;
-	/**
-	 * Internal synonym for deprecated constant VariableDeclarationFragment.EXTRA_DIMENSIONS_PROPERTY
-	 * to alleviate deprecated warnings.
-	 * @deprecated
-	 */
-	static final SimplePropertyDescriptor INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY = VariableDeclarationFragment.EXTRA_DIMENSIONS_PROPERTY;
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_INITIALIZER_MODIFIERS_PROPERTY = Initializer.MODIFIERS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_METHOD_MODIFIERS_PROPERTY = MethodDeclaration.MODIFIERS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final ChildPropertyDescriptor INTERNAL_METHOD_RETURN_TYPE_PROPERTY = MethodDeclaration.RETURN_TYPE_PROPERTY;
+	
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY = MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final ChildListPropertyDescriptor INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY = MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_TYPE_MODIFIERS_PROPERTY = TypeDeclaration.MODIFIERS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final ChildPropertyDescriptor INTERNAL_TYPE_SUPERCLASS_PROPERTY = TypeDeclaration.SUPERCLASS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final ChildListPropertyDescriptor INTERNAL_TYPE_SUPER_INTERFACES_PROPERTY = TypeDeclaration.SUPER_INTERFACES_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final ChildPropertyDescriptor INTERNAL_CIC_NAME_PROPERTY = ClassInstanceCreation.NAME_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY = VariableDeclarationFragment.EXTRA_DIMENSIONS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final ChildPropertyDescriptor INTERNAL_TDS_TYPE_DECLARATION_PROPERTY = TypeDeclarationStatement.TYPE_DECLARATION_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_VARIABLE_MODIFIERS_PROPERTY = SingleVariableDeclaration.MODIFIERS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY = SingleVariableDeclaration.EXTRA_DIMENSIONS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_VDE_MODIFIERS_PROPERTY = VariableDeclarationExpression.MODIFIERS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_VDS_MODIFIERS_PROPERTY = VariableDeclarationStatement.MODIFIERS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final int JLS2_INTERNAL = AST.JLS2;
+
+	/** @deprecated using deprecated code */
+	private static final int JLS3_INTERNAL = AST.JLS3;
+
 
 	public static String asString(ASTNode node, RewriteEventStore store) {
 		ASTRewriteFlattener flattener= new ASTRewriteFlattener(store);
@@ -372,7 +388,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		}
 		this.result.append("new ");//$NON-NLS-1$
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
-			getChildNode(node, ClassInstanceCreation.NAME_PROPERTY).accept(this);
+			getChildNode(node, INTERNAL_CIC_NAME_PROPERTY).accept(this);
 		} else {
 			visitList(node, ClassInstanceCreation.TYPE_ARGUMENTS_PROPERTY, String.valueOf(','), String.valueOf('<'), String.valueOf('>'));
 			getChildNode(node, ClassInstanceCreation.TYPE_PROPERTY).accept(this);
@@ -488,7 +504,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			javadoc.accept(this);
 		}
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
-			printModifiers(getIntAttribute(node, FieldDeclaration.MODIFIERS_PROPERTY), this.result);
+			printModifiers(getIntAttribute(node, INTERNAL_FIELD_MODIFIERS_PROPERTY), this.result);
 		} else {
 			visitList(node, FieldDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		}
@@ -592,7 +608,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			javadoc.accept(this);
 		}
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
-			printModifiers(getIntAttribute(node, Initializer.MODIFIERS_PROPERTY), this.result);
+			printModifiers(getIntAttribute(node, INTERNAL_INITIALIZER_MODIFIERS_PROPERTY), this.result);
 		} else {
 			visitList(node, Initializer.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		}
@@ -637,7 +653,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			javadoc.accept(this);
 		}
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
-			printModifiers(getIntAttribute(node, MethodDeclaration.MODIFIERS_PROPERTY), this.result);
+			printModifiers(getIntAttribute(node, INTERNAL_METHOD_MODIFIERS_PROPERTY), this.result);
 		} else {
 			visitList(node, MethodDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 			visitList(node, MethodDeclaration.TYPE_PARAMETERS_PROPERTY, String.valueOf(','), String.valueOf('<'), String.valueOf('>'));
@@ -645,7 +661,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 		if (!getBooleanAttribute(node, MethodDeclaration.CONSTRUCTOR_PROPERTY)) {
 			if (node.getAST().apiLevel() == JLS2_INTERNAL) {
-				getChildNode(node, MethodDeclaration.RETURN_TYPE_PROPERTY).accept(this);
+				getChildNode(node, INTERNAL_METHOD_RETURN_TYPE_PROPERTY).accept(this);
 			} else {
 				ASTNode returnType = getChildNode(node, MethodDeclaration.RETURN_TYPE2_PROPERTY);
 				if (returnType != null) {
@@ -815,7 +831,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 */
 	public boolean visit(SingleVariableDeclaration node) {
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
-			printModifiers(getIntAttribute(node, SingleVariableDeclaration.MODIFIERS_PROPERTY), this.result);
+			printModifiers(getIntAttribute(node, INTERNAL_VARIABLE_MODIFIERS_PROPERTY), this.result);
 		} else {
 			visitList(node, SingleVariableDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		}
@@ -992,7 +1008,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		}
 
 		if (apiLevel == JLS2_INTERNAL) {
-			printModifiers(getIntAttribute(node, TypeDeclaration.MODIFIERS_PROPERTY), this.result);
+			printModifiers(getIntAttribute(node, INTERNAL_TYPE_MODIFIERS_PROPERTY), this.result);
 		} else {
 			visitList(node, TypeDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		}
@@ -1006,7 +1022,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 		this.result.append(' ');
 
-		ChildPropertyDescriptor superClassProperty= (apiLevel == JLS2_INTERNAL) ? TypeDeclaration.SUPERCLASS_PROPERTY : TypeDeclaration.SUPERCLASS_TYPE_PROPERTY;
+		ChildPropertyDescriptor superClassProperty= (apiLevel == JLS2_INTERNAL) ? INTERNAL_TYPE_SUPERCLASS_PROPERTY : TypeDeclaration.SUPERCLASS_TYPE_PROPERTY;
 		ASTNode superclass= getChildNode(node, superClassProperty);
 		if (superclass != null) {
 			this.result.append("extends "); //$NON-NLS-1$
@@ -1014,7 +1030,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			this.result.append(' ');
 		}
 
-		ChildListPropertyDescriptor superInterfaceProperty= (apiLevel == JLS2_INTERNAL) ? TypeDeclaration.SUPER_INTERFACES_PROPERTY : TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY;
+		ChildListPropertyDescriptor superInterfaceProperty= (apiLevel == JLS2_INTERNAL) ? INTERNAL_TYPE_SUPER_INTERFACES_PROPERTY : TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY;
 		String lead= isInterface ? "extends " : "implements ";  //$NON-NLS-1$//$NON-NLS-2$
 		visitList(node, superInterfaceProperty, String.valueOf(','), lead, Util.EMPTY_STRING);
 		this.result.append('{');
@@ -1028,7 +1044,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 */
 	public boolean visit(TypeDeclarationStatement node) {
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
-			getChildNode(node, TypeDeclarationStatement.TYPE_DECLARATION_PROPERTY).accept(this);
+			getChildNode(node, INTERNAL_TDS_TYPE_DECLARATION_PROPERTY).accept(this);
 		} else {
 			getChildNode(node, TypeDeclarationStatement.DECLARATION_PROPERTY).accept(this);
 		}
@@ -1057,7 +1073,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 */
 	public boolean visit(VariableDeclarationExpression node) {
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
-			printModifiers(getIntAttribute(node, VariableDeclarationExpression.MODIFIERS_PROPERTY), this.result);
+			printModifiers(getIntAttribute(node, INTERNAL_VDE_MODIFIERS_PROPERTY), this.result);
 		} else {
 			visitList(node, VariableDeclarationExpression.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		}
@@ -1086,7 +1102,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 */
 	public boolean visit(VariableDeclarationStatement node) {
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
-			printModifiers(getIntAttribute(node, VariableDeclarationStatement.MODIFIERS_PROPERTY), this.result);
+			printModifiers(getIntAttribute(node, INTERNAL_VDS_MODIFIERS_PROPERTY), this.result);
 		} else {
 			visitList(node, VariableDeclarationStatement.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		}

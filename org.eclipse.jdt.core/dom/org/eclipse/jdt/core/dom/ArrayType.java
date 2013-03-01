@@ -23,12 +23,6 @@ import java.util.List;
  * <p>
  * Array types are expressed in a recursive manner, one dimension at a time.
  * </p>
- * For JLS2, JLS3 and JLS4:
- * <pre>
- * ArrayType:
- *    Type <b>'['</b> <b>']'</b>
- * </pre>
- * For JLS8, optional annotations on the dimension were added:
  * <pre>
  * ArrayType:
  *    Type { Annotation } <b>'['</b> <b>']'</b>

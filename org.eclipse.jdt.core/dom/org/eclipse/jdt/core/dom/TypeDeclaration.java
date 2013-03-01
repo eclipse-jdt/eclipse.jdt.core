@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,25 +18,7 @@ import java.util.List;
 /**
  * Type declaration AST node type. A type declaration
  * is the union of a class declaration and an interface declaration.
- * For JLS2:
- * <pre>
- * TypeDeclaration:
- * 		ClassDeclaration
- * 		InterfaceDeclaration
- * ClassDeclaration:
- *      [ Javadoc ] { Modifier } <b>class</b> Identifier
- *			[ <b>extends</b> Type]
- *			[ <b>implements</b> Type { <b>,</b> Type } ]
- *			<b>{</b> { ClassBodyDeclaration | <b>;</b> } <b>}</b>
- * InterfaceDeclaration:
- *      [ Javadoc ] { Modifier } <b>interface</b> Identifier
- *			[ <b>extends</b> Type { <b>,</b> Type } ]
- * 			<b>{</b> { InterfaceBodyDeclaration | <b>;</b> } <b>}</b>
- * </pre>
- * For JLS3, type parameters and reified modifiers
- * (and annotations) were added, and the superclass type name and superinterface
- * types names are generalized to type so that parameterized types can be
- * referenced:
+ * 
  * <pre>
  * TypeDeclaration:
  * 		ClassDeclaration
@@ -77,6 +59,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 
 	/**
 	 * The "modifiers" structural property of this node type (type: {@link Integer}) (JLS2 API only).
+	 * @deprecated In the JLS3 API, this property is replaced by {@link #MODIFIERS2_PROPERTY}.
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY =
@@ -106,6 +89,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	/**
 	 * The "superclass" structural property of this node type (child type: {@link Name}) (JLS2 API only).
 	 * @since 3.0
+	 * @deprecated In the JLS3 API, this property is replaced by {@link #SUPERCLASS_TYPE_PROPERTY}.
 	 */
 	public static final ChildPropertyDescriptor SUPERCLASS_PROPERTY =
 		new ChildPropertyDescriptor(TypeDeclaration.class, "superclass", Name.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
@@ -113,6 +97,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	/**
 	 * The "superInterfaces" structural property of this node type (element type: {@link Name}) (JLS2 API only).
 	 * @since 3.0
+	 * @deprecated In the JLS3 API, this property is replaced by {@link #SUPER_INTERFACE_TYPES_PROPERTY}.
 	 */
 	public static final ChildListPropertyDescriptor SUPER_INTERFACES_PROPERTY =
 		new ChildListPropertyDescriptor(TypeDeclaration.class, "superInterfaces", Name.class, NO_CYCLE_RISK); //$NON-NLS-1$

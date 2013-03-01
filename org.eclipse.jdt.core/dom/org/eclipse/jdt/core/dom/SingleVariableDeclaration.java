@@ -24,24 +24,13 @@ import java.util.List;
  * declaration nodes are used in a limited number of places, including formal
  * parameter lists and catch clauses. They are not used for field declarations
  * and regular variable declaration statements.
- * For JLS2:
- * <pre>
- * SingleVariableDeclaration:
- *    { Modifier } Type Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
- * </pre>
- * For JLS3, the modifier flags were replaced by
- * a list of modifier nodes (intermixed with annotations), and the variable arity
- * indicator was added:
- * <pre>
- * SingleVariableDeclaration:
- *    { ExtendedModifier } Type [ <b>...</b> ] Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
- * </pre>
- * For JLS8, variable declarations and extra dimensions on variable declarations are allowed to 
- * have optional annotations. The annotatable extra dimensions are represented by {@link ExtraDimension}.
  * <pre>
  * SingleVariableDeclaration:
  *    { ExtendedModifier } Type {Annotation} [ <b>...</b> ] Identifier { ExtraDimension } [ <b>=</b> Expression ]
  * </pre>
+ * <p>
+ * Note: There's currently no construct in the Java language that allows an initializer on a SingleVariableDeclaration.
+ * </p>
  *
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
@@ -50,6 +39,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 
 	/**
 	 * The "modifiers" structural property of this node type (type: {@link Integer}) (JLS2 API only).
+	 * @deprecated In the JLS3 API, this property is replaced by {@link #MODIFIERS2_PROPERTY}.
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY =

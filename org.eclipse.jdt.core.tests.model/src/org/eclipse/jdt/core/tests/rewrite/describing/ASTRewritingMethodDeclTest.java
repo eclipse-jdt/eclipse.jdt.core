@@ -31,17 +31,17 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
-	/**
-	 * Internal synonym for deprecated constant MethodDeclaration#EXTRA_DIMENSIONS_PROPERTY
-	 * to alleviate deprecated warnings.
-	 * @deprecated
-	 */
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_FIELD_MODIFIERS_PROPERTY = FieldDeclaration.MODIFIERS_PROPERTY;
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_INITIALIZER_MODIFIERS_PROPERTY = Initializer.MODIFIERS_PROPERTY;
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_METHOD_MODIFIERS_PROPERTY = MethodDeclaration.MODIFIERS_PROPERTY;
+	/** @deprecated using deprecated code */
+	private static final ChildPropertyDescriptor INTERNAL_METHOD_RETURN_TYPE_PROPERTY = MethodDeclaration.RETURN_TYPE_PROPERTY;
+	/** @deprecated using deprecated code */
 	private static final SimplePropertyDescriptor INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY = MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY;
-	/**
-	 * Internal synonym for deprecated constant MethodDeclaration#THROWN_EXCEPTIONS_PROPERTY
-	 * to alleviate deprecated warnings.
-	 * @deprecated
-	 */
+	/** @deprecated using deprecated code */
 	private static final ChildListPropertyDescriptor INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY = MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY;
 
 	public ASTRewritingMethodDeclTest(String name) {
@@ -63,7 +63,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	/** @deprecated using deprecated code */
 	private ChildPropertyDescriptor getMethodReturnTypeProperty(AST ast) { 
-		return ast.apiLevel() < AST.JLS3 ? MethodDeclaration.RETURN_TYPE_PROPERTY : MethodDeclaration.RETURN_TYPE2_PROPERTY; 
+		return ast.apiLevel() < AST.JLS3 ? INTERNAL_METHOD_RETURN_TYPE_PROPERTY : MethodDeclaration.RETURN_TYPE2_PROPERTY; 
 	} 
 
 	private ASTNode createNewExceptionType(AST ast, String name) {
@@ -330,64 +330,64 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 		{ // insert return type, add second modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(0);
-			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC | Modifier.FINAL), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC | Modifier.FINAL), null);
 
 			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
 
 			// from constructor to method
-			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, newReturnType, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
 
 		}
 		{ // insert return type, add (first) modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(1);
-			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
 
 			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
 
 			// from constructor to method
-			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, newReturnType, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
 		}
 
 		{ // insert return type, add second modifier with comments
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(2);
 
-			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
 
 			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
 
 			// from constructor to method
-			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, newReturnType, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
 
 		}
 
 		{ // remove return type, add second modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(3);
-			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC | Modifier.FINAL), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC | Modifier.FINAL), null);
 
 			// from method to constructor
-			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, null, null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, null, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
 
 		}
 		{ // remove return type, add (first) modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(4);
-			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
 
 			// from method to constructor
-			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, null, null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, null, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
 		}
 
 		{ // remove return type, add second modifier with comments
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(5);
 
-			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
 
 			// from method to constructor
-			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, null, null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, null, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
 		}
 
@@ -433,64 +433,64 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 		{ // insert return type, remove second modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(0);
-			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC), null);
 
 			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
 
 			// from constructor to method
-			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, newReturnType, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
 
 		}
 		{ // insert return type, remove (only) modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(1);
-			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(0), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(0), null);
 
 			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
 
 			// from constructor to method
-			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, newReturnType, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
 		}
 
 		{ // insert return type, remove modifier with comments
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(2);
 
-			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(0), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(0), null);
 
 			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
 
 			// from constructor to method
-			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, newReturnType, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
 
 		}
 
 		{ // remove return type, remove second modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(3);
-			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC), null);
 
 			// from method to constructor
-			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, null, null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, null, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
 
 		}
 		{ // remove return type, remove (only) modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(4);
-			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(0), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(0), null);
 
 			// from method to constructor
-			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, null, null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, null, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
 		}
 
 		{ // remove return type, remove modifier with comments
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(5);
 
-			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(0), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(0), null);
 
 			// from method to constructor
-			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, null, null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, null, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
 		}
 
@@ -760,7 +760,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "gee");
 
 			// change flags
-			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(0), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(0), null);
 
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
@@ -965,7 +965,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			// change flags
 			int newModifiers= Modifier.PUBLIC | Modifier.SYNCHRONIZED;
-			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
@@ -986,7 +986,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			// change flags
 			int newModifiers= Modifier.PUBLIC | Modifier.SYNCHRONIZED | Modifier.STATIC;
-			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
@@ -1413,7 +1413,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			// change flags
 			int newModifiers= Modifier.PUBLIC | Modifier.ABSTRACT;
-			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 			Block body= methodDecl.getBody();
 			assertTrue("No body: gee", body != null);
@@ -1425,7 +1425,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			// change flags
 			int newModifiers= Modifier.PRIVATE;
-			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 
 			Block body= methodDecl.getBody();
@@ -1822,7 +1822,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			// add modifier
 			int newModifiers= Modifier.FINAL;
-			rewrite.set(decl, FieldDeclaration.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(decl, INTERNAL_FIELD_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 			PrimitiveType newType= ast.newPrimitiveType(PrimitiveType.BOOLEAN);
 			rewrite.replace(decl.getType(), newType, null);
@@ -1839,7 +1839,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			// add modifier
 			int newModifiers= Modifier.FINAL | Modifier.STATIC | Modifier.TRANSIENT;
-			rewrite.set(decl, FieldDeclaration.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(decl, INTERNAL_FIELD_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 			List fragments= decl.fragments();
 			assertTrue("Number of fragments not 3", fragments.size() == 3);
@@ -1858,7 +1858,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			// change modifier
 			int newModifiers= 0;
-			rewrite.set(decl, FieldDeclaration.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(decl, INTERNAL_FIELD_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);
@@ -1903,7 +1903,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			// add modifier
 			int newModifiers= Modifier.STATIC;
-			rewrite.set(initializer, Initializer.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(initializer, INTERNAL_INITIALIZER_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 
 			Block block= ast.newBlock();
@@ -1915,7 +1915,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			Initializer initializer= (Initializer) declarations.get(1);
 
 			int newModifiers= 0;
-			rewrite.set(initializer, Initializer.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(initializer, INTERNAL_INITIALIZER_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 		}
 

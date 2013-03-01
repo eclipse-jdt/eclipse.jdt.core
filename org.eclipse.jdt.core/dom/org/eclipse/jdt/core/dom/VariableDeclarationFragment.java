@@ -23,12 +23,6 @@ import java.util.List;
  *
  * <pre>
  * VariableDeclarationFragment:
- *    Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
- * </pre>
- * For JLS8, variable fragments and extra dimensions on fragments are allowed to have optional 
- * annotations. The annotatable extra dimensions are represented by {@link ExtraDimension}.
- * <pre>
- * VariableDeclarationFragment:
  *    Identifier { ExtraDimension } [ <b>=</b> Expression ]
  * </pre>
  * @since 2.0

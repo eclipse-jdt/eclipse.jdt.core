@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,12 +20,6 @@ import java.util.List;
  * This kind of node is used to convert a type declaration
  * node into a statement node by wrapping it.
  * </p>
- * For JLS2:
- * <pre>
- * TypeDeclarationStatement:
- *    TypeDeclaration
- * </pre>
- * For JLS3, the kinds of type declarations grew to include enum declarations:
  * <pre>
  * TypeDeclarationStatement:
  *    TypeDeclaration
@@ -43,6 +37,7 @@ public class TypeDeclarationStatement extends Statement {
 	/**
 	 * The "typeDeclaration" structural property of this node type (child type: {@link TypeDeclaration}) (JLS2 API only).
 	 * @since 3.0
+	 * @deprecated In the JLS3 API, this property is replaced by {@link #DECLARATION_PROPERTY}.
 	 */
 	public static final ChildPropertyDescriptor TYPE_DECLARATION_PROPERTY =
 		new ChildPropertyDescriptor(TypeDeclarationStatement.class, "typeDeclaration", TypeDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$

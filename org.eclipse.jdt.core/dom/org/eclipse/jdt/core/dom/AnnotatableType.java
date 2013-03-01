@@ -17,7 +17,7 @@ package org.eclipse.jdt.core.dom;
 import java.util.List;
 
 /**
- * Type node for an annotatable type.
+ * Type node for an annotatable type (added in JLS8 API).
  * <p>
  * Introduced in JLS8, type references that can be annotated are represented by 
  * AnnotatableType. For the list of types extending AnnotatableType, see {@link Type}.</p>
@@ -35,7 +35,7 @@ public abstract class AnnotatableType extends Type {
 
 	/**
 	 * Creates and returns a structural property descriptor for the
-	 * "annotations" property declared on the given concrete node type (element type: {@link Annotation}).
+	 * "annotations" property declared on the given concrete node type (element type: {@link Annotation}) (added in JLS8 API).
 	 *
 	 * @return the property descriptor
 	 */
@@ -45,7 +45,7 @@ public abstract class AnnotatableType extends Type {
 
 	/**
 	 * Returns the structural property descriptor for the "annotations" property
-	 * of this node (element type: {@link Annotation}).
+	 * of this node (element type: {@link Annotation}) (added in JLS8 API).
 	 *
 	 * @return the property descriptor
 	 */
@@ -53,7 +53,7 @@ public abstract class AnnotatableType extends Type {
 
 	/**
 	 * Returns the structural property descriptor for the "annotations" property
-	 * of this node (element type: {@link Annotation}).
+	 * of this node (element type: {@link Annotation}) (added in JLS8 API).
 	 *
 	 * @return the property descriptor
 	 */

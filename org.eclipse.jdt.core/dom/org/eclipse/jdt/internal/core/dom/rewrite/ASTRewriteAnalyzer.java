@@ -64,44 +64,60 @@ import org.eclipse.text.edits.TextEditGroup;
  */
 public final class ASTRewriteAnalyzer extends ASTVisitor {
 
-	/**
-	 * Internal synonym for deprecated constant AST.JLS2
-	 * to alleviate deprecated warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int JLS2_INTERNAL = AST.JLS2;
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_FIELD_MODIFIERS_PROPERTY = FieldDeclaration.MODIFIERS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_INITIALIZER_MODIFIERS_PROPERTY3 = Initializer.MODIFIERS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_METHOD_MODIFIERS_PROPERTY2 = MethodDeclaration.MODIFIERS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final ChildPropertyDescriptor INTERNAL_METHOD_RETURN_TYPE_PROPERTY = MethodDeclaration.RETURN_TYPE_PROPERTY;
 	
-	/**
-	 * Internal synonym for deprecated constant AST.JLS3
-	 * to alleviate deprecated warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
-	
-	/**
-	 * Internal synonym for deprecated constant MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY
-	 * to alleviate deprecated warnings.
-	 * @deprecated
-	 */
-	static final SimplePropertyDescriptor INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY = MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY;
-	/**
-	 * Internal synonym for deprecated constant MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY
-	 * to alleviate deprecated warnings.
-	 * @deprecated
-	 */
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY = MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY;
+
+	/** @deprecated using deprecated code */
 	private static final ChildListPropertyDescriptor INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY = MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY;
-	/**
-	 * Internal synonym for deprecated constant SingleVariableDeclaration.EXTRA_DIMENSIONS_PROPERTY
-	 * to alleviate deprecated warnings.
-	 * @deprecated
-	 */
-	static final SimplePropertyDescriptor INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY = SingleVariableDeclaration.EXTRA_DIMENSIONS_PROPERTY;
-	/**
-	 * Internal synonym for deprecated constant VariableDeclarationFragment.EXTRA_DIMENSIONS_PROPERTY
-	 * to alleviate deprecated warnings.
-	 * @deprecated
-	 */
-	static final SimplePropertyDescriptor INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY = VariableDeclarationFragment.EXTRA_DIMENSIONS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_TYPE_MODIFIERS_PROPERTY = TypeDeclaration.MODIFIERS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final ChildPropertyDescriptor INTERNAL_TYPE_SUPERCLASS_PROPERTY = TypeDeclaration.SUPERCLASS_PROPERTY;
+	
+	/** @deprecated using deprecated code */
+	private static final ChildListPropertyDescriptor INTERNAL_TYPE_SUPER_INTERFACES_PROPERTY = TypeDeclaration.SUPER_INTERFACES_PROPERTY;
+	
+	/** @deprecated using deprecated code */
+	private static final ChildPropertyDescriptor INTERNAL_CIC_NAME_PROPERTY = ClassInstanceCreation.NAME_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY = VariableDeclarationFragment.EXTRA_DIMENSIONS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final ChildPropertyDescriptor INTERNAL_TDS_TYPE_DECLARATION_PROPERTY = TypeDeclarationStatement.TYPE_DECLARATION_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_VARIABLE_MODIFIERS_PROPERTY = SingleVariableDeclaration.MODIFIERS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY = SingleVariableDeclaration.EXTRA_DIMENSIONS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_VDE_MODIFIERS_PROPERTY = VariableDeclarationExpression.MODIFIERS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_VDS_MODIFIERS_PROPERTY = VariableDeclarationStatement.MODIFIERS_PROPERTY;
+
+	/** @deprecated using deprecated code */
+	private static final int JLS2_INTERNAL = AST.JLS2;
+	
+	/** @deprecated using deprecated code */
+	private static final int JLS3_INTERNAL = AST.JLS3;
+
 
 	TextEdit currentEdit;
 	final RewriteEventStore eventStore; // used from inner classes
@@ -1661,7 +1677,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		boolean isJLS2 = apiLevel == JLS2_INTERNAL;
 		if (isJLS2) {
-			rewriteModifiers(node, TypeDeclaration.MODIFIERS_PROPERTY, pos);
+			rewriteModifiers(node, INTERNAL_TYPE_MODIFIERS_PROPERTY, pos);
 		} else {
 			rewriteModifiers2(node, TypeDeclaration.MODIFIERS2_PROPERTY, pos);
 		}
@@ -1702,7 +1718,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		// superclass
 		if (!isInterface || invertType) {
-			ChildPropertyDescriptor superClassProperty= isJLS2 ? TypeDeclaration.SUPERCLASS_PROPERTY : TypeDeclaration.SUPERCLASS_TYPE_PROPERTY;
+			ChildPropertyDescriptor superClassProperty= isJLS2 ? INTERNAL_TYPE_SUPERCLASS_PROPERTY : TypeDeclaration.SUPERCLASS_TYPE_PROPERTY;
 
 			RewriteEvent superClassEvent= getEvent(node, superClassProperty);
 
@@ -1736,7 +1752,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			}
 		}
 		// extended interfaces
-		ChildListPropertyDescriptor superInterfaceProperty= isJLS2 ? TypeDeclaration.SUPER_INTERFACES_PROPERTY : TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY;
+		ChildListPropertyDescriptor superInterfaceProperty= isJLS2 ? INTERNAL_TYPE_SUPER_INTERFACES_PROPERTY : TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY;
 
 		RewriteEvent interfaceEvent= getEvent(node, superInterfaceProperty);
 		if (interfaceEvent == null || interfaceEvent.getChangeKind() == RewriteEvent.UNCHANGED) {
@@ -1776,7 +1792,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	private void rewriteReturnType(MethodDeclaration node, boolean isConstructor, boolean isConstructorChange) {
-		ChildPropertyDescriptor property= (node.getAST().apiLevel() == JLS2_INTERNAL) ? MethodDeclaration.RETURN_TYPE_PROPERTY : MethodDeclaration.RETURN_TYPE2_PROPERTY;
+		ChildPropertyDescriptor property= (node.getAST().apiLevel() == JLS2_INTERNAL) ? INTERNAL_METHOD_RETURN_TYPE_PROPERTY : MethodDeclaration.RETURN_TYPE2_PROPERTY;
 
 		// weakness in the AST: return type can exist, even if missing in source
 		ASTNode originalReturnType= (ASTNode) getOriginalValue(node, property);
@@ -1824,7 +1840,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		int pos= rewriteJavadoc(node, MethodDeclaration.JAVADOC_PROPERTY);
 		int apiLevel= node.getAST().apiLevel();
 		if (apiLevel == JLS2_INTERNAL) {
-			rewriteModifiers(node, MethodDeclaration.MODIFIERS_PROPERTY, pos);
+			rewriteModifiers(node, INTERNAL_METHOD_MODIFIERS_PROPERTY2, pos);
 		} else {
 			pos= rewriteModifiers2(node, MethodDeclaration.MODIFIERS2_PROPERTY, pos);
 			pos= rewriteOptionalTypeParameters(node, MethodDeclaration.TYPE_PARAMETERS_PROPERTY, pos, " ", true, pos != node.getStartPosition()); //$NON-NLS-1$
@@ -2201,7 +2217,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		int pos= rewriteOptionalQualifier(node, ClassInstanceCreation.EXPRESSION_PROPERTY, node.getStartPosition());
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
-			pos= rewriteRequiredNode(node, ClassInstanceCreation.NAME_PROPERTY);
+			pos= rewriteRequiredNode(node, INTERNAL_CIC_NAME_PROPERTY);
 		} else {
 			if (isChanged(node, ClassInstanceCreation.TYPE_ARGUMENTS_PROPERTY)) {
 				try {
@@ -2367,7 +2383,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		int pos= rewriteJavadoc(node, FieldDeclaration.JAVADOC_PROPERTY);
 
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
-			rewriteModifiers(node, FieldDeclaration.MODIFIERS_PROPERTY, pos);
+			rewriteModifiers(node, INTERNAL_FIELD_MODIFIERS_PROPERTY, pos);
 		} else {
 			rewriteModifiers2(node, FieldDeclaration.MODIFIERS2_PROPERTY, pos);
 		}
@@ -2583,7 +2599,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 		int pos= rewriteJavadoc(node, Initializer.JAVADOC_PROPERTY);
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
-			rewriteModifiers(node, Initializer.MODIFIERS_PROPERTY, pos);
+			rewriteModifiers(node, INTERNAL_INITIALIZER_MODIFIERS_PROPERTY3, pos);
 		} else {
 			rewriteModifiers2(node, Initializer.MODIFIERS2_PROPERTY, pos);
 		}
@@ -2842,7 +2858,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		int pos= node.getStartPosition();
 		int apiLevel= node.getAST().apiLevel();
 		if (apiLevel == JLS2_INTERNAL) {
-			rewriteModifiers(node, SingleVariableDeclaration.MODIFIERS_PROPERTY, pos);
+			rewriteModifiers(node, INTERNAL_VARIABLE_MODIFIERS_PROPERTY, pos);
 		} else {
 			rewriteModifiers2(node, SingleVariableDeclaration.MODIFIERS2_PROPERTY, pos);
 		}
@@ -3226,7 +3242,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
-			rewriteRequiredNode(node, TypeDeclarationStatement.TYPE_DECLARATION_PROPERTY);
+			rewriteRequiredNode(node, INTERNAL_TDS_TYPE_DECLARATION_PROPERTY);
 		} else {
 			rewriteRequiredNode(node, TypeDeclarationStatement.DECLARATION_PROPERTY);
 		}
@@ -3272,7 +3288,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		// same code as FieldDeclaration
 		int pos= node.getStartPosition();
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
-			rewriteModifiers(node, VariableDeclarationExpression.MODIFIERS_PROPERTY, pos);
+			rewriteModifiers(node, INTERNAL_VDE_MODIFIERS_PROPERTY, pos);
 		} else {
 			rewriteModifiers2(node, VariableDeclarationExpression.MODIFIERS2_PROPERTY, pos);
 		}
@@ -3323,7 +3339,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		// same code as FieldDeclaration
 		int pos= node.getStartPosition();
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
-			rewriteModifiers(node, VariableDeclarationStatement.MODIFIERS_PROPERTY, pos);
+			rewriteModifiers(node, INTERNAL_VDS_MODIFIERS_PROPERTY, pos);
 		} else {
 			rewriteModifiers2(node, VariableDeclarationStatement.MODIFIERS2_PROPERTY, pos);
 		}

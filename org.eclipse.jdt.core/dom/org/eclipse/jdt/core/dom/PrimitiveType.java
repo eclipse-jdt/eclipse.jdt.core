@@ -21,8 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Primitive type nodes. For JLS8 optional annotations indicated by {Annotation}
- * were added.
+ * Primitive type nodes.
  * <pre>
  * PrimitiveType:
  *    { Annotation } <b>byte</b>

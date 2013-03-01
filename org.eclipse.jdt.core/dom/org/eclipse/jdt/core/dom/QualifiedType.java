@@ -21,12 +21,6 @@ import java.util.List;
 /**
  * Type node for a qualified type (added in JLS3 API).
  * 
- * For JLS2, JLS3 and JLS4:
- * <pre>
- * QualifiedType:
- *    Type <b>.</b> SimpleName
- * </pre>
- * For JLS8, optional annotations were added:
  * <pre>
  * QualifiedType:
  *    Type <b>.</b> { Annotation } SimpleName

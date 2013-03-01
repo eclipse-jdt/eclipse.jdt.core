@@ -16,14 +16,6 @@ import java.util.List;
 
 /**
  * Try statement AST node type.
- * For JLS2 and JLS3:
- * <pre>
- * TryStatement:
- *     <b>try</b> Block
- *         [ { CatchClause } ]
- *         [ <b>finally</b> Block ]
- * </pre>
- * For JLS4, resources were added:
  * <pre>
  * TryStatement:
  *     <b>try</b> [ <b>(</b> Resources <b>)</b> ]

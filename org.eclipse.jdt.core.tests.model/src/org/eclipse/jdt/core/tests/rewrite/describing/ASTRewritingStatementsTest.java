@@ -51,6 +51,7 @@ import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
@@ -75,6 +76,9 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
 
 public class ASTRewritingStatementsTest extends ASTRewritingTest {
+
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_VDS_MODIFIERS_PROPERTY = VariableDeclarationStatement.MODIFIERS_PROPERTY;
 
 	public ASTRewritingStatementsTest(String name) {
 		super(name);
@@ -5400,7 +5404,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 			// add modifier
 			int newModifiers= Modifier.FINAL;
-			rewrite.set(decl, VariableDeclarationStatement.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(decl, INTERNAL_VDS_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 			PrimitiveType newType= ast.newPrimitiveType(PrimitiveType.BOOLEAN);
 			rewrite.replace(decl.getType(), newType, null);
@@ -5416,7 +5420,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 			// add modifier
 			int newModifiers= Modifier.FINAL;
-			rewrite.set(decl, VariableDeclarationStatement.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(decl, INTERNAL_VDS_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 			List fragments= decl.fragments();
 			assertTrue("Number of fragments not 3", fragments.size() == 3);
@@ -5435,7 +5439,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 			// add modifiers
 			int newModifiers= 0;
-			rewrite.set(decl, VariableDeclarationStatement.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(decl, INTERNAL_VDS_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);

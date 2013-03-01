@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,13 +16,6 @@ import java.util.List;
 
 /**
  * Package declaration AST node type.
- * For JLS2:
- * <pre>
- * PackageDeclaration:
- *    <b>package</b> Name <b>;</b>
- * </pre>
- * For JLS3, annotations and doc comment
- * were added:
  * <pre>
  * PackageDeclaration:
  *    [ Javadoc ] { Annotation } <b>package</b> Name <b>;</b>
@@ -38,7 +31,7 @@ import java.util.List;
 public class PackageDeclaration extends ASTNode {
 
 	/**
-	 * The "javadoc" structural property of this node type (child type: {@link Javadoc}).
+	 * The "javadoc" structural property of this node type (child type: {@link Javadoc}) (added in JLS3 API).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor JAVADOC_PROPERTY =
@@ -252,7 +245,7 @@ public class PackageDeclaration extends ASTNode {
 	}
 
 	/**
-	 * Returns the doc comment node.
+	 * Returns the doc comment node (added in JLS3 API).
 	 *
 	 * @return the doc comment node, or <code>null</code> if none
 	 * @exception UnsupportedOperationException if this operation is used in
@@ -268,7 +261,7 @@ public class PackageDeclaration extends ASTNode {
 	}
 
 	/**
-	 * Sets or clears the doc comment node.
+	 * Sets or clears the doc comment node (added in JLS3 API).
 	 *
 	 * @param docComment the doc comment node, or <code>null</code> if none
 	 * @exception IllegalArgumentException if the doc comment string is invalid

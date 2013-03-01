@@ -20,12 +20,6 @@ import java.util.List;
 
 /**
  * Type node for a wildcard type (added in JLS3 API).
- * For JLS2, JLS3 and JLS4:
- * <pre>
- * WildcardType:
- *    <b>?</b> [ ( <b>extends</b> | <b>super</b>) Type ]
- * </pre>
- * For JLS8 optional annotations were added:
  * <pre>
  * WildcardType:
  *    { Annotation } <b>?</b> [ ( <b>extends</b> | <b>super</b>) Type ]

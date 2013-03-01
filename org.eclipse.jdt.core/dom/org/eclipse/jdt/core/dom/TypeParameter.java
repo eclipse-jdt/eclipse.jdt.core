@@ -21,12 +21,6 @@ import java.util.List;
 /**
  * Type parameter node (added in JLS3 API).
  * 
- * For JLS2, JLS3 and JLS4:
- * * <pre>
- * TypeParameter:
- *    TypeVariable [ <b>extends</b> Type { <b>&</b> Type } ]
- * </pre>
- * For JLS8 optional annotations were added:
  * <pre>
  * TypeParameter:
  *    { Annotation } TypeVariable [ <b>extends</b> Type { <b>&</b> Type } ]
@@ -38,7 +32,7 @@ import java.util.List;
 public class TypeParameter extends ASTNode {
 
 	/**
-	 * The "annotations" structural property of this node type (element type: {@link Annotation}).
+	 * The "annotations" structural property of this node type (element type: {@link Annotation}) (added in JLS8 API).
 	 * @since 3.9
 	 */
 	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
@@ -297,7 +291,7 @@ public class TypeParameter extends ASTNode {
 	}
 	
 	/**
-	 * Returns the live ordered list of annotations for this TypeParameter node.
+	 * Returns the live ordered list of annotations for this TypeParameter node (added in JLS8 API).
 	 *
 	 * @return the live list of annotations (element type: {@link Annotation})
 	 * @exception UnsupportedOperationException if this operation is used

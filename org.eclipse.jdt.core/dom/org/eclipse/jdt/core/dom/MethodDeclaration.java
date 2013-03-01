@@ -22,39 +22,6 @@ import java.util.List;
  * Method declaration AST node type. A method declaration
  * is the union of a method declaration and a constructor declaration.
  * 
- * For JLS2:
- * <pre>
- * MethodDeclaration:
- *    [ Javadoc ] { Modifier } ( Type | <b>void</b> ) Identifier <b>(</b>
- *        [ FormalParameter
- * 		     { <b>,</b> FormalParameter } ] <b>)</b> {<b>[</b> <b>]</b> }
- *        [ <b>throws</b> TypeName { <b>,</b> TypeName } ] ( Block | <b>;</b> )
- * ConstructorDeclaration:
- *    [ Javadoc ] { Modifier } Identifier <b>(</b>
- * 		  [ FormalParameter
- * 			 { <b>,</b> FormalParameter } ] <b>)</b>
- *        [<b>throws</b> TypeName { <b>,</b> TypeName } ] Block
- * </pre>
- * For JLS3, type parameters and reified modifiers
- * (and annotations) were added:
- * <pre>
- * MethodDeclaration:
- *    [ Javadoc ] { ExtendedModifier }
- *		  [ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
- *        ( Type | <b>void</b> ) Identifier <b>(</b>
- *        [ FormalParameter
- * 		     { <b>,</b> FormalParameter } ] <b>)</b> {<b>[</b> <b>]</b> }
- *        [ <b>throws</b> TypeName { <b>,</b> TypeName } ] ( Block | <b>;</b> )
- * ConstructorDeclaration:
- *    [ Javadoc ] { ExtendedModifier }
- *		  [ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
- *        Identifier <b>(</b>
- * 		  [ FormalParameter
- * 			 { <b>,</b> FormalParameter } ] <b>)</b>
- *        [<b>throws</b> TypeName { <b>,</b> TypeName } ] Block
- * </pre>
- * For JLS8 optional receiver parameter is added and extra dimensions are allowed to have 
- * type annotations. The annotatable extra dimensions are represented by {@link ExtraDimension}.
  * <pre>
  * MethodDeclaration:
  *    [ Javadoc ] { ExtendedModifier } [ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ] ( Type | <b>void</b> )
@@ -102,6 +69,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	/**
 	 * The "modifiers" structural property of this node type (type: {@link Integer}) (JLS2 API only).
 	 * @since 3.0
+	 * @deprecated In the JLS3 API, this property is replaced by {@link #MODIFIERS2_PROPERTY}.
 	 */
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY =
 		internalModifiersPropertyFactory(MethodDeclaration.class);
@@ -130,6 +98,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	/**
 	 * The "returnType" structural property of this node type (child type: {@link Type}) (JLS2 API only).
 	 * @since 3.0
+	 * @deprecated In the JLS3 API, this property is replaced by {@link #RETURN_TYPE2_PROPERTY}.
 	 */
 	public static final ChildPropertyDescriptor RETURN_TYPE_PROPERTY =
 		new ChildPropertyDescriptor(MethodDeclaration.class, "returnType", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$

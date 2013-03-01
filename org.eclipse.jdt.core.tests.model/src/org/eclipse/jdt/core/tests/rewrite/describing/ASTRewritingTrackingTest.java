@@ -28,6 +28,9 @@ import org.eclipse.jdt.core.dom.rewrite.ITrackedNodePosition;
 
 public class ASTRewritingTrackingTest extends ASTRewritingTest {
 
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_FIELD_MODIFIERS_PROPERTY = FieldDeclaration.MODIFIERS_PROPERTY;
+	
 	public ASTRewritingTrackingTest(String name) {
 		super(name);
 	}
@@ -244,7 +247,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 
 		// change modifier
 		int newModifiers= Modifier.STATIC | Modifier.TRANSIENT | Modifier.PRIVATE;
-		rewrite.set(field, FieldDeclaration.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+		rewrite.set(field, INTERNAL_FIELD_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 		String preview= evaluateRewrite(cu, rewrite);
 

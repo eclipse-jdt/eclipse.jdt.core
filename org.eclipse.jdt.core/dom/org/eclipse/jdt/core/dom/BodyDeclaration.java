@@ -20,29 +20,17 @@ import java.util.List;
  * including anonymous class declarations, enumeration declarations, and
  * enumeration constant declarations.
  * <p>
- * For JLS2:
  * <pre>
  * BodyDeclaration:
- *		ClassDeclaration
- *		InterfaceDeclaration
- *		MethodDeclaration
- * 		ConstructorDeclaration
- * 		FieldDeclaration
- * 		Initializer
- * </pre>
- * For JLS3, a number of new node types were introduced:
- * <pre>
- * BodyDeclaration:
- *		ClassDeclaration
- *		InterfaceDeclaration
- *		EnumDeclaration
- *		MethodDeclaration
- * 		ConstructorDeclaration
- * 		FieldDeclaration
- * 		Initializer
- *		EnumConstantDeclaration
- *		AnnotationTypeDeclaration
- *		AnnotationTypeMemberDeclaration
+ * 		{@link AbstractTypeDeclaration}
+ * 			{@link AnnotationTypeDeclaration}
+ * 			{@link EnumDeclaration}
+ * 			{@link TypeDeclaration} (for classes and interfaces)
+ *		{@link AnnotationTypeMemberDeclaration}
+ *		{@link EnumConstantDeclaration}
+ * 		{@link FieldDeclaration}
+ * 		{@link Initializer}
+ *		{@link MethodDeclaration} (for methods and constructors)
  * </pre>
  * </p>
  * <p>
@@ -83,6 +71,7 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * of this node as used in JLS2 (type: {@link Integer}).
 	 *
 	 * @return the property descriptor
+	 * @deprecated In the JLS3 API, this method is replaced by {@link #internalModifiers2Property()}.
 	 */
 	abstract SimplePropertyDescriptor internalModifiersProperty();
 
@@ -140,6 +129,7 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * "modifiers" property declared on the given concrete node type (type: {@link Integer}).
 	 *
 	 * @return the property descriptor
+	 * @deprecated In the JLS3 API, this method is replaced by {@link #internalModifiers2PropertyFactory(Class)}.
 	 */
 	static final SimplePropertyDescriptor internalModifiersPropertyFactory(Class nodeClass) {
 		return new SimplePropertyDescriptor(nodeClass, "modifiers", int.class, MANDATORY); //$NON-NLS-1$

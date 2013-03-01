@@ -29,6 +29,8 @@ import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
+import org.eclipse.jdt.core.dom.ChildPropertyDescriptor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
@@ -62,19 +64,20 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
-	/**
-	 * Internal synonym for deprecated constant SingleVariableDeclaration#EXTRA_DIMENSIONS_PROPERTY
-	 * to alleviate deprecated warnings.
-	 * @deprecated
-	 */
-	private static final SimplePropertyDescriptor INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY = SingleVariableDeclaration.EXTRA_DIMENSIONS_PROPERTY;
-	/**
-	 * Internal synonym for deprecated constant VariableDeclarationFragment#EXTRA_DIMENSIONS_PROPERTY
-	 * to alleviate deprecated warnings.
-	 * @deprecated
-	 */
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_TYPE_MODIFIERS_PROPERTY = TypeDeclaration.MODIFIERS_PROPERTY;
+	/** @deprecated using deprecated code */
+	private static final ChildPropertyDescriptor INTERNAL_TYPE_SUPERCLASS_PROPERTY = TypeDeclaration.SUPERCLASS_PROPERTY;
+	/** @deprecated using deprecated code */
+	private static final ChildListPropertyDescriptor INTERNAL_TYPE_SUPER_INTERFACES_PROPERTY = TypeDeclaration.SUPER_INTERFACES_PROPERTY;
+	/** @deprecated using deprecated code */
 	private static final SimplePropertyDescriptor INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY = VariableDeclarationFragment.EXTRA_DIMENSIONS_PROPERTY;
-
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_VARIABLE_MODIFIERS_PROPERTY = SingleVariableDeclaration.MODIFIERS_PROPERTY;
+	/** @deprecated using deprecated code */
+	private static final SimplePropertyDescriptor INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY = SingleVariableDeclaration.EXTRA_DIMENSIONS_PROPERTY;
+	
+	
 	public ASTRewritingTypeDeclTest(String name) {
 		super(name);
 	}
@@ -148,7 +151,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			// change flags
 			int newModifiers= 0;
-			rewrite.set(type, TypeDeclaration.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(type, INTERNAL_TYPE_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 			// change to interface
 			rewrite.set(type, TypeDeclaration.INTERFACE_PROPERTY, Boolean.TRUE, null);
@@ -166,14 +169,14 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			// change flags
 			int newModifiers= 0;
-			rewrite.set(type, TypeDeclaration.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(type, INTERNAL_TYPE_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 			// change to class
 			rewrite.set(type, TypeDeclaration.INTERFACE_PROPERTY, Boolean.FALSE, null);
 
 
 			SimpleName newSuperclass= ast.newSimpleName("Object");
-			rewrite.set(type, TypeDeclaration.SUPERCLASS_PROPERTY, newSuperclass, null);
+			rewrite.set(type, INTERNAL_TYPE_SUPERCLASS_PROPERTY, newSuperclass, null);
 		}
 
 
@@ -394,7 +397,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			// change flags
 			int newModifiers= 0;
-			rewrite.set(type, TypeDeclaration.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(type, INTERNAL_TYPE_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 			// change to interface
 			rewrite.set(type, TypeDeclaration.INTERFACE_PROPERTY, Boolean.TRUE, null);
@@ -422,7 +425,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			// change flags
 			int newModifiers= Modifier.FINAL;
-			rewrite.set(type, TypeDeclaration.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(type, INTERNAL_TYPE_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 			// change to interface
 			rewrite.set(type, TypeDeclaration.INTERFACE_PROPERTY, Boolean.TRUE, null);
@@ -497,11 +500,11 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			// change flags
 			int newModifiers= Modifier.PUBLIC | Modifier.FINAL;
-			rewrite.set(type, TypeDeclaration.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(type, INTERNAL_TYPE_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 			SimpleName newSuperinterface= ast.newSimpleName("Cloneable");
 
-			rewrite.getListRewrite(type, TypeDeclaration.SUPER_INTERFACES_PROPERTY).insertFirst(newSuperinterface, null);
+			rewrite.getListRewrite(type, INTERNAL_TYPE_SUPER_INTERFACES_PROPERTY).insertFirst(newSuperinterface, null);
 
 			List members= type.bodyDeclarations();
 			assertTrue("Has declarations", !members.isEmpty());
@@ -526,7 +529,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			TypeDeclaration type= findTypeDeclaration(astRoot, "F");
 
 			SimpleName newSuperclass= ast.newSimpleName("Exception");
-			rewrite.set(type, TypeDeclaration.SUPERCLASS_PROPERTY, newSuperclass, null);
+			rewrite.set(type, INTERNAL_TYPE_SUPERCLASS_PROPERTY, newSuperclass, null);
 
 			MethodDeclaration newMethodDecl= createNewMethod(ast, "newMethod", false);
 			rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY).insertLast(newMethodDecl, null);
@@ -535,7 +538,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			TypeDeclaration type= findTypeDeclaration(astRoot, "G");
 
 			SimpleName newInterface= ast.newSimpleName("Runnable");
-			rewrite.getListRewrite(type, TypeDeclaration.SUPER_INTERFACES_PROPERTY).insertLast(newInterface, null);
+			rewrite.getListRewrite(type, INTERNAL_TYPE_SUPER_INTERFACES_PROPERTY).insertLast(newInterface, null);
 
 			MethodDeclaration newMethodDecl= createNewMethod(ast, "newMethod", true);
 			rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY).insertLast(newMethodDecl,  null);
@@ -1045,7 +1048,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			SingleVariableDeclaration decl= (SingleVariableDeclaration) arguments.get(0);
 
 			int newModifiers= Modifier.FINAL;
-			rewrite.set(decl, SingleVariableDeclaration.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(decl, INTERNAL_VARIABLE_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 			rewrite.set(decl, INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
 
@@ -1059,7 +1062,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			SingleVariableDeclaration decl= (SingleVariableDeclaration) arguments.get(1);
 
 			int newModifiers= 0;
-			rewrite.set(decl, SingleVariableDeclaration.MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(decl, INTERNAL_VARIABLE_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
 
 			Type newVarType= ast.newPrimitiveType(PrimitiveType.FLOAT);
 			rewrite.replace(decl.getType(), newVarType, null);

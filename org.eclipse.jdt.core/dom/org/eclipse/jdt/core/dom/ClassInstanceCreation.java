@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,16 +16,6 @@ import java.util.List;
 
 /**
  * Class instance creation expression AST node type.
- * For JLS2:
- * <pre>
- * ClassInstanceCreation:
- *        [ Expression <b>.</b> ] <b>new</b> Name
- *            <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
- *            [ AnonymousClassDeclaration ]
- * </pre>
- * For JLS3, type arguments are added
- * and the type name is generalized to a type so that parameterized
- * types can be instantiated:
  * <pre>
  * ClassInstanceCreation:
  *        [ Expression <b>.</b> ]
@@ -79,6 +69,7 @@ public class ClassInstanceCreation extends Expression {
 	/**
 	 * The "name" structural property of this node type (child type: {@link Name}) (JLS2 API only).
 	 * @since 3.0
+	 * @deprecated In the JLS3 API, this property is replaced by {@link #TYPE_PROPERTY}.
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
 		new ChildPropertyDescriptor(ClassInstanceCreation.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$

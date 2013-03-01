@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,6 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  * There are many kinds of statements.
  * <p>
  * The grammar combines both Statement and BlockStatement.</p>
- * <p>For JLS2:</p>
  * <pre>
  * Statement:
  *    {@link AssertStatement},
@@ -30,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  *    {@link ContinueStatement},
  *    {@link DoStatement},
  *    {@link EmptyStatement},
+ *    {@link EnhancedForStatement}
  *    {@link ExpressionStatement},
  *    {@link ForStatement},
  *    {@link IfStatement},
@@ -44,12 +44,6 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  *    {@link TypeDeclarationStatement},
  *    {@link VariableDeclarationStatement},
  *    {@link WhileStatement}
- * </pre>
- * <p>For JLS3, an enhanced for node type was added:</p>
- * <pre>
- * Statement:
- *    <i>&lt;JLS2 statements&gt;...</i>,
- *    {@link EnhancedForStatement}
  * </pre>
  *
  * @since 2.0
