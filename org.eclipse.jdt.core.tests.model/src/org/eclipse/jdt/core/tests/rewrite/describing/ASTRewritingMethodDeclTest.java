@@ -2414,6 +2414,20 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    }\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
+		
+		this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ELLIPSIS, JavaCore.INSERT);
+		
+		preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class DD {\n");
+		buf.append("    private void foo1(String format, Object args){\n");
+		buf.append("    }\n");
+		buf.append("    private void foo2(String format, int ... args) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
 	}
 
 	public void testAnnotationTypeMember_since_4() throws Exception {
@@ -2699,6 +2713,166 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
+	public void testVarArgsAnnotations_since_8() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("@interface Marker {\n");
+		buf.append("}\n");
+		buf.append("public class DD {\n");
+		buf.append("    public void foo1(String format, Object @Marker... args){\n");
+		buf.append("    }\n");
+		buf.append("    public void foo2(Object... args) {\n");
+		buf.append("    }\n");
+		buf.append("    public void foo3(Object @Marker ... args) {\n");
+		buf.append("    }\n");
+		buf.append("    public void foo4(Object @Marker... args) {\n"); 
+		buf.append("    }\n");
+		buf.append("    public void foo5(Object... args) {\n"); 
+		buf.append("    }\n");
+		buf.append("    public void foo6(Object args) {\n");
+		buf.append("    }\n");
+		buf.append("    public void foo7(Object @Marker... args) {\n");
+		buf.append("    }\n");		
+		buf.append("    public void foo8(Object @Marker... args) {\n");
+		buf.append("    }\n");		
+		buf.append("    public void foo9(@B @C int @A... a) {\n");
+		buf.append("    }\n");
+		buf.append("    public void foo10(Object args) {\n");
+		buf.append("    }\n");
+		buf.append("    public void foo11(Object @Marker... args) {\n");
+		buf.append("    }\n");
+		buf.append("    public void foo12(Object... args) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
+		
+		CompilationUnit astRoot= createAST(cu, false);
+		AST ast= astRoot.getAST();
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		TypeDeclaration type= findTypeDeclaration(astRoot, "DD");
+		
+		{
+			// Remove annotation from first method args - boundary condition -
+			// - only one annotation should be present.
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo1");
+			SingleVariableDeclaration param = (SingleVariableDeclaration) methodDecl.parameters().get(1);
+			rewrite.remove((ASTNode)param.varargsAnnotations().get(0), null);
+			
+			// Add one annotation to the second method - boundary condition 
+			// - no annotation should be present
+			methodDecl= findMethodDeclaration(type, "foo2");
+			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
+			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("X"));
+			ListRewrite listRewrite= rewrite.getListRewrite(param, SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY);
+			listRewrite.insertFirst(markerAnnotation, null);
+			
+			// Remove the varargs property - annotation(s) should disappear
+			methodDecl= findMethodDeclaration(type, "foo3");
+			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
+			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.FALSE, null);
+			
+			// Remove the varargs property - annotation(s) should disappear
+			// - differs from the above due to the absence of a blank before ...
+			methodDecl= findMethodDeclaration(type, "foo4");
+			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
+			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.FALSE, null);
+			
+			// Remove the varargs property - Existing functionality unchanged without annotations
+			methodDecl= findMethodDeclaration(type, "foo5");
+			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
+			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.FALSE, null);
+			
+			// Add the varargs property  and annotation
+			methodDecl= findMethodDeclaration(type, "foo6");
+			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
+			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.TRUE, null);
+			markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("X"));
+			listRewrite= rewrite.getListRewrite(param, SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY);
+			listRewrite.insertFirst(markerAnnotation, null);
+			
+			// Replace annotation
+			methodDecl= findMethodDeclaration(type, "foo7");
+			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
+			markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("X"));
+			rewrite.replace((ASTNode)param.varargsAnnotations().get(0), markerAnnotation, null);
+			
+			// Reset and Set Varargs - output should not change.
+			methodDecl= findMethodDeclaration(type, "foo8");
+			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
+			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.FALSE, null);
+			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.TRUE, null);
+			
+			// Add multiple (two) annotations, remove an existing annotation
+			methodDecl= findMethodDeclaration(type, "foo9");
+			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
+			NormalAnnotation normalAnnotation = ast.newNormalAnnotation();
+			normalAnnotation.setTypeName(ast.newSimpleName("X"));
+			listRewrite= rewrite.getListRewrite(param, SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY);
+			listRewrite.insertFirst(normalAnnotation, null);
+			markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Y"));
+			listRewrite.insertFirst(markerAnnotation, null);
+			rewrite.remove((ASTNode)param.varargsAnnotations().get(0), null);
+			
+			// Add the varargs property
+			methodDecl= findMethodDeclaration(type, "foo10");
+			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
+			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.TRUE, null);
+			
+			// Remove the annotations and varargs property as well.
+			methodDecl= findMethodDeclaration(type, "foo11");
+			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
+			rewrite.remove((ASTNode)param.varargsAnnotations().get(0), null);
+			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.FALSE, null);
+			
+			// Add an annotation but remove the varargs property - should not add the annotation.
+			methodDecl= findMethodDeclaration(type, "foo12");
+			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
+			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.FALSE, null);
+			markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("X"));
+			listRewrite= rewrite.getListRewrite(param, SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY);
+			listRewrite.insertFirst(markerAnnotation, null);
+		}
+		
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("@interface Marker {\n");
+		buf.append("}\n");
+		buf.append("public class DD {\n");
+		buf.append("    public void foo1(String format, Object... args){\n");
+		buf.append("    }\n");
+		buf.append("    public void foo2(Object @X... args) {\n");
+		buf.append("    }\n");
+		buf.append("    public void foo3(Object args) {\n");
+		buf.append("    }\n");
+		buf.append("    public void foo4(Object args) {\n");
+		buf.append("    }\n");
+		buf.append("    public void foo5(Object args) {\n");
+		buf.append("    }\n");
+		buf.append("    public void foo6(Object @X... args) {\n");
+		buf.append("    }\n");
+		buf.append("    public void foo7(Object @X... args) {\n");
+		buf.append("    }\n");		
+		buf.append("    public void foo8(Object @Marker... args) {\n");
+		buf.append("    }\n");		
+		buf.append("    public void foo9(@B @C int @Y @X()... a) {\n");
+		buf.append("    }\n");
+		buf.append("    public void foo10(Object... args) {\n");
+		buf.append("    }\n");
+		buf.append("    public void foo11(Object args) {\n");
+		buf.append("    }\n");
+		buf.append("    public void foo12(Object args) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());	
+	}
 
 	public void testMethodDeclChangesBug77538() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);

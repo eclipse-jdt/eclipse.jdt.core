@@ -1499,7 +1499,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		RewriteEvent[] children= event.getChildren();
 		boolean isAllInsert= isAllOfKind(children, RewriteEvent.INSERTED);
 		boolean isAllRemove= isAllOfKind(children, RewriteEvent.REMOVED);
-		if (isAllInsert || isAllRemove) {
+		String keyword= Util.EMPTY_STRING;
+		if (property == SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY) {
+			keyword= " "; //$NON-NLS-1$
+		} else if (isAllInsert || isAllRemove) {
 			// update pos
 			try {
 				pos= getScanner().getNextStartOffset(pos, false);
@@ -1509,23 +1512,23 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		Prefix formatterPrefix;
-		if (property == SingleVariableDeclaration.MODIFIERS2_PROPERTY)
+		if (property == SingleVariableDeclaration.MODIFIERS2_PROPERTY || property == SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY)
 			formatterPrefix= this.formatter.PARAM_ANNOTATION_SEPARATION;
 		else
 			formatterPrefix= this.formatter.ANNOTATION_SEPARATION;
 
-		int endPos= new ModifierRewriter(formatterPrefix).rewriteList(node, property, pos, Util.EMPTY_STRING, " "); //$NON-NLS-1$ 
+		int endPos= new ModifierRewriter(formatterPrefix).rewriteList(node, property, pos, keyword, " "); //$NON-NLS-1$ 
 
 		try {
 			int nextPos= getScanner().getNextStartOffset(endPos, false);
-
-			boolean lastUnchanged= children[children.length - 1].getChangeKind() != RewriteEvent.UNCHANGED;
+			RewriteEvent lastChild = children[children.length - 1];
+			boolean lastUnchanged= lastChild.getChangeKind() != RewriteEvent.UNCHANGED;
 
 			if (isAllRemove) {
-				doTextRemove(endPos, nextPos - endPos, getEditGroup(children[children.length - 1]));
+				doTextRemove(endPos, nextPos - endPos, getEditGroup(lastChild));
 				return nextPos;
-			} else if (isAllInsert || (nextPos == endPos && lastUnchanged)) { // see bug 165654
-				RewriteEvent lastChild= children[children.length - 1];
+			} else if ((isAllInsert || (nextPos == endPos && lastUnchanged)) // see bug 165654
+					&& property != SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY) {
 				String separator;
 				if (lastChild.getNewValue() instanceof Annotation) {
 					separator= formatterPrefix.getPrefix(getIndent(pos));
@@ -1541,42 +1544,12 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 	
 	private int rewriteTypeAnnotations(ASTNode node, ChildListPropertyDescriptor property, int pos) {
-		RewriteEvent event = getEvent(node, property);
-		if (event == null || event.getChangeKind() == RewriteEvent.UNCHANGED) {
-			return doVisit(node, property, pos);
-		}
-		RewriteEvent[] children = event.getChildren();
-		boolean isAllInsert = isAllOfKind(children, RewriteEvent.INSERTED);
-		boolean isAllRemove = isAllOfKind(children, RewriteEvent.REMOVED);
-		if (isAllInsert || isAllRemove) {
-			try {
-				pos = getScanner().getNextStartOffset(pos, false);
-			} catch (CoreException e) {
-				handleException(e);
-			}
-		}
- 
-		Prefix formatterPrefix = this.formatter.ANNOTATION_SEPARATION;
- 
-		int endPos = new ModifierRewriter(formatterPrefix).rewriteList(node, property, pos, Util.EMPTY_STRING, " "); //$NON-NLS-1$ 
- 
-		try {
-			int nextPos = getScanner().getNextStartOffset(endPos, false);
-			RewriteEvent lastChild = children[children.length - 1];
-			boolean lastUnchanged = lastChild.getChangeKind() != RewriteEvent.UNCHANGED;
- 
-			if (isAllRemove) {
-				doTextRemove(endPos, nextPos - endPos, getEditGroup(lastChild));
-				return nextPos;
-			} else if (isAllInsert || (nextPos == endPos && lastUnchanged)) {
-				doTextInsert(endPos, formatterPrefix.getPrefix(getIndent(pos)), getEditGroup(lastChild));
-			}
-		} catch (CoreException e) {
-			handleException(e);
-		}
-		return endPos;
+		return rewriteModifiers2(node, property, pos);
 	}
 
+	private int rewriteVarargsAnnotations(ASTNode node, ChildListPropertyDescriptor property, int pos) {
+		return rewriteModifiers2(node, property, pos);
+	}
 
 	private void replaceOperation(int posBeforeOperation, String newOperation, TextEditGroup editGroup) {
 		try {
@@ -2876,15 +2849,34 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		pos= rewriteRequiredNode(node, SingleVariableDeclaration.TYPE_PROPERTY);
 		if (apiLevel >= JLS3_INTERNAL) {
 			if (isChanged(node, SingleVariableDeclaration.VARARGS_PROPERTY)) {
+				TextEditGroup editGroup = getEditGroup(node, SingleVariableDeclaration.VARARGS_PROPERTY);
 				if (getNewValue(node, SingleVariableDeclaration.VARARGS_PROPERTY).equals(Boolean.TRUE)) {
-					doTextInsert(pos, "...", getEditGroup(node, SingleVariableDeclaration.VARARGS_PROPERTY)); //$NON-NLS-1$
+					if (apiLevel >= AST.JLS8) {
+						pos= rewriteVarargsAnnotations(node, SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY, pos);
+					}
+					int indent= getIndent(node.getStartPosition());
+					String prefix= this.formatter.VARARGS.getPrefix(indent);
+					doTextInsert(pos, prefix, editGroup);
+					doTextInsert(pos, "...", editGroup); //$NON-NLS-1$
 				} else {
 					try {
-						int ellipsisEnd= getScanner().getNextEndOffset(pos, true);
-						doTextRemove(pos, ellipsisEnd - pos, getEditGroup(node, SingleVariableDeclaration.VARARGS_PROPERTY));
+						int ellipsisEnd;
+						int noOfAnnotations = apiLevel >= AST.JLS8 ? node.varargsAnnotations().size() : 0;
+						if (noOfAnnotations > 0) {
+							Annotation annotation= (Annotation) node.varargsAnnotations().get(noOfAnnotations - 1);
+							int annotationEndPosition= annotation.getStartPosition() + annotation.getLength();
+							ellipsisEnd= getScanner().getNextEndOffset(annotationEndPosition, true);
+						} else {
+							ellipsisEnd= getScanner().getNextEndOffset(pos, true);
+						}
+						doTextRemove(pos, ellipsisEnd - pos, editGroup);
 					} catch (CoreException e) {
 						handleException(e);
 					}
+				}
+			} else {
+				if (apiLevel >= AST.JLS8 && node.isVarargs()) {
+					pos = rewriteVarargsAnnotations(node, SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY, pos);
 				}
 			}
 			if (!node.isVarargs()) {
