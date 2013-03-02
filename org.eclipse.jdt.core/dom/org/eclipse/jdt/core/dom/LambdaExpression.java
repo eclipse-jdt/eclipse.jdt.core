@@ -249,7 +249,14 @@ public class LambdaExpression extends Expression {
 	 */
 	public ASTNode getBody() {
 		if (this.body == null) {
-			this.body = new Block(this.ast);
+			// lazy init must be thread-safe for readers
+			synchronized (this) {
+				if (this.body == null) {
+					preLazyInit();
+					this.body = new Block(this.ast);
+					postLazyInit(this.body, BODY_PROPERTY);
+				}
+			}
 		}
 		return this.body;
 	}
