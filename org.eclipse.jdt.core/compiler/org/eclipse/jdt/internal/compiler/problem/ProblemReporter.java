@@ -32,6 +32,7 @@
  *								bug 388739 - [1.8][compiler] consider default methods when detecting whether a class needs to be declared abstract
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 382789 - [compiler][null] warn when syntactically-nonnull expression is compared against null
+ *								bug 402028 - [1.8][compiler] null analysis for reference expressions 
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -357,6 +358,8 @@ public static int getIrritant(int problemID) {
 		case IProblem.NullityMismatchingTypeAnnotation:
 		case IProblem.UninitializedNonNullField:
 		case IProblem.UninitializedNonNullFieldHintMissingDefault:
+		case IProblem.ReferenceExpressionParameterMismatchPromisedNullable:
+		case IProblem.ReferenceExpressionReturnNullRedef:
 			return CompilerOptions.NullSpecViolation;
 
 		case IProblem.ParameterLackingNonNullAnnotation:
@@ -366,6 +369,8 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.NullAnnotationInferenceConflict;
 		case IProblem.RequiredNonNullButProvidedUnknown:
 		case IProblem.NullityMismatchingTypeAnnotationUnchecked:
+		case IProblem.ReferenceExpressionParameterRequiredNonnullUnchecked:
+		case IProblem.ReferenceExpressionReturnNullRedefUnchecked:
 			return CompilerOptions.NullUncheckedConversion;
 		case IProblem.RedundantNullAnnotation:
 		case IProblem.RedundantNullDefaultAnnotation:
@@ -8754,8 +8759,8 @@ public void illegalRedefinitionToNonNullParameter(Argument argument, ReferenceBi
 public void parameterLackingNullableAnnotation(Argument argument, ReferenceBinding declaringClass, char[][] inheritedAnnotationName) {
 	this.handle(
 		IProblem.ParameterLackingNullableAnnotation, 
-		new String[] { new String(argument.name), new String(declaringClass.readableName()), CharOperation.toString(inheritedAnnotationName)},
-		new String[] { new String(argument.name), new String(declaringClass.shortReadableName()), new String(inheritedAnnotationName[inheritedAnnotationName.length-1])},
+		new String[] { new String(declaringClass.readableName()), CharOperation.toString(inheritedAnnotationName)},
+		new String[] { new String(declaringClass.shortReadableName()), new String(inheritedAnnotationName[inheritedAnnotationName.length-1])},
 		argument.type.sourceStart,
 		argument.type.sourceEnd);
 }
@@ -8800,6 +8805,92 @@ public void illegalReturnRedefinition(AbstractMethodDeclaration abstractMethodDe
 		new String[] { shortSignature.toString(), new String(nonNullAnnotationName[nonNullAnnotationName.length-1])},
 		sourceStart,
 		methodDecl.returnType.sourceEnd);
+}
+public void parameterLackingNullableAnnotation(ReferenceExpression location, MethodBinding descriptorMethod, int idx,
+				char[][] providedAnnotationName, char/*@Nullable*/[][] requiredAnnotationName, TypeBinding requiredType) {
+	StringBuffer requiredPrefix = new StringBuffer(); 
+	StringBuffer requiredShortPrefix = new StringBuffer(); 
+	if (requiredAnnotationName != null) {
+		requiredPrefix.append('@').append(CharOperation.toString(requiredAnnotationName)).append(' ');
+		requiredShortPrefix.append('@').append(requiredAnnotationName[requiredAnnotationName.length-1]).append(' ');
+	}
+	TypeBinding provided = descriptorMethod.parameters[idx];
+	StringBuffer methodSignature = new StringBuffer();
+	methodSignature
+		.append(descriptorMethod.declaringClass.readableName())
+		.append('.')
+		.append(descriptorMethod.readableName());
+	StringBuffer shortSignature = new StringBuffer();
+	shortSignature
+		.append(descriptorMethod.declaringClass.shortReadableName())
+		.append('.')
+		.append(descriptorMethod.shortReadableName());
+	this.handle(
+			IProblem.ReferenceExpressionParameterMismatchPromisedNullable, 
+			new String[] { String.valueOf(idx+1), 
+							requiredPrefix.toString(), String.valueOf(requiredType.readableName()),
+							CharOperation.toString(providedAnnotationName), String.valueOf(provided.readableName()),
+							methodSignature.toString() },
+			new String[] { String.valueOf(idx+1), 
+							requiredShortPrefix.toString(), String.valueOf(requiredType.shortReadableName()),
+							String.valueOf(providedAnnotationName[providedAnnotationName.length-1]), String.valueOf(provided.shortReadableName()),
+							shortSignature.toString() },
+			location.sourceStart,
+			location.sourceEnd);
+}
+public void parameterRequiresNonnull(ReferenceExpression location, MethodBinding descriptorMethod, int idx,
+				char[][] nonNullAnnotationName, TypeBinding requiredType) {
+	StringBuffer methodSignature = new StringBuffer();
+	methodSignature
+		.append(descriptorMethod.declaringClass.readableName())
+		.append('.')
+		.append(descriptorMethod.readableName());
+
+	StringBuffer shortSignature = new StringBuffer();
+	shortSignature
+		.append(descriptorMethod.declaringClass.shortReadableName())
+		.append('.')
+		.append(descriptorMethod.shortReadableName());
+	this.handle(
+		IProblem.ReferenceExpressionParameterRequiredNonnullUnchecked, 
+		new String[] { String.valueOf(idx+1),
+					methodSignature.toString(),
+					CharOperation.toString(nonNullAnnotationName), String.valueOf(requiredType.readableName()) },
+		new String[] { String.valueOf(idx+1),
+					shortSignature.toString(),
+					String.valueOf(nonNullAnnotationName[nonNullAnnotationName.length-1]), String.valueOf(requiredType.shortReadableName()) },
+		location.sourceStart,
+		location.sourceEnd);
+}
+public void illegalReturnRedefinition(ASTNode location, MethodBinding descriptorMethod,
+			char[][] nonNullAnnotationName, 
+			char/*@Nullable*/[][] providedAnnotationName, TypeBinding providedType) {
+	StringBuffer methodSignature = new StringBuffer()
+		.append(descriptorMethod.declaringClass.readableName())
+		.append('.')
+		.append(descriptorMethod.readableName());
+	StringBuffer shortSignature = new StringBuffer()
+		.append(descriptorMethod.declaringClass.shortReadableName())
+		.append('.')
+		.append(descriptorMethod.shortReadableName());
+	StringBuffer providedPrefix = new StringBuffer(); 
+	StringBuffer providedShortPrefix = new StringBuffer(); 
+	if (providedAnnotationName != null) {
+		providedPrefix.append('@').append(CharOperation.toString(providedAnnotationName)).append(' ');
+		providedShortPrefix.append('@').append(providedAnnotationName[providedAnnotationName.length-1]).append(' ');
+	}
+	this.handle(
+		providedAnnotationName == null
+			? IProblem.ReferenceExpressionReturnNullRedefUnchecked
+			: IProblem.ReferenceExpressionReturnNullRedef,
+		new String[] { methodSignature.toString(),
+						CharOperation.toString(nonNullAnnotationName), String.valueOf(descriptorMethod.returnType.readableName()),
+						providedPrefix.toString(), String.valueOf(providedType.readableName())},
+		new String[] { shortSignature.toString(),
+						String.valueOf(nonNullAnnotationName[nonNullAnnotationName.length-1]), String.valueOf(descriptorMethod.returnType.shortReadableName()),
+						providedShortPrefix.toString(), String.valueOf(providedType.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void messageSendPotentialNullReference(MethodBinding method, ASTNode location) {
 	String[] arguments = new String[] {new String(method.readableName())};

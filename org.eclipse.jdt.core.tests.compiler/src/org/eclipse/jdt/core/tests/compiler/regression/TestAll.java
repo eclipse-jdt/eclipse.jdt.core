@@ -130,6 +130,7 @@ public static Test suite() {
 	since_1_8.add(ExpressionContextTests.class);
 	since_1_8.add(DefaultMethodsTest.class);
 	since_1_8.add(GrammarCoverageTests308.class);
+	since_1_8.add(FlowAnalysisTest8.class);
 
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());

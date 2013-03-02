@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2013 GK Software AG and others.
+ * Copyright (c) 2010, 2012 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,6 @@ import java.util.Map;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 // see bug 186342 - [compiler][null] Using annotations for null checking
 public class NullAnnotationTest extends AbstractNullAnnotationTest {
@@ -29,7 +28,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "testLambda_0" };
+//		TESTS_NAMES = new String[] { "test_parameter_specification_inheritance_01" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -5773,215 +5772,5 @@ public void testBug388281_10() {
 		"	      ^^^^\n" + 
 		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n"); 
-}
-
-// Lambda with elided args inherits null contract from the super method
-public void testLambda_01() {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_8) {
-		Map customOptions = getCompilerOptions();
-		runNegativeTestWithLibs(
-			new String[] {
-				"ISAM.java",
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"public interface ISAM {\n" +
-				"	@NonNull String toString(@NonNull String prefix, @Nullable Object o);\n" +
-				"}\n",
-				"X.java",
-				"public class X {\n" +
-				"	void test() {\n" +
-				"		ISAM printer = (p,o) -> p.concat(o.toString());\n" +
-				"	}\n" +
-				"}\n"
-			}, 
-			customOptions,
-			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	ISAM printer = (p,o) -> p.concat(o.toString());\n" + 
-			"	                        ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Null type safety: The expression of type String needs unchecked conversion to conform to \'@NonNull String\'\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\n" + 
-			"	ISAM printer = (p,o) -> p.concat(o.toString());\n" + 
-			"	                                 ^\n" + 
-			"Potential null pointer access: The variable o may be null at this location\n" + 
-			"----------\n");
-	}
-}
-
-// Lambda with declared args violates null contract of super
-public void testLambda_02() {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_8) {
-		Map customOptions = getCompilerOptions();
-		runNegativeTestWithLibs(
-			new String[] {
-				"ISAM.java",
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"public interface ISAM {\n" +
-				"	void process(@NonNull Object nn, @Nullable Object n, Object u);\n" +
-				"}\n",
-				"X.java",
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"public class X {\n" +
-				"	void test() {\n" +
-						// try to override, illegal except for unchanged o1:
-				"		ISAM printer = (@NonNull  Object o1, @NonNull 	Object o2, @NonNull	 Object o3) -> System.out.println(2);\n" +
-				"	}\n" +
-				"}\n"
-			}, 
-			customOptions,
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	ISAM printer = (@NonNull  Object o1, @NonNull 	Object o2, @NonNull	 Object o3) -> System.out.println(2);\n" + 
-			"	                                     ^^^^^^^^^^^^^^^^\n" + 
-			"Illegal redefinition of parameter o2, inherited method from ISAM declares this parameter as @Nullable\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
-			"	ISAM printer = (@NonNull  Object o1, @NonNull 	Object o2, @NonNull	 Object o3) -> System.out.println(2);\n" + 
-			"	                                              	           ^^^^^^^^^^^^^^^^\n" + 
-			"Illegal redefinition of parameter o3, inherited method from ISAM does not constrain this parameter\n" + 
-			"----------\n");
-	}
-}
-
-// Lambda with declared args inherits / modifies contract of super
-public void testLambda_03() {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_8) {
-		Map customOptions = getCompilerOptions();
-		runNegativeTestWithLibs(
-			new String[] {
-				"ISAM.java",
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"public interface ISAM {\n" +
-				"	void process(@NonNull Object nn, @Nullable Object n, Object u);\n" +
-				"}\n",
-				"X.java",
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"public class X {\n" +
-				"	void test() {\n" +
-						// fill-in all from super:
-				"		ISAM printer1 = (Object 		  o1, 			Object o2, 			 Object o3) \n" +
-				"							-> System.out.println(o1.toString()+o2.toString()+o3.toString());\n" +
-						// legal overrides: (however, @NonNull -> @Nullable is probably nonsense)
-				"		ISAM printer3 = (@Nullable Object o1, @Nullable Object o2, @Nullable Object o3) \n" +
-				"							-> System.out.println(o1.toString()+o2.toString()+o3.toString());\n" +
-				"	}\n" +
-				"}\n"
-			}, 
-			customOptions,
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	-> System.out.println(o1.toString()+o2.toString()+o3.toString());\n" + 
-			"	                                    ^^\n" + 
-			"Potential null pointer access: The variable o2 may be null at this location\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 7)\n" + 
-			"	-> System.out.println(o1.toString()+o2.toString()+o3.toString());\n" + 
-			"	                      ^^\n" + 
-			"Potential null pointer access: The variable o1 may be null at this location\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 7)\n" + 
-			"	-> System.out.println(o1.toString()+o2.toString()+o3.toString());\n" + 
-			"	                                    ^^\n" + 
-			"Potential null pointer access: The variable o2 may be null at this location\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 7)\n" + 
-			"	-> System.out.println(o1.toString()+o2.toString()+o3.toString());\n" + 
-			"	                                                  ^^\n" + 
-			"Potential null pointer access: The variable o3 may be null at this location\n" + 
-			"----------\n");
-	}
-}
-
-// Lambda with declared args has illegal @NonNull an primitive argument
-public void testLambda_04() {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_8) {
-		Map customOptions = getCompilerOptions();
-		runNegativeTestWithLibs(
-			new String[] {
-				"ISAM.java",
-				"public interface ISAM {\n" +
-				"	void process(int i);\n" +
-				"}\n",
-				"X.java",
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"public class X {\n" +
-				"	void test() {\n" +
-				"		ISAM printer1 = (@NonNull int i) \n" +
-				"							-> System.out.println(i);\n" +
-				"	}\n" +
-				"}\n"
-			}, 
-			customOptions,
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	ISAM printer1 = (@NonNull int i) \n" + 
-			"	                 ^^^^^^^^^^^^\n" + 
-			"The nullness annotation @NonNull is not applicable for the primitive type int\n" + 
-			"----------\n");
-	}
-}
-
-// Lambda inherits null contract and has block with return statement 
-public void testLambda_05() {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_8) {
-		Map customOptions = getCompilerOptions();
-		runNegativeTestWithLibs(
-			new String[] {
-				"ISAM.java",
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"public interface ISAM {\n" +
-				"	@NonNull String toString(Object o);\n" +
-				"}\n",
-				"X.java",
-				"public class X {\n" +
-				"	void test() {\n" +
-				"		ISAM printer = (o) -> {\n" +
-				"			System.out.print(13);\n" +
-				"			return null; // error\n" +
-				"		};\n" +
-				"	}\n" +
-				"}\n"
-			}, 
-			customOptions,
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	return null; // error\n" + 
-			"	       ^^^^\n" + 
-			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-			"----------\n");
-	}
-}
-// Lambda has no descriptor (overriding method from Object), don't bail out with NPE during analysis
-public void testLambda_05a() {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_8) {
-		Map customOptions = getCompilerOptions();
-		runNegativeTestWithLibs(
-			new String[] {
-				"ISAM.java",
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"public interface ISAM {\n" +
-				"	@NonNull String toString();\n" +
-				"}\n",
-				"X.java",
-				"public class X {\n" +
-				"	void test() {\n" +
-				"		ISAM printer = () -> {\n" +
-				"			System.out.print(13);\n" +
-				"			return null;\n" +
-				"		};\n" +
-				"	}\n" +
-				"}\n"
-			}, 
-			customOptions,
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	ISAM printer = () -> {\n" +
-			"			System.out.print(13);\n" +
-			"			return null;\n" +
-			"		};\n" +
-			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The target type of this expression must be a functional interface\n" +
-			"----------\n");
-	}
 }
 }

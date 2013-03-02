@@ -170,6 +170,10 @@
  *									NonNullSpecdFieldComparisonYieldsFalse
  *									NonNullExpressionComparisonYieldsFalse
  *									RedundantNullCheckOnNonNullExpression
+ *									ReferenceExpressionParameterMismatchPromisedNullable
+ *									ReferenceExpressionParameterRequiredNonnullUnchecked
+ *									ReferenceExpressionReturnNullRedef
+ *									ReferenceExpressionReturnNullRedefUnchecked
  *      Jesper S Moller  - added the following constants
  *									TargetTypeNotAFunctionalInterface
  *									OuterLocalMustBeEffectivelyFinal
@@ -1648,6 +1652,14 @@ void setSourceStart(int sourceStart);
 	int NullityMismatchingTypeAnnotation = Internal + 953;
 	/** @since 3.9 */
 	int NullityMismatchingTypeAnnotationUnchecked = Internal + 954;
+	/** @since 3.9 */
+	int ReferenceExpressionParameterMismatchPromisedNullable = MethodRelated + 955;
+	/** @since 3.9 */
+	int ReferenceExpressionParameterRequiredNonnullUnchecked = MethodRelated + 956;
+	/** @since 3.9 */
+	int ReferenceExpressionReturnNullRedef = MethodRelated + 957;
+	/** @since 3.9 */
+	int ReferenceExpressionReturnNullRedefUnchecked = MethodRelated + 958;
 
 	// Java 8 work
 	/** @since 3.9 */

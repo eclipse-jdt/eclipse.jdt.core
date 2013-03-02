@@ -260,6 +260,35 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         	}
         	scope.problemReporter().unhandledException(methodExceptions[i], this);
         }
+        if (scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
+        	int len = this.descriptor.parameters.length;
+    		for (int i = 0; i < len; i++) {
+    			Boolean declared = this.descriptor.parameterNonNullness == null ? null : this.descriptor.parameterNonNullness[i];
+    			Boolean implemented = this.binding.parameterNonNullness == null ? null : this.binding.parameterNonNullness[i];
+    			if (declared == Boolean.FALSE) { // promise to accept null
+    				if (implemented != Boolean.FALSE) {
+    					char[][] requiredAnnot = implemented == null ? null : scope.environment().getNonNullAnnotationName();
+    					scope.problemReporter().parameterLackingNullableAnnotation(this, this.descriptor, i, 
+    							scope.environment().getNullableAnnotationName(),
+    							requiredAnnot, this.binding.parameters[i]);
+    				}
+    			} else if (declared == null) {
+    				if (implemented == Boolean.TRUE) {
+    					scope.problemReporter().parameterRequiresNonnull(this, this.descriptor, i,
+    							scope.environment().getNonNullAnnotationName(), this.binding.parameters[i]);
+    				}
+    			}
+    		}
+        	if ((this.descriptor.tagBits & TagBits.AnnotationNonNull) != 0) {
+        		if ((this.binding.tagBits & TagBits.AnnotationNonNull) == 0) {
+        			char[][] providedAnnotationName = ((this.binding.tagBits & TagBits.AnnotationNullable) != 0) ?
+        					scope.environment().getNullableAnnotationName() : null;
+        			scope.problemReporter().illegalReturnRedefinition(this, this.descriptor,
+        					scope.environment().getNonNullAnnotationName(),
+        					providedAnnotationName, this.binding.returnType);
+        		}
+        	}
+        }
         
     	if (checkInvocationArguments(scope, null, this.receiverType, this.binding, null, descriptorParameters, false, this))
     		this.bits |= ASTNode.Unchecked;
@@ -290,7 +319,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 
     	return this.resolvedType; // Phew !
 	}
-	
+
 	public final boolean isConstructorReference() {
 		return CharOperation.equals(this.method.token,  ConstantPool.Init);
 	}

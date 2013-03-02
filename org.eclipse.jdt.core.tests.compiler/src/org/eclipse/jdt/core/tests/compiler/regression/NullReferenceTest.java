@@ -1,13 +1,9 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 IBM Corporation and others.
+ * Copyright (c) 2005, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -31,7 +27,6 @@
  *							bug 376263 - Bogus "Potential null pointer access" warning
  *							bug 331649 - [compiler][null] consider null annotations for fields
  *							bug 382789 - [compiler][null] warn when syntactically-nonnull expression is compared against null
- *							bug 402028 - [1.8][compiler] null analysis for reference expressions 
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -16214,34 +16209,5 @@ public void testBug345305_14() {
 		"	^\n" + 
 		"Potential null pointer access: The variable s may be null at this location\n" + 
 		"----------\n");
-}
-public void testReferenceExpression1() {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_8) {
-		Map options = getCompilerOptions();
-		options.put(JavaCore.COMPILER_PB_NULL_REFERENCE, JavaCore.ERROR);
-		runNegativeTest(
-			new String[] {
-				 "I.java",
-				 "public interface I {\n" +
-				 "	public void foo();\n" +
-				 "}\n",
-				 "X.java",
-				 "public class X {\n" +
-				 "	public void bar() {}\n" +
-				 "	void test() {\n" +
-				 "		X x = null;\n" +
-				 "		I i = x::bar;\n" +
-				 "		i.foo();\n" +
-				 "	}\n" +
-				 "}\n"
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	I i = x::bar;\n" + 
-			"	      ^\n" + 
-			"Null pointer access: The variable x can only be null at this location\n" + 
-			"----------\n",
-			null/*libs*/, true/*flush*/, options);
-	}
 }
 }
