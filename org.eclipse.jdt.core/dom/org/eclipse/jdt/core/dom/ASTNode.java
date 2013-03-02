@@ -843,6 +843,14 @@ public abstract class ASTNode {
 	public static final int EXTRA_DIMENSION = 85;
 
 	/**
+	 * Node type constant indicating a node of type
+	 * <code>LambdaExpression</code>.
+	 * @see LambdaExpression
+	 * @since 3.9
+	 */
+	public static final int LAMBDA_EXPRESSION = 86;
+
+	/**
 	 * Returns the node class for the corresponding node type.
 	 *
 	 * @param nodeType AST node type
@@ -932,6 +940,8 @@ public abstract class ASTNode {
 				return Javadoc.class;
 			case LABELED_STATEMENT :
 				return LabeledStatement.class;
+			case LAMBDA_EXPRESSION :
+				return LambdaExpression.class;
 			case LINE_COMMENT :
 				return LineComment.class;
 			case MARKER_ANNOTATION :

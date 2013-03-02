@@ -551,6 +551,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public boolean match(InstanceofExpression node, Object other) {
 			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
 		}
+		public boolean match(LambdaExpression node, Object other) {
+			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
+		}
 	}
 
 	/**
@@ -1561,6 +1564,55 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		Annot.setTypeName(this.ast.newSimpleName("NewAnnot3"));
 		x2.annotations().add(Annot);
 		x1.extraDimensions().add(x2);
+		basicMatch(x1);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
+	public void testLambdaExpressions1() {
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		LambdaExpression x1 = this.ast.newLambdaExpression();
+		VariableDeclarationFragment x2 = this.ast.newVariableDeclarationFragment();
+		x2.setName(this.N1);
+		x1.parameters().add(x2);
+		x1.setBody(this.ast.newBlock());
+		basicMatch(x1);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
+	public void testLambdaExpressions2() {
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		LambdaExpression x1 = this.ast.newLambdaExpression();
+		x1.setBody(this.ast.newBlock());
+		basicMatch(x1);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
+	public void testLambdaExpressions3() {
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		LambdaExpression x1 = this.ast.newLambdaExpression();
+		x1.setBody(this.E1);
+		basicMatch(x1);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
+	public void testLambdaExpressions4() {
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		LambdaExpression x1 = this.ast.newLambdaExpression();
+		SingleVariableDeclaration x2 = this.ast.newSingleVariableDeclaration();
+		x2.modifiers().add(this.MOD1);
+		x2.modifiers().add(this.MOD2);
+		x2.setType(this.T1);
+		x2.setName(this.N1);
+		x1.parameters().add(x2);
+		x1.setBody(this.E1);
 		basicMatch(x1);
 	}
 }

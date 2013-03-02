@@ -894,6 +894,26 @@ class DefaultBindingResolver extends BindingResolver {
 	/*
 	 * Method declared on BindingResolver.
 	 */
+	synchronized IMethodBinding resolveMethod(LambdaExpression lambda) {
+		Object oldNode = this.newAstToOldAst.get(lambda);
+		if (oldNode instanceof org.eclipse.jdt.internal.compiler.ast.LambdaExpression) {
+			org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression = (org.eclipse.jdt.internal.compiler.ast.LambdaExpression) oldNode;
+			IMethodBinding methodBinding = getMethodBinding(lambdaExpression.binding);
+			if (methodBinding == null) {
+				return null;
+			}
+			this.bindingsToAstNodes.put(methodBinding, lambda);
+			String key = methodBinding.getKey();
+			if (key != null) {
+				this.bindingTables.bindingKeysToBindings.put(key, methodBinding);
+			}
+			return methodBinding;
+		}
+		return null;
+	}
+/*
+	 * Method declared on BindingResolver.
+	 */
 	synchronized IMethodBinding resolveMethod(MethodInvocation method) {
 		Object oldNode = this.newAstToOldAst.get(method);
 		if (oldNode instanceof MessageSend) {

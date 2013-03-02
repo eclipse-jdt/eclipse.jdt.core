@@ -47,6 +47,7 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 public class LambdaExpression extends FunctionalExpression {
 	public Argument [] arguments;
 	public Statement body;
+	public boolean hasParentheses;
 	MethodScope scope;
 	protected boolean voidCompatible = true;
 	protected boolean valueCompatible = false;

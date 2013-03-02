@@ -1520,4 +1520,176 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		abinding = annotation.resolveAnnotationBinding();
 		assertEquals("@Marker1()", abinding.toString());
 	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test399793a() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test399793/X.java",
+				true/* resolve */);
+		String contents = "package test399793;"
+				+ "interface I {\n"
+				+ "	int foo(int x);\n"
+				+ "}\n" 
+				+ "public class X {\n"
+				+ " I i =  vlambda -> {return 200;};\n"
+				+"}\n";
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(0);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment)fieldDeclaration.fragments().get(0);
+		Expression expression = fragment.getInitializer();
+		assertTrue(expression instanceof LambdaExpression);
+		LambdaExpression lambdaExpression = (LambdaExpression)expression;
+		assertEquals("vlambda -> {\n  return 200;\n}\n", lambdaExpression.toString());
+		assertTrue(lambdaExpression.parameters().size() == 1);
+		IMethodBinding binding = lambdaExpression.resolveMethodBinding();
+		assertEquals("public int foo(int) ", binding.toString());
+		VariableDeclaration variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
+		assertTrue(variableDeclaration instanceof VariableDeclarationFragment);
+		fragment = (VariableDeclarationFragment)variableDeclaration;
+		assertEquals("vlambda", fragment.toString());		
+		IVariableBinding variableBinding = fragment.resolveBinding();		
+		ITypeBinding typeBinding = variableBinding.getType();
+		assertNotNull("Null Binding for lambda argument", typeBinding);
+		assertEquals("binding of int expected for lambda","int",typeBinding.getName());
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test399793b() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test399793/X.java",
+				true/* resolve */);
+		String contents = "package test399793;"
+				+ "interface I {\n"
+				+ "	int foo(int x);\n"
+				+ "}\n" 
+				+ "public class X {\n"
+				+ " I i =  vlambda -> 200;\n"
+				+"}\n";
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(0);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment)fieldDeclaration.fragments().get(0);
+		Expression expression = fragment.getInitializer();
+		assertTrue(expression instanceof LambdaExpression);
+		LambdaExpression lambdaExpression = (LambdaExpression)expression;
+		assertEquals("vlambda -> 200", lambdaExpression.toString());
+		IMethodBinding binding = lambdaExpression.resolveMethodBinding();
+		assertEquals("public int foo(int) ", binding.toString());
+		assertTrue(lambdaExpression.parameters().size() == 1);
+		VariableDeclaration variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
+		assertTrue(variableDeclaration instanceof VariableDeclarationFragment);
+		fragment = (VariableDeclarationFragment)variableDeclaration;
+		assertEquals("vlambda", fragment.toString());		
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test399793c() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test399793/X.java",
+				true/* resolve */);
+		String contents = "package test399793;"
+				+ "interface I {\n"
+				+ "	Object foo(int [] ia);\n"
+				+ "}\n" 
+				+ "public class X {\n"
+				+ " I i = (int [] ia) ->{\n"
+				+ "  	return ia.clone();"
+				+ "};\n"
+				+"}\n";
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(0);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment)fieldDeclaration.fragments().get(0);
+		Expression expression = fragment.getInitializer();
+		assertTrue(expression instanceof LambdaExpression);
+		LambdaExpression lambdaExpression = (LambdaExpression)expression;
+		assertEquals("(int[] ia) -> {\n  return ia.clone();\n}\n", lambdaExpression.toString());
+		IMethodBinding binding = lambdaExpression.resolveMethodBinding();
+		assertEquals("public java.lang.Object foo(int[]) ", binding.toString());
+		assertTrue(lambdaExpression.parameters().size() == 1);
+		VariableDeclaration variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
+		assertTrue(variableDeclaration instanceof SingleVariableDeclaration);
+		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration)variableDeclaration;
+		assertEquals("int[] ia", singleVariableDeclaration.toString());		
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test399793d() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test399793/X.java",
+				true/* resolve */);
+		String contents = "package test399793;" +
+				"interface I {\n" +
+				"	void doit();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"		I i = () -> {\n" +
+				"			System.out.println(this);\n" +
+				"			I j = () -> {\n" +
+				"				System.out.println(this);\n" +
+				"				I k = () -> {\n" +
+				"					System.out.println(this);\n" +
+				"				};\n" +
+				"			};\n" +
+				"		};\n" +
+				"	}\n"; 
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(0);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment)fieldDeclaration.fragments().get(0);
+		IVariableBinding variableBinding = fragment.resolveBinding();
+		assertEquals("test399793.I i", variableBinding.toString());
+		Expression expression = fragment.getInitializer();
+		assertTrue(expression instanceof LambdaExpression);
+		LambdaExpression lambdaExpression = (LambdaExpression)expression;
+		assertEquals("() -> {\n  System.out.println(this);\n  I j=() -> {\n    System.out.println(this);\n    I k=() -> {\n      System.out.println(this);\n    }\n;\n  }\n;\n}\n", lambdaExpression.toString());
+		IMethodBinding binding = lambdaExpression.resolveMethodBinding();
+		assertEquals("public void doit() ", binding.toString());
+		assertTrue(lambdaExpression.parameters().size() == 0);
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test399793e() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test399793/X.java",
+				true/* resolve */);
+		String contents = "package test399793;" +
+				"interface I {\n" +
+				"  J foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"  int foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    I I = () -> () -> 10;\n" +
+				"}\n";
+			
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 2);
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(0);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment)fieldDeclaration.fragments().get(0);
+		Expression expression = fragment.getInitializer();
+		assertTrue(expression instanceof LambdaExpression);
+		LambdaExpression lambdaExpression = (LambdaExpression)expression;
+		assertEquals("() -> () -> 10", lambdaExpression.toString());
+		IMethodBinding binding = lambdaExpression.resolveMethodBinding();
+		assertEquals("public test399793.J foo() ", binding.toString());
+		assertTrue(lambdaExpression.parameters().size() == 0);
+	}	
 }

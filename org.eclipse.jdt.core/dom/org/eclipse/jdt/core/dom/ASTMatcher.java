@@ -957,6 +957,30 @@ public class ASTMatcher {
 	 * other object is a node of the same type with structurally isomorphic
 	 * child subtrees. Subclasses may override this method as needed.
 	 * </p>
+	 * @param node the node
+	 * @param other the other object, or <code>null</code>
+	 * @return <code>true</code> if the subtree matches, or
+	 *   <code>false</code> if they do not match or the other object has a
+	 *   different node type or is <code>null</code>
+	 * @since 3.9
+	 */
+	public boolean match(LambdaExpression node, Object other) {
+		if (!(other instanceof LambdaExpression)) {
+			return false;
+		}
+		LambdaExpression o = (LambdaExpression) other;
+		return	(node.hasParentheses() == o.hasParentheses())
+				&& safeSubtreeListMatch(node.parameters(), o.parameters())
+				&& safeSubtreeMatch(node.getBody(), o.getBody());
+	}
+
+	/**
+	 * Returns whether the given node and the other object match.
+	 * <p>
+	 * The default implementation provided by this class tests whether the
+	 * other object is a node of the same type with structurally isomorphic
+	 * child subtrees. Subclasses may override this method as needed.
+	 * </p>
 	 *
 	 * @param node the node
 	 * @param other the other object, or <code>null</code>

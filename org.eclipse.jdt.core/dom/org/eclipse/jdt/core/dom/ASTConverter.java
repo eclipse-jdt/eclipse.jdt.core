@@ -1720,6 +1720,9 @@ class ASTConverter {
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TypeReference) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.TypeReference) expression);
 		}
+		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.LambdaExpression) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.LambdaExpression) expression);
+		}
 		return null;
 	}
 
@@ -2135,6 +2138,46 @@ class ASTConverter {
 		}
 		expr.setSourceRange(sourceStart, expression.sourceEnd - sourceStart + 1);
 		return expr;
+	}
+
+	public LambdaExpression convert(org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambda) {
+		final LambdaExpression	lambdaExpression = new LambdaExpression(this.ast);
+		if (this.resolveBindings) {
+			recordNodes(lambdaExpression, lambda);
+		}
+		org.eclipse.jdt.internal.compiler.ast.Argument[] arguments = lambda.arguments;
+		if (arguments != null) {
+			int argumentsLength = arguments.length;
+			for (int i = 0; i < argumentsLength; i++) {
+				org.eclipse.jdt.internal.compiler.ast.Argument argument = arguments[i];
+				if (argument.type == null) {
+					VariableDeclarationFragment variableDeclarationFragment = new VariableDeclarationFragment(this.ast);
+					SimpleName simpleName = new SimpleName(this.ast);
+					simpleName.internalSetIdentifier(new String(argument.name));
+					int start = argument.sourceStart;
+					int end = argument.sourceEnd;
+					simpleName.setSourceRange(start, end - start + 1);
+					if (this.resolveBindings) {
+						recordNodes(simpleName, argument);
+						recordNodes(variableDeclarationFragment, argument);
+					}
+					variableDeclarationFragment.setName(simpleName);
+					lambdaExpression.parameters().add(variableDeclarationFragment);					
+				} else {
+					SingleVariableDeclaration singleVariableDeclaration = convert(argument);
+					lambdaExpression.parameters().add(singleVariableDeclaration);					
+				}
+			}
+		}
+		if (lambda.body instanceof org.eclipse.jdt.internal.compiler.ast.Expression) {
+			lambdaExpression.setBody(convert((org.eclipse.jdt.internal.compiler.ast.Expression) lambda.body));
+		} else {
+			lambdaExpression.setBody(convert((org.eclipse.jdt.internal.compiler.ast.Block) lambda.body));
+		}
+		int sourceStart = lambda.sourceStart;
+		lambdaExpression.setSourceRange(sourceStart, lambda.sourceEnd - sourceStart + 1);
+		lambdaExpression.setParentheses(lambda.hasParentheses);
+		return lambdaExpression;
 	}
 
 	public MarkerAnnotation convert(org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation annotation) {

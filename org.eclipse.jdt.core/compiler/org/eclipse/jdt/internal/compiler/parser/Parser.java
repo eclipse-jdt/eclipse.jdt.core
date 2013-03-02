@@ -7865,6 +7865,11 @@ protected void consumeLambdaExpression() {
 	this.intPtr--;  // ')' position, discard for now.
 	lexp.sourceStart = this.intStack[this.intPtr--]; // '(' position or identifier position.
 	lexp.sourceEnd = body.sourceEnd;
+	lexp.hasParentheses = (this.scanner.getSource()[lexp.sourceStart] == '(');
+	if (body instanceof Expression) {
+		Expression expression = (Expression) body;
+		expression.statementEnd = body.sourceEnd;
+	}
 	pushOnExpressionStack(lexp);
 	if (!this.parsingJava8Plus) {
 		problemReporter().lambdaExpressionsNotBelow18(lexp);

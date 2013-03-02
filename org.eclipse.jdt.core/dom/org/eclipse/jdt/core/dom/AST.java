@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -1116,25 +1115,6 @@ public final class AST {
 	}
 
 	/**
-	 * Creates and returns a new unparented annotatable extra dimension node
-	 * (Supported only in JLS8 level).
-	 *
-	 * @return a new unparented annotatable extra dimension node
-	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
-	 * @exception UnsupportedOperationException if this operation is used
-	 *            in a JLS2, JLS3 or JLS4 AST
-	 * @since 3.9
-	 */
-	public ExtraDimension newExtraDimension() {
-		ExtraDimension result = new ExtraDimension(this);
-		return result;
-	}
-
-	/**
 	 * Creates and returns a new unparented array type node with the given
 	 * element type and number of (additional) dimensions.
 	 * <p>
@@ -1355,19 +1335,6 @@ public final class AST {
 	}
 
 	/**
-	 * Creates a new unparented union type node owned by this AST.
-	 * By default, the union type has no types.
-	 *
-	 * @return a new unparented do statement node
-	 * @exception UnsupportedOperationException if this operation is used in
-	 * a JLS2 or JLS3 AST
-	 * @since 3.7.1
-	 */
-	public UnionType newUnionType() {
-		return new UnionType(this);
-	}
-
-	/**
 	 * Creates a new unparented do statement node owned by this AST.
 	 * By default, the expression is unspecified (but legal), and
 	 * the body statement is an empty block.
@@ -1460,6 +1427,25 @@ public final class AST {
 	}
 
 	/**
+	 * Creates and returns a new unparented annotatable extra dimension node
+	 * (Supported only in JLS8 level).
+	 *
+	 * @return a new unparented annotatable extra dimension node
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
+	 * @exception UnsupportedOperationException if this operation is used
+	 *            in a JLS2, JLS3 or JLS4 AST
+	 * @since 3.9
+	 */
+	public ExtraDimension newExtraDimension() {
+		ExtraDimension result = new ExtraDimension(this);
+		return result;
+	}
+
+	/**
 	 * Creates and returns a new unparented field access expression node
 	 * owned by this AST. By default, the expression and field are both
 	 * unspecified, but legal, names.
@@ -1522,6 +1508,20 @@ public final class AST {
 	 */
 	public IfStatement newIfStatement() {
 		return new IfStatement(this);
+	}
+
+	/**
+	 * Creates an unparented lambda expression node owned by this AST.
+	 * By default, the new lambda expression contains an empty argument
+	 * list and the body is an empty block.
+	 * 
+	 * @return a new unparented lambda expression node
+	 * @exception UnsupportedOperationException if this operation is used in a JLS2, JLS3 or JLS4 AST
+	 * @since 3.9
+	 */
+	public LambdaExpression newLambdaExpression() {
+		LambdaExpression result = new LambdaExpression(this);
+		return result;
 	}
 
 	/**
@@ -2396,6 +2396,19 @@ public final class AST {
 	public TypeParameter newTypeParameter() {
 		TypeParameter result = new TypeParameter(this);
 		return result;
+	}
+
+	/**
+	 * Creates a new unparented union type node owned by this AST.
+	 * By default, the union type has no types.
+	 *
+	 * @return a new unparented UnionType node
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a JLS2 or JLS3 AST
+	 * @since 3.7.1
+	 */
+	public UnionType newUnionType() {
+		return new UnionType(this);
 	}
 
 	/**
