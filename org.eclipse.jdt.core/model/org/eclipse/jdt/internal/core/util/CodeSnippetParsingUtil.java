@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2002, 2009 IBM Corporation and others.
+ * Copyright (c) 2002, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -171,7 +175,7 @@ public class CodeSnippetParsingUtil {
 
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit);
 		CompilationUnitDeclaration unit = new CompilationUnitDeclaration(problemReporter, compilationResult, source.length);
-		Expression result = parser.parseExpression(source, offset, length, unit);
+		Expression result = parser.parseExpression(source, offset, length, unit, true /* record line separators */);
 
 		if (recordParsingInformation) {
 			this.recordedParsingInformation = getRecordedParsingInformation(compilationResult, unit.comments);

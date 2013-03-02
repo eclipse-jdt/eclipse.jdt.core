@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -35,7 +39,7 @@ public class ProblemHandler {
 
 	public final static String[] NoArgument = CharOperation.NO_STRINGS;
 
-	final public IErrorHandlingPolicy policy;
+	public IErrorHandlingPolicy policy;
 	public final IProblemFactory problemFactory;
 	public final CompilerOptions options;
 /*
@@ -114,7 +118,7 @@ public void handle(
 	ReferenceContext referenceContext,
 	CompilationResult unitResult) {
 
-	if (severity == ProblemSeverities.Ignore)
+	if (severity == ProblemSeverities.Ignore || this.policy.ignoreAllErrors())
 		return;
 
 	if ((severity & ProblemSeverities.Optional) != 0 && problemId != IProblem.Task  && !this.options.ignoreSourceFolderWarningOption) {
@@ -211,5 +215,11 @@ public void handle(
 }
 public void record(CategorizedProblem problem, CompilationResult unitResult, ReferenceContext referenceContext, boolean optionalError) {
 	unitResult.record(problem, referenceContext, optionalError);
+}
+/** @return old policy. */
+public IErrorHandlingPolicy switchErrorHandlingPolicy(IErrorHandlingPolicy newPolicy) {
+	IErrorHandlingPolicy presentPolicy = this.policy;
+	this.policy = newPolicy;
+	return presentPolicy;
 }
 }

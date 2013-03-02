@@ -8792,6 +8792,7 @@ public void test265() {
 	IErrorHandlingPolicy errorHandlingPolicy = new IErrorHandlingPolicy() {
 		public boolean proceedOnErrors() { return true; }
 		public boolean stopOnFirstError() { return false; }
+		public boolean ignoreAllErrors() { return false; }
 	};
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);

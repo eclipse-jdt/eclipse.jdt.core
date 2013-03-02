@@ -21,6 +21,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
@@ -80,8 +81,11 @@ public class LambdaExpression extends FunctionalExpression {
 	 * @see org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration.resolve(ClassScope)
 	 */
 	public TypeBinding resolveType(BlockScope blockScope) {
+		
 		this.constant = Constant.NotAConstant;
 		this.enclosingScope = blockScope;
+		this.scope = new MethodScope(blockScope, this, blockScope.methodScope().isStatic);
+		
 		if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
 			if (this.body instanceof Block) {
 				// Gather shape information for potential applicability analysis.
@@ -129,8 +133,6 @@ public class LambdaExpression extends FunctionalExpression {
 		if (!haveDescriptor && argumentsTypeElided) 
 			return null; // FUBAR, bail out...
 
-		this.scope = new MethodScope(blockScope, this, blockScope.methodScope().isStatic);
-		
 		this.binding = new MethodBinding(ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccUnresolved,
 							haveDescriptor ? this.descriptor.selector : TypeConstants.ANONYMOUS_METHOD, 
 							haveDescriptor ? this.descriptor.returnType : null, 
@@ -421,58 +423,52 @@ public class LambdaExpression extends FunctionalExpression {
 				return false;
 		}
 		
-		LambdaExpression copy = copy();
-		copy.setExpressionContext(this.expressionContext);
-		copy.setExpectedType(left);
-		copy.resolveType(this.enclosingScope);
-		
-		if (!argumentsTypeElided()) {
-			for (int i = 0, length = sam.parameters.length; i < length; i++) {
-				TypeBinding argumentType = copy.arguments[i].binding.type;
-				if (sam.parameters[i] != argumentType)
-					return false;
-			}
-		}
-
+		IErrorHandlingPolicy oldPolicy = this.scope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
 		try {
-			final TypeBinding returnType = sam.returnType;
-			if (this.body instanceof Block) {
-				ASTVisitor visitor = new ASTVisitor() {
-					public boolean visit(ReturnStatement returnStatement, BlockScope blockScope) {
-						Expression expression = returnStatement.expression;
-						if (expression != null && !expression.isAssignmentCompatible(returnType, blockScope))
-							throw new NoncongruentLambdaException();
+			LambdaExpression copy = copy();
+			copy.setExpressionContext(this.expressionContext);
+			copy.setExpectedType(left);
+			copy.resolveType(this.enclosingScope);
+
+			if (!argumentsTypeElided()) {
+				for (int i = 0, length = sam.parameters.length; i < length; i++) {
+					TypeBinding argumentType = copy.arguments[i].binding.type;
+					if (sam.parameters[i] != argumentType)
 						return false;
-					}
-				};
-				copy.body.traverse(visitor, copy.scope);
-			} else {
-				Expression expression = (Expression) copy.body;
-				if (!expression.isAssignmentCompatible(returnType, copy.scope))
-					throw new NoncongruentLambdaException();
+				}
 			}
-		} catch (NoncongruentLambdaException e) {
-			return false;
+
+			try {
+				final TypeBinding returnType = sam.returnType;
+				if (this.body instanceof Block) {
+					ASTVisitor visitor = new ASTVisitor() {
+						public boolean visit(ReturnStatement returnStatement, BlockScope blockScope) {
+							Expression expression = returnStatement.expression;
+							if (expression != null && !expression.isAssignmentCompatible(returnType, blockScope))
+								throw new NoncongruentLambdaException();
+							return false;
+						}
+					};
+					copy.body.traverse(visitor, copy.scope);
+				} else {
+					Expression expression = (Expression) copy.body;
+					if (!expression.isAssignmentCompatible(returnType, copy.scope))
+						throw new NoncongruentLambdaException();
+				}
+			} catch (NoncongruentLambdaException e) {
+				return false;
+			}
+		} finally {
+			this.scope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 		}
 		return true;
 	}
 
 	LambdaExpression copy() {
-		final Parser parser = new Parser(this.enclosingScope.problemReporter(), false);
+		final Parser parser = new Parser(this.scope.problemReporter(), false);
 		final char[] source = this.compilationResult.getCompilationUnit().getContents();
-		LambdaExpression copy;
-		
-		CompilationUnitDeclaration unit = this.enclosingScope.referenceCompilationUnit();
-		CompilationResult original = unit.compilationResult;
-		unit.compilationResult = devNullCompilationResult;
-		
-		try {
-			copy =  (LambdaExpression) parser.parseExpression(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1, unit);
-		} finally {
-			unit.compilationResult = original;
-		}
-		copy.compilationResult = devNullCompilationResult;
-		return copy;
+		return (LambdaExpression) parser.parseExpression(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1, 
+										this.scope.referenceCompilationUnit(), false /* record line separators */);
 	}
 }
 

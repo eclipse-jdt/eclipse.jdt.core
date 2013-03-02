@@ -10228,11 +10228,11 @@ public void goForCompilationUnit(){
 	this.scanner.foundTaskCount = 0;
 	this.scanner.recordLineSeparator = true;
 }
-public void goForExpression() {
+public void goForExpression(boolean recordLineSeparator) {
 	//tells the scanner to go for an expression parsing
 
 	this.firstToken = TokenNameREMAINDER;
-	this.scanner.recordLineSeparator = true; // recovery goals must record line separators
+	this.scanner.recordLineSeparator = recordLineSeparator; // recovery goals must record line separators
 }
 public void goForFieldDeclaration(){
 	//tells the scanner to go for field declaration parsing
@@ -11040,7 +11040,7 @@ public void parse(
 	//convert bugs into parse error
 
 	initialize();
-	goForExpression();
+	goForExpression(true /* record line separators */);
 	this.nestedMethod[this.nestedType]++;
 
 	this.referenceContext = type;
@@ -11376,10 +11376,10 @@ public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int lengt
 	}
 	return result;
 }
-public Expression parseExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit) {
+public Expression parseExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit, boolean recordLineSeparators) {
 
 	initialize();
-	goForExpression();
+	goForExpression(recordLineSeparators);
 	this.nestedMethod[this.nestedType]++;
 
 	this.referenceContext = unit;

@@ -23,6 +23,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -366,17 +367,17 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		final MethodBinding sam = left.getSingleAbstractMethod(scope);
 		if (sam == null || !sam.isValidBinding())
 			return false;
-		this.method.binding = this.binding = null;
+		boolean isCompatible;
 		setExpectedType(left);
-		CompilationResult original = this.compilationResult;
+		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
 		try {
-			this.compilationResult = devNullCompilationResult;
+			this.method.binding = this.binding = null;
 			resolveType(this.enclosingScope);
 		} finally {
-			this.compilationResult = original;
+			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
+			isCompatible = this.binding != null && this.binding.isValidBinding();
+			this.method.binding = this.binding = null;
 		}
-		boolean isCompatible = this.binding != null && this.binding.isValidBinding();
-		this.method.binding = this.binding = null;
 		return isCompatible;
 	}
 }

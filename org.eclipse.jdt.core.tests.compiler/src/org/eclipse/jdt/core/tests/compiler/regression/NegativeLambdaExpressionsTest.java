@@ -5375,72 +5375,57 @@ this.runNegativeTest(
 				"	^^^^^^^^^^^^^\n" + 
 				"The constructor X.Y(X::goo) is undefined\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 9)\n" + 
-				"	this(X::goo);\n" + 
-				"	     ^^^^^^\n" + 
-				"The type of goo() from the type X is int, this is incompatible with the descriptor\'s return type: String\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 14)\n" + 
+				"2. ERROR in X.java (at line 14)\n" + 
 				"	this((x) -> { return 10;});\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"The constructor X((<no type> x) -> {\n" + 
 				"  return 10;\n" + 
 				"}) is undefined\n" + 
 				"----------\n" + 
-				"4. ERROR in X.java (at line 18)\n" + 
+				"3. ERROR in X.java (at line 18)\n" + 
 				"	foo(X::goo);\n" + 
 				"	^^^\n" + 
 				"The method foo(I) in the type X is not applicable for the arguments (X::goo)\n" + 
 				"----------\n" + 
-				"5. ERROR in X.java (at line 18)\n" + 
-				"	foo(X::goo);\n" + 
-				"	    ^^^^^^\n" + 
-				"The type of goo() from the type X is int, this is incompatible with the descriptor\'s return type: String\n" + 
-				"----------\n" + 
-				"6. ERROR in X.java (at line 19)\n" + 
+				"4. ERROR in X.java (at line 19)\n" + 
 				"	new X((x)->{ return 10;});\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"The constructor X((<no type> x) -> {\n" + 
 				"  return 10;\n" + 
 				"}) is undefined\n" + 
 				"----------\n" + 
-				"7. ERROR in X.java (at line 20)\n" + 
+				"5. ERROR in X.java (at line 20)\n" + 
 				"	new X((x)->{ return 10;}).new Y((x) -> { return 0;});\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"The constructor X((<no type> x) -> {\n" + 
 				"  return 10;\n" + 
 				"}) is undefined\n" + 
 				"----------\n" + 
-				"8. ERROR in X.java (at line 20)\n" + 
+				"6. ERROR in X.java (at line 20)\n" + 
 				"	new X((x)->{ return 10;}).new Y((x) -> { return 0;});\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"The constructor X.Y((<no type> x) -> {\n" + 
 				"  return 0;\n" + 
 				"}) is undefined\n" + 
 				"----------\n" + 
-				"9. ERROR in X.java (at line 21)\n" + 
+				"7. ERROR in X.java (at line 21)\n" + 
 				"	new X((x)->{ return 10;}) {};\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"The constructor X((<no type> x) -> {\n" + 
 				"  return 10;\n" + 
 				"}) is undefined\n" + 
 				"----------\n" + 
-				"10. ERROR in X.java (at line 26)\n" + 
+				"8. ERROR in X.java (at line 26)\n" + 
 				"	super(X::goo);\n" + 
 				"	^^^^^^^^^^^^^^\n" + 
 				"The constructor X(X::goo) is undefined\n" + 
 				"----------\n" + 
-				"11. ERROR in X.java (at line 26)\n" + 
-				"	super(X::goo);\n" + 
-				"	      ^^^^^^\n" + 
-				"The type of goo() from the type X is int, this is incompatible with the descriptor\'s return type: String\n" + 
-				"----------\n" + 
-				"12. ERROR in X.java (at line 29)\n" + 
+				"9. ERROR in X.java (at line 29)\n" + 
 				"	super (x -> 10);\n" + 
 				"	^^^^^^^^^^^^^^^^\n" + 
 				"The constructor X((<no type> x) -> 10) is undefined\n" + 
 				"----------\n" + 
-				"13. ERROR in X.java (at line 31)\n" + 
+				"10. ERROR in X.java (at line 31)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
@@ -5657,12 +5642,7 @@ public void test401847a() {
 			"	^^^\n" + 
 			"The method foo(I...) in the type X is not applicable for the arguments ((true ? X::goo : X::goo))\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 8)\n" + 
-			"	foo(true ? X::goo : X::goo);\n" + 
-			"	           ^^^^^^\n" + 
-			"The type of goo() from the type X is int, this is incompatible with the descriptor\'s return type: String\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 9)\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
 			"	foo(true ? x-> 1 : x->0);\n" + 
 			"	^^^\n" + 
 			"The method foo(I...) in the type X is not applicable for the arguments ((true ? (<no type> x) -> 1 : (<no type> x) -> 0))\n" + 

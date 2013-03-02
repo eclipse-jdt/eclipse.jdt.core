@@ -18,6 +18,8 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
+import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -48,13 +50,10 @@ public abstract class FunctionalExpression extends Expression implements Problem
 	protected CompilationResult compilationResult;
 	protected BlockScope enclosingScope;
 	protected boolean ellipsisArgument;
-	protected static CompilationResult devNullCompilationResult;
+	protected static IErrorHandlingPolicy silentErrorHandlingPolicy = DefaultErrorHandlingPolicies.ignoreAllProblems();
 	
 	public FunctionalExpression(CompilationResult compilationResult) {
 		this.compilationResult = compilationResult;
-		if (devNullCompilationResult == null) {
-			devNullCompilationResult = new CompilationResult(this.compilationResult.getCompilationUnit(), 0, 0, Integer.MAX_VALUE /* maximum problems per unit */);
-		}
 	}
 
 	public void setExpectedType(TypeBinding expectedType) {
@@ -209,12 +208,7 @@ public abstract class FunctionalExpression extends Expression implements Problem
 		return this.ignoreFurtherInvestigation;
 	}
 
-	private boolean shouldShutup() {
-		return this.compilationResult == devNullCompilationResult;
-	}
-
 	public void tagAsHavingErrors() {
-		if (shouldShutup()) return;
 		this.ignoreFurtherInvestigation = true;
 		Scope parent = this.enclosingScope.parent;
 		while (parent != null) {
