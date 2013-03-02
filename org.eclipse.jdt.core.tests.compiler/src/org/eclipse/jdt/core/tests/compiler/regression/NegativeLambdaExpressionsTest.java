@@ -5700,6 +5700,158 @@ public void test401939a() {
 				"})\n" + 
 				"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
+public void test401939b() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"    String foo(String x) throws Exception;\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static final boolean FALSE = false;\n" +
+				"	static final boolean TRUE = true;\n" +
+				"	void goo(I i) {\n" +
+				"	}\n" +
+				"	void zoo() {\n" +
+				"		final boolean NIJAM = true;\n" +
+				"		final boolean POI = false;\n" +
+				"       final boolean BLANK;\n" +
+				"       BLANK = true;\n" +
+				"		goo((x) -> { while (FALSE) throw new Exception(); });\n" +
+				"		goo((x) -> { while (TRUE) throw new Exception(); });\n" +
+				"		goo((x) -> { while (NIJAM) throw new Exception(); });\n" +
+				"		goo((x) -> { while (POI) throw new Exception(); });\n" +
+				"		goo((x) -> { if (TRUE) throw new Exception(); else throw new Exception(); });\n" +
+				"		goo((x) -> { if (TRUE) throw new Exception(); });\n" +
+				"		goo((x) -> { if (true) throw new Exception(); else throw new Exception(); });\n" +
+				"		goo((x) -> { if (false) throw new Exception(); else throw new Exception(); });\n" +
+				"		goo((x) -> { while (BLANK) throw new Exception(); });\n" +
+				"	}\n" +
+				"}\n",			},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 14)\n" + 
+				"	goo((x) -> { while (FALSE) throw new Exception(); });\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {\n" + 
+				"  while (FALSE)    throw new Exception();\n" + 
+				"})\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 17)\n" + 
+				"	goo((x) -> { while (POI) throw new Exception(); });\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {\n" + 
+				"  while (POI)    throw new Exception();\n" + 
+				"})\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 19)\n" + 
+				"	goo((x) -> { if (TRUE) throw new Exception(); });\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {\n" + 
+				"  if (TRUE)\n" + 
+				"      throw new Exception();\n" + 
+				"})\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 22)\n" + 
+				"	goo((x) -> { while (BLANK) throw new Exception(); });\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {\n" + 
+				"  while (BLANK)    throw new Exception();\n" + 
+				"})\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
+public void test401939c() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"    String foo(String x) throws Exception;\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void goo(I i) {\n" +
+				"	}\n" +
+				"	void zoo() {\n" +
+				"		goo((x) -> { if (x) return null; });\n" +
+				"		goo((x) -> {});\n" +
+				"	}\n" +
+				"}\n",			},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	goo((x) -> { if (x) return null; });\n" + 
+				"	                 ^\n" + 
+				"Type mismatch: cannot convert from String to boolean\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 9)\n" + 
+				"	goo((x) -> {});\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {\n" + 
+				"})\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
+public void test401939d() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"    String foo(boolean x) throws Exception;\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void goo(I i) {\n" +
+				"	}\n" +
+				"	void zoo() {\n" +
+				"		goo((x) -> { if (x) return null; });\n" +
+				"	}\n" +
+				"}\n",			},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	goo((x) -> { if (x) return null; });\n" + 
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"This method must return a result of type String\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
+public void test401939e() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"    void foo(boolean x) throws Exception;\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void goo(I i) {\n" +
+				"	}\n" +
+				"	void zoo() {\n" +
+				"		goo((x) -> { return null; });\n" +
+				"	}\n" +
+				"}\n",			},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	goo((x) -> { return null; });\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {\n" + 
+				"  return null;\n" + 
+				"})\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
+public void test401939f() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"    void foo(boolean x) throws Exception;\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void goo(I i) {\n" +
+				"	}\n" +
+				"	void zoo() {\n" +
+				"		goo((x) -> { throw new Exception(); });\n" +
+				"	}\n" +
+				"}\n",			},
+				"");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

@@ -50,6 +50,7 @@ public class LambdaExpression extends FunctionalExpression {
 	MethodScope scope;
 	protected boolean voidCompatible = true;
 	protected boolean valueCompatible = false;
+	protected boolean shapeAnalysisComplete = true;
 	
 	public LambdaExpression(CompilationResult compilationResult, Argument [] arguments, Statement body) {
 		super(compilationResult);
@@ -90,8 +91,9 @@ public class LambdaExpression extends FunctionalExpression {
 			if (this.body instanceof Block) {
 				// Gather shape information for potential applicability analysis.
 				ASTVisitor visitor = new ASTVisitor() {
-					boolean valueReturnSeen = false;
-					boolean voidReturnSeen = false;
+					private boolean valueReturnSeen = false;
+					private boolean voidReturnSeen = false;
+					private boolean throwSeen = false;
 					public boolean visit(ReturnStatement returnStatement, BlockScope dontCare) {
 						if (returnStatement.expression != null) {
 							this.valueReturnSeen = true;
@@ -104,13 +106,18 @@ public class LambdaExpression extends FunctionalExpression {
 						}
 						return false;
 					}
+					public boolean visit(ThrowStatement throwStatement, BlockScope dontCare) {
+						this.throwSeen  = true;
+						return false;
+					}
 					public void endVisit(LambdaExpression expression, BlockScope dontCare) {
-						if (!this.voidReturnSeen && !this.valueReturnSeen) {  // () -> { throw new Exception(); } is value compatible.
+						if (!this.voidReturnSeen && !this.valueReturnSeen && this.throwSeen) {  // () -> { throw new Exception(); } is value compatible.
 							Block block = (Block) LambdaExpression.this.body;
 							final Statement[] statements = block.statements;
 							final int statementsLength = statements == null ? 0 : statements.length;
 							Statement ultimateStatement = statementsLength == 0 ? null : statements[statementsLength - 1];
-							LambdaExpression.this.valueCompatible = ultimateStatement instanceof ThrowStatement; // for now, we will settle for a simplistic analysis.
+							LambdaExpression.this.valueCompatible = ultimateStatement instanceof ThrowStatement;
+							LambdaExpression.this.shapeAnalysisComplete = LambdaExpression.this.valueCompatible;
 						}
 					}
 				};
@@ -263,6 +270,11 @@ public class LambdaExpression extends FunctionalExpression {
 		return this.arguments.length > 0 && this.arguments[0].hasElidedType();
 	}
 
+	private boolean doesNotCompleteNormally() {
+		return this.body.analyseCode(this.scope, 
+									 new ExceptionHandlingFlowContext(null, this, Binding.NO_EXCEPTIONS, null, this.scope, FlowInfo.DEAD_END), 
+									 FlowInfo.initial(this.scope.referenceType().maxFieldCount)) == FlowInfo.DEAD_END; 
+	}
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, final FlowInfo flowInfo) {
 		
 		if (this.ignoreFurtherInvestigation) 
@@ -415,13 +427,8 @@ public class LambdaExpression extends FunctionalExpression {
 		if (sam.parameters.length != this.arguments.length)
 			return false;
 		
-		if (sam.returnType.id == TypeIds.T_void) {
-			if (!this.voidCompatible)
-				return false;
-		} else {
-			if (!this.valueCompatible)
-				return false;
-		}
+		if (this.shapeAnalysisComplete && squarePegInRoundHole(sam))
+			return false;
 		
 		IErrorHandlingPolicy oldPolicy = this.scope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
 		try {
@@ -429,7 +436,12 @@ public class LambdaExpression extends FunctionalExpression {
 			copy.setExpressionContext(this.expressionContext);
 			copy.setExpectedType(left);
 			copy.resolveType(this.enclosingScope);
-
+			if (!this.shapeAnalysisComplete) {
+				this.valueCompatible = copy.doesNotCompleteNormally();
+				this.shapeAnalysisComplete = true;
+				if (squarePegInRoundHole(sam))
+					return false;
+			}
 			if (!argumentsTypeElided()) {
 				for (int i = 0, length = sam.parameters.length; i < length; i++) {
 					TypeBinding argumentType = copy.arguments[i].binding.type;
@@ -462,6 +474,17 @@ public class LambdaExpression extends FunctionalExpression {
 			this.scope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 		}
 		return true;
+	}
+
+	private boolean squarePegInRoundHole(final MethodBinding sam) {
+		if (sam.returnType.id == TypeIds.T_void) {
+			if (!this.voidCompatible)
+				return true;
+		} else {
+			if (!this.valueCompatible)
+				return true;
+		}
+		return false;
 	}
 
 	LambdaExpression copy() {
