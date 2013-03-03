@@ -5911,7 +5911,32 @@ public void test402219a() {
 			false,
 			options);
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402219, [1.8][compiler] Compile time errors in lambda during hypothetical type check should render candidate method inapplicable.
+public void test402219b() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	String foo(String s1, String s2);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	X foo(X x1, X x2);\n" +
+				"}\n" +
+				"public class X { \n" +
+				"	void goo(I i) {}\n" +
+				"	void goo(J j) {}\n" +
+				"    public static void main(String [] args) {\n" +
+				"		new X().goo((p1, p2) -> p1 + p2);\n" +
+				"    }\n" +
+				"    Zork z;\n" +
+				"}\n",			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
