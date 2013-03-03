@@ -174,6 +174,7 @@
  *									ReferenceExpressionParameterRequiredNonnullUnchecked
  *									ReferenceExpressionReturnNullRedef
  *									ReferenceExpressionReturnNullRedefUnchecked
+ *									DuplicateInheritedDefaultMethods
  *      Jesper S Moller  - added the following constants
  *									TargetTypeNotAFunctionalInterface
  *									OuterLocalMustBeEffectivelyFinal
@@ -1677,6 +1678,9 @@ void setSourceStart(int sourceStart);
 	
 	/** @since 3.9 */
 	int InheritedDefaultMethodConflictsWithOtherInherited = MethodRelated + 1052;
+	
+	/** @since 3.9 */
+	int DuplicateInheritedDefaultMethods = MethodRelated + 1053;
 
 	/**
 	 * External problems -- These are problems defined by other plugins

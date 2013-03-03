@@ -20,6 +20,7 @@
  *								bug 390883 - [1.8][compiler] Unable to override default method
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 401246 - [1.8][compiler] abstract class method should now trump conflicting default methods
+ *								bug 401796 - [1.8][compiler] don't treat default methods as overriding an independent inherited abstract method
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -259,6 +260,7 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 	boolean continueInvestigation = true;
 	MethodBinding concreteMethod = null;
 	MethodBinding superClassMethod = null;
+	boolean playingTrump = false;
 	for (int i = 0; i < length; i++) {
 		if (!methods[i].declaringClass.isInterface() && methods[i].declaringClass != this.type) {
 			superClassMethod = methods[i];
@@ -267,17 +269,19 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 	}
 	for (int i = 0; i < length; i++) {
 		if (!methods[i].isAbstract()) {
-			// re-checking compatibility is needed for https://bugs.eclipse.org/346029
-			if (concreteMethod != null && !(isOverridden[i] && areMethodsCompatible(concreteMethod, methods[i]))) {
-				// 8.4.8.4 defines an exception for default methods if
-				// (a) there exists an abstract method declared in a superclass of C and inherited by C
-				// (b) that is override-equivalent with the two methods.
-				if (methods[i].isDefaultMethod() 
-						&& superClassMethod != null							// condition (a)
-						&& areParametersEqual(superClassMethod, methods[i]) // condition (b)...
-						&& areParametersEqual(superClassMethod, concreteMethod)) {
-					// skip, class method trumps this default method
-				} else {
+			// 8.4.8.4 defines an exception for default methods if
+			// (a) there exists an abstract method declared in a superclass of C and inherited by C
+			// (b) that is override-equivalent with the two methods.
+			if (methods[i].isDefaultMethod()
+					&& superClassMethod != null							// condition (a)
+					&& areParametersEqual(superClassMethod, methods[i]) // condition (b)...
+					&& (concreteMethod == null || areParametersEqual(superClassMethod, concreteMethod))) {
+				// skip, class method trumps this default method
+				playingTrump = true;
+			} else {
+				playingTrump = false;
+				// re-checking compatibility is needed for https://bugs.eclipse.org/346029
+				if (concreteMethod != null && !(isOverridden[i] && areMethodsCompatible(concreteMethod, methods[i]))) {
 					problemReporter().duplicateInheritedMethods(this.type, concreteMethod, methods[i]);
 					continueInvestigation = false;
 				}
@@ -286,8 +290,48 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 		}
 	}
 	if (continueInvestigation) {
+		if (concreteMethod != null && concreteMethod.isDefaultMethod()) {
+			if (playingTrump) {
+				// multiple abstract & default methods are OK on this branch, but then the class must be declared abstract:
+				if (!this.type.isAbstract()) {
+					for (int i = 0; i < length; i++) {
+						if (methods[i] == concreteMethod) continue;
+						if (!doesMethodOverride(concreteMethod, methods[i])) {
+							problemReporter().abstractMethodMustBeImplemented(this.type, methods[i]);
+							return;
+						}
+					}
+				}
+			} else {
+				if (this.environment.globalOptions.complianceLevel >= ClassFileConstants.JDK1_8) {
+					if (!checkInheritedDefaultMethods(methods, length))
+						return;
+				}
+			}
+		}
 		super.checkInheritedMethods(methods, length, isOverridden);
 	}
+}
+boolean checkInheritedDefaultMethods(MethodBinding[] methods, int length) {
+	// JLS8  9.4.1 (interface) and  8.4.8.4 (class):
+	// default method clashes with other inherited method which is override-equivalent 
+	if (length < 2) return true;
+	boolean ok = true;
+	findDefaultMethod: for (int i=0; i<length; i++) {
+		if (methods[i].isDefaultMethod()) {
+			findEquivalent: for (int j=0; j<length; j++) {
+				if (j == i) continue findEquivalent;
+				if (isMethodSubsignature(methods[i], methods[j])) {
+					if (!doesMethodOverride(methods[i], methods[j]) && !doesMethodOverride(methods[j], methods[i])) { 
+						problemReporter().inheritedDefaultMethodConflictsWithOtherInherited(this.type, methods[i], methods[j]);
+						ok = false;
+					}
+					continue findDefaultMethod;
+				}
+			}
+		}
+	}
+	return ok;
 }
 boolean checkInheritedReturnTypes(MethodBinding method, MethodBinding otherMethod) {
 	if (areReturnTypesCompatible(method, otherMethod)) return true;

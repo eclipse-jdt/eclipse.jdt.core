@@ -15,6 +15,7 @@
  *								bug 388800 - [1.8] adjust tests to 1.8 JRE
  *								bug 388795 - [compiler] detection of name clash depends on order of super interfaces
  *								bug 388739 - [1.8][compiler] consider default methods when detecting whether a class needs to be declared abstract
+ *								bug 402237 - [1.8][compiler] investigate differences between compilers re MethodVerifyTest
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -26,6 +27,7 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
@@ -3001,6 +3003,25 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n",
 			JavacTestOptions.EclipseJustification.EclipseBug72704
 			// javac won't report it until C.id() is made concrete or implemented in E
+		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72704
+	// variant where C and C.id are concrete
+	public void test043_1() { // ambiguous message sends because of substitution from 2 different type variables
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { void test(E<Integer,Integer> e) { e.id(new Integer(1)); } }\n" +
+				"class C<A> { public void id(A x) {} }\n" +
+				"interface I<B> { void id(B x); }\n" +
+				"abstract class E<A, B> extends C<A> implements I<B> {}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	abstract class E<A, B> extends C<A> implements I<B> {}\n" +
+			"	               ^\n" +
+			"Name clash: The method id(A) of type C<A> has the same erasure as id(B) of type I<B> but does not override it\n" +
+			"----------\n"
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72704
@@ -10056,6 +10077,7 @@ public void test168() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=243820
 public void test169() {
 	this.runNegativeTest(
+		false,
 		new String[] {
 			"X.java",
 			"class X<T> {\n" +
@@ -10068,6 +10090,8 @@ public void test169() {
 			"}\n" +
 			"class R<T> extends X.A {}"
 		},
+		null,
+		null,
 		"----------\n" + 
 		"1. WARNING in X.java (at line 6)\n" + 
 		"	public R foo(A a, I i) { return null; }\n" + 
@@ -10078,12 +10102,14 @@ public void test169() {
 		"	public R foo(A a, I i) { return null; }\n" + 
 		"	                  ^\n" + 
 		"X.I is a raw type. References to generic type X<T>.I<S> should be parameterized\n" + 
-		"----------\n"
+		"----------\n",
+		Excuse.EclipseHasSomeMoreWarnings
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=243820
 public void test169a() {
 	this.runNegativeTest(
+		false,
 		new String[] {
 			"X.java",
 			"class X<T> {\n" +
@@ -10096,6 +10122,8 @@ public void test169a() {
 			"class A {}\n" +
 			"class R<T> extends A {}"
 		},
+		null,
+		null,
 		"----------\n" + 
 		"1. WARNING in X.java (at line 3)\n" + 
 		"	public R foo(X<String>.B b, I i) { return null; }\n" + 
@@ -10106,7 +10134,8 @@ public void test169a() {
 		"	public R foo(X<String>.B b, I i) { return null; }\n" + 
 		"	                            ^\n" + 
 		"I is a raw type. References to generic type I<S> should be parameterized\n" + 
-		"----------\n"
+		"----------\n",
+		Excuse.EclipseHasSomeMoreWarnings
 	);
 }
 
@@ -10115,20 +10144,21 @@ public void test170() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
 	this.runNegativeTest(
+		false,
 		new String[] {
 			"X.java",
 			"class X { synchronized void foo() {} }\n" +
 			"class Y extends X { @Override void foo() { } }"
 		},
+		null, // libs
+		options,
 		"----------\n" +
 		"1. ERROR in X.java (at line 2)\n" +
 		"	class Y extends X { @Override void foo() { } }\n" +
 		"	                                   ^^^^^\n" +
 		"The method Y.foo() is overriding a synchronized method without being synchronized\n" +
 		"----------\n",
-	null,
-	false,
-	options);
+		Excuse.EclipseWarningConfiguredAsError);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239066 - variation
@@ -10136,6 +10166,7 @@ public void test171() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
 	this.runNegativeTest(
+		false,
 		new String[] {
 			"X.java",
 			"public enum X {\n" + 
@@ -10143,15 +10174,15 @@ public void test171() {
 			"  synchronized void foo() { }\n"+
 			"}"
 		},
+		null,
+		options,
 		"----------\n" +
 		"1. ERROR in X.java (at line 2)\n" +
 		"	FOO { @Override void foo() { super.foo(); } };\n" +
 		"	                     ^^^^^\n" +
 		"The method new X(){}.foo() is overriding a synchronized method without being synchronized\n" +
 		"----------\n",
-		null,
-		false,
-		options);
+		Excuse.EclipseWarningConfiguredAsError);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239066 - variation
@@ -10159,6 +10190,7 @@ public void test172() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
 	this.runNegativeTest(
+		false,
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -10166,15 +10198,15 @@ public void test172() {
 			"  synchronized void foo() { }\n"+
 			"}"
 		},
+		null,
+		options,
 		"----------\n" +
 		"1. ERROR in X.java (at line 2)\n" +
 		"	void bar() { new X() { @Override void foo() {} }; }\n"+
 		"	                                      ^^^^^\n" +
 		"The method new X(){}.foo() is overriding a synchronized method without being synchronized\n" +
 		"----------\n",
-		null,
-		false,
-		options);
+		Excuse.EclipseWarningConfiguredAsError);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239066 - variation
@@ -10182,21 +10214,22 @@ public void test173() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
 	this.runNegativeTest(
+		false,
 		new String[] {
 			"X.java",
 			"public class X { synchronized void foo() {} }\n" +
 			"class Y extends X {}\n" +
 			"class Z extends Y { @Override void foo() {} }\n"
 		},
+		null,
+		options,
 		"----------\n" +
 		"1. ERROR in X.java (at line 3)\n" +
 		"	class Z extends Y { @Override void foo() {} }\n" +
 		"	                                   ^^^^^\n" +
 		"The method Z.foo() is overriding a synchronized method without being synchronized\n" +
 		"----------\n",
-		null,
-		false,
-		options);
+		Excuse.EclipseWarningConfiguredAsError);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249140
@@ -10225,21 +10258,22 @@ public void test175() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingHashCodeMethod, CompilerOptions.WARNING);
 	this.runNegativeTest(
+		false,
 		new String[] {
 			"A.java",
 			"class A {\n" +
 			"	@Override public boolean equals(Object o) { return true; }\n" +
 			"}"
 		},
+		null,
+		options,
 		"----------\n" + 
 		"1. WARNING in A.java (at line 1)\n" + 
 		"	class A {\n" + 
 		"	      ^\n" + 
 		"The type A should also implement hashCode() since it overrides Object.equals()\n" + 
 		"----------\n",
-	null,
-	false,
-	options);
+		Excuse.EclipseHasSomeMoreWarnings);
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=38751
@@ -10817,6 +10851,7 @@ public void test185() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=271303
 public void test186() {
 	this.runNegativeTest(
+		false,
 		new String[] {
 			"p1/A.java",
 			"package p1;\n" +
@@ -10828,6 +10863,8 @@ public void test186() {
 			"package p1;\n" +
 			"public class C extends p2.B { @Override void m() {} }"
 		},
+		null,
+		null,
 		"----------\n" + 
 		"1. WARNING in p2\\B.java (at line 2)\n" + 
 		"	public class B extends p1.A { void m() {} }\n" + 
@@ -10839,7 +10876,8 @@ public void test186() {
 		"	public class C extends p2.B { @Override void m() {} }\n" + 
 		"	                                             ^^^\n" + 
 		"The method C.m() does not override the inherited method from B since it is private to a different package\n" + 
-		"----------\n"
+		"----------\n",
+		Excuse.EclipseHasSomeMoreWarnings
 	);
 }
 // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6182950
@@ -10903,6 +10941,7 @@ public void test187() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=279836
 public void test188() {
 	this.runNegativeTest(
+		false,
 		new String[] {
 			"Y.java",
 			"abstract class Y<T extends Number> implements I<T> {\n" +
@@ -10911,12 +10950,15 @@ public void test188() {
 			"interface I<T> { T get(T element); }\n" +
 			"class Z extends Y {}"
 		},
+		null,
+		null,
 		"----------\n" + 
 		"1. WARNING in Y.java (at line 5)\n" + 
 		"	class Z extends Y {}\n" + 
 		"	                ^\n" + 
 		"Y is a raw type. References to generic type Y<T> should be parameterized\n" + 
-		"----------\n"
+		"----------\n",
+		Excuse.EclipseHasSomeMoreWarnings
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=284431
@@ -12855,6 +12897,7 @@ public void test346029b() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
 public void test346029c() throws Exception {
 	this.runNegativeTest(
+		false,
 		new String[] {
 			"X.java",
 			"class A<T> {\n" +
@@ -12868,16 +12911,20 @@ public void test346029c() throws Exception {
 			"    }\n" +
 			"}\n"
 		},
+		null,
+		null,
 		"----------\n" + 
 		"1. WARNING in X.java (at line 8)\n" + 
 		"	public void f(String t) {\n" + 
 		"	            ^^^^^^^^^^^\n" + 
 		"The method f(String) of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
-		"----------\n");
+		"----------\n",
+		Excuse.EclipseHasSomeMoreWarnings);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
 public void test346029d() throws Exception {
 	this.runNegativeTest(
+		false,
 		new String[] {
 			"X.java",
 			"class A<T> {\n" +
@@ -12891,16 +12938,20 @@ public void test346029d() throws Exception {
 			"    }\n" +
 			"}\n"
 		},
+		null,
+		null,
 		"----------\n" + 
 		"1. WARNING in X.java (at line 8)\n" + 
 		"	public void f(String t) {\n" + 
 		"	            ^^^^^^^^^^^\n" + 
 		"The method f(String) of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
-		"----------\n");
+		"----------\n",
+		Excuse.EclipseHasSomeMoreWarnings);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
 public void test346029e() throws Exception {
 	this.runNegativeTest(
+		false,
 		new String[] {
 			"X.java",
 			"class A<T> {\n" +
@@ -12914,12 +12965,15 @@ public void test346029e() throws Exception {
 			"       }\n" +
 			"}\n"
 		},
+		null,
+		null,
 		"----------\n" + 
 		"1. WARNING in X.java (at line 8)\n" + 
 		"	void f(String s) {\n" + 
 		"	     ^^^^^^^^^^^\n" + 
 		"The method f(String) of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
-		"----------\n");
+		"----------\n",
+		Excuse.EclipseHasSomeMoreWarnings);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
 public void test346029f() throws Exception {

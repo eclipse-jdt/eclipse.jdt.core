@@ -33,6 +33,7 @@
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 382789 - [compiler][null] warn when syntactically-nonnull expression is compared against null
  *								bug 402028 - [1.8][compiler] null analysis for reference expressions 
+ *								bug 401796 - [1.8][compiler] don't treat default methods as overriding an independent inherited abstract method
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -1744,8 +1745,11 @@ public void duplicateImport(ImportReference importRef) {
 
 public void duplicateInheritedMethods(SourceTypeBinding type, MethodBinding inheritedMethod1, MethodBinding inheritedMethod2) {
 	if (inheritedMethod1.declaringClass != inheritedMethod2.declaringClass) {
+		int problemID = (inheritedMethod1.isDefaultMethod() && inheritedMethod2.isDefaultMethod())
+				? IProblem.DuplicateInheritedDefaultMethods
+				: IProblem.DuplicateInheritedMethods;
 		this.handle(
-			IProblem.DuplicateInheritedMethods,
+			problemID,
 			new String[] {
 		        new String(inheritedMethod1.selector),
 				typesAsString(inheritedMethod1, inheritedMethod1.original().parameters, false),

@@ -27,6 +27,7 @@
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 382789 - [compiler][null] warn when syntactically-nonnull expression is compared against null
  *								bug 402028 - [1.8][compiler] null analysis for reference expressions 
+ *								bug 401796 - [1.8][compiler] don't treat default methods as overriding an independent inherited abstract method
  *     Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -448,6 +449,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("DuplicateFinalLocalInitialization", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("DuplicateImport", new ProblemAttributes(CategorizedProblem.CAT_IMPORT));
 		expectedProblemAttributes.put("DuplicateInheritedMethods", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("DuplicateInheritedDefaultMethods", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("DuplicateLabel", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("DuplicateMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("DuplicateMethodErasure", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1220,6 +1222,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("DuplicateFinalLocalInitialization", SKIP);
 		expectedProblemAttributes.put("DuplicateImport", SKIP);
 		expectedProblemAttributes.put("DuplicateInheritedMethods", SKIP);
+		expectedProblemAttributes.put("DuplicateInheritedDefaultMethods", SKIP);
 		expectedProblemAttributes.put("DuplicateLabel", SKIP);
 		expectedProblemAttributes.put("DuplicateMethod", SKIP);
 		expectedProblemAttributes.put("DuplicateMethodErasure", SKIP);

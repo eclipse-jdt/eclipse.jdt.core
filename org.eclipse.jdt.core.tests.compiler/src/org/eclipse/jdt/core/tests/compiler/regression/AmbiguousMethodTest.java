@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contribution for
  *								bug 388739 - [1.8][compiler] consider default methods when detecting whether a class needs to be declared abstract
  *								bug 399567 - [1.8] Different error message from the reference compiler
+ *								bug 401796 - [1.8][compiler] don't treat default methods as overriding an independent inherited abstract method
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -534,12 +535,12 @@ sure, yet neither overrides the other
 			  "3. ERROR in T.java (at line 10)\n" + 
 			  "	interface OrderedSet<E> extends List<E>, Set<E> { boolean add(E o); }\n" + 
 			  "	          ^^^^^^^^^^\n" + 
-			  "Duplicate methods named stream with the parameters () and () are inherited from the types Set<E> and List<E>\n" + 
+			  "Duplicate default methods named stream with the parameters () and () are inherited from the types Set<E> and List<E>\n" + 
 			  "----------\n" + 
 			  "4. ERROR in T.java (at line 10)\n" + 
 			  "	interface OrderedSet<E> extends List<E>, Set<E> { boolean add(E o); }\n" + 
 			  "	          ^^^^^^^^^^\n" + 
-			  "Duplicate methods named parallelStream with the parameters () and () are inherited from the types Set<E> and List<E>\n" + 
+			  "Duplicate default methods named parallelStream with the parameters () and () are inherited from the types Set<E> and List<E>\n" + 
 			  "----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123943 variant to make it pass on JRE8

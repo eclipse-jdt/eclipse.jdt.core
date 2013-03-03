@@ -678,9 +678,9 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 	}
 
 	// JLS 8.1.1.1 abstract Classes
-	// Default method overrides independent abstract method
+	// Default method conflicts with independent interface method
 	public void testAbstract02() {
-		runConformTest(
+		runNegativeTest(
 			new String[] {
 				"I1.java",
 				"public interface I1 {\n" +
@@ -693,14 +693,22 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 				"C.java",
 				"public class C implements I1, I2 {\n" +
 				"}\n"
-			});
+			},
+			"----------\n" + 
+			"1. ERROR in C.java (at line 1)\n" + 
+			"	public class C implements I1, I2 {\n" + 
+			"	             ^\n" + 
+			"The default method test() inherited from I2 conflicts with another method inherited from I1\n" + 
+			"----------\n");
+			// Note: javac first complains: C is not abstract and does not override abstract method test() in I1
+			//       only when C is marked abstract does the conflict between abstract and default method surface
 	}
 
 	// JLS 8.1.1.1 abstract Classes
-	// Default method overrides independent abstract method
+	// Default method conflicts independent interface method
 	// same as above except for order of implements list
 	public void testAbstract02a() {
-		runConformTest(
+		runNegativeTest(
 			new String[] {
 				"I1.java",
 				"public interface I1 {\n" +
@@ -713,11 +721,45 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 				"C.java",
 				"public class C implements I2, I1 {\n" +
 				"}\n"
-			});
+			},
+			"----------\n" + 
+			"1. ERROR in C.java (at line 1)\n" + 
+			"	public class C implements I2, I1 {\n" + 
+			"	             ^\n" + 
+			"The default method test() inherited from I2 conflicts with another method inherited from I1\n" + 
+			"----------\n");
+			// Note: javac first complains: C is not abstract and does not override abstract method test() in I1
+			//       only when C is marked abstract does the conflict between abstract and default method surface
 	}
 
-	// same as above but for interfaces this is illegal
+	// JLS 8.1.1.1 abstract Classes
+	// Default method does not override independent abstract method
+	// class is abstract
 	public void testAbstract02b() {
+		runNegativeTest(
+			new String[] {
+				"I1.java",
+				"public interface I1 {\n" +
+				"    void test();\n" +
+				"}\n",
+				"I2.java",
+				"public interface I2 {\n" +
+				"    default void test() {}\n" +
+				"}\n",
+				"C.java",
+				"public abstract class C implements I2, I1 {\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in C.java (at line 1)\n" + 
+			"	public abstract class C implements I2, I1 {\n" + 
+			"	                      ^\n" + 
+			"The default method test() inherited from I2 conflicts with another method inherited from I1\n" + 
+			"----------\n");
+	}
+
+	// same as above but only interfaces
+	public void testAbstract02c() {
 		runNegativeTest(
 			new String[] {
 				"I1.java",
@@ -854,7 +896,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"1. ERROR in C2.java (at line 1)\n" + 
 			"	public abstract class C2 implements I1, I2 {\n" + 
 			"	                      ^^\n" + 
-			"Duplicate methods named value1 with the parameters () and () are inherited from the types I2 and I1\n" + 
+			"Duplicate default methods named value1 with the parameters () and () are inherited from the types I2 and I1\n" + 
 			"----------\n");
 	}
 
@@ -896,21 +938,147 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
+	// abstract class method trumps otherwise conflicting default methods: conflict resolved
+	// variant: second method is not a default method
+	public void testAbstract06a() {
+		runNegativeTest(
+			new String[] {
+				"I1.java",
+				"public interface I1 {\n" +
+				"	default String value1() { return null; }\n" +
+				"}\n",
+				"I2.java",
+				"public interface I2 {\n" +
+				"	String value1();\n" + // conflicts with other default method
+				"}\n",
+				"C1.java",
+				"public abstract class C1 {\n" +
+				"	abstract Object value1();\n" + // trumps the conflicting methods (without overriding)
+				"}\n",
+				"C2.java",
+				"public abstract class C2 extends C1 implements I1, I2 {\n" +
+				"}\n",
+				"C3.java",
+				"public class C3 extends C2 {\n" +
+				"	@Override\n" +
+				"	public Object value1() { return this; } // too week, need a method returning String\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in C3.java (at line 3)\n" + 
+			"	public Object value1() { return this; } // too week, need a method returning String\n" + 
+			"	       ^^^^^^\n" + 
+			"The return type is incompatible with I2.value1()\n" + 
+			"----------\n" + 
+			"2. ERROR in C3.java (at line 3)\n" + 
+			"	public Object value1() { return this; } // too week, need a method returning String\n" + 
+			"	       ^^^^^^\n" + 
+			"The return type is incompatible with I1.value1()\n" + 
+			"----------\n");
+	}
+	
+	// abstract class method trumps otherwise conflicting default methods: conflict not resolved due to insufficient visibility
+	public void testAbstract6b() {
+		runNegativeTest(
+			new String[] {
+				"I1.java",
+				"public interface I1 {\n" +
+				"	default String value1() { return null; }\n" +
+				"}\n",
+				"I2.java",
+				"public interface I2 {\n" +
+				"	default String value1() { return \"\"; }\n" + // conflicts with other default method
+				"}\n",
+				"p1/C1.java",
+				"package p1;\n" +
+				"public abstract class C1 {\n" +
+				"	abstract Object value1();\n" + // trump with package visibility doesn't work
+				"}\n",
+				"C2.java",
+				"public abstract class C2 extends p1.C1 implements I1, I2 {\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in C2.java (at line 1)\n" + 
+			"	public abstract class C2 extends p1.C1 implements I1, I2 {\n" + 
+			"	                      ^^\n" + 
+			"Duplicate default methods named value1 with the parameters () and () are inherited from the types I2 and I1\n" + 
+			"----------\n");
+	}
+
+	// abstract class method trumps otherwise conflicting default method: only one default method
+	public void testAbstract07() {
+		runNegativeTest(
+			new String[] {
+				"I1.java",
+				"public interface I1 {\n" +
+				"	default String value1() { return null; }\n" +
+				"}\n",
+				"C1.java",
+				"public abstract class C1 {\n" +
+				"	abstract Object value1();\n" + // trumps the conflicting method (without overriding)
+				"}\n",
+				"C2.java",
+				"public abstract class C2 extends C1 implements I1 {\n" +
+				"}\n",
+				"C3.java",
+				"public class C3 extends C2 {\n" +
+				"	@Override\n" +
+				"	public Object value1() { return this; } // too week, need a method returning String\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in C3.java (at line 3)\n" + 
+			"	public Object value1() { return this; } // too week, need a method returning String\n" + 
+			"	       ^^^^^^\n" + 
+			"The return type is incompatible with I1.value1()\n" + 
+			"----------\n");
+	}
+
+	// class inherits two override equivalent methods,
+	// must be declared abstract, although one of the methods is a default method.
+	public void testAbstract08() {
+		runNegativeTest(
+			new String[] {
+				"I1.java",
+				"public interface I1 {\n" +
+				"	default String value() { return null; }\n" +
+				"}\n",
+				"C1.java",
+				"public abstract class C1 {\n" +
+				"	public abstract String value();" +
+				"}\n",
+				"C2.java",
+				"public class C2 extends C1 implements I1 {\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in C2.java (at line 1)\n" + 
+			"	public class C2 extends C1 implements I1 {\n" + 
+			"	             ^^\n" + 
+			"The type C2 must implement the inherited abstract method C1.value()\n" + 
+			"----------\n");
+	}
+
 	// an annotation type cannot have default methods
 	public void testAnnotation1() {
 		runNegativeTest(
+			false,
 			new String[] {
 				"I.java",
 				"public @interface I {\n" +
 				"    default String id() { return \"1\"; }\n" +
 				"}\n"
 			},
+			null,
+			null,
 			"----------\n" + 
 			"1. ERROR in I.java (at line 2)\n" + 
 			"	default String id() { return \"1\"; }\n" + 
 			"	^^^^^^^\n" + 
 			"Syntax error on token \"default\", @ expected\n" + 
-			"----------\n");
+			"----------\n",
+			JavacTestOptions.JavacHasABug.Javac8AcceptsDefaultMethodInAnnotationType);
 	}
 	
 	// basic situation similar to AmbiguousMethodTest.test009()

@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contribution for
  *								bug 335093 - [compiler][null] minimal hook for future null annotation support
  *								bug 388800 - [1.8] adjust tests to 1.8 JRE
+ *								bug 402237 - [1.8][compiler] investigate differences between compilers re MethodVerifyTest
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -282,6 +283,14 @@ static class JavacCompiler {
 		}
 		if (version == JavaCore.VERSION_1_7) {
 			if ("1.7.0-ea".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("1.7.0_10".equals(rawVersion)) {
+				return 1000;
+			}
+		}
+		if (version == JavaCore.VERSION_1_8) {
+			if ("1.8.0-ea".equals(rawVersion)) {
 				return 0000;
 			}
 		}
@@ -721,7 +730,11 @@ protected static class JavacTestOptions {
 								return compiler.compliance != ClassFileConstants.JDK1_5 ||
 										compiler.minor != 1600 ? null : this;
 							}
-					}: null;
+					}: null,
+			Javac8AcceptsDefaultMethodInAnnotationType = RUN_JAVAC ?
+				new JavacHasABug(
+					MismatchType.EclipseErrorsJavacNone,
+					ClassFileConstants.JDK1_8, 23 /* TODO: insert minor when fixed */) : null;
 	}
 }
 
@@ -2727,7 +2740,8 @@ protected void runNegativeTest(
 		false /* do not perform statements recovery */,
 		null /* no custom requestor */,
 		// compiler results
-		true /* expecting compiler errors */,
+		expectedCompilerLog == null || /* expecting compiler errors */
+		expectedCompilerLog.indexOf("ERROR") != -1,
 		expectedCompilerLog /* expected compiler log */,
 		// runtime options
 		false /* do not force execution */,
