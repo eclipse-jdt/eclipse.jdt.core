@@ -22,6 +22,7 @@
  *     Jesper S Moller - Contributions for
  *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *							bug 399695 - [1.8][compiler] [1.8][compiler] migrate parser to other syntax for default methods
+ *							bug 384567 - [1.5][compiler] Compiler accepts illegal modifiers on package declaration
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
@@ -5554,6 +5555,7 @@ protected void consumePackageDeclarationNameWithModifiers() {
 		length);
 
 	int packageModifiersSourceStart = this.intStack[this.intPtr--];
+	int packageModifiersSourceEnd = packageModifiersSourceStart; // Unless there were any
 	int packageModifiers = this.intStack[this.intPtr--];
 
 	impt = new ImportReference(tokens, positions, false, packageModifiers);
@@ -5567,15 +5569,21 @@ protected void consumePackageDeclarationNameWithModifiers() {
 			0,
 			length);
 		impt.declarationSourceStart = packageModifiersSourceStart;
-		this.intPtr--; // we don't need the position of the 'package keyword
+		packageModifiersSourceEnd = this.intStack[this.intPtr--] - 2; // we don't need the position of the 'package keyword
 	} else {
 		impt.declarationSourceStart = this.intStack[this.intPtr--];
+		packageModifiersSourceEnd = impt.declarationSourceStart - 2;
 		// get possible comment source start
 		if (this.javadoc != null) {
 			impt.declarationSourceStart = this.javadoc.sourceStart;
 		}
 	}
 
+	if (packageModifiers != 0) {
+		problemReporter().illegalModifiersForPackage(packageModifiersSourceStart, packageModifiersSourceEnd);
+	}
+	
+	
 	if (this.currentToken == TokenNameSEMICOLON){
 		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
 	} else {

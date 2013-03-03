@@ -18,6 +18,8 @@
  *								bug 384663 - Package Based Annotation Compilation Error in JDT 3.8/4.2 (works in 3.7.2) 
  *								bug 386356 - Type mismatch error with annotations and generics
  *								bug 331649 - [compiler][null] consider null annotations for fields
+ *     Jesper S Moller  - Contributions for
+ *								bug 384567 - [1.5][compiler] Compiler accepts illegal modifiers on package declaration
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -10803,5 +10805,46 @@ public void test398657_2() throws Exception {
 			"     inner name: #25 Annot, accessflags: 9737 public abstract static]\n";
 
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
+}
+// check invalid and annotations on package
+public void test384567() {
+	this.runNegativeTest(
+		new String[] {
+			"xy/X.java",
+			"public final synchronized @Foo private package xy;\n" +
+			"class X {\n" +
+			"}\n" +
+			"\n" +
+			"@interface Foo {\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in xy\\X.java (at line 1)\n" + 
+		"	public final synchronized @Foo private package xy;\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Syntax error, modifiers are not allowed here\n" + 
+		"----------\n" + 
+		"2. ERROR in xy\\X.java (at line 1)\n" + 
+		"	public final synchronized @Foo private package xy;\n" + 
+		"	                          ^^^^\n" + 
+		"Package annotations must be in file package-info.java\n" + 
+		"----------\n");
+}
+//check invalid modifiers on package
+public void test384567_2() {
+	this.runNegativeTest(
+		new String[] {
+			"xy/X.java",
+			"public final synchronized private package xy;\n" +
+			"class X {\n" +
+			"}\n" +
+			"\n"
+		},
+		"----------\n" +
+		"1. ERROR in xy\\X.java (at line 1)\n" + 
+		"	public final synchronized private package xy;\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Syntax error, modifiers are not allowed here\n" + 
+		"----------\n");
 }
 }

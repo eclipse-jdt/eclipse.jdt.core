@@ -36,6 +36,7 @@
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
+ *								bug 384567 - [1.5][compiler] Compiler accepts illegal modifiers on package declaration
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -9140,6 +9141,15 @@ public void illegalModifiersForElidedType(Argument argument) {
 			arg,
 			argument.declarationSourceStart,
 			argument.declarationSourceEnd);
+}
+
+public void illegalModifiersForPackage(int modifierSourceStart, int modifiersSourceEnd) {
+	this.handle(
+			IProblem.IllegalModifiersForPackage,
+			NoArgument,
+			NoArgument,
+			modifierSourceStart,
+			modifiersSourceEnd);
 }
 
 public void arrayReferencePotentialNullReference(ArrayReference arrayReference) {

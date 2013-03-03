@@ -177,6 +177,7 @@
  *      Jesper S Moller  - added the following constants
  *									TargetTypeNotAFunctionalInterface
  *									OuterLocalMustBeEffectivelyFinal
+ *									IllegalModifiersForPackage
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
@@ -1664,6 +1665,8 @@ void setSourceStart(int sourceStart);
 	// Java 8 work
 	/** @since 3.9 */
 	int IllegalModifiersForElidedType = Internal + 1001;
+	/** @since 3.9 */
+	int IllegalModifiersForPackage = Internal + 1002;
 
 	// default methods:
 	/** @since 3.9 */
