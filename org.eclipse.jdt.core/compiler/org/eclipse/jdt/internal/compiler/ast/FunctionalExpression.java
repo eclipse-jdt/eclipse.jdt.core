@@ -17,6 +17,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
@@ -223,4 +224,28 @@ public abstract class FunctionalExpression extends Expression implements Problem
 			}
 		}
 	}
+	
+	protected boolean shapeAnalysisComplete() {
+		return true;
+	}
+	
+	public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
+		// 15.27.3 requires exception throw related errors to not influence congruence. Also don't abort shape analysis.
+		if (shapeAnalysisComplete()) {
+			switch (problemId) {
+				case IProblem.UnhandledExceptionOnAutoClose:
+				case IProblem.UnhandledExceptionInDefaultConstructor:
+				case IProblem.UnhandledException:
+					return;
+				default: 
+					throw new IncongruentLambdaException();
+			}
+		}
+	}
+
+	
+}
+
+class IncongruentLambdaException extends RuntimeException {
+	private static final long serialVersionUID = 4145723509219836114L;
 }

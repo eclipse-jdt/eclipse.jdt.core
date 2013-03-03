@@ -5779,8 +5779,11 @@ public void test401939c() {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 8)\n" + 
 				"	goo((x) -> { if (x) return null; });\n" + 
-				"	                 ^\n" + 
-				"Type mismatch: cannot convert from String to boolean\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {\n" + 
+				"  if (x)\n" + 
+				"      return null;\n" + 
+				"})\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 9)\n" + 
 				"	goo((x) -> {});\n" + 
@@ -5852,6 +5855,63 @@ public void test401939f() {
 				"}\n",			},
 				"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402219, [1.8][compiler] Compile time errors in lambda during hypothetical type check should render candidate method inapplicable.
+public void test402219() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	String foo(String s1, String s2);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	X foo(X x1, X x2);\n" +
+				"}\n" +
+				"public class X { \n" +
+				"	void goo(I i) {}\n" +
+				"	void goo(J j) {}\n" +
+				"    public static void main(String [] args) {\n" +
+				"		new X().goo((p1, p2) -> p1 = p1 + p2);\n" +
+				"    }\n" +
+				"    Zork z;\n" +
+				"}\n",			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402219, [1.8][compiler] Compile time errors in lambda during hypothetical type check should render candidate method inapplicable.
+public void test402219a() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(String s1, String s2);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	X foo(X x1, X x2);\n" +
+				"}\n" +
+				"public class X { \n" +
+				"	void goo(I i) {/* */}\n" +
+				"	void goo(J j) {/* */}\n" +
+				"    public static void main(String [] args) {\n" +
+				"		new X().goo((p1, p2) -> {});\n" +
+				"    }\n" +
+				"}\n",			},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 11)\n" + 
+				"	new X().goo((p1, p2) -> {});\n" + 
+				"	                        ^^\n" + 
+				"Empty block should be documented\n" + 
+				"----------\n",
+			null,
+			false,
+			options);
+}
+
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

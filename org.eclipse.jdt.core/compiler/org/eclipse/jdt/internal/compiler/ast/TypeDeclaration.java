@@ -1313,6 +1313,10 @@ public void tagAsHavingErrors() {
 	this.ignoreFurtherInvestigation = true;
 }
 
+public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
+	// Not reachable. No silently ignored errors for this context;
+}
+
 /**
  *	Iteration for a package member type
  *

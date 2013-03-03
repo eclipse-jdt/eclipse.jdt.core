@@ -51,7 +51,7 @@ public class LambdaExpression extends FunctionalExpression {
 	MethodScope scope;
 	protected boolean voidCompatible = true;
 	protected boolean valueCompatible = false;
-	protected boolean shapeAnalysisComplete = true;
+	protected boolean shapeAnalysisComplete = false;
 	
 	public LambdaExpression(CompilationResult compilationResult, Argument [] arguments, Statement body) {
 		super(compilationResult);
@@ -119,6 +119,8 @@ public class LambdaExpression extends FunctionalExpression {
 							Statement ultimateStatement = statementsLength == 0 ? null : statements[statementsLength - 1];
 							LambdaExpression.this.valueCompatible = ultimateStatement instanceof ThrowStatement;
 							LambdaExpression.this.shapeAnalysisComplete = LambdaExpression.this.valueCompatible;
+						} else {
+							LambdaExpression.this.shapeAnalysisComplete = true;
 						}
 					}
 				};
@@ -127,6 +129,7 @@ public class LambdaExpression extends FunctionalExpression {
 				Expression expression = (Expression) this.body;
 				this.voidCompatible = expression.statementExpression();
 				this.valueCompatible = true;
+				this.shapeAnalysisComplete = true;
 			}	
 			return new PolyTypeBinding(this);
 		}
@@ -419,6 +422,10 @@ public class LambdaExpression extends FunctionalExpression {
 			visitor.endVisit(this, blockScope);
 	}
 	
+	protected boolean shapeAnalysisComplete() {
+		return this.shapeAnalysisComplete;
+	}
+	
 	public boolean isCompatibleWith(TypeBinding left, Scope someScope) {
 		
 		final MethodBinding sam = left.getSingleAbstractMethod(this.enclosingScope);
@@ -428,21 +435,28 @@ public class LambdaExpression extends FunctionalExpression {
 		if (sam.parameters.length != this.arguments.length)
 			return false;
 		
-		if (this.shapeAnalysisComplete && squarePegInRoundHole(sam))
-			return false;
-		
 		IErrorHandlingPolicy oldPolicy = this.scope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
+
 		try {
+			if (this.shapeAnalysisComplete) {
+				if (squarePegInRoundHole(sam))
+					return false;
+			} else {
+				LambdaExpression copy = copy();
+				copy.setExpressionContext(this.expressionContext);
+				copy.setExpectedType(left);
+				copy.resolveType(this.enclosingScope);
+				this.valueCompatible = copy.valueCompatible = copy.doesNotCompleteNormally();
+				this.shapeAnalysisComplete = copy.shapeAnalysisComplete = true;
+				if (squarePegInRoundHole(sam))
+					return false;
+			}
+		
 			LambdaExpression copy = copy();
 			copy.setExpressionContext(this.expressionContext);
 			copy.setExpectedType(left);
 			copy.resolveType(this.enclosingScope);
-			if (!this.shapeAnalysisComplete) {
-				this.valueCompatible = copy.doesNotCompleteNormally();
-				this.shapeAnalysisComplete = true;
-				if (squarePegInRoundHole(sam))
-					return false;
-			}
+			
 			if (!argumentsTypeElided()) {
 				for (int i = 0, length = sam.parameters.length; i < length; i++) {
 					TypeBinding argumentType = copy.arguments[i].binding.type;
@@ -451,26 +465,25 @@ public class LambdaExpression extends FunctionalExpression {
 				}
 			}
 
-			try {
-				final TypeBinding returnType = sam.returnType;
-				if (this.body instanceof Block) {
-					ASTVisitor visitor = new ASTVisitor() {
-						public boolean visit(ReturnStatement returnStatement, BlockScope blockScope) {
-							Expression expression = returnStatement.expression;
-							if (expression != null && !expression.isAssignmentCompatible(returnType, blockScope))
-								throw new NoncongruentLambdaException();
-							return false;
-						}
-					};
-					copy.body.traverse(visitor, copy.scope);
-				} else {
-					Expression expression = (Expression) copy.body;
-					if (!expression.isAssignmentCompatible(returnType, copy.scope))
-						throw new NoncongruentLambdaException();
-				}
-			} catch (NoncongruentLambdaException e) {
-				return false;
+			final TypeBinding returnType = sam.returnType;
+			if (this.body instanceof Block) {
+				ASTVisitor visitor = new ASTVisitor() {
+					public boolean visit(ReturnStatement returnStatement, BlockScope blockScope) {
+						Expression expression = returnStatement.expression;
+						if (expression != null && !expression.isAssignmentCompatible(returnType, blockScope))
+							throw new IncongruentLambdaException();
+						return false;
+					}
+				};
+				copy.body.traverse(visitor, copy.scope);
+			} else {
+				Expression expression = (Expression) copy.body;
+				if (!expression.isAssignmentCompatible(returnType, copy.scope))
+					throw new IncongruentLambdaException();
 			}
+			 
+		} catch (IncongruentLambdaException e) {
+			return false;
 		} finally {
 			this.scope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 		}
@@ -491,12 +504,11 @@ public class LambdaExpression extends FunctionalExpression {
 	LambdaExpression copy() {
 		final Parser parser = new Parser(this.scope.problemReporter(), false);
 		final char[] source = this.compilationResult.getCompilationUnit().getContents();
-		return (LambdaExpression) parser.parseExpression(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1, 
+		LambdaExpression copy =  (LambdaExpression) parser.parseExpression(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1, 
 										this.scope.referenceCompilationUnit(), false /* record line separators */);
+		copy.valueCompatible = this.valueCompatible;
+		copy.voidCompatible = this.voidCompatible;
+		copy.shapeAnalysisComplete = this.shapeAnalysisComplete;
+		return copy;
 	}
 }
-
-class NoncongruentLambdaException extends RuntimeException {
-	private static final long serialVersionUID = 4145723509219836114L;
-}
-
