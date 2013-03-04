@@ -272,8 +272,9 @@ public StringBuffer printStatement(int tab, StringBuffer output){
 public void resolve(BlockScope scope) {
 	MethodScope methodScope = scope.methodScope();
 	MethodBinding methodBinding;
+	LambdaExpression lambda = methodScope.referenceContext instanceof LambdaExpression ? (LambdaExpression) methodScope.referenceContext : null;
 	TypeBinding methodType =
-		(methodScope.referenceContext instanceof LambdaExpression) ? ((LambdaExpression) methodScope.referenceContext).expectedResultType() :
+		lambda != null ? lambda.expectedResultType() :
 		(methodScope.referenceContext instanceof AbstractMethodDeclaration)
 			? ((methodBinding = ((AbstractMethodDeclaration) methodScope.referenceContext).binding) == null
 				? null
@@ -287,10 +288,15 @@ public void resolve(BlockScope scope) {
 	}
 	
 	if (methodType == TypeBinding.VOID) {
-		// the expression should be null
-		if (this.expression == null)
+		// the expression should be null, exceptions exist for lambda expressions.
+		if (this.expression == null) {
+			if (lambda != null)
+				lambda.returnsExpression(null, TypeBinding.VOID);
 			return;
+		}
 		expressionType = this.expression.resolveType(scope);
+		if (lambda != null && !this.implicitReturn)
+			lambda.returnsExpression(this.expression, expressionType);
 		if (this.implicitReturn && (expressionType == TypeBinding.VOID || this.expression.statementExpression()))
 			return;
 		if (expressionType != null)
@@ -298,10 +304,17 @@ public void resolve(BlockScope scope) {
 		return;
 	}
 	if (this.expression == null) {
+		if (lambda != null)
+			lambda.returnsExpression(null,  methodType);
 		if (methodType != null) scope.problemReporter().shouldReturn(methodType, this);
 		return;
 	}
-	if ((expressionType = this.expression.resolveType(scope)) == null) return;
+	
+	expressionType = this.expression.resolveType(scope);
+	if (lambda != null)
+		lambda.returnsExpression(this.expression, expressionType);
+	
+	if (expressionType == null) return;
 	if (expressionType == TypeBinding.VOID) {
 		scope.problemReporter().attemptToReturnVoidValue(this);
 		return;

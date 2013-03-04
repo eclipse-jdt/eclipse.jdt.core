@@ -50,6 +50,7 @@ public abstract class FunctionalExpression extends Expression implements Problem
 	boolean ignoreFurtherInvestigation;
 	protected ExpressionContext expressionContext = VANILLA_CONTEXT;
 	protected SimpleLookupTable resultExpressions;
+	protected boolean hasIgnoredMandatoryErrors = false;
 	protected CompilationResult compilationResult;
 	protected BlockScope enclosingScope;
 	protected boolean ellipsisArgument;
@@ -233,16 +234,21 @@ public abstract class FunctionalExpression extends Expression implements Problem
 	
 	public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
 		// 15.27.3 requires exception throw related errors to not influence congruence. Also don't abort shape analysis.
-		if (shapeAnalysisComplete()) {
-			switch (problemId) {
-				case IProblem.UnhandledExceptionOnAutoClose:
-				case IProblem.UnhandledExceptionInDefaultConstructor:
-				case IProblem.UnhandledException:
-					return;
-				default: 
+		switch (problemId) {
+			case IProblem.UnhandledExceptionOnAutoClose:
+			case IProblem.UnhandledExceptionInDefaultConstructor:
+			case IProblem.UnhandledException:
+				return;
+			default: 
+				if (shapeAnalysisComplete())
 					throw new IncongruentLambdaException();
-			}
+				this.original().hasIgnoredMandatoryErrors = true;
+				return;
 		}
+	}
+
+	protected FunctionalExpression original() {
+		return this;
 	}
 }
 

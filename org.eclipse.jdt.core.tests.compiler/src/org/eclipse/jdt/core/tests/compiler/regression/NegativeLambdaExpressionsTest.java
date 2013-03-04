@@ -6065,6 +6065,33 @@ public void test402261c() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401769, [1.8][compiler] Explore solutions with better performance characteristics than LambdaExpression#copy()
+public void test401769() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"class X {\n" +
+				"	void g(I i) {}\n" +
+				"	void g(J j) {}\n" +
+				"	int f;\n" +
+				"	{\n" +
+				"		g(() -> f++);\n" +
+				"	}\n" +
+				"}\n",			
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	g(() -> f++);\n" + 
+			"	^\n" + 
+			"The method g(I) is ambiguous for the type X\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

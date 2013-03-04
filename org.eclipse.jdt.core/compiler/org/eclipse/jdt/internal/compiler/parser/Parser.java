@@ -1003,7 +1003,7 @@ private int valueLambdaNestDepth = -1;
 private int stateStackLengthStack[] = new int[0];
 private boolean parsingJava8Plus;
 protected int unstackedAct = ERROR_ACTION;
-private boolean dontResumeOnSyntaxError = false;
+private boolean haltOnSyntaxError = false;
 
 protected Parser () {
 	// Caveat Emptor: For inheritance purposes and then only in very special needs. Only minimal state is initialized !
@@ -11392,13 +11392,8 @@ public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int lengt
 }
 
 public Expression parseLambdaExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit, boolean recordLineSeparators) {
-	boolean resumptionStatus = this.dontResumeOnSyntaxError;
-	this.dontResumeOnSyntaxError = true;
-	try {
-		return parseExpression(source, offset, length, unit, recordLineSeparators);
-	} finally {
-		this.dontResumeOnSyntaxError = resumptionStatus;
-	}
+	this.haltOnSyntaxError = true; // unexposed/unshared object, no threading concerns.
+	return parseExpression(source, offset, length, unit, recordLineSeparators);
 }
 
 public Expression parseExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit, boolean recordLineSeparators) {
@@ -12130,7 +12125,7 @@ protected boolean resumeAfterRecovery() {
 	}
 }
 protected boolean resumeOnSyntaxError() {
-	if (this.dontResumeOnSyntaxError)
+	if (this.haltOnSyntaxError)
 		return false;
 	/* request recovery initialization */
 	if (this.currentElement == null){

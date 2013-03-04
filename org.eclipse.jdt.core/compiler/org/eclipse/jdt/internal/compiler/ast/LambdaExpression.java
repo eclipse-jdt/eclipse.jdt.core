@@ -49,16 +49,23 @@ public class LambdaExpression extends FunctionalExpression {
 	public Argument [] arguments;
 	public Statement body;
 	public boolean hasParentheses;
-	protected MethodScope scope;
-	protected boolean voidCompatible = true;
-	protected boolean valueCompatible = false;
-	protected boolean shapeAnalysisComplete = false;
-	protected int returnExpressionsTally = 0;
+	private MethodScope scope;
+	private boolean voidCompatible = true;
+	private boolean valueCompatible = false;
+	private boolean shapeAnalysisComplete = false;
+	private boolean returnsValue;
+	private boolean returnsVoid;
+	private boolean throwsException;
+	private LambdaExpression original = this;
 	
 	public LambdaExpression(CompilationResult compilationResult, Argument [] arguments, Statement body) {
 		super(compilationResult);
 		this.arguments = arguments != null ? arguments : ASTNode.NO_ARGUMENTS;
 		this.body = body;
+	}
+	
+	protected FunctionalExpression original() {
+		return this.original;
 	}
 	
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
@@ -88,63 +95,13 @@ public class LambdaExpression extends FunctionalExpression {
 		
 		this.constant = Constant.NotAConstant;
 		this.enclosingScope = blockScope;
-		this.scope = new MethodScope(blockScope, this, blockScope.methodScope().isStatic);
 		
 		if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
-			if (this.body instanceof Block) {
-				// Gather shape information for potential applicability analysis.
-				ASTVisitor visitor = new ASTVisitor() {
-					private boolean valueReturnSeen = false;
-					private boolean voidReturnSeen = false;
-					private boolean throwSeen = false;
-					public boolean visit(ReturnStatement returnStatement, BlockScope dontCare) {
-						if (returnStatement.expression != null) {
-							LambdaExpression.this.returnExpressionsTally++;
-							this.valueReturnSeen = true;
-							LambdaExpression.this.voidCompatible = false;
-							LambdaExpression.this.valueCompatible = !this.voidReturnSeen;
-						} else {
-							this.voidReturnSeen = true;
-							LambdaExpression.this.valueCompatible = false;
-							LambdaExpression.this.voidCompatible = !this.valueReturnSeen;
-						}
-						return false; // should not analyze any nested lambda returns.
-					}
-					public boolean visit(TypeDeclaration declaration, BlockScope dontCare) {
-						return false;  // do not analyze inner local types so as not to confuse returns from there.
-					}
-					public boolean visit(LambdaExpression lambda, BlockScope dontCare) {
-						return LambdaExpression.this == lambda;  // do not analyze any inner lambdas so as not to confuse returns from there.
-					}
-					public boolean visit(ThrowStatement throwStatement, BlockScope dontCare) {
-						this.throwSeen  = true;
-						return false;
-					}
-					public void endVisit(LambdaExpression expression, BlockScope dontCare) {
-						if (LambdaExpression.this == expression) {
-							if (!this.voidReturnSeen && !this.valueReturnSeen && this.throwSeen) {  // () -> { throw new Exception(); } is value compatible.
-								Block block = (Block) LambdaExpression.this.body;
-								final Statement[] statements = block.statements;
-								final int statementsLength = statements == null ? 0 : statements.length;
-								Statement ultimateStatement = statementsLength == 0 ? null : statements[statementsLength - 1];
-								LambdaExpression.this.valueCompatible = ultimateStatement instanceof ThrowStatement;
-								LambdaExpression.this.shapeAnalysisComplete = LambdaExpression.this.valueCompatible;
-							} else {
-								LambdaExpression.this.shapeAnalysisComplete = true;
-							}
-						}
-					}
-				};
-				this.traverse(visitor, blockScope);
-			} else {
-				Expression expression = (Expression) this.body;
-				this.voidCompatible = expression.statementExpression();
-				this.valueCompatible = true;
-				this.returnExpressionsTally = 1;
-				this.shapeAnalysisComplete = true;
-			}	
+			this.resultExpressions = new SimpleLookupTable();
 			return new PolyTypeBinding(this);
-		}
+		} 
+		
+		this.scope = new MethodScope(blockScope, this, blockScope.methodScope().isStatic);
 		super.resolveType(blockScope); // compute & capture interface function descriptor in singleAbstractMethod.
 		
 		final boolean argumentsTypeElided = argumentsTypeElided();
@@ -435,7 +392,7 @@ public class LambdaExpression extends FunctionalExpression {
 	}
 	
 	protected boolean shapeAnalysisComplete() {
-		return this.shapeAnalysisComplete;
+		return this.original.shapeAnalysisComplete;
 	}
 	
 	public boolean isCompatibleWith(final TypeBinding left, final Scope someScope) {
@@ -447,78 +404,46 @@ public class LambdaExpression extends FunctionalExpression {
 		if (sam.parameters.length != this.arguments.length)
 			return false;
 		
-		IErrorHandlingPolicy oldPolicy = this.scope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
+		if (!this.shapeAnalysisComplete && this.body instanceof Expression) {
+			Expression expression = (Expression) this.body;
+			this.voidCompatible = expression.statementExpression();
+			this.valueCompatible = true;
+			this.shapeAnalysisComplete = true;
+		}
 
+		if (this.shapeAnalysisComplete) {
+			if (squarePegInRoundHole(sam))
+				return false;
+		} 
+
+		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
+		this.hasIgnoredMandatoryErrors = false;
 		try {
-			if (this.shapeAnalysisComplete) {
-				if (squarePegInRoundHole(sam))
-					return false;
-			} else {
-				LambdaExpression copy = copy();
-				if (copy == null)
-					return false;
-				copy.setExpressionContext(this.expressionContext);
-				copy.setExpectedType(left);
-				copy.resolveType(this.enclosingScope);
-				this.valueCompatible = copy.valueCompatible = copy.doesNotCompleteNormally();
-				this.shapeAnalysisComplete = copy.shapeAnalysisComplete = true;
-				if (squarePegInRoundHole(sam))
-					return false;
-			}
-		
 			final LambdaExpression copy = copy();
 			if (copy == null)
 				return false;
 			copy.setExpressionContext(this.expressionContext);
 			copy.setExpectedType(left);
+			this.resultExpressions.put(left, new Expression[0]);
 			copy.resolveType(this.enclosingScope);
-			
-			if (!argumentsTypeElided()) {
-				for (int i = 0, length = sam.parameters.length; i < length; i++) {
-					TypeBinding argumentType = copy.arguments[i].binding.type;
-					if (sam.parameters[i] != argumentType)
-						return false;
+			if (!this.shapeAnalysisComplete) {
+				boolean lambdaIsFubar = this.hasIgnoredMandatoryErrors; // capture now, before doesNotCompleteNormally which runs analyzeCode on lambda body *without* the enclosing context being analyzed 
+				if (!this.returnsVoid && !this.returnsValue && this.throwsException) {  // () -> { throw new Exception(); } is value compatible.
+					Block block = (Block) this.body;
+					final Statement[] statements = block.statements;
+					final int statementsLength = statements == null ? 0 : statements.length;
+					Statement ultimateStatement = statementsLength == 0 ? null : statements[statementsLength - 1];
+					this.valueCompatible = ultimateStatement instanceof ThrowStatement ? true: copy.doesNotCompleteNormally(); 
 				}
-			}
-
-			if (this.returnExpressionsTally > 0) {
-				final TypeBinding returnType = sam.returnType;
-				if (this.resultExpressions == null)
-					this.resultExpressions = new SimpleLookupTable(); // gather for more specific analysis later.
-				if (this.body instanceof Block) {
-					ASTVisitor visitor = new ASTVisitor() {
-						Expression [] returnExpressions = new Expression[LambdaExpression.this.returnExpressionsTally];
-						int returnExpressionsCount = 0;
-						public boolean visit(ReturnStatement returnStatement, BlockScope blockScope) {
-							Expression expression = returnStatement.expression;
-							if (expression != null && !expression.isAssignmentCompatible(returnType, blockScope))
-								throw new IncongruentLambdaException();
-							this.returnExpressions[this.returnExpressionsCount++] = expression;
-							return false; // should not analyze any nested lambda returns
-						}
-						public boolean visit(TypeDeclaration declaration, BlockScope dontCare) {
-							return false;  // do not analyze inner local types so as not to confuse returns from there.
-						}
-						public boolean visit(LambdaExpression lambda, BlockScope dontCare) {
-							return LambdaExpression.this == lambda;  // do not analyze any inner lambdas so as not to confuse returns from there.
-						}
-						public void endVisit(Block block, BlockScope blockScope) {
-							if (block == copy.body)
-								LambdaExpression.this.resultExpressions.put(left, this.returnExpressions);
-						}
-					};
-					copy.body.traverse(visitor, copy.scope);
-				} else if (this.body instanceof Expression){
-					Expression expression = (Expression) copy.body;
-					if (!expression.isAssignmentCompatible(returnType, copy.scope))
-						throw new IncongruentLambdaException();
-					this.resultExpressions.put(left, new Expression [] { expression });
-				}
+				this.shapeAnalysisComplete = true;
+				if (squarePegInRoundHole(sam) || lambdaIsFubar)
+					return false;
 			}
 		} catch (IncongruentLambdaException e) {
 			return false;
 		} finally {
-			this.scope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
+			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
+			this.hasIgnoredMandatoryErrors = false;
 		}
 		return true;
 	}
@@ -584,16 +509,40 @@ public class LambdaExpression extends FunctionalExpression {
 	}
 
 	LambdaExpression copy() {
-		final Parser parser = new Parser(this.scope.problemReporter(), false);
+		final Parser parser = new Parser(this.enclosingScope.problemReporter(), false);
 		final char[] source = this.compilationResult.getCompilationUnit().getContents();
 		LambdaExpression copy =  (LambdaExpression) parser.parseLambdaExpression(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1, 
-										this.scope.referenceCompilationUnit(), false /* record line separators */);
+										this.enclosingScope.referenceCompilationUnit(), false /* record line separators */);
 
-		if (copy != null) { // ==> syntax errors
-			copy.valueCompatible = this.valueCompatible;
-			copy.voidCompatible = this.voidCompatible;
-			copy.shapeAnalysisComplete = this.shapeAnalysisComplete;
+		if (copy != null) { // ==> syntax errors == null
+			copy.original = this;
 		}
 		return copy;
+	}
+
+	public void returnsExpression(Expression expression, TypeBinding resultType) {
+		if (this.expressionContext != INVOCATION_CONTEXT)
+			return;
+		if (expression != null) {
+			this.original.returnsValue = true;
+			this.original.voidCompatible = false;
+			this.original.valueCompatible = !this.original.returnsVoid;
+			if (resultType != null) {
+				Expression [] results = (Expression[]) this.original.resultExpressions.get(this.expectedType);
+				int resultsLength = results.length;
+				System.arraycopy(results, 0, results = new Expression[resultsLength + 1], 0, resultsLength);
+				results[resultsLength] = expression;
+			}
+		} else {
+			this.original.returnsVoid = true;
+			this.original.valueCompatible = false;
+			this.original.voidCompatible = !this.original.returnsValue;
+		}
+	}
+
+	public void throwsException(TypeBinding exceptionType) {
+		if (this.expressionContext != INVOCATION_CONTEXT)
+			return;
+		this.original.throwsException = true;
 	}
 }
