@@ -193,6 +193,24 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		}
 	}
 
+	private void visitArrayTypeWithExpression(ArrayType node, List dimensions, int depth) {
+		if (node.getAST().apiLevel() >= AST.JLS8) {
+			visitList(node, ArrayType.ANNOTATIONS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
+		}
+		if (depth < dimensions.size()) {
+			this.result.append('[');
+			((ASTNode) dimensions.get(depth)).accept(this);
+			this.result.append(']');
+		} else {
+			this.result.append("[]"); //$NON-NLS-1$
+		}
+		Type componentType = node.getComponentType();
+		if (componentType.isArrayType()) {
+			visitArrayTypeWithExpression((ArrayType) componentType, dimensions, --depth);
+		} else {
+			componentType.accept(this);
+		}
+	}
 	private void visitExtraDimensions(ASTNode node, SimplePropertyDescriptor dimensions, ChildListPropertyDescriptor dimensionsInfo) {
 		if (node.getAST().apiLevel() < AST.JLS8) {
 			int extraDimensions= getIntAttribute(node, dimensions);
@@ -239,21 +257,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			dimensions++;
 			elementType = (Type) getChildNode(elementType, ArrayType.COMPONENT_TYPE_PROPERTY);
 		}
-
-		elementType.accept(this);
-
 		List list= getChildList(node, ArrayCreation.DIMENSIONS_PROPERTY);
-		for (int i= 0; i < list.size(); i++) {
-			this.result.append('[');
-			((ASTNode) list.get(i)).accept(this);
-			this.result.append(']');
-			dimensions--;
-		}
+		visitArrayTypeWithExpression(arrayType, list, --dimensions);
 
-		// add empty "[]" for each extra array dimension
-		for (int i= 0; i < dimensions; i++) {
-			this.result.append("[]"); //$NON-NLS-1$
-		}
 		ASTNode initializer= getChildNode(node, ArrayCreation.INITIALIZER_PROPERTY);
 		if (initializer != null) {
 			getChildNode(node, ArrayCreation.INITIALIZER_PROPERTY).accept(this);

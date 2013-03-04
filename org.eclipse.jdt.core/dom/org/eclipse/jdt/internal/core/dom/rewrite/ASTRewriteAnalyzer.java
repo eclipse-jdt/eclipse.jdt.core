@@ -1516,7 +1516,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		boolean isAllInsert= isAllOfKind(children, RewriteEvent.INSERTED);
 		boolean isAllRemove= isAllOfKind(children, RewriteEvent.REMOVED);
 		String keyword= Util.EMPTY_STRING;
-		if (property == SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY) {
+		if (property == SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY || property == ArrayType.ANNOTATIONS_PROPERTY) {
 			keyword= " "; //$NON-NLS-1$
 		} else if (isAllInsert || isAllRemove) {
 			// update pos
@@ -1528,7 +1528,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		Prefix formatterPrefix;
-		if (property == SingleVariableDeclaration.MODIFIERS2_PROPERTY || property == SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY)
+		if (property == SingleVariableDeclaration.MODIFIERS2_PROPERTY || property == SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY 
+							|| property == ArrayType.ANNOTATIONS_PROPERTY)
 			formatterPrefix= this.formatter.PARAM_ANNOTATION_SEPARATION;
 		else
 			formatterPrefix= this.formatter.ANNOTATION_SEPARATION;
@@ -1544,7 +1545,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				doTextRemove(endPos, nextPos - endPos, getEditGroup(lastChild));
 				return nextPos;
 			} else if ((isAllInsert || (nextPos == endPos && lastUnchanged)) // see bug 165654
-					&& property != SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY) {
+					&& property != SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY && property != ArrayType.ANNOTATIONS_PROPERTY) {
 				String separator;
 				if (lastChild.getNewValue() instanceof Annotation) {
 					separator= formatterPrefix.getPrefix(getIndent(pos));
@@ -1969,13 +1970,13 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		ArrayType arrayType= (ArrayType) getOriginalValue(node, ArrayCreation.TYPE_PROPERTY);
+		ArrayType replacingType= arrayType;
 		int nOldBrackets= getDimensions(arrayType); // number of total brackets
-		int nNewBrackets= nOldBrackets;
 
 		TextEditGroup editGroup= null;
 		RewriteEvent typeEvent= getEvent(node, ArrayCreation.TYPE_PROPERTY);
 		if (typeEvent != null && typeEvent.getChangeKind() == RewriteEvent.REPLACED) { // changed arraytype can have different dimension or type name
-			ArrayType replacingType= (ArrayType) typeEvent.getNewValue();
+			replacingType= (ArrayType) typeEvent.getNewValue();
 			editGroup= getEditGroup(typeEvent);
 			Type newType= replacingType.getElementType();
 			Type oldType= getElementType(arrayType);
@@ -1986,59 +1987,67 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				doTextRemove(offset, length, editGroup);
 				doTextInsert(offset, newType, 0, false, editGroup);
 			}
-			nNewBrackets= replacingType.getDimensions(); // is replaced type
 		}
-		voidVisit(arrayType);
-
 
 		try {
-			int offset= getScanner().getTokenStartOffset(TerminalTokens.TokenNameLBRACKET, arrayType.getStartPosition());
-			// dimension node with expressions
+			// dimension node with expressions and/or annotations
 			RewriteEvent dimEvent= getEvent(node, ArrayCreation.DIMENSIONS_PROPERTY);
 			boolean hasDimensionChanges= (dimEvent != null && dimEvent.getChangeKind() != RewriteEvent.UNCHANGED);
-			if (hasDimensionChanges) {
-				RewriteEvent[] events= dimEvent.getChildren();
-				// offset on first opening brace
-				for (int i= 0; i < events.length; i++) {
-					RewriteEvent event= events[i];
-					int changeKind= event.getChangeKind();
-					if (changeKind == RewriteEvent.INSERTED) { // insert new dimension
-						editGroup= getEditGroup(event);
-						doTextInsert(offset, "[", editGroup); //$NON-NLS-1$
-						doTextInsert(offset, (ASTNode) event.getNewValue(), 0, false, editGroup);
-						doTextInsert(offset, "]", editGroup); //$NON-NLS-1$
-						nNewBrackets--;
-					} else {
-						ASTNode elem= (ASTNode) event.getOriginalValue();
-						int elemEnd= elem.getStartPosition() + elem.getLength();
-						int endPos= getScanner().getTokenEndOffset(TerminalTokens.TokenNameRBRACKET, elemEnd);
-						if (changeKind == RewriteEvent.REMOVED) {
+			RewriteEvent[] events= hasDimensionChanges ? dimEvent.getChildren() : null;
+			ArrayType currentLevel= (ArrayType) replacingType.getElementType().getParent();
+			int i=0, dimSize= (events == null) ? 0 : events.length;
+			Type elementType= arrayType.getElementType();
+			int offset= elementType.getStartPosition() + elementType.getLength();
+			while(currentLevel != null) {
+				if (node.getAST().apiLevel() >= AST.JLS8) {
+					rewriteTypeAnnotations(currentLevel, ArrayType.ANNOTATIONS_PROPERTY, offset);
+				}
+				if (i < dimSize) {
+					 offset= getScanner().getTokenEndOffset(TerminalTokens.TokenNameLBRACKET, offset);
+					if (hasDimensionChanges) {
+						RewriteEvent event= events[i];
+						int changeKind= event.getChangeKind();
+						if (changeKind == RewriteEvent.INSERTED) { // insert new dimension
 							editGroup= getEditGroup(event);
-							doTextRemoveAndVisit(offset, endPos - offset, elem, editGroup);
-						} else if (changeKind == RewriteEvent.REPLACED) {
-							editGroup= getEditGroup(event);
-							SourceRange range= getExtendedRange(elem);
-							int elemOffset= range.getStartPosition();
-							int elemLength= range.getLength();
-							doTextRemoveAndVisit(elemOffset, elemLength, elem, editGroup);
-							doTextInsert(elemOffset, (ASTNode) event.getNewValue(), 0, false, editGroup);
-							nNewBrackets--;
+							int endPos= getScanner().getTokenStartOffset(TerminalTokens.TokenNameRBRACKET, offset);
+							doTextRemove(offset, endPos - offset, editGroup);
+							doTextInsert(offset, (ASTNode) event.getNewValue(), 0, false, editGroup);
 						} else {
-							voidVisit(elem);
-							nNewBrackets--;
+							ASTNode elem= (ASTNode) event.getOriginalValue();
+							int elemEnd= elem.getStartPosition() + elem.getLength();
+							int endPos= getScanner().getTokenStartOffset(TerminalTokens.TokenNameRBRACKET, elemEnd);
+							if (changeKind == RewriteEvent.REMOVED) {
+								editGroup= getEditGroup(event);
+								doTextRemoveAndVisit(offset, endPos - offset, elem, editGroup);
+							} else if (changeKind == RewriteEvent.REPLACED) {
+								editGroup= getEditGroup(event);
+								SourceRange range= getExtendedRange(elem);
+								int elemOffset= range.getStartPosition();
+								int elemLength= range.getLength();
+								doTextRemoveAndVisit(elemOffset, elemLength, elem, editGroup);
+								doTextInsert(elemOffset, (ASTNode) event.getNewValue(), 0, false, editGroup);
+							} else {
+								voidVisit(elem);
+							}
 						}
-						offset= endPos;
-						nOldBrackets--;
+						offset= retrieveRightBracketEndPosition(offset, 1, true);
+					} else {
+						ASTNode elem= (ASTNode) node.dimensions().get(i);
+						voidVisit(elem);
+						offset= retrieveRightBracketEndPosition(offset, 1, true);
 					}
+				} else if (i < nOldBrackets) {
+					offset= retrieveRightBracketEndPosition(offset, 1, false);
+				} else {
+					doTextInsert(offset, "[]", editGroup); //$NON-NLS-1$
 				}
-			} else {
-				offset= doVisit(node, ArrayCreation.DIMENSIONS_PROPERTY, offset);
+				i++;
+				if (currentLevel == replacingType) break;
+				currentLevel= (ArrayType) currentLevel.getParent();
 			}
-			if (nOldBrackets != nNewBrackets) {
-				if (!hasDimensionChanges) {
-					offset= getScanner().getTokenEndOffset(TerminalTokens.TokenNameRBRACKET, offset);
-				}
-				rewriteExtraDimensions(nOldBrackets, nNewBrackets, offset, editGroup);
+			if (i < nOldBrackets) {
+				int endPos= retrieveRightBracketEndPosition(offset, nOldBrackets - i, false);
+				doTextRemove(offset, endPos - offset, editGroup);
 			}
 
 			int kind= getChangeKind(node, ArrayCreation.INITIALIZER_PROPERTY);
@@ -2052,6 +2061,34 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			handleException(e);
 		}
 		return false;
+	}
+
+	/**
+	 * This method is used to retrieve the position of the right bracket.
+	 * @return int the dimension found, -1 if none
+	 */
+	protected int retrieveRightBracketEndPosition(int offset, int count, boolean isLeftRead) throws CoreException {
+		TokenScanner scanner= getScanner();
+		int token;
+		int balance= 0;
+		if (isLeftRead) balance++;
+		scanner.setOffset(offset);
+		while ((token= scanner.readNext(true)) != TerminalTokens.TokenNameEOF) {
+			switch(token) {
+				case TerminalTokens.TokenNameLBRACKET :
+					balance++;
+					break;
+				case TerminalTokens.TokenNameRBRACKET :
+					balance--;
+					if (balance == 0) {
+						if (--count == 0) {
+							return scanner.getCurrentEndOffset();
+						}
+					}
+					break;
+			}
+		}
+		return -1;
 	}
 
 	private Type getElementType(ArrayType parent) {

@@ -3261,7 +3261,9 @@ class ASTConverter {
 		while(type.isArrayType()) {
 			ArrayType arrayType = (ArrayType) type;
 			org.eclipse.jdt.internal.compiler.ast.Annotation[] typeAnnotations = annotations[level--];
-			annotateType(arrayType, typeAnnotations);
+			if (typeAnnotations != null) {
+				annotateType(arrayType, typeAnnotations);
+			}
 			type = arrayType.getComponentType();
 		}
 	}
