@@ -391,6 +391,10 @@ public class LambdaExpression extends FunctionalExpression {
 			visitor.endVisit(this, blockScope);
 	}
 	
+	public MethodScope getScope() {
+		return this.scope;
+	}
+		
 	protected boolean shapeAnalysisComplete() {
 		return this.original.shapeAnalysisComplete;
 	}

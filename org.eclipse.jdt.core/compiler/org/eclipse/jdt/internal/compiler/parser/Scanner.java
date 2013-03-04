@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
+ *     Jesper S Moller  -. Contribution for bug 400830: [1.8][formatter] Code formatter for Java 8
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
@@ -3837,7 +3838,7 @@ public String toString() {
 	if (this.currentPosition > this.eofPosition)
 		return "behind the EOF\n\n" + new String(this.source); //$NON-NLS-1$
 	if (this.currentPosition <= 0)
-		return "NOT started!\n\n"+ new String(this.source); //$NON-NLS-1$
+		return "NOT started!\n\n"+ (this.source != null ? new String(this.source) : ""); //$NON-NLS-1$ //$NON-NLS-2$
 
 	StringBuffer buffer = new StringBuffer();
 	if (this.startPosition < 1000) {
