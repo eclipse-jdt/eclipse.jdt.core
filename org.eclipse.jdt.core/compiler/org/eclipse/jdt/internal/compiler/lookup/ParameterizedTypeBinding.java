@@ -1149,10 +1149,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return this.fields;
 	}
 	public MethodBinding getSingleAbstractMethod(final Scope scope) {
+		if (this.singleAbstractMethod != null) {
+			return this.singleAbstractMethod;
+		}
 		final ReferenceBinding genericType = genericType();
 		MethodBinding theAbstractMethod = genericType.getSingleAbstractMethod(scope);
 		if (theAbstractMethod == null || !theAbstractMethod.isValidBinding())
-			return theAbstractMethod;
+			return this.singleAbstractMethod = theAbstractMethod;
 		
 		TypeBinding [] typeArguments = this.arguments; // A1 ... An 
 		TypeVariableBinding [] typeParameters = genericType.typeVariables(); // P1 ... Pn

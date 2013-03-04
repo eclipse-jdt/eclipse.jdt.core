@@ -41,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 public class ReferenceExpression extends FunctionalExpression implements InvocationSite {
 	
@@ -96,11 +97,11 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     				}
     			}
     			if (this.typeArgumentsHaveErrors)
-    				return this.resolvedType;
+    				return this.resolvedType = null;
     		}
     	} else {
     		if (this.typeArgumentsHaveErrors)
-				return this.resolvedType;
+				return this.resolvedType = null;
     		lhsType = this.lhs.resolvedType;
     	}
 
@@ -110,18 +111,18 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		super.resolveType(scope);
 		
     	if (lhsType == null || !lhsType.isValidBinding()) 
-			return null;
+			return this.resolvedType = null;
 		
 		final TypeBinding[] descriptorParameters = this.descriptor != null ? this.descriptor.parameters : Binding.NO_PARAMETERS;
 		final char[] selector = this.method.token;
 		if (lhsType.isBaseType()) {
 			scope.problemReporter().errorNoMethodFor(this.lhs, lhsType, selector, descriptorParameters);
-			return null;
+			return this.resolvedType = null;
 		}
 		
 		if (isConstructorReference() && !lhsType.canBeInstantiated()) {
 			scope.problemReporter().cannotInstantiate(this.lhs, lhsType);
-			return null;
+			return this.resolvedType = null;
 		}
 		
 		/* 15.28: "It is a compile-time error if a method reference of the form super :: NonWildTypeArgumentsopt Identifier or of the form 
@@ -140,15 +141,15 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         	final TypeBinding leafComponentType = lhsType.leafComponentType();
 			if (leafComponentType.isParameterizedType()) {
         		scope.problemReporter().illegalGenericArray(leafComponentType, this);
-        		return null;
+        		return this.resolvedType = null;
         	}
         	if (parametersLength != 1 || scope.parameterCompatibilityLevel(descriptorParameters[0], TypeBinding.INT) == Scope.NOT_COMPATIBLE) {
         		scope.problemReporter().invalidArrayConstructorReference(this, lhsType, descriptorParameters);
-        		return null;
+        		return this.resolvedType = null;
         	}
         	if (!lhsType.isCompatibleWith(this.descriptor.returnType)) {
         		scope.problemReporter().constructedArrayIncompatible(this, lhsType, this.descriptor.returnType);
-        		return null;
+        		return this.resolvedType = null;
         	}
         	return this.resolvedType; // No binding construction possible. Code generator will have to conjure up a rabbit.
         }
@@ -168,7 +169,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		   LHS's resolved type == actual receiver type. All code below only when a valid descriptor is available.
 		 */
         if (this.descriptor == null || !this.descriptor.isValidBinding())
-        	return null;
+        	return this.resolvedType =  null;
         
         // 15.28.1
         final boolean isMethodReference = isMethodReference();
@@ -179,12 +180,12 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         	final boolean isStatic = someMethod.isStatic();
         	if (isStatic && (this.haveReceiver || this.receiverType.isParameterizedType())) {
     			scope.problemReporter().methodMustBeAccessedStatically(this, someMethod);
-    			return null;
+    			return this.resolvedType = null;
     		}
         	if (!this.haveReceiver) {
         		if (!isStatic && !someMethod.isConstructor()) {
         			scope.problemReporter().methodMustBeAccessedWithInstance(this, someMethod);
-        			return null;
+        			return this.resolvedType = null;
         		}
         	} 
         } else {
@@ -214,13 +215,13 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         	}
         	if (anotherMethod != null && anotherMethod.isValidBinding() && anotherMethod.isStatic()) {
         		scope.problemReporter().methodMustBeAccessedStatically(this, anotherMethod);
-        		return null;
+        		return this.resolvedType = null;
         	}
         }
         
         if (someMethod != null && someMethod.isValidBinding() && anotherMethod != null && anotherMethod.isValidBinding()) {
         	scope.problemReporter().methodReferenceSwingsBothWays(this, anotherMethod, someMethod);
-        	return null;
+        	return this.resolvedType = null;
         }
 
         this.method.binding = this.binding = someMethod != null && someMethod.isValidBinding() ? someMethod : 
@@ -229,7 +230,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         if (this.binding == null) {
         	char [] visibleName = isConstructorReference() ? this.receiverType.sourceName() : selector;
         	scope.problemReporter().danglingReference(this, this.receiverType, visibleName, descriptorParameters);
-			return null;
+			return this.resolvedType = null;
         }
         
         // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=382350#c2, I.super::abstractMethod will be handled there.
@@ -314,6 +315,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     		if (!returnType.isCompatibleWith(this.descriptor.returnType, scope) && !isBoxingCompatible(returnType, this.descriptor.returnType, this, scope)) {
     			scope.problemReporter().incompatibleReturnType(this, this.binding, this.descriptor.returnType);
     			this.method.binding = this.binding = null;
+    			this.resolvedType = null;
     		}
     	}
 
@@ -405,8 +407,51 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		} finally {
 			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 			isCompatible = this.binding != null && this.binding.isValidBinding();
+			if (isCompatible) {
+				if (this.resultExpressions == null)
+					this.resultExpressions = new SimpleLookupTable(); // gather for more specific analysis later.
+				this.resultExpressions.put(left, this.binding.returnType);
+			}
 			this.method.binding = this.binding = null;
 		}
 		return isCompatible;
+	}
+	public boolean tIsMoreSpecific(TypeBinding t, TypeBinding s) {
+		/* 15.12.2.5 t is more specific than s iff ... Some of the checks here are redundant by the very fact of control reaching here, 
+		   but have been left in for completeness/documentation sakes. These should be cheap anyways. 
+		*/
+		
+		// Both t and s are functional interface types ... 
+		MethodBinding tSam = t.getSingleAbstractMethod(this.enclosingScope);
+		if (tSam == null || !tSam.isValidBinding())
+			return false;
+		MethodBinding sSam = s.getSingleAbstractMethod(this.enclosingScope);
+		if (sSam == null || !sSam.isValidBinding())
+			return false;
+		
+		// t should neither be a subinterface nor a superinterface of s
+		if (t.findSuperTypeOriginatingFrom(s) != null || s.findSuperTypeOriginatingFrom(t) != null)
+			return false;
+
+		// The descriptor parameter types of t are the same as the descriptor parameter types of s.
+		if (tSam.parameters.length != sSam.parameters.length)
+			return false;
+		for (int i = 0, length = tSam.parameters.length; i < length; i++) {
+			if (tSam.parameters[i] != sSam.parameters[i])
+				return false;
+		}
+		
+		// Either the descriptor return type of s is void or ...
+		if (sSam.returnType.id == TypeIds.T_void)
+			return true;
+		
+		/* ... or the descriptor return type of the capture of T is more specific than the descriptor return type of S for 
+		   an invocation expression of the same form as the method reference..
+		*/
+		Expression resultExpression = (Expression) this.resultExpressions.get(t); // should be same as for s
+		
+		t = t.capture(this.enclosingScope, this.sourceEnd);
+		tSam = t.getSingleAbstractMethod(this.enclosingScope);
+		return resultExpression.tIsMoreSpecific(tSam.returnType, sSam.returnType);
 	}
 }

@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 public abstract class FunctionalExpression extends Expression implements ProblemSeverities, ReferenceContext {
 	
@@ -48,6 +49,7 @@ public abstract class FunctionalExpression extends Expression implements Problem
 	public MethodBinding binding;
 	boolean ignoreFurtherInvestigation;
 	protected ExpressionContext expressionContext = VANILLA_CONTEXT;
+	protected SimpleLookupTable resultExpressions;
 	protected CompilationResult compilationResult;
 	protected BlockScope enclosingScope;
 	protected boolean ellipsisArgument;
@@ -242,8 +244,6 @@ public abstract class FunctionalExpression extends Expression implements Problem
 			}
 		}
 	}
-
-	
 }
 
 class IncongruentLambdaException extends RuntimeException {

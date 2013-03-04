@@ -175,10 +175,13 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	}
 	
 	public MethodBinding getSingleAbstractMethod(Scope scope) {
+		if (this.singleAbstractMethod != null) {
+			return this.singleAbstractMethod;
+		}
 		final ReferenceBinding genericType = genericType();
 		MethodBinding theAbstractMethod = genericType.getSingleAbstractMethod(scope);
 		if (theAbstractMethod == null || !theAbstractMethod.isValidBinding())
-			return theAbstractMethod;
+			return this.singleAbstractMethod = theAbstractMethod;
 		
 		ReferenceBinding rawType = (ReferenceBinding) scope.environment().convertToRawType(genericType, true);
 		MethodBinding [] choices = rawType.getMethods(theAbstractMethod.selector);

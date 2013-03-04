@@ -1121,6 +1121,20 @@ public boolean isCompatibleWith(TypeBinding left, Scope scope) {
 	throw new UnsupportedOperationException("Unexpected control flow, should not have reached Expression.isCompatibleWith"); //$NON-NLS-1$
 }
 
+public boolean tIsMoreSpecific(TypeBinding t, TypeBinding s) {
+	TypeBinding expressionType = this.resolvedType;
+	if (expressionType == null || !expressionType.isValidBinding()) // Shouldn't get here, just to play it safe
+		return false; // trigger ambiguity.
+	
+	if (t.findSuperTypeOriginatingFrom(s) == s)
+		return true;
+	
+	final boolean tIsBaseType = t.isBaseType();
+	final boolean sIsBaseType = s.isBaseType();
+	
+	return expressionType.isBaseType() ? tIsBaseType && !sIsBaseType : !tIsBaseType && sIsBaseType;
+}
+
 public void tagAsEllipsisArgument() {
 	// don't care. Subclasses that are poly expressions in specific contexts should listen in and make note.
 }

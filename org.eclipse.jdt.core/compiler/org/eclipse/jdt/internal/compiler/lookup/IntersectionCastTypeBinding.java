@@ -33,19 +33,21 @@ public class IntersectionCastTypeBinding extends ReferenceBinding {
 	}
 	
 	public MethodBinding getSingleAbstractMethod(Scope scope) {
+		if (this.singleAbstractMethod != null)
+			return this.singleAbstractMethod;
 		MethodBinding sam = samProblemBinding;  // guilty unless proven innocent !
 		for (int i = 0; i < this.length; i++) {
 			MethodBinding method = this.intersectingTypes[i].getSingleAbstractMethod(scope);
 			if (method != null) {
 				if (method.isValidBinding()) {
 					if (sam.isValidBinding())
-						return new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.IntersectionHasMultipleFunctionalInterfaces);
+						return this.singleAbstractMethod = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.IntersectionHasMultipleFunctionalInterfaces);
 					else
 						sam = method;
 				}
 			}
 		}
-		return sam; // I don't see a value in building the notional interface described in 9.8 - it appears just pedantic/normative - perhaps it plays a role in wildcard parameterized types ?
+		return this.singleAbstractMethod = sam; // I don't see a value in building the notional interface described in 9.8 - it appears just pedantic/normative - perhaps it plays a role in wildcard parameterized types ?
 	}
 
 	public boolean hasTypeBit(int bit) { // Stephan ??

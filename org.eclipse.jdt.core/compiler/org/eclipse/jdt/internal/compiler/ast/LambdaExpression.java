@@ -43,15 +43,17 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 public class LambdaExpression extends FunctionalExpression {
 	public Argument [] arguments;
 	public Statement body;
 	public boolean hasParentheses;
-	MethodScope scope;
+	protected MethodScope scope;
 	protected boolean voidCompatible = true;
 	protected boolean valueCompatible = false;
 	protected boolean shapeAnalysisComplete = false;
+	protected int returnExpressionsTally = 0;
 	
 	public LambdaExpression(CompilationResult compilationResult, Argument [] arguments, Statement body) {
 		super(compilationResult);
@@ -97,6 +99,7 @@ public class LambdaExpression extends FunctionalExpression {
 					private boolean throwSeen = false;
 					public boolean visit(ReturnStatement returnStatement, BlockScope dontCare) {
 						if (returnStatement.expression != null) {
+							LambdaExpression.this.returnExpressionsTally++;
 							this.valueReturnSeen = true;
 							LambdaExpression.this.voidCompatible = false;
 							LambdaExpression.this.valueCompatible = !this.voidReturnSeen;
@@ -105,7 +108,7 @@ public class LambdaExpression extends FunctionalExpression {
 							LambdaExpression.this.valueCompatible = false;
 							LambdaExpression.this.voidCompatible = !this.valueReturnSeen;
 						}
-						return false;
+						return false; // should not analyze any lambda returns.
 					}
 					public boolean visit(ThrowStatement throwStatement, BlockScope dontCare) {
 						this.throwSeen  = true;
@@ -129,6 +132,7 @@ public class LambdaExpression extends FunctionalExpression {
 				Expression expression = (Expression) this.body;
 				this.voidCompatible = expression.statementExpression();
 				this.valueCompatible = true;
+				this.returnExpressionsTally = 1;
 				this.shapeAnalysisComplete = true;
 			}	
 			return new PolyTypeBinding(this);
@@ -426,7 +430,7 @@ public class LambdaExpression extends FunctionalExpression {
 		return this.shapeAnalysisComplete;
 	}
 	
-	public boolean isCompatibleWith(TypeBinding left, Scope someScope) {
+	public boolean isCompatibleWith(final TypeBinding left, final Scope someScope) {
 		
 		final MethodBinding sam = left.getSingleAbstractMethod(this.enclosingScope);
 		
@@ -452,7 +456,7 @@ public class LambdaExpression extends FunctionalExpression {
 					return false;
 			}
 		
-			LambdaExpression copy = copy();
+			final LambdaExpression copy = copy();
 			copy.setExpressionContext(this.expressionContext);
 			copy.setExpectedType(left);
 			copy.resolveType(this.enclosingScope);
@@ -465,27 +469,87 @@ public class LambdaExpression extends FunctionalExpression {
 				}
 			}
 
-			final TypeBinding returnType = sam.returnType;
-			if (this.body instanceof Block) {
-				ASTVisitor visitor = new ASTVisitor() {
-					public boolean visit(ReturnStatement returnStatement, BlockScope blockScope) {
-						Expression expression = returnStatement.expression;
-						if (expression != null && !expression.isAssignmentCompatible(returnType, blockScope))
-							throw new IncongruentLambdaException();
-						return false;
-					}
-				};
-				copy.body.traverse(visitor, copy.scope);
-			} else {
-				Expression expression = (Expression) copy.body;
-				if (!expression.isAssignmentCompatible(returnType, copy.scope))
-					throw new IncongruentLambdaException();
+			if (this.returnExpressionsTally > 0) {
+				final TypeBinding returnType = sam.returnType;
+				if (this.resultExpressions == null)
+					this.resultExpressions = new SimpleLookupTable(); // gather for more specific analysis later.
+				if (this.body instanceof Block) {
+					ASTVisitor visitor = new ASTVisitor() {
+						Expression [] returnExpressions = new Expression[LambdaExpression.this.returnExpressionsTally];
+						int returnExpressionsCount = 0;
+						public boolean visit(ReturnStatement returnStatement, BlockScope blockScope) {
+							Expression expression = returnStatement.expression;
+							if (expression != null && !expression.isAssignmentCompatible(returnType, blockScope))
+								throw new IncongruentLambdaException();
+							this.returnExpressions[this.returnExpressionsCount++] = expression;
+							return false; // should not analyze any lambda returns.m
+						}
+						public void endVisit(Block block, BlockScope blockScope) {
+							if (block == copy.body)
+								LambdaExpression.this.resultExpressions.put(left, this.returnExpressions);
+						}
+					};
+					copy.body.traverse(visitor, copy.scope);
+				} else if (this.body instanceof Expression){
+					Expression expression = (Expression) copy.body;
+					if (!expression.isAssignmentCompatible(returnType, copy.scope))
+						throw new IncongruentLambdaException();
+					this.resultExpressions.put(left, new Expression [] { expression });
+				}
 			}
-			 
 		} catch (IncongruentLambdaException e) {
 			return false;
 		} finally {
 			this.scope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
+		}
+		return true;
+	}
+	
+	public boolean tIsMoreSpecific(TypeBinding t, TypeBinding s) {
+		/* 15.12.2.5 t is more specific than s iff ... Some of the checks here are redundant by the very fact of control reaching here, 
+		   but have been left in for completeness/documentation sakes. These should be cheap anyways. 
+		*/
+		
+		// Both t and s are functional interface types ... 
+		MethodBinding tSam = t.getSingleAbstractMethod(this.enclosingScope);
+		if (tSam == null || !tSam.isValidBinding())
+			return false;
+		MethodBinding sSam = s.getSingleAbstractMethod(this.enclosingScope);
+		if (sSam == null || !sSam.isValidBinding())
+			return false;
+		
+		// t should neither be a subinterface nor a superinterface of s
+		if (t.findSuperTypeOriginatingFrom(s) != null || s.findSuperTypeOriginatingFrom(t) != null)
+			return false;
+
+		// If the lambda expression's parameters have inferred types, then the descriptor parameter types of t are the same as the descriptor parameter types of s.
+		if (argumentsTypeElided()) {
+			if (tSam.parameters.length != sSam.parameters.length)
+				return false;
+			for (int i = 0, length = tSam.parameters.length; i < length; i++) {
+				if (tSam.parameters[i] != sSam.parameters[i])
+					return false;
+			}
+		}
+		
+		// either the descriptor return type of s is void or ...
+		if (sSam.returnType.id == TypeIds.T_void)
+			return true;
+		
+		/* ... or for all result expressions in the lambda body (or for the body itself if the body is an expression), 
+           the descriptor return type of the capture of T is more specific than the descriptor return type of S.
+		*/
+		Expression [] returnExpressions = (Expression[]) this.resultExpressions.get(t); // should be same as for s
+		int returnExpressionsLength = returnExpressions == null ? 0 : returnExpressions.length;
+		if (returnExpressionsLength == 0)
+			return true; // as good as or as bad as false.
+		
+		t = t.capture(this.enclosingScope, this.sourceEnd);
+		tSam = t.getSingleAbstractMethod(this.enclosingScope);
+		for (int i = 0; i < returnExpressionsLength; i++) {
+			Expression resultExpression = returnExpressions[i];
+			if (!resultExpression.tIsMoreSpecific(tSam.returnType, sSam.returnType))
+				return false;
 		}
 		return true;
 	}
