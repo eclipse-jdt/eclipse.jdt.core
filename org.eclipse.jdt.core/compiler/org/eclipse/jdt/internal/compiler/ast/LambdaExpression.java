@@ -447,6 +447,8 @@ public class LambdaExpression extends FunctionalExpression {
 					return false;
 			} else {
 				LambdaExpression copy = copy();
+				if (copy == null)
+					return false;
 				copy.setExpressionContext(this.expressionContext);
 				copy.setExpectedType(left);
 				copy.resolveType(this.enclosingScope);
@@ -457,6 +459,8 @@ public class LambdaExpression extends FunctionalExpression {
 			}
 		
 			final LambdaExpression copy = copy();
+			if (copy == null)
+				return false;
 			copy.setExpressionContext(this.expressionContext);
 			copy.setExpectedType(left);
 			copy.resolveType(this.enclosingScope);
@@ -568,11 +572,14 @@ public class LambdaExpression extends FunctionalExpression {
 	LambdaExpression copy() {
 		final Parser parser = new Parser(this.scope.problemReporter(), false);
 		final char[] source = this.compilationResult.getCompilationUnit().getContents();
-		LambdaExpression copy =  (LambdaExpression) parser.parseExpression(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1, 
+		LambdaExpression copy =  (LambdaExpression) parser.parseLambdaExpression(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1, 
 										this.scope.referenceCompilationUnit(), false /* record line separators */);
-		copy.valueCompatible = this.valueCompatible;
-		copy.voidCompatible = this.voidCompatible;
-		copy.shapeAnalysisComplete = this.shapeAnalysisComplete;
+
+		if (copy != null) { // ==> syntax errors
+			copy.valueCompatible = this.valueCompatible;
+			copy.voidCompatible = this.voidCompatible;
+			copy.shapeAnalysisComplete = this.shapeAnalysisComplete;
+		}
 		return copy;
 	}
 }

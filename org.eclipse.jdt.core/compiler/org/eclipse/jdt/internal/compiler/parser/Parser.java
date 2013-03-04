@@ -1003,6 +1003,7 @@ private int valueLambdaNestDepth = -1;
 private int stateStackLengthStack[] = new int[0];
 private boolean parsingJava8Plus;
 protected int unstackedAct = ERROR_ACTION;
+private boolean dontResumeOnSyntaxError = false;
 
 protected Parser () {
 	// Caveat Emptor: For inheritance purposes and then only in very special needs. Only minimal state is initialized !
@@ -11389,6 +11390,17 @@ public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int lengt
 	}
 	return result;
 }
+
+public Expression parseLambdaExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit, boolean recordLineSeparators) {
+	boolean resumptionStatus = this.dontResumeOnSyntaxError;
+	this.dontResumeOnSyntaxError = true;
+	try {
+		return parseExpression(source, offset, length, unit, recordLineSeparators);
+	} finally {
+		this.dontResumeOnSyntaxError = resumptionStatus;
+	}
+}
+
 public Expression parseExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit, boolean recordLineSeparators) {
 
 	initialize();
@@ -12118,6 +12130,8 @@ protected boolean resumeAfterRecovery() {
 	}
 }
 protected boolean resumeOnSyntaxError() {
+	if (this.dontResumeOnSyntaxError)
+		return false;
 	/* request recovery initialization */
 	if (this.currentElement == null){
 		// Reset javadoc before restart parsing after recovery

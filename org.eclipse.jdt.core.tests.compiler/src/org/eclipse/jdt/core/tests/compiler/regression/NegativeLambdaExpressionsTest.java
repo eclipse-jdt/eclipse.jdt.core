@@ -5937,6 +5937,30 @@ public void test402219b() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402259, [1.8][compiler] NPE during overload resolution when there are syntax errors. 
+public void test402259() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	J foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void foo(I i) {};\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X().foo(() -> { return () -> { return}; });\n" +
+				"	}\n" +
+				"}\n",			},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 10)\n" + 
+				"	new X().foo(() -> { return () -> { return}; });\n" + 
+				"	                                   ^^^^^^\n" + 
+				"Syntax error, insert \";\" to complete BlockStatements\n" + 
+				"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
