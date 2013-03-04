@@ -5961,6 +5961,110 @@ public void test402259() {
 				"Syntax error, insert \";\" to complete BlockStatements\n" + 
 				"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402261, [1.8][compiler] Shape analysis confused by returns from inner classes.. 
+public void test402261() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	J foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void foo(I i) {};\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X().foo(() -> { class local { void foo() { return; }} return () -> { return;}; });\n" +
+				"	}\n" +
+				"   Zork z;\n" +
+				"}\n",			
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402261, [1.8][compiler] Shape analysis confused by returns from inner classes.. 
+public void test402261a() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	J foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void foo(I i) {};\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X().foo(() -> { J j = () -> { return; }; return () -> { return;}; });\n" +
+				"	}\n" +
+				"   Zork z;\n" +
+				"}\n",			
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402261, [1.8][compiler] Shape analysis confused by returns from inner classes.. 
+public void test402261b() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	J foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void foo(I i) {};\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X().foo(() -> { J j = new J() { public void foo() { return; } }; return () -> { return;}; });\n" +
+				"	}\n" +
+				"   Zork z;\n" +
+				"}\n",			
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402261, [1.8][compiler] Shape analysis confused by returns from inner classes.. 
+public void test402261c() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	J foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void foo(I i) {};\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X().foo(() -> { return new J() { public void foo() { return; } }; });\n" +
+				"	}\n" +
+				"   Zork z;\n" +
+				"}\n",			
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

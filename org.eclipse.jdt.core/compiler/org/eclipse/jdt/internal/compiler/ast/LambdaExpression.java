@@ -108,22 +108,30 @@ public class LambdaExpression extends FunctionalExpression {
 							LambdaExpression.this.valueCompatible = false;
 							LambdaExpression.this.voidCompatible = !this.valueReturnSeen;
 						}
-						return false; // should not analyze any lambda returns.
+						return false; // should not analyze any nested lambda returns.
+					}
+					public boolean visit(TypeDeclaration declaration, BlockScope dontCare) {
+						return false;  // do not analyze inner local types so as not to confuse returns from there.
+					}
+					public boolean visit(LambdaExpression lambda, BlockScope dontCare) {
+						return LambdaExpression.this == lambda;  // do not analyze any inner lambdas so as not to confuse returns from there.
 					}
 					public boolean visit(ThrowStatement throwStatement, BlockScope dontCare) {
 						this.throwSeen  = true;
 						return false;
 					}
 					public void endVisit(LambdaExpression expression, BlockScope dontCare) {
-						if (!this.voidReturnSeen && !this.valueReturnSeen && this.throwSeen) {  // () -> { throw new Exception(); } is value compatible.
-							Block block = (Block) LambdaExpression.this.body;
-							final Statement[] statements = block.statements;
-							final int statementsLength = statements == null ? 0 : statements.length;
-							Statement ultimateStatement = statementsLength == 0 ? null : statements[statementsLength - 1];
-							LambdaExpression.this.valueCompatible = ultimateStatement instanceof ThrowStatement;
-							LambdaExpression.this.shapeAnalysisComplete = LambdaExpression.this.valueCompatible;
-						} else {
-							LambdaExpression.this.shapeAnalysisComplete = true;
+						if (LambdaExpression.this == expression) {
+							if (!this.voidReturnSeen && !this.valueReturnSeen && this.throwSeen) {  // () -> { throw new Exception(); } is value compatible.
+								Block block = (Block) LambdaExpression.this.body;
+								final Statement[] statements = block.statements;
+								final int statementsLength = statements == null ? 0 : statements.length;
+								Statement ultimateStatement = statementsLength == 0 ? null : statements[statementsLength - 1];
+								LambdaExpression.this.valueCompatible = ultimateStatement instanceof ThrowStatement;
+								LambdaExpression.this.shapeAnalysisComplete = LambdaExpression.this.valueCompatible;
+							} else {
+								LambdaExpression.this.shapeAnalysisComplete = true;
+							}
 						}
 					}
 				};
@@ -486,7 +494,13 @@ public class LambdaExpression extends FunctionalExpression {
 							if (expression != null && !expression.isAssignmentCompatible(returnType, blockScope))
 								throw new IncongruentLambdaException();
 							this.returnExpressions[this.returnExpressionsCount++] = expression;
-							return false; // should not analyze any lambda returns.m
+							return false; // should not analyze any nested lambda returns
+						}
+						public boolean visit(TypeDeclaration declaration, BlockScope dontCare) {
+							return false;  // do not analyze inner local types so as not to confuse returns from there.
+						}
+						public boolean visit(LambdaExpression lambda, BlockScope dontCare) {
+							return LambdaExpression.this == lambda;  // do not analyze any inner lambdas so as not to confuse returns from there.
 						}
 						public void endVisit(Block block, BlockScope blockScope) {
 							if (block == copy.body)
