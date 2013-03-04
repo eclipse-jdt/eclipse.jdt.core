@@ -27,31 +27,38 @@ import java.util.List;
  * </pre>
  * 
  *<p> 
- * First two forms use {@link VariableDeclarationFragment} while the third form
- * uses {@link SingleVariableDeclaration}.</p>
- *<p>Body can be either a {@link Block} or an {@link Expression}.</p>
+ * The first two forms use {@link VariableDeclarationFragment} for the parameter or parameters,
+ * while the third form uses {@link SingleVariableDeclaration}.</p>
+ *<p>The Body can be either a {@link Block} or an {@link Expression}.</p>
  *
  * @since 3.9 
  * @noinstantiate This class is not intended to be instantiated by clients 
  */
-
 public class LambdaExpression extends Expression {
 
 	/**
-	 * The "parentheses" structural property of this node type (child type: {@link Boolean}). 
+	 * The "parentheses" structural property of this node type (type: {@link Boolean}).
+	 * <p>
+	 * Note that parentheses are required unless {@link #parameters()} contains
+	 * just a single {@link VariableDeclarationFragment}.
+	 * ASTRewrite may ignore this property if necessary.
+	 * </p>
 	 */
 	public static final SimplePropertyDescriptor PARENTHESES_PROPERTY =
 		new SimplePropertyDescriptor(LambdaExpression.class, "parentheses", boolean.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * The "parameters" structural property of this node type (child type: {@link VariableDeclaration}).
+	 * The "parameters" structural property of this node type (element type: {@link VariableDeclaration}).
+	 * <p>
+	 * Note that all elements must be of the same type, either all {@link SingleVariableDeclaration} or all {@link VariableDeclarationFragment}.
+	 * </p>
 	 */
 	public static final ChildListPropertyDescriptor PARAMETERS_PROPERTY =
-		new ChildListPropertyDescriptor(LambdaExpression.class, "parameters", VariableDeclaration.class, NO_CYCLE_RISK); //$NON-NLS-1$
+		new ChildListPropertyDescriptor(LambdaExpression.class, "parameters", VariableDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
 	
 	/**
-	 * The "body" structural property of this node type (child type: {@link ASTNode}) : can
-	 *  be either a {@link Block} or an {@link Expression}.
+	 * The "body" structural property of this node type (child type: {@link ASTNode},
+	 * must be either a {@link Block} or an {@link Expression}).
 	 */
 	public static final ChildPropertyDescriptor BODY_PROPERTY =
 		new ChildPropertyDescriptor(LambdaExpression.class, "body", ASTNode.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
@@ -85,8 +92,8 @@ public class LambdaExpression extends Expression {
 	}
 
 	/**
-	 * Indicates the presence or absence of parentheses.
-	 * defaults to true. 
+	 * Indicates whether parentheses are present or not.
+	 * Defaults to <code>true</code>. 
 	 */
 	private boolean hasParentheses = true;
 
@@ -211,6 +218,13 @@ public class LambdaExpression extends Expression {
 	}
 
 	/**
+	 * Returns whether parentheses around the parameters are present or not.
+	 * <p>
+	 * Note that parentheses are required unless {@link #parameters()} contains
+	 * just a single {@link VariableDeclarationFragment}.
+	 * ASTRewrite may ignore this property if necessary.
+	 * </p>
+	 * 
 	 * @return <code>true</code> if this lambda expression has parentheses around
 	 * its parameters and <code>false</code> otherwise
 	 */
@@ -220,9 +234,14 @@ public class LambdaExpression extends Expression {
 
 	/**
 	 * Sets whether this lambda expression should have parentheses around its parameters or not.
+	 * <p>
+	 * Note that parentheses are required unless {@link #parameters()} contains
+	 * just a single {@link VariableDeclarationFragment}.
+	 * ASTRewrite may ignore this property if necessary.
+	 * </p>
 	 *
 	 * @param hasParentheses <code>true</code> if this lambda expression should have parentheses around its parameters
-	 *  and <code>false</code> otherwise. Note: Illegal value settings are silently ignored.
+	 *  and <code>false</code> otherwise
 	 */
 	public void setParentheses(boolean hasParentheses) {
 		preValueChange(PARENTHESES_PROPERTY);
@@ -232,6 +251,9 @@ public class LambdaExpression extends Expression {
 
 	/**
 	 * Returns the live ordered list of formal parameters of this lambda expression.
+	 * <p>
+	 * Note that all elements must be of the same type, either all {@link SingleVariableDeclaration} or all {@link VariableDeclarationFragment}.
+	 * </p>
 	 *
 	 * @return the live list of formal parameters of this lambda expression
 	 *    (element type: {@link VariableDeclaration} 
@@ -242,10 +264,8 @@ public class LambdaExpression extends Expression {
 
 	/**
 	 * Returns the body of this lambda expression.
-	 * <p>
-	 * defaults to an empty block if body is null.
-	 * </p>
-	 * @return the lambda expression body which can be either a {@link Block} or a {@link Expression}
+	 * 
+	 * @return the lambda expression body, which can be either a {@link Block} or an {@link Expression}
 	 */
 	public ASTNode getBody() {
 		if (this.body == null) {
@@ -270,7 +290,7 @@ public class LambdaExpression extends Expression {
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
-	 * <li> body is neither an {@link Expression} nor a {@link Block} </li>
+	 * <li>body is neither a {@link Block} nor an {@link Expression}</li>
 	 * </ul>
 	 */
 	public void setBody(ASTNode body) {
@@ -310,7 +330,7 @@ public class LambdaExpression extends Expression {
 	int treeSize() {
 		return
 			memSize()
-			+ (this.parameters == null ? 0 : this.parameters.listSize())
+			+ this.parameters.listSize()
 			+ (this.body == null ? 0 : getBody().treeSize());
 	}
 }

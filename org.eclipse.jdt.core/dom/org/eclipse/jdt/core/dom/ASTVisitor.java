@@ -706,23 +706,6 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.9
-	 */
-	public boolean visit(LambdaExpression node) {
-		return true;
-	}
-
-	/**
-	 * Visits the given type-specific AST node.
-	 * <p>
-	 * The default implementation does nothing and return true.
-	 * Subclasses may reimplement.
-	 * </p>
-	 *
-	 * @param node the node to visit
-	 * @return <code>true</code> if the children of this node should be
-	 * visited, and <code>false</code> if the children of this node should
-	 * be skipped
 	 */
 	public boolean visit(IfStatement node) {
 		return true;
@@ -830,6 +813,23 @@ public abstract class ASTVisitor {
 		return true;
 	}
 
+
+	/**
+	 * Visits the given type-specific AST node.
+	 * <p>
+	 * The default implementation does nothing and return true.
+	 * Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param node the node to visit
+	 * @return <code>true</code> if the children of this node should be
+	 * visited, and <code>false</code> if the children of this node should
+	 * be skipped
+	 * @since 3.9
+	 */
+	public boolean visit(LambdaExpression node) {
+		return true;
+	}
 
 	/**
 	 * Visits the given type-specific AST node.
@@ -2008,19 +2008,6 @@ public abstract class ASTVisitor {
 	 * </p>
 	 *
 	 * @param node the node to visit
-	 * @since 3.9
-	 */
-	public void endVisit(LambdaExpression node) {
-		// default implementation: do nothing
-	}
-
-	/**
-	 * End of visit the given type-specific AST node.
-	 * <p>
-	 * The default implementation does nothing. Subclasses may reimplement.
-	 * </p>
-	 *
-	 * @param node the node to visit
 	 */
 	public void endVisit(IfStatement node) {
 		// default implementation: do nothing
@@ -2095,6 +2082,19 @@ public abstract class ASTVisitor {
 	 * @param node the node to visit
 	 */
 	public void endVisit(LabeledStatement node) {
+		// default implementation: do nothing
+	}
+
+	/**
+	 * End of visit the given type-specific AST node.
+	 * <p>
+	 * The default implementation does nothing. Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param node the node to visit
+	 * @since 3.9
+	 */
+	public void endVisit(LambdaExpression node) {
 		// default implementation: do nothing
 	}
 

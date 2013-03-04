@@ -1511,20 +1511,6 @@ public final class AST {
 	}
 
 	/**
-	 * Creates an unparented lambda expression node owned by this AST.
-	 * By default, the new lambda expression contains an empty argument
-	 * list and the body is an empty block.
-	 * 
-	 * @return a new unparented lambda expression node
-	 * @exception UnsupportedOperationException if this operation is used in a JLS2, JLS3 or JLS4 AST
-	 * @since 3.9
-	 */
-	public LambdaExpression newLambdaExpression() {
-		LambdaExpression result = new LambdaExpression(this);
-		return result;
-	}
-
-	/**
 	 * Creates an unparented import declaration node owned by this AST.
 	 * The import declaration initially contains a single-type import
 	 * of a type with an unspecified name.
@@ -1594,6 +1580,20 @@ public final class AST {
 	 */
 	public LabeledStatement newLabeledStatement() {
 		return new LabeledStatement(this);
+	}
+
+	/**
+	 * Creates an unparented lambda expression node owned by this AST.
+	 * By default, the new lambda expression has parentheses enabled, contains an empty argument
+	 * list, and the body is an empty block.
+	 * 
+	 * @return a new unparented lambda expression node
+	 * @exception UnsupportedOperationException if this operation is used in a JLS2, JLS3 or JLS4 AST
+	 * @since 3.9
+	 */
+	public LambdaExpression newLambdaExpression() {
+		LambdaExpression result = new LambdaExpression(this);
+		return result;
 	}
 
 	/**

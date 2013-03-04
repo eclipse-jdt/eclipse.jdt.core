@@ -736,28 +736,6 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	/*
-	 * @see ASTVisitor#visit(LambdaExpression)
-	 */
-	public boolean visit(LambdaExpression node) {
-		boolean hasParentheses = node.hasParentheses();
-		if (hasParentheses)
-			this.buffer.append('(');
-		Iterator it = node.parameters().iterator();
-		boolean hasNext = it.hasNext();
-		while (hasNext) {
-			VariableDeclaration  variableDeclaration = (VariableDeclaration) it.next();
-			variableDeclaration.accept(this);
-			if ((hasNext = it.hasNext()) == true)
-				this.buffer.append(',');
-		}
-		if (hasParentheses) 
-			this.buffer.append(')');	
-		this.buffer.append(" -> "); //$NON-NLS-1$
-		node.getBody().accept(this);
-		return false;
-	}
-
-	/*
 	 * @see ASTVisitor#visit(IfStatement)
 	 */
 	public boolean visit(IfStatement node) {
@@ -861,6 +839,27 @@ public class NaiveASTFlattener extends ASTVisitor {
 		printIndent();
 		node.getLabel().accept(this);
 		this.buffer.append(": ");//$NON-NLS-1$
+		node.getBody().accept(this);
+		return false;
+	}
+
+	/*
+	 * @see ASTVisitor#visit(LambdaExpression)
+	 */
+	public boolean visit(LambdaExpression node) {
+		boolean hasParentheses = node.hasParentheses();
+		if (hasParentheses)
+			this.buffer.append('(');
+		for (Iterator it = node.parameters().iterator(); it.hasNext(); ) {
+			VariableDeclaration v = (VariableDeclaration) it.next();
+			v.accept(this);
+			if (it.hasNext()) {
+				this.buffer.append(",");//$NON-NLS-1$
+			}
+		}
+		if (hasParentheses)
+			this.buffer.append(')');
+		this.buffer.append(" -> "); //$NON-NLS-1$
 		node.getBody().accept(this);
 		return false;
 	}
