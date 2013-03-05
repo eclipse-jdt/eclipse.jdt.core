@@ -1579,6 +1579,8 @@ void setSourceStart(int sourceStart);
 	int DuplicateBoundInIntersectionCast = TypeRelated + 894;
 	/** @since 3.9 */
 	int MultipleFunctionalInterfaces = TypeRelated + 895;
+	/** @since 3.9 */
+	int StaticInterfaceMethodNotBelow18 = Internal + Syntax + 896;
 	
 	/**
 	 * Errors/warnings from annotation based null analysis

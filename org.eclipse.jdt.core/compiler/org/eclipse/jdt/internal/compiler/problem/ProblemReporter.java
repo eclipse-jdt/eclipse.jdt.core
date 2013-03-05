@@ -2880,6 +2880,14 @@ public void defaultMethodsNotBelow18(MethodDeclaration md) {
 			md.bodyStart,
 			md.bodyEnd);
 }
+public void staticInterfaceMethodsNotBelow18(MethodDeclaration md) {
+	this.handle(
+			IProblem.StaticInterfaceMethodNotBelow18,
+			NoArgument,
+			NoArgument,
+			md.bodyStart,
+			md.bodyEnd);
+}
 public void referenceExpressionsNotBelow18(ReferenceExpression rexp) {
 	this.handle(
 			rexp.isMethodReference() ? IProblem.MethodReferenceNotBelow18 : IProblem.ConstructorReferenceNotBelow18,
