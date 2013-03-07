@@ -6092,6 +6092,148 @@ public void test401769() {
 			"The method g(I) is ambiguous for the type X\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402609, [1.8][compiler] AIOOB exception with a program using method references.
+public void test402609() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"abstract class Y {\n" +
+				"	abstract void foo();\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	void f(I i) {}\n" +
+				"	void f(J j) {}\n" +
+				"	\n" +
+				"	void foo() {\n" +
+				"	}\n" +
+				"	\n" +
+				"	public static void main(String[] args) {\n" +
+				"		f(super::foo);\n" +
+				"	}\n" +
+				"}\n",			
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 18)\n" + 
+			"	f(super::foo);\n" + 
+			"	^\n" + 
+			"The method f(I) in the type X is not applicable for the arguments (super::foo)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 18)\n" + 
+			"	f(super::foo);\n" + 
+			"	  ^^^^^\n" + 
+			"Cannot use super in a static context\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402609, [1.8][compiler] AIOOB exception with a program using method references.
+public void test402609a() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"abstract class Y {\n" +
+				"	abstract void foo();\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	void f(I i) {}\n" +
+				"	\n" +
+				"	void foo() {\n" +
+				"	}\n" +
+				"	\n" +
+				"	public void main(String[] args) {\n" +
+				"		f(super::foo);\n" +
+				"       I i = super::foo;\n" +
+				"	}\n" +
+				"}\n",			
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 17)\n" + 
+			"	f(super::foo);\n" + 
+			"	  ^^^^^^^^^^\n" + 
+			"Cannot directly invoke the abstract method foo() for the type Y\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 18)\n" + 
+			"	I i = super::foo;\n" + 
+			"	      ^^^^^^^^^^\n" + 
+			"Cannot directly invoke the abstract method foo() for the type Y\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402609, [1.8][compiler] AIOOB exception with a program using method references.
+public void test402609b() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"abstract class Y {\n" +
+				"	abstract void foo();\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	void f(I i) {}\n" +
+				"	void f(J j) {}\n" +
+				"	\n" +
+				"	void foo() {\n" +
+				"	}\n" +
+				"	\n" +
+				"	public void zoo(String[] args) {\n" +
+				"		f(super::foo);\n" +
+				"	}\n" +
+				"}\n",			
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 18)\n" + 
+			"	f(super::foo);\n" + 
+			"	^\n" + 
+			"The method f(I) is ambiguous for the type X\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402609, [1.8][compiler] AIOOB exception with a program using method references.
+public void test402609c() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"abstract class Y {\n" +
+				"	void foo() {}\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	void f(I i) {}\n" +
+				"	void f(J j) {}\n" +
+				"	\n" +
+				"	void foo() {\n" +
+				"	}\n" +
+				"	\n" +
+				"	public void main(String[] args) {\n" +
+				"		f(super::foo);\n" +
+				"	}\n" +
+				"}\n",			
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 18)\n" + 
+			"	f(super::foo);\n" + 
+			"	^\n" + 
+			"The method f(I) is ambiguous for the type X\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

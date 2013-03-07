@@ -7975,11 +7975,12 @@ protected void consumeReferenceExpressionTypeForm(boolean isPrimitive) { // actu
 
 	ReferenceExpression referenceExpression;
 	TypeReference [] typeArguments = null;
-	SingleNameReference method;
+	char [] selector;
 	int sourceEnd;
-	
-	method = (SingleNameReference) getUnspecifiedReference();
-	sourceEnd = method.sourceEnd;
+
+	sourceEnd = (int) this.identifierPositionStack[this.identifierPtr];
+	selector = this.identifierStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
 	
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	if (length > 0) {
@@ -8003,9 +8004,9 @@ protected void consumeReferenceExpressionTypeForm(boolean isPrimitive) { // actu
 			pushOnGenericsLengthStack(0);
 			pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
 		}
-		referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, getTypeReference(dimension), typeArguments, method, sourceEnd);
+		referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, getTypeReference(dimension), typeArguments, selector, sourceEnd);
 	} else {
-		referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, getUnspecifiedReference(), typeArguments, method, sourceEnd);
+		referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, getUnspecifiedReference(), typeArguments, selector, sourceEnd);
 	}
 	pushOnExpressionStack(referenceExpression);
 
@@ -8018,9 +8019,13 @@ protected void consumeReferenceExpressionPrimaryForm() {
 
 	ReferenceExpression referenceExpression;
 	TypeReference [] typeArguments = null;
-	SingleNameReference method;
-	
-	method = (SingleNameReference) getUnspecifiedReference();
+	char [] selector;
+	int sourceEnd;
+
+	sourceEnd = (int) this.identifierPositionStack[this.identifierPtr];
+	selector = this.identifierStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
+
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	if (length > 0) {
 		this.genericsPtr -= length;
@@ -8030,7 +8035,7 @@ protected void consumeReferenceExpressionPrimaryForm() {
 	
 	Expression primary = this.expressionStack[this.expressionPtr--];
 	this.expressionLengthPtr--;
-	referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, primary, typeArguments, method, method.sourceEnd);
+	referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, primary, typeArguments, selector, sourceEnd);
 	pushOnExpressionStack(referenceExpression);
 	if (!this.parsingJava8Plus) {
 		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
@@ -8041,9 +8046,13 @@ protected void consumeReferenceExpressionSuperForm() {
 
 	ReferenceExpression referenceExpression;
 	TypeReference [] typeArguments = null;
-	SingleNameReference method;
-	
-	method = (SingleNameReference) getUnspecifiedReference();
+	char [] selector;
+	int sourceEnd;
+
+	sourceEnd = (int) this.identifierPositionStack[this.identifierPtr];
+	selector = this.identifierStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
+
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	if (length > 0) {
 		this.genericsPtr -= length;
@@ -8052,7 +8061,7 @@ protected void consumeReferenceExpressionSuperForm() {
 	}
 	
 	SuperReference superReference = new SuperReference(this.intStack[this.intPtr--], this.endPosition);
-	referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, superReference, typeArguments, method, method.sourceEnd);
+	referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, superReference, typeArguments, selector, sourceEnd);
 	pushOnExpressionStack(referenceExpression);
 	if (!this.parsingJava8Plus) {
 		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
@@ -8071,11 +8080,12 @@ protected void consumeReferenceExpressionGenericTypeForm() {
 	ReferenceExpression referenceExpression;
 	TypeReference type;
 	TypeReference [] typeArguments = null;
-	SingleNameReference method;
+	char [] selector;
 	int sourceEnd;
-	
-	method = (SingleNameReference) getUnspecifiedReference();
-	sourceEnd = method.sourceEnd;
+
+	sourceEnd = (int) this.identifierPositionStack[this.identifierPtr];
+	selector = this.identifierStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
 
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	if (length > 0) {
@@ -8098,7 +8108,7 @@ protected void consumeReferenceExpressionGenericTypeForm() {
 	this.intPtr--; // pop '<' position
 	type.sourceEnd = typeSourceEnd;
 	
-	referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, type, typeArguments, method, sourceEnd);
+	referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, type, typeArguments, selector, sourceEnd);
 
 	pushOnExpressionStack(referenceExpression);
 	if (!this.parsingJava8Plus) {

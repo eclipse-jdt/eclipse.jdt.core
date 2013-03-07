@@ -47,18 +47,18 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	
 	public Expression lhs;
 	public TypeReference [] typeArguments;
-	public SingleNameReference method;
+	public char [] selector;
 	
 	private TypeBinding receiverType;
 	private boolean haveReceiver;
 	public TypeBinding[] resolvedTypeArguments;
 	private boolean typeArgumentsHaveErrors;
 	
-	public ReferenceExpression(CompilationResult compilationResult, Expression lhs, TypeReference [] typeArguments, SingleNameReference method, int sourceEnd) {
+	public ReferenceExpression(CompilationResult compilationResult, Expression lhs, TypeReference [] typeArguments, char [] selector, int sourceEnd) {
 		super(compilationResult);
 		this.lhs = lhs;
 		this.typeArguments = typeArguments;
-		this.method = method;
+		this.selector = selector;
 		this.sourceStart = lhs.sourceStart;
 		this.sourceEnd = sourceEnd;
 	}
@@ -114,9 +114,8 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			return this.resolvedType = null;
 		
 		final TypeBinding[] descriptorParameters = this.descriptor != null ? this.descriptor.parameters : Binding.NO_PARAMETERS;
-		final char[] selector = this.method.token;
 		if (lhsType.isBaseType()) {
-			scope.problemReporter().errorNoMethodFor(this.lhs, lhsType, selector, descriptorParameters);
+			scope.problemReporter().errorNoMethodFor(this.lhs, lhsType, this.selector, descriptorParameters);
 			return this.resolvedType = null;
 		}
 		
@@ -173,7 +172,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         
         // 15.28.1
         final boolean isMethodReference = isMethodReference();
-        MethodBinding someMethod = isMethodReference ? scope.getMethod(this.receiverType, selector, descriptorParameters, this) :
+        MethodBinding someMethod = isMethodReference ? scope.getMethod(this.receiverType, this.selector, descriptorParameters, this) :
         											       scope.getConstructor((ReferenceBinding) this.receiverType, descriptorParameters, this);
         
         if (someMethod != null && someMethod.isValidBinding()) {
@@ -211,7 +210,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         			parameters = new TypeBinding[parametersLength - 1];
         			System.arraycopy(descriptorParameters, 1, parameters, 0, parametersLength - 1);
         		}
-        		anotherMethod = scope.getMethod(typeToSearch, selector, parameters, this);
+        		anotherMethod = scope.getMethod(typeToSearch, this.selector, parameters, this);
         	}
         	if (anotherMethod != null && anotherMethod.isValidBinding() && anotherMethod.isStatic()) {
         		scope.problemReporter().methodMustBeAccessedStatically(this, anotherMethod);
@@ -224,11 +223,11 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         	return this.resolvedType = null;
         }
 
-        this.method.binding = this.binding = someMethod != null && someMethod.isValidBinding() ? someMethod : 
+        this.binding = someMethod != null && someMethod.isValidBinding() ? someMethod : 
         											anotherMethod != null && anotherMethod.isValidBinding() ? anotherMethod : null;
 
         if (this.binding == null) {
-        	char [] visibleName = isConstructorReference() ? this.receiverType.sourceName() : selector;
+        	char [] visibleName = isConstructorReference() ? this.receiverType.sourceName() : this.selector;
         	scope.problemReporter().danglingReference(this, this.receiverType, visibleName, descriptorParameters);
 			return this.resolvedType = null;
         }
@@ -314,7 +313,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     		}
     		if (!returnType.isCompatibleWith(this.descriptor.returnType, scope) && !isBoxingCompatible(returnType, this.descriptor.returnType, this, scope)) {
     			scope.problemReporter().incompatibleReturnType(this, this.binding, this.descriptor.returnType);
-    			this.method.binding = this.binding = null;
+    			this.binding = null;
     			this.resolvedType = null;
     		}
     	}
@@ -323,11 +322,11 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	}
 
 	public final boolean isConstructorReference() {
-		return CharOperation.equals(this.method.token,  ConstantPool.Init);
+		return CharOperation.equals(this.selector,  ConstantPool.Init);
 	}
 	
 	public final boolean isMethodReference() {
-		return !CharOperation.equals(this.method.token,  ConstantPool.Init);
+		return !CharOperation.equals(this.selector,  ConstantPool.Init);
 	}
 	
 	public TypeBinding[] genericTypeArguments() {
@@ -371,7 +370,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		if (isConstructorReference())
 			output.append("new"); //$NON-NLS-1$
 		else 
-			this.method.print(0, output);
+			output.append(this.selector);
 		
 		return output;
 	}
@@ -386,9 +385,6 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			for (int i = 0; i < length; i++) {
 				this.typeArguments[i].traverse(visitor, blockScope);
 			}
-			
-			this.method.traverse(visitor, blockScope);
-
 		}
 		visitor.endVisit(this, blockScope);
 	}
@@ -402,7 +398,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		setExpectedType(left);
 		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
 		try {
-			this.method.binding = this.binding = null;
+			this.binding = null;
 			resolveType(this.enclosingScope);
 		} finally {
 			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
@@ -412,7 +408,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 					this.resultExpressions = new SimpleLookupTable(); // gather for more specific analysis later.
 				this.resultExpressions.put(left, this.binding.returnType);
 			}
-			this.method.binding = this.binding = null;
+			this.binding = null;
 		}
 		return isCompatible;
 	}

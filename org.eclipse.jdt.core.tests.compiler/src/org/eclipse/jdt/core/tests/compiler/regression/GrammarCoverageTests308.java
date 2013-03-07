@@ -628,7 +628,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// ReferenceExpression ::= PrimitiveType Dims '::' NonWildTypeArgumentsopt IdentifierOrNew
-	public void test013() throws Exception {
+	public void _test013() throws Exception {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
@@ -1400,7 +1400,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// ReferenceExpression ::= Name Dimsopt '::' NonWildTypeArgumentsopt IdentifierOrNew
-	public void test037() throws Exception {
+	public void _test037() throws Exception {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
@@ -1460,7 +1460,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// ReferenceExpression ::= Name BeginTypeArguments ReferenceExpressionTypeArgumentsAndTrunk '::' NonWildTypeArgumentsopt IdentifierOrNew
-	public void test038() throws Exception {
+	public void _test038() throws Exception {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
