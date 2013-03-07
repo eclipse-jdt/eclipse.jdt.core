@@ -7962,7 +7962,6 @@ protected void consumeIdentifierOrNew(boolean newForm) {
 		int newStart = this.intStack[this.intPtr--];
 		pushIdentifier(ConstantPool.Init, (((long) newStart << 32)) + (newStart + 3));
 	}
-	pushOnTypeAnnotationLengthStack(0);
 }
 protected void consumeEmptyTypeArguments() {
 	// NonWildTypeArgumentsopt ::= $empty

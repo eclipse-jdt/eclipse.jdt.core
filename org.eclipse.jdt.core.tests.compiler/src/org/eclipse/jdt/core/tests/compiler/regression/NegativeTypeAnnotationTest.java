@@ -3196,4 +3196,42 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n"); 
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402618, [1.8][compiler] Compiler fails to resolve type annotations on method/constructor references
+	public void test402618() {
+		this.runNegativeTest(
+				new String[]{
+					"X.java",
+					"import java.util.List;\n" +
+					"interface I {\n" +
+					"	void foo(List<String> l);\n" +
+					"}\n" +
+					"\n" +
+					"public class X {\n" +
+					"	public void main(String[] args) {\n" +
+					"		I i = @Readonly List<@English String>::<@NonNegative Integer>size;\n" +
+					"	}\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	I i = @Readonly List<@English String>::<@NonNegative Integer>size;\n" + 
+				"	       ^^^^^^^^\n" + 
+				"Readonly cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\n" + 
+				"	I i = @Readonly List<@English String>::<@NonNegative Integer>size;\n" + 
+				"	                      ^^^^^^^\n" + 
+				"English cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 8)\n" + 
+				"	I i = @Readonly List<@English String>::<@NonNegative Integer>size;\n" + 
+				"	                                        ^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Unused type arguments for the non generic method size() of type List<String>; it should not be parameterized with arguments <Integer>\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 8)\n" + 
+				"	I i = @Readonly List<@English String>::<@NonNegative Integer>size;\n" + 
+				"	                                         ^^^^^^^^^^^\n" + 
+				"NonNegative cannot be resolved to a type\n" + 
+				"----------\n"); 
+		}
 }

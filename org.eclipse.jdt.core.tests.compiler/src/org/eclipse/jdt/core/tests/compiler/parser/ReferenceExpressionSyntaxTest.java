@@ -922,7 +922,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER , source.toCharArray(), expectedErrorString, "test385132", null);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385374, Support for 308 style type annotations on 335 constructs.
-	public void _test385374() throws IOException {
+	public void test385374() throws IOException {
 		String source = 
 				"interface I {\n" +
 				"	void foo();\n" +
