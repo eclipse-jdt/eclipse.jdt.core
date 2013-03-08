@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,12 +8,15 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - contribution for Bug 300576 - NPE Computing type hierarchy when compliance doesn't match libraries
+ *     Jesper S Moller - contributions for bug 393192 - Incomplete type hierarchy with > 10 annotations
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+
+import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -22,13 +25,22 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
-
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IRegion;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.model.SearchTests.WaitingJob;
 import org.eclipse.jdt.core.tests.model.Semaphore.TimeOutException;
 import org.eclipse.jdt.core.tests.util.Util;
-
-import junit.framework.Test;
 
 public class TypeHierarchyTests extends ModifyingResourceTests {
 	/**
@@ -2604,4 +2616,91 @@ public void testBug300576b() throws CoreException {
 			deleteProject(prj);
 	}	
 }
-}
+//Bug 393192 -- Incomplete type hierarchy with > 10 annotations
+public void testBug393192() throws CoreException {
+	IJavaProject prj = null;
+	try {
+		prj = createJavaProject("Bug393192", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.5");
+		createFolder("/Bug393192/src/pullup");
+		createFile("/Bug393192/src/pullup/A.java",
+				"package pullup;\n" + 
+				"\n" + 
+				"class A {\n" + 
+				"    @Deprecated\n" + 
+				"    void m0() {\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    @Deprecated\n" + 
+				"    void m1() {\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    @Deprecated\n" + 
+				"    void m2() {\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    @Deprecated\n" + 
+				"    void m3() {\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    @Deprecated\n" + 
+				"    void m4() {\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    @Deprecated\n" + 
+				"    void m5() {\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    @Deprecated\n" + 
+				"    void m6() {\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    @Deprecated\n" + 
+				"    void m7() {\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    @Deprecated\n" + 
+				"    void m8() {\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    @Deprecated\n" + 
+				"    void m9() {\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    /**\n" + 
+				"     * @param\n" + 
+				"     */\n" + 
+				"    @Deprecated\n" + 
+				"    void m10() {\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n");
+		createFile("/Bug393192/src/pullup/package-info.java",
+				"package pullup;\n" + 
+				"\n");
+		createFile("/Bug393192/src/pullup/PullUpBug.java",
+				"package pullup;\n" + 
+				"\n" + 
+				"class PullUpBug extends A {\n" + 
+				"\n" + 
+				"    void mb() {\n" + 
+				"        pullUp();\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    // INVOKE Pull Up REFACTORING ON \"pullUp\", or type Hierarchy on A\n" + 
+				"    private void pullUp() {\n" + 
+				"    }\n" + 
+				"}\n");
+		IType a = getCompilationUnit("Bug393192", "src", "pullup", "A.java").getType("A");
+		ITypeHierarchy hierarchy = a.newTypeHierarchy(new NullProgressMonitor());
+		assertHierarchyEquals(
+				"Focus: A [in A.java [in pullup [in src [in Bug393192]]]]\n" + 
+				"Super types:\n" + 
+				"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" +
+				"Sub types:\n" +
+				"  PullUpBug [in PullUpBug.java [in pullup [in src [in Bug393192]]]]\n",
+				hierarchy);
+	} finally {
+		if (prj != null)
+			deleteProject(prj);
+	}	
+}}
