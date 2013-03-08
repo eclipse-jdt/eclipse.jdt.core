@@ -273,7 +273,6 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			}
 		}
 
-		// by grammatical construction, interface methods are always abstract
 		switch (TypeDeclaration.kind(this.scope.referenceType().modifiers)) {
 			case TypeDeclaration.ENUM_DECL :
 				if (this.selector == TypeConstants.VALUES) break;
@@ -295,6 +294,15 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 						this.bits |= ASTNode.CanBeStatic;
 					}
 				}
+				break;
+			case TypeDeclaration.INTERFACE_DECL :
+				if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8
+						&& (this.modifiers & (ExtraCompilerModifiers.AccSemicolonBody | ClassFileConstants.AccAbstract)) == ExtraCompilerModifiers.AccSemicolonBody) {
+					if ((this.modifiers & (ClassFileConstants.AccStatic | ExtraCompilerModifiers.AccDefaultMethod)) != 0) {
+							this.scope.problemReporter().methodNeedBody(this);
+					}
+				}
+				break;
 		}
 		super.resolveStatements();
 

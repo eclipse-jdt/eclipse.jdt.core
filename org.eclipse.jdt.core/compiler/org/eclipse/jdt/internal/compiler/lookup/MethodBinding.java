@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -24,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
@@ -250,9 +255,23 @@ public final boolean canBeSeenBy(PackageBinding invocationPackage) {
 * NOTE: Cannot invoke this method with a compilation unit scope.
 */
 public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invocationSite, Scope scope) {
-	if (isPublic()) return true;
 
 	SourceTypeBinding invocationType = scope.enclosingSourceType();
+	if (this.declaringClass.isInterface() && isStatic()) {
+		// Static interface methods can be explicitly invoked only through the type reference of the declaring interface or implicitly in the interface itself.
+		if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8 || !(invocationSite instanceof MessageSend))
+			return false;
+		MessageSend messageSend = (MessageSend) invocationSite;
+		if (messageSend.isTypeAccess() && receiverType == this.declaringClass)
+			return true;
+		if (messageSend.receiver.isImplicitThis() && invocationType == this.declaringClass)
+			return true;
+		return false;
+	}
+	
+	if (isPublic()) return true;
+	
+
 	if (invocationType == this.declaringClass && invocationType == receiverType) return true;
 
 	if (invocationType == null) // static import call

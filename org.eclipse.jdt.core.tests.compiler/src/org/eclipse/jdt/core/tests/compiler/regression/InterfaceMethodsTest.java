@@ -47,9 +47,25 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 
 	// default methods with various modifiers, positive cases
 	public void testModifiers1() {
-// Inject an unrelated compile error to prevent class file verification. TODO revert
-// (even lambda-enabled JRE doesn't accept now-legal modifier combinations)
-//		runConformTest(
+		runConformTest(
+		new String[] {
+			"I.java",
+			"import java.lang.annotation.*;\n" +
+			"@Target(ElementType.METHOD) @interface Annot{}\n" +
+			"public interface I {\n" +
+			"    default void foo1()  {}\n" +
+			"    public default void foo2() { System.exit(0); }\n" +
+			"    strictfp default void foo3() {}\n" +
+			"    public default strictfp void foo4() {}\n" +
+			"    public default strictfp @Annot void foo5() {}\n" +
+			"}\n",
+		}, 
+		"");
+	}
+		
+
+	// default methods with various modifiers, negative cases
+	public void testModifiers1a() {
 		runNegativeTest(
 		new String[] {
 			"I.java",
@@ -61,19 +77,27 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"    strictfp default void foo3() {}\n" +
 			"    public default strictfp synchronized void foo4() {}\n" +
 			"    public default strictfp synchronized @Annot void foo5() {}\n" +
-			"}\n" +
-			"public class Wrong{}\n"}, // TODO remove me
-		// TODO remove me:
-		"----------\n" +
-		"1. ERROR in I.java (at line 10)\n" +
-		"	public class Wrong{}\n" +
-		"	             ^^^^^\n" +
-		"The public type Wrong must be defined in its own file\n" +
-		"----------\n");
+			"}\n"}, 
+			"----------\n" + 
+			"1. ERROR in I.java (at line 5)\n" + 
+			"	public default synchronized void foo2() { System.exit(0); }\n" + 
+			"	                                 ^^^^^^\n" + 
+			"Illegal modifier for the interface method foo2; only public, abstract and strictfp are permitted\n" + 
+			"----------\n" + 
+			"2. ERROR in I.java (at line 7)\n" + 
+			"	public default strictfp synchronized void foo4() {}\n" + 
+			"	                                          ^^^^^^\n" + 
+			"Illegal modifier for the interface method foo4; only public, abstract and strictfp are permitted\n" + 
+			"----------\n" + 
+			"3. ERROR in I.java (at line 8)\n" + 
+			"	public default strictfp synchronized @Annot void foo5() {}\n" + 
+			"	                                                 ^^^^^^\n" + 
+			"Illegal modifier for the interface method foo5; only public, abstract and strictfp are permitted\n" + 
+			"----------\n");
 	}
 
 	// default methods with various modifiers, simple syntax error blows the parser
-	public void testModifiers1a() {
+	public void testModifiers1b() {
 		runNegativeTest(
 		new String[] {
 			"I.java",
@@ -81,10 +105,10 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"@Target(ElementType.METHOD) @interface Annot{}\n" +
 			"public interface I {\n" +
 			"    default void foo1() { System.out.println(3); }\n" +
-			"    public default synchronized void foo2() {}\n" +
+			"    public default void foo2() {}\n" +
 			"    stritfp default void foo3() {}\n" + // typo in strictfp
-			"    default public strictfp synchronized void foo4() {}\n" +
-			"    public strictfp  default synchronized @Annot void foo5() {}\n" +
+			"    default public strictfp void foo4() {}\n" +
+			"    public strictfp  default @Annot void foo5() {}\n" +
 			"    public default <T> T foo6(T t) { return t; }\n" +
 			"}\n"},
 			"----------\n" +
@@ -155,36 +179,36 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"    static default void foo5() {}\n" +
 			"    default static void foo6() {}\n" +
 			"}\n"},
-			"----------\n" +
-			"1. ERROR in I.java (at line 2)\n" +
-			"	native void foo1();\n" +
-			"	            ^^^^^^\n" +
-			"Illegal modifier for the interface method foo1; only public & abstract are permitted\n" +
-			"----------\n" +
-			"2. ERROR in I.java (at line 3)\n" +
-			"	static void foo2();\n" +
-			"	            ^^^^^^\n" +
-			"Illegal modifier for the interface method foo2; only public & abstract are permitted\n" +
-			"----------\n" +
-			"3. ERROR in I.java (at line 4)\n" +
-			"	native default void foo3() {}\n" +
-			"	                    ^^^^^^\n" +
-			"Illegal modifier for the interface method foo3; only public, abstract, strictfp & synchronized are permitted\n" +
-			"----------\n" +
-			"4. ERROR in I.java (at line 5)\n" +
-			"	default native void foo4() {}\n" +
-			"	                    ^^^^^^\n" +
-			"Illegal modifier for the interface method foo4; only public, abstract, strictfp & synchronized are permitted\n" +
-			"----------\n" +
-			"5. ERROR in I.java (at line 6)\n" +
-			"	static default void foo5() {}\n" +
-			"	                    ^^^^^^\n" +
-			"Illegal modifier for the interface method foo5; only public, abstract, strictfp & synchronized are permitted\n" +
-			"----------\n" +
-			"6. ERROR in I.java (at line 7)\n" +
-			"	default static void foo6() {}\n" +
-			"	                    ^^^^^^\n" +
-			"Illegal modifier for the interface method foo6; only public, abstract, strictfp & synchronized are permitted\n" +
+			"----------\n" + 
+			"1. ERROR in I.java (at line 2)\n" + 
+			"	native void foo1();\n" + 
+			"	            ^^^^^^\n" + 
+			"Illegal modifier for the interface method foo1; only public & abstract are permitted\n" + 
+			"----------\n" + 
+			"2. ERROR in I.java (at line 3)\n" + 
+			"	static void foo2();\n" + 
+			"	            ^^^^^^\n" + 
+			"This method requires a body instead of a semicolon\n" + 
+			"----------\n" + 
+			"3. ERROR in I.java (at line 4)\n" + 
+			"	native default void foo3() {}\n" + 
+			"	                    ^^^^^^\n" + 
+			"Illegal modifier for the interface method foo3; only public, abstract and strictfp are permitted\n" + 
+			"----------\n" + 
+			"4. ERROR in I.java (at line 5)\n" + 
+			"	default native void foo4() {}\n" + 
+			"	                    ^^^^^^\n" + 
+			"Illegal modifier for the interface method foo4; only public, abstract and strictfp are permitted\n" + 
+			"----------\n" + 
+			"5. ERROR in I.java (at line 6)\n" + 
+			"	static default void foo5() {}\n" + 
+			"	                    ^^^^^^\n" + 
+			"Illegal modifier for the interface method foo5; only public, abstract and strictfp are permitted\n" + 
+			"----------\n" + 
+			"6. ERROR in I.java (at line 7)\n" + 
+			"	default static void foo6() {}\n" + 
+			"	                    ^^^^^^\n" + 
+			"Illegal modifier for the interface method foo6; only public, abstract and strictfp are permitted\n" + 
 			"----------\n");
 	}
 
@@ -201,31 +225,26 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"    void foo4() { }\n" + // implicit "abstract" without "default" doesn't allow a body, either
 			"    abstract static default void foo5() {}\n" + // double fault
 			"}\n"},
-			"----------\n" +
-			"1. ERROR in I.java (at line 4)\n" +
-			"	public abstract default void foo2() {}\n" +
-			"	                             ^^^^^^\n" +
-			"Abstract methods do not specify a body\n" +
-			"----------\n" +
-			"2. ERROR in I.java (at line 5)\n" +
-			"	default abstract void foo3() {}\n" +
-			"	                      ^^^^^^\n" +
-			"Abstract methods do not specify a body\n" +
-			"----------\n" +
-			"3. ERROR in I.java (at line 6)\n" +
-			"	void foo4() { }\n" +
-			"	     ^^^^^^\n" +
-			"Abstract methods do not specify a body\n" +
-			"----------\n" +
-			"4. ERROR in I.java (at line 7)\n" +
-			"	abstract static default void foo5() {}\n" +
-			"	                             ^^^^^^\n" +
-			"Illegal modifier for the interface method foo5; only public, abstract, strictfp & synchronized are permitted\n" +
-			"----------\n" +
-			"5. ERROR in I.java (at line 7)\n" +
-			"	abstract static default void foo5() {}\n" +
-			"	                             ^^^^^^\n" +
-			"Abstract methods do not specify a body\n" +
+			"----------\n" + 
+			"1. ERROR in I.java (at line 4)\n" + 
+			"	public abstract default void foo2() {}\n" + 
+			"	                             ^^^^^^\n" + 
+			"Illegal modifier for the interface method foo2; only public, abstract and strictfp are permitted\n" + 
+			"----------\n" + 
+			"2. ERROR in I.java (at line 5)\n" + 
+			"	default abstract void foo3() {}\n" + 
+			"	                      ^^^^^^\n" + 
+			"Illegal modifier for the interface method foo3; only public, abstract and strictfp are permitted\n" + 
+			"----------\n" + 
+			"3. ERROR in I.java (at line 6)\n" + 
+			"	void foo4() { }\n" + 
+			"	     ^^^^^^\n" + 
+			"Abstract methods do not specify a body\n" + 
+			"----------\n" + 
+			"4. ERROR in I.java (at line 7)\n" + 
+			"	abstract static default void foo5() {}\n" + 
+			"	                             ^^^^^^\n" + 
+			"Illegal modifier for the interface method foo5; only public, abstract and strictfp are permitted\n" + 
 			"----------\n");
 	}
 
@@ -1230,5 +1249,328 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			},
 			"OK"
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	// Test for different legal and illegal keywords for static and default methods in interfaces
+	public void testStaticMethod01() {
+		runNegativeTest(
+				new String[] {
+					"I.java",
+					"public interface I {\n" +
+					"	static void foo() {}\n" +
+					"	static void foo1();\n" +
+					"	public static default void foo2 () {};\n" +
+					"	abstract static void foo3();\n" +
+					"	abstract static void foo4() {}\n" +
+					"}"
+				},
+				"----------\n" + 
+				"1. ERROR in I.java (at line 3)\n" + 
+				"	static void foo1();\n" + 
+				"	            ^^^^^^\n" + 
+				"This method requires a body instead of a semicolon\n" + 
+				"----------\n" + 
+				"2. ERROR in I.java (at line 4)\n" + 
+				"	public static default void foo2 () {};\n" + 
+				"	                           ^^^^^^^\n" + 
+				"Illegal modifier for the interface method foo2; only public, abstract and strictfp are permitted\n" + 
+				"----------\n" + 
+				"3. ERROR in I.java (at line 5)\n" + 
+				"	abstract static void foo3();\n" + 
+				"	                     ^^^^^^\n" + 
+				"Illegal modifier for the interface method foo3; only public & abstract are permitted\n" + 
+				"----------\n" + 
+				"4. ERROR in I.java (at line 6)\n" + 
+				"	abstract static void foo4() {}\n" + 
+				"	                     ^^^^^^\n" + 
+				"Illegal modifier for the interface method foo4; only public & abstract are permitted\n" + 
+				"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	// Test invocation of static methods with different contexts - negative tests
+	public void testStaticMethod02() {
+		runNegativeTest(
+				new String[] {
+					"I.java",
+					"public interface I {\n" +
+					"	public static void foo() {\n" +
+					"		bar();\n" +
+					"		this.bar();\n" +
+					"   }\n" +
+					"	public default void bar () {\n" +
+					"		this.foo();\n" +
+					"	}\n" +
+					"}\n" +
+					"interface II extends I{\n" +
+					"	public static void foobar() {\n" +
+					"		super.bar();\n" +
+					"   }\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in I.java (at line 3)\n" + 
+				"	bar();\n" + 
+				"	^^^\n" + 
+				"Cannot make a static reference to the non-static method bar() from the type I\n" + 
+				"----------\n" + 
+				"2. ERROR in I.java (at line 4)\n" + 
+				"	this.bar();\n" + 
+				"	^^^^\n" + 
+				"Cannot use this in a static context\n" + 
+				"----------\n" + 
+				"3. ERROR in I.java (at line 7)\n" + 
+				"	this.foo();\n" + 
+				"	     ^^^\n" + 
+				"The method foo() is undefined for the type I\n" + 
+				"----------\n" + 
+				"4. ERROR in I.java (at line 12)\n" + 
+				"	super.bar();\n" + 
+				"	^^^^^\n" + 
+				"Cannot use super in a static context\n" + 
+				"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	// Test invocation of static methods with different contexts - positive tests
+	public void testStaticMethod03() {
+		runConformTest(
+			new String[] {
+				"C.java",
+				"interface I {\n" +
+				"	public static void foo() {\n" +
+				"		System.out.println(\"I#foo() invoked\");\n" +
+				"   }\n" +
+				"}\n" +
+				"interface J extends I {\n" +
+				"	public static void foo() {\n" +
+				"		System.out.println(\"J#foo() invoked\");\n" +
+				"   }\n" +
+				"	public default void bar () {\n" +
+				"		foo();\n" +
+				"	}\n" +
+				"}\n" +
+				"public class C implements J {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		C c = new C();\n" +
+				"		c.bar();\n" +
+				"       J.foo();\n" +
+				"       I.foo();\n" +
+				"	}\n" +
+				"}"
+			},
+			"J#foo() invoked\n" +
+			"J#foo() invoked\n" + 
+			"I#foo() invoked");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	// Test invocation of static methods with different contexts - negative tests
+	public void testStaticMethod04() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X implements II {\n"
+						+ "	@Override"
+						+ "	public void foo() {\n"
+						+ "		 bar();\n"
+						+ "		 bar2();\n"
+						+ "	}\n"
+						+ "	public static void main(String[] args) {\n"
+						+ "		bar();\n"
+						+ "		II.bar();\n"
+						+ "		(new X()).bar();\n"
+						+ "		II.bar();\n"
+						+ "		II ii = new X();\n"
+						+ "		ii.bar();\n"
+						+ "		ii.bar2();\n"
+						+ "		I i = new X();\n"
+						+ "		i.bar();\n"
+						+ "      new I() {}.foo();\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "interface I {\n"
+						+ "	public static void bar() {\n"
+						+ "		bar2();\n"
+						+ "	}\n"
+						+ "	public default void bar2() {\n"
+						+ "		bar();\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "interface II extends I {\n"
+						+ "	public default void foo() {\n"
+						+ "		bar();\n"
+						+ "	}\n"
+						+ "}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	bar();\n" + 
+				"	^^^\n" + 
+				"The method bar() is undefined for the type X\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 7)\n" + 
+				"	bar();\n" + 
+				"	^^^\n" + 
+				"The method bar() is undefined for the type X\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 8)\n" + 
+				"	II.bar();\n" + 
+				"	   ^^^\n" + 
+				"The method bar() is undefined for the type II\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 9)\n" + 
+				"	(new X()).bar();\n" + 
+				"	          ^^^\n" + 
+				"The method bar() is undefined for the type X\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 10)\n" + 
+				"	II.bar();\n" + 
+				"	   ^^^\n" + 
+				"The method bar() is undefined for the type II\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 12)\n" + 
+				"	ii.bar();\n" + 
+				"	   ^^^\n" + 
+				"The method bar() is undefined for the type II\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 15)\n" + 
+				"	i.bar();\n" + 
+				"	  ^^^\n" + 
+				"The method bar() is undefined for the type I\n" + 
+				"----------\n" + 
+				"8. ERROR in X.java (at line 16)\n" + 
+				"	new I() {}.foo();\n" + 
+				"	           ^^^\n" + 
+				"The method foo() is undefined for the type new I(){}\n" + 
+				"----------\n" + 
+				"9. ERROR in X.java (at line 21)\n" + 
+				"	bar2();\n" + 
+				"	^^^^\n" + 
+				"Cannot make a static reference to the non-static method bar2() from the type I\n" + 
+				"----------\n" + 
+				"10. ERROR in X.java (at line 29)\n" + 
+				"	bar();\n" + 
+				"	^^^\n" + 
+				"The method bar() is undefined for the type II\n" + 
+				"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	public void testStaticMethod05() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"interface I {\n" +
+						"	static void foo(int x) { }\n" +
+						"}\n" +
+						"interface II extends I {\n" +
+						"	static void goo(int x) {}   		// No Error.\n" +
+						"}\n" +
+						"interface III extends II {\n" +
+						"	default void foo(int x, int y) {}   // No Error.\n" +
+						"	default void goo() {}   			// No Error.\n" +
+						"	default void foo(int x) {}   		// No Error.\n" +
+						"	default void goo(int x) {}   		// No Error.\n" +
+						"}\n" +
+						"class Y {\n" +
+						"	static void goo(int x) {}\n" +
+						"}\n" +
+						"class X extends Y {\n" +
+						"	void foo(int x) {}   // No error.\n" +
+						"	void goo() {}   	 // No Error.\n" +
+						"	void goo(int x) {}   // Error.\n" +
+						"}\n"
+						},
+						"----------\n" + 
+						"1. ERROR in X.java (at line 19)\n" + 
+						"	void goo(int x) {}   // Error.\n" + 
+						"	     ^^^^^^^^^^\n" + 
+						"This instance method cannot override the static method from Y\n" + 
+						"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	// Test that extending interfaces inherit visible fields and inner types.
+	public void testStaticMethod06() {
+		runConformTest(
+				new String[] {
+					"C.java",
+					"interface I {\n" +
+					"	public static String CONST = \"CONSTANT\";\n" +
+					"	public static void foo(String[] args) {\n" +
+					"		System.out.println(args[0]);\n" +
+					"   }\n" +
+					" 	public interface Inner {}\n" +
+					"}\n" +
+					"interface J extends I {\n" +
+					"	public static void foo() {\n" +
+					"		I.foo(new String[]{CONST});\n" +
+					"   }\n" +
+					" 	public interface InnerInner extends Inner {}\n" +
+					"}\n" +
+					"public class C implements J {\n" +
+					"	public static void main(String[] args) {\n" +
+					"       J.foo();\n" +
+					"       I.foo(new String[]{\"LITERAL\"});\n" +
+					"	}\n" +
+					"}"
+				},
+				"CONSTANT\n" + 
+				"LITERAL");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	// Test that type parameter from enclosing type is not allowed to be referred to in static interface methods
+	public void testStaticMethod07() {
+		runNegativeTest(
+				new String[] {
+					"C.java",
+					"interface I <T> {\n" +
+					"	public static T foo(T t) {\n" +
+					"		return t;" +
+					"   }\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in C.java (at line 2)\n" + 
+				"	public static T foo(T t) {\n" + 
+				"	              ^\n" + 
+				"Cannot make a static reference to the non-static type T\n" + 
+				"----------\n" + 
+				"2. ERROR in C.java (at line 2)\n" + 
+				"	public static T foo(T t) {\n" + 
+				"	                    ^\n" + 
+				"Cannot make a static reference to the non-static type T\n" + 
+				"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	public void testStaticMethod08() {
+		runNegativeTest(
+				new String[] {
+					"C.java",
+					"@interface A {\n" +
+					"	static String foo() default \"Blah\";\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in C.java (at line 2)\n" + 
+				"	static String foo() default \"Blah\";\n" + 
+				"	              ^^^^^\n" + 
+				"Illegal modifier for the annotation attribute A.foo; only public & abstract are permitted\n" + 
+				"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	public void testStaticMethod09() {
+		runNegativeTest(
+				new String[] {
+						"C.java",
+						"interface A {\n" +
+						"	static void foo() {}\n" +
+						"	default void goo(A a) {\n" +
+						"		a.foo();\n" +
+						"	}\n" +
+						"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in C.java (at line 4)\n" + 
+				"	a.foo();\n" + 
+				"	  ^^^\n" + 
+				"The method foo() is undefined for the type A\n" + 
+				"----------\n");
 	}
 }

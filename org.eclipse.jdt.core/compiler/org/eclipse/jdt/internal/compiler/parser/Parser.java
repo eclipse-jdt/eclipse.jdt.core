@@ -4751,16 +4751,18 @@ protected void consumeInterfaceMethodDeclaration(boolean hasSemicolonBody) {
 	md.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 	
 	boolean isDefault = (md.modifiers & ExtraCompilerModifiers.AccDefaultMethod) != 0;
-	if (isDefault) {
-		if (!this.parsingJava8Plus) {
-			problemReporter().defaultMethodsNotBelow18(md);
-		} else if (hasSemicolonBody) {
+	boolean isStatic = (md.modifiers & ClassFileConstants.AccStatic) != 0;
+	boolean bodyAllowed = isDefault || isStatic;
+	if (this.parsingJava8Plus) {
+		if (bodyAllowed && hasSemicolonBody) {
 			md.modifiers |= ExtraCompilerModifiers.AccSemicolonBody; // avoid complaints regarding undocumented empty body
-			problemReporter().methodNeedBody(md);	// grammar intentially allows illegal input to enable this error message
 		}
 	} else {
-		// report the problem and continue the parsing - narrowing the problem onto the method
-		if(!this.statementRecoveryActivated && !hasSemicolonBody) problemReporter().abstractMethodNeedingNoBody(md);
+		if (isDefault) problemReporter().defaultMethodsNotBelow18(md);
+		if (isStatic) problemReporter().staticInterfaceMethodsNotBelow18(md);
+	}
+	if (!bodyAllowed && !this.statementRecoveryActivated && !hasSemicolonBody) {
+		problemReporter().abstractMethodNeedingNoBody(md);
 	}
 }
 protected void consumeLabel() {

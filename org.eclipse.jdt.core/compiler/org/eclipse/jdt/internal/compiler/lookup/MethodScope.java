@@ -178,20 +178,22 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 	// set the requested modifiers for a method in an interface/annotation
 	if (declaringClass.isInterface()) {
 		int expectedModifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract;
-		// 9.4 got updated for JSR 335 (default methods), more permissive grammar plus:
-		// "It is a compile-time error if an abstract method declaration contains either of the keywords strictfp or synchronized."
-		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8 && !methodBinding.isAbstract()) {
-			expectedModifiers |= (ClassFileConstants.AccSynchronized | ClassFileConstants.AccStrictfp);
-		}
 		boolean isDefaultMethod = (modifiers & ExtraCompilerModifiers.AccDefaultMethod) != 0; // no need to check validity, is done by the parser
+		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8 && !declaringClass.isAnnotationType()) {
+			if (!methodBinding.isAbstract()) {
+				expectedModifiers |= ClassFileConstants.AccStrictfp
+										| (isDefaultMethod ?  ExtraCompilerModifiers.AccDefaultMethod : ClassFileConstants.AccStatic);
+			}
+			// Kludge - The AccDefaultMethod bit is outside the lower 16 bits and got removed earlier. Putting it back.
+			if (isDefaultMethod) {
+				realModifiers |= ExtraCompilerModifiers.AccDefaultMethod;
+			}
+		}
 		if ((realModifiers & ~expectedModifiers) != 0) {
 			if ((declaringClass.modifiers & ClassFileConstants.AccAnnotation) != 0)
 				problemReporter().illegalModifierForAnnotationMember((AbstractMethodDeclaration) this.referenceContext);
 			else
 				problemReporter().illegalModifierForInterfaceMethod((AbstractMethodDeclaration) this.referenceContext, isDefaultMethod);
-		}
-		if (isDefaultMethod && (modifiers & ClassFileConstants.AccAbstract) != 0) {
-			problemReporter().abstractMethodNeedingNoBody((AbstractMethodDeclaration) this.referenceContext);
 		}
 		return;
 	}
@@ -337,7 +339,7 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 		checkAndSetModifiersForConstructor(method.binding);
 	} else {
 		if (declaringClass.isInterface()) {// interface or annotation type
-			if (method.isDefaultMethod()) {
+			if (method.isDefaultMethod() || method.isStatic()) {
 				modifiers |= ClassFileConstants.AccPublic; // default method is not abstract
 			} else {
 				modifiers |= ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract;
