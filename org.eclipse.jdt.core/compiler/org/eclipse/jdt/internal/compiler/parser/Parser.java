@@ -23,6 +23,8 @@
  *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *							bug 399695 - [1.8][compiler] [1.8][compiler] migrate parser to other syntax for default methods
  *							bug 384567 - [1.5][compiler] Compiler accepts illegal modifiers on package declaration
+ *									bug 393192 - Incomplete type hierarchy with > 10 annotations
+ *
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
@@ -10980,7 +10982,7 @@ try {
 			}
 		}
 	}
-
+	this.problemReporter.referenceContext = null; // Null this so we won't escalate problems needlessly (bug 393192)
 	if (DEBUG) System.out.println("-- EXIT FROM PARSE METHOD --");  //$NON-NLS-1$
 }
 public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit, boolean recordLineSeparator) {
