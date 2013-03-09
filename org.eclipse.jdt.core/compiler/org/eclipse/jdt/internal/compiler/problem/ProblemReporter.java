@@ -3978,6 +3978,20 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 		case ProblemReasons.NonStaticReferenceInStaticContext :
 			id = IProblem.StaticMethodRequested;
 			break;
+		case ProblemReasons.NonStaticOrAlienTypeReceiver:
+			this.handle(
+					IProblem.NonStaticOrAlienTypeReceiver,
+					new String[] {
+							new String(method.declaringClass.readableName()),
+					        new String(method.selector),
+					},
+					new String[] {
+							new String(method.declaringClass.shortReadableName()),
+					        new String(method.selector),
+					},
+					(int) (messageSend.nameSourcePosition >>> 32),
+					(int) messageSend.nameSourcePosition);
+			return;
 		case ProblemReasons.ReceiverTypeNotVisible :
 			this.handle(
 				IProblem.NotVisibleType,	// cannot occur in javadoc comments

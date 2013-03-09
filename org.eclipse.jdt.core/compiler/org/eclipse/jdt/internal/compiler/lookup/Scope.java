@@ -1355,12 +1355,8 @@ public abstract class Scope {
 		if (receiverTypeIsInterface) {
 			unitScope.recordTypeReference(receiverType);
 			MethodBinding[] receiverMethods = receiverType.getMethods(selector, argumentTypes.length);
-			for (int index = 0, length = receiverMethods.length; index < length; index++) {
-				MethodBinding binding = receiverMethods[index];
-				if (binding.canBeSeenBy(receiverType, invocationSite, this)) {
-					found.add(binding);
-				}
-			}
+			if (receiverMethods.length > 0)
+				found.addAll(receiverMethods);
 			findMethodInSuperInterfaces(receiverType, selector, found, invocationSite);
 			currentType = getJavaLangObject();
 		}
@@ -1515,37 +1511,31 @@ public abstract class Scope {
 
 		// tiebreak using visibility check
 		int visiblesCount = 0;
-		if (receiverTypeIsInterface) {
-			if (candidatesCount == 1) {
+		for (int i = 0; i < candidatesCount; i++) {
+			MethodBinding methodBinding = candidates[i];
+			if (methodBinding.canBeSeenBy(receiverType, invocationSite, this)) {
+				if (visiblesCount != i) {
+					candidates[i] = null;
+					candidates[visiblesCount] = methodBinding;
+				}
+				visiblesCount++;
+			}
+		}
+		switch (visiblesCount) {
+			case 0 :
+				MethodBinding interfaceMethod =
+				findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, null);
+				if (interfaceMethod != null) return interfaceMethod;
+				MethodBinding candidate = candidates[0];
+				return new ProblemMethodBinding(candidates[0], candidates[0].selector, candidates[0].parameters, 
+						candidate.isStatic() && candidate.declaringClass.isInterface() ? ProblemReasons.NonStaticOrAlienTypeReceiver : ProblemReasons.NotVisible);
+			case 1 :
+				if (searchForDefaultAbstractMethod)
+					return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, candidates[0]);
 				unitScope.recordTypeReferences(candidates[0].thrownExceptions);
 				return candidates[0];
-			}
-			visiblesCount = candidatesCount;
-		} else {
-			for (int i = 0; i < candidatesCount; i++) {
-				MethodBinding methodBinding = candidates[i];
-				if (methodBinding.canBeSeenBy(receiverType, invocationSite, this)) {
-					if (visiblesCount != i) {
-						candidates[i] = null;
-						candidates[visiblesCount] = methodBinding;
-					}
-					visiblesCount++;
-				}
-			}
-			switch (visiblesCount) {
-				case 0 :
-					MethodBinding interfaceMethod =
-						findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, null);
-					if (interfaceMethod != null) return interfaceMethod;
-					return new ProblemMethodBinding(candidates[0], candidates[0].selector, candidates[0].parameters, ProblemReasons.NotVisible);
-				case 1 :
-					if (searchForDefaultAbstractMethod)
-						return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, candidates[0]);
-					unitScope.recordTypeReferences(candidates[0].thrownExceptions);
-					return candidates[0];
-				default :
-					break;
-			}
+			default :
+				break;
 		}
 
 		if (complianceLevel <= ClassFileConstants.JDK1_3) {

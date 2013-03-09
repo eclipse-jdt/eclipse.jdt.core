@@ -1321,7 +1321,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"3. ERROR in I.java (at line 7)\n" + 
 				"	this.foo();\n" + 
 				"	     ^^^\n" + 
-				"The method foo() is undefined for the type I\n" + 
+				"This static method of interface I can only be accessed as I.foo\n" +
 				"----------\n" + 
 				"4. ERROR in I.java (at line 12)\n" + 
 				"	super.bar();\n" + 
@@ -1434,7 +1434,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"7. ERROR in X.java (at line 15)\n" + 
 				"	i.bar();\n" + 
 				"	  ^^^\n" + 
-				"The method bar() is undefined for the type I\n" + 
+				"This static method of interface I can only be accessed as I.bar\n" + 
 				"----------\n" + 
 				"8. ERROR in X.java (at line 16)\n" + 
 				"	new I() {}.foo();\n" + 
@@ -1570,7 +1570,96 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"1. ERROR in C.java (at line 4)\n" + 
 				"	a.foo();\n" + 
 				"	  ^^^\n" + 
-				"The method foo() is undefined for the type A\n" + 
+				"This static method of interface A can only be accessed as A.foo\n" + 
+				"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	public void testStaticMethod10() {
+		runNegativeTest(
+				new String[] {
+						"C.java",
+						"interface A {\n" +
+						"	static void foo(long x) {}\n" +
+						"	static void foo(int x) {}\n" +
+						"	default void goo(A a) {\n" +
+						"		a.foo(10);\n" +
+						"	}\n" +
+						"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in C.java (at line 5)\n" + 
+				"	a.foo(10);\n" + 
+				"	  ^^^\n" + 
+				"This static method of interface A can only be accessed as A.foo\n" + 
+				"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	public void testStaticMethod11() {
+		runNegativeTest(
+				new String[] {
+						"C.java",
+						"interface A<X> {\n" +
+						"	void foo(X x);\n" +
+						"}\n" +
+						"interface B extends A<String> {\n" +
+						"    static void foo(String s) {}\n" +
+						"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in C.java (at line 5)\n" + 
+				"	static void foo(String s) {}\n" + 
+				"	            ^^^^^^^^^^^^^\n" + 
+				"This static method cannot hide the instance method from A<String>\n" + 
+				"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	public void testStaticMethod12() {
+		runNegativeTest(
+				new String[] {
+						"C.java",
+						"interface A<X> {\n" +
+						"	static void foo(String x) {}\n" +
+						"}\n" +
+						"interface B extends A<String> {\n" +
+						"    static void foo(String s) {}\n" +
+						"}\n" +
+						"public class X {\n" +
+						"}\n"
+				},
+				"----------\n" + 
+				"1. WARNING in C.java (at line 1)\n" + 
+				"	interface A<X> {\n" + 
+				"	            ^\n" + 
+				"The type parameter X is hiding the type X\n" + 
+				"----------\n" + 
+				"2. ERROR in C.java (at line 7)\n" + 
+				"	public class X {\n" + 
+				"	             ^\n" + 
+				"The public type X must be defined in its own file\n" + 
+				"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
+	public void testStaticMethod13() {
+		runNegativeTest(
+				new String[] {
+						"C.java",
+						"interface A {\n" +
+						"	static void foo(String x) {\n" +
+						"       System.out.println(this);\n"+
+						"       System.out.println(super.hashCode());\n" +
+						"   }\n" +
+						"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in C.java (at line 3)\n" + 
+				"	System.out.println(this);\n" + 
+				"	                   ^^^^\n" + 
+				"Cannot use this in a static context\n" + 
+				"----------\n" + 
+				"2. ERROR in C.java (at line 4)\n" + 
+				"	System.out.println(super.hashCode());\n" + 
+				"	                   ^^^^^\n" + 
+				"Cannot use super in a static context\n" + 
 				"----------\n");
 	}
 }

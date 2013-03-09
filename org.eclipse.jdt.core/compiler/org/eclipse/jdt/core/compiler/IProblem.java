@@ -421,7 +421,8 @@ void setSourceStart(int sourceStart);
 	int DuplicateBlankFinalFieldInitialization = FieldRelated + 82;
 	/** @since 3.6 */
 	int UnresolvedVariable = FieldRelated + 83;
-
+	/** @since 3.9 */
+	int NonStaticOrAlienTypeReceiver = MethodRelated + 84;
 	// variable hiding
 	/** @since 3.0 */
 	int LocalVariableHidingLocalVariable = Internal + 90;
