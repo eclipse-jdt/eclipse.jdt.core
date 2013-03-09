@@ -12,6 +12,8 @@
  *								bug 387612 - Unreachable catch block...exception is never thrown from the try
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 401456 - Code compiles from javac/intellij, but fails from eclipse
+ *     Jesper S Moller - Contributions for
+ *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -2613,6 +2615,7 @@ public abstract class Scope {
 	*/
 	final Binding getTypeOrPackage(char[] name, int mask, boolean needResolve) {
 		Scope scope = this;
+		MethodScope methodScope = null;
 		ReferenceBinding foundType = null;
 		boolean insideStaticContext = false;
 		boolean insideTypeAnnotation = false;
@@ -2625,7 +2628,7 @@ public abstract class Scope {
 			done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 				switch (scope.kind) {
 					case METHOD_SCOPE :
-						MethodScope methodScope = (MethodScope) scope;
+						methodScope = (MethodScope) scope;
 						AbstractMethodDeclaration methodDecl = methodScope.referenceMethod();
 						if (methodDecl != null) {
 							if (methodDecl.binding != null) {
@@ -2699,6 +2702,8 @@ public abstract class Scope {
 						if (typeVariable != null) {
 							if (insideStaticContext) // do not consider this type modifiers: access is legite within same type
 								return new ProblemReferenceBinding(new char[][]{name}, typeVariable, ProblemReasons.NonStaticReferenceInStaticContext);
+							else if (methodScope != null)
+								methodScope.resetEnclosingMethodStaticFlag();
 							return typeVariable;
 						}
 						insideStaticContext |= sourceType.isStatic();

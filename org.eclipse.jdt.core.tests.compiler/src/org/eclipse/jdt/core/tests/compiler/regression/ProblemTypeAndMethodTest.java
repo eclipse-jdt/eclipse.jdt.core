@@ -8163,7 +8163,7 @@ private void runStaticWarningConformTest(String fileName, String body) {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
 //Can be static warning shown in the wrong places, i.e. if the type parameter is used in the signature
-public void _test378674_comment0() {
+public void test378674_comment0() {
 	runStaticWarningConformTest(
 		"Test.java", 
 		"public class Test<T> {\n" + 
@@ -8186,7 +8186,7 @@ public void _test378674_comment0() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
-public void _test378674_comment1b() {
+public void test378674_comment1b() {
 	runStaticWarningConformTest(
 		"X.java", 
 		"import java.util.Collection;\n" +
@@ -8200,7 +8200,7 @@ public void _test378674_comment1b() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
 //Can be static warning shown in the wrong places
-public void _test378674_comment1c() {
+public void test378674_comment1c() {
 	runStaticWarningConformTest(
 		"X.java", 
 		"import java.util.Collection;\n" +
@@ -8215,7 +8215,7 @@ public void _test378674_comment1c() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
 //Can be static warning shown in the wrong places
-public void _test378674_comment2() {
+public void test378674_comment2() {
 	runStaticWarningConformTest(
 		"X.java", 
 		"public class X<T> {\n" + 
@@ -8227,7 +8227,7 @@ public void _test378674_comment2() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
-public void _test378674_comment3() {
+public void test378674_comment3() {
 	runStaticWarningConformTest(
 		"Test.java", 
 		"public class Test {\n" + 
@@ -8245,7 +8245,7 @@ public void _test378674_comment3() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
 //Can be static warning shown in the wrong places
-public void _test378674_comment5a() {
+public void test378674_comment5a() {
 	runStaticWarningConformTest(
 		"Test.java", 
 		"public class Test<T> {\n" + 
@@ -8268,7 +8268,7 @@ public void _test378674_comment5a() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
-public void _test378674_comment5b() {
+public void test378674_comment5b() {
 	runStaticWarningConformTest(
 		"Test.java", 
 		"public class Test<T> {\n" + 
@@ -8287,7 +8287,7 @@ public void _test378674_comment5b() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
-public void _test378674_comment9() {
+public void test378674_comment9() {
 	runStaticWarningConformTest(
 		"Test.java", 
 		"public class Test<T> {\n" + 
@@ -8305,7 +8305,7 @@ public void _test378674_comment9() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
-public void _test378674_comment11() {
+public void test378674_comment11() {
 	runStaticWarningConformTest(
 		"Test.java", 
 		"public class Test<T> {\n" + 
@@ -8328,7 +8328,7 @@ public void _test378674_comment11() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
-public void _test378674_comment21a() {
+public void test378674_comment21a() {
 	runStaticWarningConformTest(
 		"X.java", 
 		"public class X<P extends Exception> {\n" +
@@ -8339,7 +8339,7 @@ public void _test378674_comment21a() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
-public void _test378674_comment21b() {
+public void test378674_comment21b() {
 	runStaticWarningConformTest(
 		"X.java", 
 		"public class X<P extends Exception> {\n" +
@@ -8349,7 +8349,7 @@ public void _test378674_comment21b() {
 		"}\n"
 	);
 }//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
-public void _test378674_comment21c() {
+public void test378674_comment21c() {
 	runStaticWarningConformTest(
 		"X.java", 
 		"public class X<P extends Exception> {\n" +
@@ -8362,7 +8362,7 @@ public void _test378674_comment21c() {
 		"}\n"
 	);
 }//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
-public void _test378674_comment21d() {
+public void test378674_comment21d() {
 	runStaticWarningConformTest(
 		"X.java", 
 		"public class X<P extends Exception> {\n" +

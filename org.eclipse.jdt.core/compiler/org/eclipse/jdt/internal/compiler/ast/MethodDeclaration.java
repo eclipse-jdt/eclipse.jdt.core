@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,8 @@
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *     Jesper S Moller <jesper@selskabet.org> - Contributions for
+ *								bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -24,7 +26,6 @@ import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
@@ -47,6 +48,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	 */
 	public MethodDeclaration(CompilationResult compilationResult) {
 		super(compilationResult);
+		this.bits |= ASTNode.CanBeStatic; // Start with this assumption, will course correct during resolve.
 	}
 
 	public void analyseCode(ClassScope classScope, FlowContext flowContext, FlowInfo flowInfo) {
@@ -97,17 +99,6 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			// nullity and mark as assigned
 			analyseArguments(flowInfo);
 
-			if (this.arguments != null) {
-				for (int i = 0, count = this.arguments.length; i < count; i++) {
-					// if this method uses a type parameter declared by the declaring class,
-					// it can't be static. https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
-					if (this.arguments[i].binding != null && (this.arguments[i].binding.type instanceof TypeVariableBinding)) {
-						Binding declaringElement = ((TypeVariableBinding)this.arguments[i].binding.type).declaringElement;
-						if (this.binding != null && this.binding.declaringClass == declaringElement)
-							this.bits &= ~ASTNode.CanBeStatic;
-					}
-				}
-			}
 			if (this.binding.declaringClass instanceof MemberTypeBinding && !this.binding.declaringClass.isStatic()) {
 				// method of a non-static member type can't be static.
 				this.bits &= ~ASTNode.CanBeStatic;
@@ -265,9 +256,9 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					// the method HAS a body --> abstract native modifiers are forbiden
 					if (((this.modifiers & ClassFileConstants.AccNative) != 0) || ((this.modifiers & ClassFileConstants.AccAbstract) != 0))
 						this.scope.problemReporter().methodNeedingNoBody(this);
-					else if (this.binding != null && !this.binding.isStatic() && !(this.binding.declaringClass instanceof LocalTypeBinding) && !returnsUndeclTypeVar) {
-						// Not a method of local type - can be static
-						this.bits |= ASTNode.CanBeStatic;
+					else if (this.binding == null || this.binding.isStatic() || (this.binding.declaringClass instanceof LocalTypeBinding) || returnsUndeclTypeVar) {
+						// Cannot be static for one of the reasons stated above
+						this.bits &= ~ASTNode.CanBeStatic;
 					}
 				}
 		}
