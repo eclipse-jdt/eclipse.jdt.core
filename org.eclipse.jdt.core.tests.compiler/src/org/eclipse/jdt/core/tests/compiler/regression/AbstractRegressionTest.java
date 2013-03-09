@@ -16,6 +16,7 @@
  *								bug 388800 - [1.8] adjust tests to 1.8 JRE
  *								bug 402237 - [1.8][compiler] investigate differences between compilers re MethodVerifyTest
  *								bug 391376 - [1.8] check interaction of default methods with bridge methods and generics
+ *     Jesper S Moller - Contributions for bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1365,6 +1366,28 @@ protected static class JavacTestOptions {
 			null /* no vm arguments */,
 			// runtime results
 			expectedOutputString /* expected output string */,
+			null /* do not check error string */,
+			// javac options
+			JavacTestOptions.DEFAULT /* default javac test options */);
+	}
+	protected void runConformTest(String[] testFiles, Map customOptions) {
+		runTest(
+			// test directory preparation
+			true /* flush output directory */,
+			testFiles /* test files */,
+			// compiler options
+			null /* no class libraries */,
+			customOptions /* no custom options */,
+			false /* do not perform statements recovery */,
+			null /* no custom requestor */,
+			// compiler results
+			false /* expecting no compiler errors */,
+			null /* do not check compiler log */,
+			// runtime options
+			false /* do not force execution */,
+			null /* no vm arguments */,
+			// runtime results
+			null /* expected output string */,
 			null /* do not check error string */,
 			// javac options
 			JavacTestOptions.DEFAULT /* default javac test options */);
