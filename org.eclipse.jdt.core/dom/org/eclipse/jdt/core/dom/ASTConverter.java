@@ -2162,6 +2162,7 @@ class ASTConverter {
 						recordNodes(variableDeclarationFragment, argument);
 					}
 					variableDeclarationFragment.setName(simpleName);
+					variableDeclarationFragment.setSourceRange(start, end - start + 1);
 					lambdaExpression.parameters().add(variableDeclarationFragment);					
 				} else {
 					SingleVariableDeclaration singleVariableDeclaration = convert(argument);

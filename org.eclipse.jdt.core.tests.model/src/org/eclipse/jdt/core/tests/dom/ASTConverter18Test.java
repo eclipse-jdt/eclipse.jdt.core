@@ -1692,4 +1692,72 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("public test399793.J foo() ", binding.toString());
 		assertTrue(lambdaExpression.parameters().size() == 0);
 	}	
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=402665
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test402665a() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test402665/X.java",
+				true/* resolve */);
+		String contents = "package test402665;" +
+				"public class X {\n" +
+				"  public static interface StringToInt {\n" +
+				"   	int stoi(String s);\n" +
+				"  }\n" +
+				"  public static interface ReduceInt {\n" +
+				"      int reduce(int a, int b);\n" +
+				"  }\n" +
+				"  void foo(StringToInt s) { }\n" +
+				"  void bar(ReduceInt r) { }\n" +
+				"  void bar() {\n" +
+				"      foo(s -> s.length());\n" +
+				"      foo((s) -> s.length());\n" +
+				"      foo((String s) -> s.length()); //SingleVariableDeclaration is OK\n" +
+				"      bar((x, y) -> x+y);\n" +
+				"      bar((int x, int y) -> x+y); //SingleVariableDeclarations are OK\n" +
+				"  }\n" +
+				"}\n";
+			
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
+		MethodDeclaration methoddecl = (MethodDeclaration)typedeclaration.bodyDeclarations().get(4);
+		List statements = methoddecl.getBody().statements();
+		int sCount = 0;
+		
+		ExpressionStatement statement = (ExpressionStatement)statements.get(sCount++);
+		MethodInvocation methodInvocation = (MethodInvocation)statement.getExpression();
+		LambdaExpression lambdaExpression = (LambdaExpression) methodInvocation.arguments().get(0);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment)lambdaExpression.parameters().get(0);
+		checkSourceRange(fragment, "s", contents);
+		
+		statement = (ExpressionStatement)statements.get(sCount++);
+		methodInvocation = (MethodInvocation)statement.getExpression();
+		lambdaExpression = (LambdaExpression) methodInvocation.arguments().get(0);
+		fragment = (VariableDeclarationFragment)lambdaExpression.parameters().get(0);
+		checkSourceRange(fragment, "s", contents);
+
+		statement = (ExpressionStatement)statements.get(sCount++);
+		methodInvocation = (MethodInvocation)statement.getExpression();
+		lambdaExpression = (LambdaExpression) methodInvocation.arguments().get(0);
+		SingleVariableDeclaration singleVarDecl = (SingleVariableDeclaration)lambdaExpression.parameters().get(0);
+		checkSourceRange(singleVarDecl, "String s", contents);
+
+		statement = (ExpressionStatement)statements.get(sCount++);
+		methodInvocation = (MethodInvocation)statement.getExpression();
+		lambdaExpression = (LambdaExpression) methodInvocation.arguments().get(0);
+		fragment = (VariableDeclarationFragment)lambdaExpression.parameters().get(0);
+		checkSourceRange(fragment, "x", contents);
+		fragment = (VariableDeclarationFragment)lambdaExpression.parameters().get(1);
+		checkSourceRange(fragment, "y", contents);
+
+		statement = (ExpressionStatement)statements.get(sCount++);
+		methodInvocation = (MethodInvocation)statement.getExpression();
+		lambdaExpression = (LambdaExpression) methodInvocation.arguments().get(0);
+		singleVarDecl = (SingleVariableDeclaration)lambdaExpression.parameters().get(0);
+		checkSourceRange(singleVarDecl, "int x", contents);
+		singleVarDecl = (SingleVariableDeclaration)lambdaExpression.parameters().get(1);
+		checkSourceRange(singleVarDecl, "int y", contents);
+	}
 }
