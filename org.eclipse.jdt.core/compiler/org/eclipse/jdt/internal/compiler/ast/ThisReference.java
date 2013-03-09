@@ -56,6 +56,7 @@ public class ThisReference extends Reference {
 			methodScope.problemReporter().errorThisSuperInStatic(this);
 			return false;
 		}
+		methodScope.resetEnclosingMethodStaticFlag();
 		return true;
 	}
 
