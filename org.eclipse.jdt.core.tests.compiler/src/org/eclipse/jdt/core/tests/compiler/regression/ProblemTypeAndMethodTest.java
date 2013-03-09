@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
  *								bug 328281 - visibility leaks not detected when analyzing unused field in private class
  *								bug 379784 - [compiler] "Method can be static" is not getting reported
  *								bug 379834 - Wrong "method can be static" in presence of qualified super and different staticness of nested super class.
+ *     Jesper S Moller <jesper@selskabet.org> - Contributions for
+ *								bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -8144,5 +8146,232 @@ public void test393781() {
 	} finally {
 		compilerOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, oldOption);
 	}
+}
+private void runStaticWarningConformTest(String fileName, String body) {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			fileName, 
+			body
+		},
+		compilerOptions /* custom options */
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+//Can be static warning shown in the wrong places, i.e. if the type parameter is used in the signature
+public void _test378674_comment0() {
+	runStaticWarningConformTest(
+		"Test.java", 
+		"public class Test<T> {\n" + 
+		"\n" + 
+		"    @SuppressWarnings({ \"unchecked\", \"rawtypes\" })\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        new Test().method(null);\n" + 
+		"    }\n" + 
+		"\n" + 
+		"    private static class SubClass<A> {\n" + 
+		"\n" + 
+		"    }\n" + 
+		"\n" + 
+		"    private void method(SubClass<T> s) {\n" + 
+		"        System.out.println(s);\n" + 
+		"    }\n" + 
+		"\n" + 
+		"}\n" + 
+		""
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+public void _test378674_comment1b() {
+	runStaticWarningConformTest(
+		"X.java", 
+		"import java.util.Collection;\n" +
+		"class X<E>{\n" + 
+		"   public final <E1> Collection<E> go() {  // cannot be static\n" + 
+		"		return null; \n" + 
+		"   }\n" + 
+		"}\n" + 
+		""
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+//Can be static warning shown in the wrong places
+public void _test378674_comment1c() {
+	runStaticWarningConformTest(
+		"X.java", 
+		"import java.util.Collection;\n" +
+		"import java.util.ArrayList;\n" +
+		"	class X<E>{\n" + 
+		"   public final <E1> Collection<?> go() {  // cannot be static\n" + 
+		"		return new ArrayList<E>(); \n" + 
+		"   }\n" + 
+		"}\n" + 
+		""
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+//Can be static warning shown in the wrong places
+public void _test378674_comment2() {
+	runStaticWarningConformTest(
+		"X.java", 
+		"public class X<T> {\n" + 
+		"	public final void foo() {\n" + 
+		"		java.util.List<T> k;\n" + 
+		"	}\n" + 
+		"}\n" + 
+		""
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+public void _test378674_comment3() {
+	runStaticWarningConformTest(
+		"Test.java", 
+		"public class Test {\n" + 
+		"	//false positive of method can be declared static\n" + 
+		"	void bar() {\n" + 
+		"		foo(Test.this);\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	private static void foo(Test test) {\n" + 
+		"		System.out.println(test.getClass().getName());\n" + 
+		"	}\n" + 
+		"}\n" + 
+		""
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+//Can be static warning shown in the wrong places
+public void _test378674_comment5a() {
+	runStaticWarningConformTest(
+		"Test.java", 
+		"public class Test<T> {\n" + 
+		"\n" + 
+		"    @SuppressWarnings({ \"unchecked\", \"rawtypes\" })\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        new Test().method2(null);\n" + 
+		"    }\n" + 
+		"\n" + 
+		"    private static class SubClass<A> {\n" + 
+		"\n" + 
+		"    }\n" + 
+		"\n" + 
+		"    private void method2(SubClass<java.util.List<T>> s) {\n" + 
+		"        System.out.println(s);\n" + 
+		"    }\n" + 
+		"\n" + 
+		"}\n" + 
+		""
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+public void _test378674_comment5b() {
+	runStaticWarningConformTest(
+		"Test.java", 
+		"public class Test<T> {\n" + 
+		"\n" + 
+		"    @SuppressWarnings({ \"unchecked\", \"rawtypes\" })\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        new Test().method();\n" + 
+		"    }\n" + 
+		"\n" + 
+		"    private java.util.Collection<T> method() {\n" + 
+		"        return null;\n" + 
+		"    }\n" + 
+		"\n" + 
+		"}\n" + 
+		""
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+public void _test378674_comment9() {
+	runStaticWarningConformTest(
+		"Test.java", 
+		"public class Test<T> {\n" + 
+		"\n" + 
+		"    @SuppressWarnings({ \"rawtypes\" })\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        new Test().method();\n" + 
+		"    }\n" + 
+		"\n" + 
+		"    private java.util.Collection<? extends T> method() {\n" + 
+		"        return null;\n" + 
+		"    }\n" + 
+		"}\n" + 
+		""
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+public void _test378674_comment11() {
+	runStaticWarningConformTest(
+		"Test.java", 
+		"public class Test<T> {\n" + 
+		"\n" + 
+		"    @SuppressWarnings({ \"rawtypes\" })\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        new Test().method1();\n" + 
+		"        new Test().method2();\n" + 
+		"    }\n" + 
+		"\n" + 
+		"   private <TT extends T> TT method1() { \n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"   private <TT extends Object & Comparable<? super T>> TT method2() { \n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n" + 
+		""
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+public void _test378674_comment21a() {
+	runStaticWarningConformTest(
+		"X.java", 
+		"public class X<P extends Exception> {\n" +
+		"	final <T> void foo(T x) throws P {\n" +
+		"	}\n" +
+		"}\n" + 
+		""
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+public void _test378674_comment21b() {
+	runStaticWarningConformTest(
+		"X.java", 
+		"public class X<P extends Exception> {\n" +
+		"	final <T> void foo(T x) {\n" +
+		"		Object o = (P) null;\n" +
+		"	}\n" +
+		"}\n"
+	);
+}//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+public void _test378674_comment21c() {
+	runStaticWarningConformTest(
+		"X.java", 
+		"public class X<P extends Exception> {\n" +
+		"	final <T> void foo(T x) {\n" +
+		"		new Outer().new Inner<P>();\n" +
+		"	}\n" +
+		"}\n" +
+		"class Outer {\n" +
+		"	class Inner<Q> {}\n" +
+		"}\n"
+	);
+}//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
+public void _test378674_comment21d() {
+	runStaticWarningConformTest(
+		"X.java", 
+		"public class X<P extends Exception> {\n" +
+		"	final <T> void foo(T x) {\n" +
+		"		class Local {\n" +
+		"			P p;\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n"
+	);
 }
 }
