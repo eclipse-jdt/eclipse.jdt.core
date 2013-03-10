@@ -1,14 +1,19 @@
 /*******************************************************************************
- * Copyright (c) 2002, 2012 IBM Corporation and others.
+ * Copyright (c) 2002, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Brock Janiczak - Contribution for bug 150741
  *     Nanda Firdausi - Contribution for bug 298844
+ *     Jesper S Moller - Contribution for bug 402173
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -49,6 +54,7 @@ import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
 import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ContinueStatement;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.DoStatement;
 import org.eclipse.jdt.internal.compiler.ast.DoubleLiteral;
@@ -1898,10 +1904,30 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			boolean spaceBeforeComma,
 			boolean spaceAfterComma,
 			int methodDeclarationParametersAlignment) {
+		formatMethodArguments(
+				methodDeclaration.arguments,
+				methodDeclaration.scope,
+				spaceBeforeOpenParen,
+				spaceBetweenEmptyParameters,
+				spaceBeforeClosingParen,
+				spaceBeforeFirstParameter,
+				spaceBeforeComma,
+				spaceAfterComma,
+				methodDeclarationParametersAlignment);
+	}
+	private void formatMethodArguments(
+			final Argument[] arguments,
+			MethodScope scope,
+			boolean spaceBeforeOpenParen,
+			boolean spaceBetweenEmptyParameters,
+			boolean spaceBeforeClosingParen,
+			boolean spaceBeforeFirstParameter,
+			boolean spaceBeforeComma,
+			boolean spaceAfterComma,
+			int methodDeclarationParametersAlignment) {
 
 		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, spaceBeforeOpenParen);
 
-		final Argument[] arguments = methodDeclaration.arguments;
 		if (arguments != null) {
 			if (spaceBeforeFirstParameter) {
 				this.scribe.space();
@@ -1941,7 +1967,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						} else if (spaceAfterComma) {
 							this.scribe.space();
 						}
-						arguments[i].traverse(this, methodDeclaration.scope);
+						arguments[i].traverse(this, scope);
 						argumentsAlignment.startingColumn = -1;
 					}
 					ok = true;
@@ -4239,6 +4265,46 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		return false;
 	}
 
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.LambdaExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public boolean visit(LambdaExpression lambdaExpression, BlockScope scope) {
+		
+		final int numberOfParens = (lambdaExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(lambdaExpression, numberOfParens);
+		}
+		if (isNextToken(TerminalTokens.TokenNameLPAREN)) {
+			// Format arguments
+			formatMethodArguments(
+				lambdaExpression.arguments,
+				lambdaExpression.getScope(),
+				this.preferences.insert_space_before_opening_paren_in_method_declaration,
+				this.preferences.insert_space_between_empty_parens_in_method_declaration,
+				this.preferences.insert_space_before_closing_paren_in_method_declaration,
+				this.preferences.insert_space_after_opening_paren_in_method_declaration,
+				this.preferences.insert_space_before_comma_in_method_declaration_parameters,
+				this.preferences.insert_space_after_comma_in_method_declaration_parameters,
+				this.preferences.alignment_for_parameters_in_method_declaration);
+		} else {
+			// This MUST be a single, untyped parameter
+			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier);
+		}
+		if (this.preferences.insert_space_before_lambda_arrow) this.scribe.space();
+		this.scribe.printNextToken(TerminalTokens.TokenNameARROW);
+		if (this.preferences.insert_space_after_lambda_arrow) this.scribe.space();
+		if (lambdaExpression.body instanceof Block) {
+			formatBlock((Block) lambdaExpression.body, scope, this.preferences.brace_position_for_lambda_body, this.preferences.insert_space_before_opening_brace_in_block);
+		} else {
+			lambdaExpression.body.traverse(this, scope);
+		}
+
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(lambdaExpression, numberOfParens);
+		}
+		return false;
+	}
+	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.LocalDeclaration, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
