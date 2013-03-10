@@ -19,6 +19,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
@@ -28,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -43,9 +46,14 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
+import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
+import org.eclipse.jdt.internal.compiler.problem.AbortType;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
-public class LambdaExpression extends FunctionalExpression {
+public class LambdaExpression extends FunctionalExpression implements ReferenceContext, ProblemSeverities {
 	public Argument [] arguments;
 	public Statement body;
 	public boolean hasParentheses;
@@ -395,8 +403,8 @@ public class LambdaExpression extends FunctionalExpression {
 		return this.scope;
 	}
 		
-	protected boolean shapeAnalysisComplete() {
-		return this.original.shapeAnalysisComplete;
+	protected boolean errorEqualsIncompatibility() {
+		return this.original.shapeAnalysisComplete; // so as not to abort shape analysis.
 	}
 	
 	public boolean isCompatibleWith(final TypeBinding left, final Scope someScope) {
@@ -549,4 +557,64 @@ public class LambdaExpression extends FunctionalExpression {
 			return;
 		this.original.throwsException = true;
 	}
+	
+	public CompilationResult compilationResult() {
+		return this.compilationResult;
+	}
+
+	public void abort(int abortLevel, CategorizedProblem problem) {
+	
+		switch (abortLevel) {
+			case AbortCompilation :
+				throw new AbortCompilation(this.compilationResult, problem);
+			case AbortCompilationUnit :
+				throw new AbortCompilationUnit(this.compilationResult, problem);
+			case AbortType :
+				throw new AbortType(this.compilationResult, problem);
+			default :
+				throw new AbortMethod(this.compilationResult, problem);
+		}
+	}
+
+	public CompilationUnitDeclaration getCompilationUnitDeclaration() {
+		return this.enclosingScope == null ? null : this.enclosingScope.compilationUnitScope().referenceContext;
+	}
+
+	public boolean hasErrors() {
+		return this.ignoreFurtherInvestigation;
+	}
+
+	public void tagAsHavingErrors() {
+		this.ignoreFurtherInvestigation = true;
+		Scope parent = this.enclosingScope.parent;
+		while (parent != null) {
+			switch(parent.kind) {
+				case Scope.CLASS_SCOPE:
+				case Scope.METHOD_SCOPE:
+					parent.referenceContext().tagAsHavingErrors();
+					return;
+				default:
+					parent = parent.parent;
+					break;
+			}
+		}
+	}
+	
+	public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
+		// 15.27.3 requires exception throw related errors to not influence congruence. Other errors should. Also don't abort shape analysis.
+		switch (problemId) {
+			case IProblem.UnhandledExceptionOnAutoClose:
+			case IProblem.UnhandledExceptionInDefaultConstructor:
+			case IProblem.UnhandledException:
+				return;
+			default: 
+				if (errorEqualsIncompatibility())
+					throw new IncongruentLambdaException();
+				this.original().hasIgnoredMandatoryErrors = true;
+				return;
+		}
+	}
+}
+class IncongruentLambdaException extends RuntimeException {
+	private static final long serialVersionUID = 4145723509219836114L;
 }

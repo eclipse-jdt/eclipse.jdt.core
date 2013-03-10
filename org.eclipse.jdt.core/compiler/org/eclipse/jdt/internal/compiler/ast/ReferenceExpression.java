@@ -409,6 +409,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 				this.resultExpressions.put(left, this.binding.returnType);
 			}
 			this.binding = null;
+			setExpectedType(null);
 		}
 		return isCompatible;
 	}

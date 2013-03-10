@@ -17,7 +17,7 @@ package org.eclipse.jdt.internal.compiler.impl;
 /*
  * Implementors are valid compilation contexts from which we can
  * escape in case of error:
- *	For example: method, type or compilation unit.
+ * For example: method, type, compilation unit or a lambda expression.
  */
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;

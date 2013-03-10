@@ -16,15 +16,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.core.compiler.CategorizedProblem;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -35,14 +32,9 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
-import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
-import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
-import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
-import org.eclipse.jdt.internal.compiler.problem.AbortType;
-import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
-public abstract class FunctionalExpression extends Expression implements ProblemSeverities, ReferenceContext {
+public abstract class FunctionalExpression extends Expression {
 	
 	TypeBinding expectedType;
 	MethodBinding descriptor;
@@ -185,73 +177,4 @@ public abstract class FunctionalExpression extends Expression implements Problem
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
-
-	public CompilationResult compilationResult() {
-		return this.compilationResult;
-	}
-
-	public void abort(int abortLevel, CategorizedProblem problem) {
-	
-		switch (abortLevel) {
-			case AbortCompilation :
-				throw new AbortCompilation(this.compilationResult, problem);
-			case AbortCompilationUnit :
-				throw new AbortCompilationUnit(this.compilationResult, problem);
-			case AbortType :
-				throw new AbortType(this.compilationResult, problem);
-			default :
-				throw new AbortMethod(this.compilationResult, problem);
-		}
-	}
-
-	public CompilationUnitDeclaration getCompilationUnitDeclaration() {
-		return this.enclosingScope == null ? null : this.enclosingScope.compilationUnitScope().referenceContext;
-	}
-
-	public boolean hasErrors() {
-		return this.ignoreFurtherInvestigation;
-	}
-
-	public void tagAsHavingErrors() {
-		this.ignoreFurtherInvestigation = true;
-		Scope parent = this.enclosingScope.parent;
-		while (parent != null) {
-			switch(parent.kind) {
-				case Scope.CLASS_SCOPE:
-				case Scope.METHOD_SCOPE:
-					parent.referenceContext().tagAsHavingErrors();
-					return;
-				default:
-					parent = parent.parent;
-					break;
-			}
-		}
-	}
-	
-	protected boolean shapeAnalysisComplete() {
-		return true;
-	}
-	
-	public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
-		// 15.27.3 requires exception throw related errors to not influence congruence. Also don't abort shape analysis.
-		switch (problemId) {
-			case IProblem.UnhandledExceptionOnAutoClose:
-			case IProblem.UnhandledExceptionInDefaultConstructor:
-			case IProblem.UnhandledException:
-				return;
-			default: 
-				if (shapeAnalysisComplete())
-					throw new IncongruentLambdaException();
-				this.original().hasIgnoredMandatoryErrors = true;
-				return;
-		}
-	}
-
-	protected FunctionalExpression original() {
-		return this;
-	}
-}
-
-class IncongruentLambdaException extends RuntimeException {
-	private static final long serialVersionUID = 4145723509219836114L;
 }

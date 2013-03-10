@@ -604,7 +604,7 @@ public abstract class AbstractMethodDeclaration
 	}
 	
 	public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
-		// Not reachable. No silently ignored errors for this context;
+		// Nothing to do for this context;
 	}
 
 	public void traverse(
