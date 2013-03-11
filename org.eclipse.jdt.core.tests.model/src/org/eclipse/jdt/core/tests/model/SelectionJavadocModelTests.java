@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1536,5 +1536,76 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"foo(int) [in X [in [Working copy] X.java [in b171019 [in <project root> [in Tests]]]]]",
 			elements
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400767
+	public void testBug400767() throws Exception {
+		String content = "package test;\n"
+				+ "import b400767.ETest;\n"
+				+ "public class Bug {\n"
+				+ "	Bug() {\n"
+				+ "		doSomethingUsingOtherPackage();\n"
+				+ "	}\n"
+				+ "	public void addComponentListener(ComponentListener listener) {}\n"
+				+ "	private void doSomethingUsingOtherPackage() {\n"
+				+ "		for (ETest val : ETest.values()) {\n"
+				+ "			System.out.println(val.name());\n"
+				+ "		}\n"
+				+ "		Bug bug = new Bug();\n"
+				+ "		bug.addComponentListener(new ComponentAdapter() {\n"
+				+ "			/**\n"
+				+ "			 * @see ComponentAdapter#componentShown(ComponentEvent)\n"
+				+ "			 */\n"
+				+ "			@Override\n"
+				+ "			public void componentShown(ComponentEvent e) {\n"
+				+ "				super.componentShown(e);\n"
+				+ "			}\n"
+				+ "		});\n"
+				+ "	}\n"
+				+ "}\n"
+				+ "interface ComponentListener {\n"
+				+ "    public void componentShown(ComponentEvent e);\n"
+				+ "}\n"
+				+ "class ComponentAdapter implements ComponentListener {\n"
+				+ "	public void componentShown(ComponentEvent e) { }\n"
+				+ "}\n"
+				+ "class ComponentEvent {}";
+		this.wcOwner = new WorkingCopyOwner() {};
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[2] =  getWorkingCopy("/Tests/test/ETest.java", content);
+		content = "/**\n "
+				+ "* This package is used by another package and will cause an error.\n"
+				+ " */\n"
+				+ "package b400767;";
+		// package-info is physically required at some point. Just put it to move forward.
+		createFolder("/Tests/b400767");
+		createFile("/Tests/b400767/package-info.java", content);
+		this.workingCopies[0] = getWorkingCopy("/Tests/b400767/package-info.java", content);
+		content = "package b400767;\n"
+				+ "public enum ETest {\n"
+				+ "	VAL1, VAL2, VAL3;\n"
+				+ "}";
+		this.workingCopies[1] = getWorkingCopy("/Tests/b400767/ETest.java", content);
+		final IJavaElement[] selection = new IJavaElement[1];
+		final ICompilationUnit[] copy = this.workingCopies;
+		Thread t = new Thread(new Runnable() {
+			public void run() {
+				try {
+					selection[0] = selectMethod(copy[2], "componentShown");
+				} catch (JavaModelException e) {
+					e.printStackTrace();
+					fail("Shouldn't be an exception");
+				}
+			}
+		});
+		t.start();
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+		}
+		if (t.isAlive()) {
+			fail("Thread shouldn't still be running");
+		}
+		assertElementEquals("Should return a valid element", 
+							"componentShown(ComponentEvent) [in ComponentAdapter [in [Working copy] ETest.java [in test [in <project root> [in Tests]]]]]", selection[0]);
 	}
 }
