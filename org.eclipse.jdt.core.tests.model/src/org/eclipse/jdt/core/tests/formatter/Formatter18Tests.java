@@ -163,5 +163,9 @@ public class Formatter18Tests extends AbstractJavaModelTests {
 	public void testLambda() {
 		runTest("testLambda", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
+	
+	public void testMethodReference() {
+		runTest("testMethodReference", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
 
 }
