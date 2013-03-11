@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1178,6 +1178,27 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				copy(sourceChild, targetChild);
 			}
 		}
+	}
+	protected IFile createFile(String path, InputStream content) throws CoreException {
+		IFile file = getFile(path);
+		file.create(content, true, null);
+		try {
+			content.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return file;
+	}
+
+	protected IFile createFile(String path, byte[] content) throws CoreException {
+		return createFile(path, new ByteArrayInputStream(content));
+	}
+
+	protected IFile createFile(String path, String content) throws CoreException {
+		return createFile(path, content.getBytes());
+	}
+	protected IFolder createFolder(String path) throws CoreException {
+		return createFolder(new Path(path));
 	}
 	protected IFolder createFolder(IPath path) throws CoreException {
 		final IFolder folder = getWorkspaceRoot().getFolder(path);
