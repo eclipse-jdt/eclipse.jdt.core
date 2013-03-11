@@ -4,6 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -33,7 +37,6 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
-
 import org.eclipse.jdt.internal.codeassist.complete.*;
 import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
 import org.eclipse.jdt.internal.codeassist.impl.Engine;
@@ -2181,7 +2184,7 @@ public final class CompletionEngine
 
 		findTypesAndPackages(this.completionToken, scope, true, true, new ObjectVector());
 		if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-			findKeywordsForMember(this.completionToken, field.modifiers);
+			findKeywordsForMember(this.completionToken, field.modifiers, astNode);
 		}
 
 		if (!field.isLocalVariable && field.modifiers == ClassFileConstants.AccDefault) {
@@ -2795,7 +2798,7 @@ public final class CompletionEngine
 		setSourceAndTokenRange(type.sourceStart, type.sourceEnd);
 		findTypesAndPackages(this.completionToken, scope.parent, true, true, new ObjectVector());
 		if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-			findKeywordsForMember(this.completionToken, method.modifiers);
+			findKeywordsForMember(this.completionToken, method.modifiers, null);
 		}
 
 		if (method.modifiers == ClassFileConstants.AccDefault) {
@@ -8125,7 +8128,7 @@ public final class CompletionEngine
 					}
 				}
 	}
-	private void findKeywordsForMember(char[] token, int modifiers) {
+	private void findKeywordsForMember(char[] token, int modifiers, ASTNode astNode) {
 		char[][] keywords = new char[Keywords.COUNT][];
 		int count = 0;
 
@@ -8140,6 +8143,13 @@ public final class CompletionEngine
 			}
 		}
 
+		if (astNode instanceof CompletionOnFieldType && 
+	        this.compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
+	        FieldBinding astNodeBinding = ((CompletionOnFieldType) astNode).binding;
+	        ReferenceBinding declaringClass = astNodeBinding != null ? astNodeBinding.declaringClass : null;
+	        if (declaringClass != null && declaringClass.isInterface() && !declaringClass.isAnnotationType())
+	            keywords[count++] = Keywords.DEFAULT;
+	    }
 		if((modifiers & ClassFileConstants.AccAbstract) == 0) {
 			// abtract
 			if((modifiers & ~(ExtraCompilerModifiers.AccVisibilityMASK | ClassFileConstants.AccStatic)) == 0) {
