@@ -14,6 +14,7 @@
  *     Brock Janiczak - Contribution for bug 150741
  *     Nanda Firdausi - Contribution for bug 298844
  *     Jesper S Moller - Contribution for bug 402173
+ *                       Contribution for bug 402174
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -5113,6 +5114,40 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			return false;
 	}
 
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ReferenceExpression, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public boolean visit(org.eclipse.jdt.internal.compiler.ast.ReferenceExpression referenceExpression, BlockScope blockScope) {
+		referenceExpression.lhs.traverse(this, blockScope);
+		this.scribe.printNextToken(TerminalTokens.TokenNameCOLON_COLON);
+		
+		TypeReference[] typeArguments = referenceExpression.typeArguments;
+		if (typeArguments != null) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_type_arguments);
+				if (this.preferences.insert_space_after_opening_angle_bracket_in_type_arguments) {
+					this.scribe.space();
+				}
+				int length = typeArguments.length;
+				for (int i = 0; i < length - 1; i++) {
+					typeArguments[i].traverse(this, blockScope);
+					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_type_arguments);
+					if (this.preferences.insert_space_after_comma_in_type_arguments) {
+						this.scribe.space();
+					}
+				}
+				typeArguments[length - 1].traverse(this, blockScope);
+				if (isClosingGenericToken()) {
+					this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_type_arguments);
+				}
+				if (this.preferences.insert_space_after_closing_angle_bracket_in_type_arguments) {
+					this.scribe.space();
+				}
+		}
+
+		this.scribe.printNextToken(referenceExpression.isMethodReference() ? TerminalTokens.TokenNameIdentifier : TerminalTokens.TokenNamenew);
+		return false;
+	}
+	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ReturnStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
