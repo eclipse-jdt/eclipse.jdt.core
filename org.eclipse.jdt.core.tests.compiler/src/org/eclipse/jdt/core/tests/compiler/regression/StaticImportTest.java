@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
+ *     Stephan Herrmann - Contributions for
+ *								bug 185682 - Increment/decrement operators mark local variables as read
+ *								bug 401271 - StackOverflowError when searching for a methods references
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -18,7 +20,8 @@ public class StaticImportTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test036" };
+//		TESTS_NAMES = new String[] { "testBug401271" };
+//		TESTS_NAMES = new String[] { "test085c" };
 //		TESTS_NUMBERS = new int[] { 80 };
 //		TESTS_RANGE = new int[] { 75, -1 };
 	}
@@ -3077,5 +3080,34 @@ public class StaticImportTest extends AbstractComparableTest {
 			"Bar\'s field B");
 	}
 
+	// https://bugs.eclipse.org/401271 - StackOverflowError when searching for a methods references
+	public void testBug401271() {
+		runNegativeTest(
+			new String[] {
+				"a/b/c/a.java",
+				"package a.b.c;\n" +
+				"public class a {}\n",
+				"a/b/c/C.java",
+				"package a.b.c;\n" +
+				"public class C {\n" + 
+				"	public static final int a = 3;\n" + 
+				"}\n",
+				"x/y/R.java",
+				"package x.y;\n" + 
+				"import static a.b.c.C.a;\n" + 
+				"//import a.b.c.a;\n" + 
+				"\n" + 
+				"public class R { \n" + 
+				"	a b; \n" + 
+				"	char h = a; \n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in x\\y\\R.java (at line 6)\n" + 
+			"	a b; \n" + 
+			"	^\n" + 
+			"a cannot be resolved to a type\n" + 
+			"----------\n");
+	}
 }
 
