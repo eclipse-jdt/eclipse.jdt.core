@@ -13,7 +13,7 @@
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 401456 - Code compiles from javac/intellij, but fails from eclipse
  *     Jesper S Moller - Contributions for
- *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
+ *								Bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1712,13 +1712,14 @@ public abstract class Scope {
 				ProblemFieldBinding foundInsideProblem = null;
 				// inside Constructor call or inside static context
 				Scope scope = this;
+				MethodScope methodScope = null;
 				int depth = 0;
 				int foundDepth = 0;
 				ReferenceBinding foundActualReceiverType = null;
 				done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 					switch (scope.kind) {
 						case METHOD_SCOPE :
-							MethodScope methodScope = (MethodScope) scope;
+							methodScope = (MethodScope) scope;
 							insideStaticContext |= methodScope.isStatic;
 							insideConstructorCall |= methodScope.isConstructorCall;
 							insideTypeAnnotation = methodScope.insideTypeAnnotation;
@@ -1777,6 +1778,8 @@ public abstract class Scope {
 														fieldBinding.declaringClass,
 														name,
 														ProblemReasons.NonStaticReferenceInStaticContext);
+											} else if (methodScope != null) {
+												methodScope.resetEnclosingMethodStaticFlag();
 											}
 										}
 										if (receiverType == fieldBinding.declaringClass || compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
@@ -2078,6 +2081,7 @@ public abstract class Scope {
 		MethodBinding foundProblem = null;
 		boolean foundProblemVisible = false;
 		Scope scope = this;
+		MethodScope methodScope = null;
 		int depth = 0;
 		// in 1.4 mode (inherited visible shadows enclosing)
 		CompilerOptions options;
@@ -2086,7 +2090,7 @@ public abstract class Scope {
 		done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 			switch (scope.kind) {
 				case METHOD_SCOPE :
-					MethodScope methodScope = (MethodScope) scope;
+					methodScope = (MethodScope) scope;
 					insideStaticContext |= methodScope.isStatic;
 					insideConstructorCall |= methodScope.isConstructorCall;
 					insideTypeAnnotation = methodScope.insideTypeAnnotation;
@@ -2113,6 +2117,8 @@ public abstract class Scope {
 											insideConstructorCall
 												? ProblemReasons.NonStaticReferenceInConstructorInvocation
 												: ProblemReasons.NonStaticReferenceInStaticContext);
+									} else if (!methodBinding.isStatic() && methodScope != null) {
+										methodScope.resetDeclaringClassMethodStaticFlag(receiverType);
 									}
 									if (inheritedHasPrecedence
 											|| receiverType == methodBinding.declaringClass

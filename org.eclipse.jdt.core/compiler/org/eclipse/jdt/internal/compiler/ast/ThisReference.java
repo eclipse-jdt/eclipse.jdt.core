@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,8 @@
  *     Stephan Herrmann - Contribution for
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *     Jesper S Moller - Contributions for
+ *								Bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -130,14 +132,5 @@ public class ThisReference extends Reference {
 
 		visitor.visit(this, blockScope);
 		visitor.endVisit(this, blockScope);
-	}
-
-	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-		if (!isImplicitThis()) {
-			// explicit this reference, not allowed in static context
-			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335780
-			currentScope.resetEnclosingMethodStaticFlag();
-		}
-		return super.analyseCode(currentScope, flowContext, flowInfo);
 	}
 }

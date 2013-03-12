@@ -24,6 +24,8 @@
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
+ *     Jesper S Moller - Contributions for
+ *								Bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -121,11 +123,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if (this.receiver.isThis() || this.receiver.isSuper()) {
 			// accessing non-static method without an object
 			currentScope.resetDeclaringClassMethodStaticFlag(this.actualReceiverType);
-		}
-	} else if (this.receiver.isThis()) {
-		if ((this.receiver.bits & ASTNode.IsImplicitThis) == 0) {
-			// explicit this receiver, not allowed in static context
-			currentScope.resetEnclosingMethodStaticFlag();
 		}
 	}
 
