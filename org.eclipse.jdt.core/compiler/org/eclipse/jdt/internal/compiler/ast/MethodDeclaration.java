@@ -57,7 +57,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	 */
 	public MethodDeclaration(CompilationResult compilationResult) {
 		super(compilationResult);
-		this.bits |= ASTNode.CanBeStatic; // Start with this assumption, will course correct during resolve.
+		this.bits |= ASTNode.CanBeStatic; // Start with this assumption, will course correct during resolve and analyseCode.
 	}
 
 	public void analyseCode(ClassScope classScope, FlowContext flowContext, FlowInfo flowInfo) {
@@ -276,7 +276,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 						if ((this.modifiers & ClassFileConstants.AccAbstract) == 0)
 							this.scope.problemReporter().methodNeedBody(this);
 				} else {
-					// the method HAS a body --> abstract native modifiers are forbiden
+					// the method HAS a body --> abstract native modifiers are forbidden
 					if (((this.modifiers & ClassFileConstants.AccNative) != 0) || ((this.modifiers & ClassFileConstants.AccAbstract) != 0))
 						this.scope.problemReporter().methodNeedingNoBody(this);
 					else if (this.binding == null || this.binding.isStatic() || (this.binding.declaringClass instanceof LocalTypeBinding) || returnsUndeclTypeVar) {
