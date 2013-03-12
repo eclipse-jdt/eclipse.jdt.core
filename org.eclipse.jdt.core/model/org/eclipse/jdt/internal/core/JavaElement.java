@@ -816,9 +816,8 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		} catch (MalformedURLException e) {
 			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
 		} catch (FileNotFoundException e) {
-			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=120559 &
-			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400060
-			throw new JavaModelException(e, IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC);
+			// Ignore, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=120559 &
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403036
 		} catch (SocketException e) {
 			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=247845 &
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400060
