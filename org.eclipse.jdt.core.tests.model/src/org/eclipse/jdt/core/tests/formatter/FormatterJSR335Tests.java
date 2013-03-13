@@ -30,7 +30,7 @@ import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.text.edits.TextEdit;
 
-public class Formatter18Tests extends AbstractJavaModelTests {
+public class FormatterJSR335Tests extends AbstractJavaModelTests {
 
 	protected static IJavaProject JAVA_PROJECT;
 
@@ -39,7 +39,7 @@ public class Formatter18Tests extends AbstractJavaModelTests {
 	public static final String OUT = "_out";
 	public static final boolean DEBUG = false;
 	static final String LINE_SEPARATOR = System.getProperty("line.separator");
-	private static final String PROJECT_NAME = "Formatter18"; 
+	private static final String PROJECT_NAME = "FormatterJSR335"; 
 
 	DefaultCodeFormatterOptions formatterPrefs;
 	Map formatterOptions;
@@ -49,10 +49,10 @@ public class Formatter18Tests extends AbstractJavaModelTests {
 //		TESTS_RANGE = new int[] { 734, -1 };
 	}
 	public static Test suite() {
-		return buildModelTestSuite(Formatter18Tests.class);
+		return buildModelTestSuite(FormatterJSR335Tests.class);
 	}
 
-	public Formatter18Tests(String name) {
+	public FormatterJSR335Tests(String name) {
 		super(name);
 	}
 

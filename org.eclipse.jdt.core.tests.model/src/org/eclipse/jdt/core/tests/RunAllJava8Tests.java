@@ -44,7 +44,7 @@ import org.eclipse.jdt.core.tests.dom.ASTConverterBugsTestJLS8;
 import org.eclipse.jdt.core.tests.dom.ASTConverterTestAST8_2;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.dom.TypeAnnotationsConverterTest;
-import org.eclipse.jdt.core.tests.formatter.Formatter18Tests;
+import org.eclipse.jdt.core.tests.formatter.FormatterJSR335Tests;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest;
 
 public class RunAllJava8Tests extends TestCase {
@@ -66,7 +66,7 @@ public class RunAllJava8Tests extends TestCase {
 			CompilerInvocationTests.class,
 			ExpressionContextTests.class,
 			FlowAnalysisTest8.class,
-			Formatter18Tests.class,
+			FormatterJSR335Tests.class,
 		};
 	}
 	

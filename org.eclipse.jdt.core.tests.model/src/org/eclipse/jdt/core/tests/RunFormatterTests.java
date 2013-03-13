@@ -36,7 +36,7 @@ public class RunFormatterTests extends junit.framework.TestCase {
 	static {
 		TEST_SUITES.add(FormatterCommentsBugsTest.class);
 		TEST_SUITES.add(FormatterCommentsTests.class);
-		TEST_SUITES.add(Formatter18Tests.class);
+		TEST_SUITES.add(FormatterJSR335Tests.class);
 		TEST_SUITES.add(FormatterCommentsClearBlankLinesTests.class);
 		TEST_SUITES.add(FormatterJavadocDontIndentTagsTests.class);
 		TEST_SUITES.add(FormatterJavadocDontIndentTagsDescriptionTests.class);
