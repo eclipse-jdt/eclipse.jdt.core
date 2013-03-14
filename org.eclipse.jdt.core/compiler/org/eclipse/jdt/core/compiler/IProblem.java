@@ -917,6 +917,8 @@ void setSourceStart(int sourceStart);
 	/** @since 3.2 */
 	int EnumConstantsCannotBeSurroundedByParenthesis = Syntax + Internal + 442;
 
+	/** @since 3.9 */
+	int IllegalUseOfUnderscoreAsAnIdentifier = Syntax + Internal + 443;
 	// detected task
 	/** @since 2.1 */
 	int Task = Internal + 450;

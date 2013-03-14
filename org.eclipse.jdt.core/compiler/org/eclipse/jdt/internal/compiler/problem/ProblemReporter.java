@@ -8368,6 +8368,14 @@ public void useEnumAsAnIdentifier(int sourceStart, int sourceEnd) {
 		sourceStart,
 		sourceEnd);
 }
+public void illegalUseOfUnderscoreAsAnIdentifier(int sourceStart, int sourceEnd) {
+	this.handle(
+		IProblem.IllegalUseOfUnderscoreAsAnIdentifier,
+		NoArgument,
+		NoArgument,
+		sourceStart,
+		sourceEnd);
+}
 public void varargsArgumentNeedCast(MethodBinding method, TypeBinding argumentType, InvocationSite location) {
 	int severity = this.options.getSeverity(CompilerOptions.VarargsArgumentNeedCast);
 	if (severity == ProblemSeverities.Ignore) return;

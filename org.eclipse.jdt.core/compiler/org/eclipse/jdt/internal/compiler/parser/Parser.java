@@ -11569,6 +11569,9 @@ protected void pushIdentifier(char [] identifier, long position) {
 			stackLength);
 	}
 	this.identifierLengthStack[this.identifierLengthPtr] = 1;
+	if (this.parsingJava8Plus && identifier.length == 1 && identifier[0] == '_') {
+		problemReporter().illegalUseOfUnderscoreAsAnIdentifier((int) (position >>> 32), (int) position);
+	}
 }
 protected void pushIdentifier() {
 	/*push the consumeToken on the identifier stack.
