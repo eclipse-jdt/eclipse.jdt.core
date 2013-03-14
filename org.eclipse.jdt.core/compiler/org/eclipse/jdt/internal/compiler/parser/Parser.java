@@ -5170,6 +5170,18 @@ protected void consumeMethodHeaderRightParen() {
 					0,
 					length - 1);
 			}
+			// Receiver annotations can only be type annotations; move to the type
+			Annotation[] annotations = arg.annotations;
+			if (annotations != null && annotations.length > 0) {
+				// The code assumes that receiver.type.annotations[0] will be null/empty
+				TypeReference type = arg.type;
+				if (type.annotations == null) {
+					type.bits |= ASTNode.HasTypeAnnotations;
+					type.annotations = new Annotation[type.getAnnotatableLevels()][];
+				}
+				type.annotations[0] = annotations;
+				arg.annotations = null;
+			}
 		} else {
 			System.arraycopy(
 					this.astStack,

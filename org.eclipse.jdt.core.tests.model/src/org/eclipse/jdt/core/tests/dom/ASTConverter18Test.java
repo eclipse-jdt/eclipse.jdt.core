@@ -1760,4 +1760,43 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		singleVarDecl = (SingleVariableDeclaration)lambdaExpression.parameters().get(1);
 		checkSourceRange(singleVarDecl, "int y", contents);
 	}
+	public void testBug403132() throws JavaModelException {
+		String contents =
+			"import java.lang.annotation.*;\n" +
+			"public class X {\n" +
+			"	class Y {\n" +
+			"		class Z {\n" +
+			"			public Z(@A X.@B Y Y.this,String str){\n}" +
+			"    	 	public void foo(@A X.@B Y.@C Z this,String str){\n}\n" +
+			"		}\n" +
+			"    }\n" +
+			"}\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface A {}\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface B {}\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface C {}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		node = getASTNode(unit, 0, 0);
+		TypeDeclaration type = (TypeDeclaration)node;
+		node = (ASTNode) type.bodyDeclarations().get(0);
+		type = (TypeDeclaration) node;
+		node = (ASTNode) type.bodyDeclarations().get(0);
+		assertEquals("Not a method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration method = (MethodDeclaration) node;
+		AnnotatableType receiver = method.getReceiverType();
+		assertEquals("Not an annotatable type", ASTNode.QUALIFIED_TYPE, receiver.getNodeType());
+		assertEquals("Incorrect receiver", "@A X.@B Y", ((QualifiedType) receiver).toString());
+		assertEquals("Incorrect method signature", "public Z(@A X.@B Y Y.this,String str){\n}\n", method.toString());
+
+		method = (MethodDeclaration) type.bodyDeclarations().get(1);
+		receiver = method.getReceiverType();
+		assertEquals("Incorrect receiver", "@A X.@B Y.@C Z", ((QualifiedType) receiver).toString());
+		assertEquals("Incorrect method signature", "public void foo(@A X.@B Y.@C Z this,String str){\n}\n", method.toString());
+	}
+
 }

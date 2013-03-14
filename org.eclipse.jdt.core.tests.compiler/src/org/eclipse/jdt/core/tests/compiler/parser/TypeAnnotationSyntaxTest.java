@@ -1387,7 +1387,7 @@ public void test0060() throws IOException {
 		"  }\n" + 
 		"  public static void main(String[] args) {\n" + 
 		"    int x;\n" + 
-		"    x = (Integer) (@Readonly Object) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Normal(Value = 0) [][]) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @SingleMember(0) [][]) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Marker [][]) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Normal(Value = 0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @SingleMember(0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Marker [][]) (@Readonly Object) (@Readonly String[] @Normal(Value = 0) [][]) (@Readonly String[] @SingleMember(0) [][]) (@Readonly String[] @Marker [][]) (@Readonly Object) (@Readonly int[] @Normal(Value = 0) [][]) (@Readonly int[] @SingleMember(0) [][]) (@Readonly int[] @Marker [][]) (@Readonly Object) ( @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>) (@Readonly Object) (@ReadOnly String) (@Readonly Object) (@Readonly int) 10;\n" + 
+		"    x = (Integer) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Normal(Value = 0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @SingleMember(0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Marker [][]) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Normal(Value = 0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @SingleMember(0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Marker [][]) (@Readonly Object) (@Readonly String[] @Normal(Value = 0) [][]) (@Readonly String[] @SingleMember(0) [][]) (@Readonly String[] @Marker [][]) (@Readonly Object) (@Readonly int[] @Normal(Value = 0) [][]) (@Readonly int[] @SingleMember(0) [][]) (@Readonly int[] @Marker [][]) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>) (@Readonly Object) (@ReadOnly String) (@Readonly Object) (@Readonly int) 10;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0060", expectedUnitToString);
@@ -1431,7 +1431,7 @@ public void test0061() throws IOException {
 		"  }\n" + 
 		"  public static void main(String[] args) {\n" + 
 		"    int x;\n" + 
-		"    x = (Integer) (Object) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Normal(Value = 0) [][]) (HashMap<@Positive Integer, Integer>.Iterator[] @SingleMember(0) [][]) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Marker [][]) (Object) (@Readonly HashMap<@Positive Integer, Integer>[] @Normal(Value = 0) [][]) (HashMap<Integer, @Negative Integer>[] @SingleMember(0) [][]) (@Readonly HashMap<@Positive Integer, Integer>[] @Marker [][]) (Object) (@Readonly String[] @Normal(Value = 0) [][]) (String[] @SingleMember(0) [][]) (@Readonly String[] @Marker [][]) (Object) (@Readonly int[] @Normal(Value = 0) [][]) (int[] @SingleMember(0) [][]) (@Readonly int[] @Marker [][]) (Object) ( @Readonly HashMap<Integer, @Negative Integer>.Iterator) (Object) (@Readonly HashMap<@Positive Integer, Integer>) (Object) (@ReadOnly String) (Object) (@Readonly int) 10;\n" + 
+		"    x = (Integer) (Object) (@Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Normal(Value = 0) [][]) (HashMap<@Positive Integer, Integer>.Iterator[] @SingleMember(0) [][]) (@Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Marker [][]) (Object) (@Readonly HashMap<@Positive Integer, Integer>[] @Normal(Value = 0) [][]) (HashMap<Integer, @Negative Integer>[] @SingleMember(0) [][]) (@Readonly HashMap<@Positive Integer, Integer>[] @Marker [][]) (Object) (@Readonly String[] @Normal(Value = 0) [][]) (String[] @SingleMember(0) [][]) (@Readonly String[] @Marker [][]) (Object) (@Readonly int[] @Normal(Value = 0) [][]) (int[] @SingleMember(0) [][]) (@Readonly int[] @Marker [][]) (Object) (@Readonly HashMap<Integer, @Negative Integer>.Iterator) (Object) (@Readonly HashMap<@Positive Integer, Integer>) (Object) (@ReadOnly String) (Object) (@Readonly int) 10;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0061", expectedUnitToString);
@@ -1472,7 +1472,7 @@ public void test0062() throws IOException {
 		"                    {\n" + 
 		"                    }\n" + 
 		"                else\n" + 
-		"                    if ((o instanceof  @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][]))\n" + 
+		"                    if ((o instanceof @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][]))\n" + 
 		"                        {\n" + 
 		"                        }\n" + 
 		"                    else\n" + 
@@ -1480,7 +1480,7 @@ public void test0062() throws IOException {
 		"                            {\n" + 
 		"                            }\n" + 
 		"                        else\n" + 
-		"                            if ((o instanceof  @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator))\n" + 
+		"                            if ((o instanceof @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator))\n" + 
 		"                                {\n" + 
 		"                                }\n" + 
 		"  }\n" + 
@@ -2804,7 +2804,7 @@ public void test0107() throws IOException {
 		"    }\n" +
 		"    C1<@Readonly T>.C11 m() {\n" +
 		"      C1<@Readonly T>.C11[] ts;\n" +
-		"      ts = ( @Marker C1<@Readonly T>.C11[]) new  @Marker C1<?>.C11 @Normal(value = 5) [5];\n" +
+		"      ts = (@Marker C1<@Readonly T>.C11[]) new @Marker C1<?>.C11 @Normal(value = 5) [5];\n" +
 		"      return ts;\n" +
 		"    }\n" +
 		"  }\n" +
@@ -3221,7 +3221,7 @@ public void test0118() throws IOException {
 		"      super();\n" +
 		"    }\n" +
 		"    @NonNull E getOtherElement(Object other) {\n" +
-		"      if ((! (other instanceof  @Marker @SingleMember(10) Outer<?>.Inner)))\n" +
+		"      if ((! (other instanceof @Marker @SingleMember(10) Outer<?>.Inner)))\n" +
 		"          throw new @Marker IllegalArgumentException(String.valueOf(other));\n" +
 		"      Inner that;\n" +
 		"      that = (@Marker Inner) other;\n" +

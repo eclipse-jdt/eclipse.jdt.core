@@ -501,9 +501,6 @@ public abstract class AbstractMethodDeclaration
 			bindThrownExceptions();
 			resolveJavadoc();
 			resolveAnnotations(this.scope, this.annotations, this.binding);
-			// jsr 308
-			if (this.receiver != null && this.receiver.annotations != null)
-				resolveAnnotations(this.scope, this.receiver.annotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
 			validateNullAnnotations();
 			resolveStatements();
 			// check @Deprecated annotation presence

@@ -839,15 +839,6 @@ class ASTConverter {
 			}
 		}
 		AnnotatableType type = (AnnotatableType) convertType(receiver.type);
-		org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = receiver.annotations;
-		int length = (annotations == null) ? 0 : annotations.length;
-		for (int i = 0; i < length; i++) {
-			type.annotations().add(convert(annotations[i]));
-		}
-		if (length > 0) {
-			int start = annotations[0].sourceStart;
-			type.setSourceRange(start, (receiver.type.sourceEnd - start + 1));
-		}
 		methodDecl.setReceiverType(type);
 		if (this.resolveBindings) {
 			recordNodes(type, receiver);

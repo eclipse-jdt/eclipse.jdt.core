@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 IBM Corporation and others.
+ * Copyright (c) 2009, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -966,7 +966,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"  I x6 = @TypeAnnotation X @ArrayAnnotation [] @ArrayAnnotation []::clone;\n" +
 				"  I x7 = @TypeAnnotation X @ArrayAnnotation [] @ArrayAnnotation []::<@TypeParameterAnnotation String>clone;\n" +
 				"  I x8 = @TypeAnnotation X<@TypeParameterAnnotation String> @ArrayAnnotation [] @ArrayAnnotation []::<@TypeParameterAnnotation String>clone;\n" +
-				"  I x9 =  @TypeAnnotation X<@TypeParameterAnnotation String>.Y<@TypeParameterAnnotation String> @ArrayAnnotation [] @ArrayAnnotation []::<@TypeParameterAnnotation String>clone;\n" +
+				"  I x9 = @TypeAnnotation X<@TypeParameterAnnotation String>.Y<@TypeParameterAnnotation String> @ArrayAnnotation [] @ArrayAnnotation []::<@TypeParameterAnnotation String>clone;\n" +
 				"  X() {\n" +
 				"    super();\n" +
 				"  }\n" +

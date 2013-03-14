@@ -1303,15 +1303,20 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 							"----------\n" + 
 							"4. ERROR in Outer.java (at line 21)\n" + 
 							"	public StaticNested(@Marker Outer.StaticNested Outer.StaticNested.this) {}\n" + 
+							"	                    ^^^^^^^\n" + 
+							"Type annotations are not allowed on type names used to access static members\n" + 
+							"----------\n" + 
+							"5. ERROR in Outer.java (at line 21)\n" + 
+							"	public StaticNested(@Marker Outer.StaticNested Outer.StaticNested.this) {}\n" + 
 							"	                                                                  ^^^^\n" + 
 							"Explicit \'this\' parameter is allowed only in instance methods of non-anonymous classes and inner class constructors\n" + 
 							"----------\n" + 
-							"5. ERROR in Outer.java (at line 23)\n" + 
+							"6. ERROR in Outer.java (at line 23)\n" + 
 							"	public static void foo(@Marker Outer this) {}\n" + 
 							"	                                     ^^^^\n" + 
 							"Explicit \'this\' parameter is allowed only in instance methods of non-anonymous classes and inner class constructors\n" + 
 							"----------\n" + 
-							"6. ERROR in Outer.java (at line 24)\n" + 
+							"7. ERROR in Outer.java (at line 24)\n" + 
 							"	public void foo(@Missing Outer this, int i) {}\n" + 
 							"	                 ^^^^^^^\n" + 
 							"Missing cannot be resolved to a type\n" + 
@@ -3234,4 +3239,44 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"NonNegative cannot be resolved to a type\n" + 
 				"----------\n"); 
 		}
+	public void testBug403132() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	class Y {\n" +
+					"		class Z {\n" +
+					"			public Z (@A X.@B Y Y.this, String str) {}\n" +
+					"    	 	public void foo (@A X.@B Y.@C Z this, String str) {}\n" +
+					"		}\n" +
+					"    }\n" +
+					"}\n"
+				}, 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	public Z (@A X.@B Y Y.this, String str) {}\n" + 
+				"	           ^\n" + 
+				"A cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	public Z (@A X.@B Y Y.this, String str) {}\n" + 
+				"	                ^\n" + 
+				"B cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	public void foo (@A X.@B Y.@C Z this, String str) {}\n" + 
+				"	                  ^\n" + 
+				"A cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 5)\n" + 
+				"	public void foo (@A X.@B Y.@C Z this, String str) {}\n" + 
+				"	                       ^\n" + 
+				"B cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 5)\n" + 
+				"	public void foo (@A X.@B Y.@C Z this, String str) {}\n" + 
+				"	                            ^\n" + 
+				"C cannot be resolved to a type\n" + 
+				"----------\n");
+	}
 }
