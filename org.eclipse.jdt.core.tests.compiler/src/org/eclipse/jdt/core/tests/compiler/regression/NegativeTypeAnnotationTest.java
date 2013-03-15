@@ -3279,4 +3279,42 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"C cannot be resolved to a type\n" + 
 				"----------\n");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403410
+	public void testBug403410() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.lang.annotation.Target;\n" +
+					"import static java.lang.annotation.ElementType.*;\n" +
+					"@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@interface A {}\n" +
+					"public class X {\n" +
+					"	class Y {\n" +
+					"		public Y (final @A X X.this) {}\n" +
+					"		public Y (static @A X X.this, int i) {}\n" +
+					"		public void foo(final @A Y this) {}\n" +
+					"		public void foo(static @A Y this, int i) {}\n" +
+					"}\n}"},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 7)\n" + 
+					"	public Y (final @A X X.this) {}\n" + 
+					"	          ^^^^^^^^^^^^^^^^^\n" + 
+					"Syntax error, modifiers are not allowed here\n" + 
+					"----------\n" +
+					"2. ERROR in X.java (at line 8)\n" + 
+					"	public Y (static @A X X.this, int i) {}\n" + 
+					"	          ^^^^^^^^^^^^^^^^^^\n" + 
+					"Syntax error, modifiers are not allowed here\n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 9)\n" + 
+					"	public void foo(final @A Y this) {}\n" + 
+					"	                ^^^^^^^^^^^^^^^\n" + 
+					"Syntax error, modifiers are not allowed here\n" + 
+					"----------\n" + 
+					"4. ERROR in X.java (at line 10)\n" + 
+					"	public void foo(static @A Y this, int i) {}\n" + 
+					"	                ^^^^^^^^^^^^^^^^\n" + 
+					"Syntax error, modifiers are not allowed here\n" + 
+					"----------\n");
+	}
 }

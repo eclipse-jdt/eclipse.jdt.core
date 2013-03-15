@@ -1672,7 +1672,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.9 */
 	int IllegalModifiersForElidedType = Internal + 1001;
 	/** @since 3.9 */
-	int IllegalModifiersForPackage = Internal + 1002;
+	int IllegalModifiers = Internal + 1002;
 
 	// default methods:
 	/** @since 3.9 */

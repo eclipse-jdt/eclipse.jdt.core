@@ -9177,9 +9177,9 @@ public void illegalModifiersForElidedType(Argument argument) {
 			argument.declarationSourceEnd);
 }
 
-public void illegalModifiersForPackage(int modifierSourceStart, int modifiersSourceEnd) {
+public void illegalModifiers(int modifierSourceStart, int modifiersSourceEnd) {
 	this.handle(
-			IProblem.IllegalModifiersForPackage,
+			IProblem.IllegalModifiers,
 			NoArgument,
 			NoArgument,
 			modifierSourceStart,

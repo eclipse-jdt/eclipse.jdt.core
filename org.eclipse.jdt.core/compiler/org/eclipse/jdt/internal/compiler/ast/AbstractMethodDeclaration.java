@@ -519,6 +519,10 @@ public abstract class AbstractMethodDeclaration
 	public void resolveReceiver() {
 		if (this.receiver == null) return;
 
+		if (this.receiver.modifiers != 0) {
+			this.scope.problemReporter().illegalModifiers(this.receiver.declarationSourceStart, this.receiver.declarationSourceEnd);
+		}
+
 		TypeBinding resolvedReceiverType = this.receiver.type.resolvedType;
 		if (this.binding == null || resolvedReceiverType == null || !resolvedReceiverType.isValidBinding()) {
 			return;

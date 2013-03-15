@@ -5598,7 +5598,7 @@ protected void consumePackageDeclarationNameWithModifiers() {
 	}
 
 	if (packageModifiers != 0) {
-		problemReporter().illegalModifiersForPackage(packageModifiersSourceStart, packageModifiersSourceEnd);
+		problemReporter().illegalModifiers(packageModifiersSourceStart, packageModifiersSourceEnd);
 	}
 	
 	

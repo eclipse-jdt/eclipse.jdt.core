@@ -840,6 +840,9 @@ class ASTConverter {
 		}
 		AnnotatableType type = (AnnotatableType) convertType(receiver.type);
 		methodDecl.setReceiverType(type);
+		if (receiver.modifiers != 0) {
+			methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
+		}
 		if (this.resolveBindings) {
 			recordNodes(type, receiver);
 			type.resolveBinding();

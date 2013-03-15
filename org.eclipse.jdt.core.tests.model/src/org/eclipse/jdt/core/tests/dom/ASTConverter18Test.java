@@ -1798,5 +1798,35 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("Incorrect receiver", "@A X.@B Y.@C Z", ((QualifiedType) receiver).toString());
 		assertEquals("Incorrect method signature", "public void foo(@A X.@B Y.@C Z this,String str){\n}\n", method.toString());
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403410
+	public void testBug403410() throws JavaModelException {
+		String contents =
+			"import java.lang.annotation.*;\n" +
+			"public class X {\n" +
+			"	class Y {\n" +
+			"		class Z {\n" +
+			"			public Z(final Y Y.this){\n}" +
+			"    	 	public void foo(static @A Z this){\n}\n" +
+			"		}\n" +
+			"    }\n" +
+			"}\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface A {}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", false);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		node = getASTNode(unit, 0, 0);
+		TypeDeclaration type = (TypeDeclaration)node;
+		node = (ASTNode) type.bodyDeclarations().get(0);
+		type = (TypeDeclaration) node;
+		node = (ASTNode) type.bodyDeclarations().get(0);
+		assertEquals("Not a method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration method = (MethodDeclaration) node;
+		assertEquals("Type should be malformed", ASTNode.MALFORMED, (method.getFlags() & ASTNode.MALFORMED));
+
+		method = (MethodDeclaration) type.bodyDeclarations().get(1);
+		assertEquals("Type should be malformed", ASTNode.MALFORMED, (method.getFlags() & ASTNode.MALFORMED));
+	}
 
 }
