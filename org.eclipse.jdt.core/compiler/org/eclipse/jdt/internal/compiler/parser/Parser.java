@@ -5180,6 +5180,9 @@ protected void consumeMethodHeaderRightParen() {
 					type.annotations = new Annotation[type.getAnnotatableLevels()][];
 				}
 				type.annotations[0] = annotations;
+				int annotationSourceStart = annotations[0].sourceStart;
+				if (type.sourceStart > annotationSourceStart)
+					type.sourceStart = annotationSourceStart;
 				arg.annotations = null;
 			}
 		} else {
