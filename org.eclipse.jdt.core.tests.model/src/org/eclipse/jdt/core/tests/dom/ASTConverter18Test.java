@@ -1828,5 +1828,73 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		method = (MethodDeclaration) type.bodyDeclarations().get(1);
 		assertEquals("Type should be malformed", ASTNode.MALFORMED, (method.getFlags() & ASTNode.MALFORMED));
 	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=402674
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test402674() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test402674/X.java",
+				true/* resolve */);
+		String contents = "package test402674;" +
+				"public class X {\n" +
+				"  public static interface StringToInt {\n" +
+				"   	int stoi(String s);\n" +
+				"  }\n" +
+				"  public static interface ReduceInt {\n" +
+				"      int reduce(int a, int b);\n" +
+				"  }\n" +
+				"  void foo(StringToInt s) { }\n" +
+				"  void bar(ReduceInt r) { }\n" +
+				"  void bar() {\n" +
+				"      foo(s -> s.length());\n" +
+				"      foo((s) -> s.length());\n" +
+				"      foo((String s) -> s.length()); //SingleVariableDeclaration is OK\n" +
+				"      bar((x, y) -> x+y);\n" +
+				"      bar((int x, int y) -> x+y); //SingleVariableDeclarations are OK\n" +
+				"  }\n" +
+				"}\n";
+			
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
+		MethodDeclaration methoddecl = (MethodDeclaration)typedeclaration.bodyDeclarations().get(4);
+		List statements = methoddecl.getBody().statements();
+		int sCount = 0;
+		
+		ExpressionStatement statement = (ExpressionStatement)statements.get(sCount++);
+		MethodInvocation methodInvocation = (MethodInvocation)statement.getExpression();
+		LambdaExpression lambdaExpression = (LambdaExpression) methodInvocation.arguments().get(0);
+		ITypeBinding binding = lambdaExpression.resolveTypeBinding();
+		assertNotNull(binding);
+		assertEquals("StringToInt", binding.getName());
+		
+		statement = (ExpressionStatement)statements.get(sCount++);
+		methodInvocation = (MethodInvocation)statement.getExpression();
+		lambdaExpression = (LambdaExpression) methodInvocation.arguments().get(0);
+		binding = lambdaExpression.resolveTypeBinding();
+		assertNotNull(binding);
+		assertEquals("StringToInt", binding.getName());
+
+		statement = (ExpressionStatement)statements.get(sCount++);
+		methodInvocation = (MethodInvocation)statement.getExpression();
+		lambdaExpression = (LambdaExpression) methodInvocation.arguments().get(0);
+		binding = lambdaExpression.resolveTypeBinding();
+		assertNotNull(binding);
+		assertEquals("StringToInt", binding.getName());
+
+		statement = (ExpressionStatement)statements.get(sCount++);
+		methodInvocation = (MethodInvocation)statement.getExpression();
+		lambdaExpression = (LambdaExpression) methodInvocation.arguments().get(0);
+		binding = lambdaExpression.resolveTypeBinding();
+		assertNotNull(binding);
+		assertEquals("ReduceInt", binding.getName());
+
+		statement = (ExpressionStatement)statements.get(sCount++);
+		methodInvocation = (MethodInvocation)statement.getExpression();
+		lambdaExpression = (LambdaExpression) methodInvocation.arguments().get(0);
+		binding = lambdaExpression.resolveTypeBinding();
+		assertNotNull(binding);
+		assertEquals("ReduceInt", binding.getName());
+	}
 
 }

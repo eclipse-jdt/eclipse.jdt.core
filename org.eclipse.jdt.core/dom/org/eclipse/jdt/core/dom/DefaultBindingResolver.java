@@ -708,6 +708,7 @@ class DefaultBindingResolver extends BindingResolver {
 				case ASTNode.TYPE_LITERAL :
 				case ASTNode.INFIX_EXPRESSION :
 				case ASTNode.INSTANCEOF_EXPRESSION :
+				case ASTNode.LAMBDA_EXPRESSION:
 				case ASTNode.FIELD_ACCESS :
 				case ASTNode.SUPER_FIELD_ACCESS :
 				case ASTNode.ARRAY_ACCESS :
