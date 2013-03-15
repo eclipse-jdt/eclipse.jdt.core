@@ -5,14 +5,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ray V. (voidstar@gmail.com) - Contribution for bug 282988
- *     Jesper S Moller - Contribution for bug 402892
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -4928,6 +4923,53 @@ public class Scribe implements IJavaDocTagConstants {
 			}
 			print(this.scanner.currentPosition - this.scanner.startPosition, considerSpaceIfAny);
 		} catch (InvalidInputException e) {
+			throw new AbortFormatting(e);
+		}
+	}
+
+	public void printArrayQualifiedReference(int numberOfTokens, int sourceEnd) {
+		int currentTokenStartPosition = this.scanner.currentPosition;
+		int numberOfIdentifiers = 0;
+		try {
+			do {
+				printComment(CodeFormatter.K_UNKNOWN, NO_TRAILING_COMMENT);
+				switch(this.currentToken = this.scanner.getNextToken()) {
+					case TerminalTokens.TokenNameEOF :
+						return;
+					case TerminalTokens.TokenNameWHITESPACE :
+						addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
+						currentTokenStartPosition = this.scanner.currentPosition;
+						break;
+					case TerminalTokens.TokenNameCOMMENT_BLOCK :
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+						printBlockComment(false);
+						currentTokenStartPosition = this.scanner.currentPosition;
+						break;
+					case TerminalTokens.TokenNameCOMMENT_LINE :
+						printLineComment();
+						currentTokenStartPosition = this.scanner.currentPosition;
+						break;
+					case TerminalTokens.TokenNameIdentifier :
+						print(this.scanner.currentPosition - this.scanner.startPosition, false);
+						currentTokenStartPosition = this.scanner.currentPosition;
+						if (++ numberOfIdentifiers == numberOfTokens) {
+							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
+							return;
+						}
+						break;
+					case TerminalTokens.TokenNameDOT :
+						print(this.scanner.currentPosition - this.scanner.startPosition, false);
+						currentTokenStartPosition = this.scanner.currentPosition;
+						break;
+					case TerminalTokens.TokenNameRPAREN:
+						currentTokenStartPosition = this.scanner.startPosition;
+						// $FALL-THROUGH$ - fall through default case...
+					default:
+						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
+						return;
+				}
+			} while (this.scanner.currentPosition <= sourceEnd);
+		} catch(InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
 	}

@@ -15,7 +15,6 @@
  *     Nanda Firdausi - Contribution for bug 298844
  *     Jesper S Moller - Contribution for bug 402173
  *                       Contribution for bug 402174
- *                       Contribution for bug 402892
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -33,7 +32,6 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
-import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
@@ -636,7 +634,16 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
 
-		formatExtraDimensions(fieldDeclaration.type);
+		/*
+		 * Check for extra dimensions
+		 */
+		int extraDimensions = getDimensions();
+		if (extraDimensions != 0) {
+			 for (int i = 0; i < extraDimensions; i++) {
+			 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+			 	this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
+			 }
+		}
 
 		/*
 		 * Field initialization
@@ -676,41 +683,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		} else {
 			this.scribe.space();
 			this.scribe.printComment(CodeFormatter.K_UNKNOWN, Scribe.BASIC_TRAILING_COMMENT);
-		}
-	}
-
-	private void formatExtraDimensions(TypeReference typeReference) {
-		/*
-		 * Check for extra dimensions
-		 */
-		int extraDimensions = getDimensions();
-		int anchor = typeReference != null ? (typeReference.dimensions() - extraDimensions) : 0;
-		if (extraDimensions != 0) formatDimensions(typeReference, anchor, extraDimensions, true);
-	}
-
-	private void formatLeadingDimensions(TypeReference typeReference, boolean spaceBeforeAnnotation) {
-		int leadingDimensions = Math.min(getDimensions(), typeReference != null ? typeReference.dimensions() : 0);
-		if (leadingDimensions != 0) formatDimensions(typeReference, 0, leadingDimensions, spaceBeforeAnnotation);
-	}
-
-	private void formatDimensions(TypeReference typeReference, int anchor, int count, boolean spaceBeforeAnnotation) {
-		if (count != 0) {
-			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
-				this.scribe.space();
-			}
-			Annotation[][] annotationsOnDimensions = typeReference != null ? typeReference.getAnnotationsOnDimensions() : null;
-			 for (int i = 0; i < count; i++) {
-				int dimensionIndex = anchor + i;
-				if (annotationsOnDimensions != null && annotationsOnDimensions.length > dimensionIndex) {
-					boolean hadAnnotations = formatInlineAnnotations(annotationsOnDimensions[dimensionIndex], spaceBeforeAnnotation && i == 0);
-					if (hadAnnotations && this.preferences.insert_space_before_opening_bracket_in_array_type_reference) this.scribe.space();
-				}
-			 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
-			 	if (this.preferences.insert_space_between_brackets_in_array_type_reference) {
-			 		this.scribe.space();
-			 	}
-			 	this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
-			 }
 		}
 	}
 
@@ -791,7 +763,16 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, false);
 					}
 
-					formatExtraDimensions(fieldDeclaration.type);
+					/*
+					 * Check for extra dimensions
+					 */
+					int extraDimensions = getDimensions();
+					if (extraDimensions != 0) {
+						 for (int index = 0; index < extraDimensions; index++) {
+						 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+						 	this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
+						 }
+					}
 
 					/*
 					 * Field initialization
@@ -1696,7 +1677,16 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		 	*/
 			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, false);
 		}
-		formatExtraDimensions(localDeclaration.type);
+		/*
+		 * Check for extra dimensions
+		 */
+		int extraDimensions = getDimensions();
+		if (extraDimensions != 0) {
+			 for (int index = 0; index < extraDimensions; index++) {
+			 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+			 	this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
+			 }
+		}
 
 		final Expression initialization = localDeclaration.initialization;
 		if (initialization != null) {
@@ -2350,8 +2340,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
 		int dimensions = 0;
 		int balance = 0;
-		boolean inAnnotation = false;
-		int parenBalance = 0; // for inline annotations
 		try {
 			int token;
 			loop: while ((token = this.localScanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
@@ -2359,20 +2347,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					case TerminalTokens.TokenNameRBRACKET:
 						dimensions++;
 						balance--;
-						break;
-					case TerminalTokens.TokenNameLPAREN:
-						parenBalance++;
-						break;
-					case TerminalTokens.TokenNameRPAREN:
-						if (! inAnnotation) break loop;
-						if (--parenBalance == 0) inAnnotation = false;
-						break;
-					case TerminalTokens.TokenNameAT :
-						inAnnotation = true;
-						break;
-					case TerminalTokens.TokenNameIdentifier :
-					case TerminalTokens.TokenNameEQUAL :
-						if (parenBalance == 0 && ! inAnnotation) break loop;
 						break;
 					case TerminalTokens.TokenNameCOMMENT_BLOCK :
 					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
@@ -2382,7 +2356,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						balance++;
 						break;
 					default:
-						if (parenBalance == 0) break loop;
+						break loop;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -2426,28 +2400,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				}
 			}
 			return  token == tokenName;
-		} catch(InvalidInputException e) {
-			// ignore
-		}
-		return false;
-	}
-
-	private boolean isNextTokenPunctuation() {
-		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
-		try {
-			int token = this.localScanner.getNextToken();
-			loop: while(true) {
-				switch(token) {
-					case TerminalTokens.TokenNameCOMMENT_BLOCK :
-					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
-					case TerminalTokens.TokenNameCOMMENT_LINE :
-						token = this.localScanner.getNextToken();
-						continue loop;
-					default:
-						break loop;
-				}
-			}
-			return ! (Scanner.isLiteral(token) || Scanner.isKeyword(token) || Scanner.isIdentifier(token));
 		} catch(InvalidInputException e) {
 			// ignore
 		}
@@ -2672,15 +2624,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		 */
 		int extraDimensions = annotationTypeMemberDeclaration.extendedDimensions;
 		if (extraDimensions != 0) {
-			
-			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
-				this.scribe.space();
-			}
 			 for (int i = 0; i < extraDimensions; i++) {
 			 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
-			 	if (this.preferences.insert_space_between_brackets_in_array_type_reference) {
-			 		this.scribe.space();
-			 	}
 			 	this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
 			 }
 		}
@@ -2736,7 +2681,18 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
 		}
 
-		formatExtraDimensions(argument.type);
+
+		/*
+		 * Check for extra dimensions
+		 */
+		int extraDimensions = getDimensions();
+		if (extraDimensions != 0) {
+			 for (int i = 0; i < extraDimensions; i++) {
+			 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+			 	this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
+			 }
+		}
+
 		return false;
 	}
 
@@ -2758,9 +2714,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			final Expression[] dimensions = arrayAllocationExpression.dimensions;
 			int dimensionsLength = dimensions.length;
 			for (int i = 0; i < dimensionsLength; i++) {
-				if (arrayAllocationExpression.annotationsOnDimensions != null) {
-					formatInlineAnnotations(arrayAllocationExpression.annotationsOnDimensions[i], i == 0);
-				}
 				if (this.preferences.insert_space_before_opening_bracket_in_array_allocation_expression) {
 					this.scribe.space();
 				}
@@ -2943,26 +2896,28 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		return false;
 	}
 
-	private void formatArrayQualifiedTypeReference(ArrayQualifiedTypeReference arrayQualifiedTypeReference) {
-		final int numberOfParens = (arrayQualifiedTypeReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) {
-			manageOpeningParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
-		}
-		formatQualifiedTypeReference(arrayQualifiedTypeReference);
-		formatLeadingDimensions(arrayQualifiedTypeReference, true);
-		if (numberOfParens > 0) {
-			manageClosingParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
-		}
-	}
-
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(
-			ArrayQualifiedTypeReference arrayQualifiedTypeReference,
-			BlockScope scope) {
+		ArrayQualifiedTypeReference arrayQualifiedTypeReference,
+		BlockScope scope) {
 
-			formatArrayQualifiedTypeReference(arrayQualifiedTypeReference);
+			final int numberOfParens = (arrayQualifiedTypeReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
+			if (numberOfParens > 0) {
+				manageOpeningParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
+			}
+			this.scribe.printArrayQualifiedReference(arrayQualifiedTypeReference.tokens.length, arrayQualifiedTypeReference.sourceEnd);
+			int dimensions = getDimensions();
+			if (dimensions != 0) {
+				for (int i = 0; i < dimensions; i++) {
+					this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+					this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
+				}
+			}
+			if (numberOfParens > 0) {
+				manageClosingParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
+			}
 			return false;
 	}
 
@@ -2973,7 +2928,21 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		ArrayQualifiedTypeReference arrayQualifiedTypeReference,
 		ClassScope scope) {
 
-			formatArrayQualifiedTypeReference(arrayQualifiedTypeReference);
+			final int numberOfParens = (arrayQualifiedTypeReference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
+			if (numberOfParens > 0) {
+				manageOpeningParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
+			}
+			this.scribe.printArrayQualifiedReference(arrayQualifiedTypeReference.tokens.length, arrayQualifiedTypeReference.sourceEnd);
+			int dimensions = getDimensions();
+			if (dimensions != 0) {
+				for (int i = 0; i < dimensions; i++) {
+					this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+					this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
+				}
+			}
+			if (numberOfParens > 0) {
+				manageClosingParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
+			}
 			return false;
 	}
 
@@ -3012,18 +2981,20 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(arrayTypeReference, numberOfParens);
 		}
-		if (arrayTypeReference.annotations != null) formatInlineAnnotations(arrayTypeReference.annotations[0], false);
 		this.scribe.printNextToken(SINGLETYPEREFERENCE_EXPECTEDTOKENS);
 
 		int dimensions = getDimensions();
 		if (dimensions != 0) {
-			formatDimensions(arrayTypeReference, 0, dimensions, true);
-		}
-		// dimensions the number of visible bracket-pairs. Ellipsis is an extra dimension
-		if ((arrayTypeReference.bits & ASTNode.IsVarArgs) != 0
-				&& arrayTypeReference.annotationsOnDimensions != null
-				&& arrayTypeReference.annotationsOnDimensions.length > dimensions) {
-				formatInlineAnnotations(arrayTypeReference.annotationsOnDimensions[dimensions], true);
+			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
+				this.scribe.space();
+			}
+			for (int i = 0; i < dimensions; i++) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+				if (this.preferences.insert_space_between_brackets_in_array_type_reference) {
+					this.scribe.space();
+				}
+				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
+			}
 		}
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(arrayTypeReference, numberOfParens);
@@ -3042,17 +3013,19 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(arrayTypeReference, numberOfParens);
 		}
-		if (arrayTypeReference.annotations != null) formatInlineAnnotations(arrayTypeReference.annotations[0], false);
 		this.scribe.printNextToken(SINGLETYPEREFERENCE_EXPECTEDTOKENS);
 		int dimensions = getDimensions();
 		if (dimensions != 0) {
-			formatDimensions(arrayTypeReference, 0, dimensions, true);
-		}
-		// dimensions the number of visible bracket-pairs. Ellipsis is an extra dimension
-		if ((arrayTypeReference.bits & ASTNode.IsVarArgs) != 0
-				&& arrayTypeReference.annotationsOnDimensions != null
-				&& arrayTypeReference.annotationsOnDimensions.length > dimensions) {
-				formatInlineAnnotations(arrayTypeReference.annotationsOnDimensions[dimensions], true);
+			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
+				this.scribe.space();
+			}
+			for (int i = 0; i < dimensions; i++) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+				if (this.preferences.insert_space_between_brackets_in_array_type_reference) {
+					this.scribe.space();
+				}
+				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
+			}
 		}
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(arrayTypeReference, numberOfParens);
@@ -4547,7 +4520,16 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					this.preferences.insert_space_after_comma_in_method_declaration_parameters,
 					this.preferences.alignment_for_parameters_in_method_declaration);
 
-				formatExtraDimensions(methodDeclaration.returnType);
+				/*
+				 * Check for extra dimensions
+				 */
+				int extraDimensions = getDimensions();
+				if (extraDimensions != 0) {
+					 for (int i = 0; i < extraDimensions; i++) {
+					 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+					 	this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
+					 }
+				}
 
 				// Format throws
 				formatThrowsClause(
@@ -4683,7 +4665,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(parameterizedQualifiedTypeReference, numberOfParens);
 		}
-		if (parameterizedQualifiedTypeReference.annotations != null) formatInlineAnnotations(parameterizedQualifiedTypeReference.annotations[0], false);
 		TypeReference[][] typeArguments = parameterizedQualifiedTypeReference.typeArguments;
 		int length = typeArguments.length;
 		for (int i = 0; i < length; i++) {
@@ -4714,12 +4695,21 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 			if (i < length - 1) {
 				this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
-				if (parameterizedQualifiedTypeReference.annotations != null && parameterizedQualifiedTypeReference.annotations.length > i+1) {
-					formatInlineAnnotations(parameterizedQualifiedTypeReference.annotations[i+1], false);
-				}
 			}
 		}
-		formatLeadingDimensions(parameterizedQualifiedTypeReference, true);
+		int dimensions = getDimensions();
+		if (dimensions != 0 && dimensions <= parameterizedQualifiedTypeReference.dimensions()) {
+			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
+				this.scribe.space();
+			}
+			for (int i = 0; i < dimensions; i++) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+				if (this.preferences.insert_space_between_brackets_in_array_type_reference) {
+					this.scribe.space();
+				}
+				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
+			}
+		}
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(parameterizedQualifiedTypeReference, numberOfParens);
 		}
@@ -4732,7 +4722,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(parameterizedQualifiedTypeReference, numberOfParens);
 		}
-		if (parameterizedQualifiedTypeReference.annotations != null) formatInlineAnnotations(parameterizedQualifiedTypeReference.annotations[0], false);
 		TypeReference[][] typeArguments = parameterizedQualifiedTypeReference.typeArguments;
 		int length = typeArguments.length;
 		for (int i = 0; i < length; i++) {
@@ -4764,11 +4753,20 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			if (i < length - 1) {
 				this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
 			}
-			if (parameterizedQualifiedTypeReference.annotations != null && parameterizedQualifiedTypeReference.annotations.length > i+1) {
-				formatInlineAnnotations(parameterizedQualifiedTypeReference.annotations[i+1], false);
+		}
+		int dimensions = getDimensions();
+		if (dimensions != 0 && dimensions <= parameterizedQualifiedTypeReference.dimensions()) {
+			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
+				this.scribe.space();
+			}
+			for (int i = 0; i < dimensions; i++) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+				if (this.preferences.insert_space_between_brackets_in_array_type_reference) {
+					this.scribe.space();
+				}
+				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
 			}
 		}
-		formatLeadingDimensions(parameterizedQualifiedTypeReference, true);
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(parameterizedQualifiedTypeReference, numberOfParens);
 		}
@@ -4781,7 +4779,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(parameterizedSingleTypeReference, numberOfParens);
 		}
-		if (parameterizedSingleTypeReference.annotations != null) formatInlineAnnotations(parameterizedSingleTypeReference.annotations[0], false);
 		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier);
 
 		TypeReference[] typeArguments = parameterizedSingleTypeReference.typeArguments;
@@ -4807,7 +4804,19 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS);
 		}
 
-		formatLeadingDimensions(parameterizedSingleTypeReference, false);
+		int dimensions = getDimensions();
+		if (dimensions != 0 && dimensions <= parameterizedSingleTypeReference.dimensions()) {
+			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
+				this.scribe.space();
+			}
+			for (int i = 0; i < dimensions; i++) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+				if (this.preferences.insert_space_between_brackets_in_array_type_reference) {
+					this.scribe.space();
+				}
+				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
+			}
+		}
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(parameterizedSingleTypeReference, numberOfParens);
 		}
@@ -4820,7 +4829,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(parameterizedSingleTypeReference, numberOfParens);
 		}
-		if (parameterizedSingleTypeReference.annotations != null) formatInlineAnnotations(parameterizedSingleTypeReference.annotations[0], false);
 		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier);
 
 		TypeReference[] typeArguments = parameterizedSingleTypeReference.typeArguments;
@@ -4846,7 +4854,19 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS);
 		}
 
-		formatLeadingDimensions(parameterizedSingleTypeReference, false);
+		int dimensions = getDimensions();
+		if (dimensions != 0 && dimensions <= parameterizedSingleTypeReference.dimensions()) {
+			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
+				this.scribe.space();
+			}
+			for (int i = 0; i < dimensions; i++) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+				if (this.preferences.insert_space_between_brackets_in_array_type_reference) {
+					this.scribe.space();
+				}
+				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
+			}
+		}
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(parameterizedSingleTypeReference, numberOfParens);
 		}
@@ -5067,25 +5087,12 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(qualifiedTypeReference, numberOfParens);
 		}
-		formatQualifiedTypeReference(qualifiedTypeReference);
+		this.scribe.printQualifiedReference(qualifiedTypeReference.sourceEnd, numberOfParens>=0/*expect parenthesis*/);
+
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(qualifiedTypeReference, numberOfParens);
 		}
 		return false;
-	}
-
-	private void formatQualifiedTypeReference(QualifiedTypeReference qualifiedTypeReference) {
-		for (int i = 0; i < qualifiedTypeReference.tokens.length; ++i) {
-			if (i != 0) this.scribe.printNextToken(TerminalTokens.TokenNameDOT, false);
-			if (qualifiedTypeReference.annotations != null
-					&& qualifiedTypeReference.annotations.length > i
-					&& qualifiedTypeReference.annotations[i] != null) {
-				formatInlineAnnotations(qualifiedTypeReference.annotations[i], false);
-				this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
-			} else {
-				this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, false);
-			}
-		}
 	}
 
 	/**
@@ -5099,7 +5106,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			if (numberOfParens > 0) {
 				manageOpeningParenthesizedExpression(qualifiedTypeReference, numberOfParens);
 			}
-			formatQualifiedTypeReference(qualifiedTypeReference);
+			this.scribe.printQualifiedReference(qualifiedTypeReference.sourceEnd, numberOfParens>=0/*expect parenthesis*/);
 
 			if (numberOfParens > 0) {
 				manageClosingParenthesizedExpression(qualifiedTypeReference, numberOfParens);
@@ -5205,30 +5212,12 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(singleTypeReference, numberOfParens);
 		}
-		if (singleTypeReference.annotations != null) formatInlineAnnotations(singleTypeReference.annotations[0], false);
 		this.scribe.printNextToken(SINGLETYPEREFERENCE_EXPECTEDTOKENS);
 
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(singleTypeReference, numberOfParens);
 		}
 		return false;
-	}
-
-	private boolean formatInlineAnnotations(final Annotation[] annotations, boolean spaceBefore) {
-		if (annotations != null ) {
-			if (spaceBefore) this.scribe.space();
-
-			for (int i = 0; i < annotations.length; ++i) {
-				if (i != 0) this.scribe.space();
-				annotations[i].traverse(this, (BlockScope)null);
-			}
-			if (annotations.length > 0 && ! this.isNextTokenPunctuation()) {
-				this.scribe.space();
-			}
-			return true;
-		} else {
-			return false;
-		}
 	}
 
 	/**
@@ -5242,7 +5231,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (numberOfParens > 0) {
 			manageOpeningParenthesizedExpression(singleTypeReference, numberOfParens);
 		}
-		if (singleTypeReference.annotations != null) formatInlineAnnotations(singleTypeReference.annotations[0], false);
 		this.scribe.printNextToken(SINGLETYPEREFERENCE_EXPECTEDTOKENS);
 
 		if (numberOfParens > 0) {
@@ -5700,7 +5688,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		return false;
 	}
 	public boolean visit(TypeParameter typeParameter, BlockScope scope) {
-		if (typeParameter.annotations != null) formatInlineAnnotations(typeParameter.annotations, false);
 		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier);
 		if (typeParameter.type != null) {
 			this.scribe.space();
@@ -5727,7 +5714,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		return false;
 	}
 	public boolean visit(TypeParameter typeParameter, ClassScope scope) {
-		if (typeParameter.annotations != null) formatInlineAnnotations(typeParameter.annotations, false);
 		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier);
 		if (typeParameter.type != null) {
 			this.scribe.space();
@@ -5914,9 +5900,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		return false;
 	}
 	public boolean visit(Wildcard wildcard, BlockScope scope) {
-		if (wildcard.annotations != null) {
-			if (formatInlineAnnotations(wildcard.annotations[0], false)) this.scribe.space();
-		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameQUESTION, this.preferences.insert_space_before_question_in_wilcard);
 		switch(wildcard.kind) {
 			case Wildcard.SUPER :
@@ -5937,9 +5920,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		return false;
 	}
 	public boolean visit(Wildcard wildcard, ClassScope scope) {
-		if (wildcard.annotations != null) {
-			if (formatInlineAnnotations(wildcard.annotations[0], false)) this.scribe.space();
-		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameQUESTION, this.preferences.insert_space_before_question_in_wilcard);
 		switch(wildcard.kind) {
 			case Wildcard.SUPER :
