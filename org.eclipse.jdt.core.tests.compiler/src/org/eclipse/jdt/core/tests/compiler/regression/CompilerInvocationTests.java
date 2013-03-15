@@ -548,7 +548,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalModifierForMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalModifierForVariable", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalModifiersForElidedType", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
-		expectedProblemAttributes.put("IllegalModifiersForPackage", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("IllegalModifiers", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("IllegalPrimitiveOrArrayTypeForEnclosingInstance", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalQualifiedEnumConstantLabel", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalQualifiedParameterizedTypeAllocation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1324,7 +1324,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IllegalModifierForMethod", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForVariable", SKIP);
 		expectedProblemAttributes.put("IllegalModifiersForElidedType", SKIP);
-		expectedProblemAttributes.put("IllegalModifiersForPackage", SKIP);
+		expectedProblemAttributes.put("IllegalModifiers", SKIP);
 		expectedProblemAttributes.put("IllegalPrimitiveOrArrayTypeForEnclosingInstance", SKIP);
 		expectedProblemAttributes.put("IllegalQualifiedEnumConstantLabel", SKIP);
 		expectedProblemAttributes.put("IllegalQualifiedParameterizedTypeAllocation", SKIP);
