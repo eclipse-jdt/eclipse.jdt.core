@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,8 @@
  *								bug 185682 - Increment/decrement operators mark local variables as read
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *     Jesper S Moller <jesper@selskabet.org> - Contributions for
+ *								bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -74,10 +76,6 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 						currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
 					}
 				}
-				if (!fieldBinding.isStatic()) {
-					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
-					currentScope.resetDeclaringClassMethodStaticFlag(fieldBinding.declaringClass);
-				}
 				manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 				break;
 			case Binding.LOCAL : // reading a local variable
@@ -124,10 +122,6 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			} else if (!isCompound && fieldBinding.isNonNull()) {
 				// record assignment for detecting uninitialized non-null fields:
 				flowInfo.markAsDefinitelyAssigned(fieldBinding);
-			}
-			if (!fieldBinding.isStatic()) {
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
-				currentScope.resetDeclaringClassMethodStaticFlag(fieldBinding.declaringClass);
 			}
 			break;
 		case Binding.LOCAL : // assigning to a local variable
@@ -177,10 +171,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				if (!fieldInits.isDefinitelyAssigned(fieldBinding)) {
 					currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
 				}
-			}
-			if (!fieldBinding.isStatic()) {
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
-				currentScope.resetDeclaringClassMethodStaticFlag(fieldBinding.declaringClass);
 			}
 			break;
 		case Binding.LOCAL : // reading a local variable
