@@ -799,4 +799,68 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			true, /* shouldFlush*/
 			customOptions);
 	}
+	
+	// https://bugs.eclipse.org/403216 - [1.8][null] TypeReference#captureTypeAnnotations treats type annotations as type argument annotations 
+	public void testBug403216_1() {
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.lang.annotation.ElementType;\n" + 
+				"import java.lang.annotation.Target;\n" + 
+				"\n" + 
+				"public class Test {}\n" + 
+				"\n" + 
+				"class X {\n" + 
+				"	class Y {\n" + 
+				"		public void foo( @A X. @B Y this) {}\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"@Target(value={ElementType.TYPE_USE})\n" + 
+				"@interface A {}\n" + 
+				"@Target(value={ElementType.TYPE_USE})\n" + 
+				"@interface B {}\n"
+			});
+	}
+
+	// https://bugs.eclipse.org/403457 - [1.8][compiler] NPE in WildcardBinding.signature
+	public void testBug403457() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+		runNegativeTestWithLibs(
+			new String[] {
+				ELEMENT_TYPE_JAVA,
+				ELEMENT_TYPE_SOURCE,
+				CUSTOM_NULLABLE_NAME,
+				CUSTOM_NULLABLE_CONTENT_JSR308,
+				CUSTOM_NONNULL_NAME,
+				CUSTOM_NONNULL_CONTENT_JSR308,
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" + 
+				"import java.lang.annotation.Target;\n" + 
+				"import org.foo.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void foo(Map<@Marker ? super @Marker Object, @Marker ? extends @Marker String> m){}\n" + 
+				"   void goo(Map<@Marker ? extends @Marker Object, @Marker ? super @Marker String> m){}\n" + 
+				"}\n" + 
+				"\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@interface Marker {\n" + 
+				"	\n" + 
+				"}\n"
+			},
+			customOptions,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	void foo(Map<@Marker ? super @Marker Object, @Marker ? extends @Marker String> m){}\n" + 
+			"	         ^^^\n" + 
+			"Map cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	void goo(Map<@Marker ? extends @Marker Object, @Marker ? super @Marker String> m){}\n" + 
+			"	         ^^^\n" + 
+			"Map cannot be resolved to a type\n" + 
+			"----------\n");
+	}
 }
