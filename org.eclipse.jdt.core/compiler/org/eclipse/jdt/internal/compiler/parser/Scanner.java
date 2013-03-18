@@ -4419,7 +4419,6 @@ protected final boolean maybeAtEllipsisAnnotation() { // Did the '@' we saw just
 		case TokenNameLBRACE:
 		case TokenNameinstanceof:
 		case TokenNameLESS:
-		case TokenNameGREATER:
 		case TokenNameAND:
 		case TokenNamethrows:
 			return false;

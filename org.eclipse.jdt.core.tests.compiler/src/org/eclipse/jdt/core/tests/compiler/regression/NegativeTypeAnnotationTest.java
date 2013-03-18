@@ -3317,4 +3317,24 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"Syntax error, modifiers are not allowed here\n" + 
 					"----------\n");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403581,  [1.8][compiler] Compile error on varargs annotations.
+	public void test403581() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"public class X {\n" +
+					"	void foo(List<String> @Marker ... ls) {}\n" +
+					"}\n" +
+					"@java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@interface Marker {\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 3)\n" + 
+				"	void foo(List<String> @Marker ... ls) {}\n" + 
+				"	                                  ^^\n" + 
+				"Type safety: Potential heap pollution via varargs parameter ls\n" + 
+				"----------\n");
+	}
 }
