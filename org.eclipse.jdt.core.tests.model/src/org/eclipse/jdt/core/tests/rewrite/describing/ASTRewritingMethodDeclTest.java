@@ -3225,4 +3225,328 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("@interface Annot2 {}\n");
 		assertEqualString(preview, buf.toString());
 	}
+	public void testReceiver1_since_8() throws Exception {
+		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf = new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("class X {\n");
+		buf.append("    public void foo(@A @B @C X this, int i, int j) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		CompilationUnit astRoot = createAST(cu);
+		ASTRewrite rewrite = ASTRewrite.create(astRoot.getAST());
+		AST ast = astRoot.getAST();
+		MethodDeclaration method = (MethodDeclaration) findTypeDeclaration(astRoot, "X").bodyDeclarations().get(0);
+		AnnotatableType receiverType = method.getReceiverType();
+		assertEquals("Invalid receiver type", ASTNode.SIMPLE_TYPE, receiverType.getNodeType());
+		MarkerAnnotation annot = ast.newMarkerAnnotation();
+		annot.setTypeName(ast.newSimpleName("Marker"));
+		ListRewrite listRewrite = rewrite.getListRewrite(receiverType, SimpleType.ANNOTATIONS_PROPERTY);
+		listRewrite.insertFirst(annot, null);
+
+		String preview = evaluateRewrite(cu, rewrite);
+		buf = new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("class X {\n");
+		buf.append("    public void foo(@Marker @A @B @C X this, int i, int j) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	public void testReceiver2_since_8() throws Exception {
+		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf = new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("class X {\n");
+		buf.append("	class Y {\n");
+		buf.append("    	public Y(@A X this, int i, @B boolean b, @A int j) {\n");
+		buf.append("    	}\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu = pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		CompilationUnit astRoot = createAST(cu);
+		ASTRewrite rewrite = ASTRewrite.create(astRoot.getAST());
+		AST ast = astRoot.getAST();
+		TypeDeclaration type = (TypeDeclaration) findTypeDeclaration(astRoot, "X").bodyDeclarations().get(0);
+		MethodDeclaration method = (MethodDeclaration) type.bodyDeclarations().get(0);
+		List params = method.parameters();
+
+		SingleVariableDeclaration first = (SingleVariableDeclaration) params.get(0);
+		SingleVariableDeclaration second = (SingleVariableDeclaration) params.get(1);
+		SingleVariableDeclaration third = (SingleVariableDeclaration) params.get(2);
+		rewrite.replace(first.getName(), ast.newSimpleName("i"), null);
+		rewrite.replace(second.getName(), ast.newSimpleName("b"), null);
+
+		ASTNode copy1 = rewrite.createCopyTarget(first);
+		ASTNode copy2 = rewrite.createCopyTarget(second);
+
+		rewrite.replace(first, copy2, null);
+		rewrite.replace(second, copy1, null);
+		rewrite.remove(third, null);
+
+		String preview = evaluateRewrite(cu, rewrite);
+		buf = new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("class X {\n");
+		buf.append("	class Y {\n");
+		buf.append("    	public Y(@A X this, @B boolean b, int i) {\n");
+		buf.append("    	}\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	public void testReceiver3_since_8() throws Exception {
+		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf = new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("class X {\n");
+		buf.append("    public void foo(X this) {}\n");
+		buf.append("    public void foo() {}\n");
+		buf.append("    public void foo(X this,/*comment*/ int i) {}\n");
+		buf.append("    public void foo(int i, int j) {}\n");
+		buf.append("    public void foo(X this) {}\n");
+		buf.append("    public void foo(X this, float f1, float f2) {}\n");
+		buf.append("    public void foo(X this, int i) {}\n");
+		buf.append("    public void foo(X this, float f) {}\n");
+		buf.append("    public void foo1(X this, float f) {}\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		CompilationUnit astRoot = createAST(cu);
+		AST ast = astRoot.getAST();
+		ASTRewrite rewrite = ASTRewrite.create(astRoot.getAST());
+		TypeDeclaration type = findTypeDeclaration(astRoot, "X");
+		MethodDeclaration method1 = (MethodDeclaration) type.bodyDeclarations().get(0);
+		MethodDeclaration method2 = (MethodDeclaration) type.bodyDeclarations().get(1);
+		MethodDeclaration method3 = (MethodDeclaration) type.bodyDeclarations().get(2);
+		MethodDeclaration method4 = (MethodDeclaration) type.bodyDeclarations().get(3);
+		MethodDeclaration method5 = (MethodDeclaration) type.bodyDeclarations().get(4);
+		MethodDeclaration method6 = (MethodDeclaration) type.bodyDeclarations().get(5);
+		MethodDeclaration method7 = (MethodDeclaration) type.bodyDeclarations().get(6);
+		MethodDeclaration method8 = (MethodDeclaration) type.bodyDeclarations().get(7);
+		MethodDeclaration method9 = (MethodDeclaration) type.bodyDeclarations().get(8);
+
+		SimpleType receiver1 = (SimpleType) method1.getReceiverType();
+		SimpleType receiver3 = (SimpleType) method3.getReceiverType();
+		SimpleType receiver5 = (SimpleType) method5.getReceiverType();
+		SimpleType receiver6 = (SimpleType) method6.getReceiverType();
+		SimpleType receiver8 = (SimpleType) method8.getReceiverType();
+		SimpleType receiver9 = (SimpleType) method9.getReceiverType();
+
+		SimpleType receiverCopy = (SimpleType) rewrite.createCopyTarget(receiver1);
+		rewrite.set(method2, MethodDeclaration.RECEIVER_TYPE_PROPERTY, receiverCopy, null);
+		rewrite.remove(receiver1, null);
+
+		receiverCopy = (SimpleType) rewrite.createCopyTarget(receiver3);
+		rewrite.set(method4, MethodDeclaration.RECEIVER_TYPE_PROPERTY, receiverCopy, null);
+		rewrite.remove(receiver3, null);
+
+		ListRewrite listRewrite = rewrite.getListRewrite(method3, MethodDeclaration.MODIFIERS2_PROPERTY);
+		listRewrite.insertLast(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
+
+		receiverCopy = ast.newSimpleType(ast.newSimpleName("XY"));
+		rewrite.replace(receiver5, receiverCopy, null);
+
+		receiverCopy = ast.newSimpleType(ast.newSimpleName("XY"));
+		rewrite.replace(receiver6, receiverCopy, null);
+		SingleVariableDeclaration paramCopy = (SingleVariableDeclaration) rewrite.createCopyTarget((SingleVariableDeclaration) method6.parameters().get(0));
+		rewrite.remove((SingleVariableDeclaration) method6.parameters().get(0), null);
+
+		listRewrite = rewrite.getListRewrite(method7, MethodDeclaration.PARAMETERS_PROPERTY);
+		listRewrite.insertLast(paramCopy, null);
+
+		rewrite.remove(receiver8, null);
+		rewrite.remove((SingleVariableDeclaration) method8.parameters().get(0), null);
+
+		rewrite.remove(receiver9, null);
+		rewrite.remove((SingleVariableDeclaration) method9.parameters().get(0), null);
+
+		String preview = evaluateRewrite(cu, rewrite);
+		buf = new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("class X {\n");
+		buf.append("    public void foo() {}\n");
+		buf.append("    public void foo(X this) {}\n");
+		buf.append("    public final void foo(/*comment*/ int i) {}\n");
+		buf.append("    public void foo(X this, int i, int j) {}\n");
+		buf.append("    public void foo(XY this) {}\n");
+		buf.append("    public void foo(XY this, float f2) {}\n");
+		buf.append("    public void foo(X this, int i, float f1) {}\n");
+		buf.append("    public void foo() {}\n");
+		buf.append("    public void foo1() {}\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	public void _testReceiver4_since_8() throws Exception {
+		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf = new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("class XYZ {\n");
+		buf.append("	class Y {\n");
+		buf.append("    	public Y(@A XYZ XYZ.this, @B int i) {}\n");
+		buf.append("    	public Y(@A XYZ XYZ.this, @B int i, @C int j) {}\n");
+		buf.append("    	public Y(@A XYZ XYZ.this, @B float e) {}\n");
+		buf.append("    	public Y(@A XYZ XYZ.this, @B float e, @C float f) {}\n");
+		buf.append("    	public Y(@A XYZ XYZ.this, @B int i, @C float f) {}\n");
+		buf.append("    	public Y(@A XYZ XYZ.this, @B float f, @C int i) {}\n");
+		buf.append("    	public Y(@A XYZ XYZ.this, @B boolean b1) {}\n");
+		buf.append("    	public Y(@A XYZ XYZ.this, @B boolean b2, @C int i) {}\n");
+		buf.append("    	public Y(@B boolean b, @C float f) {}\n");
+		buf.append("    	public Y(@B boolean b, @C boolean c) {}\n");
+		buf.append("    	public Y(@B boolean b, String str) {}\n");
+		buf.append("    	public Y(@A XYZ XYZ.this, @B int i, @C int j, @D int k) {}\n");
+		buf.append("    	public Y(@A XYZ XYZ.this) {}\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu = pack1.createCompilationUnit("XYZ.java", buf.toString(), false, null);
+		CompilationUnit astRoot = createAST(cu);
+		ASTRewrite rewrite = ASTRewrite.create(astRoot.getAST());
+		AST ast = astRoot.getAST();
+		TypeDeclaration type = (TypeDeclaration) findTypeDeclaration(astRoot, "XYZ").bodyDeclarations().get(0);
+		MethodDeclaration method1 = (MethodDeclaration) type.bodyDeclarations().get(0); // Remove the receiver type and qualifying name
+		MethodDeclaration method2 = (MethodDeclaration) type.bodyDeclarations().get(1); // Remove the receiver but not the qualifier
+		MethodDeclaration method3 = (MethodDeclaration) type.bodyDeclarations().get(2); // Remove the qualifier only 
+		MethodDeclaration method4 = (MethodDeclaration) type.bodyDeclarations().get(3); // Remove the qualifier and receiver annotation
+		MethodDeclaration method5 = (MethodDeclaration) type.bodyDeclarations().get(4); // Remove the receiver type and all parameters
+		MethodDeclaration method6 = (MethodDeclaration) type.bodyDeclarations().get(5); // Remove the receiver type and add a param
+		MethodDeclaration method7 = (MethodDeclaration) type.bodyDeclarations().get(6); // Remove the qualifier and remove a param
+		MethodDeclaration method8 = (MethodDeclaration) type.bodyDeclarations().get(7); // Remove the qualifier and replace a param
+		MethodDeclaration method9 = (MethodDeclaration) type.bodyDeclarations().get(8); // Add a receiver type and qualifier with annotation
+		MethodDeclaration method10 = (MethodDeclaration) type.bodyDeclarations().get(9); // Add a receiver type and qualifier with annotations and add one parameter
+		MethodDeclaration method11 = (MethodDeclaration) type.bodyDeclarations().get(10); // Add a receiver type with qualifier & annotations and remove all parameters
+		MethodDeclaration method12 = (MethodDeclaration) type.bodyDeclarations().get(11); // Keep the receiver type and qualifier, but alter parameters
+		MethodDeclaration method13 = (MethodDeclaration) type.bodyDeclarations().get(12); // Keep the receiver type and qualifier, but alter parameters
+
+		rewrite.set(method1, MethodDeclaration.RECEIVER_TYPE_PROPERTY, null, null);
+		rewrite.set(method1, MethodDeclaration.RECEIVER_QUALIFIER_PROPERTY, null, null);
+		rewrite.set(method2, MethodDeclaration.RECEIVER_TYPE_PROPERTY, null, null);
+		rewrite.set(method3, MethodDeclaration.RECEIVER_QUALIFIER_PROPERTY, null, null);
+
+		rewrite.set(method4, MethodDeclaration.RECEIVER_QUALIFIER_PROPERTY, null, null);
+		ListRewrite listRewrite = rewrite.getListRewrite(method4.getReceiverType(), SimpleType.ANNOTATIONS_PROPERTY);
+		listRewrite.remove((ASTNode) method4.getReceiverType().annotations().get(0), null);
+
+		rewrite.set(method5, MethodDeclaration.RECEIVER_TYPE_PROPERTY, null, null);
+		List params = method5.parameters();
+		SingleVariableDeclaration first = (SingleVariableDeclaration) params.get(0);
+		listRewrite = rewrite.getListRewrite(method5, MethodDeclaration.PARAMETERS_PROPERTY);
+		listRewrite.remove(first, null);
+		first = (SingleVariableDeclaration) params.get(1);
+		listRewrite.remove(first, null);
+
+		rewrite.set(method6, MethodDeclaration.RECEIVER_TYPE_PROPERTY, null, null);
+		listRewrite = rewrite.getListRewrite(method6, MethodDeclaration.PARAMETERS_PROPERTY);
+		SingleVariableDeclaration paramCopy = ast.newSingleVariableDeclaration();
+		SimpleType typeCopy = ast.newSimpleType(ast.newSimpleName("Object"));
+		MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
+		markerAnnotation.setTypeName(ast.newSimpleName("A"));
+		typeCopy.annotations().add(markerAnnotation);
+		paramCopy.setType(typeCopy);
+		paramCopy.setName(ast.newSimpleName("obj"));
+		listRewrite.insertFirst(paramCopy, null);
+
+		rewrite.set(method7, MethodDeclaration.RECEIVER_QUALIFIER_PROPERTY, null, null);
+		params = method7.parameters();
+		first = (SingleVariableDeclaration) params.get(0);
+		listRewrite = rewrite.getListRewrite(method7, MethodDeclaration.PARAMETERS_PROPERTY);
+		listRewrite.remove(first, null);
+		params = method8.parameters();
+		rewrite.set(method8, MethodDeclaration.RECEIVER_QUALIFIER_PROPERTY, null, null);
+		listRewrite = rewrite.getListRewrite(method8, MethodDeclaration.PARAMETERS_PROPERTY);
+		listRewrite.remove((SingleVariableDeclaration) params.get(0), null);
+		listRewrite.remove((SingleVariableDeclaration) params.get(1), null);
+		listRewrite.insertLast(paramCopy, null);
+
+		SimpleType receiverType = ast.newSimpleType(ast.newSimpleName("XYZ"));
+		SimpleName qual = ast.newSimpleName("XYZ");
+		markerAnnotation= ast.newMarkerAnnotation();
+		markerAnnotation.setTypeName(ast.newSimpleName("A"));
+		receiverType.annotations().add(markerAnnotation);
+
+		rewrite.set(method9, MethodDeclaration.RECEIVER_TYPE_PROPERTY, receiverType, null);
+		rewrite.set(method9, MethodDeclaration.RECEIVER_QUALIFIER_PROPERTY, qual, null);
+
+		rewrite.set(method10, MethodDeclaration.RECEIVER_TYPE_PROPERTY, receiverType, null);
+		rewrite.set(method10, MethodDeclaration.RECEIVER_QUALIFIER_PROPERTY, qual, null);
+		listRewrite = rewrite.getListRewrite(method10, MethodDeclaration.PARAMETERS_PROPERTY);
+		listRewrite.insertFirst(paramCopy, null);
+
+		rewrite.set(method11, MethodDeclaration.RECEIVER_TYPE_PROPERTY, receiverType, null);
+		rewrite.set(method11, MethodDeclaration.RECEIVER_QUALIFIER_PROPERTY, qual, null);
+		listRewrite = rewrite.getListRewrite(method11, MethodDeclaration.PARAMETERS_PROPERTY);
+		listRewrite.remove((ASTNode) method11.parameters().get(0), null);
+		listRewrite.remove((ASTNode) method11.parameters().get(1), null);
+
+		listRewrite = rewrite.getListRewrite(method12, MethodDeclaration.PARAMETERS_PROPERTY);
+		listRewrite.remove((ASTNode) method12.parameters().get(1), null);
+
+		listRewrite = rewrite.getListRewrite(method13, MethodDeclaration.PARAMETERS_PROPERTY);
+		listRewrite.insertFirst(paramCopy, null);
+
+		String preview = evaluateRewrite(cu, rewrite);
+		buf = new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("class XYZ {\n");
+		buf.append("	class Y {\n");
+		buf.append("    	public Y(@B int i) {}\n");
+		buf.append("    	public Y(@B int i, @C int j) {}\n");
+		buf.append("    	public Y(@A XYZ this, @B float e) {}\n");
+		buf.append("    	public Y(XYZ this, @B float e, @C float f) {}\n");
+		buf.append("    	public Y() {}\n");
+		buf.append("    	public Y(@A Object obj, @B float f, @C int i) {}\n");
+		buf.append("    	public Y(@A XYZ this) {}\n");
+		buf.append("    	public Y(@A XYZ this, @A Object obj) {}\n");
+		buf.append("    	public Y(@A XYZ XYZ.this, @B boolean b, @C float f) {}\n");
+		buf.append("    	public Y(@A XYZ XYZ.this, @A Object obj, @B boolean b, @C boolean c) {}\n");
+		buf.append("    	public Y(@A XYZ XYZ.this) {}\n");
+		buf.append("    	public Y(@A XYZ XYZ.this, @B int i, @D int k) {}\n");
+		buf.append("    	public Y(@A XYZ XYZ.this, @A Object obj) {}\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	public void testReceiver5_since_8() throws Exception {
+		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf = new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("class XYZ {\n");
+		buf.append("	class Y {\n");
+		buf.append("    	public Y(@A Y Y.this, @B int i) {}\n");
+		buf.append("    	public Y(@A XYZ this, @B int i, @C int j) {}\n");
+		buf.append("    	public Y(@A XYZ Y.this, @B float e) {}\n");
+		buf.append("    	public Y(@A XYZ Y.this, @B float e, @C float f) {}\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu = pack1.createCompilationUnit("XYZ.java", buf.toString(), false, null);
+		CompilationUnit astRoot = createAST(cu);
+		ASTRewrite rewrite = ASTRewrite.create(astRoot.getAST());
+		AST ast = astRoot.getAST();
+		TypeDeclaration type = (TypeDeclaration) findTypeDeclaration(astRoot, "XYZ").bodyDeclarations().get(0);
+		MethodDeclaration method1 = (MethodDeclaration) type.bodyDeclarations().get(0); // Change receiver type's child/children
+		MethodDeclaration method2 = (MethodDeclaration) type.bodyDeclarations().get(1); // Insert receiver qualifier
+		MethodDeclaration method3 = (MethodDeclaration) type.bodyDeclarations().get(2); // Replace receiver qualifier
+		MethodDeclaration method4 = (MethodDeclaration) type.bodyDeclarations().get(3); // Change receiver qualifier's children
+
+		Name newName = ast.newSimpleName("XYZ");
+		rewrite.replace(((SimpleType) method1.getReceiverType()).getName(), newName, null);
+		rewrite.replace(method1.getReceiverQualifier(), newName, null);
+		rewrite.set(method2, MethodDeclaration.RECEIVER_QUALIFIER_PROPERTY, newName, null);
+		rewrite.replace(method3.getReceiverQualifier(), newName, null);
+		SimpleName qualifier = method4.getReceiverQualifier();
+		rewrite.set(qualifier, SimpleName.IDENTIFIER_PROPERTY, "XYZ", null);
+
+		String preview = evaluateRewrite(cu, rewrite);
+		buf = new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("class XYZ {\n");
+		buf.append("	class Y {\n");
+		buf.append("    	public Y(@A XYZ XYZ.this, @B int i) {}\n");
+		buf.append("    	public Y(@A XYZ XYZ.this, @B int i, @C int j) {}\n");
+		buf.append("    	public Y(@A XYZ XYZ.this, @B float e) {}\n");
+		buf.append("    	public Y(@A XYZ XYZ.this, @B float e, @C float f) {}\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+
 }

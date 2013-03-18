@@ -1516,7 +1516,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		boolean isAllInsert= isAllOfKind(children, RewriteEvent.INSERTED);
 		boolean isAllRemove= isAllOfKind(children, RewriteEvent.REMOVED);
 		String keyword= Util.EMPTY_STRING;
-		if (property == SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY || property == ArrayType.ANNOTATIONS_PROPERTY) {
+		boolean isAnnotationsProperty = property == SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY 
+				|| node instanceof AnnotatableType && property == ((AnnotatableType) node).getAnnotationsProperty();
+		if (isAnnotationsProperty) {
 			keyword= " "; //$NON-NLS-1$
 		} else if (isAllInsert || isAllRemove) {
 			// update pos
@@ -1528,8 +1530,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		Prefix formatterPrefix;
-		if (property == SingleVariableDeclaration.MODIFIERS2_PROPERTY || property == SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY 
-							|| property == ArrayType.ANNOTATIONS_PROPERTY)
+		if (property == SingleVariableDeclaration.MODIFIERS2_PROPERTY || isAnnotationsProperty)
 			formatterPrefix= this.formatter.PARAM_ANNOTATION_SEPARATION;
 		else
 			formatterPrefix= this.formatter.ANNOTATION_SEPARATION;
@@ -1545,7 +1546,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				doTextRemove(endPos, nextPos - endPos, getEditGroup(lastChild));
 				return nextPos;
 			} else if ((isAllInsert || (nextPos == endPos && lastUnchanged)) // see bug 165654
-					&& property != SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY && property != ArrayType.ANNOTATIONS_PROPERTY) {
+					&& !isAnnotationsProperty) {
 				String separator;
 				if (lastChild.getNewValue() instanceof Annotation) {
 					separator= formatterPrefix.getPrefix(getIndent(pos));
@@ -1819,6 +1820,96 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			}
 		}
 	}
+	
+	private int rewriteMethodReceiver(MethodDeclaration method, int offset) throws CoreException {
+		offset= getScanner().getTokenEndOffset(TerminalTokens.TokenNameLPAREN, offset);
+		if (method.getAST().apiLevel() < AST.JLS8) {
+			return offset;
+		}
+
+		int newParamCount = ((List) getNewValue(method, MethodDeclaration.PARAMETERS_PROPERTY)).size();
+		int oldParamCount = method.parameters().size();
+		RewriteEvent event = getEvent(method, MethodDeclaration.RECEIVER_TYPE_PROPERTY);
+		RewriteEvent qualEvent = getEvent(method, MethodDeclaration.RECEIVER_QUALIFIER_PROPERTY);
+
+		boolean rewriteQualifier = false;
+		ASTNode newQual = null;
+		ASTNode oldQual = null;
+		if (qualEvent != null) {
+			newQual = (ASTNode) qualEvent.getNewValue();
+			oldQual = (ASTNode) qualEvent.getOriginalValue();
+		}
+
+		TextEditGroup editGroup= getEditGroup(event);
+		if (event != null && event.getChangeKind() != RewriteEvent.UNCHANGED) {
+			int changeKind= event.getChangeKind();
+			if (changeKind == RewriteEvent.INSERTED) {
+				 doTextInsert(offset, (ASTNode) event.getNewValue(), 0, false, editGroup);
+				doTextInsert(offset, " ", editGroup); //$NON-NLS-1$
+				if (newQual != null ) {
+					doTextInsert(offset, newQual, 0, false, getEditGroup(qualEvent));
+					doTextInsert(offset, ".", editGroup); //$NON-NLS-1$
+				}
+				doTextInsert(offset, "this", editGroup); //$NON-NLS-1$
+				if (newParamCount > 0) {
+					doTextInsert(offset, ", ", editGroup); //$NON-NLS-1$
+				}
+			} else {
+				ASTNode elem= (ASTNode) event.getOriginalValue();
+				SourceRange range= getExtendedRange(elem);
+				int elemOffset= range.getStartPosition();
+				int elemLength= range.getLength();
+				int elemEnd= elemOffset + elemLength;
+				if (changeKind == RewriteEvent.REMOVED) {
+					editGroup= getEditGroup(event);
+					int endPos;
+					if (oldParamCount == 0) {
+						endPos= getScanner().getTokenStartOffset(TerminalTokens.TokenNameRPAREN, elemEnd);
+					} else {
+						endPos= getScanner().getTokenEndOffset(TerminalTokens.TokenNameCOMMA, elemEnd);
+					}
+					doTextRemoveAndVisit(offset, endPos - offset, elem, editGroup);
+					return endPos;
+				} else if (changeKind == RewriteEvent.REPLACED) {
+					editGroup= getEditGroup(event);
+					doTextRemoveAndVisit(elemOffset, elemLength, elem, editGroup);
+					doTextInsert(elemOffset, (ASTNode) event.getNewValue(), 0, false, editGroup);
+					rewriteQualifier = true;
+				}
+			}
+		} else {
+			rewriteRequiredNode(method, MethodDeclaration.RECEIVER_TYPE_PROPERTY);
+			if (method.getReceiverType() != null) {
+				rewriteQualifier = true;
+			}
+		}
+		if (rewriteQualifier) {
+			if (qualEvent != null) {
+				int qualChangeKind = qualEvent.getChangeKind();
+				TextEditGroup qualGroup = getEditGroup(qualEvent);
+				if (qualChangeKind == RewriteEvent.INSERTED) {
+					int pos= getScanner().getTokenStartOffset(TerminalTokens.TokenNamethis, offset);
+					doTextInsert(pos, (ASTNode) qualEvent.getNewValue(), 0, false, qualGroup);
+					doTextInsert(pos, ".", qualGroup); //$NON-NLS-1$
+				} else if (qualChangeKind == RewriteEvent.REMOVED) {
+					int qualOffset = oldQual.getStartPosition();
+					int endPos= getScanner().getTokenEndOffset(TerminalTokens.TokenNameDOT, qualOffset);
+					doTextRemove(qualOffset, endPos - qualOffset, qualGroup);
+				} else if (qualChangeKind == RewriteEvent.REPLACED) {
+					SourceRange range= getExtendedRange(oldQual);
+					int elemOffset= range.getStartPosition();
+					int elemLength= range.getLength();
+					doTextRemoveAndVisit(elemOffset, elemLength, oldQual, qualGroup);
+					doTextInsert(elemOffset, newQual, 0, false, qualGroup);
+				}
+			}
+			offset=  getScanner().getTokenEndOffset(TerminalTokens.TokenNamethis, offset);
+			if (newParamCount > 0 && oldParamCount == 0) {
+				doTextInsert(offset, ", ", editGroup); //$NON-NLS-1$
+			}
+		}
+		return offset;
+	}
 
 	public boolean visit(ExtraDimension node) {
 		if (!hasChildrenChanges(node)) {
@@ -1857,8 +1948,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		// parameters
 		try {
+			pos= rewriteMethodReceiver(node, pos);
 			if (isChanged(node, MethodDeclaration.PARAMETERS_PROPERTY)) {
-				pos= getScanner().getTokenEndOffset(TerminalTokens.TokenNameLPAREN, pos);
 				pos= rewriteNodeList(node, MethodDeclaration.PARAMETERS_PROPERTY, pos, Util.EMPTY_STRING, ", "); //$NON-NLS-1$ 
 			} else {
 				pos= doVisit(node, MethodDeclaration.PARAMETERS_PROPERTY, pos);
