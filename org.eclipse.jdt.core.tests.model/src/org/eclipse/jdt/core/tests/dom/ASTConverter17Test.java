@@ -36,6 +36,7 @@ import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -858,4 +859,86 @@ public class ASTConverter17Test extends ConverterTestSetup {
     		NullLiteral nullLiteral = (NullLiteral) initializer;
     		assertTrue((nullLiteral.getFlags() & ASTNode.MALFORMED) != 0);
     }
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=402674
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test403444() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test403444/X.java",
+				true/* resolve */);
+		String contents = "package test403444;" +
+				"public class X {\n" +
+				"  public static interface StringToInt {\n" +
+				"   	int stoi(String s);\n" +
+				"  }\n" +
+				"  public static interface ReduceInt {\n" +
+				"      int reduce(int a, int b);\n" +
+				"  }\n" +
+				"  void foo(StringToInt s) { }\n" +
+				"  void bar(ReduceInt r) { }\n" +
+				"  void bar() {\n" +
+				"      foo(s -> s.length());\n" +
+				"      foo((s) -> s.length());\n" +
+				"      foo((String s) -> s.length()); //SingleVariableDeclaration is OK\n" +
+				"      bar((x, y) -> x+y);\n" +
+				"      bar((int x, int y) -> x+y); //SingleVariableDeclarations are OK\n" +
+				"  }\n" +
+				"}\n";
+		
+		
+    	this.workingCopy = getWorkingCopy("/Converter/src/test403444/X.java", true/* resolve */);
+    	this.workingCopy.getBuffer().setContents(contents);
+    	ASTNode node = runConversion(this.workingCopy, true);
+    	assertTrue(node != null);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		
+		String error = "Lambda expressions are allowed only at source level 1.8 or above\n"
+				+ "Lambda expressions are allowed only at source level 1.8 or above\n"
+				+ "Lambda expressions are allowed only at source level 1.8 or above\n"
+				+ "Lambda expressions are allowed only at source level 1.8 or above\n"
+				+ "Lambda expressions are allowed only at source level 1.8 or above";
+		assertProblemsSize(unit, 5, error);
+
+		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(unit, 0);
+		MethodDeclaration methoddecl = (MethodDeclaration)typedeclaration.bodyDeclarations().get(4);
+		List statements = methoddecl.getBody().statements();
+		int sCount = 0;
+		
+		ExpressionStatement statement = (ExpressionStatement)statements.get(sCount++);
+		MethodInvocation methodInvocation = (MethodInvocation)statement.getExpression();
+		Expression expression = (Expression) methodInvocation.arguments().get(0);
+		assertTrue(expression instanceof NullLiteral);
+		ITypeBinding binding = expression.resolveTypeBinding();
+		assertNull(binding);	
+		
+		statement = (ExpressionStatement)statements.get(sCount++);
+		methodInvocation = (MethodInvocation)statement.getExpression();
+		expression = (Expression) methodInvocation.arguments().get(0);
+		assertTrue(expression instanceof NullLiteral);
+		binding = expression.resolveTypeBinding();
+		assertNull(binding);	
+
+		statement = (ExpressionStatement)statements.get(sCount++);
+		methodInvocation = (MethodInvocation)statement.getExpression();
+		expression = (Expression) methodInvocation.arguments().get(0);
+		assertTrue(expression instanceof NullLiteral);
+		binding = expression.resolveTypeBinding();
+		assertNull(binding);	
+
+		statement = (ExpressionStatement)statements.get(sCount++);
+		methodInvocation = (MethodInvocation)statement.getExpression();
+		expression = (Expression) methodInvocation.arguments().get(0);
+		assertTrue(expression instanceof NullLiteral);
+		binding = expression.resolveTypeBinding();
+		assertNull(binding);	
+
+		statement = (ExpressionStatement)statements.get(sCount++);
+		methodInvocation = (MethodInvocation)statement.getExpression();
+		expression = (Expression) methodInvocation.arguments().get(0);
+		assertTrue(expression instanceof NullLiteral);
+		binding = expression.resolveTypeBinding();
+		assertNull(binding);	
+	}
 }

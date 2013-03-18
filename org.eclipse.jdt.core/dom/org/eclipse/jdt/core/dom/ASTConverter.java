@@ -4075,6 +4075,10 @@ class ASTConverter {
 	}
 
 	protected void recordNodes(ASTNode node, org.eclipse.jdt.internal.compiler.ast.ASTNode oldASTNode) {
+		// Do not record the fake literal node created in lieu of LambdaExpressions at JLS levels < 8, as it would lead to CCE down the road.
+		if (oldASTNode instanceof org.eclipse.jdt.internal.compiler.ast.LambdaExpression && node instanceof NullLiteral) {
+			return;
+		}
 		this.ast.getBindingResolver().store(node, oldASTNode);
 	}
 
