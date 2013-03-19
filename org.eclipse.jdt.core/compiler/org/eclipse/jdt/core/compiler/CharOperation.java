@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1970,7 +1970,7 @@ public static final int hashCode(char[] array) {
 }
 
 /**
- * Answers true if c is a whitespace according to the JLS (&#92;u000a, &#92;u000c, &#92;u000d, &#92;u0009), otherwise false.
+ * Answers true if c is a whitespace according to the JLS (&#92;u0009, &#92;u000a, &#92;u000c, &#92;u000d, &#92;u0020), otherwise false.
  * <br>
  * <br>
  * For example:
