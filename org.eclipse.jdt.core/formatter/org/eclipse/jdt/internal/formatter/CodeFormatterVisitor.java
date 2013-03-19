@@ -2678,7 +2678,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			/*
 			 * Print the argument name
 			 */
-			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
+			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, argument.type != null);
 		}
 
 
