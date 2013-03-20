@@ -12,6 +12,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contribution for bug 402173
+ *                       Contribution for bug 402892
  *******************************************************************************/
 package org.eclipse.jdt.core.tests;
 
@@ -37,6 +38,7 @@ public class RunFormatterTests extends junit.framework.TestCase {
 		TEST_SUITES.add(FormatterCommentsBugsTest.class);
 		TEST_SUITES.add(FormatterCommentsTests.class);
 		TEST_SUITES.add(FormatterJSR335Tests.class);
+		TEST_SUITES.add(FormatterJSR308Tests.class);
 		TEST_SUITES.add(FormatterCommentsClearBlankLinesTests.class);
 		TEST_SUITES.add(FormatterJavadocDontIndentTagsTests.class);
 		TEST_SUITES.add(FormatterJavadocDontIndentTagsDescriptionTests.class);
