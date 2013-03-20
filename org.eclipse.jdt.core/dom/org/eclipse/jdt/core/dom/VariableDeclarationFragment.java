@@ -44,14 +44,14 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 * @deprecated in JLS8 and later, use {@link VariableDeclarationFragment#EXTRA_DIMENSIONS2_PROPERTY} instead.
 	 */
 	public static final SimplePropertyDescriptor EXTRA_DIMENSIONS_PROPERTY =
-		new SimplePropertyDescriptor(VariableDeclarationFragment.class, "extraDimensions", int.class, MANDATORY); //$NON-NLS-1$
+			internalExtraDimensionsPropertyFactory(VariableDeclarationFragment.class);
 
 	/**
-	 * The "extraDimensions" structural property of this node type (element type: {@link ExtraDimension}) (added in JLS8 API).
+	 * The "extraDimensions2" structural property of this node type (element type: {@link ExtraDimension}) (added in JLS8 API).
 	 * @since 3.9
 	 */
 	public static final ChildListPropertyDescriptor EXTRA_DIMENSIONS2_PROPERTY =
-			new ChildListPropertyDescriptor(VariableDeclarationFragment.class, "extraDimensions", ExtraDimension.class, NO_CYCLE_RISK); //$NON-NLS-1$
+			internalExtraDimensions2PropertyFactory(VariableDeclarationFragment.class);
 
 	/**
 	 * The "initializer" structural property of this node type (child type: {@link Expression}).

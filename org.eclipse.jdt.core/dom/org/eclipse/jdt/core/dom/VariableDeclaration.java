@@ -84,12 +84,12 @@ public abstract class VariableDeclaration extends ASTNode {
 	
 	/**
 	 * Creates and returns a structural property descriptor for the
-	 * "extraDimensions" property declared on the given concrete node type (element type: {@link ExtraDimension}).
+	 * "extraDimensions2" property declared on the given concrete node type (element type: {@link ExtraDimension}).
 	 *
 	 * @return the property descriptor
 	 */
 	static final ChildListPropertyDescriptor internalExtraDimensions2PropertyFactory(Class nodeClass) {
-		return 	new ChildListPropertyDescriptor(nodeClass, "extraDimensions", ExtraDimension.class, CYCLE_RISK); //$NON-NLS-1$
+		return 	new ChildListPropertyDescriptor(nodeClass, "extraDimensions2", ExtraDimension.class, CYCLE_RISK); //$NON-NLS-1$
 	}
 	
 	/**

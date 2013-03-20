@@ -92,7 +92,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 			internalExtraDimensionsPropertyFactory(SingleVariableDeclaration.class);
 
 	/**
-	 * The "extraDimensions" structural property of this node type (element type: {@link ExtraDimension}) (added in JLS8 API).
+	 * The "extraDimensions2" structural property of this node type (element type: {@link ExtraDimension}) (added in JLS8 API).
 	 * @since 3.9
 	 */
 	public static final ChildListPropertyDescriptor EXTRA_DIMENSIONS2_PROPERTY =
