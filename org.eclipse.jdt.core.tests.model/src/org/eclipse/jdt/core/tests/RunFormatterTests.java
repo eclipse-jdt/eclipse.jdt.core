@@ -37,8 +37,6 @@ public class RunFormatterTests extends junit.framework.TestCase {
 	static {
 		TEST_SUITES.add(FormatterCommentsBugsTest.class);
 		TEST_SUITES.add(FormatterCommentsTests.class);
-		TEST_SUITES.add(FormatterJSR335Tests.class);
-		TEST_SUITES.add(FormatterJSR308Tests.class);
 		TEST_SUITES.add(FormatterCommentsClearBlankLinesTests.class);
 		TEST_SUITES.add(FormatterJavadocDontIndentTagsTests.class);
 		TEST_SUITES.add(FormatterJavadocDontIndentTagsDescriptionTests.class);
@@ -62,6 +60,8 @@ public class RunFormatterTests extends junit.framework.TestCase {
 			allClasses.add(FormatterBugsTests.class);
 		}
 		allClasses.add(CommentsTestSuite.class);
+		allClasses.add(FormatterJSR335Tests.class);
+		allClasses.add(FormatterJSR308Tests.class);
 		allClasses.addAll(TEST_SUITES);
 
 		// Reset forgotten subsets of tests
