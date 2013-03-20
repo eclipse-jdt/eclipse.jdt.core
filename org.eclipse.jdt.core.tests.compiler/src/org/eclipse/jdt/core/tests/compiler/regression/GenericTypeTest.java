@@ -4437,8 +4437,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    public int size() { return 0; }\n" +
 				"    public Object get(int index) { return null; }\n" +
 				ITERABLE_RAW_IMPL_JRE8 +
-				COLLECTION_RAW_IMPL_JRE8 +
-				LIST_RAW_IMPL_JRE8 +
+				COLLECTION_AND_LIST_RAW_IMPL_JRE8 +
 				"}\n"
 			},
 			"SUCCESS");
@@ -24916,9 +24915,8 @@ public void test0779() throws Exception {
 			"			List<String> list = new AbstractList<String>() {\n" +
 			"				@Override public int size() { return 0; }\n" +
 			"				@Override public String get(int i) { return args.get(i); }\n" +
-			COLLECTION_IMPL_JRE8.replaceAll("\\*", "String") +
+			COLLECTION_AND_LIST_IMPL_JRE8.replaceAll("\\*", "String") +
 			ITERABLE_IMPL_JRE8.replaceAll("\\*", "String") +
-			LIST_IMPL_JRE8.replaceAll("\\*", "String") +
 			"			};\n" +
 			"		}\n" +
 			"	}\n" +
@@ -24930,7 +24928,7 @@ public void test0779() throws Exception {
 		},
 		"SUCCESS");
 
-	String constantPoolIdx = IS_JRE_8 ? "67" : "36"; // depends on whether or not stubs for JRE8 default methods are included
+	String constantPoolIdx = IS_JRE_8 ? "70" : "36"; // depends on whether or not stubs for JRE8 default methods are included
 	String expectedOutput =
 		"  // Method descriptor #31 (I)Ljava/lang/Object;\n" +
 		"  // Stack: 2, Locals: 2\n" +
@@ -34424,7 +34422,7 @@ public void test1035() {
 			"public int compare(T obj1, T obj2) {\n" +
 			"	return obj1.compareTo(obj2);\n" +
 			"}\n" +
-			COMPARATOR_IMPL_JRE8.replace('*', 'T').replace('%', 'U') +
+			COMPARATOR_IMPL_JRE8.replace('*', 'T').replace('%', 'U').replace('$', 'S') +
 			"}\n" +
 			"\n" +
 			"@SuppressWarnings({\"unchecked\", \"rawtypes\"})\n" +
@@ -34475,7 +34473,7 @@ public void test1035() {
 			"public int compare(V obj1, V obj2) {\n" +
 			"	return 0;\n" +
 			"}\n" +
-			COMPARATOR_IMPL_JRE8.replace('*', 'V').replace('%', 'U') +
+			COMPARATOR_IMPL_JRE8.replace('*', 'V').replace('%', 'U').replace('$', 'S') +
 			"}", // =================
 
 		},

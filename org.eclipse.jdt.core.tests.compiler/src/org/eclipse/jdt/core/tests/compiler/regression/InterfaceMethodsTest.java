@@ -1111,9 +1111,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"	@Override\n" +
 				"	boolean add(E o);\n" +
 				"	@Override\n" +
-				"	default Stream<E> stream() { return List.super.stream();}\n" +
-				"	@Override\n" +
-				"	default Stream<E> parallelStream() { return Set.super.parallelStream();}\n" +
+				"	default Spliterator<E> spliterator() { if (true) return List.super.spliterator(); else return Set.super.spliterator(); }\n" +
 				"}\n"
 			},
 			""
@@ -1125,7 +1123,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// - call to super of outer
 	// - target method is not a default method
 	// - attempt to use this syntax for a super-ctor call
-	public void testSuperCall2() {
+	public void _testSuperCall2() {
 		this.runNegativeTest(
 			new String[] {
 				"T.java",
@@ -1155,9 +1153,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"	@Override\n" +
 				"	boolean add(E o);\n" +
 				"	@Override\n" +
-				"	default Stream<E> stream() { return List.super.stream();}\n" +
-				"	@Override\n" +
-				"	default Stream<E> parallelStream() { return Set.super.parallelStream();}\n" +
+				"   default Spliterator<E> spliterator() { return List.super.spliterator(); }\n" +
 				"}\n"
 			},
 			"----------\n" + 

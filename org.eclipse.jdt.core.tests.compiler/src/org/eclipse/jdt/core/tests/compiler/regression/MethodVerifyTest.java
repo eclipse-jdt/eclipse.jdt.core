@@ -6900,8 +6900,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 				"	public Object next() {	return null; }\n" +
 				"	public void remove() {}\n" +
 				ITERABLE_RAW_IMPL_JRE8 +
-				COLLECTION_RAW_IMPL_JRE8 +
-				LIST_RAW_IMPL_JRE8 + 
+				COLLECTION_AND_LIST_RAW_IMPL_JRE8 +
 				"}\n", // =================
 			},
 			"----------\n" +
@@ -7023,8 +7022,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 				"	public Object next() {	return null; }\n" +
 				"	public void remove() {}\n" +
 				ITERABLE_RAW_IMPL_JRE8 +
-				COLLECTION_RAW_IMPL_JRE8 +
-				LIST_RAW_IMPL_JRE8 + 
+				COLLECTION_AND_LIST_RAW_IMPL_JRE8 +
 				"}\n", // =================
 			},
 			"----------\n" +
@@ -7136,8 +7134,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 				"	public Object next() {	return null; }\n" +
 				"	public void remove() {}\n" +
 				ITERABLE_RAW_IMPL_JRE8 +
-				COLLECTION_RAW_IMPL_JRE8 +
-				LIST_RAW_IMPL_JRE8 + 
+				COLLECTION_AND_LIST_RAW_IMPL_JRE8 + 
 				"}\n", // =================
 			},
 			"----------\n" +

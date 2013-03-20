@@ -2567,9 +2567,8 @@ public void test075() {
 				"        public int size() {\n" +
 				"                return 0;\n" +
 				"        }\n" +
-				getListRawImplJRE8() +
+				getCollectionAndListRawImplJRE8() +
 				getIterableRawImplJRE8() +
-				getCollectionRawImplJRE8() +
 				"}", // =================
 			},
 			"");

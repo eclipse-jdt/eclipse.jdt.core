@@ -522,26 +522,21 @@ sure, yet neither overrides the other
 			this.runNegativeTest(
 				testFiles,
 				"----------\n" + 
-			  "1. WARNING in T.java (at line 5)\n" + 
-			  "	os.add(\"hello\");\n" + 
-			  "	^^\n" + 
-			  "Null pointer access: The variable os can only be null at this location\n" + 
-			  "----------\n" + 
-			  "2. WARNING in T.java (at line 7)\n" + 
-			  "	os2.add(1);\n" + 
-			  "	^^^\n" + 
-			  "Null pointer access: The variable os2 can only be null at this location\n" + 
-			  "----------\n" + 
-			  "3. ERROR in T.java (at line 10)\n" + 
-			  "	interface OrderedSet<E> extends List<E>, Set<E> { boolean add(E o); }\n" + 
-			  "	          ^^^^^^^^^^\n" + 
-			  "Duplicate default methods named stream with the parameters () and () are inherited from the types Set<E> and List<E>\n" + 
-			  "----------\n" + 
-			  "4. ERROR in T.java (at line 10)\n" + 
-			  "	interface OrderedSet<E> extends List<E>, Set<E> { boolean add(E o); }\n" + 
-			  "	          ^^^^^^^^^^\n" + 
-			  "Duplicate default methods named parallelStream with the parameters () and () are inherited from the types Set<E> and List<E>\n" + 
-			  "----------\n");
+				"1. WARNING in T.java (at line 5)\n" + 
+				"	os.add(\"hello\");\n" + 
+				"	^^\n" + 
+				"Null pointer access: The variable os can only be null at this location\n" + 
+				"----------\n" + 
+				"2. WARNING in T.java (at line 7)\n" + 
+				"	os2.add(1);\n" + 
+				"	^^^\n" + 
+				"Null pointer access: The variable os2 can only be null at this location\n" + 
+				"----------\n" + 
+				"3. ERROR in T.java (at line 10)\n" + 
+				"	interface OrderedSet<E> extends List<E>, Set<E> { boolean add(E o); }\n" + 
+				"	          ^^^^^^^^^^\n" + 
+				"Duplicate default methods named spliterator with the parameters () and () are inherited from the types Set<E> and List<E>\n" + 
+				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123943 variant to make it pass on JRE8
 	public void test009a() {
@@ -551,7 +546,6 @@ sure, yet neither overrides the other
 			new String[] {
 				"T.java",
 				"import java.util.*;\n" +
-				"import java.util.stream.Stream;\n" +
 				"public class T {\n" +
 				"   void test() {\n" +
 				"   	OrderedSet<String> os = null;\n" +
@@ -562,9 +556,8 @@ sure, yet neither overrides the other
 				"}\n" +
 				"interface OrderedSet<E> extends List<E>, Set<E> {\n" +
 				"	boolean add(E o);\n" +
-				"	default Stream<E> stream() { return null;}\n" +
-				"	default Stream<E> parallelStream() { return null;}\n" +
-				"}\n"
+				"   default Spliterator<E> spliterator() { return null; }\n" +
+    			"}\n"
 			},
 			""
 		);
