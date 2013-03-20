@@ -3114,7 +3114,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo1");
 
-			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
 			ExtraDimension dim= ast.newExtraDimension();
 			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
@@ -3132,7 +3132,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		}
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo2");
-			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
 
 			ExtraDimension dim= ast.newExtraDimension();
 			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
@@ -3146,7 +3146,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		}
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo3");
-			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
 
 			ExtraDimension dim= ast.newExtraDimension();
 			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
@@ -3199,7 +3199,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		}
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo7");
-			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
 			ExtraDimension dim= (ExtraDimension) methodDecl.extraDimensions().get(0);
 			listRewrite.remove(dim, null);
 			dim= (ExtraDimension) methodDecl.extraDimensions().get(1);

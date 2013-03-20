@@ -1973,7 +1973,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					}
 				}
 			} else {
-				pos= rewriteExtraDimensionsInfo(node, pos, MethodDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
+				pos= rewriteExtraDimensionsInfo(node, pos, MethodDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
 			}
 
 			pos= rewriteNodeList(node, exceptionsProperty, pos, " throws ", ", "); //$NON-NLS-1$ //$NON-NLS-2$

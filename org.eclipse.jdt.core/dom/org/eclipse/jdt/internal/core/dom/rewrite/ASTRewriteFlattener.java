@@ -683,7 +683,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		this.result.append('(');
 		visitList(node, MethodDeclaration.PARAMETERS_PROPERTY, String.valueOf(','));
 		this.result.append(')');
-		visitExtraDimensions(node, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, MethodDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
+		visitExtraDimensions(node, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, MethodDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
 
 		ChildListPropertyDescriptor exceptionsProperty = node.getAST().apiLevel() <	AST.JLS8 ? 
 				INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY;

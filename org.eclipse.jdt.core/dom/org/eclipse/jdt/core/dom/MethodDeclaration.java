@@ -114,17 +114,17 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * The "extraDimensions" structural property of this node type (type: {@link Integer}) (below JLS8 only).
 	 *
 	 * @since 3.0
-	 * @deprecated In JLS8 and later, use {@link MethodDeclaration#EXTRA_DIMENSION_INFOS_PROPERTY} instead.
+	 * @deprecated In JLS8 and later, use {@link MethodDeclaration#EXTRA_DIMENSIONS2_PROPERTY} instead.
 	 */
 	public static final SimplePropertyDescriptor EXTRA_DIMENSIONS_PROPERTY =
 		new SimplePropertyDescriptor(MethodDeclaration.class, "extraDimensions", int.class, MANDATORY); //$NON-NLS-1$
 	
 	/**
-	 * The "extraDimensionInfos" structural property of this node type (element type: {@link ExtraDimension}) (added in JLS8 API).
+	 * The "extraDimensions2" structural property of this node type (element type: {@link ExtraDimension}) (added in JLS8 API).
 	 * @since 3.9
 	 */
-	public static final ChildListPropertyDescriptor EXTRA_DIMENSION_INFOS_PROPERTY =
-			new ChildListPropertyDescriptor(MethodDeclaration.class, "extraDimensionInfos", ExtraDimension.class, NO_CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildListPropertyDescriptor EXTRA_DIMENSIONS2_PROPERTY =
+			new ChildListPropertyDescriptor(MethodDeclaration.class, "extraDimensions2", ExtraDimension.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "typeParameters" structural property of this node type (element type: {@link TypeParameter}) (added in JLS3 API).
@@ -239,7 +239,7 @@ public class MethodDeclaration extends BodyDeclaration {
 		addProperty(RECEIVER_TYPE_PROPERTY, propertyList);
 		addProperty(RECEIVER_QUALIFIER_PROPERTY, propertyList);
 		addProperty(PARAMETERS_PROPERTY, propertyList);
-		addProperty(EXTRA_DIMENSION_INFOS_PROPERTY, propertyList);
+		addProperty(EXTRA_DIMENSIONS2_PROPERTY, propertyList);
 		addProperty(THROWN_EXCEPTION_TYPES_PROPERTY, propertyList);
 		addProperty(BODY_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);	
@@ -385,7 +385,7 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (ast.apiLevel < AST.JLS8) {
 			this.thrownExceptions = new ASTNode.NodeList(THROWN_EXCEPTIONS_PROPERTY);
 		} else {
-			this.extraDimensions = new ASTNode.NodeList(EXTRA_DIMENSION_INFOS_PROPERTY);
+			this.extraDimensions = new ASTNode.NodeList(EXTRA_DIMENSIONS2_PROPERTY);
 			this.thrownExceptionTypes = new ASTNode.NodeList(THROWN_EXCEPTION_TYPES_PROPERTY);
 		}
 	}
@@ -521,7 +521,7 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (property == THROWN_EXCEPTION_TYPES_PROPERTY) {
 			return thrownExceptionTypes();
 		}		
-		if (property == EXTRA_DIMENSION_INFOS_PROPERTY) {
+		if (property == EXTRA_DIMENSIONS2_PROPERTY) {
 			return extraDimensions();
 		}
 		// allow default implementation to flag the error
