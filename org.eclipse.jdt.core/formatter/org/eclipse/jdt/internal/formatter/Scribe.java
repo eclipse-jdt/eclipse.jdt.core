@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Ray V. (voidstar@gmail.com) - Contribution for bug 282988
  *     Jesper S Moller - Contribution for bug 402892
+ *                       Contribution for bug 402818
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -4546,6 +4547,7 @@ public class Scribe implements IJavaDocTagConstants {
 				int tokenStartPosition = this.scanner.getCurrentTokenStartPosition();
 				int tokenEndPosition = this.scanner.getCurrentTokenEndPosition();
 				switch(this.currentToken) {
+					case TerminalTokens.TokenNamedefault :
 					case TerminalTokens.TokenNamepublic :
 					case TerminalTokens.TokenNameprotected :
 					case TerminalTokens.TokenNameprivate :
