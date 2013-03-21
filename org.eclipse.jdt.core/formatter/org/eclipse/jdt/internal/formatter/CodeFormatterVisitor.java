@@ -17,6 +17,7 @@
  *                       Contribution for bug 402174
  *                       Contribution for bug 402819
  *                       Contribution for bug 402892
+ *                       Contribution for bug 403881
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -84,6 +85,7 @@ import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.OR_OR_Expression;
@@ -97,6 +99,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedThisReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.Receiver;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
@@ -1920,6 +1923,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			boolean spaceAfterComma,
 			int methodDeclarationParametersAlignment) {
 		formatMethodArguments(
+				methodDeclaration.receiver,
 				methodDeclaration.arguments,
 				methodDeclaration.scope,
 				spaceBeforeOpenParen,
@@ -1931,6 +1935,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				methodDeclarationParametersAlignment);
 	}
 	private void formatMethodArguments(
+			Receiver receiver,
 			final Argument[] arguments,
 			MethodScope scope,
 			boolean spaceBeforeOpenParen,
@@ -1943,11 +1948,13 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, spaceBeforeOpenParen);
 
-		if (arguments != null) {
+		if (arguments != null || receiver != null) {
 			if (spaceBeforeFirstParameter) {
 				this.scribe.space();
 			}
-			int argumentLength = arguments.length;
+			int receiverCount = receiver != null ? 1 : 0;
+			int realArgumentLength =  arguments != null ? arguments.length : 0;
+			int argumentLength = realArgumentLength + receiverCount;
 			Alignment argumentsAlignment = this.scribe.createAlignment(
 					Alignment.METHOD_ARGUMENTS,
 					methodDeclarationParametersAlignment,
@@ -1982,7 +1989,11 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						} else if (spaceAfterComma) {
 							this.scribe.space();
 						}
-						arguments[i].traverse(this, scope);
+						if (i < receiverCount) {
+							receiver.traverse(this, scope);
+						} else {
+							arguments[i - receiverCount].traverse(this, scope);
+						}
 						argumentsAlignment.startingColumn = -1;
 					}
 					ok = true;
@@ -2751,10 +2762,20 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, false);
 		} else {
-			/*
-			 * Print the argument name
-			 */
-			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, argument.type != null);
+			if (argument.isReceiver()) {
+				this.scribe.space();
+				NameReference qualifyingName = ((Receiver) argument).qualifyingName;
+				if (qualifyingName != null) {
+					qualifyingName.traverse(this, scope);
+					this.scribe.printNextToken(TerminalTokens.TokenNameDOT, false);
+				}
+				this.scribe.printNextToken(TerminalTokens.TokenNamethis, false);
+			} else {
+				/*
+				 * Print the argument name
+				 */
+				this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, argument.type != null);
+			}
 		}
 
 		formatExtraDimensions(argumentType);
@@ -4336,6 +4357,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (isNextToken(TerminalTokens.TokenNameLPAREN)) {
 			// Format arguments
 			formatMethodArguments(
+				null,
 				lambdaExpression.arguments,
 				lambdaExpression.getScope(),
 				this.preferences.insert_space_before_opening_paren_in_method_declaration,

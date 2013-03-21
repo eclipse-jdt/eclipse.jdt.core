@@ -10,7 +10,9 @@
  * only. The code is not compatible with any specification of the JCP.
  * 
  * Contributors:
- *     Jesper Steen Moller - initial API and implementation */
+ *     Jesper Steen Moller - initial API and implementation
+ *                           Contribution for bug 403881
+ */
 
 package org.eclipse.jdt.core.tests.formatter;
 
@@ -347,5 +349,9 @@ public class FormatterJSR308Tests extends AbstractJavaModelTests {
 
 	public void test039() {
 		runTest("test039", "X.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	public void testBug403881() {
+		runTest("testBugs", "Bug403881.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
