@@ -2083,6 +2083,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			} else if (DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED.equals(bracePosition)) {
 				this.scribe.printNewLine();
 				this.scribe.indent();
+			} else if (DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP.equals(bracePosition)
+					&& this.scribe.column >= this.preferences.page_width) {
+				this.scribe.printNewLine();
 			}
 			this.scribe.printNextToken(TerminalTokens.TokenNameLBRACE, insertSpaceBeforeBrace, Scribe.PRESERVE_EMPTY_LINES_IN_FORMAT_OPENING_BRACE);
 			this.scribe.printComment(CodeFormatter.K_UNKNOWN, Scribe.UNMODIFIABLE_TRAILING_COMMENT);
