@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -133,6 +134,11 @@ public class FormatterJSR335Tests extends AbstractJavaModelTests {
 		}
 		assertSourceEquals("Different number of length", Util.convertToIndependantLineDelimiter(expectedContents), actualContents);
 	}
+	private void runTest(String packageName, String compilationUnitName, DefaultCodeFormatterOptions codeFormatterOptions) {
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(codeFormatterOptions, this.formatterOptions);
+		runTest(codeFormatter, packageName, compilationUnitName, CodeFormatter.K_COMPILATION_UNIT, 0);
+	}
+	
 	private void runTest(String packageName, String compilationUnitName) {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.formatterPrefs, this.formatterOptions);
 		runTest(codeFormatter, packageName, compilationUnitName, CodeFormatter.K_COMPILATION_UNIT, 0);
@@ -163,7 +169,15 @@ public class FormatterJSR335Tests extends AbstractJavaModelTests {
 	public void testLambda() {
 		runTest("testLambda", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
+	public void testLambdaOptions() {
+		DefaultCodeFormatterOptions options = DefaultCodeFormatterOptions.getEclipseDefaultSettings();
+		options.brace_position_for_lambda_body = DefaultCodeFormatterConstants.NEXT_LINE;
+		options.insert_space_after_lambda_arrow = false;
+		options.insert_space_before_lambda_arrow = false;
+		runTest("testLambdaOptions", "A.java", options);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	public void testMethodReference() {
 		runTest("testMethodReference", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
