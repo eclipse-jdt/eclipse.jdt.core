@@ -3337,4 +3337,30 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Type safety: Potential heap pollution via varargs parameter ls\n" + 
 				"----------\n");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=392671, [1.8][recovery] NPE with a method with explicit this and a following incomplete parameter
+	public void test392671() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"    public void foobar(X this, int, int k) {} // NPE!\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 1)\n" + 
+				"	class X {\n" + 
+				"	        ^\n" + 
+				"Syntax error, insert \"}\" to complete ClassBody\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 2)\n" + 
+				"	public void foobar(X this, int, int k) {} // NPE!\n" + 
+				"	                           ^^^\n" + 
+				"Syntax error, insert \"... VariableDeclaratorId\" to complete FormalParameter\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 3)\n" + 
+				"	}\n" + 
+				"	^\n" + 
+				"Syntax error on token \"}\", delete this token\n" + 
+				"----------\n");
+	}
 }
