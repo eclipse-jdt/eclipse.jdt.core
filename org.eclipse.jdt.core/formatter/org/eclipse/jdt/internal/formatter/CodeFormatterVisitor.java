@@ -15,6 +15,7 @@
  *     Nanda Firdausi - Contribution for bug 298844
  *     Jesper S Moller - Contribution for bug 402173
  *                       Contribution for bug 402174
+ *                       Contribution for bug 402819
  *                       Contribution for bug 402892
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
@@ -57,8 +58,6 @@ import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
 import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ContinueStatement;
-import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
-import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.DoStatement;
 import org.eclipse.jdt.internal.compiler.ast.DoubleLiteral;
 import org.eclipse.jdt.internal.compiler.ast.EmptyStatement;
@@ -76,7 +75,9 @@ import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
 import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
+import org.eclipse.jdt.internal.compiler.ast.IntersectionCastTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.LabeledStatement;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LongLiteral;
 import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
@@ -114,6 +115,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
+import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.WhileStatement;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -4223,6 +4225,24 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					this.scribe.printComment(CodeFormatter.K_UNKNOWN, Scribe.BASIC_TRAILING_COMMENT);
 				}
 				this.scribe.unIndent();
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.IntersectionCastTypeReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public boolean visit(IntersectionCastTypeReference intersectionCastTypeReference, BlockScope scope) {
+		int length = intersectionCastTypeReference.typeReferences == null ? 0 : intersectionCastTypeReference.typeReferences.length;
+		for (int i = 0; i < length; i++) {
+			intersectionCastTypeReference.typeReferences[i].traverse(this, scope);
+			if (i != length - 1) {
+				// Borrowing the formatting option from binary operators
+				this.scribe.printNextToken(TerminalTokens.TokenNameAND, this.preferences.insert_space_before_binary_operator);
+				if (this.preferences.insert_space_after_binary_operator) {
+					this.scribe.space();
+				}
 			}
 		}
 		return false;

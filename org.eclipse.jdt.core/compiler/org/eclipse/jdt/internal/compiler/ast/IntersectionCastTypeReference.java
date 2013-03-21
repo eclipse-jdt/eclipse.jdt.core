@@ -126,13 +126,7 @@ public class IntersectionCastTypeReference extends TypeReference {
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
 	 */
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
-		if (visitor.visit(this, scope)) {
-			int length = this.typeReferences == null ? 0 : this.typeReferences.length;
-			for (int i = 0; i < length; i++) {
-				this.typeReferences[i].traverse(visitor, scope);
-			}
-		}
-		visitor.endVisit(this, scope);
+		throw new UnsupportedOperationException("Unexpected traversal request: IntersectionTypeReference in class scope"); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)

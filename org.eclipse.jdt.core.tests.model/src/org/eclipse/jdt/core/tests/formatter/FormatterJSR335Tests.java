@@ -11,6 +11,7 @@
  * 
  * Contributors:
  *     Jesper Steen Moller - initial API and implementation
+ *                           Contribution for bug 402819
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
@@ -180,6 +181,10 @@ public class FormatterJSR335Tests extends AbstractJavaModelTests {
 
 	public void testMethodReference() {
 		runTest("testMethodReference", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void testBug402819() {
+		runTest("testBugs", "Bug402819.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 }
