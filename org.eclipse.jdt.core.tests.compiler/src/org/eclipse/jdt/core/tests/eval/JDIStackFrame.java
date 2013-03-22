@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import junit.framework.Assert;
+import junit.framework.TestCase;
 
 import org.eclipse.jdt.core.tests.runtime.RuntimeConstants;
 import org.eclipse.jdt.internal.eval.EvaluationConstants;
@@ -165,12 +165,12 @@ protected ThreadReference getDebuggedThread(DebugEvaluationTest test) {
 				requestor,
 				test.getProblemFactory());
 		} catch (InstallException e) {
-			Assert.assertTrue("Target exception " + e.getMessage(), false);
+			TestCase.assertTrue("Target exception " + e.getMessage(), false);
 		}
 		EvaluationResult[] results = requestor.results;
 		for (int i = 0; i < requestor.resultIndex + 1; i++){
 			if (results[i].hasErrors()) {
-				Assert.assertTrue("Compilation error in user code", false);
+				TestCase.assertTrue("Compilation error in user code", false);
 			}
 		}
 
