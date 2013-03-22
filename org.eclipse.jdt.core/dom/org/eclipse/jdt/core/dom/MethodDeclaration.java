@@ -831,8 +831,8 @@ public class MethodDeclaration extends BodyDeclaration {
 	 *    (element type: {@link Name})
 	 * @exception UnsupportedOperationException if this operation is used in
 	 *    a JLS8 or later AST
+	 * @deprecated In the JLS8 API, this method is replaced by {@link #thrownExceptionTypes()}.
 	 */
-//TODO:	* @deprecated In the JLS8 API, this method is replaced by {@link #thrownExceptionTypes()}.
 	public List thrownExceptions() {
 		return internalThrownExceptions();
 	}

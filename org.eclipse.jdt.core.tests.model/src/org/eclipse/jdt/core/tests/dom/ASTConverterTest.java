@@ -44,6 +44,13 @@ public class ASTConverterTest extends ConverterTestSetup {
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTest.class);
 	}
+	/** 
+	 * Internal access method to MethodDeclaration#thrownExceptions() for avoiding deprecated warnings.
+	 * @deprecated
+	 */
+	private static List internalThrownExceptions(MethodDeclaration methodDeclaration) {
+		return methodDeclaration.thrownExceptions();
+	}
 
 	/** @deprecated using deprecated code */
 	public void test0001() throws JavaModelException {
@@ -8320,7 +8327,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		IBinding binding;
 		if (node.getAST().apiLevel() < AST.JLS8) {
-			List thrownExceptions = methodDeclaration.thrownExceptions();
+			List thrownExceptions = internalThrownExceptions(methodDeclaration);
 			assertEquals("Wrong size", 1, thrownExceptions.size()); //$NON-NLS-1$
 			Name name = (Name) thrownExceptions.get(0);
 			binding = name.resolveBinding();			

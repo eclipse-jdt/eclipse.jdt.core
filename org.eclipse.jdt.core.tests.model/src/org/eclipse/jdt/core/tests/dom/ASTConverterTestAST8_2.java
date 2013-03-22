@@ -132,6 +132,14 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST8_2.class);
 	}
+	/** 
+	 * Internal access method to MethodDeclaration#thrownExceptions() for avoiding deprecated warnings.
+	 * @deprecated
+	 */
+	private static List internalThrownExceptions(MethodDeclaration methodDeclaration) {
+		return methodDeclaration.thrownExceptions();
+	}
+
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22560
 	 */
@@ -531,7 +539,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		IBinding binding;
 		if (node.getAST().apiLevel() < AST.JLS8) {
-			List throwsException = methodDeclaration.thrownExceptions();
+			List throwsException = internalThrownExceptions(methodDeclaration);
 			assertEquals("wrong size", 2, throwsException.size()); //$NON-NLS-1$
 			Name name = (Name) throwsException.get(0);
 			binding = name.resolveBinding();			

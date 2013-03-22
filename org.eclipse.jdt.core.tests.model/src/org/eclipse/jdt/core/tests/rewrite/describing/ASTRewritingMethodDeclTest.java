@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.tests.rewrite.describing;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -70,6 +71,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		return ast.apiLevel() < AST.JLS8 ? ast.newSimpleName(name) : (ASTNode) ast.newSimpleType(ast.newSimpleName(name));
 	}
 
+	/** @deprecated using deprecated code */
 	private List getThrownExceptions(MethodDeclaration methodDecl) { 
 		return this.apiLevel < AST.JLS8 ? methodDecl.thrownExceptions() : methodDecl.thrownExceptionTypes(); 
 	} 
@@ -78,6 +80,40 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	private ChildListPropertyDescriptor getMethodThrownExceptionsProperty(AST ast) { 
 		return ast.apiLevel() < AST.JLS8 ? INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY; 
 	} 
+
+	/** @deprecated using deprecated code */
+	private void setModifiers(ASTRewrite rewrite, MethodDeclaration methodDecl, int newModifiers) {
+		if (this.apiLevel < AST.JLS3) {
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+		} else {
+			ListRewrite listRewrite = rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			for (Iterator iter= listRewrite.getOriginalList().iterator(); iter.hasNext(); ) {
+				ASTNode modifier= (ASTNode) iter.next();
+				listRewrite.remove(modifier, null);
+			}
+			List newModifierNodes = methodDecl.getAST().newModifiers(newModifiers);
+			for (Iterator iter= newModifierNodes.iterator(); iter.hasNext(); ) {
+				Modifier modifier= (Modifier) iter.next();
+				listRewrite.insertLast(modifier, null);
+			}
+		}
+	}
+	
+	/** @deprecated using deprecated code */
+	private void setExtraDimensions(ASTRewrite rewrite, MethodDeclaration methodDecl, int extraDimensions) {
+		if (this.apiLevel < AST.JLS8) {
+			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(extraDimensions), null);
+		} else {
+			ListRewrite listRewrite = rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
+			for (Iterator iter= listRewrite.getOriginalList().iterator(); iter.hasNext(); ) {
+				ASTNode extraDimension= (ASTNode) iter.next();
+				listRewrite.remove(extraDimension, null);
+			}
+			for (int i= 0; i < extraDimensions; i++) {
+				listRewrite.insertLast(methodDecl.getAST().newExtraDimension(), null);
+			}
+		}
+	}
 
 	public void testMethodDeclChanges() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -444,7 +480,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		}
 		{ // insert return type, remove (only) modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(1);
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(0), null);
+			setModifiers(rewrite, methodDecl, 0);
 
 			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
 
@@ -456,7 +492,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		{ // insert return type, remove modifier with comments
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(2);
 
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(0), null);
+			setModifiers(rewrite, methodDecl, 0);
 
 			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
 
@@ -477,7 +513,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		}
 		{ // remove return type, remove (only) modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(4);
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(0), null);
+			setModifiers(rewrite, methodDecl, 0);
 
 			// from method to constructor
 			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, null, null);
@@ -487,7 +523,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		{ // remove return type, remove modifier with comments
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(5);
 
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(0), null);
+			setModifiers(rewrite, methodDecl, 0);
 
 			// from method to constructor
 			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, null, null);
@@ -515,7 +551,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 
 
-	public void testMethodReturnTypeChangesAST3_only_3() throws Exception {
+	public void testMethodReturnTypeChanges_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -629,7 +665,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testMethodReturnTypeChanges2AST3_only_3() throws Exception {
+	public void testMethodReturnTypeChanges2_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -731,7 +767,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 
 
-	public void testListRemoves_only_2() throws Exception {
+	public void testListRemoves() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -760,13 +796,13 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "gee");
 
 			// change flags
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(0), null);
+			setModifiers(rewrite, methodDecl, 0);
 
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
 			rewrite.remove((ASTNode) parameters.get(1), null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 1 thrown exceptions", thrownExceptions.size() == 1);
 			rewrite.remove((ASTNode) thrownExceptions.get(0), null);
 		}
@@ -783,7 +819,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.remove((ASTNode) parameters.get(0), null);
 			rewrite.remove((ASTNode) parameters.get(1), null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 2 thrown exceptions", thrownExceptions.size() == 2);
 			rewrite.remove((ASTNode) thrownExceptions.get(0), null);
 		}
@@ -794,7 +830,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.remove((ASTNode) parameters.get(0), null);
 			rewrite.remove((ASTNode) parameters.get(2), null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 2 thrown exceptions", thrownExceptions.size() == 2);
 			rewrite.remove((ASTNode) thrownExceptions.get(1), null);
 		}
@@ -805,7 +841,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.remove((ASTNode) parameters.get(1), null);
 			rewrite.remove((ASTNode) parameters.get(2), null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 3 thrown exceptions", thrownExceptions.size() == 3);
 			rewrite.remove((ASTNode) thrownExceptions.get(1), null);
 		}
@@ -817,7 +853,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.remove((ASTNode) parameters.get(1), null);
 			rewrite.remove((ASTNode) parameters.get(2), null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 3 thrown exceptions", thrownExceptions.size() == 3);
 			rewrite.remove((ASTNode) thrownExceptions.get(0), null);
 			rewrite.remove((ASTNode) thrownExceptions.get(2), null);
@@ -842,7 +878,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testListRemoves2_only_3() throws Exception {
+	public void testListRemoves2_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -925,7 +961,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		}
 	}
 
-	public void testListInserts_only_2() throws Exception {
+	public void testListInserts() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -953,11 +989,11 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			SingleVariableDeclaration newParam= createNewParam(ast, "m");
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertFirst(newParam, null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 0 thrown exceptions", thrownExceptions.size() == 0);
 
 			Name newThrownException= ast.newSimpleName("InterruptedException");
-			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertFirst(newThrownException, null);
+			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertFirst(newThrownException, null);
 
 		}
 		{ // insert before second param & insert before first exception & add synchronized
@@ -965,7 +1001,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			// change flags
 			int newModifiers= Modifier.PUBLIC | Modifier.SYNCHRONIZED;
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			setModifiers(rewrite, methodDecl, newModifiers);
 
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
@@ -974,19 +1010,19 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			SingleVariableDeclaration newParam= createNewParam(ast, "m");
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertBefore(newParam, secondParam, null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 1 thrown exceptions", thrownExceptions.size() == 1);
 
 			ASTNode firstException= (ASTNode) thrownExceptions.get(0);
 			Name newThrownException= ast.newSimpleName("InterruptedException");
-			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertBefore(newThrownException, firstException, null);
+			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertBefore(newThrownException, firstException, null);
 		}
 		{ // insert after last param & insert after first exception & add synchronized, static
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "hee");
 
 			// change flags
 			int newModifiers= Modifier.PUBLIC | Modifier.SYNCHRONIZED | Modifier.STATIC;
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			setModifiers(rewrite, methodDecl, newModifiers);
 
 			List parameters= methodDecl.parameters();
 			assertTrue("must be 3 parameters", parameters.size() == 3);
@@ -994,12 +1030,12 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			SingleVariableDeclaration newParam= createNewParam(ast, "m");
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertLast(newParam, null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 1 thrown exceptions", thrownExceptions.size() == 1);
 
 			ASTNode firstException= (ASTNode) thrownExceptions.get(0);
 			Name newThrownException= ast.newSimpleName("InterruptedException");
-			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertAfter(newThrownException, firstException, null);
+			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertAfter(newThrownException, firstException, null);
 
 		}
 		{ // insert 2 params before first & insert between two exception
@@ -1016,12 +1052,12 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			listRewrite.insertBefore(newParam1, firstParam, null);
 			listRewrite.insertBefore(newParam2, firstParam, null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 2 thrown exceptions", thrownExceptions.size() == 2);
 
 			ASTNode firstException= (ASTNode) thrownExceptions.get(0);
 			Name newThrownException= ast.newSimpleName("InterruptedException");
-			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertAfter(newThrownException, firstException, null);
+			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertAfter(newThrownException, firstException, null);
 		}
 		{ // insert 2 params after first & replace the second exception and insert new after
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "jee");
@@ -1037,11 +1073,11 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			listRewrite.insertAfter(newParam2, firstParam, null);
 			listRewrite.insertAfter(newParam1, firstParam, null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 2 thrown exceptions", thrownExceptions.size() == 2);
 
 			Name newThrownException1= ast.newSimpleName("InterruptedException");
-			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException1, null);
+			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertLast(newThrownException1, null);
 
 			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
 			rewrite.replace((ASTNode) thrownExceptions.get(1), newThrownException2, null);
@@ -1060,14 +1096,14 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			listRewrite.insertAfter(newParam2, lastParam, null);
 			listRewrite.insertAfter(newParam1, lastParam, null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 3 thrown exceptions", thrownExceptions.size() == 3);
 
 			ASTNode lastException= (ASTNode) thrownExceptions.get(2);
 			rewrite.remove(lastException, null);
 
 			Name newThrownException= ast.newSimpleName("InterruptedException");
-			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertBefore(newThrownException, lastException, null);
+			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertBefore(newThrownException, lastException, null);
 		}
 		{ // insert at first and last position & remove 2nd, add after 2nd, remove 3rd
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "lee");
@@ -1081,7 +1117,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			listRewrite.insertFirst(newParam1, null);
 			listRewrite.insertLast(newParam2, null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 3 thrown exceptions", thrownExceptions.size() == 3);
 
 			ASTNode secondException= (ASTNode) thrownExceptions.get(1);
@@ -1090,7 +1126,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.remove(lastException, null);
 
 			Name newThrownException= ast.newSimpleName("InterruptedException");
-			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertAfter(newThrownException, secondException, null);
+			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertAfter(newThrownException, secondException, null);
 
 		}
 
@@ -1378,7 +1414,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 
 
-	public void testMethodBody_only_2() throws Exception {
+	public void testMethodBody() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1413,7 +1449,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			// change flags
 			int newModifiers= Modifier.PUBLIC | Modifier.ABSTRACT;
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			setModifiers(rewrite, methodDecl, newModifiers);
 
 			Block body= methodDecl.getBody();
 			assertTrue("No body: gee", body != null);
@@ -1425,7 +1461,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			// change flags
 			int newModifiers= Modifier.PRIVATE;
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			setModifiers(rewrite, methodDecl, newModifiers);
 
 
 			Block body= methodDecl.getBody();
@@ -1488,7 +1524,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
 
-			rewrite.remove((ASTNode) methodDecl.thrownExceptions().get(0), null);
+			rewrite.remove((ASTNode) getThrownExceptions(methodDecl).get(0), null);
 		}
 		{ // remove extra dim, add throws
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo3");
@@ -1504,7 +1540,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
 
-			rewrite.remove((ASTNode) methodDecl.thrownExceptions().get(0), null);
+			rewrite.remove((ASTNode) getThrownExceptions(methodDecl).get(0), null);
 		}
 		{ // add params, add extra dim, add throws
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo5");
@@ -1526,7 +1562,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(4), null);
 
-			rewrite.remove((ASTNode) methodDecl.thrownExceptions().get(0), null);
+			rewrite.remove((ASTNode) getThrownExceptions(methodDecl).get(0), null);
 		}
 		{ // remove block
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo7");
@@ -1936,7 +1972,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 
 
-	public void testMethodDeclarationParamShuffel_only_2_3_4() throws Exception {
+	public void testMethodDeclarationParamShuffel() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1980,7 +2016,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 
 
-	public void testMethodDeclarationParamShuffel1_only_2_3_4() throws Exception {
+	public void testMethodDeclarationParamShuffel1() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -2018,7 +2054,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testMethodDeclaration_bug24916_only_2_3_4() throws Exception {
+	public void testMethodDeclaration_bug24916() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -2036,7 +2072,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "DD");
 
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
-			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(0), null);
+			setExtraDimensions(rewrite, methodDecl, 0);
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);
@@ -2099,7 +2135,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testMethodComments2_only_2_3_4() throws Exception {
+	public void testMethodComments2() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -2256,7 +2292,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testMethodComments4_only_2_3_4() throws Exception {
+	public void testMethodComments4() throws Exception {
 
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);

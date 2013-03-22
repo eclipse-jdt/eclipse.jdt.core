@@ -51,6 +51,14 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	private void internalSetExtraDimensions(VariableDeclarationFragment node, int dimensions) {
 		node.setExtraDimensions(dimensions);
 	}
+	/** 
+	 * Internal access method to MethodDeclaration#thrownExceptions() for avoiding deprecated warnings.
+	 * @deprecated
+	 */
+	private static List internalThrownExceptions(MethodDeclaration methodDeclaration) {
+		return methodDeclaration.thrownExceptions();
+	}
+
 	public void test0001() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0001", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
@@ -8159,7 +8167,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		assertNotNull("not null", node); //$NON-NLS-1$
 		assertTrue("not a MethodDeclaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-		List thrownExceptions = methodDeclaration.thrownExceptions();
+		List thrownExceptions = internalThrownExceptions(methodDeclaration);
 		assertEquals("Wrong size", 1, thrownExceptions.size()); //$NON-NLS-1$
 		Name name = (Name) thrownExceptions.get(0);
 		IBinding binding = name.resolveBinding();

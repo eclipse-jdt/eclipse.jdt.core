@@ -349,7 +349,7 @@ class ASTConverter {
 	 * @param dimensions
 	 * @deprecated
 	 */
-	private void internalSetExtraDimensions(SingleVariableDeclaration node, int dimensions) {
+	private static void internalSetExtraDimensions(SingleVariableDeclaration node, int dimensions) {
 		node.setExtraDimensions(dimensions);
 	}
 	/** 
@@ -359,7 +359,7 @@ class ASTConverter {
 	 * @param dimensions
 	 * @deprecated
 	 */
-	private void internalSetExtraDimensions(VariableDeclarationFragment node, int dimensions) {
+	private static void internalSetExtraDimensions(VariableDeclarationFragment node, int dimensions) {
 		node.setExtraDimensions(dimensions);
 	}
 	/** 
@@ -369,8 +369,17 @@ class ASTConverter {
 	 * @param dimensions
 	 * @deprecated
 	 */
-	private void internalSetExtraDimensions(MethodDeclaration node, int dimensions) {
+	private static void internalSetExtraDimensions(MethodDeclaration node, int dimensions) {
 		node.setExtraDimensions(dimensions);
+	}
+	/** 
+	 * Internal access method to MethodDeclaration#thrownExceptions() for avoiding deprecated warnings
+	 *
+	 * @param node
+	 * @deprecated
+	 */
+	private static List internalThownExceptions(MethodDeclaration node) {
+		return node.thrownExceptions();
 	}
 
 	/**
@@ -483,7 +492,7 @@ class ASTConverter {
 				int i = 0;
 				do {
 					thrownException = convert(thrownExceptions[i++]);
-					methodDecl.thrownExceptions().add(thrownException);
+					internalThownExceptions(methodDecl).add(thrownException);
 				} while (i < thrownExceptionsLength);
 				methodHeaderEnd = thrownException.getStartPosition() + thrownException.getLength();				
 			} else {
