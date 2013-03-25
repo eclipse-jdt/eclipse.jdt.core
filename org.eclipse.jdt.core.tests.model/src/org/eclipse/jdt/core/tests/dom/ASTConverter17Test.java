@@ -941,4 +941,26 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		binding = expression.resolveTypeBinding();
 		assertNull(binding);	
 	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399791
+	 */
+	public void test0021() throws JavaModelException {
+		String contents =
+				"public interface X {\n" +
+				"	static void foo(){}\n" +
+				"   default void foo(int i){}\n" +
+				"}\n";
+			this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false);
+			ASTNode node = buildAST(contents, this.workingCopy, false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			TypeDeclaration type =  (TypeDeclaration) unit.types().get(0);
+			node = (ASTNode) type.bodyDeclarations().get(0);
+			assertEquals("Not a method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration method = (MethodDeclaration) node;
+			assertEquals("Method should be malformed", ASTNode.MALFORMED, (method.getFlags() & ASTNode.MALFORMED));
+
+			method = (MethodDeclaration) type.bodyDeclarations().get(1);
+			assertEquals("Method should be malformed", ASTNode.MALFORMED, (method.getFlags() & ASTNode.MALFORMED));
+	}
 }

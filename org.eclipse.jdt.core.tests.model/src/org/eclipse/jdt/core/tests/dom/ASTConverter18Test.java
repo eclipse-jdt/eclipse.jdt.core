@@ -1896,5 +1896,43 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertNotNull(binding);
 		assertEquals("ReduceInt", binding.getName());
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399791
+	public void testBug399791() throws JavaModelException {
+		String contents =
+			"public interface X {\n" +
+			"	static void foo(){}\n" +
+			"   public default void foo(int i){}\n" +
+			"   native void foo(float f){}\n" +
+			"   abstract void foo(long l){}\n" +
+			"}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", false);
+		ASTNode node = buildAST(contents, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		TypeDeclaration type =  (TypeDeclaration) unit.types().get(0);
+		node = (ASTNode) type.bodyDeclarations().get(0);
+		assertEquals("Not a method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration method = (MethodDeclaration) node;
+		assertEquals("Method should not be malformed", 0, (method.getFlags() & ASTNode.MALFORMED));
+		List modifiers = method.modifiers();
+		assertEquals("Incorrect no of modfiers", 1, modifiers.size());
+		Modifier modifier = (Modifier) modifiers.get(0);
+		assertSame("Incorrect modifier keyword", Modifier.ModifierKeyword.STATIC_KEYWORD, modifier.getKeyword());
 
+		method = (MethodDeclaration) type.bodyDeclarations().get(1);
+		assertEquals("Method should not be malformed", 0, (method.getFlags() & ASTNode.MALFORMED));
+
+		modifiers = method.modifiers();
+		assertEquals("Incorrect no of modfiers", 2, modifiers.size());
+		modifier = (Modifier) modifiers.get(1);
+		assertSame("Incorrect modifier keyword", Modifier.ModifierKeyword.DEFAULT_KEYWORD, modifier.getKeyword());
+		assertTrue("Incorrect modifier", modifier.isDefaultMethod());
+		assertEquals("Incorrect AST", "public default void foo(int i){\n}\n", method.toString());
+
+		method = (MethodDeclaration) type.bodyDeclarations().get(2);
+		assertEquals("Method should be malformed", ASTNode.MALFORMED, (method.getFlags() & ASTNode.MALFORMED));
+
+		method = (MethodDeclaration) type.bodyDeclarations().get(3);
+		assertEquals("Method should be malformed", ASTNode.MALFORMED, (method.getFlags() & ASTNode.MALFORMED));
+	}
 }

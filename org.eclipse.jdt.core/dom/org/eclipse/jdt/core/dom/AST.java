@@ -1759,7 +1759,7 @@ public final class AST {
 	 * for the given modifier flags. When multiple modifiers are
 	 * requested the modifiers nodes will appear in the following order:
 	 * public, protected, private, abstract, static, final, synchronized,
-	 * native, strictfp, transient, volatile. This order is consistent
+	 * native, strictfp, transient, volatile, default. This order is consistent
 	 * with the recommendations in JLS2 8.1.1, 8.3.1, and 8.4.3.
 	 *
 	 * @param flags bitwise or of modifier flags declared on {@link Modifier}
@@ -1806,6 +1806,9 @@ public final class AST {
 		}
 		if (Modifier.isVolatile(flags)) {
 			result.add(newModifier(Modifier.ModifierKeyword.VOLATILE_KEYWORD));
+		}
+		if (Modifier.isDefaultMethod(flags)) {
+			result.add(newModifier(Modifier.ModifierKeyword.DEFAULT_KEYWORD));
 		}
 		return result;
 	}

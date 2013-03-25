@@ -611,11 +611,12 @@ class ASTConverter {
 					}
 				}
 			}
-			if (block != null
-					&& (Modifier.isAbstract(methodDecl.getModifiers())
-							|| Modifier.isNative(methodDecl.getModifiers())
-							|| isInterface)) {
-				methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
+			if (block != null) {
+				if ((methodDeclaration.modifiers & (ClassFileConstants.AccAbstract | ClassFileConstants.AccNative)) != 0
+						|| (isInterface && (this.ast.apiLevel < AST.JLS8 ||
+							(methodDeclaration.modifiers & (ClassFileConstants.AccStatic | ExtraCompilerModifiers.AccDefaultMethod)) == 0))) {
+					methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
+				}
 			}
 		} else {
 			// syntax error in this method declaration
@@ -4842,6 +4843,9 @@ class ASTConverter {
 						break;
 					case TerminalTokens.TokenNamestrictfp:
 						modifier = createModifier(Modifier.ModifierKeyword.STRICTFP_KEYWORD);
+						break;
+					case TerminalTokens.TokenNamedefault:
+						modifier = createModifier(Modifier.ModifierKeyword.DEFAULT_KEYWORD);
 						break;
 					case TerminalTokens.TokenNameAT :
 						// we have an annotation
