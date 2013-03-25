@@ -28,7 +28,7 @@ import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
  */
 public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	/**
-	 * Internal synonynm for deprecated constant AST.JSL3
+	 * Internal synonym for deprecated constant AST.JSL3
 	 * to alleviate deprecation warnings.
 	 * @deprecated
 	 */

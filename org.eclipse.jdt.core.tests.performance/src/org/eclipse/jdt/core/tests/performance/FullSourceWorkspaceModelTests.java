@@ -76,7 +76,7 @@ public class FullSourceWorkspaceModelTests extends FullSourceWorkspaceTests impl
 	static int TESTS_LENGTH;
 
 	/**
-	 * Internal synonynm for deprecated constant AST.JSL3
+	 * Internal synonym for deprecated constant AST.JSL3
 	 * to alleviate deprecation warnings.
 	 * @deprecated
 	 */

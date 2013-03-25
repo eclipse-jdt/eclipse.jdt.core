@@ -33,7 +33,7 @@ import org.eclipse.jdt.core.dom.*;
 public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 
 	/**
-	 * Internal synonynm for deprecated constant AST.JSL3
+	 * Internal synonym for deprecated constant AST.JSL3
 	 * to alleviate deprecation warnings.
 	 * @deprecated
 	 */

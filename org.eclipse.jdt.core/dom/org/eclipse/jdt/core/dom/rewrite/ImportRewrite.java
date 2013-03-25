@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1030,7 +1030,7 @@ public final class ImportRewrite {
 
 			CompilationUnit usedAstRoot= this.astRoot;
 			if (usedAstRoot == null) {
-				ASTParser parser= ASTParser.newParser(AST.JLS4);
+				ASTParser parser= ASTParser.newParser(AST.JLS8);
 				parser.setSource(this.compilationUnit);
 				parser.setFocalPosition(0); // reduced AST
 				parser.setResolveBindings(false);

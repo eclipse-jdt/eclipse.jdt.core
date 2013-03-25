@@ -32,11 +32,27 @@ import org.eclipse.jdt.core.tests.util.Util;
 
 public abstract class ConverterTestSetup extends AbstractASTTests {
 	/**
-	 * Internal synonynm for deprecated constant AST.JSL3
+	 * Internal synonym for deprecated constant AST.JSL3
 	 * to alleviate deprecation warnings.
 	 * @deprecated
 	 */
 	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
+
+	/**
+	 * Internal synonym for deprecated constant AST.JSL4
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int JLS4_INTERNAL = AST.JLS4;
+
+	static int getJLS3() {
+		return JLS3_INTERNAL;
+	}
+
+	static int getJLS4() {
+		return JLS4_INTERNAL;
+	}
+	
 	protected AST ast;
 	public static List TEST_SUITES = null;
 	public static boolean PROJECT_SETUP = false;
@@ -512,7 +528,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			parser.createAST(null);
 		}
 
-		parser = ASTParser.newParser(AST.JLS4);
+		parser = ASTParser.newParser(JLS4_INTERNAL);
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
 		parser.setBindingsRecovery(bindingRecovery);
@@ -743,9 +759,5 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 				}
 			}
 		}
-	}
-	
-	static int getJLS3() {
-		return JLS3_INTERNAL;
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 IBM Corporation and others.
+ * Copyright (c) 2005, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -122,6 +122,8 @@ public org.eclipse.jdt.core.dom.CompilationUnit getAST3() throws JavaModelExcept
  * <ul>
  * <li> The working copy does not exist (ELEMENT_DOES_NOT_EXIST)</li>
  * </ul>
+ * @deprecated JLS4 has been deprecated. This method has been replaced by {@link #getAST8()} which returns an AST
+ * with JLS8 level.
  * @since 3.7.1
  */
 public org.eclipse.jdt.core.dom.CompilationUnit getAST4() throws JavaModelException {
@@ -139,6 +141,45 @@ public org.eclipse.jdt.core.dom.CompilationUnit getAST4() throws JavaModelExcept
 	}
 	return this.operation.makeConsistent(this.workingCopy);
 }
+/**
+ * Returns a resolved AST with {@link AST#JLS8 JLS8} level.
+ * It is created from the current state of the working copy.
+ * Creates one if none exists yet.
+ * Returns <code>null</code> if the current state of the working copy
+ * doesn't allow the AST to be created (e.g. if the working copy's content
+ * cannot be parsed).
+ * <p>
+ * If the AST level requested during reconciling is not {@link AST#JLS8}
+ * or if binding resolutions was not requested, then a different AST is created.
+ * Note that this AST does not become the current AST and it is only valid for
+ * the requestor.
+ * </p>
+ *
+ * @return the AST created from the current state of the working copy,
+ *   or <code>null</code> if none could be created
+ * @exception JavaModelException  if the contents of the working copy
+ *		cannot be accessed. Reasons include:
+ * <ul>
+ * <li> The working copy does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+ * </ul>
+ * @since 3.9 BETA_JAVA8
+ */
+public org.eclipse.jdt.core.dom.CompilationUnit getAST8() throws JavaModelException {
+	if (this.operation.astLevel != AST.JLS8 || !this.operation.resolveBindings) {
+		// create AST (optionally resolving bindings)
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setCompilerOptions(this.workingCopy.getJavaProject().getOptions(true));
+		if (JavaProject.hasJavaNature(this.workingCopy.getJavaProject().getProject()))
+			parser.setResolveBindings(true);
+		parser.setStatementsRecovery((this.operation.reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
+		parser.setBindingsRecovery((this.operation.reconcileFlags & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0);
+		parser.setSource(this.workingCopy);
+		parser.setIgnoreMethodBodies((this.operation.reconcileFlags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0);
+		return (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(this.operation.progressMonitor);
+	}
+	return this.operation.makeConsistent(this.workingCopy);
+}
+
 /**
  * Returns the AST level requested by the reconcile operation.
  * It is either {@link ICompilationUnit#NO_AST}, or one of the JLS constants defined on {@link AST}.

@@ -41,7 +41,7 @@ import org.osgi.service.prefs.BackingStoreException;
 public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	/**
-	 * Internal synonynm for deprecated constant AST.JSL3
+	 * Internal synonym for deprecated constant AST.JSL3
 	 * to alleviate deprecation warnings.
 	 * @deprecated
 	 */

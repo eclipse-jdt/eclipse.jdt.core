@@ -221,7 +221,7 @@ public class ParameterizedType extends Type {
 	 * type. For the parameterized type to be plausible, the list should contain
 	 * at least one element and not contain primitive or union types.
 	 * <p>
-	 * Since {@link AST#JLS4}, the list can also be empty if this is the type of a
+	 * Since JLS4, the list can also be empty if this is the type of a
 	 * {@link ClassInstanceCreation} (a so-called "diamond").
 	 * </p>
 	 *

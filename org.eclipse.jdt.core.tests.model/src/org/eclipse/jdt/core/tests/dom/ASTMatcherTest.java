@@ -26,11 +26,18 @@ import org.eclipse.jdt.core.dom.*;
 public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 
 	/**
-	 * Internal synonynm for deprecated constant AST.JSL3
+	 * Internal synonym for deprecated constant AST.JSL3
 	 * to alleviate deprecation warnings.
 	 * @deprecated
 	 */
 	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
+	
+	/**
+	 * Internal synonym for deprecated constant AST.JSL4
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int JLS4_INTERNAL = AST.JLS4;
 	
 	/** @deprecated using deprecated code */
 	public static Test suite() {
@@ -683,7 +690,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	public void testUnionType() {
-		if (this.ast.apiLevel() < AST.JLS4) {
+		if (this.ast.apiLevel() < JLS4_INTERNAL) {
 			return;
 		}
 		UnionType x1 = this.ast.newUnionType();
@@ -1194,7 +1201,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 	public void testTryStatementWithResources() {
-		if (this.ast.apiLevel() < AST.JLS4) {
+		if (this.ast.apiLevel() < JLS4_INTERNAL) {
 			return;
 		}
 		TryStatement x1 = this.ast.newTryStatement();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2012 IBM Corporation and others.
+ * Copyright (c) 2004, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -224,7 +224,7 @@ public class ASTParser {
 		switch(level) {
 			case AST.JLS2_INTERNAL:
 			case AST.JLS3_INTERNAL:
-			case AST.JLS4:
+			case AST.JLS4_INTERNAL:
 			case AST.JLS8:
 				break;
 			default:

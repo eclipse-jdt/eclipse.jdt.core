@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.dom.*;
 
 public class SampleASTs {
 	/**
-	 * Internal synonynm for deprecated constant AST.JSL3
+	 * Internal synonym for deprecated constant AST.JSL3
 	 * to alleviate deprecation warnings.
 	 * @deprecated
 	 */

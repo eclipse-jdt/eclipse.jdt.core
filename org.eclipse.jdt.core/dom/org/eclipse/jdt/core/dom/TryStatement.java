@@ -152,7 +152,7 @@ public class TryStatement extends Statement {
 	 */
 	TryStatement(AST ast) {
 		super(ast);
-		if (ast.apiLevel >= AST.JLS4) {
+		if (ast.apiLevel >= AST.JLS4_INTERNAL) {
 			this.resources = new ASTNode.NodeList(RESOURCES_PROPERTY);
 		}
 	}
@@ -216,7 +216,7 @@ public class TryStatement extends Statement {
 		TryStatement result = new TryStatement(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.copyLeadingComment(this);
-		if (this.ast.apiLevel >= AST.JLS4) {
+		if (this.ast.apiLevel >= AST.JLS4_INTERNAL) {
 			result.resources().addAll(
 					ASTNode.copySubtrees(target, resources()));
 		}
@@ -243,7 +243,7 @@ public class TryStatement extends Statement {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			if (this.ast.apiLevel >= AST.JLS4) {
+			if (this.ast.apiLevel >= AST.JLS4_INTERNAL) {
 				acceptChildren(visitor, this.resources);
 			}
 			acceptChild(visitor, getBody());

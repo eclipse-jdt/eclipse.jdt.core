@@ -71,7 +71,7 @@ public static Test suite() {
 }
 
 /**
- * Internal synonynm for deprecated constant AST.JSL3
+ * Internal synonym for deprecated constant AST.JSL3
  * to alleviate deprecation warnings.
  * @deprecated
  */

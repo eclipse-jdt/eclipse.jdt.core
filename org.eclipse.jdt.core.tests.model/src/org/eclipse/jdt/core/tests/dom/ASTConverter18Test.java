@@ -1222,7 +1222,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" + 
 				"@interface Marker3 {}";
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
-		CompilationUnit unit = (CompilationUnit) buildAST(AST.JLS4, contents, this.workingCopy, true, true, true);
+		CompilationUnit unit = (CompilationUnit) buildAST(getJLS4(), contents, this.workingCopy, true, true, true);
 		
 		ASTNode node = getASTNode(unit, 0, 0);
 		assertEquals("Not a Method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());

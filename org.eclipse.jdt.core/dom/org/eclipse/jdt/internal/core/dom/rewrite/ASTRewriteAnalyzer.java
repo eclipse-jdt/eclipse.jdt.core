@@ -117,6 +117,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	
 	/** @deprecated using deprecated code */
 	private static final int JLS3_INTERNAL = AST.JLS3;
+	
+	/** @deprecated using deprecated code */
+	private static final int JLS4_INTERNAL = AST.JLS4;
 
 
 	TextEdit currentEdit;
@@ -3336,7 +3339,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 		int pos= node.getStartPosition();
-		if (node.getAST().apiLevel() >= AST.JLS4) {
+		if (node.getAST().apiLevel() >= JLS4_INTERNAL) {
 			if (isChanged(node, TryStatement.RESOURCES_PROPERTY)) {
 				int indent= getIndent(node.getStartPosition());
 				String prefix= this.formatter.TRY_RESOURCES.getPrefix(indent);

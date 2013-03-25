@@ -2143,7 +2143,7 @@ public class ASTMatcher {
 		}
 		TryStatement o = (TryStatement) other;
 		int level = node.getAST().apiLevel;
-		return (level >= AST.JLS4 ? safeSubtreeListMatch(node.resources(), o.resources()) : true)
+		return (level >= AST.JLS4_INTERNAL ? safeSubtreeListMatch(node.resources(), o.resources()) : true)
 				&& safeSubtreeMatch(node.getBody(), o.getBody())
 				&& safeSubtreeListMatch(node.catchClauses(), o.catchClauses())
 				&& safeSubtreeMatch(node.getFinally(), o.getFinally());

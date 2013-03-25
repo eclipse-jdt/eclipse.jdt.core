@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2012 IBM Corporation and others.
+ * Copyright (c) 2004, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -66,11 +66,17 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	/** @deprecated Using deprecated code */
 	private static final int AST_INTERNAL_JLS2 = AST.JLS2;
 	/**
-	 * Internal synonynm for deprecated constant AST.JSL3
+	 * Internal synonym for deprecated constant AST.JSL3
 	 * to alleviate deprecation warnings.
 	 * @deprecated
 	 */
 	/*package*/ static final int AST_INTERNAL_JLS3 = AST.JLS3;
+	/**
+	 * Internal synonym for deprecated constant AST.JSL4
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int AST_INTERNAL_JLS4 = AST.JLS4;
 	public static final int astInternalJLS2() {
 		return AST_INTERNAL_JLS2;
 	}
@@ -475,7 +481,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		if (jdkLevel >= ClassFileConstants.JDK1_8) {
 			JLSLevel = AST.JLS8;
 		} else if (jdkLevel >= ClassFileConstants.JDK1_7) {
-			JLSLevel = AST.JLS4;
+			JLSLevel = AST_INTERNAL_JLS4;
 		}
 		return buildASTs(
 				JLSLevel,

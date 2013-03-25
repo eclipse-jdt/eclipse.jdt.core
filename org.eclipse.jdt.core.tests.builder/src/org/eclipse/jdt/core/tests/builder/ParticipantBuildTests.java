@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 
 public class ParticipantBuildTests extends BuilderTests {
 	/**
-	 * Internal synonynm for deprecated constant AST.JSL3
+	 * Internal synonym for deprecated constant AST.JSL3
 	 * to alleviate deprecation warnings.
 	 * @deprecated
 	 */

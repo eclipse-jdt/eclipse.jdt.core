@@ -39,7 +39,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 public class BatchASTCreationTests extends AbstractASTTests {
 
 	/**
-	 * Internal synonynm for deprecated constant AST.JSL3
+	 * Internal synonym for deprecated constant AST.JSL3
 	 * to alleviate deprecation warnings.
 	 * @deprecated
 	 */

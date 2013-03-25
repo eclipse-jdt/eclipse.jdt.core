@@ -61,7 +61,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(AST.JLS4);
+		this.ast = AST.newAST(getJLS4());
 	}
 
 	public ASTConverter17Test(String name) {
@@ -212,7 +212,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(AST.JLS4, this.workingCopy, true);
+		ASTNode node = runConversion(getJLS4(), this.workingCopy, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -276,7 +276,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(AST.JLS4, this.workingCopy, false);
+		ASTNode node = runConversion(getJLS4(), this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -309,7 +309,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(AST.JLS4, this.workingCopy, false);
+		ASTNode node = runConversion(getJLS4(), this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -342,7 +342,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(AST.JLS4, this.workingCopy, false);
+		ASTNode node = runConversion(getJLS4(), this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -376,7 +376,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(AST.JLS4, this.workingCopy, false);
+		ASTNode node = runConversion(getJLS4(), this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -434,7 +434,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(AST.JLS4, this.workingCopy, true);
+		ASTNode node = runConversion(getJLS4(), this.workingCopy, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -456,7 +456,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 * Binary literals with underscores
 	 */
 	public void test0012() throws JavaModelException {
-		AST localAst= AST.newAST(AST.JLS4);
+		AST localAst= AST.newAST(getJLS4());
 		NumberLiteral literal= localAst.newNumberLiteral();
 		try {
 			literal.setToken("0b1010");
@@ -482,7 +482,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 				"}";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(AST.JLS4, this.workingCopy, true);
+		ASTNode node = runConversion(getJLS4(), this.workingCopy, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -508,7 +508,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 				"}";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(AST.JLS4, this.workingCopy, true, true);
+		ASTNode node = runConversion(getJLS4(), this.workingCopy, true, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		node = getASTNode(unit, 0, 0);
@@ -567,7 +567,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 				"}";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(AST.JLS4, this.workingCopy, true);
+		ASTNode node = runConversion(getJLS4(), this.workingCopy, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		IProblem[] problems = unit.getProblems();
@@ -728,7 +728,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(AST.JLS4, this.workingCopy, true);
+		ASTNode node = runConversion(getJLS4(), this.workingCopy, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);

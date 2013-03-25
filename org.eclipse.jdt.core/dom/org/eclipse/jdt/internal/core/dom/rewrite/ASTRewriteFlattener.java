@@ -75,6 +75,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	/** @deprecated using deprecated code */
 	private static final int JLS3_INTERNAL = AST.JLS3;
 
+	/** @deprecated using deprecated code */
+	private static final int JLS4_INTERNAL = AST.JLS4;
+
 
 	public static String asString(ASTNode node, RewriteEventStore store) {
 		ASTRewriteFlattener flattener= new ASTRewriteFlattener(store);
@@ -988,7 +991,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 */
 	public boolean visit(TryStatement node) {
 		this.result.append("try "); //$NON-NLS-1$
-		if (node.getAST().apiLevel() >= AST.JLS4) {
+		if (node.getAST().apiLevel() >= JLS4_INTERNAL) {
 			visitList(node, TryStatement.RESOURCES_PROPERTY, String.valueOf(';'), String.valueOf('('), String.valueOf(')'));
 		}
 		getChildNode(node, TryStatement.BODY_PROPERTY).accept(this);

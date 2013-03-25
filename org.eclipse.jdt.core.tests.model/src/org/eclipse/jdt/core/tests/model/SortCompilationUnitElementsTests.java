@@ -66,7 +66,7 @@ private void sortUnit(int apiLevel, ICompilationUnit unit, String expectedResult
 }
 
 /**
- * Internal synonynm for deprecated constant AST.JSL3
+ * Internal synonym for deprecated constant AST.JSL3
  * to alleviate deprecation warnings.
  * @deprecated
  */

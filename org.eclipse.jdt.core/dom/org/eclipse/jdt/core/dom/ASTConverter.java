@@ -3263,7 +3263,7 @@ class ASTConverter {
 		switch(this.ast.apiLevel) {
 			case AST.JLS2_INTERNAL :
 			case AST.JLS3_INTERNAL :
-			case AST.JLS4:
+			case AST.JLS4_INTERNAL:
 				type.setFlags(type.getFlags() | ASTNode.MALFORMED);
 				break;
 			default:
@@ -3296,7 +3296,7 @@ class ASTConverter {
 		switch(this.ast.apiLevel) {
 			case AST.JLS2_INTERNAL :
 			case AST.JLS3_INTERNAL :
-			case AST.JLS4:
+			case AST.JLS4_INTERNAL:
 				typeParameter.setFlags(typeParameter.getFlags() | ASTNode.MALFORMED);
 				break;
 			default:

@@ -116,7 +116,7 @@ public final class AST {
      * </p>
      *
 	 * @since 3.0
-	 * @deprecated Clients should use the {@link #JLS4} AST API instead.
+	 * @deprecated Clients should use the {@link #JLS8} AST API instead.
 	 */
 	public static final int JLS2 = 2;
 
@@ -140,7 +140,7 @@ public final class AST {
      * </p>
      *
 	 * @since 3.1
-	 * @deprecated Clients should use the {@link #JLS4} AST API instead.
+	 * @deprecated Clients should use the {@link #JLS8} AST API instead.
 	 */
 	public static final int JLS3 = 3;
 	
@@ -164,8 +164,16 @@ public final class AST {
 	 * </p>
 	 *
 	 * @since 3.7.1
+	 * @deprecated Clients should use the {@link #JLS8} AST API instead.
 	 */
 	public static final int JLS4 = 4;
+	
+	/**
+	 * Internal synonym for {@link #JLS4}. Use to alleviate
+	 * deprecation warnings.
+	 * @since 3.9 BETA_JAVA8
+	 */
+	/*package*/ static final int JLS4_INTERNAL = JLS4;
 	
 	/**
 	 * Constant for indicating the AST API that handles JLS8.
@@ -273,7 +281,7 @@ public final class AST {
 	 * Creates a new Java abstract syntax tree
      * (AST) following the specified set of API rules.
      * <p>
-     * Clients should use this method specifying {@link #JLS4} as the
+     * Clients should use this method specifying {@link #JLS8} as the
      * AST level in all cases, even when dealing with source of earlier JDK versions like 1.3 or 1.4.
      * </p>
      *
@@ -683,7 +691,7 @@ public final class AST {
 						null/*taskPriorities*/,
 						true/*taskCaseSensitive*/);
 				break;
-			case JLS4 :
+			case JLS4_INTERNAL :
 				this.apiLevel = level;
 				// initialize a scanner
 				this.scanner = new Scanner(

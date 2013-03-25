@@ -58,6 +58,14 @@ public class NaiveASTFlattener extends ASTVisitor {
 	private static final int JLS3 = AST.JLS3;
 
 	/**
+	 * Internal synonym for {@link AST#JLS4}. Use to alleviate
+	 * deprecation warnings.
+	 * @deprecated
+	 * @since 3.9 BETA_JAVA8
+	 */
+	private static final int JLS4 = AST.JLS4;
+
+	/**
 	 * The string buffer into which the serialized representation of the AST is
 	 * written.
 	 */
@@ -1552,7 +1560,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(TryStatement node) {
 		printIndent();
 		this.buffer.append("try ");//$NON-NLS-1$
-		if (node.getAST().apiLevel() >= AST.JLS4) {
+		if (node.getAST().apiLevel() >= JLS4) {
 			List resources = node.resources();
 			if (!resources.isEmpty()) {
 				this.buffer.append('(');

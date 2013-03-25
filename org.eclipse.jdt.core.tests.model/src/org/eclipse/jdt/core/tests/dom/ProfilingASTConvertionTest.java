@@ -38,7 +38,7 @@ import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 
 	/**
-	 * Internal synonynm for deprecated constant AST.JSL3
+	 * Internal synonym for deprecated constant AST.JSL3
 	 * to alleviate deprecation warnings.
 	 * @deprecated
 	 */

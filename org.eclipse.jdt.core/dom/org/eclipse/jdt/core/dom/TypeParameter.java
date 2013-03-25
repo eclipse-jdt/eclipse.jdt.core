@@ -93,7 +93,7 @@ public class TypeParameter extends ASTNode {
 		switch (apiLevel) {
 			case AST.JLS2_INTERNAL :
 			case AST.JLS3_INTERNAL :
-			case AST.JLS4:
+			case AST.JLS4_INTERNAL:
 				return PROPERTY_DESCRIPTORS;
 			default :
 				return PROPERTY_DESCRIPTORS_8_0;

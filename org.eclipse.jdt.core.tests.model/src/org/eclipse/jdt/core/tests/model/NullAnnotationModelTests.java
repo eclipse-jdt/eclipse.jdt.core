@@ -276,7 +276,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"Buildpath problem: the type invalid, which is configured as a null annotation type, cannot be resolved\n" +
 					"----------\n");
 
-			ASTParser parser = ASTParser.newParser(AST.JLS4);
+			ASTParser parser = ASTParser.newParser(AST.JLS8);
 			parser.setProject(p);
 			parser.setResolveBindings(true);
 			parser.setSource(unit);
@@ -339,7 +339,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			assertEquals("Should have no markers", 0, markers.length);
 
 			// Challenge CompilationUnitResolver:
-			ASTParser parser = ASTParser.newParser(AST.JLS4);
+			ASTParser parser = ASTParser.newParser(AST.JLS8);
 			parser.setProject(p);
 			parser.setResolveBindings(true);
 			parser.setSource(unit);
@@ -410,7 +410,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			assertEquals("Unexpected marker path", "/P/p1/C1.java", markers[0].getResource().getFullPath().toString());
 
 			// Challenge CompilationUnitResolver:
-			ASTParser parser = ASTParser.newParser(AST.JLS4);
+			ASTParser parser = ASTParser.newParser(AST.JLS8);
 			parser.setProject(p);
 			parser.setResolveBindings(true);
 			parser.setSource(unit);
@@ -463,7 +463,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			final ICompilationUnit unit = getCompilationUnit("/P/p1/C1.java").getWorkingCopy(this.wcOwner, null);
 			assertNoProblem(c1SourceString.toCharArray(), unit);
 
-			ASTParser parser = ASTParser.newParser(AST.JLS4);
+			ASTParser parser = ASTParser.newParser(AST.JLS8);
 			parser.setProject(p);
 			parser.setResolveBindings(true);
 			parser.setSource(unit);
