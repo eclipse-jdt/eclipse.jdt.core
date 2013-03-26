@@ -28,7 +28,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testInheritedDefaultOverrides" };
+//			TESTS_NAMES = new String[] { "testSuperCall2" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -1123,7 +1123,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// - call to super of outer
 	// - target method is not a default method
 	// - attempt to use this syntax for a super-ctor call
-	public void _testSuperCall2() {
+	public void testSuperCall2() {
 		this.runNegativeTest(
 			new String[] {
 				"T.java",

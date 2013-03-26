@@ -21,6 +21,7 @@
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 401246 - [1.8][compiler] abstract class method should now trump conflicting default methods
  *								bug 401796 - [1.8][compiler] don't treat default methods as overriding an independent inherited abstract method
+ *								bug 403867 - [1.8][compiler] Suspect error about duplicate default methods
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -280,10 +281,14 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 				playingTrump = true;
 			} else {
 				playingTrump = false;
-				// re-checking compatibility is needed for https://bugs.eclipse.org/346029
-				if (concreteMethod != null && !(isOverridden[i] && areMethodsCompatible(concreteMethod, methods[i]))) {
-					problemReporter().duplicateInheritedMethods(this.type, concreteMethod, methods[i]);
-					continueInvestigation = false;
+				if (concreteMethod != null) {
+					// re-checking compatibility is needed for https://bugs.eclipse.org/346029
+					if (isOverridden[i] && areMethodsCompatible(concreteMethod, methods[i])) {
+						continue;
+					} else {
+						problemReporter().duplicateInheritedMethods(this.type, concreteMethod, methods[i]);
+						continueInvestigation = false;
+					}
 				}
 			}
 			concreteMethod = methods[i];
@@ -647,7 +652,7 @@ boolean isSkippableOrOverridden(MethodBinding specific, MethodBinding general, b
 	} else if (specificIsInterface == generalIsInterface) { 
 		if (isParameterSubsignature(specific, general)) {
 			skip[idx] = true;
-			isOverridden[idx] = specific.declaringClass.isCompatibleWith(general.declaringClass);
+			isOverridden[idx] |= specific.declaringClass.isCompatibleWith(general.declaringClass);
 			return true;
 		}
 	}
