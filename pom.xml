@@ -11,25 +11,37 @@
 -->
 
 <project
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-  xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.eclipse</groupId>
     <artifactId>eclipse-platform-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>4.2.2-SNAPSHOT</version>
     <relativePath>../eclipse-platform-parent</relativePath>
   </parent>
 
   <groupId>eclipse.jdt.core</groupId>
   <artifactId>eclipse.jdt.core</artifactId>
-  <version>3.8.0-SNAPSHOT</version>
+  <version>4.2.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <properties>
     <tycho.scmUrl>scm:git:git://git.eclipse.org/gitroot/jdt/eclipse.jdt.core.git</tycho.scmUrl>
   </properties>
+
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>eclipse-hosted</id>
+      <url>https://repo.eclipse.org/content/repositories/eclipse/</url>
+    </repository>
+  </repositories>
 
   <modules>
     <module>org.eclipse.jdt.annotation</module>
