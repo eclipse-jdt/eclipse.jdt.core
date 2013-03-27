@@ -9,14 +9,12 @@
   Contributors:
      Igor Fedorenko - initial implementation
 -->
-
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>eclipse.jdt.core</artifactId>
     <groupId>eclipse.jdt.core</groupId>
-    <version>3.8.0-SNAPSHOT</version>
+    <version>4.3.0-SNAPSHOT</version>
   </parent>
   <groupId>org.eclipse.jdt</groupId>
   <artifactId>org.eclipse.jdt.compiler.apt</artifactId>
@@ -43,14 +41,12 @@
 
                 <property name="ecj.file" refid="ecj.id"/>
 
-                <echo message="UPDATE ${ecj.file}" />
+                <echo message="UPDATE ${ecj.file}"/>
 
                 <property name="unjarDestBin" value="${basedir}/tempbin"/>
                 <mkdir dir="${unjarDestBin}"/>
 
-                <unjar
-                    src="${ecj.file}"
-                    dest="${unjarDestBin}"/>
+                <unjar src="${ecj.file}" dest="${unjarDestBin}"/>
 
                 <zip destfile="${ecj.file}" update="true">
                   <!-- old stuff -->
@@ -60,7 +56,7 @@
                     <include name="**/*"/>
                   </fileset>
                   <fileset dir="${basedir}">
-                    <include name="META-INF/services/**" />
+                    <include name="META-INF/services/**"/>
                   </fileset>
                 </zip>
                 <delete dir="${unjarDestBin}" failonerror="false"/>
