@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 BEA Systems, Inc.
+ * Copyright (c) 2005, 2013 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,8 +13,6 @@ package org.eclipse.jdt.apt.tests.annotations.valueconversion;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.Assert;
 
 import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
@@ -54,7 +52,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		ProcessorTestStatus.setProcessorRan();
 		final TypeDeclaration test = _env.getTypeDeclaration("sample.Test");
 		if( test == null )
-			Assert.assertNotNull("failed to locate type 'sample.Test'", test);
+			junit.framework.TestCase.assertNotNull("failed to locate type 'sample.Test'", test);
 		
 		testCompilerAPIPath(test);
 		testReflectionPath(test);
@@ -63,7 +61,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 	private void testCompilerAPIPath(TypeDeclaration test){
 		final Collection<AnnotationMirror> annotations = test.getAnnotationMirrors();
 		final int numAnnotations = annotations == null ? 0 : annotations.size();
-		Assert.assertEquals("annotation number mismatch", 1, numAnnotations);
+		junit.framework.TestCase.assertEquals("annotation number mismatch", 1, numAnnotations);
 		
 		final AnnotationMirror annotation = annotations.iterator().next();
 		final AnnotationType annotationType = annotation.getAnnotationType();
@@ -150,7 +148,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 				expectedValue = DOUBLE_49;
 				break;
 			default:
-				Assert.assertNotNull("unexpected member " + name, null);
+				junit.framework.TestCase.assertNotNull("unexpected member " + name, null);
 				throw new IllegalStateException(); // won't get here.
 			}
 			assertValueTypeMatch(name, actualValue, expectedType, expectedValue);
@@ -196,7 +194,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 				return;
 			}
 			else{
-				Assert.assertNotNull("unexpected member " + name, null);
+				junit.framework.TestCase.assertNotNull("unexpected member " + name, null);
 				throw new IllegalStateException(); // won't get here.
 			}
 			@SuppressWarnings("unchecked")
