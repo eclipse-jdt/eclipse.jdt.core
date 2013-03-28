@@ -2770,6 +2770,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
+
 		// ensure autobuilding is turned off
 		IWorkspaceDescription description = getWorkspace().getDescription();
 		if (description.isAutoBuilding()) {
@@ -2779,7 +2780,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	protected void setUp () throws Exception {
 		super.setUp();
-		System.setProperty("jdt.bug.367669", "non-null");
+
 		if (NameLookup.VERBOSE || BasicSearchEngine.VERBOSE || JavaModelManager.VERBOSE) {
 			System.out.println("--------------------------------------------------------------------------------");
 			System.out.println("Running test "+getName()+"...");
