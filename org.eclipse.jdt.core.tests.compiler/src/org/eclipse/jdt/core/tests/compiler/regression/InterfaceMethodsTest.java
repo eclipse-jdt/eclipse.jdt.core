@@ -28,7 +28,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testSuperCall2" };
+//			TESTS_NAMES = new String[] { "testBridge02" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -1657,5 +1657,71 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"	                   ^^^^^\n" + 
 				"Cannot use super in a static context\n" + 
 				"----------\n");
+	}
+
+	// Variant of test MethodVerifyTest.test144() from https://bugs.eclipse.org/bugs/show_bug.cgi?id=194034
+	public void testBridge01() {
+		this.runNegativeTest(
+			new String[] {
+				"PurebredCatShopImpl.java",
+				"import java.util.List;\n" +
+				"interface Pet {}\n" +
+				"interface Cat extends Pet {}\n" +
+				"interface PetShop { default List<Pet> getPets() { return null; } }\n" +
+				"interface CatShop extends PetShop {\n" +
+				"	default <V extends Pet> List<? extends Cat> getPets() { return null; }\n" +
+				"}\n" +
+				"interface PurebredCatShop extends CatShop {}\n" +
+				"class CatShopImpl implements CatShop {\n" +
+				"	@Override public List<Pet> getPets() { return null; }\n" +
+				"}\n" +
+				"class PurebredCatShopImpl extends CatShopImpl implements PurebredCatShop {}"
+			},
+			"----------\n" + 
+			"1. ERROR in PurebredCatShopImpl.java (at line 6)\n" + 
+			"	default <V extends Pet> List<? extends Cat> getPets() { return null; }\n" + 
+			"	                                            ^^^^^^^^^\n" + 
+			"Name clash: The method getPets() of type CatShop has the same erasure as getPets() of type PetShop but does not override it\n" + 
+			"----------\n" + 
+			"2. WARNING in PurebredCatShopImpl.java (at line 10)\n" + 
+			"	@Override public List<Pet> getPets() { return null; }\n" + 
+			"	                 ^^^^\n" + 
+			"Type safety: The return type List<Pet> for getPets() from the type CatShopImpl needs unchecked conversion to conform to List<? extends Cat> from the type CatShop\n" + 
+			"----------\n"
+		);
+	}
+	// yet another variant, checking that exactly one bridge method is created, so that
+	// the most specific method is dynamically invoked via all declared types.
+	public void testBridge02() {
+		this.runConformTest(
+			new String[] {
+				"PurebredCatShopImpl.java",
+				"import java.util.List;\n" +
+				"import java.util.ArrayList;\n" +
+				"interface Pet {}\n" +
+				"interface Cat extends Pet {}\n" +
+				"interface PetShop { default List<Pet> getPets() { return null; } }\n" +
+				"interface CatShop extends PetShop {\n" +
+				"	@Override default ArrayList<Pet> getPets() { return null; }\n" +
+				"}\n" +
+				"interface PurebredCatShop extends CatShop {}\n" +
+				"class CatShopImpl implements CatShop {\n" +
+				"	@Override public ArrayList<Pet> getPets() { return new ArrayList<>(); }\n" +
+				"}\n" +
+				"public class PurebredCatShopImpl extends CatShopImpl implements PurebredCatShop {\n" +
+				"	public static void main(String... args) {\n" +
+				"		PurebredCatShopImpl pcsi = new PurebredCatShopImpl();\n" +
+				"		System.out.print(pcsi.getPets().size());\n" +
+				"		CatShopImpl csi = pcsi;\n" +
+				"		System.out.print(csi.getPets().size());\n" +
+				"		CatShop cs = csi;\n" +
+				"		System.out.print(cs.getPets().size());\n" +
+				"		PetShop ps = cs;\n" +
+				"		System.out.print(ps.getPets().size());\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"0000"
+		);
 	}
 }

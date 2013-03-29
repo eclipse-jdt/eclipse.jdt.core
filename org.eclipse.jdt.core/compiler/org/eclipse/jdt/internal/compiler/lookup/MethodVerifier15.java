@@ -22,6 +22,7 @@
  *								bug 401246 - [1.8][compiler] abstract class method should now trump conflicting default methods
  *								bug 401796 - [1.8][compiler] don't treat default methods as overriding an independent inherited abstract method
  *								bug 403867 - [1.8][compiler] Suspect error about duplicate default methods
+ *								bug 391376 - [1.8] check interaction of default methods with bridge methods and generics
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -260,11 +261,14 @@ void checkInheritedMethods(MethodBinding inheritedMethod, MethodBinding otherInh
 void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOverridden) {
 	boolean continueInvestigation = true;
 	MethodBinding concreteMethod = null;
-	MethodBinding superClassMethod = null;
-	boolean playingTrump = false;
+	MethodBinding abstractSuperClassMethod = null;
+	boolean playingTrump = false; // invariant: playingTrump => (concreteMethod == null)
 	for (int i = 0; i < length; i++) {
-		if (!methods[i].declaringClass.isInterface() && methods[i].declaringClass != this.type) {
-			superClassMethod = methods[i];
+		if (!methods[i].declaringClass.isInterface()
+				&& methods[i].declaringClass != this.type
+				&& methods[i].isAbstract())
+		{
+			abstractSuperClassMethod = methods[i];
 			break;
 		}
 	}
@@ -274,10 +278,10 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 			// (a) there exists an abstract method declared in a superclass of C and inherited by C
 			// (b) that is override-equivalent with the two methods.
 			if (methods[i].isDefaultMethod()
-					&& superClassMethod != null							// condition (a)
-					&& areParametersEqual(superClassMethod, methods[i]) // condition (b)...
-					&& (concreteMethod == null || areParametersEqual(superClassMethod, concreteMethod))) {
-				// skip, class method trumps this default method
+					&& abstractSuperClassMethod != null							// condition (a)
+					&& areParametersEqual(abstractSuperClassMethod, methods[i]) // condition (b)...
+					&& concreteMethod == null) {
+				// skip, class method trumps this default method (concreteMethod remains null)
 				playingTrump = true;
 			} else {
 				playingTrump = false;
@@ -290,24 +294,19 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 						continueInvestigation = false;
 					}
 				}
+				concreteMethod = methods[i];
 			}
-			concreteMethod = methods[i];
 		}
 	}
 	if (continueInvestigation) {
-		if (concreteMethod != null && concreteMethod.isDefaultMethod()) {
-			if (playingTrump) {
-				// multiple abstract & default methods are OK on this branch, but then the class must be declared abstract:
-				if (!this.type.isAbstract()) {
-					for (int i = 0; i < length; i++) {
-						if (methods[i] == concreteMethod) continue;
-						if (!doesMethodOverride(concreteMethod, methods[i])) {
-							problemReporter().abstractMethodMustBeImplemented(this.type, methods[i]);
-							return;
-						}
-					}
-				}
-			} else {
+		if (playingTrump) {
+			// multiple abstract & default methods are OK on this branch, but then the class must be declared abstract:
+			if (!this.type.isAbstract()) {
+				problemReporter().abstractMethodMustBeImplemented(this.type, abstractSuperClassMethod);
+				return;
+			}
+		} else {
+			if (concreteMethod != null && concreteMethod.isDefaultMethod()) {
 				if (this.environment.globalOptions.complianceLevel >= ClassFileConstants.JDK1_8) {
 					if (!checkInheritedDefaultMethods(methods, length))
 						return;
@@ -895,7 +894,9 @@ boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBindin
 
 	inheritedMethod = computeSubstituteMethod(inheritedMethod, existingMethod);
 	return inheritedMethod != null
-		&& inheritedMethod.returnType == existingMethod.returnType // keep around to produce bridge methods
+		&& (inheritedMethod.returnType == existingMethod.returnType	// need to keep around to produce bridge methods? ...
+			|| (this.type != existingMethod.declaringClass 			// ... not if inheriting the bridge situation from a superclass
+					&& !existingMethod.declaringClass.isInterface()))
 		&& doesMethodOverride(existingMethod, inheritedMethod);
 }
 public boolean isMethodSubsignature(MethodBinding method, MethodBinding inheritedMethod) {
