@@ -28,7 +28,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testBridge02" };
+//			TESTS_NAMES = new String[] { "testSuperCall" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -1138,7 +1138,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"1. ERROR in T.java (at line 6)\n" + 
 			"	return List.super.stream(); // List is not a direct super interface\n" + 
 			"	       ^^^^^^^^^^\n" + 
-			"No enclosing instance of the type List<E> is accessible in scope\n" + 
+			"Illegal reference to super type List, cannot bypass the more specific direct super type OrderedSet\n" + 
 			"----------\n" + 
 			"2. ERROR in T.java (at line 12)\n" + 
 			"	return OrderedSet.super.stream(); // not a super interface of the direct enclosing class\n" + 
@@ -1186,6 +1186,75 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"OK!"
+		);
+	}
+
+	// 15.12.1 (and 15.12.3, which seems to be redundant)
+	// https://bugs.eclipse.org/404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
+	public void testSuperCall4() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X implements I2, I1 {\n" +
+				"	@Override\n" +
+				"	public void print() {\n" +
+				"		I1.super.print(); // illegal attempt to skip I2.print()\n" +
+				"		System.out.print(\"!\");" +
+				"	}\n" +
+				"	public static void main(String... args) {\n" +
+				"		new X().print();\n" +
+				"	}\n" +
+				"}\n" +
+				"interface I1 {\n" +
+				"	default void print() {\n" +
+				"		System.out.print(\"O\");\n" +
+				"	}\n" +
+				"}\n" +
+				"interface I2 extends I1 {\n" +
+				"	@Override default void print() {\n" +
+				"		System.out.print(\"K\");\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	I1.super.print(); // illegal attempt to skip I2.print()\n" + 
+			"	^^^^^^^^\n" + 
+			"Illegal reference to super type I1, cannot bypass the more specific direct super type I2\n" + 
+			"----------\n"
+		);
+	}
+
+	// 15.12.1
+	// https://bugs.eclipse.org/404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
+	public void testSuperCall5() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X implements I2, I1 {\n" +
+				"	@Override\n" +
+				"	public void print() {\n" +
+				"		I1.super.print(); // illegal attempt to skip I2.print()\n" +
+				"		System.out.print(\"!\");" +
+				"	}\n" +
+				"	public static void main(String... args) {\n" +
+				"		new X().print();\n" +
+				"	}\n" +
+				"}\n" +
+				"interface I1 {\n" +
+				"	default void print() {\n" +
+				"		System.out.print(\"O\");\n" +
+				"	}\n" +
+				"}\n" +
+				"interface I2 extends I1 {\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	I1.super.print(); // illegal attempt to skip I2.print()\n" + 
+			"	^^^^^^^^\n" + 
+			"Illegal reference to super type I1, cannot bypass the more specific direct super type I2\n" + 
+			"----------\n"
 		);
 	}
 	

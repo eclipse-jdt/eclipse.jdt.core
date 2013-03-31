@@ -28,6 +28,7 @@
  *								bug 382789 - [compiler][null] warn when syntactically-nonnull expression is compared against null
  *								bug 402028 - [1.8][compiler] null analysis for reference expressions 
  *								bug 401796 - [1.8][compiler] don't treat default methods as overriding an independent inherited abstract method
+ *								bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
  *     Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -908,6 +909,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("StaticMethodRequested", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("StaticMethodShouldBeAccessedStatically", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("StringConstantIsExceedingUtf8Limit", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("SuperAccessCannotBypassDirectSuper", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("SuperInterfaceMustBeAnInterface", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("SuperInterfacesCollide", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("SuperTypeUsingWildcard", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1684,6 +1686,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("StaticMethodRequested", SKIP);
 		expectedProblemAttributes.put("StaticMethodShouldBeAccessedStatically", SKIP);
 		expectedProblemAttributes.put("StringConstantIsExceedingUtf8Limit", SKIP);
+		expectedProblemAttributes.put("SuperAccessCannotBypassDirectSuper", SKIP);
 		expectedProblemAttributes.put("SuperInterfaceMustBeAnInterface", SKIP);
 		expectedProblemAttributes.put("SuperInterfacesCollide", SKIP);
 		expectedProblemAttributes.put("SuperTypeUsingWildcard", SKIP);

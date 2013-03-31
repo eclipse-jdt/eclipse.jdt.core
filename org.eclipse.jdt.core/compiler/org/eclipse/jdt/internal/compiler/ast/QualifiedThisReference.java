@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								bug 382350 - [1.8][compiler] Unable to invoke inherited default method via I.super.m() syntax
+ *								bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -101,7 +102,9 @@ public class QualifiedThisReference extends ThisReference {
 		this.bits |= (depth & 0xFF) << DepthSHIFT; // encoded depth into 8 bits
 
 		if (this.currentCompatibleType == null) {
-			scope.problemReporter().noSuchEnclosingInstance(type, this, false);
+			if (this.resolvedType.isValidBinding())
+				scope.problemReporter().noSuchEnclosingInstance(type, this, false);
+			// otherwise problem will be reported by the caller
 			return this.resolvedType;
 		}
 

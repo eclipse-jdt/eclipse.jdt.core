@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								bug 382350 - [1.8][compiler] Unable to invoke inherited default method via I.super.m() syntax
+ *								bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -43,6 +44,10 @@ public TypeBinding resolveType(BlockScope scope) {
 		return null;
 	}
 	super.resolveType(scope);
+	if (!this.resolvedType.isValidBinding()) {
+		scope.problemReporter().illegalSuperAccess(this.qualification.resolvedType, this.resolvedType, this);
+		return null;
+	}
 	if (this.currentCompatibleType == null)
 		return null; // error case
 
@@ -61,11 +66,15 @@ int findCompatibleEnclosing(ReferenceBinding enclosingType, TypeBinding type) {
 		ReferenceBinding[] supers = enclosingType.superInterfaces();
 		int length = supers.length;
 		for (int i = 0; i < length; i++) {
-			this.currentCompatibleType = supers[i];
-			if (this.currentCompatibleType.erasure() == type) {
+			if (supers[i].erasure() == type) {
+				this.currentCompatibleType = supers[i];
+			} else if (supers[i].erasure().isCompatibleWith(type)) {
+				this.currentCompatibleType = null;
+				this.resolvedType = new ProblemReferenceBinding(supers[i].compoundName, supers[i], ProblemReasons.AttemptToBypassDirectSuper);
 				return 0;
 			}
 		}
+		return 0;
 	}
 	return super.findCompatibleEnclosing(enclosingType, type);
 }

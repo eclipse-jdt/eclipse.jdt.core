@@ -175,6 +175,7 @@
  *									ReferenceExpressionReturnNullRedef
  *									ReferenceExpressionReturnNullRedefUnchecked
  *									DuplicateInheritedDefaultMethods
+ *									SuperAccessCannotBypassDirectSuper
  *      Jesper S Moller  - added the following constants
  *									TargetTypeNotAFunctionalInterface
  *									OuterLocalMustBeEffectivelyFinal
@@ -421,7 +422,7 @@ void setSourceStart(int sourceStart);
 	int DuplicateBlankFinalFieldInitialization = FieldRelated + 82;
 	/** @since 3.6 */
 	int UnresolvedVariable = FieldRelated + 83;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int NonStaticOrAlienTypeReceiver = MethodRelated + 84;
 	// variable hiding
 	/** @since 3.0 */
@@ -438,11 +439,11 @@ void setSourceStart(int sourceStart);
 	int ArgumentHidingField = Internal + 95;
 	/** @since 3.1 */
 	int MissingSerialVersion = Internal + 96;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int LambdaRedeclaresArgument = Internal + 97;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int LambdaRedeclaresLocal = Internal + 98;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int LambdaDescriptorMentionsUnmentionable = 99;
 
 	// methods
@@ -474,17 +475,17 @@ void setSourceStart(int sourceStart);
 	int MethodCanBeStatic = Internal + MethodRelated + 121;
 	/** @since 3.7 */
 	int MethodCanBePotentiallyStatic = Internal + MethodRelated + 122;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int MethodReferenceSwingsBothWays = Internal + MethodRelated + 123;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int StaticMethodShouldBeAccessedStatically = Internal + MethodRelated + 124;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int InvalidArrayConstructorReference = Internal + MethodRelated + 125;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int ConstructedArrayIncompatible = Internal + MethodRelated + 126;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int DanglingReference = Internal + MethodRelated + 127;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int IncompatibleMethodReference = Internal + MethodRelated + 128;
 
 	// constructors
@@ -917,7 +918,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.2 */
 	int EnumConstantsCannotBeSurroundedByParenthesis = Syntax + Internal + 442;
 
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int IllegalUseOfUnderscoreAsAnIdentifier = Syntax + Internal + 443;
 	// detected task
 	/** @since 2.1 */
@@ -1341,51 +1342,51 @@ void setSourceStart(int sourceStart);
 	int UnusedWarningToken = Internal + 635;
 	/** @since 3.6 */
 	int MissingOverrideAnnotationForInterfaceMethodImplementation = MethodRelated + 636;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
     int InvalidUsageOfTypeAnnotations = Syntax + Internal + 637;
-    /** @since 3.9 */
+    /** @since 3.9 BETA_JAVA8 */
     int DisallowedExplicitThisParameter = Syntax + Internal + 638;
-    /** @since 3.9 */
+    /** @since 3.9 BETA_JAVA8 */
     int MisplacedTypeAnnotations = Syntax + Internal + 639;
-    /** @since 3.9 */
+    /** @since 3.9 BETA_JAVA8 */
     int IllegalTypeAnnotationsInStaticMemberAccess = Internal + Syntax + 640;
-    /** @since 3.9*/
+    /** @since 3.9 BETA_JAVA8 */
     int IllegalUsageOfTypeAnnotations = Internal + Syntax + 641;
-    /** @since 3.9*/
+    /** @since 3.9 BETA_JAVA8 */
     int IllegalDeclarationOfThisParameter = Internal + Syntax + 642;
-    /** @since 3.9*/
+    /** @since 3.9 BETA_JAVA8 */
     int ExplicitThisParameterNotBelow18 = Internal + Syntax + 643;
-    /** @since 3.9*/
+    /** @since 3.9 BETA_JAVA8 */
     int DefaultMethodNotBelow18 = Internal + Syntax + 644;
-    /** @since 3.9*/
+    /** @since 3.9 BETA_JAVA8 */
     int LambdaExpressionNotBelow18 = Internal + Syntax + 645;
-    /** @since 3.9*/
+    /** @since 3.9 BETA_JAVA8 */
     int MethodReferenceNotBelow18 = Internal + Syntax + 646;
-    /** @since 3.9*/
+    /** @since 3.9 BETA_JAVA8 */
     int ConstructorReferenceNotBelow18 = Internal + Syntax + 647;
-    /** @since 3.9*/
+    /** @since 3.9 BETA_JAVA8 */
     int ExplicitThisParameterNotInLambda = Internal + Syntax + 648;
-    /** @since 3.9 */
+    /** @since 3.9 BETA_JAVA8 */
     int ExplicitAnnotationTargetRequired = TypeRelated + 649;
-    /** @since 3.9 */
+    /** @since 3.9 BETA_JAVA8 */
     int IllegalTypeForExplicitThis = Internal + Syntax + 650;
-    /** @since 3.9 */
+    /** @since 3.9 BETA_JAVA8 */
     int IllegalQualifierForExplicitThis = Internal + Syntax + 651;
-    /** @since 3.9 */
+    /** @since 3.9 BETA_JAVA8 */
     int IllegalQualifierForExplicitThis2 = Internal + Syntax + 652;
-    /** @since 3.9 */
+    /** @since 3.9 BETA_JAVA8 */
     int TargetTypeNotAFunctionalInterface = Internal + TypeRelated + 653;
-    /** @since 3.9 */
+    /** @since 3.9 BETA_JAVA8 */
     int IllegalVarargInLambda = Internal + TypeRelated + 654;
-    /** @since 3.9 */
+    /** @since 3.9 BETA_JAVA8 */
     int illFormedParameterizationOfFunctionalInterface = Internal + TypeRelated + 655;
-    /** @since 3.9 */
+    /** @since 3.9 BETA_JAVA8 */
     int lambdaSignatureMismatched = Internal + TypeRelated + 656;
-    /** @since 3.9 */
+    /** @since 3.9 BETA_JAVA8 */
     int lambdaParameterTypeMismatched = Internal + TypeRelated + 657;
-    /** @since 3.9 */
+    /** @since 3.9 BETA_JAVA8 */
     int IncompatibleLambdaParameterType = Internal + TypeRelated + 658;
-    /** @since 3.9 */
+    /** @since 3.9 BETA_JAVA8 */
     int NoGenericLambda = Internal + TypeRelated + 659;
     /**
 	 * More problems in generics
@@ -1396,11 +1397,11 @@ void setSourceStart(int sourceStart);
 	int UnusedTypeParameter = TypeRelated + 661;
 	/** @since 3.9 */
 	int IllegalArrayOfUnionType = TypeRelated + 662;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int OuterLocalMustBeEffectivelyFinal = Internal + 663;
-	/** @since Java 3.9*/
+	/** @since 3.9 BETA_JAVA8 */
 	int InterfaceNotFunctionalInterface = Internal + TypeRelated + 664;
-	/** @since Java 3.9*/
+	/** @since 3.9 BETA_JAVA8 */
 	int ConstructionTypeMismatch = Internal + TypeRelated + 665;
 
 
@@ -1572,17 +1573,17 @@ void setSourceStart(int sourceStart);
 	int ExplicitlyClosedAutoCloseable = Internal + 889;
 	/** @since 3.8 */
 	int SwitchOnEnumNotBelow15 = TypeRelated + 890;	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=360317
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int IntersectionCastNotBelow18 = TypeRelated + 891;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int IllegalBasetypeInIntersectionCast = TypeRelated + 892;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int IllegalArrayTypeInIntersectionCast = TypeRelated + 893;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int DuplicateBoundInIntersectionCast = TypeRelated + 894;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int MultipleFunctionalInterfaces = TypeRelated + 895;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int StaticInterfaceMethodNotBelow18 = Internal + Syntax + 896;
 	
 	/**
@@ -1651,41 +1652,44 @@ void setSourceStart(int sourceStart);
 	/** @since 3.9 */
 	int ConflictingInheritedNullAnnotations = MethodRelated + 940;
 	
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int ArrayReferencePotentialNullReference = Internal + 951;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int DereferencingNullableExpression = Internal + 952;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int NullityMismatchingTypeAnnotation = Internal + 953;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int NullityMismatchingTypeAnnotationUnchecked = Internal + 954;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int ReferenceExpressionParameterMismatchPromisedNullable = MethodRelated + 955;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int ReferenceExpressionParameterRequiredNonnullUnchecked = MethodRelated + 956;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int ReferenceExpressionReturnNullRedef = MethodRelated + 957;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int ReferenceExpressionReturnNullRedefUnchecked = MethodRelated + 958;
 
 	// Java 8 work
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int IllegalModifiersForElidedType = Internal + 1001;
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int IllegalModifiers = Internal + 1002;
 
 	// default methods:
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int IllegalModifierForInterfaceDefaultMethod = MethodRelated + 1050;
 
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int DefaultMethodOverridesObjectMethod = MethodRelated + 1051;
 	
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int InheritedDefaultMethodConflictsWithOtherInherited = MethodRelated + 1052;
 	
-	/** @since 3.9 */
+	/** @since 3.9 BETA_JAVA8 */
 	int DuplicateInheritedDefaultMethods = MethodRelated + 1053;
+
+	/** @since 3.9 BETA_JAVA8 */
+	int SuperAccessCannotBypassDirectSuper = TypeRelated + 1054;
 
 	/**
 	 * External problems -- These are problems defined by other plugins

@@ -34,6 +34,7 @@
  *								bug 382789 - [compiler][null] warn when syntactically-nonnull expression is compared against null
  *								bug 402028 - [1.8][compiler] null analysis for reference expressions 
  *								bug 401796 - [1.8][compiler] don't treat default methods as overriding an independent inherited abstract method
+ *								bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -9456,5 +9457,15 @@ public void incompatibleReturnType(ReferenceExpression expression, MethodBinding
 				expression.sourceStart,
 				expression.sourceEnd);
 	}
+}
+
+public void illegalSuperAccess(TypeBinding superType, TypeBinding directSuperType, ASTNode location) {
+	if (directSuperType.problemId() != ProblemReasons.AttemptToBypassDirectSuper)
+		needImplementation(location);
+	handle(IProblem.SuperAccessCannotBypassDirectSuper, 
+			new String[] { String.valueOf(superType.readableName()), String.valueOf(directSuperType.readableName()) },
+			new String[] { String.valueOf(superType.shortReadableName()), String.valueOf(directSuperType.shortReadableName()) },
+			location.sourceStart,
+			location.sourceEnd);
 }
 }
