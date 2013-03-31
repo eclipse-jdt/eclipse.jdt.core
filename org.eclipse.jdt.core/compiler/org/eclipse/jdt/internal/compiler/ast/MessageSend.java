@@ -29,6 +29,7 @@
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								bug 382350 - [1.8][compiler] Unable to invoke inherited default method via I.super.m() syntax
+ *								bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -46,10 +47,10 @@ import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.ImplicitNullAnnotationVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ImplicitNullAnnotationVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
@@ -686,6 +687,21 @@ public TypeBinding resolveType(BlockScope scope) {
 					&& CharOperation.equals(this.binding.selector, enclosingMethodBinding.selector)
 					&& this.binding.areParametersEqual(enclosingMethodBinding)) {
 				abstractMethodDeclaration.bits |= ASTNode.OverridingMethodWithSupercall;
+			}
+		}
+	}
+	if (this.receiver.isSuper() && this.actualReceiverType.isInterface()) {
+		// 15.12.3 (Java 8)
+		ReferenceBinding enclosingType = scope.enclosingReceiverType();
+		MethodBinding otherMethod = scope.getMethod(enclosingType.superclass(), this.selector, argumentTypes, this);
+		if (scope.checkAppropriate(this.binding, otherMethod, this)) {
+			ReferenceBinding[] superInterfaces = enclosingType.superInterfaces();
+			if (superInterfaces != null) {
+				for (int i = 0; i < superInterfaces.length; i++) {
+					otherMethod = scope.getMethod(superInterfaces[i], this.selector, argumentTypes, this);
+					if (!scope.checkAppropriate(this.binding, otherMethod, this))
+						break;
+				}
 			}
 		}
 	}

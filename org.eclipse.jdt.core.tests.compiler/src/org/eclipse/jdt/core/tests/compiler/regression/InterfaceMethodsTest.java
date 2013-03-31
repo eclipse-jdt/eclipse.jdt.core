@@ -28,7 +28,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testSuperCall" };
+//			TESTS_NAMES = new String[] { "testSuperCall6" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -1189,7 +1189,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		);
 	}
 
-	// 15.12.1 (and 15.12.3, which seems to be redundant)
+	// 15.12.1
 	// https://bugs.eclipse.org/404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
 	public void testSuperCall4() {
 		this.runNegativeTest(
@@ -1257,7 +1257,44 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
-	
+
+	// 15.12.3
+	// https://bugs.eclipse.org/404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
+	public void testSuperCall6() {
+		this.runNegativeTest(
+			new String[] {
+				"SuperOverride.java",
+				"interface I0 {\n" + 
+				"	default void foo() { System.out.println(\"I0\"); }\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface IA extends I0 {}\n" + 
+				"\n" + 
+				"interface IB extends I0 {\n" + 
+				"	@Override default void foo() {\n" + 
+				"		System.out.println(\"IB\");\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface IX extends IA, IB {\n" + 
+				"	@Override default void foo() {\n" + 
+				"		IA.super.foo(); // illegal attempt to skip IB.foo()\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"public class SuperOverride implements IX {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new SuperOverride().foo();\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in SuperOverride.java (at line 14)\n" + 
+			"	IA.super.foo(); // illegal attempt to skip IB.foo()\n" + 
+			"	^^^^^^^^^^^^^^\n" + 
+			"Illegal reference to super method foo() from type I0, cannot bypass the more specific override from type IB\n" + 
+			"----------\n"
+		);
+	}
+
 	// Bug 401235 - [1.8][compiler] 'this' reference must be allowed in default methods and local classes
 	public void testThisReference1() {
 		this.runConformTest(

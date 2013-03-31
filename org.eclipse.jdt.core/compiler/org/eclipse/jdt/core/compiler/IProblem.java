@@ -176,6 +176,7 @@
  *									ReferenceExpressionReturnNullRedefUnchecked
  *									DuplicateInheritedDefaultMethods
  *									SuperAccessCannotBypassDirectSuper
+ *									SuperCallCannotBypassOverride
  *      Jesper S Moller  - added the following constants
  *									TargetTypeNotAFunctionalInterface
  *									OuterLocalMustBeEffectivelyFinal
@@ -1690,6 +1691,8 @@ void setSourceStart(int sourceStart);
 
 	/** @since 3.9 BETA_JAVA8 */
 	int SuperAccessCannotBypassDirectSuper = TypeRelated + 1054;
+	/** @since 3.9 BETA_JAVA8 */
+	int SuperCallCannotBypassOverride = MethodRelated + 1055;
 
 	/**
 	 * External problems -- These are problems defined by other plugins

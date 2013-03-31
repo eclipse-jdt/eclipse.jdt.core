@@ -910,6 +910,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("StaticMethodShouldBeAccessedStatically", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("StringConstantIsExceedingUtf8Limit", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("SuperAccessCannotBypassDirectSuper", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("SuperCallCannotBypassOverride", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("SuperInterfaceMustBeAnInterface", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("SuperInterfacesCollide", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("SuperTypeUsingWildcard", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1687,6 +1688,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("StaticMethodShouldBeAccessedStatically", SKIP);
 		expectedProblemAttributes.put("StringConstantIsExceedingUtf8Limit", SKIP);
 		expectedProblemAttributes.put("SuperAccessCannotBypassDirectSuper", SKIP);
+		expectedProblemAttributes.put("SuperCallCannotBypassOverride", SKIP);
 		expectedProblemAttributes.put("SuperInterfaceMustBeAnInterface", SKIP);
 		expectedProblemAttributes.put("SuperInterfacesCollide", SKIP);
 		expectedProblemAttributes.put("SuperTypeUsingWildcard", SKIP);
