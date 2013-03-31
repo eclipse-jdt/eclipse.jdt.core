@@ -271,28 +271,6 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// class implements interface with default method. 
-	// - witness for NoSuchMethodError in synthetic method (SuperMethodAccess)
-	public void testModifiers5a() {
-		runConformTest(
-			new String[] {
-				"C.java",
-				"interface I {\n" +
-				"    public default void foo() {\n" +
-				"        System.out.println(\"default\");\n" +
-				"    }\n" +
-				"}\n" +
-				"public class C implements I {\n" +
-				"    public static void main(String[] args) {\n" +
-				"        C c = new C();\n" +
-				"        c.foo();\n" +
-				"    }\n" +
-				"}\n"
-			},
-			"default"
-			);
-	}
-
-	// class implements interface with default method. 
 	// - no need to implement this interface method as it is not abstract, but other abstract method exists
 	public void testModifiers6() {
 		runNegativeTest(
@@ -1657,6 +1635,59 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"	                   ^^^^^\n" + 
 				"Cannot use super in a static context\n" + 
 				"----------\n");
+	}
+
+	// class implements interface with default method. 
+	// - synth. access needed for visibility reasons
+	// - witness for NoSuchMethodError in synthetic method (SuperMethodAccess)
+	public void testSuperAccess01() {
+		runConformTest(
+			new String[] {
+				"C.java",
+				"interface I {\n" +
+				"    public default void foo() {\n" +
+				"        System.out.println(\"default\");\n" +
+				"    }\n" +
+				"}\n" +
+				"public class C implements I {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        C c = new C();\n" +
+				"        c.foo();\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"default"
+			);
+	}
+
+	// class implements interface with default method. 
+	// - synth. access needed for visibility reasons
+	// - intermediate public interface
+	public void testSuperAccess02() {
+		runConformTest(
+			false,
+			new String[] {
+				"p1/C.java",
+				"package p1;\n" +
+				"public class C implements p2.J {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        C c = new C();\n" +
+				"        c.foo();\n" +
+				"    }\n" +
+				"}\n",
+				"p2/J.java",
+				"package p2;\n" +
+				"interface I {\n" +
+				"    public default void foo() {\n" +
+				"        System.out.println(\"default\");\n" +
+				"    }\n" +
+				"}\n" +
+				"public interface J extends I {}\n"
+			},
+			"",
+			"default",
+			"",
+			JavacTestOptions.JavacHasABug.Javac8ProducesIllegalAccessError);
 	}
 
 	// Variant of test MethodVerifyTest.test144() from https://bugs.eclipse.org/bugs/show_bug.cgi?id=194034

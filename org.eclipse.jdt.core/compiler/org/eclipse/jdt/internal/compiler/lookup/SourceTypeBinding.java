@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -21,6 +25,7 @@
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 380896 - [compiler][null] Enum constants not recognised as being NonNull.
+ *								bug 391376 - [1.8] check interaction of default methods with bridge methods and generics
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -597,7 +602,7 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 	if (this.scope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_5) {
 		return null;
 	}
-	if (isInterface()) return null;
+	if (isInterface() && !inheritedMethodToBridge.isDefaultMethod()) return null;
 	if (inheritedMethodToBridge.isAbstract() || inheritedMethodToBridge.isFinal() || inheritedMethodToBridge.isStatic()) {
 		return null;
 	}

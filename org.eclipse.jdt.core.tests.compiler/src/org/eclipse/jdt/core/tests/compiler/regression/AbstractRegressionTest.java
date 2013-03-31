@@ -15,6 +15,7 @@
  *								bug 335093 - [compiler][null] minimal hook for future null annotation support
  *								bug 388800 - [1.8] adjust tests to 1.8 JRE
  *								bug 402237 - [1.8][compiler] investigate differences between compilers re MethodVerifyTest
+ *								bug 391376 - [1.8] check interaction of default methods with bridge methods and generics
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -765,6 +766,10 @@ protected static class JavacTestOptions {
 			Javac8AcceptsDefaultMethodInAnnotationType = RUN_JAVAC ?
 				new JavacHasABug(
 					MismatchType.EclipseErrorsJavacNone,
+					ClassFileConstants.JDK1_8, 23 /* TODO: insert minor when fixed */) : null,
+			Javac8ProducesIllegalAccessError = RUN_JAVAC ? 
+				new JavacHasABug(
+					MismatchType.StandardOutputMismatch,
 					ClassFileConstants.JDK1_8, 23 /* TODO: insert minor when fixed */) : null;
 	}
 }

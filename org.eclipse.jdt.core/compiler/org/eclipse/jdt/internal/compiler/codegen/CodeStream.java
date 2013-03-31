@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								bug 400710 - [1.8][compiler] synthetic access to default method generates wrong code
+ *								bug 391376 - [1.8] check interaction of default methods with bridge methods and generics
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
@@ -2588,9 +2589,7 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMe
 				|| accessMethod.purpose == SyntheticMethodBinding.SuperMethodAccess){
 			// target method declaring class may not be accessible (247953);
 			TypeBinding declaringClass = accessMethod.purpose == SyntheticMethodBinding.SuperMethodAccess 
-					? (targetMethod.isDefaultMethod()
-							? targetMethod.declaringClass
-							: accessMethod.declaringClass.superclass())
+					? findDirectSuperTypeTowards(accessMethod, targetMethod)
 					: accessMethod.declaringClass;
 			invoke(Opcodes.OPC_invokespecial, targetMethod, declaringClass);
 		} else {
@@ -2628,6 +2627,30 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMe
 				this.checkcast(accessErasure); // for bridge methods
 			}
 			areturn();
+	}
+}
+/** When generating SuperMetodAccess towards targetMethod,
+ *  find the suitable direct super type, that will eventually lead to targetMethod.declaringClass.*/
+ReferenceBinding findDirectSuperTypeTowards(SyntheticMethodBinding accessMethod, MethodBinding targetMethod) {
+	ReferenceBinding currentType = accessMethod.declaringClass;
+	ReferenceBinding superclass = currentType.superclass();
+	if (targetMethod.isDefaultMethod()) {
+		// could be inherited via superclass *or* a super interface 
+		ReferenceBinding targetType = targetMethod.declaringClass;
+		if (superclass.isCompatibleWith(targetType))
+			return superclass;
+		ReferenceBinding[] superInterfaces = currentType.superInterfaces();
+		if (superInterfaces != null) {
+			for (int i = 0; i < superInterfaces.length; i++) {
+				ReferenceBinding superIfc = superInterfaces[i];
+				if (superIfc.isCompatibleWith(targetType))
+					return superIfc;
+			}
+		}
+		throw new RuntimeException("Assumption violated: some super type must be conform to the declaring class of a super method"); //$NON-NLS-1$
+	} else {
+		// only one path possible:
+		return superclass;
 	}
 }
 
