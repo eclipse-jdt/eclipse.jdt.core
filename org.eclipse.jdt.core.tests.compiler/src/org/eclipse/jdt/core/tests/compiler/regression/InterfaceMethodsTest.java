@@ -1755,4 +1755,161 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"0000"
 		);
 	}
+	
+	// modeled after org.eclipse.jdt.core.tests.compiler.regression.AmbiguousMethodTest.test081()
+	// see https://bugs.eclipse.org/391376 - [1.8] check interaction of default methods with bridge methods and generics
+    // see https://bugs.eclipse.org/404648 - [1.8][compiler] investigate differences between compilers re AmbiguousMethodTest
+	public void _testBridge03() {
+		runConformTest(
+			new String[] {
+				"C.java",
+				"interface A<ModelType extends D, ValueType> extends\n" + 
+				"		I<ModelType, ValueType> {\n" + 
+				"\n" + 
+				"	@Override\n" + 
+				"	public default void doSet(ModelType valueGetter) {\n" + 
+				"		this.set((ValueType) valueGetter.getObject());\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	@Override\n" + 
+				"	public default void set(Object object) {\n" + 
+				"		System.out.println(\"In A.set(Object)\");\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class B implements A<E, CharSequence> {\n" + 
+				"\n" + 
+				"	public void set(CharSequence string) {\n" + 
+				"		System.out.println(\"In B.set(CharSequence)\");\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class C extends B {\n" + 
+				"\n" + 
+				"	static public void main(String[] args) {\n" + 
+				"		C c = new C();\n" + 
+				"		c.run();\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public void run() {\n" + 
+				"		E e = new E<String>(String.class);\n" + 
+				"		this.doSet(e);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}\n" + 
+				"\n" + 
+				"class D {\n" + 
+				"	public Object getObject() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class E<Type extends CharSequence> extends D {\n" + 
+				"\n" + 
+				"	private Class<Type> typeClass;\n" + 
+				"\n" + 
+				"	public E(Class<Type> typeClass) {\n" + 
+				"		this.typeClass = typeClass;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	@Override\n" + 
+				"	public Type getObject() {\n" + 
+				"		try {\n" + 
+				"			return (Type) typeClass.newInstance();\n" + 
+				"		} catch (Exception e) {\n" + 
+				"			throw new RuntimeException(e);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface I<ModelType, ValueType> {\n" + 
+				"\n" + 
+				"	public void doSet(ModelType model);\n" + 
+				"\n" + 
+				"	public void set(ValueType value);\n" + 
+				"\n" + 
+				"}\n"
+			},
+			"In B.set(CharSequence)");
+	}
+	
+    
+    // modeled after org.eclipse.jdt.core.tests.compiler.regression.AmbiguousMethodTest.test081()
+    // see https://bugs.eclipse.org/391376 - [1.8] check interaction of default methods with bridge methods and generics
+    // see https://bugs.eclipse.org/404648 - [1.8][compiler] investigate differences between compilers re AmbiguousMethodTest
+    public void _testBridge04() {
+        runConformTest(
+            new String[] {
+                "C.java",
+                "interface A<ModelType extends D, ValueType> extends\n" + 
+                "       I<ModelType, ValueType> {\n" + 
+                "\n" + 
+                "   @Override\n" + 
+                "   public default void doSet(ModelType valueGetter) {\n" + 
+                "       this.set((ValueType) valueGetter.getObject());\n" + 
+                "   }\n" + 
+                "\n" + 
+                "   @Override\n" + 
+                "   public default void set(Object object) {\n" + 
+                "       System.out.println(\"In A.set(Object)\");\n" + 
+                "   }\n" + 
+                "}\n" + 
+                "\n" + 
+                "interface B extends A<E, CharSequence> {\n" + 
+                "\n" + 
+                "   public default void set(CharSequence string) {\n" + 
+                "       System.out.println(\"In B.set(CharSequence)\");\n" + 
+                "   }\n" + 
+                "}\n" + 
+                "\n" + 
+                "public class C implements B {\n" + 
+                "\n" + 
+                "   static public void main(String[] args) {\n" + 
+                "       C c = new C();\n" + 
+                "       c.run();\n" + 
+                "   }\n" + 
+                "\n" + 
+                "   public void run() {\n" + 
+                "       E e = new E<String>(String.class);\n" + 
+                "       this.doSet(e);\n" + 
+                "   }\n" + 
+                "\n" + 
+                "}\n" + 
+                "\n" + 
+                "class D {\n" + 
+                "   public Object getObject() {\n" + 
+                "       return null;\n" + 
+                "   }\n" + 
+                "}\n" + 
+                "\n" + 
+                "class E<Type extends CharSequence> extends D {\n" + 
+                "\n" + 
+                "   private Class<Type> typeClass;\n" + 
+                "\n" + 
+                "   public E(Class<Type> typeClass) {\n" + 
+                "       this.typeClass = typeClass;\n" + 
+                "   }\n" + 
+                "\n" + 
+                "   @Override\n" + 
+                "   public Type getObject() {\n" + 
+                "       try {\n" + 
+                "           return (Type) typeClass.newInstance();\n" + 
+                "       } catch (Exception e) {\n" + 
+                "           throw new RuntimeException(e);\n" + 
+                "       }\n" + 
+                "   }\n" + 
+                "\n" + 
+                "}\n" + 
+                "\n" + 
+                "interface I<ModelType, ValueType> {\n" + 
+                "\n" + 
+                "   public void doSet(ModelType model);\n" + 
+                "\n" + 
+                "   public void set(ValueType value);\n" + 
+                "\n" + 
+                "}\n"
+            },
+            "In B.set(CharSequence)");
+    }
 }
