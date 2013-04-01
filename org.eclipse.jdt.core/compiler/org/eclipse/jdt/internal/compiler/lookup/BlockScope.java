@@ -1188,8 +1188,25 @@ public void correlateTrackingVarsIfElse(FlowInfo thenFlowInfo, FlowInfo elseFlow
 	if (this.parent instanceof BlockScope)
 		((BlockScope) this.parent).correlateTrackingVarsIfElse(thenFlowInfo, elseFlowInfo);
 }
+
 /** 15.12.3 (Java 8) "Compile-Time Step 3: Is the Chosen Method Appropriate?" */
-public boolean checkAppropriate(MethodBinding compileTimeDeclaration, MethodBinding otherMethod, MessageSend location) {
+public void checkAppropriateMethodAgainstSupers(char[] selector, MethodBinding compileTimeMethod,
+		TypeBinding[] parameters, InvocationSite site)
+{
+	ReferenceBinding enclosingType = enclosingReceiverType();
+	MethodBinding otherMethod = getMethod(enclosingType.superclass(), selector, parameters, site);
+	if (checkAppropriate(compileTimeMethod, otherMethod, site)) {
+		ReferenceBinding[] superInterfaces = enclosingType.superInterfaces();
+		if (superInterfaces != null) {
+			for (int i = 0; i < superInterfaces.length; i++) {
+				otherMethod = getMethod(superInterfaces[i], selector, parameters, site);
+				if (!checkAppropriate(compileTimeMethod, otherMethod, site))
+					break;
+			}
+		}
+	}
+}
+private boolean checkAppropriate(MethodBinding compileTimeDeclaration, MethodBinding otherMethod, InvocationSite location) {
 	if (otherMethod == null || !otherMethod.isValidBinding() || otherMethod == compileTimeDeclaration)
 		return true;
 	if (MethodVerifier.doesMethodOverride(otherMethod, compileTimeDeclaration, this.environment())) {

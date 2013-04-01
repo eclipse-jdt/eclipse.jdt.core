@@ -65,16 +65,30 @@ int findCompatibleEnclosing(ReferenceBinding enclosingType, TypeBinding type) {
 		// super call to an overridden default method? (not considering outer enclosings)
 		ReferenceBinding[] supers = enclosingType.superInterfaces();
 		int length = supers.length;
+		boolean isLegal = true; // false => compoundName != null && closestMatch != null
+		char[][] compoundName = null;
+		ReferenceBinding closestMatch = null;
 		for (int i = 0; i < length; i++) {
 			if (supers[i].erasure() == type) {
-				this.currentCompatibleType = supers[i];
+				this.currentCompatibleType = closestMatch = supers[i];
 			} else if (supers[i].erasure().isCompatibleWith(type)) {
-				this.currentCompatibleType = null;
-				this.resolvedType = new ProblemReferenceBinding(supers[i].compoundName, supers[i], ProblemReasons.AttemptToBypassDirectSuper);
-				return 0;
+				isLegal = false;
+				compoundName = supers[i].compoundName;
+				if (closestMatch == null)
+					closestMatch = supers[i];
+				// keep looking to ensure we always find the referenced type (even if illegal) 
 			}
 		}
-		return 0;
+		if (!isLegal) {
+			this.currentCompatibleType = null;
+			// Please note the slightly unconventional use of the ProblemReferenceBinding:
+			// we use the problem's compoundName to report the type being illegally bypassed,
+			// whereas the closestMatch denotes the resolved (though illegal) target type
+			// for downstream resolving.
+			this.resolvedType =  new ProblemReferenceBinding(compoundName, 
+					closestMatch, ProblemReasons.AttemptToBypassDirectSuper);
+		}
+		return 0; // never an outer enclosing type
 	}
 	return super.findCompatibleEnclosing(enclosingType, type);
 }

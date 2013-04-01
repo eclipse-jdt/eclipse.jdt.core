@@ -9468,7 +9468,7 @@ public void illegalSuperAccess(TypeBinding superType, TypeBinding directSuperTyp
 			location.sourceStart,
 			location.sourceEnd);
 }
-public void illegalSuperCallBypassingOverride(ASTNode location, MethodBinding targetMethod, ReferenceBinding overrider) {
+public void illegalSuperCallBypassingOverride(InvocationSite location, MethodBinding targetMethod, ReferenceBinding overrider) {
 	this.handle(IProblem.SuperCallCannotBypassOverride,
 			new String[] { 	String.valueOf(targetMethod.readableName()),
 							String.valueOf(targetMethod.declaringClass.readableName()),
@@ -9476,7 +9476,7 @@ public void illegalSuperCallBypassingOverride(ASTNode location, MethodBinding ta
 			new String[] { 	String.valueOf(targetMethod.shortReadableName()),
 							String.valueOf(targetMethod.declaringClass.shortReadableName()),
 							String.valueOf(overrider.shortReadableName()) },
-			location.sourceStart,
-			location.sourceEnd);
+			location.sourceStart(),
+			location.sourceEnd());
 }
 }

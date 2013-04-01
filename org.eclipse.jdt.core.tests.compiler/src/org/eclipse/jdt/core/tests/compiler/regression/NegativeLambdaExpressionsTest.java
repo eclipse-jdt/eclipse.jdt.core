@@ -15,6 +15,8 @@
  *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *							bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *                          Bug 384687 - [1.8] Wildcard type arguments should be rejected for lambda and reference expressions
+ *     Stephan Herrmann - Contribution for
+ *							bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super via I.super.m() syntax
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -26,7 +28,7 @@ import junit.framework.Test;
 public class NegativeLambdaExpressionsTest extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "test380112e"};
+//	TESTS_NAMES = new String[] { "testSuperReference"};
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -6234,6 +6236,93 @@ public void test402609c() {
 			"The method f(I) is ambiguous for the type X\n" + 
 			"----------\n");
 }
+
+// 15.28:
+// https://bugs.eclipse.org/382350 - [1.8][compiler] Unable to invoke inherited default method via I.super.m() syntax
+public void testSuperReference01() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X implements I2, I1 {\n" +
+			"	@Override\n" +
+			"	public void print() {\n" +
+			"		System.out.print(\"!\");" +
+			"	}\n" +
+			"   void test() {\n" +
+			"		doOutput(I1.super::print); // illegal attempt to skip I2.print()\n" +
+			"	}\n" +
+			"	public static void main(String... args) {\n" +
+			"		new X().test();\n" +
+			"	}\n" +
+			"   void doOutput(CanPrint printer) {\n" +
+			"      printer.print();" +
+			"   }\n" +
+			"}\n" +
+			"interface CanPrint {\n" +
+			"	void print();\n" +
+			"}\n" +
+			"interface I1 {\n" +
+			"	default void print() {\n" +
+			"		System.out.print(\"O\");\n" +
+			"	}\n" +
+			"}\n" +
+			"interface I2 extends I1 {\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	doOutput(I1.super::print); // illegal attempt to skip I2.print()\n" + 
+		"	         ^^^^^^^^\n" + 
+		"Illegal reference to super type I1, cannot bypass the more specific direct super type I2\n" + 
+		"----------\n"
+	);
+}
+
+// 15.28.1:
+// https://bugs.eclipse.org/382350 - [1.8][compiler] Unable to invoke inherited default method via I.super.m() syntax
+public void testSuperReference02() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I0 {\n" + 
+			"	default void print() { System.out.println(\"I0\"); }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface IA extends I0 {}\n" + 
+			"\n" + 
+			"interface IB extends I0 {\n" + 
+			"	@Override default void print() {\n" + 
+			"		System.out.println(\"IB\");\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"public class X implements IA, IB {\n" +
+			"	@Override\n" +
+			"	public void print() {\n" +
+			"		System.out.print(\"!\");" +
+			"	}\n" +
+			"   void test() {\n" +
+			"		doOutput(IA.super::print); // illegal attempt to skip IB.print()\n" +
+			"	}\n" +
+			"	public static void main(String... args) {\n" +
+			"		new X().test();\n" +
+			"	}\n" +
+			"   void doOutput(CanPrint printer) {\n" +
+			"      printer.print();" +
+			"   }\n" +
+			"}\n" +
+			"interface CanPrint {\n" +
+			"	void print();\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 17)\n" + 
+		"	doOutput(IA.super::print); // illegal attempt to skip IB.print()\n" + 
+		"	         ^^^^^^^^^^^^^^^\n" + 
+		"Illegal reference to super method print() from type I0, cannot bypass the more specific override from type IB\n" + 
+		"----------\n"
+	);
+}
+
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

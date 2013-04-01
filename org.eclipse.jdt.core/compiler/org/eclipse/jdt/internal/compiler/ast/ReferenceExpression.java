@@ -16,6 +16,7 @@
  *                          Bug 384687 - [1.8] Wildcard type arguments should be rejected for lambda and reference expressions
  *	   Stephan Herrmann - Contribution for
  *							bug 402028 - [1.8][compiler] null analysis for reference expressions 
+ *							bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super via I.super.m() syntax
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.ast;
@@ -35,6 +36,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -110,8 +112,12 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		}
 		super.resolveType(scope);
 		
-    	if (lhsType == null || !lhsType.isValidBinding()) 
-			return this.resolvedType = null;
+    	if (lhsType == null) 
+			return this.resolvedType = null; 	// no hope
+		if (lhsType.problemId() == ProblemReasons.AttemptToBypassDirectSuper)
+			lhsType = lhsType.closestMatch();	// improve resolving experience
+    	if (!lhsType.isValidBinding()) 
+			return this.resolvedType = null;	// nope, no useful type found
 		
 		final TypeBinding[] descriptorParameters = this.descriptor != null ? this.descriptor.parameters : Binding.NO_PARAMETERS;
 		if (lhsType.isBaseType()) {
@@ -194,7 +200,10 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         		}
         	}
         }
-        
+    	if (this.lhs.isSuper() && this.lhs.resolvedType.isInterface()) {
+    		scope.checkAppropriateMethodAgainstSupers(this.selector, someMethod, this.descriptor.parameters, this);
+    	}
+
         MethodBinding anotherMethod = null;
         if (!this.haveReceiver && isMethodReference && parametersLength > 0) {
         	final TypeBinding potentialReceiver = descriptorParameters[0];

@@ -692,18 +692,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (this.receiver.isSuper() && this.actualReceiverType.isInterface()) {
 		// 15.12.3 (Java 8)
-		ReferenceBinding enclosingType = scope.enclosingReceiverType();
-		MethodBinding otherMethod = scope.getMethod(enclosingType.superclass(), this.selector, argumentTypes, this);
-		if (scope.checkAppropriate(this.binding, otherMethod, this)) {
-			ReferenceBinding[] superInterfaces = enclosingType.superInterfaces();
-			if (superInterfaces != null) {
-				for (int i = 0; i < superInterfaces.length; i++) {
-					otherMethod = scope.getMethod(superInterfaces[i], this.selector, argumentTypes, this);
-					if (!scope.checkAppropriate(this.binding, otherMethod, this))
-						break;
-				}
-			}
-		}
+		scope.checkAppropriateMethodAgainstSupers(this.selector, this.binding, argumentTypes, this);
 	}
 	if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
 		scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.genericTypeArguments, this.typeArguments);
