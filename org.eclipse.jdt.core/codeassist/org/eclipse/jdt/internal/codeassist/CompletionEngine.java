@@ -6162,7 +6162,7 @@ public final class CompletionEngine
 			// We maybe asking for a proposal inside this field's initialization. So record its id
 			ASTNode astNode = this.parser.assistNode;
 			if (fieldDeclaration != null && fieldDeclaration.initialization != null && astNode != null) {
-				if (fieldDeclaration.initialization.sourceEnd > 0) {
+				if (CharOperation.equals(this.fileName, field.declaringClass.getFileName()) && fieldDeclaration.initialization.sourceEnd > 0) {
 					if (fieldDeclaration.initialization.sourceStart <= astNode.sourceStart &&
 						astNode.sourceEnd <= fieldDeclaration.initialization.sourceEnd) {
 						// completion is inside a field initializer
