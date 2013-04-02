@@ -92,6 +92,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			this.deleteProject("Converter16"); //$NON-NLS-1$
 			this.deleteProject("Converter17"); //$NON-NLS-1$
 			this.deleteProject("Converter18"); //$NON-NLS-1$
+			PROJECT_SETUP = false;
 		} else {
 			TEST_SUITES.remove(getClass());
 			if (TEST_SUITES.size() == 0) {
@@ -100,6 +101,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 				this.deleteProject("Converter16"); //$NON-NLS-1$
 				this.deleteProject("Converter17"); //$NON-NLS-1$
 				this.deleteProject("Converter18"); //$NON-NLS-1$
+				PROJECT_SETUP = false;
 			}
 		}
 
