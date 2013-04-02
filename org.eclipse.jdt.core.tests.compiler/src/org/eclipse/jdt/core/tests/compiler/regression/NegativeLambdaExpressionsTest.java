@@ -17,6 +17,7 @@
  *                          Bug 384687 - [1.8] Wildcard type arguments should be rejected for lambda and reference expressions
  *     Stephan Herrmann - Contribution for
  *							bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super via I.super.m() syntax
+ *							bug 404728 - [1.8]NPE on QualifiedSuperReference error
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -28,7 +29,7 @@ import junit.framework.Test;
 public class NegativeLambdaExpressionsTest extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testSuperReference"};
+//	TESTS_NAMES = new String[] { "testSuperReference03"};
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -6323,6 +6324,44 @@ public void testSuperReference02() {
 	);
 }
 
+public void testSuperReference03() {
+	this.runNegativeTest(
+			new String[] {
+				"XY.java",
+				"interface J {\n" + 
+				"	void foo(int x);\n" + 
+				"}\n" + 
+				"class XX {\n" + 
+				"	public  void foo(int x) {}\n" + 
+				"}\n" + 
+				"class Y extends XX {\n" + 
+				"	static class Z {\n" + 
+				"		public static void foo(int x) {\n" + 
+				"			System.out.print(x);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"		public void foo(int x) {\n" + 
+				"			System.out.print(x);\n" + 
+				"		}\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class XY extends XX {\n" + 
+				"	@SuppressWarnings(\"unused\")\n" + 
+				"	public  void bar(String [] args) {\n" + 
+				"		 Y y = new Y();\n" + 
+				"		 J jj = y :: foo;\n" + 
+				"		 J jx = y.super ::  foo;\n" + 
+				"	}\n" + 
+				"	public static void main (String [] args) {}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in XY.java (at line 23)\n" + 
+			"	J jx = y.super ::  foo;\n" + 
+			"	       ^\n" + 
+			"y cannot be resolved to a type\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

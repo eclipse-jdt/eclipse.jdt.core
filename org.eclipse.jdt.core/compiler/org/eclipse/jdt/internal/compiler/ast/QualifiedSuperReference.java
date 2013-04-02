@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contribution for
  *								bug 382350 - [1.8][compiler] Unable to invoke inherited default method via I.super.m() syntax
  *								bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
+ *								bug 404728 - [1.8]NPE on QualifiedSuperReference error
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -44,7 +45,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		return null;
 	}
 	super.resolveType(scope);
-	if (!this.resolvedType.isValidBinding()) {
+	if (this.resolvedType != null && !this.resolvedType.isValidBinding()) {
 		scope.problemReporter().illegalSuperAccess(this.qualification.resolvedType, this.resolvedType, this);
 		return null;
 	}
