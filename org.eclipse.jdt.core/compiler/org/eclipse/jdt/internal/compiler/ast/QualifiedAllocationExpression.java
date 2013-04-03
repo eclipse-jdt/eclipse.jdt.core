@@ -20,7 +20,9 @@
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *								bug 395977 - [compiler][resource] Resource leak warning behavior possibly incorrect for anonymous inner class
- *******************************************************************************/
+ *     Jesper S Moller <jesper@selskabet.org> - Contributions for
+ *								bug 378674 - "The method can be declared as static" is wrong
+ ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -78,6 +80,8 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				if (superclass != null && superclass.isMemberType() && !superclass.isStatic()) {
 					// creating an anonymous type of a non-static member type without an enclosing instance of parent type
 					currentScope.resetDeclaringClassMethodStaticFlag(superclass.enclosingType());
+					// Reviewed for https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674 :
+					// The corresponding problem (when called from static) is not produced until during code generation
 				}
 			}
 			

@@ -129,11 +129,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 	if (nonStatic) {
 		this.receiver.checkNPE(currentScope, flowContext, flowInfo);
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
-		if (this.receiver.isThis() || this.receiver.isSuper()) {
-			// accessing non-static method without an object
-			currentScope.resetDeclaringClassMethodStaticFlag(this.actualReceiverType);
-		}
 	}
 
 	if (this.arguments != null) {
