@@ -18,6 +18,7 @@
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								bug 401017 - [compiler][null] casted reference to @Nullable field lacks a warning
+ *								bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -62,9 +63,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	FlowInfo result = this.expression
 		.analyseCode(currentScope, flowContext, flowInfo)
 		.unconditionalInits();
-	if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0) {
-		this.expression.checkNPE(currentScope, flowContext, flowInfo);
-	}
+	this.expression.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 	// account for pot. CCE:
 	flowContext.recordAbruptExit();
 	return result;
@@ -253,6 +252,7 @@ public static void checkNeedForArgumentCasts(BlockScope scope, int operator, int
 }
 
 public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+	checkNPEbyUnboxing(scope, flowContext, flowInfo);
 	return this.expression.checkNPE(scope, flowContext, flowInfo);
 }
 

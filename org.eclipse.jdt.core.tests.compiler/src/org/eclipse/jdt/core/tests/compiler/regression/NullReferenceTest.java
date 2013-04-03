@@ -29,6 +29,7 @@
  *							bug 382789 - [compiler][null] warn when syntactically-nonnull expression is compared against null
  *							bug 401088 - [compiler][null] Wrong warning "Redundant null check" inside nested try statement
  *							bug 401092 - [compiler][null] Wrong warning "Redundant null check" in outer catch of nested try
+ *							bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -57,9 +58,9 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "testBug345305_14" };
+//		TESTS_NAMES = new String[] { "test0037_conditional_expression" };
 //		TESTS_NAMES = new String[] { "test0515_try_finally" };
-//		TESTS_NAMES = new String[] { "testBug376263" };
+//		TESTS_NAMES = new String[] { "testBug319201c" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -888,6 +889,141 @@ public void test0036_conditional_expression() {
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+// https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
+public void test0037_conditional_expression_1() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // needs autoboxing
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	boolean badFunction(int i) {\n" + 
+			"		return i > 0 ? true : null;\n" + 
+			"	}\n" +
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	return i > 0 ? true : null;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" + 
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
+public void test0037_conditional_expression_2() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // needs autoboxing
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
+	runNegativeTest(
+		true,
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	int badFunction(int i) {\n" +
+			"		return i > 0 ? null : Integer.MIN_VALUE;\n" +
+			"	}\n" +
+			"	@SuppressWarnings(\"null\")\n" +
+			"	int silent(int i) {\n" +
+			"		return i > 0 ? null : Integer.MIN_VALUE;\n" +
+			"	}\n" +
+			"}\n"},
+		null,
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	return i > 0 ? null : Integer.MIN_VALUE;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" + 
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+//https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
+public void test0037_conditional_expression_3() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // needs autoboxing
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	runNegativeTest(
+		true,
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	boolean badFunction3(int i) {\n" + 
+			"		//expected a potential null problem:\n" + 
+			"		return i > 0 ? true : (Boolean) null;\n" + 
+			"	}\n" +
+			"}\n"},
+		null,
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	return i > 0 ? true : (Boolean) null;\n" + 
+		"	                      ^^^^^^^^^^^^^^\n" + 
+		"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
+// if-then-else instead of conditional expression
+public void test0037_conditional_expression_4() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // needs autoboxing
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	options.put(JavaCore.COMPILER_PB_UNNECESSARY_ELSE, JavaCore.IGNORE);
+	runNegativeTest(
+		true,
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	boolean badFunction4(int i) {\n" + 
+			"	if (i > 0)\n" + 
+			"		return true;\n" + 
+			"	else\n" + 
+			"		// expected a null problem:\n" + 
+			"		return (Boolean) null;\n" + 
+			"	}\n" +
+			"}\n"},
+		null,
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	return (Boolean) null;\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
+// pot-null cond-expr in receiver position
+public void test0037_conditional_expression_5() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	runNegativeTest(
+		true,
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	String badFunction3(int i) {\n" + 
+			"		return (i > 0 ? this : null).toString();\n" + 
+			"	}\n" +
+			"	String badFunction4(int i) {\n" +
+			"		Object o = null;\n" + 
+			"		return (i > 0 ? o : null).toString();\n" + 
+			"	}\n" +
+			"}\n"},
+		null,
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	return (i > 0 ? this : null).toString();\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: This expression may be null\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	return (i > 0 ? o : null).toString();\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^\n" + 
+		"Null pointer access: This expression can only be null\n" + 
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
 // null analysis -- autoboxing
 public void test0040_autoboxing_compound_assignment() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
@@ -904,7 +1040,7 @@ public void test0040_autoboxing_compound_assignment() {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	i += 1;\n" +
 			"	^\n" +
-			"Null pointer access: The variable i can only be null at this location\n" +
+			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
 			"----------\n",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -927,7 +1063,7 @@ public void test0041_autoboxing_increment_operator() {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	i++;\n" +
 			"	^\n" +
-			"Null pointer access: The variable i can only be null at this location\n" +
+			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
 			"----------\n",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -976,7 +1112,7 @@ public void test0043_autoboxing_literal() {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	System.out.println(i + 4);\n" +
 			"	                   ^\n" +
-			"Null pointer access: The variable i can only be null at this location\n" +
+			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
 			"----------\n",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -11624,12 +11760,12 @@ public void testBug253896a() {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	if(f1 == 1)\n" + 
 			"	   ^^\n" + 
-			"Null pointer access: The variable f1 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	int abc = (f2 != 1)? 1 : 0;\n" + 
 			"	           ^^\n" + 
-			"Null pointer access: The variable f2 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
 			"----------\n" + 
 			"3. ERROR in X.java (at line 9)\n" + 
 			"	if(f3 == null)\n" + 
@@ -11670,12 +11806,12 @@ public void testBug253896b() {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	if(i1 == 1)\n" +
 			"	   ^^\n" +
-			"Null pointer access: The variable i1 can only be null at this location\n" +
+			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 7)\n" +
 			"	if(i1 == 0) {}\n" +
 			"	   ^^\n" +
-			"Potential null pointer access: The variable i1 may be null at this location\n" +
+			"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" +
 			"----------\n");
 	}
 }
@@ -11713,12 +11849,12 @@ public void testBug253896c() {
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	if(f1 == 1)\n" + 
 			"	   ^^\n" + 
-			"Null pointer access: The variable f1 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
 			"----------\n" + 
 			"2. ERROR in X.java (at line 10)\n" + 
 			"	int abc = (f2 != 1)? 1 : 0;\n" + 
 			"	           ^^\n" + 
-			"Null pointer access: The variable f2 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
 			"----------\n" + 
 			"3. ERROR in X.java (at line 12)\n" + 
 			"	if(f3 == null)\n" + 
@@ -11738,12 +11874,12 @@ public void testBug253896c() {
 			"6. ERROR in X.java (at line 17)\n" + 
 			"	if(a == 1) {}\n" + 
 			"	   ^\n" + 
-			"Null pointer access: The variable a can only be null at this location\n" + 
+			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" + 
 			"----------\n" + 
 			"7. ERROR in X.java (at line 18)\n" + 
 			"	if(outer2 == 1) {}\n" + 
 			"	   ^^^^^^\n" + 
-			"Potential null pointer access: The variable outer2 may be null at this location\n" + 
+			"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" + 
 			"----------\n");
 	}
 }
@@ -11781,12 +11917,12 @@ public void testBug253896d() {
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	if(f1 == 1)\n" + 
 			"	   ^^\n" + 
-			"Null pointer access: The variable f1 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
 			"----------\n" + 
 			"2. ERROR in X.java (at line 11)\n" + 
 			"	int abc = (f2 != 1)? 1 : 0;\n" + 
 			"	           ^^\n" + 
-			"Null pointer access: The variable f2 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
 			"----------\n" + 
 			"3. ERROR in X.java (at line 13)\n" + 
 			"	if(f3 == null)\n" + 
@@ -11806,12 +11942,12 @@ public void testBug253896d() {
 			"6. ERROR in X.java (at line 18)\n" + 
 			"	if(outer == 1) {}\n" + 
 			"	   ^^^^^\n" + 
-			"Null pointer access: The variable outer can only be null at this location\n" + 
+			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" +
 			"----------\n" + 
 			"7. ERROR in X.java (at line 19)\n" + 
 			"	if(param == 1) {}\n" + 
 			"	   ^^^^^\n" + 
-			"Potential null pointer access: The variable param may be null at this location\n" + 
+			"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" +
 			"----------\n");
 	}
 }
@@ -12164,7 +12300,7 @@ public void testBug319201() {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	int j = i;\n" + 
 			"	        ^\n" + 
-			"Null pointer access: The variable i can only be null at this location\n" + 
+			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" + 
 			"----------\n",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -12188,7 +12324,7 @@ public void testBug319201a() {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	j = i;\n" + 
 			"	    ^\n" + 
-			"Potential null pointer access: The variable i may be null at this location\n" + 
+			"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" + 
 			"----------\n",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -12212,7 +12348,7 @@ public void testBug319201b() {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	bar(bo);\n" + 
 			"	    ^^\n" + 
-			"Null pointer access: The variable bo can only be null at this location\n" + 
+			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
 			"----------\n",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -12285,72 +12421,77 @@ public void testBug319201c() {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	super(b2 == null, b2);\n" + 
 			"	                  ^^\n" + 
-			"Potential null pointer access: The variable b2 may be null at this location\n" + 
+			"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 12)\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	boolean fB = (Boolean)null;\n" + 
+			"	             ^^^^^^^^^^^^^\n" + 
+			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 12)\n" + 
 			"	X x = new X(b1, null);\n" + 
 			"	            ^^\n" + 
-			"Null pointer access: The variable b1 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 14)\n" + 
+			"4. ERROR in X.java (at line 14)\n" + 
 			"	boolean dontcare = b2 && inB;\n" + 
 			"	                   ^^\n" + 
-			"Null pointer access: The variable b2 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 16)\n" + 
+			"5. ERROR in X.java (at line 16)\n" + 
 			"	dontcare = inB || b3;\n" + 
 			"	                  ^^\n" + 
-			"Null pointer access: The variable b3 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
 			"----------\n" + 
-			"5. ERROR in X.java (at line 18)\n" + 
+			"6. ERROR in X.java (at line 18)\n" + 
 			"	char[] cs = new char[dims];\n" + 
 			"	                     ^^^^\n" + 
-			"Null pointer access: The variable dims can only be null at this location\n" + 
+			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" + 
 			"----------\n" + 
-			"6. ERROR in X.java (at line 22)\n" + 
+			"7. ERROR in X.java (at line 22)\n" + 
 			"	for (int i=0;b4; i++);\n" + 
 			"	             ^^\n" + 
-			"Null pointer access: The variable b4 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
 			"----------\n" + 
-			"7. ERROR in X.java (at line 23)\n" + 
+			"8. ERROR in X.java (at line 23)\n" + 
 			"	} while (b5);\n" + 
 			"	         ^^\n" + 
-			"Null pointer access: The variable b5 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
 			"----------\n" + 
-			"8. ERROR in X.java (at line 25)\n" + 
+			"9. ERROR in X.java (at line 25)\n" + 
 			"	if (b6) { }\n" + 
 			"	    ^^\n" + 
-			"Null pointer access: The variable b6 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
 			"----------\n" + 
-			"9. ERROR in X.java (at line 27)\n" + 
+			"10. ERROR in X.java (at line 27)\n" + 
 			"	Z z = this.new Z(b7);\n" + 
 			"	                 ^^\n" + 
-			"Null pointer access: The variable b7 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
 			"----------\n" + 
-			"10. ERROR in X.java (at line 29)\n" + 
+			"11. ERROR in X.java (at line 29)\n" + 
 			"	switch(sel) {\n" + 
 			"	       ^^^\n" + 
-			"Null pointer access: The variable sel can only be null at this location\n" + 
+			"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" + 
 			"----------\n" + 
-			"11. ERROR in X.java (at line 34)\n" + 
+			"12. ERROR in X.java (at line 34)\n" + 
 			"	while (b8) {}\n" + 
 			"	       ^^\n" + 
-			"Null pointer access: The variable b8 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
 			"----------\n" + 
-			"12. ERROR in X.java (at line 36)\n" + 
+			"13. ERROR in X.java (at line 36)\n" + 
 			"	dontcare = (boolean)b9;\n" + 
 			"	                    ^^\n" + 
-			"Null pointer access: The variable b9 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
 			"----------\n" + 
-			"13. ERROR in X.java (at line 38)\n" + 
+			"14. ERROR in X.java (at line 38)\n" + 
 			"	assert b10 : \"shouldn\'t happen, but will\";\n" + 
 			"	       ^^^\n" + 
-			"Null pointer access: The variable b10 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
 			"----------\n" + 
-			"14. ERROR in X.java (at line 40)\n" + 
+			"15. ERROR in X.java (at line 40)\n" + 
 			"	return b11;\n" + 
 			"	       ^^^\n" + 
-			"Null pointer access: The variable b11 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
 			"----------\n",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -12413,17 +12554,17 @@ public void testBug319201d() {
 			"1. ERROR in X.java (at line 12)\n" + 
 			"	} while (b2);\n" + 
 			"	         ^^\n" + 
-			"Potential null pointer access: The variable b2 may be null at this location\n" + 
+			"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 15)\n" + 
 			"	} while (b3);\n" + 
 			"	         ^^\n" + 
-			"Null pointer access: The variable b3 can only be null at this location\n" + 
+			"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 42)\n" + 
 			"	} while (b7);\n" + 
 			"	         ^^\n" + 
-			"Potential null pointer access: The variable b7 may be null at this location\n" + 
+			"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" + 
 			"----------\n",
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,

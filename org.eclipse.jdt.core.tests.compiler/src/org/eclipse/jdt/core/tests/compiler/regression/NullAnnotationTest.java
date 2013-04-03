@@ -5978,4 +5978,26 @@ public void testBug382069_k() {
 			"Potential null pointer access: The field o1 is declared as @Nullable\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
+public void test_conditional_expression_1() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	boolean badFunction5(int i) {\n" + 
+			"		// expected a potential null problem:\n" + 
+			"		return i > 0 ? true : getBoolean();\n" + 
+			"	}\n" +
+			"	private @Nullable Boolean getBoolean() {\n" + 
+			"		return null;\n" + 
+			"	}\n" +
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	return i > 0 ? true : getBoolean();\n" + 
+		"	                      ^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" + 
+		"----------\n");
+}
 }

@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contribution for
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 331649 - [compiler][null] consider null annotations for fields
+ *								bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -94,6 +95,7 @@ public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowCon
 				initializationScope.problemReporter().nullityMismatch(this.initialization, this.initialization.resolvedType, this.binding.type, nullStatus, annotationName);
 			}
 		}
+		this.initialization.checkNPEbyUnboxing(initializationScope, flowContext, flowInfo);
 	}
 	return flowInfo;
 }

@@ -177,6 +177,13 @@
  *									DuplicateInheritedDefaultMethods
  *									SuperAccessCannotBypassDirectSuper
  *									SuperCallCannotBypassOverride
+ *									ConflictingNullAnnotations
+ *									ConflictingInheritedNullAnnotations
+ *									UnsafeElementTypeConversion
+ *									PotentialNullUnboxing
+ *									NullUnboxing
+ *									NullExpressionReference
+ *									PotentialNullExpressionReference
  *      Jesper S Moller  - added the following constants
  *									TargetTypeNotAFunctionalInterface
  *									OuterLocalMustBeEffectivelyFinal
@@ -942,6 +949,10 @@ void setSourceStart(int sourceStart);
 	int RedundantNullCheckOnNonNullLocalVariable = Internal + 457;
 	/** @since 3.3 */
 	int NonNullLocalVariableComparisonYieldsFalse = Internal + 458;
+	/** @since 3.9 */
+	int PotentialNullUnboxing = Internal + 459;
+	/** @since 3.9 */
+	int NullUnboxing = Internal + 461;
 
 	// block
 	/** @since 3.0 */
@@ -1413,6 +1424,10 @@ void setSourceStart(int sourceStart);
 	int NonNullExpressionComparisonYieldsFalse = Internal + 670;
 	/** @since 3.9 */
 	int RedundantNullCheckOnNonNullExpression = Internal + 671;
+	/** @since 3.9 */
+	int NullExpressionReference = Internal + 672;
+	/** @since 3.9 */
+	int PotentialNullExpressionReference = Internal + 673;
 
 	/**
 	 * Corrupted binaries
