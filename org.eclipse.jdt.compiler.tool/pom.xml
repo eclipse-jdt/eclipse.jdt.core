@@ -57,6 +57,7 @@
                   </fileset>
                   <fileset dir="${basedir}">
                     <include name="META-INF/services/**"/>
+                    <include name="META-INF/eclipse.inf"/>
                   </fileset>
                 </zip>
                 <delete dir="${unjarDestBin}" failonerror="false"/>
