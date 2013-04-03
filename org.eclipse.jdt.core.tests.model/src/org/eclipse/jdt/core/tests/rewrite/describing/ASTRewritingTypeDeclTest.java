@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,6 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
-
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
@@ -1368,10 +1367,11 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			// remove first, insert after 2nd
 			rewrite.remove((ASTNode) declaration.enumConstants().get(0), null);
 
-			ASTNode newNode= ast.newSimpleName("X");
+			EnumConstantDeclaration newEnumConstant = ast.newEnumConstantDeclaration();
+			newEnumConstant.setName(ast.newSimpleName("X"));
 
 			ListRewrite listRewrite= rewrite.getListRewrite(declaration, EnumDeclaration.ENUM_CONSTANTS_PROPERTY);
-			listRewrite.insertAfter(newNode, (ASTNode) declaration.enumConstants().get(1), null);
+			listRewrite.insertAfter(newEnumConstant, (ASTNode) declaration.enumConstants().get(1), null);
 
 			// add body declaration
 
@@ -1412,10 +1412,11 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			// remove first, insert after 2nd
 			rewrite.remove((ASTNode) declaration.enumConstants().get(0), null);
 
-			ASTNode newNode= ast.newSimpleName("X");
+			EnumConstantDeclaration newEnumConstant = ast.newEnumConstantDeclaration();
+			newEnumConstant.setName(ast.newSimpleName("X"));
 
 			ListRewrite listRewrite= rewrite.getListRewrite(declaration, EnumDeclaration.ENUM_CONSTANTS_PROPERTY);
-			listRewrite.insertAfter(newNode, (ASTNode) declaration.enumConstants().get(1), null);
+			listRewrite.insertAfter(newEnumConstant, (ASTNode) declaration.enumConstants().get(1), null);
 
 			// add body declaration
 
@@ -1488,10 +1489,11 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		EnumDeclaration declaration= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "E");
 		{
 
-			ASTNode newNode= astRoot.getAST().newSimpleName("X");
+			EnumConstantDeclaration newEnumConstant = astRoot.getAST().newEnumConstantDeclaration();
+			newEnumConstant.setName(astRoot.getAST().newSimpleName("X"));
 
 			ListRewrite listRewrite= rewrite.getListRewrite(declaration, EnumDeclaration.ENUM_CONSTANTS_PROPERTY);
-			listRewrite.insertAfter(newNode, (ASTNode) declaration.enumConstants().get(2), null);
+			listRewrite.insertAfter(newEnumConstant, (ASTNode) declaration.enumConstants().get(2), null);
 
 			rewrite.remove((ASTNode) declaration.bodyDeclarations().get(0), null);
 		}
