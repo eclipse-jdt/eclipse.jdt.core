@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2012 IBM Corporation and others.
+ * Copyright (c) 2004, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,9 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
+import org.eclipse.jdt.core.dom.ChildPropertyDescriptor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer;
@@ -595,10 +597,41 @@ public class ASTRewrite {
 		}
 	}
 
-	private void validatePropertyType(StructuralPropertyDescriptor prop, Object node) {
+	private void validatePropertyType(StructuralPropertyDescriptor prop, Object value) {
 		if (prop.isChildListProperty()) {
-			String message= "Can not modify a list property, use a list rewriter"; //$NON-NLS-1$
+			String message = "Can not modify a list property, use getListRewrite()"; //$NON-NLS-1$
 			throw new IllegalArgumentException(message);
+		}
+		if (!RewriteEventStore.DEBUG) {
+			return;
+		}
+		
+		if (value == null) {
+			if (prop.isSimpleProperty() && ((SimplePropertyDescriptor) prop).isMandatory()
+					|| prop.isChildProperty() && ((ChildPropertyDescriptor) prop).isMandatory()) {
+				String message = "Can not remove property " + prop.getId(); //$NON-NLS-1$
+				throw new IllegalArgumentException(message);
+			}
+			
+		} else {
+			Class valueType;
+			if (prop.isSimpleProperty()) {
+				SimplePropertyDescriptor p = (SimplePropertyDescriptor) prop;
+				valueType = p.getValueType();
+				if (valueType == int.class) {
+					valueType = Integer.class;
+				} else if (valueType == boolean.class) {
+					valueType = Boolean.class;
+				}
+			} else {
+				ChildPropertyDescriptor p = (ChildPropertyDescriptor) prop;
+				valueType = p.getChildType();
+			}
+			if (!valueType.isAssignableFrom(value.getClass())) {
+				String message = value.getClass().getName() + " is not a valid type for " + prop.getNodeClass().getName() //$NON-NLS-1$
+						+ " property '" + prop.getId() + '\''; //$NON-NLS-1$
+				throw new IllegalArgumentException(message);
+			}
 		}
 	}
 

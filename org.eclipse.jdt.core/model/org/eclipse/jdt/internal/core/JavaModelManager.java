@@ -52,6 +52,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.core.JavaProjectElementInfo.ProjectCache;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
+import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
@@ -245,6 +246,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String ZIP_ACCESS_DEBUG = JavaCore.PLUGIN_ID + "/debug/zipaccess" ; //$NON-NLS-1$
 	private static final String DELTA_DEBUG =JavaCore.PLUGIN_ID + "/debug/javadelta" ; //$NON-NLS-1$
 	private static final String DELTA_DEBUG_VERBOSE =JavaCore.PLUGIN_ID + "/debug/javadelta/verbose" ; //$NON-NLS-1$
+	private static final String DOM_REWRITE_DEBUG = JavaCore.PLUGIN_ID + "/debug/dom/rewrite" ; //$NON-NLS-1$
 	private static final String HIERARCHY_DEBUG = JavaCore.PLUGIN_ID + "/debug/hierarchy" ; //$NON-NLS-1$
 	private static final String POST_ACTION_DEBUG = JavaCore.PLUGIN_ID + "/debug/postaction" ; //$NON-NLS-1$
 	private static final String BUILDER_DEBUG = JavaCore.PLUGIN_ID + "/debug/builder" ; //$NON-NLS-1$
@@ -1656,6 +1658,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 			option = Platform.getDebugOption(DELTA_DEBUG_VERBOSE);
 			if(option != null) DeltaProcessor.VERBOSE = option.equalsIgnoreCase(TRUE) ;
+
+			option = Platform.getDebugOption(DOM_REWRITE_DEBUG);
+			if(option != null) RewriteEventStore.DEBUG = option.equalsIgnoreCase(TRUE) ;
 
 			option = Platform.getDebugOption(HIERARCHY_DEBUG);
 			if(option != null) TypeHierarchy.DEBUG = option.equalsIgnoreCase(TRUE) ;

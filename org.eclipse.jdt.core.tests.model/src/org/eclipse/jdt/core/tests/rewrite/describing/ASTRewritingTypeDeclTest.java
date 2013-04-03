@@ -1418,10 +1418,11 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			// remove first, insert after 2nd
 			rewrite.remove((ASTNode) declaration.enumConstants().get(0), null);
 
-			ASTNode newNode= ast.newSimpleName("X");
+			EnumConstantDeclaration newEnumConstant = ast.newEnumConstantDeclaration();
+			newEnumConstant.setName(ast.newSimpleName("X"));
 
 			ListRewrite listRewrite= rewrite.getListRewrite(declaration, EnumDeclaration.ENUM_CONSTANTS_PROPERTY);
-			listRewrite.insertAfter(newNode, (ASTNode) declaration.enumConstants().get(1), null);
+			listRewrite.insertAfter(newEnumConstant, (ASTNode) declaration.enumConstants().get(1), null);
 
 			// add body declaration
 
@@ -1462,10 +1463,11 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			// remove first, insert after 2nd
 			rewrite.remove((ASTNode) declaration.enumConstants().get(0), null);
 
-			ASTNode newNode= ast.newSimpleName("X");
+			EnumConstantDeclaration newEnumConstant = ast.newEnumConstantDeclaration();
+			newEnumConstant.setName(ast.newSimpleName("X"));
 
 			ListRewrite listRewrite= rewrite.getListRewrite(declaration, EnumDeclaration.ENUM_CONSTANTS_PROPERTY);
-			listRewrite.insertAfter(newNode, (ASTNode) declaration.enumConstants().get(1), null);
+			listRewrite.insertAfter(newEnumConstant, (ASTNode) declaration.enumConstants().get(1), null);
 
 			// add body declaration
 
@@ -1538,10 +1540,11 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		EnumDeclaration declaration= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "E");
 		{
 
-			ASTNode newNode= astRoot.getAST().newSimpleName("X");
+			EnumConstantDeclaration newEnumConstant = astRoot.getAST().newEnumConstantDeclaration();
+			newEnumConstant.setName(astRoot.getAST().newSimpleName("X"));
 
 			ListRewrite listRewrite= rewrite.getListRewrite(declaration, EnumDeclaration.ENUM_CONSTANTS_PROPERTY);
-			listRewrite.insertAfter(newNode, (ASTNode) declaration.enumConstants().get(2), null);
+			listRewrite.insertAfter(newEnumConstant, (ASTNode) declaration.enumConstants().get(2), null);
 
 			rewrite.remove((ASTNode) declaration.bodyDeclarations().get(0), null);
 		}
