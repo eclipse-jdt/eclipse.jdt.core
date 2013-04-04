@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc.
+ * Copyright (c) 2005, 2013 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,8 +20,8 @@ import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeParameter;
 
 import com.sun.mirror.declaration.ParameterDeclaration;
@@ -178,12 +178,12 @@ class ExecutableUtil {
 				return Collections.emptyList();
 			
 	    	@SuppressWarnings("unchecked") 
-	    	final List<Name> exceptions = methodAstNode.thrownExceptions();
+	    	final List<Type> exceptions = methodAstNode.thrownExceptionTypes();
 	    	if(exceptions == null || exceptions.size() == 0 )
 	    		return Collections.emptyList();
 	    	final List<ReferenceType> results = new ArrayList<ReferenceType>(4);
-	    	for(Name exception : exceptions ){
-	    		final ITypeBinding eType = exception.resolveTypeBinding();
+	    	for(Type exception : exceptions ){
+	    		final ITypeBinding eType = exception.resolveBinding();
 	    		final ReferenceType refType;
 	    		if( eType == null || eType.isRecovered() )
 	    			refType = Factory.createErrorClassType(exception.toString());
