@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 BEA Systems, Inc.
+ * Copyright (c) 2007, 2013 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,8 +32,6 @@ import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.JavaCompiler.CompilationTask;
-
-import junit.framework.Assert;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
@@ -90,7 +88,7 @@ public class BatchTestUtils {
 		if (!result.booleanValue()) {
 			String errorOutput = stringWriter.getBuffer().toString();
 			System.err.println("Compilation failed: " + errorOutput);
-	 		Assert.assertTrue("Compilation failed : " + errorOutput, false);
+	 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
 		}
 	}
 
@@ -119,7 +117,7 @@ public class BatchTestUtils {
 		if (!result.booleanValue()) {
 			String errorOutput = stringWriter.getBuffer().toString();
 			System.err.println("Compilation failed: " + errorOutput);
-	 		Assert.assertTrue("Compilation failed : " + errorOutput, false);
+	 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
 		}
 	}
 	
@@ -237,9 +235,9 @@ public class BatchTestUtils {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Assert.assertNotNull("No processor jar path set", _processorJarPath);
+		junit.framework.TestCase.assertNotNull("No processor jar path set", _processorJarPath);
 		File processorJar = new File(_processorJarPath);
-		Assert.assertTrue("Couldn't find processor jar at " + processorJar.getAbsolutePath(), processorJar.exists());
+		junit.framework.TestCase.assertTrue("Couldn't find processor jar at " + processorJar.getAbsolutePath(), processorJar.exists());
 
 		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class);//, EclipseCompiler.class.getClassLoader());
 		Class<?> c = null;
@@ -249,7 +247,7 @@ public class BatchTestUtils {
 			// ignore
 		}
 		if (c == null) {
-			Assert.assertTrue("Eclipse compiler is not available", false);
+			junit.framework.TestCase.assertTrue("Eclipse compiler is not available", false);
 		}
 		int compilerCounter = 0;
 		for (JavaCompiler javaCompiler : javaCompilerLoader) {
@@ -258,8 +256,8 @@ public class BatchTestUtils {
 				_eclipseCompiler = javaCompiler;
 			}
 		}
-		Assert.assertEquals("Only one compiler available", 1, compilerCounter);
-		Assert.assertNotNull("No Eclipse compiler found", _eclipseCompiler);
+		junit.framework.TestCase.assertEquals("Only one compiler available", 1, compilerCounter);
+		junit.framework.TestCase.assertNotNull("No Eclipse compiler found", _eclipseCompiler);
 	}
 
 	public static void tearDown() {
