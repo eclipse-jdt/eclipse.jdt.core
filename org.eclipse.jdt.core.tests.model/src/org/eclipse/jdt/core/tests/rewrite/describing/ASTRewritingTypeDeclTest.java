@@ -1929,5 +1929,4 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-
 }

@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
@@ -3584,5 +3585,65 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403985
+	public void testBug403985_since_8() throws Exception {
+		String contents =
+			"public interface X {\n" +
+			"	static void foo(){}\n" +
+			"	public default void foo(int i){}\n" +
+			"	public default int foo2(int i) { return 0;}\n" +
+			"	public void foo3(int i);\n" +
+			"	public default int foo4(int i) { return 0;}\n" +
+			"}\n";
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", contents, false, null);
+		CompilationUnit astRoot= createAST(cu);
+		AST ast = astRoot.getAST();
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration[] methods = type.getMethods();
+		assertEquals("Incorrect no of methods", 5, methods.length);
+		MethodDeclaration method = methods[0];
+		{	// Change default method to static and vice versa
+			ListRewrite listRewrite = rewrite.getListRewrite(method, MethodDeclaration.MODIFIERS2_PROPERTY);
+			ASTNode newMod = ast.newModifier(ModifierKeyword.DEFAULT_KEYWORD);
+			listRewrite.replace((ASTNode) method.modifiers().get(0), newMod, null);
 
+			method = methods[1];
+			listRewrite = rewrite.getListRewrite(method, MethodDeclaration.MODIFIERS2_PROPERTY);
+			newMod = ast.newModifier(ModifierKeyword.STATIC_KEYWORD);
+			listRewrite.replace((ASTNode) method.modifiers().get(1), newMod, null);
+		}
+		{	// Remove default and the body
+			method = methods[2];
+			ListRewrite listRewrite = rewrite.getListRewrite(method, MethodDeclaration.MODIFIERS2_PROPERTY);
+			listRewrite.remove((ASTNode) method.modifiers().get(1), null);
+			rewrite.set(method, MethodDeclaration.BODY_PROPERTY, null, null);
+		}
+		{	// Add a default and body
+			method = methods[3];
+			ListRewrite listRewrite = rewrite.getListRewrite(method, MethodDeclaration.MODIFIERS2_PROPERTY);
+			ASTNode newMod = ast.newModifier(ModifierKeyword.DEFAULT_KEYWORD);
+			listRewrite.insertAt(newMod, 1, null);
+			Block newBlock = ast.newBlock();
+			rewrite.set(method, MethodDeclaration.BODY_PROPERTY, newBlock, null);
+		}
+		{	// Alter parameters for a default method
+			method = methods[4];
+			ListRewrite listRewrite = rewrite.getListRewrite(method, MethodDeclaration.PARAMETERS_PROPERTY);
+			listRewrite.remove((ASTNode) method.parameters().get(0), null);
+			listRewrite = rewrite.getListRewrite(method, MethodDeclaration.MODIFIERS2_PROPERTY);
+			listRewrite.remove((ASTNode) method.modifiers().get(0), null);
+		}
+		String preview = evaluateRewrite(cu, rewrite);
+		contents =
+				"public interface X {\n" +
+				"	default void foo(){}\n" +
+				"	public static void foo(int i){}\n" +
+				"	public int foo2(int i);\n" +
+				"	public default void foo3(int i) {\n    }\n" +
+				"	default int foo4() { return 0;}\n" +
+				"}\n";
+		assertEqualString(preview, contents);
+	}
 }
