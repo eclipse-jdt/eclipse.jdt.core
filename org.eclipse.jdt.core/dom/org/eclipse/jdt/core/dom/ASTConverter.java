@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,6 +54,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.core.dom.SourceRangeVerifier;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -1249,6 +1250,26 @@ class ASTConverter {
 				lookupForScopes();
 			}
 			compilationUnit.initCommentMapper(this.scanner);
+			if (SourceRangeVerifier.DEBUG) {
+				String bugs = new SourceRangeVerifier().process(compilationUnit);
+				if (bugs != null) {
+					StringBuffer message = new StringBuffer("Bad AST node structure:");  //$NON-NLS-1$
+					String lineDelimiter = Util.findLineSeparator(source);
+					if (lineDelimiter == null) lineDelimiter = System.getProperty("line.separator");//$NON-NLS-1$
+					message.append(lineDelimiter);
+					message.append(bugs.replaceAll("\n", lineDelimiter)); //$NON-NLS-1$
+					message.append(lineDelimiter);
+					message.append("----------------------------------- SOURCE BEGIN -------------------------------------"); //$NON-NLS-1$
+					message.append(lineDelimiter);
+					message.append(source);
+					message.append(lineDelimiter);
+					message.append("----------------------------------- SOURCE END -------------------------------------"); //$NON-NLS-1$
+					Util.log(new IllegalStateException("Bad AST node structure"), message.toString()); //$NON-NLS-1$
+					if (SourceRangeVerifier.DEBUG_THROW) {
+						throw new IllegalStateException(message.toString());
+					}
+				}
+			}
 			return compilationUnit;
 		} catch(IllegalArgumentException e) {
 			StringBuffer message = new StringBuffer("Exception occurred during compilation unit conversion:");  //$NON-NLS-1$
