@@ -46,6 +46,7 @@ public static Test suite() {
 	List allClasses = new ArrayList(AbstractJavaSearchTests.JAVA_SEARCH_SUITES);
 	allClasses.add(JavaSearchBugsTests.class);
 	allClasses.add(JavaSearchBugsTests2.class);
+	allClasses.add(JavaSearchBugs8Tests.class);
 
 	// Reset forgotten subsets of tests
 	TestCase.TESTS_PREFIX = null;
