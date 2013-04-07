@@ -5,13 +5,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
-import junit.framework.TestCase;
-
+import junit.framework.Assert;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -23,8 +26,8 @@ class GetKeyVisitor extends ASTVisitor {
 	 */
 	public boolean visit(ClassInstanceCreation node) {
 		IMethodBinding constructorBinding = node.resolveConstructorBinding();
-		TestCase.assertNotNull(constructorBinding);
-		TestCase.assertNotNull(constructorBinding.getKey());
+		Assert.assertNotNull(constructorBinding);
+		Assert.assertNotNull(constructorBinding.getKey());
 		return super.visit(node);
 	}
 }
