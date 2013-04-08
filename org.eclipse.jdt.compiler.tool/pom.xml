@@ -55,9 +55,8 @@
                   <fileset dir="${basedir}/target/classes">
                     <include name="**/*"/>
                   </fileset>
-                  <fileset dir="${basedir}">
-                    <include name="META-INF/services/**"/>
-                    <include name="META-INF/eclipse.inf"/>
+                  <fileset dir="${basedir}/target/jdtCompilerAdapter.jar-classes">
+                    <include name="**/*"/>
                   </fileset>
                 </zip>
                 <delete dir="${unjarDestBin}" failonerror="false"/>
