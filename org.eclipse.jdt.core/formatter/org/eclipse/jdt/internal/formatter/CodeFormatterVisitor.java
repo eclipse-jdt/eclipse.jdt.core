@@ -487,9 +487,20 @@ public class CodeFormatterVisitor extends ASTVisitor {
 								this.scribe.printNextToken(operators[i], this.preferences.insert_space_before_binary_operator);
 								this.scribe.alignFragment(binaryExpressionAlignment, i);
 							}
-							if (operators[i] == TerminalTokens.TokenNameMINUS && isNextToken(TerminalTokens.TokenNameMINUS)) {
-								// the next character is a minus (unary operator)
-								this.scribe.space();
+							switch(operators[i]) {
+								case TerminalTokens.TokenNameMINUS :
+									if (isNextToken(TerminalTokens.TokenNameMINUS)
+											|| isNextToken(TerminalTokens.TokenNameMINUS_MINUS)) {
+										// the next character is a '-' or '--' (unary operator)
+										this.scribe.space();
+									}
+									break;
+								case TerminalTokens.TokenNamePLUS :
+									if (isNextToken(TerminalTokens.TokenNamePLUS)
+											|| isNextToken(TerminalTokens.TokenNamePLUS_PLUS)) {
+										// the next character is a + or ++ (unary operator)
+										this.scribe.space();
+									}
 							}
 							if (this.preferences.insert_space_after_binary_operator) {
 								this.scribe.space();
