@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12935,6 +12935,106 @@ public void testBug379793() throws Exception {
 		"      }\n" + 
 		"    }\n" + 
 		"  }\n" + 
+		"}\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=405038
+//To verify that the whitespace options for resources in try statement work correctly
+public void testBug405038() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+	String source =
+		"public class FormatterError {\n" +
+		"  int foo(int a, int b, int c) {\n" + 
+		"        return a + b + ++c;\n" + 
+		"    }\n" +
+		"}\n";
+	formatSource(source,
+		"public class FormatterError {\n" + 
+		"	int foo(int a, int b, int c) {\n" + 
+		"		return a+b+ ++c;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=405038
+//To verify that the whitespace options for resources in try statement work correctly
+public void testBug405038_2() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+	String source =
+		"public class FormatterError {\n" +
+		"  int foo(int a, int b, int c) {\n" + 
+		"        return a + ++b + c;\n" + 
+		"    }\n" +
+		"}\n";
+	formatSource(source,
+		"public class FormatterError {\n" + 
+		"	int foo(int a, int b, int c) {\n" + 
+		"		return a+ ++b+c;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=405038
+//To verify that the whitespace options for resources in try statement work correctly
+public void testBug405038_3() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+	String source =
+		"public class FormatterError {\n" +
+		"  int foo(int a, int b, int c) {\n" + 
+		"        return a - --b + c;\n" + 
+		"    }\n" +
+		"}\n";
+	formatSource(source,
+		"public class FormatterError {\n" + 
+		"	int foo(int a, int b, int c) {\n" + 
+		"		return a- --b+c;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=405038
+//To verify that the whitespace options for resources in try statement work correctly
+public void testBug405038_4() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+	String source =
+		"public class FormatterError {\n" +
+		"  int foo(int a, int b, int c) {\n" + 
+		"        return a - -b + c;\n" + 
+		"    }\n" +
+		"}\n";
+	formatSource(source,
+		"public class FormatterError {\n" + 
+		"	int foo(int a, int b, int c) {\n" + 
+		"		return a- -b+c;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=405038
+//To verify that the whitespace options for resources in try statement work correctly
+public void testBug405038_5() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+	String source =
+		"public class FormatterError {\n" +
+		"  int foo(int a, int b, int c) {\n" + 
+		"        return a - -b + ++c;\n" + 
+		"    }\n" +
+		"}\n";
+	formatSource(source,
+		"public class FormatterError {\n" + 
+		"	int foo(int a, int b, int c) {\n" + 
+		"		return a- -b+ ++c;\n" + 
+		"	}\n" + 
 		"}\n"
 	);
 }
