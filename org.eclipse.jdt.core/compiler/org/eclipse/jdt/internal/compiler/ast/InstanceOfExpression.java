@@ -93,9 +93,12 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	if (!checkedType.isReifiable()) {
 		scope.problemReporter().illegalInstanceOfGenericType(checkedType, this);
-	} else if ((expressionType != TypeBinding.NULL && expressionType.isBaseType()) // disallow autoboxing
-			|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null)) {
-		scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
+	} else if (checkedType.isValidBinding()) {
+		// if not a valid binding, an error has already been reported for unresolved type
+		if ((expressionType != TypeBinding.NULL && expressionType.isBaseType()) // disallow autoboxing
+				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null)) {
+			scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
+		}
 	}
 	return this.resolvedType = TypeBinding.BOOLEAN;
 }
