@@ -2816,6 +2816,80 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(LambdaExpression)
+	 */
+	public boolean visit(LambdaExpression node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		Boolean newValue = (Boolean) getNewValue(node, LambdaExpression.PARENTHESES_PROPERTY);
+		boolean hasParentheses = newValue.equals(Boolean.TRUE);
+		if (!hasParentheses) {// Parentheses can be absent if and only if there is one and only one type elided parameter.
+			List parameters = (List) getNewValue(node, LambdaExpression.PARAMETERS_PROPERTY);
+			hasParentheses = !(parameters.size() == 1 && parameters.get(0) instanceof VariableDeclarationFragment);
+		}
+
+		boolean deleteParentheses = false;
+		boolean insertParentheses = false;
+		TextEditGroup editGroup = null;
+
+		boolean oldHasParentheses = getOriginalValue(node, LambdaExpression.PARENTHESES_PROPERTY).equals(Boolean.TRUE);
+		RewriteEvent event = getEvent(node, LambdaExpression.PARENTHESES_PROPERTY);
+		if (event != null) {
+			editGroup = getEditGroup(event);
+			if (event.getChangeKind() == RewriteEvent.REPLACED) {
+				if (newValue != Boolean.FALSE) {
+					insertParentheses = true;
+				} else {// apply the stricter check for parentheses deletion
+					deleteParentheses = !hasParentheses;
+				}
+			}
+		} else if (!oldHasParentheses && hasParentheses) {// parameter property changed to effect parentheses insertion
+			if ((event = getEvent(node, LambdaExpression.PARAMETERS_PROPERTY)) != null) {// a null check though event cannot be null here
+				editGroup = getEditGroup(event);
+				insertParentheses = true;
+			}
+		}
+		
+		int pos = node.getStartPosition();
+		if (insertParentheses) {
+			doTextInsert(pos, "(", editGroup); //$NON-NLS-1$
+		} else if (deleteParentheses) {
+			try {
+				int lparensEnd = getScanner().getTokenEndOffset(TerminalTokens.TokenNameLPAREN, pos);
+				doTextRemove(pos, lparensEnd - pos, editGroup);
+				pos = lparensEnd;
+			} catch (CoreException e) {
+				handleException(e);
+			}
+		}
+
+		if (isChanged(node, LambdaExpression.PARAMETERS_PROPERTY)) {
+			try {
+				pos = oldHasParentheses ? getScanner().getTokenEndOffset(TerminalTokens.TokenNameLPAREN, pos) : pos;
+				pos = rewriteNodeList(node, LambdaExpression.PARAMETERS_PROPERTY, pos, Util.EMPTY_STRING, ", "); //$NON-NLS-1$
+			} catch (CoreException e) {
+				handleException(e);
+			}
+		} else {
+			pos = doVisit(node, LambdaExpression.PARAMETERS_PROPERTY, pos);
+		}
+
+		if (insertParentheses) {
+			doTextInsert(pos, ")", editGroup); //$NON-NLS-1$
+		} else if (deleteParentheses) {
+			try {
+				doTextRemove(pos, getScanner().getTokenEndOffset(TerminalTokens.TokenNameRPAREN, pos) - pos, editGroup);
+			} catch (CoreException e) {
+				handleException(e);
+			}
+		}
+		rewriteRequiredNode(node, LambdaExpression.BODY_PROPERTY);
+
+		return false;
+	}
+
+	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(MethodInvocation)
 	 */
 	public boolean visit(MethodInvocation node) {

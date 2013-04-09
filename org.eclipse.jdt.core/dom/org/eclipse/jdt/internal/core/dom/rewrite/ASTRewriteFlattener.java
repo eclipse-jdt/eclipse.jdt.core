@@ -653,6 +653,27 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		this.result.append("[]"); //$NON-NLS-1$
 		return false;
 	}
+
+	/*
+	 * @see ASTVisitor#visit(LambdaExpression)
+	 */
+	public boolean visit(LambdaExpression node) {
+		boolean hasParentheses = getBooleanAttribute(node, LambdaExpression.PARENTHESES_PROPERTY);
+		if (!hasParentheses) {
+			List parameters = getChildList(node, LambdaExpression.PARAMETERS_PROPERTY);
+			hasParentheses = !(parameters.size() == 1 && parameters.get(0) instanceof VariableDeclarationFragment);
+		}
+
+		if (hasParentheses)
+			this.result.append('(');
+		visitList(node, LambdaExpression.PARAMETERS_PROPERTY, String.valueOf(','));
+		if (hasParentheses)
+			this.result.append(')');
+		this.result.append("->"); //$NON-NLS-1$
+		getChildNode(node, LambdaExpression.BODY_PROPERTY).accept(this);
+		return false;
+	}
+
 	/*
 	 * @see ASTVisitor#visit(MethodDeclaration)
 	 */
