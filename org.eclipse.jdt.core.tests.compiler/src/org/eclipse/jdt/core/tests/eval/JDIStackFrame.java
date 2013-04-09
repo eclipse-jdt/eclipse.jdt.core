@@ -5,10 +5,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -19,7 +15,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import junit.framework.Assert;
+import junit.framework.TestCase;
+
 import org.eclipse.jdt.core.tests.runtime.RuntimeConstants;
 import org.eclipse.jdt.internal.eval.EvaluationConstants;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
@@ -168,12 +165,12 @@ protected ThreadReference getDebuggedThread(DebugEvaluationTest test) {
 				requestor,
 				test.getProblemFactory());
 		} catch (InstallException e) {
-			Assert.assertTrue("Target exception " + e.getMessage(), false);
+			TestCase.assertTrue("Target exception " + e.getMessage(), false);
 		}
 		EvaluationResult[] results = requestor.results;
 		for (int i = 0; i < requestor.resultIndex + 1; i++){
 			if (results[i].hasErrors()) {
-				Assert.assertTrue("Compilation error in user code", false);
+				TestCase.assertTrue("Compilation error in user code", false);
 			}
 		}
 
