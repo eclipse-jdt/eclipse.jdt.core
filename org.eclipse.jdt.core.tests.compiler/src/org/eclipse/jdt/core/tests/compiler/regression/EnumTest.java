@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *								Bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								Bug 265744 - Enum switch should warn about missing default
  *								Bug 374605 - Unreasonable warning for enum-based switch statements
+ *								Bug 395681 - [compiler] Improve simulation of javac6 behavior from bug 317719 after fixing bug 388795
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -3007,7 +3008,7 @@ public void test095() { // check missing abstract cases from multiple interfaces
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public enum X implements I, J { \n" +
 		"	            ^\n" +
-		"The type X must implement the inherited abstract method I.foo()\n" +
+		"The type X must implement the inherited abstract method J.foo()\n" +
 		"----------\n");
 	this.runNegativeTest(
 		new String[] {

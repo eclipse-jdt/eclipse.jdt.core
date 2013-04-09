@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for
  *								bug 383690 - [compiler] location of error re uninitialized final field should be aligned
  *								bug 388795 - [compiler] detection of name clash depends on order of super interfaces
+ *								bug 395681 - [compiler] Improve simulation of javac6 behavior from bug 317719 after fixing bug 388795
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -32456,28 +32457,18 @@ public void test0986() {
 public void test0987() {
 	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
     ?	"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
-		"	               ^^^^^^^^^^^^^^^^\n" + 
-		"The return types are incompatible for the inherited methods EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
 		"	public ISheetViewer getViewer() { return null; }	\n" + 
 		"	       ^^^^^^^^^^^^\n" + 
 		"The return type is incompatible with EditPart.getViewer()\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 11)\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
 		"	public ISheetViewer getViewer() { return null; }	\n" + 
 		"	                    ^^^^^^^^^^^\n" + 
 		"The method getViewer() of type AbstractLinkView<M> must override a superclass method\n" + 
 		"----------\n"
     :		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
-		"	               ^^^^^^^^^^^^^^^^\n" + 
-		"The return types are incompatible for the inherited methods EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
 		"	public ISheetViewer getViewer() { return null; }	\n" + 
 		"	       ^^^^^^^^^^^^\n" + 
 		"The return type is incompatible with EditPart.getViewer()\n" + 
@@ -32566,12 +32557,7 @@ public void test0988() {
 				"}", // =================
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
-			"	               ^^^^^^^^^^^^^^^^\n" + 
-			"The return types are incompatible for the inherited methods EditPart.getViewer(), ILinkViewElement.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 11)\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
 			"	public SheetViewer getViewer() { return null; }	\n" + 
 			"	       ^^^^^^^^^^^\n" + 
 			"The return type is incompatible with AbstractEditPart.getViewer()\n" + 
@@ -42810,7 +42796,7 @@ public void test1239() {
 		"4. ERROR in X.java (at line 13)\n" +
 		"	public interface CombinedSubInterface extends SubInterface, OtherSubInterface {}\n" +
 		"	                 ^^^^^^^^^^^^^^^^^^^^\n" +
-		"The return types are incompatible for the inherited methods X.OtherSubInterface.and(X.SuperInterface), X.SubInterface.and(X.SuperInterface)\n" +
+		"The return types are incompatible for the inherited methods X.SubInterface.and(X.SuperInterface), X.OtherSubInterface.and(X.SuperInterface)\n" +
 		"----------\n" +
 		"5. WARNING in X.java (at line 15)\n" +
 		"	public interface OtherSubInterface extends SuperInterface {\n" +
