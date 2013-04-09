@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2010 IBM Corporation and others.
+ * Copyright (c) 2006, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,9 +41,11 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.batch.Main.ResourceBundleFactory;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
  * Implementation of the Standard Java File Manager
@@ -284,8 +286,11 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	Iterable<? extends File> getDefaultBootclasspath() {
 		ArrayList<File> files = new ArrayList<File>();
 		String javaversion = System.getProperty("java.version");//$NON-NLS-1$
-		if (javaversion != null && !javaversion.startsWith("1.6")) { //$NON-NLS-1$	
-			// wrong jdk - 1.6 is required
+		if(javaversion.length() > 3)
+			javaversion = javaversion.substring(0, 3);
+		long jdkLevel = CompilerOptions.versionToJdkLevel(javaversion);
+		if (jdkLevel < ClassFileConstants.JDK1_6) {
+			// wrong jdk - 1.6 or above is required
 			return null;
 		}
 
