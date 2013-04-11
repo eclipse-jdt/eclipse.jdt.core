@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+ *								bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -78,7 +79,6 @@ public ExceptionHandlingFlowContext(
 	this(parent, tryStatement, handledExceptions, exceptionToCatchBlockMap, 
 			tryStatement.catchArguments, initializationParent, scope, flowInfo.unconditionalInits());
 	this.initsOnFinally = flowInfo.unconditionalCopy();
-	this.conditionalLevel = 0;	
 }
 ExceptionHandlingFlowContext(
 		FlowContext parent,

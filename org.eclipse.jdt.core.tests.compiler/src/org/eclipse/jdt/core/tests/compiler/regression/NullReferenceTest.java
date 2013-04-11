@@ -30,6 +30,7 @@
  *							bug 401088 - [compiler][null] Wrong warning "Redundant null check" inside nested try statement
  *							bug 401092 - [compiler][null] Wrong warning "Redundant null check" in outer catch of nested try
  *							bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
+ *							bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -58,9 +59,9 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "test0037_conditional_expression" };
-//		TESTS_NAMES = new String[] { "test0515_try_finally" };
-//		TESTS_NAMES = new String[] { "testBug319201c" };
+//		TESTS_NAMES = new String[] { "test0555_try_catch" };
+//		TESTS_NAMES = new String[] { "testBug401088" };
+//		TESTS_NAMES = new String[] { "testBug402993" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -16517,5 +16518,116 @@ public void test401092a() {
 			"    }\n" + 
 			"}\n"
 		});
+}
+// Bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
+public void testBug402993() {
+	runNegativeTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" + 
+			"\n" + 
+			"	private static void occasionallyThrowException() throws Exception {\n" + 
+			"		if ((System.currentTimeMillis() & 1L) != 0L)\n" + 
+			"			throw new Exception();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static void open() throws Exception {\n" + 
+			"		occasionallyThrowException();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static void close() throws Exception {\n" + 
+			"		occasionallyThrowException();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String s[]) {\n" + 
+			"		Exception exc = null;\n" +
+			"		try {\n" + 
+			"			open();\n" + 
+			"			// do more things\n" + 
+			"		}\n" + 
+			"		catch (Exception e) {\n" + 
+			"			if (exc == null) // no warning here ??\n" + 
+			"				;\n" + 
+			"		}\n" + 
+			"		finally {\n" + 
+			"			try {\n" + 
+			"				close();\n" + 
+			"			}\n" + 
+			"			catch (Exception e) {\n" + 
+			"				if (exc == null) // No warning here ??\n" + 
+			"					exc = e;\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		}, 
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 23)\n" + 
+		"	if (exc == null) // no warning here ??\n" + 
+		"	    ^^^\n" + 
+		"Redundant null check: The variable exc can only be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in Test.java (at line 31)\n" + 
+		"	if (exc == null) // No warning here ??\n" + 
+		"	    ^^^\n" + 
+		"Redundant null check: The variable exc can only be null at this location\n" + 
+		"----------\n");
+}
+// Bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
+// variant with finally block in inner try
+public void testBug402993a() {
+	runNegativeTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" + 
+			"\n" + 
+			"	private static void occasionallyThrowException() throws Exception {\n" + 
+			"		if ((System.currentTimeMillis() & 1L) != 0L)\n" + 
+			"			throw new Exception();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static void open() throws Exception {\n" + 
+			"		occasionallyThrowException();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static void close() throws Exception {\n" + 
+			"		occasionallyThrowException();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String s[]) {\n" + 
+			"		Exception exc = null;\n" + 
+			"		try {\n" + 
+			"			open();\n" + 
+			"			// do more things\n" + 
+			"		}\n" + 
+			"		catch (Exception e) {\n" + 
+			"			if (exc == null) // no warning here ??\n" + 
+			"				;\n" + 
+			"		}\n" + 
+			"		finally {\n" + 
+			"			try {\n" + 
+			"				close();\n" + 
+			"			}\n" + 
+			"			catch (Exception e) {\n" + 
+			"				if (exc == null) // No warning here ??\n" + 
+			"					exc = e;\n" + 
+			"			} finally {\n" +
+			"				System.out.print(1);\n" +
+			"			}\n" +
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		}, 
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 23)\n" + 
+		"	if (exc == null) // no warning here ??\n" + 
+		"	    ^^^\n" + 
+		"Redundant null check: The variable exc can only be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in Test.java (at line 31)\n" + 
+		"	if (exc == null) // No warning here ??\n" + 
+		"	    ^^^\n" + 
+		"Redundant null check: The variable exc can only be null at this location\n" + 
+		"----------\n");
 }
 }

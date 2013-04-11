@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@
  *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *								bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -643,11 +644,11 @@ public char[] labelName() {
 
 /**
  * Record a given null status of a given local variable as it will be seen in the finally block.
- * Precondition: caller has checked that initsOnFinally != null.
  * @param local the local variable being observed
  * @param nullStatus the null status of local at the current point in the flow
  */
 public void markFinallyNullStatus(LocalVariableBinding local, int nullStatus) {
+	if (this.initsOnFinally == null) return;
 	if (this.conditionalLevel == -1) return;
 	if (this.conditionalLevel == 0) {
 		// node is unconditionally reached, take nullStatus as is:
@@ -667,6 +668,7 @@ public void markFinallyNullStatus(LocalVariableBinding local, int nullStatus) {
  * @param flowInfo info after executing a statement of the try-block.
  */
 public void mergeFinallyNullInfo(FlowInfo flowInfo) {
+	if (this.initsOnFinally == null) return;
 	if (this.conditionalLevel == -1) return;
 	if (this.conditionalLevel == 0) {
 		// node is unconditionally reached, take null info as is:
