@@ -156,7 +156,7 @@ public final class Flags {
 	public static final int AccAnnotation = ClassFileConstants.AccAnnotation;
 
 	/**
-	 * Default method property flag (added in J2SE 8).
+	 * Default method property flag.
 	 * <p>
 	 * Note that this flag's value is internal and is not defined in the
 	 * Virtual Machine specification.
@@ -165,6 +165,17 @@ public final class Flags {
 	 */
 	public static final int AccDefaultMethod = ExtraCompilerModifiers.AccDefaultMethod;
 
+	/**
+	 * Annotation method default property flag.
+	 * Used to flag annotation type methods that declare a default value.
+	 * <p>
+	 * Note that this flag's value is internal and is not defined in the
+	 * Virtual Machine specification.
+	 * </p>
+	 * @since 3.9
+	 */
+	public static final int AccAnnotationDefault = ClassFileConstants.AccAnnotationDefault;
+	
 	/**
 	 * Not instantiable.
 	 */
@@ -387,6 +398,18 @@ public final class Flags {
 		return (flags & AccDefaultMethod) != 0;
 	}
 
+	/**
+	 * Returns whether the given integer has the <code>AccAnnnotationDefault</code>
+	 * bit set.
+	 *
+	 * @return <code>true</code> if the <code>AccAnnotationDefault</code> flag is included
+	 * @see #AccAnnotationDefault
+	 * @since 3.9
+	 */
+	public static boolean isAnnnotationDefault(int flags) {
+		return (flags & AccAnnotationDefault) != 0;
+	}
+	
 	/**
 	 * Returns a standard string describing the given modifier flags.
 	 * Only modifier flags are included in the output; deprecated,
