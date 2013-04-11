@@ -27,8 +27,11 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
  * <p>
  * Note that the numeric values of these flags match the ones for class files
  * as described in the Java Virtual Machine Specification (except for
- * {@link #AccDefaultFlag}). The AST class <code>Modifier</code> provides
- * the same functionality as this class, only in the
+ * {@link #AccDeprecated} and {@link #AccDefaultMethod}).
+ * </p>
+ * <p>
+ * The AST class <code>Modifier</code> provides
+ * similar functionality as this class, only in the
  * <code>org.eclipse.jdt.core.dom</code> package.
  * </p>
  *
@@ -38,7 +41,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 public final class Flags {
 
 	/**
-	 * Constant representing the absence of any flag
+	 * Constant representing the absence of any flag.
 	 * @since 3.0
 	 */
 	public static final int AccDefault = ClassFileConstants.AccDefault;
@@ -113,7 +116,11 @@ public final class Flags {
 	 */
 	public static final int AccSynthetic = ClassFileConstants.AccSynthetic;
 	/**
-	 * Deprecated property flag. See The Java Virtual Machine Specification for more details.
+	 * Deprecated property flag.
+	 * <p>
+	 * Note that this flag's value is internal and is not defined in the
+	 * Virtual Machine specification.
+	 * </p>
 	 * @since 2.0
 	 */
 	public static final int AccDeprecated = ClassFileConstants.AccDeprecated;
@@ -149,12 +156,14 @@ public final class Flags {
 	public static final int AccAnnotation = ClassFileConstants.AccAnnotation;
 
 	/**
-	 * Default property flag (added in J2SE 1.8).
-	 * Note that the flag's value is internal and is not defined in the
+	 * Default method property flag (added in J2SE 8).
+	 * <p>
+	 * Note that this flag's value is internal and is not defined in the
 	 * Virtual Machine specification.
+	 * </p>
 	 * @since 3.9
 	 */
-	public static final int AccDefaultFlag = ExtraCompilerModifiers.AccDefaultMethod;
+	public static final int AccDefaultMethod = ExtraCompilerModifiers.AccDefaultMethod;
 
 	/**
 	 * Not instantiable.
@@ -366,16 +375,16 @@ public final class Flags {
 	}
 
 	/**
-	 * Returns whether the given integer has the <code>AccDefaultFlag</code>
+	 * Returns whether the given integer has the <code>AccDefaultMethod</code>
 	 * bit set. Note that this flag represents the usage of the 'default' keyword
-	 * on a method and should not be confused with the default access visibility.
+	 * on a method and should not be confused with the 'package' access visibility (which used to be called 'default access').
 	 *
-	 * @return <code>true</code> if the <code>AccDefaultFlag</code> flag is included
-	 * @see #AccDefaultFlag
+	 * @return <code>true</code> if the <code>AccDefaultMethod</code> flag is included
+	 * @see #AccDefaultMethod
 	 * @since 3.9
 	 */
 	public static boolean isDefaultMethod(int flags) {
-		return (flags & AccDefaultFlag) != 0;
+		return (flags & AccDefaultMethod) != 0;
 	}
 
 	/**

@@ -1807,7 +1807,7 @@ public final class AST {
 		if (Modifier.isVolatile(flags)) {
 			result.add(newModifier(Modifier.ModifierKeyword.VOLATILE_KEYWORD));
 		}
-		if (Modifier.isDefaultMethod(flags)) {
+		if (Modifier.isDefault(flags)) {
 			result.add(newModifier(Modifier.ModifierKeyword.DEFAULT_KEYWORD));
 		}
 		return result;

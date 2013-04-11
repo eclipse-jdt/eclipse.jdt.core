@@ -1926,7 +1926,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("Incorrect no of modfiers", 2, modifiers.size());
 		modifier = (Modifier) modifiers.get(1);
 		assertSame("Incorrect modifier keyword", Modifier.ModifierKeyword.DEFAULT_KEYWORD, modifier.getKeyword());
-		assertTrue("Incorrect modifier", modifier.isDefaultMethod());
+		assertTrue("Incorrect modifier", modifier.isDefault());
 		assertEquals("Incorrect AST", "public default void foo(int i){\n}\n", method.toString());
 
 		method = (MethodDeclaration) type.bodyDeclarations().get(2);

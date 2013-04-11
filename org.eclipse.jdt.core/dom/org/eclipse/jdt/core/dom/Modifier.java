@@ -40,7 +40,7 @@ import java.util.Map;
  * <p>
  * The numeric values of these flags match the ones for class
  * files as described in the Java Virtual Machine Specification
- * (except for {@link #DEFAULT}). Note that Java model class
+ * (except for {@link #DEFAULT}). Note that the Java model class
  * {@link org.eclipse.jdt.core.Flags} also provides the same
  * constants as this class.
  * </p>
@@ -96,8 +96,11 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 		public static final ModifierKeyword VOLATILE_KEYWORD = new ModifierKeyword("volatile", VOLATILE);//$NON-NLS-1$
 
 		/**
-		 * "default" modifier with flag value {@link Modifier#DEFAULT}. Note that the value of the modifier is
+		 * "default" modifier with flag value {@link Modifier#DEFAULT} (added in JLS8 API).
+		 * <p>
+		 * Note that the value of this modifier is
 		 * internal and is not specified in the Java Virtual Machine Specification.
+		 * </p>
 		 * @since 3.9
 		 */
 		public static final ModifierKeyword DEFAULT_KEYWORD = new ModifierKeyword("default", DEFAULT);//$NON-NLS-1$
@@ -308,11 +311,12 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	public static final int VOLATILE = 0x0040;
 
 	/**
-	 * "default" modifier constant (bit mask).
+	 * "default" modifier constant (bit mask) (added in JLS8 API).
 	 * Applicable only to methods.
-	 *
-	 * Note that the value of the flag is internal and is not
+	 * <p>
+	 * Note that the value of this flag is internal and is not
 	 * specified in the Java Virtual Machine Specification.
+	 * </p>
 	 * @since 3.9
 	 */
 	public static final int DEFAULT = 0x10000;
@@ -476,7 +480,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * and <code>false</code> otherwise
 	 * @since 3.9
 	 */
-	public static boolean isDefaultMethod(int flags) {
+	public static boolean isDefault(int flags) {
 		return (flags & DEFAULT) != 0;
 	}
 
@@ -706,7 +710,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * @return true if the receiver is the default modifier, false otherwise
 	 * @since 3.9
 	 */
-	public boolean isDefaultMethod() {
+	public boolean isDefault() {
 		return this.modifierKeyword == ModifierKeyword.DEFAULT_KEYWORD;
 	}
 

@@ -46,7 +46,7 @@ public interface ClassFileConstants {
 	int AccSuper = 0x0020;
 
 	/**
-	 * Extra flags for types and members attributes.
+	 * Extra flags for types and members attributes (not from the JVMS, should have been defined in ExtraCompilerModifiers).
 	 */
 	int AccAnnotationDefault = ASTNode.Bit18; // indicate presence of an attribute  "DefaultValue" (annotation method)
 	int AccDeprecated = ASTNode.Bit21; // indicate presence of an attribute "Deprecated"
