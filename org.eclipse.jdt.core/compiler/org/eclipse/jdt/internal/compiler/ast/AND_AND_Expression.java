@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
+ *     Stephan Herrmann - Contributions for
+ *								bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
+ *								bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -47,6 +49,8 @@ public class AND_AND_Expression extends BinaryExpression {
 		}
 
 		FlowInfo leftInfo = this.left.analyseCode(currentScope, flowContext, flowInfo);
+		if ((flowContext.tagBits & FlowContext.INSIDE_NEGATION) != 0)
+			flowContext.expireNullCheckedFieldInfo();
 		// need to be careful of scenario:
 		//  (x && y) && !z, if passing the left info to the right, it would be
 		// swapped by the !
@@ -61,6 +65,8 @@ public class AND_AND_Expression extends BinaryExpression {
 			}
 		}
 		rightInfo = this.right.analyseCode(currentScope, flowContext, rightInfo);
+		if ((flowContext.tagBits & FlowContext.INSIDE_NEGATION) != 0)
+			flowContext.expireNullCheckedFieldInfo();
 		if ((this.left.implicitConversion & TypeIds.UNBOXING) != 0) {
 			this.left.checkNPE(currentScope, flowContext, flowInfo);
 		}

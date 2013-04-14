@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *								bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -35,10 +36,11 @@ public FlowInfo analyseCode(
 		FlowInfo flowInfo) {
 	this.expression.checkNPE(currentScope, flowContext, flowInfo);
 	if (((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
+		flowContext.tagBits ^= FlowContext.INSIDE_NEGATION;
 		flowInfo = this.expression.
 			analyseCode(currentScope, flowContext, flowInfo).
 			asNegatedCondition();
-		flowContext.expireNullCheckedFieldInfo();
+		flowContext.tagBits ^= FlowContext.INSIDE_NEGATION;
 		return flowInfo;
 	} else {
 		return this.expression.

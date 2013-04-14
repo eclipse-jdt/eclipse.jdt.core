@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for
  *								bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+ *								bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -54,6 +55,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	
 	flowContext.tagBits |= FlowContext.HIDE_NULL_COMPARISON_WARNING;
 	FlowInfo conditionFlowInfo = this.assertExpression.analyseCode(currentScope, flowContext, flowInfo.copy());
+	flowContext.extendTimeToLiveForNullCheckedField(1); // survive this assert as a Statement
 	flowContext.tagBits &= ~FlowContext.HIDE_NULL_COMPARISON_WARNING;
 	UnconditionalFlowInfo assertWhenTrueInfo = conditionFlowInfo.initsWhenTrue().unconditionalInits();
 	FlowInfo assertInfo = conditionFlowInfo.initsWhenFalse();

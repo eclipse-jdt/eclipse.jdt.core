@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test_conditional_expression" };
+//		TESTS_NAMES = new String[] { "test_nullable_field_10c" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -4757,7 +4757,15 @@ public void test_nullable_field_10c() {
 			"         if (o1 != null || o2 != null || o3 != null) \n" +
 			"             System.out.println(o2.toString()); // warn here: disjunktion is no protection\n" +
 			"         if (!(o1 != null)) \n" +
-			"             System.out.println(o1.toString()); // warn here: negation is no protection\n" +
+			"             System.out.println(o1.toString()); // warn here: negated inequality is no protection\n" +
+			"         if (!(o1 == null || o2 == null)) \n" +
+			"             System.out.println(o1.toString()); // don't warn here\n" +
+			"         if (!(o1 == null && o2 == null)) \n" +
+			"             System.out.println(o2.toString()); // warn here: negated conjunction is no protection\n" +
+			"         if (!(!(o1 == null))) \n" +
+			"             System.out.println(o1.toString()); // warn here: double negation is no protection\n" +
+			"         if (!(!(o1 != null && o2 != null))) \n" +
+			"             System.out.println(o1.toString()); // don't warn here\n" +
 			"    }\n" +
 			"}\n"
 		},
@@ -4769,7 +4777,17 @@ public void test_nullable_field_10c() {
 		"Potential null pointer access: The field o2 is declared as @Nullable\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 10)\n" +
-		"	System.out.println(o1.toString()); // warn here: negation is no protection\n" +
+		"	System.out.println(o1.toString()); // warn here: negated inequality is no protection\n" +
+		"	                   ^^\n" +
+		"Potential null pointer access: The field o1 is declared as @Nullable\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 14)\n" +
+		"	System.out.println(o2.toString()); // warn here: negated conjunction is no protection\n" +
+		"	                   ^^\n" +
+		"Potential null pointer access: The field o2 is declared as @Nullable\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 16)\n" +
+		"	System.out.println(o1.toString()); // warn here: double negation is no protection\n" +
 		"	                   ^^\n" +
 		"Potential null pointer access: The field o1 is declared as @Nullable\n" +
 		"----------\n");
@@ -6126,5 +6144,65 @@ public void test_conditional_expression_1() {
 		"	                      ^^^^^^^^^^^^\n" + 
 		"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" + 
 		"----------\n");
+}
+
+// Bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
+public void testBug403086_1() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_INCLUDE_ASSERTS_IN_NULL_ANALYSIS, JavaCore.ENABLED);
+	customOptions.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runConformTestWithLibs(
+		new String[] {
+			NullReferenceTestAsserts.JUNIT_ASSERT_NAME,
+			NullReferenceTestAsserts.JUNIT_ASSERT_CONTENT,		
+			"Y.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"class Y {\n" +
+			"	@Nullable String str;\n" +
+			"	int foo(@Nullable String str2) {\n" +
+			"		int i;\n" +
+			"		junit.framework.Assert.assertNotNull(str);\n" +
+			"		i = str.length();\n" +
+			"\n" +
+			"		assert this.str != null;\n" +
+			"		i = str.length();\n" +
+			"\n" +
+			"		return i;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		customOptions,
+		"");
+}
+
+//Bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
+public void testBug403086_2() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_INCLUDE_ASSERTS_IN_NULL_ANALYSIS, JavaCore.ENABLED);
+	customOptions.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runConformTestWithLibs(
+		new String[] {
+			NullReferenceTestAsserts.JUNIT_ASSERT_NAME,
+			NullReferenceTestAsserts.JUNIT_ASSERT_CONTENT,		
+			"Y.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"class Y {\n" +
+			"	@Nullable String str;\n" +
+			"	int foo(@Nullable String str2) {\n" +
+			"		int i;\n" +
+			"		junit.framework.Assert.assertNotNull(str);\n" +
+			"		i = str.length();\n" +
+			"\n" +
+			"		assert ! (this.str == null);\n" +
+			"		i = str.length();\n" +
+			"\n" +
+			"		return i;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		customOptions,
+		"");
 }
 }
