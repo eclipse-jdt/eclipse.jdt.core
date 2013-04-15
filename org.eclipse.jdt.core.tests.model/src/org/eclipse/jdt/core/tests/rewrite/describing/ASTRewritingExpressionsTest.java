@@ -93,7 +93,6 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 
 
-	/** @deprecated using deprecated code */
 	public void testArrayCreation() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -200,6 +199,14 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 			rewrite.getListRewrite(arrayCreation, ArrayCreation.DIMENSIONS_PROPERTY).insertLast(literal2, null);
 
 		}
+		{	// add a new ArrayCreation
+			ArrayCreation arrayCreation= ast.newArrayCreation();
+			arrayCreation.setType(ast.newArrayType(ast.newSimpleType(ast.newSimpleName("Object")), 3));
+			arrayCreation.dimensions().add(ast.newNumberLiteral("1"));
+			arrayCreation.dimensions().add(ast.newNumberLiteral("2"));
+			
+			rewrite.getListRewrite(invocation, MethodInvocation.ARGUMENTS_PROPERTY).insertLast(arrayCreation, null);
+		}
 
 		String preview= evaluateRewrite(cu, rewrite);
 
@@ -212,13 +219,82 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		buf.append("        new int[],\n");
 		buf.append("        new int[2][10][11],\n");
 		buf.append("        new int[2][][][][],\n");
-		buf.append("        new int[10][11][]);\n");
+		buf.append("        new int[10][11][], new Object[1][2][]);\n");
 		buf.append("    }\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 
 	}
 
+	public void testArrayCreation2_since_8() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        goo();\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+	
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+	
+		AST ast= astRoot.getAST();
+	
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List statements= block.statements();
+		assertTrue("Number of statements not 1", statements.size() == 1);
+		ExpressionStatement statement= (ExpressionStatement) statements.get(0);
+		MethodInvocation invocation= (MethodInvocation) statement.getExpression();
+	
+		{	// add a new ArrayCreation with annotations
+			ArrayCreation arrayCreation= ast.newArrayCreation();
+			SimpleType elementType= ast.newSimpleType(ast.newName("java.lang.String"));
+			
+			ArrayType arrayType= ast.newArrayType(elementType);
+			NormalAnnotation annotationC= ast.newNormalAnnotation();
+			annotationC.setTypeName(ast.newSimpleName("C"));
+			MemberValuePair memberValuePair= ast.newMemberValuePair();
+			memberValuePair.setName(ast.newSimpleName("v"));
+			memberValuePair.setValue(ast.newNumberLiteral("99"));
+			annotationC.values().add(memberValuePair);
+			arrayType.annotations().add(annotationC);
+			
+			arrayType= ast.newArrayType(arrayType);
+			SingleMemberAnnotation annotationB= ast.newSingleMemberAnnotation();
+			annotationB.setTypeName(ast.newSimpleName("B"));
+			annotationB.setValue(ast.newNumberLiteral("0"));
+			arrayType.annotations().add(annotationB);
+			
+			arrayType= ast.newArrayType(arrayType);
+			MarkerAnnotation annotationA= ast.newMarkerAnnotation();
+			annotationA.setTypeName(ast.newSimpleName("A"));
+			arrayType.annotations().add(annotationA);
+			
+			arrayCreation.setType(arrayType);
+			
+			arrayCreation.dimensions().add(ast.newNumberLiteral("1"));
+			arrayCreation.dimensions().add(ast.newNumberLiteral("2"));
+			
+			rewrite.getListRewrite(invocation, MethodInvocation.ARGUMENTS_PROPERTY).insertLast(arrayCreation, null);
+		}
+	
+		String preview= evaluateRewrite(cu, rewrite);
+	
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        goo(new java.lang.String @A[1]@B(0)[2]@C(v = 99)[]);\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	
+	}
 	/** @deprecated using deprecated code */
 	public void testArrayInitializer() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
