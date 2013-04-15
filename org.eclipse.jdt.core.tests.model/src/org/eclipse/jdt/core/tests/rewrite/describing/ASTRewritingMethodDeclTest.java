@@ -3646,4 +3646,106 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 				"}\n";
 		assertEqualString(preview, contents);
 	}
+
+	public void testReceiverParam_since_8() throws Exception {
+		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf = new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("    }\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu = pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot = createAST(cu);
+		AST ast = astRoot.getAST();
+		ASTRewrite rewrite = ASTRewrite.create(astRoot.getAST());
+		TypeDeclaration type = findTypeDeclaration(astRoot, "E");
+
+		MethodDeclaration newMethodDeclaration = ast.newMethodDeclaration();
+		SimpleName methodName = ast.newSimpleName("bar");
+		SimpleType simpleType = ast.newSimpleType(ast.newSimpleName("E"));
+		MarkerAnnotation annotationC = ast.newMarkerAnnotation();
+		annotationC.setTypeName(ast.newSimpleName("C"));
+		simpleType.annotations().add(annotationC);
+		newMethodDeclaration.setName(methodName);
+		newMethodDeclaration.setReceiverType(simpleType);
+
+		MethodDeclaration[] methods = type.getMethods();
+		MethodDeclaration methodDeclaration = methods[0];
+		methodDeclaration.setReceiverType(ast.newSimpleType(ast.newSimpleName("E")));
+
+		ListRewrite listRewrite = rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
+		listRewrite.insertLast(newMethodDeclaration, null);
+
+		String preview = evaluateRewrite(cu, rewrite);
+
+		buf = new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("    }\n");
+		buf.append("\n");
+		buf.append("    void bar(@C E this);\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+	}
+	
+	public void testReceiverParam_InnerClass_since_8() throws Exception {
+		IPackageFragment pack1 = this.sourceFolder.createPackageFragment(
+				"test1", false, null);
+		StringBuffer buf = new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("    }\n");
+		buf.append("\n");
+		buf.append("    class Inner{\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu = pack1.createCompilationUnit("E.java",
+				buf.toString(), false, null);
+
+		CompilationUnit astRoot = createAST(cu);
+		AST ast = astRoot.getAST();
+		ASTRewrite rewrite = ASTRewrite.create(astRoot.getAST());
+		TypeDeclaration type = findTypeDeclaration(astRoot, "E");
+		TypeDeclaration inner = (TypeDeclaration) type.bodyDeclarations().get(1);
+		
+		MethodDeclaration newMethodDeclaration = ast.newMethodDeclaration();
+		SimpleName methodName = ast.newSimpleName("Inner");
+		SimpleType simpleType = ast.newSimpleType(ast.newSimpleName("E"));
+		MarkerAnnotation annotationC = ast.newMarkerAnnotation();
+		annotationC.setTypeName(ast.newSimpleName("C"));
+		simpleType.annotations().add(annotationC);
+		newMethodDeclaration.setName(methodName);
+		newMethodDeclaration.setConstructor(true);
+		newMethodDeclaration.setReceiverType(simpleType);
+		newMethodDeclaration.setReceiverQualifier(ast.newSimpleName("E"));
+		newMethodDeclaration.setBody(ast.newBlock());
+
+		ListRewrite listRewrite = rewrite.getListRewrite(inner, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
+		listRewrite.insertLast(newMethodDeclaration, null);
+
+		String preview = evaluateRewrite(cu, rewrite);
+
+		buf = new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("    }\n");
+		buf.append("\n");
+		buf.append("    class Inner{\n");
+		buf.append("\n");
+		buf.append("        Inner(@C E E.this) {\n");
+		buf.append("        }\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+	}
+	
 }

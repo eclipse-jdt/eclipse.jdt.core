@@ -710,6 +710,24 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		}
 		getChildNode(node, MethodDeclaration.NAME_PROPERTY).accept(this);
 		this.result.append('(');
+		// receiver parameter
+		if (node.getAST().apiLevel() >= AST.JLS8) {
+			ASTNode receiverType = getChildNode(node, MethodDeclaration.RECEIVER_TYPE_PROPERTY);
+			if (receiverType != null) {
+				receiverType.accept(this);
+				this.result.append(' ');
+				ASTNode qualifier = getChildNode(node, MethodDeclaration.RECEIVER_QUALIFIER_PROPERTY);
+				if (qualifier != null) {
+					qualifier.accept(this);
+					this.result.append('.');
+				}
+				this.result.append("this"); //$NON-NLS-1$
+				if (getChildList(node, MethodDeclaration.PARAMETERS_PROPERTY).size() > 0) {
+					this.result.append(',');
+				}
+			}
+		}
+	
 		visitList(node, MethodDeclaration.PARAMETERS_PROPERTY, String.valueOf(','));
 		this.result.append(')');
 		visitExtraDimensions(node, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, MethodDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
