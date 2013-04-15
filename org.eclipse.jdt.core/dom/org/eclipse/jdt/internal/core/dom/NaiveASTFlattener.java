@@ -201,6 +201,20 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 	}
 
+	private void visitTypeAnnotations(AnnotatableType node) {
+		if (node.getAST().apiLevel() >= AST.JLS8) {
+			visitAnnotationsList(node.annotations());
+		}
+	}
+
+	private void visitAnnotationsList(List annotations) {
+		for (Iterator it = annotations.iterator(); it.hasNext(); ) {
+			Annotation annotation = (Annotation) it.next();
+			annotation.accept(this);
+			this.buffer.append(' ');
+		}
+	}
+	
 	/**
 	 * Resets this printer so that it can be used again.
 	 */
@@ -1318,10 +1332,10 @@ public class NaiveASTFlattener extends ASTVisitor {
 			if (node.isVarargs()) {
 				if (node.getAST().apiLevel() >= AST.JLS8) {
 					List annotations = node.varargsAnnotations();
-					if (annotations != null) {
+					if (annotations.size() > 0) {
 						this.buffer.append(' ');
-						visitAnnotationsList(annotations);
 					}
+					visitAnnotationsList(annotations);
 				}
 				this.buffer.append("...");//$NON-NLS-1$
 			}
@@ -1822,19 +1836,5 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		return false;
 	}
-	private void visitTypeAnnotations(AnnotatableType node) {
-		if (node.getAST().apiLevel() >= AST.JLS8) {
-			visitAnnotationsList(node.annotations());
-		}
-	}
 
-	private void visitAnnotationsList(List annotations) {
-		if (annotations != null) {
-			for (Iterator it = annotations.iterator(); it.hasNext(); ) {
-				Annotation annotation = (Annotation) it.next();
-				annotation.accept(this);
-				this.buffer.append(' ');
-			}
-		}
-	}
 }
