@@ -129,7 +129,7 @@ public class Alignment {
 
 	/** foobar(<ul>
 	 * <li>    #fragment1, #fragment2,  </li>
-	 * <li>     #fragment5, #fragment4, </li>
+	 * <li>     #fragment3, #fragment4, </li>
 	 * </ul>
 	 */
 	public static final int M_COMPACT_FIRST_BREAK_SPLIT = 32; //  compact mode, but will first try to break before first fragment
