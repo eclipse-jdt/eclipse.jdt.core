@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,10 @@ import java.util.Arrays;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -581,6 +584,56 @@ public void testBug374063() throws JavaModelException, IOException {
 
 	// verify that all package CU's were recompiled
 	expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.package-info" });
+}
+// 382960
+public void testBug382960() throws JavaModelException, IOException, CoreException {
+	IPath projectPath = env.addProject("Project", "1.5");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	fullBuild(projectPath);
+
+	env.removePackageFragmentRoot(projectPath, "");
+	IPath srcRoot = env.addPackageFragmentRoot(projectPath, "src");
+	env.setOutputFolder(projectPath, "bin");
+	// prepare the project:
+	setupProjectForNullAnnotations(projectPath);
+	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
+	String test1Code = "package p1;\n" +
+						"public class Test1 {\n" +
+						"    public String output(List<Integer> integers) {\n" +
+						"        return \"\";\n" +
+						"    }\n" +
+						"	 public void output(List<Double> doubles) {}\n" +
+						"}";
+
+	env.addClass(srcRoot, "p1", "Test1", test1Code);
+	String packageInfoCode = "package p1;\n";
+	env.addClass(srcRoot, "p1", "package-info", packageInfoCode);
+	fullBuild(projectPath);
+	expectingProblemsFor(projectPath,
+			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src/p1/package-info.java> range : <8,10> category : <90> severity : <2>]\n" + 
+			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]\n" + 
+			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <58,62> category : <40> severity : <2>]");
+
+	packageInfoCode = "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+					   "package p1;\n";
+	env.addClass(srcRoot, "p1", "package-info", packageInfoCode);
+	incrementalBuild(projectPath);
+	expectingProblemsFor(projectPath,
+			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]\n" + 
+			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <58,62> category : <40> severity : <2>]");
+	expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.package-info" });
+
+	IProject project = env.getProject(projectPath);
+	IFile packageInfo = project.getFile("/src/p1/package-info.java");
+	packageInfo.touch(null);
+
+	incrementalBuild(projectPath);
+	expectingProblemsFor(projectPath,
+			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]\n" + 
+			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <58,62> category : <40> severity : <2>]");
+
+	// verify that only package-info was recompiled
+	expectingUniqueCompiledClasses(new String[] { "p1.package-info" });
 }
 
 void setupProjectForNullAnnotations(IPath projectPath) throws IOException, JavaModelException {
