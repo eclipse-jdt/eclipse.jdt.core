@@ -35,7 +35,8 @@ package org.eclipse.jdt.core.dom;
  *       QualifiedType
  *       WildcardType
  *    ParameterizedType
- *    UnionType  
+ *    UnionType
+ *    IntersectionType
  *    
  * {@link PrimitiveType}:
  *    { Annotation } <b>byte</b>
@@ -59,6 +60,8 @@ package org.eclipse.jdt.core.dom;
  *    Type <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b>
  * {@link UnionType}:
  *    Type <b>|</b> Type { <b>|</b> Type }
+ * {@link IntersectionType}:
+ *    Type <b>&</b> Type { <b>&</b> Type }
  * </pre>
  * </p>
  *
@@ -161,6 +164,18 @@ public abstract class Type extends ASTNode {
 	 */
 	public final boolean isUnionType() {
 		return (this instanceof UnionType);
+	}
+
+	/**
+	 * Returns whether this type is an intersection type
+	 * ({@link IntersectionType}).
+	 *
+	 * @return <code>true</code> if this is an intersection type, and
+	 * 		<code>false</code> otherwise
+	 * @since 3.9 BETA_JAVA8
+	 */
+	public final boolean isIntersectionType() {
+		return (this instanceof IntersectionType);
 	}
 
 	/**

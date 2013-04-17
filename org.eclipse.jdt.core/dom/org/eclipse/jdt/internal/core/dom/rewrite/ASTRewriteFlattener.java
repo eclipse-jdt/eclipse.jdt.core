@@ -1122,6 +1122,14 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	}
 	
 	/*
+	 * @see ASTVisitor#visit(IntersectionType)
+	 */
+	public boolean visit(IntersectionType node) {
+		visitList(node, IntersectionType.TYPES_PROPERTY, " & ", Util.EMPTY_STRING, Util.EMPTY_STRING); //$NON-NLS-1$
+		return false;
+	}
+
+	/*
 	 * @see ASTVisitor#visit(VariableDeclarationExpression)
 	 */
 	public boolean visit(VariableDeclarationExpression node) {

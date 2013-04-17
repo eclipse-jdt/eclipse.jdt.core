@@ -2423,6 +2423,19 @@ public final class AST {
 	}
 
 	/**
+	 * Creates a new unparented intersection type node owned by this AST.
+	 * By default, the intersection type has no types.
+	 *
+	 * @return a new unparented IntersectionType node
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a JLS2, JLS3 or JLS4 AST
+	 * @since 3.9 BETA_JAVA8
+	 */
+	public IntersectionType newIntersectionType() {
+		return new IntersectionType(this);
+	}
+
+	/**
 	 * Creates a new unparented local variable declaration expression node
 	 * owned by this AST, for the given variable declaration fragment. By
 	 * default, there are no modifiers and the base type is unspecified

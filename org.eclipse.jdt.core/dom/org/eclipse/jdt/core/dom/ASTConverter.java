@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
+import org.eclipse.jdt.internal.compiler.ast.IntersectionCastTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocArgumentExpression;
 import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
@@ -50,6 +51,7 @@ import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcatenation;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -3691,7 +3693,7 @@ class ASTConverter {
 					qualifiedType.index  = 1;
 				}
 				type = currentType;
-			} else {
+			} else if (typeReference instanceof UnionTypeReference){
 				TypeReference[] typeReferences = ((org.eclipse.jdt.internal.compiler.ast.UnionTypeReference) typeReference).typeReferences;
 				switch(this.ast.apiLevel) {
 					case AST.JLS2_INTERNAL :
@@ -3717,6 +3719,34 @@ class ASTConverter {
 						Type lastType = (Type) types.get(size - 1);
 						endPosition = lastType.getStartPosition() + lastType.getLength();
 						length = endPosition - start; /* + 1 - 1 == 0 */
+						type.setSourceRange(start, length);
+				}
+			} else if (typeReference instanceof IntersectionCastTypeReference) {
+				TypeReference[] typeReferences = ((IntersectionCastTypeReference) typeReference).typeReferences;
+				switch(this.ast.apiLevel) {
+					case AST.JLS2_INTERNAL :
+					case AST.JLS3_INTERNAL :
+					case AST.JLS4_INTERNAL :
+						type = this.convertType(typeReferences[0]);
+						int start = typeReference.sourceStart;
+						int endPosition = typeReference.sourceEnd;
+						length = endPosition - start + 1;
+						type.setSourceRange(start, length);
+						type.setFlags(type.getFlags() | ASTNode.MALFORMED);
+						break;
+					default:
+						// intersection type reference
+						final IntersectionType castType = new IntersectionType(this.ast);
+						for (int i = 0, max = typeReferences.length; i < max; i++) {
+							castType.types().add(this.convertType(typeReferences[i]));
+						}
+						type = castType;
+						List types = castType.types();
+						int size = types.size();
+						start = ((Type) types.get(0)).getStartPosition();
+						Type lastType = (Type) types.get(size - 1);
+						endPosition = lastType.getStartPosition() + lastType.getLength();
+						length = endPosition - start;
 						type.setSourceRange(start, length);
 				}
 			}

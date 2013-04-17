@@ -1935,4 +1935,112 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		method = (MethodDeclaration) type.bodyDeclarations().get(3);
 		assertEquals("Method should be malformed", ASTNode.MALFORMED, (method.getFlags() & ASTNode.MALFORMED));
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399792
+	public void testBug399792() throws JavaModelException {
+		String content =
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.io.Serializable;\n" +
+				"public class X {\n" +
+				"      Object o = (@Marker1 @Marker2 Serializable & I & @Marker3 @Marker1 J) () -> {};" +
+				"      public Serializable main(Object o) {\n" +
+				"    	  Serializable oo = (Serializable & @Marker3 @Marker1 @Marker2 I & J) o;\n" +
+				"    	  return oo;\n" +
+				"      }\n" +
+				"}\n" +
+				"interface I {\n" +
+				"  public void foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"  public void foo();\n" +
+				"  public void bar();\n" +
+				"}\n" +
+				"interface K {\n" +
+				"  public void foo();\n" +
+				"  public void bar();\n" +
+				"}\n" +
+				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
+				"@interface Marker {}\n" +
+				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
+				"@interface Marker2 {}\n" +
+				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
+				"@interface Marker3 {}";
+
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", false);
+		ASTNode node = buildAST(content, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		TypeDeclaration type =  (TypeDeclaration) unit.types().get(0);
+		node = (ASTNode) type.bodyDeclarations().get(0);
+		assertEquals("Not a field Declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration field = (FieldDeclaration) node;
+		assertEquals("Field should not be malformed", 0, (field.getFlags() & ASTNode.MALFORMED));
+
+		List fragments = field.fragments();
+		assertEquals("Incorrect no of fragments", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		CastExpression cast = (CastExpression) fragment.getInitializer();
+		Type castType = cast.getType();
+		assertEquals("Not an intersection cast type", ASTNode.INTERSECTION_TYPE, castType.getNodeType());
+		assertTrue("Not an intersection cast type", castType.isIntersectionType());
+		assertEquals("Type should not be malformed", 0, (castType.getFlags() & ASTNode.MALFORMED));
+
+		List intersectionTypes = ((IntersectionType) castType).types();
+		assertEquals("Incorrect no of types", 3, intersectionTypes.size());
+		castType = (Type) intersectionTypes.get(0);
+		assertEquals("Incorrect type", ASTNode.SIMPLE_TYPE, castType.getNodeType());
+		SimpleName name = (SimpleName) ((SimpleType) castType).getName();
+		assertEquals("Incorrect name", "Serializable", name.getIdentifier());
+
+		List annotations = ((SimpleType) castType).annotations();
+		assertEquals("Incorrect no of annotations", 2, annotations.size());
+		assertEquals("Incorrect receiver", "@Marker1 @Marker2 Serializable", castType.toString());
+
+		castType = (Type) intersectionTypes.get(1);
+		assertEquals("Incorrect type", ASTNode.SIMPLE_TYPE, castType.getNodeType());
+		name = (SimpleName) ((SimpleType) castType).getName();
+		assertEquals("Incorrect name", "I", name.getIdentifier());
+
+		annotations = ((SimpleType) castType).annotations();
+		assertEquals("Incorrect no of annotations", 0, annotations.size());
+		assertEquals("Incorrect receiver", "I", castType.toString());
+
+		castType = (Type) intersectionTypes.get(2);
+		assertEquals("Incorrect type", ASTNode.SIMPLE_TYPE, castType.getNodeType());
+		name = (SimpleName) ((SimpleType) castType).getName();
+		assertEquals("Incorrect name", "J", name.getIdentifier());
+
+		annotations = ((SimpleType) castType).annotations();
+		assertEquals("Incorrect no of annotations", 2, annotations.size());
+		assertEquals("Incorrect receiver", "@Marker3 @Marker1 J", castType.toString());
+
+		node = (ASTNode) type.bodyDeclarations().get(1);
+		assertEquals("Not a method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration method = (MethodDeclaration) node;
+		assertEquals("Method should not be malformed", 0, (method.getFlags() & ASTNode.MALFORMED));
+		
+		List statements = method.getBody().statements();
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) statements.get(0);
+		fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+		cast = (CastExpression) fragment.getInitializer();
+		castType = cast.getType();
+		
+		intersectionTypes = ((IntersectionType) castType).types();
+		assertEquals("Incorrect no of types", 3, intersectionTypes.size());
+		castType = (Type) intersectionTypes.get(0);
+
+		annotations = ((SimpleType) castType).annotations();
+		assertEquals("Incorrect no of annotations", 0, annotations.size());
+		assertEquals("Incorrect receiver", "Serializable", castType.toString());
+
+		castType = (Type) intersectionTypes.get(1);
+		annotations = ((SimpleType) castType).annotations();
+		assertEquals("Incorrect no of annotations", 3, annotations.size());
+		assertEquals("Incorrect receiver", "@Marker3 @Marker1 @Marker2 I", castType.toString());
+
+		castType = (Type) intersectionTypes.get(2);
+
+		annotations = ((SimpleType) castType).annotations();
+		assertEquals("Incorrect no of annotations", 0, annotations.size());
+		assertEquals("Incorrect receiver", "J", castType.toString());
+	}
 }

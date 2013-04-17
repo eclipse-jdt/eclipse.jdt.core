@@ -851,6 +851,15 @@ public abstract class ASTNode {
 	public static final int LAMBDA_EXPRESSION = 86;
 
 	/**
+	 * Node type constant indicating a node of type
+	 * <code>IntersectionType</code>.
+	 *
+	 * @see IntersectionType
+	 * @since 3.9 BETA_JAVA8
+	 */
+	public static final int INTERSECTION_TYPE = 87;
+
+	/**
 	 * Returns the node class for the corresponding node type.
 	 *
 	 * @param nodeType AST node type

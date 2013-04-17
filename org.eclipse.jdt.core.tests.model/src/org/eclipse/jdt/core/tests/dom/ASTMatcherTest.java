@@ -561,6 +561,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public boolean match(LambdaExpression node, Object other) {
 			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
 		}
+		public boolean match(IntersectionType node, Object other) {
+			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
+		}
 	}
 
 	/**
@@ -1620,6 +1623,14 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x2.setName(this.N1);
 		x1.parameters().add(x2);
 		x1.setBody(this.E1);
+		basicMatch(x1);
+	}
+	public void testIntersectionType() {
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		IntersectionType x1 = this.ast.newIntersectionType();
+		x1.types().add(this.ast.newSimpleType(this.N1));
 		basicMatch(x1);
 	}
 }
