@@ -61,6 +61,12 @@
               <classifier>batch-compiler</classifier>
               <fileSets>
                 <fileSet>
+                  <directory>${project.build.directory}/jdtCompilerAdapter.jar-classes</directory>
+                  <includes>
+				    <include>META-INF/eclipse.inf</include>
+                  </includes>
+                </fileSet>
+                <fileSet>
                   <directory>${project.build.directory}/classes</directory>
                   <includes>
                     <include>org/eclipse/jdt/internal/compiler/**</include>
