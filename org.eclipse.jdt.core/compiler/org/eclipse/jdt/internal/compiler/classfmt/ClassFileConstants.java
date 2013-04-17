@@ -11,6 +11,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Jesper S Moller - Contributions for
+ *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335             
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
@@ -80,6 +82,17 @@ public interface ClassFileConstants {
 	int ConstantMethodHandleFixedSize = 4;
 	int ConstantMethodTypeFixedSize = 3;
 	int ConstantInvokeDynamicFixedSize = 5;
+
+	// JVMS 4.4.8
+	int MethodHandleRefKindGetField = 1;
+	int MethodHandleRefKindGetStatic = 2;
+	int MethodHandleRefKindPutField = 3;
+	int MethodHandleRefKindPutStatic = 4;
+	int MethodHandleRefKindInvokeVirtual = 5;
+	int MethodHandleRefKindInvokeStatic = 6;
+	int MethodHandleRefKindInvokeSpecial = 7;
+	int MethodHandleRefKindNewInvokeSpecial = 8;
+	int MethodHandleRefKindInvokeInterface = 9;
 
 	int MAJOR_VERSION_1_1 = 45;
 	int MAJOR_VERSION_1_2 = 46;

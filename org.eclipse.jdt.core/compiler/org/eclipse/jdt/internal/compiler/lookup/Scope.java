@@ -19,6 +19,7 @@
  *								bug 401271 - StackOverflowError when searching for a methods references
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
+ *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -2377,6 +2378,19 @@ public abstract class Scope {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_ENUM);
 		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_ENUM, this);
+	}
+
+	public final ReferenceBinding getJavaLangInvokeLambdaMetafactory() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_LAMBDAMETAFACTORY);
+		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_INVOKE_LAMBDAMETAFACTORY, this);
+	}
+
+	public final ReferenceBinding getJavaLangInvokeMethodHandlesLookup() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLES);
+		ReferenceBinding outerType = unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLES, this);
+		return findDirectMemberType("Lookup".toCharArray(), outerType); //$NON-NLS-1$
 	}
 
 	public final ReferenceBinding getJavaLangIterable() {

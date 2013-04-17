@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
  *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
+ *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335        
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -37,7 +38,7 @@ import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 public abstract class FunctionalExpression extends Expression {
 	
 	TypeBinding expectedType;
-	MethodBinding descriptor;
+	public MethodBinding descriptor;
 	public MethodBinding binding;
 	boolean ignoreFurtherInvestigation;
 	protected ExpressionContext expressionContext = VANILLA_CONTEXT;
@@ -176,5 +177,9 @@ public abstract class FunctionalExpression extends Expression {
 			codeStream.aconst_null(); // TODO: Real code
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
+	}
+
+	public char[] signature() {
+		return null;
 	}
 }

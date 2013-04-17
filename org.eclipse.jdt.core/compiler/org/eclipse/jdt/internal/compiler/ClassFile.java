@@ -11,6 +11,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Jesper S Moller - Contributions for
+ *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335             
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
@@ -37,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
 import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
@@ -117,6 +120,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	// that collection contains all the remaining bytes of the .class file
 	public int headerOffset;
 	public Set innerClassesBindings;
+	public List bootstrapMethods = null;
 	public int methodCount;
 	public int methodCountOffset;
 	// pool managment
@@ -346,6 +350,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 				this.missingTypes = superInterfaces[i].collectMissingTypes(this.missingTypes);
 			}
 			attributesNumber += generateHierarchyInconsistentAttribute();
+		}
+		// Functional expression and lambda bootstrap methods
+		if (this.bootstrapMethods != null && !this.bootstrapMethods.isEmpty()) {
+			attributesNumber += generateBootstrapMethods(this.bootstrapMethods);
 		}
 		// Inner class attribute
 		int numberOfInnerClasses = this.innerClassesBindings == null ? 0 : this.innerClassesBindings.size();
@@ -2394,6 +2402,71 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contentsOffset = localContentsOffset;
 		return 1;
 	}
+
+	private int generateBootstrapMethods(List functionalExpressionList) {
+		/* See JVM spec 4.7.21
+		   The BootstrapMethods attribute has the following format:
+		   BootstrapMethods_attribute {
+		      u2 attribute_name_index;
+		      u4 attribute_length;
+		      u2 num_bootstrap_methods;
+		      {   u2 bootstrap_method_ref;
+		          u2 num_bootstrap_arguments;
+		          u2 bootstrap_arguments[num_bootstrap_arguments];
+		      } bootstrap_methods[num_bootstrap_methods];
+		 }
+		*/
+		// Record inner classes for MethodHandles$Lookup
+		recordInnerClasses(this.referenceBinding.scope.getJavaLangInvokeMethodHandlesLookup()); // Should be done, it's what javac does also
+		ReferenceBinding javaLangInvokeLambdaMetafactory = this.referenceBinding.scope.getJavaLangInvokeLambdaMetafactory(); 
+		int indexForMetaFactory = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, javaLangInvokeLambdaMetafactory, 
+				ConstantPool.METAFACTORY, ConstantPool.JAVA_LANG_INVOKE_LAMBDAMETAFACTORY_METAFACTORY_SIGNATURE, false);
+
+		int numberOfBootstraps = functionalExpressionList.size();
+		int localContentsOffset = this.contentsOffset;
+		// Generate the boot strap attribute - since we are only making lambdas and
+		// functional expressions, we know the size ahead of time - this less general
+		// than the full invokedynamic scope, but fine for Java 8
+		int exSize = 10 * numberOfBootstraps + 8;
+		if (exSize + localContentsOffset >= this.contents.length) {
+			resizeContents(exSize);
+		}
+		this.contentsOffset += exSize;
+		
+		int attributeNameIndex =
+			this.constantPool.literalIndex(AttributeNamesConstants.BootstrapMethodsName);
+		this.contents[localContentsOffset++] = (byte) (attributeNameIndex >> 8);
+		this.contents[localContentsOffset++] = (byte) attributeNameIndex;
+		int value = (numberOfBootstraps * 10) + 2;
+		this.contents[localContentsOffset++] = (byte) (value >> 24);
+		this.contents[localContentsOffset++] = (byte) (value >> 16);
+		this.contents[localContentsOffset++] = (byte) (value >> 8);
+		this.contents[localContentsOffset++] = (byte) value;
+		this.contents[localContentsOffset++] = (byte) (numberOfBootstraps >> 8);
+		this.contents[localContentsOffset++] = (byte) numberOfBootstraps;
+		for (int i = 0; i < numberOfBootstraps; i++) {
+			FunctionalExpression functional = (FunctionalExpression) functionalExpressionList.get(i);
+			this.contents[localContentsOffset++] = (byte) (indexForMetaFactory >> 8);
+			this.contents[localContentsOffset++] = (byte) indexForMetaFactory;
+			
+			this.contents[localContentsOffset++] = 0;
+			this.contents[localContentsOffset++] = (byte) 3;
+			
+			int functionalDescriptorIndex = this.constantPool.literalIndexForMethodHandle(functional.descriptor.original());
+			this.contents[localContentsOffset++] = (byte) (functionalDescriptorIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) functionalDescriptorIndex;
+
+			int methodHandleIndex = this.constantPool.literalIndexForMethodHandle(functional.binding);
+			this.contents[localContentsOffset++] = (byte) (methodHandleIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) methodHandleIndex;
+
+			char [] instantiatedSignature = functional.signature();
+			int methodTypeIndex = this.constantPool.literalIndexForMethodType(instantiatedSignature);
+			this.contents[localContentsOffset++] = (byte) (methodTypeIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) methodTypeIndex;
+		}
+		return 1;
+	}
 	private int generateLineNumberAttribute() {
 		int localContentsOffset = this.contentsOffset;
 		int attributesNumber = 0;
@@ -4154,6 +4227,14 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 	}
 
+	public int recordBootstrapMethod(FunctionalExpression expression) {
+		if (this.bootstrapMethods == null) {
+			this.bootstrapMethods = new ArrayList();
+		}
+		this.bootstrapMethods.add(expression);
+		return this.bootstrapMethods.size() - 1;
+	}
+
 	public void reset(SourceTypeBinding typeBinding) {
 		// the code stream is reinitialized for each method
 		final CompilerOptions options = typeBinding.scope.compilerOptions();
@@ -4179,6 +4260,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.methodCountOffset = 0;
 		if (this.innerClassesBindings != null) {
 			this.innerClassesBindings.clear();
+		}
+		if (this.bootstrapMethods != null) {
+			this.bootstrapMethods.clear();
 		}
 		this.missingTypes = null;
 		this.visitedTypes = null;

@@ -14,6 +14,8 @@
  *     Stephan Herrmann - Contribution for
  *								bug 400710 - [1.8][compiler] synthetic access to default method generates wrong code
  *								bug 391376 - [1.8] check interaction of default methods with bridge methods and generics
+ *     Jesper S Moller - Contributions for
+ *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335        
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
@@ -3896,6 +3898,21 @@ protected void invoke(byte opcode, int receiverAndArgsSize, int returnTypeSize, 
 		writeUnsignedShort(this.constantPool.literalIndexForMethod(declaringClass, selector, signature, false));
 	}
 	this.stackDepth += returnTypeSize - receiverAndArgsSize;
+	if (this.stackDepth > this.stackMax) {
+		this.stackMax = this.stackDepth;
+	}
+}
+public void invokeDynamic(int bootStrapIndex, int argsSize, int returnTypeSize, char[] selector, char[] signature) {
+	if (this.classFileOffset + 4 >= this.bCodeStream.length) {
+		resizeByteArray();
+	}
+	int invokeDynamicIndex = this.constantPool.literalIndexForInvokeDynamic(bootStrapIndex, selector, signature);
+	this.position +=3;
+	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_invokedynamic;
+	writeUnsignedShort(invokeDynamicIndex);
+	this.bCodeStream[this.classFileOffset++] = 0;
+	this.bCodeStream[this.classFileOffset++] = 0;
+	this.stackDepth += returnTypeSize - argsSize;
 	if (this.stackDepth > this.stackMax) {
 		this.stackMax = this.stackDepth;
 	}

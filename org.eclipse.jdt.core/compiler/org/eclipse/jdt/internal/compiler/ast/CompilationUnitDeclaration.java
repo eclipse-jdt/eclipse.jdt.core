@@ -12,6 +12,8 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann  - Contribution for bug 295551
+ *     Jesper S Moller   - Contributions for
+ *							  Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335             
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -149,6 +151,7 @@ public void cleanUp() {
 		// null out the classfile backpointer to a type binding
 		classFile.referenceBinding = null;
 		classFile.innerClassesBindings = null;
+		classFile.bootstrapMethods = null;
 		classFile.missingTypes = null;
 		classFile.visitedTypes = null;
 	}

@@ -17,6 +17,9 @@
  *								bug 381445 - [compiler][resource] Can the resource leak check be made aware of Closeables.closeQuietly?
  *								bug 400421 - [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
  *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
+ *
+ *    Jesper S Moller - Contributions for
+ *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -180,6 +183,8 @@ public interface TypeConstants {
 			INVOKE,
 			"MethodHandle$PolymorphicSignature".toCharArray() //$NON-NLS-1$
 	};
+	char[][] JAVA_LANG_INVOKE_LAMBDAMETAFACTORY = {JAVA, LANG, INVOKE, "LambdaMetafactory".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_LANG_INVOKE_METHODHANDLES = {JAVA, LANG, INVOKE, "MethodHandles".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_AUTOCLOSEABLE =  {JAVA, LANG, "AutoCloseable".toCharArray()}; //$NON-NLS-1$
 	char[] CLOSE = "close".toCharArray(); //$NON-NLS-1$
 	// known helper functions for closing a Closeable (all receive a Closeable as their first argument):
