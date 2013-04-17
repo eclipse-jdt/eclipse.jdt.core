@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Name;
@@ -102,7 +103,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 	}
 
 	/*
-	 * Known limitation: a copied node cannot be modified.
+	 * https://bugs.eclipse.org/405699 : modify a copied node.
 	 */
 	public void test0002() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0002", false, null);
@@ -113,7 +114,9 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 		buf.append("\n");
 		buf.append("}\n");
 		buf.append("class Y /**/ {\n");
+		buf.append("    //pre\n");
 		buf.append("\n");
+		buf.append("    int i; //post\n");
 		buf.append("}\n");
 		buf.append("class Z {\n");
 		buf.append("\n");
@@ -141,13 +144,17 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 		buf.append("\n");
 		buf.append("}\n");
 		buf.append("class Y /**/ {\n");
+		buf.append("    //pre\n");
 		buf.append("\n");
+		buf.append("    int i; //post\n");
 		buf.append("}\n");
 		buf.append("class Z {\n");
 		buf.append("\n");
 		buf.append("}\n");
-		buf.append("class Y /**/ {\n");
-		buf.append("\n");
+		buf.append("class A {\n");
+//		buf.append("    //pre\n"); // we can't preserve everything, but we do our best...
+//		buf.append("\n");
+		buf.append("    int i; //post\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
@@ -516,57 +523,58 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 		assertEqualString(Util.convertToIndependantLineDelimiter(preview), Util.convertToIndependantLineDelimiter(buf.toString()));
 	}
 
-	//	public void test0007() throws Exception {
-	//		IPackageFragment pack1= fSourceFolder.createPackageFragment("test0007", false, null);
-	//		StringBuffer buf= new StringBuffer();
-	//		buf.append("package test0007;\n");
-	//		buf.append("\n");
-	//		buf.append("public class X {\n");
-	//		buf.append("    /**\n");
-	//		buf.append("     * NOTHING\n");
-	//		buf.append("     */\n");
-	//		buf.append("    void foo() {\n");
-	//		buf.append("    \n");
-	//		buf.append("    }\n");
-	//		buf.append("    void bar() {\n");
-	//		buf.append("    \n");
-	//		buf.append("    }\n");
-	//		buf.append("}\n");
-	//		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-	//
-	//		CompilationUnit astRoot= parseCompilationUnit(cu, false);
-	//
-	//		astRoot.recordModifications();
-	//
-	//		AST a = astRoot.getAST();
-	//
-	//		List types = astRoot.types();
-	//		TypeDeclaration typeDeclaration = (TypeDeclaration)types.get(0);
-	//		MethodDeclaration methodDeclaration1 = typeDeclaration.getMethods()[0];
-	//		MethodDeclaration methodDeclaration2 = typeDeclaration.getMethods()[1];
-	//		Javadoc javadoc1 = methodDeclaration1.getJavadoc();
-	//		Javadoc javadoc2 = (Javadoc)ASTNode.copySubtree(a, javadoc1);
-	//		methodDeclaration2.setJavadoc(javadoc2);
-	//
-	//		String preview = evaluateRewrite(cu, astRoot);
-	//
-	//		buf= new StringBuffer();
-	//		buf.append("package test0007;\n");
-	//		buf.append("\n");
-	//		buf.append("public class X {\n");
-	//		buf.append("    /**\n");
-	//		buf.append("     * NOTHING\n");
-	//		buf.append("     */\n");
-	//		buf.append("    void foo() {\n");
-	//		buf.append("    \n");
-	//		buf.append("    }\n");
-	//		buf.append("    /**\n");
-	//		buf.append("     * NOTHING\n");
-	//		buf.append("     */\n");
-	//		buf.append("    void bar() {\n");
-	//		buf.append("    \n");
-	//		buf.append("    }\n");
-	//		buf.append("}\n");
-	//		assertEqualString(Util.convertToIndependantLineDelimiter(preview), Util.convertToIndependantLineDelimiter(buf.toString()));
-	//	}
+	public void test0009() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0007", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test0007;\n");
+		buf.append("\n");
+		buf.append("public class X {\n");
+		buf.append("    /**\n");
+		buf.append("     * NOTHING\n");
+		buf.append("     */\n");
+		buf.append("    void foo() {\n");
+		buf.append("    \n");
+		buf.append("    }\n");
+		buf.append("    void bar() {\n");
+		buf.append("    \n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		ASTParser astParser = ASTParser.newParser(getJLS3());
+		astParser.setSource(cu);
+		CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(new NullProgressMonitor());
+		AST ast = compilationUnit.getAST();
+
+		compilationUnit.recordModifications();
+
+		List types = compilationUnit.types();
+		TypeDeclaration typeDeclaration = (TypeDeclaration)types.get(0);
+		MethodDeclaration methodDeclaration1 = typeDeclaration.getMethods()[0];
+		MethodDeclaration methodDeclaration2 = typeDeclaration.getMethods()[1];
+		Javadoc javadoc1 = methodDeclaration1.getJavadoc();
+		Javadoc javadoc2 = (Javadoc)ASTNode.copySubtree(ast, javadoc1);
+		methodDeclaration2.setJavadoc(javadoc2);
+
+		String preview = evaluateRewrite(cu, compilationUnit);
+
+		buf= new StringBuffer();
+		buf.append("package test0007;\n");
+		buf.append("\n");
+		buf.append("public class X {\n");
+		buf.append("    /**\n");
+		buf.append("     * NOTHING\n");
+		buf.append("     */\n");
+		buf.append("    void foo() {\n");
+		buf.append("    \n");
+		buf.append("    }\n");
+		buf.append("    /**\n");
+		buf.append("     * NOTHING\n");
+		buf.append("     */\n");
+		buf.append("    void bar() {\n");
+		buf.append("    \n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(Util.convertToIndependantLineDelimiter(preview), Util.convertToIndependantLineDelimiter(buf.toString()));
+	}
 }
