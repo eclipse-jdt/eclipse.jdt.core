@@ -11,6 +11,7 @@
  *								bug 282152 - [1.5][compiler] Generics code rejected by Eclipse but accepted by javac
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 401456 - Code compiles from javac/intellij, but fails from eclipse
+ *								bug 405706 - Eclipse compiler fails to give compiler error when return type is a inferred generic
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -31,7 +32,7 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test401456" };
+//		TESTS_NAMES = new String[] { "testBug405706" };
 //		TESTS_NAMES = new String[] { "test1464" };
 //		TESTS_NUMBERS = new int[] { 1465 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
@@ -2856,5 +2857,62 @@ public void test401456() {
 			"    }\n" +
 			"}\n"
 		});
+}
+// https://bugs.eclipse.org/405706 - Eclipse compiler fails to give compiler error when return type is a inferred generic
+// original test
+public void testBug405706a() {
+	runNegativeTest(
+		new String[] {
+			"TypeUnsafe.java",
+			"import java.util.Collection;\n" + 
+			"\n" + 
+			"public class TypeUnsafe {\n" + 
+			"	public static <Type,\n" + 
+			"			CollectionType extends Collection<Type>>\n" + 
+			"			CollectionType\n" + 
+			"			nullAsCollection(Class<Type> clazz) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Collection<Integer> integers = nullAsCollection(String.class);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in TypeUnsafe.java (at line 12)\n" + 
+		"	Collection<Integer> integers = nullAsCollection(String.class);\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Collection<String> to Collection<Integer>\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/405706 - Eclipse compiler fails to give compiler error when return type is a inferred generic
+// include compatibility List <: Collection
+public void testBug405706b() {
+	runNegativeTest(
+		new String[] {
+			"TypeUnsafe.java",
+			"import java.util.Collection;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class TypeUnsafe {\n" + 
+			"	public static <Type,\n" + 
+			"			CollectionType extends List<Type>>\n" + 
+			"			CollectionType\n" + 
+			"			nullAsList(Class<Type> clazz) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Collection<Integer> integers = nullAsList(String.class);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in TypeUnsafe.java (at line 13)\n" + 
+		"	Collection<Integer> integers = nullAsList(String.class);\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<String> to Collection<Integer>\n" + 
+		"----------\n");
 }
 }
