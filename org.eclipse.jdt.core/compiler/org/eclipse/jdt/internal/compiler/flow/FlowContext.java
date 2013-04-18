@@ -20,6 +20,7 @@
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *								bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
+ *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -103,6 +104,8 @@ public static final int CAN_ONLY_NON_NULL = 0x0002;
 public static final int MAY_NULL = 0x0003;
 //check binding a value to a @NonNull variable 
 public final static int ASSIGN_TO_NONNULL = 0x0080;
+//check against an unboxing conversion
+public static final int IN_UNBOXING = 0x0010;
 //check against unclosed resource at early exit:
 public static final int EXIT_RESOURCE = 0x0800;
 // check against null, with potential values -- NPE guard
@@ -748,21 +751,50 @@ protected boolean recordFinalAssignment(VariableBinding variable, Reference fina
 
 /**
  * Record a null reference for use by deferred checks. Only looping or
- * finally contexts really record that information.
+ * finally contexts really record that information. Other contexts
+ * immediately check for unboxing.
  * @param local the local variable involved in the check
  * @param location the location triggering the analysis, for normal null dereference
  *      this is an expression resolving to 'local', for resource leaks it is an
  *      early exit statement.
- * @param status the status against which the check must be performed; one of
+ * @param checkType the checkType against which the check must be performed; one of
  * 		{@link #CAN_ONLY_NULL CAN_ONLY_NULL}, {@link #CAN_ONLY_NULL_NON_NULL
  * 		CAN_ONLY_NULL_NON_NULL}, {@link #MAY_NULL MAY_NULL},
  *      {@link #CAN_ONLY_NON_NULL CAN_ONLY_NON_NULL}, potentially
  *      combined with a context indicator (one of {@link #IN_COMPARISON_NULL},
- *      {@link #IN_COMPARISON_NON_NULL}, {@link #IN_ASSIGNMENT} or {@link #IN_INSTANCEOF})
+ *      {@link #IN_COMPARISON_NON_NULL}, {@link #IN_ASSIGNMENT} or {@link #IN_INSTANCEOF}).
+ *      <br>
+ *      Alternatively, a {@link #IN_UNBOXING} check can e requested.
  */
 protected void recordNullReference(LocalVariableBinding local,
-	ASTNode location, int status) {
+	ASTNode location, int checkType) {
 	// default implementation: do nothing
+}
+
+/**
+ * Either AST analysis or checking of a child flow context has encountered an unboxing situation.
+ * Record this fact for handling at an appropriate point in time.
+ */
+public void recordUnboxing(Scope scope, Expression expression, FlowInfo flowInfo) {
+	// default: handle immediately:
+	checkUnboxing(scope, expression, flowInfo);
+}
+/** During deferred checking re-visit a previously recording unboxing situation. */
+protected void checkUnboxing(Scope scope, Expression expression, FlowInfo flowInfo) {
+	int status = expression.nullStatus(flowInfo, this);
+	if ((status & FlowInfo.NULL) != 0) {
+		scope.problemReporter().nullUnboxing(expression, expression.resolvedType);
+		return;
+	} else if ((status & FlowInfo.POTENTIALLY_NULL) != 0) {
+		scope.problemReporter().potentialNullUnboxing(expression, expression.resolvedType);
+		return;
+	} else if ((status & FlowInfo.NON_NULL) != 0) {
+		return;
+	}
+	// not handled, perhaps our parent will eventually have something to say?
+	if (this.parent != null) {
+		this.parent.recordUnboxing(scope, expression, flowInfo);
+	}
 }
 
 public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
