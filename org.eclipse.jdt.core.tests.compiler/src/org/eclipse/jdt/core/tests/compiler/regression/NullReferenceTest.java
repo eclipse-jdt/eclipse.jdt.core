@@ -31,6 +31,7 @@
  *							bug 401092 - [compiler][null] Wrong warning "Redundant null check" in outer catch of nested try
  *							bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *							bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
+ *							bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -59,7 +60,7 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "test0555_try_catch" };
+//		TESTS_NAMES = new String[] { "test0037_autounboxing_3" };
 //		TESTS_NAMES = new String[] { "testBug401088" };
 //		TESTS_NAMES = new String[] { "testBug402993" };
 //		TESTS_NUMBERS = new int[] { 561 };
@@ -1024,6 +1025,205 @@ public void test0037_conditional_expression_5() {
 		"Null pointer access: This expression can only be null\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/403147 [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
+// finally block injects pot-nn into itself via enclosing loop
+public void test0037_autounboxing_1() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	runNegativeTest(
+		true,
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	void foo1(boolean b) {\n" +
+			"       int j = 0;\n" + 
+			"       Integer i = null;\n" + 
+			"       while (true) {\n" + 
+			"           try {\n" + 
+			"               j = 1;\n" + 
+			"           } finally {\n" + 
+			"               j = (b?i:1)+1;\n" + 
+			"               i = 2;\n" + 
+			"           }\n" + 
+			"       }\n" + 
+			"   }\n" +
+			"	void foo2(boolean b) {\n" +
+			"       int j = 0;\n" + 
+			"       Integer i = null;\n" + 
+			"       try {\n" + 
+			"           j = 1;\n" + 
+			"       } finally {\n" + 
+			"           j = (b?i:1)+1;\n" + 
+			"           i = 2;\n" + 
+			"       }\n" + 
+			"   }\n" +
+			"}\n"},
+		null,
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	j = (b?i:1)+1;\n" + 
+		"	       ^\n" + 
+		"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 20)\n" + 
+		"	j = (b?i:1)+1;\n" + 
+		"	       ^\n" + 
+		"Null pointer access: This expression of type Integer is null but requires auto-unboxing\n" + 
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/403147 [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
+// inject pot.nn from try into finally 
+public void test0037_autounboxing_2() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	runNegativeTest(
+		true,
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	void foo2(boolean b) {\n" + 
+			"       int j = 0;\n" + 
+			"       Integer i = null;\n" + 
+			"       while (true) {\n" + 
+			"           try {\n" + 
+			"               if (b)\n" + 
+			"                   i = 3;\n" + 
+			"           } finally {\n" + 
+			"               j = (b?i:1)+1;\n" + 
+			"           }\n" + 
+			"       }\n" + 
+			"   }\n" +
+			"	void foo3(boolean b) {\n" + 
+			"       int j = 0;\n" + 
+			"       Integer i = null;\n" + 
+			"       try {\n" + 
+			"           if (b)\n" + 
+			"               i = 3;\n" + 
+			"       } finally {\n" + 
+			"           j = (b?i:1)+1;\n" + 
+			"       }\n" + 
+			"   }\n" +
+			"}\n"},
+		null,
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	j = (b?i:1)+1;\n" + 
+		"	       ^\n" + 
+		"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 21)\n" + 
+		"	j = (b?i:1)+1;\n" + 
+		"	       ^\n" + 
+		"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" + 
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/403147 [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
+// null from try, nn from catch, merge both into finally
+public void test0037_autounboxing_3() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	runNegativeTest(
+		true,
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	void foo3(Integer i, boolean b) {\n" + 
+			"       int j = 0;\n" + 
+			"       while (true) {\n" + 
+			"           try {\n" + 
+			"               i = null;\n" + 
+			"               unsafe();\n" + 
+			"           } catch (Exception e) {\n" + 
+			"               i = 3;\n" + 
+			"           } finally {\n" + 
+			"               j = (b?i:1)+1;\n" + 
+			"           }\n" + 
+			"       }\n" + 
+			"   }\n" + 
+			"	void foo4(Integer i, boolean b) {\n" + 
+			"       int j = 0;\n" + 
+			"       try {\n" + 
+			"           i = null;\n" + 
+			"           unsafe();\n" + 
+			"       } catch (Exception e) {\n" + 
+			"           i = 3;\n" + 
+			"       } finally {\n" + 
+			"           while (j < 0)\n" + 
+			"               j = (b?i:1)+1;\n" + 
+			"       }\n" + 
+			"   }\n" + 
+			"\n" + 
+			"   private void unsafe() throws Exception {\n" + 
+			"        throw new Exception();\n" + 
+			"   }\n" +
+			"}\n"},
+		null,
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	j = (b?i:1)+1;\n" + 
+		"	       ^\n" + 
+		"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 24)\n" + 
+		"	j = (b?i:1)+1;\n" + 
+		"	       ^\n" + 
+		"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" + 
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/403147 [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
+// effective protection locally within the finally block
+public void test0037_autounboxing_4() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	void foo3(Integer i, boolean b) {\n" + 
+			"       int j = 0;\n" + 
+			"       while (true) {\n" + 
+			"           try {\n" + 
+			"               i = null;\n" + 
+			"               unsafe();\n" + 
+			"           } catch (Exception e) {\n" + 
+			"               i = 3;\n" + 
+			"           } finally {\n" +
+			"				if (i == null) i = 4;\n" + 
+			"               j = (b?i:1)+1;\n" + 
+			"           }\n" + 
+			"       }\n" + 
+			"   }\n" + 
+			"	void foo4(Integer i, boolean b) {\n" + 
+			"       int j = 0;\n" + 
+			"       try {\n" + 
+			"           i = null;\n" + 
+			"           unsafe();\n" + 
+			"       } catch (Exception e) {\n" + 
+			"           i = 3;\n" + 
+			"       } finally {\n" +
+			"           while (i == null)\n" + 
+			"				i = 4;\n" + 
+			"           while (j < 4)\n" + 
+			"               j = (b?i:1)+1;\n" + 
+			"       }\n" + 
+			"   }\n" + 
+			"\n" + 
+			"   private void unsafe() throws Exception {\n" + 
+			"        throw new Exception();\n" + 
+			"   }\n" +
+			"}\n"},
+		options);
 }
 // null analysis -- autoboxing
 public void test0040_autoboxing_compound_assignment() {

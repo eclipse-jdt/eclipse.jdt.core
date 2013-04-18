@@ -14,6 +14,7 @@
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *								bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
+ *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -560,12 +561,11 @@ public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flow
 
 /** If this expression requires unboxing check if that operation can throw NPE. */
 protected void checkNPEbyUnboxing(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
-	if ((this.implicitConversion & UNBOXING) != 0) {
-		int status = nullStatus(flowInfo, flowContext);
-		if ((status & FlowInfo.NULL) != 0)
-			scope.problemReporter().nullUnboxing(this, this.resolvedType);
-		else if ((status & FlowInfo.POTENTIALLY_NULL) != 0)
-			scope.problemReporter().potentialNullUnboxing(this, this.resolvedType);
+	if ((this.implicitConversion & UNBOXING) != 0
+			&& (this.bits & ASTNode.IsNonNull) == 0
+			&& nullStatus(flowInfo, flowContext) != FlowInfo.NON_NULL)
+	{
+		flowContext.recordUnboxing(scope, this, flowInfo);
 	}
 }
 
