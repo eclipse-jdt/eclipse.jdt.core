@@ -20,6 +20,7 @@
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *								bug 395977 - [compiler][resource] Resource leak warning behavior possibly incorrect for anonymous inner class
+ *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *								bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement - Contributions for
@@ -108,9 +109,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
 					flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo, flowContext, false);
 				}
-				if ((this.arguments[i].implicitConversion & TypeIds.UNBOXING) != 0) {
-					this.arguments[i].checkNPE(currentScope, flowContext, flowInfo);
-				}
+				this.arguments[i].checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 			}
 			analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);
 		}

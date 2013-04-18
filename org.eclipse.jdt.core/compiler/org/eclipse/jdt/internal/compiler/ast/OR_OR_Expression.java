@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *								bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
+ *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -72,12 +73,8 @@ public class OR_OR_Expression extends BinaryExpression {
 		rightInfo = this.right.analyseCode(currentScope, flowContext, rightInfo);
 		if ((flowContext.tagBits & FlowContext.INSIDE_NEGATION) == 0)
 			flowContext.expireNullCheckedFieldInfo();
-		if ((this.left.implicitConversion & TypeIds.UNBOXING) != 0) {
-			this.left.checkNPE(currentScope, flowContext, flowInfo);
-		}
-		if ((this.right.implicitConversion & TypeIds.UNBOXING) != 0) {
-			this.right.checkNPE(currentScope, flowContext, flowInfo);
-		}
+		this.left.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
+		this.right.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 		// The definitely null variables in right info when true should not be missed out while merging
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=299900
 		FlowInfo leftInfoWhenTrueForMerging = leftInfo.initsWhenTrue().unconditionalCopy().addPotentialInitializationsFrom(rightInfo.unconditionalInitsWithoutSideEffect());

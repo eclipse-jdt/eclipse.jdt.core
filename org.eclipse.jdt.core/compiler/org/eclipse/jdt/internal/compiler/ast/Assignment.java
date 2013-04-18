@@ -28,6 +28,7 @@
  *							bug 331649 - [compiler][null] consider null annotations for fields
  *							bug 383368 - [compiler][null] syntactic null analysis for field references
  *							bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
+ *							bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -59,9 +60,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 // a field reference, a blank final field reference, a field of an enclosing instance or
 // just a local variable.
 	LocalVariableBinding local = this.lhs.localVariableBinding();
-	if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0) {
-		this.expression.checkNPE(currentScope, flowContext, flowInfo);
-	}
+	this.expression.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 	
 	FlowInfo preInitInfo = null;
 	CompilerOptions compilerOptions = currentScope.compilerOptions();

@@ -774,8 +774,9 @@ protected void recordNullReference(LocalVariableBinding local,
 /**
  * Either AST analysis or checking of a child flow context has encountered an unboxing situation.
  * Record this fact for handling at an appropriate point in time.
+ * @param nullStatus the status as we know it so far.
  */
-public void recordUnboxing(Scope scope, Expression expression, FlowInfo flowInfo) {
+public void recordUnboxing(Scope scope, Expression expression, int nullStatus, FlowInfo flowInfo) {
 	// default: handle immediately:
 	checkUnboxing(scope, expression, flowInfo);
 }
@@ -793,7 +794,7 @@ protected void checkUnboxing(Scope scope, Expression expression, FlowInfo flowIn
 	}
 	// not handled, perhaps our parent will eventually have something to say?
 	if (this.parent != null) {
-		this.parent.recordUnboxing(scope, expression, flowInfo);
+		this.parent.recordUnboxing(scope, expression, FlowInfo.UNKNOWN, flowInfo);
 	}
 }
 

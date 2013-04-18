@@ -1225,6 +1225,42 @@ public void test0037_autounboxing_4() {
 			"}\n"},
 		options);
 }
+// https://bugs.eclipse.org/403147 [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
+// array reference in nested try
+public void test0037_autounboxing_5() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	runNegativeTest(
+		true,
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"		void foo(Object [] o, boolean b, Integer i) {\n" + 
+			"		int j = 1;\n" + 
+			"		try {\n" + 
+			"			if (b) i = null;\n" + 
+			"		} catch (RuntimeException r) {\n" + 
+			"			i = 3;\n" + 
+			"		} finally {\n" + 
+			"			try {\n" + 
+			"				System.out.println(o[i]);  \n" + 
+			"			} finally {\n" + 
+			"				System.out.println(j);\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" +
+			"}\n"},
+		null,
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	System.out.println(o[i]);  \n" + 
+		"	                     ^\n" + 
+		"Potential null pointer access: This expression of type Integer may be null but requires auto-unboxing\n" + 
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
 // null analysis -- autoboxing
 public void test0040_autoboxing_compound_assignment() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
