@@ -11,6 +11,7 @@
  *								bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
+ *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -47,9 +48,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	this.preAssertInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
 
 	Constant cst = this.assertExpression.optimizedBooleanConstant();
-	if ((this.assertExpression.implicitConversion & TypeIds.UNBOXING) != 0) {
-		this.assertExpression.checkNPE(currentScope, flowContext, flowInfo);
-	}
+	this.assertExpression.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 	boolean isOptimizedTrueAssertion = cst != Constant.NotAConstant && cst.booleanValue() == true;
 	boolean isOptimizedFalseAssertion = cst != Constant.NotAConstant && cst.booleanValue() == false;
 	

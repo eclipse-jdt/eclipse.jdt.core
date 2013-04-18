@@ -17,6 +17,7 @@
  *							bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *							bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *							bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
+ *							bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *							bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
@@ -65,9 +66,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if (analyseResources && !hasResourceWrapperType) { // allocation of wrapped closeables is analyzed specially
 				flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo, flowContext, false);
 			}
-			if ((this.arguments[i].implicitConversion & TypeIds.UNBOXING) != 0) {
-				this.arguments[i].checkNPE(currentScope, flowContext, flowInfo);
-			}
+			this.arguments[i].checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 		}
 		analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);
 	}

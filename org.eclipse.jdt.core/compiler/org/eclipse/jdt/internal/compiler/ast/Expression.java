@@ -561,11 +561,12 @@ public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flow
 
 /** If this expression requires unboxing check if that operation can throw NPE. */
 protected void checkNPEbyUnboxing(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+	int status;
 	if ((this.implicitConversion & UNBOXING) != 0
 			&& (this.bits & ASTNode.IsNonNull) == 0
-			&& nullStatus(flowInfo, flowContext) != FlowInfo.NON_NULL)
+			&& (status = nullStatus(flowInfo, flowContext)) != FlowInfo.NON_NULL)
 	{
-		flowContext.recordUnboxing(scope, this, flowInfo);
+		flowContext.recordUnboxing(scope, this, status, flowInfo);
 	}
 }
 

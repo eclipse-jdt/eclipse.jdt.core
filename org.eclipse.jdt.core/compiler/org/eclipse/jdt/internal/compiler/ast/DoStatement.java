@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for
  *								bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+ *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -83,9 +84,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 										actionInfo.mergedWith(loopingContext.initsOnContinue));
 		}
 	}
-	if ((this.condition.implicitConversion & TypeIds.UNBOXING) != 0) {
-		this.condition.checkNPE(currentScope, flowContext, initsOnCondition);
-	}
+	this.condition.checkNPEbyUnboxing(currentScope, flowContext, initsOnCondition);
 	/* Reset reach mode, to address following scenario.
 	 *   final blank;
 	 *   do { if (true) break; else blank = 0; } while(false);

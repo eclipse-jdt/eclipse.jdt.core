@@ -25,6 +25,7 @@
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
  *								bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
+ *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
@@ -126,9 +127,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		int length = this.arguments.length;
 		for (int i = 0; i < length; i++) {
 			Expression argument = this.arguments[i];
-			if ((argument.implicitConversion & TypeIds.UNBOXING) != 0) {
-				argument.checkNPE(currentScope, flowContext, flowInfo);
-			}
+			argument.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 			switch (detectAssertionUtility(i)) {
 				case TRUE_ASSERTION:
 					flowInfo = analyseBooleanAssertion(currentScope, argument, flowContext, flowInfo, wasInsideAssert, true);

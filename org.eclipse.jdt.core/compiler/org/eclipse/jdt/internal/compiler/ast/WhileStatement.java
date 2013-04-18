@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *     							bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+ *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -67,9 +68,7 @@ public class WhileStatement extends Statement {
 					new LoopingFlowContext(flowContext, flowInfo, this, null,
 						null, currentScope, true)),
 				condInfo);
-		if ((this.condition.implicitConversion & TypeIds.UNBOXING) != 0) {
-			this.condition.checkNPE(currentScope, flowContext, flowInfo);
-		}
+		this.condition.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 
 		LoopingFlowContext loopingContext;
 		FlowInfo actionInfo;
