@@ -113,6 +113,12 @@ class DefaultASTVisitor extends ASTVisitor {
 	public void endVisit(ExtraDimension node) {
 		endVisitNode(node);
 	}
+	public void endVisit(LambdaExpression node) {
+		endVisitNode(node);
+	}
+	public void endVisit(IntersectionType node) {
+		endVisit(node);
+	}
 	public void endVisit(FieldAccess node) {
 		endVisitNode(node);
 	}
@@ -373,6 +379,12 @@ class DefaultASTVisitor extends ASTVisitor {
 		return visitNode(node);
 	}
 	public boolean visit(ExtraDimension node) {
+		return visitNode(node);
+	}
+	public boolean visit(LambdaExpression node) {
+		return visitNode(node);
+	}
+	public boolean visit(IntersectionType node) {
 		return visitNode(node);
 	}
 	public boolean visit(FieldAccess node) {

@@ -949,6 +949,8 @@ public abstract class ASTNode {
 				return Javadoc.class;
 			case LABELED_STATEMENT :
 				return LabeledStatement.class;
+			case INTERSECTION_TYPE:
+				return IntersectionType.class;
 			case LAMBDA_EXPRESSION :
 				return LambdaExpression.class;
 			case LINE_COMMENT :
