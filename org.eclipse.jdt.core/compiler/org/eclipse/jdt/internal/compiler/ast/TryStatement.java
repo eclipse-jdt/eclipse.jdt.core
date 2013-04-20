@@ -45,8 +45,6 @@ public class TryStatement extends SubRoutineStatement {
 
 	public Argument[] catchArguments;
 
-	// should rename into subRoutineComplete to be set to false by default
-
 	public Block finallyBlock;
 	BlockScope scope;
 
