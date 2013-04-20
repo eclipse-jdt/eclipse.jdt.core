@@ -32,6 +32,7 @@
  *							bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *							bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *							bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
+ *							bug 384380 - False positive on a « Potential null pointer access » after a continue
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -14471,6 +14472,7 @@ public void testBug332637() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=332637 
 // Dead Code detection removing code that isn't dead
+// variant with a finally block
 public void testBug332637b() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5)
 		return;
@@ -16007,6 +16009,82 @@ public void testBug360328d() {
 		"",/* expected output */
 		"",/* expected error */
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// Bug 384380 - False positive on a « Potential null pointer access » after a continue
+// original test case
+public void testBug384380() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" +
+				"	public static class Container{\n" +
+				"		public int property;\n" +
+				"	}\n" +
+				"	public static class CustomException extends Exception {\n" +
+				"		private static final long	 serialVersionUID	= 1L;\n" +
+				"	}\n" +
+				"	public static void anotherMethod() throws CustomException {}\n" +
+				"\n" +
+				"	public static void method(final java.util.List<Container> list) {\n" +
+				"		for (final Container c : list) {\n" +
+				"			if(c == null)\n" +
+				"				continue; // return or break, are fine though\n" +
+				"\n" + 
+				"			// without this try-catch+for+exception block it does not fails\n" +
+				"			try {\n" +
+				"				for(int i = 0; i < 10 ; i++) // needs a loop here (a 'while' or a 'for') to fail\n" +
+				"					anotherMethod(); // throwing directly CustomException make it fails too\n" +
+				"			} catch (final CustomException e) {\n" +
+				"				// it fails even if catch is empty\n" +
+				"			}\n" +
+				"			c.property += 1; // \"Potential null pointer access: The variable c may be null at this location\"\n" +
+				"		}\n" +
+				"\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"");
+	}
+}
+// Bug 384380 - False positive on a « Potential null pointer access » after a continue
+// variant with a finally block
+public void testBug384380_a() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" +
+				"	public static class Container{\n" +
+				"		public int property;\n" +
+				"	}\n" +
+				"	public static class CustomException extends Exception {\n" +
+				"		private static final long	 serialVersionUID	= 1L;\n" +
+				"	}\n" +
+				"	public static void anotherMethod() throws CustomException {}\n" +
+				"\n" +
+				"	public static void method(final java.util.List<Container> list) {\n" +
+				"		for (final Container c : list) {\n" +
+				"			if(c == null)\n" +
+				"				continue; // return or break, are fine though\n" +
+				"\n" + 
+				"			// without this try-catch+for+exception block it does not fails\n" +
+				"			try {\n" +
+				"				for(int i = 0; i < 10 ; i++) // needs a loop here (a 'while' or a 'for') to fail\n" +
+				"					anotherMethod(); // throwing directly CustomException make it fails too\n" +
+				"			} catch (final CustomException e) {\n" +
+				"				// it fails even if catch is empty\n" +
+				"			} finally {\n" +
+				"				System.out.print(3);\n" +
+				"			}\n" +
+				"			c.property += 1; // \"Potential null pointer access: The variable c may be null at this location\"\n" +
+				"		}\n" +
+				"\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"");
+	}
 }
 public void testBug376263() {
 	Map customOptions = getCompilerOptions();

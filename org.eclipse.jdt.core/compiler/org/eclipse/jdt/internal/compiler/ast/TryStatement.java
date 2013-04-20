@@ -366,14 +366,29 @@ private FlowInfo prepareCatchInfo(FlowInfo flowInfo, ExceptionHandlingFlowContex
 			addNullInfoFrom(handlingContext.initsOnFinally);
 	} else {
 		FlowInfo initsOnException = handlingContext.initsOnException(i);
-		catchInfo =
-			flowInfo.nullInfoLessUnconditionalCopy()
-				.addPotentialInitializationsFrom(initsOnException)
-				.addNullInfoFrom(initsOnException)	// null info only from here, this is the only way to enter the catch block
-				.addPotentialInitializationsFrom(
-						tryInfo.nullInfoLessUnconditionalCopy())
-				.addPotentialInitializationsFrom(
-						handlingContext.initsOnReturn.nullInfoLessUnconditionalCopy());
+		if ((handlingContext.tagBits & (FlowContext.DEFER_NULL_DIAGNOSTIC | FlowContext.PREEMPT_NULL_DIAGNOSTIC))
+				== FlowContext.DEFER_NULL_DIAGNOSTIC)
+		{
+			// if null diagnostics are being deferred, initsOnException are incomplete,
+			// need to start with the more accurate upstream flowInfo
+			catchInfo =
+				flowInfo.unconditionalCopy()
+					.addPotentialInitializationsFrom(initsOnException)
+					.addPotentialInitializationsFrom(
+							tryInfo.unconditionalCopy())
+					.addPotentialInitializationsFrom(
+							handlingContext.initsOnReturn.nullInfoLessUnconditionalCopy());						
+		} else {
+			// here initsOnException are precise, so use them as the only source for null information into the catch block:
+			catchInfo =
+				flowInfo.nullInfoLessUnconditionalCopy()
+					.addPotentialInitializationsFrom(initsOnException)
+					.addNullInfoFrom(initsOnException)
+					.addPotentialInitializationsFrom(
+							tryInfo.nullInfoLessUnconditionalCopy())
+					.addPotentialInitializationsFrom(
+							handlingContext.initsOnReturn.nullInfoLessUnconditionalCopy());
+		}
 	}
 
 	// catch var is always set
