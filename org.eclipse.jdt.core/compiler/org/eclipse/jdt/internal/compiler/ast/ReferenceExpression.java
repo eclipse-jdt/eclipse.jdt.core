@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
@@ -47,6 +48,8 @@ import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 public class ReferenceExpression extends FunctionalExpression implements InvocationSite {
 	
+	private static final char[] LPAR = {'('};
+	private static char [] LAMBDA = { 'l', 'a', 'm', 'b', 'd', 'a' };
 	public Expression lhs;
 	public TypeReference [] typeArguments;
 	public char [] selector;
@@ -64,7 +67,28 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		this.sourceStart = lhs.sourceStart;
 		this.sourceEnd = sourceEnd;
 	}
-
+ 
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+		int pc = codeStream.position;
+		if (this.haveReceiver) {
+			this.lhs.generateCode(currentScope, codeStream, true);
+		}
+		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
+		StringBuffer buffer = new StringBuffer();
+		buffer.append('(');
+		if (this.haveReceiver) {
+			buffer.append('L');
+			buffer.append(this.lhs.resolvedType.constantPoolName());
+			buffer.append(';');
+		}
+		buffer.append(')');
+		buffer.append('L');
+		buffer.append(this.resolvedType.constantPoolName());
+		buffer.append(';');
+		codeStream.invokeDynamic(invokeDynamicNumber, this.haveReceiver ? 1 : 0, 1, LAMBDA, buffer.toString().toCharArray());
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
+	}
+	
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		// static methods with receiver value never get here
 		if (this.haveReceiver) {
@@ -459,5 +483,18 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		t = t.capture(this.enclosingScope, this.sourceEnd);
 		tSam = t.getSingleAbstractMethod(this.enclosingScope);
 		return resultExpression.tIsMoreSpecific(tSam.returnType, sSam.returnType);
+	}
+	public char[] signature() {
+		char [] signature = this.binding.signature();
+		if (this.binding.isConstructor()) {
+			// The implementation function is a constructor, which returns void, but the adjusted method type does return the new instance
+			signature = CharOperation.concat(CharOperation.subarray(signature, 0, signature.length - 1), this.binding.declaringClass.signature());
+		} else {
+			// Adjust for captured variables - if not static and if receiver is not captured
+			if (!(this.binding.isStatic() || this.haveReceiver)) {
+				signature = CharOperation.concat(LPAR, this.binding.declaringClass.signature(), CharOperation.subarray(signature, 1, -1));
+			}
+		}
+		return signature;
 	}
 }
