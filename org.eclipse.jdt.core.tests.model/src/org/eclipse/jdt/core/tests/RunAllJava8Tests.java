@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.CompilerInvocationTests;
 import org.eclipse.jdt.core.tests.compiler.regression.FlowAnalysisTest8;
 import org.eclipse.jdt.core.tests.compiler.regression.GrammarCoverageTests308;
 import org.eclipse.jdt.core.tests.compiler.regression.InterfaceMethodsTest;
+import org.eclipse.jdt.core.tests.compiler.regression.LambdaExpressionsTest;
 import org.eclipse.jdt.core.tests.compiler.regression.NegativeLambdaExpressionsTest;
 import org.eclipse.jdt.core.tests.compiler.regression.NegativeTypeAnnotationTest;
 import org.eclipse.jdt.core.tests.compiler.regression.NullTypeAnnotationTest;
@@ -58,6 +59,7 @@ public class RunAllJava8Tests extends TestCase {
 		return new Class[] {
 			LambdaExpressionSyntaxTest.class,
 			NegativeLambdaExpressionsTest.class,
+			LambdaExpressionsTest.class,
 			NegativeTypeAnnotationTest.class,
 			TypeAnnotationSyntaxTest.class,
 			ReferenceExpressionSyntaxTest.class,

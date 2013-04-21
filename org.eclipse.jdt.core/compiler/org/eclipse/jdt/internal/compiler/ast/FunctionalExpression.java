@@ -47,6 +47,7 @@ public abstract class FunctionalExpression extends Expression {
 	protected CompilationResult compilationResult;
 	protected BlockScope enclosingScope;
 	protected boolean ellipsisArgument;
+	protected int ordinal;
 	protected static IErrorHandlingPolicy silentErrorHandlingPolicy = DefaultErrorHandlingPolicies.ignoreAllProblems();
 	
 	public FunctionalExpression(CompilationResult compilationResult) {

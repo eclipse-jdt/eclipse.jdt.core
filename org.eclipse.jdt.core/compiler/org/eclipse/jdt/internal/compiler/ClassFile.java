@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
@@ -783,6 +784,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	 * They are:
 	 * - synthetic access methods
 	 * - default abstract methods
+	 * - lambda methods.
 	 */
 	public void addSpecialMethods() {
 
@@ -798,6 +800,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 			int methodAttributeOffset = this.contentsOffset;
 			int attributeNumber = generateMethodInfoAttributes(methodBinding);
 			completeMethodInfo(methodBinding, methodAttributeOffset, attributeNumber);
+		}
+		
+		LambdaExpression [] lambdas = this.referenceBinding.getLambdaMethods();
+		for (int i = 0, length = lambdas == null ? 0 : lambdas.length; i < length; i++) {
+			lambdas[i].generateCode(this.referenceBinding.scope, this);
 		}
 		// add synthetic methods infos
 		SyntheticMethodBinding[] syntheticMethods = this.referenceBinding.syntheticMethods();
@@ -1098,8 +1105,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// to get the right position, 6 for the max_stack etc...
 		int code_length = this.codeStream.position;
 		if (code_length > 65535) {
-			this.codeStream.methodDeclaration.scope.problemReporter().bytecodeExceeds64KLimit(
-				this.codeStream.methodDeclaration);
+			if (this.codeStream.methodDeclaration != null) {
+				this.codeStream.methodDeclaration.scope.problemReporter().bytecodeExceeds64KLimit(this.codeStream.methodDeclaration);
+			} else {
+				this.codeStream.lambdaExpression.scope.problemReporter().bytecodeExceeds64KLimit(this.codeStream.lambdaExpression);
+			}
 		}
 		if (localContentsOffset + 20 >= this.contents.length) {
 			resizeContents(20);
@@ -1135,9 +1145,15 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (exceptionLabel != null) {
 				int iRange = 0, maxRange = exceptionLabel.getCount();
 				if ((maxRange & 1) != 0) {
-					this.codeStream.methodDeclaration.scope.problemReporter().abortDueToInternalError(
-							Messages.bind(Messages.abort_invalidExceptionAttribute, new String(this.codeStream.methodDeclaration.selector)),
-							this.codeStream.methodDeclaration);
+					if (this.codeStream.methodDeclaration != null) {
+						this.codeStream.methodDeclaration.scope.problemReporter().abortDueToInternalError(
+								Messages.bind(Messages.abort_invalidExceptionAttribute, new String(this.codeStream.methodDeclaration.selector)),
+								this.codeStream.methodDeclaration);
+					} else {
+						this.codeStream.lambdaExpression.scope.problemReporter().abortDueToInternalError(
+								Messages.bind(Messages.abort_invalidExceptionAttribute, new String(this.codeStream.lambdaExpression.binding.selector)),
+								this.codeStream.lambdaExpression);
+					}
 				}
 				while (iRange < maxRange) {
 					int start = exceptionLabel.ranges[iRange++]; // even ranges are start positions
@@ -1189,13 +1205,13 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		// then we do the local variable attribute
 		if ((this.produceAttributes & ClassFileConstants.ATTR_VARS) != 0) {
-			final boolean methodDeclarationIsStatic = this.codeStream.methodDeclaration.isStatic();
+			final boolean methodDeclarationIsStatic = this.codeStream.methodDeclaration != null ? this.codeStream.methodDeclaration.isStatic() : this.codeStream.lambdaExpression.binding.isStatic();
 			attributesNumber += generateLocalVariableTableAttribute(code_length, methodDeclarationIsStatic, false);
 		}
 
 		if (addStackMaps) {
 			attributesNumber += generateStackMapTableAttribute(
-					this.codeStream.methodDeclaration.binding,
+					this.codeStream.methodDeclaration != null ? this.codeStream.methodDeclaration.binding : this.codeStream.lambdaExpression.binding,
 					code_length,
 					codeAttributeOffset,
 					max_locals,
@@ -1204,7 +1220,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
 			attributesNumber += generateStackMapAttribute(
-					this.codeStream.methodDeclaration.binding,
+					this.codeStream.methodDeclaration != null ? this.codeStream.methodDeclaration.binding : this.codeStream.lambdaExpression.binding,
 					code_length,
 					codeAttributeOffset,
 					max_locals,
@@ -2581,7 +2597,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 			nameIndex = this.constantPool.literalIndex(ConstantPool.This);
 			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) nameIndex;
-			declaringClassBinding = (SourceTypeBinding) this.codeStream.methodDeclaration.binding.declaringClass;
+			declaringClassBinding = (SourceTypeBinding) 
+					(this.codeStream.methodDeclaration != null ? this.codeStream.methodDeclaration.binding.declaringClass : this.codeStream.lambdaExpression.binding.declaringClass);
 			descriptorIndex =
 				this.constantPool.literalIndex(
 					declaringClassBinding.signature());
@@ -5248,6 +5265,55 @@ public class ClassFile implements TypeConstants, TypeIds {
 					}
 					pc += 3;
 					break;
+				case Opcodes.OPC_invokedynamic:
+					index = u2At(bytecodes, 1, pc);
+					nameAndTypeIndex = u2At(poolContents, 3,
+							constantPoolOffsets[index]);
+					utf8index = u2At(poolContents, 3,
+							constantPoolOffsets[nameAndTypeIndex]);
+					descriptor = utf8At(poolContents,
+							constantPoolOffsets[utf8index] + 3, u2At(
+									poolContents, 1,
+									constantPoolOffsets[utf8index]));
+					frame.numberOfStackItems -= getParametersCount(descriptor);
+					returnType = getReturnType(descriptor);
+					if (returnType.length == 1) {
+						// base type
+						switch(returnType[0]) {
+							case 'Z':
+								frame.addStackItem(TypeBinding.BOOLEAN);
+								break;
+							case 'B':
+								frame.addStackItem(TypeBinding.BYTE);
+								break;
+							case 'C':
+								frame.addStackItem(TypeBinding.CHAR);
+								break;
+							case 'D':
+								frame.addStackItem(TypeBinding.DOUBLE);
+								break;
+							case 'F':
+								frame.addStackItem(TypeBinding.FLOAT);
+								break;
+							case 'I':
+								frame.addStackItem(TypeBinding.INT);
+								break;
+							case 'J':
+								frame.addStackItem(TypeBinding.LONG);
+								break;
+							case 'S':
+								frame.addStackItem(TypeBinding.SHORT);
+								break;
+						}
+					} else {
+						if (returnType[0] == '[') {
+							frame.addStackItem(new VerificationTypeInfo(0, returnType));
+						} else {
+							frame.addStackItem(new VerificationTypeInfo(0, CharOperation.subarray(returnType, 1, returnType.length - 1)));
+						}
+					}
+					pc += 5;
+					break;
 				case Opcodes.OPC_invokespecial:
 					index = u2At(bytecodes, 1, pc);
 					nameAndTypeIndex = u2At(poolContents, 3,
@@ -5599,15 +5665,27 @@ public class ClassFile implements TypeConstants, TypeIds {
 					addRealJumpTarget(realJumpTarget, pc - codeOffset); // handle infinite loop
 					break;
 				default: // should not occur
-					this.codeStream.methodDeclaration.scope.problemReporter().abortDueToInternalError(
-							Messages.bind(
-									Messages.abort_invalidOpcode,
-									new Object[] {
-										new Byte(opcode),
-										new Integer(pc),
-										new String(methodBinding.shortReadableName()),
-									}),
-							this.codeStream.methodDeclaration);
+					if (this.codeStream.methodDeclaration != null) {
+						this.codeStream.methodDeclaration.scope.problemReporter().abortDueToInternalError(
+								Messages.bind(
+										Messages.abort_invalidOpcode,
+										new Object[] {
+												new Byte(opcode),
+												new Integer(pc),
+												new String(methodBinding.shortReadableName()),
+										}),
+										this.codeStream.methodDeclaration);
+					} else {
+						this.codeStream.lambdaExpression.scope.problemReporter().abortDueToInternalError(
+								Messages.bind(
+										Messages.abort_invalidOpcode,
+										new Object[] {
+												new Byte(opcode),
+												new Integer(pc),
+												new String(methodBinding.shortReadableName()),
+										}),
+										this.codeStream.lambdaExpression);
+					}
 				break;
 			}
 			if (pc >= (codeLength + codeOffset)) {

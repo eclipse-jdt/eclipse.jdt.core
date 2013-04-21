@@ -1093,6 +1093,16 @@ public void bytecodeExceeds64KLimit(AbstractMethodDeclaration location) {
 			location.sourceEnd);
 	}
 }
+public void bytecodeExceeds64KLimit(LambdaExpression location) {
+	MethodBinding method = location.binding;
+		this.handle(
+			IProblem.BytecodeExceeds64KLimit,
+			new String[] {new String(method.selector), typesAsString(method, false)},
+			new String[] {new String(method.selector), typesAsString(method, true)},
+			ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
+			location.sourceStart,
+			location.sourceEnd);
+}
 public void bytecodeExceeds64KLimit(TypeDeclaration location) {
 	this.handle(
 		IProblem.BytecodeExceeds64KLimitForClinit,

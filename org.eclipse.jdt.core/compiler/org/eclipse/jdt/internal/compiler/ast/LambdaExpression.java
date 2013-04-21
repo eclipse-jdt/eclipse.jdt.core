@@ -20,8 +20,10 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -34,7 +36,9 @@ import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
@@ -57,7 +61,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	public Argument [] arguments;
 	public Statement body;
 	public boolean hasParentheses;
-	private MethodScope scope;
+	public MethodScope scope;
 	private boolean voidCompatible = true;
 	private boolean valueCompatible = false;
 	private boolean shapeAnalysisComplete = false;
@@ -77,11 +81,13 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	}
 	
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-		if (this.ignoreFurtherInvestigation) {
-			return;
-		}
-		super.generateCode(currentScope, codeStream, valueRequired);
-		this.body.generateCode(this.scope, codeStream);
+		
+		this.ordinal = currentScope.enclosingSourceType().addLambdaMethod(this);
+		this.binding.selector = CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.ordinal).toCharArray());
+		int pc = codeStream.position;
+		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
+		codeStream.invokeDynamic(invokeDynamicNumber, 0, 1, TypeConstants.ANONYMOUS_METHOD, CharOperation.concat("()".toCharArray(), this.descriptor.declaringClass.signature())); //$NON-NLS-1$
+		codeStream.recordPositionsFrom(pc, this.sourceStart);		
 	}
 
 	public boolean kosherDescriptor(Scope currentScope, MethodBinding sam, boolean shouldChatter) {
@@ -121,12 +127,12 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if (!haveDescriptor && argumentsTypeElided) 
 			return null; // FUBAR, bail out...
 
-		this.binding = new MethodBinding(ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccUnresolved,
-							haveDescriptor ? this.descriptor.selector : TypeConstants.ANONYMOUS_METHOD, 
+		this.binding = new MethodBinding(ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic | ExtraCompilerModifiers.AccUnresolved,
+							TypeConstants.ANONYMOUS_METHOD, // will be fixed up later.
 							haveDescriptor ? this.descriptor.returnType : null, 
 							Binding.NO_PARAMETERS, // for now. 
 							haveDescriptor ? this.descriptor.thrownExceptions : Binding.NO_EXCEPTIONS, 
-							blockScope.enclosingSourceType()); // declaring class, for now - this is needed for annotation holder and such.
+							blockScope.enclosingSourceType());
 		this.binding.typeVariables = Binding.NO_TYPE_VARIABLES;
 		
 		if (haveDescriptor) {
@@ -287,7 +293,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if (this.body instanceof Block) {
 			TypeBinding returnTypeBinding = expectedResultType();
 			if ((returnTypeBinding == TypeBinding.VOID)) {
-				if ((lambdaInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) == 0) {
+				if ((lambdaInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) == 0 || ((Block) this.body).statements == null) {
 					this.bits |= ASTNode.NeedFreeReturn;
 				}
 			} else {
@@ -613,6 +619,76 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				this.original().hasIgnoredMandatoryErrors = true;
 				return;
 		}
+	}
+
+	public void generateCode(ClassScope classScope, ClassFile classFile) {
+		int problemResetPC = 0;
+		classFile.codeStream.wideMode = false;
+		boolean restart = false;
+		do {
+			try {
+				problemResetPC = classFile.contentsOffset;
+				this.generateCode(classFile);
+				restart = false;
+			} catch (AbortMethod e) {
+				// Restart code generation if possible ...
+				if (e.compilationResult == CodeStream.RESTART_IN_WIDE_MODE) {
+					// a branch target required a goto_w, restart code generation in wide mode.
+					classFile.contentsOffset = problemResetPC;
+					classFile.methodCount--;
+					classFile.codeStream.resetInWideMode(); // request wide mode
+					restart = true;
+				} else if (e.compilationResult == CodeStream.RESTART_CODE_GEN_FOR_UNUSED_LOCALS_MODE) {
+					classFile.contentsOffset = problemResetPC;
+					classFile.methodCount--;
+					classFile.codeStream.resetForCodeGenUnusedLocals();
+					restart = true;
+				} else {
+					throw new AbortType(this.compilationResult, e.problem);
+				}
+			}
+		} while (restart);
+	}
+	
+	public void generateCode(ClassFile classFile) {
+
+		classFile.generateMethodInfoHeader(this.binding);
+		int methodAttributeOffset = classFile.contentsOffset;
+		int attributeNumber = classFile.generateMethodInfoAttributes(this.binding);
+		int codeAttributeOffset = classFile.contentsOffset;
+		classFile.generateCodeAttributeHeader();
+		CodeStream codeStream = classFile.codeStream;
+		codeStream.reset(this, classFile);
+		// initialize local positions
+		this.scope.computeLocalVariablePositions(this.binding.isStatic() ? 0 : 1, codeStream);
+
+		// arguments initialization for local variable debug attributes
+		if (this.arguments != null) {
+			for (int i = 0, max = this.arguments.length; i < max; i++) {
+				LocalVariableBinding argBinding;
+				codeStream.addVisibleLocalVariable(argBinding = this.arguments[i].binding);
+				argBinding.recordInitializationStartPC(0);
+			}
+		}
+		this.body.generateCode(this.scope, codeStream);
+		if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
+			codeStream.return_();
+		}
+		// local variable attributes
+		codeStream.exitUserScope(this.scope);
+		codeStream.recordPositionsFrom(0, this.sourceEnd); // WAS declarationSourceEnd.
+		try {
+			classFile.completeCodeAttribute(codeAttributeOffset);
+		} catch(NegativeArraySizeException e) {
+			throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
+		}
+		attributeNumber++;
+
+		classFile.completeMethodInfo(this.binding, methodAttributeOffset, attributeNumber);
+	}
+	
+	public char[] signature() {
+		return this.binding.signature();
 	}
 }
 class IncongruentLambdaException extends RuntimeException {

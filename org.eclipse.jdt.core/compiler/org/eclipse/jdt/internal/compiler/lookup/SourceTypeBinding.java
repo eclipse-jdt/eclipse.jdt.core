@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
@@ -55,6 +56,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	public ReferenceBinding[] superInterfaces;
 	private FieldBinding[] fields;
 	private MethodBinding[] methods;
+	private LambdaExpression [] lambdas;
 	public ReferenceBinding[] memberTypes;
 	public TypeVariableBinding[] typeVariables;
 
@@ -517,6 +519,19 @@ public SyntheticMethodBinding addSyntheticMethodForEnumInitialization(int begin,
 	accessors[0] = accessMethod;
 	return accessMethod;
 }
+public int addLambdaMethod(LambdaExpression lambda) {
+	int index;
+	if (this.lambdas == null) {
+		this.lambdas = new LambdaExpression[1];
+		index = 0;
+	} else {
+		index = this.lambdas.length;
+		System.arraycopy(this.lambdas, 0, this.lambdas = new LambdaExpression[index + 1], 0, index);
+	}
+	this.lambdas[index] = lambda;
+	return index;
+}
+
 /* Add a new synthetic access method for access to <targetMethod>.
  * Must distinguish access method used for super access from others (need to use invokespecial bytecode)
 	Answer the new method or the existing method if one already existed.
@@ -819,6 +834,9 @@ public MethodBinding[] getDefaultAbstractMethods() {
 		if (this.methods[i].isDefaultAbstract())
 			result[count++] = this.methods[i];
 	return result;
+}
+public LambdaExpression [] getLambdaMethods() {
+	return this.lambdas;
 }
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {

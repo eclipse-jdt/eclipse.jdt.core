@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -80,6 +81,7 @@ public class CodeStream {
 	public int maxFieldCount;
 	public int maxLocals;
 	public AbstractMethodDeclaration methodDeclaration;
+	public LambdaExpression lambdaExpression;
 	public int[] pcToSourceMap = new int[24];
 	public int pcToSourceMapSize;
 	public int position; // So when first set can be incremented
@@ -6273,6 +6275,7 @@ public void removeVariable(LocalVariableBinding localBinding) {
 public void reset(AbstractMethodDeclaration referenceMethod, ClassFile targetClassFile) {
 	init(targetClassFile);
 	this.methodDeclaration = referenceMethod;
+	this.lambdaExpression = null;
 	int[] lineSeparatorPositions2 = this.lineSeparatorPositions;
 	if (lineSeparatorPositions2 != null) {
 		int length = lineSeparatorPositions2.length;
@@ -6297,6 +6300,31 @@ public void reset(AbstractMethodDeclaration referenceMethod, ClassFile targetCla
 	}
 	this.preserveUnusedLocals = referenceMethod.scope.compilerOptions().preserveAllLocalVariables;
 	initializeMaxLocals(referenceMethod.binding);
+}
+
+public void reset(LambdaExpression lambda, ClassFile targetClassFile) {
+	init(targetClassFile);
+	this.lambdaExpression = lambda;
+	this.methodDeclaration = null;
+	int[] lineSeparatorPositions2 = this.lineSeparatorPositions;
+	if (lineSeparatorPositions2 != null) {
+		int length = lineSeparatorPositions2.length;
+		int lineSeparatorPositionsEnd = length - 1;
+		int start = Util.getLineNumber(lambda.body.sourceStart, lineSeparatorPositions2, 0, lineSeparatorPositionsEnd);
+		this.lineNumberStart = start;
+		if (start > lineSeparatorPositionsEnd) {
+			this.lineNumberEnd = start;
+		} else {
+			int end = Util.getLineNumber(lambda.body.sourceEnd, lineSeparatorPositions2, start - 1, lineSeparatorPositionsEnd);
+			if (end >= lineSeparatorPositionsEnd) {
+				end = length;
+			}
+			this.lineNumberEnd = end == 0 ? 1 : end;
+		}
+
+	}
+	this.preserveUnusedLocals = lambda.scope.compilerOptions().preserveAllLocalVariables;
+	initializeMaxLocals(lambda.binding);
 }
 
 public void reset(ClassFile givenClassFile) {

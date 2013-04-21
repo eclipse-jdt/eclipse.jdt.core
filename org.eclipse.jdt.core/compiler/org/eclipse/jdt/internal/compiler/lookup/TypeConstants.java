@@ -90,7 +90,7 @@ public interface TypeConstants {
     char[] UPPER_LOCAL_VARIABLE = "LOCAL_VARIABLE".toCharArray(); //$NON-NLS-1$
     char[] UPPER_ANNOTATION_TYPE = "ANNOTATION_TYPE".toCharArray(); //$NON-NLS-1$
     char[] UPPER_PACKAGE = "PACKAGE".toCharArray(); //$NON-NLS-1$
-    char[] ANONYMOUS_METHOD = " anonymous ".toCharArray(); //$NON-NLS-1$ // for now - serialization issues ?
+    char[] ANONYMOUS_METHOD = "lambda$".toCharArray(); //$NON-NLS-1$
     
 	// jsr308
 	char[] TYPE_USE_TARGET  = "TYPE_USE".toCharArray(); //$NON-NLS-1$
