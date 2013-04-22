@@ -797,6 +797,7 @@ public final class AST {
 	 * @return a new unparented node owned by this AST
 	 * @exception IllegalArgumentException if <code>nodeClass</code> is
 	 * <code>null</code> or is not a concrete node type class
+	 * or is not supported for this AST's API level
 	 * @since 3.0
 	 */
 	public ASTNode createInstance(Class nodeClass) {
@@ -823,7 +824,9 @@ public final class AST {
 		} catch (InvocationTargetException e) {
 			// concrete AST node classes do not die in the constructor
 			// therefore nodeClass is not legit
-			throw new IllegalArgumentException();
+			IllegalArgumentException iae = new IllegalArgumentException();
+			iae.initCause(e.getCause());
+			throw iae;
 		}
 	}
 
@@ -838,7 +841,7 @@ public final class AST {
 	 * constants declared on {@link ASTNode}
 	 * @return a new unparented node owned by this AST
 	 * @exception IllegalArgumentException if <code>nodeType</code> is
-	 * not a legal AST node type
+	 * not a legal AST node type or if it's not supported for this AST's API level
 	 * @since 3.0
 	 */
 	public ASTNode createInstance(int nodeType) {
