@@ -1760,10 +1760,12 @@ public final class AST {
 	/**
 	 * Creates and returns a list of new unparented modifier nodes
 	 * for the given modifier flags. When multiple modifiers are
-	 * requested the modifiers nodes will appear in the following order:
-	 * public, protected, private, abstract, static, final, synchronized,
-	 * native, strictfp, transient, volatile, default. This order is consistent
-	 * with the recommendations in JLS2 8.1.1, 8.3.1, and 8.4.3.
+	 * requested, the modifier nodes will appear in the following order:
+	 * <pre> public protected private
+	 * abstract default static final synchronized native strictfp transient volatile</pre>
+	 * <p>
+	 * This order is consistent with the recommendations in JLS8 ("*Modifier:" rules in chapters 8 and 9).
+	 * </p>
 	 *
 	 * @param flags bitwise or of modifier flags declared on {@link Modifier}
 	 * @return a possibly empty list of new unparented modifier nodes
@@ -1789,6 +1791,9 @@ public final class AST {
 		if (Modifier.isAbstract(flags)) {
 			result.add(newModifier(Modifier.ModifierKeyword.ABSTRACT_KEYWORD));
 		}
+		if (Modifier.isDefault(flags)) {
+			result.add(newModifier(Modifier.ModifierKeyword.DEFAULT_KEYWORD));
+		}
 		if (Modifier.isStatic(flags)) {
 			result.add(newModifier(Modifier.ModifierKeyword.STATIC_KEYWORD));
 		}
@@ -1809,9 +1814,6 @@ public final class AST {
 		}
 		if (Modifier.isVolatile(flags)) {
 			result.add(newModifier(Modifier.ModifierKeyword.VOLATILE_KEYWORD));
-		}
-		if (Modifier.isDefault(flags)) {
-			result.add(newModifier(Modifier.ModifierKeyword.DEFAULT_KEYWORD));
 		}
 		return result;
 	}
