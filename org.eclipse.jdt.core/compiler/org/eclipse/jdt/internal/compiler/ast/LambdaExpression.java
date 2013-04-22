@@ -670,9 +670,19 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				argBinding.recordInitializationStartPC(0);
 			}
 		}
-		this.body.generateCode(this.scope, codeStream);
-		if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
-			codeStream.return_();
+		if (this.body instanceof Block) {
+			this.body.generateCode(this.scope, codeStream);
+			if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
+				codeStream.return_();
+			}
+		} else {
+			Expression expression = (Expression) this.body;
+			expression.generateCode(this.scope, codeStream, true);
+			if (this.binding.returnType == TypeBinding.VOID) {
+				codeStream.return_();
+			} else {
+				codeStream.generateReturnBytecode(expression);
+			}
 		}
 		// local variable attributes
 		codeStream.exitUserScope(this.scope);

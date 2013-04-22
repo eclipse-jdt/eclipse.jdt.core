@@ -131,6 +131,147 @@ public void test004() {
 			"The operator + is undefined for the argument type(s) java.lang.Object, java.lang.Object\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+public void test005() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	String id(String s);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		I i = (s) -> s;\n" +
+				"		System.out.println(i.id(\"Hello\"));\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"Hello");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+public void test006() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	String id(String s);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		I i = (s) -> s + s;\n" +
+				"		System.out.println(i.id(\"Hello\"));\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"HelloHello");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+public void test007() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void print(String s);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		I i = (s) -> System.out.println(s);\n" +
+				"		i.print(\"Hello\");\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"Hello");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+public void test008() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	String print(String s);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		I i = (s) -> new String(s).toUpperCase();\n" +
+				"		System.out.println(i.print(\"Hello\"));\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"HELLO");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+public void test009() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	String print(String s);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		I i = (s) -> new String(s);\n" +
+				"		System.out.println(i.print(\"Hello\"));\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"Hello");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+public void test010() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	int unbox(Integer i);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		I i = (s) -> s;\n" +
+				"		System.out.println(i.unbox(new Integer(1234)));\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"1234");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+public void test011() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Integer box(int i);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		I i = (s) -> s;\n" +
+				"		System.out.println(i.box(1234));\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"1234");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+public void test012() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	X subType();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		I i = () -> new Y();\n" +
+				"		System.out.println(i.subType());\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y extends X {\n" +
+				"    public String toString() {\n" +
+				"        return \"Some Y\";\n" +
+				"    }\n" +
+				"}"
+			},
+			"Some Y");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

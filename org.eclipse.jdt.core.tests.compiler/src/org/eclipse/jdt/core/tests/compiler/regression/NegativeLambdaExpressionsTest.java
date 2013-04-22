@@ -5594,7 +5594,7 @@ public void test401845e() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401847, [1.8][compiler] Polyconditionals not accepted in method invocation contexts.
-public void _test401847() {
+public void test401847() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
