@@ -1188,8 +1188,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			if (typeParameters[i].boundCheck(null, types[i], scope) != TypeConstants.OK)
 				return this.singleAbstractMethod = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NotAWellFormedParameterizedType);
 		}
-		ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(genericType, types, genericType.enclosingType());
-		MethodBinding [] choices = parameterizedType.getMethods(theAbstractMethod.selector);
+		ReferenceBinding declaringType = scope.environment().createParameterizedType(genericType, types, genericType.enclosingType());
+		declaringType = (ReferenceBinding) declaringType.findSuperTypeOriginatingFrom(theAbstractMethod.declaringClass);
+		MethodBinding [] choices = declaringType.getMethods(theAbstractMethod.selector);
 		for (int i = 0, length = choices.length; i < length; i++) {
 			MethodBinding method = choices[i];
 			if (!method.isAbstract() || method.redeclaresPublicObjectMethod(scope)) continue; // (re)skip statics, defaults, public object methods ...

@@ -183,8 +183,9 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		if (theAbstractMethod == null || !theAbstractMethod.isValidBinding())
 			return this.singleAbstractMethod = theAbstractMethod;
 		
-		ReferenceBinding rawType = (ReferenceBinding) scope.environment().convertToRawType(genericType, true);
-		MethodBinding [] choices = rawType.getMethods(theAbstractMethod.selector);
+		ReferenceBinding declaringType = (ReferenceBinding) scope.environment().convertToRawType(genericType, true);
+		declaringType = (ReferenceBinding) declaringType.findSuperTypeOriginatingFrom(theAbstractMethod.declaringClass);
+		MethodBinding [] choices = declaringType.getMethods(theAbstractMethod.selector);
 		for (int i = 0, length = choices.length; i < length; i++) {
 			MethodBinding method = choices[i];
 			if (!method.isAbstract() || method.redeclaresPublicObjectMethod(scope)) continue; // (re)skip statics, defaults, public object methods ...

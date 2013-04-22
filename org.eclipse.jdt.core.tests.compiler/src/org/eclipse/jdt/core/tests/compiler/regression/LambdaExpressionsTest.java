@@ -67,6 +67,70 @@ public void test002() {
 			"Hello, World!"
 			);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406178,  [1.8][compiler] Some functional interfaces are wrongly rejected
+public void test003() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"  void foo(int x, int y);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    BinaryOperator<String> binOp = (x,y) -> { return x+y; };\n" +
+				"    System.out.println(\"SUCCESS\");\n" +
+				"    // System.out.println(binOp.apply(\"SUCC\", \"ESS\")); // when lambdas run\n" +
+				"  }\n" +
+				"}\n",
+				"BiFunction.java",
+				"@FunctionalInterface\n" + 
+				"public interface BiFunction<T, U, R> {\n" + 
+				"    R apply(T t, U u);\n" + 
+				"}",
+				"BinaryOperator.java",
+				"@FunctionalInterface\n" + 
+				"public interface BinaryOperator<T> extends BiFunction<T,T,T> {\n" + 
+				"}"
+			},
+			"SUCCESS");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406178,  [1.8][compiler] Some functional interfaces are wrongly rejected
+public void test004() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"  void foo(int x, int y);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    BinaryOperator binOp = (x,y) -> { return x+y; };\n" +
+				"    System.out.println(\"SUCCESS\");\n" +
+				"    // System.out.println(binOp.apply(\"SUCC\", \"ESS\")); // when lambdas run\n" +
+				"  }\n" +
+				"}\n",
+				"BiFunction.java",
+				"@FunctionalInterface\n" + 
+				"public interface BiFunction<T, U, R> {\n" + 
+				"    R apply(T t, U u);\n" + 
+				"}",
+				"BinaryOperator.java",
+				"@FunctionalInterface\n" + 
+				"public interface BinaryOperator<T> extends BiFunction<T,T,T> {\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	BinaryOperator binOp = (x,y) -> { return x+y; };\n" + 
+			"	^^^^^^^^^^^^^^\n" + 
+			"BinaryOperator is a raw type. References to generic type BinaryOperator<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	BinaryOperator binOp = (x,y) -> { return x+y; };\n" + 
+			"	                                         ^^^\n" + 
+			"The operator + is undefined for the argument type(s) java.lang.Object, java.lang.Object\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
