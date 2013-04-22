@@ -113,12 +113,6 @@ class DefaultASTVisitor extends ASTVisitor {
 	public void endVisit(ExtraDimension node) {
 		endVisitNode(node);
 	}
-	public void endVisit(LambdaExpression node) {
-		endVisitNode(node);
-	}
-	public void endVisit(IntersectionType node) {
-		endVisit(node);
-	}
 	public void endVisit(FieldAccess node) {
 		endVisitNode(node);
 	}
@@ -143,10 +137,16 @@ class DefaultASTVisitor extends ASTVisitor {
 	public void endVisit(InstanceofExpression node) {
 		endVisitNode(node);
 	}
+	public void endVisit(IntersectionType node) {
+		endVisit(node);
+	}
 	public void endVisit(Javadoc node) {
 		endVisitNode(node);
 	}
 	public void endVisit(LabeledStatement node) {
+		endVisitNode(node);
+	}
+	public void endVisit(LambdaExpression node) {
 		endVisitNode(node);
 	}
 	public void endVisit(LineComment node) {
@@ -381,12 +381,6 @@ class DefaultASTVisitor extends ASTVisitor {
 	public boolean visit(ExtraDimension node) {
 		return visitNode(node);
 	}
-	public boolean visit(LambdaExpression node) {
-		return visitNode(node);
-	}
-	public boolean visit(IntersectionType node) {
-		return visitNode(node);
-	}
 	public boolean visit(FieldAccess node) {
 		return visitNode(node);
 	}
@@ -411,6 +405,9 @@ class DefaultASTVisitor extends ASTVisitor {
 	public boolean visit(InstanceofExpression node) {
 		return visitNode(node);
 	}
+	public boolean visit(IntersectionType node) {
+		return visitNode(node);
+	}
 	public boolean visit(Javadoc node) {
 		//	do not visit Javadoc tags by default. Use constructor with boolean to enable.
 		if (super.visit(node)) {
@@ -419,6 +416,9 @@ class DefaultASTVisitor extends ASTVisitor {
 		return false;
 	}
 	public boolean visit(LabeledStatement node) {
+		return visitNode(node);
+	}
+	public boolean visit(LambdaExpression node) {
 		return visitNode(node);
 	}
 	public boolean visit(LineComment node) {

@@ -851,6 +851,21 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	/*
+	 * @see ASTVisitor#visit(IntersectionType)
+	 * @since 3.7
+	 */
+	public boolean visit(IntersectionType node) {
+		for (Iterator it = node.types().iterator(); it.hasNext(); ) {
+			Type t = (Type) it.next();
+			t.accept(this);
+			if (it.hasNext()) {
+				this.buffer.append(" & "); //$NON-NLS-1$
+			}
+		}
+		return false;
+	}
+
+	/*
 	 * @see ASTVisitor#visit(Javadoc)
 	 */
 	public boolean visit(Javadoc node) {
@@ -1732,21 +1747,6 @@ public class NaiveASTFlattener extends ASTVisitor {
 			t.accept(this);
 			if (it.hasNext()) {
 				this.buffer.append('|');
-			}
-		}
-		return false;
-	}
-
-	/*
-	 * @see ASTVisitor#visit(IntersectionType)
-	 * @since 3.7
-	 */
-	public boolean visit(IntersectionType node) {
-		for (Iterator it = node.types().iterator(); it.hasNext(); ) {
-			Type t = (Type) it.next();
-			t.accept(this);
-			if (it.hasNext()) {
-				this.buffer.append(" & "); //$NON-NLS-1$
 			}
 		}
 		return false;

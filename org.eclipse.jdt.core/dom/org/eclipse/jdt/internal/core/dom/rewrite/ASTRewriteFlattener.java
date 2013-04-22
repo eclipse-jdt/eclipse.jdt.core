@@ -499,6 +499,12 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		return false;
 	}
 
+	public boolean visit(ExtraDimension node) {
+		visitList(node, ExtraDimension.ANNOTATIONS_PROPERTY, String.valueOf(' '), String.valueOf(' '), String.valueOf(' '));
+		this.result.append("[]"); //$NON-NLS-1$
+		return false;
+	}
+
 	/*
 	 * @see ASTVisitor#visit(FieldAccess)
 	 */
@@ -604,16 +610,6 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	}
 
 	/*
-	 * @see ASTVisitor#visit(InstanceofExpression)
-	 */
-	public boolean visit(InstanceofExpression node) {
-		getChildNode(node, InstanceofExpression.LEFT_OPERAND_PROPERTY).accept(this);
-		this.result.append(" instanceof "); //$NON-NLS-1$
-		getChildNode(node, InstanceofExpression.RIGHT_OPERAND_PROPERTY).accept(this);
-		return false;
-	}
-
-	/*
 	 * @see ASTVisitor#visit(Initializer)
 	 */
 	public boolean visit(Initializer node) {
@@ -627,6 +623,24 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			visitList(node, Initializer.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		}
 		getChildNode(node, Initializer.BODY_PROPERTY).accept(this);
+		return false;
+	}
+
+	/*
+	 * @see ASTVisitor#visit(InstanceofExpression)
+	 */
+	public boolean visit(InstanceofExpression node) {
+		getChildNode(node, InstanceofExpression.LEFT_OPERAND_PROPERTY).accept(this);
+		this.result.append(" instanceof "); //$NON-NLS-1$
+		getChildNode(node, InstanceofExpression.RIGHT_OPERAND_PROPERTY).accept(this);
+		return false;
+	}
+
+	/*
+	 * @see ASTVisitor#visit(IntersectionType)
+	 */
+	public boolean visit(IntersectionType node) {
+		visitList(node, IntersectionType.TYPES_PROPERTY, " & ", Util.EMPTY_STRING, Util.EMPTY_STRING); //$NON-NLS-1$
 		return false;
 	}
 
@@ -653,12 +667,6 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		getChildNode(node, LabeledStatement.BODY_PROPERTY).accept(this);
 		return false;
 	}
-	public boolean visit(ExtraDimension node) {
-		visitList(node, ExtraDimension.ANNOTATIONS_PROPERTY, String.valueOf(' '), String.valueOf(' '), String.valueOf(' '));
-		this.result.append("[]"); //$NON-NLS-1$
-		return false;
-	}
-
 	/*
 	 * @see ASTVisitor#visit(LambdaExpression)
 	 */
@@ -1121,14 +1129,6 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		return false;
 	}
 	
-	/*
-	 * @see ASTVisitor#visit(IntersectionType)
-	 */
-	public boolean visit(IntersectionType node) {
-		visitList(node, IntersectionType.TYPES_PROPERTY, " & ", Util.EMPTY_STRING, Util.EMPTY_STRING); //$NON-NLS-1$
-		return false;
-	}
-
 	/*
 	 * @see ASTVisitor#visit(VariableDeclarationExpression)
 	 */
