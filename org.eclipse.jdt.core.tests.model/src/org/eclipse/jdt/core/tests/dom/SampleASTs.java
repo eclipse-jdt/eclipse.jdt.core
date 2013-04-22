@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2012 IBM Corporation and others.
+ * Copyright (c) 2004, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,12 @@ public class SampleASTs {
 	 * @deprecated
 	 */
 	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
+	/**
+	 * Internal synonym for deprecated constant AST.JSL4
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int JLS4_INTERNAL = AST.JLS4;
 	
 	/**
 	 * Returns a subtree of sample of AST nodes. The sample includes
@@ -86,6 +92,10 @@ public class SampleASTs {
 			pmt.typeArguments().add(qt);
 			md.setReturnType2(pmt);
 		}
+		if (target.apiLevel() >= AST.JLS8) {
+			ExtraDimension ed = target.newExtraDimension();
+			md.extraDimensions().add(ed);
+		}
 
 		Block b = target.newBlock();
 		md.setBody(b);
@@ -138,6 +148,10 @@ public class SampleASTs {
 		CatchClause catchClause = target.newCatchClause();
 		tr.catchClauses().add(catchClause);
 		b.statements().add(tr);
+		if (target.apiLevel() >= JLS4_INTERNAL) {
+			UnionType ut = target.newUnionType();
+			catchClause.getException().setType(ut);
+		}
 
 		TypeDeclaration typeDeclaration = target.newTypeDeclaration();
 		TypeDeclarationStatement typeDeclarationStatement = target.newTypeDeclarationStatement(typeDeclaration);
@@ -165,6 +179,10 @@ public class SampleASTs {
 		z.add(booleanLiteral);
 		CastExpression castExpression = target.newCastExpression();
 		z.add(castExpression);
+		if (target.apiLevel() >= AST.JLS8) {
+			IntersectionType it = target.newIntersectionType();
+			castExpression.setType(it);
+		}
 		CharacterLiteral characterLiteral = target.newCharacterLiteral();
 		z.add(characterLiteral);
 		ClassInstanceCreation cic = target.newClassInstanceCreation();
@@ -179,6 +197,10 @@ public class SampleASTs {
 		z.add(infixExpression);
 		InstanceofExpression instanceofExpression = target.newInstanceofExpression();
 		z.add(instanceofExpression);
+		if (target.apiLevel() >= AST.JLS8) {
+			LambdaExpression lambdaExpression = target.newLambdaExpression();
+			z.add(lambdaExpression);
+		}
 		MethodInvocation methodInvocation = target.newMethodInvocation();
 		z.add(methodInvocation);
 		Name name = target.newName(new String[]{"a", "b"}); //$NON-NLS-1$ //$NON-NLS-2$

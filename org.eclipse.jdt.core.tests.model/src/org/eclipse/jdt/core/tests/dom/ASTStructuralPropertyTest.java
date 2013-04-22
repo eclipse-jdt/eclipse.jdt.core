@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -39,6 +40,8 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
 				suite.addTest(new ASTStructuralPropertyTest(methods[i].getName(), AST.JLS2));
 				suite.addTest(new ASTStructuralPropertyTest(methods[i].getName(), AST.JLS3));
+				suite.addTest(new ASTStructuralPropertyTest(methods[i].getName(), AST.JLS4));
+				suite.addTest(new ASTStructuralPropertyTest(methods[i].getName(), AST.JLS8));
 			}
 		}
 		return suite;
@@ -48,6 +51,12 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 	ASTParser parser;
 	int API_LEVEL;
 
+	public ASTStructuralPropertyTest(String name) {
+		super(name.substring(0, name.indexOf(" - JLS")));
+		name.indexOf(" - JLS");
+		this.API_LEVEL = Integer.parseInt(name.substring(name.indexOf(" - JLS") + 6));
+	}
+	
 	public ASTStructuralPropertyTest(String name, int apiLevel) {
 		super(name);
 		this.API_LEVEL = apiLevel;
@@ -64,17 +73,8 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 		super.tearDown();
 	}
 
-	/** @deprecated using deprecated code */
 	public String getName() {
-		String name = super.getName();
-		switch (this.API_LEVEL) {
-			case AST.JLS2:
-				name = "JLS2 - " + name;
-				break;
-			case AST.JLS3:
-				name = "JLS3 - " + name;
-				break;
-		}
+		String name = super.getName() + " - JLS" + this.API_LEVEL;
 		return name;
 	}
 
@@ -110,11 +110,11 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 	public void testStructuralProperties() {
 		final ASTNode root = SampleASTs.oneOfEach(this.ast);
 
-		final Set simpleProperties = new HashSet(400);
-		final Set childProperties = new HashSet(400);
-		final Set childListProperties = new HashSet(400);
-		final Set visitedProperties = new HashSet(400);
-		final Set nodeClasses = new HashSet(100);
+		final Set simpleProperties = new LinkedHashSet(400);
+		final Set childProperties = new LinkedHashSet(400);
+		final Set childListProperties = new LinkedHashSet(400);
+		final Set visitedProperties = new LinkedHashSet(400);
+		final Set nodeClasses = new LinkedHashSet(100);
 
 		ASTVisitor v = new ASTVisitor(true) {
 			public void postVisit(ASTNode node) {
@@ -122,7 +122,6 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 				if (me != null) {
 					visitedProperties.add(me);
 				}
-				visitedProperties.add(me);
 				nodeClasses.add(node.getClass());
 				List ps = node.structuralPropertiesForType();
 				for (Iterator it = ps.iterator(); it.hasNext(); ) {
@@ -152,17 +151,34 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 		switch(this.API_LEVEL) {
 			case AST.JLS2 :
 				assertEquals("Wrong number of visited node classes", 67, nodeClasses.size());
-				assertEquals("Wrong number of visited properties", 82, visitedProperties.size());
+				assertEquals("Wrong number of visited properties", 81, visitedProperties.size());
 				assertEquals("Wrong number of simple properties", 26, simpleProperties.size());
 				assertEquals("Wrong number of child properties", 90, childProperties.size());
 				assertEquals("Wrong number of child list properties", 26, childListProperties.size());
 				break;
 			case AST.JLS3 :
 				assertEquals("Wrong number of visited node classes", 80, nodeClasses.size());
-				assertEquals("Wrong number of visited properties", 104, visitedProperties.size());
+				assertEquals("Wrong number of visited properties", 103, visitedProperties.size());
 				assertEquals("Wrong number of simple properties", 23, simpleProperties.size());
 				assertEquals("Wrong number of child properties", 115, childProperties.size());
 				assertEquals("Wrong number of child list properties", 52, childListProperties.size());
+				break;
+			case AST.JLS4 :
+				assertEquals("Wrong number of visited node classes", 81, nodeClasses.size());
+				assertEquals("Wrong number of visited properties", 103, visitedProperties.size());
+				assertEquals("Wrong number of simple properties", 23, simpleProperties.size());
+				assertEquals("Wrong number of child properties", 115, childProperties.size());
+				assertEquals("Wrong number of child list properties", 54, childListProperties.size());
+				break;
+			case AST.JLS8 :
+				assertEquals("Wrong number of visited node classes", 84, nodeClasses.size());
+				assertEquals("Wrong number of visited properties", 105, visitedProperties.size());
+				assertEquals("Wrong number of simple properties", 21, simpleProperties.size());
+				assertEquals("Wrong number of child properties", 118, childProperties.size());
+				assertEquals("Wrong number of child list properties", 66, childListProperties.size());
+				break;
+			default :
+				fail();
 		}
 		// visit should rebuild tree
 		ASTNode newRoot = SampleASTs.oneOfEach(this.ast);
@@ -300,6 +316,24 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 
 	/** @deprecated using deprecated code */
 	public void testCreateInstance() {
+		int maxNodeType;
+		switch (this.ast.apiLevel()) {
+			case AST.JLS2:
+				maxNodeType = 69;
+				break;
+			case AST.JLS3:
+				maxNodeType = 83;
+				break;
+			case AST.JLS4:
+				maxNodeType = 84;
+				break;
+			case AST.JLS8:
+				maxNodeType = 87;
+				break;
+			default:
+				fail();
+				return;
+		}
 		for (int nodeType = 0; nodeType < 100; nodeType++) {
 			Class nodeClass = null;
 			try {
@@ -310,24 +344,12 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 			if (nodeClass != null) {
 				try {
 					ASTNode node = this.ast.createInstance(nodeClass);
-					if (this.ast.apiLevel() == AST.JLS2) {
-						assertTrue((nodeType >= 1) && (nodeType <= 69));
-					} else if (this.ast.apiLevel() == AST.JLS3) {
-						assertTrue((nodeType >= 1) && (nodeType <= 83));
-					} else if (this.ast.apiLevel() == AST.JLS4) {
-						assertTrue((nodeType >= 1) && (nodeType <= 84));
-					}
+					assertTrue(nodeType <= maxNodeType);
 					assertTrue(node.getNodeType() == nodeType);
 					//ASTNode node2 = ast.createInstance(nodeType);
 					//assertTrue(node2.getNodeType() == nodeType);
 				} catch (RuntimeException e) {
-					if (this.ast.apiLevel() == AST.JLS2) {
-						assertTrue((nodeType < 1) || (nodeType > 69));
-					} else if (this.ast.apiLevel() == AST.JLS3) {
-						assertTrue((nodeType < 1) || (nodeType > 83));
-					} else if (this.ast.apiLevel() == AST.JLS4) {
-						assertTrue((nodeType < 1) || (nodeType > 84));
-					}
+					assertTrue((nodeType < 1) || (nodeType > maxNodeType));
 				}
 			}
 		}
