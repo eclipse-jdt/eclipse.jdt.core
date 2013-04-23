@@ -100,7 +100,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			codeStream.generateOuterAccess(path, this, capturedOuterLocal, currentScope);
 		}
 		signature.append(')');
-		signature.append(this.descriptor.declaringClass.signature());
+		signature.append(this.expectedType.signature());
 		codeStream.invokeDynamic(invokeDynamicNumber, this.outerLocalVariablesSlotSize, 1, TypeConstants.ANONYMOUS_METHOD, signature.toString().toCharArray());
 		codeStream.recordPositionsFrom(pc, this.sourceStart);		
 	}

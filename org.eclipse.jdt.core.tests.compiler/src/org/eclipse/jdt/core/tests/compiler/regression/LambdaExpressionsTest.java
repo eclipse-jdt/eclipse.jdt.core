@@ -368,7 +368,30 @@ public void test016() {
 				},
 				"SomeString");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406181, [1.8][compiler][codegen] IncompatibleClassChangeError when running code with lambda method
+public void test017() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  void foo(int x, int y);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"  public static void main(String[] args) {\n" +
+					"    BinaryOperator<String> binOp = (x,y) -> { return x+y; }; \n" +
+					"    System.out.println(binOp.apply(\"SUCC\", \"ESS\")); // when lambdas run\n" +
+					"  }\n" +
+					"}\n" +
+					"@FunctionalInterface\n" +
+					"interface BiFunction<T, U, R> { \n" +
+					"    R apply(T t, U u);\n" +
+					"}\n" +
+					"@FunctionalInterface \n" +
+					"interface BinaryOperator<T> extends BiFunction<T,T,T> { \n" +
+					"}\n",
+				},
+				"SUCCESS");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
