@@ -802,10 +802,18 @@ public class ClassFile implements TypeConstants, TypeIds {
 			completeMethodInfo(methodBinding, methodAttributeOffset, attributeNumber);
 		}
 		
-		LambdaExpression [] lambdas = this.referenceBinding.getLambdaMethods();
-		for (int i = 0, length = lambdas == null ? 0 : lambdas.length; i < length; i++) {
-			lambdas[i].generateCode(this.referenceBinding.scope, this);
-		}
+		boolean doneGeneratingLambdas = false;
+		int currentLambda = 0;
+		do {
+			LambdaExpression [] lambdas = this.referenceBinding.getLambdaMethods();  // refresh as a lambda code generation could schedule nested lambdas for code generation.
+			int lambdaCount = lambdas == null ? 0 : lambdas.length;
+			if (lambdaCount > currentLambda) {
+				lambdas[currentLambda++].generateCode(this.referenceBinding.scope, this);
+			} else {
+				doneGeneratingLambdas = true;
+			}
+		} while (!doneGeneratingLambdas);
+		
 		// add synthetic methods infos
 		SyntheticMethodBinding[] syntheticMethods = this.referenceBinding.syntheticMethods();
 		if (syntheticMethods != null) {
@@ -2476,7 +2484,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.contents[localContentsOffset++] = (byte) (methodHandleIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) methodHandleIndex;
 
-			char [] instantiatedSignature = functional.signature();
+			char [] instantiatedSignature = functional.descriptor.signature();
 			int methodTypeIndex = this.constantPool.literalIndexForMethodType(instantiatedSignature);
 			this.contents[localContentsOffset++] = (byte) (methodTypeIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) methodTypeIndex;

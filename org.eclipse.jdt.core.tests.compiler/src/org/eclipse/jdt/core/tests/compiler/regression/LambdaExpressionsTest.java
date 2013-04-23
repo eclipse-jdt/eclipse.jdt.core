@@ -272,6 +272,103 @@ public void test012() {
 			},
 			"Some Y");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
+public void test013() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"    void foo(String s);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    public static void main(String [] args) {\n" +
+				"        int in = 12345678;\n" +
+				"        I i = (s) -> {\n" +
+				"            I j = (s2) -> {\n" +
+				"                System.out.println(s + s2 + in);  \n" +
+				"            };\n" +
+				"            j.foo(\"Number=\");\n" +
+				"        };\n" +
+				"        i.foo(\"The \");\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"The Number=12345678");
+}
+public void test014() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" + 
+					"	void doit();\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  public static void nonmain(String[] args) {\n" + 
+					"    int var = 2;\n" + 
+					"    I x2 = () -> {\n" + 
+					"      System.out.println(\"Argc = \" + args.length);\n" + 
+					"      for (int i = 0; i < args.length; i++) {\n" +
+					"          System.out.println(\"Argv[\" + i + \"] = \" + args[i]);\n" +
+					"      }\n" +
+					"    };\n" +
+					"    x2.doit();\n" +
+					"    var=2;\n" + 
+					"  }\n" +
+					"  public static void main(String[] args) {\n" + 
+					"      nonmain(new String[] {\"Hello! \", \"World!\" });\n" +
+					"  }\n" +
+					"}" ,
+				},
+				"Argc = 2\n" + 
+				"Argv[0] = Hello! \n" + 
+				"Argv[1] = World!");
+}
+public void test015() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" + 
+					"	void doit();\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"    try {\n" + 
+					"      new java.io.File((String) null).getCanonicalPath();\n" + 
+					"    } catch (NullPointerException | java.io.IOException ioe) {\n" + 
+					"      I x2 = () -> {\n" + 
+					"        System.out.println(ioe.getMessage()); // OK: args is not re-assignment since declaration/first assignment\n" + 
+					"      };\n" +
+					"      x2.doit();\n" +
+					"    };\n"+
+					"  }\n" +
+					"}\n"
+				},
+				"null");
+}
+public void test016() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" + 
+					"	void doit();\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"    java.util.List<String> list = new java.util.ArrayList<>();\n" + 
+					"    list.add(\"SomeString\");\n" +
+					"    for (String s : list) {\n" + 
+					"      I x2 = () -> {\n" + 
+					"        System.out.println(s); // OK: args is not re-assignment since declaration/first assignment\n" + 
+					"      };\n" + 
+					"      x2.doit();\n" +
+					"    };\n" + 
+					"  }\n" + 
+					"\n" +
+					"}\n" ,
+				},
+				"SomeString");
+}
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

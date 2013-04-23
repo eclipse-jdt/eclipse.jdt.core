@@ -45,10 +45,12 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.SyntheticArgumentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
@@ -69,6 +71,9 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	private boolean returnsVoid;
 	private boolean throwsException;
 	private LambdaExpression original = this;
+	private SyntheticArgumentBinding[] outerLocalVariables = NO_SYNTHETIC_ARGUMENTS;
+	private int outerLocalVariablesSlotSize = 0;
+	private static final SyntheticArgumentBinding [] NO_SYNTHETIC_ARGUMENTS = new SyntheticArgumentBinding[0];
 	
 	public LambdaExpression(CompilationResult compilationResult, Argument [] arguments, Statement body) {
 		super(compilationResult);
@@ -86,7 +91,17 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		this.binding.selector = CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.ordinal).toCharArray());
 		int pc = codeStream.position;
 		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
-		codeStream.invokeDynamic(invokeDynamicNumber, 0, 1, TypeConstants.ANONYMOUS_METHOD, CharOperation.concat("()".toCharArray(), this.descriptor.declaringClass.signature())); //$NON-NLS-1$
+		StringBuffer signature = new StringBuffer();
+		signature.append('(');
+		for (int i = 0, length = this.outerLocalVariables == null ? 0 : this.outerLocalVariables.length; i < length; i++) {
+			signature.append(this.outerLocalVariables[i].type.signature());
+			LocalVariableBinding capturedOuterLocal = this.outerLocalVariables[i].actualOuterLocalVariable;
+			VariableBinding[] path = currentScope.getEmulationPath(capturedOuterLocal);
+			codeStream.generateOuterAccess(path, this, capturedOuterLocal, currentScope);
+		}
+		signature.append(')');
+		signature.append(this.descriptor.declaringClass.signature());
+		codeStream.invokeDynamic(invokeDynamicNumber, this.outerLocalVariablesSlotSize, 1, TypeConstants.ANONYMOUS_METHOD, signature.toString().toCharArray());
 		codeStream.recordPositionsFrom(pc, this.sourceStart);		
 	}
 
@@ -651,7 +666,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	}
 	
 	public void generateCode(ClassFile classFile) {
-
 		classFile.generateMethodInfoHeader(this.binding);
 		int methodAttributeOffset = classFile.contentsOffset;
 		int attributeNumber = classFile.generateMethodInfoAttributes(this.binding);
@@ -660,8 +674,15 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		CodeStream codeStream = classFile.codeStream;
 		codeStream.reset(this, classFile);
 		// initialize local positions
-		this.scope.computeLocalVariablePositions(this.binding.isStatic() ? 0 : 1, codeStream);
-
+		this.scope.computeLocalVariablePositions(this.outerLocalVariablesSlotSize + (this.binding.isStatic() ? 0 : 1), codeStream);
+		if (this.outerLocalVariables != null) {
+			for (int i = 0, max = this.outerLocalVariables.length; i < max; i++) {
+				LocalVariableBinding argBinding;
+				codeStream.addVisibleLocalVariable(argBinding = this.outerLocalVariables[i]);
+				codeStream.record(argBinding);
+				argBinding.recordInitializationStartPC(0);
+			}
+		}
 		// arguments initialization for local variable debug attributes
 		if (this.arguments != null) {
 			for (int i = 0, max = this.arguments.length; i < max; i++) {
@@ -699,6 +720,47 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	
 	public char[] signature() {
 		return this.binding.signature();
+	}
+
+	public void addSyntheticArgument(LocalVariableBinding actualOuterLocalVariable) {
+		
+		if (this.original != this || this.binding == null) 
+			return; // Do not bother tracking outer locals for clones created during overload resolution.
+		
+		SyntheticArgumentBinding syntheticLocal = null;
+		int newSlot = this.outerLocalVariables.length;
+		for (int i = 0; i < newSlot; i++) {
+			if (this.outerLocalVariables[i].actualOuterLocalVariable == actualOuterLocalVariable)
+				return;
+		}
+		System.arraycopy(this.outerLocalVariables, 0, this.outerLocalVariables = new SyntheticArgumentBinding[newSlot + 1], 0, newSlot);
+		this.outerLocalVariables[newSlot] = syntheticLocal = new SyntheticArgumentBinding(actualOuterLocalVariable);
+		syntheticLocal.resolvedPosition = this.outerLocalVariablesSlotSize + (this.binding.isStatic() ? 0 : 1);
+		syntheticLocal.declaringScope = this.scope;
+		int parameterCount = this.binding.parameters.length;
+		TypeBinding [] newParameters = new TypeBinding[parameterCount + 1];
+		newParameters[newSlot] = actualOuterLocalVariable.type;
+		for (int i = 0, j = 0; i < parameterCount; i++, j++) {
+			if (i == newSlot) j++;
+			newParameters[j] = this.binding.parameters[i];
+		}
+		this.binding.parameters = newParameters;
+		switch (syntheticLocal.type.id) {
+			case TypeIds.T_long :
+			case TypeIds.T_double :
+				this.outerLocalVariablesSlotSize  += 2;
+				break;
+			default :
+				this.outerLocalVariablesSlotSize++;
+				break;
+		}		
+	}
+
+	public SyntheticArgumentBinding getSyntheticArgument(LocalVariableBinding actualOuterLocalVariable) {
+		for (int i = 0, length = this.outerLocalVariables == null ? 0 : this.outerLocalVariables.length; i < length; i++)
+			if (this.outerLocalVariables[i].actualOuterLocalVariable == actualOuterLocalVariable)
+				return this.outerLocalVariables[i];
+		return null;
 	}
 }
 class IncongruentLambdaException extends RuntimeException {

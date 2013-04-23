@@ -270,6 +270,26 @@ public void emulateOuterAccess(LocalVariableBinding outerLocalVariable) {
 	BlockScope outerVariableScope = outerLocalVariable.declaringScope;
 	if (outerVariableScope == null)
 		return; // no need to further emulate as already inserted (val$this$0)
+	
+	int depth = 0;
+	Scope scope = this;
+	while (outerVariableScope != scope) {
+		switch(scope.kind) {
+			case CLASS_SCOPE:
+				depth++;
+				break;
+			case METHOD_SCOPE: 
+				if (scope.isLambdaScope()) {
+					LambdaExpression lambdaExpression = (LambdaExpression) scope.referenceContext();
+					lambdaExpression.addSyntheticArgument(outerLocalVariable);
+				}
+				break;
+		}
+		scope = scope.parent;
+	}
+	if (depth == 0) 
+		return;
+	
 	MethodScope currentMethodScope = methodScope();
 	if (outerVariableScope.methodScope() != currentMethodScope) {
 		NestedTypeBinding currentType = (NestedTypeBinding) enclosingSourceType();
@@ -702,6 +722,13 @@ public VariableBinding[] getEmulationPath(LocalVariableBinding outerLocalVariabl
 	if (variableScope == null /*val$this$0*/ || currentMethodScope == variableScope.methodScope()) {
 		return new VariableBinding[] { outerLocalVariable };
 		// implicit this is good enough
+	}
+	if (currentMethodScope.isLambdaScope()) {
+		LambdaExpression lambda = (LambdaExpression) currentMethodScope.referenceContext;
+		SyntheticArgumentBinding syntheticArgument;
+		if ((syntheticArgument = lambda.getSyntheticArgument(outerLocalVariable)) != null) {
+			return new VariableBinding[] { syntheticArgument };
+		}
 	}
 	// use synthetic constructor arguments if possible
 	if (currentMethodScope.isInsideInitializerOrConstructor()

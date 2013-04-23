@@ -1815,12 +1815,7 @@ public void test049() {
 					"  }\n" + 
 					"}" ,
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 8)\n" + 
-				"	System.out.println(args); // OK: args is not re-assignment since declaration/first assignment\n" + 
-				"	                   ^^^^\n" + 
-				"Missing code implementation in the compiler\n" +  // expected since emulation path computation is not in place.
-				"----------\n");
+				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
 public void test050() {
@@ -1843,12 +1838,7 @@ public void test050() {
 					"  }\n" +
 					"}\n"
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 10)\n" + 
-				"	System.out.println(ioe.getMessage()); // OK: args is not re-assignment since declaration/first assignment\n" + 
-				"	                   ^^^\n" + 
-				"Missing code implementation in the compiler\n" + // expected since emulation path computation is not in place.
-				"----------\n");
+				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
 public void test051() {
@@ -1871,12 +1861,7 @@ public void test051() {
 					"\n" +
 					"}\n" ,
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 9)\n" + 
-				"	System.out.println(s); // OK: args is not re-assignment since declaration/first assignment\n" + 
-				"	                   ^\n" + 
-				"Missing code implementation in the compiler\n" + // expected since emulation path computation is not in place.
-				"----------\n");
+				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
 public void test052() {
@@ -1928,12 +1913,7 @@ public void test053() {
 					"  }\n" +
 					"}\n" ,
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 10)\n" + 
-				"	System.out.println(e);\n" + 
-				"	                   ^\n" + 
-				"Missing code implementation in the compiler\n" + 
-				"----------\n");
+				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
 public void test054() {
@@ -2105,12 +2085,7 @@ public void test060() {
 					"	}\n" +
 					"}\n",
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 8)\n" + 
-				"	System.out.println(is);\n" + 
-				"	                   ^^\n" + 
-				"Missing code implementation in the compiler\n" + // expected. 
-				"----------\n");
+				"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
 public void test061() {
