@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for 
@@ -11526,5 +11530,37 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		} finally {
 			deleteProject(jp);
 		}
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=404489
+	public void testBug404489() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter18" , "src", "test404489.bug", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(this.ast.apiLevel(), sourceUnit, true);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		TypeDeclaration typeDeclaration =  (TypeDeclaration) compilationUnit.types().get(0);
+
+		node = (ASTNode) typeDeclaration.bodyDeclarations().get(2);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());		
+		MethodDeclaration methodDecl = (MethodDeclaration) node;
+		Type type = methodDecl.getReturnType2();
+		assertTrue(type.isQualifiedType());
+		assertTrue(isMalformed(type));
+
+		// parameter
+		SingleVariableDeclaration param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
+		type = param.getType();
+		assertTrue(type.isQualifiedType());
+		assertTrue(isMalformed(type));
+		
+		node = (ASTNode) typeDeclaration.bodyDeclarations().get(3);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());		
+		FieldDeclaration field = (FieldDeclaration) node;
+		type = field.getType();
+		assertTrue(type.isQualifiedType());
+		assertTrue(type.isQualifiedType());
+		assertTrue(isMalformed(type));
 	}
 }

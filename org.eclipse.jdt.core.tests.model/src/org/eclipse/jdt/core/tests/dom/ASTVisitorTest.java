@@ -383,6 +383,13 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			ASTVisitorTest.this.b.append(node.getPrimitiveTypeCode().toString());
 			ASTVisitorTest.this.b.append("tP)"); //$NON-NLS-1$
 		}
+		public boolean visit(PackageQualifiedType node) {
+			ASTVisitorTest.this.b.append("(tPQ"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(PackageQualifiedType node) {
+			ASTVisitorTest.this.b.append("tPQ)"); //$NON-NLS-1$
+		}
 		public boolean visit(ParameterizedType node) {
 			ASTVisitorTest.this.b.append("(tM"); //$NON-NLS-1$
 			return isVisitingChildren();
@@ -1119,6 +1126,20 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.accept(v1);
 		String result = this.b.toString();
 		assertTrue("[(tA[(tPcharchartP)]tA)]".equals(result)); //$NON-NLS-1$
+	}
+
+	/** @deprecated using deprecated code */
+	public void testPackageQualifiedType() {
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		QualifiedName q = this.ast.newQualifiedName(this.N2, this.N3);
+		PackageQualifiedType x1 = this.ast.newPackageQualifiedType(q, this.N1);
+		TestVisitor v1 = new TestVisitor();
+		this.b.setLength(0);
+		x1.accept(v1);
+		String result = this.b.toString();
+		assertTrue(result.equals("[(tPQ"+"[(nQ"+this.N2S+this.N3S+"nQ)]"+this.N1S+"tPQ)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/** @deprecated using deprecated code */

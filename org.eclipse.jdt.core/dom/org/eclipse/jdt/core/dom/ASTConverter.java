@@ -17,6 +17,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -57,6 +58,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
@@ -3296,9 +3299,6 @@ class ASTConverter {
 					org.eclipse.jdt.internal.compiler.ast.Annotation typeAnnotation = annotations[i];
 					if (typeAnnotation != null) {
 						Annotation annotation = convert(typeAnnotation);
-						int start = typeAnnotation.sourceStart;
-						int end = typeAnnotation.sourceEnd;
-						annotation.setSourceRange(start, end - start + 1);
 						type.annotations().add(annotation);
 					}
 				}
@@ -3329,9 +3329,6 @@ class ASTConverter {
 					org.eclipse.jdt.internal.compiler.ast.Annotation typeAnnotation = annotations[i];
 					if (typeAnnotation != null) {
 						Annotation annotation = convert(typeAnnotation);
-						int start = typeAnnotation.sourceStart;
-						int end = typeAnnotation.sourceEnd;
-						annotation.setSourceRange(start, end - start + 1);
 						typeParameter.annotations().add(annotation);
 					}
 				}
@@ -3546,13 +3543,7 @@ class ASTConverter {
 						simpleType.setName(name);
 						int start = (int)(positions[0] >>> 32);
 						int end = (int)positions[firstTypeIndex];
-						simpleType.setSourceRange(start, end - start + 1);
-						if (typeAnnotations != null && (annotations = typeAnnotations[firstTypeIndex]) != null) {
-							annotateType(simpleType, annotations);
-						}
-						if (this.resolveBindings) {
-							recordNodes(simpleType, typeReference);
-						}
+						setSourceRangeAnnotationsAndRecordNodes(typeReference, simpleType, positions, typeAnnotations, firstTypeIndex, 0, firstTypeIndex);
 						Type currentType = simpleType;						
 						int indexOfEnclosingType = 1;
 						if (typeArguments != null && (arguments = typeArguments[firstTypeIndex]) != null) {
@@ -3628,7 +3619,7 @@ class ASTConverter {
 				org.eclipse.jdt.internal.compiler.ast.Annotation [][] typeAnnotations = typeReference.annotations;
 				char [][] tokens = qualifiedTypeReference.tokens;
 				int lenth = tokens.length;
-				int firstTypeIndex = lenth - 1;
+				int firstTypeIndex = lenth;
 				
 				if (typeAnnotations != null) {
 					for (int i = 0; i < lenth; ++i) {
@@ -3640,57 +3631,44 @@ class ASTConverter {
 				}  
 				sourceStart = (int)(positions[0]>>>32);
 				Name name = null;
-				if (firstTypeIndex == 0) {
-					final SimpleName simpleName = new SimpleName(this.ast);
-					simpleName.internalSetIdentifier(new String(tokens[0]));
-					recordPendingNameScopeResolution(simpleName);
-					int start = (int) (positions[0] >>> 32);
-					int end = (int) positions[0];
-					simpleName.setSourceRange(start, end);
-					simpleName.index = 1;
-					name = simpleName;
-					if (this.resolveBindings) {
-						recordNodes(simpleName, typeReference);
-					}					
+				Type currentType = null;
+				if (firstTypeIndex == lenth) {//Just a QualifiedName
+					name = setQualifiedNameNameAndSourceRanges(tokens, positions, lenth - 1, typeReference);
+					currentType = createSimpleType(name, typeReference, positions, 0, lenth - 1);
 				} else {
-					name = setQualifiedNameNameAndSourceRanges(tokens, positions, firstTypeIndex, typeReference);
-				}
-				SimpleType simpleType = new SimpleType(this.ast);
-				simpleType.setName(name);
-				int start = (int)(positions[0] >>> 32);
-				int end = (int)positions[firstTypeIndex];
-				simpleType.setSourceRange(start, end - start + 1);
-				if (typeAnnotations != null && (annotations = typeAnnotations[firstTypeIndex]) != null) {
-					annotateType(simpleType, annotations);
-				}
-				if (this.resolveBindings) {
-					recordNodes(simpleType, typeReference);
-				}
-				Type currentType = simpleType;
-				
-				for (int i = firstTypeIndex + 1; i < lenth; ++i) {
-					SimpleName simpleName = new SimpleName(this.ast);
-					simpleName.internalSetIdentifier(new String(tokens[i]));
-					simpleName.index = i + 1;
-					start = (int) (positions[i] >>> 32);
-					end = (int) positions[i];
-					simpleName.setSourceRange(start, end - start +1);
-					recordPendingNameScopeResolution(simpleName);
-					QualifiedType qualifiedType = new QualifiedType(this.ast);
-					qualifiedType.setQualifier(currentType);
-					qualifiedType.setName(simpleName);
-					if (typeAnnotations != null && (annotations = typeAnnotations[i]) != null) {
-						annotateType(qualifiedType, annotations);
+					if (firstTypeIndex <= 1) {
+						name = createSimpleName(typeReference, positions, tokens, 0 );
+						firstTypeIndex = 1;
+					} else {
+						name = setQualifiedNameNameAndSourceRanges(tokens, positions, firstTypeIndex - 1, typeReference);
+					}						
+
+					org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding = typeReference.resolvedType;
+					boolean createPackageQualifiedType = false;
+					if (typeBinding instanceof ReferenceBinding) {
+						ReferenceBinding referenceBinding = (ReferenceBinding)typeBinding;			
+						PackageBinding packageBinding = referenceBinding.getPackage();
+						if (packageBinding != null && Arrays.equals(name.toString().toCharArray(), packageBinding.readableName())) {
+							createPackageQualifiedType = true;
+						}
 					}
-					if (this.resolveBindings) {
-						recordNodes(simpleName, typeReference);
-						recordNodes(qualifiedType, typeReference);
+					
+					if (createPackageQualifiedType && this.ast.apiLevel >= AST.JLS8) {
+						PackageQualifiedType packageQualifiedType = new PackageQualifiedType(this.ast);
+						packageQualifiedType.setQualifier(name);
+						packageQualifiedType.setName(createSimpleName(typeReference, positions, tokens, firstTypeIndex));
+						setSourceRangeAnnotationsAndRecordNodes(typeReference, packageQualifiedType, positions, typeAnnotations, firstTypeIndex, 0, firstTypeIndex);
+						currentType = packageQualifiedType;																	
+					} else {
+						SimpleType simpleType = this.ast.newSimpleType(name);	
+						setSourceRangeAnnotationsAndRecordNodes(typeReference, simpleType, positions, typeAnnotations, 0, 0, name.index > 0 ? name.index - 1 : 0);
+						currentType = createQualifiedType(typeReference, positions,  typeAnnotations, tokens, firstTypeIndex, simpleType);
+						if (createPackageQualifiedType) 
+							currentType.setFlags(currentType.getFlags() | ASTNode.MALFORMED);
 					}
-					start = currentType.getStartPosition();
-					end = simpleName.getStartPosition() + simpleName.getLength() - 1;
-					qualifiedType.setSourceRange(start, end - start + 1);
-					currentType = qualifiedType;
-					qualifiedType.index  = 1;
+					for (int i = firstTypeIndex + 1; i < lenth; ++i) {
+						currentType = createQualifiedType(typeReference, positions,  typeAnnotations, tokens, i, currentType);
+					}					
 				}
 				type = currentType;
 			} else if (typeReference instanceof UnionTypeReference){
@@ -3806,6 +3784,71 @@ class ASTConverter {
 			}
 		}
 		return type;
+	}
+
+	private QualifiedType createQualifiedType(TypeReference typeReference, long[] positions,
+			org.eclipse.jdt.internal.compiler.ast.Annotation[][] typeAnnotations, char[][] tokens, int index,
+			Type qualifier) {
+		SimpleName simpleName = createSimpleName(typeReference, positions, tokens, index);
+		QualifiedType qualifiedType = new QualifiedType(this.ast);
+		qualifiedType.setQualifier(qualifier);
+		qualifiedType.setName(simpleName);
+		int start = qualifier.getStartPosition();
+		int end = simpleName.getStartPosition() + simpleName.getLength() - 1;
+		setSourceRangeAnnotationsAndRecordNodes(typeReference, qualifiedType, typeAnnotations, index, start, end);
+		return qualifiedType;
+	}
+
+	private SimpleType createSimpleType(Name name, TypeReference typeReference, long[] positions,
+			int startIndex, int endIndex) {
+		SimpleType simpleType = new SimpleType(this.ast);
+		simpleType.setName(name);
+		int start = (int)(positions[startIndex] >>> 32);
+		int end = (int)positions[endIndex];
+		simpleType.setSourceRange(start, end - start + 1);
+		if (this.resolveBindings) {
+			recordNodes(simpleType, typeReference);
+		}
+		return simpleType;
+	}
+
+	private void setSourceRangeAnnotationsAndRecordNodes(TypeReference typeReference, AnnotatableType annotatableType,
+			org.eclipse.jdt.internal.compiler.ast.Annotation[][] typeAnnotations, int index, int start, int end) {
+		org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations;
+		int annotationsStart = start;
+		int length = end - start + 1;
+		if (typeAnnotations != null && (annotations = typeAnnotations[index]) != null) {
+			annotateType(annotatableType, annotations);
+			if (annotations[0] != null && (annotationsStart = annotations[0].sourceStart) < start) {
+				length += annotationsStart > 0 ? start - annotationsStart : 0;
+				start = annotationsStart;
+			}
+		}
+		annotatableType.setSourceRange(start, length);
+		if (this.resolveBindings) {
+			recordNodes(annotatableType, typeReference);
+		}
+	}
+
+	private void setSourceRangeAnnotationsAndRecordNodes(TypeReference typeReference, AnnotatableType annotatableType, 
+			long[] positions, org.eclipse.jdt.internal.compiler.ast.Annotation[][] typeAnnotations, int index, int startIndex, int endIndex) {
+		int start = (int) (positions[startIndex] >>> 32);
+		int end = (int) positions[endIndex];
+		setSourceRangeAnnotationsAndRecordNodes(typeReference, annotatableType, typeAnnotations, index, start, end);
+	}
+
+	private SimpleName createSimpleName(TypeReference typeReference, long[] positions, char[][] tokens, int index) {
+		final SimpleName simpleName = new SimpleName(this.ast);
+		simpleName.internalSetIdentifier(new String(tokens[index]));
+		recordPendingNameScopeResolution(simpleName);
+		int start = (int) (positions[index] >>> 32);
+		int end = (int) positions[index];
+		simpleName.setSourceRange(start, end - start + 1);
+		simpleName.index = index + 1;
+		if (this.resolveBindings) {
+			recordNodes(simpleName, typeReference);
+		}
+		return simpleName;
 	}
 
 	protected Comment createComment(int[] positions) {

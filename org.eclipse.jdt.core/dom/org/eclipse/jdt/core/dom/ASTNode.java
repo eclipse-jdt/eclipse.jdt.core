@@ -860,6 +860,14 @@ public abstract class ASTNode {
 	public static final int INTERSECTION_TYPE = 87;
 
 	/**
+	 * Node type constant indicating a node of type
+	 * <code>QualifiedType</code>.
+	 * @see QualifiedType
+	 * @since 3.9 BETA_JAV8
+	 */
+	public static final int PACKAGE_QUALIFIED_TYPE = 88;
+
+	/**
 	 * Returns the node class for the corresponding node type.
 	 *
 	 * @param nodeType AST node type
@@ -979,6 +987,8 @@ public abstract class ASTNode {
 				return NumberLiteral.class;
 			case PACKAGE_DECLARATION :
 				return PackageDeclaration.class;
+			case PACKAGE_QUALIFIED_TYPE :
+				return PackageQualifiedType.class;
 			case PARAMETERIZED_TYPE :
 				return ParameterizedType.class;
 			case PARENTHESIZED_EXPRESSION :

@@ -8784,6 +8784,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ASTNode.EXTRA_DIMENSION,
 			ASTNode.LAMBDA_EXPRESSION,
 			ASTNode.INTERSECTION_TYPE,
+			ASTNode.PACKAGE_QUALIFIED_TYPE,
 		};
 		
 		// assert that nodeType values are correct:

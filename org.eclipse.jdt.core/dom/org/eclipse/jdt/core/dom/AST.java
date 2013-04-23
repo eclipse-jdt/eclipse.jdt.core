@@ -1971,6 +1971,29 @@ public final class AST {
 	}
 
 	/**
+	 * Creates and returns a new unparented package qualified type node with
+	 * the given qualifier and name.
+	 *
+	 * @param qualifier the package qualifier type node
+	 * @param name the simple name being qualified
+	 * @return a new unparented qualified type node
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a JLS2, JLS3 and JLS4 AST
+	 * @since 3.9 BETA_JAVA8
+	 */
+	public PackageQualifiedType newPackageQualifiedType(Name qualifier, SimpleName name) {
+		PackageQualifiedType result = new PackageQualifiedType(this);
+		result.setQualifier(qualifier);
+		result.setName(name);
+		return result;
+	}
+
+	/**
 	 * Creates and returns a new unparented parameterized type node with the
 	 * given type and an empty list of type arguments.
 	 *

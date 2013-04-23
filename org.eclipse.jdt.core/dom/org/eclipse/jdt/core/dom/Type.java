@@ -33,6 +33,7 @@ package org.eclipse.jdt.core.dom;
  *       ArrayType
  *       SimpleType
  *       QualifiedType
+ *       PackageQualifiedType
  *       WildcardType
  *    ParameterizedType
  *    UnionType
@@ -54,6 +55,8 @@ package org.eclipse.jdt.core.dom;
  *    { Annotation } TypeName
  * {@link QualifiedType}:
  *    Type <b>.</b> {Annotation} SimpleName
+ * {@link PackageQualifiedType}:
+ *    Name <b>.</b> { Annotation } SimpleName
  * {@link WildcardType}:
  *    { Annotation } <b>?</b> [ ( <b>extends</b> | <b>super</b>) Type ]
  * {@link ParameterizedType}:
@@ -112,6 +115,18 @@ public abstract class Type extends ASTNode {
 	 */
 	public final boolean isArrayType() {
 		return (this instanceof ArrayType);
+	}
+
+	/**
+	 * Returns whether this type is a package qualified type
+	 * ({@link PackageQualifiedType}).
+	 *
+	 * @return <code>true</code> if this is a package qualified type, and
+	 *    <code>false</code> otherwise
+	 * @since 3.9 BETA_JAVA8
+	 */
+	public final boolean isPackageQualifiedType() {
+		return (this instanceof PackageQualifiedType);
 	}
 
 	/**
