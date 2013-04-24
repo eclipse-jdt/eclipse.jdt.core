@@ -33,6 +33,7 @@
  *							bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *							bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *							bug 384380 - False positive on a « Potential null pointer access » after a continue
+ *							bug 406384 - Internal error with I20130413
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1262,6 +1263,30 @@ public void test0037_autounboxing_5() {
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
+
+// Bug 406384 - Internal error with I20130413 
+public void test0037_autounboxing_6() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	void test(List<String> l1, List<String> l2, int i, Object val) {\n" +
+			"		for (String s1 : l1) {\n" +
+			"			for (String s2 : l2) {\n" +
+			"				switch (i) {\n" +
+			"				case 1: \n" +
+			"					boolean booleanValue = (Boolean)val;\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		});
+}
+
 // null analysis -- autoboxing
 public void test0040_autoboxing_compound_assignment() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
