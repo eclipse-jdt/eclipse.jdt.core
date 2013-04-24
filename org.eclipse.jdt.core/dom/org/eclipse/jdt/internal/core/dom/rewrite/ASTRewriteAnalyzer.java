@@ -2752,7 +2752,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return false;
 	}
 
-	public void ensureSpaceAfterReplace(ASTNode node, ChildPropertyDescriptor desc) {
+	private void ensureSpaceAfterReplace(ASTNode node, ChildPropertyDescriptor desc) {
 		if (getChangeKind(node, desc) == RewriteEvent.REPLACED) {
 			int leftOperandEnd= getExtendedEnd((ASTNode) getOriginalValue(node, desc));
 			try {
@@ -2767,7 +2767,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 	}
 	
-	public void ensureSpaceBeforeReplace(ASTNode node) {
+	private void ensureSpaceBeforeReplace(ASTNode node) {
 		if (this.beforeRequiredSpaceIndex  == -1) return;
 		
 		List events = this.eventStore.getChangedPropertieEvents(node);
@@ -2788,6 +2788,22 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(IntersectionType)
+	 */
+	public boolean visit(IntersectionType node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		int pos= node.getStartPosition();
+		if (isChanged(node, IntersectionType.TYPES_PROPERTY)) {
+			pos= rewriteNodeList(node, IntersectionType.TYPES_PROPERTY, pos, Util.EMPTY_STRING, " & "); //$NON-NLS-1$
+		} else {
+			pos= doVisit(node, IntersectionType.TYPES_PROPERTY, pos);
+		}
+		return false;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(Javadoc)
 	 */
