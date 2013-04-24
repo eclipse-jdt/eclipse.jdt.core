@@ -565,6 +565,26 @@ public SyntheticMethodBinding addSyntheticMethod(MethodBinding targetMethod, boo
 	}
 	return accessMethod;
 }
+/* Add a new synthetic method for array constructor reference expressions of the form X[]::new */
+public SyntheticMethodBinding addSyntheticArrayConstructor(ArrayBinding arrayType) {
+	if (this.synthetics == null)
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
+	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+
+	SyntheticMethodBinding constructor = null;
+	SyntheticMethodBinding[] constructors = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(arrayType);
+	
+	if (constructors == null) {
+		int ordinal = addLambdaMethod(null); // amorphous completely synthetic lambda - added just to avoid name clash.
+		constructor = new SyntheticMethodBinding(arrayType, CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(ordinal).toCharArray()), this);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL].put(arrayType, constructors = new SyntheticMethodBinding[1]);
+		constructors[0] = constructor;
+	} else {
+		constructor = constructors[0];
+	}
+	return constructor;
+}
 /*
  * Record the fact that bridge methods need to be generated to override certain inherited methods
  */

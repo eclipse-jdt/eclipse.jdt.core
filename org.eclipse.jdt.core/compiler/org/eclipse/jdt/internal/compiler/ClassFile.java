@@ -808,7 +808,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 			LambdaExpression [] lambdas = this.referenceBinding.getLambdaMethods();  // refresh as a lambda code generation could schedule nested lambdas for code generation.
 			int lambdaCount = lambdas == null ? 0 : lambdas.length;
 			if (lambdaCount > currentLambda) {
-				lambdas[currentLambda++].generateCode(this.referenceBinding.scope, this);
+				LambdaExpression lambda = lambdas[currentLambda++];
+				if (lambda != null) // null ==> completely amorphous synthetic lambdas for array construction and such.
+					lambda.generateCode(this.referenceBinding.scope, this);
 			} else {
 				doneGeneratingLambdas = true;
 			}
@@ -856,11 +858,38 @@ public class ClassFile implements TypeConstants, TypeIds {
 						break;
 					case SyntheticMethodBinding.TooManyEnumsConstants :
 						addSyntheticEnumInitializationMethod(syntheticMethod);
+						break;
+					case SyntheticMethodBinding.ArrayConstructor:
+						addSyntheticArrayConstructor(syntheticMethod);
+						break;
 				}
 			}
 		}
 	}
 
+	public void addSyntheticArrayConstructor(SyntheticMethodBinding methodBinding) {
+		generateMethodInfoHeader(methodBinding);
+		int methodAttributeOffset = this.contentsOffset;
+		// this will add exception attribute, synthetic attribute, deprecated attribute,...
+		int attributeNumber = generateMethodInfoAttributes(methodBinding);
+		// Code attribute
+		int codeAttributeOffset = this.contentsOffset;
+		attributeNumber++; // add code attribute
+		generateCodeAttributeHeader();
+		this.codeStream.init(this);
+		this.codeStream.generateSyntheticBodyForArrayConstructor(methodBinding);
+		completeCodeAttributeForSyntheticMethod(
+			methodBinding,
+			codeAttributeOffset,
+			((SourceTypeBinding) methodBinding.declaringClass)
+				.scope
+				.referenceCompilationUnit()
+				.compilationResult
+				.getLineSeparatorPositions());
+		// update the number of attributes
+		this.contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
+		this.contents[methodAttributeOffset] = (byte) attributeNumber;
+	}
 	/**
 	 * INTERNAL USE-ONLY
 	 * Generate the bytes for a synthetic method that provides an access to a private constructor.

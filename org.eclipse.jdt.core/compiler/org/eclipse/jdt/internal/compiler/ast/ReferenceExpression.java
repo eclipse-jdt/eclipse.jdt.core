@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
@@ -40,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
@@ -69,6 +71,10 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	}
  
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+		if (isConstructorReference() && this.receiverType.isArrayType()) {
+			SourceTypeBinding sourceType = currentScope.enclosingSourceType();
+			this.binding = sourceType.addSyntheticArrayConstructor((ArrayBinding) this.receiverType);
+		}
 		int pc = codeStream.position;
 		if (this.haveReceiver) {
 			this.lhs.generateCode(currentScope, codeStream, true);
@@ -165,7 +171,8 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		*/
 		
 		// handle the special case of array construction first.
-        final int parametersLength = descriptorParameters.length;
+        this.receiverType = lhsType;
+		final int parametersLength = descriptorParameters.length;
         if (isConstructorReference() && lhsType.isArrayType()) {
         	final TypeBinding leafComponentType = lhsType.leafComponentType();
 			if (leafComponentType.isParameterizedType()) {
@@ -180,10 +187,8 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         		scope.problemReporter().constructedArrayIncompatible(this, lhsType, this.descriptor.returnType);
         		return this.resolvedType = null;
         	}
-        	return this.resolvedType; // No binding construction possible. Code generator will have to conjure up a rabbit.
+        	return this.resolvedType; // No binding construction possible right now. Code generator will have to conjure up a rabbit.
         }
-		
-        this.receiverType = lhsType;
 		
 		this.haveReceiver = true;
 		if (this.lhs instanceof NameReference) {

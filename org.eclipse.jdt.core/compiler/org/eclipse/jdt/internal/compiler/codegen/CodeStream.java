@@ -2433,7 +2433,12 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding acc
 	invoke(Opcodes.OPC_invokespecial, constructorBinding, null /* default declaringClass */);
 	return_();
 }
-
+public void generateSyntheticBodyForArrayConstructor(SyntheticMethodBinding methodBinding) {
+	initializeMaxLocals(methodBinding);
+	iload_0();
+	anewarray(((ArrayBinding) methodBinding.returnType).elementsType());
+	areturn();
+}
 //static X valueOf(String name) {
 // return (X) Enum.valueOf(X.class, name);
 //}

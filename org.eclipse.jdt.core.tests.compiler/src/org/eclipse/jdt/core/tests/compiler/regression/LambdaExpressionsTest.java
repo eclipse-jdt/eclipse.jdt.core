@@ -392,6 +392,94 @@ public void test017() {
 				},
 				"SUCCESS");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=405071, [1.8][compiler][codegen] Generate code for array constructor references
+public void test018() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	X [][][] copy (short x);\n" +
+					"}\n" +
+					"public class X  {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		I i = X[][][]::new;\n" +
+					"       I j = X[][][]::new;\n" +
+					"		X[][][] x = i.copy((short) 631);\n" +
+					"		System.out.println(x.length);\n" +
+					"       x = j.copy((short) 136);\n" +
+					"		System.out.println(x.length);\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"631\n" + 
+				"136");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=405071, [1.8][compiler][codegen] Generate code for array constructor references
+public void test019() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	X [][][] copy (int x);\n" +
+					"}\n" +
+					"public class X  {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		I i = X[][][]::new;\n" +
+					"       I j = X[][][]::new;\n" +
+					"		X[][][] x = i.copy(631);\n" +
+					"		System.out.println(x.length);\n" +
+					"       x = j.copy(136);\n" +
+					"		System.out.println(x.length);\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"631\n" + 
+				"136");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=405071, [1.8][compiler][codegen] Generate code for array constructor references
+public void test020() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	X [][][] copy (Integer x);\n" +
+					"}\n" +
+					"public class X  {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		I i = X[][][]::new;\n" +
+					"       I j = X[][][]::new;\n" +
+					"		X[][][] x = i.copy(631);\n" +
+					"		System.out.println(x.length);\n" +
+					"       x = j.copy(136);\n" +
+					"		System.out.println(x.length);\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"631\n" + 
+				"136");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=405071, [1.8][compiler][codegen] Generate code for array constructor references
+public void test021() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	X [][][] copy (Integer x);\n" +
+					"}\n" +
+					"public class X  {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		I i = X[][][]::new;\n" +
+					"       I j = X[][][]::new;\n" +
+					"		X[][][] x = i.copy(new Integer(631));\n" +
+					"		System.out.println(x.length);\n" +
+					"       x = j.copy(new Integer((short)136));\n" +
+					"		System.out.println(x.length);\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"631\n" + 
+				"136");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
