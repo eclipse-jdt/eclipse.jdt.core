@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,7 +48,7 @@ public TestAll(String testName) {
 	super(testName);
 }
 
-public static Test suite() {
+public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 	ArrayList testClasses = new ArrayList();
 
 	/* completion tests */
@@ -74,7 +74,8 @@ public static Test suite() {
 	testClasses.add(SyntaxErrorTest.class);
 	testClasses.add(DualParseSyntaxErrorTest.class);
 	testClasses.add(ParserTest.class);
-	testClasses.add(ComplianceDiagnoseTest.class);
+	if (addComplianceDiagnoseTest)
+		testClasses.add(ComplianceDiagnoseTest.class);
 
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
@@ -149,5 +150,8 @@ public static Test suite() {
 	}
 
 	return all;
+}
+public static Test suite() {
+	return getTestSuite(true);
 }
 }

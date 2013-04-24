@@ -18,27 +18,12 @@ package org.eclipse.jdt.core.tests;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.tests.compiler.parser.ComplianceDiagnoseTest;
-import org.eclipse.jdt.core.tests.compiler.parser.LambdaExpressionSyntaxTest;
-import org.eclipse.jdt.core.tests.compiler.parser.ReferenceExpressionSyntaxTest;
-import org.eclipse.jdt.core.tests.compiler.parser.TypeAnnotationSyntaxTest;
-import org.eclipse.jdt.core.tests.compiler.regression.ExpressionContextTests;
-import org.eclipse.jdt.core.tests.compiler.regression.CompilerInvocationTests;
-import org.eclipse.jdt.core.tests.compiler.regression.FlowAnalysisTest8;
-import org.eclipse.jdt.core.tests.compiler.regression.GrammarCoverageTests308;
-import org.eclipse.jdt.core.tests.compiler.regression.InterfaceMethodsTest;
-import org.eclipse.jdt.core.tests.compiler.regression.Jsr335ClassFileTest;
-import org.eclipse.jdt.core.tests.compiler.regression.LambdaExpressionsTest;
-import org.eclipse.jdt.core.tests.compiler.regression.NegativeLambdaExpressionsTest;
-import org.eclipse.jdt.core.tests.compiler.regression.NegativeTypeAnnotationTest;
-import org.eclipse.jdt.core.tests.compiler.regression.NullTypeAnnotationTest;
 import org.eclipse.jdt.core.tests.dom.ASTConverter15JLS8Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverter18Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverterAST8Test;
@@ -50,6 +35,7 @@ import org.eclipse.jdt.core.tests.formatter.FormatterJSR308Tests;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR335Tests;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs8Tests;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 public class RunAllJava8Tests extends TestCase {
 	
@@ -58,20 +44,7 @@ public class RunAllJava8Tests extends TestCase {
 	}
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
-			LambdaExpressionSyntaxTest.class,
-			NegativeLambdaExpressionsTest.class,
-			LambdaExpressionsTest.class,
-			Jsr335ClassFileTest.class,
-			NegativeTypeAnnotationTest.class,
-			TypeAnnotationSyntaxTest.class,
-			ReferenceExpressionSyntaxTest.class,
-			InterfaceMethodsTest.class,
 			ComplianceDiagnoseTest.class,
-			GrammarCoverageTests308.class,
-			NullTypeAnnotationTest.class,
-			CompilerInvocationTests.class,
-			ExpressionContextTests.class,
-			FlowAnalysisTest8.class,
 			FormatterJSR335Tests.class,
 			FormatterJSR308Tests.class,
 			JavaSearchBugs8Tests.class,
@@ -89,14 +62,26 @@ public class RunAllJava8Tests extends TestCase {
 				ASTRewritingTest.class,
 		};
 	}
+
+	public static Class[] getCompilerClasses() {
+		return new Class[] {
+			org.eclipse.jdt.core.tests.eval.TestAll.class,
+			org.eclipse.jdt.core.tests.compiler.regression.TestAll.class,
+		};
+	}
+
 	public static Test suite() {
 		TestSuite ts = new TestSuite(RunAllJava8Tests.class.getName());
 
 		Class[] testClasses = getAllTestClasses();
 		addTestsToSuite(ts, testClasses);
 		testClasses = getConverterTestClasses();
-		ConverterTestSetup.TEST_SUITES = new ArrayList(Arrays.asList(testClasses));
 		addTestsToSuite(ts, testClasses);
+
+		AbstractCompilerTest.setpossibleComplianceLevels(AbstractCompilerTest.F_1_8);
+		addTestsToSuite(ts, getCompilerClasses());
+		// ComplianceDiagnoseTest is already added to the test suite through getTestSuite
+		ts.addTest(org.eclipse.jdt.core.tests.compiler.parser.TestAll.getTestSuite(false));
 		return ts;
 	}
 	public static void addTestsToSuite(TestSuite suite, Class[] testClasses) {
