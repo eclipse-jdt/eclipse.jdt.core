@@ -17,6 +17,7 @@
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 376263 - Bogus "Potential null pointer access" warning
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
+ *								bug 406384 - Internal error with I20130413
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -279,7 +280,7 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 					break;
 				case IN_UNBOXING:
 					checkUnboxing(scope, (Expression) location, flowInfo);
-					break;
+					continue; // delegation to parent already handled in the above.
 				default:
 					// never happens
 			}
