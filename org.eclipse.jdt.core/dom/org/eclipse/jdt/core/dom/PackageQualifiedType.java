@@ -25,7 +25,16 @@ import java.util.List;
  * PackageQualifiedType:
  *    Name <b>.</b> { Annotation } SimpleName
  * </pre>
+ * 
+ * <p>
+ * Note that if no annotation is present, then a package-qualified type can
+ * also be represented by a SimpleType or a QualifiedType, see the discussion
+ * in {@link QualifiedType}.
+ * </p>
  *
+ * @see SimpleType
+ * @see QualifiedType
+ * 
  * @since 3.9 BETA_JAVA8
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
