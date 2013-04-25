@@ -1986,7 +1986,6 @@ private void classHeaderExtendsOrImplements(boolean isInterface) {
 							this.identifierStack[ptr],
 							this.identifierPositionStack[ptr],
 							keywords);
-						completionOnKeyword.canCompleteEmptyToken = true;
 						type.superclass = completionOnKeyword;
 						type.superclass.bits |= ASTNode.IsSuperType;
 						this.assistNode = completionOnKeyword;
@@ -1998,7 +1997,6 @@ private void classHeaderExtendsOrImplements(boolean isInterface) {
 							this.identifierStack[ptr],
 							this.identifierPositionStack[ptr],
 							Keywords.EXTENDS);
-						completionOnKeyword.canCompleteEmptyToken = true;
 						type.superInterfaces = new TypeReference[]{completionOnKeyword};
 						type.superInterfaces[0].bits |= ASTNode.IsSuperType;
 						this.assistNode = completionOnKeyword;
@@ -4050,7 +4048,6 @@ protected void consumeTypeParameterHeader() {
 		this.identifierStack[this.identifierPtr],
 		this.identifierPositionStack[this.identifierPtr],
 		Keywords.EXTENDS);
-	keyword.canCompleteEmptyToken = true;
 	typeParameter.type = keyword;
 
 	this.identifierPtr--;
@@ -4127,7 +4124,6 @@ protected void consumeWildcard() {
 		this.identifierStack[this.identifierPtr],
 		this.identifierPositionStack[this.identifierPtr],
 		new char[][]{Keywords.EXTENDS, Keywords.SUPER} );
-	keyword.canCompleteEmptyToken = true;
 	wildcard.kind = Wildcard.EXTENDS;
 	wildcard.bound = keyword;
 
