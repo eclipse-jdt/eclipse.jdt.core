@@ -1059,6 +1059,21 @@ public void setUpSuite() throws Exception {
 	}
 	super.setUpSuite();
 }
+public void tearDownSuite() throws Exception {
+	if (COMPLETION_SUITES == null) {
+		deleteProject("Completion");
+	} else {
+		COMPLETION_SUITES.remove(getClass());
+		if (COMPLETION_SUITES.size() == 0) {
+			deleteProject("Completion");
+			COMPLETION_SUITES = null;
+		}
+	}
+	if (COMPLETION_SUITES == null) {
+		COMPLETION_PROJECT = null;
+	}
+	super.tearDownSuite();
+}
 private String getVarClassSignature(IEvaluationContext context) {
 	char[] varClassName = ((EvaluationContextWrapper)context).getVarClassName();
 	return Signature.createTypeSignature(varClassName, true);
@@ -13797,6 +13812,20 @@ public void testCompletionMethodDeclaration5() throws JavaModelException {
 		} else {
 			assertResults(
 				"[POTENTIAL_METHOD_DECLARATION]{, LCompletionSuperClass;, ()V, , null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
+				"abstract[KEYWORD]{abstract, null, null, abstract, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"class[KEYWORD]{class, null, null, class, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"enum[KEYWORD]{enum, null, null, enum, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"final[KEYWORD]{final, null, null, final, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"interface[KEYWORD]{interface, null, null, interface, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"native[KEYWORD]{native, null, null, native, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"private[KEYWORD]{private, null, null, private, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"protected[KEYWORD]{protected, null, null, protected, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"public[KEYWORD]{public, null, null, public, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"static[KEYWORD]{static, null, null, static, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"strictfp[KEYWORD]{strictfp, null, null, strictfp, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"synchronized[KEYWORD]{synchronized, null, null, synchronized, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"transient[KEYWORD]{transient, null, null, transient, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+				"volatile[KEYWORD]{volatile, null, null, volatile, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
 				"CompletionMethodDeclaration5[TYPE_REF]{CompletionMethodDeclaration5, , LCompletionMethodDeclaration5;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
 				"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
 				"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperClass;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
