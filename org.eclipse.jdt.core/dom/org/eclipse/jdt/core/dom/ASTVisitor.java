@@ -641,7 +641,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	public boolean visit(ExtraDimension node) {
 		return true;
@@ -842,7 +842,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	public boolean visit(LambdaExpression node) {
 		return true;
@@ -1993,7 +1993,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 *
 	 * @param node the node to visit
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	public void endVisit(ExtraDimension node) {
 		// do nothing by default
@@ -2126,7 +2126,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 *
 	 * @param node the node to visit
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	public void endVisit(LambdaExpression node) {
 		// default implementation: do nothing

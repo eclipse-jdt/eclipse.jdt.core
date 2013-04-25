@@ -101,7 +101,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 		 * Note that the value of this modifier is
 		 * internal and is not specified in the Java Virtual Machine Specification.
 		 * </p>
-		 * @since 3.9
+		 * @since 3.9 BETA_JAVA8
 		 */
 		public static final ModifierKeyword DEFAULT_KEYWORD = new ModifierKeyword("default", DEFAULT);//$NON-NLS-1$
 
@@ -317,7 +317,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * Note that the value of this flag is internal and is not
 	 * specified in the Java Virtual Machine Specification.
 	 * </p>
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	public static final int DEFAULT = 0x10000;
 
@@ -478,7 +478,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * @param flags the modifier flags
 	 * @return <code>true</code> if the <code>DEFAULT</code> bit is set
 	 * and <code>false</code> otherwise
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	public static boolean isDefault(int flags) {
 		return (flags & DEFAULT) != 0;
@@ -708,7 +708,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	/**
 	 * Answer true if the receiver is the default modifier, false otherwise.
 	 * @return true if the receiver is the default modifier, false otherwise
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	public boolean isDefault() {
 		return this.modifierKeyword == ModifierKeyword.DEFAULT_KEYWORD;

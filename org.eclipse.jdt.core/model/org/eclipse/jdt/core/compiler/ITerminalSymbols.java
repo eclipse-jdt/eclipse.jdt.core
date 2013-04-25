@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -169,11 +169,11 @@ public interface ITerminalSymbols {
 	int TokenNamegoto = 404;  // goto not found in Java ? :)
 
 	/**
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	int TokenNameARROW = 405;
 	/**
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	int TokenNameCOLON_COLON = 406;
 	

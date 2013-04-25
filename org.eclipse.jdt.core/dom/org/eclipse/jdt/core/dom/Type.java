@@ -216,7 +216,7 @@ public abstract class Type extends ASTNode {
 	 * @return <code>true</code> if this type is an instance of {@link AnnotatableType}, and
 	 * <code>false</code> otherwise
 	 * 			
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	public boolean isAnnotatable() {
 		return (this instanceof AnnotatableType);

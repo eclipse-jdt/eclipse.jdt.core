@@ -51,7 +51,7 @@ public abstract class VariableDeclaration extends ASTNode {
 	 * Null before JLS8. Added in JLS8; defaults to an empty list
 	 * (see constructor).
 	 * 
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	ASTNode.NodeList extraDimensions = null;
 
@@ -150,7 +150,7 @@ public abstract class VariableDeclaration extends ASTNode {
 	 * of this node (element type: {@link ExtraDimension}) (added in JLS8 API).
 	 *
 	 * @return the property descriptor
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	abstract ChildListPropertyDescriptor internalExtraDimensions2Property();
 	
@@ -159,7 +159,7 @@ public abstract class VariableDeclaration extends ASTNode {
 	 * of this node (element type: {@link ExtraDimension}) (added in JLS8 API).
 	 *
 	 * @return the property descriptor
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	public final ChildListPropertyDescriptor getExtraDimensions2Property() {
 		return internalExtraDimensions2Property();
@@ -298,7 +298,7 @@ public abstract class VariableDeclaration extends ASTNode {
 	/**
 	 * Internal synonym for deprecated method. Used to avoid
 	 * deprecation warnings.
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	final void internalSetExtraDimensions(int dimensions) {
 		// more efficient than just calling supportedOnlyIn2_3_4() to check
@@ -319,7 +319,7 @@ public abstract class VariableDeclaration extends ASTNode {
 	 *
 	 * @return the live list of extra dimensions with optional annotations (element type: {@link ExtraDimension})
 	 * @exception UnsupportedOperationException if this operation is used below JLS8
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	public List extraDimensions() {
 		// more efficient than just calling unsupportedIn2_3_4() to check

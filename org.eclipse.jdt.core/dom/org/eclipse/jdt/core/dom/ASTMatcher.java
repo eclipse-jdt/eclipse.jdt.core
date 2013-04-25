@@ -854,7 +854,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	public boolean match(ExtraDimension node, Object other) {
 		if (!(other instanceof ExtraDimension)) {
@@ -1209,7 +1209,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	public boolean match(LambdaExpression node, Object other) {
 		if (!(other instanceof LambdaExpression)) {

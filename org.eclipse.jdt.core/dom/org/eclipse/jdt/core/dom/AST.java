@@ -187,7 +187,7 @@ public final class AST {
 	 * up to and including Java SE 8 (aka JDK 1.8).
 	 * </p>
 	 *
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	public static final int JLS8 = 8;
 
@@ -1449,7 +1449,7 @@ public final class AST {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used
 	 *            in a JLS2, JLS3 or JLS4 AST
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	public ExtraDimension newExtraDimension() {
 		ExtraDimension result = new ExtraDimension(this);
@@ -1600,7 +1600,7 @@ public final class AST {
 	 * 
 	 * @return a new unparented lambda expression node
 	 * @exception UnsupportedOperationException if this operation is used in a JLS2, JLS3 or JLS4 AST
-	 * @since 3.9
+	 * @since 3.9 BETA_JAVA8
 	 */
 	public LambdaExpression newLambdaExpression() {
 		LambdaExpression result = new LambdaExpression(this);

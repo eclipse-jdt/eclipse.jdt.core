@@ -31,7 +31,7 @@ import java.util.List;
  * while the third form uses {@link SingleVariableDeclaration}.</p>
  *<p>The Body can be either a {@link Block} or an {@link Expression}.</p>
  *
- * @since 3.9 
+ * @since 3.9 BETA_JAVA8
  * @noinstantiate This class is not intended to be instantiated by clients 
  */
 public class LambdaExpression extends Expression {
