@@ -19,6 +19,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class SyntheticMethodBinding extends MethodBinding {
@@ -27,6 +28,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public FieldBinding targetWriteField;		// write access to a field
 	public MethodBinding targetMethod;			// method or constructor
 	public TypeBinding targetEnumType; 			// enum type
+	public LambdaExpression lambda;
 	
 	public int purpose;
 
@@ -47,6 +49,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public final static int SwitchTable = 11; // switch table method
 	public final static int TooManyEnumsConstants = 12; // too many enum constants
 	public final static int ArrayConstructor = 13; // X[]::new
+	public static final int LambdaMethod = 14; // Lambda body emitted as a method.
 
 	public int sourceStart = 0; // start position of the matching declaration
 	public int index; // used for sorting access methods in the class file
@@ -328,6 +331,21 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.parameters = new TypeBinding[] { TypeBinding.INT };
 	    this.thrownExceptions = Binding.NO_EXCEPTIONS;
 	    this.purpose = SyntheticMethodBinding.ArrayConstructor;
+		SyntheticMethodBinding[] knownAccessMethods = declaringClass.syntheticMethods();
+		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
+		this.index = methodId;
+	}
+
+	public SyntheticMethodBinding(LambdaExpression lambda, char [] lambdaName, SourceTypeBinding declaringClass) {
+		this.lambda = lambda;
+	    this.declaringClass = declaringClass;
+	    this.selector = lambdaName;
+	    this.modifiers = lambda.binding.modifiers;
+		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+	    this.returnType = lambda.binding.returnType;
+	    this.parameters = lambda.binding.parameters;
+	    this.thrownExceptions = lambda.binding.thrownExceptions;
+	    this.purpose = SyntheticMethodBinding.LambdaMethod;
 		SyntheticMethodBinding[] knownAccessMethods = declaringClass.syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
 		this.index = methodId;

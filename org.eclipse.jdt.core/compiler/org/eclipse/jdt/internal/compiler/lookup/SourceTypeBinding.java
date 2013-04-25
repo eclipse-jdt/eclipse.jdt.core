@@ -56,7 +56,6 @@ public class SourceTypeBinding extends ReferenceBinding {
 	public ReferenceBinding[] superInterfaces;
 	private FieldBinding[] fields;
 	private MethodBinding[] methods;
-	private LambdaExpression [] lambdas;
 	public ReferenceBinding[] memberTypes;
 	public TypeVariableBinding[] typeVariables;
 
@@ -77,7 +76,8 @@ public class SourceTypeBinding extends ReferenceBinding {
 
 	private int defaultNullness;
 	private int nullnessDefaultInitialized = 0; // 0: nothing; 1: type; 2: package
-
+	private int lambdaOrdinal = 0;
+	
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
 	this.compoundName = compoundName;
 	this.fPackage = fPackage;
@@ -519,17 +519,16 @@ public SyntheticMethodBinding addSyntheticMethodForEnumInitialization(int begin,
 	accessors[0] = accessMethod;
 	return accessMethod;
 }
-public int addLambdaMethod(LambdaExpression lambda) {
-	int index;
-	if (this.lambdas == null) {
-		this.lambdas = new LambdaExpression[1];
-		index = 0;
-	} else {
-		index = this.lambdas.length;
-		System.arraycopy(this.lambdas, 0, this.lambdas = new LambdaExpression[index + 1], 0, index);
-	}
-	this.lambdas[index] = lambda;
-	return index;
+public SyntheticMethodBinding addSyntheticMethod(LambdaExpression lambda) {
+	if (this.synthetics == null)
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
+	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+	SyntheticMethodBinding lambdaMethod = new SyntheticMethodBinding(lambda, CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.lambdaOrdinal++).toCharArray()), this);
+	SyntheticMethodBinding[] accessors = new SyntheticMethodBinding[2]; 
+	this.synthetics[SourceTypeBinding.METHOD_EMUL].put(lambda, accessors);
+	accessors[0] = lambdaMethod;
+	return lambdaMethod;
 }
 
 /* Add a new synthetic access method for access to <targetMethod>.
@@ -576,8 +575,7 @@ public SyntheticMethodBinding addSyntheticArrayConstructor(ArrayBinding arrayTyp
 	SyntheticMethodBinding[] constructors = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(arrayType);
 	
 	if (constructors == null) {
-		int ordinal = addLambdaMethod(null); // amorphous completely synthetic lambda - added just to avoid name clash.
-		constructor = new SyntheticMethodBinding(arrayType, CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(ordinal).toCharArray()), this);
+		constructor = new SyntheticMethodBinding(arrayType, CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.lambdaOrdinal++).toCharArray()), this);
 		this.synthetics[SourceTypeBinding.METHOD_EMUL].put(arrayType, constructors = new SyntheticMethodBinding[1]);
 		constructors[0] = constructor;
 	} else {
@@ -854,9 +852,6 @@ public MethodBinding[] getDefaultAbstractMethods() {
 		if (this.methods[i].isDefaultAbstract())
 			result[count++] = this.methods[i];
 	return result;
-}
-public LambdaExpression [] getLambdaMethods() {
-	return this.lambdas;
 }
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {

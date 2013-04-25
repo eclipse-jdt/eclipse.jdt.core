@@ -40,7 +40,6 @@ import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
-import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
@@ -802,67 +801,64 @@ public class ClassFile implements TypeConstants, TypeIds {
 			completeMethodInfo(methodBinding, methodAttributeOffset, attributeNumber);
 		}
 		
-		boolean doneGeneratingLambdas = false;
-		int currentLambda = 0;
-		do {
-			LambdaExpression [] lambdas = this.referenceBinding.getLambdaMethods();  // refresh as a lambda code generation could schedule nested lambdas for code generation.
-			int lambdaCount = lambdas == null ? 0 : lambdas.length;
-			if (lambdaCount > currentLambda) {
-				LambdaExpression lambda = lambdas[currentLambda++];
-				if (lambda != null) // null ==> completely amorphous synthetic lambdas for array construction and such.
-					lambda.generateCode(this.referenceBinding.scope, this);
-			} else {
-				doneGeneratingLambdas = true;
-			}
-		} while (!doneGeneratingLambdas);
-		
 		// add synthetic methods infos
-		SyntheticMethodBinding[] syntheticMethods = this.referenceBinding.syntheticMethods();
-		if (syntheticMethods != null) {
-			for (int i = 0, max = syntheticMethods.length; i < max; i++) {
-				SyntheticMethodBinding syntheticMethod = syntheticMethods[i];
-				switch (syntheticMethod.purpose) {
-					case SyntheticMethodBinding.FieldReadAccess :
-					case SyntheticMethodBinding.SuperFieldReadAccess :
-						// generate a method info to emulate an reading access to
-						// a non-accessible field
-						addSyntheticFieldReadAccessMethod(syntheticMethod);
-						break;
-					case SyntheticMethodBinding.FieldWriteAccess :
-					case SyntheticMethodBinding.SuperFieldWriteAccess :
-						// generate a method info to emulate an writing access to
-						// a non-accessible field
-						addSyntheticFieldWriteAccessMethod(syntheticMethod);
-						break;
-					case SyntheticMethodBinding.MethodAccess :
-					case SyntheticMethodBinding.SuperMethodAccess :
-					case SyntheticMethodBinding.BridgeMethod :
-						// generate a method info to emulate an access to a non-accessible method / super-method or bridge method
-						addSyntheticMethodAccessMethod(syntheticMethod);
-						break;
-					case SyntheticMethodBinding.ConstructorAccess :
-						// generate a method info to emulate an access to a non-accessible constructor
-						addSyntheticConstructorAccessMethod(syntheticMethod);
-						break;
-					case SyntheticMethodBinding.EnumValues :
-						// generate a method info to define <enum>#values()
-						addSyntheticEnumValuesMethod(syntheticMethod);
-						break;
-					case SyntheticMethodBinding.EnumValueOf :
-						// generate a method info to define <enum>#valueOf(String)
-						addSyntheticEnumValueOfMethod(syntheticMethod);
-						break;
-					case SyntheticMethodBinding.SwitchTable :
-						// generate a method info to define the switch table synthetic method
-						addSyntheticSwitchTable(syntheticMethod);
-						break;
-					case SyntheticMethodBinding.TooManyEnumsConstants :
-						addSyntheticEnumInitializationMethod(syntheticMethod);
-						break;
-					case SyntheticMethodBinding.ArrayConstructor:
-						addSyntheticArrayConstructor(syntheticMethod);
-						break;
+		int emittedSyntheticsCount = 0;
+		boolean continueScanningSynthetics = true;
+		while (continueScanningSynthetics) {
+			continueScanningSynthetics = false;
+			SyntheticMethodBinding[] syntheticMethods = this.referenceBinding.syntheticMethods();
+			int currentSyntheticsCount = syntheticMethods == null ? 0: syntheticMethods.length;
+			if (emittedSyntheticsCount != currentSyntheticsCount) {
+				for (int i = emittedSyntheticsCount, max = currentSyntheticsCount; i < max; i++) {
+					SyntheticMethodBinding syntheticMethod = syntheticMethods[i];
+					switch (syntheticMethod.purpose) {
+						case SyntheticMethodBinding.FieldReadAccess :
+						case SyntheticMethodBinding.SuperFieldReadAccess :
+							// generate a method info to emulate an reading access to
+							// a non-accessible field
+							addSyntheticFieldReadAccessMethod(syntheticMethod);
+							break;
+						case SyntheticMethodBinding.FieldWriteAccess :
+						case SyntheticMethodBinding.SuperFieldWriteAccess :
+							// generate a method info to emulate an writing access to
+							// a non-accessible field
+							addSyntheticFieldWriteAccessMethod(syntheticMethod);
+							break;
+						case SyntheticMethodBinding.MethodAccess :
+						case SyntheticMethodBinding.SuperMethodAccess :
+						case SyntheticMethodBinding.BridgeMethod :
+							// generate a method info to emulate an access to a non-accessible method / super-method or bridge method
+							addSyntheticMethodAccessMethod(syntheticMethod);
+							break;
+						case SyntheticMethodBinding.ConstructorAccess :
+							// generate a method info to emulate an access to a non-accessible constructor
+							addSyntheticConstructorAccessMethod(syntheticMethod);
+							break;
+						case SyntheticMethodBinding.EnumValues :
+							// generate a method info to define <enum>#values()
+							addSyntheticEnumValuesMethod(syntheticMethod);
+							break;
+						case SyntheticMethodBinding.EnumValueOf :
+							// generate a method info to define <enum>#valueOf(String)
+							addSyntheticEnumValueOfMethod(syntheticMethod);
+							break;
+						case SyntheticMethodBinding.SwitchTable :
+							// generate a method info to define the switch table synthetic method
+							addSyntheticSwitchTable(syntheticMethod);
+							break;
+						case SyntheticMethodBinding.TooManyEnumsConstants :
+							addSyntheticEnumInitializationMethod(syntheticMethod);
+							break;
+						case SyntheticMethodBinding.ArrayConstructor:
+							addSyntheticArrayConstructor(syntheticMethod);
+							break;
+						case SyntheticMethodBinding.LambdaMethod:
+							syntheticMethod.lambda.generateCode(this.referenceBinding.scope, this);
+							continueScanningSynthetics = true; // lambda code generation could schedule additional nested lambdas for code generation.
+							break;
+					}
 				}
+				emittedSyntheticsCount = currentSyntheticsCount;
 			}
 		}
 	}

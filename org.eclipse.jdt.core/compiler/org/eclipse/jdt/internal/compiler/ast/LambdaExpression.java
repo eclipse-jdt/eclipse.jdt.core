@@ -20,7 +20,6 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
@@ -86,9 +85,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	}
 	
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-		
-		this.ordinal = currentScope.enclosingSourceType().addLambdaMethod(this);
-		this.binding.selector = CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.ordinal).toCharArray());
+		this.binding = currentScope.enclosingSourceType().addSyntheticMethod(this);
 		int pc = codeStream.position;
 		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
 		StringBuffer signature = new StringBuffer();
