@@ -265,6 +265,9 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] EqualsSignature = "(Ljava/lang/Object;)Z".toCharArray(); //$NON-NLS-1$; 
 	public static final char[] AddSuppressed = "addSuppressed".toCharArray(); //$NON-NLS-1$;
 	public static final char[] AddSuppressedSignature = "(Ljava/lang/Throwable;)V".toCharArray(); //$NON-NLS-1$
+	public static final char[] Clone = "clone".toCharArray(); //$NON-NLS-1$
+	public static final char[] CloneSignature = "()Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
+	
 	/**
 	 * ConstantPool constructor comment.
 	 */

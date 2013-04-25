@@ -42,8 +42,10 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -71,9 +73,13 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	}
  
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-		if (isConstructorReference() && this.receiverType.isArrayType()) {
+		if (this.receiverType.isArrayType()) {
 			SourceTypeBinding sourceType = currentScope.enclosingSourceType();
-			this.binding = sourceType.addSyntheticArrayConstructor((ArrayBinding) this.receiverType);
+			if (isConstructorReference()) {
+				this.binding = sourceType.addSyntheticArrayMethod((ArrayBinding) this.receiverType, SyntheticMethodBinding.ArrayConstructor);
+			} else if (CharOperation.equals(this.selector, TypeConstants.CLONE)) {
+				this.binding = sourceType.addSyntheticArrayMethod((ArrayBinding) this.receiverType, SyntheticMethodBinding.ArrayClone);
+			}
 		}
 		int pc = codeStream.position;
 		if (this.haveReceiver) {
@@ -84,7 +90,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		buffer.append('(');
 		if (this.haveReceiver) {
 			buffer.append('L');
-			buffer.append(this.lhs.resolvedType.constantPoolName());
+			buffer.append(this.receiverType.constantPoolName());
 			buffer.append(';');
 		}
 		buffer.append(')');

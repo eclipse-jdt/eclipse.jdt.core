@@ -480,6 +480,102 @@ public void test021() {
 				"631\n" + 
 				"136");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406388,  [1.8][compiler][codegen] Runtime evaluation of method reference produces "BootstrapMethodError: call site initialization exception"
+public void test022() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"    Object copy(int [] ia);\n" +
+					"}\n" +
+					"interface J {\n" +
+					"	int [] copy(int [] ia);\n" +
+					"}\n" +
+					"public class X  {\n" +
+					"    public static void main(String [] args) {\n" +
+					"        I i = int[]::<String>clone;\n" +
+					"        int [] x = new int [] { 10, 20, 30 };\n" +
+					"        int [] y = (int []) i.copy(x);\n" +
+					"        if (x == y || x.length != y.length || x[0] != y[0] || x[1] != y[1] || x[2] != y[2]) {\n" +
+					"        	System.out.println(\"Broken\");\n" +
+					"        } else {\n" +
+					"        	System.out.println(\"OK\");\n" +
+					"        }\n" +
+					"        J j = int []::clone;\n" +
+					"        y = null;\n" +
+					"        y = j.copy(x);\n" +
+					"        if (x == y || x.length != y.length || x[0] != y[0] || x[1] != y[1] || x[2] != y[2]) {\n" +
+					"        	System.out.println(\"Broken\");\n" +
+					"        } else {\n" +
+					"        	System.out.println(\"OK\");\n" +
+					"        }\n" +
+					"    }\n" +
+					"}\n" ,
+				},
+				"OK\n" + 
+				"OK");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406388,  [1.8][compiler][codegen] Runtime evaluation of method reference produces "BootstrapMethodError: call site initialization exception"
+public void test023() {
+this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"    Object copy(int [] ia);\n" +
+					"}\n" +
+					"\n" +
+					"public class X  {\n" +
+					"    public static void main(String [] args) {\n" +
+					"        I i = int[]::<String>clone;\n" +
+					"        int [] ia = (int []) i.copy(new int[10]);\n" +
+					"        System.out.println(ia.length);\n" +
+					"    }\n" +
+					"}\n",
+				},
+				"10");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406388,  [1.8][compiler][codegen] Runtime evaluation of method reference produces "BootstrapMethodError: call site initialization exception"
+public void test024() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"    YBase copy(Y ia);\n" +
+					"}\n" +
+					"public class X  {\n" +
+					"    public static void main(String [] args) {\n" +
+					"        I i = Y::<String>copy;\n" +
+					"        YBase yb = i.copy(new Y());\n" +
+					"        System.out.println(yb.getClass());\n" +
+					"    }\n" +
+					"}\n" +
+					"class YBase {\n" +
+					"	public YBase copy() {\n" +
+					"		return this;\n" +
+					"	}\n" +
+					"}\n" +
+					"class Y extends YBase {\n" +
+					"}\n",
+				},
+				"class Y");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406388,  [1.8][compiler][codegen] Runtime evaluation of method reference produces "BootstrapMethodError: call site initialization exception"
+public void test025() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"    int foo(int [] ia);\n" +
+					"}\n" +
+					"public class X  {\n" +
+					"    public static void main(String [] args) {\n" +
+					"        I i = int[]::<String>hashCode;\n" +
+					"        i.foo(new int[10]);\n" +
+					"    }\n" +
+					"}\n",
+				},
+				"");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

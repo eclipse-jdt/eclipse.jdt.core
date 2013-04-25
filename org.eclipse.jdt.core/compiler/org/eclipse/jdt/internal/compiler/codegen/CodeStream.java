@@ -2439,6 +2439,20 @@ public void generateSyntheticBodyForArrayConstructor(SyntheticMethodBinding meth
 	anewarray(((ArrayBinding) methodBinding.returnType).elementsType());
 	areturn();
 }
+public void generateSyntheticBodyForArrayClone(SyntheticMethodBinding methodBinding) {
+	initializeMaxLocals(methodBinding);
+	TypeBinding arrayType = methodBinding.parameters[0];
+	aload_0();
+	invoke(   // // invokevirtual: "[I".clone:()Ljava/lang/Object;
+			Opcodes.OPC_invokevirtual,
+			1, // receiverAndArgsSize
+			1, // return type size
+			arrayType.signature(), // declaring class e.g "[I"
+			ConstantPool.Clone,
+			ConstantPool.CloneSignature);
+	checkcast(arrayType);
+	areturn();
+}
 //static X valueOf(String name) {
 // return (X) Enum.valueOf(X.class, name);
 //}

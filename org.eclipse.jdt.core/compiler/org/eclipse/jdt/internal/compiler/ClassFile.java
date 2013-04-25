@@ -849,12 +849,15 @@ public class ClassFile implements TypeConstants, TypeIds {
 						case SyntheticMethodBinding.TooManyEnumsConstants :
 							addSyntheticEnumInitializationMethod(syntheticMethod);
 							break;
-						case SyntheticMethodBinding.ArrayConstructor:
-							addSyntheticArrayConstructor(syntheticMethod);
-							break;
 						case SyntheticMethodBinding.LambdaMethod:
 							syntheticMethod.lambda.generateCode(this.referenceBinding.scope, this);
 							continueScanningSynthetics = true; // lambda code generation could schedule additional nested lambdas for code generation.
+							break;
+						case SyntheticMethodBinding.ArrayConstructor:
+							addSyntheticArrayConstructor(syntheticMethod);
+							break;
+						case SyntheticMethodBinding.ArrayClone:
+							addSyntheticArrayClone(syntheticMethod);
 							break;
 					}
 				}
@@ -874,6 +877,29 @@ public class ClassFile implements TypeConstants, TypeIds {
 		generateCodeAttributeHeader();
 		this.codeStream.init(this);
 		this.codeStream.generateSyntheticBodyForArrayConstructor(methodBinding);
+		completeCodeAttributeForSyntheticMethod(
+			methodBinding,
+			codeAttributeOffset,
+			((SourceTypeBinding) methodBinding.declaringClass)
+				.scope
+				.referenceCompilationUnit()
+				.compilationResult
+				.getLineSeparatorPositions());
+		// update the number of attributes
+		this.contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
+		this.contents[methodAttributeOffset] = (byte) attributeNumber;
+	}
+	public void addSyntheticArrayClone(SyntheticMethodBinding methodBinding) {
+		generateMethodInfoHeader(methodBinding);
+		int methodAttributeOffset = this.contentsOffset;
+		// this will add exception attribute, synthetic attribute, deprecated attribute,...
+		int attributeNumber = generateMethodInfoAttributes(methodBinding);
+		// Code attribute
+		int codeAttributeOffset = this.contentsOffset;
+		attributeNumber++; // add code attribute
+		generateCodeAttributeHeader();
+		this.codeStream.init(this);
+		this.codeStream.generateSyntheticBodyForArrayClone(methodBinding);
 		completeCodeAttributeForSyntheticMethod(
 			methodBinding,
 			codeAttributeOffset,

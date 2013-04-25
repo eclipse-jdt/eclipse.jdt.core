@@ -564,24 +564,27 @@ public SyntheticMethodBinding addSyntheticMethod(MethodBinding targetMethod, boo
 	}
 	return accessMethod;
 }
-/* Add a new synthetic method for array constructor reference expressions of the form X[]::new */
-public SyntheticMethodBinding addSyntheticArrayConstructor(ArrayBinding arrayType) {
+public SyntheticMethodBinding addSyntheticArrayMethod(ArrayBinding arrayType, int purpose) {
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
 
-	SyntheticMethodBinding constructor = null;
-	SyntheticMethodBinding[] constructors = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(arrayType);
-	
-	if (constructors == null) {
-		constructor = new SyntheticMethodBinding(arrayType, CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.lambdaOrdinal++).toCharArray()), this);
-		this.synthetics[SourceTypeBinding.METHOD_EMUL].put(arrayType, constructors = new SyntheticMethodBinding[1]);
-		constructors[0] = constructor;
+	SyntheticMethodBinding arrayMethod = null;
+	SyntheticMethodBinding[] arrayMethods = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(arrayType);
+	if (arrayMethods == null) {
+		char [] selector = CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.lambdaOrdinal++).toCharArray());
+		arrayMethod = new SyntheticMethodBinding(purpose, arrayType, selector, this);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL].put(arrayType, arrayMethods = new SyntheticMethodBinding[2]);
+		arrayMethods[purpose == SyntheticMethodBinding.ArrayConstructor ? 0 : 1] = arrayMethod;
 	} else {
-		constructor = constructors[0];
+		if ((arrayMethod = arrayMethods[purpose == SyntheticMethodBinding.ArrayConstructor ? 0 : 1]) == null) {
+			char [] selector = CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.lambdaOrdinal++).toCharArray());
+			arrayMethod = new SyntheticMethodBinding(purpose, arrayType, selector, this);
+			arrayMethods[purpose == SyntheticMethodBinding.ArrayConstructor ? 0 : 1] = arrayMethod;
+		}
 	}
-	return constructor;
+	return arrayMethod;
 }
 /*
  * Record the fact that bridge methods need to be generated to override certain inherited methods

@@ -48,8 +48,9 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public final static int EnumValueOf = 10; // enum #valueOf(String)
 	public final static int SwitchTable = 11; // switch table method
 	public final static int TooManyEnumsConstants = 12; // too many enum constants
-	public final static int ArrayConstructor = 13; // X[]::new
-	public static final int LambdaMethod = 14; // Lambda body emitted as a method.
+	public static final int LambdaMethod = 13; // Lambda body emitted as a method.
+	public final static int ArrayConstructor = 14; // X[]::new
+	public static final int ArrayClone = 15; // X[]::clone
 
 	public int sourceStart = 0; // start position of the matching declaration
 	public int index; // used for sorting access methods in the class file
@@ -322,15 +323,15 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.index = methodId;
 	}
 
-	public SyntheticMethodBinding(ArrayBinding arrayType, char [] lambdaName, SourceTypeBinding declaringClass) {
+	public SyntheticMethodBinding(int purpose, ArrayBinding arrayType, char [] lambdaName, SourceTypeBinding declaringClass) {
 	    this.declaringClass = declaringClass;
 	    this.selector = lambdaName;
 	    this.modifiers = ClassFileConstants.AccSynthetic | ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic;
 		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 	    this.returnType = arrayType;
-	    this.parameters = new TypeBinding[] { TypeBinding.INT };
+	    this.parameters = new TypeBinding[] { purpose == SyntheticMethodBinding.ArrayConstructor ? TypeBinding.INT : (TypeBinding) arrayType};
 	    this.thrownExceptions = Binding.NO_EXCEPTIONS;
-	    this.purpose = SyntheticMethodBinding.ArrayConstructor;
+	    this.purpose = purpose;
 		SyntheticMethodBinding[] knownAccessMethods = declaringClass.syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
 		this.index = methodId;
