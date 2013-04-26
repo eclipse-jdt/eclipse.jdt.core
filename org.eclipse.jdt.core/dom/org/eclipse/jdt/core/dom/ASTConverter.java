@@ -2874,7 +2874,11 @@ class ASTConverter {
 		int end = typeParameter.sourceEnd;
 		simpleName.setSourceRange(start, end - start + 1);
 		typeParameter2.setName(simpleName);
-		if (typeParameter.annotations != null) {
+		int annotationsStart = start;
+		org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = typeParameter.annotations;
+		if (annotations != null) {
+			if (annotations[0] != null)
+				annotationsStart = annotations[0].sourceStart;
 			annotateTypeParameter(typeParameter2, typeParameter.annotations);
 		}
 		final TypeReference superType = typeParameter.type;
@@ -2893,7 +2897,7 @@ class ASTConverter {
 				end = type.getStartPosition() + type.getLength() - 1;
 			}
 		}
-		start = typeParameter.declarationSourceStart;
+		start = annotationsStart < typeParameter.declarationSourceStart ? annotationsStart : typeParameter.declarationSourceStart;
 		end = retrieveClosingAngleBracketPosition(end);
 		typeParameter2.setSourceRange(start, end - start + 1);
 		if (this.resolveBindings) {

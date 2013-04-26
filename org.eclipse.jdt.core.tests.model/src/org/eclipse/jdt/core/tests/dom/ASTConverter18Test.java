@@ -2357,4 +2357,28 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("Incorrect no of annotations", 0, annotations.size());
 		assertEquals("Incorrect receiver", "J", castType.toString());
 	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=406505
+	 * tests the source range issue that resulted in bad ast node.
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void testBug406505() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test406505/X.java",
+				true/* resolve */);
+		String contents = "package test406505;"
+				+ "import java.lang.annotation.Target;\n"
+				+ "import java.io.File;\n"
+				+ "public class X {\n"
+				+ "	class Folder<@Marker  F extends File> { }\n"
+				+ "}\n" 		
+				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
+				+ "@interface Marker {}\n";
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);		
+		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
+		typedeclaration = (TypeDeclaration)typedeclaration.bodyDeclarations().get(0);
+		TypeParameter typeParameter = (TypeParameter) typedeclaration.typeParameters().get(0);
+		checkSourceRange(typeParameter, "@Marker  F extends File", contents);
+	}
+
 }
