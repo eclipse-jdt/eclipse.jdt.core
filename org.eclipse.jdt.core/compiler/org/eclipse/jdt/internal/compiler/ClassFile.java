@@ -2492,7 +2492,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		 }
 		*/
 		// Record inner classes for MethodHandles$Lookup
-		recordInnerClasses(this.referenceBinding.scope.getJavaLangInvokeMethodHandlesLookup()); // Should be done, it's what javac does also
+		ReferenceBinding methodHandlesLookup = this.referenceBinding.scope.getJavaLangInvokeMethodHandlesLookup();
+		if (methodHandlesLookup == null) return 0; // skip bootstrap section, class path problem already reported, just avoid NPE.
+		recordInnerClasses(methodHandlesLookup); // Should be done, it's what javac does also
 		ReferenceBinding javaLangInvokeLambdaMetafactory = this.referenceBinding.scope.getJavaLangInvokeLambdaMetafactory(); 
 		int indexForMetaFactory = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, javaLangInvokeLambdaMetafactory, 
 				ConstantPool.METAFACTORY, ConstantPool.JAVA_LANG_INVOKE_LAMBDAMETAFACTORY_METAFACTORY_SIGNATURE, false);
