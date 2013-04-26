@@ -92,9 +92,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		StringBuffer buffer = new StringBuffer();
 		buffer.append('(');
 		if (this.haveReceiver) {
-			buffer.append('L');
-			buffer.append(this.lhs.isSuper() ? sourceType.constantPoolName() : this.receiverType.constantPoolName());
-			buffer.append(';');
+			buffer.append(this.lhs.isSuper() ? sourceType.signature() : this.receiverType.signature());
 		}
 		buffer.append(')');
 		buffer.append('L');

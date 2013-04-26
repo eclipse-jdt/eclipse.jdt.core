@@ -648,6 +648,26 @@ public void test027() {
 				"5555\n" + 
 				"Exception");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406584, Bug 406584 - [1.8][compiler][codegen] ClassFormatError: Invalid method signature 
+public void test028() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"    Object copy();\n" +
+					"}\n" +
+					"public class X  {\n" +
+					"    public static void main(String [] args) {\n" +
+					"    	int [] x = new int[] { 0xdeadbeef, 0xfeedface };\n" +
+					"    	I i = x::<String>clone;\n" +
+					"       System.out.println(Integer.toHexString(((int []) i.copy())[0]));\n" +
+					"       System.out.println(Integer.toHexString(((int []) i.copy())[1]));\n" +
+					"    }\n" +
+					"}\n",
+				},
+				"deadbeef\n" + 
+				"feedface");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
