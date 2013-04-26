@@ -127,7 +127,10 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			return new PolyTypeBinding(this);
 		} 
 		
-		this.scope = new MethodScope(blockScope, this, blockScope.methodScope().isStatic);
+		MethodScope methodScope = blockScope.methodScope();
+		this.scope = new MethodScope(blockScope, this, methodScope.isStatic);
+		this.scope.isConstructorCall = methodScope.isConstructorCall;
+
 		super.resolveType(blockScope); // compute & capture interface function descriptor in singleAbstractMethod.
 		
 		final boolean argumentsTypeElided = argumentsTypeElided();

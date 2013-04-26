@@ -6337,6 +6337,57 @@ public void testSuperReference03() {
 			"y cannot be resolved to a type\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406614, [1.8][compiler] Missing and incorrect errors for lambda in explicit constructor call. 
+public void test406614() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	int doit();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	int f;\n" +
+				"	X(I i) {\n" +
+				"	}\n" +
+				"	X() {\n" +
+				"		this(() -> this.f);\n" +
+				"	}\n" +
+				"	X(short s) {\n" +
+				"		this(() -> this.g());\n" +
+				"	}\n" +
+				"	X (int x) {\n" +
+				"	    this(() -> f);\n" +
+				"	}\n" +
+				"	X (long x) {\n" +
+				"	    this(() -> g());\n" +
+				"	}\n" +
+				"	int g() {\n" +
+				"		return 0;\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	this(() -> this.f);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^\n" + 
+			"The constructor X(() -> this.f) is undefined\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	this(() -> this.g());\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The constructor X(() -> this.g()) is undefined\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 15)\n" + 
+			"	this(() -> f);\n" + 
+			"	^^^^^^^^^^^^^^\n" + 
+			"The constructor X(() -> f) is undefined\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 18)\n" + 
+			"	this(() -> g());\n" + 
+			"	^^^^^^^^^^^^^^^^\n" + 
+			"The constructor X(() -> g()) is undefined\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
