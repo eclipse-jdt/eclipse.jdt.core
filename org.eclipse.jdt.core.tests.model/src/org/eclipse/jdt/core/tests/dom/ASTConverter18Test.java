@@ -2195,7 +2195,9 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		checkSourceRange(packageQualifiedType, "test404489.bug.@NonNull X", source);
 		typeBinding = packageQualifiedType.resolveBinding();
 		assertNotNull("null binding", typeBinding);
-		assertEquals("not a valid binding", "test404489.bug.X.Inner", typeBinding.getQualifiedName());
+		assertEquals("not a valid binding", "test404489.bug.X", typeBinding.getQualifiedName());
+		name = packageQualifiedType.getName();
+		assertSame("bindings different for package qualified type and assocated name", typeBinding, name.resolveTypeBinding());
 		
 		// qualifier of the package qualified type
 		name = packageQualifiedType.getQualifier();
