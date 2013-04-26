@@ -608,6 +608,46 @@ public void test026() {
 				"X.foo(1234,4321)\n" + 
 				"5555");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406589, [1.8][compiler][codegen] super call misdispatched 
+public void test027() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	int foo(int x, int y);\n" +
+					"}\n" +
+					"interface J {\n" +
+					"	default int foo(int x, int y) {\n" +
+					"		System.out.println(\"I.foo(\" + x + \",\" + y + \")\");\n" +
+					"		return x + y;\n" +
+					"	}\n" +
+					"}\n" +
+					"public class X implements J {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		I i = new X().f();\n" +
+					"		System.out.println(i.foo(1234, 4321));\n" +
+					"		i = new X().g();\n" +
+					"		try {\n" +
+					"			System.out.println(i.foo(1234, 4321));\n" +
+					"		} catch (Throwable e) {\n" +
+					"			System.out.println(e.getMessage());\n" +
+					"		}\n" +
+					"	}\n" +
+					"	I f() {\n" +
+					"		return J.super::foo;\n" +
+					"	}\n" +
+					"	I g() {\n" +
+					"		return new X()::foo;\n" +
+					"	}\n" +
+					"	public int foo(int x, int y) {\n" +
+					"		throw new RuntimeException(\"Exception\");\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"I.foo(1234,4321)\n" + 
+				"5555\n" + 
+				"Exception");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
