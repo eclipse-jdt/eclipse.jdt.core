@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -1136,6 +1137,9 @@ public AbstractMethodDeclaration sourceMethod() {
 			if (this == methods[i].binding)
 				return methods[i];
 	}
+	return null;
+}
+public LambdaExpression sourceLambda() {
 	return null;
 }
 public final int sourceStart() {

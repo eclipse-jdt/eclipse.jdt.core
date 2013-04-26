@@ -358,7 +358,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.declaringClass = declaringClass;
 	    this.selector = lambdaName;
 	    this.modifiers = lambda.binding.modifiers;
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved) | (lambda.binding.tagBits & TagBits.HasParameterAnnotations);
 	    this.returnType = lambda.binding.returnType;
 	    this.parameters = lambda.binding.parameters;
 	    this.thrownExceptions = lambda.binding.thrownExceptions;
@@ -517,5 +517,9 @@ public class SyntheticMethodBinding extends MethodBinding {
 
 	protected boolean isConstructorRelated() {
 		return this.purpose == SyntheticMethodBinding.ConstructorAccess;
+	}
+	
+	public LambdaExpression sourceLambda() {
+		return this.lambda;
 	}
 }

@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
@@ -2858,6 +2859,24 @@ public class ClassFile implements TypeConstants, TypeIds {
 					if (arguments != null) {
 						attributesNumber += generateRuntimeAnnotationsForParameters(arguments);
 					}
+				}
+			} else {
+				LambdaExpression lambda = methodBinding.sourceLambda();
+				if (lambda != null) {
+					if ((methodBinding.tagBits & TagBits.HasParameterAnnotations) != 0) {
+						Argument[] arguments = lambda.arguments;
+						if (arguments != null) {
+							int parameterCount = methodBinding.parameters.length;
+							int argumentCount = arguments.length;
+							if (parameterCount > argumentCount) { // synthetics prefixed 
+								int redShift = parameterCount - argumentCount;
+								System.arraycopy(arguments, 0, arguments = new Argument[parameterCount], redShift, argumentCount);
+								for (int i = 0; i < redShift; i++)
+									arguments[i] = new Argument(CharOperation.NO_CHAR, 0, null, 0);
+							}
+							attributesNumber += generateRuntimeAnnotationsForParameters(arguments);
+						}
+					}	
 				}
 			}
 		}
