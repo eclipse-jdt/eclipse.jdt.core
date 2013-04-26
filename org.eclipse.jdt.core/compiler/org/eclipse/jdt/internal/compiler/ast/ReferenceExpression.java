@@ -73,14 +73,17 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	}
  
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+		SourceTypeBinding sourceType = currentScope.enclosingSourceType();
 		if (this.receiverType.isArrayType()) {
-			SourceTypeBinding sourceType = currentScope.enclosingSourceType();
 			if (isConstructorReference()) {
 				this.binding = sourceType.addSyntheticArrayMethod((ArrayBinding) this.receiverType, SyntheticMethodBinding.ArrayConstructor);
 			} else if (CharOperation.equals(this.selector, TypeConstants.CLONE)) {
 				this.binding = sourceType.addSyntheticArrayMethod((ArrayBinding) this.receiverType, SyntheticMethodBinding.ArrayClone);
 			}
+		} else if (this.lhs.isSuper()) {
+			this.binding = sourceType.addSyntheticSuperBridgeMethod(this.binding);
 		}
+		
 		int pc = codeStream.position;
 		if (this.haveReceiver) {
 			this.lhs.generateCode(currentScope, codeStream, true);
@@ -90,7 +93,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		buffer.append('(');
 		if (this.haveReceiver) {
 			buffer.append('L');
-			buffer.append(this.receiverType.constantPoolName());
+			buffer.append(this.lhs.isSuper() ? sourceType.constantPoolName() : this.receiverType.constantPoolName());
 			buffer.append(';');
 		}
 		buffer.append(')');

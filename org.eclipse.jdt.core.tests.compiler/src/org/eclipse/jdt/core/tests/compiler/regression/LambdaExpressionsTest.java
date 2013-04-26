@@ -576,6 +576,38 @@ public void test025() {
 				},
 				"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406589, [1.8][compiler][codegen] super call misdispatched 
+public void test026() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	Integer foo(int x, int y);\n" +
+					"}\n" +
+					"class Y {\n" +
+					"	int foo(int x, int y) {\n" +
+					"		System.out.println(\"Y.foo(\" + x + \",\" + y + \")\");\n" +
+					"		return foo(x, y);\n" +
+					"	}\n" +
+					"}\n" +
+					"public class X extends Y {\n" +
+					"	int foo(int x, int y) {\n" +
+					"		System.out.println(\"X.foo(\" + x + \",\" + y + \")\");\n" +
+					"		return x + y;\n" +
+					"	}\n" +
+					"	void goo() {\n" +
+					"		I i = super::foo;\n" +
+					"		System.out.println(i.foo(1234, 4321));\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new X().goo();\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"Y.foo(1234,4321)\n" + 
+				"X.foo(1234,4321)\n" + 
+				"5555");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
