@@ -79,7 +79,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				ReferenceBinding superclass = this.binding.declaringClass.superclass();
 				if (superclass != null && superclass.isMemberType() && !superclass.isStatic()) {
 					// creating an anonymous type of a non-static member type without an enclosing instance of parent type
-					currentScope.resetDeclaringClassMethodStaticFlag(superclass.enclosingType());
+					currentScope.tagAsAccessingInstanceStateOf(superclass.enclosingType());
 					// Reviewed for https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674 :
 					// The corresponding problem (when called from static) is not produced until during code generation
 				}

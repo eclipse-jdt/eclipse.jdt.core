@@ -44,6 +44,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticArgumentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -72,6 +73,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	private LambdaExpression original = this;
 	private SyntheticArgumentBinding[] outerLocalVariables = NO_SYNTHETIC_ARGUMENTS;
 	private int outerLocalVariablesSlotSize = 0;
+	public boolean shouldCaptureInstance = false;
 	private static final SyntheticArgumentBinding [] NO_SYNTHETIC_ARGUMENTS = new SyntheticArgumentBinding[0];
 	
 	public LambdaExpression(CompilationResult compilationResult, Argument [] arguments, Statement body) {
@@ -85,20 +87,34 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	}
 	
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-		this.binding = currentScope.enclosingSourceType().addSyntheticMethod(this);
+		if (this.shouldCaptureInstance) {
+			this.binding.modifiers &= ~ClassFileConstants.AccStatic;
+		} else {
+			this.binding.modifiers |= ClassFileConstants.AccStatic;
+		}
+		SourceTypeBinding sourceType = currentScope.enclosingSourceType();
+		this.binding = sourceType.addSyntheticMethod(this);
 		int pc = codeStream.position;
 		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
 		StringBuffer signature = new StringBuffer();
 		signature.append('(');
+		if (this.shouldCaptureInstance) {
+			codeStream.aload_0();
+			signature.append(sourceType.signature());
+		}
 		for (int i = 0, length = this.outerLocalVariables == null ? 0 : this.outerLocalVariables.length; i < length; i++) {
-			signature.append(this.outerLocalVariables[i].type.signature());
-			LocalVariableBinding capturedOuterLocal = this.outerLocalVariables[i].actualOuterLocalVariable;
+			SyntheticArgumentBinding syntheticArgument = this.outerLocalVariables[i];
+			if (this.shouldCaptureInstance) {
+				syntheticArgument.resolvedPosition++;
+			}
+			signature.append(syntheticArgument.type.signature());
+			LocalVariableBinding capturedOuterLocal = syntheticArgument.actualOuterLocalVariable;
 			VariableBinding[] path = currentScope.getEmulationPath(capturedOuterLocal);
 			codeStream.generateOuterAccess(path, this, capturedOuterLocal, currentScope);
 		}
 		signature.append(')');
 		signature.append(this.expectedType.signature());
-		codeStream.invokeDynamic(invokeDynamicNumber, this.outerLocalVariablesSlotSize, 1, TypeConstants.ANONYMOUS_METHOD, signature.toString().toCharArray());
+		codeStream.invokeDynamic(invokeDynamicNumber, (this.shouldCaptureInstance ? 1 : 0) + this.outerLocalVariablesSlotSize, 1, TypeConstants.ANONYMOUS_METHOD, signature.toString().toCharArray());
 		codeStream.recordPositionsFrom(pc, this.sourceStart);		
 	}
 
@@ -142,7 +158,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if (!haveDescriptor && argumentsTypeElided) 
 			return null; // FUBAR, bail out...
 
-		this.binding = new MethodBinding(ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic | ExtraCompilerModifiers.AccUnresolved,
+		this.binding = new MethodBinding(ClassFileConstants.AccPrivate | ClassFileConstants.AccSynthetic | ExtraCompilerModifiers.AccUnresolved,
 							TypeConstants.ANONYMOUS_METHOD, // will be fixed up later.
 							haveDescriptor ? this.descriptor.returnType : null, 
 							Binding.NO_PARAMETERS, // for now. 
@@ -718,10 +734,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		classFile.completeMethodInfo(this.binding, methodAttributeOffset, attributeNumber);
 	}
 	
-	public char[] signature() {
-		return this.binding.signature();
-	}
-
 	public void addSyntheticArgument(LocalVariableBinding actualOuterLocalVariable) {
 		
 		if (this.original != this || this.binding == null) 
@@ -735,7 +747,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		}
 		System.arraycopy(this.outerLocalVariables, 0, this.outerLocalVariables = new SyntheticArgumentBinding[newSlot + 1], 0, newSlot);
 		this.outerLocalVariables[newSlot] = syntheticLocal = new SyntheticArgumentBinding(actualOuterLocalVariable);
-		syntheticLocal.resolvedPosition = this.outerLocalVariablesSlotSize + (this.binding.isStatic() ? 0 : 1);
+		syntheticLocal.resolvedPosition = this.outerLocalVariablesSlotSize; // may need adjusting later if we need to generate an instance method for the lambda.
 		syntheticLocal.declaringScope = this.scope;
 		int parameterCount = this.binding.parameters.length;
 		TypeBinding [] newParameters = new TypeBinding[parameterCount + 1];

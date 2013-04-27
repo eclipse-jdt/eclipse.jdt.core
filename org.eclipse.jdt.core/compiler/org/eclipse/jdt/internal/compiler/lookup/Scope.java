@@ -1827,7 +1827,7 @@ public abstract class Scope {
 														name,
 														ProblemReasons.NonStaticReferenceInStaticContext);
 											} else if (methodScope != null) {
-												methodScope.resetEnclosingMethodStaticFlag();
+												tagAsAccessingInstanceStateOf(fieldBinding.declaringClass);
 											}
 										}
 										if (receiverType == fieldBinding.declaringClass || compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
@@ -2169,7 +2169,7 @@ public abstract class Scope {
 												? ProblemReasons.NonStaticReferenceInConstructorInvocation
 												: ProblemReasons.NonStaticReferenceInStaticContext);
 									} else if (!methodBinding.isStatic() && methodScope != null) {
-										methodScope.resetDeclaringClassMethodStaticFlag(receiverType);
+										methodScope.tagAsAccessingInstanceStateOf(receiverType);
 									}
 									if (inheritedHasPrecedence
 											|| receiverType == methodBinding.declaringClass
@@ -4455,5 +4455,42 @@ public abstract class Scope {
 				break;
 		}
 		return resolutionScope;
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
+	/**
+	 * This method is used to reset the CanBeStatic on all enclosing methods until the method 
+	 * belonging to the enclosingInstanceType
+	 * @param enclosingType type of which an enclosing instance is required in the code.
+	 */
+	public void tagAsAccessingInstanceStateOf(ReferenceBinding enclosingType) {
+		MethodScope methodScope = methodScope();
+		if (methodScope != null && methodScope.referenceContext instanceof TypeDeclaration) {
+			if (!methodScope.enclosingReceiverType().isCompatibleWith(enclosingType)) { // unless invoking a method of the local type ...
+				// anonymous type, find enclosing method
+				methodScope = methodScope.enclosingMethodScope();
+			}
+		}
+		while (methodScope != null) {
+			while (methodScope != null && methodScope.referenceContext instanceof LambdaExpression) {
+				LambdaExpression lambda = (LambdaExpression) methodScope.referenceContext;
+				lambda.shouldCaptureInstance = true;
+				methodScope = methodScope.enclosingMethodScope();
+			}
+			if (methodScope != null) {
+				if (methodScope.referenceContext instanceof MethodDeclaration) {
+					MethodDeclaration methodDeclaration = (MethodDeclaration) methodScope.referenceContext;
+					methodDeclaration.bits &= ~ASTNode.CanBeStatic;
+				}
+				ClassScope enclosingClassScope = methodScope.enclosingClassScope();
+				if (enclosingClassScope != null) {
+					TypeDeclaration type = enclosingClassScope.referenceContext;
+					if (type != null && type.binding != null && enclosingType != null && !type.binding.isCompatibleWith(enclosingType.original())) {
+						methodScope = enclosingClassScope.enclosingMethodScope();
+						continue;
+					}
+				}
+				break;
+			}
+		}
 	}
 }

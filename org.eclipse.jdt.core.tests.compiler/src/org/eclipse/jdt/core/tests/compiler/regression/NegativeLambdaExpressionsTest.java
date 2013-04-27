@@ -2887,7 +2887,7 @@ public void test087() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
-public void _test088() {
+public void test088() {
 	// class inside lambda (!) redeclares a field.
 	this.runNegativeTest(
 			new String[] {
@@ -2913,7 +2913,7 @@ public void _test088() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
-public void _test089() {
+public void test089() {
 	// class inside lambda redeclares outer method's argument.
 	this.runNegativeTest(
 			new String[] {
@@ -2944,7 +2944,7 @@ public void _test089() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
-public void _test090() {
+public void test090() {
 	// class inside lambda redeclares outer method's local.
 	this.runNegativeTest(
 			new String[] {
@@ -2975,7 +2975,7 @@ public void _test090() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
-public void _test091() {
+public void test091() {
 	// class inside lambda redeclares outer lambda's argument.
 	this.runNegativeTest(
 			new String[] {
@@ -3006,7 +3006,7 @@ public void _test091() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
-public void _test092() {
+public void test092() {
 	// class inside lambda redeclares outer lambda's local.
 	this.runNegativeTest(
 			new String[] {
@@ -3038,7 +3038,7 @@ public void _test092() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
-public void _test093() {
+public void test093() {
 	// local of class inside lambda redeclares a field.
 	this.runNegativeTest(
 			new String[] {
@@ -3075,7 +3075,7 @@ public void _test093() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
-public void _test094() {
+public void test094() {
 	// local of class under lambda redeclares outer methods local.
 	this.runNegativeTest(
 			new String[] {
@@ -3112,7 +3112,7 @@ public void _test094() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
-public void _test095() {
+public void test095() {
 	// local of class under lambda redeclares outer lambda's argument & local
 	this.runNegativeTest(
 			new String[] {

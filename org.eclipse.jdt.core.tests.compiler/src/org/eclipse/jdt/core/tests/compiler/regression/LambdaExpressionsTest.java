@@ -835,6 +835,55 @@ public void test033() {
 				},
 				"beefface");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406319, [1.8][compiler][codegen] Generate code for enclosing instance capture in lambda methods. 
+public void test034() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"    int foo();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"    int f = 1234;\n" +
+					"    void foo() {\n" +
+					"        int x = 4321;\n" +
+					"        I i = () -> x + f;\n" +
+					"        System.out.println(i.foo());\n" +
+					"    }\n" +
+					"    public static void main(String[] args) {\n" +
+					"		new X().foo();\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"5555");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406319, [1.8][compiler][codegen] Generate code for enclosing instance capture in lambda methods. 
+public void test035() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo(int p, int q);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"   int f;\n" +
+					"	void foo(int outerp) {\n" +
+					"       int locouter;\n" +
+					"		I i = (int p, int q)  -> {\n" +
+					"			class Local {\n" +
+					"				void foo() {\n" +
+					"               }\n" +
+					"			};\n" +
+					"			new Local();\n" +
+					"		};\n" +
+					"   }\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.println(\"OK\");\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"OK");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

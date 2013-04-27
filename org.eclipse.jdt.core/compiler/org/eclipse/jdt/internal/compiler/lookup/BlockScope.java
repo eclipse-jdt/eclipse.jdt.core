@@ -88,6 +88,20 @@ public final void addAnonymousType(TypeDeclaration anonymousType, ReferenceBindi
 	anonymousClassScope.buildAnonymousTypeBinding(
 		enclosingSourceType(),
 		superBinding);
+	
+	/* Tag any enclosing lambdas as instance capturing. Strictly speaking they need not be, unless the local/anonymous type references enclosing instance state.
+	   but the types themselves track enclosing types regardless of whether the state is accessed or not. This creates a mismatch in expectations in code generation
+	   time, if we choose to make the lambda method static. To keep things simple and avoid a messy rollback, we force the lambda to be an instance method under 
+	   this situation. However if per source, the lambda occurs in a static context, we would generate a static synthetic method.
+	*/
+	MethodScope methodScope = methodScope();
+	while (methodScope != null && methodScope.referenceContext instanceof LambdaExpression) {
+		LambdaExpression lambda = (LambdaExpression) methodScope.referenceContext;
+		if (!lambda.scope.isStatic) {
+			lambda.shouldCaptureInstance = true;
+		}
+		methodScope = methodScope.enclosingMethodScope();
+	}
 }
 
 /* Create the class scope & binding for the local type.
@@ -96,6 +110,16 @@ public final void addLocalType(TypeDeclaration localType) {
 	ClassScope localTypeScope = new ClassScope(this, localType);
 	addSubscope(localTypeScope);
 	localTypeScope.buildLocalTypeBinding(enclosingSourceType());
+	
+	// See comment in addAnonymousType.
+	MethodScope methodScope = methodScope();
+	while (methodScope != null && methodScope.referenceContext instanceof LambdaExpression) {
+		LambdaExpression lambda = (LambdaExpression) methodScope.referenceContext;
+		if (!lambda.scope.isStatic) {
+			lambda.shouldCaptureInstance = true;
+		}
+		methodScope = methodScope.enclosingMethodScope();
+	}
 }
 
 /* Insert a local variable into a given scope, updating its position
@@ -997,6 +1021,11 @@ public String toString(int tab) {
  */
 public void resetEnclosingMethodStaticFlag() {
 	MethodScope methodScope = methodScope();
+	while (methodScope != null && methodScope.referenceContext instanceof LambdaExpression) {
+		LambdaExpression lambda = (LambdaExpression) methodScope.referenceContext;
+		lambda.shouldCaptureInstance = true;
+		methodScope = methodScope.enclosingMethodScope();
+	}
 	if (methodScope != null) {
 		if (methodScope.referenceContext instanceof MethodDeclaration) {
 			MethodDeclaration methodDeclaration = (MethodDeclaration) methodScope.referenceContext;
@@ -1004,6 +1033,11 @@ public void resetEnclosingMethodStaticFlag() {
 		} else if (methodScope.referenceContext instanceof TypeDeclaration) {
 			// anonymous type, find enclosing method
 			methodScope = methodScope.enclosingMethodScope();
+			while (methodScope != null && methodScope.referenceContext instanceof LambdaExpression) {
+				LambdaExpression lambda = (LambdaExpression) methodScope.referenceContext;
+				lambda.shouldCaptureInstance = true;
+				methodScope = methodScope.enclosingMethodScope();
+			}
 			if (methodScope != null && methodScope.referenceContext instanceof MethodDeclaration) {
 				MethodDeclaration methodDeclaration = (MethodDeclaration) methodScope.referenceContext;
 				methodDeclaration.bits &= ~ASTNode.CanBeStatic;
@@ -1012,36 +1046,6 @@ public void resetEnclosingMethodStaticFlag() {
 	}
 }
 
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
-/**
- * This method is used to reset the CanBeStatic on all enclosing methods until the method 
- * belonging to the enclosingInstanceType
- * @param enclosingInstanceType type of which an enclosing instance is required in the code.
- */
-public void resetDeclaringClassMethodStaticFlag(TypeBinding enclosingInstanceType) {
-	MethodScope methodScope = methodScope();
-	if (methodScope != null && methodScope.referenceContext instanceof TypeDeclaration) {
-		if (!methodScope.enclosingReceiverType().isCompatibleWith(enclosingInstanceType)) { // unless invoking a method of the local type ...
-			// anonymous type, find enclosing method
-			methodScope = methodScope.enclosingMethodScope();
-		}
-	}
-	while (methodScope != null && methodScope.referenceContext instanceof MethodDeclaration) {
-		MethodDeclaration methodDeclaration = (MethodDeclaration) methodScope.referenceContext;
-		methodDeclaration.bits &= ~ASTNode.CanBeStatic;
-		ClassScope enclosingClassScope = methodScope.enclosingClassScope();
-		if (enclosingClassScope != null) {
-			TypeDeclaration type = enclosingClassScope.referenceContext;
-			if (type != null && type.binding != null && enclosingInstanceType != null
-					&& !type.binding.isCompatibleWith(enclosingInstanceType.original()))
-			{
-				methodScope = enclosingClassScope.enclosingMethodScope();
-				continue;
-			}
-		}
-		break;
-	}
-}
 
 private List trackingVariables; // can be null if no resources are tracked
 /** Used only during analyseCode and only for checking if a resource was closed in a finallyBlock. */

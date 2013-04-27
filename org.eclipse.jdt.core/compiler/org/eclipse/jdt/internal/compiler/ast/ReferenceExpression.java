@@ -53,7 +53,6 @@ import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 public class ReferenceExpression extends FunctionalExpression implements InvocationSite {
 	
-	private static final char[] LPAR = {'('};
 	private static char [] LAMBDA = { 'l', 'a', 'm', 'b', 'd', 'a' };
 	public Expression lhs;
 	public TypeReference [] typeArguments;
@@ -514,18 +513,5 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		t = t.capture(this.enclosingScope, this.sourceEnd);
 		tSam = t.getSingleAbstractMethod(this.enclosingScope);
 		return resultExpression.tIsMoreSpecific(tSam.returnType, sSam.returnType);
-	}
-	public char[] signature() {
-		char [] signature = this.binding.signature();
-		if (this.binding.isConstructor()) {
-			// The implementation function is a constructor, which returns void, but the adjusted method type does return the new instance
-			signature = CharOperation.concat(CharOperation.subarray(signature, 0, signature.length - 1), this.binding.declaringClass.signature());
-		} else {
-			// Adjust for captured variables - if not static and if receiver is not captured
-			if (!(this.binding.isStatic() || this.haveReceiver)) {
-				signature = CharOperation.concat(LPAR, this.binding.declaringClass.signature(), CharOperation.subarray(signature, 1, -1));
-			}
-		}
-		return signature;
 	}
 }

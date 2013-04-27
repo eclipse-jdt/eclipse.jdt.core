@@ -99,7 +99,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (this.binding.declaringClass.isMemberType() && !this.binding.declaringClass.isStatic()) {
 		// allocating a non-static member type without an enclosing instance of parent type
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845
-		currentScope.resetDeclaringClassMethodStaticFlag(this.binding.declaringClass.enclosingType());
+		currentScope.tagAsAccessingInstanceStateOf(this.binding.declaringClass.enclosingType());
 		// Reviewed for https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674 :
 		// The corresponding problem (when called from static) is not produced until during code generation
 	}

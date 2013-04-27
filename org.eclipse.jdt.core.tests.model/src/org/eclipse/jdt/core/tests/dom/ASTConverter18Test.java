@@ -1657,7 +1657,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		LambdaExpression lambdaExpression = (LambdaExpression)expression;
 		assertEquals("() -> {\n  System.out.println(this);\n  I j=() -> {\n    System.out.println(this);\n    I k=() -> {\n      System.out.println(this);\n    }\n;\n  }\n;\n}\n", lambdaExpression.toString());
 		IMethodBinding binding = lambdaExpression.resolveMethodBinding();
-		assertEquals("private static void lambda$0() ", binding.toString());
+		assertEquals("private void lambda$0() ", binding.toString());
 		assertTrue(lambdaExpression.parameters().size() == 0);
 	}
 

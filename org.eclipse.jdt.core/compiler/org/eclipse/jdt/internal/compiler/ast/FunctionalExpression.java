@@ -20,7 +20,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
-import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
@@ -47,7 +46,6 @@ public abstract class FunctionalExpression extends Expression {
 	protected CompilationResult compilationResult;
 	protected BlockScope enclosingScope;
 	protected boolean ellipsisArgument;
-	protected int ordinal;
 	protected static IErrorHandlingPolicy silentErrorHandlingPolicy = DefaultErrorHandlingPolicies.ignoreAllProblems();
 	
 	public FunctionalExpression(CompilationResult compilationResult) {
@@ -170,17 +168,5 @@ public abstract class FunctionalExpression extends Expression {
 
 	public int nullStatus(FlowInfo flowInfo) {
 		return FlowInfo.NON_NULL;
-	}
-
-	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-		int pc = codeStream.position;
-		if (valueRequired) {
-			codeStream.aconst_null(); // TODO: Real code
-		}
-		codeStream.recordPositionsFrom(pc, this.sourceStart);
-	}
-
-	public char[] signature() {
-		return null;
 	}
 }

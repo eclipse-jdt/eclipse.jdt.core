@@ -110,7 +110,7 @@ public class QualifiedThisReference extends ThisReference {
 			return this.resolvedType;
 		} else {
 			// Mark all methods between here and the declared type as not static
-			scope.resetDeclaringClassMethodStaticFlag(this.currentCompatibleType);
+			scope.tagAsAccessingInstanceStateOf(this.currentCompatibleType);
 		}
 
 		// Ensure one cannot write code like: B() { super(B.this); }
