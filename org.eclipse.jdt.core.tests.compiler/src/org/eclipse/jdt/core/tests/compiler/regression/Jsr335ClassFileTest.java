@@ -2063,6 +2063,117 @@ public void test014() throws Exception {
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406641, [1.8][compiler][codegen] Code generation for intersection cast.
+public void test015() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"interface I {\n" +
+				"    void foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main( String [] args) { \n" +
+				"		I i = (I & java.io.Serializable) () -> {};\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"");
+
+	String expectedOutput =
+			"// Compiled from X.java (version 1.8 : 52.0, super bit)\n" + 
+			"public class X {\n" + 
+			"  Constant pool:\n" + 
+			"    constant #1 class: #2 X\n" + 
+			"    constant #2 utf8: \"X\"\n" + 
+			"    constant #3 class: #4 java/lang/Object\n" + 
+			"    constant #4 utf8: \"java/lang/Object\"\n" + 
+			"    constant #5 utf8: \"<init>\"\n" + 
+			"    constant #6 utf8: \"()V\"\n" + 
+			"    constant #7 utf8: \"Code\"\n" + 
+			"    constant #8 method_ref: #3.#9 java/lang/Object.<init> ()V\n" + 
+			"    constant #9 name_and_type: #5.#6 <init> ()V\n" + 
+			"    constant #10 utf8: \"LineNumberTable\"\n" + 
+			"    constant #11 utf8: \"LocalVariableTable\"\n" + 
+			"    constant #12 utf8: \"this\"\n" + 
+			"    constant #13 utf8: \"LX;\"\n" + 
+			"    constant #14 utf8: \"main\"\n" + 
+			"    constant #15 utf8: \"([Ljava/lang/String;)V\"\n" + 
+			"    constant #16 name_and_type: #17.#18 lambda$ ()LI;\n" + 
+			"    constant #17 utf8: \"lambda$\"\n" + 
+			"    constant #18 utf8: \"()LI;\"\n" + 
+			"    constant #19 invoke dynamic: #0 #16 lambda$ ()LI;\n" + 
+			"    constant #20 utf8: \"args\"\n" + 
+			"    constant #21 utf8: \"[Ljava/lang/String;\"\n" + 
+			"    constant #22 utf8: \"i\"\n" + 
+			"    constant #23 utf8: \"LI;\"\n" + 
+			"    constant #24 utf8: \"lambda$0\"\n" + 
+			"    constant #25 utf8: \"SourceFile\"\n" + 
+			"    constant #26 utf8: \"X.java\"\n" + 
+			"    constant #27 method_ref: #28.#30 java/lang/invoke/LambdaMetafactory.metaFactory (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"    constant #28 class: #29 java/lang/invoke/LambdaMetafactory\n" + 
+			"    constant #29 utf8: \"java/lang/invoke/LambdaMetafactory\"\n" + 
+			"    constant #30 name_and_type: #31.#32 metaFactory (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"    constant #31 utf8: \"metaFactory\"\n" + 
+			"    constant #32 utf8: \"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\"\n" + 
+			"    constant #33 method handle: invokestatic (6) #27 \n" + 
+			"    constant #34 utf8: \"BootstrapMethods\"\n" + 
+			"    constant #35 interface_method_ref: #36.#38 I.foo ()V\n" + 
+			"    constant #36 class: #37 I\n" + 
+			"    constant #37 utf8: \"I\"\n" + 
+			"    constant #38 name_and_type: #39.#6 foo ()V\n" + 
+			"    constant #39 utf8: \"foo\"\n" + 
+			"    constant #40 method handle: invokeinterface (9) #35 \n" + 
+			"    constant #41 method_ref: #1.#42 X.lambda$0 ()V\n" + 
+			"    constant #42 name_and_type: #24.#6 lambda$0 ()V\n" + 
+			"    constant #43 method handle: invokestatic (6) #41 \n" + 
+			"    constant #44 method type: #6 ()V\n" + 
+			"    constant #45 utf8: \"InnerClasses\"\n" + 
+			"    constant #46 class: #47 java/lang/invoke/MethodHandles$Lookup\n" + 
+			"    constant #47 utf8: \"java/lang/invoke/MethodHandles$Lookup\"\n" + 
+			"    constant #48 class: #49 java/lang/invoke/MethodHandles\n" + 
+			"    constant #49 utf8: \"java/lang/invoke/MethodHandles\"\n" + 
+			"    constant #50 utf8: \"Lookup\"\n" + 
+			"  \n" + 
+			"  // Method descriptor #6 ()V\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  public X();\n" + 
+			"    0  aload_0 [this]\n" + 
+			"    1  invokespecial java.lang.Object() [8]\n" + 
+			"    4  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 4]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+			"  // Stack: 1, Locals: 2\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
+			"    0  invokedynamic 0 lambda$() : I [19]\n" + 
+			"    5  astore_1 [i]\n" + 
+			"    6  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 6]\n" + 
+			"        [pc: 6, line: 7]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 7] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 6, pc: 7] local: i index: 1 type: I\n" + 
+			"  \n" + 
+			"  // Method descriptor #6 ()V\n" + 
+			"  // Stack: 0, Locals: 0\n" + 
+			"  private static synthetic void lambda$0();\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 6]\n" + 
+			"\n" + 
+			"  Inner classes:\n" + 
+			"    [inner class info: #46 java/lang/invoke/MethodHandles$Lookup, outer class info: #48 java/lang/invoke/MethodHandles\n" + 
+			"     inner name: #50 Lookup, accessflags: 25 public static final]\n" + 
+			"Bootstrap methods:\n" + 
+			"  0 : # 33 arguments: {#40,#43,#44}\n" + 
+			"}";
+
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+}
 public static Class testClass() {
 	return Jsr335ClassFileTest.class;
 }

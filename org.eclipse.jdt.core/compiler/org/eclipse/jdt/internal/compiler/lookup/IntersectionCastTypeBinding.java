@@ -59,7 +59,7 @@ public class IntersectionCastTypeBinding extends ReferenceBinding {
 	}
 
 	public char[] constantPoolName() {
-		return " notional ".toCharArray(); //$NON-NLS-1$
+		return this.intersectingTypes[0].constantPoolName();
 	}
 
 	public PackageBinding getPackage() {

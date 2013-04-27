@@ -983,6 +983,51 @@ public void test037() {
 				},
 				"Lambda code generation with instance and local capture works fine in the eclipse compiler !");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406641, [1.8][compiler][codegen] Code generation for intersection cast.
+public void test038() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"}\n" +
+					"interface J {\n" +
+					"}\n" +
+					"public class X implements I, J {\n" +
+					"	public static void main( String [] args) { \n" +
+					"		f(new X());\n" +
+					"	}\n" +
+					"	static void f(Object o) {\n" +
+					"		X x = (X & I & J) o;\n" +
+					"       System.out.println(\"OK\");\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"OK");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406641, [1.8][compiler][codegen] Code generation for intersection cast.
+public void test039() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"}\n" +
+					"interface J {\n" +
+					"}\n" +
+					"public class X implements J {\n" +
+					"	public static void main( String [] args) { \n" +
+					"		f(new X());\n" +
+					"	}\n" +
+					"	static void f(Object o) {\n" +
+					"       try {\n" +
+					"		    X x = (X & I & J) o;\n" +
+					"       } catch (ClassCastException e) {\n" +
+					"           System.out.println(e.getMessage());\n" +
+					"       }\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"X cannot be cast to I");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
