@@ -668,6 +668,173 @@ public void test028() {
 				"deadbeef\n" + 
 				"feedface");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial 
+public void test029() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	X.Y.Z makexyz(int val);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	public static void main(String args []) {\n" +
+					"		new X().new Y().new Z().new P().goo();\n" +
+					"	}\n" +
+					"	class Y {\n" +
+					"		class Z {\n" +
+					"			Z(int val) {\n" +
+					"				System.out.println(Integer.toHexString(val));\n" +
+					"			}	\n" +
+					"			Z() {\n" +
+					"			}\n" +
+					"			class P {\n" +
+					"				void goo() {\n" +
+					"					I i = Z::new;\n" +
+					"					i.makexyz(0xdeadbeef);\n" +
+					"				}\n" +
+					"				I i = Z::new;\n" +
+					"				{ i.makexyz(0xfeedface); }\n" +
+					"			}\n" +
+					"		}\n" +
+					"		I i = Z::new;\n" +
+					"		{ i.makexyz(0xbeeffeed); }\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"beeffeed\n" + 
+				"feedface\n" + 
+				"deadbeef");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial 
+public void test030() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	X.Y makeY();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	public class Y {\n" +
+					"       public String toString() {\n" +
+					"           return \"class Y\";\n" +
+					"   }\n" +
+					"	}\n" +
+					"	void foo() {\n" +
+					"		I i = Y::new;\n" +
+					"		System.out.println(i.makeY());\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new X().foo();\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"class Y");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial 
+public void test031() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	X.Y makeY(int x);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	class Y {\n" +
+					"		String state; \n" +
+					"		Y(int x) {\n" +
+					"			state = Integer.toHexString(x);\n" +
+					"		}\n" +
+					"		public String toString() {\n" +
+					"			return state;\n" +
+					"		}\n" +
+					"	}\n" +
+					"	class Z extends Y {\n" +
+					"		Z(int x) {\n" +
+					"			super(x);\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new X().f();\n" +
+					"	}\n" +
+					"	void f() {\n" +
+					"		I i = Y::new;\n" +
+					"		System.out.println(i.makeY(0xdeadbeef));\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"deadbeef");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial 
+public void test032() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	X.Y makeY(int x);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	class Y {\n" +
+					"		String state; \n" +
+					"		Y(int x) {\n" +
+					"			state = Integer.toHexString(x);\n" +
+					"		}\n" +
+					"		public String toString() {\n" +
+					"			return state;\n" +
+					"		}\n" +
+					"	}\n" +
+					"	class Z extends Y {\n" +
+					"		Z(int x) {\n" +
+					"			super(x);\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new X().f();\n" +
+					"	}\n" +
+					"	void f() {\n" +
+					"		I i = Z::new;\n" +
+					"		System.out.println(i.makeY(0xdeadbeef));\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"deadbeef");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial 
+public void test033() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	X.Y.Z makeY(int x);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	class Y {\n" +
+					"		Y() {\n" +
+					"		}\n" +
+					"		class Z {\n" +
+					"			String state;\n" +
+					"			Z(int x) {\n" +
+					"				state = Integer.toHexString(x);\n" +
+					"			}\n" +
+					"			public String toString() {\n" +
+					"				return state;\n" +
+					"			}\n" +
+					"		}\n" +
+					"	}\n" +
+					"	class YS extends Y {\n" +
+					"		YS() {\n" +
+					"		}\n" +
+					"		void f() {\n" +
+					"			I i = Z::new;\n" +
+					"			System.out.println(i.makeY(0xbeefface));\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new X().new YS().f();\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"beefface");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

@@ -37,6 +37,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.NestedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -85,20 +86,38 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		}
 		
 		int pc = codeStream.position;
-		if (this.haveReceiver) {
-			this.lhs.generateCode(currentScope, codeStream, true);
-		}
 		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
 		StringBuffer buffer = new StringBuffer();
+		int argumentsSize = 0;
 		buffer.append('(');
 		if (this.haveReceiver) {
+			this.lhs.generateCode(currentScope, codeStream, true);
 			buffer.append(this.lhs.isSuper() ? sourceType.signature() : this.receiverType.signature());
+			argumentsSize = 1;
+		} else {
+			if (this.isConstructorReference() && this.receiverType.isNestedType()) {
+				NestedTypeBinding nestedType = (NestedTypeBinding) this.receiverType;
+				ReferenceBinding[] syntheticArgumentTypes;
+				if ((syntheticArgumentTypes = nestedType.syntheticEnclosingInstanceTypes()) != null) {
+					int length = syntheticArgumentTypes.length;
+					argumentsSize = length;
+					for (int i = 0 ; i < length; i++) {
+						ReferenceBinding syntheticArgumentType = syntheticArgumentTypes[i];
+						buffer.append(syntheticArgumentType.signature());
+						Object[] emulationPath = currentScope.getEmulationPath(
+								syntheticArgumentType,
+								false /* allow compatible match */,
+								true /* disallow instance reference in explicit constructor call */);
+						codeStream.generateOuterAccess(emulationPath, this, syntheticArgumentType, currentScope);
+					}
+				}
+			}
 		}
 		buffer.append(')');
 		buffer.append('L');
 		buffer.append(this.resolvedType.constantPoolName());
 		buffer.append(';');
-		codeStream.invokeDynamic(invokeDynamicNumber, this.haveReceiver ? 1 : 0, 1, LAMBDA, buffer.toString().toCharArray());
+		codeStream.invokeDynamic(invokeDynamicNumber, argumentsSize, 1, LAMBDA, buffer.toString().toCharArray());
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 	

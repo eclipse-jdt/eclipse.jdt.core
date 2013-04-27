@@ -6388,6 +6388,60 @@ public void test406614() {
 			"The constructor X(() -> g()) is undefined\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial 
+public void test406588() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	X.Y.Z makeY(int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	class Y {\n" +
+				"		Y(I i) {\n" +
+				"			\n" +
+				"		}\n" +
+				"		Y() {\n" +
+				"			this(Z::new);\n" +
+				"		}\n" +
+				"		class Z {\n" +
+				"			Z(int x) {\n" +
+				"\n" +
+				"			}\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	this(Z::new);\n" + 
+			"	     ^^^^^^^\n" + 
+			"No enclosing instance of the type X.Y is accessible in scope\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406586, [1.8][compiler] Missing error about unavailable enclosing instance 
+public void test406586() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	X.Y makeY();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public class Y {\n" +
+				"	}\n" +
+				"	static void foo() {\n" +
+				"		I i = Y::new;\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	I i = Y::new;\n" + 
+			"	      ^^^^^^^\n" + 
+			"No enclosing instance of the type X is accessible in scope\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
