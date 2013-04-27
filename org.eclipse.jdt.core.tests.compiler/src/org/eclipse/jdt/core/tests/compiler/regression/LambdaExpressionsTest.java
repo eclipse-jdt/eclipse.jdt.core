@@ -884,6 +884,105 @@ public void test035() {
 				},
 				"OK");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406319, [1.8][compiler][codegen] Generate code for enclosing instance capture in lambda methods. 
+public void test036() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"    String foo(String x, String y);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"    String xf = \"Lambda \";\n" +
+					"    String x() {\n" +
+					"    	String xl = \"code \";\n" +
+					"    	class Y {\n" +
+					"			String yf = \"generation \";\n" +
+					"			String y () {\n" +
+					"				String yl = \"with \";\n" +
+					"				class Z {\n" +
+					"					String zf = \"instance \";\n" +
+					"					String z () {\n" +
+					"						String zl = \"and \";\n" +
+					"						class P {\n" +
+					"							String pf = \"local \";\n" +
+					"							String p () {\n" +
+					"								String pl = \"capture \";\n" +
+					"								I i = (x1, y1) -> {\n" +
+					"									return (((I) ((x2, y2) -> {\n" +
+					"										return ( ((I) ((x3, y3) -> {\n" +
+					"											return xf + xl + yf + yl + zf + zl + pf + pl + x3 + y3;\n" +
+					"										})).foo(\"works \", \"fine \") + x2 + y2);\n" +
+					"									})).foo(\"in \", \"the \") + x1 + y1);\n" +
+					"								};\n" +
+					"								return i.foo(\"eclipse \", \"compiler \");\n" +
+					"							}\n" +
+					"						}\n" +
+					"						return new P().p();\n" +
+					"					}\n" +
+					"				}\n" +
+					"				return new Z().z();\n" +
+					"			}\n" +
+					"    	}\n" +
+					"    	return new Y().y();\n" +
+					"    }\n" +
+					"    public static void main(String[] args) {\n" +
+					"	System.out.println(new X().x());\n" +
+					"    }\n" +
+					"}\n",
+				},
+				"Lambda code generation with instance and local capture works fine in the eclipse compiler");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406319, [1.8][compiler][codegen] Generate code for enclosing instance capture in lambda methods. 
+public void test037() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"    String foo(String x, String y);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"    String xf = \"Lambda \";\n" +
+					"    String x() {\n" +
+					"    	String xl = \"code \";\n" +
+					"    	class Y {\n" +
+					"			String yf = \"generation \";\n" +
+					"			String y () {\n" +
+					"				String yl = \"with \";\n" +
+					"				class Z {\n" +
+					"					String zf = \"instance \";\n" +
+					"					String z () {\n" +
+					"						String zl = \"and \";\n" +
+					"						class P {\n" +
+					"							String pf = \"local \";\n" +
+					"							String p () {\n" +
+					"								String pl = \"capture \";\n" +
+					"								I i = (x1, y1) -> {\n" +
+					"									return (((I) ((x2, y2) -> {\n" +
+					"										return ( ((I) ((x3, y3) -> {\n" +
+					"                                           String exclaim = \"!\";\n" +
+					"											return xf + xl + yf + yl + zf + zl + pf + pl + x3 + y3 + x2 + y2 + x1 + y1 + exclaim;\n" +
+					"										})).foo(\"works \", \"fine \"));\n" +
+					"									})).foo(\"in \", \"the \"));\n" +
+					"								};\n" +
+					"								return i.foo(\"eclipse \", \"compiler \");\n" +
+					"							}\n" +
+					"						}\n" +
+					"						return new P().p();\n" +
+					"					}\n" +
+					"				}\n" +
+					"				return new Z().z();\n" +
+					"			}\n" +
+					"    	}\n" +
+					"    	return new Y().y();\n" +
+					"    }\n" +
+					"    public static void main(String[] args) {\n" +
+					"	System.out.println(new X().x());\n" +
+					"    }\n" +
+					"}\n",
+				},
+				"Lambda code generation with instance and local capture works fine in the eclipse compiler !");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

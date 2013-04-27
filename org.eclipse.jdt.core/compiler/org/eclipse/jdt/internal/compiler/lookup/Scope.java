@@ -2169,7 +2169,7 @@ public abstract class Scope {
 												? ProblemReasons.NonStaticReferenceInConstructorInvocation
 												: ProblemReasons.NonStaticReferenceInStaticContext);
 									} else if (!methodBinding.isStatic() && methodScope != null) {
-										methodScope.tagAsAccessingInstanceStateOf(receiverType);
+										tagAsAccessingInstanceStateOf(receiverType);
 									}
 									if (inheritedHasPrecedence
 											|| receiverType == methodBinding.declaringClass
