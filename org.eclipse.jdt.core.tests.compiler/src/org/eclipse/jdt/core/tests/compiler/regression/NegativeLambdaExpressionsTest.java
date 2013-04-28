@@ -6442,6 +6442,39 @@ public void test406586() {
 			"No enclosing instance of the type X is accessible in scope\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401989, [1.8][compiler] hook lambda expressions into "can be static" analysis 
+public void test401989() {
+		Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+		this.runNegativeTest(
+			new String[] {
+				"X.java", 
+				"interface I {\n" +
+				"	void make();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	int val;\n" +
+				"	private I test() {\n" +
+				"		return () -> System.out.println(val);\n" +
+				"	}\n" +
+				"	private I testCanBeStatic() {\n" +
+				"		return () -> System.out.println();\n" +
+				"	}\n" +
+				"	public void call() { test().make(); testCanBeStatic().make();}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	private I testCanBeStatic() {\n" + 
+			"	          ^^^^^^^^^^^^^^^^^\n" + 
+			"The method testCanBeStatic() from the type X can be declared as static\n" + 
+			"----------\n",
+			null /* no extra class libraries */,
+			true /* flush output directory */,
+			compilerOptions /* custom options */
+		);
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
