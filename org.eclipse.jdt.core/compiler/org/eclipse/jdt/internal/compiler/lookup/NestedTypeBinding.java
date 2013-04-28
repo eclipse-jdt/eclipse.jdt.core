@@ -73,11 +73,6 @@ public SyntheticArgumentBinding addSyntheticArgument(ReferenceBinding targetEncl
 		int newArgIndex = size;
 		if (enclosingType() == targetEnclosingType)
 			newArgIndex = 0;
-		// do not cache things! there can be two instances of same type!
-		// for (int i = size; --i >= 0;) {
-			//if (this.enclosingInstances[i].type == targetEnclosingType)
-			//	return this.enclosingInstances[i]; // already exists
-		// }
 		SyntheticArgumentBinding[] newInstances = new SyntheticArgumentBinding[size + 1];
 		System.arraycopy(this.enclosingInstances, 0, newInstances, newArgIndex == 0 ? 1 : 0, size);
 		newInstances[newArgIndex] = synthLocal = new SyntheticArgumentBinding(targetEnclosingType);
@@ -170,8 +165,6 @@ public SyntheticArgumentBinding getSyntheticArgument(LocalVariableBinding actual
 	return null;
 }
 
-/* Answer the synthetic argument for <targetEnclosingType> or null if one does not exist.
-*/
 /* Answer the synthetic argument for <targetEnclosingType> or null if one does not exist.
 */
 public SyntheticArgumentBinding getSyntheticArgument(ReferenceBinding targetEnclosingType, boolean onlyExactMatch, boolean scopeIsConstructorCall) {
