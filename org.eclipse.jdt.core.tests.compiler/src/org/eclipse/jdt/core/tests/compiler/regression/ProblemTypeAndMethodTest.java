@@ -8374,4 +8374,97 @@ public void test378674_comment21d() {
 		"}\n"
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406396, Method can be static analysis misses a bunch of cases... 
+public void test406396() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"public class X  {\n" +
+			"	int f;\n" +
+			"	void foo() {\n" +
+			"		class Y {\n" +
+			"			int p;\n" +
+			"			{\n" +
+			"				class Z {\n" +
+			"					int f = p;\n" +
+			"				}\n" +
+			"			}\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	void foo() {\n" + 
+		"	     ^^^^^\n" + 
+		"The method foo() from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	class Y {\n" + 
+		"	      ^\n" + 
+		"The type Y is never used locally\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 7)\n" + 
+		"	class Z {\n" + 
+		"	      ^\n" + 
+		"The type Z is never used locally\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 8)\n" + 
+		"	int f = p;\n" + 
+		"	    ^\n" + 
+		"The field Z.f is hiding a field from type X\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 8)\n" + 
+		"	int f = p;\n" + 
+		"	    ^\n" + 
+		"The value of the field Z.f is not used\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406396, Method can be static analysis misses a bunch of cases... 
+public void test406396a() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"public class X  {\n" +
+			"	int f;\n" +
+			"	int foo() {\n" +
+			"		int f = 0;\n" +
+			"		return f;\n" +
+			"	}\n" +
+			"	int goo() {\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	int foo() {\n" + 
+		"	    ^^^^^\n" + 
+		"The method foo() from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	int f = 0;\n" + 
+		"	    ^\n" + 
+		"The local variable f is hiding a field from type X\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	int goo() {\n" + 
+		"	    ^^^^^\n" + 
+		"The method goo() from the type X can potentially be declared as static\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
 }
