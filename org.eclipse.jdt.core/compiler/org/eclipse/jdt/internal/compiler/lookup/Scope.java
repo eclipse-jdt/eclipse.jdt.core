@@ -1826,8 +1826,6 @@ public abstract class Scope {
 														fieldBinding.declaringClass,
 														name,
 														ProblemReasons.NonStaticReferenceInStaticContext);
-											} else if (methodScope != null) {
-												tagAsAccessingInstanceStateOf(fieldBinding.declaringClass);
 											}
 										}
 										if (receiverType == fieldBinding.declaringClass || compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
@@ -2169,7 +2167,7 @@ public abstract class Scope {
 												? ProblemReasons.NonStaticReferenceInConstructorInvocation
 												: ProblemReasons.NonStaticReferenceInStaticContext);
 									} else if (!methodBinding.isStatic() && methodScope != null) {
-										tagAsAccessingInstanceStateOf(receiverType);
+										tagAsAccessingEnclosingInstanceStateOf(receiverType, false /* type variable access */);
 									}
 									if (inheritedHasPrecedence
 											|| receiverType == methodBinding.declaringClass
@@ -2772,8 +2770,6 @@ public abstract class Scope {
 						if (typeVariable != null) {
 							if (insideStaticContext) // do not consider this type modifiers: access is legite within same type
 								return new ProblemReferenceBinding(new char[][]{name}, typeVariable, ProblemReasons.NonStaticReferenceInStaticContext);
-							else if (methodScope != null)
-								methodScope.resetEnclosingMethodStaticFlag();
 							return typeVariable;
 						}
 						insideStaticContext |= sourceType.isStatic();
@@ -4456,13 +4452,8 @@ public abstract class Scope {
 		}
 		return resolutionScope;
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
-	/**
-	 * This method is used to reset the CanBeStatic on all enclosing methods until the method 
-	 * belonging to the enclosingInstanceType
-	 * @param enclosingType type of which an enclosing instance is required in the code.
-	 */
-	public void tagAsAccessingInstanceStateOf(ReferenceBinding enclosingType) {
+	// Some entity in the receiver scope is referencing instance data of enclosing type. Tag all intervening methods as instance methods. 
+	public void tagAsAccessingEnclosingInstanceStateOf(ReferenceBinding enclosingType, boolean typeVariableAccess) {
 		MethodScope methodScope = methodScope();
 		if (methodScope != null && methodScope.referenceContext instanceof TypeDeclaration) {
 			if (!methodScope.enclosingReceiverType().isCompatibleWith(enclosingType)) { // unless invoking a method of the local type ...
@@ -4473,7 +4464,8 @@ public abstract class Scope {
 		while (methodScope != null) {
 			while (methodScope != null && methodScope.referenceContext instanceof LambdaExpression) {
 				LambdaExpression lambda = (LambdaExpression) methodScope.referenceContext;
-				lambda.shouldCaptureInstance = true;
+				if (!typeVariableAccess)
+					lambda.shouldCaptureInstance = true;  // lambda can still be static, only when `this' is touched (implicitly or otherwise) it cannot be.
 				methodScope = methodScope.enclosingMethodScope();
 			}
 			if (methodScope != null) {

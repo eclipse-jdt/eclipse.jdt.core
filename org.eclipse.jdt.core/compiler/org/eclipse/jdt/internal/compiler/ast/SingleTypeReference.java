@@ -57,6 +57,13 @@ public class SingleTypeReference extends TypeReference {
 			return this.resolvedType;
 
 		this.resolvedType = scope.getType(this.token);
+		
+		if (this.resolvedType instanceof TypeVariableBinding) {
+			TypeVariableBinding typeVariable = (TypeVariableBinding) this.resolvedType;
+			if (typeVariable.declaringElement instanceof SourceTypeBinding) {
+				scope.tagAsAccessingEnclosingInstanceStateOf((ReferenceBinding) typeVariable.declaringElement, true /* type variable access */);
+			}
+		}
 
 		if (scope.kind == Scope.CLASS_SCOPE && this.resolvedType.isValidBinding())
 			if (((ClassScope) scope).detectHierarchyCycle(this.resolvedType, this))

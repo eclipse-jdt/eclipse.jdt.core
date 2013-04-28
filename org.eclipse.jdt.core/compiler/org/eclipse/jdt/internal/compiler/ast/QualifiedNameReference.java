@@ -1060,12 +1060,18 @@ public TypeBinding resolveType(BlockScope scope) {
 							scope.problemReporter().indirectAccessToStaticField(this, fieldBinding);
 						}						
 					} else {
-						if (this.indexOfFirstFieldBinding == 1 && scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
-							scope.problemReporter().unqualifiedFieldAccess(this, fieldBinding);
+						boolean inStaticContext = scope.methodScope().isStatic;
+						if (this.indexOfFirstFieldBinding == 1) {
+							if (scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
+								scope.problemReporter().unqualifiedFieldAccess(this, fieldBinding);
+							}
+							if (!inStaticContext) {
+								scope.tagAsAccessingEnclosingInstanceStateOf(fieldBinding.declaringClass, false /* type variable access */);
+							}
 						}
 						//must check for the static status....
 						if (this.indexOfFirstFieldBinding > 1  //accessing to a field using a type as "receiver" is allowed only with static field
-								 || scope.methodScope().isStatic) { 	// the field is the first token of the qualified reference....
+								 || inStaticContext) { 	// the field is the first token of the qualified reference....
 							scope.problemReporter().staticFieldAccessToNonStaticVariable(this, fieldBinding);
 							return null;
 						 }

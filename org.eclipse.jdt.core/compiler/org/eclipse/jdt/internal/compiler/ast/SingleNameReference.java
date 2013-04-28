@@ -229,6 +229,8 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 		if (methodScope.isStatic) {
 			scope.problemReporter().staticFieldAccessToNonStaticVariable(this, fieldBinding);
 			return fieldBinding.type;
+		} else {
+			scope.tagAsAccessingEnclosingInstanceStateOf(fieldBinding.declaringClass, false /* type variable access */);
 		}
 	}
 

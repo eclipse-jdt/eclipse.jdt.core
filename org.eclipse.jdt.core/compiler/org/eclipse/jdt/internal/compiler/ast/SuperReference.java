@@ -4,6 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -54,9 +58,9 @@ public class SuperReference extends ThisReference {
 	public TypeBinding resolveType(BlockScope scope) {
 
 		this.constant = Constant.NotAConstant;
-		if (!checkAccess(scope.methodScope()))
-			return null;
 		ReferenceBinding enclosingReceiverType = scope.enclosingReceiverType();
+		if (!checkAccess(scope, enclosingReceiverType))
+			return null;
 		if (enclosingReceiverType.id == T_JavaLangObject) {
 			scope.problemReporter().cannotUseSuperInJavaLangObject(this);
 			return null;

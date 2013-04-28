@@ -4,6 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -45,8 +49,9 @@ public class ThisReference extends Reference {
 		return flowInfo; // this cannot be assigned
 	}
 
-	public boolean checkAccess(MethodScope methodScope) {
+	public boolean checkAccess(BlockScope scope, ReferenceBinding receiverType) {
 
+		MethodScope methodScope = scope.methodScope();
 		// this/super cannot be used in constructor call
 		if (methodScope.isConstructorCall) {
 			methodScope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);
@@ -58,7 +63,8 @@ public class ThisReference extends Reference {
 			methodScope.problemReporter().errorThisSuperInStatic(this);
 			return false;
 		}
-		methodScope.resetEnclosingMethodStaticFlag();
+		if (receiverType != null)
+			scope.tagAsAccessingEnclosingInstanceStateOf(receiverType, false /* type variable access */);
 		return true;
 	}
 
@@ -121,10 +127,12 @@ public class ThisReference extends Reference {
 	public TypeBinding resolveType(BlockScope scope) {
 
 		this.constant = Constant.NotAConstant;
-		if (!isImplicitThis() &&!checkAccess(scope.methodScope())) {
+		
+		ReferenceBinding enclosingReceiverType = scope.enclosingReceiverType();
+		if (!isImplicitThis() &&!checkAccess(scope, enclosingReceiverType)) {
 			return null;
 		}
-		return this.resolvedType = scope.enclosingReceiverType();
+		return this.resolvedType = enclosingReceiverType;
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
