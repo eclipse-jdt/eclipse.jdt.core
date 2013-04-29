@@ -4179,7 +4179,12 @@ public void test384750j() {
 					"    X<?> foo(int x, String p) { return null; }\n" +
 					"}\n"
 					},
-					"");
+					"----------\n" + 
+					"1. WARNING in X.java (at line 5)\n" + 
+					"	I i = super::foo;\n" + 
+					"	      ^^^^^^^^^^\n" + 
+					"Access to enclosing method foo(int, String) from the type Y is emulated by a synthetic accessor method\n" + 
+					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
 public void test384750k() {
@@ -4222,7 +4227,12 @@ public void test384750l() {
 					"    }\n" +
 					"}\n" 
 					},
-					"");
+					"----------\n" + 
+					"1. WARNING in X.java (at line 9)\n" + 
+					"	I i = X.super::zoo;\n" + 
+					"	      ^^^^^^^^^^^^\n" + 
+					"Access to enclosing method zoo() from the type Z is emulated by a synthetic accessor method\n" + 
+					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
 public void test384750m() {

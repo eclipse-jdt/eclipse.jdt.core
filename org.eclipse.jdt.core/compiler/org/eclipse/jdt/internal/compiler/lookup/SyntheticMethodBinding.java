@@ -325,22 +325,6 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.index = methodId;
 	}
 
-	public SyntheticMethodBinding(MethodBinding superMethod, char [] selector, SourceTypeBinding declaringClass) {
-
-	    this.declaringClass = declaringClass;
-	    this.selector = selector;
-	    this.modifiers = ClassFileConstants.AccSynthetic;
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
-	    this.returnType = superMethod.returnType;
-	    this.parameters = superMethod.parameters;
-	    this.thrownExceptions = superMethod.thrownExceptions;
-	    this.targetMethod = superMethod;
-	    this.purpose = SyntheticMethodBinding.SuperMethodAccess;
-		SyntheticMethodBinding[] knownAccessMethods = declaringClass.syntheticMethods();
-		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
-		this.index = methodId;
-	}
-
 	public SyntheticMethodBinding(int purpose, ArrayBinding arrayType, char [] selector, SourceTypeBinding declaringClass) {
 	    this.declaringClass = declaringClass;
 	    this.selector = selector;

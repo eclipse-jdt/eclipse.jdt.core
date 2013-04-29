@@ -64,6 +64,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	private boolean typeArgumentsHaveErrors;
 	
 	MethodBinding syntheticAccessor;	// synthetic accessor for inner-emulation
+	private int depth;
 	
 	public ReferenceExpression(CompilationResult compilationResult, Expression lhs, TypeReference [] typeArguments, char [] selector, int sourceEnd) {
 		super(compilationResult);
@@ -82,8 +83,9 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			} else if (CharOperation.equals(this.selector, TypeConstants.CLONE)) {
 				this.binding = sourceType.addSyntheticArrayMethod((ArrayBinding) this.receiverType, SyntheticMethodBinding.ArrayClone);
 			}
-		} else if (this.lhs.isSuper()) {
-			this.binding = sourceType.addSyntheticSuperBridgeMethod(this.binding);
+		} else if (this.syntheticAccessor != null) {
+			if (this.lhs.isSuper() || isMethodReference())
+				this.binding = this.syntheticAccessor;
 		}
 		
 		int pc = codeStream.position;
@@ -92,7 +94,21 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		buffer.append('(');
 		if (this.haveReceiver) {
 			this.lhs.generateCode(currentScope, codeStream, true);
-			buffer.append(this.lhs.isSuper() ? sourceType.signature() : this.receiverType.signature());
+			if (this.lhs.isSuper()) {
+				if (this.lhs instanceof QualifiedSuperReference) {
+					QualifiedSuperReference qualifiedSuperReference = (QualifiedSuperReference) this.lhs;
+					TypeReference qualification = qualifiedSuperReference.qualification;
+					if (qualification.resolvedType.isInterface()) {
+						buffer.append(sourceType.signature());
+					} else {
+						buffer.append(((QualifiedSuperReference) this.lhs).currentCompatibleType.signature());
+					}
+				} else { 
+					buffer.append(sourceType.signature());
+				}
+			} else {
+				buffer.append(this.receiverType.signature());
+			}
 			argumentsSize = 1;
 		} else {
 			if (this.isConstructorReference()) {
@@ -134,15 +150,15 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	
 	public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 		
-		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0) return;
-		if (this.binding == null || !this.binding.isValidBinding()) return;
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0 || this.binding == null || !this.binding.isValidBinding()) 
+			return;
+		
+		MethodBinding codegenBinding = this.binding.original();
+		SourceTypeBinding enclosingSourceType = currentScope.enclosingSourceType();
 		
 		if (this.isConstructorReference()) {
-			// if constructor from parameterized type got found, use the original constructor at codegen time
-			MethodBinding codegenBinding = this.binding.original();
 			ReferenceBinding allocatedType = codegenBinding.declaringClass;
-
-			if (codegenBinding.isPrivate() && currentScope.enclosingSourceType() != (allocatedType = codegenBinding.declaringClass)) {
+			if (codegenBinding.isPrivate() && enclosingSourceType != (allocatedType = codegenBinding.declaringClass)) {
 				if ((allocatedType.tagBits & TagBits.IsLocalType) != 0) {
 					codegenBinding.tagBits |= TagBits.ClearPrivateModifier;
 				} else {
@@ -150,6 +166,37 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 					currentScope.problemReporter().needToEmulateMethodAccess(codegenBinding, this);
 				}
 			}
+			return;
+		}
+	
+		// -----------------------------------   Only method references from now on -----------
+		if (this.binding.isPrivate()) {
+			if (enclosingSourceType != codegenBinding.declaringClass){
+				this.syntheticAccessor = ((SourceTypeBinding)codegenBinding.declaringClass).addSyntheticMethod(codegenBinding, false /* not super access */);
+				currentScope.problemReporter().needToEmulateMethodAccess(codegenBinding, this);
+			}
+			return;
+		}
+		
+		if (this.lhs.isSuper()) {
+			SourceTypeBinding destinationType = enclosingSourceType;
+			if (this.lhs instanceof QualifiedSuperReference) { 	// qualified super
+				QualifiedSuperReference qualifiedSuperReference = (QualifiedSuperReference) this.lhs;
+				TypeReference qualification = qualifiedSuperReference.qualification;
+				if (!qualification.resolvedType.isInterface()) // we can't drop the bridge in I, it may not even be a source type.
+					destinationType = (SourceTypeBinding) (qualifiedSuperReference.currentCompatibleType);
+			}
+			
+			this.syntheticAccessor = destinationType.addSyntheticMethod(codegenBinding, true);
+			currentScope.problemReporter().needToEmulateMethodAccess(codegenBinding, this);
+			return;
+		}
+		
+		if (this.binding.isProtected() && (this.bits & ASTNode.DepthMASK) != 0 && codegenBinding.declaringClass.getPackage() != enclosingSourceType.getPackage()) {
+			SourceTypeBinding currentCompatibleType = (SourceTypeBinding) enclosingSourceType.enclosingTypeAt((this.bits & ASTNode.DepthMASK) >> ASTNode.DepthSHIFT);
+			this.syntheticAccessor = currentCompatibleType.addSyntheticMethod(codegenBinding, isSuperAccess());
+			currentScope.problemReporter().needToEmulateMethodAccess(codegenBinding, this);
+			return;
 		}
 	}
 	
@@ -266,10 +313,11 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         
         // 15.28.1
         final boolean isMethodReference = isMethodReference();
+        this.depth = 0;
         MethodBinding someMethod = isMethodReference ? scope.getMethod(this.receiverType, this.selector, descriptorParameters, this) :
         											       scope.getConstructor((ReferenceBinding) this.receiverType, descriptorParameters, this);
-        
-        if (someMethod != null && someMethod.isValidBinding()) {
+        int someMethodDepth = this.depth, anotherMethodDepth = 0;
+    	if (someMethod != null && someMethod.isValidBinding()) {
         	final boolean isStatic = someMethod.isStatic();
         	if (isStatic && (this.haveReceiver || this.receiverType.isParameterizedType())) {
     			scope.problemReporter().methodMustBeAccessedStatically(this, someMethod);
@@ -307,7 +355,10 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         			parameters = new TypeBinding[parametersLength - 1];
         			System.arraycopy(descriptorParameters, 1, parameters, 0, parametersLength - 1);
         		}
+        		this.depth = 0;
         		anotherMethod = scope.getMethod(typeToSearch, this.selector, parameters, this);
+        		anotherMethodDepth = this.depth;
+        		this.depth = 0;
         	}
         	if (anotherMethod != null && anotherMethod.isValidBinding() && anotherMethod.isStatic()) {
         		scope.problemReporter().methodMustBeAccessedStatically(this, anotherMethod);
@@ -319,9 +370,23 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         	scope.problemReporter().methodReferenceSwingsBothWays(this, anotherMethod, someMethod);
         	return this.resolvedType = null;
         }
-
-        this.binding = someMethod != null && someMethod.isValidBinding() ? someMethod : 
-        											anotherMethod != null && anotherMethod.isValidBinding() ? anotherMethod : null;
+        
+        if (someMethod != null && someMethod.isValidBinding()) {
+        	this.binding = someMethod;
+        	this.bits &= ~ASTNode.DepthMASK;
+        	if (someMethodDepth > 0) {
+        		this.bits |= (someMethodDepth & 0xFF) << ASTNode.DepthSHIFT;
+        	}
+        } else if (anotherMethod != null && anotherMethod.isValidBinding()) {
+        	this.binding = anotherMethod;
+        	this.bits &= ~ASTNode.DepthMASK;
+        	if (anotherMethodDepth > 0) {
+        		this.bits |= (anotherMethodDepth & 0xFF) << ASTNode.DepthSHIFT;
+        	}
+        } else {
+        	this.binding = null;
+        	this.bits &= ~ASTNode.DepthMASK;
+        }
 
         if (this.binding == null) {
         	char [] visibleName = isConstructorReference() ? this.receiverType.sourceName() : this.selector;
@@ -443,7 +508,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	}
 
 	public void setDepth(int depth) {
-		return;
+		this.depth = depth;
 	}
 
 	public void setFieldIndex(int depth) {

@@ -1285,9 +1285,256 @@ public void test045() {
 				"X.Y cannot be resolved to a type\n" + 
 				"----------\n");
 }
-// TODO: add a test with long and double arguments.
-// FI<Type>
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406760, [1.8][compiler][codegen] "VerifyError: Bad type on operand stack" with qualified super method references
+public void test046() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	String doit();\n" +
+					"}\n" +
+					"public class X extends B {\n" +
+					"	class Y {\n" +
+					"		class Z {\n" +
+					"			void f() {\n" +
+					"				\n" +
+					"				 I i = X.super::toString; // Verify error\n" +
+					"				 System.out.println(i.doit());\n" +
+					"				 i = X.this::toString; // This call gets dispatched OK.\n" +
+					"				 System.out.println(i.doit());\n" +
+					"			}\n" +
+					"		}\n" +
+					"	}\n" +
+					"	\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new X().new Y().new Z().f(); \n" +
+					"	}\n" +
+					"	\n" +
+					"	public String toString() {\n" +
+					"		return \"X's toString\";\n" +
+					"	}\n" +
+					"}\n" +
+					"class B {\n" +
+					"	public String toString() {\n" +
+					"		return \"B's toString\";\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"B\'s toString\n" + 
+				"X\'s toString");
+}
+public void test047() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo(int x, int y);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		long lng = 1234;\n" +
+					"		double d = 1234.5678;\n" +
+					"		I i = (x, y) -> {\n" +
+					"			System.out.println(\"long = \" + lng);\n" +
+					"			System.out.println(\"args length = \" + args.length);\n" +
+					"			System.out.println(\"double = \" + d);\n" +
+					"			System.out.println(\"x = \" + x);\n" +
+					"			System.out.println(\"y = \" + y);\n" +
+					"		};\n" +
+					"		i.foo(9876, 4321);\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"long = 1234\n" + 
+				"args length = 0\n" + 
+				"double = 1234.5678\n" + 
+				"x = 9876\n" + 
+				"y = 4321");
+}
+public void test048() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I<T, J> {\n" +
+					"	void foo(T x, J y);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		long lng = 1234;\n" +
+					"		double d = 1234.5678;\n" +
+					"		I<Object, Object> i = (x, y) -> {\n" +
+					"			System.out.println(\"long = \" + lng);\n" +
+					"			System.out.println(\"args length = \" + args.length);\n" +
+					"			System.out.println(\"double = \" + d);\n" +
+					"			System.out.println(\"x = \" + x);\n" +
+					"			System.out.println(\"y = \" + y);\n" +
+					"		};\n" +
+					"		i.foo(9876, 4321);\n" +
+					"		\n" +
+					"		I<String, String> i2 = (x, y) -> {\n" +
+					"			System.out.println(x);\n" +
+					"			System.out.println(y);\n" +
+					"		};\n" +
+					"		i2.foo(\"Hello !\",  \"World\");\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"long = 1234\n" + 
+				"args length = 0\n" + 
+				"double = 1234.5678\n" + 
+				"x = 9876\n" + 
+				"y = 4321\n" + 
+				"Hello !\n" + 
+				"World");
+}
+public void test049() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I<T, J> {\n" +
+					"	void foo(X x, T t, J j);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		I<String, String> i = X::foo;\n" +
+					"		i.foo(new X(), \"Hello\", \"World!\");\n" +
+					"	}\n" +
+					"	void foo(String s, String t) {\n" +
+					"		System.out.println(s);\n" +
+					"		System.out.println(t);\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"Hello\n" + 
+				"World!");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
+public void test050() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo(int x, int y);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	static private void add(int x, int y) {\n" +
+					"		System.out.println(x + y);\n" +
+					"	}\n" +
+					"	private void multiply(int x, int y) {\n" +
+					"		System.out.println(x * y);\n" +
+					"	}\n" +
+					"	static class Y {\n" +
+					"		static private void subtract(int x, int y) {\n" +
+					"			System.out.println(x - y);\n" +
+					"		}\n" +
+					"		private void divide (int x, int y) {\n" +
+					"			System.out.println(x / y);\n" +
+					"		}\n" +
+					"		static void doy() {\n" +
+					"			I i = X::add;\n" +
+					"			i.foo(1234, 12);\n" +
+					"			i = new X()::multiply;\n" +
+					"			i.foo(12, 20);\n" +
+					"			i = Y::subtract;\n" +
+					"			i.foo(123,  13);\n" +
+					"			i = new Y()::divide;\n" +
+					"			i.foo(99, 9);\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		I i = X::add;\n" +
+					"		i.foo(1234, 12);\n" +
+					"		i = new X()::multiply;\n" +
+					"		i.foo(12, 20);\n" +
+					"		i = Y::subtract;\n" +
+					"		i.foo(123,  13);\n" +
+					"		i = new Y()::divide;\n" +
+					"		i.foo(99, 9);\n" +
+					"		Y.subtract(10,  7);\n" +
+					"		Y.doy();\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"1246\n" + 
+				"240\n" + 
+				"110\n" + 
+				"11\n" + 
+				"3\n" + 
+				"1246\n" + 
+				"240\n" + 
+				"110\n" + 
+				"11");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
+public void test051() {
+	this.runConformTest(
+			new String[] {
+					"p2/B.java",
+					"package p2;\n" +
+					"import p1.*;								\n" +
+					"interface I {\n" +
+					"	void foo();\n" +
+					"}\n" +
+					"interface J {\n" +
+					"	void foo();\n" +
+					"}\n" +
+					"public class B extends A {\n" +
+					"	class Y {\n" +
+					"		void g() {\n" +
+					"			I i = B::foo;\n" +
+					"			i.foo();\n" +
+					"			J j = new B()::goo;\n" +
+					"			j.foo();\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new B().new Y().g();\n" +
+					"	}\n" +
+					"}\n",
+					"p1/A.java",
+					"package p1;\n" +
+					"import p2.*;\n" +
+					"public class A {\n" +
+					"	protected static void foo() {\n" +
+					"	    System.out.println(\"A's static foo\");\n" +
+					"	}\n" +
+					"	protected void goo() {\n" +
+					"	    System.out.println(\"A's instance goo\");\n" +
+					"	}\n" +
+					"}"
+				},
+				"A\'s static foo\n" + 
+				"A\'s instance goo");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
+public void test052() {
+	this.runConformTest(
+			new String[] {
+					"X.java", 
+					"interface I {\n" +
+					"	void foo(int x);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	void foo() {\n" +
+					"		int local = 10;\n" +
+					"		class Y {\n" +
+					"			void foo(int x) {\n" +
+					"				System.out.println(local);\n" +
+					"			}\n" +
+					"			void goo() {\n" +
+					"				I i = this::foo;\n" +
+					"				i.foo(10);\n" +
+					"			}\n" +
+					"		}\n" +
+					"		new Y().goo();\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new X().foo();\n" +
+					"	}\n" +
+					"}\n"
+				},
+				"10");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

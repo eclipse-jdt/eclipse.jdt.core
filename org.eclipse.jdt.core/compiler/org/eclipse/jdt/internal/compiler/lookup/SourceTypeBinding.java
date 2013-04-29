@@ -693,17 +693,6 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 	}
 	return accessMethod;
 }
-public SyntheticMethodBinding addSyntheticSuperBridgeMethod(MethodBinding superMethod) {
-	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
-	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
-
-	char [] selector = CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.lambdaOrdinal++).toCharArray());
-	SyntheticMethodBinding bridge = new SyntheticMethodBinding(superMethod, selector, this);
-	this.synthetics[SourceTypeBinding.METHOD_EMUL].put(selector, new SyntheticMethodBinding[] { bridge });
-	return bridge;
-}
 boolean areFieldsInitialized() {
 	return this.fields != Binding.UNINITIALIZED_FIELDS;
 }
