@@ -1219,6 +1219,72 @@ public void test044() {
 				"Y(987654)\n" + 
 				"Z(456789)");
 }
+public void test045() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	X makeX(int x);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	I i = (x) -> {\n" +
+					"		class Y extends X {\n" +
+					"			private Y (int y) {\n" +
+					"				System.out.println(y);\n" +
+					"			}\n" +
+					"			Y() {\n" +
+					"			}\n" +
+					"			void f() {\n" +
+					"				I i = X::new;\n" +
+					"				i.makeX(123456);\n" +
+					"				i = X.Y::new;\n" +
+					"				i.makeX(987654);\n" +
+					"			}\n" +
+					"		}\n" +
+					"		return null; \n" +
+					"	};\n" +
+					"	private X(int x) {\n" +
+					"		System.out.println(x);\n" +
+					"	}\n" +
+					"	X() {\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new X().new Y().f();\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 6)\n" + 
+				"	class Y extends X {\n" + 
+				"	      ^\n" + 
+				"The type Y is never used locally\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 7)\n" + 
+				"	private Y (int y) {\n" + 
+				"	        ^^^^^^^^^\n" + 
+				"The constructor Y(int) is never used locally\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 10)\n" + 
+				"	Y() {\n" + 
+				"	^^^\n" + 
+				"The constructor Y() is never used locally\n" + 
+				"----------\n" + 
+				"4. WARNING in X.java (at line 13)\n" + 
+				"	I i = X::new;\n" + 
+				"	  ^\n" + 
+				"The local variable i is hiding a field from type X\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 15)\n" + 
+				"	i = X.Y::new;\n" + 
+				"	      ^\n" + 
+				"Y cannot be resolved or is not a field\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 27)\n" + 
+				"	new X().new Y().f();\n" + 
+				"	            ^\n" + 
+				"X.Y cannot be resolved to a type\n" + 
+				"----------\n");
+}
 // TODO: add a test with long and double arguments.
 // FI<Type>
 

@@ -524,10 +524,16 @@ public SyntheticMethodBinding addSyntheticMethod(LambdaExpression lambda) {
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
-	SyntheticMethodBinding lambdaMethod = new SyntheticMethodBinding(lambda, CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.lambdaOrdinal++).toCharArray()), this);
-	SyntheticMethodBinding[] accessors = new SyntheticMethodBinding[2]; 
-	this.synthetics[SourceTypeBinding.METHOD_EMUL].put(lambda, accessors);
-	accessors[0] = lambdaMethod;
+	
+	SyntheticMethodBinding lambdaMethod = null;
+	SyntheticMethodBinding[] lambdaMethods = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(lambda);
+	if (lambdaMethods == null) {
+		lambdaMethod = new SyntheticMethodBinding(lambda, CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.lambdaOrdinal++).toCharArray()), this);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL].put(lambda, lambdaMethods = new SyntheticMethodBinding[1]);
+		lambdaMethods[0] = lambdaMethod;
+	} else {
+		lambdaMethod = lambdaMethods[0];
+	}
 	return lambdaMethod;
 }
 
