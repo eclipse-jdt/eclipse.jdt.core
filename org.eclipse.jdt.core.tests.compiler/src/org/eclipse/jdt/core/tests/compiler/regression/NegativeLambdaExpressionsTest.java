@@ -6475,6 +6475,72 @@ public void test401989() {
 			compilerOptions /* custom options */
 		);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
+public void test406773() {
+		Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+		this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"interface I {\n" +
+					"	X makeX(int x);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	void foo() {\n" +
+					"		int local = 10;\n" +
+					"		class Y extends X {\n" +
+					"			class Z extends X {\n" +
+					"				void f() {\n" +
+					"					I i = X::new;\n" +
+					"					i.makeX(123456);\n" +
+					"					i = Y::new;\n" +
+					"					i.makeX(987654);\n" +
+					"					i = Z::new;\n" +
+					"					i.makeX(456789);\n" +
+					"				}\n" +
+					"				private Z(int z) {\n" +
+					"				}\n" +
+					"				Z() {}\n" +
+					"			}\n" +
+					"			private Y(int y) {\n" +
+					"				System.out.println(local);\n" +
+					"			}\n" +
+					"			private Y() {\n" +
+					"			}\n" +
+					"		}\n" +
+					"		new Y().new Z().f();\n" +
+					"	}\n" +
+					"	private X(int x) {\n" +
+					"	}\n" +
+					"	X() {\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new X().foo();\n" +
+					"	}\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	void foo() {\n" + 
+			"	     ^^^^^\n" + 
+			"The method foo() from the type X can potentially be declared as static\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 10)\n" + 
+			"	I i = X::new;\n" + 
+			"	      ^^^^^^^\n" + 
+			"Access to enclosing constructor X(int) is emulated by a synthetic accessor method\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 12)\n" + 
+			"	i = Y::new;\n" + 
+			"	    ^^^^^^^\n" + 
+			"No enclosing instance of the type X is accessible in scope\n" + 
+			"----------\n",
+			null /* no extra class libraries */,
+			true /* flush output directory */,
+			compilerOptions /* custom options */
+		);
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

@@ -1055,7 +1055,170 @@ public void _test040() {
 				},
 				"X cannot be cast to I");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
+public void test041() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	X makeX(int x);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	class Z {\n" +
+					"		void f() {\n" +
+					"			I i = X::new;\n" +
+					"			i.makeX(123456);\n" +
+					"		}\n" +
+					"	}\n" +
+					"	private X(int x) {\n" +
+					"		System.out.println(x);\n" +
+					"	}\n" +
+					"	X() {\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new X().new Z().f();\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"123456");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
+public void test042() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	X makeX(int x);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	class Y extends X {\n" +
+					"		class Z {\n" +
+					"			void f() {\n" +
+					"				I i = X::new;\n" +
+					"				i.makeX(123456);\n" +
+					"				i = Y::new;\n" +
+					"				i.makeX(987654);\n" +
+					"			}\n" +
+					"		}\n" +
+					"		private Y(int y) {\n" +
+					"			System.out.println(\"Y(\" + y + \")\");\n" +
+					"		}\n" +
+					"		private Y() {\n" +
+					"			\n" +
+					"		}\n" +
+					"	}\n" +
+					"	private X(int x) {\n" +
+					"		System.out.println(\"X(\" + x + \")\");\n" +
+					"	}\n" +
+					"\n" +
+					"	X() {\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new X().new Y().new Z().f();\n" +
+					"	}\n" +
+					"\n" +
+					"}\n",
+				},
+				"X(123456)\n" + 
+				"Y(987654)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
+public void test043() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	X makeX(int x);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	class Y extends X {\n" +
+					"		class Z extends X {\n" +
+					"			void f() {\n" +
+					"				I i = X::new;\n" +
+					"				i.makeX(123456);\n" +
+					"				i = Y::new;\n" +
+					"				i.makeX(987654);\n" +
+					"               i = Z::new;\n" +
+					"               i.makeX(456789);\n" +
+					"			}\n" +
+					"       	private Z(int z) {\n" +
+					"				System.out.println(\"Z(\" + z + \")\");\n" +
+					"			}\n" +
+					"           Z() {\n" +
+					"           }\n" +
+					"       }\n" +
+					"		private Y(int y) {\n" +
+					"			System.out.println(\"Y(\" + y + \")\");\n" +
+					"		}\n" +
+					"		private Y() {\n" +
+					"			\n" +
+					"		}\n" +
+					"	}\n" +
+					"	private X(int x) {\n" +
+					"		System.out.println(\"X(\" + x + \")\");\n" +
+					"	}\n" +
+					"\n" +
+					"	X() {\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new X().new Y().new Z().f();\n" +
+					"	}\n" +
+					"\n" +
+					"}\n",
+				},
+				"X(123456)\n" + 
+				"Y(987654)\n" + 
+				"Z(456789)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
+public void test044() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	X makeX(int x);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	void foo() {\n" +
+					"		int local;\n" +
+					"		class Y extends X {\n" +
+					"			class Z extends X {\n" +
+					"				void f() {\n" +
+					"					I i = X::new;\n" +
+					"					i.makeX(123456);\n" +
+					"					i = Y::new;\n" +
+					"					i.makeX(987654);\n" +
+					"					i = Z::new;\n" +
+					"					i.makeX(456789);\n" +
+					"				}\n" +
+					"				private Z(int z) {\n" +
+					"					System.out.println(\"Z(\" + z + \")\");\n" +
+					"				}\n" +
+					"				Z() {}\n" +
+					"			}\n" +
+					"			private Y(int y) {\n" +
+					"				System.out.println(\"Y(\" + y + \")\");\n" +
+					"			}\n" +
+					"			private Y() {\n" +
+					"			}\n" +
+					"		}\n" +
+					"		new Y().new Z().f();\n" +
+					"	}\n" +
+					"	private X(int x) {\n" +
+					"		System.out.println(\"X(\" + x + \")\");\n" +
+					"	}\n" +
+					"\n" +
+					"	X() {\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new X().foo();\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"X(123456)\n" + 
+				"Y(987654)\n" + 
+				"Z(456789)");
+}
 // TODO: add a test with long and double arguments.
 // FI<Type>
 

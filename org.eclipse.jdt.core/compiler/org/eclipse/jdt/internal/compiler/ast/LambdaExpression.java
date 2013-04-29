@@ -95,7 +95,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		SourceTypeBinding sourceType = currentScope.enclosingSourceType();
 		this.binding = sourceType.addSyntheticMethod(this);
 		int pc = codeStream.position;
-		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
 		StringBuffer signature = new StringBuffer();
 		signature.append('(');
 		if (this.shouldCaptureInstance) {
@@ -114,6 +113,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		}
 		signature.append(')');
 		signature.append(this.expectedType.signature());
+		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
 		codeStream.invokeDynamic(invokeDynamicNumber, (this.shouldCaptureInstance ? 1 : 0) + this.outerLocalVariablesSlotSize, 1, TypeConstants.ANONYMOUS_METHOD, signature.toString().toCharArray());
 		codeStream.recordPositionsFrom(pc, this.sourceStart);		
 	}

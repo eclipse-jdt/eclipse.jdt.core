@@ -2459,6 +2459,35 @@ public void generateSyntheticBodyForArrayClone(SyntheticMethodBinding methodBind
 	checkcast(arrayType);
 	areturn();
 }
+public void generateSyntheticBodyForFactoryMethod(SyntheticMethodBinding methodBinding) {
+	initializeMaxLocals(methodBinding);
+	MethodBinding constructorBinding = methodBinding.targetMethod;
+	TypeBinding[] parameters = methodBinding.parameters;
+	int length = parameters.length;
+	
+	new_(constructorBinding.declaringClass);
+	dup();
+	
+	int resolvedPosition = 0;
+	for (int i = 0; i < length; i++) {
+		TypeBinding parameter;
+		load(parameter = parameters[i], resolvedPosition);
+		switch(parameter.id) {
+			case TypeIds.T_long :
+			case TypeIds.T_double :
+				resolvedPosition += 2;
+				break;
+			default :
+				resolvedPosition++;
+				break;
+		}
+	}
+	for (int i = 0; i < methodBinding.fakePaddedParameters; i++)
+		aconst_null();
+	
+	invoke(Opcodes.OPC_invokespecial, constructorBinding, null /* default declaringClass */);
+	areturn();
+}
 //static X valueOf(String name) {
 // return (X) Enum.valueOf(X.class, name);
 //}

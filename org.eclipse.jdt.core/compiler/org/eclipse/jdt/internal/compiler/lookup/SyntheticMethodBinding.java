@@ -51,9 +51,11 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public static final int LambdaMethod = 13; // Lambda body emitted as a method.
 	public final static int ArrayConstructor = 14; // X[]::new
 	public static final int ArrayClone = 15; // X[]::clone
-
+    public static final int FactoryMethod = 16; // for indy call to private constructor.
+    
 	public int sourceStart = 0; // start position of the matching declaration
 	public int index; // used for sorting access methods in the class file
+	public int fakePaddedParameters = 0; // added in synthetic constructor to avoid name clash.
 
 	public SyntheticMethodBinding(FieldBinding targetField, boolean isReadAccess, boolean isSuperAccess, ReferenceBinding declaringClass) {
 
@@ -363,6 +365,29 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.parameters = lambda.binding.parameters;
 	    this.thrownExceptions = lambda.binding.thrownExceptions;
 	    this.purpose = SyntheticMethodBinding.LambdaMethod;
+		SyntheticMethodBinding[] knownAccessMethods = declaringClass.syntheticMethods();
+		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
+		this.index = methodId;
+	}
+
+	public SyntheticMethodBinding(MethodBinding privateConstructor, MethodBinding publicConstructor, char[] selector, TypeBinding[] enclosingInstances, SourceTypeBinding declaringClass) {
+	    this.declaringClass = declaringClass;
+	    this.selector = selector;
+	    this.modifiers = ClassFileConstants.AccSynthetic | ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic;
+		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+	    this.returnType = publicConstructor.declaringClass;
+	
+	    int realParametersLength = privateConstructor.parameters.length;
+	    int enclosingInstancesLength = enclosingInstances.length;
+	    int parametersLength =  enclosingInstancesLength + realParametersLength;
+	    this.parameters = new TypeBinding[parametersLength];
+	    System.arraycopy(enclosingInstances, 0, this.parameters, 0, enclosingInstancesLength);
+	    System.arraycopy(privateConstructor.parameters, 0, this.parameters, enclosingInstancesLength, realParametersLength);
+	    this.fakePaddedParameters = publicConstructor.parameters.length - realParametersLength;
+	    
+	    this.thrownExceptions = publicConstructor.thrownExceptions;
+	    this.purpose = SyntheticMethodBinding.FactoryMethod;
+	    this.targetMethod = publicConstructor;
 		SyntheticMethodBinding[] knownAccessMethods = declaringClass.syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
 		this.index = methodId;

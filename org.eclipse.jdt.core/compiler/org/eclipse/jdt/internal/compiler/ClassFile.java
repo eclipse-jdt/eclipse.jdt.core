@@ -860,6 +860,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 						case SyntheticMethodBinding.ArrayClone:
 							addSyntheticArrayClone(syntheticMethod);
 							break;
+						case SyntheticMethodBinding.FactoryMethod:
+							addSyntheticFactoryMethod(syntheticMethod);
+							break;	
 					}
 				}
 				emittedSyntheticsCount = currentSyntheticsCount;
@@ -901,6 +904,29 @@ public class ClassFile implements TypeConstants, TypeIds {
 		generateCodeAttributeHeader();
 		this.codeStream.init(this);
 		this.codeStream.generateSyntheticBodyForArrayClone(methodBinding);
+		completeCodeAttributeForSyntheticMethod(
+			methodBinding,
+			codeAttributeOffset,
+			((SourceTypeBinding) methodBinding.declaringClass)
+				.scope
+				.referenceCompilationUnit()
+				.compilationResult
+				.getLineSeparatorPositions());
+		// update the number of attributes
+		this.contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
+		this.contents[methodAttributeOffset] = (byte) attributeNumber;
+	}
+	public void addSyntheticFactoryMethod(SyntheticMethodBinding methodBinding) {
+		generateMethodInfoHeader(methodBinding);
+		int methodAttributeOffset = this.contentsOffset;
+		// this will add exception attribute, synthetic attribute, deprecated attribute,...
+		int attributeNumber = generateMethodInfoAttributes(methodBinding);
+		// Code attribute
+		int codeAttributeOffset = this.contentsOffset;
+		attributeNumber++; // add code attribute
+		generateCodeAttributeHeader();
+		this.codeStream.init(this);
+		this.codeStream.generateSyntheticBodyForFactoryMethod(methodBinding);
 		completeCodeAttributeForSyntheticMethod(
 			methodBinding,
 			codeAttributeOffset,

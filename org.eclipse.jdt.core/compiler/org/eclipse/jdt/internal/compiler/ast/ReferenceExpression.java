@@ -63,6 +63,8 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	public TypeBinding[] resolvedTypeArguments;
 	private boolean typeArgumentsHaveErrors;
 	
+	MethodBinding syntheticAccessor;	// synthetic accessor for inner-emulation
+	
 	public ReferenceExpression(CompilationResult compilationResult, Expression lhs, TypeReference [] typeArguments, char [] selector, int sourceEnd) {
 		super(compilationResult);
 		this.lhs = lhs;
@@ -85,7 +87,6 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		}
 		
 		int pc = codeStream.position;
-		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
 		StringBuffer buffer = new StringBuffer();
 		int argumentsSize = 0;
 		buffer.append('(');
@@ -94,21 +95,31 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			buffer.append(this.lhs.isSuper() ? sourceType.signature() : this.receiverType.signature());
 			argumentsSize = 1;
 		} else {
-			if (this.isConstructorReference() && this.receiverType.isNestedType()) {
-				NestedTypeBinding nestedType = (NestedTypeBinding) this.receiverType;
-				ReferenceBinding[] syntheticArgumentTypes;
-				if ((syntheticArgumentTypes = nestedType.syntheticEnclosingInstanceTypes()) != null) {
-					int length = syntheticArgumentTypes.length;
-					argumentsSize = length;
-					for (int i = 0 ; i < length; i++) {
-						ReferenceBinding syntheticArgumentType = syntheticArgumentTypes[i];
-						buffer.append(syntheticArgumentType.signature());
-						Object[] emulationPath = currentScope.getEmulationPath(
-								syntheticArgumentType,
-								false /* allow compatible match */,
-								true /* disallow instance reference in explicit constructor call */);
-						codeStream.generateOuterAccess(emulationPath, this, syntheticArgumentType, currentScope);
+			if (this.isConstructorReference()) {
+				ReferenceBinding[] enclosingInstances = Binding.UNINITIALIZED_REFERENCE_TYPES;
+				if (this.receiverType.isNestedType()) {
+					NestedTypeBinding nestedType = (NestedTypeBinding) this.receiverType;
+					if ((enclosingInstances = nestedType.syntheticEnclosingInstanceTypes()) != null) {
+						int length = enclosingInstances.length;
+						argumentsSize = length;
+						for (int i = 0 ; i < length; i++) {
+							ReferenceBinding syntheticArgumentType = enclosingInstances[i];
+							buffer.append(syntheticArgumentType.signature());
+							Object[] emulationPath = currentScope.getEmulationPath(
+									syntheticArgumentType,
+									false /* allow compatible match */,
+									true /* disallow instance reference in explicit constructor call */);
+							codeStream.generateOuterAccess(emulationPath, this, syntheticArgumentType, currentScope);
+						}
 					}
+					// Reject types that capture outer local arguments, these cannot be manufactured by the metafactory.
+					if (nestedType.syntheticOuterLocalVariables() != null) {
+						currentScope.problemReporter().noSuchEnclosingInstance(nestedType.enclosingType, this, false);
+						return;
+					}
+				}
+				if (this.syntheticAccessor != null) {
+					this.binding = sourceType.addSyntheticFactoryMethod(this.binding, this.syntheticAccessor, enclosingInstances);
 				}
 			}
 		}
@@ -116,8 +127,30 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		buffer.append('L');
 		buffer.append(this.resolvedType.constantPoolName());
 		buffer.append(';');
+		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
 		codeStream.invokeDynamic(invokeDynamicNumber, argumentsSize, 1, LAMBDA, buffer.toString().toCharArray());
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
+	}
+	
+	public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
+		
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0) return;
+		if (this.binding == null || !this.binding.isValidBinding()) return;
+		
+		if (this.isConstructorReference()) {
+			// if constructor from parameterized type got found, use the original constructor at codegen time
+			MethodBinding codegenBinding = this.binding.original();
+			ReferenceBinding allocatedType = codegenBinding.declaringClass;
+
+			if (codegenBinding.isPrivate() && currentScope.enclosingSourceType() != (allocatedType = codegenBinding.declaringClass)) {
+				if ((allocatedType.tagBits & TagBits.IsLocalType) != 0) {
+					codegenBinding.tagBits |= TagBits.ClearPrivateModifier;
+				} else {
+					this.syntheticAccessor = ((SourceTypeBinding) allocatedType).addSyntheticMethod(codegenBinding, false);
+					currentScope.problemReporter().needToEmulateMethodAccess(codegenBinding, this);
+				}
+			}
+		}
 	}
 	
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
@@ -126,6 +159,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			this.lhs.checkNPE(currentScope, flowContext, flowInfo);
 			this.lhs.analyseCode(currentScope, flowContext, flowInfo, true);
 		}
+		manageSyntheticAccessIfNecessary(currentScope, flowInfo);
 		return flowInfo;
 	}
 

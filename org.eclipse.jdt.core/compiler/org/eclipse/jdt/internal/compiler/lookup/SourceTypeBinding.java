@@ -586,6 +586,17 @@ public SyntheticMethodBinding addSyntheticArrayMethod(ArrayBinding arrayType, in
 	}
 	return arrayMethod;
 }
+public SyntheticMethodBinding addSyntheticFactoryMethod(MethodBinding privateConstructor, MethodBinding publicConstructor, TypeBinding [] enclosingInstances) {
+	if (this.synthetics == null)
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
+	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+
+	char [] selector = CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.lambdaOrdinal++).toCharArray());
+	SyntheticMethodBinding factory = new SyntheticMethodBinding(privateConstructor, publicConstructor, selector, enclosingInstances, this);
+	this.synthetics[SourceTypeBinding.METHOD_EMUL].put(selector, new SyntheticMethodBinding[] { factory });
+	return factory;
+}
 /*
  * Record the fact that bridge methods need to be generated to override certain inherited methods
  */
