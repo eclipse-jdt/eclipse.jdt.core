@@ -1535,6 +1535,55 @@ public void test052() {
 				},
 				"10");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406847, [1.8] lambda code compiles but then produces IncompatibleClassChangeError when run
+public void test053() {
+	  this.runConformTest(
+	    new String[] {
+	      "X.java",
+	      "import java.util.*;\n" +
+	      "public class X {\n" +
+	      "  public static <E> void printItem(E value, int index) {\n" +
+	      "    String output = String.format(\"%d -> %s\", index, value);\n" +
+	      "    System.out.println(output);\n" +
+	      "  }\n" +
+	      "  public static void main(String[] argv) {\n" +
+	      "    List<String> list = Arrays.asList(\"A\",\"B\",\"C\");\n" +
+	      "    eachWithIndex(list,X::printItem);\n" +
+	      "  }\n" +
+	      "  interface ItemWithIndexVisitor<E> {\n" +
+	      "    public void visit(E item, int index);\n" +
+	      "  }\n" +
+	      "  public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {\n" +
+	      "    for (int i = 0; i < list.size(); i++) {\n" +
+	      "         visitor.visit(list.get(i), i);\n" +
+	      "    }\n" +
+	      "  }\n" +
+	      "}\n"
+	    },
+	    "0 -> A\n" + 
+	    "1 -> B\n" + 
+	    "2 -> C");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406847, [1.8] lambda code compiles but then produces IncompatibleClassChangeError when run
+public void test054() {
+	  this.runConformTest(
+	    new String[] {
+	      "X.java",
+	      "import java.util.*;\n" +
+	      "public class X {\n" +
+	      "  public static <E> void printItem(E value) {}\n" +
+	      "  public static void main(String[] argv) {\n" +
+	      "    List<String> list = null;\n" +
+	      "    eachWithIndex(list, X::printItem);\n" +
+	      "  }\n" +
+	      "  interface ItemWithIndexVisitor<E> {\n" +
+	      "    public void visit(E item);\n" +
+	      "  }\n" +
+	      "  public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {}\n" +
+	      "}\n"
+	    },
+	    "");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

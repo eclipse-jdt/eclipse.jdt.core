@@ -2560,7 +2560,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.contents[localContentsOffset++] = (byte) (functionalDescriptorIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) functionalDescriptorIndex;
 
-			int methodHandleIndex = this.constantPool.literalIndexForMethodHandle(functional.binding);
+			int methodHandleIndex = this.constantPool.literalIndexForMethodHandle(functional.binding.original()); // Speak of " implementation" (erased) version here, adaptations described below.
 			this.contents[localContentsOffset++] = (byte) (methodHandleIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) methodHandleIndex;
 
