@@ -1584,6 +1584,49 @@ public void test054() {
 	    },
 	    "");
 }
+public void test055() {
+	  this.runConformTest(
+	    new String[] {
+	      "X.java",
+	      "interface I {\n" +
+		  "	void foo(int i);\n" +
+		  "}\n" +
+		  "public class X {\n" +
+		  "	public static void main(String[] args) {\n" +
+		  "		X x = null;\n" +
+		  "		I i = x::foo;\n" +
+		  "	}\n" +
+		  "	int foo(int x) {\n" +
+		  "		return x;\n" +
+		  "	}\n" +
+		  "}\n" 
+	    },
+	    "");
+}
+public void test056() {
+	  this.runConformTest(
+	    new String[] {
+	      "X.java",
+	      "interface I {\n" +
+		  "	void foo(int i);\n" +
+		  "}\n" +
+		  "public class X {\n" +
+		  "	public static void main(String[] args) {\n" +
+		  "		X x = null;\n" +
+		  "		I i = x::foo;\n" +
+		  "		try {\n" +
+		  "			i.foo(10);\n" +
+		  "		} catch (NullPointerException npe) {\n" +
+		  "			System.out.println(npe.getMessage());\n" +
+		  "		}\n" +
+		  "	}\n" +
+		  "	int foo(int x) {\n" +
+		  "		return x;\n" +
+		  "	}\n" +
+		  "}\n" 
+	    },
+	    "null");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
