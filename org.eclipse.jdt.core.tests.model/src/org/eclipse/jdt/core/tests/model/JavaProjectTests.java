@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.AST;
@@ -2214,6 +2215,10 @@ public void testRootGetPackageFragments2() throws CoreException {
  * (regression test for bug 65693 Package Explorer shows .class files instead of .java)
  */
 public void testRootGetPackageFragments3() throws CoreException {
+	String os = Platform.getOS();
+	if (Platform.OS_WIN32.equals(os)) {
+		return;
+	}
 	try {
 		IJavaProject p1 = createJavaProject("Bug65693_1");
 		createFile(
