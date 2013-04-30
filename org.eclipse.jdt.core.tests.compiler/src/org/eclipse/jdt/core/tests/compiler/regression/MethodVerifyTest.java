@@ -7,9 +7,11 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for
+ *     Stephan Herrmann - Contributions for
  *								bug 388795 - [compiler] detection of name clash depends on order of super interfaces
  *								bug 395681 - [compiler] Improve simulation of javac6 behavior from bug 317719 after fixing bug 388795
+ *	   Andy Clement - Contribution for
+ *								bug 406928 - computation of inherited methods seems damaged (affecting @Overrides)
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -30,7 +32,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class MethodVerifyTest extends AbstractComparableTest {
 	static {
-//		TESTS_NAMES = new String[] { "testBug317719" };
+//		TESTS_NAMES = new String[] { "testBug406928" };
 //		TESTS_NUMBERS = new int[] { 213 };
 //		TESTS_RANGE = new int[] { 190, -1};
 	}
@@ -13807,5 +13809,24 @@ public void test354229d() {
 		"	         ^^^^^^^^^^^^^^\n" + 
 		"Method e(Action<S>) has the same erasure e(Action<T>) as another method in type X\n" + 
 		"----------\n");
+}
+// https://bugs.eclipse.org/406928 - computation of inherited methods seems damaged (affecting @Overrides)
+public void testBug406928() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_6) return;
+	this.runConformTest(
+		new String[] {
+			"TestPointcut.java",
+			"interface MethodMatcher {\n"+
+			"	boolean matches();\n"+
+			"}\n"+
+			"abstract class StaticMethodMatcher implements MethodMatcher { }\n"+
+			"abstract class StaticMethodMatcherPointcut extends StaticMethodMatcher { }\n"+
+			"\n"+
+			"class TestPointcut extends StaticMethodMatcherPointcut {\n"+
+			"	@Override\n"+
+			"	public boolean matches() { return false; } \n"+
+			"}\n"
+		},
+		"");
 }
 }
