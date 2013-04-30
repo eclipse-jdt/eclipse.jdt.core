@@ -4148,7 +4148,7 @@ public abstract class Scope {
 				TypeBinding param = parameters[i];
 				TypeBinding arg = arguments[i];
 				//https://bugs.eclipse.org/bugs/show_bug.cgi?id=330445
-				if (arg != param && !arg.isCompatibleWith(param.erasure()))
+				if (arg != param && !arg.isCompatibleWith(param.erasure(), this))
 					return NOT_COMPATIBLE;
 			}
 			return COMPATIBLE;
