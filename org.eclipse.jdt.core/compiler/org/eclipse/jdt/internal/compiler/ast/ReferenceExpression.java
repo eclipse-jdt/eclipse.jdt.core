@@ -553,7 +553,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 
 	public boolean isCompatibleWith(TypeBinding left, Scope scope) {
 		// 15.28.1
-		final MethodBinding sam = left.getSingleAbstractMethod(scope);
+		final MethodBinding sam = left.getSingleAbstractMethod(this.enclosingScope);
 		if (sam == null || !sam.isValidBinding())
 			return false;
 		boolean isCompatible;

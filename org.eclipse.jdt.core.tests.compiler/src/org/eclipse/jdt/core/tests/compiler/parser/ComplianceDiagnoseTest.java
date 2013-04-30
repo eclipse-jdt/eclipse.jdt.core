@@ -3250,4 +3250,98 @@ public void testBug399781() {
 			expectedProblemLog
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406846:  [1.8] compiler NPE for method reference/lambda code compiled with < 1.8 compliance
+public void test406846() {
+	
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8) // tested in LET.
+		return;
+	
+	String[] testFiles = new String[] {
+		"X.java",
+		"import java.util.*;\n" +
+		"public class X {\n" +
+		"  public static <E> void printItem(E value, int index) {\n" +
+		"    String output = String.format(\"%d -> %s\", index, value);\n" +
+		"    System.out.println(output);\n" +
+		"  }\n" +
+		"  public static void main(String[] argv) {\n" +
+		"    List<String> list = Arrays.asList(\"A\",\"B\",\"C\");\n" +
+		"    eachWithIndex(list,X::printItem);\n" +
+		"  }\n" +
+		"  interface ItemWithIndexVisitor<E> {\n" +
+		"    public void visit(E item, int index);\n" +
+		"  }\n" +
+		"  public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {\n" +
+		"    for (int i = 0; i < list.size(); i++) {\n" +
+		"         visitor.visit(list.get(i), i);\n" +
+		"    }\n" +
+		"  }\n" +
+		"}\n",
+	};
+
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	eachWithIndex(list,X::printItem);\n" + 
+			"	                   ^^^^^^^^^^^^\n" + 
+			"Method references are allowed only at source level 1.8 or above\n" + 
+			"----------\n";
+	String expected1314ProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	public static <E> void printItem(E value, int index) {\n" + 
+			"	               ^\n" + 
+			"Syntax error, type parameters are only available if source level is 1.5 or greater\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	String output = String.format(\"%d -> %s\", index, value);\n" + 
+			"	                       ^^^^^^\n" + 
+			"The method format(String, Object[]) in the type String is not applicable for the arguments (String, int, E)\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	List<String> list = Arrays.asList(\"A\",\"B\",\"C\");\n" + 
+			"	     ^^^^^^\n" + 
+			"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 8)\n" + 
+			"	List<String> list = Arrays.asList(\"A\",\"B\",\"C\");\n" + 
+			"	                           ^^^^^^\n" + 
+			"The method asList(T[]) in the type Arrays is not applicable for the arguments (String, String, String)\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 9)\n" + 
+			"	eachWithIndex(list,X::printItem);\n" + 
+			"	                   ^^^^^^^^^^^^\n" + 
+			"Method references are allowed only at source level 1.8 or above\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 11)\n" + 
+			"	interface ItemWithIndexVisitor<E> {\n" + 
+			"	                               ^\n" + 
+			"Syntax error, type parameters are only available if source level is 1.5 or greater\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 14)\n" + 
+			"	public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {\n" + 
+			"	               ^\n" + 
+			"Syntax error, type parameters are only available if source level is 1.5 or greater\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 14)\n" + 
+			"	public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {\n" + 
+			"	                                          ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" + 
+			"----------\n" + 
+			"9. ERROR in X.java (at line 14)\n" + 
+			"	public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {\n" + 
+			"	                                                                        ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" + 
+			"----------\n";
+
+	runComplianceParserTest(
+			testFiles,
+			expected1314ProblemLog,
+			expected1314ProblemLog,
+			expectedProblemLog,
+			expectedProblemLog,
+			expectedProblemLog,
+			expectedProblemLog
+	);
+}
 }
