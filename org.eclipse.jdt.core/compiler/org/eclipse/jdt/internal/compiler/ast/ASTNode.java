@@ -589,6 +589,38 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return output;
 	}
 
+	public static boolean polyExpressionsHaveErrors(BlockScope scope, MethodBinding methodBinding, Expression [] arguments, TypeBinding[] argumentTypes) {
+		boolean polyExpressionsHaveErrors = false;
+		MethodBinding candidateMethod;
+		if (methodBinding.isValidBinding()) {
+			candidateMethod = methodBinding;
+		} else if (methodBinding instanceof ProblemMethodBinding) {
+			candidateMethod = ((ProblemMethodBinding) methodBinding).closestMatch;
+		} else {
+			candidateMethod = null;
+		}
+		if (candidateMethod != null) {
+			boolean variableArity = candidateMethod.isVarargs();
+			final TypeBinding[] parameters = candidateMethod.parameters;
+			final int parametersLength = parameters.length;
+			for (int i = 0, length = arguments == null ? 0 : arguments.length; i < length; i++) {
+				if (argumentTypes[i] instanceof PolyTypeBinding) {
+					Expression argument = arguments[i];
+					TypeBinding parameterType = i < parametersLength ? parameters[i] : variableArity ? parameters[parametersLength - 1] : null;
+					argument.setExpressionContext(parameterType != null ? ExpressionContext.INVOCATION_CONTEXT: ExpressionContext.ASSIGNMENT_CONTEXT); // force the errors to surface.
+					if (variableArity && i >= parametersLength - 1)
+						argument.tagAsEllipsisArgument();
+					argument.setExpectedType(parameterType);
+					TypeBinding argumentType = argument.resolveType(scope);
+					if (argumentType == null || !argumentType.isValidBinding())
+						polyExpressionsHaveErrors = true;
+					if (argument instanceof LambdaExpression && ((LambdaExpression) argument).hasErrors())
+						polyExpressionsHaveErrors = true;
+				}
+			}
+		}
+		return polyExpressionsHaveErrors;
+	}
 	/**
 	 * Resolve annotations, and check duplicates, answers combined tagBits
 	 * for recognized standard annotations

@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
-import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -413,23 +412,10 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 			if (receiverType == null) {
 				return;
 			}
-			if ((this.binding = scope.getConstructor(receiverType, argumentTypes, this)).isValidBinding()) {
-				if (polyExpressionSeen) {
-					boolean variableArity = this.binding.isVarargs();
-					final TypeBinding[] parameters = this.binding.parameters;
-					final int parametersLength = parameters.length;
-					for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
-						Expression argument = this.arguments[i];
-						TypeBinding parameterType = i < parametersLength ? parameters[i] : parameters[parametersLength - 1];
-						if (argumentTypes[i] instanceof PolyTypeBinding) {
-							argument.setExpressionContext(INVOCATION_CONTEXT);
-							if (variableArity && i >= parametersLength - 1)
-								argument.tagAsEllipsisArgument();
-							argument.setExpectedType(parameterType);
-							argumentTypes[i] = argument.resolveType(scope);
-						}
-					}
-				}
+			this.binding = scope.getConstructor(receiverType, argumentTypes, this);
+			if (polyExpressionSeen && polyExpressionsHaveErrors(scope, this.binding, this.arguments, argumentTypes))
+				return;
+			if (this.binding.isValidBinding()) {
 				if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
 					if (!methodScope.enclosingSourceType().isAnonymousType()) {
 						scope.problemReporter().missingTypeInConstructor(this, this.binding);

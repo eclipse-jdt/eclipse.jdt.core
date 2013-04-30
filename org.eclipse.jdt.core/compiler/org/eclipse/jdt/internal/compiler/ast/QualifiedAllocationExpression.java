@@ -38,7 +38,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
@@ -453,23 +452,10 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				receiverType = this.type.resolvedType = scope.environment().createParameterizedType(((ParameterizedTypeBinding) receiverType).genericType(), inferredTypes, ((ParameterizedTypeBinding) receiverType).enclosingType());
 			}
 			ReferenceBinding allocationType = (ReferenceBinding) receiverType;
-			if ((this.binding = scope.getConstructor(allocationType, argumentTypes, this)).isValidBinding()) {
-				if (polyExpressionSeen) {
-					boolean variableArity = this.binding.isVarargs();
-					final TypeBinding[] parameters = this.binding.parameters;
-					final int parametersLength = parameters.length;
-					for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
-						Expression argument = this.arguments[i];
-						TypeBinding parameterType = i < parametersLength ? parameters[i] : parameters[parametersLength - 1];
-						if (argumentTypes[i] instanceof PolyTypeBinding) {
-							argument.setExpressionContext(INVOCATION_CONTEXT);
-							if (variableArity && i >= parametersLength - 1)
-								argument.tagAsEllipsisArgument();
-							argument.setExpectedType(parameterType);
-							argumentTypes[i] = argument.resolveType(scope);
-						}
-					}
-				}
+			this.binding = scope.getConstructor(allocationType, argumentTypes, this);
+			if (polyExpressionSeen && polyExpressionsHaveErrors(scope, this.binding, this.arguments, argumentTypes))
+				return null;
+			if (this.binding.isValidBinding()) {	
 				if (isMethodUseDeprecated(this.binding, scope, true)) {
 					scope.problemReporter().deprecatedMethod(this.binding, this);
 				}
@@ -534,6 +520,8 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			return null; // stop secondary errors
 		}
 		MethodBinding inheritedBinding = scope.getConstructor(anonymousSuperclass, argumentTypes, this);
+		if (polyExpressionSeen && polyExpressionsHaveErrors(scope, inheritedBinding, this.arguments, argumentTypes))
+			return null;
 		if (!inheritedBinding.isValidBinding()) {
 			if (inheritedBinding.declaringClass == null) {
 				inheritedBinding.declaringClass = anonymousSuperclass;
@@ -544,22 +532,6 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			}
 			scope.problemReporter().invalidConstructor(this, inheritedBinding);
 			return this.resolvedType;
-		}
-		if (polyExpressionSeen) {
-			boolean variableArity = inheritedBinding.isVarargs();
-			final TypeBinding[] parameters = inheritedBinding.parameters;
-			final int parametersLength = parameters.length;
-			for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
-				Expression argument = this.arguments[i];
-				TypeBinding parameterType = i < parametersLength ? parameters[i] : parameters[parametersLength - 1];
-				if (argumentTypes[i] instanceof PolyTypeBinding) {
-					argument.setExpressionContext(INVOCATION_CONTEXT);
-					if (variableArity && i >= parametersLength - 1)
-						argument.tagAsEllipsisArgument();
-					argument.setExpectedType(parameterType);
-					argumentTypes[i] = argument.resolveType(scope);
-				}
-			}
 		}
 		if ((inheritedBinding.tagBits & TagBits.HasMissingType) != 0) {
 			scope.problemReporter().missingTypeInConstructor(this, inheritedBinding);

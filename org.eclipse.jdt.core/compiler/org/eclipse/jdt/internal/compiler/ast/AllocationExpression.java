@@ -421,8 +421,13 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 		this.resolvedType = this.type.resolvedType = scope.environment().createParameterizedType(((ParameterizedTypeBinding) this.resolvedType).genericType(), inferredTypes, ((ParameterizedTypeBinding) this.resolvedType).enclosingType());
  	}
+	
 	ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
-	if (!(this.binding = scope.getConstructor(allocationType, argumentTypes, this)).isValidBinding()) {
+	this.binding = scope.getConstructor(allocationType, argumentTypes, this);
+	if (polyExpressionSeen && polyExpressionsHaveErrors(scope, this.binding, this.arguments, argumentTypes))
+		return null;
+	
+	if (!this.binding.isValidBinding()) {
 		if (this.binding.declaringClass == null) {
 			this.binding.declaringClass = allocationType;
 		}
@@ -431,22 +436,6 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 		scope.problemReporter().invalidConstructor(this, this.binding);
 		return this.resolvedType;
-	}
-	if (polyExpressionSeen) {
-		boolean variableArity = this.binding.isVarargs();
-		final TypeBinding[] parameters = this.binding.parameters;
-		final int parametersLength = parameters.length;
-		for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
-			Expression argument = this.arguments[i];
-			TypeBinding parameterType = i < parametersLength ? parameters[i] : parameters[parametersLength - 1];
-			if (argumentTypes[i] instanceof PolyTypeBinding) {
-				argument.setExpressionContext(INVOCATION_CONTEXT);
-				if (variableArity && i >= parametersLength - 1)
-					argument.tagAsEllipsisArgument();
-				argument.setExpectedType(parameterType);
-				argumentTypes[i] = argument.resolveType(scope);
-			}
-		}
 	}
 	if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
 		scope.problemReporter().missingTypeInConstructor(this, this.binding);

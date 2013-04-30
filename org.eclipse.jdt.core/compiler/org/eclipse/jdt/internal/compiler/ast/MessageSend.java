@@ -57,7 +57,6 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -663,6 +662,10 @@ public TypeBinding resolveType(BlockScope scope) {
 	this.binding = this.receiver.isImplicitThis()
 			? scope.getImplicitMethod(this.selector, argumentTypes, this)
 			: scope.getMethod(this.actualReceiverType, this.selector, argumentTypes, this);
+	
+	if (polyExpressionSeen && polyExpressionsHaveErrors(scope, this.binding, this.arguments, argumentTypes))
+		return null;
+
 	if (!this.binding.isValidBinding()) {
 		if (this.binding.declaringClass == null) {
 			if (this.actualReceiverType instanceof ReferenceBinding) {
@@ -705,22 +708,6 @@ public TypeBinding resolveType(BlockScope scope) {
 		return (this.resolvedType != null && (this.resolvedType.tagBits & TagBits.HasMissingType) == 0)
 						? this.resolvedType
 						: null;
-	}
-	if (polyExpressionSeen) {
-		boolean variableArity = this.binding.isVarargs();
-		final TypeBinding[] parameters = this.binding.parameters;
-		final int parametersLength = parameters.length;
-		for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
-			Expression argument = this.arguments[i];
-			TypeBinding parameterType = i < parametersLength ? parameters[i] : parameters[parametersLength - 1];
-			if (argumentTypes[i] instanceof PolyTypeBinding) {
-				argument.setExpressionContext(INVOCATION_CONTEXT);
-				if (variableArity && i >= parametersLength - 1)
-					argument.tagAsEllipsisArgument();
-				argument.setExpectedType(parameterType);
-				argumentTypes[i] = argument.resolveType(scope);
-			}
-		}
 	}
 	final CompilerOptions compilerOptions = scope.compilerOptions();
 	if (compilerOptions.complianceLevel <= ClassFileConstants.JDK1_6

@@ -139,7 +139,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		this.enclosingScope = blockScope;
 		
 		if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
-			this.resultExpressions = new SimpleLookupTable();
 			return new PolyTypeBinding(this);
 		} 
 		
@@ -473,6 +472,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				return false;
 			copy.setExpressionContext(this.expressionContext);
 			copy.setExpectedType(left);
+			if (this.resultExpressions == null)
+				this.resultExpressions = new SimpleLookupTable(); // gather result expressions for most specific method analysis.
 			this.resultExpressions.put(left, new Expression[0]);
 			copy.resolveType(this.enclosingScope);
 			if (!this.shapeAnalysisComplete) {
@@ -570,7 +571,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	}
 
 	public void returnsExpression(Expression expression, TypeBinding resultType) {
-		if (this.expressionContext != INVOCATION_CONTEXT)
+		if (this.original == this) // not in overload resolution context.
 			return;
 		if (expression != null) {
 			this.original.returnsValue = true;

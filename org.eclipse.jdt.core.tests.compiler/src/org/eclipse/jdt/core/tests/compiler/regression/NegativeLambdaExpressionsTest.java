@@ -5049,9 +5049,8 @@ this.runNegativeTest(
 				"----------\n" + 
 				"1. ERROR in X.java (at line 20)\n" + 
 				"	new X().foo((s)->{});\n" + 
-				"	        ^^^\n" + 
-				"The method foo(I) in the type X is not applicable for the arguments ((<no type> s) -> {\n" + 
-				"})\n" + 
+				"	            ^^^^^^^\n" + 
+				"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
@@ -5087,28 +5086,23 @@ this.runNegativeTest(
 				"----------\n" + 
 				"1. ERROR in X.java (at line 15)\n" + 
 				"	new X().foo(()->{ return \"\";});\n" + 
-				"	        ^^^\n" + 
-				"The method foo(I) in the type X is not applicable for the arguments (() -> {\n" + 
-				"  return \"\";\n" + 
-				"})\n" + 
+				"	                  ^^^^^^^^^^\n" + 
+				"Void methods cannot return a value\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 16)\n" + 
 				"	new X().foo(()-> 10);\n" + 
-				"	        ^^^\n" + 
-				"The method foo(I) in the type X is not applicable for the arguments (() -> 10)\n" + 
+				"	                 ^^\n" + 
+				"Void methods cannot return a value\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 17)\n" + 
 				"	new X().foo((s)->{});\n" + 
-				"	        ^^^\n" + 
-				"The method foo(I) in the type X is not applicable for the arguments ((<no type> s) -> {\n" + 
-				"})\n" + 
+				"	            ^^^^^^^\n" + 
+				"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
 				"----------\n" + 
 				"4. ERROR in X.java (at line 18)\n" + 
 				"	new X().foo((s)->{ return;});\n" + 
-				"	        ^^^\n" + 
-				"The method foo(I) in the type X is not applicable for the arguments ((<no type> s) -> {\n" + 
-				"  return ;\n" + 
-				"})\n" + 
+				"	            ^^^^^^^^^^^^^^^\n" + 
+				"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
@@ -5151,9 +5145,8 @@ this.runNegativeTest(
 				"----------\n" + 
 				"3. ERROR in X.java (at line 7)\n" + 
 				"	new X().foo(()->{});\n" + 
-				"	        ^^^\n" + 
-				"The method foo(I<T>) in the type X is not applicable for the arguments (() -> {\n" + 
-				"})\n" + 
+				"	            ^^^^^^\n" + 
+				"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
@@ -5216,10 +5209,8 @@ this.runNegativeTest(
 				"----------\n" + 
 				"1. ERROR in X.java (at line 11)\n" + 
 				"	new X().foo(()->{ return 10; });\n" + 
-				"	        ^^^\n" + 
-				"The method foo(I) in the type X is not applicable for the arguments (() -> {\n" + 
-				"  return 10;\n" + 
-				"})\n" + 
+				"	                  ^^^^^^^^^^\n" + 
+				"Void methods cannot return a value\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
@@ -5267,9 +5258,8 @@ this.runNegativeTest(
 				"----------\n" + 
 				"1. ERROR in X.java (at line 11)\n" + 
 				"	new X().foo((Object o)->{});\n" + 
-				"	        ^^^\n" + 
-				"The method foo(I) in the type X is not applicable for the arguments ((Object o) -> {\n" + 
-				"})\n" + 
+				"	             ^^^^^^\n" + 
+				"Lambda expression\'s parameter o is expected to be of type int\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401789, [1.8][compiler] Enable support for method/constructor references in non-overloaded method calls.
@@ -5360,60 +5350,45 @@ this.runNegativeTest(
 				"----------\n" + 
 				"1. ERROR in X.java (at line 9)\n" + 
 				"	this(X::goo);\n" + 
-				"	^^^^^^^^^^^^^\n" + 
-				"The constructor X.Y(X::goo) is undefined\n" + 
+				"	     ^^^^^^\n" + 
+				"The type of goo() from the type X is int, this is incompatible with the descriptor\'s return type: String\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 14)\n" + 
 				"	this((x) -> { return 10;});\n" + 
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"The constructor X((<no type> x) -> {\n" + 
-				"  return 10;\n" + 
-				"}) is undefined\n" + 
+				"	                     ^^\n" + 
+				"Type mismatch: cannot convert from int to String\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 18)\n" + 
 				"	foo(X::goo);\n" + 
-				"	^^^\n" + 
-				"The method foo(I) in the type X is not applicable for the arguments (X::goo)\n" + 
+				"	    ^^^^^^\n" + 
+				"The type of goo() from the type X is int, this is incompatible with the descriptor\'s return type: String\n" + 
 				"----------\n" + 
 				"4. ERROR in X.java (at line 19)\n" + 
 				"	new X((x)->{ return 10;});\n" + 
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"The constructor X((<no type> x) -> {\n" + 
-				"  return 10;\n" + 
-				"}) is undefined\n" + 
+				"	                    ^^\n" + 
+				"Type mismatch: cannot convert from int to String\n" + 
 				"----------\n" + 
 				"5. ERROR in X.java (at line 20)\n" + 
 				"	new X((x)->{ return 10;}).new Y((x) -> { return 0;});\n" + 
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"The constructor X((<no type> x) -> {\n" + 
-				"  return 10;\n" + 
-				"}) is undefined\n" + 
+				"	                    ^^\n" + 
+				"Type mismatch: cannot convert from int to String\n" + 
 				"----------\n" + 
-				"6. ERROR in X.java (at line 20)\n" + 
-				"	new X((x)->{ return 10;}).new Y((x) -> { return 0;});\n" + 
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"The constructor X.Y((<no type> x) -> {\n" + 
-				"  return 0;\n" + 
-				"}) is undefined\n" + 
-				"----------\n" + 
-				"7. ERROR in X.java (at line 21)\n" + 
+				"6. ERROR in X.java (at line 21)\n" + 
 				"	new X((x)->{ return 10;}) {};\n" + 
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"The constructor X((<no type> x) -> {\n" + 
-				"  return 10;\n" + 
-				"}) is undefined\n" + 
+				"	                    ^^\n" + 
+				"Type mismatch: cannot convert from int to String\n" + 
 				"----------\n" + 
-				"8. ERROR in X.java (at line 26)\n" + 
+				"7. ERROR in X.java (at line 26)\n" + 
 				"	super(X::goo);\n" + 
-				"	^^^^^^^^^^^^^^\n" + 
-				"The constructor X(X::goo) is undefined\n" + 
+				"	      ^^^^^^\n" + 
+				"The type of goo() from the type X is int, this is incompatible with the descriptor\'s return type: String\n" + 
 				"----------\n" + 
-				"9. ERROR in X.java (at line 29)\n" + 
+				"8. ERROR in X.java (at line 29)\n" + 
 				"	super (x -> 10);\n" + 
-				"	^^^^^^^^^^^^^^^^\n" + 
-				"The constructor X((<no type> x) -> 10) is undefined\n" + 
+				"	            ^^\n" + 
+				"Type mismatch: cannot convert from int to String\n" + 
 				"----------\n" + 
-				"10. ERROR in X.java (at line 31)\n" + 
+				"9. ERROR in X.java (at line 31)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
@@ -5463,15 +5438,13 @@ public void test401845a() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	foo(X::goo);\n" + 
-			"	^^^\n" + 
-			"The method foo(I[]...) in the type X is not applicable for the arguments (X::goo)\n" + 
+			"	    ^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	foo((x)-> {return 10;});\n" + 
-			"	^^^\n" + 
-			"The method foo(I[]...) in the type X is not applicable for the arguments ((<no type> x) -> {\n" + 
-			"  return 10;\n" + 
-			"})\n" + 
+			"	    ^^^^^^^^^^^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401845, [1.8][compiler] Bad interaction between varargs and lambas/references
@@ -5627,13 +5600,28 @@ public void test401847a() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	foo(true ? X::goo : X::goo);\n" + 
-			"	^^^\n" + 
-			"The method foo(I...) in the type X is not applicable for the arguments ((true ? X::goo : X::goo))\n" + 
+			"	           ^^^^^^\n" + 
+			"The type of goo() from the type X is int, this is incompatible with the descriptor\'s return type: String\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 9)\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	foo(true ? X::goo : X::goo);\n" + 
+			"	                    ^^^^^^\n" + 
+			"The type of goo() from the type X is int, this is incompatible with the descriptor\'s return type: String\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
 			"	foo(true ? x-> 1 : x->0);\n" + 
 			"	^^^\n" + 
 			"The method foo(I...) in the type X is not applicable for the arguments ((true ? (<no type> x) -> 1 : (<no type> x) -> 0))\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 9)\n" + 
+			"	foo(true ? x-> 1 : x->0);\n" + 
+			"	               ^\n" + 
+			"Type mismatch: cannot convert from int to String\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 9)\n" + 
+			"	foo(true ? x-> 1 : x->0);\n" + 
+			"	                      ^\n" + 
+			"Type mismatch: cannot convert from int to String\n" + 
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
@@ -5767,11 +5755,8 @@ public void test401939c() {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 8)\n" + 
 				"	goo((x) -> { if (x) return null; });\n" + 
-				"	^^^\n" + 
-				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {\n" + 
-				"  if (x)\n" + 
-				"      return null;\n" + 
-				"})\n" + 
+				"	                 ^\n" + 
+				"Type mismatch: cannot convert from String to boolean\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 9)\n" + 
 				"	goo((x) -> {});\n" + 
@@ -5820,10 +5805,8 @@ public void test401939e() {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 8)\n" + 
 				"	goo((x) -> { return null; });\n" + 
-				"	^^^\n" + 
-				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {\n" + 
-				"  return null;\n" + 
-				"})\n" + 
+				"	             ^^^^^^^^^^^^\n" + 
+				"Void methods cannot return a value\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
@@ -6109,11 +6092,6 @@ public void test402609() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 18)\n" + 
 			"	f(super::foo);\n" + 
-			"	^\n" + 
-			"The method f(I) in the type X is not applicable for the arguments (super::foo)\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 18)\n" + 
-			"	f(super::foo);\n" + 
 			"	  ^^^^^\n" + 
 			"Cannot use super in a static context\n" + 
 			"----------\n");
@@ -6187,6 +6165,11 @@ public void test402609b() {
 			"	f(super::foo);\n" + 
 			"	^\n" + 
 			"The method f(I) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 18)\n" + 
+			"	f(super::foo);\n" + 
+			"	  ^^^^^^^^^^\n" + 
+			"Cannot directly invoke the abstract method foo() for the type Y\n" + 
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402609, [1.8][compiler] AIOOB exception with a program using method references.
@@ -6379,23 +6362,23 @@ public void test406614() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 9)\n" + 
 			"	this(() -> this.f);\n" + 
-			"	^^^^^^^^^^^^^^^^^^^\n" + 
-			"The constructor X(() -> this.f) is undefined\n" + 
+			"	           ^^^^\n" + 
+			"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 12)\n" + 
 			"	this(() -> this.g());\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The constructor X(() -> this.g()) is undefined\n" + 
+			"	           ^^^^\n" + 
+			"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 15)\n" + 
 			"	this(() -> f);\n" + 
-			"	^^^^^^^^^^^^^^\n" + 
-			"The constructor X(() -> f) is undefined\n" + 
+			"	           ^\n" + 
+			"Cannot refer to an instance field f while explicitly invoking a constructor\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 18)\n" + 
 			"	this(() -> g());\n" + 
-			"	^^^^^^^^^^^^^^^^\n" + 
-			"The constructor X(() -> g()) is undefined\n" + 
+			"	           ^\n" + 
+			"Cannot refer to an instance method while explicitly invoking a constructor\n" + 
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial 
