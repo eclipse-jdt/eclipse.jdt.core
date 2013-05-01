@@ -18,7 +18,9 @@
  *								bug 401088 - [compiler][null] Wrong warning "Redundant null check" inside nested try statement
  *								bug 401092 - [compiler][null] Wrong warning "Redundant null check" in outer catch of nested try
  *								bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
- *								bug 384380 - False positive on a « Potential null pointer access » after a continue
+ *								bug 384380 - False positive on a ?? Potential null pointer access ?? after a continue
+ *     Jesper Steen Moller - Contributions for
+ *								bug 404146 - [1.7][compiler] nested try-catch-finally-blocks leads to unrunnable Java byte code
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -27,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -888,7 +891,8 @@ public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream 
 			return false;
 	}
 	// optimize subroutine invocation sequences, using the targetLocation (if any)
-	if (targetLocation != null) {
+	CompilerOptions options = this.scope.compilerOptions();
+	if (options.shareCommonFinallyBlocks && targetLocation != null) {
 		boolean reuseTargetLocation = true;
 		if (this.reusableJSRTargetsCount > 0) {
 			nextReusableTarget: for (int i = 0, count = this.reusableJSRTargetsCount; i < count; i++) {

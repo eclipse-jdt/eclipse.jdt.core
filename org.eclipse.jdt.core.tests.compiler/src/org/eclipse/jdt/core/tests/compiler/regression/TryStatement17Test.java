@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2011 IBM Corporation and others.
+ * Copyright (c) 2003, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Jesper Steen Moller - bug 404146 nested try-catch-finally-blocks leads to unrunnable Java byte code
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1216,6 +1217,50 @@ public void testBug391092() {
 		"No exception of type ClassNotFoundException[] can be thrown; an exception type must be a subclass of Throwable\n" + 
 		"----------\n");
 	}
+
+//Bug 404146 - nested try-catch-finally-blocks leads to unrunnable Java byte code
+public void testBug404146() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" + 
+					"import javax.naming.NamingException;\n" + 
+
+			"\n" + 
+			"public final class X {\n" + 
+			"\n" + 
+			"    public static final void illegalStackMap() {\n" + 
+			"        try {\n" + 
+			"          try {\n" + 
+			"            Y.decoy1();\n" + 
+			"          } finally {\n" + 
+			"            try {\n" + 
+			"                Y.decoy2();\n" + 
+			"            } catch (final IOException e) {\n" + 
+			"              return;\n" + 
+			"            }\n" + 
+			"          }\n" + 
+			"        } finally {\n" + 
+			"          try {\n" + 
+			"            Y.decoy3();\n" + 
+			"          } catch (final NamingException e) {\n" + 
+			"            return;\n" + 
+			"          }\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n",
+			"Y.java",
+				"import java.io.IOException;\n" + 
+						"import javax.naming.NamingException;\n" + 
+			"public final class Y {\n" + 
+			"\n" + 
+			"    public static void decoy1() {}\n" +
+			"    public static void decoy2() throws IOException {}\n" +
+			"    public static void decoy3() throws NamingException {}\n" +
+			"}\n"
+		});
+}
+
 public static Class testClass() {
 	return TryStatement17Test.class;
 }
