@@ -27,6 +27,8 @@
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *     Jesper Steen Moller - Contributions for
+ *								bug 404146 - [1.7][compiler] nested try-catch-finally-blocks leads to unrunnable Java byte code
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1896,6 +1898,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nullable\" value=\"org.eclipse.jdt.annotation.Nullable\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nullanalysis\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.shareCommonFinallyBlocks\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.targetPlatform\" value=\"1.5\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.unusedLocal\" value=\"optimize out\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.compliance\" value=\"1.5\"/>\n" + 
