@@ -121,10 +121,23 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	}
 
 	/**
+	 * Creates a test suite according to the rules in {@link ASTRewritingTest}.
+	 * 
 	 * @param testClass subclass of ASTRewritingTest
 	 * @return test suite that runs all tests with all supported AST levels
 	 */
 	protected static TestSuite createSuite(Class testClass) {
+		return createSuite(testClass, -1);
+	}
+
+	/**
+	 * Creates a test suite according to the rules in {@link ASTRewritingTest}.
+	 * 
+	 * @param testClass subclass of ASTRewritingTest
+	 * @param classSince smallest supported AST level for this test class, or -1 to support all levels
+	 * @return test suite that runs all tests with all supported AST levels
+	 */
+	protected static TestSuite createSuite(Class testClass, int classSince) {
 		TestSuite suite = new TestSuite(testClass.getName());
 		try {
 			Method[] methods = testClass.getMethods();
@@ -150,8 +163,8 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 						}
 						for (int j= 0; j < JLS_LEVELS.length; j++) {
 							int level = JLS_LEVELS[j];
-							if (level >= since) {
-								suite.addTest((Test) cons.newInstance(new Object[]{name,  new Integer(level)}));
+							if (level >= since && level >= classSince) {
+								suite.addTest((Test) cons.newInstance(new Object[]{name, new Integer(level)}));
 							}
 						}
 					}

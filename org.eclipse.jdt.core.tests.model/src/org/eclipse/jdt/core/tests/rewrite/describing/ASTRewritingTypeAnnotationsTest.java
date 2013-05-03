@@ -32,11 +32,10 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 	}
 
 	public static Test suite() {
-		return createSuite(ASTRewritingTypeAnnotationsTest.class);
+		return createSuite(ASTRewritingTypeAnnotationsTest.class, AST.JLS8);
 	}
 
 	public void testCastAnnotations() throws Exception {
-		if (this.apiLevel < AST.JLS8) return;
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -101,7 +100,6 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 	}
 
 	public void testWildcardTypeArgumentAnnotations() throws Exception {
-		if (this.apiLevel < AST.JLS8) return;
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -201,7 +199,6 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 	}
 
 	public void testWildcardBoudAnnotation() throws Exception {
-		if (this.apiLevel < AST.JLS8) return;
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 
@@ -262,7 +259,6 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 	}
 
 	public void testTypeParameterBoundAnnotations() throws Exception {
-		if (this.apiLevel < AST.JLS8) return;
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 
@@ -329,7 +325,6 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 	}
 
 	public void testTypeArgumentsParameterizedClassesAnnotations() throws Exception {
-		if (this.apiLevel < AST.JLS8) return;
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 
@@ -396,7 +391,6 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 	}
 
 	public void testTypeArgumentsMethodInvocation() throws Exception {
-		if (this.apiLevel < AST.JLS8) return;
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 
@@ -477,7 +471,6 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 	}
 
 	public void testClassInheritenceAnnotations() throws Exception {
-		if (this.apiLevel < AST.JLS8) return;
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 
@@ -544,7 +537,6 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 	}
 
 	public void testTypeTests() throws Exception {
-		if (this.apiLevel < AST.JLS8) return;
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 
@@ -620,7 +612,6 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 	}
 
 	public void testConstructorInvocation() throws Exception {
-		if (this.apiLevel < AST.JLS8) return;
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("import java.lang.annotation.ElementType;\n");
@@ -690,7 +681,6 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 	}
 
 	public void testConstructorDeclaration() throws Exception {
-		if (this.apiLevel < AST.JLS8) return;
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("import java.lang.annotation.ElementType;\n");
@@ -749,7 +739,6 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 	}
 
 	public void testRewriteInsertAPIAnnotation() throws Exception {
-		if (this.apiLevel < AST.JLS8) return;
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 
@@ -821,7 +810,6 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 	}
 
 	public void _testEmptyListInsertAnnotation() throws Exception {
-		if (this.apiLevel < AST.JLS8) return;
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -867,7 +855,6 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=406469
 	 */
 	public void testPackageQualifiedTypeAnnotations() throws Exception {
-		if (this.apiLevel < AST.JLS8) return;
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test406469.bug", false, null);
 		String contents = "package test406469.bug;\n" +
 				"import java.lang.annotation.*;\n" +
