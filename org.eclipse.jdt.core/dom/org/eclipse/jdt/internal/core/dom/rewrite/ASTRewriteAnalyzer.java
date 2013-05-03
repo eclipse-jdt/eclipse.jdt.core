@@ -3972,6 +3972,20 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return false;
 	}
 	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.PackageQualifiedType)
+	 */
+	public boolean visit(PackageQualifiedType node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		rewriteRequiredNode(node, PackageQualifiedType.QUALIFIER_PROPERTY);
+		if (node.getAST().apiLevel() >= AST.JLS8) {
+			rewriteTypeAnnotations(node, PackageQualifiedType.ANNOTATIONS_PROPERTY, node.getStartPosition());
+		}
+		rewriteRequiredNode(node, PackageQualifiedType.NAME_PROPERTY);
+		return false;
+	}
+	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.ParameterizedType)
 	 */
 	public boolean visit(ParameterizedType node) {

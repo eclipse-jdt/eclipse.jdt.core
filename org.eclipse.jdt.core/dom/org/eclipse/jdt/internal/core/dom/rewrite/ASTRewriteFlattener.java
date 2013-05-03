@@ -1409,6 +1409,21 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		this.result.append(')');
 		return false;
 	}
+
+	/*
+	 * @see ASTVisitor#visit(PackageQualifiedType)
+	 * @since 3.9 BETA_JAVA8
+	 */
+	public boolean visit(PackageQualifiedType node) {
+		getChildNode(node, PackageQualifiedType.QUALIFIER_PROPERTY).accept(this);
+		this.result.append('.');
+		if (node.getAST().apiLevel() >= AST.JLS8) {
+			visitList(node, PackageQualifiedType.ANNOTATIONS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
+		}
+		getChildNode(node, PackageQualifiedType.NAME_PROPERTY).accept(this);
+		return false;
+	}
+
 	/*
 	 * @see ASTVisitor#visit(ParameterizedType)
 	 * @since 3.0
