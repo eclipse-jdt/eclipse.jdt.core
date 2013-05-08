@@ -26,11 +26,19 @@
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>1.7</version>
+		<configuration>
+			<archive>
+				<addMavenDescriptor>false</addMavenDescriptor>
+			</archive>
+		</configuration>
         <executions>
           <execution>
             <id>update-ecj</id>
             <phase>process-classes</phase>
             <configuration>
+				<archive>
+					<addMavenDescriptor>false</addMavenDescriptor>
+				</archive>
               <target>
 
                 <path id="ecj.id">
