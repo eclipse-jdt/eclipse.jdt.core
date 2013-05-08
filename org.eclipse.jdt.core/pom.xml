@@ -33,7 +33,10 @@
             <goals>
               <goal>custom-bundle</goal>
             </goals>
-            <configuration>
+			<configuration>
+				<archive>
+					<addMavenDescriptor>false</addMavenDescriptor>
+				</archive>
               <bundleLocation>${project.basedir}/scripts/antadapter</bundleLocation>
               <classifier>antadapter</classifier>
               <fileSets>
@@ -54,6 +57,9 @@
               <goal>custom-bundle</goal>
             </goals>
             <configuration>
+				<archive>
+					<addMavenDescriptor>false</addMavenDescriptor>
+				</archive>
               <bundleLocation>${project.basedir}/scripts/binary</bundleLocation>
               <classifier>batch-compiler</classifier>
               <fileSets>
