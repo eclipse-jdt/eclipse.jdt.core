@@ -2388,6 +2388,16 @@ protected void reportMatching(Annotation[] annotations, IJavaElement enclosingEl
 		}
 	}
 }
+private void reportMatching(Annotation[][] annotationsList, IJavaElement enclosingElement, Binding binding,
+		MatchingNodeSet nodeSet, boolean matchedClassContainer) throws CoreException {
+	if (annotationsList != null) {
+		for (int i = 0, length = annotationsList.length; i < length; ++i) {
+			Annotation[] annotations = annotationsList[i];
+			if (annotations != null) 
+				reportMatching(annotations, enclosingElement, null, binding, nodeSet, matchedClassContainer, encloses(enclosingElement));	
+		}
+	}
+}
 /**
  * Visit the given resolved parse tree and report the nodes that match the search pattern.
  */
@@ -2805,7 +2815,12 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 					report(match);
 				}
 			}
+			boolean matchedClassContainer = (this.matchContainer & PatternLocator.ALL_CONTAINER) != 0;
+			if (typeParameter.annotations != null) {
+				reportMatching(typeParameter.annotations, enclosingElement, null, typeParameter.binding, nodeSet, matchedClassContainer, encloses(enclosingElement));	
+			}
 			if (typeParameter.type != null) {
+				reportMatching(typeParameter.type.annotations, enclosingElement, typeParameter.binding, nodeSet, matchedClassContainer);
 				level = (Integer) nodeSet.matchingNodes.removeKey(typeParameter.type);
 				if (level != null) {
 					IJavaElement localElement = createHandle(typeParameter, enclosingElement);
@@ -2817,6 +2832,7 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
                     	int length = paramSTR.typeArguments.length;
                     	for (int k=0; k<length; k++) {
 							TypeReference typeArgument = paramSTR.typeArguments[k];
+							reportMatching(typeArgument.annotations, enclosingElement, typeArgument.resolvedType, nodeSet, matchedClassContainer);
 							level = (Integer) nodeSet.matchingNodes.removeKey(typeArgument);
 							if (level != null) {
 								IJavaElement localElement = createHandle(typeParameter, enclosingElement);
@@ -2825,6 +2841,7 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 							if (typeArgument instanceof Wildcard) {
 	                            TypeReference wildcardBound = ((Wildcard) typeArgument).bound;
 	                            if (wildcardBound != null) {
+		            				reportMatching(wildcardBound.annotations, enclosingElement, wildcardBound.resolvedType, nodeSet, matchedClassContainer);
 									level = (Integer) nodeSet.matchingNodes.removeKey(wildcardBound);
 									if (level != null) {
 										IJavaElement localElement = createHandle(typeParameter, enclosingElement);
