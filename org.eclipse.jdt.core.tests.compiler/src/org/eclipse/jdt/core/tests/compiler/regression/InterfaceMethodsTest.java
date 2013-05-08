@@ -18,6 +18,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
@@ -1741,6 +1742,26 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"	                   ^^^^^\n" + 
 				"Cannot use super in a static context\n" + 
 				"----------\n");
+	}
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406619, [1.8][compiler] Incorrect suggestion that method can be made static.
+	public void test406619() {
+		Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+		this.runNegativeTest(
+			new String[] {
+				"X.java", 
+				"interface X {\n" +
+				"	default int foo() {\n" +
+				"		return 10;\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"",
+			null /* no extra class libraries */,
+			true /* flush output directory */,
+			compilerOptions /* custom options */
+		);
 	}
 
 	// class implements interface with default method. 
