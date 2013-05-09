@@ -224,6 +224,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String RESOLVE_REFERENCED_LIBRARIES_FOR_CONTAINERS = "resolveReferencedLibrariesForContainers"; //$NON-NLS-1$
 	
 	/**
+	 * Name of the JVM parameter to specify how many compilation units must be handled at once by the builder.
+	 * The default value is represented by <code>AbstractImageBuilder#MAX_AT_ONCE</code>.
+	 */
+	public static final String MAX_COMPILED_UNITS_AT_ONCE = "maxCompiledUnitsAtOnce"; //$NON-NLS-1$
+
+	/**
 	 * Special value used for recognizing ongoing initialization and breaking initialization cycles
 	 */
 	public final static IPath VARIABLE_INITIALIZATION_IN_PROGRESS = new Path("Variable Initialization In Progress"); //$NON-NLS-1$

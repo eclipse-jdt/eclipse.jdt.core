@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -83,6 +83,17 @@ public final static Integer S_WARNING = new Integer(IMarker.SEVERITY_WARNING);
 public final static Integer P_HIGH = new Integer(IMarker.PRIORITY_HIGH);
 public final static Integer P_NORMAL = new Integer(IMarker.PRIORITY_NORMAL);
 public final static Integer P_LOW = new Integer(IMarker.PRIORITY_LOW);
+
+static {
+	String property = System.getProperty(JavaModelManager.MAX_COMPILED_UNITS_AT_ONCE);
+	if (property != null) {
+		try {
+			MAX_AT_ONCE = Integer.parseInt(property);
+		} catch (Exception e) {
+			// ignore and let the default value be used
+		}
+	}
+}
 
 protected AbstractImageBuilder(JavaBuilder javaBuilder, boolean buildStarting, State newState) {
 	// local copies
@@ -293,7 +304,7 @@ protected void compile(SourceFile[] units) {
 	}
 
 	int unitsLength = units.length;
-	this.compiledAllAtOnce = unitsLength <= MAX_AT_ONCE;
+	this.compiledAllAtOnce = MAX_AT_ONCE == 0 || unitsLength <= MAX_AT_ONCE;
 	if (this.compiledAllAtOnce) {
 		// do them all now
 		if (JavaBuilder.DEBUG)
