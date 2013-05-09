@@ -3897,6 +3897,7 @@ public abstract class Scope {
 			public int sourceStart() { return invocationSite.sourceStart(); }
 			public int sourceEnd() { return invocationSite.sourceStart(); }
 			public TypeBinding expectedType() { return invocationSite.expectedType(); }
+			public boolean receiverIsImplicitThis() { return invocationSite.receiverIsImplicitThis();}
 		};
 		MethodBinding[] moreSpecific = new MethodBinding[visibleSize];
 		int count = 0;

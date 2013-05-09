@@ -267,6 +267,7 @@ private static void checkAlternateBinding(BlockScope scope, Expression receiver,
 			public int sourceStart() { return 0; }
 			public int sourceEnd() { return 0; }
 			public TypeBinding expectedType() { return invocationSite.expectedType(); }
+			public boolean receiverIsImplicitThis() { return invocationSite.receiverIsImplicitThis();}
 		};
 		MethodBinding bindingIfNoCast;
 		if (binding.isConstructor()) {

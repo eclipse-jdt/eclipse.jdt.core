@@ -1055,6 +1055,11 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testBug385858c"));
 	suite.addTest(new CompletionTests("testBug385858d"));
 	suite.addTest(new CompletionTests("testBug402574"));
+	suite.addTest(new CompletionTests("testBug402812a"));
+	suite.addTest(new CompletionTests("testBug402812b"));
+	suite.addTest(new CompletionTests("testBug402812c"));
+	suite.addTest(new CompletionTests("testBug402812d"));
+
 	return suite;
 }
 public CompletionTests(String name) {
@@ -26076,6 +26081,226 @@ public void testBug402574() throws JavaModelException {
 		// Restore compliance settings.
 		options.put(CompilerOptions.OPTION_Source, savedOptionCompliance);
 		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=402812
+//Bug 402812 - [1.8][completion] Code Completion problems with static/default interface methods.
+public void testBug402812a() throws Exception {
+	Hashtable javaCoreOldOptions = JavaCore.getOptions();
+	Map completionProjectOptions = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = completionProjectOptions.get(CompilerOptions.OPTION_Compliance);
+	Object savedOptionSource = completionProjectOptions.get(CompilerOptions.OPTION_Source);	
+	try {
+		Hashtable options = new Hashtable(javaCoreOldOptions);
+		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		completionProjectOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+		completionProjectOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+		COMPLETION_PROJECT.setOptions(completionProjectOptions);
+		
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib402812.jar"}, "bin");
+		
+		refresh(p);
+		
+		waitUntilIndexesReady();
+		
+		this.workingCopies = new ICompilationUnit[1];
+
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/Test.java",
+				"interface Test { \n" +
+				"static void staticMethod() {}" +
+				"    default void defaultMethod() {" +
+				"        stat" +
+				"    }" +
+				"}\n");
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+
+	    String str = this.workingCopies[0].getSource();
+	    String completeBehind = "    stat";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+	    
+	    assertResults(
+			"staticMethod[METHOD_REF]{staticMethod(), Ltest.Test;, ()V, staticMethod, null, 27}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+		
+		JavaCore.setOptions(javaCoreOldOptions);
+		completionProjectOptions.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		completionProjectOptions.put(CompilerOptions.OPTION_Source, savedOptionSource);
+		COMPLETION_PROJECT.setOptions(completionProjectOptions);	
+	}
+}
+public void testBug402812b() throws Exception {
+	Hashtable javaCoreOldOptions = JavaCore.getOptions();
+	Map completionProjectOptions = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = completionProjectOptions.get(CompilerOptions.OPTION_Compliance);
+	Object savedOptionSource = completionProjectOptions.get(CompilerOptions.OPTION_Source);	
+	try {
+		Hashtable options = new Hashtable(javaCoreOldOptions);
+		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		completionProjectOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+		completionProjectOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+		COMPLETION_PROJECT.setOptions(completionProjectOptions);
+		
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib402812.jar"}, "bin");
+		
+		refresh(p);
+		
+		waitUntilIndexesReady();
+		
+		this.workingCopies = new ICompilationUnit[1];
+
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/Test.java",
+				"interface I { \n" +
+				"    static void staticMethod() {}" +
+				"    default void defaultMethod() {}" +
+				"}" +
+				"public class X implements I {" +
+				"	public void foo(I i) {" +
+				"		I.stat     " +
+				"	}" +
+				"}\n");
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+
+	    String str = this.workingCopies[0].getSource();
+	    String completeBehind = "I.stat";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+	    
+	    assertResults(
+			"staticMethod[METHOD_REF]{staticMethod(), Ltest.I;, ()V, staticMethod, null, 26}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+		
+		JavaCore.setOptions(javaCoreOldOptions);
+		completionProjectOptions.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		completionProjectOptions.put(CompilerOptions.OPTION_Source, savedOptionSource);
+		COMPLETION_PROJECT.setOptions(completionProjectOptions);	
+	}
+}
+public void testBug402812c() throws Exception {
+	Hashtable javaCoreOldOptions = JavaCore.getOptions();
+	Map completionProjectOptions = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = completionProjectOptions.get(CompilerOptions.OPTION_Compliance);
+	Object savedOptionSource = completionProjectOptions.get(CompilerOptions.OPTION_Source);	
+	try {
+		Hashtable options = new Hashtable(javaCoreOldOptions);
+		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		completionProjectOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+		completionProjectOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+		COMPLETION_PROJECT.setOptions(completionProjectOptions);
+		
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib402812.jar"}, "bin");
+		
+		refresh(p);
+		
+		waitUntilIndexesReady();
+		
+		this.workingCopies = new ICompilationUnit[1];
+
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/Test.java",
+				"interface I { \n" +
+				"static void staticMethod() {}" +
+				"    default void defaultMethod() {" +
+				"    }" +
+				"}" +
+				"public class X implements I {" +
+				"	public void foo(I i) {" +
+				"		this.defa     " +
+				"	}" +
+				"}\n");
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+
+	    String str = this.workingCopies[0].getSource();
+	    String completeBehind = "this.defa";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+	    
+	    assertResults(
+			"defaultMethod[METHOD_REF]{defaultMethod(), Ltest.I;, ()V, defaultMethod, null, 35}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+		
+		JavaCore.setOptions(javaCoreOldOptions);
+		completionProjectOptions.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		completionProjectOptions.put(CompilerOptions.OPTION_Source, savedOptionSource);
+		COMPLETION_PROJECT.setOptions(completionProjectOptions);	
+	}
+}
+public void testBug402812d() throws Exception {
+	Hashtable javaCoreOldOptions = JavaCore.getOptions();
+	Map completionProjectOptions = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = completionProjectOptions.get(CompilerOptions.OPTION_Compliance);
+	Object savedOptionSource = completionProjectOptions.get(CompilerOptions.OPTION_Source);	
+	try {
+		Hashtable options = new Hashtable(javaCoreOldOptions);
+		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		completionProjectOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+		completionProjectOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+		COMPLETION_PROJECT.setOptions(completionProjectOptions);
+		
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib402812.jar"}, "bin");
+		
+		refresh(p);
+		
+		waitUntilIndexesReady();
+		
+		this.workingCopies = new ICompilationUnit[1];
+
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/Test.java",
+				"interface I { \n" +
+				"    static void staticMethod() {}" +
+				"    default void defaultMethod() {}" +
+				"}" +
+				"public class X implements I {" +
+				"	public void foo(I i) {" +
+				"		defaultM     " +
+				"	}" +
+				"}\n");
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+
+	    String str = this.workingCopies[0].getSource();
+	    String completeBehind = "defaultM";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+	    
+	    assertResults(
+			"defaultMethod[METHOD_REF]{defaultMethod(), Ltest.I;, ()V, defaultMethod, null, 27}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+		
+		JavaCore.setOptions(javaCoreOldOptions);
+		completionProjectOptions.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		completionProjectOptions.put(CompilerOptions.OPTION_Source, savedOptionSource);
+		COMPLETION_PROJECT.setOptions(completionProjectOptions);	
 	}
 }
 }

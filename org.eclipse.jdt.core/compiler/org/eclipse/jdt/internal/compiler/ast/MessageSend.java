@@ -893,4 +893,7 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 public boolean statementExpression() {
 	return true;
 }
+public boolean receiverIsImplicitThis() {
+	return this.receiver.isImplicitThis();
+}
 }

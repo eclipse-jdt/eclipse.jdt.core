@@ -622,6 +622,7 @@ public final class CompletionEngine
 		public int sourceEnd() { return 0; 	}
 		public int sourceStart() { return 0; 	}
 		public TypeBinding expectedType() { return null; }
+		public boolean receiverIsImplicitThis() { return false;}
 	};
 
 	private int foundTypesCount;
@@ -9950,6 +9951,7 @@ public final class CompletionEngine
 			}
 		}
 		boolean hasPotentialDefaultAbstractMethods = true;
+		boolean java8Plus = this.compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8;
 		while (currentType != null) {
 
 			MethodBinding[] methods = currentType.availableMethods();
@@ -9978,11 +9980,12 @@ public final class CompletionEngine
 					receiverEnd);
 			}
 
+			/* Searching of superinterfaces for candidate proposal methods can be skipped if current type is concrete, but only for source levels below 1.8.
+			   For 1.8 even a concrete type's superinterfaces should be searched as they could have default methods which are not implemented by the concrete
+			   type.
+			*/
 			if (hasPotentialDefaultAbstractMethods &&
-					(currentType.isAbstract() ||
-							currentType.isTypeVariable() ||
-							currentType.isIntersectionType() ||
-							currentType.isEnum())){
+					(java8Plus || (currentType.isAbstract() || currentType.isTypeVariable() || currentType.isIntersectionType() || currentType.isEnum()))) {
 
 				ReferenceBinding[] superInterfaces = currentType.superInterfaces();
 				if (superInterfaces != null && currentType.isIntersectionType()) {
@@ -10014,7 +10017,8 @@ public final class CompletionEngine
 					receiverStart,
 					receiverEnd);
 			} else {
-				hasPotentialDefaultAbstractMethods = false;
+				if (!java8Plus)
+					hasPotentialDefaultAbstractMethods = false;
 			}
 			currentType = currentType.superclass();
 		}

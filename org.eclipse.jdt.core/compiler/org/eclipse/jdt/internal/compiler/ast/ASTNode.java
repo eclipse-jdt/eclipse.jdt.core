@@ -445,6 +445,11 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return false;
 	}
 
+	public boolean receiverIsImplicitThis() {
+
+		return false;
+	}
+
 	/* Answer true if the method use is considered deprecated.
 	* An access in the same compilation unit is allowed.
 	*/

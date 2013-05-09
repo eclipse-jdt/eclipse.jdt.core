@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
-import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
@@ -260,12 +259,11 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	SourceTypeBinding invocationType = scope.enclosingSourceType();
 	if (this.declaringClass.isInterface() && isStatic()) {
 		// Static interface methods can be explicitly invoked only through the type reference of the declaring interface or implicitly in the interface itself.
-		if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8 || !(invocationSite instanceof MessageSend))
+		if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8)
 			return false;
-		MessageSend messageSend = (MessageSend) invocationSite;
-		if (messageSend.isTypeAccess() && receiverType == this.declaringClass)
+		if (invocationSite.isTypeAccess() && receiverType == this.declaringClass)
 			return true;
-		if (messageSend.receiver.isImplicitThis() && invocationType == this.declaringClass)
+		if (invocationSite.receiverIsImplicitThis() && invocationType == this.declaringClass)
 			return true;
 		return false;
 	}
