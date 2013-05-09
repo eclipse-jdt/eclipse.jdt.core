@@ -2189,4 +2189,151 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 
 	}
 
+	public void testIntersectionCastExpression_since_8() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String content =
+				"import java.io.Serializable;\n" +
+				"public class X {\n" +
+				"      public Serializable main(Object obj) {\n" +
+				"         Serializable o = ((@Marker1 @Marker2 Serializable & I) () -> {});\n" +
+				"    	  Serializable oo = obj;\n" +
+				"         Serializable ooo = (Serializable) obj;\n" +
+				"      }\n" +
+				"}\n" +
+				"interface I {\n" +
+				"  public void foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"  public void foo();\n" +
+				"  public void bar();\n" +
+				"}\n" +
+				"interface K {\n" +
+				"  public void foo();\n" +
+				"  public void bar();\n" +
+				"}\n";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", content, false, null);
+
+		CompilationUnit unit= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(unit.getAST());
+		AST ast= unit.getAST();
+
+		TypeDeclaration type =  (TypeDeclaration) unit.types().get(0);
+		ASTNode node = (ASTNode) type.bodyDeclarations().get(0);
+		MethodDeclaration method = (MethodDeclaration) node;
+		
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) method.getBody().statements().get(0);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+		CastExpression cast = (CastExpression) ((ParenthesizedExpression)fragment.getInitializer()).getExpression();
+		Type castType = cast.getType();
+		assertEquals("Not an intersection cast type", ASTNode.INTERSECTION_TYPE, castType.getNodeType());
+
+		{
+			// Modify intersection cast types by adding new types and removing and adding annotations
+			ListRewrite listRewrite = rewrite.getListRewrite(castType, IntersectionType.TYPES_PROPERTY);
+			SimpleType simpleType = ast.newSimpleType(ast.newSimpleName("J"));
+			MarkerAnnotation annot = ast.newMarkerAnnotation();
+			annot.setTypeName(ast.newSimpleName("Marker3"));
+			simpleType.annotations().add(annot);
+			listRewrite.insertLast(simpleType, null);
+
+			simpleType = (SimpleType) ((IntersectionType) castType).types().get(0);
+			listRewrite = rewrite.getListRewrite(simpleType, SimpleType.ANNOTATIONS_PROPERTY);
+			listRewrite.remove((ASTNode) simpleType.annotations().get(0), null);
+			listRewrite.remove((ASTNode) simpleType.annotations().get(1), null);
+		}
+		{
+			// Create new intersection cast types
+			IntersectionType intersection = ast.newIntersectionType();
+			SimpleType simpleType = ast.newSimpleType(ast.newSimpleName("I"));
+			MarkerAnnotation annot = ast.newMarkerAnnotation();
+			annot.setTypeName(ast.newSimpleName("Marker1"));
+			simpleType.annotations().add(annot);
+			intersection.types().add(simpleType);
+
+			simpleType = ast.newSimpleType(ast.newSimpleName("J"));
+			annot = ast.newMarkerAnnotation();
+			annot.setTypeName(ast.newSimpleName("Marker2"));
+			simpleType.annotations().add(annot);
+			intersection.types().add(simpleType);
+
+			simpleType = ast.newSimpleType(ast.newSimpleName("Serializable"));
+			annot = ast.newMarkerAnnotation();
+			annot.setTypeName(ast.newSimpleName("Marker3"));
+			simpleType.annotations().add(annot);
+			intersection.types().add(simpleType);
+
+			 statement = (VariableDeclarationStatement) method.getBody().statements().get(1);
+			fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+			CastExpression castExp = ast.newCastExpression();
+			castExp.setType(intersection);
+			castExp.setExpression(ast.newSimpleName("obj"));
+			rewrite.set(fragment, VariableDeclarationFragment.INITIALIZER_PROPERTY, castExp, null);
+		}
+		{
+			IntersectionType intersection = ast.newIntersectionType();
+			SimpleType simpleType = ast.newSimpleType(ast.newSimpleName("I"));
+			MarkerAnnotation annot = ast.newMarkerAnnotation();
+			annot.setTypeName(ast.newSimpleName("Marker1"));
+			simpleType.annotations().add(annot);
+			intersection.types().add(simpleType);
+			
+			simpleType = ast.newSimpleType(ast.newSimpleName("Serializable"));
+			annot = ast.newMarkerAnnotation();
+			annot.setTypeName(ast.newSimpleName("Marker2"));
+			simpleType.annotations().add(annot);
+			intersection.types().add(simpleType);
+
+			statement = (VariableDeclarationStatement) method.getBody().statements().get(2);
+			fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+			CastExpression castExp = (CastExpression) fragment.getInitializer();
+			rewrite.set(castExp, CastExpression.TYPE_PROPERTY, intersection, null);
+		}
+		{ // Add a new cast expression
+			cast = ast.newCastExpression();
+			IntersectionType intersection = ast.newIntersectionType();
+			SimpleType simpleType = ast.newSimpleType(ast.newSimpleName("I"));
+			MarkerAnnotation annot = ast.newMarkerAnnotation();
+			annot.setTypeName(ast.newSimpleName("Marker1"));
+			simpleType.annotations().add(annot);
+			intersection.types().add(simpleType);
+
+			simpleType = ast.newSimpleType(ast.newSimpleName("Serializable"));
+			annot = ast.newMarkerAnnotation();
+			annot.setTypeName(ast.newSimpleName("Marker2"));
+			simpleType.annotations().add(annot);
+			intersection.types().add(simpleType);
+			cast.setType(intersection);
+			cast.setExpression(ast.newSimpleName("obj"));
+
+			ReturnStatement returnSt = ast.newReturnStatement();
+			returnSt.setExpression(cast);
+			ListRewrite listRewrite = rewrite.getListRewrite(method.getBody(), Block.STATEMENTS_PROPERTY);
+			listRewrite.insertLast(returnSt, null);
+		}
+		String preview= evaluateRewrite(cu, rewrite);
+		content =
+				"import java.io.Serializable;\n" +
+				"public class X {\n" +
+				"      public Serializable main(Object obj) {\n" +
+				"         Serializable o = ((Serializable & I & @Marker3\n" +
+				"        J) () -> {});\n" +
+				"    	  Serializable oo = (@Marker1 I & @Marker2 J & @Marker3 Serializable) obj;\n" +
+				"         Serializable ooo = (@Marker1 I & @Marker2 Serializable) obj;\n" +
+				"        return (@Marker1 I & @Marker2 Serializable) obj;\n" +
+				"      }\n" +
+				"}\n" +
+				"interface I {\n" +
+				"  public void foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"  public void foo();\n" +
+				"  public void bar();\n" +
+				"}\n" +
+				"interface K {\n" +
+				"  public void foo();\n" +
+				"  public void bar();\n" +
+				"}\n";
+		assertEqualString(preview, content);
+	}
+
 }

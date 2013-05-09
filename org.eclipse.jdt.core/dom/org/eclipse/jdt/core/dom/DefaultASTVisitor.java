@@ -138,7 +138,7 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	public void endVisit(IntersectionType node) {
-		endVisit(node);
+		endVisitNode(node);
 	}
 	public void endVisit(Javadoc node) {
 		endVisitNode(node);
