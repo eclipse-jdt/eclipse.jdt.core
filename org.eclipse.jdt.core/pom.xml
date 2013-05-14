@@ -69,6 +69,12 @@
 				    <include>META-INF/eclipse.inf</include>
                   </includes>
                 </fileSet>
+				<fileSet>
+                  <directory>${project.basedir}/scripts</directory>
+                  <includes>
+				    <include>about.html</include>
+                  </includes>
+                </fileSet>
                 <fileSet>
                   <directory>${project.build.directory}/classes</directory>
                   <includes>
