@@ -29,7 +29,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		return TypeAnnotationTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_7);
+		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 	}
 	public TypeAnnotationTest(String testName){
 		super(testName);
