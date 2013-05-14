@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 IBM Corporation and others.
+ * Copyright (c) 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,39 +11,44 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *        Andy Clement - Contributions for
- *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
 public interface AnnotationTargetTypeConstants {
-
-	// Targets for type parameter declarations
-	int CLASS_TYPE_PARAMETER                 = 0x00;
-	int METHOD_TYPE_PARAMETER                = 0x01;
-
-	// Targets that may be externally visible in classes and members
-	int CLASS_EXTENDS                        = 0x10;
-	int CLASS_TYPE_PARAMETER_BOUND           = 0x11;
-	int METHOD_TYPE_PARAMETER_BOUND          = 0x12;
-	int FIELD                                = 0x13;
-	int METHOD_RETURN                        = 0x14;
-	int METHOD_RECEIVER                      = 0x15;
-	int METHOD_FORMAL_PARAMETER              = 0x16;
-	int THROWS                               = 0x17;
-
-	// Targets for type uses that occur only within code blocks
-	int LOCAL_VARIABLE                       = 0x40;
-	int RESOURCE_VARIABLE                    = 0x41;
-	int EXCEPTION_PARAMETER                  = 0x42;
-	int INSTANCEOF                           = 0x43;
-	int NEW                                  = 0x44;
-	int CONSTRUCTOR_REFERENCE                = 0x45;
-	int METHOD_REFERENCE                     = 0x46;
-	int CAST                                 = 0x47;
-	int CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT = 0x48;
-	int METHOD_INVOCATION_TYPE_ARGUMENT      = 0x49;
-	int CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT  = 0x4A;
-	int METHOD_REFERENCE_TYPE_ARGUMENT       = 0x4B;
-
+	int METHOD_RECEIVER = 0x06;
+	int METHOD_RECEIVER_GENERIC_OR_ARRAY = 0x07;
+	int METHOD_RETURN_TYPE = 0x0A;
+	int METHOD_RETURN_TYPE_GENERIC_OR_ARRAY = 0x0B;
+	int METHOD_PARAMETER = 0x0C;
+	int METHOD_PARAMETER_GENERIC_OR_ARRAY = 0x0D;
+	int FIELD = 0x0E;
+	int FIELD_GENERIC_OR_ARRAY = 0x0F;
+	int CLASS_TYPE_PARAMETER_BOUND = 0x10;
+	int CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY = 0x11;
+	int METHOD_TYPE_PARAMETER_BOUND = 0x12;
+	int METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY = 0x13;
+	int CLASS_EXTENDS_IMPLEMENTS = 0x14;
+	int CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY = 0x15;
+	int THROWS = 0x16;
+	int THROWS_GENERIC_OR_ARRAY = 0x17;
+	int WILDCARD_BOUND = 0x1C;
+	int WILDCARD_BOUND_GENERIC_OR_ARRAY = 0x1D;
+	int METHOD_TYPE_PARAMETER = 0x20;
+	int METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY = 0x21;
+	int CLASS_TYPE_PARAMETER = 0x22;
+	int CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY = 0x23;
+	int TYPE_CAST = 0x00;
+	int TYPE_CAST_GENERIC_OR_ARRAY = 0x01;
+	int TYPE_INSTANCEOF = 0x02;
+	int TYPE_INSTANCEOF_GENERIC_OR_ARRAY = 0x03;
+	int OBJECT_CREATION = 0x04;
+	int OBJECT_CREATION_GENERIC_OR_ARRAY = 0x05;
+	int LOCAL_VARIABLE = 0x08;
+	int LOCAL_VARIABLE_GENERIC_OR_ARRAY = 0x09;
+	int TYPE_ARGUMENT_CONSTRUCTOR_CALL = 0x18;
+	int TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY = 0x19;
+	int TYPE_ARGUMENT_METHOD_CALL = 0x1A;
+	int TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY = 0x1B;
+	int CLASS_LITERAL = 0x1E;
+	int CLASS_LITERAL_GENERIC_OR_ARRAY = 0x1F;
 }
