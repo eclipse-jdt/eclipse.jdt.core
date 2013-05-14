@@ -9,6 +9,10 @@
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -230,7 +234,7 @@ public void generateArguments(MethodBinding binding, Expression[] arguments, Blo
 			// called with (argLength - lastIndex) elements : foo(1, 2) or foo(1, 2, 3, 4)
 			// need to gen elements into an array, then gen each remaining element into created array
 			codeStream.generateInlinedValue(argLength - varArgIndex);
-			codeStream.newArray(codeGenVarArgsType); // create a mono-dimensional array
+			codeStream.newArray(null, codeGenVarArgsType); // create a mono-dimensional array
 			for (int i = varArgIndex; i < argLength; i++) {
 				codeStream.dup();
 				codeStream.generateInlinedValue(i - varArgIndex);
@@ -249,7 +253,7 @@ public void generateArguments(MethodBinding binding, Expression[] arguments, Blo
 				// right number but not directly compatible or too many arguments - wrap extra into array
 				// need to gen elements into an array, then gen each remaining element into created array
 				codeStream.generateInlinedValue(1);
-				codeStream.newArray(codeGenVarArgsType); // create a mono-dimensional array
+				codeStream.newArray(null, codeGenVarArgsType); // create a mono-dimensional array
 				codeStream.dup();
 				codeStream.generateInlinedValue(0);
 				arguments[varArgIndex].generateCode(currentScope, codeStream, true);
@@ -259,7 +263,7 @@ public void generateArguments(MethodBinding binding, Expression[] arguments, Blo
 			// scenario: foo(1) --> foo(1, new int[0])
 			// generate code for an empty array of parameterType
 			codeStream.generateInlinedValue(0);
-			codeStream.newArray(codeGenVarArgsType); // create a mono-dimensional array
+			codeStream.newArray(null, codeGenVarArgsType); // create a mono-dimensional array
 		}
 	} else if (arguments != null) { // standard generation for method arguments
 		for (int i = 0, max = arguments.length; i < max; i++)

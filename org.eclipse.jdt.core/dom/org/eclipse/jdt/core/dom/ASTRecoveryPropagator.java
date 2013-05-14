@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2008 IBM Corporation and others.
+ * Copyright (c) 2006, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -126,6 +130,52 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 	}
 
 	public void endVisit(Block node) {
+		int level = node.getAST().apiLevel;
+		
+		List statements = node.statements();
+		next : for (int i = 0, max = statements.size(); i < max; i++) {
+			ASTNode statement = (ASTNode) statements.get(i);
+			if (statement.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT) {
+				VariableDeclarationStatement variableDeclarationStatement =  (VariableDeclarationStatement) statement;
+				
+				if (level == AST.JLS2_INTERNAL) {
+					if (variableDeclarationStatement.getModifiers() != Modifier.NONE) {
+						continue next;
+					}
+				} else if (level >= AST.JLS3_INTERNAL) {
+					if (variableDeclarationStatement.modifiers().size() != 0) {
+						continue next;
+					}
+				}
+				
+				Type type = variableDeclarationStatement.getType();
+				if (type.getNodeType() != ASTNode.SIMPLE_TYPE) {
+					continue next;
+				}
+				
+				List fragments = variableDeclarationStatement.fragments();
+				if (fragments.size() == 1) {
+					VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+					
+					SimpleName simpleName = fragment.getName();
+					if (CharOperation.equals(RecoveryScanner.FAKE_IDENTIFIER, simpleName.getIdentifier().toCharArray())) {
+						SimpleType simpleType = (SimpleType) type;
+						Name name = simpleType.getName();
+						name.setParent(null, null);
+						name.setFlags(name.getFlags() | ASTNode.RECOVERED);
+						
+						final ExpressionStatement stmt = new ExpressionStatement(name.getAST());
+						stmt.setExpression(name);
+						stmt.setSourceRange(variableDeclarationStatement.getStartPosition(), variableDeclarationStatement.getLength());
+						stmt.setFlags(stmt.getFlags() | ASTNode.RECOVERED);
+						
+						statements.add(i, stmt);
+						statements.remove(variableDeclarationStatement);
+					}
+				}
+			}
+		}
+		
 		this.blockDepth--;
 		if(this.blockDepth <= 0) {
 			flagNodeWithInsertedTokens();

@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -64,7 +68,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	int pc = codeStream.position;
 	this.expression.generateCode(currentScope, codeStream, true);
-	codeStream.instance_of(this.type.resolvedType);
+	codeStream.instance_of(this.type, this.type.resolvedType);
 	if (valueRequired) {
 		codeStream.generateImplicitConversion(this.implicitConversion);
 	} else {

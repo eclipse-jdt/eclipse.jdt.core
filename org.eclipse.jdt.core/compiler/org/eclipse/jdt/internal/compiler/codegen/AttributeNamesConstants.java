@@ -39,5 +39,8 @@ public interface AttributeNamesConstants {
 	final char[] VarargsName = "Varargs".toCharArray(); //$NON-NLS-1$
 	final char[] StackMapName = "StackMap".toCharArray(); //$NON-NLS-1$
 	final char[] MissingTypesName = "MissingTypes".toCharArray(); //$NON-NLS-1$
+	// jsr308
+	final char[] RuntimeVisibleTypeAnnotationsName = "RuntimeVisibleTypeAnnotations".toCharArray(); //$NON-NLS-1$
+	final char[] RuntimeInvisibleTypeAnnotationsName = "RuntimeInvisibleTypeAnnotations".toCharArray(); //$NON-NLS-1$
 	final char[] BootstrapMethodsName = "BootstrapMethods".toCharArray(); //$NON-NLS-1$
 }

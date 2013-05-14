@@ -9,6 +9,10 @@
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -52,7 +56,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, 	boolea
 	ReferenceBinding allocatedType = codegenBinding.declaringClass;
 
 	if (codegenBinding.canBeSeenBy(allocatedType, this, currentScope)) {
-		codeStream.new_(allocatedType);
+		codeStream.new_(this.type, allocatedType);
 		if (valueRequired) {
 			codeStream.dup();
 		}
@@ -89,7 +93,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, 	boolea
 		if (this.arguments != null) {
 			int argsLength = this.arguments.length;
 			codeStream.generateInlinedValue(argsLength);
-			codeStream.newArray(currentScope.createArrayType(currentScope.getType(TypeConstants.JAVA_LANG_OBJECT, 3), 1));
+			codeStream.newArray(null, currentScope.createArrayType(currentScope.getType(TypeConstants.JAVA_LANG_OBJECT, 3), 1));
 			codeStream.dup();
 			for (int i = 0; i < argsLength; i++) {
 				codeStream.generateInlinedValue(i);
@@ -105,7 +109,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, 	boolea
 			}
 		} else {
 			codeStream.generateInlinedValue(0);
-			codeStream.newArray(currentScope.createArrayType(currentScope.getType(TypeConstants.JAVA_LANG_OBJECT, 3), 1));
+			codeStream.newArray(null, currentScope.createArrayType(currentScope.getType(TypeConstants.JAVA_LANG_OBJECT, 3), 1));
 		}
 		codeStream.invokeJavaLangReflectConstructorNewInstance();
 		codeStream.checkcast(allocatedType);

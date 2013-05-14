@@ -9,6 +9,10 @@
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
  * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -158,7 +162,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		int pc = codeStream.position;
 		MethodBinding codegenBinding = this.binding.original();
 		ReferenceBinding allocatedType = codegenBinding.declaringClass;
-		codeStream.new_(allocatedType);
+		codeStream.new_(this.type, allocatedType);
 		boolean isUnboxing = (this.implicitConversion & TypeIds.UNBOXING) != 0;
 		if (valueRequired || isUnboxing) {
 			codeStream.dup();
@@ -191,7 +195,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 
 		// invoke constructor
 		if (this.syntheticAccessor == null) {
-			codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, null /* default declaringClass */);
+			codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, null /* default declaringClass */, this.typeArguments);
 		} else {
 			// synthetic accessor got some extra arguments appended to its signature, which need values
 			for (int i = 0,

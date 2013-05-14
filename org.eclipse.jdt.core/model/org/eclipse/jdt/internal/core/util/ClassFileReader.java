@@ -275,6 +275,10 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 							this.attributes[attributesIndex++] = new RuntimeInvisibleAnnotationsAttribute(classFileBytes, this.constantPool, readOffset);
 						} else if (equals(attributeName, IAttributeNamesConstants.BOOTSTRAP_METHODS)) {
 							this.attributes[attributesIndex++] = new BootstrapMethodsAttribute(classFileBytes, this.constantPool, readOffset);
+						} else if (equals(attributeName, IAttributeNamesConstants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS)) {
+							this.attributes[attributesIndex++] = new RuntimeVisibleTypeAnnotationsAttribute(classFileBytes, this.constantPool, readOffset);
+						} else if (equals(attributeName, IAttributeNamesConstants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS)) {
+							this.attributes[attributesIndex++] = new RuntimeInvisibleTypeAnnotationsAttribute(classFileBytes, this.constantPool, readOffset);
 						} else {
 							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 						}

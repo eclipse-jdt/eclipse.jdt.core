@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -141,6 +145,18 @@ public interface IAttributeNamesConstants {
 	 */
 	char[] STACK_MAP = "StackMap".toCharArray(); //$NON-NLS-1$
 	
+	/**
+	 * "RuntimeVisibleTypeAnnotations" attribute (added in jsr 308).
+	 * @since 3.9
+	 */
+	char[] RUNTIME_VISIBLE_TYPE_ANNOTATIONS = "RuntimeVisibleTypeAnnotations".toCharArray(); //$NON-NLS-1$
+
+	/**
+	 * "RuntimeInvisibleTypeAnnotations" attribute (added in jsr 308).
+	 * @since 3.9
+	 */
+	char[] RUNTIME_INVISIBLE_TYPE_ANNOTATIONS = "RuntimeInvisibleTypeAnnotations".toCharArray(); //$NON-NLS-1$
+
 	/**
 	 * "BootstrapMethods" attribute (added in cldc1.0).
 	 * @since 3.8

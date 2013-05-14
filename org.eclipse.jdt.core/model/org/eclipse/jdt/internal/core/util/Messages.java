@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -294,6 +298,25 @@ public final class Messages extends NLS {
 	public static String disassembler_annotationentrystart;
 	public static String disassembler_annotationentryend;
 	public static String disassembler_annotationcomponent;
+	// jsr308
+	public static String disassembler_extendedannotationentrystart;
+	public static String disassembler_extendedannotationentryend;
+	public static String disassembler_runtimevisibletypeannotationsattributeheader;
+	public static String disassembler_runtimeinvisibletypeannotationsattributeheader;
+	public static String disassembler_extendedannotation_classextendsimplements;
+	public static String disassembler_extendedannotation_locations;
+	public static String disassembler_extendedannotation_method_parameter;
+	public static String disassembler_extendedannotation_offset;
+	public static String disassembler_extendedannotation_throws;
+	public static String disassembler_extendedannotation_type_argument;
+	public static String disassembler_extendedannotation_type_parameter;
+	public static String disassembler_extendedannotation_type_parameter_with_bound;
+	public static String disassembler_extendedannotation_wildcardlocationtype;
+	public static String disassembler_extendedannotation_targetType;
+	public static String disassembler_extendedannotation_wildcardlocations;
+	public static String disassembler_localvariabletargetheader;
+	public static String classfileformat_localvariablereferenceinfoentry;
+
 	public static String disassembler_runtimevisibleannotationsattributeheader;
 	public static String disassembler_runtimeinvisibleannotationsattributeheader;
 	public static String disassembler_runtimevisibleparameterannotationsattributeheader;

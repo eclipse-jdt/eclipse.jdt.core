@@ -8,7 +8,7 @@
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.TypeAnnotationCodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -120,8 +121,13 @@ public CodeSnippetClassFile(
 	this.produceAttributes = this.referenceBinding.scope.compilerOptions().produceDebugAttributes;
 	this.creatingProblemType = creatingProblemType;
 	if (this.targetJDK >= ClassFileConstants.JDK1_6) {
-		this.codeStream = new StackMapFrameCodeStream(this);
 		this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP_TABLE;
+		if (this.targetJDK >= ClassFileConstants.JDK1_7) {
+			this.produceAttributes |= ClassFileConstants.ATTR_TYPE_ANNOTATION;
+			this.codeStream = new TypeAnnotationCodeStream(this);
+		} else {
+			this.codeStream = new StackMapFrameCodeStream(this);
+		}
 	} else if (this.targetJDK == ClassFileConstants.CLDC_1_1) {
 		this.targetJDK = ClassFileConstants.JDK1_1; // put back 45.3
 		this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP;
