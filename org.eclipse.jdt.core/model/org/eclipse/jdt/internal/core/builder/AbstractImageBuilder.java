@@ -57,7 +57,8 @@ private boolean inCompiler;
 protected boolean keepStoringProblemMarkers;
 protected SimpleSet filesWithAnnotations = null;
 
-public static int MAX_AT_ONCE = 2000; // best compromise between space used and speed
+//2000 is best compromise between space used and speed
+public static int MAX_AT_ONCE = Integer.getInteger(JavaModelManager.MAX_COMPILED_UNITS_AT_ONCE, 2000).intValue();
 public final static String[] JAVA_PROBLEM_MARKER_ATTRIBUTE_NAMES = {
 	IMarker.MESSAGE,
 	IMarker.SEVERITY,
@@ -83,17 +84,6 @@ public final static Integer S_WARNING = new Integer(IMarker.SEVERITY_WARNING);
 public final static Integer P_HIGH = new Integer(IMarker.PRIORITY_HIGH);
 public final static Integer P_NORMAL = new Integer(IMarker.PRIORITY_NORMAL);
 public final static Integer P_LOW = new Integer(IMarker.PRIORITY_LOW);
-
-static {
-	String property = System.getProperty(JavaModelManager.MAX_COMPILED_UNITS_AT_ONCE);
-	if (property != null) {
-		try {
-			MAX_AT_ONCE = Integer.parseInt(property);
-		} catch (Exception e) {
-			// ignore and let the default value be used
-		}
-	}
-}
 
 protected AbstractImageBuilder(JavaBuilder javaBuilder, boolean buildStarting, State newState) {
 	// local copies
