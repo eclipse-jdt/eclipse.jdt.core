@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,9 +8,11 @@
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *        Andy Clement - Contributions for
+ *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
@@ -122,7 +124,7 @@ public CodeSnippetClassFile(
 	this.creatingProblemType = creatingProblemType;
 	if (this.targetJDK >= ClassFileConstants.JDK1_6) {
 		this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP_TABLE;
-		if (this.targetJDK >= ClassFileConstants.JDK1_7) {
+		if (this.targetJDK >= ClassFileConstants.JDK1_8) {
 			this.produceAttributes |= ClassFileConstants.ATTR_TYPE_ANNOTATION;
 			this.codeStream = new TypeAnnotationCodeStream(this);
 		} else {
