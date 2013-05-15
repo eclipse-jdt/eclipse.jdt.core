@@ -51,6 +51,48 @@
             </configuration>
           </execution>
           <execution>
+            <id>batch-compiler-src</id>
+            <phase>package</phase>
+            <goals>
+              <goal>custom-bundle</goal>
+            </goals>
+            <configuration>
+				<archive>
+					<addMavenDescriptor>false</addMavenDescriptor>
+				</archive>
+              <bundleLocation>${project.basedir}/scripts/source</bundleLocation>
+              <classifier>batch-compiler-src</classifier>
+              <fileSets>
+                <fileSet>
+                  <directory>${project.basedir}/batch</directory>
+                </fileSet>
+                <fileSet>
+                  <directory>${project.basedir}/compiler</directory>
+                </fileSet>
+                <fileSet>
+                  <directory>${project.basedir}/antadapter</directory>
+                  <excludes>
+				    <exclude>org/eclipse/jdt/core/CheckDebugAttributes.java</exclude>
+					<exclude>org/eclipse/jdt/core/BuildJarIndex.java</exclude>
+                  </excludes>
+                </fileSet>
+				<fileSet>
+                  <directory>${project.basedir}/../org.eclipse.jdt.compiler.tool/src</directory>
+                </fileSet>
+				<fileSet>
+                  <directory>${project.basedir}/../org.eclipse.jdt.compiler.apt/src</directory>
+                </fileSet>
+				<fileSet>
+                  <directory>${project.basedir}/scripts</directory>
+                  <includes>
+				    <include>about.html</include>
+					<include>build.xml</include>
+                  </includes>
+                </fileSet>
+              </fileSets>
+            </configuration>
+          </execution>
+          <execution>
             <id>batch-compiler</id>
             <phase>package</phase>
             <goals>
