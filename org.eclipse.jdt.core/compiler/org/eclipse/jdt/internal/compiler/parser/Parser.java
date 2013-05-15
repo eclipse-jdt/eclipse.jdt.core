@@ -24,7 +24,8 @@
  *							bug 399695 - [1.8][compiler] [1.8][compiler] migrate parser to other syntax for default methods
  *							bug 384567 - [1.5][compiler] Compiler accepts illegal modifiers on package declaration
  *									bug 393192 - Incomplete type hierarchy with > 10 annotations
- *
+ *        Andy Clement - Contributions for
+ *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
@@ -1818,11 +1819,13 @@ protected void consumeArrayCreationExpressionWithInitializer() {
 		length);
 	Annotation[][] annotationsOnDimensions = getAnnotationsOnDimensions(length);
 	arrayAllocation.annotationsOnDimensions = annotationsOnDimensions;
-	if (annotationsOnDimensions != null) {
-		arrayAllocation.bits |= ASTNode.HasTypeAnnotations;
-	}
+
 	arrayAllocation.type = getTypeReference(0);
 	arrayAllocation.type.bits |= ASTNode.IgnoreRawTypeCheck; // no need to worry about raw type usage
+	if (annotationsOnDimensions != null) {
+		arrayAllocation.bits |= ASTNode.HasTypeAnnotations;
+		arrayAllocation.type.bits |= ASTNode.HasTypeAnnotations;
+	}
 
 	arrayAllocation.sourceStart = this.intStack[this.intPtr--];
 	if (arrayAllocation.initializer == null) {
@@ -1848,11 +1851,12 @@ protected void consumeArrayCreationExpressionWithoutInitializer() {
 		length);
 	Annotation[][] annotationsOnDimensions = getAnnotationsOnDimensions(length);
 	arrayAllocation.annotationsOnDimensions = annotationsOnDimensions;
-	if (annotationsOnDimensions != null) {
-		arrayAllocation.bits |= ASTNode.HasTypeAnnotations;
-	}
 	arrayAllocation.type = getTypeReference(0);
 	arrayAllocation.type.bits |= ASTNode.IgnoreRawTypeCheck; // no need to worry about raw type usage
+	if (annotationsOnDimensions != null) {
+		arrayAllocation.bits |= ASTNode.HasTypeAnnotations;
+		arrayAllocation.type.bits |= ASTNode.HasTypeAnnotations;
+	}
 	arrayAllocation.sourceStart = this.intStack[this.intPtr--];
 	if (arrayAllocation.initializer == null) {
 		arrayAllocation.sourceEnd = this.endStatementPosition;
@@ -5180,6 +5184,7 @@ protected void consumeMethodHeaderRightParen() {
 				if (type.annotations == null) {
 					type.bits |= ASTNode.HasTypeAnnotations;
 					type.annotations = new Annotation[type.getAnnotatableLevels()][];
+					md.bits |= ASTNode.HasTypeAnnotations;
 				}
 				type.annotations[0] = annotations;
 				int annotationSourceStart = annotations[0].sourceStart;
@@ -5187,6 +5192,7 @@ protected void consumeMethodHeaderRightParen() {
 					type.sourceStart = annotationSourceStart;
 				arg.annotations = null;
 			}
+			md.bits |= (arg.type.bits & ASTNode.HasTypeAnnotations);
 		} else {
 			System.arraycopy(
 					this.astStack,
@@ -5194,6 +5200,12 @@ protected void consumeMethodHeaderRightParen() {
 					md.arguments = new Argument[length],
 					0,
 					length);
+			for (int i = 0, max = md.arguments.length; i < max; i++) {
+				if ((md.arguments[i].bits & ASTNode.HasTypeAnnotations) != 0) {
+					md.bits |= ASTNode.HasTypeAnnotations;
+					break;
+				}
+			}
 		}
 	}
 	md.bodyStart = this.rParenPos+1;
@@ -10000,7 +10012,7 @@ protected Expression getTypeReference(Expression exp) {
 	exp.bits |= Binding.TYPE;
 	return exp;
 }
-protected void annotateTypeReference(TypeReference ref) {
+protected void annotateTypeReference(Wildcard ref) {
 	int length;
 	if ((length = this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr--]) != 0) {
 		if (ref.annotations == null)
@@ -10015,6 +10027,9 @@ protected void annotateTypeReference(TypeReference ref) {
 			ref.sourceStart = ref.annotations[0][0].sourceStart;
 		}
 		ref.bits |= ASTNode.HasTypeAnnotations;
+	}
+	if (ref.bound != null) {
+		ref.bits |= (ref.bound.bits & ASTNode.HasTypeAnnotations);
 	}
 }
 protected TypeReference getTypeReference(int dim) {

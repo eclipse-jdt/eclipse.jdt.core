@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,8 @@
  *     Stephan Herrmann - Contributions for
  *								bug 342671 - ClassCastException: org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding cannot be cast to org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
  *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *        Andy Clement - Contributions for
+ *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -35,6 +37,12 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		super(name, dim, pos);
 		this.originalSourceEnd = this.sourceEnd;
 		this.typeArguments = typeArguments;
+		for (int i = 0, max = typeArguments.length; i < max; i++) {
+			if ((typeArguments[i].bits & ASTNode.HasTypeAnnotations) != 0) {
+				this.bits |= ASTNode.HasTypeAnnotations;
+				break;
+			}
+		}
 	}
 	public ParameterizedSingleTypeReference(char[] name, TypeReference[] typeArguments, int dim, Annotation[][] annotationsOnDimensions, long pos) {
 		this(name, typeArguments, dim, pos);
