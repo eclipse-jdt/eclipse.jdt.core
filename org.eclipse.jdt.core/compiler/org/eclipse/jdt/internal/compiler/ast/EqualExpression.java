@@ -12,6 +12,7 @@
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
+ *								bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -47,7 +48,7 @@ public class EqualExpression extends BinaryExpression {
 			rightNonNullChecked = scope.problemReporter().expressionNonNullComparison(this.right, checkEquality);
 		}
 		
-		boolean contextualCheckEquality = checkEquality ^ ((flowContext.tagBits & FlowContext.INSIDE_NEGATIVE_ASSERT) != 0);
+		boolean contextualCheckEquality = checkEquality ^ ((flowContext.tagBits & FlowContext.INSIDE_NEGATION) != 0);
 		// perform flowInfo-based checks for variables and record info for syntactic null analysis for fields:
 		if (!leftNonNullChecked) {
 			LocalVariableBinding local = this.left.localVariableBinding();

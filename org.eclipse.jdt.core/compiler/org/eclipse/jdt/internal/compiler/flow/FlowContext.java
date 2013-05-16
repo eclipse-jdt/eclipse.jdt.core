@@ -19,6 +19,7 @@
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
+ *								bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -85,8 +86,8 @@ public class FlowContext implements TypeConstants {
 
 	public static final int DEFER_NULL_DIAGNOSTIC = 0x1;
 	public static final int PREEMPT_NULL_DIAGNOSTIC = 0x2;
-	// inside an assertFalse checks for equality / inequality have reversed meaning for syntactic analysis for fields:
-	public static final int INSIDE_NEGATIVE_ASSERT = 0x4;
+	// inside an assertFalse or a not-expression checks for equality / inequality have reversed meaning for syntactic analysis for fields:
+	public static final int INSIDE_NEGATION = 0x4;
 	/**
 	 * used to hide null comparison related warnings inside assert statements 
 	 */

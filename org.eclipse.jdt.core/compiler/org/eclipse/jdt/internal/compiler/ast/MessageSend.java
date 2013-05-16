@@ -31,6 +31,7 @@
  *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
  *								bug 382350 - [1.8][compiler] Unable to invoke inherited default method via I.super.m() syntax
  *								bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
+ *								bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement - Contributions for
@@ -263,7 +264,7 @@ private FlowInfo analyseBooleanAssertion(BlockScope currentScope, Expression arg
 	int tagBitsSave = flowContext.tagBits;
 	flowContext.tagBits |= FlowContext.HIDE_NULL_COMPARISON_WARNING;
 	if (!passOnTrue)
-		flowContext.tagBits |= FlowContext.INSIDE_NEGATIVE_ASSERT; // this affects syntactic analysis for fields in EqualExpression
+		flowContext.tagBits |= FlowContext.INSIDE_NEGATION; // this affects syntactic analysis for fields in EqualExpression
 	FlowInfo conditionFlowInfo = argument.analyseCode(currentScope, flowContext, flowInfo.copy());
 	flowContext.extendTimeToLiveForNullCheckedField(2); // survive this assert as a MessageSend and as a Statement
 	flowContext.tagBits = tagBitsSave;

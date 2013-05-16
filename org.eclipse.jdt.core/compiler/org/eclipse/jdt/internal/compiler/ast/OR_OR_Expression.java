@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for
  *								bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *								bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -52,7 +53,8 @@ public class OR_OR_Expression extends BinaryExpression {
 		}
 
 		FlowInfo leftInfo = this.left.analyseCode(currentScope, flowContext, flowInfo);
-		flowContext.expireNullCheckedFieldInfo();
+		if ((flowContext.tagBits & FlowContext.INSIDE_NEGATION) == 0)
+			flowContext.expireNullCheckedFieldInfo();
 
 		 // need to be careful of scenario:
 		//		(x || y) || !z, if passing the left info to the right, it would be swapped by the !
@@ -68,7 +70,8 @@ public class OR_OR_Expression extends BinaryExpression {
 			}
 		}
 		rightInfo = this.right.analyseCode(currentScope, flowContext, rightInfo);
-		flowContext.expireNullCheckedFieldInfo();
+		if ((flowContext.tagBits & FlowContext.INSIDE_NEGATION) == 0)
+			flowContext.expireNullCheckedFieldInfo();
 		if ((this.left.implicitConversion & TypeIds.UNBOXING) != 0) {
 			this.left.checkNPE(currentScope, flowContext, flowInfo);
 		}
