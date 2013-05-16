@@ -601,11 +601,8 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		this.result.append(' ');
 		getChildNode(node, InfixExpression.RIGHT_OPERAND_PROPERTY).accept(this);
 
-		List list= getChildList(node, InfixExpression.EXTENDED_OPERANDS_PROPERTY);
-		for (int i= 0; i < list.size(); i++) {
-			this.result.append(operator);
-			((ASTNode) list.get(i)).accept(this);
-		}
+		String separator= ' ' + operator + ' ';
+		visitList(node, InfixExpression.EXTENDED_OPERANDS_PROPERTY, separator, separator, Util.EMPTY_STRING);
 		return false;
 	}
 

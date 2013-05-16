@@ -2188,6 +2188,69 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=404251
+	public void testBug404251() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo(int a, int b, int c) {\n");
+		buf.append("       total = 0;\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		AST ast = astRoot.getAST();
+		ASTRewrite rewrite= ASTRewrite.create(ast);
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List statements= block.statements();
+		{ // add infix expression with operand that is a prefix expression 
+			ExpressionStatement stmt= (ExpressionStatement) statements.get(0);
+			Assignment assignment= (Assignment) stmt.getExpression();
+			
+			PrefixExpression prefix = ast.newPrefixExpression();
+			prefix.setOperator(PrefixExpression.Operator.INCREMENT);
+			prefix.setOperand(ast.newSimpleName("c"));
+			
+			InfixExpression infix= ast.newInfixExpression();
+			infix.setLeftOperand(ast.newSimpleName("a"));
+			infix.setRightOperand(ast.newSimpleName("b"));
+			infix.extendedOperands().add(prefix);
+			rewrite.set(assignment, Assignment.RIGHT_HAND_SIDE_PROPERTY, infix, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo(int a, int b, int c) {\n");
+		buf.append("       total = a + b + ++c;\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+		
+		// FIXME: currently broken, see https://bugs.eclipse.org/405038 :
+//		this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+//		this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+//		
+//		preview= evaluateRewrite(cu, rewrite);
+//
+//		buf= new StringBuffer();
+//		buf.append("package test1;\n");
+//		buf.append("public class E {\n");
+//		buf.append("    public void foo(int a, int b, int c) {\n");
+//		buf.append("       total = a+b+ ++c;\n");
+//		buf.append("    }\n");
+//		buf.append("}\n");
+//		assertEqualString(preview, buf.toString());
+	}
 
 	public void testIntersectionCastExpression_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
