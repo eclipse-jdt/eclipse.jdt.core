@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contribution for
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *								bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *     Jesper S Moller - Contributions for
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *******************************************************************************/
@@ -60,8 +61,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		if (local != null) {
 			// compound assignment results in a definitely non null value for String
 			flowInfo.markAsDefinitelyNonNull(local);
-			if (flowContext.initsOnFinally != null)
-				flowContext.markFinallyNullStatus(local, FlowInfo.NON_NULL);
+			flowContext.markFinallyNullStatus(local, FlowInfo.NON_NULL);
 		}
 	}
 	return flowInfo;

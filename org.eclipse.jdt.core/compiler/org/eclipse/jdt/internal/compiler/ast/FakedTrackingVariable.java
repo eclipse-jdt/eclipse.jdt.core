@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 GK Software AG and others.
+ * Copyright (c) 2011, 2013 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -626,8 +626,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		do {
 			flowInfo.markAsDefinitelyNonNull(current.binding);
 			current.globalClosingState |= CLOSE_SEEN;
-			if (flowContext.initsOnFinally != null)
-				flowContext.markFinallyNullStatus(this.binding, FlowInfo.NON_NULL);
+			flowContext.markFinallyNullStatus(this.binding, FlowInfo.NON_NULL);
 			current = current.innerTracker;
 		} while (current != null);
 	}

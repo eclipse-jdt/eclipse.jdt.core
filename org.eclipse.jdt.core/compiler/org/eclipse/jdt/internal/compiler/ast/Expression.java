@@ -18,6 +18,7 @@
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
+ *								bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -581,9 +582,7 @@ public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flow
 		}
 		flowInfo.markAsComparedEqualToNonNull(local);
 			// from thereon it is set
-		if (flowContext.initsOnFinally != null) {
-			flowContext.markFinallyNullStatus(local, FlowInfo.NON_NULL);
-		}
+		flowContext.markFinallyNullStatus(local, FlowInfo.NON_NULL);
 		return true;
 	}
 	return false; // not checked

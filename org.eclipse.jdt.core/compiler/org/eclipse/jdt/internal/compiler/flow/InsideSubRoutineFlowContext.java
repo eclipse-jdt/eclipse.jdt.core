@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.compiler.ast.SubRoutineStatement;
  * Reflects the context of code analysis, keeping track of enclosing
  *	try statements, exception handlers, etc...
  */
-public class InsideSubRoutineFlowContext extends FlowContext {
+public class InsideSubRoutineFlowContext extends TryFlowContext {
 
 	public UnconditionalFlowInfo initsOnReturn;
 

@@ -21,6 +21,7 @@
  *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *								bug 401088 - [compiler][null] Wrong warning "Redundant null check" inside nested try statement
  *								bug 401092 - [compiler][null] Wrong warning "Redundant null check" in outer catch of nested try
+ *								bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -120,9 +121,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (this.subRoutineStartLabel == null) {
 		// no finally block -- this is a simplified copy of the else part
 		if (flowContext instanceof FinallyFlowContext) {
-			// if this TryStatement sits inside another TryStatement,
-			// report into the initsOnFinally of the outer try-block.
-			flowContext.initsOnFinally = ((FinallyFlowContext)flowContext).tryContext.initsOnFinally;
+			// if this TryStatement sits inside another TryStatement, establish the wiring so that
+			// FlowContext.markFinallyNullStatus can report into initsOnFinally of the outer try context:
+			FinallyFlowContext finallyContext = (FinallyFlowContext) flowContext;
+			finallyContext.outerTryContext = finallyContext.tryContext;
 		}
 		// process the try block in a context handling the local exceptions.
 		ExceptionHandlingFlowContext handlingContext =
@@ -134,6 +136,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				null,
 				this.scope,
 				flowInfo);
+		handlingContext.conditionalLevel = 0; // start collection initsOnFinally
 		// only try blocks initialize that member - may consider creating a
 		// separate class if needed
 
@@ -239,11 +242,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				if (this.tryBlock.statements == null && this.resources == NO_RESOURCES) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350579
 					catchInfo.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 				}
+				flowContext.conditionalLevel++;
 				catchInfo =
 					this.catchBlocks[i].analyseCode(
 						currentScope,
 						flowContext,
 						catchInfo);
+				flowContext.conditionalLevel--;
 				this.catchExitInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(catchInfo);
 				this.catchExits[i] =
 					(catchInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0;
@@ -254,9 +259,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			currentScope.methodScope().recordInitializationStates(tryInfo);
 
 		// chain up null info registry
-		if (flowContext.initsOnFinally != null) {
-			flowContext.mergeFinallyNullInfo(handlingContext.initsOnFinally);
-		}
+		flowContext.mergeFinallyNullInfo(handlingContext.initsOnFinally);
 
 		return tryInfo;
 	} else {
@@ -266,9 +269,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// analyse finally block first
 		insideSubContext = new InsideSubRoutineFlowContext(flowContext, this);
 		if (flowContext instanceof FinallyFlowContext) {
-			// if this TryStatement sits inside another TryStatement,
-			// let the nested context report into the initsOnFinally of the outer try-block.
-			insideSubContext.initsOnFinally = ((FinallyFlowContext)flowContext).tryContext.initsOnFinally;
+			// if this TryStatement sits inside another TryStatement, establish the wiring so that
+			// FlowContext.markFinallyNullStatus can report into initsOnFinally of the outer try context:
+			insideSubContext.outerTryContext = ((FinallyFlowContext)flowContext).tryContext;
 		}
 
 		// process the try block in a context handling the local exceptions.
@@ -282,6 +285,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				null,
 				this.scope,
 				flowInfo);
+		insideSubContext.initsOnFinally = handlingContext.initsOnFinally; 
 
 		subInfo =
 			this.finallyBlock
@@ -290,6 +294,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					finallyContext = new FinallyFlowContext(flowContext, this.finallyBlock, handlingContext),
 					flowInfo.nullInfoLessUnconditionalCopy())
 				.unconditionalInits();
+		handlingContext.conditionalLevel = 0; // start collection initsOnFinally only after analysing the finally block
 		if (subInfo == FlowInfo.DEAD_END) {
 			this.bits |= ASTNode.IsSubRoutineEscaping;
 			this.scope.problemReporter().finallyMustCompleteNormally(this.finallyBlock);
@@ -408,6 +413,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				if (this.tryBlock.statements == null && this.resources == NO_RESOURCES) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350579
 					catchInfo.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 				}
+				insideSubContext.conditionalLevel = 1;
 				catchInfo =
 					this.catchBlocks[i].analyseCode(
 						currentScope,

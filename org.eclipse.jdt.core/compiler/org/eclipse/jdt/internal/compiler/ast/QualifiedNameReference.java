@@ -21,6 +21,7 @@
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *								bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *								bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
@@ -246,9 +247,7 @@ private void checkInternalNPE(BlockScope scope, FlowContext flowContext, FlowInf
 			}
 			flowInfo.markAsComparedEqualToNonNull(local);
 			// from thereon it is set
-			if (flowContext.initsOnFinally != null) {
-				flowContext.markFinallyNullStatus(local, FlowInfo.NON_NULL);
-			}
+			flowContext.markFinallyNullStatus(local, FlowInfo.NON_NULL);
 		}
 	}
 	if (this.otherBindings != null) {

@@ -27,6 +27,7 @@
  *							bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *							bug 331649 - [compiler][null] consider null annotations for fields
  *							bug 383368 - [compiler][null] syntactic null analysis for field references
+ *							bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -109,8 +110,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
 		flowInfo.markNullStatus(local, nullStatus);
-		if (flowContext.initsOnFinally != null)
-			flowContext.markFinallyNullStatus(local, nullStatus);
+		flowContext.markFinallyNullStatus(local, nullStatus);
 	}
 	return flowInfo;
 }

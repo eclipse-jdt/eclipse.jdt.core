@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *								bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -42,8 +43,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			flowInfo = stat.analyseCode(this.scope, flowContext, flowInfo);
 		}
 		// record the effect of stat on the finally block of an enclosing try-finally, if any:
-		if (flowContext.initsOnFinally != null)
-			flowContext.mergeFinallyNullInfo(flowInfo);
+		flowContext.mergeFinallyNullInfo(flowInfo);
 		if (enableSyntacticNullAnalysisForFields) {
 			flowContext.expireNullCheckedFieldInfo();
 		}
