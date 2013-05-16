@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,21 +14,27 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.io.IOException;
 import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
+import org.eclipse.jdt.core.dom.IMemberValuePairBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaElement;
 
 /**
@@ -1102,6 +1108,33 @@ public void testbug388137() throws Exception {
 		assertNotNull("Null Element info", element.getElementInfo());
 	} finally {
 		deleteProject(project);
+	}
+}
+
+public void testBug405908() throws CoreException, IOException {
+	try {
+		createJavaProject("P", new String[] { "" }, new String[0], "", CompilerOptions.VERSION_1_5);
+			createFile("P/A.java",
+					"@interface Generated {\n" +
+					"    String comment() default \"\";\n" +
+					"    String[] value();\n" +
+					"}\n" +
+					"@Generated()\n" +
+					"class A {\n" +
+					"}"
+			);
+		ICompilationUnit cuA = getCompilationUnit("P/A.java");
+		CompilationUnit unitA = (CompilationUnit) runConversion(cuA, true, false, true);
+		AbstractTypeDeclaration typeA = (AbstractTypeDeclaration) unitA.types().get(1);
+		IAnnotationBinding[] annotations = typeA.resolveBinding().getAnnotations();
+		IAnnotationBinding generated = annotations[0];
+		IMemberValuePairBinding[] mvps = generated.getAllMemberValuePairs();
+		IMemberValuePairBinding valueBinding = mvps[1];
+		assertEquals("value", valueBinding.getName());
+		Object value = valueBinding.getValue();
+		assertEquals(0, ((Object[]) value).length);
+	} finally {
+		deleteProject("P");
 	}
 }
 }

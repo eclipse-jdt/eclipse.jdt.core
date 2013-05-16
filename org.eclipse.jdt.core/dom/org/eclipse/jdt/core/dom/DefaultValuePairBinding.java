@@ -28,8 +28,10 @@ class DefaultValuePairBinding extends MemberValuePairBinding {
 		this.method = binding;
 		this.value = MemberValuePairBinding.buildDOMValue(binding.getDefaultValue(), resolver);
 		if (binding.returnType != null && binding.returnType.isArrayType()) {
-			if (!this.value.getClass().isArray()) {
-				// wrap into an array
+			// wrap into an array
+			if (this.value == null) {
+				this.value = new Object[0];
+			} else if (!this.value.getClass().isArray()) {
 				this.value = new Object[] { this.value };
 			}
 		}
