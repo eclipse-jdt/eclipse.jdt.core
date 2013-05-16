@@ -1059,7 +1059,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testBug402812b"));
 	suite.addTest(new CompletionTests("testBug402812c"));
 	suite.addTest(new CompletionTests("testBug402812d"));
-
+	suite.addTest(new CompletionTests("testBug370971"));
 	return suite;
 }
 public CompletionTests(String name) {
@@ -26330,6 +26330,49 @@ public void testBug402812d() throws Exception {
 		completionProjectOptions.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
 		completionProjectOptions.put(CompilerOptions.OPTION_Source, savedOptionSource);
 		COMPLETION_PROJECT.setOptions(completionProjectOptions);	
+	}
+}
+//Bug 370971 - Content Assist autocomplete broken within an array of anonymous classes instances
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=370971
+public void testBug370971() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
+	try {
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/ExampleEnumNoAutocomplete.java",
+			"public class X {\n" +
+			"	private Object[] items = new Object[] {\n" +
+			"        new Object() {\n" +
+			"              @Override\n" +
+			"              public String toString() {\n" +
+			"                  return super.toS;\n" +
+			"              }\n" +
+			"        },\n" +
+			"        new Object() { }\n" +
+			"    } ;\n" +
+			"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+		requestor.allowAllRequiredProposals();
+		requestor.setRequireExtendedContext(true);
+		requestor.setComputeEnclosingElement(true);
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "return super.toS";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+		
+		assertResults(
+				"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 65}",
+				requestor.getResults());
+		assertEquals(false,
+			requestor.canUseDiamond(0));
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Source, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
 	}
 }
 }
