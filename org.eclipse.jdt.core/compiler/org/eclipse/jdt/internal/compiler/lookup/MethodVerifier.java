@@ -19,6 +19,9 @@
  *									bug 388739 - [1.8][compiler] consider default methods when detecting whether a class needs to be declared abstract
  *									bug 390883 - [1.8][compiler] Unable to override default method
  *									bug 401796 - [1.8][compiler] don't treat default methods as overriding an independent inherited abstract method
+ *									bug 388281 - [compiler][null] inheritance of null annotations as an option
+ *									bug 395681 - [compiler] Improve simulation of javac6 behavior from bug 317719 after fixing bug 388795
+ *									bug 406928 - computation of inherited methods seems damaged (affecting @Overrides)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -578,8 +581,12 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 	List superIfcList = new ArrayList();
 	HashSet seenTypes = new HashSet();
 	collectAllDistinctSuperInterfaces(superInterfaces, seenTypes, superIfcList);
-	if (superclass != null)
-		collectAllDistinctSuperInterfaces(superclass.superInterfaces(), seenTypes, superIfcList);
+	ReferenceBinding currentSuper = superclass;
+	while (currentSuper != null && currentSuper.id != TypeIds.T_JavaLangObject) {
+		collectAllDistinctSuperInterfaces(currentSuper.superInterfaces(), seenTypes, superIfcList);
+		currentSuper = currentSuper.superclass();
+	}
+
 	if (superIfcList.size() == 0) return;
 	
 	if (superIfcList.size() == 1) {

@@ -11,11 +11,21 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+<<<<<<< BETA_JAVA8
  *     Stephan Herrmann - Contribution for
  *								bug 388800 - [1.8] adjust tests to 1.8 JRE
+=======
+ *     Stephan Herrmann - Contributions for
+>>>>>>> 97c9363 Bug 406928 - computation of inherited methods seems damaged (affecting @Overrides)
  *								bug 388795 - [compiler] detection of name clash depends on order of super interfaces
+<<<<<<< BETA_JAVA8
  *								bug 388739 - [1.8][compiler] consider default methods when detecting whether a class needs to be declared abstract
  *								bug 402237 - [1.8][compiler] investigate differences between compilers re MethodVerifyTest
+=======
+ *								bug 395681 - [compiler] Improve simulation of javac6 behavior from bug 317719 after fixing bug 388795
+ *	   Andy Clement - Contribution for
+ *								bug 406928 - computation of inherited methods seems damaged (affecting @Overrides)
+>>>>>>> 97c9363 Bug 406928 - computation of inherited methods seems damaged (affecting @Overrides)
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -37,7 +47,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class MethodVerifyTest extends AbstractComparableTest {
 	static {
-//		TESTS_NAMES = new String[] { "testBug317719" };
+//		TESTS_NAMES = new String[] { "testBug406928" };
 //		TESTS_NUMBERS = new int[] { 213 };
 //		TESTS_RANGE = new int[] { 190, -1};
 	}
@@ -13910,5 +13920,24 @@ public void testBug384580() {
 		"	                   ^^^\n" + 
 		"Name clash: The method m() of type Foo has the same erasure as m() of type Y but does not override it\n" + 
 		"----------\n");
+}
+// https://bugs.eclipse.org/406928 - computation of inherited methods seems damaged (affecting @Overrides)
+public void testBug406928() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_6) return;
+	this.runConformTest(
+		new String[] {
+			"TestPointcut.java",
+			"interface MethodMatcher {\n"+
+			"	boolean matches();\n"+
+			"}\n"+
+			"abstract class StaticMethodMatcher implements MethodMatcher { }\n"+
+			"abstract class StaticMethodMatcherPointcut extends StaticMethodMatcher { }\n"+
+			"\n"+
+			"class TestPointcut extends StaticMethodMatcherPointcut {\n"+
+			"	@Override\n"+
+			"	public boolean matches() { return false; } \n"+
+			"}\n"
+		},
+		"");
 }
 }
