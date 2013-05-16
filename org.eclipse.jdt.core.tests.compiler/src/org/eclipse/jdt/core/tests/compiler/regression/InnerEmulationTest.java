@@ -13,6 +13,8 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								Bug 388800 - [1.8] adjust tests to 1.8 JRE
+ *     Keigo Imai - Contribution for  bug 388903 - Cannot extend inner class as an anonymous class when it extends the outer class
+>>>>>>> 11dd8a9 [388903] Cannot extend inner class as an anonymous class when it extends the outer class
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -6899,6 +6901,53 @@ public void test174() throws Exception {
 		},
 		"SUCCESS");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=388903
+public void test175() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",//=======================
+			"public class X {\n" + 
+			"	class Inner extends X {\n" +
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		new X().new Inner(){};\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
+	this.runConformTest(
+			new String[] {
+				"X.java",//=======================
+				"public class X {\n" +
+				"	String which;\n" +
+				"	X(String s) {\n" +
+				"		this.which = s;\n" +
+				"	}\n" + 
+				"	class Inner extends X {\n" +
+				"		Inner() {\n" +
+				"			super(\"Inner\");\n" +
+				"			System.out.print( X.this.which + \",\" ); // will output 'Enclosing,'\n" +
+				"		}\n" +
+				"	}\n" + 
+				"	void check() {\n" +
+				"		new X(\"Enclosing\").new Inner() {\n" +
+				"			{\n" +
+				"				System.out.print( X.this.which + \",\" ); // will output 'Context,'\n" +
+				"			}\n" +
+				"			void f() {\n" +
+				"				System.out.println( X.this.which ); // will output 'Context'\n" +
+				"			}\n" +
+				"		}.f();\n" + 
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X(\"Context\").check();\n" +
+				"	}\n" + 
+				"}",
+			},
+			"Enclosing,Context,Context");
+}
+
 public static Class testClass() {
 	return InnerEmulationTest.class;
 }
