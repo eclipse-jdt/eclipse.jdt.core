@@ -20,9 +20,7 @@ import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IConstantPool;
 import org.eclipse.jdt.core.util.ILocalVariableReferenceInfo;
 
-/**
- * Default implementation of ILocalVariableTableEntry
- */
+
 public class LocalVariableReferenceInfo extends ClassFileStruct implements ILocalVariableReferenceInfo {
 
 	private int startPC;
