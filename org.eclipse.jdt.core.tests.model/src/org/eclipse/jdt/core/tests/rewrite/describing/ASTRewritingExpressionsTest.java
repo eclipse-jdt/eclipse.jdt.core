@@ -20,8 +20,10 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 
@@ -2236,20 +2238,19 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 		
-		// FIXME: currently broken, see https://bugs.eclipse.org/405038 :
-//		this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
-//		this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
-//		
-//		preview= evaluateRewrite(cu, rewrite);
-//
-//		buf= new StringBuffer();
-//		buf.append("package test1;\n");
-//		buf.append("public class E {\n");
-//		buf.append("    public void foo(int a, int b, int c) {\n");
-//		buf.append("       total = a+b+ ++c;\n");
-//		buf.append("    }\n");
-//		buf.append("}\n");
-//		assertEqualString(preview, buf.toString());
+		this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+		this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+		
+		preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo(int a, int b, int c) {\n");
+		buf.append("       total = a+b+ ++c;\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
 	}
 
 	public void testIntersectionCastExpression_since_8() throws Exception {
