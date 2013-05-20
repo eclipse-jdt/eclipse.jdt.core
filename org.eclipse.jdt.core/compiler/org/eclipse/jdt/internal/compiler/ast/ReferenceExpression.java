@@ -399,9 +399,15 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         if (this.binding.isAbstract() && this.lhs.isSuper())
         	scope.problemReporter().cannotDireclyInvokeAbstractMethod(this, this.binding);
         
-        if (this.binding.isStatic() && this.binding.declaringClass != this.receiverType)
-			scope.problemReporter().indirectAccessToStaticMethod(this, this.binding);
-    
+        if (this.binding.isStatic()) {
+        	if (this.binding.declaringClass != this.receiverType)
+        		scope.problemReporter().indirectAccessToStaticMethod(this, this.binding);
+        } else {
+        	AbstractMethodDeclaration srcMethod = this.binding.sourceMethod();
+        	if (srcMethod != null && srcMethod.isMethod())
+        		srcMethod.bits &= ~ASTNode.CanBeStatic;
+        }
+        
     	if (isMethodUseDeprecated(this.binding, scope, true))
     		scope.problemReporter().deprecatedMethod(this.binding, this);
 

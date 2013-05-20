@@ -1129,7 +1129,7 @@ public AbstractMethodDeclaration sourceMethod() {
 		return null;
 	}
 
-	AbstractMethodDeclaration[] methods = sourceType.scope.referenceContext.methods;
+	AbstractMethodDeclaration[] methods = sourceType.scope != null ? sourceType.scope.referenceContext.methods : null;
 	if (methods != null) {
 		for (int i = methods.length; --i >= 0;)
 			if (this == methods[i].binding)

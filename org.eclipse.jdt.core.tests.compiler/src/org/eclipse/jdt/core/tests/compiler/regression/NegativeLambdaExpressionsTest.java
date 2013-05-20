@@ -6534,6 +6534,134 @@ public void test406773() {
 			compilerOptions /* custom options */
 		);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=406859,  [1.8][compiler] Bad hint that method could be declared static
+public void test406859a() {
+		Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+		this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	int foo(int i);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		X x = new X();\n" +
+					"		I i = x::foo;\n" +
+					"		i.foo(3);\n" +
+					"	}\n" +
+					"	int foo(int x) {\n" +
+					"		return x;\n" +
+					"	}   \n" +
+					"}\n"
+			},
+			"",
+			null /* no extra class libraries */,
+			true /* flush output directory */,
+			compilerOptions /* custom options */
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=406859,  [1.8][compiler] Bad hint that method could be declared static
+public void test406859b() {
+		Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+		this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void doit (Y y);\n" +
+					"}\n" +
+					"\n" +
+					"class Y {\n" +
+					"	void foo() {\n" +
+					"		return;\n" +
+					"	}\n" +
+					"}\n" +
+					"\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		I i = Y::foo; \n" +
+					"		Y y = new Y();\n" +
+					"		i.doit(y);\n" +
+					"	}\n" +
+					"}\n"
+			},
+			"",
+			null /* no extra class libraries */,
+			true /* flush output directory */,
+			compilerOptions /* custom options */
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=406859,  [1.8][compiler] Bad hint that method could be declared static
+public void test406859c() {
+		Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+		this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void doit ();\n" +
+					"}\n" +
+					"\n" +
+					"class Y {\n" +
+					"	void foo() {  \n" +
+					"		return;\n" +
+					"	}\n" +
+					"}\n" +
+					"\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		I i = new Y()::foo;\n" +
+					"		i.doit();\n" +
+					"	}\n" +
+					"}\n"
+			},
+			"",
+			null /* no extra class libraries */,
+			true /* flush output directory */,
+			compilerOptions /* custom options */
+		);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406859,  [1.8][compiler] Bad hint that method could be declared static
+// A case where we can't help but report the wrong hint due to separate compilation.
+public void test406859d() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.WARNING);
+	this.runNegativeTest(
+		new String[] {
+				"Y.java",
+				"public class Y {\n" +
+				"	void foo() {\n" +
+				"		return;\n" +
+				"	}\n" +
+				"}",
+				"X.java",
+				"interface I {\n" +
+				"	void doit ();\n" +
+				"}\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		I i = new Y()::foo;\n" +
+				"		i.doit();\n" +
+				"	}\n" +
+				"}\n"
+		},
+		"----------\n" +
+		"1. WARNING in Y.java (at line 2)\n" +
+		"	void foo() {\n" +
+		"	     ^^^^^\n" +
+		"The method foo() from the type Y can potentially be declared as static\n" +
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
