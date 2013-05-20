@@ -42,7 +42,7 @@ protected Map getCompilerOptions() {
 	Map compilerOptions = super.getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ShareCommonFinallyBlocks, CompilerOptions.ENABLED);
 	return compilerOptions;
-};
+}
 public void test001() {
 	this.runConformTest(new String[] {
 		"p/X.java",
