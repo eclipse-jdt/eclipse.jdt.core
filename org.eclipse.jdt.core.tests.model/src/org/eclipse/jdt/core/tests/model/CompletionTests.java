@@ -1060,6 +1060,8 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testBug402812c"));
 	suite.addTest(new CompletionTests("testBug402812d"));
 	suite.addTest(new CompletionTests("testBug370971"));
+	suite.addTest(new CompletionTests("testBug406468a"));
+	suite.addTest(new CompletionTests("testBug406468b"));
 	return suite;
 }
 public CompletionTests(String name) {
@@ -26372,6 +26374,93 @@ public void testBug370971() throws JavaModelException {
 	} finally {
 		// Restore compliance settings.
 		options.put(CompilerOptions.OPTION_Source, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// Bug 406468 - [1.8][code assist] No completion proposals after the use of a constructor reference
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406468
+public void testBug406468a() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/X.java",
+				"interface I {\n" +
+				"	X [][][] copy (int x);\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		I i = X[][][]::new;\n" +
+				"		X[][][] x = i.copy(136);\n" +
+				"		System.out.println(x.length);\n" +
+				"           \n" +	
+				"	}\n" +
+				"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "System.out.println(x.length);";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"I[TYPE_REF]{I, test, Ltest.I;, null, null, 27}\n" +
+			"X[TYPE_REF]{X, test, Ltest.X;, null, null, 27}\n" +
+			"args[LOCAL_VARIABLE_REF]{args, null, [Ljava.lang.String;, args, null, 27}\n" +
+			"i[LOCAL_VARIABLE_REF]{i, null, Ltest.I;, i, null, 27}\n" +
+			"main[METHOD_REF]{main(), Ltest.X;, ([Ljava.lang.String;)V, main, (args), 27}\n" +
+			"x[LOCAL_VARIABLE_REF]{x, null, [[[Ltest.X;, x, null, 27}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		options.put(CompilerOptions.OPTION_Source, savedOptionSource);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+public void testBug406468b() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/X.java",
+				"interface I {\n" +
+				"	X<java.lang.String> copy ();\n" +
+				"}\n" +
+				"public class X<S>  {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		I i = X<java.lang.String>::new;\n" +
+				"		X x = i.copy();\n" +
+				"		System.out.println(x);\n" +
+				"           \n" +	
+				"	}\n" +
+				"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "System.out.println(x);";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"I[TYPE_REF]{I, test, Ltest.I;, null, null, 27}\n" +
+			"S[TYPE_REF]{S, null, TS;, null, null, 27}\n" +
+			"X<S>[TYPE_REF]{X, test, Ltest.X<TS;>;, null, null, 27}\n" +
+			"args[LOCAL_VARIABLE_REF]{args, null, [Ljava.lang.String;, args, null, 27}\n" +
+			"i[LOCAL_VARIABLE_REF]{i, null, Ltest.I;, i, null, 27}\n" +
+			"main[METHOD_REF]{main(), Ltest.X<TS;>;, ([Ljava.lang.String;)V, main, (args), 27}\n" +
+			"x[LOCAL_VARIABLE_REF]{x, null, Ltest.X;, x, null, 27}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		options.put(CompilerOptions.OPTION_Source, savedOptionSource);
 		COMPLETION_PROJECT.setOptions(options);	
 	}
 }
