@@ -14,6 +14,8 @@
  *     Stephan Herrmann - Contribution for
  *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
+ *        Andy Clement - Contributions for
+ *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -53,6 +55,7 @@ static class AnnotationCollector extends ASTVisitor {
 	int info2 = -1;
 	LocalVariableBinding localVariable;
 	Annotation[][] annotationsOnDimensions;
+	int dimensions;
 	Wildcard currentWildcard;
 
 	public AnnotationCollector(
@@ -145,32 +148,42 @@ static class AnnotationCollector extends ASTVisitor {
 			int targetType,
 			int info,
 			List annotationContexts,
-			Annotation[][] annotationsOnDimensions) {
+			Annotation[][] annotationsOnDimensions,
+			int dimensions) {
 		this.annotationContexts = annotationContexts;
 		this.typeReference = typeReference;
 		this.info = info;
 		this.targetType = targetType;
 		this.annotationsOnDimensions = annotationsOnDimensions;
+		// Array references like 'new String[]' manifest as an ArrayAllocationExpression
+		// with a 'type' of String.  When the type is not carrying the dimensions count
+		// it is passed in via the dimensions parameter.  It is not possible to use
+		// annotationsOnDimensions as it will be null if there are no annotations on any
+		// of the dimensions.
+		this.dimensions = dimensions;
 	}
+	
 	private boolean internalVisit(Annotation annotation) {
 		AnnotationContext annotationContext = null;
 		if (annotation.isRuntimeTypeInvisible()) {
-			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.INVISIBLE, this.annotationsOnDimensions);
+			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.INVISIBLE, this.annotationsOnDimensions, this.dimensions);
 		} else if (annotation.isRuntimeTypeVisible()) {
-			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.VISIBLE, this.annotationsOnDimensions);
+			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.VISIBLE, this.annotationsOnDimensions, this.dimensions);
 		}
 		if (annotationContext != null) {
 			annotationContext.wildcard = this.currentWildcard;
 			switch(this.targetType) {
-				case AnnotationTargetTypeConstants.THROWS :
 				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER :
 				case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER :
-				case AnnotationTargetTypeConstants.METHOD_PARAMETER :
-				case AnnotationTargetTypeConstants.TYPE_CAST :
-				case AnnotationTargetTypeConstants.TYPE_INSTANCEOF :
-				case AnnotationTargetTypeConstants.OBJECT_CREATION :
-				case AnnotationTargetTypeConstants.CLASS_LITERAL :
-				case AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS:
+				case AnnotationTargetTypeConstants.CLASS_EXTENDS:
+				case AnnotationTargetTypeConstants.METHOD_FORMAL_PARAMETER :
+				case AnnotationTargetTypeConstants.THROWS :
+				case AnnotationTargetTypeConstants.EXCEPTION_PARAMETER :
+				case AnnotationTargetTypeConstants.INSTANCEOF:
+				case AnnotationTargetTypeConstants.NEW :
+				case AnnotationTargetTypeConstants.CONSTRUCTOR_REFERENCE :
+				case AnnotationTargetTypeConstants.METHOD_REFERENCE :
+				case AnnotationTargetTypeConstants.CAST:
 					annotationContext.info = this.info;
 					break;
 				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
@@ -179,12 +192,21 @@ static class AnnotationCollector extends ASTVisitor {
 					annotationContext.info = this.info;
 					break;
 				case AnnotationTargetTypeConstants.LOCAL_VARIABLE :
+				case AnnotationTargetTypeConstants.RESOURCE_VARIABLE :
 					annotationContext.variableBinding = this.localVariable;
 					break;
-				case AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL :
-				case AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
+				case AnnotationTargetTypeConstants.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT :
+				case AnnotationTargetTypeConstants.METHOD_INVOCATION_TYPE_ARGUMENT :
+				case AnnotationTargetTypeConstants.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT :
+				case AnnotationTargetTypeConstants.METHOD_REFERENCE_TYPE_ARGUMENT :
 					annotationContext.info2 = this.info2;
 					annotationContext.info = this.info;
+					break;
+				case AnnotationTargetTypeConstants.FIELD :
+				case AnnotationTargetTypeConstants.METHOD_RETURN :
+				case AnnotationTargetTypeConstants.METHOD_RECEIVER :
+					break;
+					
 			}
 			this.annotationContexts.add(annotationContext);
 		}
@@ -328,12 +350,9 @@ public void getAllAnnotationContexts(int targetType, int info, List allAnnotatio
 }
 /**
  * info can be either a type index (superclass/superinterfaces) or a pc into the bytecode
- * @param targetType
- * @param info
- * @param allAnnotationContexts
  */
-public void getAllAnnotationContexts(int targetType, int info, List allAnnotationContexts, Annotation[][] annotationsOnDimensions) {
-	AnnotationCollector collector = new AnnotationCollector(this, targetType, info, allAnnotationContexts, annotationsOnDimensions);
+public void getAllAnnotationContexts(int targetType, int info, List allAnnotationContexts, Annotation[][] annotationsOnDimensions, int dimensions) {
+	AnnotationCollector collector = new AnnotationCollector(this, targetType, info, allAnnotationContexts, annotationsOnDimensions, dimensions);
 	this.traverse(collector, (BlockScope) null);
 	if (annotationsOnDimensions != null) {
 		for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {

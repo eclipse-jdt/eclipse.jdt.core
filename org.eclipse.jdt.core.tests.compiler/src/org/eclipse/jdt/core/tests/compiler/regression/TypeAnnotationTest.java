@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 IBM Corporation and others.
+ * Copyright (c) 2011, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,12 +11,15 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *        Andy Clement - Contributions for
+ *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-
+import java.util.Map;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
@@ -34,457 +37,819 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	public TypeAnnotationTest(String testName){
 		super(testName);
 	}
-//	// superclass
-//	public void test001() throws Exception {
-//		this.runConformTest(
-//				new String[] {
-//					"Marker.java",
-//					"import java.lang.annotation.Target;\n" + 
-//					"import static java.lang.annotation.ElementType.*;\n" + 
-//					"@Target(TYPE_USE)\n" + 
-//					"@interface Marker {}",
-//					"X.java",
-//					"public class X extends @Marker Object {}",
-//				},
-//				"");
-//		String expectedOutput =
-//			"  RuntimeInvisibleTypeAnnotations: \n" + 
-//			"    #17 @Marker(\n" + 
-//			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
-//			"      type index = -1\n" + 
-//			"    )\n";
-//		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-//	}
-//	// type parameter
-//	public void test002() throws Exception {
-//		this.runConformTest(
-//				new String[] {
-//					"Marker.java",
-//					"import java.lang.annotation.Target;\n" + 
-//					"import static java.lang.annotation.ElementType.*;\n" + 
-//					"@Target(TYPE_PARAMETER)\n" + 
-//					"@interface Marker {}",
-//					"X.java",
-//					"public class X<@Marker T> {}",
-//				},
-//				"");
-//		String expectedOutput =
-//			"  RuntimeInvisibleTypeAnnotations: \n" + 
-//			"    #21 @Marker(\n" + 
-//			"      target type = 0x22 CLASS_TYPE_PARAMETER\n" + 
-//			"      type parameter index = 0\n" + 
-//			"    )\n";
-//		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-//	}
-//	// superclass
-//	public void test003() throws Exception {
-//		this.runConformTest(
-//			new String[] {
-//				"A.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface A {\n" + 
-//				"	String id() default \"default\";\n" + 
-//				"}\n",
-//				"B.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(CLASS)\n" + 
-//				"@interface B {\n" + 
-//				"	int value() default -1;\n" + 
-//				"}",
-//				"C.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface C {\n" + 
-//				"	char value() default '-';\n" + 
-//				"}\n",
-//				"Y.java",
-//				"class Y {}\n",
-//				"X.java",
-//				"public class X extends @A(id=\"Hello, World!\") @B @C('(') Y {\n" + 
-//				"}",
-//		},
-//		"");
-//		String expectedOutput =
-//			"  RuntimeVisibleTypeAnnotations: \n" + 
-//			"    #19 @A(\n" + 
-//			"      #20 id=\"Hello, World!\" (constant type)\n" + 
-//			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
-//			"      type index = -1\n" + 
-//			"    )\n" + 
-//			"    #22 @C(\n" + 
-//			"      #23 value=\'(\' (constant type)\n" + 
-//			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
-//			"      type index = -1\n" + 
-//			"    )\n" + 
-//			"  RuntimeInvisibleTypeAnnotations: \n" + 
-//			"    #17 @B(\n" + 
-//			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
-//			"      type index = -1\n" + 
-//			"    )\n";
-//		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-//	}
-//	// super interfaces
-//	public void test004() throws Exception {
-//		this.runConformTest(
-//			new String[] {
-//				"A.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface A {\n" + 
-//				"	String id() default \"default\";\n" + 
-//				"}\n",
-//				"B.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(CLASS)\n" + 
-//				"@interface B {\n" + 
-//				"	int value() default -1;\n" + 
-//				"}",
-//				"C.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface C {\n" + 
-//				"	char value() default '-';\n" + 
-//				"}\n",
-//				"I.java",
-//				"interface I {}\n",
-//				"J.java",
-//				"interface J {}\n",
-//				"X.java",
-//				"public class X implements @A(id=\"Hello, World!\") I, @B @C('(') J {}",
-//		},
-//		"");
-//		String expectedOutput =
-//			"  RuntimeVisibleTypeAnnotations: \n" + 
-//			"    #23 @A(\n" + 
-//			"      #24 id=\"Hello, World!\" (constant type)\n" + 
-//			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
-//			"      type index = 0\n" + 
-//			"    )\n" + 
-//			"    #26 @C(\n" + 
-//			"      #27 value=\'(\' (constant type)\n" + 
-//			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
-//			"      type index = 1\n" + 
-//			"    )\n" + 
-//			"  RuntimeInvisibleTypeAnnotations: \n" + 
-//			"    #21 @B(\n" + 
-//			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
-//			"      type index = 1\n" + 
-//			"    )\n";
-//		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-//	}
-//	// class literal
-//	public void test005() throws Exception {
-//		this.runConformTest(
-//			new String[] {
-//				"A.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface A {\n" + 
-//				"	String value() default \"default\";\n" + 
-//				"}\n",
-//				"B.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(CLASS)\n" + 
-//				"@interface B {\n" + 
-//				"	int value() default -1;\n" + 
-//				"}",
-//				"C.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface C {\n" + 
-//				"	char value() default '-';\n" + 
-//				"}\n",
-//				"I.java",
-//				"interface I {}\n",
-//				"J.java",
-//				"interface J {}\n",
-//				"X.java",
-//				"public class X {\n" + 
-//				"	public boolean foo(String s) {\n" + 
-//				"		boolean b = (s instanceof @C('_') Object);\n" + 
-//				"		Object o = new @B(3) @A(\"new Object\") Object();\n" + 
-//				"		Class<?> c = @B(4) Object.class;\n" + 
-//				"		Class<?> c2 = @A(\"int class literal\")  @B(5) int.class;\n" + 
-//				"		System.out.println(o.toString() + c.toString() + c2.toString());\n" + 
-//				"		return b;\n" + 
-//				"	}\n" + 
-//				"}",
-//		},
-//		"");
-//		String expectedOutput =
-//			"    RuntimeVisibleTypeAnnotations: \n" + 
-//			"      #73 @C(\n" + 
-//			"        #68 value=\'_\' (constant type)\n" + 
-//			"        target type = 0x2 TYPE_INSTANCEOF\n" + 
-//			"        offset = 1\n" + 
-//			"      )\n" + 
-//			"      #75 @A(\n" + 
-//			"        #68 value=\"new Object\" (constant type)\n" + 
-//			"        target type = 0x4 OBJECT_CREATION\n" + 
-//			"        offset = 5\n" + 
-//			"      )\n" + 
-//			"      #75 @A(\n" + 
-//			"        #68 value=\"int class literal\" (constant type)\n" + 
-//			"        target type = 0x1e CLASS_LITERAL\n" + 
-//			"        offset = 17\n" + 
-//			"      )\n" + 
-//			"    RuntimeInvisibleTypeAnnotations: \n" + 
-//			"      #67 @B(\n" + 
-//			"        #68 value=(int) 3 (constant type)\n" + 
-//			"        target type = 0x4 OBJECT_CREATION\n" + 
-//			"        offset = 5\n" + 
-//			"      )\n" + 
-//			"      #67 @B(\n" + 
-//			"        #68 value=(int) 4 (constant type)\n" + 
-//			"        target type = 0x1e CLASS_LITERAL\n" + 
-//			"        offset = 13\n" + 
-//			"      )\n" + 
-//			"      #67 @B(\n" + 
-//			"        #68 value=(int) 5 (constant type)\n" + 
-//			"        target type = 0x1e CLASS_LITERAL\n" + 
-//			"        offset = 17\n" + 
-//			"      )\n";
-//		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-//	}
-//	// class literal generic and array
-//	public void test006() throws Exception {
-//		this.runConformTest(
-//			new String[] {
-//				"A.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface A {\n" + 
-//				"	String value() default \"default\";\n" + 
-//				"}\n",
-//				"B.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(CLASS)\n" + 
-//				"@interface B {\n" + 
-//				"	int value() default -1;\n" + 
-//				"}",
-//				"C.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface C {\n" + 
-//				"	char value() default '-';\n" + 
-//				"}\n",
-//				"I.java",
-//				"interface I {}\n",
-//				"J.java",
-//				"interface J {}\n",
-//				"X.java",
-//				"public class X {\n" + 
-//				"	public boolean foo(Object o) {\n" + 
-//				"		boolean b = (o instanceof @C('_') Object[]);\n" + 
-//				"		Object o1 = new @B(3) @A(\"new Object\") Object[] {};\n" + 
-//				"		Class<?> c = @B(4) Object[].class;\n" + 
-//				"		Class<?> c2 = @A(\"int class literal\")  @B(5) int[].class;\n" + 
-//				"		System.out.println(o1.toString() + c.toString() + c2.toString());\n" + 
-//				"		return b;\n" + 
-//				"	}\n" + 
-//				"}",
-//		},
-//		"");
-//		String expectedOutput =
-//			"    RuntimeVisibleTypeAnnotations: \n" + 
-//			"      #70 @C(\n" + 
-//			"        #66 value=\'_\' (constant type)\n" + 
-//			"        target type = 0x2 TYPE_INSTANCEOF\n" + 
-//			"        offset = 1\n" + 
-//			"      )\n" + 
-//			"      #72 @A(\n" + 
-//			"        #66 value=\"int class literal\" (constant type)\n" + 
-//			"        target type = 0x1e CLASS_LITERAL\n" + 
-//			"        offset = 14\n" + 
-//			"      )\n" + 
-//			"    RuntimeInvisibleTypeAnnotations: \n" + 
-//			"      #65 @B(\n" + 
-//			"        #66 value=(int) 4 (constant type)\n" + 
-//			"        target type = 0x1e CLASS_LITERAL\n" + 
-//			"        offset = 10\n" + 
-//			"      )\n" + 
-//			"      #65 @B(\n" + 
-//			"        #66 value=(int) 5 (constant type)\n" + 
-//			"        target type = 0x1e CLASS_LITERAL\n" + 
-//			"        offset = 14\n" + 
-//			"      )\n";
-//		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-//	}
-//	// parameterized superclass
-//	public void test007() throws Exception {
-//		this.runConformTest(
-//			new String[] {
-//				"A.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface A {\n" + 
-//				"	String value() default \"default\";\n" + 
-//				"}\n",
-//				"B.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(CLASS)\n" + 
-//				"@interface B {\n" + 
-//				"	int value() default -1;\n" + 
-//				"}",
-//				"C.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface C {\n" + 
-//				"	char value() default '-';\n" + 
-//				"}\n",
-//				"Y.java",
-//				"class Y<T> {}\n",
-//				"X.java",
-//				"public class X extends @A(\"Hello, World!\") Y<@B @C('(') String> {\n" + 
-//				"}",
-//		},
-//		"");
-//		String expectedOutput =
-//			"  RuntimeVisibleTypeAnnotations: \n" + 
-//			"    #21 @A(\n" + 
-//			"      #22 value=\"Hello, World!\" (constant type)\n" + 
-//			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
-//			"      type index = -1\n" + 
-//			"    )\n" + 
-//			"    #24 @C(\n" + 
-//			"      #22 value=\'(\' (constant type)\n" + 
-//			"      target type = 0x15 CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY\n" + 
-//			"      type index = -1\n" + 
-//			"      locations = {0}\n" + 
-//			"    )\n" + 
-//			"  RuntimeInvisibleTypeAnnotations: \n" + 
-//			"    #19 @B(\n" + 
-//			"      target type = 0x15 CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY\n" + 
-//			"      type index = -1\n" + 
-//			"      locations = {0}\n" + 
-//			"    )\n";
-//		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-//	}
-//	public void test008() throws Exception {
-//		this.runConformTest(
-//			new String[] {
-//				"A.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface A {\n" + 
-//				"	String value() default \"default\";\n" + 
-//				"}\n",
-//				"B.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(CLASS)\n" + 
-//				"@interface B {\n" + 
-//				"	int value() default -1;\n" + 
-//				"}",
-//				"C.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface C {\n" + 
-//				"	char value() default '-';\n" + 
-//				"}\n",
-//				"I.java",
-//				"interface I<T> {}\n",
-//				"J.java",
-//				"interface J<U,T> {}\n",
-//				"X.java",
-//				"public class X implements I<@A(\"Hello, World!\") String>, @B J<String, @C('(') Integer> {}",
-//		},
-//		"");
-//		String expectedOutput =
-//			"  RuntimeVisibleTypeAnnotations: \n" + 
-//			"    #25 @A(\n" + 
-//			"      #26 value=\"Hello, World!\" (constant type)\n" + 
-//			"      target type = 0x15 CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY\n" + 
-//			"      type index = 0\n" + 
-//			"      locations = {0}\n" + 
-//			"    )\n" + 
-//			"    #28 @C(\n" + 
-//			"      #26 value=\'(\' (constant type)\n" + 
-//			"      target type = 0x15 CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY\n" + 
-//			"      type index = 1\n" + 
-//			"      locations = {1}\n" + 
-//			"    )\n" + 
-//			"  RuntimeInvisibleTypeAnnotations: \n" + 
-//			"    #23 @B(\n" + 
-//			"      target type = 0x14 CLASS_EXTENDS_IMPLEMENTS\n" + 
-//			"      type index = 1\n" + 
-//			"    )\n";
-//		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-//	}
-	// throws
-	public void test009() throws Exception {
+
+	// Enables the tests to run individually
+	protected Map getCompilerOptions() {
+		Map defaultOptions = super.getCompilerOptions();
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
+		return defaultOptions;
+	}
+	
+	private static final String HELPER_CLASS =
+		"import java.lang.annotation.*;\n"+
+		"import java.lang.reflect.*;\n"+
+		"class Helper {\n"+
+		"\n"+
+		// Print type annotations on super types
+		"  public static void printTypeAnnotations(Class<?> clazz) {\n"+
+		"    System.out.println(\"Annotations on superclass of \"+clazz.getName());\n"+
+		"    AnnotatedType superat = clazz.getAnnotatedSuperclass();\n"+
+		"    Helper.printAnnos(\"  \", superat.getType(),superat.getAnnotations());\n"+
+		"    AnnotatedType[] superinterfaces = clazz.getAnnotatedInterfaces();\n"+
+		"    if (superinterfaces.length!=0) {\n"+
+		"      System.out.println(\"Annotations on superinterfaces of \"+clazz.getName());\n"+
+		"      for (int j=0;j<superinterfaces.length;j++) {\n"+
+		"        Helper.printAnnos(\"  \", superinterfaces[j].getType(),superinterfaces[j].getAnnotations());\n"+
+		"      }\n"+
+		"    }\n"+
+		"  }\n"+
+		// Print type annotations on a type
+		"  public static void printTypeAnnotations2(Class<?> clazz) {\n"+
+		"    System.out.print(clazz.getName()+\"<\");\n"+
+		"    TypeVariable<?>[] tvs = clazz.getTypeParameters();\n"+
+		"    for (int t=0;t<tvs.length;t++) {\n"+
+		"      TypeVariable<?> tv = tvs[t];\n"+
+		"      Annotation[] annos = tv.getAnnotations();\n"+
+		"      for (int a=0;a<annos.length;a++) {\n"+
+		"        System.out.print(toStringAnno(annos[a])+\" \");\n"+
+		"      }\n"+
+		"      System.out.print(tv.getName());\n"+
+		"      if ((t+1)<tvs.length) System.out.print(\",\");\n"+
+		"    }\n"+
+		"    System.out.println(\">\");\n"+
+		"  }\n"+
+		"  public static String toStringAnno(Annotation anno) {\n"+
+		"    String s = anno.toString();\n"+
+		"    if (s.endsWith(\"()\")) return s.substring(0,s.length()-2); else return s;\n"+
+		"  }\n"+
+		"  \n"+
+		"  public static void printAnnos(String header, Type t, Annotation[] annos) {\n"+
+		"    if (annos.length==0) { System.out.println(header+t+\":no annotations\"); return;} \n"+
+		"    System.out.print(header+t+\":\");\n"+
+		"    for (int i=0;i<annos.length;i++) {\n"+
+		"      System.out.print(toStringAnno(annos[i])+\" \");\n"+
+		"    }\n"+
+		"    System.out.println();\n"+
+		"  }\n"+
+		"}\n";
+	
+	// http://types.cs.washington.edu/jsr308/specification/java-annotation-design.pdf
+	//		type_annotation {
+	//			// New fields in JSR 308:
+	//			u1 target_type; // the type of the targeted program element, see Section 3.2
+	//			union {
+	//				type_parameter_target;
+	//				supertype_target;
+	//				type_parameter_bound_target;
+	//				empty_target;
+	//				method_formal_parameter_target;
+	//				throws_target;
+	//				localvar_target;
+	//				catch_target;
+	//				offset_target;
+	//				type_argument_target;
+	//				method_reference_target;
+	//			} target_info; // identifies the targeted program element, see Section 3.3
+	//			type_path target_path; // identifies targeted type in a compound type (array, generic, etc.), see Section 3.4
+	//			// Original fields from "annotation" structure:
+	//			u2 type_index;
+	//			u2 num_element_value_pairs;
+	//			{
+	//				u2 element_name_index;
+	//				element_value value;
+	//			} element_value_pairs[num_element_value_pairs];
+	//			}
+	
+	public void test001_classTypeParameter() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X<@Marker T> {}",
+
+					"Marker.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n"+
+					"@Target(ElementType.TYPE_PARAMETER)\n" + 
+					"@interface Marker {}",					
+				},
+				"");
+		// javac-b81: 9[0 1 0 0 0 0 13 0 0]  (13=Marker annotation)
+		String expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #21 @Marker(\n" + 
+			"      target type = 0x0 CLASS_TYPE_PARAMETER\n" + 
+			"      type parameter index = 0\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	public void test002_classTypeParameter_reflection() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X<@Marker T> {\n"+
+					"  public static void main(String[] argv) { Helper.printTypeAnnotations2(X.class);}\n"+
+					"}",
+					
+					"Helper.java",HELPER_CLASS,
+					"Marker.java",
+					"import java.lang.annotation.*;\n" + 
+					"import static java.lang.annotation.ElementType.*;\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n"+
+					"@Target(TYPE_PARAMETER)\n" + 
+					"@interface Marker {}",
+				},
+				"X<@Marker T>");
+	}
+
+	public void test003_classTypeParameter() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X<@A1 T1,@A2 @A3 T2> {}",
+
+					"A1.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n"+
+					"@Target(ElementType.TYPE_PARAMETER)\n" + 
+					"@interface A1 {}",
+					
+					"A2.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n"+
+					"@Target(ElementType.TYPE_PARAMETER)\n" + 
+					"@interface A2 {}",
+					
+					"A3.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n"+
+					"@Target(ElementType.TYPE_PARAMETER)\n" + 
+					"@interface A3 {}",
+
+				},
+				"");
+		// javac-b81: 9[0 1 0 0 0 0 13 0 0]  (13=Marker)
+		String expectedOutput =
+				"  RuntimeVisibleTypeAnnotations: \n" + 
+				"    #21 @A1(\n" + 
+				"      target type = 0x0 CLASS_TYPE_PARAMETER\n" + 
+				"      type parameter index = 0\n" + 
+				"    )\n" + 
+				"    #22 @A2(\n" + 
+				"      target type = 0x0 CLASS_TYPE_PARAMETER\n" + 
+				"      type parameter index = 1\n" + 
+				"    )\n" + 
+				"    #23 @A3(\n" + 
+				"      target type = 0x0 CLASS_TYPE_PARAMETER\n" + 
+				"      type parameter index = 1\n" + 
+				"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	public void test004_classTypeParameter_reflection() throws Exception {
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"public class X<@A1 T1,@A2 @A3 T2> {\n"+
+						"    public static void main(String[] argv) { Helper.printTypeAnnotations2(X.class); }\n"+
+						"}",
+						
+						"Helper.java",HELPER_CLASS,
+						"A1.java",
+						"import java.lang.annotation.*;\n" +  
+						"@Retention(RetentionPolicy.RUNTIME)\n"+
+						"@Target(ElementType.TYPE_PARAMETER)\n" + 
+						"@interface A1 {}",
+						"A2.java",
+						"import java.lang.annotation.*;\n" + 
+						"import static java.lang.annotation.ElementType.*;\n" + 
+						"@Retention(RetentionPolicy.RUNTIME)\n"+
+						"@Target(TYPE_PARAMETER)\n" + 
+						"@interface A2 {}",
+						"A3.java",
+						"import java.lang.annotation.*;\n" + 
+						"import static java.lang.annotation.ElementType.*;\n" + 
+						"@Retention(RetentionPolicy.RUNTIME)\n"+
+						"@Target(TYPE_PARAMETER)\n" + 
+						"@interface A3 {}",
+				},
+				"X<@A1 T1,@A2 @A3 T2>");
+	}
+	
+	public void test005_classTypeParameter() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_PARAMETER)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_PARAMETER)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"X.java",
+				"public class X<@A @B(3) T> {}",
+		},
+		"");
+		String expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #25 @A(\n" + 
+			"      target type = 0x0 CLASS_TYPE_PARAMETER\n" + 
+			"      type parameter index = 0\n" + 
+			"    )\n" + 
+			"  RuntimeInvisibleTypeAnnotations: \n" + 
+			"    #21 @B(\n" + 
+			"      #22 value=(int) 3 (constant type)\n" + 
+			"      target type = 0x0 CLASS_TYPE_PARAMETER\n" + 
+			"      type parameter index = 0\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test006_classTypeParameter() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_PARAMETER)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_PARAMETER)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"X.java",
+				"public class X<T1,T2,@A @B(3) T3> {}",
+		},
+		"");
+		String expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #25 @A(\n" + 
+			"      target type = 0x0 CLASS_TYPE_PARAMETER\n" + 
+			"      type parameter index = 2\n" + 
+			"    )\n" + 
+			"  RuntimeInvisibleTypeAnnotations: \n" + 
+			"    #21 @B(\n" + 
+			"      #22 value=(int) 3 (constant type)\n" + 
+			"      target type = 0x0 CLASS_TYPE_PARAMETER\n" + 
+			"      type parameter index = 2\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	public void test007_methodTypeParameter() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_PARAMETER)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_PARAMETER)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"X.java",
+				"public class X {\n" + 
+				"	<@A @B(3) T> void foo(T t) {}\n" + 
+				"}",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #27 @A(\n" + 
+			"        target type = 0x1 METHOD_TYPE_PARAMETER\n" + 
+			"        type parameter index = 0\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #23 @B(\n" + 
+			"        #24 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x1 METHOD_TYPE_PARAMETER\n" + 
+			"        type parameter index = 0\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test008_methodTypeParameter() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_PARAMETER)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_PARAMETER)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"X.java",
+				"public class X {\n" + 
+				"	<T1, @A @B(3) T2> void foo(T1 t1,T2 t2) {}\n" + 
+				"}",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #29 @A(\n" + 
+			"        target type = 0x1 METHOD_TYPE_PARAMETER\n" + 
+			"        type parameter index = 1\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #25 @B(\n" + 
+			"        #26 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x1 METHOD_TYPE_PARAMETER\n" + 
+			"        type parameter index = 1\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test009_classExtends() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"Marker.java",
+					"import java.lang.annotation.Target;\n" + 
+					"import static java.lang.annotation.ElementType.*;\n" + 
+					"@Target(TYPE_USE)\n" + 
+					"@interface Marker {}",
+					"X.java",
+					"public class X extends @Marker Object {}",
+				},
+				"");
+		// javac-b81 annotation contents: len:10[0 1 16 -1 -1 0 0 17 0 0]
+		String expectedOutput =
+			"  RuntimeInvisibleTypeAnnotations: \n" + 
+			"    #17 @Marker(\n" + 
+			"      target type = 0x10 CLASS_EXTENDS\n" + 
+			"      type index = -1\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	public void test010_classExtends() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"Marker.java",
+					"import java.lang.annotation.*;\n" + 
+					"import static java.lang.annotation.ElementType.*;\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n"+
+					"@Target(TYPE_USE)\n" + 
+					"@interface Marker {}",
+					"X.java",
+					"public class X extends @Marker Object {}",
+				},
+				"");
+		// Bytes:10[0 1 16 -1 -1 0 0 17 0 0]
+		String expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #17 @Marker(\n" + 
+			"      target type = 0x10 CLASS_EXTENDS\n" + 
+			"      type index = -1\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test011_classExtends_reflection() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X extends @Marker Object {public static void main(String[] argv) {Helper.printTypeAnnotations(X.class);}}",
+					"Helper.java",HELPER_CLASS,
+					"Marker.java",
+					"import java.lang.annotation.Target;\n" + 
+					"import static java.lang.annotation.ElementType.*;\n" + 
+					"@Target(TYPE_USE)\n" + 
+					"@interface Marker {}"
+				},
+				"Annotations on superclass of X\n"+
+				"  class java.lang.Object:no annotations");
+	}
+
+	public void test012_classExtends_reflection() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X extends @Marker Object {public static void main(String[] argv) {Helper.printTypeAnnotations(X.class);}}",
+					"Helper.java",HELPER_CLASS,
+					"Marker.java",
+					"import java.lang.annotation.*;\n" + 
+					"import static java.lang.annotation.ElementType.*;\n" + 
+					"@Target(TYPE_USE)\n" +
+					"@Retention(RetentionPolicy.RUNTIME)\n"+
+					"@interface Marker {}"
+				},
+				"Annotations on superclass of X\n"+
+				"  class java.lang.Object:@Marker");
+	}
+
+	public void test013_classExtends_interfaces() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String id() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"I.java",
+				"interface I {}\n",
+				"J.java",
+				"interface J {}\n",
+				"X.java",
+				"public class X implements @A(id=\"Hello, World!\") I, @B @C('(') J {}",
+		},
+		"");
+		// Output from javac b81 lambda
+		// RuntimeVisibleTypeAnnotations
+		// Bytes:28[0 2 16 0 0 0 0 13 0 1 0 14 115 0 15 16 0 1 0 0 16 0 1 0 17 67 0 18]
+		// RuntimeInvisibleTypeAnnotations
+		// Bytes:10[0 1 16 0 1 0 0 20 0 0]		
+		String expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #23 @A(\n" + 
+			"      #24 id=\"Hello, World!\" (constant type)\n" + 
+			"      target type = 0x10 CLASS_EXTENDS\n" + 
+			"      type index = 0\n" + 
+			"    )\n" + 
+			"    #26 @C(\n" + 
+			"      #27 value=\'(\' (constant type)\n" + 
+			"      target type = 0x10 CLASS_EXTENDS\n" + 
+			"      type index = 1\n" + 
+			"    )\n" + 
+			"  RuntimeInvisibleTypeAnnotations: \n" + 
+			"    #21 @B(\n" + 
+			"      target type = 0x10 CLASS_EXTENDS\n" + 
+			"      type index = 1\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test014_classExtends_interfaces_reflection() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X implements @A I {public static void main(String[]argv) {Helper.printTypeAnnotations(X.class);}}",
+				"Helper.java",HELPER_CLASS,
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"}\n",
+				"I.java",
+				"interface I {}\n"
+		},
+		"Annotations on superclass of X\n" + 
+		"  class java.lang.Object:no annotations\n" + 
+		"Annotations on superinterfaces of X\n" + 
+		"  interface I:@A");
+	}
+	
+	public void test015_classExtends_interfaces_reflection() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X implements @A(id=\"Hello, World!\") I, @B @C('i') J {public static void main(String[] argv) { Helper.printTypeAnnotations(X.class);}}",
+				"Helper.java",HELPER_CLASS,
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String id() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"I.java",
+				"interface I {}\n",
+				"J.java",
+				"interface J {}\n",
+		},
+		"Annotations on superclass of X\n" + 
+		"  class java.lang.Object:no annotations\n" + 
+		"Annotations on superinterfaces of X\n" + 
+		"  interface I:@A(id=Hello, World!) \n" + 
+		"  interface J:@C(value=i)");
+	}
+
+	public void test016_classExtends() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"Y.java",
+				"class Y<T> {}\n",
+				"X.java",
+				"public class X extends Y<@B String> {\n" + 
+				"}",
+		},
+		"");
+		// javac-b81: Bytes:12[0 1 16 -1 -1 1 3 0 0 13 0 0] // type path: 1,3,0
+		String expectedOutput =
+				"  RuntimeVisibleTypeAnnotations: \n" + 
+				"    #19 @B(\n" + 
+				"      target type = 0x10 CLASS_EXTENDS\n" + 
+				"      type index = -1\n" + 
+				"      location = [TYPE_ARGUMENT(0)]\n" + 
+				"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test017_classExtends() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"Marker.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface Marker { }\n",
+				"I.java",
+				"interface I<T> {}\n",
+				"X.java",
+				"public class X implements I<@Marker String> {\n" + 
+				"}",
+		},
+		"");
+		// javac-b81: Bytes:12[0 1 16 0 0 1 3 0 0 14 0 0] // type path: 1,3,0
+		String expectedOutput =
+				"  RuntimeVisibleTypeAnnotations: \n" + 
+				"    #21 @Marker(\n" + 
+				"      target type = 0x10 CLASS_EXTENDS\n" + 
+				"      type index = 0\n" + 
+				"      location = [TYPE_ARGUMENT(0)]\n" + 
+				"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test018_classExtends() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A { }\n",
+
+				"I.java",
+				"interface I<T1,T2> {}\n",
+				
+				"X.java",
+				"public class X implements I<Integer, @A String> {}\n"
+		},
+		"");
+		// javac-b81: Bytes:12[0 1 16 0 0 1 3 1 0 14 0 0] // type path: 1,3,1
+		String expectedOutput =
+				"  RuntimeVisibleTypeAnnotations: \n" + 
+				"    #21 @A(\n" + 
+				"      target type = 0x10 CLASS_EXTENDS\n" + 
+				"      type index = 0\n" + 
+				"      location = [TYPE_ARGUMENT(1)]\n" + 
+				"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test019_classExtends() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A { }\n",
+
+				"J.java",
+				"interface J<T> {}\n",
+				
+				"I.java",
+				"interface I<T> {}\n",
+				
+				"X.java",
+				"public class X implements I<J<@A String>> {}\n"
+		},
+		"");
+		// javac-b81: Bytes:14[0 1 16 0 0 2 3 0 3 0 0 14 0 0] // type path: 2,3,0,3,0
+		String expectedOutput =
+				"  RuntimeVisibleTypeAnnotations: \n" + 
+				"    #21 @A(\n" + 
+				"      target type = 0x10 CLASS_EXTENDS\n" + 
+				"      type index = 0\n" + 
+				"      location = [TYPE_ARGUMENT(0), TYPE_ARGUMENT(0)]\n" + 
+				"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test020_classExtends() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A { }\n",
+				
+				"I.java",
+				"interface I<T> {}\n",
+				
+				"X.java",
+				"public class X implements I<@A String[]> {}\n"
+		},
+		"");
+		// javac-b81: Bytes:14[0 1 16 0 0 2 3 0 0 0 0 14 0 0] // type path: 2,3,0,0,0
+		String expectedOutput =
+				"  RuntimeVisibleTypeAnnotations: \n" + 
+				"    #21 @A(\n" + 
+				"      target type = 0x10 CLASS_EXTENDS\n" + 
+				"      type index = 0\n" + 
+				"      location = [TYPE_ARGUMENT(0), ARRAY]\n" + 
+				"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test021_classExtends() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A { }\n",
+				
+				"I.java",
+				"interface I<T> {}\n",
+				
+				"X.java",
+				"public class X implements I<String @A[]> {}\n"
+		},
+		"");
+		// javac-b81: Bytes:12[0 1 16 0 0 1 3 0 0 14 0 0] // type path: 1,3,0
+		String expectedOutput =
+				"  RuntimeVisibleTypeAnnotations: \n" + 
+				"    #21 @A(\n" + 
+				"      target type = 0x10 CLASS_EXTENDS\n" + 
+				"      type index = 0\n" + 
+				"      location = [TYPE_ARGUMENT(0)]\n" + 
+				"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test022_classExtends() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A { }\n",
+				
+				"I.java",
+				"interface I<T> {}\n",
+				
+				"X.java",
+				"public class X implements I<String []@A[]> {}\n"
+		},
+		"");
+		// javac-b81: Bytes:14[0 1 16 0 0 2 3 0 0 0 0 14 0 0] // type path: 2,3,0,0,0
+		String expectedOutput =
+				"  RuntimeVisibleTypeAnnotations: \n" + 
+				"    #21 @A(\n" + 
+				"      target type = 0x10 CLASS_EXTENDS\n" + 
+				"      type index = 0\n" + 
+				"      location = [TYPE_ARGUMENT(0), ARRAY]\n" + 
+				"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test023_classExtends() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A { }\n",
+				
+				"I.java",
+				"interface I<T> {}\n",
+				
+				"X.java",
+				"public class X implements I<@A String [][][]> {}\n"
+		},
+		"");
+		// javac-b81: Bytes:10[0 1 16 0 0 0 0 12 0 0] // type path: 4,3,0,0,0,0,0,0,0
+		String expectedOutput =
+				"  RuntimeVisibleTypeAnnotations: \n" + 
+				"    #21 @A(\n" + 
+				"      target type = 0x10 CLASS_EXTENDS\n" + 
+				"      type index = 0\n" + 
+				"      location = [TYPE_ARGUMENT(0), ARRAY, ARRAY, ARRAY]\n" + 
+				"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	
+	public void test024_classExtends() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -517,485 +882,189 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"@interface C {\n" + 
 				"	char value() default '-';\n" + 
 				"}\n",
-				"E.java",
-				"class E extends RuntimeException {\n" +
-				"	private static final long serialVersionUID = 1L;\n" +
+				"I.java",
+				"interface I<T> {}\n",
+				"J.java",
+				"interface J<U,T> {}\n",
+				"X.java",
+				"public class X implements I<@A(\"Hello, World!\") String>, @B J<String, @C('(') Integer> {}",
+		},
+		"");
+		String expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #25 @A(\n" + 
+			"      #26 value=\"Hello, World!\" (constant type)\n" + 
+			"      target type = 0x10 CLASS_EXTENDS\n" + 
+			"      type index = 0\n" + 
+			"      location = [TYPE_ARGUMENT(0)]\n" + 
+			"    )\n" + 
+			"    #28 @C(\n" + 
+			"      #26 value=\'(\' (constant type)\n" + 
+			"      target type = 0x10 CLASS_EXTENDS\n" + 
+			"      type index = 1\n" + 
+			"      location = [TYPE_ARGUMENT(1)]\n" + 
+			"    )\n" + 
+			"  RuntimeInvisibleTypeAnnotations: \n" + 
+			"    #23 @B(\n" + 
+			"      target type = 0x10 CLASS_EXTENDS\n" + 
+			"      type index = 1\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test025_classTypeParameterBound() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends @A String> {}",
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {}\n"
+		},
+		"");
+		// javac-b81: Bytes:10[0 1 17 0 0 0 0 13 0 0] 
+		// [17 0 0] is CLASS_PARAMETER_BOUND type_parameter_index=0 bound_index=0
+		String expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #21 @A(\n" + 
+			"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND\n" + 
+			"      type parameter index = 0 type parameter bound index = 0\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	public void test026_classTypeParameterBound() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
 				"}\n",
-				"E1.java",
-				"class E1 extends RuntimeException {\n" +
-				"	private static final long serialVersionUID = 1L;\n" +
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"X.java",
+				"public class X<T extends @A String & @B(3) Cloneable> {}",
+		},
+		"");
+		String expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #25 @A(\n" + 
+			"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND\n" + 
+			"      type parameter index = 0 type parameter bound index = 0\n" + 
+			"    )\n" + 
+			"  RuntimeInvisibleTypeAnnotations: \n" + 
+			"    #21 @B(\n" + 
+			"      #22 value=(int) 3 (constant type)\n" + 
+			"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND\n" + 
+			"      type parameter index = 0 type parameter bound index = 1\n" + 
+			"    )\n" ;
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test027_classTypeParameterBound_complex() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
 				"}\n",
-				"E2.java",
-				"class E2 extends RuntimeException {\n" +
-				"	private static final long serialVersionUID = 1L;\n" +
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
 				"}\n",
+				"Y.java",
+				"public class Y<T> {}",
+				"X.java",
+				"public class X<U, T extends Y<@A String @C[][]@B[]> & @B(3) Cloneable> {}",
+		},
+		"");
+		// javac-b81:
+		// Bytes:28[0 2 17 1 0 1 3 0 0 13 0 0 17 1 0 4 3 0 0 0 0 0 0 0 0 14 0 0]
+		// Bytes:29[0 2 17 1 0 3 3 0 0 0 0 0 0 16 0 0 17 1 1 0 0 16 0 1 0 17 73 0 18]
+		String expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #25 @A(\n" + 
+			"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND\n" + 
+			"      type parameter index = 1 type parameter bound index = 0\n" + 
+			"      location = [TYPE_ARGUMENT(0), ARRAY, ARRAY, ARRAY]\n" + 
+			"    )\n" + 
+			"    #26 @C(\n" + 
+			"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND\n" + 
+			"      type parameter index = 1 type parameter bound index = 0\n" + 
+			"      location = [TYPE_ARGUMENT(0)]\n" + 
+			"    )\n" + 
+			"  RuntimeInvisibleTypeAnnotations: \n" + 
+			"    #21 @B(\n" + 
+			"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND\n" + 
+			"      type parameter index = 1 type parameter bound index = 0\n" + 
+			"      location = [TYPE_ARGUMENT(0), ARRAY, ARRAY]\n" + 
+			"    )\n" + 
+			"    #21 @B(\n" + 
+			"      #22 value=(int) 3 (constant type)\n" + 
+			"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND\n" + 
+			"      type parameter index = 1 type parameter bound index = 1\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test028_methodTypeParameterBound() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"Z.java",
+				"public class Z {}",
 				"X.java",
 				"public class X {\n" +
-				"	void foo() throws @A(\"Hello, World!\") E, E1, @B @C('(') E2 {}\n" +
+				"	<T extends @A Z> void foo(T t) {}\n" +
 				"}",
 		},
 		"");
+		// javac-b81: Bytes:10[0 1 18 0 0 0 0 13 0 0]
 		String expectedOutput =
 			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #25 @A(\n" + 
-			"        #26 value=\"Hello, World!\" (constant type)\n" + 
-			"        target type = 0x16 THROWS\n" + 
-			"        throws index = 0\n" + 
-			"      )\n" + 
-			"      #28 @C(\n" + 
-			"        #26 value=\'(\' (constant type)\n" + 
-			"        target type = 0x16 THROWS\n" + 
-			"        throws index = 2\n" + 
-			"      )\n" + 
-			"    RuntimeInvisibleTypeAnnotations: \n" + 
-			"      #23 @B(\n" + 
-			"        target type = 0x16 THROWS\n" + 
-			"        throws index = 2\n" + 
+			"      #23 @A(\n" + 
+			"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" + 
+			"        type parameter index = 0 type parameter bound index = 0\n" + 
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-//	// method receiver
-//	public void test010() throws Exception {
-//		this.runConformTest(
-//			new String[] {
-//				"A.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface A {\n" + 
-//				"	String value() default \"default\";\n" + 
-//				"}\n",
-//				"B.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(CLASS)\n" + 
-//				"@interface B {\n" + 
-//				"	int value() default -1;\n" + 
-//				"}",
-//				"X.java",
-//				"public class X {\n" + 
-//				"	void foo() @B(3) {}\n" + 
-//				"}",
-//		},
-//		"");
-//		String expectedOutput =
-//			"    RuntimeInvisibleTypeAnnotations: \n" + 
-//			"      #16 @B(\n" + 
-//			"        #17 value=(int) 3 (constant type)\n" + 
-//			"        target type = 0x6 METHOD_RECEIVER\n" + 
-//			"      )\n";
-//		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-//	}
-	// method return type
-	public void test011() throws Exception {
-		this.runConformTest(
-			new String[] {
-				"A.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface A {\n" + 
-				"	String value() default \"default\";\n" + 
-				"}\n",
-				"B.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(CLASS)\n" + 
-				"@interface B {\n" + 
-				"	int value() default -1;\n" + 
-				"}",
-				"X.java",
-				"public class X {\n" + 
-				"	@B(3) @A(value=\"test\") int foo() {\n" +
-				"		return 1;\n" +
-				"	}\n" + 
-				"}",
-		},
-		"");
-		String expectedOutput =
-			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #21 @A(\n" + 
-			"        #18 value=\"test\" (constant type)\n" + 
-			"        target type = 0xa METHOD_RETURN_TYPE\n" + 
-			"      )\n" + 
-			"    RuntimeInvisibleTypeAnnotations: \n" + 
-			"      #17 @B(\n" + 
-			"        #18 value=(int) 3 (constant type)\n" + 
-			"        target type = 0xa METHOD_RETURN_TYPE\n" + 
-			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-	}
-	// field type
-	public void test012() throws Exception {
-		this.runConformTest(
-			new String[] {
-				"A.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface A {\n" + 
-				"	String value() default \"default\";\n" + 
-				"}\n",
-				"B.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(CLASS)\n" + 
-				"@interface B {\n" + 
-				"	int value() default -1;\n" + 
-				"}",
-				"X.java",
-				"public class X {\n" + 
-				"	@B(3) @A int field;\n" +
-				"}",
-		},
-		"");
-		String expectedOutput =
-			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #12 @A(\n" + 
-			"        target type = 0xe FIELD\n" + 
-			"      )\n" + 
-			"    RuntimeInvisibleTypeAnnotations: \n" + 
-			"      #8 @B(\n" + 
-			"        #9 value=(int) 3 (constant type)\n" + 
-			"        target type = 0xe FIELD\n" + 
-			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-	}
-//	// method parameter
-//	public void test013() throws Exception {
-//		this.runConformTest(
-//			new String[] {
-//				"B.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(CLASS)\n" + 
-//				"@interface B {\n" + 
-//				"	int value() default -1;\n" + 
-//				"}",
-//				"X.java",
-//				"public class X {\n" + 
-//				"	int foo(@B(3) String s) {\n" +
-//				"		return s.length();\n" +
-//				"	}\n" + 
-//				"}",
-//		},
-//		"");
-//		String expectedOutput =
-//			"    RuntimeInvisibleTypeAnnotations: \n" + 
-//			"      #25 @B(\n" + 
-//			"        #26 value=(int) 3 (constant type)\n" + 
-//			"        target type = 0xc METHOD_PARAMETER\n" + 
-//			"        method parameter index = 0\n" + 
-//			"      )\n";
-//		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-//	}
-//	// method parameter generic or array
-//	public void test014() throws Exception {
-//		this.runConformTest(
-//			new String[] {
-//				"A.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface A {\n" + 
-//				"	String value() default \"default\";\n" + 
-//				"}\n",
-//				"B.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(CLASS)\n" + 
-//				"@interface B {\n" + 
-//				"	int value() default -1;\n" + 
-//				"}",
-//				"X.java",
-//				"public class X {\n" + 
-//				"	int foo(String @A [] @B(3) [] s) {\n" +
-//				"		return s.length;\n" +
-//				"	}\n" + 
-//				"}",
-//		},
-//		"");
-//		String expectedOutput =
-//			"    RuntimeVisibleTypeAnnotations: \n" + 
-//			"      #23 @A(\n" + 
-//			"        target type = 0xc METHOD_PARAMETER\n" + 
-//			"        method parameter index = 0\n" + 
-//			"      )\n" + 
-//			"    RuntimeInvisibleTypeAnnotations: \n" + 
-//			"      #19 @B(\n" + 
-//			"        #20 value=(int) 3 (constant type)\n" + 
-//			"        target type = 0xd METHOD_PARAMETER_GENERIC_OR_ARRAY\n" + 
-//			"        method parameter index = 0\n" + 
-//			"        locations = {0}\n" + 
-//			"      )\n";
-//		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-//	}
-	// field type generic or array
-	public void test015() throws Exception {
-		this.runConformTest(
-			new String[] {
-				"A.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface A {\n" + 
-				"	String value() default \"default\";\n" + 
-				"}\n",
-				"B.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(CLASS)\n" + 
-				"@interface B {\n" + 
-				"	int value() default -1;\n" + 
-				"}",
-				"X.java",
-				"public class X {\n" + 
-				"	@A int [] @B(3) [] field;\n" +
-				"}",
-		},
-		"");
-		String expectedOutput =
-			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #12 @A(\n" + 
-			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
-			"        locations = {1}\n" + 
-			"      )\n" + 
-			"    RuntimeInvisibleTypeAnnotations: \n" + 
-			"      #8 @B(\n" + 
-			"        #9 value=(int) 3 (constant type)\n" + 
-			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
-			"        locations = {0}\n" + 
-			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-	}
-//	// class type parameter
-//	public void test016() throws Exception {
-//		this.runConformTest(
-//			new String[] {
-//				"A.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_PARAMETER)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface A {\n" + 
-//				"	String value() default \"default\";\n" + 
-//				"}\n",
-//				"B.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_PARAMETER)\n" + 
-//				"@Retention(CLASS)\n" + 
-//				"@interface B {\n" + 
-//				"	int value() default -1;\n" + 
-//				"}",
-//				"X.java",
-//				"public class X<@A @B(3) T> {}",
-//		},
-//		"");
-//		String expectedOutput =
-//			"  RuntimeVisibleTypeAnnotations: \n" + 
-//			"    #25 @A(\n" + 
-//			"      target type = 0x22 CLASS_TYPE_PARAMETER\n" + 
-//			"      type parameter index = 0\n" + 
-//			"    )\n" + 
-//			"  RuntimeInvisibleTypeAnnotations: \n" + 
-//			"    #21 @B(\n" + 
-//			"      #22 value=(int) 3 (constant type)\n" + 
-//			"      target type = 0x22 CLASS_TYPE_PARAMETER\n" + 
-//			"      type parameter index = 0\n" + 
-//			"    )\n";
-//		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-//	}
-	// method type parameter
-	public void test017() throws Exception {
-		this.runConformTest(
-			new String[] {
-				"A.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_PARAMETER)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface A {\n" + 
-				"	String value() default \"default\";\n" + 
-				"}\n",
-				"B.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_PARAMETER)\n" + 
-				"@Retention(CLASS)\n" + 
-				"@interface B {\n" + 
-				"	int value() default -1;\n" + 
-				"}",
-				"X.java",
-				"public class X {\n" + 
-				"	<@A @B(3) T> void foo(T t) {}\n" + 
-				"}",
-		},
-		"");
-		String expectedOutput =
-			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #27 @A(\n" + 
-			"        target type = 0x20 METHOD_TYPE_PARAMETER\n" + 
-			"        type parameter index = 0\n" + 
-			"      )\n" + 
-			"    RuntimeInvisibleTypeAnnotations: \n" + 
-			"      #23 @B(\n" + 
-			"        #24 value=(int) 3 (constant type)\n" + 
-			"        target type = 0x20 METHOD_TYPE_PARAMETER\n" + 
-			"        type parameter index = 0\n" + 
-			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-	}
-//	// class type parameter bound
-//	public void test018() throws Exception {
-//		this.runConformTest(
-//			new String[] {
-//				"A.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface A {\n" + 
-//				"	String value() default \"default\";\n" + 
-//				"}\n",
-//				"B.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(CLASS)\n" + 
-//				"@interface B {\n" + 
-//				"	int value() default -1;\n" + 
-//				"}",
-//				"X.java",
-//				"public class X<T extends @A String & @B(3) Cloneable> {}",
-//		},
-//		"");
-//		String expectedOutput =
-//			"  RuntimeVisibleTypeAnnotations: \n" + 
-//			"    #25 @A(\n" + 
-//			"      target type = 0x10 CLASS_TYPE_PARAMETER_BOUND\n" + 
-//			"      type parameter index = 0 type parameter bound index = 0\n" + 
-//			"    )\n" + 
-//			"  RuntimeInvisibleTypeAnnotations: \n" + 
-//			"    #21 @B(\n" + 
-//			"      #22 value=(int) 3 (constant type)\n" + 
-//			"      target type = 0x10 CLASS_TYPE_PARAMETER_BOUND\n" + 
-//			"      type parameter index = 0 type parameter bound index = 1\n" + 
-//			"    )\n" ;
-//		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-//	}
-//	// class type parameter bound generic or array
-//	public void test019() throws Exception {
-//		this.runConformTest(
-//			new String[] {
-//				"A.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface A {\n" + 
-//				"	String value() default \"default\";\n" + 
-//				"}\n",
-//				"B.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(CLASS)\n" + 
-//				"@interface B {\n" + 
-//				"	int value() default -1;\n" + 
-//				"}",
-//				"C.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface C {\n" + 
-//				"	char value() default '-';\n" + 
-//				"}\n",
-//				"Y.java",
-//				"public class Y<T> {}",
-//				"X.java",
-//				"public class X<U, T extends Y<@A String @C[][]@B[]> & @B(3) Cloneable> {}",
-//		},
-//		"");
-//		String expectedOutput =
-//			"  RuntimeVisibleTypeAnnotations: \n" + 
-//			"    #25 @A(\n" + 
-//			"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
-//			"      type parameter index = 1 type parameter bound index = 0\n" + 
-//			"      locations = {0,2}\n" + 
-//			"    )\n" + 
-//			"    #26 @C(\n" + 
-//			"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
-//			"      type parameter index = 1 type parameter bound index = 0\n" + 
-//			"      locations = {0}\n" + 
-//			"    )\n" + 
-//			"  RuntimeInvisibleTypeAnnotations: \n" + 
-//			"    #21 @B(\n" + 
-//			"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
-//			"      type parameter index = 1 type parameter bound index = 0\n" + 
-//			"      locations = {0,1}\n" + 
-//			"    )\n" + 
-//			"    #21 @B(\n" + 
-//			"      #22 value=(int) 3 (constant type)\n" + 
-//			"      target type = 0x10 CLASS_TYPE_PARAMETER_BOUND\n" + 
-//			"      type parameter index = 1 type parameter bound index = 1\n" + 
-//			"    )\n";
-//		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-//	}
-	// method type parameter bound
-	public void test020() throws Exception {
+	
+	public void test029_methodTypeParameterBound() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -1040,37 +1109,72 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	// class type parameter bound generic or array
-	public void test021() throws Exception {
+	
+	public void test030_methodTypeParameterBound() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
 				"@interface A {\n" + 
 				"	String value() default \"default\";\n" + 
 				"}\n",
 				"B.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(CLASS)\n" + 
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
 				"@interface B {\n" + 
 				"	int value() default -1;\n" + 
 				"}",
 				"C.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"Z.java",
+				"public class Z {}",
+				"Y.java",
+				"public class Y<T> {}",
+				"X.java",
+				"public class X {\n" +
+				"	<T extends Y<Z [][]@B[]> & Cloneable> void foo(T t) {}\n" +
+				"}",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeInvisibleTypeAnnotations: \n" +  
+			"      #23 @B(\n" + 
+			"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" + 
+			"        type parameter index = 0 type parameter bound index = 0\n" + 
+			"        location = [TYPE_ARGUMENT(0), ARRAY, ARRAY]\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test031_methodTypeParameterBound_complex() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
 				"@interface C {\n" + 
 				"	char value() default '-';\n" + 
 				"}\n",
@@ -1084,23 +1188,26 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 		},
 		"");
+		// javac-b81:
+		// Bytes:28[0 2 18 0 0 1 3 0 0 13 0 0 18 0 0 4 3 0 0 0 0 0 0 0 0 14 0 0]
+		// Bytes:29[0 2 18 0 0 3 3 0 0 0 0 0 0 16 0 0 18 0 1 0 0 16 0 1 0 17 73 0 18]
 		String expectedOutput =
 			"    RuntimeVisibleTypeAnnotations: \n" + 
 			"      #27 @A(\n" + 
-			"        target type = 0x13 METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
+			"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" + 
 			"        type parameter index = 0 type parameter bound index = 0\n" + 
-			"        locations = {0,2}\n" + 
+			"        location = [TYPE_ARGUMENT(0), ARRAY, ARRAY, ARRAY]\n" + 
 			"      )\n" + 
 			"      #28 @C(\n" + 
-			"        target type = 0x13 METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
+			"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" + 
 			"        type parameter index = 0 type parameter bound index = 0\n" + 
-			"        locations = {0}\n" + 
+			"        location = [TYPE_ARGUMENT(0)]\n" + 
 			"      )\n" + 
-			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" +  
 			"      #23 @B(\n" + 
-			"        target type = 0x13 METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
+			"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" + 
 			"        type parameter index = 0 type parameter bound index = 0\n" + 
-			"        locations = {0,1}\n" + 
+			"        location = [TYPE_ARGUMENT(0), ARRAY, ARRAY]\n" + 
 			"      )\n" + 
 			"      #23 @B(\n" + 
 			"        #24 value=(int) 3 (constant type)\n" + 
@@ -1109,86 +1216,57 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	// local variable + generic or array
-	public void test022() throws Exception {
+	
+	public void test032_field() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface A {\n" + 
-				"	String value() default \"default\";\n" + 
-				"}\n",
-				"B.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(CLASS)\n" + 
-				"@interface B {\n" + 
-				"	int value() default -1;\n" + 
-				"}",
-				"C.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface C {\n" + 
-				"	char value() default '-';\n" + 
-				"}\n",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {}\n",
+				
 				"X.java",
 				"public class X {\n" + 
-				"	String[][] bar() {\n" + 
-				"		return new String[][] {};" +
-				"	}\n" + 
-				"	void foo(String s) {\n" + 
-				"		@C int i;\n" + 
-				"		@A String [] @B(3)[] tab = bar();\n" + 
-				"		if (tab != null) {\n" + 
-				"			i = 0;\n" + 
-				"			System.out.println(i + tab.length);\n" + 
-				"		} else {\n" + 
-				"			System.out.println(tab.length);\n" + 
-				"		}\n" + 
-				"		i = 4;\n" + 
-				"		System.out.println(-i + tab.length);\n" + 
-				"	}\n" + 
+				"	@A int field;\n" +
 				"}",
 		},
 		"");
+		// javac-b81: Bytes:8[0 1 19 0 0 7 0 0]  19 = 0x13 (FIELD)
 		String expectedOutput =
 			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #49 @C(\n" + 
-			"        target type = 0x8 LOCAL_VARIABLE\n" + 
-			"        local variable entries:\n" + 
-			"          [pc: 11, pc: 24] index: 2\n" + 
-			"          [pc: 34, pc: 46] index: 2\n" + 
-			"      )\n" + 
-			"      #50 @A(\n" + 
-			"        target type = 0x9 LOCAL_VARIABLE_GENERIC_OR_ARRAY\n" + 
-			"        local variable entries:\n" + 
-			"          [pc: 5, pc: 46] index: 3\n" + 
-			"        locations = {1}\n" + 
-			"      )\n" + 
-			"    RuntimeInvisibleTypeAnnotations: \n" + 
-			"      #45 @B(\n" + 
-			"        #46 value=(int) 3 (constant type)\n" + 
-			"        target type = 0x9 LOCAL_VARIABLE_GENERIC_OR_ARRAY\n" + 
-			"        local variable entries:\n" + 
-			"          [pc: 5, pc: 46] index: 3\n" + 
-			"        locations = {0}\n" + 
+			"      #8 @A(\n" + 
+			"        target type = 0x13 FIELD\n" + 
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	// type argument constructor call
-	public void test023() throws Exception {
+	
+	public void test033_field() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {}\n",
+				
+				"X.java",
+				"public class X {\n" + 
+				"	java.util.List<@A String> field;\n" +
+				"}",
+		},
+		"");
+		// javac-b81: Bytes:10[0 1 19 1 3 0 0 9 0 0]
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #10 @A(\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [TYPE_ARGUMENT(0)]\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test034_field() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -1213,118 +1291,125 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}",
 				"X.java",
 				"public class X {\n" + 
-				"	<T> X(T t) {\n" + 
-				"	}\n" + 
-				"	public Object foo() {\n" + 
-				"		X x = new <@A @B(1) String>X(null);\n" + 
-				"		return x;\n" + 
-				"	}\n" + 
+				"	@B(3) @A int field;\n" +
 				"}",
 		},
 		"");
 		String expectedOutput =
 			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #31 @A(\n" + 
-			"        target type = 0x18 TYPE_ARGUMENT_CONSTRUCTOR_CALL\n" + 
-			"        offset = 5\n" + 
-			"        type argument index = 0\n" + 
+			"      #12 @A(\n" + 
+			"        target type = 0x13 FIELD\n" + 
 			"      )\n" + 
 			"    RuntimeInvisibleTypeAnnotations: \n" + 
-			"      #27 @B(\n" + 
-			"        #28 value=(int) 1 (constant type)\n" + 
-			"        target type = 0x18 TYPE_ARGUMENT_CONSTRUCTOR_CALL\n" + 
-			"        offset = 5\n" + 
-			"        type argument index = 0\n" + 
+			"      #8 @B(\n" + 
+			"        #9 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x13 FIELD\n" + 
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	// type argument constructor call generic or array
-	public void test024() throws Exception {
+	
+	public void test035_field() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface A {\n" + 
-				"	String value() default \"default\";\n" + 
-				"}\n",
-				"B.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(CLASS)\n" + 
-				"@interface B {\n" + 
-				"	int value() default -1;\n" + 
-				"}",
-				"C.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface C {\n" + 
-				"	char value() default '-';\n" + 
-				"}\n",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {}\n",
+				
 				"X.java",
 				"public class X {\n" + 
-				"	<T, U> X(T t, U u) {\n" + 
-				"	}\n" + 
-				"	public Object foo() {\n" + 
-				"		X x = new <@A Integer, @A String @C [] @B(1)[]>X(null, null);\n" + 
-				"		return x;\n" + 
-				"	}\n" + 
+				"	java.util.Map<String, @A String> field;\n" +
 				"}",
 		},
 		"");
+		// javac-b81: Bytes:10[0 1 19 1 3 1 0 9 0 0]
 		String expectedOutput =
 			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #33 @A(\n" + 
-			"        target type = 0x18 TYPE_ARGUMENT_CONSTRUCTOR_CALL\n" + 
-			"        offset = 6\n" + 
-			"        type argument index = 0\n" + 
-			"      )\n" + 
-			"      #33 @A(\n" + 
-			"        target type = 0x19 TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY\n" + 
-			"        offset = 6\n" + 
-			"        type argument index = 1\n" + 
-			"        locations = {1}\n" + 
-			"      )\n" + 
-			"      #34 @C(\n" + 
-			"        target type = 0x18 TYPE_ARGUMENT_CONSTRUCTOR_CALL\n" + 
-			"        offset = 6\n" + 
-			"        type argument index = 1\n" + 
-			"      )\n" + 
-			"    RuntimeInvisibleTypeAnnotations: \n" + 
-			"      #29 @B(\n" + 
-			"        #30 value=(int) 1 (constant type)\n" + 
-			"        target type = 0x19 TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY\n" + 
-			"        offset = 6\n" + 
-			"        type argument index = 1\n" + 
-			"        locations = {0}\n" + 
+			"      #10 @A(\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [TYPE_ARGUMENT(1)]\n" +
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	// type argument method call
-	public void test025() throws Exception {
+	
+	public void test036_field() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {}\n",
+				
+				"X.java",
+				"public class X {\n" + 
+				"	java.util.List<String[][]@A[][]> field;\n" +
+				"}",
+		},
+		"");
+		// javac-b81: Bytes:14[0 1 19 3 3 0 0 0 0 0 0 9 0 0]
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #10 @A(\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [TYPE_ARGUMENT(0), ARRAY, ARRAY]\n" +
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test037_field() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" +
-				"\n" +
-				"	static <T, U> T foo(T t, U u) {\n" +
-				"		return t;\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		System.out.println(X.<@A @B(1) String[], @C('-') X>foo(new String[]{\"SUCCESS\"}, null)[0]);\n" +
-				"	}\n" +
+				"public class X {\n" + 
+				"	java.util.List<? extends @A Number> field;\n" +
+				"}",
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {}\n",
+		},
+		"");
+		// javac-b81: Bytes:12[0 1 19 2 3 0 2 0 0 9 0 0]
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #10 @A(\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [TYPE_ARGUMENT(0), WILDCARD]\n" +
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test038_field() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class AA { class BB<T> {}}" + 
+				"class X {\n" +
+				"  AA.@A BB field;\n" +
 				"}\n",
+
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A { }\n",
+		},
+		"");
+		String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #8 @A(\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [INNER_TYPE]\n" + 
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test039_field() throws Exception {
+		this.runConformTest(
+			new String[] {
 				"A.java",
 				"import java.lang.annotation.Target;\n" + 
 				"import static java.lang.annotation.ElementType.*;\n" + 
@@ -1345,42 +1430,28 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"@interface B {\n" + 
 				"	int value() default -1;\n" + 
 				"}",
-				"C.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface C {\n" + 
-				"	char value() default '-';\n" + 
-				"}\n",
+				"X.java",
+				"public class X {\n" + 
+				"	@A int [] @B(3) [] field;\n" +
+				"}",
 		},
-		"SUCCESS");
+		"");
 		String expectedOutput =
 			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #52 @A(\n" + 
-			"        target type = 0x1a TYPE_ARGUMENT_METHOD_CALL\n" + 
-			"        offset = 13\n" + 
-			"        type argument index = 0\n" + 
-			"      )\n" + 
-			"      #53 @C(\n" + 
-			"        #49 value=\'-\' (constant type)\n" + 
-			"        target type = 0x1a TYPE_ARGUMENT_METHOD_CALL\n" + 
-			"        offset = 13\n" + 
-			"        type argument index = 1\n" + 
+			"      #12 @A(\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [ARRAY, ARRAY]\n" + 
 			"      )\n" + 
 			"    RuntimeInvisibleTypeAnnotations: \n" + 
-			"      #48 @B(\n" + 
-			"        #49 value=(int) 1 (constant type)\n" + 
-			"        target type = 0x1a TYPE_ARGUMENT_METHOD_CALL\n" + 
-			"        offset = 13\n" + 
-			"        type argument index = 0\n" + 
+			"      #8 @B(\n" + 
+			"        #9 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [ARRAY]\n" + 
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	// check locations
-	public void test026() throws Exception {
+	
+	public void test040_field_complex() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1478,20 +1549,20 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"  java.lang.String[][][] field;\n" + 
 			"    RuntimeVisibleTypeAnnotations: \n" + 
 			"      #11 @H(\n" + 
-			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
-			"        locations = {2}\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [ARRAY, ARRAY, ARRAY]\n" + 
 			"      )\n" + 
 			"      #12 @F(\n" + 
-			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
-			"        locations = {0}\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [ARRAY]\n" + 
 			"      )\n" + 
 			"    RuntimeInvisibleTypeAnnotations: \n" + 
 			"      #8 @E(\n" + 
-			"        target type = 0xe FIELD\n" + 
+			"        target type = 0x13 FIELD\n" + 
 			"      )\n" + 
 			"      #9 @G(\n" + 
-			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
-			"        locations = {1}\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [ARRAY, ARRAY]\n" + 
 			"      )\n" + 
 			"  \n" + 
 			"  // Field descriptor #14 Ljava/util/Map;\n" + 
@@ -1499,20 +1570,20 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"  java.util.Map field2;\n" + 
 			"    RuntimeVisibleTypeAnnotations: \n" + 
 			"      #18 @A(\n" + 
-			"        target type = 0xe FIELD\n" + 
+			"        target type = 0x13 FIELD\n" + 
 			"      )\n" + 
 			"      #19 @C(\n" + 
-			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
-			"        locations = {1}\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [TYPE_ARGUMENT(1)]\n" + 
 			"      )\n" + 
 			"      #20 @D(\n" + 
-			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
-			"        locations = {1,0}\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [TYPE_ARGUMENT(1), TYPE_ARGUMENT(0)]\n" + 
 			"      )\n" + 
 			"    RuntimeInvisibleTypeAnnotations: \n" + 
 			"      #17 @B(\n" + 
-			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
-			"        locations = {0}\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [TYPE_ARGUMENT(0)]\n" + 
 			"      )\n" + 
 			"  \n" + 
 			"  // Field descriptor #14 Ljava/util/Map;\n" + 
@@ -1520,38 +1591,38 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"  java.util.Map field3;\n" + 
 			"    RuntimeVisibleTypeAnnotations: \n" + 
 			"      #18 @A(\n" + 
-			"        target type = 0xe FIELD\n" + 
+			"        target type = 0x13 FIELD\n" + 
 			"      )\n" + 
 			"      #11 @H(\n" + 
-			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
-			"        locations = {1,2}\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [TYPE_ARGUMENT(1), ARRAY, ARRAY, ARRAY]\n" + 
 			"      )\n" + 
 			"      #12 @F(\n" + 
-			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
-			"        locations = {1,0}\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [TYPE_ARGUMENT(1), ARRAY]\n" + 
 			"      )\n" + 
 			"    RuntimeInvisibleTypeAnnotations: \n" + 
 			"      #17 @B(\n" + 
-			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
-			"        locations = {0}\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [TYPE_ARGUMENT(0)]\n" + 
 			"      )\n" + 
 			"      #8 @E(\n" + 
-			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
-			"        locations = {1}\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [TYPE_ARGUMENT(1)]\n" + 
 			"      )\n" + 
 			"      #9 @G(\n" + 
-			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
-			"        locations = {1,1}\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [TYPE_ARGUMENT(1), ARRAY, ARRAY]\n" + 
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	// check locations
-	public void test027() throws Exception {
+
+	public void test041_field() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
-				"	@H java.lang.String @E[] @F[] @G[] field;\n" + 
+				"	java.lang.@H String @E[] @F[] @G[] field;\n" + 
 				"}",
 				"E.java",
 				"import java.lang.annotation.Target;\n" + 
@@ -1598,97 +1669,67 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"    RuntimeVisibleTypeAnnotations: \n" + 
 			"      #11 @H(\n" + 
-			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
-			"        locations = {2}\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [ARRAY, ARRAY, ARRAY]\n" + 
 			"      )\n" + 
 			"      #12 @F(\n" + 
-			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
-			"        locations = {0}\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [ARRAY]\n" + 
 			"      )\n" + 
 			"    RuntimeInvisibleTypeAnnotations: \n" + 
 			"      #8 @E(\n" + 
-			"        target type = 0xe FIELD\n" + 
+			"        target type = 0x13 FIELD\n" + 
 			"      )\n" + 
 			"      #9 @G(\n" + 
-			"        target type = 0xf FIELD_GENERIC_OR_ARRAY\n" + 
-			"        locations = {1}\n" + 
+			"        target type = 0x13 FIELD\n" + 
+			"        location = [ARRAY, ARRAY]\n" + 
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	// cast
-	public void test028() throws Exception {
+	
+	public void test042_methodReturnType() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
 				"@interface A {\n" + 
 				"	String value() default \"default\";\n" + 
 				"}\n",
 				"B.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(CLASS)\n" + 
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
 				"@interface B {\n" + 
 				"	int value() default -1;\n" + 
 				"}",
-				"C.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface C {\n" + 
-				"	char value() default '-';\n" + 
-				"}\n",
-				"I.java",
-				"interface I {}\n",
-				"J.java",
-				"interface J {}\n",
 				"X.java",
 				"public class X {\n" + 
-				"	public void foo(Object o) {\n" + 
-				"		if (o instanceof String[][]) {\n" +
-				"			String[][] tab = (@C('_') @B(3) String[] @A[]) o;\n" +
-				"			System.out.println(tab.length);\n" +
-				"		}\n" + 
-				"		System.out.println(o);\n" +
+				"	@B(3) @A(value=\"test\") int foo() {\n" +
+				"		return 1;\n" +
 				"	}\n" + 
 				"}",
 		},
 		"");
+		// javac-b81:
+		// Bytes:13[0 1 20 0 0 11 0 1 0 12 115 0 13]
+		// Bytes:13[0 1 20 0 0 15 0 1 0 12 73 0 16]
 		String expectedOutput =
 			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #41 @C(\n" + 
-			"        #38 value=\'_\' (constant type)\n" + 
-			"        target type = 0x1 TYPE_CAST_GENERIC_OR_ARRAY\n" + 
-			"        offset = 8\n" + 
-			"        locations = {1}\n" + 
-			"      )\n" + 
-			"      #43 @A(\n" + 
-			"        target type = 0x1 TYPE_CAST_GENERIC_OR_ARRAY\n" + 
-			"        offset = 8\n" + 
-			"        locations = {0}\n" + 
+			"      #21 @A(\n" + 
+			"        #18 value=\"test\" (constant type)\n" + 
+			"        target type = 0x14 METHOD_RETURN\n" + 
 			"      )\n" + 
 			"    RuntimeInvisibleTypeAnnotations: \n" + 
-			"      #37 @B(\n" + 
-			"        #38 value=(int) 3 (constant type)\n" + 
-			"        target type = 0x1 TYPE_CAST_GENERIC_OR_ARRAY\n" + 
-			"        offset = 8\n" + 
-			"        locations = {1}\n" + 
+			"      #17 @B(\n" + 
+			"        #18 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x14 METHOD_RETURN\n" + 
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	// qualified allocation expression with type arguments
-	public void test029() throws Exception {
+	
+	public void test043_methodReceiver() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -1711,395 +1752,246 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"@interface B {\n" + 
 				"	int value() default -1;\n" + 
 				"}",
-				"C.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface C {\n" + 
-				"	char value() default '-';\n" + 
-				"}\n",
-				"D.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface D {\n" + 
-				"	char value() default '-';\n" + 
-				"}\n",
 				"X.java",
 				"public class X {\n" + 
-				"	class Y {\n" + 
-				"		<T, U> Y(T t, U u) {}\n" + 
+				"	void foo(@B(3) X this) {}\n" + 
+				"}",
+		},
+		"");
+		// javac-b81: Bytes:13[0 1 21 0 0 10 0 1 0 11 73 0 12]
+		String expectedOutput =
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #16 @B(\n" + 
+			"        #17 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x15 METHOD_RECEIVER\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	public void test044_methodReceiver() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"	void foo(X<@B(3) T> this) {}\n" + 
+				"}",
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+		},
+		"");
+		// javac-b81: Bytes:15[0 1 21 1 3 0 0 10 0 1 0 11 73 0 12]
+		String expectedOutput =
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #18 @B(\n" + 
+			"        #19 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x15 METHOD_RECEIVER\n" + 
+			"        location = [TYPE_ARGUMENT(0)]\n" +
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	
+	public void test045_methodParameter() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	int foo(@B(3) String s) {\n" +
+				"		return s.length();\n" +
 				"	}\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		Y y = new X().new <@D() @A(value = \"hello\") String, @B X> Y(\"SUCCESS\", null);\n" + 
-				"		System.out.println(y);\n" + 
+				"}",
+				
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+		},
+		"");
+		// javac-b81: Bytes:14[0 1 22 0 0 0 11 0 1 0 12 73 0 13]
+		String expectedOutput =
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #25 @B(\n" + 
+			"        #26 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+			"        method parameter index = 0\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test046_methodParameter() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	int foo(int i, double d, @B(3) String s) {\n" +
+				"		return s.length();\n" +
+				"	}\n" + 
+				"}",
+				
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+		},
+		"");
+		// javac-b81: Bytes:14[0 1 22 1 0 0 11 0 1 0 12 73 0 13]
+		String expectedOutput =
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #29 @B(\n" + 
+			"        #30 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+			"        method parameter index = 2\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test047_methodParameterArray() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"X.java",
+				"public class X {\n" + 
+				"	int foo(String @A [] @B(3) [] s) {\n" +
+				"		return s.length;\n" +
 				"	}\n" + 
 				"}",
 		},
 		"");
+		// javac-b81:
+		// Bytes:9[0 1 22 0 0 0 11 0 0]
+		// Bytes:16[0 1 22 0 1 0 0 0 13 0 1 0 14 73 0 15]
 		String expectedOutput =
 			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #47 @D(\n" + 
-			"        target type = 0x18 TYPE_ARGUMENT_CONSTRUCTOR_CALL\n" + 
-			"        offset = 19\n" + 
-			"        type argument index = 0\n" + 
-			"      )\n" + 
-			"      #48 @A(\n" + 
-			"        #49 value=\"hello\" (constant type)\n" + 
-			"        target type = 0x18 TYPE_ARGUMENT_CONSTRUCTOR_CALL\n" + 
-			"        offset = 19\n" + 
-			"        type argument index = 0\n" + 
+			"      #23 @A(\n" + 
+			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+			"        method parameter index = 0\n" + 
 			"      )\n" + 
 			"    RuntimeInvisibleTypeAnnotations: \n" + 
-			"      #45 @B(\n" + 
-			"        target type = 0x18 TYPE_ARGUMENT_CONSTRUCTOR_CALL\n" + 
-			"        offset = 19\n" + 
-			"        type argument index = 1\n" + 
+			"      #19 @B(\n" + 
+			"        #20 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+			"        method parameter index = 0\n" + 
+			"        location = [ARRAY]\n" + 
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	// local + wildcard
-	// qualified allocation expression with type arguments
-	public void test030() throws Exception {
+
+	public void test048_throws() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"A.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
+				"import java.lang.annotation.*;\n"+
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
 				"@interface A {\n" + 
 				"	String value() default \"default\";\n" + 
 				"}\n",
 				"B.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(CLASS)\n" + 
+				"import java.lang.annotation.*;\n"+
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
 				"@interface B {\n" + 
 				"	int value() default -1;\n" + 
 				"}",
 				"C.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
+				"import java.lang.annotation.*;\n"+
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
 				"@interface C {\n" + 
 				"	char value() default '-';\n" + 
 				"}\n",
-				"D.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface D {\n" + 
-				"	char value() default '-';\n" + 
+				"E.java",
+				"class E extends RuntimeException {\n" +
+				"	private static final long serialVersionUID = 1L;\n" +
 				"}\n",
-				"X.java",
-				"import java.util.Map;\n" +
-				"import java.util.HashMap;\n" +
-				"@SuppressWarnings({\"unchecked\",\"rawtypes\"})\n" + 
-				"public class X {\n" + 
-				"	Object newMap(Object o) {\n" + 
-				"		Map<@A Object, ? super @C Map<@B String, @D Comparable>> map;\n" + 
-				"		if (o == null) {\n" + 
-				"			map = null;\n" + 
-				"			System.out.println(map);\n" + 
-				"		} else {\n" + 
-				"			System.out.println(\"No map yet\");\n" + 
-				"		}\n" + 
-				"		map = new HashMap();\n" + 
-				"		return map;\n" + 
-				"	} \n" + 
-				"}",
-		},
-		"");
-		String expectedOutput =
-			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #46 @A(\n" + 
-			"        target type = 0x9 LOCAL_VARIABLE_GENERIC_OR_ARRAY\n" + 
-			"        local variable entries:\n" + 
-			"          [pc: 6, pc: 16] index: 2\n" + 
-			"          [pc: 32, pc: 34] index: 2\n" + 
-			"        locations = {0}\n" + 
-			"      )\n" + 
-			"      #47 @C(\n" + 
-			"        target type = 0x1c WILDCARD_BOUND\n" + 
-			"        wildcard location type = 0x9 LOCAL_VARIABLE_GENERIC_OR_ARRAY\n" + 
-			"          local variable entries:\n" + 
-			"                [pc: 6, pc: 16] index: 2\n" + 
-			"                [pc: 32, pc: 34] index: 2\n" + 
-			"              wildcard locations = {1}\n" + 
-			"      )\n" + 
-			"      #48 @D(\n" + 
-			"        target type = 0x1d WILDCARD_BOUND_GENERIC_OR_ARRAY\n" + 
-			"        wildcard location type = 0x9 LOCAL_VARIABLE_GENERIC_OR_ARRAY\n" + 
-			"          local variable entries:\n" + 
-			"                [pc: 6, pc: 16] index: 2\n" + 
-			"                [pc: 32, pc: 34] index: 2\n" + 
-			"              wildcard locations = {1}\n" + 
-			"        locations = {1}\n" + 
-			"      )\n" + 
-			"    RuntimeInvisibleTypeAnnotations: \n" + 
-			"      #44 @B(\n" + 
-			"        target type = 0x1d WILDCARD_BOUND_GENERIC_OR_ARRAY\n" + 
-			"        wildcard location type = 0x9 LOCAL_VARIABLE_GENERIC_OR_ARRAY\n" + 
-			"          local variable entries:\n" + 
-			"                [pc: 6, pc: 16] index: 2\n" + 
-			"                [pc: 32, pc: 34] index: 2\n" + 
-			"              wildcard locations = {1}\n" + 
-			"        locations = {0}\n" + 
-			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-	}
-	// method type parameter bound generic or array
-	public void test031() throws Exception {
-		this.runConformTest(
-			new String[] {
-				"A.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface A {\n" + 
-				"	String value() default \"default\";\n" + 
+				"E1.java",
+				"class E1 extends RuntimeException {\n" +
+				"	private static final long serialVersionUID = 1L;\n" +
 				"}\n",
-				"B.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(CLASS)\n" + 
-				"@interface B {\n" + 
-				"	int value() default -1;\n" + 
-				"}",
-				"C.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(CLASS)\n" + 
-				"@interface C {\n" + 
-				"	int value() default -1;\n" + 
-				"}",
-				"D.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_PARAMETER)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface D {\n" + 
-				"	String value() default \"default\";\n" + 
+				"E2.java",
+				"class E2 extends RuntimeException {\n" +
+				"	private static final long serialVersionUID = 1L;\n" +
 				"}\n",
-				"Z.java",
-				"public class Z<T> {}",
 				"X.java",
 				"public class X {\n" +
-				"	<@D U, T extends Z<@A String @C[][]@B[]> & @B(3) Cloneable> void foo(U u, T t) {}\n" +
+				"	void foo() throws @A(\"Hello, World!\") E, E1, @B @C('(') E2 {}\n" +
 				"}",
 		},
 		"");
+		// javac-b81:
+		// Bytes:28[0 2 23 0 0 0 0 14 0 1 0 15 115 0 16 23 0 2 0 0 17 0 1 0 15 67 0 18]
+		// Bytes:10[0 1 23 0 2 0 0 20 0 0]
 		String expectedOutput =
 			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #31 @D(\n" + 
-			"        target type = 0x20 METHOD_TYPE_PARAMETER\n" + 
-			"        type parameter index = 0\n" + 
+			"      #25 @A(\n" + 
+			"        #26 value=\"Hello, World!\" (constant type)\n" + 
+			"        target type = 0x17 THROWS\n" + 
+			"        throws index = 0\n" + 
 			"      )\n" + 
-			"      #32 @A(\n" + 
-			"        target type = 0x13 METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
-			"        type parameter index = 1 type parameter bound index = 0\n" + 
-			"        locations = {0,2}\n" + 
+			"      #28 @C(\n" + 
+			"        #26 value=\'(\' (constant type)\n" + 
+			"        target type = 0x17 THROWS\n" + 
+			"        throws index = 2\n" + 
 			"      )\n" + 
 			"    RuntimeInvisibleTypeAnnotations: \n" + 
-			"      #26 @C(\n" + 
-			"        target type = 0x13 METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
-			"        type parameter index = 1 type parameter bound index = 0\n" + 
-			"        locations = {0}\n" + 
-			"      )\n" + 
-			"      #27 @B(\n" + 
-			"        target type = 0x13 METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY\n" + 
-			"        type parameter index = 1 type parameter bound index = 0\n" + 
-			"        locations = {0,1}\n" + 
-			"      )\n" + 
-			"      #27 @B(\n" + 
-			"        #28 value=(int) 3 (constant type)\n" + 
-			"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" + 
-			"        type parameter index = 1 type parameter bound index = 1\n" + 
+			"      #23 @B(\n" + 
+			"        target type = 0x17 THROWS\n" + 
+			"        throws index = 2\n" + 
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	// type argument method call and generic or array
-	public void test032() throws Exception {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"\n" +
-				"	static <T, U> T foo(T t, U u) {\n" +
-				"		return t;\n" +
-				"	}\n" +
-				"	public static void bar() {\n" +
-				"		System.out.println(X.<@A String[] @B(1) [], @C('-') X>foo(new String[][]{{\"SUCCESS\"}}, null)[0]);\n" +
-				"	}\n" +
-				"}\n",
-				"A.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface A {\n" + 
-				"	String value() default \"default\";\n" + 
-				"}\n",
-				"B.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(CLASS)\n" + 
-				"@interface B {\n" + 
-				"	int value() default -1;\n" + 
-				"}",
-				"C.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-				"@Target(TYPE_USE)\n" + 
-				"@Retention(RUNTIME)\n" + 
-				"@interface C {\n" + 
-				"	char value() default '-';\n" + 
-				"}\n",
-		},
-		"");
-		String expectedOutput =
-			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #52 @A(\n" + 
-			"        target type = 0x1b TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY\n" + 
-			"        offset = 20\n" + 
-			"        type argument index = 0\n" + 
-			"        locations = {1}\n" + 
-			"      )\n" + 
-			"      #53 @C(\n" + 
-			"        #49 value=\'-\' (constant type)\n" + 
-			"        target type = 0x1a TYPE_ARGUMENT_METHOD_CALL\n" + 
-			"        offset = 20\n" + 
-			"        type argument index = 1\n" + 
-			"      )\n" + 
-			"    RuntimeInvisibleTypeAnnotations: \n" + 
-			"      #48 @B(\n" + 
-			"        #49 value=(int) 1 (constant type)\n" + 
-			"        target type = 0x1b TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY\n" + 
-			"        offset = 20\n" + 
-			"        type argument index = 0\n" + 
-			"        locations = {0}\n" + 
-			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-	}
-//	// superclass
-//	public void test033() throws Exception {
-//		this.runConformTest(
-//			new String[] {
-//				"Marker.java",
-//				"@interface Marker {}",
-//				"X.java",
-//				"public class X extends @Marker Object {}",
-//			},
-//			"");
-//	}
-	// superclass
-	public void test034() throws Exception {
-		this.runNegativeTest(
-			new String[] {
-				"Marker.java",
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.ElementType.*;\n" + 
-				"@Target(TYPE_PARAMETER)\n" + 
-				"@interface Marker {}",
-				"X.java",
-				"public class X extends @Marker Object {}",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	public class X extends @Marker Object {}\n" + 
-			"	                       ^^^^^^^\n" + 
-			"The annotation @Marker is disallowed for this location\n" + 
-			"----------\n");
-	}
-//	// annotation on catch variable
-//	public void test035() throws Exception {
-//		this.runConformTest(
-//			new String[] {
-//				"X.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"public class X {\n" + 
-//				"	public static void main(String[] args) {\n" + 
-//				"		@A Exception test = new Exception() {\n" +
-//				"			private static final long serialVersionUID = 1L;\n" +
-//				"			@Override\n" +
-//				"			public String toString() {\n" +
-//				"				return \"SUCCESS\";\n" +
-//				"			}\n" +
-//				"		};\n" + 
-//				"		try {\n" + 
-//				"			System.out.println(test);\n" + 
-//				"		} catch(@A Exception e) {\n" + 
-//				"			e.printStackTrace();\n" + 
-//				"		}\n" + 
-//				"	}\n" + 
-//				"}",
-//				"A.java",
-//				"import java.lang.annotation.Target;\n" + 
-//				"import static java.lang.annotation.ElementType.*;\n" + 
-//				"import java.lang.annotation.Retention;\n" + 
-//				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-//				"@Target(TYPE_USE)\n" + 
-//				"@Retention(RUNTIME)\n" + 
-//				"@interface A {\n" + 
-//				"	String value() default \"default\";\n" + 
-//				"}\n",
-//		},
-//		"SUCCESS");
-//		String expectedOutput =
-//			"    RuntimeVisibleTypeAnnotations: \n" + 
-//			"      #44 @A(\n" + 
-//			"        target type = 0x8 LOCAL_VARIABLE\n" + 
-//			"        local variable entries:\n" + 
-//			"          [pc: 8, pc: 24] index: 1\n" + 
-//			"      )\n" + 
-//			"      #44 @A(\n" + 
-//			"        target type = 0x8 LOCAL_VARIABLE\n" + 
-//			"        local variable entries:\n" + 
-//			"          [pc: 19, pc: 23] index: 2\n" + 
-//			"      )\n";
-//		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-//	}
-	// annotation on catch variable
-	public void test036() throws Exception {
+	
+	
+	public void test049_codeblocks_localVariable() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2143,52 +2035,1475 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		String expectedOutput =
 			"    RuntimeInvisibleTypeAnnotations: \n" + 
 			"      #56 @B(\n" + 
-			"        target type = 0x8 LOCAL_VARIABLE\n" + 
+			"        target type = 0x40 LOCAL_VARIABLE\n" + 
 			"        local variable entries:\n" + 
 			"          [pc: 3, pc: 39] index: 1\n" + 
 			"      )\n" + 
 			"      #56 @B(\n" + 
-			"        target type = 0x8 LOCAL_VARIABLE\n" + 
+			"        target type = 0x40 LOCAL_VARIABLE\n" + 
 			"        local variable entries:\n" + 
 			"          [pc: 31, pc: 39] index: 2\n" + 
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	// make sure annotation without target appears twice when set on a method declaration
-	public void test037() throws Exception {
+	
+	public void test050_codeblocks_localVariable() throws Exception {
 		this.runConformTest(
 			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
 				"X.java",
-				"import java.lang.annotation.Target;\r\n" + 
-				"import static java.lang.annotation.ElementType.*;\r\n" + 
-				"\r\n" + 
-				"@Target(METHOD)\r\n" + 
-				"@interface Annot {\r\n" + 
-				"	int value() default 0;\r\n" + 
-				"}\r\n" + 
-				"public class X {\r\n" + 
-				"	@Annot(4)\r\n" + 
-				"	public void foo() {\r\n" + 
-				"	}\r\n" + 
+				"public class X {\n" + 
+				"	String[][] bar() {\n" + 
+				"		return new String[][] {};" +
+				"	}\n" + 
+				"	void foo(String s) {\n" + 
+				"		@C int i;\n" + 
+				"		@A String [] @B(3)[] tab = bar();\n" + 
+				"		if (tab != null) {\n" + 
+				"			i = 0;\n" + 
+				"			System.out.println(i + tab.length);\n" + 
+				"		} else {\n" + 
+				"			System.out.println(tab.length);\n" + 
+				"		}\n" + 
+				"		i = 4;\n" + 
+				"		System.out.println(-i + tab.length);\n" + 
+				"	}\n" + 
+				"}",
+		},
+		"");
+		// javac-b81:
+		// Bytes:34[0 2 64 0 1 0 34 0 12 0 2 0 0 19 0 0 64 0 1 0 5 0 41 0 3 2 0 0 0 0 0 20 0 0]
+		// Bytes:23[0 1 64 0 1 0 5 0 41 0 3 1 0 0 0 22 0 1 0 23 73 0 24]
+		// ECJ data varies a little here as it is splitting the range 
+		String expectedOutput =
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #45 @B(\n" + 
+			"        #46 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x40 LOCAL_VARIABLE\n" + 
+			"        local variable entries:\n" + 
+			"          [pc: 5, pc: 46] index: 3\n" + 
+			"        location = [ARRAY]\n" + 
+			"      )\n" + 
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #49 @C(\n" + 
+			"        target type = 0x40 LOCAL_VARIABLE\n" + 
+			"        local variable entries:\n" + 
+			"          [pc: 11, pc: 24] index: 2\n" + 
+			"          [pc: 34, pc: 46] index: 2\n" + 
+			"      )\n" + 
+			"      #50 @A(\n" + 
+			"        target type = 0x40 LOCAL_VARIABLE\n" + 
+			"        local variable entries:\n" + 
+			"          [pc: 5, pc: 46] index: 3\n" + 
+			"        location = [ARRAY, ARRAY]\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test051_codeblocks_resourceVariable() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"X.java",
+				"import java.io.*;\n"+
+				"public class X {\n" + 
+				"   public static void main(String[] argv) throws Exception {\n"+
+				"     try (@A BufferedReader br1 = new BufferedReader(new FileReader(\"a\"));\n"+
+				"          @B(99) BufferedReader br2 = new BufferedReader(new FileReader(\"b\"))) {\n"+
+				"       System.out.println(br1.readLine()+br2.readLine());\n" +
+				"     }\n" +
+				"	}\n" + 
 				"}",
 		},
 		"");
 		String expectedOutput =
-			"  public void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 11]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
-			"    RuntimeInvisibleAnnotations: \n" + 
-			"      #16 @Annot(\n" + 
-			"        #17 value=(int) 4 (constant type)\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #81 @B(\n" + 
+			"        #82 value=(int) 99 (constant type)\n" + 
+			"        target type = 0x41 RESOURCE_VARIABLE\n" + 
+			"        local variable entries:\n" + 
+			"          [pc: 39, pc: 94] index: 4\n" + 
 			"      )\n" + 
-			"}";
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #85 @A(\n" + 
+			"        target type = 0x41 RESOURCE_VARIABLE\n" + 
+			"        local variable entries:\n" + 
+			"          [pc: 21, pc: 135] index: 3\n" + 
+			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	// make sure annotation without target appears twice when set on a method declaration
-	public void test038() throws Exception {
+	
+	public void _test052_codeblocks_exceptionParameter() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Exception test = new Exception() {\n" +
+				"			private static final long serialVersionUID = 1L;\n" +
+				"			@Override\n" +
+				"			public String toString() {\n" +
+				"				return \"SUCCESS\";\n" +
+				"			}\n" +
+				"		};\n" + 
+				"		try {\n" + 
+				"			System.out.println(test);\n" + 
+				"		} catch(@A Exception e) {\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+		},
+		"SUCCESS");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #44 @A(\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 0\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void _test053_codeblocks_exceptionParameter() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		@A Exception test = new Exception() {\n" +
+				"			private static final long serialVersionUID = 1L;\n" +
+				"			@Override\n" +
+				"			public String toString() {\n" +
+				"				return \"SUCCESS\";\n" +
+				"			}\n" +
+				"		};\n" + 
+				"		try {\n" + 
+				"			System.out.println(test);\n" + 
+				"		} catch(@A Exception e) {\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+		},
+		"SUCCESS");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #44 @A(\n" + 
+			"        target type = 0x40 LOCAL_VARIABLE\n" + 
+			"        local variable entries:\n" + 
+			"          [pc: 8, pc: 24] index: 1\n" + 
+			"      )\n" + 
+			"      #44 @A(\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 0\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void _test054_codeblocks_exceptionParameter() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			System.out.println(42);\n" + 
+				"		} catch(@B(1) RuntimeException e) {\n" + 
+				"			e.printStackTrace();\n" + 
+				"		} catch(@B(2) Throwable t) {\n" + 
+				"			t.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default 99;\n" + 
+				"}\n",
+		},
+		"42");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #44 @B(\n" + 
+			"        #45 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 0\n" + 
+			"      )\n" + 
+			"      #44 @B(\n" + 
+			"        #45 value=(int) 2 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 1\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void _test055_codeblocks_exceptionParameterMultiCatch() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"class Exc1 extends RuntimeException {" +				
+				"    private static final long serialVersionUID = 1L;\n" +
+				"}\n"+
+				"class Exc2 extends RuntimeException {" +				
+				"    private static final long serialVersionUID = 1L;\n" +
+				"}\n"+
+				"class Exc3 extends RuntimeException {" +				
+				"    private static final long serialVersionUID = 1L;\n" +
+				"}\n"+
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			System.out.println(42);\n" +
+				// @B(1) is attached to the argument, the others are attached to the type reference in the union type reference
+				// During Parsing the @B(1) is moved from the argument to Exc1
+				"		} catch(@B(1) Exc1 | Exc2 | @B(2) Exc3 t) {\n" + 
+				"			t.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default 99;\n" + 
+				"}\n",
+		},
+		"42");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #45 @B(\n" + 
+			"        #46 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 0\n" + 
+			"      )\n" + 
+			"      #45 @B(\n" + 
+			"        #46 value=(int) 2 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 2\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test056_codeblocks_instanceof() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public void foo(Object o) {\n" + 
+				"		if (o instanceof @A String) {\n" +
+				"			String tab = (String) o;\n" +
+				"			System.out.println(tab);\n" +
+				"		}\n" + 
+				"		System.out.println(o);\n" +
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #38 @A(\n" + 
+			"        target type = 0x43 INSTANCEOF\n" + 
+			"        offset = 1\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		
+		expectedOutput = "     1  instanceof java.lang.String [16]\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	public void test057_codeblocks_new() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"I.java",
+				"interface I {}\n",
+				"J.java",
+				"interface J {}\n",
+				"X.java",
+				"public class X {\n" + 
+				"	public boolean foo(String s) {\n" + 
+				"		System.out.println(\"xyz\");\n" +
+				"		Object o = new @B(3) Object();\n" + 
+				"		return true;\n" + 
+				"	}\n" + 
+				"}",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #35 @B(\n" + 
+			"        #36 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 8\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test058_codeblocks_new2() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+
+				"X.java",
+				"public class X {\n" + 
+				"	public void foo() {\n" + 
+				"       Outer o = new Outer();\n" +
+				"       o.new @B(1) Inner();\n" +
+				"	}\n" + 
+				"}\n" +
+				"class Outer { class Inner {}}\n"
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #30 @B(\n" + 
+			"        #31 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 8\n" +
+			"        location = [INNER_TYPE]\n" +
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test059_codeblocks_new_newArray() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"I.java",
+				"interface I {}\n",
+				"J.java",
+				"interface J {}\n",
+				"X.java",
+				"public class X {\n" + 
+				"	public boolean foo(String s) {\n" + 
+				"		System.out.println(\"xyz\");\n" +
+				"		Object o = new @A String [1];\n" +
+				"		return true;\n" + 
+				"	}\n" + 
+				"}",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #37 @A(\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 9\n" + 
+			"        location = [ARRAY]\n" +
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test060_codeblocks_new_multiNewArray() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"X.java",
+				"public class X {\n" + 
+				"	public boolean foo(String s) {\n" + 
+				"		System.out.println(\"xyz\");\n" +
+				"		Object o = new @A String [2][3];\n" + 
+				"		return true;\n" + 
+				"	}\n" + 
+				"}",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #37 @A(\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 10\n" + 
+			"        location = [ARRAY, ARRAY]\n" +
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test061_codeblocks_new_newArrayWithInitializer() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"I.java",
+				"interface I {}\n",
+				"J.java",
+				"interface J {}\n",
+				"X.java",
+				"public class X {\n" + 
+				"	public boolean foo(String s) {\n" + 
+				"		System.out.println(\"xyz\");\n" +
+				"		Object o = new @A String []{\"xyz\"};\n" + 
+				"		return true;\n" + 
+				"	}\n" + 
+				"}",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #37 @A(\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 9\n" + 
+			"        location = [ARRAY]\n" +
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test062_codeblocks_newArray() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"I.java",
+				"interface I {}\n",
+				"J.java",
+				"interface J {}\n",
+				"X.java",
+				"public class X {\n" + 
+				"	public boolean foo(String s) {\n" + 
+				"		System.out.println(\"xyz\");\n" +
+				"		Object o = new String @A[1];\n" + 
+				"		return true;\n" + 
+				"	}\n" + 
+				"}",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #37 @A(\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 9\n" +
+			// no type path expected here
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test062_codeblocks_newArrayWithInitializer() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"I.java",
+				"interface I {}\n",
+				"J.java",
+				"interface J {}\n",
+				"X.java",
+				"public class X {\n" + 
+				"	public boolean foo(String s) {\n" + 
+				"		System.out.println(\"xyz\");\n" +
+				"		Object o = new String @A[] { \"Hello\" };\n" + 
+				"		return true;\n" + 
+				"	}\n" + 
+				"}",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #39 @A(\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 9\n" +
+			// no type path expected here
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test063_codeblocks_new_instanceof() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"I.java",
+				"interface I {}\n",
+				"J.java",
+				"interface J {}\n",
+				"X.java",
+				"public class X {\n" + 
+				"	public boolean foo(Object o) {\n" + 
+				"		boolean b = (o instanceof @C('_') Object[]);\n" + 
+				"		Object o1 = new @B(3) @A(\"new Object\") Object[] {};\n" + 
+				"		return b;\n" + 
+				"	}\n" + 
+				"}",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #24 @B(\n" + 
+			"        #25 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 6\n" + 
+			"        location = [ARRAY]\n" + 
+			"      )\n" + 
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #28 @C(\n" + 
+			"        #25 value=\'_\' (constant type)\n" + 
+			"        target type = 0x43 INSTANCEOF\n" + 
+			"        offset = 1\n" + 
+			"        location = [ARRAY]\n" + 
+			"      )\n" + 
+			"      #30 @A(\n" + 
+			"        #25 value=\"new Object\" (constant type)\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 6\n" + 
+			"        location = [ARRAY]\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+
+	public void test064_codeblocks_constructorReference() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" +
+				"interface MR { X process(String input); }\n"+
+				"public class X<T> {\n" + 
+				"   public X(T t) {}\n" +
+				"   public static <T> String foo(String bar) { return bar; }\n"+
+				"	public void bar() {\n" +
+				"       System.out.println(\"abc\");\n" +
+				"       MR ref = @A X::new;\n" +
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #48 @A(\n" + 
+			"        target type = 0x45 CONSTRUCTOR_REFERENCE\n" + 
+			"        offset = 8\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+
+	public void test065_codeblocks_methodReference() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" +
+				"interface MR { String process(String input); }\n"+
+				"public class X<T> {\n" + 
+				"   public static <T> String foo(String bar) { return bar; }\n"+
+				"	public void bar() {\n" +
+				"       System.out.println(\"abc\");\n" +
+				"       MR ref = @A X::foo;\n" +
+				"       ref.process(\"abc\");\n" +
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #48 @A(\n" + 
+			"        target type = 0x46 METHOD_REFERENCE\n" + 
+			"        offset = 8\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test066_codeblocks_methodReference() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"    Object copy(int [] ia);\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"    public static void main(String [] args) {\n" +
+				"        I i = @B(1) int @B(2)[]::<String>clone;\n" +
+				"        i.copy(new int[10]); \n" +
+				"    }\n" +
+				"}\n",
+		
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #31 @B(\n" + 
+			"        #32 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x46 METHOD_REFERENCE\n" + 
+			"        offset = 0\n" + 
+			"        location = [ARRAY]\n" + 
+			"      )\n" + 
+			"      #31 @B(\n" + 
+			"        #32 value=(int) 2 (constant type)\n" + 
+			"        target type = 0x46 METHOD_REFERENCE\n" + 
+			"        offset = 0\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	public void test067_codeblocks_constructorReferenceTypeArgument() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" +
+				"interface MR { X process(String input); }\n" +
+				"public class X<T> {\n" + 
+				"   public X(T s) {};\n" +
+				"   public static <T> String foo(String bar) { return bar; }\n"+
+				"	public void bar() {\n" +
+				"       System.out.println(\"abc\");\n" +
+				"       MR ref = X::<@A String>new;\n" +
+				"       ref.process(\"abc\");\n" +
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #54 @A(\n" + 
+			"        target type = 0x4a CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT\n" + 
+			"        offset = 8\n" + 
+			"        type argument index = 0\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test068_codeblocks_methodReferenceTypeArgument() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" +
+				"interface MR { String process(String input); }\n"+
+				"public class X<T> {\n" + 
+				"   public static <T> String foo(String bar) { return bar; }\n"+
+				"	public void bar() {\n" +
+				"       System.out.println(\"abc\");\n" +
+				"       MR ref = X::<@A String>foo;\n" +
+				"       ref.process(\"abc\");\n" +
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #48 @A(\n" + 
+			"        target type = 0x4b METHOD_REFERENCE_TYPE_ARGUMENT\n" + 
+			"        offset = 8\n" + 
+			"        type argument index = 0\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test069_codeblocks_cast() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public void foo(Object o) {\n" + 
+				"		if (o instanceof String) {\n" +
+				"			String tab = (@A String) o;\n" +
+				"			System.out.println(tab);\n" +
+				"		}\n" + 
+				"		System.out.println(o);\n" +
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				
+		},
+		"");
+		// javac-b81: Bytes:11[0 1 71 0 7 0 0 0 16 0 0]
+		// relevant numbers '71 0 7 0' which mean 0x47 (CAST) at offset 7
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #38 @A(\n" + 
+			"        target type = 0x47 CAST\n" + 
+			"        offset = 8\n" + 
+			"        type argument index = 0\n" +
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test070_codeblocks_cast_complex() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"I.java",
+				"interface I {}\n",
+				"J.java",
+				"interface J {}\n",
+				"X.java",
+				"public class X {\n" + 
+				"	public void foo(Object o) {\n" + 
+				"		if (o instanceof String[][]) {\n" +
+				"			String[][] tab = (@C('_') @B(3) String[] @A[]) o;\n" +
+				"			System.out.println(tab.length);\n" +
+				"		}\n" + 
+				"		System.out.println(o);\n" +
+				"	}\n" + 
+				"}",
+		},
+		"");
+		// javac-b81:
+		// Bytes:31[0 2 71 0 7 0 1 0 0 0 16 0 0 71 0 7 0 2 0 0 0 0 0 17 0 1 0 18 67 0 19]
+		// Bytes:20[0 1 71 0 7 0 2 0 0 0 0 0 21 0 1 0 18 73 0 22]
+		String expectedOutput =
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #37 @B(\n" + 
+			"        #38 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x47 CAST\n" + 
+			"        offset = 8\n" + 
+			"        type argument index = 0\n" + 
+			"        location = [ARRAY, ARRAY]\n" + 
+			"      )\n" + 
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #41 @C(\n" + 
+			"        #38 value=\'_\' (constant type)\n" + 
+			"        target type = 0x47 CAST\n" + 
+			"        offset = 8\n" + 
+			"        type argument index = 0\n" + 
+			"        location = [ARRAY, ARRAY]\n" + 
+			"      )\n" + 
+			"      #43 @A(\n" + 
+			"        target type = 0x47 CAST\n" + 
+			"        offset = 8\n" + 
+			"        type argument index = 0\n" + 
+			"        location = [ARRAY]\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test071_codeblocks_constructorInvocationTypeArgument() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"X.java",
+				"public class X {\n" + 
+				"	<T> X(T t) {\n" + 
+				"	}\n" + 
+				"	public Object foo() {\n" + 
+				"		X x = new <@A @B(1) String>X(null);\n" + 
+				"		return x;\n" + 
+				"	}\n" + 
+				"}",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #27 @B(\n" + 
+			"        #28 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x48 CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT\n" + 
+			"        offset = 5\n" + 
+			"        type argument index = 0\n" + 
+			"      )\n" + 
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #31 @A(\n" + 
+			"        target type = 0x48 CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT\n" + 
+			"        offset = 5\n" + 
+			"        type argument index = 0\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test072_codeblocks_constructorInvocationTypeArgument() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"X.java",
+				"public class X {\n" + 
+				"	<T, U> X(T t, U u) {\n" + 
+				"	}\n" + 
+				"	public Object foo() {\n" + 
+				"		X x = new <@A Integer, @A String @C [] @B(1)[]>X(null, null);\n" + 
+				"		return x;\n" + 
+				"	}\n" + 
+				"}",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #29 @B(\n" + 
+			"        #30 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x48 CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT\n" + 
+			"        offset = 6\n" + 
+			"        type argument index = 1\n" + 
+			"        location = [ARRAY]\n" + 
+			"      )\n" + 
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #33 @A(\n" + 
+			"        target type = 0x48 CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT\n" + 
+			"        offset = 6\n" + 
+			"        type argument index = 0\n" + 
+			"      )\n" + 
+			"      #33 @A(\n" + 
+			"        target type = 0x48 CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT\n" + 
+			"        offset = 6\n" + 
+			"        type argument index = 1\n" + 
+			"        location = [ARRAY, ARRAY]\n" + 
+			"      )\n" + 
+			"      #34 @C(\n" + 
+			"        target type = 0x48 CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT\n" + 
+			"        offset = 6\n" + 
+			"        type argument index = 1\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void test073_codeblocks_constructorInvocationTypeArgument() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T1, T2> {\n" + 
+				"	public void bar() {\n" + 
+				"       new <String, @A T2>X();\n"+
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				
+		},
+		"");
+		// Example bytes:11[0 1 73 0 0 0 0 0 13 0 0] this would be for offset 0
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #19 @A(\n" + 
+			"        target type = 0x48 CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT\n" + 
+			"        offset = 3\n" + 
+			"        type argument index = 1\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test074_codeblocks_constructorInvocationTypeArgument() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T1,T2> {\n" + 
+				"   public static void foo(int i) {}\n"+
+				"	public void bar() {\n" + 
+				"       new <java.util.List<@A String>, T2>X();\n"+
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				
+		},
+		"");
+		// Example bytes:11[0 1 73 0 0 0 0 0 13 0 0] this would be for offset 0
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #23 @A(\n" + 
+			"        target type = 0x48 CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT\n" + 
+			"        offset = 3\n" + 
+			"        type argument index = 0\n" + 
+			"        location = [TYPE_ARGUMENT(0)]\n" +
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test075_codeblocks_constructorInvocationTypeArgument() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"	public void bar() {\n" + 
+				"       new <@A T>X();\n"+
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				
+		},
+		"");
+		// Example bytes:11[0 1 73 0 0 0 0 0 13 0 0] this would be for offset 0
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #19 @A(\n" + 
+			"        target type = 0x48 CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT\n" + 
+			"        offset = 3\n" + 
+			"        type argument index = 0\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test076_codeblocks_methodInvocationTypeArgument() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"\n" +
+				"	static <T, U> T foo(T t, U u) {\n" +
+				"		return t;\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(X.<@A @B(1) String[], @C('-') X>foo(new String[]{\"SUCCESS\"}, null)[0]);\n" +
+				"	}\n" +
+				"}\n",
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+		},
+		"SUCCESS");
+		String expectedOutput =
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #48 @B(\n" + 
+			"        #49 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x49 METHOD_INVOCATION_TYPE_ARGUMENT\n" + 
+			"        offset = 13\n" + 
+			"        type argument index = 0\n" + 
+			"        location = [ARRAY]\n" + 
+			"      )\n" + 
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #52 @A(\n" + 
+			"        target type = 0x49 METHOD_INVOCATION_TYPE_ARGUMENT\n" + 
+			"        offset = 13\n" + 
+			"        type argument index = 0\n" + 
+			"        location = [ARRAY]\n" + 
+			"      )\n" + 
+			"      #53 @C(\n" + 
+			"        #49 value=\'-\' (constant type)\n" + 
+			"        target type = 0x49 METHOD_INVOCATION_TYPE_ARGUMENT\n" + 
+			"        offset = 13\n" + 
+			"        type argument index = 1\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test077_codeblocks_methodInvocationTypeArgument() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T1,T2> {\n" + 
+				"   public static void foo(int i) {}\n"+
+				"	public void bar() {\n" + 
+				"       X.<String, @A T2>foo(42);\n"+
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				
+		},
+		"");
+		// Example bytes:11[0 1 73 0 0 0 0 0 13 0 0] this would be for offset 0
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #24 @A(\n" + 
+			"        target type = 0x49 METHOD_INVOCATION_TYPE_ARGUMENT\n" + 
+			"        offset = 2\n" + 
+			"        type argument index = 1\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test078_codeblocks_methodInvocationTypeArgument() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T1,T2> {\n" + 
+				"   public static void foo(int i) {}\n"+
+				"	public void bar() {\n" + 
+				"       X.<java.util.List<@A String>, T2>foo(42);\n"+
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				
+		},
+		"");
+		// Example bytes:11[0 1 73 0 0 0 0 0 13 0 0] this would be for offset 0
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #24 @A(\n" + 
+			"        target type = 0x49 METHOD_INVOCATION_TYPE_ARGUMENT\n" + 
+			"        offset = 2\n" + 
+			"        type argument index = 0\n" + 
+			"        location = [TYPE_ARGUMENT(0)]\n" +
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test079_codeblocks_methodInvocationTypeArgument() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"   public static void foo(int i) {}\n"+
+				"	public void bar() {\n" + 
+				"       X.<@A T>foo(42);\n"+
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+		},
+		"");
+		// Example bytes:11[0 1 73 0 0 0 0 0 13 0 0] this would be for offset 0
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #24 @A(\n" + 
+			"        target type = 0x49 METHOD_INVOCATION_TYPE_ARGUMENT\n" + 
+			"        offset = 2\n" + 
+			"        type argument index = 0\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	
+	// Annotation should appear twice in this case
+	public void test080_multiuseAnnotations() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	 @B(1) int foo() { return 0; }\n" +
+				"}",
+				"B.java",
+				"import java.lang.annotation.*;\n" +   
+				"@Target({ElementType.METHOD, ElementType.TYPE_USE})\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default 99;\n" + 
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleAnnotations: \n" + 
+			"      #17 @B(\n" + 
+			"        #18 value=(int) 1 (constant type)\n" + 
+			"      )\n" + 
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #17 @B(\n" + 
+			"        #18 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x14 METHOD_RETURN\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test081_multiuseAnnotations() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target({ElementType.METHOD, ElementType.TYPE_USE})\n" + 
+				"@interface Annot {\n" + 
+				"	int value() default 0;\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				"	@Annot(4) public String foo() { return \"hello\"; }" +
+				"}",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeInvisibleAnnotations: \n" + 
+			"      #17 @Annot(\n" + 
+			"        #18 value=(int) 4 (constant type)\n" + 
+			"      )\n" + 
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #17 @Annot(\n" + 
+			"        #18 value=(int) 4 (constant type)\n" + 
+			"        target type = 0x14 METHOD_RETURN\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	// When not annotated with any TYPE it assumes the Java7 set (i.e. not TYPE_USE/TYPE_PARAMETER)
+	public void test082_multiuseAnnotations() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2218,75 +3533,856 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-//	// make sure annotation without target appears twice when set on a method declaration
-//	public void test039() throws Exception {
-//		this.runConformTest(
-//			new String[] {
-//				"X.java",
-//				"@interface Annot {\r\n" + 
-//				"	int value() default 0;\r\n" + 
-//				"}\r\n" + 
-//				"public class X {\r\n" + 
-//				"	@Annot(4)\r\n" + 
-//				"	public int foo() {\r\n" + 
-//				"		return 0;\r\n" + 
-//				"	}\r\n" + 
-//				"}",
-//		},
-//		"");
-//		String expectedOutput =
-//			"  public int foo();\n" + 
-//			"    0  iconst_0\n" + 
-//			"    1  ireturn\n" + 
-//			"      Line numbers:\n" + 
-//			"        [pc: 0, line: 7]\n" + 
-//			"      Local variable table:\n" + 
-//			"        [pc: 0, pc: 2] local: this index: 0 type: X\n" + 
-//			"    RuntimeInvisibleAnnotations: \n" + 
-//			"      #17 @Annot(\n" + 
-//			"        #18 value=(int) 4 (constant type)\n" + 
-//			"      )\n" + 
-//			"    RuntimeInvisibleTypeAnnotations: \n" + 
-//			"      #17 @Annot(\n" + 
-//			"        #18 value=(int) 4 (constant type)\n" + 
-//			"        target type = 0xa METHOD_RETURN_TYPE\n" + 
-//			"      )\n" + 
-//			"}";
-//		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-//	}
-	// make sure annotation without target appears twice when set on a method declaration
-	public void test040() throws Exception {
+	
+	public void test100_pqtr() throws Exception { // PQTR (ParameterizedQualifiedTypeReference)
 		this.runConformTest(
-			new String[] {
-				"X.java",
-				"import java.lang.annotation.Target;\r\n" + 
-				"import static java.lang.annotation.ElementType.*;\r\n" + 
-				"\r\n" + 
-				"@Target(METHOD)\r\n" + 
-				"@interface Annot {\r\n" + 
-				"	int value() default 0;\r\n" + 
-				"}\r\n" + 
-				"public class X {\r\n" + 
-				"	@Annot(4)\r\n" + 
-				"	public int foo() {\r\n" + 
-				"		return 0;\r\n" + 
-				"	}\r\n" + 
-				"}",
-		},
-		"");
-		String expectedOutput =
-			"  public int foo();\n" + 
-			"    0  iconst_0\n" + 
-			"    1  ireturn\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 11]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 2] local: this index: 0 type: X\n" + 
-			"    RuntimeInvisibleAnnotations: \n" + 
-			"      #17 @Annot(\n" + 
-			"        #18 value=(int) 4 (constant type)\n" + 
-			"      )\n" + 
-			"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"  java.util.@B(2) List<String> field2;\n" +
+					"}\n",
+
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+					"    RuntimeVisibleTypeAnnotations: \n" + 
+					"      #10 @B(\n" + 
+					"        #11 value=(int) 2 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+
+	public void test100a_pqtr() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"  java.util.@B(2) List<String>[] field3;\n" +
+					"}\n",
+
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+					"    RuntimeVisibleTypeAnnotations: \n" + 
+					"      #10 @B(\n" + 
+					"        #11 value=(int) 2 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY]\n" +
+					"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test100b_pqtr() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"  java.util.List<@B(3) String>[] field3;\n" +
+					"}\n",
+
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+					"    RuntimeVisibleTypeAnnotations: \n" + 
+					"      #10 @B(\n" + 
+					"        #11 value=(int) 3 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY, TYPE_ARGUMENT(0)]\n" +
+					"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	public void test100c_pqtr() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"  java.util.List<String> @B(3)[] field3;\n" +
+					"}\n",
+
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+					"    RuntimeVisibleTypeAnnotations: \n" + 
+					"      #10 @B(\n" + 
+					"        #11 value=(int) 3 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test100d_pqtr() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"  java.util.@B(2) List<@B(5) String> @B(3)[]@B(4)[] field;\n" +
+					"}\n",
+
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+					"    RuntimeVisibleTypeAnnotations: \n" + 
+					"      #10 @B(\n" + 
+					"        #11 value=(int) 2 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY, ARRAY]\n" +
+					"      )\n" +
+					"      #10 @B(\n" + 
+					"        #11 value=(int) 3 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"      )\n" +
+					"      #10 @B(\n" + 
+					"        #11 value=(int) 4 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY]\n" +
+					"      )\n" +
+					"      #10 @B(\n" + 
+					"        #11 value=(int) 5 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY, ARRAY, TYPE_ARGUMENT(0)]\n" +
+					"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+
+	public void test100e_pqtr() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"  java.util.Map.@B(2) Entry<String,String> field;\n" +
+					"}\n",
+
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test100f_pqtr() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"Foo.java",
+					"class Foo {}\n",
+					
+					"Levels.java",
+					"package one.two.three;\n" +
+					"class Level1 { static class Level2 { class Level3 { class Level4 { class Level5<T> { } } } } }\n",
+					
+					"X.java",
+					"package one.two.three;\n" +
+					"class X {\n" +
+					"  one.two.three.Level1.Level2.@B(2) Level3.Level4.@B(3) Level5<String> instance;\n" +
+					"}\n",
+
+					"B.java",
+					"package one.two.three;\n" +
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #10 @one.two.three.B(\n" + 
+				"        #11 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [INNER_TYPE]\n" + 
+				"      )\n" + 
+				"      #10 @one.two.three.B(\n" + 
+				"        #11 value=(int) 3 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [INNER_TYPE, INNER_TYPE, INNER_TYPE]\n" + 
+				"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator + "X.class", "one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test100g_pqtr() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"Foo.java",
+					"class Foo {}\n",
+					
+					"Levels.java",
+					"package one.two.three;\n" +
+					"class Level1 { static class Level2 { class Level3 { class Level4 { class Level5<T> { } } } } }\n",
+					
+					"X.java",
+					"package one.two.three;\n" +
+					"class X {\n" +
+					"  one.two.three.Level1.Level2.@B(2) Level3.Level4.@B(3) Level5<String>[][] instance;\n" +
+					"}\n",
+
+					"B.java",
+					"package one.two.three;\n" +
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #10 @one.two.three.B(\n" + 
+				"        #11 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY, ARRAY, INNER_TYPE]\n" + 
+				"      )\n" + 
+				"      #10 @one.two.three.B(\n" + 
+				"        #11 value=(int) 3 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY, ARRAY, INNER_TYPE, INNER_TYPE, INNER_TYPE]\n" + 
+				"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator + "X.class", "one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test100h_pqtr() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"  Level1.Level2.@B(2) Level3.Level4.@B(3) Level5<String>[][] instance;\n" +
+					"}\n",
+
+					"Levels.java",
+					"class Level1 { static class Level2 { class Level3 { class Level4 { class Level5<T> { } } } } }\n",
+
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY, ARRAY, INNER_TYPE]\n" + 
+				"      )\n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 3 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY, ARRAY, INNER_TYPE, INNER_TYPE, INNER_TYPE]\n" + 
+				"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test100i_pqtr() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"  Level1.Level2.Level3.Level4.Level5<@B(1) String>[][] instance;\n" +
+					"}\n",
+
+					"Levels.java",
+					"class Level1 { static class Level2 { class Level3 { class Level4 { class Level5<T> { } } } } }\n",
+
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 1 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY, ARRAY, INNER_TYPE, INNER_TYPE, INNER_TYPE, TYPE_ARGUMENT(0)]\n" + 
+				"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test100j_pqtr() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"  Level1.Level2.Level3<@B(1) String>.Level4.Level5<@B(2) String>[][] instance;\n" +
+					"}\n",
+
+					"Levels.java",
+					"class Level1 { static class Level2 { class Level3<Q> { class Level4 { class Level5<T> { } } } } }\n",
+
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 1 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY, ARRAY, INNER_TYPE, TYPE_ARGUMENT(0)]\n" + 
+				"      )\n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY, ARRAY, INNER_TYPE, INNER_TYPE, INNER_TYPE, TYPE_ARGUMENT(0)]\n" + 
+				"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test100k_pqtr() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"  Level1.@B(5) Level2.Level3<@B(1) String>.Level4.Level5<@B(2) String>[][] instance;\n" +
+					"}\n",
+
+					"Levels.java",
+					"class Level1 { static class Level2 { class Level3<Q> { class Level4 { class Level5<T> { } } } } }\n",
+
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 5 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY, ARRAY]\n" + 
+				"      )\n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 1 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY, ARRAY, INNER_TYPE, TYPE_ARGUMENT(0)]\n" + 
+				"      )\n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY, ARRAY, INNER_TYPE, INNER_TYPE, INNER_TYPE, TYPE_ARGUMENT(0)]\n" + 
+				"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test101a_qtr() throws Exception { // QTR (QualifiedTypeReference)
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"    com.foo.@B(2) List field2;\n" +
+					"}\n",
+					
+					"List.java",
+					"package com.foo;\n"+
+					"public class List {}\n",
+
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+					"    RuntimeVisibleTypeAnnotations: \n" + 
+					"      #8 @B(\n" + 
+					"        #9 value=(int) 2 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	
+	public void test101b_qtr() throws Exception { // QTR (QualifiedTypeReference)
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"  java.util.Map.@B(2) Entry field;\n" +
+					"}\n",
+
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #8 @B(\n" + 
+				"        #9 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test101c_qtr() throws Exception { // QTR (QualifiedTypeReference)
+		this.runConformTest(
+				new String[] {
+					"Runner.java",
+					"public class Runner {}\n",
+					
+					"B.java",
+					"package one.two.three;\n" +
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+
+					"X.java",
+					"package one.two.three;\n" +
+					"class X {\n" +
+					"    one.two.three.Level1.Level2.@B(2) Level3.Level4.@B(3) Level5 instance;\n" +
+					"}\n",
+
+					"Level1.java",
+					"package one.two.three;\n" +
+					"public class Level1 { static class Level2 { class Level3 { class Level4 { class Level5 { } } } } }\n",
+			},
+			"");
+			String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #8 @one.two.three.B(\n" + 
+				"        #9 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [INNER_TYPE]\n" + 
+				"      )\n" + 
+				"      #8 @one.two.three.B(\n" + 
+				"        #9 value=(int) 3 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [INNER_TYPE, INNER_TYPE, INNER_TYPE]\n" + 
+				"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator + "X.class", "one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test102a_str() throws Exception { // STR (SingleTypeReference)
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"    @B(1) X field;\n" +
+					"}\n",
+					
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+					"    RuntimeVisibleTypeAnnotations: \n" + 
+					"      #8 @B(\n" + 
+					"        #9 value=(int) 1 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test102b_str() throws Exception { // STR (SingleTypeReference)
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"    @B(1) int field;\n" +
+					"}\n",
+					
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+					"    RuntimeVisibleTypeAnnotations: \n" + 
+					"      #8 @B(\n" + 
+					"        #9 value=(int) 1 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test103a_atr() throws Exception { // ATR (ArrayTypeReference)
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"    @B(1) X[] field;\n" +
+					"}\n",
+					
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+					"    RuntimeVisibleTypeAnnotations: \n" + 
+					"      #8 @B(\n" + 
+					"        #9 value=(int) 1 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY]\n" +
+					"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test103b_atr() throws Exception { // ATR (ArrayTypeReference)
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"    X @B(2)[] field;\n" +
+					"}\n",
+					
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+					"    RuntimeVisibleTypeAnnotations: \n" + 
+					"      #8 @B(\n" + 
+					"        #9 value=(int) 2 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test103c_atr() throws Exception { // ATR (ArrayTypeReference)
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"    X []@B(3)[] field;\n" +
+					"}\n",
+					
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+					"    RuntimeVisibleTypeAnnotations: \n" + 
+					"      #8 @B(\n" + 
+					"        #9 value=(int) 3 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY]\n" +
+					"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test103d_atr() throws Exception { // ATR (ArrayTypeReference)
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"    X []@B(3)[][] field;\n" +
+					"}\n",
+					
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+					"    RuntimeVisibleTypeAnnotations: \n" + 
+					"      #8 @B(\n" + 
+					"        #9 value=(int) 3 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY]\n" +
+					"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test103e_atr() throws Exception { // ATR (ArrayTypeReference)
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"    @B(1) int []@B(3)[][] field;\n" +
+					"}\n",
+					
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+					"    RuntimeVisibleTypeAnnotations: \n" + 
+					"      #8 @B(\n" + 
+					"        #9 value=(int) 1 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY, ARRAY, ARRAY]\n" +
+					"      )\n" +
+					"      #8 @B(\n" + 
+					"        #9 value=(int) 3 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY]\n" +
+					"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test104a_pstr() throws Exception { // PSTR (ParameterizedSingleTypeReference)
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X<T1,T2,T3> {\n" +
+					"    @B(1) X<@B(2) String, @B(3) Integer, @B(4) Boolean> field;\n" +
+					"}\n",
+					
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 1 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"      )\n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [TYPE_ARGUMENT(0)]\n" + 
+				"      )\n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 3 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [TYPE_ARGUMENT(1)]\n" + 
+				"      )\n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 4 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [TYPE_ARGUMENT(2)]\n" + 
+				"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test104b_pstr() throws Exception { // PSTR (ParameterizedSingleTypeReference)
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X<T1> {\n" +
+					"    @B(1) X<@B(2) String> @B(3)[] field;\n" +
+					"}\n",
+					
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 1 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY]\n" + 
+				"      )\n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 3 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"      )\n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY, TYPE_ARGUMENT(0)]\n" + 
+				"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test105a_aqtr() throws Exception { // AQTR (ArrayQualifiedTypeReference)
+		this.runConformTest(
+				new String[] {
+					"Y.java",
+					"class Y {}",
+					
+					"X.java",
+					"package one.two.three;\n" +
+					"class X<T1> {\n" +
+					"    one.two.three.@B(1) List[] field;\n" +
+					"}\n",
+					
+					"List.java",
+					"package one.two.three;\n" +
+					"class List {}\n",
+					
+					"B.java",
+					"package one.two.three;\n" +
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #8 @one.two.three.B(\n" + 
+				"        #9 value=(int) 1 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY]\n" + 
+				"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator +"X.class", 
+					"one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test105b_aqtr() throws Exception { // AQTR (ArrayQualifiedTypeReference)
+		this.runConformTest(
+				new String[] {
+					"Y.java",
+					"class Y {}",
+					
+					"X.java",
+					"package one.two.three;\n" +
+					"class X<T1> {\n" +
+					"    one.two.three.@B(2) List @B(3)[]@B(4)[] field;\n" +
+					"}\n",
+					
+					"List.java",
+					"package one.two.three;\n" +
+					"class List {}\n",
+					
+					"B.java",
+					"package one.two.three;\n" +
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #8 @one.two.three.B(\n" + 
+				"        #9 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY, ARRAY]\n" + 
+				"      )\n" +
+				"      #8 @one.two.three.B(\n" + 
+				"        #9 value=(int) 3 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"      )\n" +
+				"      #8 @one.two.three.B(\n" + 
+				"        #9 value=(int) 4 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY]\n" + 
+				"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator +"X.class", 
+					"one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test106a_wtr() throws Exception { // WTR (WildcardTypeReference)
+		this.runConformTest(
+				new String[] {					
+					"X.java",
+					"import java.util.List;\n" +
+					"class X<T1> {\n" +
+					"	 List<? extends @B(1) Number> field;\n" +
+					"}\n",
+					
+					"List.java",
+					"class List {}\n",
+					
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 1 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [TYPE_ARGUMENT(0), WILDCARD]\n" + 
+				"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test106b_wtr() throws Exception { // WTR (WildcardTypeReference)
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"class X<T1> {\n" +
+					"	 List<? extends @B(1) Number[]> field;\n" +
+					"}\n",
+					
+					"List.java",
+					"class List {}\n",
+					
+					"B.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface B { int value() default -1; }\n",
+			},
+			"");
+			String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #10 @B(\n" + 
+				"        #11 value=(int) 1 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [TYPE_ARGUMENT(0), WILDCARD, ARRAY]\n" + 
+				"      )\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
 }

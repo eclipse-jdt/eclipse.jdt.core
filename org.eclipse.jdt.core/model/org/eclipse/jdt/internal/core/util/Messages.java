@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,9 +8,11 @@
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *        Andy Clement - Contributions for
+ *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
@@ -304,7 +306,7 @@ public final class Messages extends NLS {
 	public static String disassembler_runtimevisibletypeannotationsattributeheader;
 	public static String disassembler_runtimeinvisibletypeannotationsattributeheader;
 	public static String disassembler_extendedannotation_classextendsimplements;
-	public static String disassembler_extendedannotation_locations;
+	public static String disassembler_extendedannotation_typepath;
 	public static String disassembler_extendedannotation_method_parameter;
 	public static String disassembler_extendedannotation_offset;
 	public static String disassembler_extendedannotation_throws;
@@ -314,8 +316,12 @@ public final class Messages extends NLS {
 	public static String disassembler_extendedannotation_wildcardlocationtype;
 	public static String disassembler_extendedannotation_targetType;
 	public static String disassembler_extendedannotation_wildcardlocations;
+	public static String disassembler_extendedannotation_exception_table_index;
+	public static String disassembler_extendedannotation_typepath_array;
+	public static String disassembler_extendedannotation_typepath_wildcard;
+	public static String disassembler_extendedannotation_typepath_typeargument;
+	public static String disassembler_extendedannotation_typepath_innertype;
 	public static String disassembler_localvariabletargetheader;
-	public static String classfileformat_localvariablereferenceinfoentry;
 
 	public static String disassembler_runtimevisibleannotationsattributeheader;
 	public static String disassembler_runtimeinvisibleannotationsattributeheader;
@@ -331,6 +337,9 @@ public final class Messages extends NLS {
 	public static String classfileformat_superflagisnotset;
 	public static String classfileformat_superflagisset;
 	public static String classfileformat_clinitname;
+	// jsr308
+	public static String classfileformat_localvariablereferenceinfoentry;
+
 	public static String classformat_classformatexception;
 	public static String classformat_anewarray;
 	public static String classformat_checkcast;

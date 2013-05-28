@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 IBM Corporation and others.
+ * Copyright (c) 2012, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *        Andy Clement - Contributions for
+ *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
@@ -32,6 +34,9 @@ public class AnnotationContext {
 	public LocalVariableBinding variableBinding;
 	public Annotation[][] annotationsOnDimensions;
 	public Wildcard wildcard;
+	// annotationsOnDimensions might be null but the dimensions may still be important. In some
+	// cases they are not on the reference.
+	public int dimensions;
 
 	public AnnotationContext(
 			Annotation annotation,
@@ -39,13 +44,15 @@ public class AnnotationContext {
 			int targetType,
 			Annotation[] primaryAnnotations,
 			int visibility,
-			Annotation[][] annotationsOnDimensions) {
+			Annotation[][] annotationsOnDimensions,
+			int dimensions) {
 		this.annotation = annotation;
 		this.typeReference = typeReference;
 		this.targetType = targetType;
 		this.primaryAnnotations = primaryAnnotations;
 		this.visibility = visibility;
 		this.annotationsOnDimensions = annotationsOnDimensions;
+		this.dimensions = dimensions;
 	}
 
 	public String toString() {

@@ -17,6 +17,8 @@
  *	   Stephan Herrmann - Contribution for
  *							bug 402028 - [1.8][compiler] null analysis for reference expressions 
  *							bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super via I.super.m() syntax
+ *        Andy Clement - Contribution for
+ *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.ast;
@@ -144,7 +146,8 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		buffer.append(this.resolvedType.constantPoolName());
 		buffer.append(';');
 		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
-		codeStream.invokeDynamic(invokeDynamicNumber, argumentsSize, 1, LAMBDA, buffer.toString().toCharArray());
+		codeStream.invokeDynamic(invokeDynamicNumber, argumentsSize, 1, LAMBDA, buffer.toString().toCharArray(), 
+				this.isConstructorReference(), (this.lhs instanceof TypeReference? (TypeReference) this.lhs : null), this.typeArguments);
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 	

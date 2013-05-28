@@ -13,6 +13,8 @@
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
  *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335             
+ *        Andy Clement - Contributions for
+ *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
@@ -26,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -46,15 +47,13 @@ import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
-import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
+import org.eclipse.jdt.internal.compiler.ast.Receiver;
 import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
@@ -62,19 +61,19 @@ import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.codegen.ExceptionLabel;
+import org.eclipse.jdt.internal.compiler.codegen.MultiCatchExceptionLabel;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrame;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.TypeAnnotationCodeStream;
-import org.eclipse.jdt.internal.compiler.codegen.VerificationTypeInfo;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream.ExceptionMarker;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream.StackDepthMarker;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream.StackMarker;
+import org.eclipse.jdt.internal.compiler.codegen.VerificationTypeInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -250,75 +249,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		LookupEnvironment env = typeBinding.scope.environment();
 		return env.classFilePool.acquire(typeBinding);
 	}
-
-	/**
-	 * Return the location for the corresponding annotation inside the type reference, <code>null</code> if none.
-	 */
-	private static int[] getWildcardLocations(TypeReference reference, Wildcard wildcard) {
-		class LocationCollector extends ASTVisitor {
-			Stack currentIndexes;
-			boolean search = true;
-			Wildcard currentWildcard;
-			
-			public LocationCollector(Wildcard currentWildcard) {
-				this.currentIndexes = new Stack();
-				this.currentWildcard = currentWildcard;
-			}
-			public boolean visit(ParameterizedSingleTypeReference typeReference, BlockScope scope) {
-				if (!this.search) return false;
-				TypeReference[] typeReferences = typeReference.typeArguments;
-				this.currentIndexes.push(new Integer(0));
-				for (int i = 0, max = typeReferences.length; i < max; i++) {
-					typeReferences[i].traverse(this, scope);
-					if (!this.search) return false;
-					this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
-				}
-				this.currentIndexes.pop();
-				return true;
-			}
-			public boolean visit(ParameterizedQualifiedTypeReference typeReference, BlockScope scope) {
-				if (!this.search) return false;
-				TypeReference[] typeReferences = typeReference.typeArguments[typeReference.typeArguments.length - 1];
-				this.currentIndexes.push(new Integer(0));
-				for (int i = 0, max = typeReferences.length; i < max; i++) {
-					typeReferences[i].traverse(this, scope);
-					if (!this.search) return false;
-					this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
-				}
-				this.currentIndexes.pop();
-				return true;
-			}
-			public boolean visit(Wildcard typeReference, BlockScope scope) {
-				if (!this.search) return false;
-				if (typeReference.equals(this.currentWildcard)) {
-					this.search = false;
-				}
-				return true;
-			}
-			public String toString() {
-				StringBuffer buffer = new StringBuffer();
-				buffer
-					.append("search location for ") //$NON-NLS-1$
-					.append(this.currentWildcard)
-					.append("\ncurrent indexes : ") //$NON-NLS-1$
-					.append(this.currentIndexes);
-				return String.valueOf(buffer);
-			}
-		}
-		if (reference == null) return null;
-		LocationCollector collector = new LocationCollector(wildcard);
-		reference.traverse(collector, (BlockScope) null);
-		if (collector.currentIndexes.isEmpty()) {
-			return null;
-		}
-		int size = collector.currentIndexes.size();
-		int[] result = new int[size];
-		for (int i = 0; i < size; i++) {
-			result[size - i - 1] = ((Integer) collector.currentIndexes.pop()).intValue();
-		}
-		return result;
-	}
-
 	/**
 	 * INTERNAL USE-ONLY
 	 * This methods creates a new instance of the receiver.
@@ -337,7 +267,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.isNestedType = typeBinding.isNestedType();
 		if (this.targetJDK >= ClassFileConstants.JDK1_6) {
 			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP_TABLE;
-			if (this.targetJDK >= ClassFileConstants.JDK1_7) {
+			if (this.targetJDK >= ClassFileConstants.JDK1_8) {
 				this.produceAttributes |= ClassFileConstants.ATTR_TYPE_ANNOTATION;
 				this.codeStream = new TypeAnnotationCodeStream(this);
 			} else {
@@ -461,6 +391,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		
 		attributesNumber += generateTypeAnnotationAttributeForTypeDeclaration();
+		
 		// update the number of attributes
 		if (attributeOffset + 2 >= this.contents.length) {
 			resizeContents(2);
@@ -515,41 +446,40 @@ public class ClassFile implements TypeConstants, TypeIds {
 			FieldDeclaration fieldDeclaration = fieldBinding.sourceField();
 			if (fieldDeclaration != null) {
 				Annotation[] annotations = fieldDeclaration.annotations;
-				List allTypeAnnotationContexts = new ArrayList();
-				int invisibleTypeAnnotationsCounter = 0;
-				int visibleTypeAnnotationsCounter = 0;
 				if (annotations != null) {
 					attributesNumber += generateRuntimeAnnotations(annotations);
-					if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
-						if ((fieldDeclaration.bits & ASTNode.HasTypeAnnotations) != 0) {
-							fieldDeclaration.getAllAnnotationContexts(AnnotationTargetTypeConstants.FIELD, allTypeAnnotationContexts);
-						}
-					}
 				}
-				TypeReference fieldType = fieldDeclaration.type;
-				if (fieldType != null 
-						&& ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0)
-						&& ((fieldType.bits & ASTNode.HasTypeAnnotations) != 0)) {
-					fieldType.getAllAnnotationContexts(AnnotationTargetTypeConstants.FIELD, allTypeAnnotationContexts);
-				}
-				int size = allTypeAnnotationContexts.size();
-				if (size != 0) {
-					AnnotationContext[] allTypeAnnotationContextsArray = new AnnotationContext[size];
-					allTypeAnnotationContexts.toArray(allTypeAnnotationContextsArray);
-					for (int i = 0, max = allTypeAnnotationContextsArray.length; i < max; i++) {
-						AnnotationContext annotationContext = allTypeAnnotationContextsArray[i];
-						if ((annotationContext.visibility & AnnotationContext.INVISIBLE) != 0) {
-							invisibleTypeAnnotationsCounter++;
-							allTypeAnnotationContexts.add(annotationContext);
-						} else {
-							visibleTypeAnnotationsCounter++;
-							allTypeAnnotationContexts.add(annotationContext);
-						}
+
+				if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
+					List allTypeAnnotationContexts = new ArrayList();
+					if (annotations != null && (fieldDeclaration.bits & ASTNode.HasTypeAnnotations) != 0) {
+						fieldDeclaration.getAllAnnotationContexts(AnnotationTargetTypeConstants.FIELD, allTypeAnnotationContexts);
 					}
-					attributesNumber += generateRuntimeTypeAnnotations(
-							allTypeAnnotationContextsArray,
-							visibleTypeAnnotationsCounter,
-							invisibleTypeAnnotationsCounter);
+					int invisibleTypeAnnotationsCounter = 0;
+					int visibleTypeAnnotationsCounter = 0;
+					TypeReference fieldType = fieldDeclaration.type;
+					if (fieldType != null && ((fieldType.bits & ASTNode.HasTypeAnnotations) != 0)) {
+						fieldType.getAllAnnotationContexts(AnnotationTargetTypeConstants.FIELD, allTypeAnnotationContexts);
+					}
+					int size = allTypeAnnotationContexts.size();
+					if (size != 0) {
+						AnnotationContext[] allTypeAnnotationContextsArray = new AnnotationContext[size];
+						allTypeAnnotationContexts.toArray(allTypeAnnotationContextsArray);
+						for (int i = 0, max = allTypeAnnotationContextsArray.length; i < max; i++) {
+							AnnotationContext annotationContext = allTypeAnnotationContextsArray[i];
+							if ((annotationContext.visibility & AnnotationContext.INVISIBLE) != 0) {
+								invisibleTypeAnnotationsCounter++;
+								allTypeAnnotationContexts.add(annotationContext);
+							} else {
+								visibleTypeAnnotationsCounter++;
+								allTypeAnnotationContexts.add(annotationContext);
+							}
+						}
+						attributesNumber += generateRuntimeTypeAnnotations(
+								allTypeAnnotationContextsArray,
+								visibleTypeAnnotationsCounter,
+								invisibleTypeAnnotationsCounter);
+					}
 				}
 			}
 		}
@@ -1432,6 +1362,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 					max_locals,
 					false);
 		}
+		
+		if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
+			attributesNumber += generateTypeAnnotationsOnCodeAttribute();
+		}
 
 		this.contents[codeAttributeAttributeOffset++] = (byte) (attributesNumber >> 8);
 		this.contents[codeAttributeAttributeOffset] = (byte) attributesNumber;
@@ -1442,6 +1376,62 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[codeAttributeOffset + 3] = (byte) (codeAttributeLength >> 16);
 		this.contents[codeAttributeOffset + 4] = (byte) (codeAttributeLength >> 8);
 		this.contents[codeAttributeOffset + 5] = (byte) codeAttributeLength;
+	}
+	
+	public int generateTypeAnnotationsOnCodeAttribute() {
+		int attributesNumber = 0;
+		
+		List allTypeAnnotationContexts = ((TypeAnnotationCodeStream) this.codeStream).allTypeAnnotationContexts;
+		int invisibleTypeAnnotationsCounter = 0;
+		int visibleTypeAnnotationsCounter = 0;
+
+		for (int i = 0, max = this.codeStream.allLocalsCounter; i < max; i++) {
+			LocalVariableBinding localVariable = this.codeStream.locals[i];
+			if (localVariable.isCatchParameter()) continue;
+			LocalDeclaration declaration = localVariable.declaration;
+			if (declaration == null
+					|| (declaration.isArgument() && ((declaration.bits & ASTNode.IsUnionType) == 0))
+					|| (localVariable.initializationCount == 0)
+					|| ((declaration.bits & ASTNode.HasTypeAnnotations) == 0)) {
+				continue;
+			}
+			int targetType = ((localVariable.tagBits & TagBits.IsResource) == 0) ? AnnotationTargetTypeConstants.LOCAL_VARIABLE : AnnotationTargetTypeConstants.RESOURCE_VARIABLE;
+			declaration.getAllAnnotationContexts(targetType, localVariable, allTypeAnnotationContexts);
+		}
+		
+		ExceptionLabel[] exceptionLabels = this.codeStream.exceptionLabels;
+		int tableIndex = 0;
+		for (int i = 0, max = this.codeStream.exceptionLabelsCounter; i < max; i++) {
+			ExceptionLabel exceptionLabel = exceptionLabels[i];
+			if (exceptionLabel instanceof MultiCatchExceptionLabel) {
+				MultiCatchExceptionLabel multiCatchExceptionLabel = (MultiCatchExceptionLabel)exceptionLabel;
+				tableIndex += multiCatchExceptionLabel.getAllAnnotationContexts(tableIndex, allTypeAnnotationContexts);
+			} else {
+				if (exceptionLabel.exceptionTypeReference != null) { // ignore those which cannot be annotated
+					exceptionLabel.exceptionTypeReference.getAllAnnotationContexts(AnnotationTargetTypeConstants.EXCEPTION_PARAMETER, tableIndex, allTypeAnnotationContexts);
+				}
+				tableIndex++;
+			}
+		}
+		
+		int size = allTypeAnnotationContexts.size();
+		if (size != 0) {
+			AnnotationContext[] allTypeAnnotationContextsArray = new AnnotationContext[size];
+			allTypeAnnotationContexts.toArray(allTypeAnnotationContextsArray);
+			for (int j = 0, max2 = allTypeAnnotationContextsArray.length; j < max2; j++) {
+				AnnotationContext annotationContext = allTypeAnnotationContextsArray[j];
+				if ((annotationContext.visibility & AnnotationContext.INVISIBLE) != 0) {
+					invisibleTypeAnnotationsCounter++;
+				} else {
+					visibleTypeAnnotationsCounter++;
+				}
+			}
+			attributesNumber += generateRuntimeTypeAnnotations(
+					allTypeAnnotationContextsArray,
+					visibleTypeAnnotationsCounter,
+					invisibleTypeAnnotationsCounter);
+		}
+		return attributesNumber;
 	}
 
 	/**
@@ -2071,22 +2061,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 			MethodBinding binding,
 			int methodAttributeOffset,
 			int attributesNumber) {
-
+		
 		if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
-			List allTypeAnnotationContexts = ((TypeAnnotationCodeStream) this.codeStream).allTypeAnnotationContexts;
+			List allTypeAnnotationContexts = new ArrayList();
 			int invisibleTypeAnnotationsCounter = 0;
 			int visibleTypeAnnotationsCounter = 0;
-			for (int i = 0, max = this.codeStream.allLocalsCounter; i < max; i++) {
-				LocalVariableBinding localVariable = this.codeStream.locals[i];
-				LocalDeclaration declaration = localVariable.declaration;
-				if (declaration == null
-						|| (declaration.isArgument() && ((declaration.bits & ASTNode.IsUnionType) == 0))
-						|| (localVariable.initializationCount == 0)
-						|| ((declaration.bits & ASTNode.HasTypeAnnotations) == 0)) {
-					continue;
-				}
-				declaration.getAllAnnotationContexts(AnnotationTargetTypeConstants.LOCAL_VARIABLE, localVariable, allTypeAnnotationContexts);
-			}
 			AbstractMethodDeclaration methodDeclaration = binding.sourceMethod();
 			if (methodDeclaration != null) {
 				if ((methodDeclaration.bits & ASTNode.HasTypeAnnotations) != 0) {
@@ -2095,37 +2074,24 @@ public class ClassFile implements TypeConstants, TypeIds {
 						for (int i = 0, max = arguments.length; i < max; i++) {
 							Argument argument = arguments[i];
 							if ((argument.bits & ASTNode.HasTypeAnnotations) != 0) {
-								argument.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_PARAMETER, i, allTypeAnnotationContexts);
+								argument.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_FORMAL_PARAMETER, i, allTypeAnnotationContexts);
 							}
 						}
 					}
-					Annotation[] annotations = (methodDeclaration.receiver==null?null:methodDeclaration.receiver.annotations);
-					if (annotations != null) {
-						for (int i = 0, max = annotations.length; i < max; i++) {
-							Annotation annotation = annotations[i];
-							AnnotationContext annotationContext = null;
-							if (annotation.isRuntimeTypeInvisible()) {
-								annotationContext = new AnnotationContext(annotation, null, AnnotationTargetTypeConstants.METHOD_RECEIVER, null, AnnotationContext.INVISIBLE, null);
-								invisibleTypeAnnotationsCounter++;
-							} else if (annotation.isRuntimeTypeVisible()) {
-								annotationContext = new AnnotationContext(annotation, null, AnnotationTargetTypeConstants.METHOD_RECEIVER, null, AnnotationContext.VISIBLE, null);
-								visibleTypeAnnotationsCounter++;
-							}
-							if (annotationContext != null) {
-								allTypeAnnotationContexts.add(annotationContext);
-							}
-						}
+					Receiver receiver = methodDeclaration.receiver;
+					if (receiver != null && (receiver.type.bits & ASTNode.HasTypeAnnotations) != 0) {
+						receiver.type.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RECEIVER, allTypeAnnotationContexts);
 					}
 				}
 				Annotation[] annotations = methodDeclaration.annotations;
 				if (annotations != null && binding.returnType.id != T_void) {
-					methodDeclaration.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN_TYPE, allTypeAnnotationContexts);
+					methodDeclaration.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN, allTypeAnnotationContexts);
 				}
 				if (!methodDeclaration.isConstructor() && !methodDeclaration.isClinit() && binding.returnType.id != T_void) {
 					MethodDeclaration declaration = (MethodDeclaration) methodDeclaration;
 					TypeReference typeReference = declaration.returnType;
 					if ((typeReference.bits & ASTNode.HasTypeAnnotations) != 0) {
-						typeReference.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN_TYPE, allTypeAnnotationContexts);
+						typeReference.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN, allTypeAnnotationContexts);
 					}
 				}
 				TypeReference[] thrownExceptions = methodDeclaration.thrownExceptions;
@@ -2163,21 +2129,24 @@ public class ClassFile implements TypeConstants, TypeIds {
 						invisibleTypeAnnotationsCounter);
 			}
 		}
-
 		// update the number of attributes
 		this.contents[methodAttributeOffset++] = (byte) (attributesNumber >> 8);
 		this.contents[methodAttributeOffset] = (byte) attributesNumber;
 	}
-
+	
 	private void dumpLocations(int[] locations) {
-		if (locations != null) {
-			int length = locations.length;
-			int actualSize = 2 + length;
-			if (this.contentsOffset + actualSize >= this.contents.length) {
-				resizeContents(actualSize);
+		if (locations == null) {
+			// no type path
+			if (this.contentsOffset + 1 >= this.contents.length) {
+				resizeContents(1);
 			}
-			this.contents[this.contentsOffset++] = (byte) (length >> 8);
-			this.contents[this.contentsOffset++] = (byte) length;
+			this.contents[this.contentsOffset++] = (byte) 0;
+		} else {
+			int length = locations.length;
+			if (this.contentsOffset + length >= this.contents.length) {
+				resizeContents(length + 1);
+			}
+			this.contents[this.contentsOffset++] = (byte) (locations.length / 2);
 			for (int i = 0; i < length; i++) {
 				this.contents[this.contentsOffset++] = (byte) locations[i];
 			}
@@ -2185,22 +2154,67 @@ public class ClassFile implements TypeConstants, TypeIds {
 	}
 	private void dumpTargetTypeContents(int targetType, AnnotationContext annotationContext) {
 		switch(targetType) {
-			case AnnotationTargetTypeConstants.THROWS :
-			case AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS :
-			case AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY :
-			case AnnotationTargetTypeConstants.OBJECT_CREATION :
-			case AnnotationTargetTypeConstants.OBJECT_CREATION_GENERIC_OR_ARRAY :
-			case AnnotationTargetTypeConstants.CLASS_LITERAL :
-			case AnnotationTargetTypeConstants.CLASS_LITERAL_GENERIC_OR_ARRAY :
-			case AnnotationTargetTypeConstants.TYPE_INSTANCEOF :
-			case AnnotationTargetTypeConstants.TYPE_INSTANCEOF_GENERIC_OR_ARRAY :
-			case AnnotationTargetTypeConstants.TYPE_CAST :
-			case AnnotationTargetTypeConstants.TYPE_CAST_GENERIC_OR_ARRAY :
+			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER :
+			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER :
+				// parameter index
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
+				break;
+
+			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
+				// type_parameter_index
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
+				// bound_index
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info2;
+				break;				
+			case AnnotationTargetTypeConstants.FIELD :
+			case AnnotationTargetTypeConstants.METHOD_RECEIVER :
+			case AnnotationTargetTypeConstants.METHOD_RETURN :
+				 // target_info is empty_target
+				break;
+			case AnnotationTargetTypeConstants.METHOD_FORMAL_PARAMETER :
+				// target_info is parameter index
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
+				break;
+				
+			case AnnotationTargetTypeConstants.INSTANCEOF :
+			case AnnotationTargetTypeConstants.NEW :
+			case AnnotationTargetTypeConstants.EXCEPTION_PARAMETER :
+			case AnnotationTargetTypeConstants.CONSTRUCTOR_REFERENCE :
+			case AnnotationTargetTypeConstants.METHOD_REFERENCE :
+				// bytecode offset for new/instanceof/method_reference
+				// exception table entry index for exception_parameter
 				this.contents[this.contentsOffset++] = (byte) (annotationContext.info >> 8);
 				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
 				break;
+			case AnnotationTargetTypeConstants.CAST :
+				// bytecode offset
+				this.contents[this.contentsOffset++] = (byte) (annotationContext.info >> 8);
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
+				// type_argument_index not set for cast
+				this.contents[this.contentsOffset++] = (byte)0;
+				break;
+				
+			case AnnotationTargetTypeConstants.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT :
+			case AnnotationTargetTypeConstants.METHOD_INVOCATION_TYPE_ARGUMENT :
+			case AnnotationTargetTypeConstants.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT :
+			case AnnotationTargetTypeConstants.METHOD_REFERENCE_TYPE_ARGUMENT :
+				// bytecode offset
+				this.contents[this.contentsOffset++] = (byte) (annotationContext.info >> 8);
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
+				// type_argument_index 
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info2;
+				break;
+				
+			case AnnotationTargetTypeConstants.CLASS_EXTENDS :
+			case AnnotationTargetTypeConstants.THROWS :			
+				// For CLASS_EXTENDS - info is supertype index (-1 = superclass)
+				// For THROWS - info is exception table index
+				this.contents[this.contentsOffset++] = (byte) (annotationContext.info >> 8);
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
+				break;
+				
 			case AnnotationTargetTypeConstants.LOCAL_VARIABLE :
-			case AnnotationTargetTypeConstants.LOCAL_VARIABLE_GENERIC_OR_ARRAY :
+			case AnnotationTargetTypeConstants.RESOURCE_VARIABLE :
 				int localVariableTableOffset = this.contentsOffset;
 				LocalVariableBinding localVariable = annotationContext.variableBinding;
 				int actualSize = 0;
@@ -2231,39 +2245,14 @@ public class ClassFile implements TypeConstants, TypeIds {
 				this.contents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
 				this.contents[localVariableTableOffset] = (byte) numberOfEntries;
 				break;
-			case AnnotationTargetTypeConstants.METHOD_PARAMETER :
-			case AnnotationTargetTypeConstants.METHOD_PARAMETER_GENERIC_OR_ARRAY :
-				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
-				break;
-			// nothing to do
-			// case AnnotationTargetTypeConstants.METHOD_RECEIVER :
-			// case AnnotationTargetTypeConstants.METHOD_RECEIVER_GENERIC_OR_ARRAY :
-			//	break;
-			// case AnnotationTargetTypeConstants.FIELD :
-			// case AnnotationTargetTypeConstants.FIELD_GENERIC_OR_ARRAY :
-			//	break;
-			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER :
-			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER :
-				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
-				break;
 			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND :
-			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
-			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
-			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
 				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
 				this.contents[this.contentsOffset++] = (byte) annotationContext.info2;
 				break;
-			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL :
-			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY :
-			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
-			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY :
-				// offset
-				this.contents[this.contentsOffset++] = (byte) (annotationContext.info >> 8);
-				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
-				// type index
-				this.contents[this.contentsOffset++] = (byte) annotationContext.info2;
 		}
 	}
+
+
 
 	/**
 	 * INTERNAL USE-ONLY
@@ -3646,13 +3635,17 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		return attributesNumber;
 	}
+	
 	/**
 	 * @param annotationContexts the given annotation contexts
 	 * @param visibleTypeAnnotationsNumber the given number of visible type annotations
 	 * @param invisibleTypeAnnotationsNumber the given number of invisible type annotations
 	 * @return the number of attributes created while dumping the annotations in the .class file
 	 */
-	private int generateRuntimeTypeAnnotations(final AnnotationContext[] annotationContexts, int visibleTypeAnnotationsNumber, int invisibleTypeAnnotationsNumber) {
+	private int generateRuntimeTypeAnnotations(
+			final AnnotationContext[] annotationContexts, 
+			int visibleTypeAnnotationsNumber, 
+			int invisibleTypeAnnotationsNumber) {
 		int attributesNumber = 0;
 		final int length = annotationContexts.length;
 
@@ -4351,175 +4344,52 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contentsOffset = localContentsOffset;
 		return 1;
 	}
-
+	
 	private void generateTypeAnnotation(AnnotationContext annotationContext, int currentOffset) {
-		int targetType = annotationContext.targetType;
 		if (annotationContext.wildcard != null) {
-			generateWilcardTypeAnnotation(annotationContext, currentOffset);
+			generateWildcardTypeAnnotation(annotationContext, currentOffset);
 			return;
 		}
-		// common part between type annotation and annotation
-		generateAnnotation(annotationContext.annotation, currentOffset);
-		if (this.contentsOffset == currentOffset) {
-			// error occurred while generating the annotation
-			return;
-		}
+		
+		int targetType = annotationContext.targetType;
+
 		int[] locations = Annotation.getLocations(
 			annotationContext.typeReference,
 			annotationContext.primaryAnnotations,
 			annotationContext.annotation,
-			annotationContext.annotationsOnDimensions);
-		if (locations != null) {
-			// convert to GENERIC_OR_ARRAY type
-			switch(targetType) {
-				case AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS :
-					targetType = AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY;
-					break;
-				case AnnotationTargetTypeConstants.LOCAL_VARIABLE :
-					targetType = AnnotationTargetTypeConstants.LOCAL_VARIABLE_GENERIC_OR_ARRAY;
-					break;
-				case AnnotationTargetTypeConstants.METHOD_PARAMETER :
-					targetType = AnnotationTargetTypeConstants.METHOD_PARAMETER_GENERIC_OR_ARRAY;
-					break;
-				case AnnotationTargetTypeConstants.FIELD :
-					targetType = AnnotationTargetTypeConstants.FIELD_GENERIC_OR_ARRAY;
-					break;
-//					case AnnotationTargetTypeConstants.METHOD_RECEIVER :
-//					// should not happen - possible extension
-//					targetType = AnnotationTargetTypeConstants.METHOD_RECEIVER_GENERIC_OR_ARRAY;
-//					break;
-//				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER :
-//					// should not happen - possible extension
-//					targetType = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY;
-//					break;
-				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
-					// should not happen - possible extension
-					targetType = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY;
-					break;
-//				case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER :
-//					// should not happen - possible extension
-//					targetType = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY;
-//					break;
-				case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND :
-					// should not happen - possible extension
-					targetType = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY;
-					break;
-//				case AnnotationTargetTypeConstants.THROWS :
-//					targetType = AnnotationTargetTypeConstants.THROWS_GENERIC_OR_ARRAY;
-				case AnnotationTargetTypeConstants.TYPE_INSTANCEOF:
-					targetType = AnnotationTargetTypeConstants.TYPE_INSTANCEOF_GENERIC_OR_ARRAY;
-					break;
-				case AnnotationTargetTypeConstants.CLASS_LITERAL:
-					targetType = AnnotationTargetTypeConstants.CLASS_LITERAL_GENERIC_OR_ARRAY;
-					break;
-				case AnnotationTargetTypeConstants.OBJECT_CREATION:
-					targetType = AnnotationTargetTypeConstants.OBJECT_CREATION_GENERIC_OR_ARRAY;
-					break;
-				case AnnotationTargetTypeConstants.TYPE_CAST:
-					targetType = AnnotationTargetTypeConstants.TYPE_CAST_GENERIC_OR_ARRAY;
-					break;
-				case AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL :
-					targetType = AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY;
-					break;
-				case AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
-					targetType = AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY;
-					break;
-				case AnnotationTargetTypeConstants.METHOD_RETURN_TYPE :
-					targetType = AnnotationTargetTypeConstants.METHOD_RETURN_TYPE_GENERIC_OR_ARRAY;
-			}
-		}
-		// reserve enough space
+			annotationContext.annotationsOnDimensions,
+			annotationContext.dimensions);
+
 		if (this.contentsOffset + 5 >= this.contents.length) {
 			resizeContents(5);
 		}
 		this.contents[this.contentsOffset++] = (byte) targetType;
 		dumpTargetTypeContents(targetType, annotationContext);
 		dumpLocations(locations);
-	}
-
-	private void generateWilcardTypeAnnotation(AnnotationContext annotationContext, int currentOffset) {
+		
 		// common part between type annotation and annotation
 		generateAnnotation(annotationContext.annotation, currentOffset);
-		if (this.contentsOffset == currentOffset) {
-			// error occurred while generating the annotation
-			return;
-		}
-		int[] wildcardLocations = getWildcardLocations(annotationContext.typeReference, annotationContext.wildcard);
+	}
+
+	private void generateWildcardTypeAnnotation(AnnotationContext annotationContext, int currentOffset) {
 		int targetType = annotationContext.targetType;
-		switch(targetType) {
-			case AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS :
-				targetType = AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY;
-				break;
-			case AnnotationTargetTypeConstants.LOCAL_VARIABLE :
-				targetType = AnnotationTargetTypeConstants.LOCAL_VARIABLE_GENERIC_OR_ARRAY;
-				break;
-			case AnnotationTargetTypeConstants.METHOD_PARAMETER :
-				targetType = AnnotationTargetTypeConstants.METHOD_PARAMETER_GENERIC_OR_ARRAY;
-				break;
-			case AnnotationTargetTypeConstants.FIELD :
-				targetType = AnnotationTargetTypeConstants.FIELD_GENERIC_OR_ARRAY;
-				break;
-//				case AnnotationTargetTypeConstants.METHOD_RECEIVER :
-//				// should not happen - possible extension
-//				targetType = AnnotationTargetTypeConstants.METHOD_RECEIVER_GENERIC_OR_ARRAY;
-//				break;
-//			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER :
-//				// should not happen - possible extension
-//				targetType = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY;
-//				break;
-//			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
-//				// should not happen - possible extension
-//				targetType = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY;
-//				break;
-//			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER :
-//				// should not happen - possible extension
-//				targetType = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY;
-//				break;
-//			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND :
-//				// should not happen - possible extension
-//				targetType = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY;
-//				break;
-//			case AnnotationTargetTypeConstants.THROWS :
-//				targetType = AnnotationTargetTypeConstants.THROWS_GENERIC_OR_ARRAY;
-			case AnnotationTargetTypeConstants.TYPE_INSTANCEOF:
-				targetType = AnnotationTargetTypeConstants.TYPE_INSTANCEOF_GENERIC_OR_ARRAY;
-				break;
-			case AnnotationTargetTypeConstants.CLASS_LITERAL:
-				targetType = AnnotationTargetTypeConstants.CLASS_LITERAL_GENERIC_OR_ARRAY;
-				break;
-			case AnnotationTargetTypeConstants.OBJECT_CREATION:
-				targetType = AnnotationTargetTypeConstants.OBJECT_CREATION_GENERIC_OR_ARRAY;
-				break;
-			case AnnotationTargetTypeConstants.TYPE_CAST:
-				targetType = AnnotationTargetTypeConstants.TYPE_CAST_GENERIC_OR_ARRAY;
-				break;
-			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL :
-				targetType = AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY;
-				break;
-			case AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
-				targetType = AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY;
-				break;
-			case AnnotationTargetTypeConstants.METHOD_RETURN_TYPE :
-				targetType = AnnotationTargetTypeConstants.METHOD_RETURN_TYPE_GENERIC_OR_ARRAY;
-		}
+
 		int[] locations = Annotation.getLocations(
-				annotationContext.wildcard.bound,
+				annotationContext.typeReference,
 				null,
 				annotationContext.annotation,
-				null);
+				null,
+				0);
 		// reserve enough space
 		if (this.contentsOffset + 5 >= this.contents.length) {
 			resizeContents(5);
 		}
-		this.contents[this.contentsOffset++] =
-			(byte) (locations != null ?
-					AnnotationTargetTypeConstants.WILDCARD_BOUND_GENERIC_OR_ARRAY :
-					AnnotationTargetTypeConstants.WILDCARD_BOUND);
 		this.contents[this.contentsOffset++] = (byte) targetType;
 		dumpTargetTypeContents(targetType, annotationContext);
-		dumpLocations(wildcardLocations);
 		dumpLocations(locations);
+		generateAnnotation(annotationContext.annotation, currentOffset);
 	}
+	
 	private int generateTypeAnnotationAttributeForTypeDeclaration() {
 		TypeDeclaration typeDeclaration = this.referenceBinding.scope.referenceContext;
 		if ((typeDeclaration.bits & ASTNode.HasTypeAnnotations) == 0) {
@@ -4531,7 +4401,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		TypeReference superclass = typeDeclaration.superclass;
 		List allTypeAnnotationContexts = new ArrayList();
 		if (superclass != null && (superclass.bits & ASTNode.HasTypeAnnotations) != 0) {
-			superclass.getAllAnnotationContexts(AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS, -1, allTypeAnnotationContexts);
+			superclass.getAllAnnotationContexts(AnnotationTargetTypeConstants.CLASS_EXTENDS, -1, allTypeAnnotationContexts);
 		}
 		TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
 		if (superInterfaces != null) {
@@ -4540,7 +4410,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				if ((superInterface.bits & ASTNode.HasTypeAnnotations) == 0) {
 					continue;
 				}
-				superInterface.getAllAnnotationContexts(AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS, i, allTypeAnnotationContexts);
+				superInterface.getAllAnnotationContexts(AnnotationTargetTypeConstants.CLASS_EXTENDS, i, allTypeAnnotationContexts);
 			}
 		}
 		TypeParameter[] typeParameters = typeDeclaration.typeParameters;
@@ -4574,6 +4444,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		return attributesNumber;
 	}
 	
+	
+	
+
 	private int generateVarargsAttribute() {
 		int localContentsOffset = this.contentsOffset;
 		/*
@@ -5005,7 +4878,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.produceAttributes = options.produceDebugAttributes;
 		if (this.targetJDK >= ClassFileConstants.JDK1_6) {
 			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP_TABLE;
-			if (this.targetJDK >= ClassFileConstants.JDK1_7) {
+			if (this.targetJDK >= ClassFileConstants.JDK1_8) {
 				this.produceAttributes |= ClassFileConstants.ATTR_TYPE_ANNOTATION;
 			}
 		} else if (this.targetJDK == ClassFileConstants.CLDC_1_1) {

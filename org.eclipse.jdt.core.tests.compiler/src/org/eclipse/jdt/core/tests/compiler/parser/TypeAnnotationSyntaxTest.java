@@ -11,6 +11,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *        Andy Clement - Contributions for
+ *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
@@ -108,19 +110,19 @@ public class TypeAnnotationSyntaxTest extends AbstractSyntaxTreeTest {
 		}
 		public boolean visit(MarkerAnnotation annotation, BlockScope scope) {
 			if (this.enclosingReference != null) {
-				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation, null));
+				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation, null, 0));
 			}
 			return false;
 		}
 		public boolean visit(SingleMemberAnnotation annotation, BlockScope scope) {
 			if (this.enclosingReference != null) {
-				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation, null));
+				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation, null, 0));
 			}
 			return false;
 		}
 		public boolean visit(NormalAnnotation annotation, BlockScope scope) {
 			if (this.enclosingReference != null) {
-				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation, null));
+				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation, null, 0));
 			}
 			return false;
 		}
@@ -133,14 +135,28 @@ public class TypeAnnotationSyntaxTest extends AbstractSyntaxTreeTest {
 				this.locations.put(key, null);
 				return;
 			}
-			StringBuffer buffer = new StringBuffer("{");
-			for (int i = 0, max = tab.length; i < max; i++) {
+			
+			StringBuffer buffer = new StringBuffer("[");
+			for (int i = 0, max = tab.length; i < max; i += 2) {
 				if (i > 0) {
-					buffer.append(',');
+					buffer.append(", ");
 				}
-				buffer.append(tab[i]);
+				switch (tab[i]) {
+				case 0:
+					buffer.append("ARRAY");
+					break;
+				case 1:
+					buffer.append("INNER_TYPE");
+					break;
+				case 2:
+					buffer.append("WILDCARD");
+					break;
+				case 3:
+					buffer.append("TYPE_ARGUMENT(").append(tab[i+1]).append(')');
+					break;
+				}
 			}
-			buffer.append('}');
+			buffer.append(']');
 			this.locations.put(key, String.valueOf(buffer));
 		}
 
@@ -1656,9 +1672,9 @@ public void test0068() throws IOException {
 	Map locations = visitor.getLocations();
 	assertEquals("Wrong size", 4, locations.size());
 	assertEquals("Wrong location", null, locations.get("@E"));
-	assertEquals("Wrong location", "{0}", locations.get("@F"));
-	assertEquals("Wrong location", "{1}", locations.get("@G"));
-	assertEquals("Wrong location", "{2}", locations.get("@H"));
+	assertEquals("Wrong location", "[ARRAY]", locations.get("@F"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY]", locations.get("@G"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY]", locations.get("@H"));
 }
 //check locations
 public void test0069() throws IOException {
@@ -1678,8 +1694,8 @@ public void test0069() throws IOException {
 	Map locations = visitor.getLocations();
 	assertEquals("Wrong size", 3, locations.size());
 	assertEquals("Wrong location", null, locations.get("@A"));
-	assertEquals("Wrong location", "{0}", locations.get("@B"));
-	assertEquals("Wrong location", "{1}", locations.get("@H"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(0)]", locations.get("@B"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1)]", locations.get("@H"));
 }
 //check locations
 public void test0070() throws IOException {
@@ -1699,11 +1715,11 @@ public void test0070() throws IOException {
 	Map locations = visitor.getLocations();
 	assertEquals("Wrong size", 6, locations.size());
 	assertEquals("Wrong location", null, locations.get("@A"));
-	assertEquals("Wrong location", "{0}", locations.get("@B"));
-	assertEquals("Wrong location", "{1}", locations.get("@E"));
-	assertEquals("Wrong location", "{1,0}", locations.get("@F"));
-	assertEquals("Wrong location", "{1,1}", locations.get("@G"));
-	assertEquals("Wrong location", "{1,2}", locations.get("@H"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(0)]", locations.get("@B"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1)]", locations.get("@E"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), ARRAY]", locations.get("@F"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), ARRAY, ARRAY]", locations.get("@G"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), ARRAY, ARRAY, ARRAY]", locations.get("@H"));
 }
 //check locations
 public void test0071() throws IOException {
@@ -1723,11 +1739,11 @@ public void test0071() throws IOException {
 	Map locations = visitor.getLocations();
 	assertEquals("Wrong size", 6, locations.size());
 	assertEquals("Wrong location", null, locations.get("@A"));
-	assertEquals("Wrong location", "{0}", locations.get("@B"));
-	assertEquals("Wrong location", "{1}", locations.get("@C"));
-	assertEquals("Wrong location", "{1,0,2}", locations.get("@H"));
-	assertEquals("Wrong location", "{1,0}", locations.get("@E"));
-	assertEquals("Wrong location", "{1,0,1}", locations.get("@G"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(0)]", locations.get("@B"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1)]", locations.get("@C"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), TYPE_ARGUMENT(0), ARRAY, ARRAY, ARRAY]", locations.get("@H"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), TYPE_ARGUMENT(0)]", locations.get("@E"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), TYPE_ARGUMENT(0), ARRAY, ARRAY]", locations.get("@G"));
 }
 //check locations
 public void test0072() throws IOException {
@@ -1746,14 +1762,14 @@ public void test0072() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0072", expectedUnitToString, visitor);
 	Map locations = visitor.getLocations();
 	assertEquals("Wrong size", 8, locations.size());
-	assertEquals("Wrong location", "{0}", locations.get("@I"));
-	assertEquals("Wrong location", "{1}", locations.get("@J"));
-	assertEquals("Wrong location", "{2}", locations.get("@A"));
-	assertEquals("Wrong location", "{2,0}", locations.get("@B"));
-	assertEquals("Wrong location", "{2,1}", locations.get("@C"));
-	assertEquals("Wrong location", "{2,1,0,2}", locations.get("@H"));
-	assertEquals("Wrong location", "{2,1,0}", locations.get("@E"));
-	assertEquals("Wrong location", "{2,1,0,1}", locations.get("@G"));
+	assertEquals("Wrong location", "[ARRAY]", locations.get("@I"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY]", locations.get("@J"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY]", locations.get("@A"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(0)]", locations.get("@B"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(1)]", locations.get("@C"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(1), TYPE_ARGUMENT(0), ARRAY, ARRAY, ARRAY]", locations.get("@H"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(1), TYPE_ARGUMENT(0)]", locations.get("@E"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(1), TYPE_ARGUMENT(0), ARRAY, ARRAY]", locations.get("@G"));
 }
 //check locations
 public void test0073() throws IOException {
@@ -1773,13 +1789,13 @@ public void test0073() throws IOException {
 	Map locations = visitor.getLocations();
 	assertEquals("Wrong size", 8, locations.size());
 	assertEquals("Wrong location", null, locations.get("@I"));
-	assertEquals("Wrong location", "{1}", locations.get("@J"));
-	assertEquals("Wrong location", "{2}", locations.get("@A"));
-	assertEquals("Wrong location", "{2,0}", locations.get("@B"));
-	assertEquals("Wrong location", "{2,1}", locations.get("@C"));
-	assertEquals("Wrong location", "{2,1,0,2}", locations.get("@H"));
-	assertEquals("Wrong location", "{2,1,0}", locations.get("@E"));
-	assertEquals("Wrong location", "{2,1,0,1}", locations.get("@G"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY]", locations.get("@J"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY]", locations.get("@A"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(0)]", locations.get("@B"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(1)]", locations.get("@C"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(1), TYPE_ARGUMENT(0), ARRAY, ARRAY, ARRAY]", locations.get("@H"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(1), TYPE_ARGUMENT(0)]", locations.get("@E"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(1), TYPE_ARGUMENT(0), ARRAY, ARRAY]", locations.get("@G"));
 }
 //check locations
 public void test0074() throws IOException {
@@ -1799,15 +1815,15 @@ public void test0074() throws IOException {
 	Map locations = visitor.getLocations();
 	assertEquals("Wrong size", 10, locations.size());
 	assertEquals("Wrong location", null, locations.get("@I"));
-	assertEquals("Wrong location", "{0}", locations.get("@F"));
-	assertEquals("Wrong location", "{1}", locations.get("@J"));
-	assertEquals("Wrong location", "{2}", locations.get("@A"));
-	assertEquals("Wrong location", "{2,0}", locations.get("@C"));
-	assertEquals("Wrong location", "{2,0,0}", locations.get("@E"));
-	assertEquals("Wrong location", "{2,0,0,1}", locations.get("@G"));
-	assertEquals("Wrong location", "{2,0,0,2}", locations.get("@H"));
-	assertEquals("Wrong location", "{2,1,0}", locations.get("@D"));
-	assertEquals("Wrong location", "{2,1}", locations.get("@B"));
+	assertEquals("Wrong location", "[ARRAY]", locations.get("@F"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY]", locations.get("@J"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY]", locations.get("@A"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(0)]", locations.get("@C"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(0), TYPE_ARGUMENT(0)]", locations.get("@E"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(0), TYPE_ARGUMENT(0), ARRAY, ARRAY]", locations.get("@G"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(0), TYPE_ARGUMENT(0), ARRAY, ARRAY, ARRAY]", locations.get("@H"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(1), ARRAY]", locations.get("@D"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(1)]", locations.get("@B"));
 }
 //check locations
 public void test0075() throws IOException {
@@ -1826,16 +1842,16 @@ public void test0075() throws IOException {
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0075", expectedUnitToString, visitor);
 	Map locations = visitor.getLocations();
 	assertEquals("Wrong size", 10, locations.size());
-	assertEquals("Wrong location", "{0}", locations.get("@I"));
-	assertEquals("Wrong location", "{1}", locations.get("@F"));
-	assertEquals("Wrong location", "{2}", locations.get("@J"));
-	assertEquals("Wrong location", "{3}", locations.get("@A"));
-	assertEquals("Wrong location", "{3,0}", locations.get("@C"));
-	assertEquals("Wrong location", "{3,0,0}", locations.get("@E"));
-	assertEquals("Wrong location", "{3,0,0,1}", locations.get("@G"));
-	assertEquals("Wrong location", "{3,0,0,2}", locations.get("@H"));
-	assertEquals("Wrong location", "{3,1}", locations.get("@B"));
-	assertEquals("Wrong location", "{3,1,0,0}", locations.get("@D"));
+	assertEquals("Wrong location", "[ARRAY]", locations.get("@I"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY]", locations.get("@F"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY]", locations.get("@J"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, ARRAY]", locations.get("@A"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(0)]", locations.get("@C"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(0), TYPE_ARGUMENT(0)]", locations.get("@E"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(0), TYPE_ARGUMENT(0), ARRAY, ARRAY]", locations.get("@G"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(0), TYPE_ARGUMENT(0), ARRAY, ARRAY, ARRAY]", locations.get("@H"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(1)]", locations.get("@B"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(1), TYPE_ARGUMENT(0), ARRAY]", locations.get("@D"));
 }
 //check locations
 public void test0076() throws IOException {
@@ -1855,9 +1871,9 @@ public void test0076() throws IOException {
 	Map locations = visitor.getLocations();
 	assertEquals("Wrong size", 4, locations.size());
 	assertEquals("Wrong location", null, locations.get("@A"));
-	assertEquals("Wrong location", "{0}", locations.get("@B"));
-	assertEquals("Wrong location", "{1}", locations.get("@C"));
-	assertEquals("Wrong location", "{1,0}", locations.get("@D"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(0)]", locations.get("@B"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1)]", locations.get("@C"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), TYPE_ARGUMENT(0)]", locations.get("@D"));
 }
 //check locations
 public void test0077() throws IOException {
@@ -1877,9 +1893,9 @@ public void test0077() throws IOException {
 	Map locations = visitor.getLocations();
 	assertEquals("Wrong size", 4, locations.size());
 	assertEquals("Wrong location", null, locations.get("@E"));
-	assertEquals("Wrong location", "{0}", locations.get("@F"));
-	assertEquals("Wrong location", "{1}", locations.get("@G"));
-	assertEquals("Wrong location", "{2}", locations.get("@H"));
+	assertEquals("Wrong location", "[ARRAY]", locations.get("@F"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY]", locations.get("@G"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY]", locations.get("@H"));
 }
 //check locations
 public void test0078() throws IOException {
@@ -1899,13 +1915,13 @@ public void test0078() throws IOException {
 	Map locations = visitor.getLocations();
 	assertEquals("Wrong size", 8, locations.size());
 	assertEquals("Wrong location", null, locations.get("@A"));
-	assertEquals("Wrong location", "{0}", locations.get("@B"));
-	assertEquals("Wrong location", "{0,0,2}", locations.get("@C"));
-	assertEquals("Wrong location", "{0,0}", locations.get("@D"));
-	assertEquals("Wrong location", "{0,0,0}", locations.get("@E"));
-	assertEquals("Wrong location", "{0,0,1}", locations.get("@F"));
-	assertEquals("Wrong location", "{1}", locations.get("@G"));
-	assertEquals("Wrong location", "{1,0}", locations.get("@H"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(0)]", locations.get("@B"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(0), TYPE_ARGUMENT(0), ARRAY, ARRAY, ARRAY]", locations.get("@C"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(0), TYPE_ARGUMENT(0)]", locations.get("@D"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(0), TYPE_ARGUMENT(0), ARRAY]", locations.get("@E"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(0), TYPE_ARGUMENT(0), ARRAY, ARRAY]", locations.get("@F"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1)]", locations.get("@G"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), TYPE_ARGUMENT(0)]", locations.get("@H"));
 }
 //check locations
 public void test0079() throws IOException {
@@ -1925,13 +1941,13 @@ public void test0079() throws IOException {
 	Map locations = visitor.getLocations();
 	assertEquals("Wrong size", 8, locations.size());
 	assertEquals("Wrong location", null, locations.get("@A"));
-	assertEquals("Wrong location", "{0}", locations.get("@B"));
-	assertEquals("Wrong location", "{0,0,2}", locations.get("@C"));
-	assertEquals("Wrong location", "{0,0}", locations.get("@D"));
-	assertEquals("Wrong location", "{0,0,0}", locations.get("@E"));
-	assertEquals("Wrong location", "{0,0,1}", locations.get("@F"));
-	assertEquals("Wrong location", "{1}", locations.get("@G"));
-	assertEquals("Wrong location", "{1,0}", locations.get("@H"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(0)]", locations.get("@B"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(0), TYPE_ARGUMENT(0), ARRAY, ARRAY, ARRAY]", locations.get("@C"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(0), TYPE_ARGUMENT(0)]", locations.get("@D"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(0), TYPE_ARGUMENT(0), ARRAY]", locations.get("@E"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(0), TYPE_ARGUMENT(0), ARRAY, ARRAY]", locations.get("@F"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1)]", locations.get("@G"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), TYPE_ARGUMENT(0)]", locations.get("@H"));
 }
 //check locations
 public void test0080() throws IOException {
@@ -1951,7 +1967,7 @@ public void test0080() throws IOException {
 	Map locations = visitor.getLocations();
 	assertEquals("Wrong size", 2, locations.size());
 	assertEquals("Wrong location", null, locations.get("@B"));
-	assertEquals("Wrong location", "{1}", locations.get("@A"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), WILDCARD]", locations.get("@A"));
 }
 //check locations
 public void test0081() throws IOException {
@@ -1971,9 +1987,9 @@ public void test0081() throws IOException {
 	Map locations = visitor.getLocations();
 	assertEquals("Wrong size", 4, locations.size());
 	assertEquals("Wrong location", null, locations.get("@E"));
-	assertEquals("Wrong location", "{0}", locations.get("@F"));
-	assertEquals("Wrong location", "{1}", locations.get("@G"));
-	assertEquals("Wrong location", "{2}", locations.get("@H"));
+	assertEquals("Wrong location", "[ARRAY]", locations.get("@F"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY]", locations.get("@G"));
+	assertEquals("Wrong location", "[ARRAY, ARRAY, ARRAY]", locations.get("@H"));
 }
 //check locations
 public void test0082() throws IOException {
@@ -1993,11 +2009,11 @@ public void test0082() throws IOException {
 	Map locations = visitor.getLocations();
 	assertEquals("Wrong size", 6, locations.size());
 	assertEquals("Wrong location", null, locations.get("@A"));
-	assertEquals("Wrong location", "{0}", locations.get("@B"));
-	assertEquals("Wrong location", "{1}", locations.get("@E"));
-	assertEquals("Wrong location", "{1,0}", locations.get("@F"));
-	assertEquals("Wrong location", "{1,1}", locations.get("@G"));
-	assertEquals("Wrong location", "{1,2}", locations.get("@H"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(0)]", locations.get("@B"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1)]", locations.get("@E"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), ARRAY]", locations.get("@F"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), ARRAY, ARRAY]", locations.get("@G"));
+	assertEquals("Wrong location", "[TYPE_ARGUMENT(1), ARRAY, ARRAY, ARRAY]", locations.get("@H"));
 }
 public void test0083() throws IOException {
 	String source =

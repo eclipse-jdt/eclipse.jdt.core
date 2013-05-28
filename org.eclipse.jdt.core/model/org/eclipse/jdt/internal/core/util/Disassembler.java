@@ -8,9 +8,11 @@
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *        Andy Clement - Contributions for
+ *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
@@ -262,7 +264,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(Messages.disassembler_annotationentryend);
 	}
-
+	
 	private void disassemble(IExtendedAnnotation extendedAnnotation, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		final int typeIndex = extendedAnnotation.getTypeIndex();
@@ -285,102 +287,30 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				}));
 		switch(targetType) {
 			case IExtendedAnnotationConstants.METHOD_RECEIVER :
-			case IExtendedAnnotationConstants.METHOD_RETURN_TYPE :
+			case IExtendedAnnotationConstants.METHOD_RETURN:
 			case IExtendedAnnotationConstants.FIELD :
 				break;
 			default:
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-		}
-		
-		switch(targetType) {
-			case IExtendedAnnotationConstants.WILDCARD_BOUND :
-				int wildcardLocationType = extendedAnnotation.getWildcardLocationType();
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_wildcardlocationtype, new String[] {
-							Integer.toString(wildcardLocationType),
-							getTargetType(wildcardLocationType),
-						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 3);
-				disassembleTargetTypeContents(true, wildcardLocationType, extendedAnnotation, buffer, lineSeparator, tabNumber + 3, mode);
-				break;
-			case IExtendedAnnotationConstants.WILDCARD_BOUND_GENERIC_OR_ARRAY :
-				wildcardLocationType = extendedAnnotation.getWildcardLocationType();
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_wildcardlocationtype, new String[] {
-							Integer.toString(wildcardLocationType),
-							getTargetType(wildcardLocationType),
-						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 3);
-				disassembleTargetTypeContents(true, wildcardLocationType, extendedAnnotation, buffer, lineSeparator, tabNumber + 3, mode);
-				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-							toString(extendedAnnotation.getLocations()),
-						}));
-				break;
-			default:
 				disassembleTargetTypeContents(false, targetType, extendedAnnotation, buffer, lineSeparator, tabNumber, mode);
 		}
+		disassembleTypePathContents(targetType, extendedAnnotation, buffer, lineSeparator, tabNumber, mode);
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(Messages.disassembler_extendedannotationentryend);
 	}
 
+	private void disassembleTypePathContents(int targetType, IExtendedAnnotation extendedAnnotation,StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
+		int[][] typepath = extendedAnnotation.getTypePath();
+		if (typepath.length != 0) {
+			writeNewLine(buffer, lineSeparator, tabNumber + 2);
+			buffer.append(
+				Messages.bind(Messages.disassembler_extendedannotation_typepath, new String[] {
+						toTypePathString(typepath),
+				}));
+		}
+	}
 	private void disassembleTargetTypeContents(boolean insideWildcard, int targetType, IExtendedAnnotation extendedAnnotation, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		switch(targetType) {
-			case IExtendedAnnotationConstants.CLASS_EXTENDS_IMPLEMENTS :
-				buffer.append(
-					Messages.bind(Messages.disassembler_extendedannotation_classextendsimplements, new String[] {
-						Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
-					}));
-				break;
-			case IExtendedAnnotationConstants.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY :
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_classextendsimplements, new String[] {
-							Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
-						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				if (insideWildcard) {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
-								toString(extendedAnnotation.getWildcardLocations()),
-							}));
-				} else {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-								toString(extendedAnnotation.getLocations()),
-							}));
-				}
-				break;
-			case IExtendedAnnotationConstants.TYPE_CAST :
-			case IExtendedAnnotationConstants.TYPE_INSTANCEOF :
-			case IExtendedAnnotationConstants.OBJECT_CREATION :
-			case IExtendedAnnotationConstants.CLASS_LITERAL :
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_offset, new String[] {
-							Integer.toString(extendedAnnotation.getOffset()),
-						}));
-				break;
-			case IExtendedAnnotationConstants.TYPE_CAST_GENERIC_OR_ARRAY :
-			case IExtendedAnnotationConstants.TYPE_INSTANCEOF_GENERIC_OR_ARRAY :
-			case IExtendedAnnotationConstants.OBJECT_CREATION_GENERIC_OR_ARRAY :
-			case IExtendedAnnotationConstants.CLASS_LITERAL_GENERIC_OR_ARRAY :
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_offset, new String[] {
-							Integer.toString(extendedAnnotation.getOffset()),
-						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				if (insideWildcard) {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
-								toString(extendedAnnotation.getWildcardLocations()),
-							}));
-				} else {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-								toString(extendedAnnotation.getLocations()),
-							}));
-				}
-				break;
 			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER :
 			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER :
 				buffer.append(
@@ -388,54 +318,40 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							Integer.toString(extendedAnnotation.getTypeParameterIndex()),
 						}));
 				break;
-			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY :
-			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.CLASS_EXTENDS :
 				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_type_parameter, new String[] {
-							Integer.toString(extendedAnnotation.getTypeParameterIndex()),
-						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				if (insideWildcard) {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
-								toString(extendedAnnotation.getWildcardLocations()),
-							}));
-				} else {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-								toString(extendedAnnotation.getLocations()),
-							}));
-				}
+					Messages.bind(Messages.disassembler_extendedannotation_classextendsimplements, new String[] {
+						Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
+					}));
 				break;
-			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_BOUND :
+				
 			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER_BOUND :
+			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_BOUND :
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_type_parameter_with_bound, new String[] {
 							Integer.toString(extendedAnnotation.getTypeParameterIndex()),
 							Integer.toString(extendedAnnotation.getTypeParameterBoundIndex()),
 						}));
+				break;				
+			case IExtendedAnnotationConstants.FIELD :
+			case IExtendedAnnotationConstants.METHOD_RETURN :
+			case IExtendedAnnotationConstants.METHOD_RECEIVER :
 				break;
-			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
-			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
+			case IExtendedAnnotationConstants.METHOD_FORMAL_PARAMETER :
 				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_type_parameter_with_bound, new String[] {
-							Integer.toString(extendedAnnotation.getTypeParameterIndex()),
-							Integer.toString(extendedAnnotation.getTypeParameterBoundIndex()),
+						Messages.bind(Messages.disassembler_extendedannotation_method_parameter, new String[] {
+							Integer.toString(extendedAnnotation.getParameterIndex()),
 						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				if (insideWildcard) {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
-								toString(extendedAnnotation.getWildcardLocations()),
-							}));
-				} else {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-								toString(extendedAnnotation.getLocations()),
-							}));
-				}
 				break;
+			case IExtendedAnnotationConstants.THROWS :
+				buffer.append(
+						Messages.bind(Messages.disassembler_extendedannotation_throws, new String[] {
+							Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
+						}));
+				break;
+
 			case IExtendedAnnotationConstants.LOCAL_VARIABLE :
+			case IExtendedAnnotationConstants.RESOURCE_VARIABLE :
 				buffer.append(Messages.disassembler_localvariabletargetheader);
 				writeNewLine(buffer, lineSeparator, tabNumber + 3);
 				int localVariableTableSize = extendedAnnotation.getLocalVariableRefenceInfoLength();
@@ -456,80 +372,27 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						}));
 				}
 				break;
-			case IExtendedAnnotationConstants.LOCAL_VARIABLE_GENERIC_OR_ARRAY :
-				buffer.append(Messages.disassembler_localvariabletargetheader);
-				writeNewLine(buffer, lineSeparator, tabNumber + 3);
-				localVariableTableSize = extendedAnnotation.getLocalVariableRefenceInfoLength();
-				localVariableTable = extendedAnnotation.getLocalVariableTable();
-				for (int i = 0; i < localVariableTableSize; i++) {
-					if (i != 0) {
-						writeNewLine(buffer, lineSeparator, tabNumber + 3);
-					}
-					ILocalVariableReferenceInfo info = localVariableTable[i];
-					int index= info.getIndex();
-					int startPC = info.getStartPC();
-					int length  = info.getLength();
-					buffer.append(Messages.bind(Messages.classfileformat_localvariablereferenceinfoentry,
-						new String[] {
-							Integer.toString(startPC),
-							Integer.toString(startPC + length),
-							Integer.toString(index),
-						}));
-				}
-				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				if (insideWildcard) {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
-								toString(extendedAnnotation.getWildcardLocations()),
-							}));
-				} else {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-								toString(extendedAnnotation.getLocations()),
-							}));
-				}
-				break;
-			case IExtendedAnnotationConstants.METHOD_PARAMETER :
+			case IExtendedAnnotationConstants.EXCEPTION_PARAMETER :
 				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_method_parameter, new String[] {
-							Integer.toString(extendedAnnotation.getTypeParameterIndex()),
+						Messages.bind(Messages.disassembler_extendedannotation_exception_table_index, new String[] {
+							Integer.toString(extendedAnnotation.getExceptionTableIndex()),
 						}));
 				break;
-			case IExtendedAnnotationConstants.METHOD_PARAMETER_GENERIC_OR_ARRAY :
+				
+			case IExtendedAnnotationConstants.INSTANCEOF :
+			case IExtendedAnnotationConstants.NEW :
+			case IExtendedAnnotationConstants.CONSTRUCTOR_REFERENCE :
+			case IExtendedAnnotationConstants.METHOD_REFERENCE :
 				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_method_parameter, new String[] {
-							Integer.toString(extendedAnnotation.getTypeParameterIndex()),
+						Messages.bind(Messages.disassembler_extendedannotation_offset, new String[] {
+							Integer.toString(extendedAnnotation.getOffset()),
 						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				if (insideWildcard) {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
-								toString(extendedAnnotation.getWildcardLocations()),
-							}));
-				} else {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-								toString(extendedAnnotation.getLocations()),
-							}));
-				}
 				break;
-			case IExtendedAnnotationConstants.METHOD_RECEIVER_GENERIC_OR_ARRAY :
-			case IExtendedAnnotationConstants.METHOD_RETURN_TYPE_GENERIC_OR_ARRAY :
-			case IExtendedAnnotationConstants.FIELD_GENERIC_OR_ARRAY :
-				if (insideWildcard) {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
-								toString(extendedAnnotation.getWildcardLocations()),
-							}));
-				} else {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-								toString(extendedAnnotation.getLocations()),
-							}));
-				}
-				break;
-			case IExtendedAnnotationConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
-			case IExtendedAnnotationConstants.TYPE_ARGUMENT_METHOD_CALL :
+			case IExtendedAnnotationConstants.CAST :
+			case IExtendedAnnotationConstants.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT :
+			case IExtendedAnnotationConstants.METHOD_INVOCATION_TYPE_ARGUMENT :
+			case IExtendedAnnotationConstants.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT :
+			case IExtendedAnnotationConstants.METHOD_REFERENCE_TYPE_ARGUMENT :
 				buffer.append(
 						Messages.bind(Messages.disassembler_extendedannotation_offset, new String[] {
 							Integer.toString(extendedAnnotation.getOffset()),
@@ -539,135 +402,62 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						Messages.bind(Messages.disassembler_extendedannotation_type_argument, new String[] {
 							Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
 						}));
-				break;
-			case IExtendedAnnotationConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY :
-			case IExtendedAnnotationConstants.TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY :
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_offset, new String[] {
-							Integer.toString(extendedAnnotation.getOffset()),
-						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_type_argument, new String[] {
-							Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
-						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				if (insideWildcard) {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
-								toString(extendedAnnotation.getWildcardLocations()),
-							}));
-				} else {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-								toString(extendedAnnotation.getLocations()),
-							}));
-				}
-				break;
-			case IExtendedAnnotationConstants.THROWS :
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_throws, new String[] {
-							Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
-						}));
-				break;
-			case IExtendedAnnotationConstants.THROWS_GENERIC_OR_ARRAY :
-				buffer.append(
-						Messages.bind(Messages.disassembler_extendedannotation_throws, new String[] {
-							Integer.toString(extendedAnnotation.getAnnotationTypeIndex()),
-						}));
-				writeNewLine(buffer, lineSeparator, tabNumber + 2);
-				if (insideWildcard) {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_wildcardlocations, new String[] {
-								toString(extendedAnnotation.getWildcardLocations()),
-							}));
-				} else {
-					buffer.append(
-							Messages.bind(Messages.disassembler_extendedannotation_locations, new String[] {
-								toString(extendedAnnotation.getLocations()),
-							}));
-				}
 				break;
 		}
 	}
 	private String getTargetType(int targetType) {
 		switch(targetType) {
-			case IExtendedAnnotationConstants.CLASS_EXTENDS_IMPLEMENTS :
-				return "CLASS_EXTENDS_IMPLEMENTS"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY :
-				return "CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.TYPE_CAST :
-				return "TYPE_CAST"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.TYPE_INSTANCEOF :
-				return "TYPE_INSTANCEOF"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.OBJECT_CREATION :
-				return "OBJECT_CREATION"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.CLASS_LITERAL :
-				return "CLASS_LITERAL"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.TYPE_CAST_GENERIC_OR_ARRAY :
-				return "TYPE_CAST_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.TYPE_INSTANCEOF_GENERIC_OR_ARRAY :
-				return "TYPE_INSTANCEOF_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.OBJECT_CREATION_GENERIC_OR_ARRAY :
-				return "OBJECT_CREATION_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.CLASS_LITERAL_GENERIC_OR_ARRAY :
-				return "CLASS_LITERAL_GENERIC_OR_ARRAY"; //$NON-NLS-1$
 			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER :
 				return "CLASS_TYPE_PARAMETER"; //$NON-NLS-1$
 			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER :
 				return "METHOD_TYPE_PARAMETER"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY :
-				return "CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY :
-				return "METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_BOUND :
-				return "METHOD_TYPE_PARAMETER_BOUND"; //$NON-NLS-1$
+
+			case IExtendedAnnotationConstants.CLASS_EXTENDS :
+				return "CLASS_EXTENDS"; //$NON-NLS-1$
 			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER_BOUND :
 				return "CLASS_TYPE_PARAMETER_BOUND"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
-				return "METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY :
-				return "CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.LOCAL_VARIABLE :
-				return "LOCAL_VARIABLE"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.LOCAL_VARIABLE_GENERIC_OR_ARRAY :
-				return "LOCAL_VARIABLE_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.METHOD_PARAMETER :
-				return "METHOD_PARAMETER"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.METHOD_PARAMETER_GENERIC_OR_ARRAY :
-				return "METHOD_PARAMETER_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.METHOD_RECEIVER_GENERIC_OR_ARRAY :
-				return "METHOD_RECEIVER_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.METHOD_RETURN_TYPE_GENERIC_OR_ARRAY :
-				return "METHOD_RETURN_TYPE_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.METHOD_RECEIVER :
-				return "METHOD_RECEIVER"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.METHOD_RETURN_TYPE :
-				return "METHOD_RETURN_TYPE"; //$NON-NLS-1$
+			case IExtendedAnnotationConstants.METHOD_TYPE_PARAMETER_BOUND :
+				return "METHOD_TYPE_PARAMETER_BOUND"; //$NON-NLS-1$
 			case IExtendedAnnotationConstants.FIELD :
 				return "FIELD"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.FIELD_GENERIC_OR_ARRAY :
-				return "FIELD_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL :
-				return "TYPE_ARGUMENT_CONSTRUCTOR_CALL"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.TYPE_ARGUMENT_METHOD_CALL :
-				return "TYPE_ARGUMENT_METHOD_CALL"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY :
-				return "TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY :
-				return "TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY"; //$NON-NLS-1$
+			case IExtendedAnnotationConstants.METHOD_RETURN :
+				return "METHOD_RETURN"; //$NON-NLS-1$
+			case IExtendedAnnotationConstants.METHOD_RECEIVER :
+				return "METHOD_RECEIVER"; //$NON-NLS-1$
+			case IExtendedAnnotationConstants.METHOD_FORMAL_PARAMETER :
+				return "METHOD_FORMAL_PARAMETER"; //$NON-NLS-1$
 			case IExtendedAnnotationConstants.THROWS :
 				return "THROWS"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.THROWS_GENERIC_OR_ARRAY :
-				return "THROWS_GENERIC_OR_ARRAY"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.WILDCARD_BOUND :
-				return "WILDCARD_BOUND"; //$NON-NLS-1$
-			case IExtendedAnnotationConstants.WILDCARD_BOUND_GENERIC_OR_ARRAY :
-				return "WILDCARD_BOUND_GENERIC_OR_ARRAY"; //$NON-NLS-1$
+
+			case IExtendedAnnotationConstants.LOCAL_VARIABLE :
+				return "LOCAL_VARIABLE"; //$NON-NLS-1$
+			case IExtendedAnnotationConstants.RESOURCE_VARIABLE :
+				return "RESOURCE_VARIABLE"; //$NON-NLS-1$
+			case IExtendedAnnotationConstants.EXCEPTION_PARAMETER :
+				return "EXCEPTION_PARAMETER"; //$NON-NLS-1$
+			case IExtendedAnnotationConstants.INSTANCEOF :
+				return "INSTANCEOF"; //$NON-NLS-1$
+			case IExtendedAnnotationConstants.NEW :
+				return "NEW"; //$NON-NLS-1$
+			case IExtendedAnnotationConstants.CONSTRUCTOR_REFERENCE :
+				return "CONSTRUCTOR_REFERENCE"; //$NON-NLS-1$
+			case IExtendedAnnotationConstants.METHOD_REFERENCE :
+				return "METHOD_REFERENCE"; //$NON-NLS-1$
+			case IExtendedAnnotationConstants.CAST :
+				return "CAST"; //$NON-NLS-1$
+			case IExtendedAnnotationConstants.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT :
+				return "CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT"; //$NON-NLS-1$
+			case IExtendedAnnotationConstants.METHOD_INVOCATION_TYPE_ARGUMENT :
+				return "METHOD_INVOCATION_TYPE_ARGUMENT"; //$NON-NLS-1$
+			case IExtendedAnnotationConstants.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT :
+				return "CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT"; //$NON-NLS-1$
+			case IExtendedAnnotationConstants.METHOD_REFERENCE_TYPE_ARGUMENT :
+				return "METHOD_REFERENCE_TYPE_ARGUMENT"; //$NON-NLS-1$
 			default:
 				return "UNKNOWN"; //$NON-NLS-1$
 		}
 	}
+
 
 	private void disassemble(IAnnotationComponent annotationComponent, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
@@ -1128,7 +918,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 			if (runtimeInvisibleTypeAnnotationsAttribute != null) {
 				disassemble((IRuntimeInvisibleTypeAnnotationsAttribute) runtimeInvisibleTypeAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
-			}
+ 			}
 		}
 	}
 
@@ -1222,7 +1012,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		IInnerClassesAttribute innerClassesAttribute = classFileReader.getInnerClassesAttribute();
 		IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
 		IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
-	
+		IClassFileAttribute runtimeVisibleTypeAnnotationsAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
+		IClassFileAttribute runtimeInvisibleTypeAnnotationsAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
+
 		IClassFileAttribute bootstrapMethods = Util.getAttribute(classFileReader, IAttributeNamesConstants.BOOTSTRAP_METHODS);
 	
 		if (checkMode(mode, DETAILED)) {
@@ -1369,6 +1161,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				if (runtimeInvisibleAnnotationsAttribute != null) {
 					disassemble((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, 0, mode);
 				}
+				if (runtimeVisibleTypeAnnotationsAttribute != null) {
+					disassemble((IRuntimeVisibleTypeAnnotationsAttribute) runtimeVisibleTypeAnnotationsAttribute, buffer, lineSeparator, 0, mode);
+				}
+				if (runtimeInvisibleTypeAnnotationsAttribute != null) {
+					disassemble((IRuntimeInvisibleTypeAnnotationsAttribute) runtimeInvisibleTypeAnnotationsAttribute, buffer, lineSeparator, 0, mode);
+	 			}
 				if (length != 0) {
 					for (int i = 0; i < length; i++) {
 						IClassFileAttribute attribute = attributes[i];
@@ -1378,6 +1176,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 								&& attribute != enclosingMethodAttribute
 								&& attribute != runtimeInvisibleAnnotationsAttribute
 								&& attribute != runtimeVisibleAnnotationsAttribute
+								&& attribute != runtimeInvisibleTypeAnnotationsAttribute
+								&& attribute != runtimeVisibleTypeAnnotationsAttribute
 								&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.DEPRECATED)
 								&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.SYNTHETIC)
 								&& attribute != bootstrapMethods) {
@@ -1602,6 +1402,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					if (numberOfEntries != 0) {
 						disassemble(stackMapAttribute, buffer, lineSeparator, tabNumber, mode);
 					}
+				} else if (CharOperation.equals(attribute.getAttributeName(),IAttributeNamesConstants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS)) {
+					disassemble((IRuntimeVisibleTypeAnnotationsAttribute) attribute, buffer, lineSeparator, tabNumber, mode);
+				} else if (CharOperation.equals(attribute.getAttributeName(),IAttributeNamesConstants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS)) {
+					disassemble((IRuntimeInvisibleTypeAnnotationsAttribute) attribute, buffer, lineSeparator, tabNumber, mode);					
 				} else if (attribute != lineNumberAttribute
 						&& attribute != localVariableAttribute
 						&& attribute != localVariableTypeAttribute) {
@@ -2113,7 +1917,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 			if (runtimeInvisibleTypeAnnotationsAttribute != null) {
 				disassemble((IRuntimeInvisibleTypeAnnotationsAttribute) runtimeInvisibleTypeAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
-			}
+ 			}
 		}
 	}
 
@@ -2247,16 +2051,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			disassemble(i, parameterAnnotations[i], buffer, lineSeparator, tabNumber + 1, mode);
 		}
 	}
-
-	private void disassemble(IRuntimeVisibleAnnotationsAttribute runtimeVisibleAnnotationsAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
-		writeNewLine(buffer, lineSeparator, tabNumber + 1);
-		buffer.append(Messages.disassembler_runtimevisibleannotationsattributeheader);
-		IAnnotation[] annotations = runtimeVisibleAnnotationsAttribute.getAnnotations();
-		for (int i = 0, max = annotations.length; i < max; i++) {
-			disassemble(annotations[i], buffer, lineSeparator, tabNumber + 1, mode);
-		}
-	}
-
+	
 	private void disassemble(IRuntimeInvisibleTypeAnnotationsAttribute runtimeInvisibleTypeAnnotationsAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(Messages.disassembler_runtimeinvisibletypeannotationsattributeheader);
@@ -2265,13 +2060,13 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			disassemble(extendedAnnotations[i], buffer, lineSeparator, tabNumber + 1, mode);
 		}
 	}
-
-	private void disassemble(IRuntimeVisibleTypeAnnotationsAttribute runtimeVisibleTypeAnnotationsAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
+		
+	private void disassemble(IRuntimeVisibleAnnotationsAttribute runtimeVisibleAnnotationsAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
-		buffer.append(Messages.disassembler_runtimevisibletypeannotationsattributeheader);
-		IExtendedAnnotation[] extendedAnnotations = runtimeVisibleTypeAnnotationsAttribute.getExtendedAnnotations();
-		for (int i = 0, max = extendedAnnotations.length; i < max; i++) {
-			disassemble(extendedAnnotations[i], buffer, lineSeparator, tabNumber + 1, mode);
+		buffer.append(Messages.disassembler_runtimevisibleannotationsattributeheader);
+		IAnnotation[] annotations = runtimeVisibleAnnotationsAttribute.getAnnotations();
+		for (int i = 0, max = annotations.length; i < max; i++) {
+			disassemble(annotations[i], buffer, lineSeparator, tabNumber + 1, mode);
 		}
 	}
 
@@ -2283,6 +2078,15 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			disassemble(i, parameterAnnotations[i], buffer, lineSeparator, tabNumber + 1, mode);
 		}
 	}
+	
+	private void disassemble(IRuntimeVisibleTypeAnnotationsAttribute runtimeVisibleTypeAnnotationsAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
+		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		buffer.append(Messages.disassembler_runtimevisibletypeannotationsattributeheader);
+		IExtendedAnnotation[] extendedAnnotations = runtimeVisibleTypeAnnotationsAttribute.getExtendedAnnotations();
+		for (int i = 0, max = extendedAnnotations.length; i < max; i++) {
+			disassemble(extendedAnnotations[i], buffer, lineSeparator, tabNumber + 1, mode);
+ 		}
+ 	}
 
 	private String disassemble(IVerificationTypeInfo[] infos, int mode) {
 		StringBuffer buffer = new StringBuffer();
@@ -2718,16 +2522,37 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		dumpTab(tabNumber, buffer);
 	}
 	
-	private String toString(int[] tab) {
+	private String toTypePathString(int[][] typepath) {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append('{');
-		for (int i = 0, max = tab.length; i < max; i++) {
+		buffer.append('[');
+		for (int i = 0, max = typepath.length; i < max; i++) {
+			int[] typepathElement = typepath[i];
 			if (i > 0) {
-				buffer.append(',');
+				buffer.append(',').append(' ');
 			}
-			buffer.append(tab[i]);
+			switch (typepathElement[0]) {
+				case IExtendedAnnotationConstants.TYPE_PATH_DEEPER_IN_ARRAY:
+					buffer.append(Messages.disassembler_extendedannotation_typepath_array);
+					break;
+				case IExtendedAnnotationConstants.TYPE_PATH_DEEPER_IN_INNER_TYPE:
+					buffer.append(Messages.disassembler_extendedannotation_typepath_innertype);
+					break;
+				case IExtendedAnnotationConstants.TYPE_PATH_ANNOTATION_ON_WILDCARD_BOUND:
+					buffer.append(Messages.disassembler_extendedannotation_typepath_wildcard);
+					break;
+				case IExtendedAnnotationConstants.TYPE_PATH_TYPE_ARGUMENT_INDEX:
+					buffer.append(
+							Messages.bind(Messages.disassembler_extendedannotation_typepath_typeargument,
+								new String[] {
+									Integer.toString(typepathElement[1])
+								}));
+					break;
+				default:
+					throw new IllegalStateException("Unrecognized type_path_kind: "+typepathElement[0]); //$NON-NLS-1$
+			}
 		}
-		buffer.append('}');
-		return String.valueOf(buffer);
+		buffer.append(']');
+		return String.valueOf(buffer);	
 	}
+
 }

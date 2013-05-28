@@ -15,6 +15,8 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
  *								bug 331649 - [compiler][null] consider null annotations for fields
+ *        Andy Clement - Contributions for
+ *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -40,145 +42,44 @@ public abstract class Annotation extends Expression {
 			final TypeReference reference,
 			final Annotation[] primaryAnnotation,
 			final Annotation annotation,
-			final Annotation[][] annotationsOnDimensionsOnExpression) {
+			final Annotation[][] annotationsOnDimensionsOnExpression,
+			final int dimensions) {
+	
 		class LocationCollector extends ASTVisitor {
-			Stack currentIndexes;
+			Stack typePathEntries;
 			Annotation currentAnnotation;
 			boolean search = true;
 			
 			public LocationCollector(Annotation currentAnnotation) {
-				this.currentIndexes = new Stack();
+				this.typePathEntries = new Stack();
 				this.currentAnnotation = currentAnnotation;
 			}
-			public boolean visit(ArrayTypeReference typeReference, BlockScope scope) {
-				if (!this.search) return false;
-				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
-				if (annotationsOnDimensions != null) {
-					// check if the annotation is located on the first dimension
-					Annotation[] annotations = annotationsOnDimensions[0];
-					if (annotations != null) {
-						for (int j = 0, max2 = annotations.length; j < max2; j++) {
-							Annotation current = annotations[j];
-							if (current == this.currentAnnotation) {
-								this.search = false;
-								return false;
-							}
-						}
-					}
-
-					this.currentIndexes.push(new Integer(0));
-					for (int i = 1, max = annotationsOnDimensions.length; i < max; i++) {
-						annotations = annotationsOnDimensions[i];
-						if (annotations != null) {
-							for (int j = 0, max2 = annotations.length; j < max2; j++) {
-								Annotation current = annotations[j];
-								if (current == this.currentAnnotation) {
-									this.search = false;
-									return false;
-								}
-							}
-						}
-						this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
-					}
-				}
-				Annotation[][] annotations = typeReference.annotations;
-				if (annotations == null) {
-					annotations = new Annotation[][] { primaryAnnotation };
-				}
-				int annotationsLevels = annotations.length;
-				for (int i = 0; i < annotationsLevels; i++) {
-					Annotation [] current = annotations[i];
-					int annotationsLength = current == null ? 0 : current.length;
-					for (int j = 0; j < annotationsLength; j++) {
-						if (current[j] == this.currentAnnotation) {
-							this.search = false;
-							return false;
-						}
-					}
-				}
-				this.currentIndexes.pop();
-				return true;
-			}
-			public boolean visit(ArrayQualifiedTypeReference typeReference, BlockScope scope) {
-				if (!this.search) return false;
-				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
-				if (annotationsOnDimensions != null) {
-					// check if the annotation is located on the first dimension
-					Annotation[] annotations = annotationsOnDimensions[0];
-					if (annotations != null) {
-						for (int j = 0, max2 = annotations.length; j < max2; j++) {
-							Annotation current = annotations[j];
-							if (current == this.currentAnnotation) {
-								this.search = false;
-								return false;
-							}
-						}
-					}
-
-					this.currentIndexes.push(new Integer(0));
-					for (int i = 1, max = annotationsOnDimensions.length; i < max; i++) {
-						annotations = annotationsOnDimensions[i];
-						if (annotations != null) {
-							for (int j = 0, max2 = annotations.length; j < max2; j++) {
-								Annotation current = annotations[j];
-								if (current == this.currentAnnotation) {
-									this.search = false;
-									return false;
-								}
-							}
-						}
-						this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
-					}
-				}
-				Annotation[][] annotations = typeReference.annotations;
-				if (annotations == null) {
-					annotations = new Annotation[][] { primaryAnnotation };
-				}
-				int annotationsLevels = annotations.length;
-				for (int i = 0; i < annotationsLevels; i++) {
-					Annotation [] current = annotations[i];
-					int annotationsLength = current == null ? 0 : current.length;
-					for (int j = 0; j < annotationsLength; j++) {
-						if (current[j] == this.currentAnnotation) {
-							this.search = false;
-							return false;
-						}
-					}
-				}
-				this.currentIndexes.pop();
-				return true;
-			}
+			
 			public boolean visit(ParameterizedSingleTypeReference typeReference, BlockScope scope) {
 				if (!this.search) return false;
+								
 				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
 				if (annotationsOnDimensions != null) {
-					// check if the annotation is located on the first dimension
-					Annotation[] annotations = annotationsOnDimensions[0];
-					if (annotations != null) {
-						for (int j = 0, max2 = annotations.length; j < max2; j++) {
-							Annotation current = annotations[j];
-							if (current == this.currentAnnotation) {
-								this.search = false;
-								return false;
-							}
-						}
-					}
-
-					this.currentIndexes.push(new Integer(0));
-					for (int i = 1, max = annotationsOnDimensions.length; i < max; i++) {
-						annotations = annotationsOnDimensions[i];
+					for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
+						Annotation[] annotations = annotationsOnDimensions[i];
 						if (annotations != null) {
 							for (int j = 0, max2 = annotations.length; j < max2; j++) {
 								Annotation current = annotations[j];
 								if (current == this.currentAnnotation) {
+									// found it, push any relevant type path entries
+									for (int k = 0; k < i; k++) {
+										this.typePathEntries.push(TYPE_PATH_ELEMENT_ARRAY);
+									}
 									this.search = false;
 									return false;
 								}
 							}
 						}
-						this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
+						
 					}
 				}
+				
+				// Example cases handled here: @B(1) List<String>[]
 				Annotation[][] annotations = typeReference.annotations;
 				if (annotations == null) {
 					annotations = new Annotation[][] { primaryAnnotation };
@@ -190,106 +91,51 @@ public abstract class Annotation extends Expression {
 					for (int j = 0; j < annotationsLength; j++) {
 						if (current[j] == this.currentAnnotation) {
 							this.search = false;
+							// Found it, insert any necessary type path elements
+							for (int k = 0; k < typeReference.dimensions; k++) {
+								this.typePathEntries.push(TYPE_PATH_ELEMENT_ARRAY);
+							}
 							return false;
 						}
+					}
+				}
+				
+				// If a type argument is annotated it is necessary jump past the array elements
+				if (typeReference.dimensions != 0) {
+					for (int k = 0, maxk = typeReference.dimensions; k < maxk; k++) {
+						this.typePathEntries.push(TYPE_PATH_ELEMENT_ARRAY);
 					}
 				}
 				TypeReference[] typeReferences = typeReference.typeArguments;
-				this.currentIndexes.push(new Integer(0));
 				for (int i = 0, max = typeReferences.length; i < max; i++) {
+					this.typePathEntries.add(new int[]{3,i});
 					typeReferences[i].traverse(this, scope);
-					if (!this.search) return false;
-					this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
+					if (!this.search) {
+						return false;
+					} else {
+						this.typePathEntries.pop();
+					}
 				}
-				this.currentIndexes.pop();
+				if (typeReference.dimensions != 0) {
+					for (int k = 0, maxk = typeReference.dimensions; k < maxk; k++) {
+						this.typePathEntries.pop();
+					}					
+				}
 				return true;
 			}
-			public boolean visit(ParameterizedQualifiedTypeReference typeReference, BlockScope scope) {
-				if (!this.search) return false;
-				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
-				if (annotationsOnDimensions != null) {
-					// check if the annotation is located on the first dimension
-					Annotation[] annotations = annotationsOnDimensions[0];
-					if (annotations != null) {
-						for (int j = 0, max2 = annotations.length; j < max2; j++) {
-							Annotation current = annotations[j];
-							if (current == this.currentAnnotation) {
-								this.search = false;
-								return false;
-							}
-						}
-					}
 
-					this.currentIndexes.push(new Integer(0));
-					for (int i = 1, max = annotationsOnDimensions.length; i < max; i++) {
-						annotations = annotationsOnDimensions[i];
-						if (annotations != null) {
-							for (int j = 0, max2 = annotations.length; j < max2; j++) {
-								Annotation current = annotations[j];
-								if (current == this.currentAnnotation) {
-									this.search = false;
-									return false;
-								}
-							}
-						}
-						this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
-					}
-				}
-				Annotation[][] annotations = typeReference.annotations;
-				if (annotations == null) {
-					annotations = new Annotation[][] { primaryAnnotation };
-				}
-				int annotationsLevels = annotations.length;
-				for (int i = 0; i < annotationsLevels; i++) {
-					Annotation [] current = annotations[i];
-					int annotationsLength = current == null ? 0 : current.length;
-					for (int j = 0; j < annotationsLength; j++) {
-						if (current[j] == this.currentAnnotation) {
-							this.search = false;
-							return false;
-						}
-					}
-				}
-				//TODO it is unclear how to manage annotations located in the first type arguments
-				TypeReference[] typeReferences = typeReference.typeArguments[typeReference.typeArguments.length - 1];
-				this.currentIndexes.push(new Integer(0));
-				for (int i = 0, max = typeReferences.length; i < max; i++) {
-					typeReferences[i].traverse(this, scope);
-					if (!this.search) return false;
-					this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
-				}
-				this.currentIndexes.pop();
-				return true;
-			}
 			public boolean visit(SingleTypeReference typeReference, BlockScope scope) {
 				if (!this.search) return false;
-				Annotation[][] annotationsOnDimensions = annotationsOnDimensionsOnExpression;
-				if (annotationsOnDimensions != null) {
-					// check if the annotation is located on the first dimension
-					Annotation[] annotations = annotationsOnDimensions[0];
-					if (annotations != null) {
-						for (int j = 0, max2 = annotations.length; j < max2; j++) {
-							Annotation current = annotations[j];
-							if (current == this.currentAnnotation) {
-								this.search = false;
-								return false;
-							}
-						}
-					}
 
-					this.currentIndexes.push(new Integer(0));
-					for (int i = 1, max = annotationsOnDimensions.length; i < max; i++) {
-						annotations = annotationsOnDimensions[i];
-						if (annotations != null) {
-							for (int j = 0, max2 = annotations.length; j < max2; j++) {
-								Annotation current = annotations[j];
-								if (current == this.currentAnnotation) {
-									this.search = false;
-									return false;
-								}
-							}
-						}
-						this.currentIndexes.push(new Integer(((Integer) this.currentIndexes.pop()).intValue() + 1));
+				// depth allows for the syntax "outerInstance.new @A InnerType();"
+				int depth = 0;
+				if (typeReference.resolvedType instanceof ReferenceBinding) {
+					depth = getInnerDepth((ReferenceBinding)typeReference.resolvedType);
+				}
+				
+				if (dimensions != 0) {
+					for (int k = 0; k < dimensions; k++) {
+						this.typePathEntries.push(TYPE_PATH_ELEMENT_ARRAY);
 					}
 				}
 				Annotation[][] annotations = typeReference.annotations;
@@ -299,28 +145,60 @@ public abstract class Annotation extends Expression {
 					int annotationsLength = current == null ? 0 : current.length;
 					for (int j = 0; j < annotationsLength; j++) {
 						if (current[j] == this.currentAnnotation) {
+							// Found
 							this.search = false;
+							if (depth != 0) {
+								for (int k = 0; k<depth; k++) {
+									this.typePathEntries.add(TYPE_PATH_INNER_TYPE);
+								}
+							}
 							return false;
 						}
+					}
+				}
+				if (dimensions != 0) {
+					for (int k = 0; k < dimensions; k++) {
+						this.typePathEntries.pop();
 					}
 				}
 				return false;
 			}
-			public boolean visit(Wildcard typeReference, BlockScope scope) {
+
+			public boolean visit(ArrayTypeReference typeReference, BlockScope scope) {
 				if (!this.search) return false;
-				TypeReference bound = typeReference.bound;
-				bound.traverse(this, scope);
-				return true;
-			}
-			public boolean visit(QualifiedTypeReference typeReference, BlockScope scope) {
-				if (!this.search) return false;
+				
+				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
+				if (annotationsOnDimensions != null) {
+					for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
+						Annotation[] annotations = annotationsOnDimensions[i];
+						if (annotations != null) {
+							for (int j = 0, max2 = annotations.length; j < max2; j++) {
+								Annotation current = annotations[j];
+								if (current == this.currentAnnotation) {
+									for (int k = 0; k < i; k++) {
+										this.typePathEntries.push(TYPE_PATH_ELEMENT_ARRAY);
+									}
+									this.search = false;
+									return false;
+								}
+							}
+						}
+						
+					}
+				}
 				Annotation[][] annotations = typeReference.annotations;
-				int annotationsLevels = annotations == null ? 0 : annotations.length;
+				if (annotations == null) {
+					annotations = new Annotation[][] { primaryAnnotation };
+				}
+				int annotationsLevels = annotations.length;
 				for (int i = 0; i < annotationsLevels; i++) {
 					Annotation [] current = annotations[i];
 					int annotationsLength = current == null ? 0 : current.length;
 					for (int j = 0; j < annotationsLength; j++) {
 						if (current[j] == this.currentAnnotation) {
+							for (int k = 0, maxk=typeReference.dimensions; k < maxk; k++) {
+								this.typePathEntries.push(TYPE_PATH_ELEMENT_ARRAY);
+							}
 							this.search = false;
 							return false;
 						}
@@ -328,48 +206,263 @@ public abstract class Annotation extends Expression {
 				}
 				return true;
 			}
+			
+			public boolean visit(ArrayQualifiedTypeReference typeReference, BlockScope scope) {
+				if (!this.search) return false;
+				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
+				if (annotationsOnDimensions != null) {
+					for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
+						Annotation[] annotations = annotationsOnDimensions[i];
+						if (annotations != null) {
+							for (int j = 0, max2 = annotations.length; j < max2; j++) {
+								Annotation current = annotations[j];
+								if (current == this.currentAnnotation) {
+									this.search = false;
+									// Found it, insert relevant type path elements
+									for (int k = 0, maxk = i; k < maxk; k++) {
+										this.typePathEntries.push(TYPE_PATH_ELEMENT_ARRAY);
+									}
+									return false;
+								}
+							}
+						}
+					}
+				}
+				Annotation[][] annotations = typeReference.annotations;
+				if (annotations == null) {
+					annotations = new Annotation[][] { primaryAnnotation };
+				}
+				int annotationsLevels = annotations.length;
+				for (int i = 0; i < annotationsLevels; i++) {
+					Annotation [] current = annotations[i];
+					int annotationsLength = current == null ? 0 : current.length;
+					for (int j = 0; j < annotationsLength; j++) {
+						if (current[j] == this.currentAnnotation) {
+							this.search = false;
+							for (int k = 0, maxk=typeReference.dimensions; k < maxk; k++) {
+								this.typePathEntries.push(TYPE_PATH_ELEMENT_ARRAY);
+							}
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+			
+			public boolean visit(ParameterizedQualifiedTypeReference typeReference, BlockScope scope) {
+				if (!this.search) return false;
+				
+				// Example case handled by this block: java.util.List<String>[]@A[]
+				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
+				if (annotationsOnDimensions != null) {
+					for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
+						Annotation[] annotations = annotationsOnDimensions[i];
+						if (annotations != null) {
+							for (int j = 0, max2 = annotations.length; j < max2; j++) {
+								Annotation current = annotations[j];
+								if (current == this.currentAnnotation) {
+									this.search = false;
+									// Found it, insert relevant type path elements
+									for (int k = 0, maxk = i; k < maxk; k++) {
+										this.typePathEntries.push(TYPE_PATH_ELEMENT_ARRAY);
+									}
+									return false;
+								}
+							}
+						}
+					}
+				}
+
+				boolean[] needsInnerEntryInfo = computeInnerEntryInfo(typeReference);
+
+				// Example cases handled by this block:
+				// java.util.@A List<String>[][], com.demo.@A Outer.@B Inner<String>, java.util.Map.@A Entry<String,String>
+				Annotation[][] annotations = typeReference.annotations;
+				if (annotations == null) {
+					annotations = new Annotation[][] { primaryAnnotation };
+				}
+				int annotationsLevels = annotations.length;
+				for (int i = 0; i < annotationsLevels; i++) {
+					Annotation [] current = annotations[i];
+					int annotationsLength = current == null ? 0 : current.length;
+					for (int j = 0; j < annotationsLength; j++) {
+						if (current[j] == this.currentAnnotation) {
+							this.search = false;
+							// Found, insert any relevant type path elements
+							for (int k = 0, maxk = typeReference.dimensions; k < maxk; k++) {
+								this.typePathEntries.push(TYPE_PATH_ELEMENT_ARRAY);
+							}
+							// Found, insert any relevant type path elements
+							if (needsInnerEntryInfo != null) {
+								for (int k = 0; k <= i; k++) {
+									if (needsInnerEntryInfo[k]) {
+										this.typePathEntries.push(TYPE_PATH_INNER_TYPE);
+									}
+								}
+							}
+							return false;
+						}
+					}
+				}
+				
+				// Example cases handled by this block:
+				// java.util.List<@A String>
+				if (typeReference.dimensions != 0) {
+					for (int k = 0, maxk = typeReference.dimensions; k < maxk; k++) {
+						this.typePathEntries.push(TYPE_PATH_ELEMENT_ARRAY);
+					}
+				}
+				int toPop = 0;
+				for (int i = 0, max = typeReference.typeArguments.length; i < max; i++) {
+					TypeReference[] typeArgumentsForComponent = typeReference.typeArguments[i];
+					if (needsInnerEntryInfo != null && needsInnerEntryInfo[i]) { 
+						this.typePathEntries.push(TYPE_PATH_INNER_TYPE);
+						toPop++;
+					}
+					if (typeArgumentsForComponent != null) {
+						for (int j = 0, max2 = typeArgumentsForComponent.length; j < max2; j++) {
+							this.typePathEntries.push(new int[]{3,j});
+							typeArgumentsForComponent[j].traverse(this,scope);
+							if (!this.search) return false;
+							this.typePathEntries.pop();
+						}
+					}
+				}
+				toPop += typeReference.dimensions;
+				for (int k = 0, maxk = toPop; k < maxk; k++) {
+					this.typePathEntries.pop();
+				}
+				return true;
+			}
+			
+			public boolean visit(Wildcard typeReference, BlockScope scope) {
+				if (!this.search) return false;
+				TypeReference bound = typeReference.bound;
+				this.typePathEntries.push(TYPE_PATH_ANNOTATION_ON_WILDCARD_BOUND);
+				bound.traverse(this, scope);
+				if (!this.search) {
+					return false;
+				}
+				this.typePathEntries.pop();
+				return true;
+			}
+			
+			private boolean[] computeInnerEntryInfo(QualifiedTypeReference typeReference) {
+				ReferenceBinding resolvedType = (ReferenceBinding) 
+						(typeReference.resolvedType instanceof ArrayBinding ? typeReference.resolvedType.leafComponentType() : typeReference.resolvedType);
+				boolean[] needsInnerEntryInfo = null;
+				if (resolvedType != null && resolvedType.isNestedType()) {
+					// Work backwards computing whether a INNER_TYPE entry is required for each level
+					needsInnerEntryInfo = new boolean[typeReference.tokens.length];
+					int counter = needsInnerEntryInfo.length - 1;
+					ReferenceBinding type = resolvedType;//resolvedType.enclosingType();
+					while (type != null) {
+						needsInnerEntryInfo[counter--] = !type.isStatic();
+						type = type.enclosingType();
+					}
+				}
+				return needsInnerEntryInfo;
+			}
+			
+			private int getInnerDepth(ReferenceBinding resolvedType) {
+				int depth = 0;
+				ReferenceBinding type = resolvedType;
+				while (type != null) {
+					depth += (type.isStatic())?0:1;
+					type = type.enclosingType();
+				}
+				return depth;
+			}
+			
+			public boolean visit(QualifiedTypeReference typeReference, BlockScope scope) {
+				if (!this.search) return false;
+				boolean[] needsInnerEntryInfo = computeInnerEntryInfo(typeReference);
+				
+				// Example cases handled by this block:
+				// java.util.@A List, com.demo.@A Outer.@B Inner, java.util.Map.@A Entry
+				Annotation[][] annotations = typeReference.annotations;
+				if (annotations == null) {
+					annotations = new Annotation[][] { primaryAnnotation };
+				}
+				int annotationsLevels = annotations.length;
+				for (int i = 0; i < annotationsLevels; i++) {
+					Annotation [] current = annotations[i];
+					int annotationsLength = current == null ? 0 : current.length;
+					for (int j = 0; j < annotationsLength; j++) {
+						if (current[j] == this.currentAnnotation) {
+							this.search = false;
+							// Found, insert any relevant type path elements
+							if (needsInnerEntryInfo != null) {
+								for (int k = 0; k <= i; k++) {
+									if (needsInnerEntryInfo[k]) {
+										this.typePathEntries.push(TYPE_PATH_INNER_TYPE);
+									}
+								}
+							}
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+			
 			public String toString() {
 				StringBuffer buffer = new StringBuffer();
 				buffer
 					.append("search location for ") //$NON-NLS-1$
 					.append(this.currentAnnotation)
-					.append("\ncurrent indexes : ") //$NON-NLS-1$
-					.append(this.currentIndexes);
+					.append("\ncurrent type_path entries : "); //$NON-NLS-1$
+				for (int i = 0, maxi = this.typePathEntries.size(); i < maxi; i++) {
+					int[] typePathEntry = (int[]) this.typePathEntries.get(i);
+					buffer
+						.append('(')
+						.append(typePathEntry[0])
+						.append(',')
+						.append(typePathEntry[1])
+						.append(')');
+				}
 				return String.valueOf(buffer);
 			}
 		}
 		if (reference == null) return null;
 		LocationCollector collector = new LocationCollector(annotation);
 		reference.traverse(collector, (BlockScope) null);
-		if (collector.currentIndexes.isEmpty()) {
+		if (collector.typePathEntries.isEmpty()) {
 			return null;
 		}
-		int size = collector.currentIndexes.size();
-		int[] result = new int[size];
+		int size = collector.typePathEntries.size();
+		int[] result = new int[size*2];
+		int offset=0;
 		for (int i = 0; i < size; i++) {
-			result[size - i - 1] = ((Integer) collector.currentIndexes.pop()).intValue();
+			int[] pathElement = (int[])collector.typePathEntries.get(i);
+			result[offset++] = pathElement[0];
+			result[offset++] = pathElement[1];
 		}
 		return result;
 	}
-	
-	    // jsr 308
-		public static class TypeUseBinding extends ReferenceBinding {
-			private int kind;
-			public TypeUseBinding(int kind) {
-				this.tagBits = 0L;
-				this.kind = kind;
-			}
-			public int kind() {
-				return this.kind;
-			}
-			public boolean hasTypeBit(int bit) {
-				return false;
-			}
+		
+    // jsr 308
+	public static class TypeUseBinding extends ReferenceBinding {
+		private int kind;
+		public TypeUseBinding(int kind) {
+			this.tagBits = 0L;
+			this.kind = kind;
 		}
+		public int kind() {
+			return this.kind;
+		}
+		public boolean hasTypeBit(int bit) {
+			return false;
+		}
+	}
 
 	final static MemberValuePair[] NoValuePairs = new MemberValuePair[0];
 	private static final long TAGBITS_NULLABLE_OR_NONNULL = TagBits.AnnotationNullable|TagBits.AnnotationNonNull;
 
+	static final int[] TYPE_PATH_ELEMENT_ARRAY = new int[]{0,0};
+	static final int[] TYPE_PATH_INNER_TYPE = new int[]{1,0};
+	static final int[] TYPE_PATH_ANNOTATION_ON_WILDCARD_BOUND = new int[]{2,0};
+	
 	public int declarationSourceEnd;
 	public Binding recipient;
 

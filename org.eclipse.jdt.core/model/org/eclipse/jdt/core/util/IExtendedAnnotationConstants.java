@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 IBM Corporation and others.
+ * Copyright (c) 2012, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *        Andy Clement - Contributions for
+ *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
 package org.eclipse.jdt.core.util;
 
@@ -18,47 +20,42 @@ import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 
 /**
  * Description of an extended annotation target types constants as described in the JVM specifications
- * (added in JavaSE-1.7).
+ * (added in JavaSE-1.8).
  *
- * @since 3.9
+ * @since 3.9 BETA_JAVA8
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  */
 public interface IExtendedAnnotationConstants {
-	int METHOD_RECEIVER = AnnotationTargetTypeConstants.METHOD_RECEIVER;
-	int METHOD_RECEIVER_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.METHOD_RECEIVER_GENERIC_OR_ARRAY;
-	int METHOD_RETURN_TYPE = AnnotationTargetTypeConstants.METHOD_RETURN_TYPE;
-	int METHOD_RETURN_TYPE_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.METHOD_RETURN_TYPE_GENERIC_OR_ARRAY;
-	int METHOD_PARAMETER = AnnotationTargetTypeConstants.METHOD_PARAMETER;
-	int METHOD_PARAMETER_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.METHOD_PARAMETER_GENERIC_OR_ARRAY;
-	int FIELD = AnnotationTargetTypeConstants.FIELD;
-	int FIELD_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.FIELD_GENERIC_OR_ARRAY;
-	int CLASS_TYPE_PARAMETER_BOUND = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND;
-	int CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY;
-	int METHOD_TYPE_PARAMETER_BOUND = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND;
-	int METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND_GENERIC_OR_ARRAY;
-	int CLASS_EXTENDS_IMPLEMENTS = AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS;
-	int CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.CLASS_EXTENDS_IMPLEMENTS_GENERIC_OR_ARRAY;
-	int THROWS = AnnotationTargetTypeConstants.THROWS;
-	int THROWS_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.THROWS_GENERIC_OR_ARRAY;
-	int WILDCARD_BOUND = AnnotationTargetTypeConstants.WILDCARD_BOUND;
-	int WILDCARD_BOUND_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.WILDCARD_BOUND_GENERIC_OR_ARRAY;
-	int METHOD_TYPE_PARAMETER = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER;
-	int METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_GENERIC_OR_ARRAY;
+	
 	int CLASS_TYPE_PARAMETER = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER;
-	int CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_GENERIC_OR_ARRAY;
-	int TYPE_CAST = AnnotationTargetTypeConstants.TYPE_CAST;
-	int TYPE_CAST_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.TYPE_CAST_GENERIC_OR_ARRAY;
-	int TYPE_INSTANCEOF = AnnotationTargetTypeConstants.TYPE_INSTANCEOF;
-	int TYPE_INSTANCEOF_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.TYPE_INSTANCEOF_GENERIC_OR_ARRAY;
-	int OBJECT_CREATION = AnnotationTargetTypeConstants.OBJECT_CREATION;
-	int OBJECT_CREATION_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.OBJECT_CREATION_GENERIC_OR_ARRAY;
+	int METHOD_TYPE_PARAMETER = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER;
+
+	int CLASS_EXTENDS = AnnotationTargetTypeConstants.CLASS_EXTENDS;
+	int CLASS_TYPE_PARAMETER_BOUND = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND;
+	int METHOD_TYPE_PARAMETER_BOUND = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND;
+	int FIELD = AnnotationTargetTypeConstants.FIELD;
+	int METHOD_RETURN = AnnotationTargetTypeConstants.METHOD_RETURN;
+	int METHOD_RECEIVER = AnnotationTargetTypeConstants.METHOD_RECEIVER;
+	int METHOD_FORMAL_PARAMETER = AnnotationTargetTypeConstants.METHOD_FORMAL_PARAMETER;
+	int THROWS = AnnotationTargetTypeConstants.THROWS;
+
 	int LOCAL_VARIABLE = AnnotationTargetTypeConstants.LOCAL_VARIABLE;
-	int LOCAL_VARIABLE_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.LOCAL_VARIABLE_GENERIC_OR_ARRAY;
-	int TYPE_ARGUMENT_CONSTRUCTOR_CALL = AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL;
-	int TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.TYPE_ARGUMENT_CONSTRUCTOR_CALL_GENERIC_OR_ARRAY;
-	int TYPE_ARGUMENT_METHOD_CALL = AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL;
-	int TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.TYPE_ARGUMENT_METHOD_CALL_GENERIC_OR_ARRAY;
-	int CLASS_LITERAL = AnnotationTargetTypeConstants.CLASS_LITERAL;
-	int CLASS_LITERAL_GENERIC_OR_ARRAY = AnnotationTargetTypeConstants.CLASS_LITERAL_GENERIC_OR_ARRAY;
+	int RESOURCE_VARIABLE = AnnotationTargetTypeConstants.RESOURCE_VARIABLE;
+	int EXCEPTION_PARAMETER = AnnotationTargetTypeConstants.EXCEPTION_PARAMETER;
+	int INSTANCEOF = AnnotationTargetTypeConstants.INSTANCEOF;
+	int NEW = AnnotationTargetTypeConstants.NEW;
+	int CONSTRUCTOR_REFERENCE = AnnotationTargetTypeConstants.CONSTRUCTOR_REFERENCE;
+	int METHOD_REFERENCE = AnnotationTargetTypeConstants.METHOD_REFERENCE;
+	int CAST = AnnotationTargetTypeConstants.CAST;
+	int CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT = AnnotationTargetTypeConstants.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT;
+	int METHOD_INVOCATION_TYPE_ARGUMENT = AnnotationTargetTypeConstants.METHOD_INVOCATION_TYPE_ARGUMENT;
+	int CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT = AnnotationTargetTypeConstants.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT;
+	int METHOD_REFERENCE_TYPE_ARGUMENT = AnnotationTargetTypeConstants.METHOD_REFERENCE_TYPE_ARGUMENT;
+	
+	// Type path entry kinds
+	int TYPE_PATH_DEEPER_IN_ARRAY = 0;
+	int TYPE_PATH_DEEPER_IN_INNER_TYPE = 1;
+	int TYPE_PATH_ANNOTATION_ON_WILDCARD_BOUND = 2;
+	int TYPE_PATH_TYPE_ARGUMENT_INDEX = 3;
 }

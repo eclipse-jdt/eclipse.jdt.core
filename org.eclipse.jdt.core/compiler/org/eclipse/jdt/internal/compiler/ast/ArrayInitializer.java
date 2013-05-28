@@ -15,6 +15,8 @@
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
+ *        Andy Clement - Contributions for
+ *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -52,16 +54,20 @@ public class ArrayInitializer extends Expression {
 		return flowInfo;
 	}
 
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+		generateCode(null, null, currentScope, codeStream, valueRequired);
+	}
+	
 	/**
 	 * Code generation for a array initializer
 	 */
-	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+	public void generateCode(TypeReference typeReference, Annotation[][] annotationsOnDimensions, BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 
 		// Flatten the values and compute the dimensions, by iterating in depth into nested array initializers
 		int pc = codeStream.position;
 		int expressionLength = (this.expressions == null) ? 0: this.expressions.length;
 		codeStream.generateInlinedValue(expressionLength);
-		codeStream.newArray(null, this.binding);
+		codeStream.newArray(typeReference, annotationsOnDimensions, this.binding);
 		if (this.expressions != null) {
 			// binding is an ArrayType, so I can just deal with the dimension
 			int elementsTypeID = this.binding.dimensions > 1 ? -1 : this.binding.leafComponentType.id;

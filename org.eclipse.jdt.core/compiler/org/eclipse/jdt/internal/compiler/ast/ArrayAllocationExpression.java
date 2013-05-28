@@ -15,6 +15,9 @@
  *								bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
+ *     Andy Clement - Contributions for
+ *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -58,7 +61,7 @@ public class ArrayAllocationExpression extends Expression {
 		int pc = codeStream.position;
 
 		if (this.initializer != null) {
-			this.initializer.generateCode(currentScope, codeStream, valueRequired);
+			this.initializer.generateCode(this.type, this.annotationsOnDimensions, currentScope, codeStream, valueRequired);
 			return;
 		}
 
@@ -73,10 +76,10 @@ public class ArrayAllocationExpression extends Expression {
 		// array allocation
 		if (explicitDimCount == 1) {
 			// Mono-dimensional array
-			codeStream.newArray((ArrayBinding)this.resolvedType);
+			codeStream.newArray(this.type, this.annotationsOnDimensions, (ArrayBinding)this.resolvedType);
 		} else {
 			// Multi-dimensional array
-			codeStream.multianewarray(this.resolvedType, explicitDimCount);
+			codeStream.multianewarray(this.type, this.resolvedType, this.dimensions.length, this.annotationsOnDimensions);
 		}
 		if (valueRequired) {
 			codeStream.generateImplicitConversion(this.implicitConversion);

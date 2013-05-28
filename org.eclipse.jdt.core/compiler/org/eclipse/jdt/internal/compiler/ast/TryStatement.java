@@ -25,6 +25,10 @@
  *								bug 384380 - False positive on a ?? Potential null pointer access ?? after a continue
  *     Jesper Steen Moller - Contributions for
  *								bug 404146 - [1.7][compiler] nested try-catch-finally-blocks leads to unrunnable Java byte code
+ *
+ *     Andy Clement - Contributions for
+ *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -498,7 +502,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 				multiCatchExceptionLabel.initialize((UnionTypeReference) argument.type);
 				exceptionLabel = multiCatchExceptionLabel;
 			} else {
-				exceptionLabel = new ExceptionLabel(codeStream, argument.binding.type);
+				exceptionLabel = new ExceptionLabel(codeStream, argument.binding.type, argument.type);
 			}
 			exceptionLabel.placeStart();
 			exceptionLabels[i] = exceptionLabel;
