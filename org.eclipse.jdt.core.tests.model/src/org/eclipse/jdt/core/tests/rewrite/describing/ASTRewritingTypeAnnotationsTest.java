@@ -947,7 +947,7 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 				" 	* @param arg  \n" +
 				" 	*/\n" +
 				"	test406469.bug.@Marker IOException foo(\n" +
-				"			FileNotFoundException arg)\n" +
+				"			test406469.bug.FileNotFoundException arg)\n" +
 				"		throws test406469.bug.@NonNull @Marker EOFException {\n" +
 				"		try {\n" +
 				"			test406469.bug.@NonNull IOError e = new test406469.bug.@Marker IOError();\n" +
@@ -972,4 +972,103 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 		assertEqualString(preview, contentsmodified);
 	}
 
+	/**
+	 * ASTRewriterTests for QualifiedType
+	 * @throws Exception
+	 * 
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=407364
+	 */
+	public void testQualifiedTypeAnnotations() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test407364.bug", false, null);
+		String contents =  "package test0002;\n" +
+				 "import java.lang.annotation.Target;\n" +
+				 "public class X {\n" +
+				 "	public static void main(String[] args) {\n" +
+				 "		Outer outer = new Outer();\n" +
+				 "		Outer.@Marker1 Inner first = outer.new Inner();\n" +
+				 "		Outer.@Marker2 Inner second = outer.new Inner() ;\n" +
+				 "		Outer.Inner.@Marker1 Deeper deeper = second.new Deeper();\n" +
+				 "		Outer.Inner.Deeper deeper2 =  second.new Deeper();\n" +
+				 "	}\n" + "}\n" + "class Outer {\n" +
+				 "	public class Inner {\n" + 
+				 "		public class Deeper {\n" +
+				 "		}\n" + 
+				 "	}\n" + 
+				 "}\n" +
+				 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				 "@interface Marker {}\n" +
+				 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				 "@interface Marker1 {}\n" +
+				 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				 "@interface Marker2 {}\n";
+		
+		StringBuffer buf = new StringBuffer(contents);			
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+		CompilationUnit astRoot= createAST(cu, /* resolve */ true, false);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+		TypeDeclaration typeDeclaration= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDeclaration= findMethodDeclaration(typeDeclaration, "main");
+		List statements = methodDeclaration.getBody().statements();
+		int sCount = 1;
+
+		{   //replace an annotation.
+			VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) statements.get(sCount++);
+			QualifiedType qualifiedType = (QualifiedType) variableDeclarationStatement.getType();
+			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("NewMarker"));
+			rewrite.replace((ASTNode) qualifiedType.annotations().get(0), markerAnnotation, null);
+			
+			// remove an annotation
+			variableDeclarationStatement = (VariableDeclarationStatement) statements.get(sCount++);
+			qualifiedType = (QualifiedType) variableDeclarationStatement.getType();
+			rewrite.remove((ASTNode) qualifiedType.annotations().get(0), null);
+			
+			// insert an annotation after an existing annotation
+			variableDeclarationStatement = (VariableDeclarationStatement) statements.get(sCount++);
+			qualifiedType = (QualifiedType) variableDeclarationStatement.getType();
+			markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("NewMarker"));
+			rewrite.getListRewrite(qualifiedType, QualifiedType.ANNOTATIONS_PROPERTY).insertLast(markerAnnotation, null);
+			
+			/* insert an annotation in a type not converted as QualifiedType. This would involve
+			 *  creation of a QualifiedType from fields of the existing type.
+			 */
+			variableDeclarationStatement = (VariableDeclarationStatement) statements.get(sCount++);
+			SimpleType simpleType = (SimpleType) variableDeclarationStatement.getType();
+			QualifiedName qualifiedName = (QualifiedName) simpleType.getName();
+			SimpleName simpleName = ast.newSimpleName(qualifiedName.getName().getIdentifier());
+			qualifiedName = (QualifiedName) qualifiedName.getQualifier();
+			qualifiedName = ast.newQualifiedName(ast.newName(qualifiedName.getQualifier().toString()), ast.newSimpleName(qualifiedName.getName().toString()));
+			qualifiedType = ast.newQualifiedType(ast.newSimpleType(qualifiedName), simpleName);
+			
+			markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("NewMarker"));
+			rewrite.getListRewrite(qualifiedType, QualifiedType.ANNOTATIONS_PROPERTY).insertLast(markerAnnotation, null);
+			rewrite.replace(variableDeclarationStatement.getType(), qualifiedType, null);
+		}
+		String preview= evaluateRewrite(cu, rewrite);
+		String contentsmodified = "package test0002;\n" +
+				 "import java.lang.annotation.Target;\n" +
+				 "public class X {\n" +
+				 "	public static void main(String[] args) {\n" +
+				 "		Outer outer = new Outer();\n" +
+				 "		Outer.@NewMarker Inner first = outer.new Inner();\n" +
+				 "		Outer.Inner second = outer.new Inner() ;\n" +
+				 "		Outer.Inner.@Marker1 @NewMarker Deeper deeper = second.new Deeper();\n" +
+				 "		Outer. Inner.@NewMarker Deeper deeper2 =  second.new Deeper();\n" +
+				 "	}\n" + "}\n" + "class Outer {\n" +
+				 "	public class Inner {\n" + 
+				 "		public class Deeper {\n" +
+				 "		}\n" + 
+				 "	}\n" + 
+				 "}\n" +
+				 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				 "@interface Marker {}\n" +
+				 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				 "@interface Marker1 {}\n" +
+				 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				 "@interface Marker2 {}\n";
+		assertEqualString(preview, contentsmodified);
+	}
 }

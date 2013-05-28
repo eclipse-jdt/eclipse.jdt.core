@@ -3957,9 +3957,12 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		rewriteRequiredNode(node, PackageQualifiedType.QUALIFIER_PROPERTY);
-		if (node.getAST().apiLevel() >= AST.JLS8) {
-			rewriteTypeAnnotations(node, PackageQualifiedType.ANNOTATIONS_PROPERTY, node.getStartPosition());
+		int pos = rewriteRequiredNode(node, PackageQualifiedType.QUALIFIER_PROPERTY);
+		try {
+			pos = getScanner().getTokenEndOffset(TerminalTokens.TokenNameDOT, pos);
+			rewriteTypeAnnotations(node, PackageQualifiedType.ANNOTATIONS_PROPERTY, pos);
+		} catch (CoreException e) {
+			handleException(e);
 		}
 		rewriteRequiredNode(node, PackageQualifiedType.NAME_PROPERTY);
 		return false;
@@ -3992,9 +3995,14 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		rewriteRequiredNode(node, QualifiedType.QUALIFIER_PROPERTY);
+		int pos = rewriteRequiredNode(node, QualifiedType.QUALIFIER_PROPERTY);
 		if (node.getAST().apiLevel() >= AST.JLS8) {
-			rewriteTypeAnnotations(node, QualifiedType.ANNOTATIONS_PROPERTY, node.getStartPosition());
+			try {
+				pos = getScanner().getTokenEndOffset(TerminalTokens.TokenNameDOT, pos);
+				rewriteTypeAnnotations(node, QualifiedType.ANNOTATIONS_PROPERTY, pos);
+			} catch (CoreException e) {
+				handleException(e);
+			}
 		}
 		rewriteRequiredNode(node, QualifiedType.NAME_PROPERTY);
 		return false;
