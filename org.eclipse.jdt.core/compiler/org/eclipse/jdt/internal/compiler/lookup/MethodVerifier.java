@@ -12,6 +12,7 @@
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 395681 - [compiler] Improve simulation of javac6 behavior from bug 317719 after fixing bug 388795
  *								bug 406928 - computation of inherited methods seems damaged (affecting @Overrides)
+ *								bug 409473 - [compiler] JDT cannot compile against JRE 1.8
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -684,7 +685,8 @@ SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBin
 MethodBinding findBestInheritedAbstractMethod(MethodBinding[] methods, int length) {
 	findMethod : for (int i = 0; i < length; i++) {
 		MethodBinding method = methods[i];
-		if (!method.isAbstract()) continue findMethod;
+		// when unexpectedly seeing a non-abstract interface method regard it as abstract, too, for this check:
+		if (!(method.isAbstract() || method.declaringClass.isInterface())) continue findMethod;
 		for (int j = 0; j < length; j++) {
 			if (i == j) continue;
 			if (!checkInheritedReturnTypes(method, methods[j])) {

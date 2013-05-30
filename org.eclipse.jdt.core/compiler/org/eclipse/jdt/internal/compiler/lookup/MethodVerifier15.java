@@ -14,6 +14,7 @@
  *								bug 388795 - [compiler] detection of name clash depends on order of super interfaces
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 395681 - [compiler] Improve simulation of javac6 behavior from bug 317719 after fixing bug 388795
+ *								bug 409473 - [compiler] JDT cannot compile against JRE 1.8
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -270,7 +271,9 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 	boolean continueInvestigation = true;
 	MethodBinding concreteMethod = null;
 	for (int i = 0; i < length; i++) {
-		if (!methods[i].isAbstract()) {
+		// when unexpectedly seeing a non-abstract interface method regard it as abstract, too, for this check:
+		boolean isAbstract = methods[i].isAbstract() || methods[i].declaringClass.isInterface();
+		if (!isAbstract) {
 			if (concreteMethod != null) {
 				problemReporter().duplicateInheritedMethods(this.type, concreteMethod, methods[i]);
 				continueInvestigation = false;
