@@ -11,7 +11,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *        Andy Clement - Contributions for
+ *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
