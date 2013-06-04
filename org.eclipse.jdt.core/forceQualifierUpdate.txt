@@ -1,4 +1,5 @@
-# To force a version qualifier update add the bug here
+# To force a version qualifier update, add the bug here
 Bug 403352 - Update all parent versions to match our build stream
 Bug 407853 - ECJ download misses legal file (about.html)
 Bug 407852 - ECJ source download is not correct
+Bug 408447 - compiler (log message) needs updating for copyright and bundle_qualifier
