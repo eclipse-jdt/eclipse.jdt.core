@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Lambda expression AST node type.
+ * Lambda expression AST node type (added in JLS8 API).
  * <pre>
  * LambdaExpression:
  *    Identifier <b>-></b> Body
@@ -130,7 +130,7 @@ public class LambdaExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	List internalStructuralPropertiesForType(int apiLevel) {
+	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
 
@@ -180,7 +180,7 @@ public class LambdaExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	int getNodeType0() {
+	final int getNodeType0() {
 		return LAMBDA_EXPRESSION;
 	}
 

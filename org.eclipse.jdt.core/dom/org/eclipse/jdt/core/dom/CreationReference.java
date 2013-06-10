@@ -226,21 +226,6 @@ public class CreationReference extends MethodReference {
 		return this.typeArguments;
 	}
 
-	/**
-	 * Resolves and returns the binding for the method reference by this
-	 * expression.
-	 * <p>
-	 * Note that bindings are generally unavailable unless requested when the
-	 * AST is being built.
-	 * </p>
-	 *
-	 * @return the method binding, or <code>null</code> if the binding cannot
-	 * be resolved
-	 */
-	public IMethodBinding resolveMethodBinding() {
-		return this.ast.getBindingResolver().resolveMethod(this);
-	}
-
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */

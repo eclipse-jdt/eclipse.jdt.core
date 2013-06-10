@@ -162,11 +162,11 @@ public class PackageQualifiedType extends AnnotatableType {
 		return super.internalGetSetChildProperty(property, get, child);
 	}
 
-	int getNodeType0() {
+	final int getNodeType0() {
 		return PACKAGE_QUALIFIED_TYPE;
 	}
 
-	boolean subtreeMatch0(ASTMatcher matcher, Object other) {
+	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
 	}

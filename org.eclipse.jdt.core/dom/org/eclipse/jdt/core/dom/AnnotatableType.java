@@ -17,7 +17,7 @@ package org.eclipse.jdt.core.dom;
 import java.util.List;
 
 /**
- * Type node for an annotatable type (added in JLS8 API).
+ * Abstract base class of AST nodes that represent an annotatable type (added in JLS8 API).
  * <p>
  * Introduced in JLS8, type references that can be annotated are represented by 
  * AnnotatableType. For the list of types extending AnnotatableType, see {@link Type}.</p>
