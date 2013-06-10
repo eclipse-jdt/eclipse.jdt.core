@@ -712,6 +712,22 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			ASTVisitorTest.this.b.append("*/)"); //$NON-NLS-1$
 		}
 
+		public boolean visit(CreationReference node) {
+			ASTVisitorTest.this.b.append("(eCR"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(CreationReference node) {
+			ASTVisitorTest.this.b.append("eCR)"); //$NON-NLS-1$
+		}
+
+		public boolean visit(ExpressionMethodReference node) {
+			ASTVisitorTest.this.b.append("(eEMR"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(ExpressionMethodReference node) {
+			ASTVisitorTest.this.b.append("eEMR)"); //$NON-NLS-1$
+		}
+
 		public boolean visit(LineComment node) {
 			ASTVisitorTest.this.b.append("(//"); //$NON-NLS-1$
 			return isVisitingChildren();
@@ -892,6 +908,14 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			ASTVisitorTest.this.b.append("eSM)"); //$NON-NLS-1$
 		}
 
+		public boolean visit(SuperMethodReference node) {
+			ASTVisitorTest.this.b.append("(eSMR"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(SuperMethodReference node) {
+			ASTVisitorTest.this.b.append("eSMR)"); //$NON-NLS-1$
+		}
+
 		public boolean visit(SwitchCase node) {
 			ASTVisitorTest.this.b.append("(sSC"); //$NON-NLS-1$
 			return isVisitingChildren();
@@ -962,6 +986,14 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		}
 		public void endVisit(TypeLiteral node) {
 			ASTVisitorTest.this.b.append("eTL)"); //$NON-NLS-1$
+		}
+
+		public boolean visit(TypeMethodReference node) {
+			ASTVisitorTest.this.b.append("(eTMR"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(TypeMethodReference node) {
+			ASTVisitorTest.this.b.append("eTMR)"); //$NON-NLS-1$
 		}
 
 		public boolean visit(TypeParameter node) {
@@ -1416,6 +1448,18 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = this.b.toString();
 		assertTrue(result.equals("[(sCN"+this.N1S+"sCN)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
+
+	public void testCreationReference() {
+		if (this.ast.apiLevel() < AST.JLS8)
+			return;
+		CreationReference x1 = this.ast.newCreationReference(this.E1);
+		TestVisitor v1 = new TestVisitor();
+		this.b.setLength(0);
+		x1.accept(v1);
+		String result = this.b.toString();
+		assertTrue(result.equals("[(eCR"+this.E1S+"eCR)]")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	public void testDoStatement() {
 		DoStatement x1 = this.ast.newDoStatement();
 		x1.setExpression(this.E1);
@@ -1476,6 +1520,17 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = this.b.toString();
 		assertTrue(result.equals("[(ED"+this.JD1S+this.MOD1S+this.MOD2S+this.N1S+this.T1S+this.T2S+this.EC1S+this.EC2S+this.FD1S+this.FD2S+"ED)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
+	public void testExpressionMethodReference() {
+		if (this.ast.apiLevel() < AST.JLS8)
+			return;
+		ExpressionMethodReference x1 = this.ast.newExpressionMethodReference(this.E1, this.N1);
+		TestVisitor v1 = new TestVisitor();
+		this.b.setLength(0);
+		x1.accept(v1);
+		String result = this.b.toString();
+		assertTrue(result.equals("[(eEMR"+this.E1S+this.N1S+"eEMR)]")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	public void testExpressionStatement() {
 		ExpressionStatement x1 = this.ast.newExpressionStatement(this.E1);
 		TestVisitor v1 = new TestVisitor();
@@ -2009,6 +2064,18 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			assertTrue(result.equals("[(eSM"+this.N1S+this.PT1S+this.N2S+this.E1S+this.E2S+"eSM)]")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
+	public void testSuperMethodReference() {
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		SuperMethodReference x1 = this.ast.newSuperMethodReference(this.N2);
+		x1.setQualifier(this.N1);
+		TestVisitor v1 = new TestVisitor();
+		this.b.setLength(0);
+		x1.accept(v1);
+		String result = this.b.toString();
+		assertTrue(result.equals("[(eSMR"+this.N1S+this.N2S+"eSMR)]")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
 	public void testSwitchCase() {
 		SwitchCase x1 = this.ast.newSwitchCase();
 		x1.setExpression(this.E1);
@@ -2155,6 +2222,17 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = this.b.toString();
 		assertTrue(result.equals("[(eTL"+this.T1S+"eTL)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
+	public void testTypeMethodReference() {
+		if (this.ast.apiLevel() < AST.JLS8)
+			return;
+		TypeMethodReference x1 = this.ast.newTypeMethodReference(this.T1, this.N1);
+		TestVisitor v1 = new TestVisitor();
+		this.b.setLength(0);
+		x1.accept(v1);
+		String result = this.b.toString();
+		assertTrue(result.equals("[(eTMR"+this.T1S+this.N1S+"eTMR)]")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	/** @deprecated using deprecated code */
 	public void testSingleVariableDeclaration() {
 		SingleVariableDeclaration x1 = this.ast.newSingleVariableDeclaration();

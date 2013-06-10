@@ -1346,6 +1346,20 @@ public final class AST {
 	}
 
 	/**
+	 * Creates an unparented creation reference node owned by this AST.
+	 * 
+	 * @param expression expression for the left hand side of CreationReference
+	 * @return a new unparented reference expression node
+	 * @exception UnsupportedOperationException if this operation is used in a JLS2, JLS3 or JLS4 AST
+	 * @since 3.9 BETA_JAVA8
+	 */
+	public CreationReference newCreationReference(Expression expression) {
+		CreationReference result = new CreationReference(this);
+		result.setExpression(expression);
+		return result;
+	}
+
+	/**
 	 * Creates a new unparented do statement node owned by this AST.
 	 * By default, the expression is unspecified (but legal), and
 	 * the body statement is an empty block.
@@ -1409,6 +1423,22 @@ public final class AST {
 	 */
 	public EnumDeclaration newEnumDeclaration() {
 		EnumDeclaration result = new EnumDeclaration(this);
+		return result;
+	}
+
+	/**
+	 * Creates an unparented expression method reference node owned by this AST.
+	 * 
+	 * @param expression expression for the left hand side of ExpressionMethodReference
+	 * @param name name of the method in the ExpressionMethodReference
+	 * @return a new unparented reference expression node
+	 * @exception UnsupportedOperationException if this operation is used in a JLS2, JLS3 or JLS4 AST
+	 * @since 3.9 BETA_JAVA8
+	 */
+	public ExpressionMethodReference newExpressionMethodReference(Expression expression, SimpleName name) {
+		ExpressionMethodReference result = new ExpressionMethodReference(this);
+		result.setExpression(expression);
+		result.setName(name);
 		return result;
 	}
 
@@ -2244,6 +2274,21 @@ public final class AST {
 	}
 
 	/**
+	 * Creates and returns a new unparented super method reference node
+	 * owned by this AST. By default, the expression and field are both
+	 * unspecified, but legal, names.
+	 *
+	 * @param name name of the method referenced
+	 * @return a new unparented super method reference node
+	 * @since 3.9 BETA_JAVA8
+	 */
+	public SuperMethodReference newSuperMethodReference(SimpleName name) {
+		SuperMethodReference result = new SuperMethodReference(this);
+		result.setName(name);
+		return result;
+	}
+
+	/**
 	 * Creates a new unparented switch case statement node owned by
 	 * this AST. By default, the expression is unspecified, but legal.
 	 *
@@ -2420,6 +2465,22 @@ public final class AST {
 	 */
 	public TypeLiteral newTypeLiteral() {
 		TypeLiteral result = new TypeLiteral(this);
+		return result;
+	}
+
+	/**
+	 * Creates an unparented Type method reference node owned by this AST.
+	 * 
+	 * @param type type for the left hand side of TypeMethodReference
+	 * @param name name of the method in the TypeMethodReference
+	 * @return a new unparented type method reference node
+	 * @exception UnsupportedOperationException if this operation is used in a JLS2, JLS3 or JLS4 AST
+	 * @since 3.9 BETA_JAVA8
+	 */
+	public TypeMethodReference newTypeMethodReference(Type type, SimpleName name) {
+		TypeMethodReference result = new TypeMethodReference(this);
+		result.setType(type);
+		result.setName(name);
 		return result;
 	}
 

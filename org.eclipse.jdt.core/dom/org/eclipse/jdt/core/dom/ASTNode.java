@@ -868,6 +868,38 @@ public abstract class ASTNode {
 	public static final int PACKAGE_QUALIFIED_TYPE = 88;
 
 	/**
+	 * Node type constant indicating a node of type
+	 * <code>CreationReference</code>.
+	 * @see CreationReference
+	 * @since 3.9 BETA_JAV8
+	 */
+	public static final int CREATION_REFERENCE = 89;
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>ExpressionMethodReference</code>.
+	 * @see ExpressionMethodReference
+	 * @since 3.9 BETA_JAV8
+	 */
+	public static final int EXPRESSION_METHOD_REFERENCE = 90;
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>SuperMethhodReference</code>.
+	 * @see SuperMethodReference
+	 * @since 3.9 BETA_JAV8
+	 */
+	public static final int SUPER_METHOD_REFERENCE = 91;
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>TypeMethodReference</code>.
+	 * @see TypeMethodReference
+	 * @since 3.9 BETA_JAV8
+	 */
+	public static final int TYPE_METHOD_REFERENCE = 92;
+
+	/**
 	 * Returns the node class for the corresponding node type.
 	 *
 	 * @param nodeType AST node type
@@ -921,6 +953,8 @@ public abstract class ASTNode {
 				return ConstructorInvocation.class;
 			case CONTINUE_STATEMENT :
 				return ContinueStatement.class;
+			case CREATION_REFERENCE :
+				return CreationReference.class;
 			case UNION_TYPE :
 				return UnionType.class;
 			case DO_STATEMENT :
@@ -933,6 +967,8 @@ public abstract class ASTNode {
 				return EnumConstantDeclaration.class;
 			case ENUM_DECLARATION :
 				return EnumDeclaration.class;
+			case EXPRESSION_METHOD_REFERENCE :
+				return ExpressionMethodReference.class;
 			case EXPRESSION_STATEMENT :
 				return ExpressionStatement.class;
 			case EXTRA_DIMENSION:
@@ -1021,6 +1057,8 @@ public abstract class ASTNode {
 				return SuperFieldAccess.class;
 			case SUPER_METHOD_INVOCATION :
 				return SuperMethodInvocation.class;
+			case SUPER_METHOD_REFERENCE :
+				return SuperMethodReference.class;
 			case SWITCH_CASE:
 				return SwitchCase.class;
 			case SWITCH_STATEMENT :
@@ -1041,6 +1079,8 @@ public abstract class ASTNode {
 				return TypeDeclaration.class;
 			case TYPE_DECLARATION_STATEMENT :
 				return TypeDeclarationStatement.class;
+			case TYPE_METHOD_REFERENCE :
+				return TypeMethodReference.class;
 			case TYPE_LITERAL :
 				return TypeLiteral.class;
 			case TYPE_PARAMETER :

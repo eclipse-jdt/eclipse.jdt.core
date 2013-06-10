@@ -581,6 +581,28 @@ class BindingResolver {
 	}
 
 	/**
+	 * Resolves the given  method reference and returns the binding for it.
+	 * <p>
+	 * The implementation of <code>MethodReference.resolveMethodBinding</code>
+	 * forwards to this method. How the method resolves is often a function of
+	 * the context in which the method reference node is embedded as well as
+	 * the method reference subtree itself.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param methodReference the  method reference of interest
+	 * @return the binding for the given  method reference, or
+	 *    <code>null</code> if no binding is available
+	 * @since 3.9 BETA_JAVA8
+	 */
+	IMethodBinding resolveMethod(MethodReference methodReference) {
+		return null;
+	}
+
+	/**
 	 * Resolves the given Lambda Expression and returns the binding for it.
 	 * <p>
 	 * The implementation of <code>LambdaExpression.resolveMethodBinding</code>

@@ -1662,6 +1662,224 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	}
 
 	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399794
+	 * ReferenceExpression Family Tests
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test399794() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test399794/X.java",
+				true/* resolve */);
+		String contents = "package test399794;" +
+				"import java.lang.annotation.*;\n " +
+				"interface I {\n" +
+				"    Object copy(int [] ia);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"class XX {\n" +
+				"	public  void foo(int x) {}\n" +
+				"}\n" +
+				"\n" +
+				"class Y {\n" +
+				"       static class Z {\n" +
+				"               public static void foo(int x) {\n" +
+				"                       System.out.print(x);\n" +
+				"               }\n" +
+				"       }\n" +
+				"       public void foo(int x) {\n" +
+				"               System.out.print(x);\n" +
+				"       }\n" +
+				"		public <T> void foo(T t){t.hashCode();}\n" +
+				"}\n" +
+				"\n" +
+				"public class X extends XX {\n" +
+				"       @SuppressWarnings(\"unused\")\n" +
+				"       public  void bar(String [] args) {\n" +
+				"                Y y = new Y();\n" +
+				"                I i = @Marker int []::<String>clone;\n" +
+				"                J j = Y.@Marker Z  :: foo;\n" +
+				"                J j1 = Y.@Marker Z  :: <String> foo;\n" +
+				"                J jdash = @Marker W<@Marker Integer> :: <String> new ;\n" +
+				"                J jj = y :: foo;\n" +
+				"                J jx = super ::  foo;\n" +
+				"		 	     class Z {\n" +
+				"					void foo() {\n" +
+				"						J jz = X.super :: foo;\n" +
+		    	"					}\n" +
+				"				}\n" +		
+				"       }\n" +
+				"       public static void main (String [] args) {}\n" +
+				"}\n" +
+				"class W<T> extends Y {\n" +
+				"       public W(T x) {}\n" +
+				"}\n" +
+				"\n" +
+				"@Target (ElementType.TYPE_USE)\n" +
+				"@interface Marker {}";
+			
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) getASTNode(cu, 4);
+		MethodDeclaration method = typeDeclaration.getMethods()[0];
+		List statements = method.getBody().statements();
+		assertTrue(statements.size() == 8);
+		int fCount = 1;
+		
+		// type method reference with primitive type with type arguments
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) statements.get(fCount++);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+		Expression expression = fragment.getInitializer();
+		assertTrue(expression instanceof TypeMethodReference);
+		TypeMethodReference typeMethodReference = (TypeMethodReference) expression;
+		checkSourceRange(typeMethodReference, "@Marker int []::<String>clone", contents);
+		ITypeBinding typeBinding = typeMethodReference.resolveTypeBinding();
+		assertNotNull(typeBinding);
+		IMethodBinding methodBinding = typeMethodReference.resolveMethodBinding();
+		assertNotNull(methodBinding);
+		Type type = typeMethodReference.getType();
+		checkSourceRange(type, "@Marker int []", contents);
+		List typeArguments = typeMethodReference.typeArguments();
+		assertTrue(typeArguments.size() == 1);
+		type = (Type) typeArguments.get(0);
+		checkSourceRange(type, "String", contents);
+		assertTrue(type.isSimpleType());
+		SimpleName name = typeMethodReference.getName();
+		checkSourceRange(name, "clone", contents);
+		typeBinding = name.resolveTypeBinding();
+		assertNotNull(typeBinding);
+
+		// type method reference with qualified type without type arguments
+		statement = (VariableDeclarationStatement) statements.get(fCount++);
+		fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+		expression = fragment.getInitializer();
+		assertTrue(expression instanceof TypeMethodReference);
+		typeMethodReference = (TypeMethodReference) expression;
+		checkSourceRange(typeMethodReference, "Y.@Marker Z  :: foo", contents);
+		typeBinding = typeMethodReference.resolveTypeBinding();
+		assertNotNull(typeBinding);
+		methodBinding = typeMethodReference.resolveMethodBinding();
+		assertNotNull(methodBinding);
+		type = typeMethodReference.getType();
+		assertTrue(type.isQualifiedType());
+		checkSourceRange(type, "Y.@Marker Z", contents);
+		typeArguments = typeMethodReference.typeArguments();
+		assertTrue(typeArguments.size() == 0);
+		name = typeMethodReference.getName();
+		checkSourceRange(name, "foo", contents);
+		typeBinding = name.resolveTypeBinding();
+		assertNotNull(typeBinding);
+
+		// type method reference with qualified type with type arguments
+		statement = (VariableDeclarationStatement) statements.get(fCount++);
+		fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+		expression = fragment.getInitializer();
+		assertTrue(expression instanceof TypeMethodReference);
+		typeMethodReference = (TypeMethodReference) expression;
+		checkSourceRange(typeMethodReference, "Y.@Marker Z  :: <String> foo", contents);
+		typeBinding = typeMethodReference.resolveTypeBinding();
+		assertNotNull(typeBinding);
+		methodBinding = typeMethodReference.resolveMethodBinding();
+		assertNotNull(methodBinding);
+		type = typeMethodReference.getType();
+		assertTrue(type.isQualifiedType());
+		checkSourceRange(type, "Y.@Marker Z", contents);
+		typeArguments = typeMethodReference.typeArguments();
+		assertTrue(typeArguments.size() == 1);
+		type = (Type) typeArguments.get(0);
+		assertTrue(type.isSimpleType());
+		checkSourceRange(type, "String", contents);
+		name = typeMethodReference.getName();
+		checkSourceRange(name, "foo", contents);
+		typeBinding = name.resolveTypeBinding();
+		assertNotNull(typeBinding);
+
+		// creation method reference
+		statement = (VariableDeclarationStatement) statements.get(fCount++);
+		fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+		expression = fragment.getInitializer();
+		assertTrue(expression instanceof CreationReference);
+		CreationReference creationReference = (CreationReference) expression;
+		checkSourceRange(creationReference, "@Marker W<@Marker Integer> :: <String> new ", contents);
+		typeBinding = creationReference.resolveTypeBinding();
+		assertNotNull(typeBinding);
+		methodBinding = creationReference.resolveMethodBinding();
+		assertNotNull(methodBinding);
+		Expression lhs = creationReference.getExpression();
+		checkSourceRange(lhs, "@Marker W<@Marker Integer> ", contents);
+		typeArguments = creationReference.typeArguments();
+		assertTrue(typeArguments.size() == 1);
+		type = (Type) typeArguments.get(0);
+		assertTrue(type.isSimpleType());
+		checkSourceRange(type, "String", contents);
+
+		// expression method reference
+		statement = (VariableDeclarationStatement) statements.get(fCount++);
+		fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+		expression = fragment.getInitializer();
+		assertTrue(expression instanceof ExpressionMethodReference);
+		ExpressionMethodReference expressionMethodReference = (ExpressionMethodReference) expression;
+		checkSourceRange(expressionMethodReference, "y :: foo", contents);
+		typeBinding = expressionMethodReference.resolveTypeBinding();
+		assertNotNull(typeBinding);
+		methodBinding = expressionMethodReference.resolveMethodBinding();
+		assertNotNull(methodBinding);
+		lhs = expressionMethodReference.getExpression();
+		checkSourceRange(lhs, "y", contents);
+		typeArguments = expressionMethodReference.typeArguments();
+		assertTrue(typeArguments.size() == 0);
+		name = expressionMethodReference.getName();
+		checkSourceRange(name, "foo", contents);
+		typeBinding = name.resolveTypeBinding();
+		assertNotNull(typeBinding);
+
+		// super method reference without qualifier
+		statement = (VariableDeclarationStatement) statements.get(fCount++);
+		fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+		expression = fragment.getInitializer();
+		assertTrue(expression instanceof SuperMethodReference);
+		SuperMethodReference superMethodReference = (SuperMethodReference) expression;
+		checkSourceRange(superMethodReference, "super ::  foo", contents);
+		typeBinding = superMethodReference.resolveTypeBinding();
+		assertNotNull(typeBinding);
+		methodBinding = superMethodReference.resolveMethodBinding();
+		assertNotNull(methodBinding);
+		assertNull(superMethodReference.getQualifier());		
+		typeArguments = superMethodReference.typeArguments();
+		assertTrue(typeArguments.size() == 0);
+		name = superMethodReference.getName();
+		checkSourceRange(name, "foo", contents);
+		typeBinding = name.resolveTypeBinding();
+		assertNotNull(typeBinding);
+
+		// super method reference with qualifier
+		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) statements.get(fCount);
+		typeDeclaration = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
+		method = typeDeclaration.getMethods()[0];
+		statements = method.getBody().statements();
+		assertTrue(statements.size() == 1);
+		statement = (VariableDeclarationStatement) statements.get(0);
+		fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+		expression = fragment.getInitializer();
+		assertTrue(expression instanceof SuperMethodReference);
+		superMethodReference = (SuperMethodReference) expression;
+		checkSourceRange(superMethodReference, "X.super :: foo", contents);
+		typeBinding = superMethodReference.resolveTypeBinding();
+		assertNotNull(typeBinding);
+		methodBinding = superMethodReference.resolveMethodBinding();
+		assertNotNull(methodBinding);
+		name = (SimpleName) superMethodReference.getQualifier();
+		checkSourceRange(name, "X", contents);		
+		typeArguments = superMethodReference.typeArguments();
+		assertTrue(typeArguments.size() == 0);
+		name = superMethodReference.getName();
+		checkSourceRange(name, "foo", contents);
+		typeBinding = name.resolveTypeBinding();
+		assertNotNull(typeBinding);
+	
+	}
+	
+	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
 	 * 
 	 * @throws JavaModelException

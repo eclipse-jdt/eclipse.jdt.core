@@ -46,11 +46,13 @@ import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Receiver;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcatenation;
+import org.eclipse.jdt.internal.compiler.ast.SuperReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
@@ -1761,6 +1763,9 @@ class ASTConverter {
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.LambdaExpression) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.LambdaExpression) expression);
 		}
+		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) expression);
+		}
 		return null;
 	}
 
@@ -2180,13 +2185,7 @@ class ASTConverter {
 
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambda) {
 		if (this.ast.apiLevel < AST.JLS8) {
-			if (this.referenceContext != null) {
-				this.referenceContext.setFlags(this.referenceContext.getFlags() | ASTNode.MALFORMED);
-			}
-			NullLiteral nullLiteral = new NullLiteral(this.ast);
-			nullLiteral.setFlags(nullLiteral.getFlags() | ASTNode.MALFORMED);
-			nullLiteral.setSourceRange(lambda.sourceStart, lambda.sourceEnd - lambda.sourceStart + 1);
-			return nullLiteral;		
+			return createFakeNullLiteral(lambda);		
 		}
 		final LambdaExpression	lambdaExpression = new LambdaExpression(this.ast);
 		if (this.resolveBindings) {
@@ -2532,6 +2531,72 @@ class ASTConverter {
 			return convert((org.eclipse.jdt.internal.compiler.ast.FieldReference) reference);
 		}
 		return null; // cannot be reached
+	}
+
+	public Expression convert(org.eclipse.jdt.internal.compiler.ast.ReferenceExpression reference) {
+		if (this.ast.apiLevel < AST.JLS8) {
+			return createFakeNullLiteral(reference);
+		}
+		Expression result = null;
+		org.eclipse.jdt.internal.compiler.ast.Expression lhs = reference.lhs;
+		org.eclipse.jdt.internal.compiler.ast.TypeReference[] arguments = reference.typeArguments;
+		int start = arguments != null && arguments.length > 0 ? arguments[arguments.length - 1].sourceEnd + 1 : reference.lhs.sourceEnd + 1;
+		final SimpleName name = new SimpleName(this.ast);
+		retrieveIdentifierAndSetPositions(start, reference.sourceEnd, name);
+		name.internalSetIdentifier(new String(reference.selector));
+		if (this.resolveBindings) {
+			recordNodes(name, reference);
+		}
+		List typeArguments = null;
+		if (name.getStartPosition() < start) {// check for new 
+			retrieveInitAndSetPositions(start, reference.sourceEnd, name);
+			if (!name.getIdentifier().equals("<init>")) { //$NON-NLS-1$
+				NullLiteral nullLiteral = new NullLiteral(this.ast);
+				nullLiteral.setFlags(nullLiteral.getFlags() | ASTNode.MALFORMED);
+				result = nullLiteral;
+			} else {
+				CreationReference creationReference = new CreationReference(this.ast);
+				creationReference.setExpression(convert(lhs));
+				typeArguments = creationReference.typeArguments();
+				result = creationReference;
+			}
+		} else if (lhs instanceof TypeReference) {
+			TypeMethodReference typeMethodReference = new TypeMethodReference(this.ast);
+			typeMethodReference.setType(convertType((TypeReference) lhs));
+			typeMethodReference.setName(name);
+			typeArguments = typeMethodReference.typeArguments();
+			result = typeMethodReference;
+		} else if (lhs instanceof SuperReference) {
+			SuperMethodReference superMethodReference = new SuperMethodReference(this.ast);
+			superMethodReference.setName(name);
+			typeArguments = superMethodReference.typeArguments();
+			result = superMethodReference;
+		} else if (lhs instanceof QualifiedSuperReference) {
+			SuperMethodReference superMethodReference = new SuperMethodReference(this.ast);
+			superMethodReference.setQualifier(convert((QualifiedSuperReference)lhs));
+			superMethodReference.setName(name);
+			typeArguments = superMethodReference.typeArguments();
+			result = superMethodReference;
+		} else {
+			ExpressionMethodReference expressionMethodReference = new ExpressionMethodReference(this.ast);
+			expressionMethodReference.setExpression(convert(lhs));
+			typeArguments = expressionMethodReference.typeArguments();
+			expressionMethodReference.setName(name);
+			result = expressionMethodReference;
+		}
+		if (typeArguments != null && arguments != null) {
+			int argumentsLength = arguments.length;
+			for (int i = 0; i < argumentsLength; i++) {
+				org.eclipse.jdt.internal.compiler.ast.TypeReference argument = arguments[i];
+				typeArguments.add(convertType(argument));
+			}
+		}
+		if (this.resolveBindings) {
+			recordNodes(result, reference);
+		}
+		int sourceStart = reference.sourceStart; 
+		result.setSourceRange(sourceStart, reference.sourceEnd - sourceStart + 1);
+		return result;
 	}
 
 	public ReturnStatement convert(org.eclipse.jdt.internal.compiler.ast.ReturnStatement statement) {
@@ -3893,6 +3958,21 @@ class ASTConverter {
 		emptyStatement.setSourceRange(start, end - start + 1);
 		return emptyStatement;
 	}
+
+	/**
+	 * Warning: Callers of this method must ensure that the fake literal node is not recorded in
+	 * {@link #recordNodes(ASTNode, org.eclipse.jdt.internal.compiler.ast.ASTNode)}, see bug 403444!
+	 */
+	protected Expression createFakeNullLiteral(org.eclipse.jdt.internal.compiler.ast.FunctionalExpression expression) {
+		if (this.referenceContext != null) {
+			this.referenceContext.setFlags(this.referenceContext.getFlags() | ASTNode.MALFORMED);
+		}
+		NullLiteral nullLiteral = new NullLiteral(this.ast);
+		nullLiteral.setFlags(nullLiteral.getFlags() | ASTNode.MALFORMED);
+		nullLiteral.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
+		return nullLiteral;
+	}
+
 	/**
 	 * @return a new modifier
 	 */
@@ -4183,8 +4263,8 @@ class ASTConverter {
 	}
 
 	protected void recordNodes(ASTNode node, org.eclipse.jdt.internal.compiler.ast.ASTNode oldASTNode) {
-		// Do not record the fake literal node created in lieu of LambdaExpressions at JLS levels < 8, as it would lead to CCE down the road.
-		if (oldASTNode instanceof org.eclipse.jdt.internal.compiler.ast.LambdaExpression && node instanceof NullLiteral) {
+		// Do not record the fake literal node created in lieu of functional expressions at JLS levels < 8, as it would lead to CCE down the road.
+		if (oldASTNode instanceof org.eclipse.jdt.internal.compiler.ast.FunctionalExpression && node instanceof NullLiteral) {
 			return;
 		}
 		this.ast.getBindingResolver().store(node, oldASTNode);
@@ -4713,6 +4793,29 @@ class ASTConverter {
 			// ignore
 		}
 		return -1;
+	}
+
+	/**
+	 * retrieves the start and and of new and set the positions of the name
+	 * @param start position to start search
+	 * @param end position to end search
+	 * @param name object where these positions will be updated.
+	 */
+	protected void retrieveInitAndSetPositions(int start, int end, Name name) {
+		this.scanner.resetTo(start, end);
+		int token;
+		try {
+			while((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF)  {
+				if (token == TerminalTokens.TokenNamenew) {
+					int startName = this.scanner.startPosition;
+					int endName = this.scanner.currentPosition;
+					name.setSourceRange(startName, endName - startName);
+					return;
+				}
+			}
+		} catch(InvalidInputException e) {
+			// ignore
+		}
 	}
 
 	/**

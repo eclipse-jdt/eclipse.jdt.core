@@ -328,7 +328,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 				maxNodeType = 84;
 				break;
 			case AST.JLS8:
-				maxNodeType = 88;
+				maxNodeType = 92;
 				break;
 			default:
 				fail();
@@ -372,7 +372,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 				// oops - guess that's not valid
 			}
 		}
-		assertEquals("Wrong last known type", 88, hi); // last known one
+		assertEquals("Wrong last known type", 92, hi); // last known one
 		assertEquals("Wrong number of distinct types",  hi, classes.size()); // all classes are distinct
 	}
 }

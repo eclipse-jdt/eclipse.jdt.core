@@ -1,0 +1,311 @@
+/*******************************************************************************
+ * Copyright (c) 2013 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.jdt.core.dom;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Type method reference expression AST node type (added in JLS8 API).
+ * <pre>
+ * TypeMethodReference:
+ *     Type <b>::</b> 
+ *         [ <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b> ]
+ *         Identifier
+ * </pre>
+ *
+ * @since 3.9 BETA_JAVA8
+ * @noinstantiate This class is not intended to be instantiated by clients.
+ */
+public class TypeMethodReference extends MethodReference {
+
+	/**
+	 * The "type" structural property of this node type (child type: {@link Type}).
+	 */
+	public static final ChildPropertyDescriptor TYPE_PROPERTY =
+		new ChildPropertyDescriptor(TypeMethodReference.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "typeArguments" structural property of this node type (element type: {@link Type}) 
+	 */
+	public static final ChildListPropertyDescriptor TYPE_ARGUMENTS_PROPERTY =
+		internalTypeArgumentsFactory(TypeMethodReference.class);
+
+	/**
+	 * The "name" structural property of this node type (child type: {@link SimpleName}. 
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY =
+		new ChildPropertyDescriptor(TypeMethodReference.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS_8_0;
+	
+	static {
+		List propertyList = new ArrayList(4);
+		createPropertyList(TypeMethodReference.class, propertyList);
+		addProperty(TYPE_PROPERTY, propertyList);
+		addProperty(TYPE_ARGUMENTS_PROPERTY, propertyList);
+		addProperty(NAME_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 *
+	 * @param apiLevel the API level; one of the AST.JLS* constants
+	 * @return a list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor})
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS_8_0;
+	}
+
+	/**
+	 * The type; defaults to null.
+	 */
+	private Type type = null;
+	
+	/**
+	 * The method name; lazily initialized; defaults to an unspecified,
+	 * legal Java method name.
+	 */
+	private SimpleName methodName = null;
+
+	/**
+	 * Creates a new AST node for an TypeMethodReference declaration owned
+	 * by the given AST.
+	 * <p>
+	 * N.B. This constructor is package-private; all subclasses must be
+	 * declared in the same package; clients are unable to declare
+	 * additional subclasses.
+	 * </p>
+	 *
+	 * @param ast the AST that is to own this node
+	 */
+	TypeMethodReference(AST ast) {
+		super(ast);
+		unsupportedIn2_3_4();
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on MethodReference.
+	 */
+	final ChildListPropertyDescriptor internalTypeArgumentsProperty() {
+		return TYPE_ARGUMENTS_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((SimpleName) child);
+				return null;
+			}
+		}
+		if (property == TYPE_PROPERTY) {
+			if (get) {
+				return getType();
+			} else {
+				setType((Type) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == TYPE_ARGUMENTS_PROPERTY) {
+			return typeArguments();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final int getNodeType0() {
+		return TYPE_METHOD_REFERENCE;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	ASTNode clone0(AST target) {
+		TypeMethodReference result = new TypeMethodReference(target);
+		result.setSourceRange(getStartPosition(), getLength());
+		result.setName((SimpleName) getName().clone(target));
+		result.setType(
+			(Type) ASTNode.copySubtree(target, getType()));
+		result.typeArguments().addAll(ASTNode.copySubtrees(target, typeArguments()));
+		return result;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	void accept0(ASTVisitor visitor) {
+		boolean visitChildren = visitor.visit(this);
+		if (visitChildren) {
+			// visit children in normal left to right reading order
+			acceptChild(visitor, getType());
+			acceptChildren(visitor, this.typeArguments);
+			acceptChild(visitor, getName());
+		}
+		visitor.endVisit(this);
+	}
+
+	/**
+	 * Returns the type of this type method reference expression
+	 *
+	 * @return the type node
+	 */
+	public Type getType() {
+		return this.type;
+	}
+
+	/**
+	 * Sets the type of this type method reference.
+	 *
+	 * @param type type of this method reference
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
+	 */
+	public void setType(Type type) {
+		if (type == null) {
+			throw new IllegalArgumentException();
+		}
+		ASTNode oldChild = this.type;
+		preReplaceChild(oldChild, type, TYPE_PROPERTY);
+		this.type = type;
+		postReplaceChild(oldChild, type, TYPE_PROPERTY);
+	}
+
+	/**
+	 * Returns the live ordered list of type arguments of this type method reference
+	 *
+	 * @return the live list of type arguments
+	 *    (element type: {@link Type})
+	 */
+	public List typeArguments() {
+		return this.typeArguments;
+	}
+
+	/**
+	 * Returns the name of the method referenced in this expression.
+	 *
+	 * @return the method name node
+	 */
+	public SimpleName getName() {
+		if (this.methodName == null) {
+			// lazy init must be thread-safe for readers
+			synchronized (this) {
+				if (this.methodName == null) {
+					preLazyInit();
+					this.methodName = new SimpleName(this.ast);
+					postLazyInit(this.methodName, NAME_PROPERTY);
+				}
+			}
+		}
+		return this.methodName;
+	}
+
+	/**
+	 * Sets the name of the method referenced in this expression to the
+	 * given name.
+	 *
+	 * @param name the new method name
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
+	 */
+	public void setName(SimpleName name) {
+		if (name == null) {
+			throw new IllegalArgumentException();
+		}
+		ASTNode oldChild = this.methodName;
+		preReplaceChild(oldChild, name, NAME_PROPERTY);
+		this.methodName = name;
+		postReplaceChild(oldChild, name, NAME_PROPERTY);
+	}
+
+	/**
+	 * Resolves and returns the binding for the method referenced by this
+	 * expression.
+	 * <p>
+	 * Note that bindings are generally unavailable unless requested when the
+	 * AST is being built.
+	 * </p>
+	 *
+	 * @return the method binding, or <code>null</code> if the binding cannot
+	 * be resolved
+	 */
+	public IMethodBinding resolveMethodBinding() {
+		return this.ast.getBindingResolver().resolveMethod(this);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	int memSize() {
+		// treat Code as free
+		return BASE_NODE_SIZE + 3 * 4;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	int treeSize() {
+		return
+			memSize()
+			+ (this.type == null ? 0 : getType().treeSize())
+			+ (this.typeArguments == null ? 0 : this.typeArguments.listSize())
+			+ (this.methodName == null ? 0 : getName().treeSize());
+	}
+}

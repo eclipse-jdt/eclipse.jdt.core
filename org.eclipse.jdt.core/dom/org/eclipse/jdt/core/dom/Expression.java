@@ -31,11 +31,14 @@ package org.eclipse.jdt.core.dom;
  *    {@link CharacterLiteral},
  *    {@link ClassInstanceCreation},
  *    {@link ConditionalExpression},
+ *    {@link CreationReference},
+ *    {@link ExpressionMethodReference},
  *    {@link FieldAccess},
  *    {@link InfixExpression},
  *    {@link InstanceofExpression},
  *    {@link LambdaExpression},
  *    {@link MethodInvocation},
+ *    {@link MethodReference},
  *    {@link Name},
  *    {@link NullLiteral},
  *    {@link NumberLiteral},
@@ -45,8 +48,10 @@ package org.eclipse.jdt.core.dom;
  *    {@link StringLiteral},
  *    {@link SuperFieldAccess},
  *    {@link SuperMethodInvocation},
+ *    {@link SuperMethodReference},
  *    {@link ThisExpression},
  *    {@link TypeLiteral},
+ *    {@link TypeMethodReference},
  *    {@link VariableDeclarationExpression}
  * </pre>
  * </p>

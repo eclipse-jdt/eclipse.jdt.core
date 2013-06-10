@@ -8785,6 +8785,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ASTNode.LAMBDA_EXPRESSION,
 			ASTNode.INTERSECTION_TYPE,
 			ASTNode.PACKAGE_QUALIFIED_TYPE,
+			ASTNode.CREATION_REFERENCE,
+			ASTNode.EXPRESSION_METHOD_REFERENCE,
+			ASTNode.SUPER_METHOD_REFERENCE,
+			ASTNode.TYPE_METHOD_REFERENCE
 		};
 		
 		// assert that nodeType values are correct:
