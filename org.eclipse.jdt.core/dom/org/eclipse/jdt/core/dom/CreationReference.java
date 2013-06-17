@@ -22,7 +22,7 @@ import java.util.List;
  * 
  * <pre>
  * CreationReference:
- *     Expression <b>::</b> 
+ *     Type <b>::</b> 
  *         [ <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b> ]
  *         <b>new</b>
  * </pre>
@@ -33,10 +33,10 @@ import java.util.List;
 public class CreationReference extends MethodReference {
 
 	/**
-	 * The "expression" structural property of this node type (child type: {@link Expression}).
+	 * The "type" structural property of this node type (child type: {@link Type}).
 	 */
-	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY =
-		new ChildPropertyDescriptor(CreationReference.class, "expression", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor TYPE_PROPERTY =
+		new ChildPropertyDescriptor(CreationReference.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "typeArguments" structural property of this node type (element type: {@link Type}) 
@@ -52,9 +52,9 @@ public class CreationReference extends MethodReference {
 	private static final List PROPERTY_DESCRIPTORS_8_0;
 
 	static {
-		List propertyList = new ArrayList(4);
+		List propertyList = new ArrayList(3);
 		createPropertyList(CreationReference.class, propertyList);
-		addProperty(EXPRESSION_PROPERTY, propertyList);
+		addProperty(TYPE_PROPERTY, propertyList);
 		addProperty(TYPE_ARGUMENTS_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);
 	}
@@ -72,10 +72,9 @@ public class CreationReference extends MethodReference {
 	}
 
 	/**
-	 * The expression; lazily initialized; defaults to an unspecified,
-	 * legal expression (a simple name).
+	 * The type; lazily initialized; defaults to an unspecified type.
 	 */
-	private Expression expression = null;
+	private Type type = null;
 
 	/**
 	 * Creates a new AST node for an CreationReference declaration owned
@@ -111,11 +110,11 @@ public class CreationReference extends MethodReference {
 	 * Method declared on ASTNode.
 	 */
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
-		if (property == EXPRESSION_PROPERTY) {
+		if (property == TYPE_PROPERTY) {
 			if (get) {
-				return getExpression();
+				return getType();
 			} else {
-				setExpression((Expression) child);
+				setType((Type) child);
 				return null;
 			}
 		}
@@ -147,8 +146,7 @@ public class CreationReference extends MethodReference {
 	ASTNode clone0(AST target) {
 		CreationReference result = new CreationReference(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setExpression(
-			(Expression) ASTNode.copySubtree(target, getExpression()));
+		result.setType((Type) ASTNode.copySubtree(target, getType()));
 		result.typeArguments().addAll(ASTNode.copySubtrees(target, typeArguments()));
 		return result;
 	}
@@ -168,56 +166,53 @@ public class CreationReference extends MethodReference {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			acceptChild(visitor, getExpression());
+			acceptChild(visitor, getType());
 			acceptChildren(visitor, this.typeArguments);
 		}
 		visitor.endVisit(this);
 	}
 
 	/**
-	 * Returns the expression of this Creation Reference expression, or
-	 * <code>null</code> if there is none.
+	 * Returns the type of this creation reference expression.
 	 *
-	 * @return the expression node, or <code>null</code> if there is none
+	 * @return the type node
 	 */
-	public Expression getExpression() {
-		if (this.expression == null) {
+	public Type getType() {
+		if (this.type == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
-				if (this.expression == null) {
+				if (this.type == null) {
 					preLazyInit();
-					this.expression = new SimpleName(this.ast);
-					postLazyInit(this.expression, EXPRESSION_PROPERTY);
-				}				
+					this.type = new SimpleType(this.ast);
+					postLazyInit(this.type, TYPE_PROPERTY);
+				}
 			}
 		}
-		return this.expression;
+		return this.type;
 	}
 
 	/**
-	 * Sets the expression of this Creation Reference.
+	 * Sets the type of this creation reference expression.
 	 *
-	 * @param expression the expression node, or <code>null</code> if
-	 *    there is none
+	 * @param type the new type node
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
-	 * <li>a cycle in would be created</li>
 	 * </ul>
 	 */
-	public void setExpression(Expression expression) {
-		if (expression == null) {
+	public void setType(Type type) {
+		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTNode oldChild = this.expression;
-		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
-		this.expression = expression;
-		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
+		ASTNode oldChild = this.type;
+		preReplaceChild(oldChild, type, TYPE_PROPERTY);
+		this.type = type;
+		postReplaceChild(oldChild, type, TYPE_PROPERTY);
 	}
 
 	/**
-	 * Returns the live ordered list of type arguments of this Creation Reference.
+	 * Returns the live ordered list of type arguments of this creation reference expression.
 	 *
 	 * @return the live list of type arguments
 	 *    (element type: {@link Type})
@@ -240,7 +235,7 @@ public class CreationReference extends MethodReference {
 	int treeSize() {
 		return
 			memSize()
-			+ (this.expression == null ? 0 : getExpression().treeSize())
+			+ (this.type == null ? 0 : getType().treeSize())
 			+ (this.typeArguments == null ? 0 : this.typeArguments.listSize());
 	}
 }

@@ -604,7 +604,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 * @since 3.9 BETA_JAVA8
 	 */
 	public boolean visit(CreationReference node) {
-		node.getExpression().accept(this);
+		node.getType().accept(this);
 		visitReferenceTypeArguments(node.typeArguments());
 		this.buffer.append("new");//$NON-NLS-1$
 		return false;

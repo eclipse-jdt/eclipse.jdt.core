@@ -78,10 +78,10 @@ public class TypeMethodReference extends MethodReference {
 	}
 
 	/**
-	 * The type; defaults to null.
+	 * The type; lazily initialized; defaults to an unspecified type.
 	 */
 	private Type type = null;
-	
+
 	/**
 	 * The method name; lazily initialized; defaults to an unspecified,
 	 * legal Java method name.
@@ -166,10 +166,9 @@ public class TypeMethodReference extends MethodReference {
 	ASTNode clone0(AST target) {
 		TypeMethodReference result = new TypeMethodReference(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setName((SimpleName) getName().clone(target));
-		result.setType(
-			(Type) ASTNode.copySubtree(target, getType()));
+		result.setType((Type) ASTNode.copySubtree(target, getType()));
 		result.typeArguments().addAll(ASTNode.copySubtrees(target, typeArguments()));
+		result.setName((SimpleName) getName().clone(target));
 		return result;
 	}
 
@@ -196,23 +195,32 @@ public class TypeMethodReference extends MethodReference {
 	}
 
 	/**
-	 * Returns the type of this type method reference expression
+	 * Returns the type of this type method reference expression.
 	 *
 	 * @return the type node
 	 */
 	public Type getType() {
+		if (this.type == null) {
+			// lazy init must be thread-safe for readers
+			synchronized (this) {
+				if (this.type == null) {
+					preLazyInit();
+					this.type = new SimpleType(this.ast);
+					postLazyInit(this.type, TYPE_PROPERTY);
+				}
+			}
+		}
 		return this.type;
 	}
 
 	/**
-	 * Sets the type of this type method reference.
+	 * Sets the type of this type method reference expression.
 	 *
-	 * @param type type of this method reference
+	 * @param type the new type node
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
-	 * <li>a cycle in would be created</li>
 	 * </ul>
 	 */
 	public void setType(Type type) {
@@ -226,7 +234,7 @@ public class TypeMethodReference extends MethodReference {
 	}
 
 	/**
-	 * Returns the live ordered list of type arguments of this type method reference
+	 * Returns the live ordered list of type arguments of this type method reference expression.
 	 *
 	 * @return the live list of type arguments
 	 *    (element type: {@link Type})

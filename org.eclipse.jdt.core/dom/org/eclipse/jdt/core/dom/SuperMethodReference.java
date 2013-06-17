@@ -112,6 +112,9 @@ public class SuperMethodReference extends MethodReference {
 		return TYPE_ARGUMENTS_PROPERTY;
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}

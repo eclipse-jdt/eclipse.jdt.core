@@ -887,7 +887,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (this.ast.apiLevel() < AST.JLS8) {
 			return;
 		}
-		CreationReference x1 = this.ast.newCreationReference(this.E1);
+		CreationReference x1 = this.ast.newCreationReference();
+		x1.setType(this.T1);
 		basicMatch(x1);
 	}
 	
@@ -951,7 +952,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (this.ast.apiLevel() < AST.JLS8) {
 			return;
 		}
-		ExpressionMethodReference x1 = this.ast.newExpressionMethodReference(this.E1, this.N1);
+		ExpressionMethodReference x1 = this.ast.newExpressionMethodReference();
+		x1.setExpression(this.E1);
+		x1.setName(this.N1);
 		basicMatch(x1);
 	}
 	
@@ -1191,8 +1194,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (this.ast.apiLevel() < AST.JLS8) {
 			return;
 		}
-		SuperMethodReference x1 = this.ast.newSuperMethodReference(this.N2);
+		SuperMethodReference x1 = this.ast.newSuperMethodReference();
 		x1.setQualifier(this.N1);
+		x1.setName(this.N2);
 		basicMatch(x1);
 	}
 	public void testSwitchCase() {
@@ -1632,7 +1636,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (this.ast.apiLevel() < AST.JLS8) {
 			return;
 		}
-		TypeMethodReference x1 = this.ast.newTypeMethodReference(this.T1, this.N1);
+		TypeMethodReference x1 = this.ast.newTypeMethodReference();
+		x1.setType(this.T1);
+		x1.setName(this.N1);
 		basicMatch(x1);
 	}
 	

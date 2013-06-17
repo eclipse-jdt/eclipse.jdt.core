@@ -1739,6 +1739,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertNotNull(methodBinding);
 		Type type = typeMethodReference.getType();
 		checkSourceRange(type, "@Marker int []", contents);
+		assertTrue(type.isArrayType());
 		List typeArguments = typeMethodReference.typeArguments();
 		assertTrue(typeArguments.size() == 1);
 		type = (Type) typeArguments.get(0);
@@ -1805,8 +1806,10 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertNotNull(typeBinding);
 		methodBinding = creationReference.resolveMethodBinding();
 		assertNotNull(methodBinding);
-		Expression lhs = creationReference.getExpression();
-		checkSourceRange(lhs, "@Marker W<@Marker Integer> ", contents);
+		type = creationReference.getType();
+		checkSourceRange(type, "@Marker W<@Marker Integer>", contents);
+		assertTrue(type instanceof ParameterizedType);
+		assertASTNodeEquals("@Marker W<@Marker Integer>", type);
 		typeArguments = creationReference.typeArguments();
 		assertTrue(typeArguments.size() == 1);
 		type = (Type) typeArguments.get(0);
@@ -1824,7 +1827,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertNotNull(typeBinding);
 		methodBinding = expressionMethodReference.resolveMethodBinding();
 		assertNotNull(methodBinding);
-		lhs = expressionMethodReference.getExpression();
+		Expression lhs = expressionMethodReference.getExpression();
 		checkSourceRange(lhs, "y", contents);
 		typeArguments = expressionMethodReference.typeArguments();
 		assertTrue(typeArguments.size() == 0);

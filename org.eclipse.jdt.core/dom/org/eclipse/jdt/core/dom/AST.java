@@ -1347,15 +1347,14 @@ public final class AST {
 
 	/**
 	 * Creates an unparented creation reference node owned by this AST.
+	 * By default, the type is unspecified (but legal), and there are no type arguments.
 	 * 
-	 * @param expression expression for the left hand side of CreationReference
-	 * @return a new unparented reference expression node
+	 * @return a new unparented creation reference expression node
 	 * @exception UnsupportedOperationException if this operation is used in a JLS2, JLS3 or JLS4 AST
 	 * @since 3.9 BETA_JAVA8
 	 */
-	public CreationReference newCreationReference(Expression expression) {
+	public CreationReference newCreationReference() {
 		CreationReference result = new CreationReference(this);
-		result.setExpression(expression);
 		return result;
 	}
 
@@ -1428,17 +1427,15 @@ public final class AST {
 
 	/**
 	 * Creates an unparented expression method reference node owned by this AST.
+	 * By default, the expression and method name are unspecified (but legal),
+	 * and there are no type arguments.
 	 * 
-	 * @param expression expression for the left hand side of ExpressionMethodReference
-	 * @param name name of the method in the ExpressionMethodReference
-	 * @return a new unparented reference expression node
+	 * @return a new unparented expression method reference expression node
 	 * @exception UnsupportedOperationException if this operation is used in a JLS2, JLS3 or JLS4 AST
 	 * @since 3.9 BETA_JAVA8
 	 */
-	public ExpressionMethodReference newExpressionMethodReference(Expression expression, SimpleName name) {
+	public ExpressionMethodReference newExpressionMethodReference() {
 		ExpressionMethodReference result = new ExpressionMethodReference(this);
-		result.setExpression(expression);
-		result.setName(name);
 		return result;
 	}
 
@@ -2262,7 +2259,7 @@ public final class AST {
 
 	/**
 	 * Creates an unparented "super" method invocation expression node owned by
-	 * this AST. By default, the name of the method is unspecified (but legal)
+	 * this AST. By default, the name of the method is unspecified (but legal),
 	 * there is no qualifier, no type arguments, and the list of arguments is empty.
 	 *
 	 * @return a new unparented  "super" method invocation
@@ -2274,17 +2271,15 @@ public final class AST {
 	}
 
 	/**
-	 * Creates and returns a new unparented super method reference node
-	 * owned by this AST. By default, the expression and field are both
-	 * unspecified, but legal, names.
+	 * Creates and returns a new unparented super method reference node owned by
+	 * this AST. By default, the name of the method is unspecified (but legal),
+	 * and there is no qualifier and no type arguments.
 	 *
-	 * @param name name of the method referenced
 	 * @return a new unparented super method reference node
 	 * @since 3.9 BETA_JAVA8
 	 */
-	public SuperMethodReference newSuperMethodReference(SimpleName name) {
+	public SuperMethodReference newSuperMethodReference() {
 		SuperMethodReference result = new SuperMethodReference(this);
-		result.setName(name);
 		return result;
 	}
 
@@ -2469,18 +2464,16 @@ public final class AST {
 	}
 
 	/**
-	 * Creates an unparented Type method reference node owned by this AST.
+	 * Creates an unparented type method reference node owned by this AST.
+	 * By default, the type and method name are unspecified (but legal),
+	 * and there are no type arguments.
 	 * 
-	 * @param type type for the left hand side of TypeMethodReference
-	 * @param name name of the method in the TypeMethodReference
 	 * @return a new unparented type method reference node
 	 * @exception UnsupportedOperationException if this operation is used in a JLS2, JLS3 or JLS4 AST
 	 * @since 3.9 BETA_JAVA8
 	 */
-	public TypeMethodReference newTypeMethodReference(Type type, SimpleName name) {
+	public TypeMethodReference newTypeMethodReference() {
 		TypeMethodReference result = new TypeMethodReference(this);
-		result.setType(type);
-		result.setName(name);
 		return result;
 	}
 

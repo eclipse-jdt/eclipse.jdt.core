@@ -78,7 +78,8 @@ public class ExpressionMethodReference extends MethodReference {
 	}
 
 	/**
-	 * The expression; defaults to null.
+	 * The expression; lazily initialized; defaults to an unspecified,
+	 * legal expression.
 	 */
 	private Expression expression = null;
 
@@ -201,6 +202,16 @@ public class ExpressionMethodReference extends MethodReference {
 	 * @return the expression node
 	 */
 	public Expression getExpression() {
+		if (this.expression == null) {
+			// lazy init must be thread-safe for readers
+			synchronized (this) {
+				if (this.expression == null) {
+					preLazyInit();
+					this.expression = new SimpleName(this.ast);
+					postLazyInit(this.expression, EXPRESSION_PROPERTY);
+				}
+			}
+		}
 		return this.expression;
 	}
 

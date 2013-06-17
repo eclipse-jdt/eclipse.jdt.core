@@ -1452,12 +1452,13 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testCreationReference() {
 		if (this.ast.apiLevel() < AST.JLS8)
 			return;
-		CreationReference x1 = this.ast.newCreationReference(this.E1);
+		CreationReference x1 = this.ast.newCreationReference();
+		x1.setType(this.T1);
 		TestVisitor v1 = new TestVisitor();
 		this.b.setLength(0);
 		x1.accept(v1);
 		String result = this.b.toString();
-		assertTrue(result.equals("[(eCR"+this.E1S+"eCR)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(result.equals("[(eCR"+this.T1S+"eCR)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void testDoStatement() {
@@ -1523,7 +1524,9 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testExpressionMethodReference() {
 		if (this.ast.apiLevel() < AST.JLS8)
 			return;
-		ExpressionMethodReference x1 = this.ast.newExpressionMethodReference(this.E1, this.N1);
+		ExpressionMethodReference x1 = this.ast.newExpressionMethodReference();
+		x1.setExpression(this.E1);
+		x1.setName(this.N1);
 		TestVisitor v1 = new TestVisitor();
 		this.b.setLength(0);
 		x1.accept(v1);
@@ -2068,8 +2071,9 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (this.ast.apiLevel() < AST.JLS8) {
 			return;
 		}
-		SuperMethodReference x1 = this.ast.newSuperMethodReference(this.N2);
+		SuperMethodReference x1 = this.ast.newSuperMethodReference();
 		x1.setQualifier(this.N1);
+		x1.setName(this.N2);
 		TestVisitor v1 = new TestVisitor();
 		this.b.setLength(0);
 		x1.accept(v1);
@@ -2225,7 +2229,9 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testTypeMethodReference() {
 		if (this.ast.apiLevel() < AST.JLS8)
 			return;
-		TypeMethodReference x1 = this.ast.newTypeMethodReference(this.T1, this.N1);
+		TypeMethodReference x1 = this.ast.newTypeMethodReference();
+		x1.setType(this.T1);
+		x1.setName(this.N1);
 		TestVisitor v1 = new TestVisitor();
 		this.b.setLength(0);
 		x1.accept(v1);

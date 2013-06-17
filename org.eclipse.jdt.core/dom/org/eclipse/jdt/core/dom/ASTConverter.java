@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
@@ -2548,18 +2549,25 @@ class ASTConverter {
 			recordNodes(name, reference);
 		}
 		List typeArguments = null;
-		if (name.getStartPosition() < start) {// check for new 
+		if (name.getStartPosition() == -1 && name.getIdentifier().equals("<init>")) { // check for "new"  //$NON-NLS-1$
 			retrieveInitAndSetPositions(start, reference.sourceEnd, name);
-			if (!name.getIdentifier().equals("<init>")) { //$NON-NLS-1$
-				NullLiteral nullLiteral = new NullLiteral(this.ast);
-				nullLiteral.setFlags(nullLiteral.getFlags() | ASTNode.MALFORMED);
-				result = nullLiteral;
-			} else {
-				CreationReference creationReference = new CreationReference(this.ast);
-				creationReference.setExpression(convert(lhs));
-				typeArguments = creationReference.typeArguments();
-				result = creationReference;
+			Type type = null;
+			if (lhs instanceof TypeReference) {
+				type = convertType((TypeReference) lhs);
+			} else if (lhs instanceof NameReference) {
+				Name typeName = convert((NameReference) lhs);
+				SimpleType simpleType = new SimpleType(this.ast);
+				simpleType.setName(typeName);
+				if (this.resolveBindings) {
+					recordNodes(simpleType, lhs);
+				}
+				simpleType.setSourceRange(lhs.sourceStart, lhs.sourceEnd - lhs.sourceStart + 1);
+				type = simpleType;
 			}
+			CreationReference creationReference = new CreationReference(this.ast);
+			creationReference.setType(type);
+			typeArguments = creationReference.typeArguments();
+			result = creationReference;
 		} else if (lhs instanceof TypeReference) {
 			TypeMethodReference typeMethodReference = new TypeMethodReference(this.ast);
 			typeMethodReference.setType(convertType((TypeReference) lhs));
@@ -4623,7 +4631,7 @@ class ASTConverter {
 	}
 
 	/**
-	 * This method is used to retrieve the start and end position of a name.
+	 * This method is used to retrieve the start and end position of a name or primitive type token.
 	 * 
 	 * @return int[] a single dimensional array, with two elements, for the start and end positions of the name respectively
 	 */

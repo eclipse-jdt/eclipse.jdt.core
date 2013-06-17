@@ -708,7 +708,7 @@ public class ASTMatcher {
 		}
 		CreationReference o = (CreationReference) other;
 		return (
-			safeSubtreeMatch(node.getExpression(), o.getExpression())
+			safeSubtreeMatch(node.getType(), o.getType())
 				&& safeSubtreeListMatch(node.typeArguments(), o.typeArguments()));
 	}
 

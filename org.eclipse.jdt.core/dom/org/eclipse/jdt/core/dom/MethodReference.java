@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * Abstract base class of all AST node types that represent a method reference
  * expression (added in JLS8 API).
- * <p>
+ * 
  * <pre>
  * MethodReference:
  *    CreationReference
@@ -27,6 +27,11 @@ import java.util.List;
  *    SuperMethodReference
  *    TypeMethodReference
  * </pre>
+ * <p>
+ * A method reference that is represented by a simple or qualified name,
+ * followed by <code>::</code>, followed by a simple name can be represented
+ * as {@link ExpressionMethodReference} or as {@link TypeMethodReference}. 
+ * The ASTParser currently prefers the first form.
  * </p>
  *
  * @see CreationReference
