@@ -24930,7 +24930,7 @@ public void test0779() throws Exception {
 		},
 		"SUCCESS");
 
-	String constantPoolIdx = IS_JRE_8 ? "70" : "36"; // depends on whether or not stubs for JRE8 default methods are included
+	String constantPoolIdx = IS_JRE_8 ? "73" : "36"; // depends on whether or not stubs for JRE8 default methods are included
 	String expectedOutput =
 		"  // Method descriptor #31 (I)Ljava/lang/Object;\n" +
 		"  // Stack: 2, Locals: 2\n" +
@@ -25916,27 +25916,27 @@ public void test0809() {
 			"}\n",
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 22)\n" +
+		"1. WARNING in X.java (at line 23)\n" +
 		"	void f1(Set1 s) {\n" +
 		"	        ^^^^\n" +
 		"Set1 is a raw type. References to generic type Set1<N> should be parameterized\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 23)\n" +
+		"2. ERROR in X.java (at line 24)\n" +
 		"	Node n_ = s.iterator().next();\n" +
 		"	          ^^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from Object to Node\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 26)\n" +
+		"3. ERROR in X.java (at line 27)\n" +
 		"	for (Node n : s) {\n" +
 		"	              ^\n" +
 		"Type mismatch: cannot convert from element type Object to Node\n" +
 		"----------\n" +
-		"4. WARNING in X.java (at line 36)\n" +
+		"4. WARNING in X.java (at line 37)\n" +
 		"	void f3(Set3 s) {\n" +
 		"	        ^^^^\n" +
 		"Set3 is a raw type. References to generic type Set3<N> should be parameterized\n" +
 		"----------\n" +
-		"5. ERROR in X.java (at line 39)\n" +
+		"5. ERROR in X.java (at line 40)\n" +
 		"	for (Node n : s) {\n" +
 		"	              ^\n" +
 		"Type mismatch: cannot convert from element type Object to Node\n" +
@@ -32482,28 +32482,18 @@ public void test0986() {
 public void test0987() {
 	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
     ?	"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
-		"	               ^^^^^^^^^^^^^^^^\n" + 
-		"The return types are incompatible for the inherited methods EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
 		"	public ISheetViewer getViewer() { return null; }	\n" + 
 		"	       ^^^^^^^^^^^^\n" + 
 		"The return type is incompatible with EditPart.getViewer()\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 11)\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
 		"	public ISheetViewer getViewer() { return null; }	\n" + 
 		"	                    ^^^^^^^^^^^\n" + 
 		"The method getViewer() of type AbstractLinkView<M> must override a superclass method\n" + 
 		"----------\n"
     :		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
-		"	               ^^^^^^^^^^^^^^^^\n" + 
-		"The return types are incompatible for the inherited methods EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
 		"	public ISheetViewer getViewer() { return null; }	\n" + 
 		"	       ^^^^^^^^^^^^\n" + 
 		"The return type is incompatible with EditPart.getViewer()\n" + 
@@ -32591,13 +32581,8 @@ public void test0988() {
 				"	public ISheetViewer getViewer();\n" +
 				"}", // =================
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
-			"	               ^^^^^^^^^^^^^^^^\n" + 
-			"The return types are incompatible for the inherited methods ILinkViewElement.getViewer(), EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 11)\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 11)\n" + 
 			"	public SheetViewer getViewer() { return null; }	\n" + 
 			"	       ^^^^^^^^^^^\n" + 
 			"The return type is incompatible with AbstractEditPart.getViewer()\n" + 
@@ -49781,7 +49766,7 @@ public void test1444() {
 			"	                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from Iterator to Iterator<String>\n" + 
 			"----------\n" + 
-			"6. ERROR in X.java (at line 37)\n" + 
+			"6. ERROR in X.java (at line 38)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 

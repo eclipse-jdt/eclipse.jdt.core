@@ -2491,7 +2491,7 @@ public class VarargsTest extends AbstractComparableTest {
 				},
 				this.complianceLevel < ClassFileConstants.JDK1_7 ?
 				"----------\n" + 
-				"1. WARNING in X.java (at line 19)\n" + 
+				"1. WARNING in X.java (at line 20)\n" + 
 				"	new IteratorChain<Number>(null, null);\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Type safety: A generic array of Collection<? extends Number> is created for a varargs parameter\n" + 
@@ -2502,7 +2502,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"	                                                                                                       ^^^^^^^^^^^\n" + 
 				"Type safety: Potential heap pollution via varargs parameter collections\n" + 
 				"----------\n" + 
-				"2. WARNING in X.java (at line 19)\n" + 
+				"2. WARNING in X.java (at line 20)\n" + 
 				"	new IteratorChain<Number>(null, null);\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Type safety: A generic array of Collection<? extends Number> is created for a varargs parameter\n" + 
