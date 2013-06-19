@@ -312,7 +312,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 
 	/**
 	 * "default" modifier constant (bit mask) (added in JLS8 API).
-	 * Applicable only to methods.
+	 * Applicable only to methods in interfaces (but not for annotation methods with a default value).
 	 * <p>
 	 * Note that the value of this flag is internal and is not
 	 * specified in the Java Virtual Machine Specification.

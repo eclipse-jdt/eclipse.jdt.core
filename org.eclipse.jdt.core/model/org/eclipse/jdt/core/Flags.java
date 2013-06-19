@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
  * <p>
  * Note that the numeric values of these flags match the ones for class files
  * as described in the Java Virtual Machine Specification (except for
- * {@link #AccDeprecated} and {@link #AccDefaultMethod}).
+ * {@link #AccDeprecated}, {@link #AccAnnotationDefault}, and {@link #AccDefaultMethod}).
  * </p>
  * <p>
  * The AST class <code>Modifier</code> provides

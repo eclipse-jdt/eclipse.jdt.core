@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,9 +63,14 @@ IType getDeclaringType();
  * Returns the modifier flags for this member. The flags can be examined using class
  * <code>Flags</code>.
  * <p>
- * Note that only flags as indicated in the source are returned. Thus if an interface
- * defines a method <code>void myMethod();</code> the flags don't include the
- * 'public' flag.
+ * For {@linkplain #isBinary() binary} members, flags from the class file
+ * as well as derived flags {@link Flags#AccAnnotationDefault} and {@link Flags#AccDefaultMethod} are included.
+ * </p>
+ * <p>
+ * For source members, only flags as indicated in the source are returned. Thus if an interface
+ * defines a method <code>void myMethod();</code>, the flags don't include the
+ * 'public' flag. Source flags include {@link Flags#AccAnnotationDefault} as well.
+ * </p>
  *
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource.
