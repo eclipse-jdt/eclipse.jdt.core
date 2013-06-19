@@ -14,7 +14,7 @@
   <parent>
     <artifactId>eclipse.jdt.core</artifactId>
     <groupId>eclipse.jdt.core</groupId>
-    <version>4.3.0-SNAPSHOT</version>
+    <version>4.4.0-SNAPSHOT</version>
   </parent>
   <groupId>org.eclipse.jdt</groupId>
   <artifactId>org.eclipse.jdt.core</artifactId>
@@ -31,7 +31,7 @@
 				<configuration>
 					<tasks>
 						<replace token="bundle_qualifier," value="${buildQualifier}," dir="${project.build.directory}/classes">
-							<include name="org/eclipse/jdt/internal/compiler/batch/messages.properties" />
+							<include name="org/eclipse/jdt/internal/compiler/batch/messages.properties"/>
 						</replace>
 					</tasks>
 				</configuration>
