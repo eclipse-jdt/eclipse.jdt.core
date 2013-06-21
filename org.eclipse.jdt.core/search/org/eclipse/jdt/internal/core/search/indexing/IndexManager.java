@@ -309,9 +309,14 @@ public synchronized Index getIndex(IPath containerPath, IndexLocation indexLocat
 				// supposed to be in reuse state but error in the index file, so reindex.
 				if (VERBOSE)
 					Util.verbose("-> cannot reuse given index: "+indexLocation+" path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
-				this.indexLocations.put(containerPath, null);
-				indexLocation = computeIndexLocation(containerPath);
-				rebuildIndex(indexLocation, containerPath);
+				if(!IS_MANAGING_PRODUCT_INDEXES_PROPERTY) {
+					this.indexLocations.put(containerPath, null);
+					indexLocation = computeIndexLocation(containerPath);
+					rebuildIndex(indexLocation, containerPath);
+				}
+				else {
+					rebuildIndex(indexLocation, containerPath, true);
+				}
 				return null;
 			}
 		}
@@ -540,9 +545,16 @@ public void indexLibrary(IPath path, IProject requestingProject, URL indexURL) {
 public void indexLibrary(IPath path, IProject requestingProject, URL indexURL, final boolean updateIndex) {
 	// requestingProject is no longer used to cancel jobs but leave it here just in case
 	IndexLocation indexFile = null;
+	boolean forceIndexUpdate = false;
 	if(indexURL != null) {
 		if(IS_MANAGING_PRODUCT_INDEXES_PROPERTY) {
 			indexFile = computeIndexLocation(path, indexURL);
+			if(!updateIndex && !indexFile.exists()) {
+				forceIndexUpdate = true;
+			}
+			else {
+				forceIndexUpdate = updateIndex;
+			}
 		}
 		else {
 			indexFile = IndexLocation.createIndexLocation(indexURL);
@@ -550,7 +562,6 @@ public void indexLibrary(IPath path, IProject requestingProject, URL indexURL, f
 	}
 	if (JavaCore.getPlugin() == null) return;
 	IndexRequest request = null;
-	boolean forceIndexUpdate = IS_MANAGING_PRODUCT_INDEXES_PROPERTY && updateIndex;
 	Object target = JavaModel.getTarget(path, true);
 	if (target instanceof IFile) {
 		request = new AddJarFileToIndex((IFile) target, indexFile, this, forceIndexUpdate);
@@ -641,6 +652,9 @@ private char[][] readJavaLikeNamesFile() {
 	return null;
 }
 private void rebuildIndex(IndexLocation indexLocation, IPath containerPath) {
+	rebuildIndex(indexLocation, containerPath, false);
+}
+private void rebuildIndex(IndexLocation indexLocation, IPath containerPath, final boolean updateIndex) {
 	Object target = JavaModel.getTarget(containerPath, true);
 	if (target == null) return;
 
@@ -656,9 +670,9 @@ private void rebuildIndex(IndexLocation indexLocation, IPath containerPath) {
 	} else if (target instanceof IFolder) {
 		request = new IndexBinaryFolder((IFolder) target, this);
 	} else if (target instanceof IFile) {
-		request = new AddJarFileToIndex((IFile) target, null, this);
+		request = new AddJarFileToIndex((IFile) target, null, this, updateIndex);
 	} else if (target instanceof File) {
-		request = new AddJarFileToIndex(containerPath, null, this);
+		request = new AddJarFileToIndex(containerPath, null, this, updateIndex);
 	}
 	if (request != null)
 		request(request);
@@ -849,6 +863,23 @@ public synchronized boolean resetIndex(IPath containerPath) {
 			e.printStackTrace();
 		}
 		return false;
+	}
+}
+/**
+ * {@link #saveIndex(Index)} will only update the state if there are no other jobs running against the same
+ * underlying resource for this index.  Pre-built indexes must be in a {@link #REUSE_STATE} state even if
+ * there is another job to run against it as the subsequent job will find the index and not save it in the
+ * right state.
+ * Refer to https://bugs.eclipse.org/bugs/show_bug.cgi?id=405932
+ */
+public void savePreBuiltIndex(Index index) throws IOException {
+	if (index.hasChanged()) {
+		if (VERBOSE)
+			Util.verbose("-> saving pre-build index " + index.getIndexLocation()); //$NON-NLS-1$
+		index.save();
+	}
+	synchronized (this) {
+		updateIndexState(index.getIndexLocation(), REUSE_STATE);
 	}
 }
 public void saveIndex(Index index) throws IOException {
