@@ -234,7 +234,12 @@ class AddJarFileToIndex extends IndexRequest {
 						this.manager.indexDocument(entryDocument, participant, index, indexPath);
 					}
 				}
-				this.manager.saveIndex(index);
+				if(this.forceIndexUpdate) {
+					this.manager.savePreBuiltIndex(index);
+				}
+				else {
+					this.manager.saveIndex(index);
+				}
 				if (JobManager.VERBOSE)
 					org.eclipse.jdt.internal.core.util.Util.verbose("-> done indexing of " //$NON-NLS-1$
 						+ zip.getName() + " (" //$NON-NLS-1$
