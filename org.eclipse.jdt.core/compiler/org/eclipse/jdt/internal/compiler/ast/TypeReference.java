@@ -621,6 +621,6 @@ protected TypeBinding captureTypeAnnotations(Scope scope, ReferenceBinding enclo
 	}
     if (annotationBits == 0L)
     	return argType;
-	return scope.environment().createParameterizedType((ReferenceBinding) argType, Binding.NO_TYPES, annotationBits, enclosingType);
+	return scope.environment().createParameterizedType((ReferenceBinding) argType, null, annotationBits, enclosingType);
 }
 }

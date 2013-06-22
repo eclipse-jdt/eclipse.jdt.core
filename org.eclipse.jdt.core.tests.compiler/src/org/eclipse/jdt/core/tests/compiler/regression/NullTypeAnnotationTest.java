@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 GK Software AG and others.
+ * Copyright (c) 2012, 2013 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -50,7 +50,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testArrayType_05" };
+//			TESTS_NAMES = new String[] { "testBinary01" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -863,4 +863,47 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"Map cannot be resolved to a type\n" + 
 			"----------\n");
 	}
+
+	// storing and decoding null-type-annotations to/from classfile:
+	public void testBinary01() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+		runConformTestWithLibs(
+				new String[] {
+					ELEMENT_TYPE_JAVA,
+					ELEMENT_TYPE_SOURCE,
+					CUSTOM_NULLABLE_NAME,
+					CUSTOM_NULLABLE_CONTENT_JSR308,
+					CUSTOM_NONNULL_NAME,
+					CUSTOM_NONNULL_CONTENT_JSR308,
+					"p/X.java",
+					"package p;\n" +
+					"import java.util.List;\n" +
+					"import org.foo.*;\n" +
+					"public class X {\n" +
+					"	public List<@Nullable String> getSomeStrings() { return null; }\n" +
+					"}\n"
+				},
+				customOptions,
+				"");
+// TODO(SH): change to runNegativeTestWithLibs(
+		runConformTestWithLibs(
+				new String[] {
+					"Y.java",
+					"import p.X;\n" +
+					"public class Y {\n" +
+					"	public void test(X x) {\n" +
+					"		for (String s : x.getSomeStrings()) {\n" +
+					"			System.out.println(s.toUpperCase());\n" +
+					"		}\n" +
+					"	}\n" +
+					"}\n"
+				}, 
+				customOptions,
+// TODO(SH): decoding part is not yet implemented: add expected error message
+				""
+				);
+	}
+
 }
