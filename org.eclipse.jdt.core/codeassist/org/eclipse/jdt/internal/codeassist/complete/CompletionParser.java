@@ -88,6 +88,7 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_INSIDE_FOR_CONDITIONAL = COMPLETION_PARSER + 40;
 	// added for https://bugs.eclipse.org/bugs/show_bug.cgi?id=261534
 	protected static final int K_BETWEEN_INSTANCEOF_AND_RPAREN = COMPLETION_PARSER + 41;
+	protected static final int K_INSIDE_IMPORT_STATEMENT = COMPLETION_PARSER + 43;
 
 
 	public final static char[] FAKE_TYPE_NAME = new char[]{' '};
@@ -3171,6 +3172,9 @@ protected void consumeAnnotationName() {
 		return;
 	}
 
+	if (isInImportStatement()) {
+		return;
+	}
 	MarkerAnnotation markerAnnotation = null;
 	int length = this.identifierLengthStack[this.identifierLengthPtr];
 	TypeReference typeReference;
@@ -3494,6 +3498,9 @@ protected void consumeToken(int token) {
 			&& this.currentElement == null
 			&& isIndirectlyInsideFieldInitialization()) {
 		this.scanner.eofPosition = this.cursorLocation < Integer.MAX_VALUE ? this.cursorLocation+1 : this.cursorLocation;
+	}
+	if (token == TokenNameimport) {
+		pushOnElementStack(K_INSIDE_IMPORT_STATEMENT);
 	}
 
 	// if in a method or if in a field initializer
@@ -4034,6 +4041,10 @@ protected void consumeTypeHeaderNameWithTypeParameters() {
 protected void consumeTypeImportOnDemandDeclarationName() {
 	super.consumeTypeImportOnDemandDeclarationName();
 	this.pendingAnnotation = null; // the pending annotation cannot be attached to next nodes
+}
+protected void consumeImportDeclaration() {
+	super.consumeImportDeclaration();
+	popElement(K_INSIDE_IMPORT_STATEMENT);
 }
 protected void consumeTypeParameters() {
 	super.consumeTypeParameters();
@@ -5139,5 +5150,15 @@ protected boolean isInsideArrayInitializer(){
 		return true;
 	}
 	return false;	
+}
+protected boolean isInImportStatement() {
+	int i = this.elementPtr;
+	while (i > -1) {
+		if (this.elementKindStack[i] == K_INSIDE_IMPORT_STATEMENT) {
+			return true;
+		}
+		i--;
+	}
+	return false;
 }
 }

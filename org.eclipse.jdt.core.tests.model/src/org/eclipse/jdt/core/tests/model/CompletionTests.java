@@ -1062,6 +1062,10 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testBug370971"));
 	suite.addTest(new CompletionTests("testBug406468a"));
 	suite.addTest(new CompletionTests("testBug406468b"));
+	suite.addTest(new CompletionTests("testBug405250a"));
+	suite.addTest(new CompletionTests("testBug405250b"));
+	suite.addTest(new CompletionTests("testBug405250c"));
+	suite.addTest(new CompletionTests("testBug405250d"));
 	return suite;
 }
 public CompletionTests(String name) {
@@ -26456,6 +26460,116 @@ public void testBug406468b() throws JavaModelException {
 			"i[LOCAL_VARIABLE_REF]{i, null, Ltest.I;, i, null, 27}\n" +
 			"main[METHOD_REF]{main(), Ltest.X<TS;>;, ([Ljava.lang.String;)V, main, (args), 27}\n" +
 			"x[LOCAL_VARIABLE_REF]{x, null, Ltest.X;, x, null, 27}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		options.put(CompilerOptions.OPTION_Source, savedOptionSource);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// Bug 405250 - [1.8][code assist] Annotations getting suggested at import statements
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=405250
+public void testBug405250a() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/X.java",
+				"import java.util.@ \n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "import java.util.@";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		options.put(CompilerOptions.OPTION_Source, savedOptionSource);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+public void testBug405250b() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/X.java",
+				"import @ \n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "import @";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		options.put(CompilerOptions.OPTION_Source, savedOptionSource);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+public void testBug405250c() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/X.java",
+				"import static @ \n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "import static @";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		options.put(CompilerOptions.OPTION_Source, savedOptionSource);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+public void testBug405250d() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/X.java",
+				"import static java.util.@ \n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "import static java.util.@";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"",
 			requestor.getResults());
 	} finally {
 		// Restore compliance settings.
