@@ -3722,7 +3722,7 @@ X.java:2: name clash: foo(I<String>) in X8 and foo(I<? extends T>) in Y have the
 			"1. ERROR in X.java (at line 6)\n" +
 			"	@Override T id(T x) { return x; }\n" +
 			"	            ^^^^^^^\n" +
-			"Method id(T) has the same erasure id(A) as another method in type Y<T>\n" +
+			"Erasure of method id(T) is the same as another method in type Y<T>\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 6)\n" +
 			"	@Override T id(T x) { return x; }\n" +
@@ -3732,7 +3732,7 @@ X.java:2: name clash: foo(I<String>) in X8 and foo(I<? extends T>) in Y have the
 			"3. ERROR in X.java (at line 7)\n" +
 			"	@Override A id(A x) { return x; }\n" +
 			"	            ^^^^^^^\n" +
-			"Method id(A) has the same erasure id(A) as another method in type Y<T>\n" +
+			"Erasure of method id(A) is the same as another method in type Y<T>\n" +
 			"----------\n"
 			// id(T) is already defined in Y
 			// id(java.lang.String) in Y overrides id(T) in X; return type requires unchecked conversion
@@ -4038,43 +4038,43 @@ X.java:16: foo(Object) is already defined in X.C4
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	A<Y> foo(A<Y> o) {  return null; } // duplicate\n" + 
 				"	     ^^^^^^^^^^^\n" + 
-				"Method foo(A<Y>) has the same erasure foo(A<T>) as another method in type X.C5\n" + 
+				"Erasure of method foo(A<Y>) is the same as another method in type X.C5\n" +
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	A<Z> foo(A<Z> o) {  return null; } // duplicate\n" + 
 				"	     ^^^^^^^^^^^\n" + 
-				"Method foo(A<Z>) has the same erasure foo(A<T>) as another method in type X.C5\n" + 
+				"Erasure of method foo(A<Z>) is the same as another method in type X.C5\n" +
 				"----------\n" + 
 				"3. WARNING in X.java (at line 7)\n" + 
 				"	<T extends Y> T foo(A<Y> o) {  return null; } // ok\n" + 
 				"	                ^^^^^^^^^^^\n" + 
-				"Method foo(A<Y>) has the same erasure foo(A<T>) as another method in type X.C6\n" + 
+				"Erasure of method foo(A<Y>) is the same as another method in type X.C6\n" +
 				"----------\n" + 
 				"4. WARNING in X.java (at line 8)\n" + 
 				"	<T extends Z> T foo(A<Z> o) {  return null; } // ok\n" + 
 				"	                ^^^^^^^^^^^\n" + 
-				"Method foo(A<Z>) has the same erasure foo(A<T>) as another method in type X.C6\n" + 
+				"Erasure of method foo(A<Z>) is the same as another method in type X.C6\n" +
 				"----------\n":
 					"----------\n" + 
 					"1. ERROR in X.java (at line 3)\n" + 
 					"	A<Y> foo(A<Y> o) {  return null; } // duplicate\n" + 
 					"	     ^^^^^^^^^^^\n" + 
-					"Method foo(A<Y>) has the same erasure foo(A<T>) as another method in type X.C5\n" + 
+					"Erasure of method foo(A<Y>) is the same as another method in type X.C5\n" +
 					"----------\n" + 
 					"2. ERROR in X.java (at line 4)\n" + 
 					"	A<Z> foo(A<Z> o) {  return null; } // duplicate\n" + 
 					"	     ^^^^^^^^^^^\n" + 
-					"Method foo(A<Z>) has the same erasure foo(A<T>) as another method in type X.C5\n" + 
+					"Erasure of method foo(A<Z>) is the same as another method in type X.C5\n" +
 					"----------\n" + 
 					"3. ERROR in X.java (at line 7)\n" + 
 					"	<T extends Y> T foo(A<Y> o) {  return null; } // ok\n" + 
 					"	                ^^^^^^^^^^^\n" + 
-					"Method foo(A<Y>) has the same erasure foo(A<T>) as another method in type X.C6\n" + 
+					"Erasure of method foo(A<Y>) is the same as another method in type X.C6\n" +
 					"----------\n" + 
 					"4. ERROR in X.java (at line 8)\n" + 
 					"	<T extends Z> T foo(A<Z> o) {  return null; } // ok\n" + 
 					"	                ^^^^^^^^^^^\n" + 
-					"Method foo(A<Z>) has the same erasure foo(A<T>) as another method in type X.C6\n" + 
+					"Erasure of method foo(A<Z>) is the same as another method in type X.C6\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -4167,63 +4167,63 @@ X.java:4: name clash: <T#1>foo(Object) and <T#2,U>foo(Object) have the same eras
 				"1. WARNING in X.java (at line 2)\n" + 
 				"	<N extends B> N a(A<String> s) { return null; }\n" + 
 				"	                ^^^^^^^^^^^^^^\n" + 
-				"Method a(A<String>) has the same erasure a(A<T>) as another method in type X\n" + 
+				"Erasure of method a(A<String>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"2. WARNING in X.java (at line 3)\n" + 
 				"	<N> Object a(A<Number> n) { return null; }\n" + 
 				"	           ^^^^^^^^^^^^^^\n" + 
-				"Method a(A<Number>) has the same erasure a(A<T>) as another method in type X\n" + 
+				"Erasure of method a(A<Number>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"3. WARNING in X.java (at line 4)\n" + 
 				"	<N extends B> void b(A<String> s) {}\n" + 
 				"	                   ^^^^^^^^^^^^^^\n" + 
-				"Method b(A<String>) has the same erasure b(A<T>) as another method in type X\n" + 
+				"Erasure of method b(A<String>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"4. WARNING in X.java (at line 5)\n" + 
 				"	<N extends B> B b(A<Number> n) { return null; }\n" + 
 				"	                ^^^^^^^^^^^^^^\n" + 
-				"Method b(A<Number>) has the same erasure b(A<T>) as another method in type X\n" + 
+				"Erasure of method b(A<Number>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"5. WARNING in X.java (at line 6)\n" + 
 				"	void c(A<String> s) {}\n" + 
 				"	     ^^^^^^^^^^^^^^\n" + 
-				"Method c(A<String>) has the same erasure c(A<T>) as another method in type X\n" + 
+				"Erasure of method c(A<String>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"6. WARNING in X.java (at line 7)\n" + 
 				"	B c(A<Number> n) { return null; }\n" + 
 				"	  ^^^^^^^^^^^^^^\n" + 
-				"Method c(A<Number>) has the same erasure c(A<T>) as another method in type X\n" + 
+				"Erasure of method c(A<Number>) is the same as another method in type X\n" +
 				"----------\n":
 					"----------\n" + 
 					"1. ERROR in X.java (at line 2)\n" + 
 					"	<N extends B> N a(A<String> s) { return null; }\n" + 
 					"	                ^^^^^^^^^^^^^^\n" + 
-					"Method a(A<String>) has the same erasure a(A<T>) as another method in type X\n" + 
+					"Erasure of method a(A<String>) is the same as another method in type X\n" +
 					"----------\n" + 
 					"2. ERROR in X.java (at line 3)\n" + 
 					"	<N> Object a(A<Number> n) { return null; }\n" + 
 					"	           ^^^^^^^^^^^^^^\n" + 
-					"Method a(A<Number>) has the same erasure a(A<T>) as another method in type X\n" + 
+					"Erasure of method a(A<Number>) is the same as another method in type X\n" +
 					"----------\n" + 
 					"3. ERROR in X.java (at line 4)\n" + 
 					"	<N extends B> void b(A<String> s) {}\n" + 
 					"	                   ^^^^^^^^^^^^^^\n" + 
-					"Method b(A<String>) has the same erasure b(A<T>) as another method in type X\n" + 
+					"Erasure of method b(A<String>) is the same as another method in type X\n" +
 					"----------\n" + 
 					"4. ERROR in X.java (at line 5)\n" + 
 					"	<N extends B> B b(A<Number> n) { return null; }\n" + 
 					"	                ^^^^^^^^^^^^^^\n" + 
-					"Method b(A<Number>) has the same erasure b(A<T>) as another method in type X\n" + 
+					"Erasure of method b(A<Number>) is the same as another method in type X\n" +
 					"----------\n" + 
 					"5. ERROR in X.java (at line 6)\n" + 
 					"	void c(A<String> s) {}\n" + 
 					"	     ^^^^^^^^^^^^^^\n" + 
-					"Method c(A<String>) has the same erasure c(A<T>) as another method in type X\n" + 
+					"Erasure of method c(A<String>) is the same as another method in type X\n" +
 					"----------\n" + 
 					"6. ERROR in X.java (at line 7)\n" + 
 					"	B c(A<Number> n) { return null; }\n" + 
 					"	  ^^^^^^^^^^^^^^\n" + 
-					"Method c(A<Number>) has the same erasure c(A<T>) as another method in type X\n" + 
+					"Erasure of method c(A<Number>) is the same as another method in type X\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -4276,12 +4276,12 @@ X.java:7: name clash: c(A<Number>) and c(A<String>) have the same erasure
 			"1. ERROR in X.java (at line 2)\n" +
 			"	<N extends B> N a(A<String> s) { return null; }\n" +
 			"	                ^^^^^^^^^^^^^^\n" +
-			"Method a(A<String>) has the same erasure a(A<T>) as another method in type X\n" +
+			"Erasure of method a(A<String>) is the same as another method in type X\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 3)\n" +
 			"	<N> B a(A<Number> n) { return null; }\n" +
 			"	      ^^^^^^^^^^^^^^\n" +
-			"Method a(A<Number>) has the same erasure a(A<T>) as another method in type X\n" +
+			"Erasure of method a(A<Number>) is the same as another method in type X\n" +
 			"----------\n"
 		);
 /* javac 7
@@ -4310,12 +4310,12 @@ X.java:3: name clash: <N#1>a(A<Number>) and <N#2>a(A<String>) have the same eras
 			"1. ERROR in X.java (at line 2)\n" +
 			"	<N extends B> N b(A<String> s) { return null; }\n" +
 			"	                ^^^^^^^^^^^^^^\n" +
-			"Method b(A<String>) has the same erasure b(A<T>) as another method in type X\n" +
+			"Erasure of method b(A<String>) is the same as another method in type X\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 3)\n" +
 			"	<N extends B> B b(A<Number> n) { return null; }\n" +
 			"	                ^^^^^^^^^^^^^^\n" +
-			"Method b(A<Number>) has the same erasure b(A<T>) as another method in type X\n" +
+			"Erasure of method b(A<Number>) is the same as another method in type X\n" +
 			"----------\n"
 		);
 /* javac 7
@@ -4344,12 +4344,12 @@ X.java:3: name clash: <N#1>b(A<Number>) and <N#2>b(A<String>) have the same eras
 			"1. ERROR in X.java (at line 2)\n" +
 			"	B c(A<String> s) { return null; }\n" +
 			"	  ^^^^^^^^^^^^^^\n" +
-			"Method c(A<String>) has the same erasure c(A<T>) as another method in type X\n" +
+			"Erasure of method c(A<String>) is the same as another method in type X\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 3)\n" +
 			"	B c(A<Number> n) { return null; }\n" +
 			"	  ^^^^^^^^^^^^^^\n" +
-			"Method c(A<Number>) has the same erasure c(A<T>) as another method in type X\n" +
+			"Erasure of method c(A<Number>) is the same as another method in type X\n" +
 			"----------\n"
 		);
 /* javac 7
@@ -4377,12 +4377,12 @@ X.java:3: name clash: c(A<Number>) and c(A<String>) have the same erasure
 				"3. WARNING in X.java (at line 4)\n" + 
 				"	<N extends B> N b(A<Number> s) { return null; }\n" + 
 				"	                ^^^^^^^^^^^^^^\n" + 
-				"Method b(A<Number>) has the same erasure b(A<T>) as another method in type X\n" + 
+				"Erasure of method b(A<Number>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"4. WARNING in X.java (at line 5)\n" + 
 				"	<N> Object b(A<String> n) { return null; }\n" + 
 				"	           ^^^^^^^^^^^^^^\n" + 
-				"Method b(A<String>) has the same erasure b(A<T>) as another method in type X\n" + 
+				"Erasure of method b(A<String>) is the same as another method in type X\n" +
 				"----------\n":
 					"----------\n" + 
 					"1. ERROR in X.java (at line 2)\n" + 
@@ -4398,12 +4398,12 @@ X.java:3: name clash: c(A<Number>) and c(A<String>) have the same erasure
 					"3. ERROR in X.java (at line 4)\n" + 
 					"	<N extends B> N b(A<Number> s) { return null; }\n" + 
 					"	                ^^^^^^^^^^^^^^\n" + 
-					"Method b(A<Number>) has the same erasure b(A<T>) as another method in type X\n" + 
+					"Erasure of method b(A<Number>) is the same as another method in type X\n" +
 					"----------\n" + 
 					"4. ERROR in X.java (at line 5)\n" + 
 					"	<N> Object b(A<String> n) { return null; }\n" + 
 					"	           ^^^^^^^^^^^^^^\n" + 
-					"Method b(A<String>) has the same erasure b(A<T>) as another method in type X\n" + 
+					"Erasure of method b(A<String>) is the same as another method in type X\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -4463,12 +4463,12 @@ X.java:5: name clash: <N#1>b(A<String>) and <N#2>b(A<Number>) have the same eras
 			"3. ERROR in X.java (at line 4)\n" +
 			"	<N extends B> N b(A<Number> s) { return null; }\n" +
 			"	                ^^^^^^^^^^^^^^\n" +
-			"Method b(A<Number>) has the same erasure b(A<T>) as another method in type X\n" +
+			"Erasure of method b(A<Number>) is the same as another method in type X\n" +
 			"----------\n" +
 			"4. ERROR in X.java (at line 5)\n" +
 			"	<N> B b(A<String> n) { return null; }\n" +
 			"	      ^^^^^^^^^^^^^^\n" +
-			"Method b(A<String>) has the same erasure b(A<T>) as another method in type X\n" +
+			"Erasure of method b(A<String>) is the same as another method in type X\n" +
 			"----------\n"
 		);
 /* javac 7
@@ -4632,12 +4632,12 @@ class X implements I {
 			"1. ERROR in X.java (at line 2)\n" +
 			"	void foo(A<String> a) {}\n" +
 			"	     ^^^^^^^^^^^^^^^^\n" +
-			"Method foo(A<String>) has the same erasure foo(A<T>) as another method in type X\n" +
+			"Erasure of method foo(A<String>) is the same as another method in type X\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 3)\n" +
 			"	void foo(A<Integer> a) {}\n" +
 			"	     ^^^^^^^^^^^^^^^^^\n" +
-			"Method foo(A<Integer>) has the same erasure foo(A<T>) as another method in type X\n" +
+			"Erasure of method foo(A<Integer>) is the same as another method in type X\n" +
 			"----------\n"
 		);
 /* javac 7
@@ -4654,23 +4654,23 @@ X.java:3: name clash: foo(A<Integer>) and foo(A<String>) have the same erasure
 				"1. WARNING in X.java (at line 2)\n" + 
 				"	void foo(A<String> a) {}\n" + 
 				"	     ^^^^^^^^^^^^^^^^\n" + 
-				"Method foo(A<String>) has the same erasure foo(A<T>) as another method in type X\n" + 
+				"Erasure of method foo(A<String>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"2. WARNING in X.java (at line 3)\n" + 
 				"	Object foo(A<Integer> a) { return null; }\n" + 
 				"	       ^^^^^^^^^^^^^^^^^\n" + 
-				"Method foo(A<Integer>) has the same erasure foo(A<T>) as another method in type X\n" + 
+				"Erasure of method foo(A<Integer>) is the same as another method in type X\n" +
 				"----------\n":
 					"----------\n" + 
 					"1. ERROR in X.java (at line 2)\n" + 
 					"	void foo(A<String> a) {}\n" + 
 					"	     ^^^^^^^^^^^^^^^^\n" + 
-					"Method foo(A<String>) has the same erasure foo(A<T>) as another method in type X\n" + 
+					"Erasure of method foo(A<String>) is the same as another method in type X\n" +
 					"----------\n" + 
 					"2. ERROR in X.java (at line 3)\n" + 
 					"	Object foo(A<Integer> a) { return null; }\n" + 
 					"	       ^^^^^^^^^^^^^^^^^\n" + 
-					"Method foo(A<Integer>) has the same erasure foo(A<T>) as another method in type X\n" + 
+					"Erasure of method foo(A<Integer>) is the same as another method in type X\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -4816,12 +4816,12 @@ X.java:3: name clash: foo(A<Integer>) and foo(A<String>) have the same erasure
 			"1. ERROR in X.java (at line 2)\n" +
 			"	void a(Object x) {}\n" +
 			"	     ^^^^^^^^^^^\n" +
-			"Method a(Object) has the same erasure a(Object) as another method in type X\n" +
+			"Erasure of method a(Object) is the same as another method in type X\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 3)\n" +
 			"	<T> T a(T x) {  return null; }\n" +
 			"	      ^^^^^^\n" +
-			"Method a(T) has the same erasure a(Object) as another method in type X\n" +
+			"Erasure of method a(T) is the same as another method in type X\n" +
 			"----------\n"
 		);
 /* javac 7
@@ -4838,32 +4838,32 @@ X.java:3: a(Object) is already defined in X
 				"1. WARNING in X.java (at line 2)\n" + 
 				"	<T1, T2> String aaa(X x) {  return null; }\n" + 
 				"	                ^^^^^^^^\n" + 
-				"Method aaa(X) has the same erasure aaa(X) as another method in type X\n" + 
+				"Erasure of method aaa(X) is the same as another method in type X\n" +
 				"----------\n" + 
 				"2. WARNING in X.java (at line 3)\n" + 
 				"	<T extends X> T aaa(T x) {  return null; }\n" + 
 				"	                ^^^^^^^^\n" + 
-				"Method aaa(T) has the same erasure aaa(X) as another method in type X\n" + 
+				"Erasure of method aaa(T) is the same as another method in type X\n" +
 				"----------\n" + 
 				"3. WARNING in X.java (at line 4)\n" + 
 				"	<T> String aa(X x) {  return null; }\n" + 
 				"	           ^^^^^^^\n" + 
-				"Method aa(X) has the same erasure aa(X) as another method in type X\n" + 
+				"Erasure of method aa(X) is the same as another method in type X\n" +
 				"----------\n" + 
 				"4. WARNING in X.java (at line 5)\n" + 
 				"	<T extends X> T aa(T x) {  return null; }\n" + 
 				"	                ^^^^^^^\n" + 
-				"Method aa(T) has the same erasure aa(X) as another method in type X\n" + 
+				"Erasure of method aa(T) is the same as another method in type X\n" +
 				"----------\n" + 
 				"5. ERROR in X.java (at line 6)\n" + 
 				"	String a(X x) {  return null; }\n" + 
 				"	       ^^^^^^\n" + 
-				"Method a(X) has the same erasure a(X) as another method in type X\n" + 
+				"Erasure of method a(X) is the same as another method in type X\n" +
 				"----------\n" + 
 				"6. ERROR in X.java (at line 7)\n" + 
 				"	<T extends X> T a(T x) {  return null; }\n" + 
 				"	                ^^^^^^\n" + 
-				"Method a(T) has the same erasure a(X) as another method in type X\n" + 
+				"Erasure of method a(T) is the same as another method in type X\n" +
 				"----------\n" + 
 				"7. WARNING in X.java (at line 8)\n" + 
 				"	<T> String z(X x) { return null; }\n" + 
@@ -4879,32 +4879,32 @@ X.java:3: a(Object) is already defined in X
 					"1. ERROR in X.java (at line 2)\n" + 
 					"	<T1, T2> String aaa(X x) {  return null; }\n" + 
 					"	                ^^^^^^^^\n" + 
-					"Method aaa(X) has the same erasure aaa(X) as another method in type X\n" + 
+					"Erasure of method aaa(X) is the same as another method in type X\n" +
 					"----------\n" + 
 					"2. ERROR in X.java (at line 3)\n" + 
 					"	<T extends X> T aaa(T x) {  return null; }\n" + 
 					"	                ^^^^^^^^\n" + 
-					"Method aaa(T) has the same erasure aaa(X) as another method in type X\n" + 
+					"Erasure of method aaa(T) is the same as another method in type X\n" +
 					"----------\n" + 
 					"3. ERROR in X.java (at line 4)\n" + 
 					"	<T> String aa(X x) {  return null; }\n" + 
 					"	           ^^^^^^^\n" + 
-					"Method aa(X) has the same erasure aa(X) as another method in type X\n" + 
+					"Erasure of method aa(X) is the same as another method in type X\n" +
 					"----------\n" + 
 					"4. ERROR in X.java (at line 5)\n" + 
 					"	<T extends X> T aa(T x) {  return null; }\n" + 
 					"	                ^^^^^^^\n" + 
-					"Method aa(T) has the same erasure aa(X) as another method in type X\n" + 
+					"Erasure of method aa(T) is the same as another method in type X\n" +
 					"----------\n" + 
 					"5. ERROR in X.java (at line 6)\n" + 
 					"	String a(X x) {  return null; }\n" + 
 					"	       ^^^^^^\n" + 
-					"Method a(X) has the same erasure a(X) as another method in type X\n" + 
+					"Erasure of method a(X) is the same as another method in type X\n" +
 					"----------\n" + 
 					"6. ERROR in X.java (at line 7)\n" + 
 					"	<T extends X> T a(T x) {  return null; }\n" + 
 					"	                ^^^^^^\n" + 
-					"Method a(T) has the same erasure a(X) as another method in type X\n" + 
+					"Erasure of method a(T) is the same as another method in type X\n" +
 					"----------\n" + 
 					"7. ERROR in X.java (at line 8)\n" + 
 					"	<T> String z(X x) { return null; }\n" + 
@@ -5042,43 +5042,43 @@ X.java:3: <T1>dupT() is already defined in X
 				"1. WARNING in X.java (at line 2)\n" + 
 				"	<T> T a(A<T> t) {return null;}\n" + 
 				"	      ^^^^^^^^^\n" + 
-				"Method a(A<T>) has the same erasure a(A<T>) as another method in type X\n" + 
+				"Erasure of method a(A<T>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"2. WARNING in X.java (at line 3)\n" + 
 				"	<T> String a(A<Object> o) {return null;}\n" + 
 				"	           ^^^^^^^^^^^^^^\n" + 
-				"Method a(A<Object>) has the same erasure a(A<T>) as another method in type X\n" + 
+				"Erasure of method a(A<Object>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"3. WARNING in X.java (at line 4)\n" + 
 				"	<T> T aa(A<T> t) {return null;}\n" + 
 				"	      ^^^^^^^^^^\n" + 
-				"Method aa(A<T>) has the same erasure aa(A<T>) as another method in type X\n" + 
+				"Erasure of method aa(A<T>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"4. WARNING in X.java (at line 5)\n" + 
 				"	String aa(A<Object> o) {return null;}\n" + 
 				"	       ^^^^^^^^^^^^^^^\n" + 
-				"Method aa(A<Object>) has the same erasure aa(A<T>) as another method in type X\n" + 
+				"Erasure of method aa(A<Object>) is the same as another method in type X\n" +
 				"----------\n":
 					"----------\n" + 
 					"1. ERROR in X.java (at line 2)\n" + 
 					"	<T> T a(A<T> t) {return null;}\n" + 
 					"	      ^^^^^^^^^\n" + 
-					"Method a(A<T>) has the same erasure a(A<T>) as another method in type X\n" + 
+					"Erasure of method a(A<T>) is the same as another method in type X\n" +
 					"----------\n" + 
 					"2. ERROR in X.java (at line 3)\n" + 
 					"	<T> String a(A<Object> o) {return null;}\n" + 
 					"	           ^^^^^^^^^^^^^^\n" + 
-					"Method a(A<Object>) has the same erasure a(A<T>) as another method in type X\n" + 
+					"Erasure of method a(A<Object>) is the same as another method in type X\n" +
 					"----------\n" + 
 					"3. ERROR in X.java (at line 4)\n" + 
 					"	<T> T aa(A<T> t) {return null;}\n" + 
 					"	      ^^^^^^^^^^\n" + 
-					"Method aa(A<T>) has the same erasure aa(A<T>) as another method in type X\n" + 
+					"Erasure of method aa(A<T>) is the same as another method in type X\n" +
 					"----------\n" + 
 					"4. ERROR in X.java (at line 5)\n" + 
 					"	String aa(A<Object> o) {return null;}\n" + 
 					"	       ^^^^^^^^^^^^^^^\n" + 
-					"Method aa(A<Object>) has the same erasure aa(A<T>) as another method in type X\n" + 
+					"Erasure of method aa(A<Object>) is the same as another method in type X\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -5230,43 +5230,43 @@ X.java:5: name clash: aa(A<Object>) and <T>aa(A<T>) have the same erasure
 				"3. WARNING in X.java (at line 6)\n" + 
 				"	<T> T foo(T t) {return null;}\n" + 
 				"	      ^^^^^^^^\n" + 
-				"Method foo(T) has the same erasure foo(Object) as another method in type X<A>\n" + 
+				"Erasure of method foo(T) is the same as another method in type X<A>\n" +
 				"----------\n" + 
 				"4. WARNING in X.java (at line 7)\n" + 
 				"	void foo(A a) {}\n" + 
 				"	     ^^^^^^^^\n" + 
-				"Method foo(A) has the same erasure foo(Object) as another method in type X<A>\n" + 
+				"Erasure of method foo(A) is the same as another method in type X<A>\n" +
 				"----------\n" + 
 				"5. WARNING in X.java (at line 8)\n" + 
 				"	<T> T foo2(T t) {return null;}\n" + 
 				"	      ^^^^^^^^^\n" + 
-				"Method foo2(T) has the same erasure foo2(Object) as another method in type X<A>\n" + 
+				"Erasure of method foo2(T) is the same as another method in type X<A>\n" +
 				"----------\n" + 
 				"6. WARNING in X.java (at line 9)\n" + 
 				"	<T> void foo2(A a) {}\n" + 
 				"	         ^^^^^^^^^\n" + 
-				"Method foo2(A) has the same erasure foo2(Object) as another method in type X<A>\n" + 
+				"Erasure of method foo2(A) is the same as another method in type X<A>\n" +
 				"----------\n":
 					"----------\n" + 
 					"1. ERROR in X.java (at line 6)\n" + 
 					"	<T> T foo(T t) {return null;}\n" + 
 					"	      ^^^^^^^^\n" + 
-					"Method foo(T) has the same erasure foo(Object) as another method in type X<A>\n" + 
+					"Erasure of method foo(T) is the same as another method in type X<A>\n" +
 					"----------\n" + 
 					"2. ERROR in X.java (at line 7)\n" + 
 					"	void foo(A a) {}\n" + 
 					"	     ^^^^^^^^\n" + 
-					"Method foo(A) has the same erasure foo(Object) as another method in type X<A>\n" + 
+					"Erasure of method foo(A) is the same as another method in type X<A>\n" +
 					"----------\n" + 
 					"3. ERROR in X.java (at line 8)\n" + 
 					"	<T> T foo2(T t) {return null;}\n" + 
 					"	      ^^^^^^^^^\n" + 
-					"Method foo2(T) has the same erasure foo2(Object) as another method in type X<A>\n" + 
+					"Erasure of method foo2(T) is the same as another method in type X<A>\n" +
 					"----------\n" + 
 					"4. ERROR in X.java (at line 9)\n" + 
 					"	<T> void foo2(A a) {}\n" + 
 					"	         ^^^^^^^^^\n" + 
-					"Method foo2(A) has the same erasure foo2(Object) as another method in type X<A>\n" + 
+					"Erasure of method foo2(A) is the same as another method in type X<A>\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -7130,7 +7130,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			"5. ERROR in DataSet.java (at line 6)\n" +
 			"	public <S> S[] toArray(S[] s) {\n" +
 			"	               ^^^^^^^^^^^^^^\n" +
-			"Method toArray(S[]) has the same erasure toArray(Object[]) as another method in type DataSet<T>\n" +
+			"Erasure of method toArray(S[]) is the same as another method in type DataSet<T>\n" +
 			"----------\n" +
 			"6. ERROR in DataSet.java (at line 6)\n" +
 			"	public <S> S[] toArray(S[] s) {\n" +
@@ -7145,7 +7145,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			"8. ERROR in DataSet.java (at line 9)\n" +
 			"	public Object[] toArray(Object[] o) {\n" +
 			"	                ^^^^^^^^^^^^^^^^^^^\n" +
-			"Method toArray(Object[]) has the same erasure toArray(Object[]) as another method in type DataSet<T>\n" +
+			"Erasure of method toArray(Object[]) is the same as another method in type DataSet<T>\n" +
 			"----------\n" +
 			"9. WARNING in DataSet.java (at line 14)\n" +
 			"	public boolean addAll(Collection c) {	return false; }\n" +
@@ -7364,12 +7364,12 @@ public void test101() {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	Integer getX(List<Integer> l) {\n" + 
 			"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method getX(List<Integer>) has the same erasure getX(List<E>) as another method in type X\n" + 
+			"Erasure of method getX(List<Integer>) is the same as another method in type X\n" +
 			"----------\n" + 
 			"2. WARNING in X.java (at line 6)\n" + 
 			"	String getX(List<String> l) {\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method getX(List<String>) has the same erasure getX(List<E>) as another method in type X\n" + 
+			"Erasure of method getX(List<String>) is the same as another method in type X\n" +
 			"----------\n" + 
 			"3. ERROR in X.java (at line 11)\n" + 
 			"	Integer getX(List<Integer> l) {\n" + 
@@ -7385,12 +7385,12 @@ public void test101() {
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	Integer getX(List<Integer> l) {\n" + 
 				"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method getX(List<Integer>) has the same erasure getX(List<E>) as another method in type X\n" + 
+				"Erasure of method getX(List<Integer>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"2. ERROR in X.java (at line 6)\n" + 
 				"	String getX(List<String> l) {\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method getX(List<String>) has the same erasure getX(List<E>) as another method in type X\n" + 
+				"Erasure of method getX(List<String>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"3. ERROR in X.java (at line 11)\n" + 
 				"	Integer getX(List<Integer> l) {\n" + 
@@ -8481,23 +8481,23 @@ public void test120a() {
 			"1. WARNING in Bar.java (at line 2)\n" + 
 			"	int getThing(V v) { return 1; }\n" + 
 			"	    ^^^^^^^^^^^^^\n" + 
-			"Method getThing(V) has the same erasure getThing(Object) as another method in type Foo<V,E>\n" + 
+			"Erasure of method getThing(V) is the same as another method in type Foo<V,E>\n" +
 			"----------\n" + 
 			"2. WARNING in Bar.java (at line 3)\n" + 
 			"	boolean getThing(E e) { return true; }\n" + 
 			"	        ^^^^^^^^^^^^^\n" + 
-			"Method getThing(E) has the same erasure getThing(Object) as another method in type Foo<V,E>\n" + 
+			"Erasure of method getThing(E) is the same as another method in type Foo<V,E>\n" +
 			"----------\n":
 				"----------\n" + 
 				"1. ERROR in Bar.java (at line 2)\n" + 
 				"	int getThing(V v) { return 1; }\n" + 
 				"	    ^^^^^^^^^^^^^\n" + 
-				"Method getThing(V) has the same erasure getThing(Object) as another method in type Foo<V,E>\n" + 
+				"Erasure of method getThing(V) is the same as another method in type Foo<V,E>\n" +
 				"----------\n" + 
 				"2. ERROR in Bar.java (at line 3)\n" + 
 				"	boolean getThing(E e) { return true; }\n" + 
 				"	        ^^^^^^^^^^^^^\n" + 
-				"Method getThing(E) has the same erasure getThing(Object) as another method in type Foo<V,E>\n" + 
+				"Erasure of method getThing(E) is the same as another method in type Foo<V,E>\n" +
 				"----------\n";
 	this.runNegativeTest(
 		new String[] {
@@ -9452,12 +9452,12 @@ public void test150() {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	public MyT<Void> method3(D1<String> harg, D1<String> oarg, D1<java.util.Date> date){\n" +
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Method method3(X.D1<String>, X.D1<String>, X.D1<Date>) has the same erasure method3(X.D1<T>, X.D1<T>, X.D1<T>) as another method in type X\n" +
+		"Erasure of method method3(X.D1<String>, X.D1<String>, X.D1<Date>) is the same as another method in type X\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 7)\n" +
 		"	public MyT<Void> method3(D1<String> harg, D1<String> oarg, D1<String> date){\n" +
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Method method3(X.D1<String>, X.D1<String>, X.D1<String>) has the same erasure method3(X.D1<T>, X.D1<T>, X.D1<T>) as another method in type X\n" +
+		"Erasure of method method3(X.D1<String>, X.D1<String>, X.D1<String>) is the same as another method in type X\n" +
 		"----------\n" +
 		"3. WARNING in X.java (at line 11)\n" +
 		"	public MyT<Void> method3(D1<String> harg, D1<String> oarg, D1<java.util.Date> date, D1 ... notUsed){\n" +
@@ -10842,12 +10842,12 @@ public void test187() {
 			"2. WARNING in X.java (at line 13)\n" + 
 			"	int f(List<String> l) {return 0;}\n" + 
 			"	    ^^^^^^^^^^^^^^^^^\n" + 
-			"Method f(List<String>) has the same erasure f(List<E>) as another method in type XX\n" + 
+			"Erasure of method f(List<String>) is the same as another method in type XX\n" +
 			"----------\n" + 
 			"3. WARNING in X.java (at line 14)\n" + 
 			"	double f(List<Integer> l) {return 0;}\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^\n" + 
-			"Method f(List<Integer>) has the same erasure f(List<E>) as another method in type XX\n" + 
+			"Erasure of method f(List<Integer>) is the same as another method in type XX\n" +
 			"----------\n":
 				"----------\n" + 
 				"1. ERROR in X.java (at line 6)\n" + 
@@ -10858,12 +10858,12 @@ public void test187() {
 				"2. ERROR in X.java (at line 13)\n" + 
 				"	int f(List<String> l) {return 0;}\n" + 
 				"	    ^^^^^^^^^^^^^^^^^\n" + 
-				"Method f(List<String>) has the same erasure f(List<E>) as another method in type XX\n" + 
+				"Erasure of method f(List<String>) is the same as another method in type XX\n" +
 				"----------\n" + 
 				"3. ERROR in X.java (at line 14)\n" + 
 				"	double f(List<Integer> l) {return 0;}\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^\n" + 
-				"Method f(List<Integer>) has the same erasure f(List<E>) as another method in type XX\n" + 
+				"Erasure of method f(List<Integer>) is the same as another method in type XX\n" +
 				"----------\n";
 	this.runNegativeTest(
 		new String[] {
@@ -11311,7 +11311,7 @@ public void test200() {
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	int foo(Collection bar) { return 0; }\n" + 
 				"	    ^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method foo(Collection) has the same erasure foo(Collection<E>) as another method in type X\n" + 
+				"Erasure of method foo(Collection) is the same as another method in type X\n" +
 				"----------\n" + 
 				"2. WARNING in X.java (at line 3)\n" + 
 				"	int foo(Collection bar) { return 0; }\n" + 
@@ -11321,7 +11321,7 @@ public void test200() {
 				"3. ERROR in X.java (at line 4)\n" + 
 				"	double foo(Collection<String> bar) {return 0; }\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method foo(Collection<String>) has the same erasure foo(Collection<E>) as another method in type X\n" + 
+				"Erasure of method foo(Collection<String>) is the same as another method in type X\n" +
 				"----------\n";
 	this.runNegativeTest(
 		new String[] {
@@ -13117,12 +13117,12 @@ public void testBug317719a() throws Exception {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	public Integer same(List<Integer> a) { return null; }\n" + 
 			"	               ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method same(List<Integer>) has the same erasure same(List<E>) as another method in type X\n" + 
+			"Erasure of method same(List<Integer>) is the same as another method in type X\n" +
 			"----------\n" + 
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	public String same(List<String> b) { return null; }\n" + 
 			"	              ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method same(List<String>) has the same erasure same(List<E>) as another method in type X\n" + 
+			"Erasure of method same(List<String>) is the same as another method in type X\n" +
 			"----------\n" + 
 			"3. ERROR in X.java (at line 6)\n" + 
 			"	Zork z;\n" + 
@@ -13133,12 +13133,12 @@ public void testBug317719a() throws Exception {
 				"1. ERROR in X.java (at line 4)\n" + 
 				"	public Integer same(List<Integer> a) { return null; }\n" + 
 				"	               ^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method same(List<Integer>) has the same erasure same(List<E>) as another method in type X\n" + 
+				"Erasure of method same(List<Integer>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"2. ERROR in X.java (at line 5)\n" + 
 				"	public String same(List<String> b) { return null; }\n" + 
 				"	              ^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method same(List<String>) has the same erasure same(List<E>) as another method in type X\n" + 
+				"Erasure of method same(List<String>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"3. ERROR in X.java (at line 6)\n" + 
 				"	Zork z;\n" + 
@@ -13165,12 +13165,12 @@ public void testBug317719b() throws Exception {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	public static String doIt(final List<String> arg) { return null; }\n" + 
 			"	                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method doIt(List<String>) has the same erasure doIt(List<E>) as another method in type X\n" + 
+			"Erasure of method doIt(List<String>) is the same as another method in type X\n" +
 			"----------\n" + 
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	public static CharSequence doIt(final List<CharSequence> arg) { return null; }\n" + 
 			"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method doIt(List<CharSequence>) has the same erasure doIt(List<E>) as another method in type X\n" + 
+			"Erasure of method doIt(List<CharSequence>) is the same as another method in type X\n" +
 			"----------\n" + 
 			"3. ERROR in X.java (at line 5)\n" + 
 			"	Zork z;\n" + 
@@ -13181,12 +13181,12 @@ public void testBug317719b() throws Exception {
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	public static String doIt(final List<String> arg) { return null; }\n" + 
 				"	                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method doIt(List<String>) has the same erasure doIt(List<E>) as another method in type X\n" + 
+				"Erasure of method doIt(List<String>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	public static CharSequence doIt(final List<CharSequence> arg) { return null; }\n" + 
 				"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method doIt(List<CharSequence>) has the same erasure doIt(List<E>) as another method in type X\n" + 
+				"Erasure of method doIt(List<CharSequence>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"3. ERROR in X.java (at line 5)\n" + 
 				"	Zork z;\n" + 
@@ -13217,12 +13217,12 @@ public void testBug317719c() throws Exception {
 			"2. WARNING in X.java (at line 3)\n" + 
 			"	protected static <T extends String> T same(Collection<? extends T> p_col) { return null; }\n" + 
 			"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method same(Collection<? extends T>) has the same erasure same(Collection<E>) as another method in type X\n" + 
+			"Erasure of method same(Collection<? extends T>) is the same as another method in type X\n" +
 			"----------\n" + 
 			"3. WARNING in X.java (at line 4)\n" + 
 			"	protected static <T extends Number> T same(Collection<? extends T> p_col) { return null; }\n" + 
 			"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method same(Collection<? extends T>) has the same erasure same(Collection<E>) as another method in type X\n" + 
+			"Erasure of method same(Collection<? extends T>) is the same as another method in type X\n" +
 			"----------\n" + 
 			"4. ERROR in X.java (at line 5)\n" + 
 			"	Zork z;\n" + 
@@ -13238,13 +13238,13 @@ public void testBug317719c() throws Exception {
 				"2. ERROR in X.java (at line 3)\n" + 
 				"	protected static <T extends String> T same(Collection<? extends T> p_col) { return null; }\n" + 
 				"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method same(Collection<? extends T>) has the same erasure same(Collection<E>) as another method in type X\n" + 
+				"Erasure of method same(Collection<? extends T>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"3. ERROR in X.java (at line 4)\n" + 
 				"	protected static <T extends Number> T same(Collection<? extends T> p_col) { return null; }\n" + 
 				"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method same(Collection<? extends T>) has the same erasure same(Collection<E>) as another method in type X\n" + 
-				"----------\n" + 
+				"Erasure of method same(Collection<? extends T>) is the same as another method in type X\n" +
+				"----------\n" +
 				"4. ERROR in X.java (at line 5)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
@@ -13269,12 +13269,12 @@ public void testBug317719d() throws Exception {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	public static boolean foo(List<String> x) { return true; }\n" + 
 			"	                      ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method foo(List<String>) has the same erasure foo(List<E>) as another method in type X\n" + 
+			"Erasure of method foo(List<String>) is the same as another method in type X\n" +
 			"----------\n" + 
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	public static int foo(List<Integer> x) { return 2; }\n" + 
 			"	                  ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method foo(List<Integer>) has the same erasure foo(List<E>) as another method in type X\n" + 
+			"Erasure of method foo(List<Integer>) is the same as another method in type X\n" +
 			"----------\n" + 
 			"3. ERROR in X.java (at line 5)\n" + 
 			"	Zork z;\n" + 
@@ -13285,12 +13285,12 @@ public void testBug317719d() throws Exception {
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	public static boolean foo(List<String> x) { return true; }\n" + 
 				"	                      ^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method foo(List<String>) has the same erasure foo(List<E>) as another method in type X\n" + 
+				"Erasure of method foo(List<String>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	public static int foo(List<Integer> x) { return 2; }\n" + 
 				"	                  ^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method foo(List<Integer>) has the same erasure foo(List<E>) as another method in type X\n" + 
+				"Erasure of method foo(List<Integer>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"3. ERROR in X.java (at line 5)\n" + 
 				"	Zork z;\n" + 
@@ -13316,12 +13316,12 @@ public void testBug317719e() throws Exception {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	public String getFirst (ArrayList<String> ss) { return ss.get(0); }\n" + 
 			"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method getFirst(ArrayList<String>) has the same erasure getFirst(ArrayList<E>) as another method in type X\n" + 
+			"Erasure of method getFirst(ArrayList<String>) is the same as another method in type X\n" +
 			"----------\n" + 
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	public Integer getFirst (ArrayList<Integer> ss) { return ss.get(0); }\n" + 
 			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method getFirst(ArrayList<Integer>) has the same erasure getFirst(ArrayList<E>) as another method in type X\n" + 
+			"Erasure of method getFirst(ArrayList<Integer>) is the same as another method in type X\n" +
 			"----------\n" + 
 			"3. ERROR in X.java (at line 5)\n" + 
 			"	Zork z;\n" + 
@@ -13332,12 +13332,12 @@ public void testBug317719e() throws Exception {
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	public String getFirst (ArrayList<String> ss) { return ss.get(0); }\n" + 
 				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method getFirst(ArrayList<String>) has the same erasure getFirst(ArrayList<E>) as another method in type X\n" + 
+				"Erasure of method getFirst(ArrayList<String>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	public Integer getFirst (ArrayList<Integer> ss) { return ss.get(0); }\n" + 
 				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method getFirst(ArrayList<Integer>) has the same erasure getFirst(ArrayList<E>) as another method in type X\n" + 
+				"Erasure of method getFirst(ArrayList<Integer>) is the same as another method in type X\n" +
 				"----------\n" + 
 				"3. ERROR in X.java (at line 5)\n" + 
 				"	Zork z;\n" + 
@@ -13363,7 +13363,7 @@ public void testBug317719f() throws Exception {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	public static <R extends Object> X<R> forAccountSet(List list) { return null; }\n" + 
 			"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method forAccountSet(List) has the same erasure forAccountSet(List<E>) as another method in type X<Z>\n" + 
+			"Erasure of method forAccountSet(List) is the same as another method in type X<Z>\n" +
 			"----------\n" + 
 			"2. WARNING in X.java (at line 3)\n" + 
 			"	public static <R extends Object> X<R> forAccountSet(List list) { return null; }\n" + 
@@ -13373,7 +13373,7 @@ public void testBug317719f() throws Exception {
 			"3. WARNING in X.java (at line 4)\n" + 
 			"	public static <R extends Object> ChildX<R> forAccountSet(List<R> list) { return null; }\n" + 
 			"	                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method forAccountSet(List<R>) has the same erasure forAccountSet(List<E>) as another method in type X<Z>\n" + 
+			"Erasure of method forAccountSet(List<R>) is the same as another method in type X<Z>\n" +
 			"----------\n" + 
 			"4. ERROR in X.java (at line 5)\n" + 
 			"	Zork z;\n" + 
@@ -13384,7 +13384,7 @@ public void testBug317719f() throws Exception {
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	public static <R extends Object> X<R> forAccountSet(List list) { return null; }\n" + 
 				"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method forAccountSet(List) has the same erasure forAccountSet(List<E>) as another method in type X<Z>\n" + 
+				"Erasure of method forAccountSet(List) is the same as another method in type X<Z>\n" +
 				"----------\n" + 
 				"2. WARNING in X.java (at line 3)\n" + 
 				"	public static <R extends Object> X<R> forAccountSet(List list) { return null; }\n" + 
@@ -13394,7 +13394,7 @@ public void testBug317719f() throws Exception {
 				"3. ERROR in X.java (at line 4)\n" + 
 				"	public static <R extends Object> ChildX<R> forAccountSet(List<R> list) { return null; }\n" + 
 				"	                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method forAccountSet(List<R>) has the same erasure forAccountSet(List<E>) as another method in type X<Z>\n" + 
+				"Erasure of method forAccountSet(List<R>) is the same as another method in type X<Z>\n" +
 				"----------\n" + 
 				"4. ERROR in X.java (at line 5)\n" + 
 				"	Zork z;\n" + 
@@ -13421,22 +13421,22 @@ public void testBug317719g() throws Exception {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	public static int[] doIt(Collection<int[]> col) { return new int[1]; }\n" + 
 			"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method doIt(Collection<int[]>) has the same erasure doIt(Collection<E>) as another method in type X<Z>\n" + 
+			"Erasure of method doIt(Collection<int[]>) is the same as another method in type X<Z>\n" +
 			"----------\n" + 
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	public static int[][] doIt(Collection<int[][]> col) { return new int[0][0]; }\n" + 
 			"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method doIt(Collection<int[][]>) has the same erasure doIt(Collection<E>) as another method in type X<Z>\n" + 
+			"Erasure of method doIt(Collection<int[][]>) is the same as another method in type X<Z>\n" +
 			"----------\n" + 
 			"3. WARNING in X.java (at line 5)\n" + 
 			"	public int[] doIt2(Collection<int[]> col) { return new int[0]; }\n" + 
 			"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method doIt2(Collection<int[]>) has the same erasure doIt2(Collection<E>) as another method in type X<Z>\n" + 
+			"Erasure of method doIt2(Collection<int[]>) is the same as another method in type X<Z>\n" +
 			"----------\n" + 
 			"4. WARNING in X.java (at line 6)\n" + 
 			"	public int[][] doIt2(Collection<int[][]> col) { return new int[0][0]; }\n" + 
 			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method doIt2(Collection<int[][]>) has the same erasure doIt2(Collection<E>) as another method in type X<Z>\n" + 
+			"Erasure of method doIt2(Collection<int[][]>) is the same as another method in type X<Z>\n" +
 			"----------\n" + 
 			"5. ERROR in X.java (at line 7)\n" + 
 			"	Zork z;\n" + 
@@ -13447,22 +13447,22 @@ public void testBug317719g() throws Exception {
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	public static int[] doIt(Collection<int[]> col) { return new int[1]; }\n" + 
 				"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method doIt(Collection<int[]>) has the same erasure doIt(Collection<E>) as another method in type X<Z>\n" + 
+				"Erasure of method doIt(Collection<int[]>) is the same as another method in type X<Z>\n" +
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	public static int[][] doIt(Collection<int[][]> col) { return new int[0][0]; }\n" + 
 				"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method doIt(Collection<int[][]>) has the same erasure doIt(Collection<E>) as another method in type X<Z>\n" + 
+				"Erasure of method doIt(Collection<int[][]>) is the same as another method in type X<Z>\n" +
 				"----------\n" + 
 				"3. ERROR in X.java (at line 5)\n" + 
 				"	public int[] doIt2(Collection<int[]> col) { return new int[0]; }\n" + 
 				"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method doIt2(Collection<int[]>) has the same erasure doIt2(Collection<E>) as another method in type X<Z>\n" + 
+				"Erasure of method doIt2(Collection<int[]>) is the same as another method in type X<Z>\n" +
 				"----------\n" + 
 				"4. ERROR in X.java (at line 6)\n" + 
 				"	public int[][] doIt2(Collection<int[][]> col) { return new int[0][0]; }\n" + 
 				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Method doIt2(Collection<int[][]>) has the same erasure doIt2(Collection<E>) as another method in type X<Z>\n" + 
+				"Erasure of method doIt2(Collection<int[][]>) is the same as another method in type X<Z>\n" +
 				"----------\n" + 
 				"5. ERROR in X.java (at line 7)\n" + 
 				"	Zork z;\n" + 
@@ -13569,12 +13569,12 @@ public void testBug355838() throws Exception {
 			"1. ERROR in ErasureBug.java (at line 4)\n" + 
 			"	public String output(List<String> integers) {\n" + 
 			"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method output(List<String>) has the same erasure output(List<E>) as another method in type ErasureBug\n" + 
+			"Erasure of method output(List<String>) is the same as another method in type ErasureBug\n" +
 			"----------\n" + 
 			"2. ERROR in ErasureBug.java (at line 7)\n" + 
 			"	public String output(List doubles) {\n" + 
 			"	              ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method output(List) has the same erasure output(List<E>) as another method in type ErasureBug\n" + 
+			"Erasure of method output(List) is the same as another method in type ErasureBug\n" +
 			"----------\n" + 
 			"3. WARNING in ErasureBug.java (at line 7)\n" + 
 			"	public String output(List doubles) {\n" + 
@@ -13803,12 +13803,12 @@ public void test354229d() {
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	<T> T e(Action<T> p);\n" + 
 		"	      ^^^^^^^^^^^^^^\n" + 
-		"Method e(Action<T>) has the same erasure e(Action<T>) as another method in type X\n" + 
+		"Erasure of method e(Action<T>) is the same as another method in type X\n" +
 		"----------\n" + 
 		"2. ERROR in X.java (at line 3)\n" + 
 		"	<S, T> S e(Action<S> t);\n" + 
 		"	         ^^^^^^^^^^^^^^\n" + 
-		"Method e(Action<S>) has the same erasure e(Action<T>) as another method in type X\n" + 
+		"Erasure of method e(Action<S>) is the same as another method in type X\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/406928 - computation of inherited methods seems damaged (affecting @Overrides)

@@ -1342,7 +1342,7 @@ public MethodBinding[] methods() {
 							// remove user defined methods & keep the synthetic
 							removeMethod = true;
 						} else {
-							this.scope.problemReporter().duplicateMethodInType(this, methodDecl, method.areParametersEqual(method2), severity);
+							this.scope.problemReporter().duplicateMethodInType(methodDecl, method.areParametersEqual(method2), severity);
 						}
 						if (removeMethod) {
 							removeMethod2 = false;
@@ -1361,7 +1361,7 @@ public MethodBinding[] methods() {
 						this.scope.problemReporter().duplicateEnumSpecialMethod(this, method2Decl);
 						removeMethod2 = true;
 					} else {
-						this.scope.problemReporter().duplicateMethodInType(this, method2Decl, method.areParametersEqual(method2), severity);
+						this.scope.problemReporter().duplicateMethodInType(method2Decl, method.areParametersEqual(method2), severity);
 					}
 					if (removeMethod2) {
 						method2Decl.binding = null;

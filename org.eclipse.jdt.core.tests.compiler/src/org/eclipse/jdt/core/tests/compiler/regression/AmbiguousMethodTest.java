@@ -613,23 +613,23 @@ public void test010c() {
 		"1. WARNING in Combined.java (at line 2)\n" + 
 		"	<T extends Comparable<T>> void pickOne(T value) throws ExOne {}\n" + 
 		"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Method pickOne(T) has the same erasure pickOne(Comparable<T>) as another method in type Combined<A,B>\n" + 
+		"Erasure of method pickOne(T) is the same as another method in type Combined<A,B>\n" +
 		"----------\n" + 
 		"2. WARNING in Combined.java (at line 3)\n" + 
 		"	<T> T pickOne(Comparable<T> value) throws ExTwo { return null;}\n" + 
 		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Method pickOne(Comparable<T>) has the same erasure pickOne(Comparable<T>) as another method in type Combined<A,B>\n" + 
+		"Erasure of method pickOne(Comparable<T>) is the same as another method in type Combined<A,B>\n" +
 		"----------\n":
 			"----------\n" + 
 			"1. ERROR in Combined.java (at line 2)\n" + 
 			"	<T extends Comparable<T>> void pickOne(T value) throws ExOne {}\n" + 
 			"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method pickOne(T) has the same erasure pickOne(Comparable<T>) as another method in type Combined<A,B>\n" + 
+			"Erasure of method pickOne(T) is the same as another method in type Combined<A,B>\n" +
 			"----------\n" + 
 			"2. ERROR in Combined.java (at line 3)\n" + 
 			"	<T> T pickOne(Comparable<T> value) throws ExTwo { return null;}\n" + 
 			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method pickOne(Comparable<T>) has the same erasure pickOne(Comparable<T>) as another method in type Combined<A,B>\n" + 
+			"Erasure of method pickOne(Comparable<T>) is the same as another method in type Combined<A,B>\n" +
 			"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -665,12 +665,12 @@ X.java:3: name clash: <T#1>pickOne(Comparable<T#1>) and <T#2>pickOne(T#2) have t
 		"1. WARNING in Test1.java (at line 2)\n" + 
 		"	<T extends Comparable<T>> void pickOne(T value) throws ExOne {}\n" + 
 		"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Method pickOne(T) has the same erasure pickOne(Comparable<T>) as another method in type Test1<AA,BB>\n" + 
+		"Erasure of method pickOne(T) is the same as another method in type Test1<AA,BB>\n" +
 		"----------\n" + 
 		"2. WARNING in Test1.java (at line 3)\n" + 
 		"	<T> T pickOne(Comparable<T> value) throws ExTwo { return null;}\n" + 
 		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Method pickOne(Comparable<T>) has the same erasure pickOne(Comparable<T>) as another method in type Test1<AA,BB>\n" + 
+		"Erasure of method pickOne(Comparable<T>) is the same as another method in type Test1<AA,BB>\n" +
 		"----------\n" + 
 		"3. WARNING in Test1.java (at line 4)\n" + 
 		"	void pickOne2(Test1<Integer,Integer> c) throws ExOne { c.pickOne((Comparable) \"test\"); }\n" + 
@@ -686,12 +686,12 @@ X.java:3: name clash: <T#1>pickOne(Comparable<T#1>) and <T#2>pickOne(T#2) have t
 			"1. ERROR in Test1.java (at line 2)\n" + 
 			"	<T extends Comparable<T>> void pickOne(T value) throws ExOne {}\n" + 
 			"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method pickOne(T) has the same erasure pickOne(Comparable<T>) as another method in type Test1<AA,BB>\n" + 
+			"Erasure of method pickOne(T) is the same as another method in type Test1<AA,BB>\n" +
 			"----------\n" + 
 			"2. ERROR in Test1.java (at line 3)\n" + 
 			"	<T> T pickOne(Comparable<T> value) throws ExTwo { return null;}\n" + 
 			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method pickOne(Comparable<T>) has the same erasure pickOne(Comparable<T>) as another method in type Test1<AA,BB>\n" + 
+			"Erasure of method pickOne(Comparable<T>) is the same as another method in type Test1<AA,BB>\n" +
 			"----------\n" + 
 			"3. WARNING in Test1.java (at line 4)\n" + 
 			"	void pickOne2(Test1<Integer,Integer> c) throws ExOne { c.pickOne((Comparable) \"test\"); }\n" + 
@@ -1695,12 +1695,12 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 		"3. WARNING in Y.java (at line 4)\n" + 
 		"	public static <W extends String> Y<W> make(Class<W> clazz) {\n" + 
 		"	                                      ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Method make(Class<W>) has the same erasure make(Class<T>) as another method in type Y<V>\n" + 
+		"Erasure of method make(Class<W>) is the same as another method in type Y<V>\n" +
 		"----------\n" + 
 		"4. WARNING in Y.java (at line 8)\n" + 
 		"	public static <U extends Object> X<U> make(Class<U> clazz) {\n" + 
 		"	                                      ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Method make(Class<U>) has the same erasure make(Class<T>) as another method in type Y<V>\n" + 
+		"Erasure of method make(Class<U>) is the same as another method in type Y<V>\n" +
 		"----------\n" + 
 		"5. WARNING in Y.java (at line 13)\n" + 
 		"	Y.make(getClazz());\n" + 
@@ -1731,12 +1731,12 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 			"3. ERROR in Y.java (at line 4)\n" + 
 			"	public static <W extends String> Y<W> make(Class<W> clazz) {\n" + 
 			"	                                      ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method make(Class<W>) has the same erasure make(Class<T>) as another method in type Y<V>\n" + 
+			"Erasure of method make(Class<W>) is the same as another method in type Y<V>\n" +
 			"----------\n" + 
 			"4. ERROR in Y.java (at line 8)\n" + 
 			"	public static <U extends Object> X<U> make(Class<U> clazz) {\n" + 
 			"	                                      ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method make(Class<U>) has the same erasure make(Class<T>) as another method in type Y<V>\n" + 
+			"Erasure of method make(Class<U>) is the same as another method in type Y<V>\n" +
 			"----------\n" + 
 			"5. WARNING in Y.java (at line 13)\n" + 
 			"	Y.make(getClazz());\n" + 
@@ -1822,12 +1822,12 @@ X.java:13: warning: [unchecked] unchecked method invocation: method make in clas
 		"3. WARNING in X.java (at line 4)\n" + 
 		"	public <W extends String> Y<W> make(Class<W> clazz) {\n" + 
 		"	                               ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Method make(Class<W>) has the same erasure make(Class<T>) as another method in type Y<V>\n" + 
+		"Erasure of method make(Class<W>) is the same as another method in type Y<V>\n" +
 		"----------\n" + 
 		"4. WARNING in X.java (at line 7)\n" + 
 		"	public <U extends Object> X<U> make(Class<U> clazz) {\n" + 
 		"	                               ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Method make(Class<U>) has the same erasure make(Class<T>) as another method in type Y<V>\n" + 
+		"Erasure of method make(Class<U>) is the same as another method in type Y<V>\n" +
 		"----------\n" + 
 		"5. WARNING in X.java (at line 11)\n" + 
 		"	Y y = new Y();\n" + 
@@ -1873,12 +1873,12 @@ X.java:13: warning: [unchecked] unchecked method invocation: method make in clas
 			"3. ERROR in X.java (at line 4)\n" + 
 			"	public <W extends String> Y<W> make(Class<W> clazz) {\n" + 
 			"	                               ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method make(Class<W>) has the same erasure make(Class<T>) as another method in type Y<V>\n" + 
+			"Erasure of method make(Class<W>) is the same as another method in type Y<V>\n" +
 			"----------\n" + 
 			"4. ERROR in X.java (at line 7)\n" + 
 			"	public <U extends Object> X<U> make(Class<U> clazz) {\n" + 
 			"	                               ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Method make(Class<U>) has the same erasure make(Class<T>) as another method in type Y<V>\n" + 
+			"Erasure of method make(Class<U>) is the same as another method in type Y<V>\n" +
 			"----------\n" + 
 			"5. WARNING in X.java (at line 11)\n" + 
 			"	Y y = new Y();\n" + 
