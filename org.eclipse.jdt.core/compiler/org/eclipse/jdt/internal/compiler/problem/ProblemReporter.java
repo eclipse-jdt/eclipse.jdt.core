@@ -1827,7 +1827,7 @@ public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, ASTN
 		nodeSourceStart(local, location),
 		nodeSourceEnd(local, location));
 }
-public void duplicateMethodInType(SourceTypeBinding type, AbstractMethodDeclaration methodDecl, boolean equalParameters, int severity) {
+public void duplicateMethodInType(AbstractMethodDeclaration methodDecl, boolean equalParameters, int severity) {
     MethodBinding method = methodDecl.binding;
     if (equalParameters) {
 		this.handle(
@@ -1844,23 +1844,16 @@ public void duplicateMethodInType(SourceTypeBinding type, AbstractMethodDeclarat
 			methodDecl.sourceStart,
 			methodDecl.sourceEnd);
     } else {
-        int length = method.parameters.length;
-        TypeBinding[] erasures = new TypeBinding[length];
-        for (int i = 0; i < length; i++)  {
-            erasures[i] = method.parameters[i].erasure();
-        }
 		this.handle(
 			IProblem.DuplicateMethodErasure,
 			new String[] {
 		        new String(methodDecl.selector),
 				new String(method.declaringClass.readableName()),
-				typesAsString(method, false),
-				typesAsString(method, erasures, false) } ,
+				typesAsString(method, false)},
 			new String[] {
 				new String(methodDecl.selector),
 				new String(method.declaringClass.shortReadableName()),
-				typesAsString(method, true),
-				typesAsString(method, erasures, true) },
+				typesAsString(method, true)},
 			severity,
 			methodDecl.sourceStart,
 			methodDecl.sourceEnd);
