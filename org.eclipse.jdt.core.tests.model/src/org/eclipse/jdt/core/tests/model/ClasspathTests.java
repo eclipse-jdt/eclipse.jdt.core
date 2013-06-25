@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Terry Parker <tparker@google.com> - DeltaProcessor misses state changes in archive files, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=357425,
  *     									   Fup of 357425: ensure all reported regressions are witnessed by tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=361922
+ *     Thirumala Reddy Mutchukota <thirumala@google.com> - Contribution to bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=411423
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -345,6 +346,7 @@ public static Test suite() {
 	suite.addTest(new ClasspathTests("testBug220928a"));
 	suite.addTest(new ClasspathTests("testBug220928b"));
 	suite.addTest(new ClasspathTests("testBug396299"));
+	suite.addTest(new ClasspathTests("testBug411423"));
 	return suite;
 }
 public void setUpSuite() throws Exception {
@@ -4247,6 +4249,7 @@ public void testTransitionFromInvalidToValidJar() throws CoreException, IOExcept
 		assertFalse("Non-existing jar should be invalid", status2.isOK());
 	} finally {
 		deleteExternalResource(transitioningJarName);
+		deleteExternalResource("invalidJar.jar");
 		deleteProject("P");
 	}
 }
@@ -7458,6 +7461,78 @@ public void testBug396299() throws Exception {
 		preferences.setAutoBuilding(autoBuild);
 		getWorkspace().setDescription(preferences);
 		deleteProject("P1");
+	}
+}
+/**
+ * @bug 411423: JavaProject.resolveClasspath is spending more than 90% time on ExternalFoldersManager.isExternalFolderPath
+ * Tests that
+ * 1) External file paths are cached during classpath resolution and can be retrieved later on
+ * 2) A full save (after resetting the external files cache) caches the external files information
+ * 3) when a project is deleted, the external files cache is reset.
+ *
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=411423"
+ * @throws Exception
+ */
+public void testBug411423() throws Exception {
+	try {
+		IJavaProject proj = this.createJavaProject("P", new String[] {}, "bin");
+
+		createFile("/P/internal.jar", "");
+		createFolder("/P/internalSrcFolder");
+		createExternalFile("external.jar", "");
+		createExternalFile("external-src.jar", "");
+		createExternalFolder("externalFolder");
+		createExternalFolder("externalSrcFolder");
+
+		IClasspathEntry[] classpath = new IClasspathEntry[3];
+		classpath[0] = JavaCore.newLibraryEntry(new Path("/P/internal.jar"), new Path("/P/internalSrcFolder"), null);
+		classpath[1] = JavaCore.newLibraryEntry(new Path(getExternalFile("external.jar").getPath()), new Path(getExternalFile("external-src.jar").getPath()), null);
+		classpath[2] = JavaCore.newLibraryEntry(new Path(getExternalFile("externalFolder").getPath()), new Path(getExternalFile("externalSrcFolder").getPath()), null);
+
+		proj.setRawClasspath(classpath, null);
+		waitForAutoBuild();
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		assertFalse("Internal Jar", manager.isExternalFile(classpath[0].getPath()));
+		assertFalse("Internal Folder", manager.isExternalFile(classpath[0].getSourceAttachmentPath()));
+		assertTrue("External Jar", manager.isExternalFile(classpath[1].getPath()));
+		assertTrue("External Jar", manager.isExternalFile(classpath[1].getSourceAttachmentPath()));
+		assertFalse("External Folder", manager.isExternalFile(classpath[2].getPath()));
+		assertFalse("External Folder", manager.isExternalFile(classpath[2].getSourceAttachmentPath()));
+
+		((JavaProject)proj).resetResolvedClasspath();
+		proj.getResolvedClasspath(true);
+		assertFalse("Internal Jar", manager.isExternalFile(classpath[0].getPath()));
+		assertFalse("Internal Jar", manager.isExternalFile(classpath[0].getSourceAttachmentPath()));
+		assertTrue("External Jar", manager.isExternalFile(classpath[1].getPath()));
+		assertTrue("External Jar", manager.isExternalFile(classpath[1].getSourceAttachmentPath()));
+		assertFalse("External Folder", manager.isExternalFile(classpath[2].getPath()));
+		assertFalse("External Folder", manager.isExternalFile(classpath[2].getSourceAttachmentPath()));
+
+		((JavaProject)proj).resetResolvedClasspath();
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		workspace.save(true, null);
+		assertFalse("Internal Jar", manager.isExternalFile(classpath[0].getPath()));
+		assertFalse("Internal Jar", manager.isExternalFile(classpath[0].getSourceAttachmentPath()));
+		assertTrue("External Jar", manager.isExternalFile(classpath[1].getPath()));
+		assertTrue("External Jar", manager.isExternalFile(classpath[1].getSourceAttachmentPath()));
+		assertFalse("External Folder", manager.isExternalFile(classpath[2].getPath()));
+		assertFalse("External Folder", manager.isExternalFile(classpath[2].getSourceAttachmentPath()));
+
+		this.deleteProject("P");
+		assertFalse("Cache reset", manager.isExternalFile(classpath[0].getPath()));
+		assertFalse("Cache reset", manager.isExternalFile(classpath[0].getSourceAttachmentPath()));
+		assertFalse("Cache reset", manager.isExternalFile(classpath[1].getPath()));
+		assertFalse("Cache reset", manager.isExternalFile(classpath[1].getSourceAttachmentPath()));
+		assertFalse("Cache reset", manager.isExternalFile(classpath[2].getPath()));
+		assertFalse("Cache reset", manager.isExternalFile(classpath[2].getSourceAttachmentPath()));
+	} finally {
+		IProject proj = this.getProject("P");
+		if ( proj != null && proj.exists())
+			this.deleteProject("P");
+		deleteExternalResource("external.jar");
+		deleteExternalResource("external-src.jar");
+		deleteExternalResource("externalFolder");
+		deleteExternalResource("externalSrcFolder");
 	}
 }
 }
