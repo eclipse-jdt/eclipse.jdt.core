@@ -12,6 +12,7 @@
  *                                                           (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=102422)
  *     Stephan Herrmann - Contribution for Bug 346010 - [model] strange initialization dependency in OptionTests
  *     Terry Parker <tparker@google.com> - DeltaProcessor misses state changes in archive files, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=357425
+ *     Thirumala Reddy Mutchukota <thirumala@google.com> - Contribution to bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=411423
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -88,6 +89,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	private static final String NON_CHAINING_JARS_CACHE = "nonChainingJarsCache"; //$NON-NLS-1$
 	private static final String INVALID_ARCHIVES_CACHE = "invalidArchivesCache";  //$NON-NLS-1$
+	private static final String EXTERNAL_FILES_CACHE = "externalFilesCache";  //$NON-NLS-1$
 
 	/**
 	 * Define a zip cache object.
@@ -1443,6 +1445,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	private Set invalidArchives;
 
+	/*
+	 * List of IPath of files that are known to be external to the workspace
+	 */
+	private Set externalFiles;
+
 	/**
 	 * Update the classpath variable cache
 	 */
@@ -1577,6 +1584,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.indexManager = new IndexManager();
 			this.nonChainingJars = loadClasspathListCache(NON_CHAINING_JARS_CACHE);
 			this.invalidArchives = loadClasspathListCache(INVALID_ARCHIVES_CACHE);
+			this.externalFiles = loadClasspathListCache(EXTERNAL_FILES_CACHE);
 			String includeContainerReferencedLib = System.getProperty(RESOLVE_REFERENCED_LIBRARIES_FOR_CONTAINERS);
 			this.resolveReferencedLibrariesForContainers = TRUE.equalsIgnoreCase(includeContainerReferencedLib);
 		}
@@ -1602,6 +1610,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 		if(this.invalidArchives != null) {
 			this.invalidArchives.add(path);
+		}
+	}
+
+	public void addExternalFile(IPath path) {
+		// unlikely to be null
+		if (this.externalFiles == null) {
+			this.externalFiles = Collections.synchronizedSet(new HashSet());
+		}
+		if(this.externalFiles != null) {
+			this.externalFiles.add(path);
 		}
 	}
 
@@ -3095,6 +3113,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 	}
 
+	public boolean isExternalFile(IPath path) {
+		return this.externalFiles != null && this.externalFiles.contains(path);
+	}
+
 	public void setClasspathBeingResolved(IJavaProject project, boolean classpathIsResolved) {
 	    if (classpathIsResolved) {
 	        getClasspathBeingResolved().add(project);
@@ -3163,7 +3185,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			return getNonChainingJarsCache();
 		else if (cacheName == INVALID_ARCHIVES_CACHE)
 			return this.invalidArchives;
-		else 
+		else if (cacheName == EXTERNAL_FILES_CACHE)
+			return this.externalFiles;
+		else
 			return null;
 	}
 	
@@ -3905,6 +3929,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.nonChainingJars.clear();
 		if (this.invalidArchives != null) 
 			this.invalidArchives.clear();
+		if (this.externalFiles != null)
+			this.externalFiles.clear();
 	}
 
 	/*
@@ -4250,9 +4276,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		switch(context.getKind()) {
 			case ISaveContext.FULL_SAVE : {
-				// save non-chaining jar and invalid jar caches on full save
+				// save non-chaining jar, invalid jar and external file caches on full save
 				saveClasspathListCache(NON_CHAINING_JARS_CACHE);
 				saveClasspathListCache(INVALID_ARCHIVES_CACHE);
+				saveClasspathListCache(EXTERNAL_FILES_CACHE);
 	
 				// will need delta since this save (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38658)
 				context.needDelta();

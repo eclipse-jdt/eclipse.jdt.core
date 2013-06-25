@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Thirumala Reddy Mutchukota <thirumala@google.com> - Contribution to bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=411423
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.performance;
 
@@ -1432,6 +1433,70 @@ public void testRefreshExternalArchives() throws Exception {
 		BIG_PROJECT.setRawClasspath(oldClasspath, null);
 		for(int index=0; index < files.length; index++) {
 			files[index].delete();
+		}
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=411423
+public void testResolveClasspath() throws Exception {
+	int jarCount = 100;
+	File[] libraryFiles = new File[jarCount];
+	File[] srcAttachmentFiles = new File[jarCount];
+	IClasspathEntry[] oldClasspath = BIG_PROJECT.getRawClasspath();
+	try {
+		IClasspathEntry[] classpath = new IClasspathEntry[jarCount];
+		for (int index = 0; index < jarCount; index++) {
+			String libraryFilePath = getExternalResourcePath("lib" + index + ".jar");
+			org.eclipse.jdt.core.tests.util.Util.createJar(new String[0],
+					new String[] {
+						"META-INF/MANIFEST.MF",
+						"Manifest-Version: 1.0\n",
+					},
+					libraryFilePath,
+					JavaCore.VERSION_1_4);
+			libraryFiles[index] = new File(libraryFilePath);
+
+			String srcAttachmentFilePath = getExternalResourcePath("lib" + index + "-src.jar");
+			org.eclipse.jdt.core.tests.util.Util.createJar(new String[0],
+					new String[] {
+						"META-INF/MANIFEST.MF",
+						"Manifest-Version: 1.0\n",
+					},
+					srcAttachmentFilePath,
+					JavaCore.VERSION_1_4);
+			srcAttachmentFiles[index] = new File(srcAttachmentFilePath);
+
+			classpath[index] = JavaCore.newLibraryEntry(new Path(libraryFilePath), new Path(srcAttachmentFilePath), null);
+		}
+		BIG_PROJECT.setRawClasspath(classpath, null);
+
+		// warm up
+		int max = 20;
+		int warmup = WARMUP_COUNT / 10;
+		for (int i = 0; i < warmup; i++) {
+			for (int j = 0; j < max; j++) {
+				BIG_PROJECT.resolveClasspath(classpath);
+			}
+		}
+
+		// measure performance
+		for (int i = 0; i < MEASURES_COUNT; i++) {
+			runGc();
+			startMeasuring();
+			for (int j = 0; j < max; j++) {
+				BIG_PROJECT.resolveClasspath(classpath);
+			}
+			stopMeasuring();
+		}
+
+		commitMeasurements();
+		assertPerformance();
+
+	} finally {
+		BIG_PROJECT.setRawClasspath(oldClasspath, null);
+		for (int index = 0; index < libraryFiles.length; index++) {
+			libraryFiles[index].delete();
+			srcAttachmentFiles[index].delete();
 		}
 	}
 }
