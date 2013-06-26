@@ -2403,6 +2403,11 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"	public void foo(java. @Marker lang.Integer arg) {}\n" + 
 				"	                      ^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 9)\n" + 
+				"	public void foobar(@Marker java.lang.Integer arg) {}\n" + 
+				"	                   ^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
 				"----------\n");
 	}
 	public void test0390882a() {
@@ -3361,6 +3366,94 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"	}\n" + 
 				"	^\n" + 
 				"Syntax error on token \"}\", delete this token\n" + 
+				"----------\n");
+	}
+	// [1.8][compiler] Missing expected error for incorrect placement of type annotation (https://bugs.eclipse.org/bugs/show_bug.cgi?id=406587)
+	public void test406587() {
+		this.runNegativeTest(
+				new String[] {
+					"p/X.java",
+					"package p;\n" +
+					"import java.lang.annotation.*;\n" +
+					"public class X {\n" +
+					"	@B(1) @A(1) String field1;\n" +
+					"	@B @A X.Y field3;\n" +
+					"	@A @B p.X.Y field4;\n" +
+					"	@B(1) @A(1) java.lang.@A(1) @B(1) String field2;\n" +
+					"	public @B(1) @A(1) java.lang. @A(1) @B(1)  String foo(@A(1) @B(1) java.lang. @A(1) @B(1) String str1) {\n" +
+					"		@A(1) @B(1)  String local1;\n" +
+					"		@A(1) @B(1) java.lang.  @B(1) @A(1) String local2;\n" +
+					"		@B @A X.Y local3;\n" +
+					"		@B @A p.X.Y local4;\n" +
+					"		@B @A p.q.X local5;\n" +
+					"		return null;\n" +
+					"	}\n" +
+					"	class Y {}" +
+					"}\n" +
+					"@Target({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" +
+					"@interface A {\n" +
+					"	int value() default -1;\n" +
+					"}\n" +
+					"@Target(ElementType.TYPE_USE)\n" +
+					"@interface B {\n" +
+					"	int value() default -1;\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in p\\X.java (at line 6)\n" + 
+				"	@A @B p.X.Y field4;\n" + 
+				"	   ^^\n" + 
+				"The annotation @B is disallowed for this location\n" + 
+				"----------\n" + 
+				"2. ERROR in p\\X.java (at line 7)\n" + 
+				"	@B(1) @A(1) java.lang.@A(1) @B(1) String field2;\n" + 
+				"	^^\n" + 
+				"The annotation @B is disallowed for this location\n" + 
+				"----------\n" + 
+				"3. ERROR in p\\X.java (at line 7)\n" + 
+				"	@B(1) @A(1) java.lang.@A(1) @B(1) String field2;\n" + 
+				"	                      ^^\n" + 
+				"The annotation @A is disallowed for this location\n" + 
+				"----------\n" + 
+				"4. ERROR in p\\X.java (at line 8)\n" + 
+				"	public @B(1) @A(1) java.lang. @A(1) @B(1)  String foo(@A(1) @B(1) java.lang. @A(1) @B(1) String str1) {\n" + 
+				"	       ^^\n" + 
+				"The annotation @B is disallowed for this location\n" + 
+				"----------\n" + 
+				"5. ERROR in p\\X.java (at line 8)\n" + 
+				"	public @B(1) @A(1) java.lang. @A(1) @B(1)  String foo(@A(1) @B(1) java.lang. @A(1) @B(1) String str1) {\n" + 
+				"	                              ^^\n" + 
+				"The annotation @A is disallowed for this location\n" + 
+				"----------\n" + 
+				"6. ERROR in p\\X.java (at line 8)\n" + 
+				"	public @B(1) @A(1) java.lang. @A(1) @B(1)  String foo(@A(1) @B(1) java.lang. @A(1) @B(1) String str1) {\n" + 
+				"	                                                            ^^\n" + 
+				"The annotation @B is disallowed for this location\n" + 
+				"----------\n" + 
+				"7. ERROR in p\\X.java (at line 8)\n" + 
+				"	public @B(1) @A(1) java.lang. @A(1) @B(1)  String foo(@A(1) @B(1) java.lang. @A(1) @B(1) String str1) {\n" + 
+				"	                                                                             ^^\n" + 
+				"The annotation @A is disallowed for this location\n" + 
+				"----------\n" + 
+				"8. ERROR in p\\X.java (at line 10)\n" + 
+				"	@A(1) @B(1) java.lang.  @B(1) @A(1) String local2;\n" + 
+				"	      ^^\n" + 
+				"The annotation @B is disallowed for this location\n" + 
+				"----------\n" + 
+				"9. ERROR in p\\X.java (at line 10)\n" + 
+				"	@A(1) @B(1) java.lang.  @B(1) @A(1) String local2;\n" + 
+				"	                              ^^\n" + 
+				"The annotation @A is disallowed for this location\n" + 
+				"----------\n" + 
+				"10. ERROR in p\\X.java (at line 12)\n" + 
+				"	@B @A p.X.Y local4;\n" + 
+				"	^^\n" + 
+				"The annotation @B is disallowed for this location\n" + 
+				"----------\n" + 
+				"11. ERROR in p\\X.java (at line 13)\n" + 
+				"	@B @A p.q.X local5;\n" + 
+				"	      ^^^\n" + 
+				"p.q cannot be resolved to a type\n" + 
 				"----------\n");
 	}
 }

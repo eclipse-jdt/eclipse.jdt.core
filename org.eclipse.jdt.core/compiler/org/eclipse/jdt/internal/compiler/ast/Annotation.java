@@ -988,27 +988,41 @@ public abstract class Annotation extends Expression {
 						} else if ((metaTagBits & TagBits.AnnotationForMethod) != 0) {
 							break checkTargetCompatibility;
 						} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-							break checkTargetCompatibility;
+							SourceTypeBinding sourceType = (SourceTypeBinding) methodBinding.declaringClass;
+							MethodDeclaration methodDecl = (MethodDeclaration) sourceType.scope.referenceContext.declarationOf(methodBinding);
+							if (isTypeUseCompatible(methodDecl.returnType, scope)) {
+								break checkTargetCompatibility;
+							}
 						}
 						break;
 					case Binding.FIELD :
 						if ((metaTagBits & TagBits.AnnotationForField) != 0) {
 							break checkTargetCompatibility;
 						} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-							break checkTargetCompatibility;
+							FieldBinding sourceField = (FieldBinding) this.recipient;
+							SourceTypeBinding sourceType = (SourceTypeBinding) sourceField.declaringClass;
+							FieldDeclaration fieldDeclaration = sourceType.scope.referenceContext.declarationOf(sourceField);
+							if (isTypeUseCompatible(fieldDeclaration.type, scope)) {
+								break checkTargetCompatibility;
+							}
 						}
 						break;
 					case Binding.LOCAL :
-						if ((((LocalVariableBinding)this.recipient).tagBits & TagBits.IsArgument) != 0) {
+						LocalVariableBinding localVariableBinding = (LocalVariableBinding)this.recipient;
+						if ((localVariableBinding.tagBits & TagBits.IsArgument) != 0) {
 							if ((metaTagBits & TagBits.AnnotationForParameter) != 0) {
 								break checkTargetCompatibility;
 							} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-								break checkTargetCompatibility;
+								if (isTypeUseCompatible(localVariableBinding.declaration.type, scope)) {
+									break checkTargetCompatibility;
+								}
 							}
 						} else if ((annotationType.tagBits & TagBits.AnnotationForLocalVariable) != 0) {
 							break checkTargetCompatibility;
 						} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-							break checkTargetCompatibility;
+							if (isTypeUseCompatible(localVariableBinding.declaration.type, scope)) {
+								break checkTargetCompatibility;
+							}
 						}
 						break;
 					case Binding.TYPE_PARAMETER : // jsr308
@@ -1021,6 +1035,16 @@ public abstract class Annotation extends Expression {
 			}
 		}
 		return this.resolvedType;
+	}
+	private boolean isTypeUseCompatible(TypeReference reference, Scope scope) {
+		if (!(reference instanceof SingleTypeReference)) {
+			Binding binding = scope.getPackage(reference.getTypeName());
+			// In case of ProblemReferenceBinding, don't report additional error
+			if (binding instanceof PackageBinding) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public abstract void traverse(ASTVisitor visitor, BlockScope scope);
