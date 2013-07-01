@@ -500,7 +500,11 @@ class ASTConverter {
 				Name thrownException;
 				int i = 0;
 				do {
-					thrownException = convert(thrownExceptions[i++]);
+					TypeReference typeRef = thrownExceptions[i++];
+					thrownException = convert(typeRef);
+					if (typeRef.annotations != null && typeRef.annotations.length > 0) {
+						thrownException.setFlags(thrownException.getFlags() | ASTNode.MALFORMED);
+					}
 					internalThownExceptions(methodDecl).add(thrownException);
 				} while (i < thrownExceptionsLength);
 				methodHeaderEnd = thrownException.getStartPosition() + thrownException.getLength();				

@@ -47,6 +47,8 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
@@ -962,5 +964,28 @@ public class ASTConverter17Test extends ConverterTestSetup {
 
 			method = (MethodDeclaration) type.bodyDeclarations().get(1);
 			assertEquals("Method should be malformed", ASTNode.MALFORMED, (method.getFlags() & ASTNode.MALFORMED));
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=405934
+	 *
+	 * @deprecated as it uses deprecated methods
+	 */
+	public void test0022() throws JavaModelException {
+		String contents =
+				"public class X {\n" +
+				"	void foo() throws  @NonNull EOFException, java.io.@NonNull FileNotFoundException {}\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false);
+		ASTNode node = buildAST(contents, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		TypeDeclaration type =  (TypeDeclaration) unit.types().get(0);
+		node = (ASTNode) type.bodyDeclarations().get(0);
+		assertEquals("Not a method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration method = (MethodDeclaration) node;
+		SimpleName exception1 = (SimpleName) method.thrownExceptions().get(0);
+		assertEquals("QualifiedName should be malformed", ASTNode.MALFORMED, (exception1.getFlags() & ASTNode.MALFORMED));
+		QualifiedName exception2 = (QualifiedName) method.thrownExceptions().get(1);
+		assertEquals("QualifiedName should be malformed", ASTNode.MALFORMED, (exception2.getFlags() & ASTNode.MALFORMED));
 	}
 }
