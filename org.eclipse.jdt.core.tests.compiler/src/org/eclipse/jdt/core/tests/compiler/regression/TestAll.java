@@ -136,6 +136,7 @@ public static Test suite() {
 	since_1_8.add(GrammarCoverageTests308.class);
 	since_1_8.add(FlowAnalysisTest8.class);
 	since_1_8.add(TypeAnnotationTest.class);
+	since_1_8.add(Deprecated18Test.class);
 
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());

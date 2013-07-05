@@ -3234,7 +3234,9 @@ public abstract class Scope {
 				MethodScope methodScope = methodScope();
 				if (!methodScope.isInsideInitializer()){
 					// check method modifiers to see if deprecated
-					MethodBinding context = ((AbstractMethodDeclaration)methodScope.referenceContext).binding;
+					ReferenceContext referenceContext = methodScope.referenceContext;
+					MethodBinding context = referenceContext instanceof AbstractMethodDeclaration ?
+							((AbstractMethodDeclaration)referenceContext).binding : ((LambdaExpression)referenceContext).binding;
 					if (context != null && context.isViewedAsDeprecated())
 						return true;
 				} else if (methodScope.initializedField != null && methodScope.initializedField.isViewedAsDeprecated()) {
