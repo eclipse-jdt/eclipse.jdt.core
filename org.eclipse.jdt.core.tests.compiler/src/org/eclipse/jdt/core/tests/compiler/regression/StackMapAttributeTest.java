@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2012 IBM Corporation and others.
+ * Copyright (c) 2006, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - contribution for
+ *								Bug 412203 - [compiler] Internal compiler error: java.lang.IllegalArgumentException: info cannot be null
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -34,7 +36,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX = "testBug95521";
-//		TESTS_NAMES = new String[] { "testBug380313" };
+//		TESTS_NAMES = new String[] { "testBug412076_" };
 //		TESTS_NUMBERS = new int[] { 53 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
@@ -8198,5 +8200,396 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"}"
 			},
 			"StartingDone");
-	}	
+	}
+	
+	// https://bugs.eclipse.org/412076
+	public void testBug412076_a() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // using <>
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+		options.put(JavaCore.COMPILER_PB_NULL_REFERENCE, JavaCore.ERROR);
+		options.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.ERROR);
+		options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.WARNING);
+		options.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
+		this.runConformTest(
+				new String[] {
+					"X2.java",
+					"import java.util.*;\n" + 
+					"\n" + 
+					"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+					"\n" + 
+					"class Y {\n" + 
+					"	public Y() { }\n" + 
+					"}\n" + 
+					"\n" + 
+					"@NonNullByDefault\n" + 
+					"abstract class X1 {\n" + 
+					"\n" + 
+					"	private Object a;\n" + 
+					"	private Object b;\n" + 
+					"	private Object c;\n" + 
+					"	private Object d;\n" + 
+					"	private Object e;\n" + 
+					"	private Object f;\n" + 
+					"\n" + 
+					"	protected Object name;\n" + 
+					"\n" + 
+					"	@SuppressWarnings(\"null\")\n" + 
+					"	protected X1() {\n" + 
+					"		super ();\n" + 
+					"	}\n" + 
+					"\n" + 
+					"}\n" + 
+					"public class X2 extends X1 {\n" + 
+					"\n" + 
+					"\n" + 
+					"	public static final int ID = 4711;\n" + 
+					"\n" + 
+					"	private Object x;\n" + 
+					"	private Object y;\n" + 
+					"	private Object z;\n" + 
+					"\n" + 
+					"	private Runnable runable = new Runnable () {\n" + 
+					"		@Override\n" + 
+					"		public void run () {\n" + 
+					"			// whatever\n" + 
+					"		}\n" + 
+					"	};\n" + 
+					"\n" + 
+					"	private void init () {\n" + 
+					"		final Object selector = new Object ();\n" + 
+					"		this.name = new Object ();\n" + 
+					"		LinkedList<Character> invalidCharactersList = new LinkedList<> ();\n" + 
+					"		char[] invalidCharacters = new char[invalidCharactersList.size ()];\n" + 
+					"		for (int i = 0; i < invalidCharacters.length; i++) {\n" + 
+					"			invalidCharacters[i] = invalidCharactersList.get (i).charValue ();\n" + 
+					"		}\n" + 
+					"		Y inputVerifier = new Y();\n" + 
+					"	}\n" + 
+					"\n" + 
+					"}\n",
+				},
+				"",
+				getLibsWithNullAnnotations(),
+				true/*flush*/,
+				null/*vmArgs*/,
+				options,
+				null/*requestor*/,
+				true/*skipJavac*/);
+
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X2.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED);
+
+			String expectedOutput =
+					"  // Method descriptor #16 ()V\n" + 
+					"  // Stack: 4, Locals: 5\n" + 
+					"  private void init();\n" + 
+					"     0  new java.lang.Object [32]\n" + 
+					"     3  dup\n" + 
+					"     4  invokespecial java.lang.Object() [34]\n" + 
+					"     7  astore_1 [selector]\n" + 
+					"     8  aload_0 [this]\n" + 
+					"     9  new java.lang.Object [32]\n" + 
+					"    12  dup\n" + 
+					"    13  invokespecial java.lang.Object() [34]\n" + 
+					"    16  putfield X2.name : java.lang.Object [35]\n" + 
+					"    19  new java.util.LinkedList [38]\n" + 
+					"    22  dup\n" + 
+					"    23  invokespecial java.util.LinkedList() [40]\n" + 
+					"    26  astore_2 [invalidCharactersList]\n" + 
+					"    27  aload_2 [invalidCharactersList]\n" + 
+					"    28  invokevirtual java.util.LinkedList.size() : int [41]\n" + 
+					"    31  newarray char [5]\n" + 
+					"    33  astore_3 [invalidCharacters]\n" + 
+					"    34  iconst_0\n" + 
+					"    35  istore 4 [i]\n" + 
+					"    37  goto 59\n" + 
+					"    40  aload_3 [invalidCharacters]\n" + 
+					"    41  iload 4 [i]\n" + 
+					"    43  aload_2 [invalidCharactersList]\n" + 
+					"    44  iload 4 [i]\n" + 
+					"    46  invokevirtual java.util.LinkedList.get(int) : java.lang.Object [45]\n" + 
+					"    49  checkcast java.lang.Character [49]\n" + 
+					"    52  invokevirtual java.lang.Character.charValue() : char [51]\n" + 
+					"    55  castore\n" + 
+					"    56  iinc 4 1 [i]\n" + 
+					"    59  iload 4 [i]\n" + 
+					"    61  aload_3 [invalidCharacters]\n" + 
+					"    62  arraylength\n" + 
+					"    63  if_icmplt 40\n" + 
+					"    66  new Y [55]\n" + 
+					"    69  dup\n" + 
+					"    70  invokespecial Y() [57]\n" + 
+					"    73  astore 4 [inputVerifier]\n" + 
+					"    75  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 44]\n" + 
+					"        [pc: 8, line: 45]\n" + 
+					"        [pc: 19, line: 46]\n" + 
+					"        [pc: 27, line: 47]\n" + 
+					"        [pc: 34, line: 48]\n" + 
+					"        [pc: 40, line: 49]\n" + 
+					"        [pc: 56, line: 48]\n" + 
+					"        [pc: 66, line: 51]\n" + 
+					"        [pc: 75, line: 52]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 76] local: this index: 0 type: X2\n" + 
+					"        [pc: 8, pc: 76] local: selector index: 1 type: java.lang.Object\n" + 
+					"        [pc: 27, pc: 76] local: invalidCharactersList index: 2 type: java.util.LinkedList\n" + 
+					"        [pc: 34, pc: 76] local: invalidCharacters index: 3 type: char[]\n" + 
+					"        [pc: 37, pc: 66] local: i index: 4 type: int\n" + 
+					"        [pc: 75, pc: 76] local: inputVerifier index: 4 type: Y\n" + 
+					"      Local variable type table:\n" + 
+					"        [pc: 27, pc: 76] local: invalidCharactersList index: 2 type: java.util.LinkedList<java.lang.Character>\n" + 
+					"      Stack map table: number of frames 2\n" + 
+					"        [pc: 40, full, stack: {}, locals: {X2, java.lang.Object, java.util.LinkedList, char[], int}]\n" + 
+					"        [pc: 59, same]\n";
+
+			int index = actualOutput.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(actualOutput, 2));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, actualOutput);
+			}
+	}
+
+	// https://bugs.eclipse.org/412076
+	// yet simplified version - using FieldReference
+	public void testBug412076_b() throws Exception {
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+		options.put(JavaCore.COMPILER_PB_NULL_REFERENCE, JavaCore.ERROR);
+		options.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.ERROR);
+		options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.WARNING);
+		options.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
+		this.runConformTest(
+				new String[] {
+					"X2.java",
+					"import java.util.LinkedList;\n" + 
+					"\n" + 
+					"import org.eclipse.jdt.annotation.NonNull;\n" + 
+					"\n" + 
+					"abstract class X1 {\n" + 
+					"	protected @NonNull Object name = new Object();\n" + 
+					"}\n" + 
+					"\n" + 
+					"public class X2 extends X1 {\n" + 
+					"	void init () {\n" + 
+					"		this.name = new Object ();\n" + 
+					"		LinkedList<Character> l = new LinkedList<Character> ();\n" + 
+					"		char[] cs = new char[l.size ()];\n" + 
+					"		for (int i = 0; i < cs.length; i++) {\n" + 
+					"			cs[i] = l.get (i).charValue ();\n" + 
+					"		}\n" + 
+					"		Object o2 = new Object();\n" + 
+					"	}\n" + 
+					"}\n",
+				},
+				"",
+				getLibsWithNullAnnotations(),
+				true/*flush*/,
+				null/*vmArgs*/,
+				options,
+				null/*requestor*/,
+				true/*skipJavac*/);
+
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X2.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED);
+
+			String expectedOutput =
+					"  // Method descriptor #6 ()V\n" + 
+					"  // Stack: 4, Locals: 4\n" + 
+					"  void init();\n" + 
+					"     0  aload_0 [this]\n" + 
+					"     1  new java.lang.Object [15]\n" + 
+					"     4  dup\n" + 
+					"     5  invokespecial java.lang.Object() [17]\n" + 
+					"     8  putfield X2.name : java.lang.Object [18]\n" + 
+					"    11  new java.util.LinkedList [22]\n" + 
+					"    14  dup\n" + 
+					"    15  invokespecial java.util.LinkedList() [24]\n" + 
+					"    18  astore_1 [l]\n" + 
+					"    19  aload_1 [l]\n" + 
+					"    20  invokevirtual java.util.LinkedList.size() : int [25]\n" + 
+					"    23  newarray char [5]\n" + 
+					"    25  astore_2 [cs]\n" + 
+					"    26  iconst_0\n" + 
+					"    27  istore_3 [i]\n" + 
+					"    28  goto 48\n" + 
+					"    31  aload_2 [cs]\n" + 
+					"    32  iload_3 [i]\n" + 
+					"    33  aload_1 [l]\n" + 
+					"    34  iload_3 [i]\n" + 
+					"    35  invokevirtual java.util.LinkedList.get(int) : java.lang.Object [29]\n" + 
+					"    38  checkcast java.lang.Character [33]\n" + 
+					"    41  invokevirtual java.lang.Character.charValue() : char [35]\n" + 
+					"    44  castore\n" + 
+					"    45  iinc 3 1 [i]\n" + 
+					"    48  iload_3 [i]\n" + 
+					"    49  aload_2 [cs]\n" + 
+					"    50  arraylength\n" + 
+					"    51  if_icmplt 31\n" + 
+					"    54  new java.lang.Object [15]\n" + 
+					"    57  dup\n" + 
+					"    58  invokespecial java.lang.Object() [17]\n" + 
+					"    61  astore_3 [o2]\n" + 
+					"    62  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 11]\n" + 
+					"        [pc: 11, line: 12]\n" + 
+					"        [pc: 19, line: 13]\n" + 
+					"        [pc: 26, line: 14]\n" + 
+					"        [pc: 31, line: 15]\n" + 
+					"        [pc: 45, line: 14]\n" + 
+					"        [pc: 54, line: 17]\n" + 
+					"        [pc: 62, line: 18]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 63] local: this index: 0 type: X2\n" + 
+					"        [pc: 19, pc: 63] local: l index: 1 type: java.util.LinkedList\n" + 
+					"        [pc: 26, pc: 63] local: cs index: 2 type: char[]\n" + 
+					"        [pc: 28, pc: 54] local: i index: 3 type: int\n" + 
+					"        [pc: 62, pc: 63] local: o2 index: 3 type: java.lang.Object\n" + 
+					"      Local variable type table:\n" + 
+					"        [pc: 19, pc: 63] local: l index: 1 type: java.util.LinkedList<java.lang.Character>\n" + 
+					"      Stack map table: number of frames 2\n" + 
+					"        [pc: 31, append: {java.util.LinkedList, char[], int}]\n" + 
+					"        [pc: 48, same]\n" + 
+					"}";
+
+			int index = actualOutput.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(actualOutput, 2));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, actualOutput);
+			}
+	}
+
+	// https://bugs.eclipse.org/412076
+	// yet simplified version - using SingleNameReference
+	public void testBug412076_c() throws Exception {
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+		options.put(JavaCore.COMPILER_PB_NULL_REFERENCE, JavaCore.ERROR);
+		options.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.ERROR);
+		options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.WARNING);
+		options.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
+		this.runConformTest(
+				new String[] {
+					"X2.java",
+					"import java.util.LinkedList;\n" + 
+					"\n" + 
+					"import org.eclipse.jdt.annotation.NonNull;\n" + 
+					"\n" + 
+					"abstract class X1 {\n" + 
+					"	protected @NonNull Object name = new Object();\n" + 
+					"}\n" + 
+					"\n" + 
+					"public class X2 extends X1 {\n" + 
+					"	void init () {\n" + 
+					"		name = new Object ();\n" + 
+					"		LinkedList<Character> l = new LinkedList<Character> ();\n" + 
+					"		char[] cs = new char[l.size ()];\n" + 
+					"		for (int i = 0; i < cs.length; i++) {\n" + 
+					"			cs[i] = l.get (i).charValue ();\n" + 
+					"		}\n" + 
+					"		Object o2 = new Object();\n" + 
+					"	}\n" + 
+					"}\n",
+				},
+				"",
+				getLibsWithNullAnnotations(),
+				true/*flush*/,
+				null/*vmArgs*/,
+				options,
+				null/*requestor*/,
+				true/*skipJavac*/);
+
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X2.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED);
+
+			String expectedOutput =
+					"  // Method descriptor #6 ()V\n" + 
+					"  // Stack: 4, Locals: 4\n" + 
+					"  void init();\n" + 
+					"     0  aload_0 [this]\n" + 
+					"     1  new java.lang.Object [15]\n" + 
+					"     4  dup\n" + 
+					"     5  invokespecial java.lang.Object() [17]\n" + 
+					"     8  putfield X2.name : java.lang.Object [18]\n" + 
+					"    11  new java.util.LinkedList [22]\n" + 
+					"    14  dup\n" + 
+					"    15  invokespecial java.util.LinkedList() [24]\n" + 
+					"    18  astore_1 [l]\n" + 
+					"    19  aload_1 [l]\n" + 
+					"    20  invokevirtual java.util.LinkedList.size() : int [25]\n" + 
+					"    23  newarray char [5]\n" + 
+					"    25  astore_2 [cs]\n" + 
+					"    26  iconst_0\n" + 
+					"    27  istore_3 [i]\n" + 
+					"    28  goto 48\n" + 
+					"    31  aload_2 [cs]\n" + 
+					"    32  iload_3 [i]\n" + 
+					"    33  aload_1 [l]\n" + 
+					"    34  iload_3 [i]\n" + 
+					"    35  invokevirtual java.util.LinkedList.get(int) : java.lang.Object [29]\n" + 
+					"    38  checkcast java.lang.Character [33]\n" + 
+					"    41  invokevirtual java.lang.Character.charValue() : char [35]\n" + 
+					"    44  castore\n" + 
+					"    45  iinc 3 1 [i]\n" + 
+					"    48  iload_3 [i]\n" + 
+					"    49  aload_2 [cs]\n" + 
+					"    50  arraylength\n" + 
+					"    51  if_icmplt 31\n" + 
+					"    54  new java.lang.Object [15]\n" + 
+					"    57  dup\n" + 
+					"    58  invokespecial java.lang.Object() [17]\n" + 
+					"    61  astore_3 [o2]\n" + 
+					"    62  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 11]\n" + 
+					"        [pc: 11, line: 12]\n" + 
+					"        [pc: 19, line: 13]\n" + 
+					"        [pc: 26, line: 14]\n" + 
+					"        [pc: 31, line: 15]\n" + 
+					"        [pc: 45, line: 14]\n" + 
+					"        [pc: 54, line: 17]\n" + 
+					"        [pc: 62, line: 18]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 63] local: this index: 0 type: X2\n" + 
+					"        [pc: 19, pc: 63] local: l index: 1 type: java.util.LinkedList\n" + 
+					"        [pc: 26, pc: 63] local: cs index: 2 type: char[]\n" + 
+					"        [pc: 28, pc: 54] local: i index: 3 type: int\n" + 
+					"        [pc: 62, pc: 63] local: o2 index: 3 type: java.lang.Object\n" + 
+					"      Local variable type table:\n" + 
+					"        [pc: 19, pc: 63] local: l index: 1 type: java.util.LinkedList<java.lang.Character>\n" + 
+					"      Stack map table: number of frames 2\n" + 
+					"        [pc: 31, append: {java.util.LinkedList, char[], int}]\n" + 
+					"        [pc: 48, same]\n" + 
+					"}";
+
+			int index = actualOutput.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(actualOutput, 2));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, actualOutput);
+			}
+	}
 }

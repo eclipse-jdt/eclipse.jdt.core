@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 335093 - [compiler][null] minimal hook for future null annotation support
+ *     Stephan Herrmann - Contributions for
+ *								bug 335093 - [compiler][null] minimal hook for future null annotation support
+ *								Bug 412203 - [compiler] Internal compiler error: java.lang.IllegalArgumentException: info cannot be null
  *     Jesper S Moller - Contributions for bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
@@ -1016,6 +1018,19 @@ protected static class JavacTestOptions {
 
 	protected String[] getDefaultClassPaths() {
 		return DefaultJavaRuntimeEnvironment.getDefaultClassPaths();
+	}
+	/** Get class library paths built from default class paths plus the JDT null annotations. */
+	protected String[] getLibsWithNullAnnotations() throws IOException {
+		String[] defaultLibs = getDefaultClassPaths();
+		int len = defaultLibs.length;
+		String[] libs = new String[len+1];
+		System.arraycopy(defaultLibs, 0, libs, 0, len);
+		File bundleFile = FileLocator.getBundleFile(Platform.getBundle("org.eclipse.jdt.annotation"));
+		if (bundleFile.isDirectory())
+			libs[len] = bundleFile.getPath()+"/bin";
+		else
+			libs[len] = bundleFile.getPath();
+		return libs;
 	}
 	protected IErrorHandlingPolicy getErrorHandlingPolicy() {
 		return new IErrorHandlingPolicy() {
