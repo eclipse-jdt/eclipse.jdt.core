@@ -51,7 +51,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test_nonnull_field_2e" };
+//		TESTS_NAMES = new String[] { "testBug412076" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -6194,5 +6194,39 @@ public void testBug403086_2() {
 		},
 		customOptions,
 		"");
+}
+
+// https://bugs.eclipse.org/412076 - [compiler] @NonNullByDefault doesn't work for varargs parameter when in generic interface
+public void testBug412076() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_MISSING_OVERRIDE_ANNOTATION, JavaCore.IGNORE);
+	runConformTestWithLibs(
+		new String[] {
+			"Foo.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" + 
+			"public interface Foo<V> {\n" + 
+			"  V bar(String... values);\n" + 
+			"  V foo(String value);\n" + 
+			"}\n"
+		},
+		options,
+		"");
+	runConformTestWithLibs(
+		new String[] {
+			"FooImpl.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" + 
+			"public class FooImpl implements Foo<String> {\n" + 
+			"  public String bar(final String... values) {\n" + 
+			"    return (\"\");\n" + 
+			"  }\n" + 
+			"  public String foo(final String value) {\n" + 
+			"    return (\"\");\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		options,
+		"");	
 }
 }
