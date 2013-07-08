@@ -1642,6 +1642,8 @@ public void test057() {
 			"            i.foo(new Y<String>());\n" +
 			"            i = Y<String>.Z<Integer>:: new;\n" +
 			"            i.foo(new Y<String>());\n" +
+			"            i = Y.Z:: new;\n" +
+			"            i.foo(new Y<String>());\n" +
 			"        }\n" +
 			"    }\n" +
 			"	public void foo() {\n" +
@@ -1656,6 +1658,7 @@ public void test057() {
 this.runConformTest(
 	new String[]{"Y.java",
 				source},
+				"Y<T>.Z<K>:: new\n" +
 				"Y<T>.Z<K>:: new\n" +
 				"Y<T>.Z<K>:: new\n" +
 				"Y<T>.Z<K>:: new");

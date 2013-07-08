@@ -6678,6 +6678,8 @@ public void test410114() throws IOException {
 					"            i.foo(new Y<String>());\n" +
 					"            i = Y<String>.Z<Integer>:: new;\n" +
 					"            i.foo(new Y<String>());\n" +
+					"            i = Y.Z:: new;\n" +
+					"            i.foo(new Y<String>());\n" +
 					"        }\n" +
 					"    }\n" +
 					"}\n";
@@ -6689,6 +6691,11 @@ public void test410114() throws IOException {
 						"	I i = Y<String>.Z<Integer>::<String> new;\n" + 
 						"	                             ^^^^^^\n" + 
 						"Unused type arguments for the non generic constructor Y<String>.Z<Integer>(Y<String>) of type Y<String>.Z<Integer>; it should not be parameterized with arguments <String>\n" + 
+						"----------\n" + 
+						"2. WARNING in Y.java (at line 14)\n" + 
+						"	i = Y.Z:: new;\n" + 
+						"	    ^^^^^^^^^^\n" + 
+						"Type safety: The constructor Y.Z(Y) belongs to the raw type Y.Z. References to generic type Y<T>.Z<K> should be parameterized\n" + 
 						"----------\n");
 }
 public static Class testClass() {
