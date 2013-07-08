@@ -1627,6 +1627,40 @@ public void test056() {
 	    },
 	    "null");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=410114, [1.8] CCE when trying to parse method reference expression with inappropriate type arguments
+public void test057() {
+	String source = "interface I {\n" +
+			"    void foo(Y<String> y);\n" +
+			"}\n" +
+			"public class Y<T> {\n" +
+			"    class Z<K> {\n" +
+			"        Z(Y<String> y) {\n" +
+			"            System.out.println(\"Y<T>.Z<K>:: new\");\n" +
+			"        }\n" +
+			"        public void bar() {\n" +
+			"            I i = Y<String>.Z<Integer>::<String> new;\n" +
+			"            i.foo(new Y<String>());\n" +
+			"            i = Y<String>.Z<Integer>:: new;\n" +
+			"            i.foo(new Y<String>());\n" +
+			"        }\n" +
+			"    }\n" +
+			"	public void foo() {\n" +
+		    "		Z<String> z = new Z<String>(null);\n" +
+			"		z.bar();\n" +
+		    "	}\n" +
+		    "	public static void main(String[] args) {\n" +
+		    "		Y<String> y = new Y<String>();\n" +
+		    "		y.foo();\n" +
+		    "	}\n" +
+			"}\n";
+this.runConformTest(
+	new String[]{"Y.java",
+				source},
+				"Y<T>.Z<K>:: new\n" +
+				"Y<T>.Z<K>:: new\n" +
+				"Y<T>.Z<K>:: new");
+}
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

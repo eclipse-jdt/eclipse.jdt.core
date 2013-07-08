@@ -21,6 +21,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.IOException;
 import java.util.Map;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -6661,6 +6662,34 @@ public void test406859d() {
 		true /* flush output directory */,
 		compilerOptions /* custom options */
 	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=410114, [1.8] CCE when trying to parse method reference expression with inappropriate type arguments
+public void test410114() throws IOException {
+	String source = "interface I {\n" +
+					"    void foo(Y<String> y);\n" +
+					"}\n" +
+					"public class Y<T> {\n" +
+					"    class Z<K> {\n" +
+					"        Z(Y<String> y) {\n" +
+					"            System.out.println(\"Y<T>.Z<K>:: new\");\n" +
+					"        }\n" +
+					"        void bar() {\n" +
+					"            I i = Y<String>.Z<Integer>::<String> new;\n" +
+					"            i.foo(new Y<String>());\n" +
+					"            i = Y<String>.Z<Integer>:: new;\n" +
+					"            i.foo(new Y<String>());\n" +
+					"        }\n" +
+					"    }\n" +
+					"}\n";
+	this.runNegativeTest(
+			new String[]{"Y.java",
+						source},
+						"----------\n" + 
+						"1. WARNING in Y.java (at line 10)\n" + 
+						"	I i = Y<String>.Z<Integer>::<String> new;\n" + 
+						"	                             ^^^^^^\n" + 
+						"Unused type arguments for the non generic constructor Y<String>.Z<Integer>(Y<String>) of type Y<String>.Z<Integer>; it should not be parameterized with arguments <String>\n" + 
+						"----------\n");
 }
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;

@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.NestedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -116,7 +117,12 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			if (this.isConstructorReference()) {
 				ReferenceBinding[] enclosingInstances = Binding.UNINITIALIZED_REFERENCE_TYPES;
 				if (this.receiverType.isNestedType()) {
-					NestedTypeBinding nestedType = (NestedTypeBinding) this.receiverType;
+					NestedTypeBinding nestedType = null;
+					if (this.receiverType instanceof ParameterizedTypeBinding) {
+						nestedType = (NestedTypeBinding)((ParameterizedTypeBinding) this.receiverType).genericType();
+					} else {
+						nestedType = (NestedTypeBinding) this.receiverType;
+					}
 					if ((enclosingInstances = nestedType.syntheticEnclosingInstanceTypes()) != null) {
 						int length = enclosingInstances.length;
 						argumentsSize = length;
