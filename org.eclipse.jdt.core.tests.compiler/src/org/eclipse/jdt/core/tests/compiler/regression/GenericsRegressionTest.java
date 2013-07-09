@@ -12,6 +12,7 @@
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 401456 - Code compiles from javac/intellij, but fails from eclipse
  *								bug 405706 - Eclipse compiler fails to give compiler error when return type is a inferred generic
+ *								Bug 408441 - Type mismatch using Arrays.asList with 3 or more implementations of an interface with the interface type as the last parameter
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -32,7 +33,7 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "testBug405706" };
+//		TESTS_NAMES = new String[] { "testBug408441" };
 //		TESTS_NAMES = new String[] { "test1464" };
 //		TESTS_NUMBERS = new int[] { 1465 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
@@ -2914,5 +2915,38 @@ public void testBug405706b() {
 		"	                               ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from List<String> to Collection<Integer>\n" + 
 		"----------\n");
+}
+
+// https://bugs.eclipse.org/408441 - Type mismatch using Arrays.asList with 3 or more implementations of an interface with the interface type as the last parameter
+public void testBug408441() {
+	runConformTest(
+		new String[] {
+			"TypeMistmatchIssue.java",
+			"import java.util.Arrays;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"\n" + 
+			"public class TypeMistmatchIssue {\n" + 
+			"	static interface A {\n" + 
+			"	}\n" + 
+			"	static class B implements A {\n" + 
+			"	}\n" + 
+			"	static class C implements A {\n" + 
+			"	}\n" + 
+			"	static class D implements A {\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	void illustrate() {\n" + 
+			"		List<Class<? extends A>> no1= Arrays.asList(B.class, A.class);						// compiles\n" + 
+			"		List<Class<? extends A>> no2= Arrays.asList(C.class, B.class, A.class);				// compiles\n" + 
+			"		List<Class<? extends A>> no3= Arrays.asList(D.class, B.class, A.class);				// compiles\n" + 
+			"		\n" + 
+			"		List<Class<? extends A>> no4= Arrays.asList(D.class, C.class, B.class, A.class);	// cannot convert error !!!\n" + 
+			"\n" + 
+			"		List<Class<? extends A>> no5= Arrays.asList(A.class, B.class, C.class, D.class);	// compiles\n" + 
+			"		List<Class<? extends A>> no6= Arrays.asList(A.class, D.class, C.class, B.class);	// compiles\n" + 
+			"	}\n" + 
+			"}\n"
+		});
 }
 }
