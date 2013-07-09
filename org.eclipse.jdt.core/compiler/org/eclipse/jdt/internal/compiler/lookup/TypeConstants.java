@@ -13,6 +13,7 @@
  *								bug 381445 - [compiler][resource] Can the resource leak check be made aware of Closeables.closeQuietly?
  *								bug 400421 - [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
  *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
+ *								Bug 405569 - Resource leak check false positive when using DbUtils.closeQuietly
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -176,18 +177,27 @@ public interface TypeConstants {
 	public static class CloseMethodRecord {
 		public char[][] typeName;
 		public char[] selector;
-		public CloseMethodRecord(char[][] typeName, char[] selector) {
+		public int numCloseableArgs;
+		public CloseMethodRecord(char[][] typeName, char[] selector, int num) {
 			this.typeName = typeName;
 			this.selector = selector;
+			this.numCloseableArgs = num;
 		}
 	}
 	char[][] GUAVA_CLOSEABLES = { COM, GOOGLE, "common".toCharArray(), IO, "Closeables".toCharArray() }; //$NON-NLS-1$ //$NON-NLS-2$
 	char[][] APACHE_IOUTILS = { ORG, APACHE, COMMONS, IO, "IOUtils".toCharArray() }; //$NON-NLS-1$
+	char[][] APACHE_DBUTILS = { ORG, APACHE, COMMONS, "dbutils".toCharArray(), "DbUtils".toCharArray() }; //$NON-NLS-1$ //$NON-NLS-2$
 	char[] CLOSE_QUIETLY = "closeQuietly".toCharArray(); //$NON-NLS-1$
 	CloseMethodRecord[] closeMethods = new CloseMethodRecord[] {
-		new CloseMethodRecord(GUAVA_CLOSEABLES, CLOSE_QUIETLY),
-		new CloseMethodRecord(GUAVA_CLOSEABLES, CLOSE),
-		new CloseMethodRecord(APACHE_IOUTILS, CLOSE_QUIETLY)
+		new CloseMethodRecord(GUAVA_CLOSEABLES, CLOSE_QUIETLY, 1),
+		new CloseMethodRecord(GUAVA_CLOSEABLES, CLOSE, 1),
+		new CloseMethodRecord(APACHE_IOUTILS, CLOSE_QUIETLY, 1),
+		new CloseMethodRecord(APACHE_DBUTILS, CLOSE, 1),
+		new CloseMethodRecord(APACHE_DBUTILS, CLOSE_QUIETLY, 3), // closeQuietly(Connection,Statement,ResultSet) 
+		new CloseMethodRecord(APACHE_DBUTILS, "commitAndClose".toCharArray(), 1), //$NON-NLS-1$
+		new CloseMethodRecord(APACHE_DBUTILS, "commitAndCloseQuietly".toCharArray(), 1), //$NON-NLS-1$
+		new CloseMethodRecord(APACHE_DBUTILS, "rollbackAndClose".toCharArray(), 1), //$NON-NLS-1$
+		new CloseMethodRecord(APACHE_DBUTILS, "rollbackAndCloseQuietly".toCharArray(), 1), //$NON-NLS-1$
 	};
 	// white lists of closeables:
 	char[][] JAVA_IO_WRAPPER_CLOSEABLES = new char[][] {
