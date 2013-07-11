@@ -2442,6 +2442,15 @@ public void illegalAbstractModifierCombinationForMethod(ReferenceBinding type, A
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
+public void illegalAbstractModifierCombinationForMethod(AbstractMethodDeclaration methodDecl) {
+	String[] arguments = new String[] {new String(methodDecl.selector)};
+	this.handle(
+		IProblem.IllegalAbstractStrictfpModifierCombinationForInterfaceMethod,
+		arguments,
+		arguments,
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
+}
 public void illegalAccessFromTypeVariable(TypeVariableBinding variable, ASTNode location) {
 	if ((location.bits & ASTNode.InsideJavadoc)!= 0) {
 		javadocInvalidReference(location.sourceStart, location.sourceEnd);
@@ -2568,6 +2577,16 @@ public void illegalModifierCombinationFinalVolatileForField(ReferenceBinding typ
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
 }
+public void illegalModifierCombinationForInterfaceMethod(AbstractMethodDeclaration methodDecl) {
+	String[] arguments = new String[] {new String(methodDecl.selector)};
+	this.handle(
+		IProblem.IllegalModifierCombinationForInterfaceMethod,
+		arguments,
+		arguments,
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
+}
+
 public void illegalModifierForAnnotationField(FieldDeclaration fieldDecl) {
 	String name = new String(fieldDecl.name);
 	this.handle(
@@ -2685,12 +2704,12 @@ public void illegalModifierForInterfaceField(FieldDeclaration fieldDecl) {
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
 }
-public void illegalModifierForInterfaceMethod(AbstractMethodDeclaration methodDecl, boolean isDefaultMethod) {
+public void illegalModifierForInterfaceMethod(AbstractMethodDeclaration methodDecl, boolean isJDK18orGreater) {
 	// cannot include parameter types since they are not resolved yet
 	// and the error message would be too long
 	this.handle(
-		isDefaultMethod 
-			? IProblem.IllegalModifierForInterfaceDefaultMethod 
+		isJDK18orGreater 
+			? IProblem.IllegalModifierForInterfaceMethod18 
 			: IProblem.IllegalModifierForInterfaceMethod,
 		new String[] {
 			new String(methodDecl.selector)

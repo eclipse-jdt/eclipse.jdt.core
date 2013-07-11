@@ -1693,7 +1693,7 @@ void setSourceStart(int sourceStart);
 
 	// default methods:
 	/** @since 3.9 BETA_JAVA8 */
-	int IllegalModifierForInterfaceDefaultMethod = MethodRelated + 1050;
+	int IllegalModifierForInterfaceMethod18 = MethodRelated + 1050;
 
 	/** @since 3.9 BETA_JAVA8 */
 	int DefaultMethodOverridesObjectMethod = MethodRelated + 1051;
@@ -1708,6 +1708,10 @@ void setSourceStart(int sourceStart);
 	int SuperAccessCannotBypassDirectSuper = TypeRelated + 1054;
 	/** @since 3.9 BETA_JAVA8 */
 	int SuperCallCannotBypassOverride = MethodRelated + 1055;
+	/** @since 3.9 BETA_JAVA8 */
+	int IllegalModifierCombinationForInterfaceMethod = MethodRelated + 1056;
+	/** @since 3.9 BETA_JAVA8 */
+	int IllegalAbstractStrictfpModifierCombinationForInterfaceMethod = MethodRelated + 1057;
 
 	/**
 	 * External problems -- These are problems defined by other plugins

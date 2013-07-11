@@ -2989,7 +2989,7 @@ public void test090() {
 		"3. ERROR in X.java (at line 4)\n" + 
 		"	public volatile void foo() {}\n" + 
 		"	                     ^^^^^\n" + 
-		"Illegal modifier for the method foo; only public, protected, private, static, final, abstract, synchronized, strictfp & native are permitted\n" + 
+		"Illegal modifier for the method foo; only public, protected, private, abstract, static, final, synchronized, native & strictfp are permitted\n" + 
 		"----------\n"
 	);
 }
