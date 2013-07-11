@@ -4092,6 +4092,7 @@ public void testBug381445_1() {
 // Bug 405569 - Resource leak check false positive when using DbUtils.closeQuietly
 // A resource is closed using more known close helpers
 public void testBug381445_1b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // need AutoCloseable in apache's DbUtils
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
