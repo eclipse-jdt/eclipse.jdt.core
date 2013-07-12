@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Terry Parker <tparker@google.com> - DeltaProcessor misses state changes in archive files, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=357425
+ *     Thirumala Reddy Mutchukota <thirumala@google.com> - Avoid optional library classpath entries validation - https://bugs.eclipse.org/bugs/show_bug.cgi?id=412882
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -2026,10 +2027,7 @@ public class ClasspathEntry implements IClasspathEntry {
 						containerInfo = Messages.bind(Messages.classpath_containerInfo, new String[] {entryContainer.getDescription()});
 					}
 				}
-				IJavaModelStatus status = validateLibraryEntry(path, project, containerInfo, checkSourceAttachment ? entry.getSourceAttachmentPath() : null, entryPathMsg);
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171136, ignore class path errors from optional entries
-				if (status.getCode() == IJavaModelStatusConstants.INVALID_CLASSPATH && ((ClasspathEntry) entry).isOptional())
-					status = JavaModelStatus.VERIFIED_OK;
+				IJavaModelStatus status = validateLibraryEntry(path, project, containerInfo, checkSourceAttachment ? entry.getSourceAttachmentPath() : null, entryPathMsg, ((ClasspathEntry) entry).isOptional());
 				if (!status.isOK())
 					return status;
 				break;
@@ -2108,8 +2106,13 @@ public class ClasspathEntry implements IClasspathEntry {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=232816, Now we have the facility to include a container
 	// name in diagnostics. If the parameter ``container'' is not null, it is used to point to the library
 	// more fully.
-	private static IJavaModelStatus validateLibraryEntry(IPath path, IJavaProject project, String container, IPath sourceAttachment, String entryPathMsg) {
+	private static IJavaModelStatus validateLibraryEntry(IPath path, IJavaProject project, String container, IPath sourceAttachment, String entryPathMsg, boolean isOptionalLibrary) {
 		if (path.isAbsolute() && !path.isEmpty()) {
+			boolean validateJdkLevelCompatibilty = !JavaCore.IGNORE.equals(project.getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true));
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=412882, avoid validating optional entries
+			if (!validateJdkLevelCompatibilty && isOptionalLibrary) {
+				return JavaModelStatus.VERIFIED_OK;
+			}
 			Object target = JavaModel.getTarget(path, true);
 			if (target == null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=248661
 				IPath workspaceLocation = workspaceRoot.getLocation(); 
@@ -2117,7 +2120,7 @@ public class ClasspathEntry implements IClasspathEntry {
 					target = JavaModel.getTarget(path.makeRelativeTo(workspaceLocation).makeAbsolute(), true);
 				}
 			}
-			if (target != null && !JavaCore.IGNORE.equals(project.getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true))) {
+			if (target != null && validateJdkLevelCompatibilty) {
 				long projectTargetJDK = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true));
 				long libraryJDK = Util.getJdkLevel(target);
 				if (libraryJDK != 0 && libraryJDK > projectTargetJDK) {
@@ -2142,6 +2145,9 @@ public class ClasspathEntry implements IClasspathEntry {
 											CompilerOptions.versionFromJdkLevel(libraryJDK)}));
 					}
 				}
+			}
+			if (isOptionalLibrary) {
+				return JavaModelStatus.VERIFIED_OK;
 			}
 			if (target instanceof IResource){
 				IResource resolvedResource = (IResource) target;
