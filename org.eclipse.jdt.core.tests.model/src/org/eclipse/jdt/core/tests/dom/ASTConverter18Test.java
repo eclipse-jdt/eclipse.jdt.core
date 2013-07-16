@@ -1801,7 +1801,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		expression = fragment.getInitializer();
 		assertTrue(expression instanceof CreationReference);
 		CreationReference creationReference = (CreationReference) expression;
-		checkSourceRange(creationReference, "@Marker W<@Marker Integer> :: <String> new ", contents);
+		checkSourceRange(creationReference, "@Marker W<@Marker Integer> :: <String> new", contents);
 		typeBinding = creationReference.resolveTypeBinding();
 		assertNotNull(typeBinding);
 		methodBinding = creationReference.resolveMethodBinding();

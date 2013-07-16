@@ -2823,7 +2823,7 @@ public void test0061() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 11)\n" + 
 			"	I i = Y::new;\n" + 
-			"	      ^^^^^^^\n" + 
+			"	      ^^^^^^\n" + 
 			"Constructor references are allowed only at source level 1.8 or above\n" + 
 			"----------\n";
 

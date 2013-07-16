@@ -471,6 +471,17 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	}
 
 	/*
+	 * @see ASTVisitor#visit(CreationReference)
+	 */
+	public boolean visit(CreationReference node) {
+		getChildNode(node, CreationReference.TYPE_PROPERTY).accept(this);
+		this.result.append("::"); //$NON-NLS-1$
+		visitList(node, CreationReference.TYPE_ARGUMENTS_PROPERTY, Util.EMPTY_STRING, String.valueOf('<'), String.valueOf('>'));
+		this.result.append("new"); //$NON-NLS-1$
+		return false;
+	}
+
+	/*
 	 * @see ASTVisitor#visit(DoStatement)
 	 */
 	public boolean visit(DoStatement node) {
@@ -1366,6 +1377,17 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		return false;
 	}
 	/*
+	 * @see ASTVisitor#visit(ExpressionMethodReference)
+	 */
+	public boolean visit(ExpressionMethodReference node) {
+		getChildNode(node, ExpressionMethodReference.EXPRESSION_PROPERTY).accept(this);
+		this.result.append("::"); //$NON-NLS-1$
+		visitList(node, ExpressionMethodReference.TYPE_ARGUMENTS_PROPERTY, Util.EMPTY_STRING, String.valueOf('<'), String.valueOf('>'));
+		node.getName().accept(this);
+		return false;
+	}
+
+	/*
 	 * @see ASTVisitor#visit(MarkerAnnotation)
 	 * @since 3.0
 	 */
@@ -1456,6 +1478,32 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		this.result.append('(');
 		getChildNode(node, SingleMemberAnnotation.VALUE_PROPERTY).accept(this);
 		this.result.append(')');
+		return false;
+	}
+
+	/*
+	 * @see ASTVisitor#visit(SuperMethodReference)
+	 */
+	public boolean visit(SuperMethodReference node) {
+		ASTNode qualifier = getChildNode(node, SuperMethodReference.QUALIFIER_PROPERTY);
+		if (qualifier != null) {
+			qualifier.accept(this);
+			this.result.append('.');
+		}
+		this.result.append("super ::"); //$NON-NLS-1$
+		visitList(node, SuperMethodReference.TYPE_ARGUMENTS_PROPERTY, Util.EMPTY_STRING, String.valueOf('<'), String.valueOf('>'));
+		node.getName().accept(this);
+		return false;
+	}
+
+	/*
+	 * @see ASTVisitor#visit(TypeMethodReference)
+	 */
+	public boolean visit(TypeMethodReference node) {
+		getChildNode(node, TypeMethodReference.TYPE_PROPERTY).accept(this);
+		this.result.append("::"); //$NON-NLS-1$
+		visitList(node, TypeMethodReference.TYPE_ARGUMENTS_PROPERTY, Util.EMPTY_STRING, String.valueOf('<'), String.valueOf('>'));
+		node.getName().accept(this);
 		return false;
 	}
 

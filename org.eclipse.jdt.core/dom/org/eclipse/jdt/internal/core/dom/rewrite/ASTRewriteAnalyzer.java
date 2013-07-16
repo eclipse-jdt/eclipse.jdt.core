@@ -2428,6 +2428,29 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return false;
 	}
 
+	private void visitReferenceTypeArguments(ASTNode node, StructuralPropertyDescriptor childProperty, int pos) {
+		if (isChanged(node, childProperty)) {
+			try {
+				pos = getScanner().getTokenEndOffset(TerminalTokens.TokenNameCOLON_COLON, pos);
+				rewriteOptionalTypeParameters(node, childProperty, pos, Util.EMPTY_STRING, false, false);
+			} catch (CoreException e) {
+				handleException(e);
+			}
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(CreationReference)
+	 */
+	public boolean visit(CreationReference node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		int pos= rewriteRequiredNode(node, CreationReference.TYPE_PROPERTY);
+		visitReferenceTypeArguments(node, CreationReference.TYPE_ARGUMENTS_PROPERTY, pos);
+		return false;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(DoStatement)
 	 */
@@ -3895,6 +3918,20 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		rewriteParagraphList(node, EnumDeclaration.BODY_DECLARATIONS_PROPERTY, pos, indent, -1, 2);
 		return false;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(ExpressionMethodReference)
+	 */
+	public boolean visit(ExpressionMethodReference node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		int pos= rewriteRequiredNode(node, ExpressionMethodReference.EXPRESSION_PROPERTY);
+		visitReferenceTypeArguments(node, ExpressionMethodReference.TYPE_ARGUMENTS_PROPERTY, pos);
+		rewriteRequiredNode(node, ExpressionMethodReference.NAME_PROPERTY);
+		return false;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.MarkerAnnotation)
 	 */
@@ -4018,6 +4055,33 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		rewriteRequiredNode(node, SingleMemberAnnotation.VALUE_PROPERTY);
 		return false;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(SuperMethodReference)
+	 */
+	public boolean visit(SuperMethodReference node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		int pos = rewriteOptionalQualifier(node, SuperMethodReference.QUALIFIER_PROPERTY, node.getStartPosition());
+		visitReferenceTypeArguments(node, SuperMethodReference.TYPE_ARGUMENTS_PROPERTY, pos);
+		rewriteRequiredNode(node, SuperMethodReference.NAME_PROPERTY);
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(TypeMethodReference)
+	 */
+	public boolean visit(TypeMethodReference node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		int pos= rewriteRequiredNode(node, TypeMethodReference.TYPE_PROPERTY);
+		visitReferenceTypeArguments(node, TypeMethodReference.TYPE_ARGUMENTS_PROPERTY, pos);
+		rewriteRequiredNode(node, TypeMethodReference.NAME_PROPERTY);
+		return false;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.TypeParameter)
 	 */

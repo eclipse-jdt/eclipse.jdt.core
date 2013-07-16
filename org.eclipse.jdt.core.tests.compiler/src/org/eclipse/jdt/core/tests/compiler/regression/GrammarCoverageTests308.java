@@ -1500,7 +1500,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n" + 
 				"2. ERROR in X.java (at line 12)\n" + 
 				"	i = @Marker W<@Marker Integer>::<@Marker String> new;\n" + 
-				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"The target type of this expression must be a functional interface\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 12)\n" + 

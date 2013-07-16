@@ -7991,7 +7991,7 @@ protected void consumeIdentifierOrNew(boolean newForm) {
 	// IdentifierOrNew ::= 'new'
 	if (newForm) {
 		int newStart = this.intStack[this.intPtr--];
-		pushIdentifier(ConstantPool.Init, (((long) newStart << 32)) + (newStart + 3));
+		pushIdentifier(ConstantPool.Init, (((long) newStart << 32)) + (newStart + 2));
 	}
 }
 protected void consumeEmptyTypeArguments() {

@@ -1250,7 +1250,7 @@ public void test037() {
 			"----------\n" + 
 			"3. ERROR in X.java (at line 8)\n" + 
 			"	System.out.println(\"Constructor Reference in illegal context: \" + String::new);\n" + 
-			"	                                                                  ^^^^^^^^^^^^\n" + 
+			"	                                                                  ^^^^^^^^^^^\n" + 
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 10)\n" + 
@@ -4262,7 +4262,7 @@ public void test384750m() {
 					"----------\n" + 
 					"1. ERROR in X.java (at line 12)\n" + 
 					"	I i3 = ArrayList<Integer>::new;\n" + 
-					"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 					"The constructed object of type ArrayList<Integer> is incompatible with the descriptor\'s return type: List<String>\n" + 
 					"----------\n" + 
 					"2. ERROR in X.java (at line 13)\n" + 
@@ -4305,12 +4305,12 @@ public void test384750n() {
 					"----------\n" + 
 					"1. ERROR in X.java (at line 7)\n" + 
 					"	I i1 = ArrayList<String>[]::new;\n" + 
-					"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 					"Cannot create a generic array of ArrayList<String>\n" + 
 					"----------\n" + 
 					"2. ERROR in X.java (at line 8)\n" + 
 					"	I i2 = List<String>[]::new;\n" + 
-					"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+					"	       ^^^^^^^^^^^^^^^^^^^\n" + 
 					"Cannot create a generic array of List<String>\n" + 
 					"----------\n");
 }
@@ -4367,27 +4367,27 @@ public void test384750o() {
 					"----------\n" + 
 					"1. ERROR in X.java (at line 34)\n" + 
 					"	I i = List[]::new;\n" + 
-					"	      ^^^^^^^^^^^^\n" + 
+					"	      ^^^^^^^^^^^\n" + 
 					"Incompatible parameter list for array constructor. Expected (int), but found ()\n" + 
 					"----------\n" + 
 					"2. ERROR in X.java (at line 35)\n" + 
 					"	J j = ArrayList[]::new;\n" + 
-					"	      ^^^^^^^^^^^^^^^^^\n" + 
+					"	      ^^^^^^^^^^^^^^^^\n" + 
 					"Incompatible parameter list for array constructor. Expected (int), but found (long)\n" + 
 					"----------\n" + 
 					"3. ERROR in X.java (at line 36)\n" + 
 					"	K k = ArrayList[]::new;\n" + 
-					"	      ^^^^^^^^^^^^^^^^^\n" + 
+					"	      ^^^^^^^^^^^^^^^^\n" + 
 					"Incompatible parameter list for array constructor. Expected (int), but found (String, long)\n" + 
 					"----------\n" + 
 					"4. ERROR in X.java (at line 42)\n" + 
 					"	Q q = ArrayList[]::new;\n" + 
-					"	      ^^^^^^^^^^^^^^^^^\n" + 
+					"	      ^^^^^^^^^^^^^^^^\n" + 
 					"Incompatible parameter list for array constructor. Expected (int), but found (Float)\n" + 
 					"----------\n" + 
 					"5. ERROR in X.java (at line 43)\n" + 
 					"	R r = ArrayList[][][]::new;\n" + 
-					"	      ^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"	      ^^^^^^^^^^^^^^^^^^^^\n" + 
 					"Constructed array ArrayList[][][] cannot be assigned to List<String>[] as required in the interface descriptor  \n" + 
 					"----------\n");
 }
@@ -4631,17 +4631,17 @@ public void test384750w() {
 					"----------\n" + 
 					"1. ERROR in X.java (at line 23)\n" + 
 					"	J j = X<Integer>::new;\n" + 
-					"	      ^^^^^^^^^^^^^^^^\n" + 
+					"	      ^^^^^^^^^^^^^^^\n" + 
 					"The constructed object of type X<Integer> is incompatible with the descriptor\'s return type: X<String>\n" + 
 					"----------\n" + 
 					"2. ERROR in X.java (at line 24)\n" + 
 					"	K k = X::new;\n" + 
-					"	      ^^^^^^^\n" + 
+					"	      ^^^^^^\n" + 
 					"The target type of this expression must be a functional interface\n" + 
 					"----------\n" + 
 					"3. ERROR in X.java (at line 26)\n" + 
 					"	M m = X<String>::new;\n" + 
-					"	      ^^^^^^^^^^^^^^^\n" + 
+					"	      ^^^^^^^^^^^^^^\n" + 
 					"The type X<String> does not define X(String) that is applicable here\n" + 
 					"----------\n");
 }
@@ -4678,22 +4678,22 @@ public void test384750x() {
 					"----------\n" + 
 					"1. ERROR in X.java (at line 19)\n" + 
 					"	I i = X::new;\n" + 
-					"	      ^^^^^^^\n" + 
+					"	      ^^^^^^\n" + 
 					"Unhandled exception type IOException\n" + 
 					"----------\n" + 
 					"2. ERROR in X.java (at line 19)\n" + 
 					"	I i = X::new;\n" + 
-					"	      ^^^^^^^\n" + 
+					"	      ^^^^^^\n" + 
 					"Unhandled exception type FileNotFoundException\n" + 
 					"----------\n" + 
 					"3. ERROR in X.java (at line 20)\n" + 
 					"	J j = X<Integer>::new;\n" + 
-					"	      ^^^^^^^^^^^^^^^^\n" + 
+					"	      ^^^^^^^^^^^^^^^\n" + 
 					"The constructed object of type X<Integer> is incompatible with the descriptor\'s return type: X<String>\n" + 
 					"----------\n" + 
 					"4. ERROR in X.java (at line 21)\n" + 
 					"	K k = X::new;\n" + 
-					"	      ^^^^^^^\n" + 
+					"	      ^^^^^^\n" + 
 					"Unhandled exception type IOException\n" + 
 					"----------\n");
 }
@@ -6409,7 +6409,7 @@ public void test406588() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 10)\n" + 
 			"	this(Z::new);\n" + 
-			"	     ^^^^^^^\n" + 
+			"	     ^^^^^^\n" + 
 			"No enclosing instance of the type X.Y is accessible in scope\n" + 
 			"----------\n");
 }
@@ -6432,7 +6432,7 @@ public void test406586() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	I i = Y::new;\n" + 
-			"	      ^^^^^^^\n" + 
+			"	      ^^^^^^\n" + 
 			"No enclosing instance of the type X is accessible in scope\n" + 
 			"----------\n");
 }
@@ -6522,12 +6522,12 @@ public void test406773() {
 			"----------\n" + 
 			"2. WARNING in X.java (at line 10)\n" + 
 			"	I i = X::new;\n" + 
-			"	      ^^^^^^^\n" + 
+			"	      ^^^^^^\n" + 
 			"Access to enclosing constructor X(int) is emulated by a synthetic accessor method\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 12)\n" + 
 			"	i = Y::new;\n" + 
-			"	    ^^^^^^^\n" + 
+			"	    ^^^^^^\n" + 
 			"No enclosing instance of the type X is accessible in scope\n" + 
 			"----------\n",
 			null /* no extra class libraries */,
