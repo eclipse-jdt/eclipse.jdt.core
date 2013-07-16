@@ -510,7 +510,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("HierarchyCircularitySelfReference", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("HierarchyHasProblems", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalAbstractModifierCombinationForMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
-		expectedProblemAttributes.put("IllegalAbstractStrictfpModifierCombinationForInterfaceMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("IllegalStrictfpForAbstractInterfaceMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalAccessFromTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalAnnotationForBaseType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalCast", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1294,7 +1294,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("HierarchyCircularitySelfReference", SKIP);
 		expectedProblemAttributes.put("HierarchyHasProblems", SKIP);
 		expectedProblemAttributes.put("IllegalAbstractModifierCombinationForMethod", SKIP);
-		expectedProblemAttributes.put("IllegalAbstractStrictfpModifierCombinationForInterfaceMethod", SKIP);
+		expectedProblemAttributes.put("IllegalStrictfpForAbstractInterfaceMethod", SKIP);
 		expectedProblemAttributes.put("IllegalAccessFromTypeVariable", SKIP);
 		expectedProblemAttributes.put("IllegalAnnotationForBaseType", SKIP);
 		expectedProblemAttributes.put("IllegalCast", SKIP);

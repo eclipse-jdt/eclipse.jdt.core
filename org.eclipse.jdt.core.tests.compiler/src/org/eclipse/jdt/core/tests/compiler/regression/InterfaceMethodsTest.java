@@ -153,12 +153,12 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"2. ERROR in I.java (at line 6)\n" +
 			"	strictfp void foo3();\n" +
 			"	              ^^^^^^\n" +
-			"Illegal modifiers for the interface method foo3; strictfp is not permitted for abstract interface methods\n" +
+			"strictfp is not permitted for abstract interface method foo3\n" +
 			"----------\n" +
 			"3. ERROR in I.java (at line 7)\n" +
 			"	public strictfp synchronized void foo4();\n" +
 			"	                                  ^^^^^^\n" +
-			"Illegal modifiers for the interface method foo4; strictfp is not permitted for abstract interface methods\n" +
+			"strictfp is not permitted for abstract interface method foo4\n" +
 			"----------\n" +
 			"4. ERROR in I.java (at line 7)\n" +
 			"	public strictfp synchronized void foo4();\n" +
@@ -168,7 +168,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"5. ERROR in I.java (at line 8)\n" +
 			"	public strictfp synchronized @Annot void foo5();\n" +
 			"	                                         ^^^^^^\n" +
-			"Illegal modifiers for the interface method foo5; strictfp is not permitted for abstract interface methods\n" +
+			"strictfp is not permitted for abstract interface method foo5\n" +
 			"----------\n" +
 			"6. ERROR in I.java (at line 8)\n" +
 			"	public strictfp synchronized @Annot void foo5();\n" +
@@ -2068,7 +2068,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"2. ERROR in I.java (at line 3)\n" +
 			"	public abstract default strictfp final void bar();}\n" +
 			"	                                            ^^^^^\n" +
-			"Illegal modifiers for the interface method bar; strictfp is not permitted for abstract interface methods\n" +
+			"strictfp is not permitted for abstract interface method bar\n" +
 			"----------\n" +
 			"3. ERROR in I.java (at line 3)\n" +
 			"	public abstract default strictfp final void bar();}\n" +

@@ -2445,7 +2445,7 @@ public void illegalAbstractModifierCombinationForMethod(ReferenceBinding type, A
 public void illegalAbstractModifierCombinationForMethod(AbstractMethodDeclaration methodDecl) {
 	String[] arguments = new String[] {new String(methodDecl.selector)};
 	this.handle(
-		IProblem.IllegalAbstractStrictfpModifierCombinationForInterfaceMethod,
+		IProblem.IllegalStrictfpForAbstractInterfaceMethod,
 		arguments,
 		arguments,
 		methodDecl.sourceStart,
