@@ -6698,6 +6698,40 @@ public void test410114() throws IOException {
 						"Type safety: The constructor Y.Z(Y) belongs to the raw type Y.Z. References to generic type Y<T>.Z<K> should be parameterized\n" + 
 						"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=412453,
+//[1.8][compiler] Stackoverflow when compiling LazySeq
+public void test412453() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"import java.util.AbstractList;\n" +
+				"import java.util.Comparator;\n" +
+				"import java.util.Optional;\n" +
+				"\n" +
+				"import java.util.function.*;\n" +
+				"\n" +
+				"abstract class Y<E> extends AbstractList<E> {\n" +
+				"	public <C extends Comparable<? super C>> Optional<E> minBy(Function<E, C> propertyFun) { return null;} \n" +
+				"}\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public void foo(Y<Integer> empty) throws Exception {\n" +
+				"		final Optional<Integer> min = empty.minBy((a, b) -> a - b);\n" +
+				"	}\n" +
+				"}\n" +
+				"\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
+		"	final Optional<Integer> min = empty.minBy((a, b) -> a - b);\n" + 
+		"	                                          ^^^^^^^^^^^^^^^\n" + 
+		"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		null /* custom options */
+	);
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

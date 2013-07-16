@@ -16,9 +16,12 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.ast.Annotation.TypeUseBinding;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 
 public class TypeBindingVisitor {
+
+	private SimpleLookupTable visitedCache;
 
 	public boolean visit(BaseTypeBinding baseTypeBinding)  {
 		return true;  // continue traversal.
@@ -67,6 +70,16 @@ public class TypeBindingVisitor {
 		if (type == null) 
 			return;
 		
+		SimpleLookupTable visitedCache = visitor.visitedCache;
+		if (visitedCache == null) {
+			visitor.visitedCache = new SimpleLookupTable(3);
+			visitedCache = visitor.visitedCache;
+		}
+
+		Object result = visitedCache.get(type);
+		if (result == Boolean.TRUE)
+			return;
+		visitedCache.put(type, Boolean.TRUE);
 		switch (type.kind()) {
 			
 			case Binding.TYPE_PARAMETER:
