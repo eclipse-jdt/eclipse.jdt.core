@@ -6694,7 +6694,7 @@ public void test410114() throws IOException {
 						"----------\n" + 
 						"2. WARNING in Y.java (at line 14)\n" + 
 						"	i = Y.Z:: new;\n" + 
-						"	    ^^^^^^^^^^\n" + 
+						"	    ^^^^^^^^^\n" + 
 						"Type safety: The constructor Y.Z(Y) belongs to the raw type Y.Z. References to generic type Y<T>.Z<K> should be parameterized\n" + 
 						"----------\n");
 }
