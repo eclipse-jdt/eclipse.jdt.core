@@ -19,6 +19,7 @@
  *								bug 375366 - ECJ ignores unusedParameterIncludeDocCommentReference unless enableJavadoc option is set
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
+ *    Mat Booth - Contribution for bug 405176 
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -914,7 +915,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						}));
 				}
 			}
-			if ((this.tagBits & Logger.EMACS) != 0) {
+			if ((this.tagBits & Logger.XML) == 0) {
 				this.printlnErr();
 			}
 		}
