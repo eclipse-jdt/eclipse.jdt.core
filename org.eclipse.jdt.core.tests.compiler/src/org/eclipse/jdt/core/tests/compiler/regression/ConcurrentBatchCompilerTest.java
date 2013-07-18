@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 GK Software AG and others.
+ * Copyright (c) 2012, 2013 IBM Corporation GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,7 +70,7 @@ public class ConcurrentBatchCompilerTest extends BatchCompilerTest {
 						"	           ^^^^^^\n" +
 						"Potential resource leak: \'reader\' may not be closed\n" +
 						"----------\n" +
-						"1 problem (1 error)");
+						"1 problem (1 error)\n");
 	
 			// collect exceptions indicating a failure:
 			final Throwable[] thrown = new Throwable[2];
