@@ -82,6 +82,11 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 				break checkUnused;
 			if (!methodBinding.canBeSeenBy(SuperReference.implicitSuperConstructorCall(), this.scope))
 				break checkUnused;
+			ReferenceBinding declaringClass = constructorBinding.declaringClass;
+			if (constructorBinding.isPublic() && constructorBinding.parameters.length == 0 &&
+					declaringClass.isStatic() &&
+					declaringClass.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoExternalizable, false) != null)
+				break checkUnused;
 			// otherwise default super constructor exists, so go ahead and complain unused.
 		}
 		// complain unused

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,8 @@
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
+
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 import junit.framework.Test;
 
@@ -316,6 +318,178 @@ public void test009() {
 			"	public B () { super(\"\"); }\n" + 
 			"	       ^^^^\n" + 
 			"The constructor C.B() is never used locally\n" + 
+			"----------\n");
+}
+//Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
+public void test408038a() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_6)
+		return;
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	private class Y {\n" +
+			"		static final int i = 10;\n" +
+			"		public Y() {}\n" +
+			"		public Y(int x) {System.out.println(x);}\n" +
+			"   }\n" +
+			"\n" +
+			"	public void zoo() {\n" +
+			"		System.out.println(Y.i);\n" +
+			"		Y y = new Y(5);\n" +
+			"		System.out.println(y);\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 4)\n" +
+		"	public Y() {}\n" +
+		"	       ^^^\n" +
+		"The constructor X.Y() is never used locally\n" +
+		"----------\n",
+		null,
+		true,
+		null
+	);
+}
+//Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
+public void test408038b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_6)
+		return;
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	private static class Y {\n" +
+			"		static final int i = 10;\n" +
+			"		public Y() {}\n" +
+			"		public Y(int x) {System.out.println(x);}\n" +
+			"   }\n" +
+			"\n" +
+			"	public void zoo() {\n" +
+			"		System.out.println(Y.i);\n" +
+			"		Y y = new Y(5);\n" +
+			"		System.out.println(y);\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 4)\n" +
+		"	public Y() {}\n" +
+		"	       ^^^\n" +
+		"The constructor X.Y() is never used locally\n" +
+		"----------\n",
+		null,
+		true,
+		null
+	);
+}
+//Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
+public void test408038c() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_6)
+		return;
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.Externalizable;\n" +
+			"import java.io.IOException;\n" +
+			"import java.io.ObjectInput;\n" +
+			"import java.io.ObjectOutput;\n" +
+			"public class X {\n" +
+			"	private static class Y implements Externalizable {\n" +
+			"		static final int i = 10;\n" +
+			"		public Y() {}\n" +
+			"		public Y(int x) {System.out.println(x);}\n" +
+			"\n" +
+			"		@Override\n" +
+			"		public void writeExternal(ObjectOutput out) throws IOException {\n" +
+			"		}\n" +
+			"\n" +
+			"		@Override \n" +
+			"		public void readExternal(ObjectInput in) throws IOException,\n" +
+			"		ClassNotFoundException {\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public void zoo() {\n" +
+			"		System.out.println(Y.i);\n" +
+			"		Y y = new Y(5);\n" +
+			"		System.out.println(y);\n" +
+			"	}\n" +
+			"}"
+		},
+		"",
+		null,
+		true,
+		null
+	);
+}
+//Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
+public void test408038d() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_6)
+		return;
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.Externalizable;\n" +
+			"import java.io.IOException;\n" +
+			"import java.io.ObjectInput;\n" +
+			"import java.io.ObjectOutput;\n" +
+			"public class X {\n" +
+			"	private class Y implements Externalizable {\n" +
+			"		static final int i = 10;\n" +
+			"		public Y() {}\n" +
+			"		public Y(int x) {System.out.println(x);}\n" +
+			"\n" +
+			"		@Override\n" +
+			"		public void writeExternal(ObjectOutput out) throws IOException {\n" +
+			"		}\n" +
+			"\n" +
+			"		@Override \n" +
+			"		public void readExternal(ObjectInput in) throws IOException,\n" +
+			"		ClassNotFoundException {\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public void zoo() {\n" +
+			"		System.out.println(Y.i);\n" +
+			"		Y y = new Y(5);\n" +
+			"		System.out.println(y);\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 8)\n" +
+		"	public Y() {}\n" +
+		"	       ^^^\n" +
+		"The constructor X.Y() is never used locally\n" +
+		"----------\n",
+		null,
+		true,
+		null
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=408038,
+//Classes which implement Externalizable should not have an unused constructor warning
+//The test case is not directly related to the bug. It was discovered as a result
+//of the bug. Please see comment 16 bullet 4 in bugzilla.
+public void test408038e() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" +
+			"	int i;\n" +
+			"	private X(int x) {i = x;}\n" +
+			"	X() {}\n" +
+			"	public int foo() {\n" +
+			"		X x = new X();\n" +
+			"		return x.i;\n" +
+			"	}\n" +
+			"}\n"
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	private X(int x) {i = x;}\n" +
+			"	        ^^^^^^^^\n" +
+			"The constructor X(int) is never used locally\n" +
 			"----------\n");
 }
 }

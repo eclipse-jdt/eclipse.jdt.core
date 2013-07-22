@@ -13802,4 +13802,186 @@ public void test405225_extdirs() {
 		"",
 		true);
 }
+//Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
+public void test408038a() {
+	this.runConformTest(
+		new String[] {
+			"externalizable/warning/X.java",
+			"package externalizable.warning;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	private class Y {\n" +
+			"		static final int i = 10;\n" +
+			"		public Y() {}\n" +
+			"		public Y(int x) {System.out.println(x);}\n" +
+			"	}\n" +
+			"\n" +
+			"	public void zoo() {\n" +
+			"		System.out.println(Y.i);\n" +
+			"		Y y = new Y(5);\n" +
+			"		System.out.println(y);\n" +
+			"	}\n" +
+			"}",
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "externalizable" + File.separator + "warning" + File.separator + "X.java\""
+			+ " -1.6 -d none",
+			"",
+			"----------\n" +
+			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 6)\n" +
+			"	public Y() {}\n" +
+			"	       ^^^\n" +
+			"The constructor X.Y() is never used locally\n" +
+			"----------\n" +
+			"1 problem (1 warning)",
+			true);
+}
+//Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
+public void test408038b() {
+	this.runConformTest(
+		new String[] {
+			"externalizable/warning/X.java",
+			"package externalizable.warning;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	private static class Y {\n" +
+			"		static final int i = 10;\n" +
+			"		public Y() {}\n" +
+			"		public Y(int x) {System.out.println(x);}\n" +
+			"	}\n" +
+			"\n" +
+			"	public void zoo() {\n" +
+			"		System.out.println(Y.i);\n" +
+			"		Y y = new Y(5);\n" +
+			"		System.out.println(y);\n" +
+			"	}\n" +
+			"}",
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "externalizable" + File.separator + "warning" + File.separator + "X.java\""
+			+ " -1.6 -d none",
+			"",
+			"----------\n" +
+			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 6)\n" +
+			"	public Y() {}\n" +
+			"	       ^^^\n" +
+			"The constructor X.Y() is never used locally\n" +
+			"----------\n" +
+			"1 problem (1 warning)",
+			true);
+}
+//Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
+public void test408038c() {
+	this.runConformTest(
+		new String[] {
+			"externalizable/warning/X.java",
+			"package externalizable.warning;\n" +
+			"import java.io.Externalizable;\n" +
+			"import java.io.IOException;\n" +
+			"import java.io.ObjectInput;\n" +
+			"import java.io.ObjectOutput;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	private static class Y implements Externalizable {\n" +
+			"		static final int i = 10;\n" +
+			"		public Y() {}\n" +
+			"		public Y(int x) {System.out.println(x);}\n" +
+			"\n" +
+			"		@Override\n" +
+			"		public void writeExternal(ObjectOutput out) throws IOException {\n" +
+			"		}\n" +
+			"\n" +
+			"		@Override\n" +
+			"		public void readExternal(ObjectInput in) throws IOException,\n" +
+			"		ClassNotFoundException {\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"	public void zoo() {\n" +
+			"		System.out.println(Y.i);\n" +
+			"		Y y = new Y(5);\n" +
+			"		System.out.println(y);\n" +
+			"	}\n" +
+			"}",
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "externalizable" + File.separator + "warning" + File.separator + "X.java\""
+			+ " -1.6 -d none",
+			"",
+			"",
+			true);
+}
+//Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
+public void test408038d() {
+	this.runConformTest(
+		new String[] {
+			"externalizable/warning/X.java",
+			"package externalizable.warning;\n" +
+			"import java.io.Externalizable;\n" +
+			"import java.io.IOException;\n" +
+			"import java.io.ObjectInput;\n" +
+			"import java.io.ObjectOutput;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	private class Y implements Externalizable {\n" +
+			"		static final int i = 10;\n" +
+			"		public Y() {}\n" +
+			"		public Y(int x) {System.out.println(x);}\n" +
+			"\n" +
+			"		@Override\n" +
+			"		public void writeExternal(ObjectOutput out) throws IOException {\n" +
+			"		}\n" +
+			"\n" +
+			"		@Override\n" +
+			"		public void readExternal(ObjectInput in) throws IOException,\n" +
+			"		ClassNotFoundException {\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"	public void zoo() {\n" +
+			"		System.out.println(Y.i);\n" +
+			"		Y y = new Y(5);\n" +
+			"		System.out.println(y);\n" +
+			"	}\n" +
+			"}",
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "externalizable" + File.separator + "warning" + File.separator + "X.java\""
+			+ " -1.6 -d none",
+			"",
+			"----------\n" +
+			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 10)\n" +
+			"	public Y() {}\n" +
+			"	       ^^^\n" +
+			"The constructor X.Y() is never used locally\n" +
+			"----------\n" +
+			"1 problem (1 warning)",
+			true);
+}
+// Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
+// The test case is not directly related to the bug. It was discovered as a result
+// of the bug. Please see comment 16 bullet 4 in bugzilla.
+public void test408038e() {
+	this.runConformTest(
+		new String[] {
+			"externalizable/warning/X.java",
+			"package externalizable.warning;\n" +
+			"class X {\n" +
+			"	int i;\n" +
+			"	private X(int x) {i = x;}\n" +
+			"	X() {}\n" +
+			"	public int foo() {\n" +
+			"		X x = new X();\n" +
+			"		return x.i;\n" +
+			"	}\n" +
+			"}\n"
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "externalizable" + File.separator + "warning" + File.separator + "X.java\""
+			+ " -1.6 -d none",
+			"",
+			"----------\n" +
+			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/externalizable/warning/X.java (at line 4)\n" +
+			"	private X(int x) {i = x;}\n" +
+	        "	        ^^^^^^^^\n" +
+	        "The constructor X(int) is never used locally\n" +
+	        "----------\n" +
+	        "1 problem (1 warning)",
+			true);
+}
 }
