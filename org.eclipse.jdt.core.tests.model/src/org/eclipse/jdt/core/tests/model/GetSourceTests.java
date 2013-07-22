@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,10 +10,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.*;
-
 import junit.framework.Test;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IAnnotation;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IImportDeclaration;
+import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageDeclaration;
+import org.eclipse.jdt.core.ISourceReference;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeParameter;
+import org.eclipse.jdt.core.JavaModelException;
 
 public class GetSourceTests extends ModifyingResourceTests {
 
@@ -173,6 +183,59 @@ public class GetSourceTests extends ModifyingResourceTests {
 
 		Object constant = field.getConstant();
 		assertNull("Should not be a constant", constant);
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=406836
+	public void testFieldConstants406836() throws CoreException {
+		try {
+			String cuSource =
+					"package p;\n" +
+					"public class A{\n" +
+					"    final long CONST = 1;\n" +
+					"    final long NON_TRIVIAL_INITIALIZER_NON_CONST = 2<<8;\n" +
+					"    static long STATIC_NOT_CONST = 3;\n" +
+					"    final int NON_COMPILE_TIME_CONSTANT = new Integer(4).intValue();\n" +
+					"}\n" +
+					"interface B{\n" +
+					"	final long CONST = 1;\n" +
+					"	final long NON_TRIVIAL_INITIALIZER_NON_CONST = 2<<8;\n" +
+					"	static long STATIC_NOT_CONST = 3;\n" +
+					"	final int NON_COMPILE_TIME_CONSTANT = new Integer(4).intValue();\n" +
+					"}\n";
+			createFile("/P/p/A.java", cuSource);
+			IType type = getCompilationUnit("/P/p/A.java").getType("A");
+
+			Object constant = type.getField("CONST").getConstant();
+			Long value = (Long) constant;
+			assertEquals("Wrong value", 1, value.intValue());
+
+			constant = type.getField("NON_TRIVIAL_INITIALIZER_NON_CONST").getConstant();
+			assertNull("Should not be a constant", constant);
+
+			constant = type.getField("STATIC_NOT_CONST").getConstant();
+			assertNull("Should not be a constant", constant);
+
+			constant = type.getField("NON_COMPILE_TIME_CONSTANT").getConstant();
+			assertNull("Should not be a constant", constant);
+
+			type = getCompilationUnit("/P/p/A.java").getType("B");
+
+			constant = type.getField("CONST").getConstant();
+			value = (Long) constant;
+			assertEquals("Wrong value", 1, value.intValue());
+
+			constant = type.getField("NON_TRIVIAL_INITIALIZER_NON_CONST").getConstant();
+			assertNull("Should not be a constant", constant);
+
+			constant = type.getField("STATIC_NOT_CONST").getConstant();
+			value = (Long) constant;
+			assertEquals("Wrong value", 3, value.intValue());
+
+			constant = type.getField("NON_COMPILE_TIME_CONSTANT").getConstant();
+			assertNull("Should not be a constant", constant);
+		} finally {
+			deleteFile("/P/p/A.java");
+		}
 	}
 
 	/*

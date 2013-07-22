@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,71 +20,17 @@ public interface IField extends IMember, IAnnotatable {
 
 /**
  * Returns the constant value associated with this field
- * or <code>null</code> if this field has none. The field needs to be static and final to have
- * a constant value.
- * Returns an instance of the wrapper type corresponding to the the type of the field.
- * <table border="1">
- * <tr>
- * <th>field type</th>
- * <th>wrapper type</th>
- * </tr>
- * <tr>
- * <td>int
- * </td>
- * <td>java.lang.Integer
- * </td>
- * </tr>
- * <tr>
- * <td>byte
- * </td>
- * <td>java.lang.Byte
- * </td>
- * </tr>
- * <tr>
- * <td>boolean
- * </td>
- * <td>java.lang.Boolean
- * </td>
- * </tr>
- * <tr>
- * <td>char
- * </td>
- * <td>java.lang.Character
- * </td>
- * </tr>
- * <tr>
- * <td>double
- * </td>
- * <td>java.lang.Double
- * </td>
- * </tr>
- * <tr>
- * <td>float
- * </td>
- * <td>java.lang.Float
- * </td>
- * </tr>
- * <tr>
- * <td>long
- * </td>
- * <td>java.lang.Long
- * </td>
- * </tr>
- * <tr>
- * <td>short
- * </td>
- * <td>java.lang.Short
- * </td>
- * </tr>
- * <tr>
- * <td>java.lang.String
- * </td>
- * <td>java.lang.String
- * </td>
- * </tr>
- * </table>
+ * or <code>null</code> if this field has none. To have a constant value, the field needs to be
+ * final and initialized with a compile-time constant expression.
+ * <p>
+ * For types from source, this currently only works if the field initializer is a literal (returns
+ * <code>null</code> for more complex constant expressions).
+ * </p>
+ * <p>
+ * For primitive types, returns the boxed value.
+ * </p>
  *
- * @return  the constant value associated with this field or <code>null</code> if this field has none.
+ * @return  the constant value associated with this field, or <code>null</code> if not available
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource
  */

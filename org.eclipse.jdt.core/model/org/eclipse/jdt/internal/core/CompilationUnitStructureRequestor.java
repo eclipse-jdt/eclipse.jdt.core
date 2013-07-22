@@ -635,7 +635,7 @@ public void exitField(int initializationStart, int declarationEnd, int declarati
 	if (initializationStart != -1) {
 		int flags = info.flags;
 		Object typeInfo;
-		if (Flags.isStatic(flags) && Flags.isFinal(flags)
+		if (Flags.isFinal(flags)
 				|| ((typeInfo = this.infoStack.peek()) instanceof TypeInfo
 					 && (Flags.isInterface(((TypeInfo)typeInfo).modifiers)))) {
 			int length = declarationEnd - initializationStart;
