@@ -2567,7 +2567,7 @@ public void test019(){
 				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"sun.net.spi.nameservice.dns cannot be resolved to a type\n" +
 				"----------\n" +
-				"1 problem (1 error)",
+				"1 problem (1 error)\n",
 				true);
 	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - cumulative -extdirs extends the classpath
@@ -13832,7 +13832,7 @@ public void test408038a() {
 			"	       ^^^\n" +
 			"The constructor X.Y() is never used locally\n" +
 			"----------\n" +
-			"1 problem (1 warning)",
+			"1 problem (1 warning)\n",
 			true);
 }
 //Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
@@ -13865,7 +13865,7 @@ public void test408038b() {
 			"	       ^^^\n" +
 			"The constructor X.Y() is never used locally\n" +
 			"----------\n" +
-			"1 problem (1 warning)",
+			"1 problem (1 warning)\n",
 			true);
 }
 //Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
@@ -13951,7 +13951,7 @@ public void test408038d() {
 			"	       ^^^\n" +
 			"The constructor X.Y() is never used locally\n" +
 			"----------\n" +
-			"1 problem (1 warning)",
+			"1 problem (1 warning)\n",
 			true);
 }
 // Bug 408038 - Classes which implement Externalizable should not have an unused constructor warning
@@ -13981,7 +13981,7 @@ public void test408038e() {
 	        "	        ^^^^^^^^\n" +
 	        "The constructor X(int) is never used locally\n" +
 	        "----------\n" +
-	        "1 problem (1 warning)",
+	        "1 problem (1 warning)\n",
 			true);
 }
 }
