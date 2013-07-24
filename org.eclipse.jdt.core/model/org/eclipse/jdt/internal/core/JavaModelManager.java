@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Theodora Yeung (tyeung@bea.com) - ensure that JarPackageFragmentRoot make it into cache
@@ -300,7 +304,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public static class CompilationParticipants {
 
-		private final static int MAX_SOURCE_LEVEL = 7; // 1.1 to 1.7
+		private final static int MAX_SOURCE_LEVEL = 8; // 1.1 to 1.8
 
 		/*
 		 * The registered compilation participants (a table from int (source level) to Object[])
@@ -444,6 +448,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					return 5;
 				case ClassFileConstants.MAJOR_VERSION_1_7:
 					return 6;
+				case ClassFileConstants.MAJOR_VERSION_1_8:
+					return 7;
 				default:
 					// all other cases including ClassFileConstants.MAJOR_VERSION_1_1
 					return 0;
