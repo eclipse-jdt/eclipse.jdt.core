@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.dom.AnnotatableType;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -2600,6 +2601,52 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		typedeclaration = (TypeDeclaration)typedeclaration.bodyDeclarations().get(0);
 		TypeParameter typeParameter = (TypeParameter) typedeclaration.typeParameters().get(0);
 		checkSourceRange(typeParameter, "@Marker  F extends File", contents);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=412726
+	public void testBug412726() throws JavaModelException {
+		String contents =
+			"public interface X {\n" +
+			"	abstract void foo();\n" +
+			"}\n" +
+			"interface Y1 {\n" +
+			"}\n" +
+			"interface Y2 {\n" +
+			"	default void foo() {}\n" +
+			"}\n" +
+			"interface Z1 {\n" +
+			"	default void foo(){}\n" +
+			"	abstract void bar();\n" +
+			"}\n" +
+			"interface Z2 {\n" +
+			"	default void foo(){}\n" +
+			"	abstract void bar1();\n" +
+			"	abstract void bar2();\n" +
+			"}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		/* case 0: vanilla case - interface with one abstract method */
+		TypeDeclaration type =  (TypeDeclaration) unit.types().get(0);
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertTrue("Not a functional interface", typeBinding.isFunctionalInterface());
+		/* case 1: interface without any method */
+		type =  (TypeDeclaration) unit.types().get(1);
+		typeBinding = type.resolveBinding();
+		assertFalse("A Functional interface", typeBinding.isFunctionalInterface());
+		/* case 2: interface with just one default method and without any abstract method */
+		type =  (TypeDeclaration) unit.types().get(2);
+		typeBinding = type.resolveBinding();
+		assertFalse("A Functional interface", typeBinding.isFunctionalInterface());
+		/* case 3: interface with just one default method and one abstract method */
+		type =  (TypeDeclaration) unit.types().get(3);
+		typeBinding = type.resolveBinding();
+		assertTrue("A Functional interface", typeBinding.isFunctionalInterface());
+		/* case 4: interface with just one default method and two abstract methods */
+		type =  (TypeDeclaration) unit.types().get(4);
+		typeBinding = type.resolveBinding();
+		assertFalse("A Functional interface", typeBinding.isFunctionalInterface());
 	}
 
 }
