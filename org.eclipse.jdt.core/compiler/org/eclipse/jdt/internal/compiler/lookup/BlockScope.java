@@ -170,6 +170,8 @@ public final boolean allowBlankFinalFieldAssignment(FieldBinding binding) {
 	MethodScope methodScope = methodScope();
 	if (methodScope.isStatic != binding.isStatic())
 		return false;
+	if (methodScope.isLambdaScope()) 
+		return false;
 	return methodScope.isInsideInitializer() // inside initializer
 			|| ((AbstractMethodDeclaration) methodScope.referenceContext).isInitializationMethod(); // inside constructor or clinit
 }
@@ -938,6 +940,8 @@ public final boolean needBlankFinalFieldInitializationCheck(FieldBinding binding
 	MethodScope methodScope = methodScope();
 	while (methodScope != null) {
 		if (methodScope.isStatic != isStatic)
+			return false;
+		if (methodScope.isLambdaScope())
 			return false;
 		if (!methodScope.isInsideInitializer() // inside initializer
 				&& !((AbstractMethodDeclaration) methodScope.referenceContext).isInitializationMethod()) { // inside constructor or clinit

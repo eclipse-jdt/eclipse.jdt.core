@@ -6732,6 +6732,123 @@ public void test412453() {
 		null /* custom options */
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=412284,
+//[1.8][compiler] [1.8][compiler] Inspect all casts to/instanceof AbstractMethodDeclaration to eliminate potential CCEs
+public void test412284a() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"import java.io.IOException;\n" +
+				"interface I { void foo() throws IOException; }\n" +
+				"public class X {\n" +
+				" void bar() {\n" +
+				"	 I i = () -> {\n" +
+				"		 try {\n" +
+				"			 throw new IOException();\n" +
+				"		 } catch (IOException e) {			 \n" +
+				"		 } finally {\n" +
+				"			 i.foo();\n" +
+				"		 }\n" +
+				"	 };\n" +
+				" }\n" +
+				"}\n"
+		},
+
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	i.foo();\n" + 
+		"	^\n" + 
+		"The local variable i may not have been initialized\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		null /* custom options */
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=412284,
+//[1.8][compiler] [1.8][compiler] Inspect all casts to/instanceof AbstractMethodDeclaration to eliminate potential CCEs
+public void test412284b() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"interface I { void foo();}\n" + 
+				"class X { \n" +
+				"   final int t;\n" +
+				"   X(){\n" +
+				"       I x = () ->  {\n" +
+				"    	 try {\n" +
+				"           t = 3;\n" +
+				"         } catch (Exception e) {\n" +
+				"           t = 4;\n" +
+				"         }\n" +
+				"      };\n" +
+				"  }\n" +
+				"}\n"
+		},
+
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	X(){\n" + 
+		"	^^^\n" + 
+		"The blank final field t may not have been initialized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	t = 3;\n" + 
+		"	^\n" + 
+		"The final field X.t cannot be assigned\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	t = 4;\n" + 
+		"	^\n" + 
+		"The final field X.t cannot be assigned\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		null /* custom options */
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=412284,
+//[1.8][compiler] [1.8][compiler] Inspect all casts to/instanceof AbstractMethodDeclaration to eliminate potential CCEs
+public void test412284c() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"interface I { void foo();}\n" + 
+				"class X { \n" +
+				"   final int t;\n" +
+				"   X(){\n" +
+				"       I x = () ->  {\n" +
+				"    	 try {\n" +
+				"           t += 3;\n" +
+				"         } catch (Exception e) {\n" +
+				"           t += 4;\n" +
+				"         }\n" +
+				"      };\n" +
+				"  }\n" +
+				"}\n"
+		},
+
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	X(){\n" + 
+		"	^^^\n" + 
+		"The blank final field t may not have been initialized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	t += 3;\n" + 
+		"	^\n" + 
+		"The final field X.t cannot be assigned\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	t += 4;\n" + 
+		"	^\n" + 
+		"The final field X.t cannot be assigned\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		null /* custom options */
+	);
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

@@ -1062,8 +1062,9 @@ public void resolve(BlockScope upperScope) {
 			this.anyExceptionVariable.setConstant(Constant.NotAConstant); // not inlinable
 
 			if (!methodScope.isInsideInitializer()) {
-				MethodBinding methodBinding =
-					((AbstractMethodDeclaration) methodScope.referenceContext).binding;
+				MethodBinding methodBinding = methodScope.referenceContext instanceof AbstractMethodDeclaration ?
+					((AbstractMethodDeclaration) methodScope.referenceContext).binding : (methodScope.referenceContext instanceof LambdaExpression ? 
+							((LambdaExpression)methodScope.referenceContext).binding : null);
 				if (methodBinding != null) {
 					TypeBinding methodReturnType = methodBinding.returnType;
 					if (methodReturnType.id != TypeIds.T_void) {
