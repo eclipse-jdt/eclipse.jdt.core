@@ -530,7 +530,8 @@ public TypeBinding resolveType(BlockScope scope) {
 			if (isLegal) {
 				this.expression.computeConversion(scope, castType, expressionType);
 				if ((this.bits & ASTNode.UnsafeCast) != 0) { // unsafe cast
-					if (scope.compilerOptions().reportUnavoidableGenericTypeProblems || !this.expression.forcedToBeRaw(scope.referenceContext())) {
+					if (scope.compilerOptions().reportUnavoidableGenericTypeProblems
+							|| !(expressionType.isRawType() && this.expression.forcedToBeRaw(scope.referenceContext()))) {
 						scope.problemReporter().unsafeCast(this, scope);
 					}
 				} else {
