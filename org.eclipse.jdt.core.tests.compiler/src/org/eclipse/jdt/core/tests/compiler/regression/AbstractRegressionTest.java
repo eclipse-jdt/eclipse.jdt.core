@@ -97,14 +97,18 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		if (IS_JRE_8) { // TODO(stephan) accommodate future versions ...
 			COMPARATOR_IMPL_JRE8 = // replace '*' with T, '%' with U, $ with S
 				"	public java.util.Comparator<*> reverseOrder() { return null;}\n" +
+				"	public java.util.Comparator<*> reversed() { return null;}\n" +
 				"	public java.util.Comparator<*> thenComparing(java.util.Comparator<? super *> other) { return null;}\n" +
+				"	public <% extends java.lang.Comparable<? super %>> java.util.Comparator<*> thenComparing(java.util.function.Function<? super *, ? extends %> keyExtractor, java.util.Comparator<? super %> keyComparator) { return null;}\n" +
 				"	public <% extends java.lang.Comparable<? super %>> java.util.Comparator<*> thenComparing(java.util.function.Function<? super *, ? extends %> keyExtractor) { return null;}\n" +
 				"	public java.util.Comparator<*> thenComparing(java.util.function.ToIntFunction<? super *> keyExtractor) { return null;}\n" +
 				"	public java.util.Comparator<*> thenComparing(java.util.function.ToLongFunction<? super *> keyExtractor) { return null;}\n" +
 				"	public java.util.Comparator<*> thenComparing(java.util.function.ToDoubleFunction<? super *> keyExtractor) { return null;}\n";
 			COMPARATOR_RAW_IMPL_JRE8 =
 				"	public java.util.Comparator reverseOrder() { return null;}\n" +
+				"	public java.util.Comparator reversed() { return null;}\n" +
 				"	public java.util.Comparator thenComparing(java.util.Comparator other) { return null;}\n" +
+				"	public java.util.Comparator thenComparing(java.util.function.Function keyExtractor, java.util.Comparator keyComparator) { return null;}\n" +
 				"	public java.util.Comparator thenComparing(java.util.function.Function keyExtractor) { return null;}\n" +
 				"	public java.util.Comparator thenComparing(java.util.function.ToIntFunction keyExtractor) { return null;}\n" +
 				"	public java.util.Comparator thenComparing(java.util.function.ToLongFunction keyExtractor) { return null;}\n" +
@@ -113,14 +117,12 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				"	public boolean removeAll(java.util.function.Predicate<? super *> filter) { return false;}\n" +
 				"	public boolean removeIf(java.util.function.Predicate<? super *> filter) { return false;}\n" +
 				"	public java.util.stream.Stream<*> stream() { return null;}\n" +
-				"	public java.util.stream.Stream<*> parallelStream() { return null;}\n" +
-				"	public java.util.Spliterator<*> spliterator() { return null; }\n";
+				"	public java.util.stream.Stream<*> parallelStream() { return null;}\n";
 			COLLECTION_AND_LIST_IMPL_JRE8 =
 				"	public boolean removeAll(java.util.function.Predicate<? super *> filter) { return false;}\n" +
 				"	public boolean removeIf(java.util.function.Predicate<? super *> filter) { return false;}\n" +
 				"	public java.util.stream.Stream<*> stream() { return null;}\n" +
 				"	public java.util.stream.Stream<*> parallelStream() { return null;}\n" +
-				"	public java.util.Spliterator<*> spliterator() { return null; }\n" +
 				"	public void sort(java.util.Comparator<? super *> comparator) {}\n" +
 				"	public void parallelSort(java.util.Comparator<? super *> comparator) {}\n" +
 				"	public void replaceAll(java.util.function.UnaryOperator<*> operator) {}\n";
@@ -128,33 +130,31 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				"	public @SuppressWarnings(\"rawtypes\") boolean removeAll(java.util.function.Predicate filter) { return false;}\n" +
 				"	public @SuppressWarnings(\"rawtypes\") boolean removeIf(java.util.function.Predicate filter) { return false;}\n" +
 				"	public @SuppressWarnings(\"rawtypes\") java.util.stream.Stream stream() { return null;}\n" +
-				"	public @SuppressWarnings(\"rawtypes\") java.util.stream.Stream parallelStream() { return null;}\n" +
-				"	public @SuppressWarnings(\"rawtypes\") java.util.Spliterator spliterator() { return null; }\n";
+				"	public @SuppressWarnings(\"rawtypes\") java.util.stream.Stream parallelStream() { return null;}\n";
 			LIST_IMPL_JRE8 = // replace '*' with your concrete type argument
 				"	public void sort(java.util.Comparator<? super *> comparator) {}\n" +
 				"	public void parallelSort(java.util.Comparator<? super *> comparator) {}\n" +
-				"	public void replaceAll(java.util.function.UnaryOperator<*> operator) {}\n" +
-				"	public java.util.Spliterator<*> spliterator() { return null; }\n";
+				"	public void replaceAll(java.util.function.UnaryOperator<*> operator) {}\n";
 			LIST_RAW_IMPL_JRE8 =
 				"	public @SuppressWarnings(\"rawtypes\") void sort(java.util.Comparator comparator) {}\n" +
 				"	public @SuppressWarnings(\"rawtypes\") void parallelSort(java.util.Comparator comparator) {}\n" +
-				"	public @SuppressWarnings(\"rawtypes\") void replaceAll(java.util.function.UnaryOperator operator) {}\n" +
-				"	public @SuppressWarnings(\"rawtypes\") java.util.Spliterator spliterator() { return null; }\n";
+				"	public @SuppressWarnings(\"rawtypes\") void replaceAll(java.util.function.UnaryOperator operator) {}\n";
 			COLLECTION_AND_LIST_RAW_IMPL_JRE8 =
 				"	public @SuppressWarnings(\"rawtypes\") boolean removeAll(java.util.function.Predicate filter) { return false;}\n" +
 				"	public @SuppressWarnings(\"rawtypes\") boolean removeIf(java.util.function.Predicate filter) { return false;}\n" +
 				"	public @SuppressWarnings(\"rawtypes\") java.util.stream.Stream stream() { return null;}\n" +
 				"	public @SuppressWarnings(\"rawtypes\") java.util.stream.Stream parallelStream() { return null;}\n" +
-				"	public @SuppressWarnings(\"rawtypes\") java.util.Spliterator spliterator() { return null; }\n" +
 				"	public @SuppressWarnings(\"rawtypes\") void sort(java.util.Comparator comparator) {}\n" +
 				"	public @SuppressWarnings(\"rawtypes\") void parallelSort(java.util.Comparator comparator) {}\n" +
 				"	public @SuppressWarnings(\"rawtypes\") void replaceAll(java.util.function.UnaryOperator operator) {}\n";
 			ITERABLE_IMPL_JRE8 = // replace '*' with your concrete type argument
 				"	public void forEach(java.util.function.Consumer<? super *> block){}\n" +
-				"	public void forEachRemaining(java.util.function.Consumer<? super *> action) {}\n";
+				"	public void forEachRemaining(java.util.function.Consumer<? super *> action) {}\n" +
+				"	public java.util.Spliterator<*> spliterator() {return null;}\n";
 			ITERABLE_RAW_IMPL_JRE8 =
 				"	public @SuppressWarnings(\"rawtypes\") void forEach(java.util.function.Consumer action) {}\n" +
-				"	public @SuppressWarnings(\"rawtypes\") void forEachRemaining(java.util.function.Consumer action) {}\n";
+				"	public @SuppressWarnings(\"rawtypes\") void forEachRemaining(java.util.function.Consumer action) {}\n" +
+				"	public @SuppressWarnings(\"rawtypes\") java.util.Spliterator spliterator() {return null;}\n";
 			ITERATOR_IMPL_JRE8 = // replace '*' with your concrete type argument
 					"public void forEach(java.util.function.Consumer<? super *> action) {}\n" +
 					"public void forEachRemaining(java.util.function.Consumer<? super *> action) {}\n";
