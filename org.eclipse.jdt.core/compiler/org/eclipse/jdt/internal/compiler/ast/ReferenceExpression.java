@@ -431,6 +431,9 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         TypeBinding [] methodExceptions = this.binding.thrownExceptions;
         TypeBinding [] kosherExceptions = this.descriptor.thrownExceptions;
         next: for (int i = 0, iMax = methodExceptions.length; i < iMax; i++) {
+        	if (methodExceptions[i].isUncheckedException(true)) {
+        		continue next;
+    		}
         	for (int j = 0, jMax = kosherExceptions.length; j < jMax; j++) {
         		if (methodExceptions[i].isCompatibleWith(kosherExceptions[j], scope))
         			continue next;

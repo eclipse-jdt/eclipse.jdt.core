@@ -1663,6 +1663,26 @@ this.runConformTest(
 				"Y<T>.Z<K>:: new\n" +
 				"Y<T>.Z<K>:: new");
 }
+// Bug 411273 - [1.8][compiler] Bogus error about unhandled exceptions for unchecked exceptions thrown by method reference.
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=411273
+public void test058() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		F1 f = X::foo;\n" +
+				"		System.out.println(\"Hello, World\");\n" +
+				"	}\n" +
+				"    static int foo (int x) throws NumberFormatException { return 0; }\n" +
+				"}\n" +
+				"interface F1 { int X(int x);}\n" +
+				"class FormatException extends Exception{}\n"
+			},
+			"Hello, World"
+			);
+}
+
 
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
