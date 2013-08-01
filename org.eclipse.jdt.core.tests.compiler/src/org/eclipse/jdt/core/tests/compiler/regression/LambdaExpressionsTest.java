@@ -1676,8 +1676,7 @@ public void test058() {
 				"	}\n" +
 				"    static int foo (int x) throws NumberFormatException { return 0; }\n" +
 				"}\n" +
-				"interface F1 { int X(int x);}\n" +
-				"class FormatException extends Exception{}\n"
+				"interface F1 { int X(int x);}\n"
 			},
 			"Hello, World"
 			);
