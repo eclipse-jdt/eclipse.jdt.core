@@ -13,6 +13,7 @@
  *								bug 401456 - Code compiles from javac/intellij, but fails from eclipse
  *								bug 405706 - Eclipse compiler fails to give compiler error when return type is a inferred generic
  *								Bug 408441 - Type mismatch using Arrays.asList with 3 or more implementations of an interface with the interface type as the last parameter
+ *								Bug 413958 - Function override returning inherited Generic Type
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -33,8 +34,8 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "testBug408441" };
-		TESTS_NAMES = new String[] { "test338350" };
+//		TESTS_NAMES = new String[] { "testBug405706" };
+//		TESTS_NAMES = new String[] { "testBug413958" };
 //		TESTS_NUMBERS = new int[] { 1465 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
@@ -3122,5 +3123,147 @@ public void testBug408441() {
 			"	}\n" + 
 			"}\n"
 		});
+}
+
+// https://bugs.eclipse.org/413958 - Function override returning inherited Generic Type
+public void testBug413958_1() {
+	runConformTest(
+		new String[] {
+			"TestA.java",
+			"public class TestA { }\n",
+			"TestB.java",
+			"public class TestB { }\n",
+			"ReadOnlyWrapper.java",
+			"@SuppressWarnings(\"unchecked\")\n" +
+			"public class ReadOnlyWrapper<A extends TestA, B extends TestB> {\n" +
+			"    protected A a;\n" +
+			"    protected B b;\n" +
+			"    public ReadOnlyWrapper(A ax,B bx){\n" +
+			"        this.a = ax;\n" +
+			"        this.b = bx;\n" +
+			"    }\n" +
+			"    public <X extends ReadOnlyWrapper<A,B>> X copy() {\n" +
+			"        return (X) new ReadOnlyWrapper<A,B>(a,b);\n" +
+			"    }\n" +
+			"    public <TA extends TestA,TB extends TestB,X extends ReadOnlyWrapper<TA,TB>> X icopy() {\n" +
+			"        return (X) new ReadOnlyWrapper<A,B>(a,b);\n" +
+			"    }\n" +
+			"    public A getA() {\n" +
+			"        return this.a;\n" +
+			"    }\n" +
+			"    public B getB() {\n" +
+			"        return this.b;\n" +
+			"    }\n" +
+			"}",
+			"WritableWrapper.java",
+			"@SuppressWarnings(\"unchecked\")\n" +
+			"public class WritableWrapper<A extends TestA, B extends TestB> extends ReadOnlyWrapper<A, B> {\n" +
+			"    public WritableWrapper(A ax,B bx){\n" +
+			"        super(ax,bx);\n" +
+			"    }\n" +
+			"    @Override\n" +
+			"    public <X extends ReadOnlyWrapper<A,B>> X copy() {\n" +
+			"        return (X) new WritableWrapper<A, B>(a,b);\n" +
+			"    }\n" +
+			"    @Override\n" +
+			"    public <TA extends TestA,TB extends TestB,X extends ReadOnlyWrapper<TA,TB>> X icopy() {\n" +
+			"        // Works in Indigo, Fails in Kepler\n" +
+			"        return (X) new WritableWrapper<A,B>(a,b);\n" +
+			"    }\n" +
+			"    public void setA(A ax) {\n" +
+			"        this.a = ax;\n" +
+			"    }\n" +
+			"    public void setB(B bx) {\n" +
+			"        this.b = bx;\n" +
+			"    }\n" +
+			"}\n",
+			"TestGenerics.java",
+			"public class TestGenerics {\n" +
+			"    public static void main(String [] args) {\n" +
+			"        final WritableWrapper<TestA, TestB> v1 = new WritableWrapper<TestA, TestB>(new TestA(), new TestB());\n" +
+			"        final WritableWrapper<TestA,TestB> v2 = v1.copy();\n" +
+			"        final WritableWrapper<TestA,TestB> v3 = v1.icopy();\n" +
+			"    }\n" +
+			"}\n"
+		});
+}
+// https://bugs.eclipse.org/413958 - Function override returning inherited Generic Type
+// variation showing different inference with / without a method parameter
+public void testBug413958_2() {
+	runNegativeTest(
+		new String[] {
+			"TestA.java",
+			"public class TestA { }\n",
+			"TestB.java",
+			"public class TestB { }\n",
+			"TestA2.java",
+			"public class TestA2 extends TestA { }\n",
+			"ReadOnlyWrapper.java",
+			"@SuppressWarnings(\"unchecked\")\n" +
+			"public class ReadOnlyWrapper<A extends TestA, B extends TestB> {\n" +
+			"    protected A a;\n" +
+			"    protected B b;\n" +
+			"    public ReadOnlyWrapper(A ax,B bx){\n" +
+			"        this.a = ax;\n" +
+			"        this.b = bx;\n" +
+			"    }\n" +
+			"    public <X extends ReadOnlyWrapper<A,B>> X copy() {\n" +
+			"        return (X) new ReadOnlyWrapper<A,B>(a,b);\n" +
+			"    }\n" +
+			"    public <TA extends TestA,TB extends TestB,X extends ReadOnlyWrapper<TA,TB>> X icopy() {\n" +
+			"        return (X) new ReadOnlyWrapper<A,B>(a,b);\n" +
+			"    }\n" +
+			"    public <TA extends TestA,TB extends TestB,X extends ReadOnlyWrapper<TA,TB>> X icopy2(TA in) {\n" +
+			"        return (X) new ReadOnlyWrapper<A,B>(a,b);\n" +
+			"    }\n" +
+			"    public A getA() {\n" +
+			"        return this.a;\n" +
+			"    }\n" +
+			"    public B getB() {\n" +
+			"        return this.b;\n" +
+			"    }\n" +
+			"}",
+			"WritableWrapper.java",
+			"@SuppressWarnings(\"unchecked\")\n" +
+			"public class WritableWrapper<A extends TestA, B extends TestB> extends ReadOnlyWrapper<A, B> {\n" +
+			"    public WritableWrapper(A ax,B bx){\n" +
+			"        super(ax,bx);\n" +
+			"    }\n" +
+			"    @Override\n" +
+			"    public <X extends ReadOnlyWrapper<A,B>> X copy() {\n" +
+			"        return (X) new WritableWrapper<A, B>(a,b);\n" +
+			"    }\n" +
+			"    @Override\n" +
+			"    public <TA extends TestA,TB extends TestB,X extends ReadOnlyWrapper<TA,TB>> X icopy() {\n" +
+			"        return (X) new WritableWrapper<A,B>(a,b);\n" +
+			"    }\n" +
+			"    @Override\n" +
+			"    public <TA extends TestA,TB extends TestB,X extends ReadOnlyWrapper<TA,TB>> X icopy2(TA in) {\n" +
+			"        return (X) new WritableWrapper<A,B>(a,b);\n" +
+			"    }\n" +
+			"    public void setA(A ax) {\n" +
+			"        this.a = ax;\n" +
+			"    }\n" +
+			"    public void setB(B bx) {\n" +
+			"        this.b = bx;\n" +
+			"    }\n" +
+			"}\n",
+			"TestGenerics.java",
+			"public class TestGenerics {\n" +
+			"    public static void main(String [] args) {\n" +
+			"        final WritableWrapper<TestA, TestB> v1 = new WritableWrapper<TestA, TestB>(new TestA(), new TestB());\n" +
+			"        final WritableWrapper<TestA,TestB> v2 = v1.copy();\n" +
+			"        final WritableWrapper<TestA,TestB> v3 = v1.icopy();\n" +
+			"        final WritableWrapper<TestA2,TestB> v4 = v1.icopy();\n" +
+			"        final WritableWrapper<TestA2,TestB> v5 = v1.icopy2(new TestA2());\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in TestGenerics.java (at line 6)\n" +
+		"	final WritableWrapper<TestA2,TestB> v4 = v1.icopy();\n" +
+		"	                                         ^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from ReadOnlyWrapper<TestA,TestB> to WritableWrapper<TestA2,TestB>\n" +
+		"----------\n");
 }
 }
