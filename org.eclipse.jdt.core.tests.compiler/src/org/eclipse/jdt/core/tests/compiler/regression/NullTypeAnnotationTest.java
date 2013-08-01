@@ -50,7 +50,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testBinary01" };
+//			TESTS_NAMES = new String[] { "testBinary" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -864,11 +864,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
-	// storing and decoding null-type-annotations to/from classfile:
+	// storing and decoding null-type-annotations to/from classfile: RETURN_TYPE
 	public void testBinary01() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
 		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
 		runConformTestWithLibs(
 				new String[] {
 					ELEMENT_TYPE_JAVA,
@@ -887,23 +888,413 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				},
 				customOptions,
 				"");
-// TODO(SH): change to runNegativeTestWithLibs(
-		runConformTestWithLibs(
+		runNegativeTestWithLibs(
 				new String[] {
 					"Y.java",
 					"import p.X;\n" +
 					"public class Y {\n" +
 					"	public void test(X x) {\n" +
-					"		for (String s : x.getSomeStrings()) {\n" +
-					"			System.out.println(s.toUpperCase());\n" +
-					"		}\n" +
+					"		String s0 = x.getSomeStrings().get(0);\n" +
+					"		System.out.println(s0.toUpperCase());\n" +
 					"	}\n" +
 					"}\n"
 				}, 
 				customOptions,
-// TODO(SH): decoding part is not yet implemented: add expected error message
-				""
+				"----------\n" + 
+				"1. ERROR in Y.java (at line 5)\n" + 
+				"	System.out.println(s0.toUpperCase());\n" + 
+				"	                   ^^\n" + 
+				"Potential null pointer access: The variable s0 may be null at this location\n" + 
+				"----------\n"
 				);
+	}
+
+	// storing and decoding null-type-annotations to/from classfile: METHOD_FORMAL_PARAMETER & METHOD_RECEIVER
+	// Note: receiver annotation is not evaluated by the compiler, this part of the test only serves debugging purposes.
+	public void testBinary02() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+		runConformTestWithLibs(
+				new String[] {
+					ELEMENT_TYPE_JAVA,
+					ELEMENT_TYPE_SOURCE,
+					CUSTOM_NULLABLE_NAME,
+					CUSTOM_NULLABLE_CONTENT_JSR308,
+					CUSTOM_NONNULL_NAME,
+					CUSTOM_NONNULL_CONTENT_JSR308,
+					"p/X.java",
+					"package p;\n" +
+					"import java.util.List;\n" +
+					"import org.foo.*;\n" +
+					"import static java.lang.annotation.ElementType.*;\n" +
+					"import java.lang.annotation.*;\n" +
+					"@Retention(RetentionPolicy.CLASS)\n" +
+					"@Target(TYPE_USE)\n" +
+					"@interface Immutable {}\n" +
+					"public class X {\n" +
+					"	public void setAllStrings(@Immutable X this, int dummy, List<@NonNull String> ss) { }\n" +
+					"}\n"
+				},
+				customOptions,
+				"");
+		runNegativeTestWithLibs(
+				new String[] {
+					"Y.java",
+					"import p.X;\n" +
+					"import java.util.List;\n" +
+					"import org.foo.*;\n" +
+					"public class Y {\n" +
+					"	public void test(X x, List<@Nullable String> ss) {\n" +
+					"		x.setAllStrings(-1, ss);\n" +
+					"	}\n" +
+					"}\n"
+				}, 
+				customOptions,
+				"----------\n" + 
+				"1. ERROR in Y.java (at line 6)\n" + 
+				"	x.setAllStrings(-1, ss);\n" + 
+				"	  ^^^^^^^^^^^^^\n" + 
+				"The method setAllStrings(int, java.util.List<java.lang.@NonNull String>) in the type X is not applicable for the arguments (int, java.util.List<java.lang.@Nullable String>)\n" + 
+				"----------\n"
+				);
+	}
+
+	// storing and decoding null-type-annotations to/from classfile: FIELD
+	public void testBinary03() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+		customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
+		runConformTestWithLibs(
+				new String[] {
+					ELEMENT_TYPE_JAVA,
+					ELEMENT_TYPE_SOURCE,
+					CUSTOM_NULLABLE_NAME,
+					CUSTOM_NULLABLE_CONTENT_JSR308,
+					CUSTOM_NONNULL_NAME,
+					CUSTOM_NONNULL_CONTENT_JSR308,
+					"p/X1.java",
+					"package p;\n" +
+					"import org.foo.*;\n" +
+					"public abstract class X1 {\n" +
+					"	public static String @Nullable [] f1 = null;\n" +
+					"	public static String [] @Nullable [] f2 = new String[][] { null };\n" +
+					"}\n"
+				},
+				customOptions,
+				"");
+		runNegativeTestWithLibs(
+				new String[] {
+					"Y1.java",
+					"import p.X1;\n" +
+					"public class Y1 {\n" +
+					"	public void test() {\n" +
+					"		System.out.println(X1.f1.length);\n" +
+					"		System.out.println(X1.f2[0].length);\n" +
+					"	}\n" +
+					"}\n"
+				}, 
+				customOptions,
+				"----------\n" + 
+				"1. ERROR in Y1.java (at line 4)\n" + 
+				"	System.out.println(X1.f1.length);\n" + 
+				"	                   ^^\n" + // FIXME(stephan) should point to f1, see https://bugs.eclipse.org/414380 
+				"Potential null pointer access: this expression has a '@Nullable' type\n" + 
+				"----------\n" + 
+				"2. ERROR in Y1.java (at line 5)\n" + 
+				"	System.out.println(X1.f2[0].length);\n" + 
+				"	                   ^^^^^^^^\n" + 
+				"Potential null pointer access: array element may be null\n" + 
+				"----------\n"
+				);
+	}
+
+	// storing and decoding null-type-annotations to/from classfile: SUPER_TYPE
+	public void testBinary04() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+		customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
+		runConformTestWithLibs(
+				new String[] {
+					ELEMENT_TYPE_JAVA,
+					ELEMENT_TYPE_SOURCE,
+					CUSTOM_NULLABLE_NAME,
+					CUSTOM_NULLABLE_CONTENT_JSR308,
+					CUSTOM_NONNULL_NAME,
+					CUSTOM_NONNULL_CONTENT_JSR308,
+					"p/X1.java",
+					"package p;\n" +
+					"import java.util.ArrayList;\n" +
+					"import org.foo.*;\n" +
+					"public abstract class X1 extends ArrayList<@Nullable String> {\n" +
+					"}\n",
+					"p/X2.java",
+					"package p;\n" +
+					"import java.util.List;\n" +
+					"import org.foo.*;\n" +
+					"public abstract class X2 implements List<@Nullable String> {\n" +
+					"}\n"
+				},
+				customOptions,
+				"");
+		runNegativeTestWithLibs(
+				new String[] {
+					"Y1.java",
+					"import p.X1;\n" +
+					"public class Y1 {\n" +
+					"	public void test(X1 x) {\n" +
+					"		String s0 = x.get(0);\n" +
+					"		System.out.println(s0.toUpperCase());\n" +
+					"	}\n" +
+					"}\n",
+					"Y2.java",
+					"import p.X2;\n" +
+					"public class Y2 {\n" +
+					"	public void test(X2 x) {\n" +
+					"		String s0 = x.get(0);\n" +
+					"		System.out.println(s0.toUpperCase());\n" +
+					"	}\n" +
+					"}\n"
+				}, 
+				customOptions,
+				"----------\n" + 
+				"1. ERROR in Y1.java (at line 5)\n" + 
+				"	System.out.println(s0.toUpperCase());\n" + 
+				"	                   ^^\n" + 
+				"Potential null pointer access: The variable s0 may be null at this location\n" +
+				"----------\n" +
+				"----------\n" +
+				"1. ERROR in Y2.java (at line 5)\n" + 
+				"	System.out.println(s0.toUpperCase());\n" + 
+				"	                   ^^\n" + 
+				"Potential null pointer access: The variable s0 may be null at this location\n" + 
+				"----------\n"
+				);
+	}
+
+	// storing and decoding null-type-annotations to/from classfile: CLASS_TYPE_PARAMETER & METHOD_TYPE_PARAMETER
+	public void testBinary05() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+		customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
+		runConformTestWithLibs(
+				new String[] {
+					ELEMENT_TYPE_JAVA,
+					ELEMENT_TYPE_SOURCE,
+					CUSTOM_NULLABLE_NAME,
+					CUSTOM_NULLABLE_CONTENT_JSR308,
+					CUSTOM_NONNULL_NAME,
+					CUSTOM_NONNULL_CONTENT_JSR308,
+					"p/X1.java",
+					"package p;\n" +
+					"import java.util.ArrayList;\n" +
+					"import org.foo.*;\n" +
+					"public abstract class X1<@NonNull T> extends ArrayList<T> {\n" +
+					"    public <@Nullable S> void foo(S s) {}\n" +
+					"}\n"
+				},
+				customOptions,
+				"");
+// FIXME(stephan): change to negative tests and fill in desired error messages
+		runConformTestWithLibs(
+//		runNegativeTestWithLibs(
+				new String[] {
+					"Y1.java",
+					"import p.X1;\n" +
+					"import org.foo.*;\n" +
+					"public class Y1 {\n" +
+					"	X1<@Nullable String> maybeStrings;\n" + // incompatible: T is constrained to @NonNull
+					"	void test(X1<@NonNull String> x) {\n" + // OK
+					"		x.<@NonNull Object>foo(new Object());\n" + // incompatible: S is constrained to @Nullable
+					"	}\n" +
+					"}\n"
+				}, 
+				customOptions,
+				""
+//				"----------\n" + 
+//				"1. ERROR in Y1.java (at line 5)\n" + 
+//				"	X1<@Nullable String> maybeStrings;\n" + 
+//				"	   ^^^^^^^^^^^^^^^^\n" + 
+//				"Incompatible type argument ...\n" + 
+//				"----------\n"
+				);
+	}
+
+	// storing and decoding null-type-annotations to/from classfile: CLASS_TYPE_PARAMETER_BOUND & METHOD_TYPE_PARAMETER_BOUND
+	public void testBinary06() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+		customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
+// FIXME(stephan): change to negative tests and fill in desired error messages
+//		runNegativeTestWithLibs(
+		runConformTestWithLibs(
+				new String[] {
+					ELEMENT_TYPE_JAVA,
+					ELEMENT_TYPE_SOURCE,
+					CUSTOM_NULLABLE_NAME,
+					CUSTOM_NULLABLE_CONTENT_JSR308,
+					CUSTOM_NONNULL_NAME,
+					CUSTOM_NONNULL_CONTENT_JSR308,
+					"p/X1.java",
+					"package p;\n" +
+					"import java.util.ArrayList;\n" +
+					"import org.foo.*;\n" +
+					"public abstract class X1<T extends @NonNull Object> extends ArrayList<T> {\n" +
+					"    public <U, V extends @Nullable Object> void foo(U u, V v) {}\n" +
+					"}\n" +
+					"class X2<@NonNull W extends @Nullable Object> {}\n" // incompatible constraints
+				},
+				customOptions,
+				"");
+// FIXME(stephan): change to negative tests and fill in desired error messages
+		runConformTestWithLibs(
+//		runNegativeTestWithLibs(
+				new String[] {
+					"Y1.java",
+					"import p.X1;\n" +
+					"import org.foo.*;\n" +
+					"public class Y1 {\n" +
+					"	X1<@Nullable String> maybeStrings;\n" + // incompatible: T is constrained to @NonNull
+					"	void test(X1<@NonNull String> x) {\n" + // OK
+					"		x.<Y1, @NonNull Object>foo(this, new Object());\n" + // incompatible: S is constrained to @Nullable
+					"	}\n" +
+					"}\n"
+				}, 
+				customOptions,
+				""
+//				"----------\n" + 
+//				"1. ERROR in Y1.java (at line 5)\n" + 
+//				"	X1<@Nullable String> maybeStrings;\n" + 
+//				"	   ^^^^^^^^^^^^^^^^\n" + 
+//				"Incompatible type argument ...\n" + 
+//				"----------\n"
+				);
+	}
+
+	// storing and decoding null-type-annotations to/from classfile: method with all kinds of type annotations
+	public void testBinary07() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+		customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
+		runConformTestWithLibs(
+				new String[] {
+					ELEMENT_TYPE_JAVA,
+					ELEMENT_TYPE_SOURCE,
+					CUSTOM_NULLABLE_NAME,
+					CUSTOM_NULLABLE_CONTENT_JSR308,
+					CUSTOM_NONNULL_NAME,
+					CUSTOM_NONNULL_CONTENT_JSR308,
+					"p/X1.java",
+					"package p;\n" +
+					"import java.util.*;\n" +
+					"import org.foo.*;\n" +
+					"import static java.lang.annotation.ElementType.*;\n" +
+					"import java.lang.annotation.*;\n" +
+					"@Retention(RetentionPolicy.CLASS)\n" +
+					"@Target(TYPE_USE)\n" +
+					"@interface Immutable {}\n" +
+					"public abstract class X1 {\n" +
+					"    public <@NonNull U, V extends @Nullable Object> List<@NonNull Map<Object, @NonNull String>> foo(@Immutable X1 this, U u, V v) { return null; }\n" +
+					"}\n"
+				},
+				customOptions,
+				"");
+// FIXME(stephan): add desired error message
+		runNegativeTestWithLibs(
+				new String[] {
+					"Y1.java",
+					"import p.X1;\n" +
+					"import org.foo.*;\n" +
+					"public class Y1 {\n" +
+					"	void test(X1 x) {\n" +
+					"		x.<@NonNull Y1, @NonNull Object>foo(this, new Object())\n" + // @NonNull Object conflicts with "V extends @Nullable Object"
+					"			.get(0).put(null, null);\n" + // second null is illegal
+					"	}\n" +
+					"}\n"
+				}, 
+				customOptions,
+				"----------\n" + 
+				"1. ERROR in Y1.java (at line 6)\n" + 
+				"	.get(0).put(null, null);\n" + 
+				"	                  ^^^^\n" + 
+				"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+				"----------\n");
+	}
+
+	// storing and decoding null-type-annotations to/from classfile: details
+	public void testBinary08() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+		customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
+		runConformTestWithLibs(
+				new String[] {
+					ELEMENT_TYPE_JAVA,
+					ELEMENT_TYPE_SOURCE,
+					CUSTOM_NULLABLE_NAME,
+					CUSTOM_NULLABLE_CONTENT_JSR308,
+					CUSTOM_NONNULL_NAME,
+					CUSTOM_NONNULL_CONTENT_JSR308,
+					"p/X1.java",
+					"package p;\n" +
+					"import java.util.*;\n" +
+					"import org.foo.*;\n" +
+					"public abstract class X1 {\n" +
+					"    public class Inner {}\n" +
+					"    public Object []@NonNull[] arrays(Object @NonNull[][] oa1) { return null; }\n" +
+					"    public void nesting(@NonNull Inner i1, @NonNull X1.@Nullable Inner i2) { }\n" +
+					"    public void wildcard1(List<@Nullable ? extends @NonNull X1> l) { }\n" + // contradiction
+					"    public void wildcard2(List<? super @NonNull X1> l) { }\n" +
+					"}\n"
+				},
+				customOptions,
+				"");
+// FIXME(stephan): add desired error messages:
+		runNegativeTestWithLibs(
+				new String[] {
+					"Y1.java",
+					"import p.X1;\n" +
+					"import org.foo.*;\n" +
+//					"import java.util.*;\n" +
+					"public class Y1 {\n" +
+					"	void test(X1 x) {\n" +
+					"		Object @NonNull[][] a = new Object[0][];\n" +
+					"		x.arrays(a)[0] = null;\n" + // illegal
+					"		x.nesting(null, null);\n" + // 1st null is illegal
+//					"		x.wildcard2(new ArrayList<@NonNull Object>());\n" +
+					"	}\n" +
+					"}\n"
+				}, 
+				customOptions,
+				"----------\n" + 
+//				"1. ERROR in Y1.java (at line 5)\n" + 
+//				"	X1<@Nullable String> maybeStrings;\n" + 
+//				"	   ^^^^^^^^^^^^^^^^\n" + 
+//				"Incompatible type argument ...\n" + 
+//				"----------\n" + 
+				"1. ERROR in Y1.java (at line 6)\n" + 
+				"	x.arrays(a)[0] = null;\n" + 
+				"	^^^^^^^^^^^^^^\n" + 
+				"Null type mismatch: required \'Object @NonNull[]\' but the provided value is null\n" +
+// TODO(stephan): not reported due to Bug 414384 - [1.8] type annotation on abbreviated inner class is not marked as inner type
+//				"----------\n" + 
+//				"3. ERROR in Y1.java (at line 8)\n" + 
+//				"	x.nesting(null, null);\n" + 
+//				"	          ^^^^\n" + 
+//				"Null type mismatch: required \'@NonNull X1.Inner\' but the provided value is null\n" + 
+				"----------\n");
 	}
 
 }

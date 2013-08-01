@@ -15,8 +15,10 @@ import java.io.File;
 import java.util.Map;
 
 import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 // see bug 186342 - [compiler][null] Using annotations for null checking
 public class NullAnnotationTest extends AbstractNullAnnotationTest {
@@ -34,7 +36,15 @@ static {
 }
 
 public static Test suite() {
-	return buildComparableTestSuite(testClass());
+//	return buildComparableTestSuite(testClass());
+	// see also removal in org.eclipse.jdt.core.tests.compiler.regression.TestAll
+	Class evaluationTestClass = testClass();
+	TestSuite suite = new TestSuite(evaluationTestClass.getName());
+	suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.JDK1_5));
+	suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.JDK1_6));
+	suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.JDK1_7));
+	// currently not for JDK1_8
+	return suite;
 }
 
 public static Class testClass() {

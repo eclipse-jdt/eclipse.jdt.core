@@ -13,6 +13,8 @@
  *     IBM Corporation - initial API and implementation
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *        Stephan Herrmann - Contribution for
+ *							Bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
@@ -46,4 +48,9 @@ public interface AnnotationTargetTypeConstants {
 	int CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT  = 0x4A;
 	int METHOD_REFERENCE_TYPE_ARGUMENT       = 0x4B;
 
+	// Details for type_path:
+	int NEXT_ARRAY_DIMENSION				 = 0x00;
+	int NEXT_NESTED_TYPE					 = 0x01;
+	int WILDCARD_BOUND						 = 0x02;
+	int TYPE_ARGUMENT						 = 0x03;
 }

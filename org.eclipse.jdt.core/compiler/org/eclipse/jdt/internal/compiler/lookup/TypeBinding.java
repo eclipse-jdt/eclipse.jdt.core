@@ -15,6 +15,7 @@
  *								bug 317046 - Exception during debugging when hover mouse over a field
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
+ *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -565,6 +566,13 @@ public final boolean isNumericType() {
  */
 public final boolean isParameterizedType() {
 	return kind() == Binding.PARAMETERIZED_TYPE;
+}
+/**
+ * Returns true for those ParameterizedTypeBindings, which represent an annotated type
+ * yet without any type parameters (neither locally nor in any enclosing type).
+ */
+public boolean isAnnotatedTypeWithoutArguments() {
+	return false;
 }
 
 public boolean isIntersectionCastType() {

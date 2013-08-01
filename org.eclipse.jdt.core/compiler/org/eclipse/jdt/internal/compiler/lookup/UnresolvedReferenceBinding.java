@@ -1,13 +1,19 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
+ *     Stephan Herrmann - Contributions for
+ *								bug 349326 - [1.7] new warning for missing try-with-resources
+ *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -17,12 +23,19 @@ public class UnresolvedReferenceBinding extends ReferenceBinding {
 
 ReferenceBinding resolvedType;
 TypeBinding[] wrappers;
+ReferenceBinding original; // used by a clone to refer to the source of cloning
 
 UnresolvedReferenceBinding(char[][] compoundName, PackageBinding packageBinding) {
 	this.compoundName = compoundName;
 	this.sourceName = compoundName[compoundName.length - 1]; // reasonable guess
 	this.fPackage = packageBinding;
 	this.wrappers = null;
+}
+// for cloning with tagBits:
+UnresolvedReferenceBinding(ReferenceBinding refType, long tagBits) {
+	this(refType.compoundName, refType.fPackage);
+	this.original = refType;
+	this.tagBits |= tagBits;
 }
 void addWrapper(TypeBinding wrapper, LookupEnvironment environment) {
 	if (this.resolvedType != null) {
@@ -42,6 +55,11 @@ void addWrapper(TypeBinding wrapper, LookupEnvironment environment) {
 public String debugName() {
 	return toString();
 }
+public int depth() {
+	// we don't yet have our enclosing types wired, but we know the nesting depth from our compoundName:
+	int last = this.compoundName.length-1;
+	return CharOperation.occurencesOf('$', this.compoundName[last]);
+}
 public boolean hasTypeBit(int bit) {
 	// shouldn't happen since we are not called before analyseCode(), but play safe:
 	return false;
@@ -50,7 +68,7 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
     ReferenceBinding targetType = this.resolvedType;
 	if (targetType == null) {
 		targetType = this.fPackage.getType0(this.compoundName[this.compoundName.length - 1]);
-		if (targetType == this) {
+		if (targetType == this || targetType == this.original) {
 			targetType = environment.askForType(this.compoundName);
 		}
 		if (targetType == null || targetType == this) { // could not resolve any better, error was already reported against it
@@ -63,6 +81,12 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 			}
 			// create a proxy for the missing BinaryType
 			targetType = environment.createMissingType(null, this.compoundName);
+		} else if (!(targetType instanceof UnresolvedReferenceBinding)) {
+			// for a clone pre-populated with tagBits wrap the resolved type in an annotated type
+			// (represented by a ParameterizedTypeBinding):
+			long nullTagBits = this.tagBits & TagBits.AnnotationNullMASK;
+			if (nullTagBits != 0L)
+				targetType = environment.createAnnotatedType(targetType, nullTagBits);
 		}
 		setResolvedType(targetType, environment);
 	}

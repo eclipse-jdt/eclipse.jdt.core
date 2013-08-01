@@ -17,10 +17,12 @@
  *     							bug 359362 - FUP of bug 349326: Resource leak on non-Closeable resource
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
+ *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
@@ -175,6 +177,13 @@ public class TypeVariableBinding extends ReferenceBinding {
 					if (match.isRawType() && substitutedSuperType.isBoundParameterizedType())
 						unchecked = true;
 				}
+	    	}
+	    }
+	    long nullTagBits = this.tagBits & TagBits.AnnotationNullMASK;
+	    if (nullTagBits != 0) {
+	    	long argBits = argumentType.tagBits & TagBits.AnnotationNullMASK;
+	    	if (argBits != nullTagBits) {
+//	    		System.err.println("TODO(stephan): issue proper error: bound conflict at "+String.valueOf(this.declaringElement.readableName()));
 	    	}
 	    }
 	    return unchecked ? TypeConstants.UNCHECKED : TypeConstants.OK;
@@ -443,10 +452,20 @@ public class TypeVariableBinding extends ReferenceBinding {
 		if ((this.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 			return this;
 
+		long nullTagBits = this.tagBits & TagBits.AnnotationNullMASK;
+		
 		TypeBinding oldSuperclass = this.superclass, oldFirstInterface = null;
 		if (this.superclass != null) {
 			ReferenceBinding resolveType = (ReferenceBinding) BinaryTypeBinding.resolveType(this.superclass, this.environment, true /* raw conversion */);
 			this.tagBits |= resolveType.tagBits & TagBits.ContainsNestedTypeReferences;
+			long superNullTagBits = resolveType.tagBits & TagBits.AnnotationNullMASK;
+			if (superNullTagBits != 0L) {
+				if (nullTagBits == 0L) {
+					this.tagBits |= superNullTagBits;
+				} else {
+//					System.err.println("TODO(stephan): report proper error: conflict binary TypeVariable vs. first bound");
+				}
+			}
 			this.superclass = resolveType;
 		}
 		ReferenceBinding[] interfaces = this.superInterfaces;
@@ -456,6 +475,14 @@ public class TypeVariableBinding extends ReferenceBinding {
 			for (int i = length; --i >= 0;) {
 				ReferenceBinding resolveType = (ReferenceBinding) BinaryTypeBinding.resolveType(interfaces[i], this.environment, true /* raw conversion */);
 				this.tagBits |= resolveType.tagBits & TagBits.ContainsNestedTypeReferences;
+				long superNullTagBits = resolveType.tagBits & TagBits.AnnotationNullMASK;
+				if (superNullTagBits != 0L) {
+					if (nullTagBits == 0L) {
+						this.tagBits |= superNullTagBits;
+					} else {
+//						System.err.println("TODO(stephan): report proper error: conflict binary TypeVariable vs. bound "+i);
+					}
+				}
 				interfaces[i] = resolveType;
 			}
 		}
@@ -516,5 +543,44 @@ public class TypeVariableBinding extends ReferenceBinding {
 			return this.firstBound;
 		}
 		return this.superclass; // java/lang/Object
+	}
+
+	public void evaluateNullAnnotations(Annotation[] annotations) {
+		int len = annotations.length;
+		for (int j=0; j<len; j++) {
+			Binding recipient = annotations[j].recipient;
+			if (recipient instanceof Annotation.TypeUseBinding) {
+				// FIXME(stephan): detect contradictions
+				this.tagBits |= ((Annotation.TypeUseBinding)recipient).tagBits & TagBits.AnnotationNullMASK;
+			}
+		}
+		long nullTagBits = this.tagBits & TagBits.AnnotationNullMASK;
+		if (this.firstBound != null && this.firstBound.isValidBinding()) {
+			long superNullTagBits = this.firstBound.tagBits & TagBits.AnnotationNullMASK;
+			if (superNullTagBits != 0L) {
+				if (nullTagBits == 0L) {
+					nullTagBits |= superNullTagBits;
+				} else if (superNullTagBits != nullTagBits) {
+//					System.err.println("TODO(stephan): report proper error: conflict TypeVariable vs. first bound");
+				}
+			}
+		}	
+		ReferenceBinding[] interfaces = this.superInterfaces;
+		int length;
+		if ((length = interfaces.length) != 0) {
+			for (int i = length; --i >= 0;) {
+				ReferenceBinding resolveType = interfaces[i];
+				long superNullTagBits = resolveType.tagBits & TagBits.AnnotationNullMASK;
+				if (superNullTagBits != 0L) {
+					if (nullTagBits == 0L) {
+						nullTagBits |= superNullTagBits;
+					} else if (superNullTagBits != nullTagBits) {
+//						System.err.println("TODO(stephan): report proper error: conflict TypeVariable vs. bound "+i);
+					}
+				}
+				interfaces[i] = resolveType;
+			}
+		}
+		this.tagBits |= nullTagBits;
 	}
 }

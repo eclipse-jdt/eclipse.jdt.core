@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contribution for
  *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
+ *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
@@ -542,24 +543,30 @@ protected void resolveAnnotations(Scope scope) {
 	if (this.annotations != null || annotationsOnDimensions != null) {
 		BlockScope resolutionScope = Scope.typeAnnotationsResolutionScope(scope);
 		if (resolutionScope != null) {
+			long tagBits = 0;
 			long[] tagBitsPerDimension = null;
 			int dimensions = this.dimensions();
-			boolean shouldAnalyzeArrayNullAnnotations = scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled && this instanceof ArrayTypeReference;
+			boolean evalNullAnnotations = scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled;
+			boolean isArrayReference = this instanceof ArrayTypeReference && dimensions > 0;
 			if (this.annotations != null) {
 				int annotationsLevels = this.annotations.length;
 				for (int i = 0; i < annotationsLevels; i++) {
 					Annotation[] currentAnnotations = this.annotations[i];
 					if (currentAnnotations != null) {
 						resolveAnnotations(resolutionScope, currentAnnotations, new Annotation.TypeUseBinding(isWildcard() ? Binding.TYPE_PARAMETER : Binding.TYPE_USE));
-						if (shouldAnalyzeArrayNullAnnotations) {
+						if (evalNullAnnotations) {
 							int len = currentAnnotations.length;
 							for (int j=0; j<len; j++) {
 								Binding recipient = currentAnnotations[j].recipient;
 								if (recipient instanceof Annotation.TypeUseBinding) {
-									if (tagBitsPerDimension == null)
-										tagBitsPerDimension = new long[dimensions+1]; // each dimension plus leaf component type at last position
-									// @NonNull Foo [][][] means the leaf component type is @NonNull:
-									tagBitsPerDimension[dimensions] = ((Annotation.TypeUseBinding)recipient).tagBits & TagBits.AnnotationNullMASK;
+									if (isArrayReference) {
+										if (tagBitsPerDimension == null)
+											tagBitsPerDimension = new long[dimensions+1]; // each dimension plus leaf component type at last position
+										// @NonNull Foo [][][] means the leaf component type is @NonNull:
+										tagBitsPerDimension[dimensions] = ((Annotation.TypeUseBinding)recipient).tagBits & TagBits.AnnotationNullMASK;
+									} else {
+										tagBits |= ((Annotation.TypeUseBinding)recipient).tagBits & TagBits.AnnotationNullMASK;
+									}
 								}
 							}
 						}
@@ -572,7 +579,7 @@ protected void resolveAnnotations(Scope scope) {
 					Annotation [] dimensionAnnotations = annotationsOnDimensions[i];
 					if (dimensionAnnotations  != null) {
 						resolveAnnotations(resolutionScope, dimensionAnnotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
-						if (shouldAnalyzeArrayNullAnnotations) {
+						if (evalNullAnnotations && isArrayReference) {
 							int len = dimensionAnnotations.length;
 							for (int j=0; j<len; j++) {
 								Binding recipient = dimensionAnnotations[j].recipient;
@@ -586,10 +593,22 @@ protected void resolveAnnotations(Scope scope) {
 					}
 				}
 			}
-			if (tagBitsPerDimension != null && this.resolvedType.isValidBinding()) {
-				// TODO(stephan): wouldn't it be more efficient to store the array bindings inside the type binding rather than the environment?
-				// cf. LocalTypeBinding.createArrayType()
-				this.resolvedType = scope.environment().createArrayType(this.resolvedType.leafComponentType(), dimensions, tagBitsPerDimension);
+			if (this.resolvedType != null && this.resolvedType.isValidBinding()) {
+				if (isArrayReference) {
+					if (tagBitsPerDimension != null) {
+						// TODO(stephan): wouldn't it be more efficient to store the array bindings inside the type binding rather than the environment?
+						// cf. LocalTypeBinding.createArrayType()
+						this.resolvedType = scope.environment().createArrayType(this.resolvedType.leafComponentType(), dimensions, tagBitsPerDimension);
+					}
+				} else {
+					if (tagBits != 0) {
+						if (this.resolvedType instanceof ReferenceBinding) {
+							this.resolvedType = scope.environment().createAnnotatedType((ReferenceBinding) this.resolvedType, tagBits);
+						} else {
+							// TODO(stephan) report null annotation on non-reference type
+						}
+					}
+				}
 			}
 		}
 	}
@@ -627,6 +646,6 @@ protected TypeBinding captureTypeAnnotations(Scope scope, ReferenceBinding enclo
 	}
     if (annotationBits == 0L)
     	return argType;
-	return scope.environment().createParameterizedType((ReferenceBinding) argType, null, annotationBits, enclosingType);
+	return scope.environment().createAnnotatedType((ReferenceBinding) argType, annotationBits);
 }
 }

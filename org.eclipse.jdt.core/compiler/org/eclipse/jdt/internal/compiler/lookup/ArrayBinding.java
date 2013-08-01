@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contribution for
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
+ *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -155,7 +156,7 @@ public TypeBinding elementsType() {
 	}
 	if (this.dimensions == 1) {
 		if (nullTagBitsSub != null && nullTagBitsSub[0] != 0L && this.leafComponentType instanceof ReferenceBinding)
-			return this.environment.createParameterizedType((ReferenceBinding) this.leafComponentType, null, nullTagBitsSub[0], null);
+			return this.environment.createAnnotatedType((ReferenceBinding) this.leafComponentType, nullTagBitsSub[0]);
 		return this.leafComponentType;
 	}
 	return this.environment.createArrayType(this.leafComponentType, this.dimensions - 1, nullTagBitsSub);

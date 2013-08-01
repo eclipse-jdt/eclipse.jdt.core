@@ -37,6 +37,7 @@
  *								bug 402028 - [1.8][compiler] null analysis for reference expressions 
  *								bug 401796 - [1.8][compiler] don't treat default methods as overriding an independent inherited abstract method
  *								bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
+ *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -9292,7 +9293,12 @@ public void dereferencingNullableExpression(Expression expression, LookupEnviron
 	String[] arguments = { String.valueOf(nullableShort) };
 	// TODO(stephan): more sophisticated handling for various kinds of expressions
 	this.handle(IProblem.DereferencingNullableExpression, arguments, arguments, expression.sourceStart, expression.sourceEnd);
-	
+}
+public void dereferencingNullableExpression(long positions, LookupEnvironment env) {
+	char[][] nullableName = env.getNullableAnnotationName();
+	char[] nullableShort = nullableName[nullableName.length-1];
+	String[] arguments = { String.valueOf(nullableShort) };
+	this.handle(IProblem.DereferencingNullableExpression, arguments, arguments, (int)(positions>>>32), (int)(positions&0xFFFF));
 }
 public void onlyReferenceTypesInIntersectionCast(TypeReference typeReference) {
 	this.handle(

@@ -11,6 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -81,6 +83,10 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 			return super.createParameterizedMethod(originalMethod);
 		}
 		return this.environment.createParameterizedGenericMethod(originalMethod, this);
+	}
+
+	public boolean isAnnotatedTypeWithoutArguments() {
+		return false; // here rawness is the reason for not having arguments.
 	}
 
 	public int kind() {
