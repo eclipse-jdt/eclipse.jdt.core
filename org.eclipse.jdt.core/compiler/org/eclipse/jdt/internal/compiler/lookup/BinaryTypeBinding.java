@@ -528,6 +528,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 			if (this.environment.globalOptions.storeAnnotations)
 				paramAnnotations = new AnnotationBinding[size][];
 			index = 1;
+			short visibleIdx = 0;
 			int end = 0;   // first character is always '(' so skip it
 			for (int i = 0; i < numOfParams; i++) {
 				while ((nextChar = methodDescriptor[++end]) == Util.C_ARRAY){/*empty*/}
@@ -535,7 +536,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 					while ((nextChar = methodDescriptor[++end]) != Util.C_NAME_END){/*empty*/}
 
 				if (i >= startIndex) {   // skip the synthetic arg if necessary
-					parameters[i - startIndex] = this.environment.getTypeFromSignature(methodDescriptor, index, end, false, this, missingTypeNames, walker.toMethodParameter((short)i));
+					parameters[i - startIndex] = this.environment.getTypeFromSignature(methodDescriptor, index, end, false, this, missingTypeNames, walker.toMethodParameter(visibleIdx++));
 					// 'paramAnnotations' line up with 'parameters'
 					// int parameter to method.getParameterAnnotations() include the synthetic arg
 					if (paramAnnotations != null)

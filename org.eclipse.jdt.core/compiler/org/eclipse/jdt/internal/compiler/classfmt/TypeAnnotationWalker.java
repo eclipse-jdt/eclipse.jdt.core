@@ -196,7 +196,7 @@ public class TypeAnnotationWalker {
 		return restrict(newMatches, 0);		
 	}
 
-	/** Walk to the index'th formal method parameter. */
+	/** Walk to the index'th visible formal method parameter (i.e., not counting synthetic args). */
 	public TypeAnnotationWalker toMethodParameter(short index) {
 		long newMatches = this.matches;
 		if (newMatches == 0)
