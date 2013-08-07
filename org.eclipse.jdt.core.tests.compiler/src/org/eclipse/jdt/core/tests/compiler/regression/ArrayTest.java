@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,8 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for Bug 331872 - [compiler] NPE in Scope.createArrayType when attempting qualified access from type parameter
+ *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                          Bug 409247 - [1.8][compiler] Verify error with code allocating multidimensional array
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
@@ -574,5 +576,20 @@ public void test018() throws Exception {
 		"	^^^\n" + 
 		"The method foo(Object[]) is undefined for the type X<p>\n" + 
 		"----------\n");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=409247 - [1.8][compiler] Verify error with code allocating multidimensional array
+public void test019() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		X [][][] x = new X[10][10][];\n" +
+			"		System.out.println(\"SUCCESS\");\n" +
+			"	}\n" +
+			"}\n",
+		},
+		"SUCCESS");
 }
 }

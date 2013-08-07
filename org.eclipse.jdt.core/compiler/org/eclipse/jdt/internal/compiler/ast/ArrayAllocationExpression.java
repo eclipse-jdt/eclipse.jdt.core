@@ -17,7 +17,7 @@
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
- *
+ *                          Bug 409247 - [1.8][compiler] Verify error with code allocating multidimensional array
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -79,7 +79,7 @@ public class ArrayAllocationExpression extends Expression {
 			codeStream.newArray(this.type, this.annotationsOnDimensions, (ArrayBinding)this.resolvedType);
 		} else {
 			// Multi-dimensional array
-			codeStream.multianewarray(this.type, this.resolvedType, this.dimensions.length, this.annotationsOnDimensions);
+			codeStream.multianewarray(this.type, this.resolvedType, explicitDimCount, this.dimensions.length, this.annotationsOnDimensions);
 		}
 		if (valueRequired) {
 			codeStream.generateImplicitConversion(this.implicitConversion);

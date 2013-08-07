@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *                          Bug 409247 - [1.8][compiler] Verify error with code allocating multidimensional array
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
@@ -60,11 +61,12 @@ public class TypeAnnotationCodeStream extends StackMapFrameCodeStream {
 			TypeReference typeReference,
 			TypeBinding typeBinding,
 			int dimensions,
+			int declaredDimensions,
 			Annotation [][] annotationsOnDimensions) {
 		if (typeReference != null && (typeReference.bits & ASTNode.HasTypeAnnotations) != 0) {
-			addAnnotationContext(typeReference, this.position, AnnotationTargetTypeConstants.NEW, annotationsOnDimensions, dimensions);
+			addAnnotationContext(typeReference, this.position, AnnotationTargetTypeConstants.NEW, annotationsOnDimensions, declaredDimensions);
 		}
-		super.multianewarray(typeReference, typeBinding, dimensions, annotationsOnDimensions);
+		super.multianewarray(typeReference, typeBinding, dimensions, declaredDimensions, annotationsOnDimensions);
 	}
 
 	public void new_(TypeReference typeReference, TypeBinding typeBinding) {

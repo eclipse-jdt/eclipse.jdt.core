@@ -18,6 +18,7 @@
  *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335        
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *                          Bug 409247 - [1.8][compiler] Verify error with code allocating multidimensional array
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
@@ -5707,14 +5708,11 @@ public void monitorexit() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_monitorexit;
 }
 
-public void multianewarray(TypeBinding typeBinding, int dimensions) {
-	this.multianewarray(null, typeBinding, dimensions, null);
-}
-
 public void multianewarray(
 		TypeReference typeReference,
 		TypeBinding typeBinding,
 		int dimensions,
+		int declaredDimensions,
 		Annotation [][] annotationsOnDimensions) {
 	this.countLabels = 0;
 	this.stackDepth += (1 - dimensions);
