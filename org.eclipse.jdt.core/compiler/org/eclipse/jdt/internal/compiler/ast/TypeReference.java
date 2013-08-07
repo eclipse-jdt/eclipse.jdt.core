@@ -16,6 +16,7 @@
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -51,8 +52,8 @@ static class AnnotationCollector extends ASTVisitor {
 	TypeReference typeReference;
 	int targetType;
 	Annotation[] primaryAnnotations;
-	int info = -1;
-	int info2 = -1;
+	int info = 0;
+	int info2 = 0;
 	LocalVariableBinding localVariable;
 	Annotation[][] annotationsOnDimensions;
 	int dimensions;
@@ -183,12 +184,6 @@ static class AnnotationCollector extends ASTVisitor {
 				case AnnotationTargetTypeConstants.NEW :
 				case AnnotationTargetTypeConstants.CONSTRUCTOR_REFERENCE :
 				case AnnotationTargetTypeConstants.METHOD_REFERENCE :
-				case AnnotationTargetTypeConstants.CAST:
-					annotationContext.info = this.info;
-					break;
-				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
-				case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND :
-					annotationContext.info2 = this.info2;
 					annotationContext.info = this.info;
 					break;
 				case AnnotationTargetTypeConstants.LOCAL_VARIABLE :
@@ -199,6 +194,9 @@ static class AnnotationCollector extends ASTVisitor {
 				case AnnotationTargetTypeConstants.METHOD_INVOCATION_TYPE_ARGUMENT :
 				case AnnotationTargetTypeConstants.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT :
 				case AnnotationTargetTypeConstants.METHOD_REFERENCE_TYPE_ARGUMENT :
+				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND :
+				case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND :
+				case AnnotationTargetTypeConstants.CAST:
 					annotationContext.info2 = this.info2;
 					annotationContext.info = this.info;
 					break;
@@ -224,6 +222,14 @@ static class AnnotationCollector extends ASTVisitor {
 	public boolean visit(Wildcard wildcard, BlockScope scope) {
 		this.currentWildcard = wildcard;
 		return true;
+	}
+	public boolean visit(IntersectionCastTypeReference intersectionCastTypeReference, BlockScope scope) {
+		int length = intersectionCastTypeReference.typeReferences == null ? 0 : intersectionCastTypeReference.typeReferences.length;
+		for (int i = 0; i < length; i++) {
+			this.info2 = i;
+			intersectionCastTypeReference.typeReferences[i].traverse(this, scope);
+		}
+		return false; // iteration was done here, do not repeat in the caller
 	}
 	public boolean visit(Argument argument, BlockScope scope) {
 		if ((argument.bits & ASTNode.IsUnionType) == 0) {

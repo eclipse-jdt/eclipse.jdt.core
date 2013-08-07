@@ -19,6 +19,7 @@
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409247 - [1.8][compiler] Verify error with code allocating multidimensional array
+ *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
@@ -657,7 +658,7 @@ public void checkcast(TypeReference typeReference, TypeBinding typeBinding) {
 	   reality this should not matter. In its intended use form such as (I & Serializable) () -> {}, no cast is emitted at all
 	*/
 	TypeBinding [] types = typeBinding instanceof IntersectionCastTypeBinding ? typeBinding.getIntersectingTypes() : new TypeBinding [] { typeBinding };
-	for (int i = types.length - 1; i >=0; i--) {
+	for (int i = 0, max = types.length; i < max; i++) {
 		this.countLabels = 0;
 		if (this.classFileOffset + 2 >= this.bCodeStream.length) {
 			resizeByteArray();

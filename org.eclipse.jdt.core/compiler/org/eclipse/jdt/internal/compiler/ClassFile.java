@@ -15,6 +15,7 @@
  *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335             
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
@@ -2190,8 +2191,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				// bytecode offset
 				this.contents[this.contentsOffset++] = (byte) (annotationContext.info >> 8);
 				this.contents[this.contentsOffset++] = (byte) annotationContext.info;
-				// type_argument_index not set for cast
-				this.contents[this.contentsOffset++] = (byte)0;
+				this.contents[this.contentsOffset++] = (byte) annotationContext.info2;
 				break;
 				
 			case AnnotationTargetTypeConstants.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT :

@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -3057,6 +3058,244 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        type argument index = 0\n" + 
 			"        location = [ARRAY]\n" + 
 			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test070a_codeblocks_castWithIntersectionCast() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+			"import java.io.*;\n" +
+				"public class X {\n" + 
+				"   public void foo(Object o) {\n" +
+				"	  I i = (@B(1) I & J) o;\n" +
+				"	  J j = (I & @B(2) J) o;\n" +
+			    "   }\n" +
+				"}\n" +
+				"interface I {}\n" +
+				"interface J {}\n",
+				
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default 1;\n" + 
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"  // Method descriptor #15 (Ljava/lang/Object;)V\n" + 
+				"  // Stack: 1, Locals: 4\n" + 
+				"  public void foo(java.lang.Object o);\n" + 
+				"     0  aload_1 [o]\n" + 
+				"     1  checkcast I [16]\n" + 
+				"     4  checkcast J [18]\n" + 
+				"     7  astore_2 [i]\n" + 
+				"     8  aload_1 [o]\n" + 
+				"     9  checkcast I [16]\n" + 
+				"    12  checkcast J [18]\n" +
+				"    15  astore_3 [j]\n" + 
+				"    16  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 4]\n" + 
+				"        [pc: 8, line: 5]\n" + 
+				"        [pc: 16, line: 6]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 17] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 17] local: o index: 1 type: java.lang.Object\n" + 
+				"        [pc: 8, pc: 17] local: i index: 2 type: I\n" + 
+				"        [pc: 16, pc: 17] local: j index: 3 type: J\n" + 
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #27 @B(\n" + 
+				"        #28 value=(int) 1 (constant type)\n" + 
+				"        target type = 0x47 CAST\n" + 
+				"        offset = 1\n" + 
+				"        type argument index = 0\n" + 
+				"      )\n" + 
+				"      #27 @B(\n" + 
+				"        #28 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x47 CAST\n" + 
+				"        offset = 9\n" + 
+				"        type argument index = 1\n" + 
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test070b_codeblocks_castWithIntersectionCast() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+			"import java.io.*;\n" +
+				"public class X {\n" + 
+				"   public void foo(Object o) {\n" +
+				"     System.out.println(123);\n" +
+				"	  I<String> i = (I<@B(1) String> & @B(2) J<String>) o;\n" +
+			    "   }\n" +
+				"}\n" +
+				"interface I<T> {}\n" +
+				"interface J<T> {}\n",
+				
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default 1;\n" + 
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"  public void foo(java.lang.Object o);\n" + 
+				"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+				"     3  bipush 123\n" + 
+				"     5  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
+				"     8  aload_1 [o]\n" + 
+				"     9  checkcast I [28]\n" + 
+				"    12  checkcast J [30]\n" + 
+				"    15  astore_2 [i]\n" + 
+				"    16  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 4]\n" + 
+				"        [pc: 8, line: 5]\n" + 
+				"        [pc: 16, line: 6]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 17] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 17] local: o index: 1 type: java.lang.Object\n" + 
+				"        [pc: 16, pc: 17] local: i index: 2 type: I\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 16, pc: 17] local: i index: 2 type: I<java.lang.String>\n" + 
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #39 @B(\n" + 
+				"        #40 value=(int) 1 (constant type)\n" + 
+				"        target type = 0x47 CAST\n" + 
+				"        offset = 9\n" + 
+				"        type argument index = 0\n" + 
+				"        location = [TYPE_ARGUMENT(0)]\n" + 
+				"      )\n" + 
+				"      #39 @B(\n" + 
+				"        #40 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x47 CAST\n" + 
+				"        offset = 9\n" + 
+				"        type argument index = 1\n" + 
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test070c_codeblocks_castTwiceInExpression() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+			"import java.io.*;\n" +
+				"public class X {\n" + 
+				"   public void foo(Object o) {\n" +
+				"     System.out.println(123);\n" +
+				"	  I i = (@B(1) I)(@B(2) J) o;\n" +
+			    "   }\n" +
+				"}\n" +
+				"interface I {}\n" +
+				"interface J {}\n",
+				
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default 1;\n" + 
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+				"     3  bipush 123\n" + 
+				"     5  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
+				"     8  aload_1 [o]\n" + 
+				"     9  checkcast J [28]\n" + 
+				"    12  checkcast I [30]\n" + 
+				"    15  astore_2 [i]\n" + 
+				"    16  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 4]\n" + 
+				"        [pc: 8, line: 5]\n" + 
+				"        [pc: 16, line: 6]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 17] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 17] local: o index: 1 type: java.lang.Object\n" + 
+				"        [pc: 16, pc: 17] local: i index: 2 type: I\n" + 
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #37 @B(\n" + 
+				"        #38 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x47 CAST\n" + 
+				"        offset = 9\n" + 
+				"        type argument index = 0\n" + 
+				"      )\n" + 
+				"      #37 @B(\n" + 
+				"        #38 value=(int) 1 (constant type)\n" + 
+				"        target type = 0x47 CAST\n" + 
+				"        offset = 12\n" + 
+				"        type argument index = 0\n" + 
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test070d_codeblocks_castDoubleIntersectionCastInExpression() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+			"import java.io.*;\n" +
+				"public class X {\n" + 
+				"   public void foo(Object o) {\n" +
+				"     System.out.println(123);\n" +
+				"	  I i = (@B(1) I & J)(K & @B(2) L) o;\n" +
+			    "   }\n" +
+				"}\n" +
+				"interface I {}\n" +
+				"interface J {}\n" +
+				"interface K {}\n" +
+				"interface L {}\n",
+				
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default 1;\n" + 
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"  public void foo(java.lang.Object o);\n" + 
+				"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+				"     3  bipush 123\n" + 
+				"     5  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
+				"     8  aload_1 [o]\n" + 
+				"     9  checkcast K [28]\n" + 
+				"    12  checkcast L [30]\n" + 
+				"    15  checkcast I [32]\n" + 
+				"    18  checkcast J [34]\n" + 
+				"    21  astore_2 [i]\n" + 
+				"    22  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 4]\n" + 
+				"        [pc: 8, line: 5]\n" + 
+				"        [pc: 22, line: 6]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 23] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 23] local: o index: 1 type: java.lang.Object\n" + 
+				"        [pc: 22, pc: 23] local: i index: 2 type: I\n" + 
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #41 @B(\n" + 
+				"        #42 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x47 CAST\n" + 
+				"        offset = 9\n" + 
+				"        type argument index = 1\n" + 
+				"      )\n" + 
+				"      #41 @B(\n" + 
+				"        #42 value=(int) 1 (constant type)\n" + 
+				"        target type = 0x47 CAST\n" + 
+				"        offset = 15\n" + 
+				"        type argument index = 0\n" + 
+				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	

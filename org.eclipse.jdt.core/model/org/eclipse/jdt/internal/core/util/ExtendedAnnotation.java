@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
@@ -209,7 +210,10 @@ public class ExtendedAnnotation extends ClassFileStruct implements IExtendedAnno
 
 			case IExtendedAnnotationConstants.CAST :
 				this.offset = u2At(classFileBytes, this.readOffset, localOffset);
-				this.readOffset += 3; // skipping the 3rd byte which will be 0 for CAST
+				this.readOffset += 2; 
+				// read type_argument_index
+				this.annotationTypeIndex = u1At(classFileBytes, this.readOffset, localOffset);
+				this.readOffset++;
 				break;
 
 			case IExtendedAnnotationConstants.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT :

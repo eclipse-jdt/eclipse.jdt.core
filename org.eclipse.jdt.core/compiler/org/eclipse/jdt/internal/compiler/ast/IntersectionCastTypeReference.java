@@ -11,6 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -30,6 +32,12 @@ public class IntersectionCastTypeReference extends TypeReference {
 		this.sourceStart = typeReferences[0].sourceStart;
 		int length = typeReferences.length;
 		this.sourceEnd = typeReferences[length - 1].sourceEnd;
+		for (int i = 0, max = typeReferences.length; i < max; i++) {
+			if ((typeReferences[i].bits & ASTNode.HasTypeAnnotations) != 0) {
+				this.bits |= ASTNode.HasTypeAnnotations;
+				break;
+			}
+		}
 	}
 
 	public TypeReference copyDims(int dim) {
