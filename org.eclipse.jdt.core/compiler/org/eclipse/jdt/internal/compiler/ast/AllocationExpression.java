@@ -24,8 +24,9 @@
  *							bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *							bug 378674 - "The method can be declared as static" is wrong
- *        Andy Clement - Contributions for
+ *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *                          Bug 409245 - [1.8][compiler] Type annotations dropped when call is routed through a synthetic bridge method
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -184,7 +185,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			i++) {
 			codeStream.aconst_null();
 		}
-		codeStream.invoke(Opcodes.OPC_invokespecial, this.syntheticAccessor, null /* default declaringClass */);
+		codeStream.invoke(Opcodes.OPC_invokespecial, this.syntheticAccessor, null /* default declaringClass */, this.typeArguments);
 	}
 	if (valueRequired) {
 		codeStream.generateImplicitConversion(this.implicitConversion);

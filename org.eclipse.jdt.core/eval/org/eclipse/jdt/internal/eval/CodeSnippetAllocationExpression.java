@@ -11,8 +11,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *        Andy Clement - Contributions for
+ *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *                          Bug 409245 - [1.8][compiler] Type annotations dropped when call is routed through a synthetic bridge method
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
@@ -83,7 +84,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, 	boolea
 				this);
 		}
 		// invoke constructor
-		codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, null /* default declaringClass */);
+		codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, null /* default declaringClass */, this.typeArguments);
 	} else {
 		// private emulation using reflect
 		codeStream.generateEmulationForConstructor(currentScope, codegenBinding);

@@ -18,6 +18,8 @@
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
+ *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                          Bug 409245 - [1.8][compiler] Type annotations dropped when call is routed through a synthetic bridge method
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -171,7 +173,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 					i++) {
 					codeStream.aconst_null();
 				}
-				codeStream.invoke(Opcodes.OPC_invokespecial, this.syntheticAccessor, null /* default declaringClass */);
+				codeStream.invoke(Opcodes.OPC_invokespecial, this.syntheticAccessor, null /* default declaringClass */, this.typeArguments);
 			} else {
 				codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, null /* default declaringClass */, this.typeArguments);
 			}
