@@ -1,12 +1,18 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *          Bug 407191 - [1.8] Binary access support for type annotations 
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
@@ -14,6 +20,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
+import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -31,10 +38,65 @@ public class FieldInfo extends ClassFileStruct implements IBinaryField, Comparab
 
 public static FieldInfo createField(byte classFileBytes[], int offsets[], int offset) {
 	FieldInfo fieldInfo = new FieldInfo(classFileBytes, offsets, offset);
-	AnnotationInfo[] annotations = fieldInfo.readAttributes();
-	if (annotations == null)
-		return fieldInfo;
-	return new FieldInfoWithAnnotation(fieldInfo, annotations);
+	
+	int attributesCount = fieldInfo.u2At(6);
+	int readOffset = 8;
+	AnnotationInfo[] annotations = null;
+	TypeAnnotationInfo[] typeAnnotations = null;
+	for (int i = 0; i < attributesCount; i++) {
+		// check the name of each attribute
+		int utf8Offset = fieldInfo.constantPoolOffsets[fieldInfo.u2At(readOffset)] - fieldInfo.structOffset;
+		char[] attributeName = fieldInfo.utf8At(utf8Offset + 3, fieldInfo.u2At(utf8Offset + 1));
+		if (attributeName.length > 0) {
+			switch(attributeName[0]) {
+				case 'S' :
+					if (CharOperation.equals(AttributeNamesConstants.SignatureName, attributeName))
+						fieldInfo.signatureUtf8Offset = fieldInfo.constantPoolOffsets[fieldInfo.u2At(readOffset + 6)] - fieldInfo.structOffset;
+					break;
+				case 'R' :
+					AnnotationInfo[] decodedAnnotations = null;
+					TypeAnnotationInfo[] decodedTypeAnnotations = null;
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleAnnotationsName)) {
+						decodedAnnotations = fieldInfo.decodeAnnotations(readOffset, true);
+					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleAnnotationsName)) {
+						decodedAnnotations = fieldInfo.decodeAnnotations(readOffset, false);
+					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleTypeAnnotationsName)) {
+						decodedTypeAnnotations = fieldInfo.decodeTypeAnnotations(readOffset, true);
+					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleTypeAnnotationsName)) {
+						decodedTypeAnnotations = fieldInfo.decodeTypeAnnotations(readOffset, false);
+					}
+					if (decodedAnnotations != null) {
+						if (annotations == null) {
+							annotations = decodedAnnotations;
+						} else {
+							int length = annotations.length;
+							AnnotationInfo[] combined = new AnnotationInfo[length + decodedAnnotations.length];
+							System.arraycopy(annotations, 0, combined, 0, length);
+							System.arraycopy(decodedAnnotations, 0, combined, length, decodedAnnotations.length);
+							annotations = combined;
+						}
+					} else if (decodedTypeAnnotations != null) {
+						if (typeAnnotations == null) {
+							typeAnnotations = decodedTypeAnnotations;
+						} else {
+							int length = typeAnnotations.length;
+							TypeAnnotationInfo[] combined = new TypeAnnotationInfo[length + decodedTypeAnnotations.length];
+							System.arraycopy(typeAnnotations, 0, combined, 0, length);
+							System.arraycopy(decodedTypeAnnotations, 0, combined, length, decodedTypeAnnotations.length);
+							typeAnnotations = combined;
+						}
+					}
+			}
+		}
+		readOffset += (6 + fieldInfo.u4At(readOffset + 2));
+	}
+	fieldInfo.attributeBytes = readOffset;
+	
+	if (typeAnnotations != null)
+		return new FieldInfoWithTypeAnnotation(fieldInfo, annotations, typeAnnotations);
+	if (annotations != null)
+		return new FieldInfoWithAnnotation(fieldInfo, annotations);
+	return fieldInfo;
 }
 
 /**
@@ -75,6 +137,22 @@ private AnnotationInfo[] decodeAnnotations(int offset, boolean runtimeVisible) {
 	}
 	return null; // nothing to record
 }
+
+TypeAnnotationInfo[] decodeTypeAnnotations(int offset, boolean runtimeVisible) {
+	int numberOfAnnotations = u2At(offset + 6);
+	if (numberOfAnnotations > 0) {
+		int readOffset = offset + 8;
+		TypeAnnotationInfo[] typeAnnos = new TypeAnnotationInfo[numberOfAnnotations];
+		for (int i = 0; i < numberOfAnnotations; i++) {
+			TypeAnnotationInfo newInfo = new TypeAnnotationInfo(this.reference, this.constantPoolOffsets, readOffset + this.structOffset, runtimeVisible, false);
+			readOffset += newInfo.readOffset;
+			typeAnnos[i] = newInfo;
+		}
+		return typeAnnos;
+	}
+	return null;
+}
+
 public int compareTo(Object o) {
 	return new String(getName()).compareTo(new String(((FieldInfo) o).getName()));
 }
@@ -163,6 +241,10 @@ public char[] getTypeName() {
 public IBinaryAnnotation[] getAnnotations() {
 	return null;
 }
+
+public IBinaryTypeAnnotation[] getTypeAnnotations() {
+	return null;
+}
 /**
  * Return a wrapper that contains the constant of the field.
  * @return java.lang.Object
@@ -229,45 +311,6 @@ protected void initialize() {
  */
 public boolean isSynthetic() {
 	return (getModifiers() & ClassFileConstants.AccSynthetic) != 0;
-}
-private AnnotationInfo[] readAttributes() {
-	int attributesCount = u2At(6);
-	int readOffset = 8;
-	AnnotationInfo[] annotations = null;
-	for (int i = 0; i < attributesCount; i++) {
-		// check the name of each attribute
-		int utf8Offset = this.constantPoolOffsets[u2At(readOffset)] - this.structOffset;
-		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-		if (attributeName.length > 0) {
-			switch(attributeName[0]) {
-				case 'S' :
-					if (CharOperation.equals(AttributeNamesConstants.SignatureName, attributeName))
-						this.signatureUtf8Offset = this.constantPoolOffsets[u2At(readOffset + 6)] - this.structOffset;
-					break;
-				case 'R' :
-					AnnotationInfo[] decodedAnnotations = null;
-					if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleAnnotationsName)) {
-						decodedAnnotations = decodeAnnotations(readOffset, true);
-					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleAnnotationsName)) {
-						decodedAnnotations = decodeAnnotations(readOffset, false);
-					}
-					if (decodedAnnotations != null) {
-						if (annotations == null) {
-							annotations = decodedAnnotations;
-						} else {
-							int length = annotations.length;
-							AnnotationInfo[] combined = new AnnotationInfo[length + decodedAnnotations.length];
-							System.arraycopy(annotations, 0, combined, 0, length);
-							System.arraycopy(decodedAnnotations, 0, combined, length, decodedAnnotations.length);
-							annotations = combined;
-						}
-					}
-			}
-		}
-		readOffset += (6 + u4At(readOffset + 2));
-	}
-	this.attributeBytes = readOffset;
-	return annotations;
 }
 private void readConstantAttribute() {
 	int attributesCount = u2At(6);

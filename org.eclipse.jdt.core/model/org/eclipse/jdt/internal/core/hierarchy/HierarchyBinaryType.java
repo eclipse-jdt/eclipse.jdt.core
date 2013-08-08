@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *         bug 407191 - [1.8] Binary access support for type annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.hierarchy;
 
@@ -19,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class HierarchyBinaryType implements IBinaryType {
@@ -49,6 +52,12 @@ public HierarchyBinaryType(int modifiers, char[] qualification, char[] sourceNam
  * @see org.eclipse.jdt.internal.compiler.env.IBinaryType
  */
 public IBinaryAnnotation[] getAnnotations() {
+	return null;
+}
+/**
+ * @see org.eclipse.jdt.internal.compiler.env.IBinaryType
+ */
+public IBinaryTypeAnnotation[] getTypeAnnotations() {
 	return null;
 }
 public char[] getEnclosingMethod() {

@@ -1,13 +1,19 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for bug 365992 - [builder] [null] Change of nullness for a parameter doesn't trigger a build for the files that call the method
+ *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *         bug 407191 - [1.8] Binary access support for type annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
@@ -32,6 +38,7 @@ public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 	private int classNameIndex;
 	private int constantPoolCount;
 	private AnnotationInfo[] annotations;
+	private TypeAnnotationInfo[] typeAnnotations;
 	private FieldInfo[] fields;
 	private int fieldsCount;
 
@@ -356,6 +363,10 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 						decodeAnnotations(readOffset, true);
 					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleAnnotationsName)) {
 						decodeAnnotations(readOffset, false);
+					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleTypeAnnotationsName)) {
+						decodeTypeAnnotations(readOffset, true);
+					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleTypeAnnotationsName)) {
+						decodeTypeAnnotations(readOffset, false);
 					}
 					break;
 				case 'M' :
@@ -434,11 +445,42 @@ private void decodeAnnotations(int offset, boolean runtimeVisible) {
 	}
 }
 
+private void decodeTypeAnnotations(int offset, boolean runtimeVisible) {
+	int numberOfAnnotations = u2At(offset + 6);
+	if (numberOfAnnotations > 0) {
+		int readOffset = offset + 8;
+		TypeAnnotationInfo[] newInfos = null;
+		newInfos = new TypeAnnotationInfo[numberOfAnnotations];
+		for (int i = 0; i < numberOfAnnotations; i++) {
+			// With the last parameter being 'false', the data structure will not be flushed out
+			TypeAnnotationInfo newInfo = new TypeAnnotationInfo(this.reference, this.constantPoolOffsets, readOffset, runtimeVisible, false);
+			readOffset += newInfo.readOffset;
+			newInfos[i] = newInfo;
+		}
+		if (this.typeAnnotations == null) {
+			this.typeAnnotations = newInfos;
+		} else {
+			int length = this.typeAnnotations.length;
+			TypeAnnotationInfo[] temp = new TypeAnnotationInfo[length + numberOfAnnotations];
+			System.arraycopy(this.typeAnnotations, 0, temp, 0, length);
+			System.arraycopy(newInfos, 0, temp, length, numberOfAnnotations);
+			this.typeAnnotations = temp;
+		}
+	}
+}
+
 /**
  * @return the annotations or null if there is none.
  */
 public IBinaryAnnotation[] getAnnotations() {
 	return this.annotations;
+}
+
+/**
+ * @return the type annotations or null if there is none.
+ */
+public IBinaryTypeAnnotation[] getTypeAnnotations() {
+	return this.typeAnnotations;
 }
 
 /**
