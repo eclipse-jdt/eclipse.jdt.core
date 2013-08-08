@@ -1,13 +1,19 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
+ *     Jesper Steen Moeller - Contribution for bug 406973 - [compiler] Parse MethodParameters attribute
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
@@ -21,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class MethodInfo extends ClassFileStruct implements IBinaryMethod, Comparable {
 	static private final char[][] noException = CharOperation.NO_CHAR_CHAR;
 	static private final char[][] noArgumentNames = CharOperation.NO_CHAR_CHAR;
+	static private final char[] ARG = "arg".toCharArray();  //$NON-NLS-1$
 	protected int accessFlags;
 	protected int attributeBytes;
 	protected char[] descriptor;
@@ -30,7 +37,6 @@ public class MethodInfo extends ClassFileStruct implements IBinaryMethod, Compar
 	protected int signatureUtf8Offset;
 	protected long tagBits;
 	protected char[][] argumentNames;
-	protected int argumentNamesIndex;
 
 public static MethodInfo createMethod(byte classFileBytes[], int offsets[], int offset) {
 	MethodInfo methodInfo = new MethodInfo(classFileBytes, offsets, offset);
@@ -44,6 +50,11 @@ public static MethodInfo createMethod(byte classFileBytes[], int offsets[], int 
 		char[] attributeName = methodInfo.utf8At(utf8Offset + 3, methodInfo.u2At(utf8Offset + 1));
 		if (attributeName.length > 0) {
 			switch(attributeName[0]) {
+				case 'M' :
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.MethodParametersName)) {
+						methodInfo.decodeMethodParameters(readOffset, methodInfo);
+					}
+					break;
 				case 'S' :
 					if (CharOperation.equals(AttributeNamesConstants.SignatureName, attributeName))
 						methodInfo.signatureUtf8Offset = methodInfo.constantPoolOffsets[methodInfo.u2At(readOffset + 6)] - methodInfo.structOffset;
@@ -474,7 +485,7 @@ private void decodeLocalVariableAttribute(int offset, int codeLength) {
 	if (length != 0) {
 		readOffset += 2;
 		this.argumentNames = new char[length][];
-		this.argumentNamesIndex = 0;
+		int argumentNamesIndex = 0;
 		for (int i = 0; i < length; i++) {
 			int startPC = u2At(readOffset);
 			if (startPC == 0) {
@@ -482,16 +493,35 @@ private void decodeLocalVariableAttribute(int offset, int codeLength) {
 				int utf8Offset = this.constantPoolOffsets[nameIndex] - this.structOffset;
 				char[] localVariableName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 				if (!CharOperation.equals(localVariableName, ConstantPool.This)) {
-					this.argumentNames[this.argumentNamesIndex++] = localVariableName;
+					this.argumentNames[argumentNamesIndex++] = localVariableName;
 				}
 			} else {
 				break;
 			}
 			readOffset += 10;
 		}
-		if (this.argumentNamesIndex != this.argumentNames.length) {
+		if (argumentNamesIndex != this.argumentNames.length) {
 			// resize
-			System.arraycopy(this.argumentNames, 0, (this.argumentNames = new char[this.argumentNamesIndex][]), 0, this.argumentNamesIndex);
+			System.arraycopy(this.argumentNames, 0, (this.argumentNames = new char[argumentNamesIndex][]), 0, argumentNamesIndex);
+		}
+	}
+}
+private void decodeMethodParameters(int offset, MethodInfo methodInfo) {
+	int readOffset = offset + 6;
+	final int length = u1At(readOffset);
+	if (length != 0) {
+		readOffset += 1;
+		this.argumentNames = new char[length][];
+		for (int i = 0; i < length; i++) {
+			int nameIndex = u2At(readOffset);
+			if (nameIndex != 0) {
+				int utf8Offset = this.constantPoolOffsets[nameIndex] - this.structOffset;
+				char[] parameterName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+				this.argumentNames[i] = parameterName;
+			} else {
+				this.argumentNames[i] = CharOperation.concat(ARG, String.valueOf(i).toCharArray());
+			}
+			readOffset += 4;
 		}
 	}
 }

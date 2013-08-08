@@ -13,6 +13,8 @@
  *     IBM Corporation - initial API and implementation
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *       Jesper Steen Moeller - Contributions for:
+ *                          Bug 406973 - [compiler] Parse MethodParameters attribute
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
@@ -95,6 +97,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				case IModifierConstants.ACC_ENUM :
 					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_ENUM, "enum", firstModifier); //$NON-NLS-1$
 					break;
+				case IModifierConstants.ACC_SYNTHETIC :
+					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_SYNTHETIC, "synthetic", firstModifier); //$NON-NLS-1$
+					break;
+				case IModifierConstants.ACC_MANDATED :
+					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_MANDATED, "mandated", firstModifier); //$NON-NLS-1$
+					break;
 			}
 		}
 		if (!firstModifier) {
@@ -153,6 +161,14 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				IModifierConstants.ACC_NATIVE,
 				IModifierConstants.ACC_STRICT,
 				IModifierConstants.ACC_BRIDGE,
+		});
+	}
+
+	private final void decodeModifiersForMethodParameters(StringBuffer buffer, int accessFlags) {
+		decodeModifiers(buffer, accessFlags, false, true, new int[] {
+				IModifierConstants.ACC_FINAL,
+				IModifierConstants.ACC_MANDATED,
+				IModifierConstants.ACC_SYNTHETIC,
 		});
 	}
 
@@ -577,9 +593,22 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}));
 	}
 
+	private void disassemble(IMethodParametersAttribute methodParametersAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
+		tabNumber += 2;
+		writeNewLine(buffer, lineSeparator, tabNumber);
+		buffer.append(Messages.disassembler_methodparametersheader);
+		for (int i = 0; i < methodParametersAttribute.getMethodParameterLength(); ++i) {
+			writeNewLine(buffer, lineSeparator, tabNumber + 1);
+			short accessFlags = methodParametersAttribute.getAccessFlags(i);
+			decodeModifiersForMethodParameters(buffer, accessFlags);
+			buffer.append(methodParametersAttribute.getParameterName(i));
+		}
+	}
+
 	private void disassembleEnumConstructor(IClassFileReader classFileReader, char[] className, IMethodInfo methodInfo, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber);
 		final ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+		IMethodParametersAttribute methodParametersAttribute = (IMethodParametersAttribute) Util.getAttribute(methodInfo, IAttributeNamesConstants.METHOD_PARAMETERS);
 		char[] methodDescriptor = methodInfo.getDescriptor();
 		final IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
 		final IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
@@ -596,7 +625,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		decodeModifiersForMethod(buffer, accessFlags & IModifierConstants.ACC_PRIVATE);
 		CharOperation.replace(methodDescriptor, '/', '.');
 		final boolean isVarArgs = (accessFlags & IModifierConstants.ACC_VARARGS) != 0;
-		final char[] signature = Signature.toCharArray(methodDescriptor, returnClassName(className, '.', COMPACT), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), false, isVarArgs);
+		final char[] signature = Signature.toCharArray(methodDescriptor, returnClassName(className, '.', COMPACT), getParameterNames(methodDescriptor, codeAttribute, methodParametersAttribute, accessFlags) , !checkMode(mode, COMPACT), false, isVarArgs);
 		int index = CharOperation.indexOf(',', signature);
 		index = CharOperation.indexOf(',', signature, index + 1);
 		buffer.append(signature, 0, CharOperation.indexOf('(', signature) + 1);
@@ -669,6 +698,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		final IClassFileAttribute runtimeInvisibleTypeAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
 		final IClassFileAttribute runtimeVisibleParameterAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS);
 		final IClassFileAttribute runtimeInvisibleParameterAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS);
+		final IClassFileAttribute methodParametersAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.METHOD_PARAMETERS);
 		final IClassFileAttribute annotationDefaultAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.ANNOTATION_DEFAULT);
 		if (checkMode(mode, SYSTEM | DETAILED)) {
 			buffer.append(Messages.bind(Messages.classfileformat_methoddescriptor,
@@ -715,7 +745,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		char[] methodHeader = null;
 		char[][] parameterNames = null;
 		if (!methodInfo.isClinit()) {
-			parameterNames = getParameterNames(methodDescriptor, codeAttribute, accessFlags);
+			parameterNames = getParameterNames(methodDescriptor, codeAttribute, (IMethodParametersAttribute)methodParametersAttribute, accessFlags);
 		}
 		if (methodInfo.isConstructor()) {
 			if (checkMode(mode, WORKING_COPY) && signatureAttribute != null) {
@@ -875,6 +905,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				disassemble(codeAttribute, parameterNames, methodDescriptor, (accessFlags & IModifierConstants.ACC_STATIC) != 0, buffer, lineSeparator, tabNumber, mode);
 			}
 		}
+		if (checkMode(mode, SYSTEM | DETAILED)) {
+			if (methodParametersAttribute != null) {
+				disassemble((IMethodParametersAttribute)methodParametersAttribute, buffer, lineSeparator, tabNumber, mode);
+			}
+		}
 		if (checkMode(mode, SYSTEM)) {
 			IClassFileAttribute[] attributes = methodInfo.getAttributes();
 			int length = attributes.length;
@@ -891,6 +926,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							&& attribute != runtimeVisibleTypeAnnotationsAttribute
 							&& attribute != runtimeInvisibleParameterAnnotationsAttribute
 							&& attribute != runtimeVisibleParameterAnnotationsAttribute
+							&& attribute != methodParametersAttribute
 							&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.DEPRECATED)
 							&& !CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.SYNTHETIC)) {
 						disassemble(attribute, buffer, lineSeparator, tabNumber, mode);
@@ -2402,28 +2438,37 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		return null;
 	}
 
-	private char[][] getParameterNames(char[] methodDescriptor, ICodeAttribute codeAttribute, int accessFlags) {
+	private char[][] getParameterNames(char[] methodDescriptor, ICodeAttribute codeAttribute, IMethodParametersAttribute parametersAttribute, int accessFlags) {
 		int paramCount = Signature.getParameterCount(methodDescriptor);
 		char[][] parameterNames = new char[paramCount][];
 		// check if the code attribute has debug info for this method
-		if (codeAttribute != null) {
-			ILocalVariableAttribute localVariableAttribute = codeAttribute.getLocalVariableAttribute();
-			if (localVariableAttribute != null) {
-				ILocalVariableTableEntry[] entries = localVariableAttribute.getLocalVariableTable();
-				final int startingIndex = (accessFlags & IModifierConstants.ACC_STATIC) != 0 ? 0 : 1;
-				for (int i = 0; i < paramCount; i++) {
-					ILocalVariableTableEntry searchedEntry = getEntryFor(getLocalIndex(startingIndex, i, methodDescriptor), entries);
-					if (searchedEntry != null) {
-						parameterNames[i] = searchedEntry.getName();
-					} else {
-						parameterNames[i] = CharOperation.concat(Messages.disassembler_parametername.toCharArray(), Integer.toString(i).toCharArray());
-					}
-				}
-			} else {
-				for (int i = 0; i < paramCount; i++) {
+		if (parametersAttribute != null) {
+			int parameterCount = parametersAttribute.getMethodParameterLength();
+			for (int i = 0; i < paramCount; i++) {
+				if (i < parameterCount && parametersAttribute.getParameterName(i) != null) {
+					parameterNames[i] = parametersAttribute.getParameterName(i);
+				} else {
 					parameterNames[i] = CharOperation.concat(Messages.disassembler_parametername.toCharArray(), Integer.toString(i).toCharArray());
 				}
 			}
+		} else if (codeAttribute != null) {
+				ILocalVariableAttribute localVariableAttribute = codeAttribute.getLocalVariableAttribute();
+				if (localVariableAttribute != null) {
+					ILocalVariableTableEntry[] entries = localVariableAttribute.getLocalVariableTable();
+					final int startingIndex = (accessFlags & IModifierConstants.ACC_STATIC) != 0 ? 0 : 1;
+					for (int i = 0; i < paramCount; i++) {
+						ILocalVariableTableEntry searchedEntry = getEntryFor(getLocalIndex(startingIndex, i, methodDescriptor), entries);
+						if (searchedEntry != null) {
+							parameterNames[i] = searchedEntry.getName();
+						} else {
+							parameterNames[i] = CharOperation.concat(Messages.disassembler_parametername.toCharArray(), Integer.toString(i).toCharArray());
+						}
+					}
+				} else {
+					for (int i = 0; i < paramCount; i++) {
+						parameterNames[i] = CharOperation.concat(Messages.disassembler_parametername.toCharArray(), Integer.toString(i).toCharArray());
+					}
+				}
 		} else {
 			for (int i = 0; i < paramCount; i++) {
 				parameterNames[i] = CharOperation.concat(Messages.disassembler_parametername.toCharArray(), Integer.toString(i).toCharArray());

@@ -13,6 +13,8 @@
  *     IBM Corporation - initial API and implementation
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *     Jesper Steen Moeller - Contribution for
+ *                          Bug 406973 - [compiler] Parse MethodParameters attribute
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
@@ -255,6 +257,7 @@ public final class Messages extends NLS {
 	public static String disassembler_enclosingmethodheader;
 	public static String disassembler_exceptiontableheader;
 	public static String disassembler_linenumberattributeheader;
+	public static String disassembler_methodparametersheader;
 	public static String disassembler_localvariabletableattributeheader;
 	public static String disassembler_localvariabletypetableattributeheader;
 	public static String disassembler_arraydimensions;

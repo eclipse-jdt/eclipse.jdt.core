@@ -1,12 +1,18 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Jesper Steen Moeller - Contribution for bug 406973 - [compiler] Parse MethodParameters attribute
  *******************************************************************************/
 package org.eclipse.jdt.core.util;
 
@@ -44,7 +50,7 @@ public interface IModifierConstants {
 	int ACC_ABSTRACT     = 0x0400;
 	int ACC_STRICT       = 0x0800;
 	/**
-	 * Indicates a synthetic member.
+	 * Indicates a synthetic member or method parameter.
 	 * @since 3.0
 	 */
 	int ACC_SYNTHETIC    = 0x1000;
@@ -60,4 +66,10 @@ public interface IModifierConstants {
 	 * @since 3.0
 	 */
 	int ACC_ENUM         = 0x4000;
+
+	/**
+	 * Indicates a mandated parameter, such as this$1 (added in Java SE 8).
+	 * @since 3.9 BETA_JAVA8
+	 */
+	int ACC_MANDATED     = 0x8000;
 }

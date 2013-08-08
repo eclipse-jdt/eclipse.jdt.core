@@ -13,6 +13,8 @@
  *     IBM Corporation - initial API and implementation
  *        Andy Clement - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *        Jesper Steen Moller - Contributions for
+ *							Bug 406973 - [compiler] Parse MethodParameters attribute
  *******************************************************************************/
 package org.eclipse.jdt.core.util;
 
@@ -165,4 +167,10 @@ public interface IAttributeNamesConstants {
 	 * @since 3.8
 	 */
 	char[] BOOTSTRAP_METHODS = "BootstrapMethods".toCharArray(); //$NON-NLS-1$
+
+	/**
+	 * "MethodParameters" attribute (added in jep118).
+	 * @since 3.9 BETA_JAVA8
+	 */
+	char[] METHOD_PARAMETERS = "MethodParameters".toCharArray(); //$NON-NLS-1$
 }

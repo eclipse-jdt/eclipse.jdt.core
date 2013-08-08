@@ -16,6 +16,8 @@
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *        Andy Clement - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *       Jesper Steen Moeller - Contributions for:
+ *                          Bug 406973 - [compiler] Parse MethodParameters attribute
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -137,6 +139,7 @@ public static Test suite() {
 	since_1_8.add(FlowAnalysisTest8.class);
 	since_1_8.add(TypeAnnotationTest.class);
 	since_1_8.add(Deprecated18Test.class);
+	since_1_8.add(MethodParametersAttributeTest.class);
 
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
