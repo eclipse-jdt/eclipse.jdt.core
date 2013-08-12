@@ -580,6 +580,8 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		try {
 			this.binding = null;
 			resolveType(this.enclosingScope);
+		} catch (IncongruentLambdaException e) {
+			return false;
 		} finally {
 			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 			isCompatible = this.binding != null && this.binding.isValidBinding();

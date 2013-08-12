@@ -6849,6 +6849,34 @@ public void test412284c() {
 		null /* custom options */
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=412650
+// [1.8][compiler]Incongruent Lambda Exception thrown
+public void test412650() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	String sam();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static String foo(I i) { return \"\"; }\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(() -> foo(X::getInt));\n" +
+				"	}\n" +
+				"	static Integer getInt() { return 0; }\n" +
+				"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" +
+		"	foo(() -> foo(X::getInt));\n" +
+		"	              ^^^^^^^^^\n" +
+		"The type of getInt() from the type X is Integer, this is incompatible with the descriptor's return type: String\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		null /* custom options */
+	);
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
