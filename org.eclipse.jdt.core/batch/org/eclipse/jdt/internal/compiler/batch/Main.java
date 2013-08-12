@@ -23,6 +23,8 @@
  *								bug 375366 - ECJ ignores unusedParameterIncludeDocCommentReference unless enableJavadoc option is set
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
+ *     Jesper S Moller   - Contributions for
+ *								bug 407297 - [1.8][compiler] Control generation of parameter names by option
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -2190,6 +2192,13 @@ public void configure(String[] argv) {
 					this.options.put(
 							CompilerOptions.OPTION_InlineJsr,
 							CompilerOptions.ENABLED);
+					continue;
+				}
+				if (currentArg.equals("-parameters")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					this.options.put(
+							CompilerOptions.OPTION_MethodParametersAttribute,
+							CompilerOptions.GENERATE);
 					continue;
 				}
 				if (currentArg.startsWith("-g")) { //$NON-NLS-1$

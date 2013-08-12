@@ -1,12 +1,18 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2011 IBM Corporation and others.
+ * Copyright (c) 2006, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Jesper Steen Moeller - Contributions for:
+ *         Bug 407297: [1.8][compiler] Control generation of parameter names by option
  *******************************************************************************/
 package org.eclipse.jdt.compiler.tool.tests;
 
@@ -137,6 +143,7 @@ public class CompilerToolTests extends TestCase {
 		"-XprintProcessorInfo",
 		"-proc:none",
 		"-proc:only",
+		"-parameters",
 	};
 static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] { 
 	// a series of fake options to test the behavior upon ignored and 

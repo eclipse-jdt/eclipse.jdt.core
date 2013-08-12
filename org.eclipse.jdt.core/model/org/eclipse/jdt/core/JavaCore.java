@@ -102,7 +102,10 @@
  *									COMPILER_INHERIT_NULL_ANNOTATIONS
  *									COMPILER_PB_NONNULL_PARAMETER_ANNOTATION_DROPPED
  *									COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS
- *     Jesper S Moller  - Contributions for bug 381345 : [1.8] Take care of the Java 8 major version
+ *     Jesper S Moller   - Contributions for bug 381345 : [1.8] Take care of the Java 8 major version
+ *                       - added the following constants:
+ *									COMPILER_CODEGEN_METHOD_PARAMETERS_ATTR
+ *     
  *******************************************************************************/
 
 package org.eclipse.jdt.core;
@@ -270,6 +273,19 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_CODEGEN_UNUSED_LOCAL = PLUGIN_ID + ".compiler.codegen.unusedLocal"; //$NON-NLS-1$
+	/**
+	 * Compiler option ID: Generating Method Parameters  Attribute.
+	 * <p>When generated, this attribute will enable parameter names to be accessed from reflection libraries, annotation processing,
+	 * code weaving, and in the debugger, from platform target level 1.8 and later.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.codegen.methodParameters"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "generate", "do not generate" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"do not generate"</code></dd>
+	 * </dl>
+	 * @since 3.9 BETA_JAVA8
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_CODEGEN_METHOD_PARAMETERS_ATTR = PLUGIN_ID + ".compiler.codegen.methodParameters"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Defining Target Java Platform.
 	 * <p>For binary compatibility reason, .class files can be tagged to with certain VM versions and later.</p>
