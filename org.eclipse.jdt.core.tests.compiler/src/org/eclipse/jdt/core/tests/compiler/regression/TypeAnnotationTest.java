@@ -4623,5 +4623,82 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"      )\n";
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=409244, [1.8][compiler] Type annotations on redundant casts dropped.
+	public void testAnnotatedRedundantCast() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"	 String s = (@NonNull String) \"Hello\";\n" +
+					"}\n",
+					
+					"NonNull.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface NonNull {}\n",
+			},
+			"");
+			String expectedOutput =
+							"  // Method descriptor #8 ()V\n" + 
+							"  // Stack: 2, Locals: 1\n" + 
+							"  X();\n" + 
+							"     0  aload_0 [this]\n" + 
+							"     1  invokespecial java.lang.Object() [10]\n" + 
+							"     4  aload_0 [this]\n" + 
+							"     5  ldc <String \"Hello\"> [12]\n" + 
+							"     7  checkcast java.lang.String [14]\n" + 
+							"    10  putfield X.s : java.lang.String [16]\n" + 
+							"    13  return\n" + 
+							"      Line numbers:\n" + 
+							"        [pc: 0, line: 1]\n" + 
+							"        [pc: 4, line: 2]\n" + 
+							"        [pc: 13, line: 1]\n" + 
+							"      Local variable table:\n" + 
+							"        [pc: 0, pc: 14] local: this index: 0 type: X\n" + 
+							"    RuntimeVisibleTypeAnnotations: \n" + 
+							"      #23 @NonNull(\n" + 
+							"        target type = 0x47 CAST\n" + 
+							"        offset = 7\n" + 
+							"        type argument index = 0\n" + 
+							"      )\n" + 
+							"}";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=409244, [1.8][compiler] Type annotations on redundant casts dropped.
+	public void testAnnotatedRedundantCast2() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n" +
+					"	 String s = (String) \"Hello\";\n" +
+					"}\n",
+					
+					"NonNull.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface NonNull {}\n",
+			},
+			"");
+			String expectedOutput =
+							"  // Method descriptor #8 ()V\n" + 
+							"  // Stack: 2, Locals: 1\n" + 
+							"  X();\n" + 
+							"     0  aload_0 [this]\n" + 
+							"     1  invokespecial java.lang.Object() [10]\n" + 
+							"     4  aload_0 [this]\n" + 
+							"     5  ldc <String \"Hello\"> [12]\n" + 
+							"     7  putfield X.s : java.lang.String [14]\n" + 
+							"    10  return\n" + 
+							"      Line numbers:\n" + 
+							"        [pc: 0, line: 1]\n" + 
+							"        [pc: 4, line: 2]\n" + 
+							"        [pc: 10, line: 1]\n" + 
+							"      Local variable table:\n" + 
+							"        [pc: 0, pc: 11] local: this index: 0 type: X\n" + 
+							"}";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
 	
 }

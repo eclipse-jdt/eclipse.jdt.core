@@ -57,6 +57,8 @@ public CastExpression(Expression expression, TypeReference type) {
 	this.expression = expression;
 	this.type = type;
 	type.bits |= ASTNode.IgnoreRawTypeCheck; // no need to worry about raw type usage
+	if ((this.type.bits & ASTNode.HasTypeAnnotations) != 0)
+		this.bits |= ASTNode.GenerateCheckcast;
 }
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
