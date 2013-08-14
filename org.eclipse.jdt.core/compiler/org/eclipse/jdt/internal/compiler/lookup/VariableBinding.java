@@ -5,10 +5,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								bug 331649 - [compiler][null] consider null annotations for fields
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -57,12 +62,16 @@ public abstract class VariableBinding extends Binding {
 
 	/** Answer true if null annotations are enabled and this field is specified @NonNull */
 	public boolean isNonNull() {
-		return (this.tagBits & TagBits.AnnotationNonNull) != 0;
+		return (this.tagBits & TagBits.AnnotationNonNull) != 0
+				|| (this.type != null 
+					&& (this.type.tagBits & TagBits.AnnotationNonNull) != 0);
 	}
 
 	/** Answer true if null annotations are enabled and this field is specified @Nullable */
 	public boolean isNullable() {
-		return (this.tagBits & TagBits.AnnotationNullable) != 0;
+		return (this.tagBits & TagBits.AnnotationNullable) != 0
+				|| (this.type != null 
+				&& (this.type.tagBits & TagBits.AnnotationNullable) != 0);
 	}
 
 	public char[] readableName() {

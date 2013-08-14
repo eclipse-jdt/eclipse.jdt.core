@@ -8,7 +8,9 @@
  * Contributors:
  *     Walter Harley (eclipse@cafewalter.com) - initial implementation
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 365992 - [builder] [null] Change of nullness for a parameter doesn't trigger a build for the files that call the method
+ *     Stephan Herrmann - Contributions for
+ *								bug 365992 - [builder] [null] Change of nullness for a parameter doesn't trigger a build for the files that call the method
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
@@ -28,6 +30,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.osgi.framework.Bundle;
 
 /**
  * Tests to verify that annotation changes cause recompilation of dependent types.
@@ -140,7 +143,8 @@ public class AnnotationDependencyTests extends BuilderTests {
 	
 	void setupProjectForNullAnnotations() throws IOException, JavaModelException {
 		// add the org.eclipse.jdt.annotation library (bin/ folder or jar) to the project:
-		File bundleFile = FileLocator.getBundleFile(Platform.getBundle("org.eclipse.jdt.annotation"));
+		Bundle[] bundles = Platform.getBundles("org.eclipse.jdt.annotation","[1.1.0,2.0.0)");
+		File bundleFile = FileLocator.getBundleFile(bundles[0]);
 		String annotationsLib = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
 		IJavaProject javaProject = env.getJavaProject(this.projectPath);
 		IClasspathEntry[] rawClasspath = javaProject.getRawClasspath();
@@ -1481,7 +1485,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "Test2", test2CodeB );
 		incrementalBuild( this.projectPath );
 		expectingProblemsFor(test1Path, 
-			"Problem : Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable [ resource : </Project/src/p1/Test1.java> range : <126,143> category : <90> severity : <2>]");
+			"Problem : Null type mismatch: required \'@NonNull Object\' but the provided value is specified as @Nullable [ resource : </Project/src/p1/Test1.java> range : <126,143> category : <90> severity : <2>]");
 
 		// verify that Test1 was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.Test2" });
@@ -1494,7 +1498,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "Test2", test2CodeC );
 		incrementalBuild( this.projectPath );
 		expectingProblemsFor(test1Path, 
-			"Problem : Null type safety: The expression of type Object needs unchecked conversion to conform to \'@NonNull Object\' [ resource : </Project/src/p1/Test1.java> range : <126,143> category : <90> severity : <1>]");
+			"Problem : Null type safety: The expression of type 'Object' needs unchecked conversion to conform to \'@NonNull Object\' [ resource : </Project/src/p1/Test1.java> range : <126,143> category : <90> severity : <1>]");
 
 		// verify that Test1 was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.Test2" });

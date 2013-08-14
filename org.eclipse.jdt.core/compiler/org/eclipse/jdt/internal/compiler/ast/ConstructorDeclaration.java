@@ -17,6 +17,7 @@
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								bug 400421 - [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -130,7 +131,10 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		}
 
 		// nullity and mark as assigned
-		analyseArguments(flowInfo, this.arguments, this.binding);
+		if (classScope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8)
+			analyseArguments(flowInfo, this.arguments, this.binding);
+		else
+			analyseArguments18(flowInfo, this.arguments, this.binding);
 
 		// propagate to constructor call
 		if (this.constructorCall != null) {

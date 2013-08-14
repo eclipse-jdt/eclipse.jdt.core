@@ -4441,15 +4441,11 @@ public abstract class Scope {
 	}
 
 	public void validateNullAnnotation(long tagBits, TypeReference typeRef, Annotation[] annotations) {
-		long nullAnnotationTagBit = tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable);
+		long nullAnnotationTagBit = tagBits & (TagBits.AnnotationNullMASK);
 		if (nullAnnotationTagBit != 0) {
 			TypeBinding type = typeRef.resolvedType;
 			if (type != null && type.isBaseType()) {
-				char[][] annotationName = (nullAnnotationTagBit == TagBits.AnnotationNonNull)
-						? environment().getNonNullAnnotationName()
-						: environment().getNullableAnnotationName();
-				problemReporter().illegalAnnotationForBaseType(typeRef, annotations,
-						annotationName[annotationName.length-1], nullAnnotationTagBit);
+				problemReporter().illegalAnnotationForBaseType(typeRef, annotations, nullAnnotationTagBit);
 			}
 		}
 	}

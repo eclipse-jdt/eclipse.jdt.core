@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *******************************************************************************/
@@ -113,7 +117,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"1. WARNING in /P/p2/C2.java (at line 8)\n" +
 					"	return arg == null ? null : arg.toString();\n" +
 					"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Null type safety: The expression of type String needs unchecked conversion to conform to \'@NonNull String\'\n" +
+					"Null type safety: The expression of type 'String' needs unchecked conversion to conform to \'@NonNull String\'\n" +
 					"----------\n");
     	} finally {
     		deleteProject("P");
@@ -155,7 +159,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"1. WARNING in /P/p2/C2.java (at line 8)\n" +
 					"	return arg == null ? null : arg.toString();\n" +
 					"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Null type safety: The expression of type String needs unchecked conversion to conform to \'@NonNull String\'\n" +
+					"Null type safety: The expression of type 'String' needs unchecked conversion to conform to \'@NonNull String\'\n" +
 					"----------\n");
     	} finally {
     		deleteProject("P");

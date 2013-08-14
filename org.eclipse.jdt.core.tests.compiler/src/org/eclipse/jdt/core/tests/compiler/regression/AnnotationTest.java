@@ -19,6 +19,7 @@
  *								bug 386356 - Type mismatch error with annotations and generics
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 376590 - Private fields with @Inject are ignored by unused field validation
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
  *     Jesper S Moller  - Contributions for
  *								bug 384567 - [1.5][compiler] Compiler accepts illegal modifiers on package declaration
  *******************************************************************************/
@@ -10336,7 +10337,7 @@ public void testBug365437d() {
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, CompilerOptions.ENABLED);
-	customOptions.put(CompilerOptions.OPTION_NonNullAnnotationName, "p.NonNull");
+	customOptions.put(CompilerOptions.OPTION_NonNullByDefaultAnnotationName, "p.NonNullByDefault");
 	this.runNegativeTest(
 		true,
 		new String[] {
@@ -10359,7 +10360,7 @@ public void testBug365437d() {
 			"    public E2(long l) {}\n" +
 			"}\n" +
 			"class E3 {\n" +
-			"	 @p.NonNull\n" +
+			"	 @p.NonNullByDefault\n" +
 			"    private E3() {}\n" +
 			"    public E3(long l) {}\n" +
 			"}\n" +
@@ -10369,12 +10370,12 @@ public void testBug365437d() {
 			"    private E4() {}\n" +
 			"    public E4(long l) {}\n" +
 			"}\n",
-			"p/NonNull.java",
+			"p/NonNullByDefault.java",
 			"package p;\n" +
 			"import static java.lang.annotation.ElementType.*;\n" +
 			"import java.lang.annotation.*;\n" +
-			"@Target({TYPE, METHOD,PARAMETER,CONSTRUCTOR})\n" +
-			"public @interface NonNull {\n" +
+			"@Target({TYPE, METHOD,CONSTRUCTOR})\n" +
+			"public @interface NonNullByDefault {\n" +
 			"}",
 			"p/Annot.java",
 			"package p;\n" +
@@ -10487,7 +10488,7 @@ public void testBug365437f() {
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, CompilerOptions.ENABLED);
-	customOptions.put(CompilerOptions.OPTION_NonNullAnnotationName, "p.NonNull");
+	customOptions.put(CompilerOptions.OPTION_NonNullByDefaultAnnotationName, "p.NonNullByDefault");
 	this.runNegativeTest(
 		true,
 		new String[] {
@@ -10505,7 +10506,7 @@ public void testBug365437f() {
 			"    private class E22{}\n" +
 			"}\n" +
 			"class E3 {\n" +
-			"	 @p.NonNull\n" +
+			"	 @p.NonNullByDefault\n" +
 			"    private class E33{}\n" +
 			"}\n" +
 			"class E4 {\n" +
@@ -10513,12 +10514,12 @@ public void testBug365437f() {
 			"	 @p.Annot\n" +
 			"    private class E44{}\n" +
 			"}\n",
-			"p/NonNull.java",
+			"p/NonNullByDefault.java",
 			"package p;\n" +
 			"import static java.lang.annotation.ElementType.*;\n" +
 			"import java.lang.annotation.*;\n" +
-			"@Target({TYPE, METHOD,PARAMETER,LOCAL_VARIABLE})\n" +
-			"public @interface NonNull {\n" +
+			"@Target({TYPE, METHOD,PARAMETER})\n" +
+			"public @interface NonNullByDefault {\n" +
 			"}",
 			"p/Annot.java",
 			"package p;\n" +

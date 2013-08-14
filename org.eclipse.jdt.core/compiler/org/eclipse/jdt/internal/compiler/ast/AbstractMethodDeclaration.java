@@ -20,6 +20,7 @@
  *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 401030 - [1.8][null] Null analysis support for lambda methods.
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -94,17 +95,15 @@ public abstract class AbstractMethodDeclaration
 	}
 	// version for invocation from LambdaExpression:
 	static void createArgumentBindings(Argument[] arguments, MethodBinding binding, MethodScope scope) {
+		boolean useTypeAnnotations = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8;
 		if (arguments != null && binding != null) {
 			for (int i = 0, length = arguments.length; i < length; i++) {
 				Argument argument = arguments[i];
-				argument.createBinding(scope, binding.parameters[i]);
+				binding.parameters[i] = argument.createBinding(scope, binding.parameters[i]);
+				if (useTypeAnnotations)
+					continue; // no business with SE7 null annotations in the 1.8 case.
 				// createBinding() has resolved annotations, now transfer nullness info from the argument to the method:
-				// prefer type annotation:
-				long argTypeTagBits = (argument.type.resolvedType.tagBits & TagBits.AnnotationNullMASK);
-				// if none found try SE7 annotation:
-				if (argTypeTagBits == 0) {
-					argTypeTagBits = (argument.binding.tagBits & TagBits.AnnotationNullMASK);
-				}
+				long argTypeTagBits = (argument.binding.tagBits & TagBits.AnnotationNullMASK);
 				if (argTypeTagBits != 0) {
 					if (binding.parameterNonNullness == null) {
 						binding.parameterNonNullness = new Boolean[arguments.length];
@@ -133,7 +132,7 @@ public abstract class AbstractMethodDeclaration
 			AnnotationBinding[][] paramAnnotations = null;
 			for (int i = 0, length = this.arguments.length; i < length; i++) {
 				Argument argument = this.arguments[i];
-				argument.bind(this.scope, this.binding.parameters[i], used);
+				this.binding.parameters[i] = argument.bind(this.scope, this.binding.parameters[i], used);
 				if (argument.annotations != null) {
 					if (paramAnnotations == null) {
 						paramAnnotations = new AnnotationBinding[length][];
@@ -208,6 +207,27 @@ public abstract class AbstractMethodDeclaration
 							flowInfo.markPotentiallyNullBit(methodArguments[i].binding);
 					}
 				}
+				// tag parameters as being set:
+				flowInfo.markAsDefinitelyAssigned(methodArguments[i].binding);
+			}
+		}
+	}
+
+	/**
+	 * Feed null information from argument annotations into the analysis and mark arguments as assigned.
+	 * Variant for Java 8 using type annotations
+	 */
+	static void analyseArguments18(FlowInfo flowInfo, Argument[] methodArguments, MethodBinding methodBinding) {
+		if (methodArguments != null) {
+			int length = Math.min(methodBinding.parameters.length, methodArguments.length);
+			for (int i = 0; i < length; i++) {
+				// leverage null type annotations:
+				long tagBits = methodBinding.parameters[i].tagBits & TagBits.AnnotationNullMASK;
+				if (tagBits == TagBits.AnnotationNonNull)
+					flowInfo.markAsDefinitelyNonNull(methodArguments[i].binding);
+				else if (tagBits == TagBits.AnnotationNullable)
+					flowInfo.markPotentiallyNullBit(methodArguments[i].binding);
+	
 				// tag parameters as being set:
 				flowInfo.markAsDefinitelyAssigned(methodArguments[i].binding);
 			}
@@ -501,13 +521,16 @@ public abstract class AbstractMethodDeclaration
 			bindThrownExceptions();
 			resolveJavadoc();
 			resolveAnnotations(this.scope, this.annotations, this.binding);
-			validateNullAnnotations();
+			
+			long sourceLevel = this.scope.compilerOptions().sourceLevel;
+			validateNullAnnotations(sourceLevel);
+
 			resolveStatements();
 			// check @Deprecated annotation presence
 			if (this.binding != null
 					&& (this.binding.getAnnotationTagBits() & TagBits.AnnotationDeprecated) == 0
 					&& (this.binding.modifiers & ClassFileConstants.AccDeprecated) != 0
-					&& this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+					&& sourceLevel >= ClassFileConstants.JDK1_5) {
 				this.scope.problemReporter().missingDeprecatedAnnotationForMethod(this);
 			}
 		} catch (AbortMethod e) {
@@ -618,17 +641,26 @@ public abstract class AbstractMethodDeclaration
 	    return null;
 	}
 
-	void validateNullAnnotations() {
+	void validateNullAnnotations(long sourceLevel) {
+		if (this.binding == null) return;
 		// null annotations on parameters?
-		if (this.binding != null && this.binding.parameterNonNullness != null) {
-			int length = this.binding.parameters.length;
-			for (int i=0; i<length; i++) {
-				if (this.binding.parameterNonNullness[i] != null) {
-					long nullAnnotationTagBit =  this.binding.parameterNonNullness[i].booleanValue()
-							? TagBits.AnnotationNonNull : TagBits.AnnotationNullable;
-					this.scope.validateNullAnnotation(nullAnnotationTagBit, this.arguments[i].type, this.arguments[i].annotations);
+		if (sourceLevel < ClassFileConstants.JDK1_8) {
+			if (this.binding.parameterNonNullness != null) {
+				int length = this.binding.parameters.length;
+				for (int i=0; i<length; i++) {
+					if (this.binding.parameterNonNullness[i] != null) {
+						long nullAnnotationTagBit =  this.binding.parameterNonNullness[i].booleanValue()
+								? TagBits.AnnotationNonNull : TagBits.AnnotationNullable;
+						this.scope.validateNullAnnotation(nullAnnotationTagBit, this.arguments[i].type, this.arguments[i].annotations);
+					}
 				}
 			}
+		} else {
+			int length = this.binding.parameters.length;
+			for (int i=0; i<length; i++) {
+				long nullAnnotationTagBit = this.binding.parameters[i].tagBits & TagBits.AnnotationNullMASK;
+				this.scope.validateNullAnnotation(nullAnnotationTagBit, this.arguments[i].type, this.arguments[i].annotations);
+			}			
 		}
 	}
 }

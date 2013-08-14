@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contributions for
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -52,7 +53,7 @@ public class Argument extends LocalDeclaration {
 		this.bits |= (IsLocalDeclarationReachable | IsArgument | IsTypeElided);
 	}
 
-	public void createBinding(MethodScope scope, TypeBinding typeBinding) {
+	public TypeBinding createBinding(MethodScope scope, TypeBinding typeBinding) {
 		if (this.binding == null) {
 			// for default constructors and fake implementation of abstract methods 
 			this.binding = new LocalVariableBinding(this, typeBinding, this.modifiers, true /*isArgument*/);
@@ -67,10 +68,11 @@ public class Argument extends LocalDeclaration {
 		}
 		resolveAnnotations(scope, this.annotations, this.binding);
 		this.binding.declaration = this;
+		return this.binding.type; // might have been updated during resolveAnnotations (for typeAnnotations)
 	}
 
-	public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
-		createBinding(scope, typeBinding); // basically a no-op if createBinding() was called before
+	public TypeBinding bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
+		TypeBinding newTypeBinding = createBinding(scope, typeBinding); // basically a no-op if createBinding() was called before
 
 		// record the resolved type into the type reference
 		Binding existingVariable = scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
@@ -97,6 +99,7 @@ public class Argument extends LocalDeclaration {
 		}
 		scope.addLocalVariable(this.binding);
 		this.binding.useFlag = used ? LocalVariableBinding.USED : LocalVariableBinding.UNUSED;
+		return newTypeBinding;
 	}
 
 	/**

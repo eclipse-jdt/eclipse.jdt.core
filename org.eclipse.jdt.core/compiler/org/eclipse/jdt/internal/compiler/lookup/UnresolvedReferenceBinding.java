@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contributions for
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -86,7 +87,7 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 			// (represented by a ParameterizedTypeBinding):
 			long nullTagBits = this.tagBits & TagBits.AnnotationNullMASK;
 			if (nullTagBits != 0L)
-				targetType = environment.createAnnotatedType(targetType, nullTagBits);
+				targetType = (ReferenceBinding) environment.createAnnotatedType(targetType, nullTagBits);
 		}
 		setResolvedType(targetType, environment);
 	}

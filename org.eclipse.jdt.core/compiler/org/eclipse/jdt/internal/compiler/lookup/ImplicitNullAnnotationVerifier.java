@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *******************************************************************************/
@@ -19,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
@@ -97,27 +102,44 @@ public class ImplicitNullAnnotationVerifier {
 					checkNullSpecInheritance(currentMethod, srcMethod, needToApplyNonNullDefault, complain, currentSuper, scope, inheritedNonNullnessInfos);
 					needToApplyNonNullDefault = false;
 				}
+				long sourceLevel = scope.compilerOptions().sourceLevel;
 				
 				// transfer collected information into currentMethod:
 				InheritedNonNullnessInfo info = inheritedNonNullnessInfos[0];
 				if (!info.complained) {
+					long tagBits = 0;
 					if (info.inheritedNonNullness == Boolean.TRUE) {
-						currentMethod.tagBits |= TagBits.AnnotationNonNull;
+						tagBits = TagBits.AnnotationNonNull;
 					} else if (info.inheritedNonNullness == Boolean.FALSE) {
-						currentMethod.tagBits |= TagBits.AnnotationNullable;
+						tagBits = TagBits.AnnotationNullable;
+					}
+					if (tagBits != 0) {
+						if (sourceLevel < ClassFileConstants.JDK1_8) {
+							currentMethod.tagBits |= tagBits;
+						} else {
+							if (!currentMethod.returnType.isBaseType())
+								currentMethod.returnType = scope.environment()
+										.createAnnotatedType(currentMethod.returnType, tagBits);
+						}
 					}
 				}
 				for (int i=0; i<paramLen; i++) {
 					info = inheritedNonNullnessInfos[i+1];
 					if (!info.complained && info.inheritedNonNullness != null) {
 						Argument currentArg = srcMethod == null ? null : srcMethod.arguments[i];
-						recordArgNonNullness(currentMethod, paramLen, i, currentArg, info.inheritedNonNullness);
+						if (sourceLevel < ClassFileConstants.JDK1_8)
+							recordArgNonNullness(currentMethod, paramLen, i, currentArg, info.inheritedNonNullness);
+						else
+							recordArgNonNullness18(currentMethod, i, currentArg, info.inheritedNonNullness, scope.environment());
 					}
 				}
 
 			}
 			if (needToApplyNonNullDefault) {
-				currentMethod.fillInDefaultNonNullness(srcMethod);
+				if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8)
+					currentMethod.fillInDefaultNonNullness(srcMethod);
+				else
+					currentMethod.fillInDefaultNonNullness18(srcMethod, scope.environment());
 			}
 		} finally {			
 			currentMethod.tagBits |= TagBits.IsNullnessKnown;
@@ -197,12 +219,11 @@ public class ImplicitNullAnnotationVerifier {
 			// TODO (stephan): even here we may need to report problems? How to discriminate?
 			this.buddyImplicitNullAnnotationsVerifier.checkImplicitNullAnnotations(inheritedMethod, null, false, scope);
 		}
-		long inheritedBits = inheritedMethod.tagBits;
-		long inheritedNullnessBits = inheritedBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable);
-		long currentBits = currentMethod.tagBits;
-		long currentNullnessBits = currentBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable);
-		
 		LookupEnvironment environment = scope.environment();
+		boolean useTypeAnnotations = environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8;
+		long inheritedNullnessBits = getReturnTypeNullnessTagBits(inheritedMethod, useTypeAnnotations);
+		long currentNullnessBits = getReturnTypeNullnessTagBits(currentMethod, useTypeAnnotations);
+		
 		boolean shouldInherit = this.inheritNullAnnotations;
 
 		// return type:
@@ -224,13 +245,14 @@ public class ImplicitNullAnnotationVerifier {
 									inheritedMethod, Boolean.valueOf(inheritedNullnessBits == TagBits.AnnotationNonNull), inheritedNonNullnessInfos[0]);
 						} else {
 							// no need to defer, record this info now:
-							currentMethod.tagBits |= inheritedNullnessBits;
+							applyReturnNullBits(currentMethod, inheritedNullnessBits, environment);
 						}	
 						break returnType; // compatible by construction, skip complain phase below
 					}
 				}
 				if (hasNonNullDefault) { // conflict with inheritance already checked
-					currentMethod.tagBits |= (currentNullnessBits = TagBits.AnnotationNonNull); 
+					currentNullnessBits = TagBits.AnnotationNonNull;
+					applyReturnNullBits(currentMethod, currentNullnessBits, environment);
 				}
 			}
 			if (shouldComplain) {
@@ -254,6 +276,8 @@ public class ImplicitNullAnnotationVerifier {
 		int length = 0;
 		if (currentArguments != null)
 			length = currentArguments.length;
+		if (useTypeAnnotations) // need to look for type annotations on all parameters:
+			length = currentMethod.parameters.length;
 		else if (inheritedMethod.parameterNonNullness != null)
 			length = inheritedMethod.parameterNonNullness.length;
 		else if (currentMethod.parameterNonNullness != null)
@@ -264,10 +288,8 @@ public class ImplicitNullAnnotationVerifier {
 
 			Argument currentArgument = currentArguments == null 
 										? null : currentArguments[i];
-			Boolean inheritedNonNullNess = (inheritedMethod.parameterNonNullness == null)
-										? null : inheritedMethod.parameterNonNullness[i];
-			Boolean currentNonNullNess = (currentMethod.parameterNonNullness == null)
-										? null : currentMethod.parameterNonNullness[i];
+			Boolean inheritedNonNullNess = getParameterNonNullness(inheritedMethod, i, useTypeAnnotations);
+			Boolean currentNonNullNess = getParameterNonNullness(currentMethod, i, useTypeAnnotations);
 
 			if (currentNonNullNess == null) {
 				// unspecified, may fill in either from super or from default
@@ -288,14 +310,20 @@ public class ImplicitNullAnnotationVerifier {
 									inheritedMethod, inheritedNonNullNess, inheritedNonNullnessInfos[i+1]);
 						} else {
 							// no need to defer, record this info now:
-							recordArgNonNullness(currentMethod, length, i, currentArgument, inheritedNonNullNess);
+							if (!useTypeAnnotations)
+								recordArgNonNullness(currentMethod, length, i, currentArgument, inheritedNonNullNess);
+							else
+								recordArgNonNullness18(currentMethod, i, currentArgument, inheritedNonNullNess, environment);
 						}
 						continue; // compatible by construction, skip complain phase below
 					}
 				}
 				if (hasNonNullDefault) { // conflict with inheritance already checked
 					currentNonNullNess = Boolean.TRUE;
-					recordArgNonNullness(currentMethod, length, i, currentArgument, Boolean.TRUE);
+					if (!useTypeAnnotations)
+						recordArgNonNullness(currentMethod, length, i, currentArgument, Boolean.TRUE);
+					else
+						recordArgNonNullness18(currentMethod, i, currentArgument, Boolean.TRUE, environment);
 				}
 			}
 			if (shouldComplain) {
@@ -341,6 +369,38 @@ public class ImplicitNullAnnotationVerifier {
 		}
 	}
 
+	void applyReturnNullBits(MethodBinding method, long nullnessBits, LookupEnvironment environment) {
+		if (environment.globalOptions.sourceLevel < ClassFileConstants.JDK1_8) {
+			method.tagBits |= nullnessBits;
+		} else {
+			if (!method.returnType.isBaseType())
+				method.returnType = environment.createAnnotatedType(method.returnType, nullnessBits);
+		}
+	}
+
+	private Boolean getParameterNonNullness(MethodBinding method, int i, boolean useTypeAnnotations) {
+		if (useTypeAnnotations) {
+			TypeBinding parameter = method.parameters[i];
+			if (parameter != null) {
+				long nullBits = parameter.tagBits & TagBits.AnnotationNullMASK;
+				if (nullBits != 0L)
+					return Boolean.valueOf(nullBits == TagBits.AnnotationNonNull);
+			}
+			return null;
+		}
+		return (method.parameterNonNullness == null)
+						? null : method.parameterNonNullness[i];
+	}
+
+	private long getReturnTypeNullnessTagBits(MethodBinding method, boolean useTypeAnnotations) {
+		if (useTypeAnnotations) {
+			if (method.returnType == null)
+				return 0L;
+			return method.returnType.tagBits & TagBits.AnnotationNullMASK;
+		}
+		return method.tagBits & TagBits.AnnotationNullMASK;
+	}
+
 	/* check for conflicting annotations and record here the info 'inheritedNonNullness' found in 'inheritedMethod'. */
 	protected void recordDeferredInheritedNullness(Scope scope, ASTNode location,
 			MethodBinding inheritedMethod, Boolean inheritedNonNullness, 
@@ -366,6 +426,13 @@ public class ImplicitNullAnnotationVerifier {
 		if (currentArgument != null) {
 			currentArgument.binding.tagBits |= nonNullNess.booleanValue() ?
 					TagBits.AnnotationNonNull : TagBits.AnnotationNullable;
+		}
+	}
+	void recordArgNonNullness18(MethodBinding method, int paramIdx, Argument currentArgument, Boolean nonNullNess, LookupEnvironment env) {
+		method.parameters[paramIdx] = env.createAnnotatedType(method.parameters[paramIdx],
+										nonNullNess.booleanValue() ? TagBits.AnnotationNonNull : TagBits.AnnotationNullable);
+		if (currentArgument != null) {
+			currentArgument.binding.type = method.parameters[paramIdx];
 		}
 	}
 

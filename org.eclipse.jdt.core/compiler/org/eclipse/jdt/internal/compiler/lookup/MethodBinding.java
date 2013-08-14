@@ -18,6 +18,7 @@
  *								bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -497,6 +498,37 @@ protected void fillInDefaultNonNullness(AbstractMethodDeclaration sourceMethod) 
 	{
 		this.tagBits |= TagBits.AnnotationNonNull;
 	} else if (sourceMethod != null && (this.tagBits & TagBits.AnnotationNonNull) != 0) {
+		sourceMethod.scope.problemReporter().nullAnnotationIsRedundant(sourceMethod, -1/*signifies method return*/);
+	}
+}
+
+protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod, LookupEnvironment env) {
+	boolean added = false;
+	int length = this.parameters.length;
+	for (int i = 0; i < length; i++) {
+		TypeBinding parameter = this.parameters[i];
+		if (parameter.isBaseType())
+			continue;
+		long existing = parameter.tagBits & TagBits.AnnotationNullMASK;
+		if (existing == 0L) {
+			added = true;
+			if (!parameter.isBaseType()) {
+				this.parameters[i] = env.createAnnotatedType(parameter, TagBits.AnnotationNonNull);
+				if (sourceMethod != null)
+					sourceMethod.arguments[i].binding.type = this.parameters[i];
+			}
+		} else if (sourceMethod != null && (parameter.tagBits & TagBits.AnnotationNonNull) != 0) {
+			sourceMethod.scope.problemReporter().nullAnnotationIsRedundant(sourceMethod, i);
+		}
+	}
+	if (added)
+		this.tagBits |= TagBits.HasParameterAnnotations;
+	if (   this.returnType != null
+		&& !this.returnType.isBaseType()
+		&& (this.returnType.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) == 0)
+	{
+		this.returnType = env.createAnnotatedType(this.returnType, TagBits.AnnotationNonNull);
+	} else if (sourceMethod != null && (this.returnType.tagBits & TagBits.AnnotationNonNull) != 0) {
 		sourceMethod.scope.problemReporter().nullAnnotationIsRedundant(sourceMethod, -1/*signifies method return*/);
 	}
 }

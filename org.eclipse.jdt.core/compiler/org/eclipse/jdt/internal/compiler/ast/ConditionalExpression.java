@@ -20,6 +20,7 @@
  *							bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *							bug 383368 - [compiler][null] syntactic null analysis for field references
  *							bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
+ *							Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -469,6 +470,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		
 		TypeBinding valueIfTrueType = this.originalValueIfTrueType;
 		TypeBinding valueIfFalseType = this.originalValueIfFalseType;
+		if (use18specifics && valueIfTrueType != null && valueIfFalseType != null) {
+			if (valueIfTrueType.isAnnotatedTypeWithoutArguments() != valueIfFalseType.isAnnotatedTypeWithoutArguments()) {
+				if (valueIfTrueType.isAnnotatedTypeWithoutArguments()) // FIXME(stephan) mixed scenarios: null tag bits & type arguments
+					valueIfTrueType = valueIfTrueType.original();
+				else
+					valueIfFalseType = valueIfFalseType.original();
+			}
+		}
 		if (use15specifics && valueIfTrueType != valueIfFalseType) {
 			if (valueIfTrueType.isBaseType()) {
 				if (valueIfFalseType.isBaseType()) {

@@ -20,14 +20,13 @@
  *								bug 374605 - Unreasonable warning for enum-based switch statements
  *								bug 384870 - [compiler] @Deprecated annotation not detected if preceded by other annotation
  *								bug 393719 - [compiler] inconsistent warnings on iteration variables
- *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
  *     Jesper S Moller - Contributions for
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.Annotation.TypeUseBinding;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -708,7 +707,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			Annotation annotation = sourceAnnotations[i];
 			final Binding annotationRecipient = annotation.recipient;
 			if (annotationRecipient != null && recipient != null) {
-				// only local, field and type_use can share annnotations
+				// only local and field can share annnotations
 				switch (recipient.kind()) {
 					case Binding.FIELD :
 						FieldBinding field = (FieldBinding) recipient;
@@ -756,9 +755,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 							}
 						}
 						break;
-					case Binding.TYPE_USE :
-						TypeUseBinding typeUse = (TypeUseBinding) recipient;
-						typeUse.tagBits = ((TypeUseBinding) annotationRecipient).tagBits;
 				}
 				return;
 			} else {

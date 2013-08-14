@@ -161,7 +161,7 @@
  *									ArrayReferencePotentialNullReference
  *									DereferencingNullableExpression
  *									NullityMismatchingTypeAnnotation
- *									NullityMismatchingTypeAnnotationUnchecked
+ *									NullityUncheckedTypeAnnotationDetail
  *									NullableFieldReference
  *									UninitializedNonNullField
  *									UninitializedNonNullFieldHintMissingDefault
@@ -184,6 +184,8 @@
  *									NullUnboxing
  *									NullExpressionReference
  *									PotentialNullExpressionReference
+ *									RedundantNullCheckAgainstNonNullType
+ *									NullAnnotationUnsupportedLocation
  *      Jesper S Moller  - added the following constants
  *									TargetTypeNotAFunctionalInterface
  *									OuterLocalMustBeEffectivelyFinal
@@ -1667,6 +1669,10 @@ void setSourceStart(int sourceStart);
 	int ConflictingNullAnnotations = MethodRelated + 939;
 	/** @since 3.9 */
 	int ConflictingInheritedNullAnnotations = MethodRelated + 940;
+	/** @since 3.9 BETA_JAVA8 */
+	int RedundantNullCheckOnField = Internal + 941;
+	/** @since 3.9 BETA_JAVA8 */
+	int FieldComparisonYieldsFalse = Internal + 942;
 	
 	/** @since 3.9 BETA_JAVA8 */
 	int ArrayReferencePotentialNullReference = Internal + 951;
@@ -1675,7 +1681,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.9 BETA_JAVA8 */
 	int NullityMismatchingTypeAnnotation = Internal + 953;
 	/** @since 3.9 BETA_JAVA8 */
-	int NullityMismatchingTypeAnnotationUnchecked = Internal + 954;
+	int NullityUncheckedTypeAnnotationDetail = Internal + 954;
 	/** @since 3.9 BETA_JAVA8 */
 	int ReferenceExpressionParameterMismatchPromisedNullable = MethodRelated + 955;
 	/** @since 3.9 BETA_JAVA8 */
@@ -1684,6 +1690,10 @@ void setSourceStart(int sourceStart);
 	int ReferenceExpressionReturnNullRedef = MethodRelated + 957;
 	/** @since 3.9 BETA_JAVA8 */
 	int ReferenceExpressionReturnNullRedefUnchecked = MethodRelated + 958;
+	/** @since 3.9 BETA_JAVA8 */
+	int RedundantNullCheckAgainstNonNullType = Internal + 959;
+	/** @since 3.9 BETA_JAVA8 */
+	int NullAnnotationUnsupportedLocation = Internal + 960;
 
 	// Java 8 work
 	/** @since 3.9 BETA_JAVA8 */

@@ -16,6 +16,7 @@
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -25,6 +26,7 @@ import java.util.List;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /*
  * Not all fields defined by this type (& its subclasses) are initialized when it is created.
@@ -1205,7 +1207,7 @@ public boolean needsUncheckedConversion(TypeBinding targetType) {
 }
 
 /** Answer a readable name (for error reporting) that includes nullness type annotations. */
-public char[] nullAnnotatedReadableName(LookupEnvironment env, boolean shortNames) /* e.g.: java.lang.Object @o.e.j.a.NonNull[] */ {
+public char[] nullAnnotatedReadableName(CompilerOptions options, boolean shortNames) /* e.g.: java.lang.Object @o.e.j.a.NonNull[] */ {
 	if (shortNames)
 		return shortReadableName();
 	else
@@ -1227,6 +1229,12 @@ public TypeBinding original() {
 	}
 }
 
+/** 
+ * Return this type minus its tagBit-encoded type annotations
+ */
+public TypeBinding unannotated() {
+	return this;
+}
 /**
  * Answer the qualified name of the receiver's package separated by periods
  * or an empty string if its the default package.

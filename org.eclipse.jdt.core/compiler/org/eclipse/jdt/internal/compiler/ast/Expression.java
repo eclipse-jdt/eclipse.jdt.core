@@ -20,6 +20,7 @@
  *								bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *								bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -560,19 +561,19 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
  * @return could this expression be checked by the current implementation?
  */
 public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+	boolean isNullable = false;
 	if (this.resolvedType != null) {
+		// 1. priority: @NonNull
 		if ((this.resolvedType.tagBits & TagBits.AnnotationNonNull) != 0) {
 			return true; // no danger
 		} else if ((this.resolvedType.tagBits & TagBits.AnnotationNullable) != 0) {
-			scope.problemReporter().dereferencingNullableExpression(this, scope.environment());
-			return true; // danger is definite.
-			// stopping analysis at this point requires that the above error is not suppressable
-			// unless suppressing all null warnings (otherwise we'd miss a stronger warning below).
+			isNullable = true;
 		}
 	}
 	LocalVariableBinding local = localVariableBinding();
 	if (local != null &&
 			(local.type.tagBits & TagBits.IsBaseType) == 0) {
+		// 2. priority: local with flow analysis (via the FlowContext)
 		if ((this.bits & ASTNode.IsNonNull) == 0) {
 			flowContext.recordUsingNullReference(scope, local, this,
 					FlowContext.MAY_NULL, flowInfo);
@@ -584,6 +585,10 @@ public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flow
 		flowInfo.markAsComparedEqualToNonNull(local);
 			// from thereon it is set
 		flowContext.markFinallyNullStatus(local, FlowInfo.NON_NULL);
+		return true;
+	} else if (isNullable) {
+		// 3. priority: @Nullable without a local
+		scope.problemReporter().dereferencingNullableExpression(this);
 		return true;
 	}
 	return false; // not checked

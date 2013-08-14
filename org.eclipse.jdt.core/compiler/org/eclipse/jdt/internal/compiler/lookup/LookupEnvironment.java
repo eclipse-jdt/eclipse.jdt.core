@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@
  *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -31,6 +32,8 @@ import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFilePool;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.TypeAnnotationWalker;
@@ -996,13 +999,66 @@ public ParameterizedTypeBinding createParameterizedType(ReferenceBinding generic
 	return createParameterizedType(genericType, typeArguments, 0L, enclosingType);
 }
 /**
- * Create a ParameterizedTypeBinding which represents the same structure as the given genericType but with type annotations,
- * as given by 'annotationBits' (TagBits.AnnotationNonNull or TagBits.AnnotationNullable).
+ * Create a ParameterizedTypeBinding or ArrayBinding which represents the same structure as the given genericType,
+ * but with type annotations as given by 'annotationBits' (TagBits.AnnotationNonNull or TagBits.AnnotationNullable).
  */
-public ParameterizedTypeBinding createAnnotatedType(ReferenceBinding genericType, long annotationBits) {
-	TypeBinding[] typeArguments = genericType.isParameterizedType() ? ((ParameterizedTypeBinding) genericType).arguments : null;
-	return createParameterizedType(genericType, typeArguments, annotationBits, genericType.enclosingType());
-}	
+public TypeBinding createAnnotatedType(TypeBinding genericType, long annotationBits) {
+	if (genericType instanceof UnresolvedReferenceBinding) {
+		// clone so we don't interfere with future lookups:
+		return new UnresolvedReferenceBinding((UnresolvedReferenceBinding)genericType, annotationBits);
+	}
+	if (genericType instanceof ReferenceBinding) {
+		TypeBinding[] typeArguments = genericType.isParameterizedType() ? ((ParameterizedTypeBinding) genericType).arguments : null;
+		ParameterizedTypeBinding parameterizedType = createParameterizedType((ReferenceBinding) genericType, typeArguments, 
+																			annotationBits, genericType.enclosingType());
+		parameterizedType.id = genericType.id; // for well-known types shared the id (only here since those types are not generic, are they?)
+		return parameterizedType;
+	} else if (genericType instanceof ArrayBinding) {
+		long[] tagBitsPerDims = ((ArrayBinding) genericType).nullTagBitsPerDimension;
+		if (tagBitsPerDims == null)
+			tagBitsPerDims = new long[genericType.dimensions()+1];
+		if (tagBitsPerDims[0] != annotationBits) {
+			tagBitsPerDims[0] = annotationBits;
+			return createArrayType(genericType.leafComponentType(), genericType.dimensions(), tagBitsPerDims);
+		}
+	}
+	// TODO(stephan): PolyTypeBinding
+	return genericType;
+}
+
+/**
+ * Create an annotated type from 'type' by applying 'annotationBits' to its outermost enclosing type.
+ * This is used for those locations where a null annotations was parsed as a declaration annotation
+ * and later must be pushed into the type.
+ * @param type
+ * @param annotationBits
+ */
+public TypeBinding pushAnnotationIntoType(TypeBinding type, TypeReference typeRef, long annotationBits) {
+	TypeBinding outermostType = type;
+	if (typeRef instanceof QualifiedTypeReference) {
+		int depth = typeRef.getAnnotatableLevels();
+		while (--depth > 0)
+			outermostType = outermostType.enclosingType();
+	}
+	if ((outermostType.tagBits & TagBits.AnnotationNullMASK) != annotationBits) {
+		if (type == outermostType)
+			return createAnnotatedType(type, annotationBits);
+		// types with true enclosingType() must be ReferenceBindings
+		return reWrap((ReferenceBinding) type, outermostType, (ReferenceBinding)createAnnotatedType(outermostType, annotationBits));
+	}
+	return type;
+}
+
+private ReferenceBinding reWrap(ReferenceBinding inner, TypeBinding outer, ReferenceBinding annotatedOuter) {
+	ReferenceBinding annotatedEnclosing =  (inner.enclosingType() == outer) 
+			? annotatedOuter
+			: reWrap(inner.enclosingType(), outer, annotatedOuter);
+	TypeBinding[] arguments = (inner instanceof ParameterizedTypeBinding)
+			? ((ParameterizedTypeBinding) inner).arguments 
+			: Binding.NO_TYPES;
+	return createParameterizedType((ReferenceBinding)inner.original(), arguments, inner.tagBits, annotatedEnclosing);	
+}
+
 /**
  * Note: annotationBits are exactly those tagBits from annotations on type parameters that are interpreted by the compiler, currently: null annotations.
  * typeArguments should never be Binding.NO_TYPES, but rather: null, if no type arguments are present (and only annotationBits are the reason for coming here).
@@ -1349,19 +1405,7 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean i
 	// null annotations on dimensions?
 	long[] annotationTagBitsOnDimensions = null;
 	if (dimension > 0 && walker != TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER) {
-		TypeAnnotationWalker dimensionsWalker = null;
-		for (int i = 0; i < dimension; i++) {
-			if (dimensionsWalker == null)
-				dimensionsWalker = walker; // outermost dimension == main type
-			else
-				dimensionsWalker = dimensionsWalker.toNextArrayDimension();
-			long tagBits = typeAnnotationsToTagBits(dimensionsWalker.getAnnotationsAtCursor());
-			if (tagBits != 0L) {
-				if (annotationTagBitsOnDimensions == null)
-					annotationTagBitsOnDimensions = new long[dimension+1]; // leave room for leaf type
-				annotationTagBitsOnDimensions[i] = tagBits; 
-			}
-		}
+		annotationTagBitsOnDimensions = getAnnotationTagBitsOnDimensions(dimension, walker);
 	}
 
 	if (end == -1)
@@ -1411,12 +1455,7 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean i
 		}
 		long tagBits = typeAnnotationsToTagBits(walker.getAnnotationsAtCursor());
 		if (tagBits != 0 && annotationTagBitsOnDimensions == null) {
-			if (refType instanceof UnresolvedReferenceBinding) {
-				// clone so we don't interfere with future lookups:
-				binding = new UnresolvedReferenceBinding(refType, tagBits);
-			} else {
-				binding = createAnnotatedType(refType, tagBits);
-			}
+			binding = createAnnotatedType(refType, tagBits);
 		} else {
 			if (annotationTagBitsOnDimensions != null)
 				annotationTagBitsOnDimensions[dimension] = tagBits; // insert leaf type into array
@@ -1429,6 +1468,24 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean i
 	if (annotationTagBitsOnDimensions != null)
 		return createArrayType(binding, dimension, annotationTagBitsOnDimensions);
 	return createArrayType(binding, dimension);
+}
+
+private long[] getAnnotationTagBitsOnDimensions(int dimension, 	TypeAnnotationWalker walker) {
+	TypeAnnotationWalker dimensionsWalker = null;
+	long[] annotationTagBitsOnDimensions = null;
+	for (int i = 0; i < dimension; i++) {
+		if (dimensionsWalker == null)
+			dimensionsWalker = walker; // outermost dimension == main type
+		else
+			dimensionsWalker = dimensionsWalker.toNextArrayDimension();
+		long tagBits = typeAnnotationsToTagBits(dimensionsWalker.getAnnotationsAtCursor());
+		if (tagBits != 0L) {
+			if (annotationTagBitsOnDimensions == null)
+				annotationTagBitsOnDimensions = new long[dimension+1]; // leave room for leaf type
+			annotationTagBitsOnDimensions[i] = tagBits; 
+		}
+	}
+	return annotationTagBitsOnDimensions;
 }
 
 public long typeAnnotationsToTagBits(IBinaryAnnotation[] annotations) {
@@ -1478,7 +1535,7 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 	    int varEnd = wrapper.computeEnd();
 		for (int i = staticVariables.length; --i >= 0;)
 			if (CharOperation.equals(staticVariables[i].sourceName, wrapper.signature, varStart, varEnd))
-				return dimension == 0 ? (TypeBinding) staticVariables[i] : createArrayType(staticVariables[i], dimension);
+				return typeFromTypeVariable(staticVariables[i], dimension, walker);
 	    ReferenceBinding initialType = enclosingType;
 		do {
 			TypeVariableBinding[] enclosingTypeVariables;
@@ -1489,7 +1546,7 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 			}
 			for (int i = enclosingTypeVariables.length; --i >= 0;)
 				if (CharOperation.equals(enclosingTypeVariables[i].sourceName, wrapper.signature, varStart, varEnd))
-					return dimension == 0 ? (TypeBinding) enclosingTypeVariables[i] : createArrayType(enclosingTypeVariables[i], dimension);
+					return typeFromTypeVariable(enclosingTypeVariables[i], dimension, walker);
 		} while ((enclosingType = enclosingType.enclosingType()) != null);
 		this.problemReporter.undefinedTypeVariableSignature(CharOperation.subarray(wrapper.signature, varStart, varEnd), initialType);
 		return null; // cannot reach this, since previous problem will abort compilation
@@ -1531,6 +1588,21 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 	}
 	wrapper.start++; // skip ';'
 	return dimension == 0 ? (TypeBinding) parameterizedType : createArrayType(parameterizedType, dimension);
+}
+
+private TypeBinding typeFromTypeVariable(TypeVariableBinding typeVariableBinding, int dimension, TypeAnnotationWalker walker) {
+	long tagBits = typeAnnotationsToTagBits(walker.getAnnotationsAtCursor());
+	if (dimension == 0) {
+		if (tagBits != 0L)
+			return createAnnotatedType(typeVariableBinding, tagBits);
+		return typeVariableBinding;
+	} else {
+		long[] annotationTagBitsOnDimensions = null;
+		if (walker != TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER) {
+			annotationTagBitsOnDimensions = getAnnotationTagBitsOnDimensions(dimension, walker);
+		}
+		return createArrayType(typeVariableBinding, dimension, annotationTagBitsOnDimensions);
+	}
 }
 
 TypeBinding getTypeFromVariantTypeSignature(

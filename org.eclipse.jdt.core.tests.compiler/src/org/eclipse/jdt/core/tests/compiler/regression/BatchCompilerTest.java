@@ -27,6 +27,7 @@
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
  *     Jesper Steen Moller - Contributions for
  *								bug 404146 - [1.7][compiler] nested try-catch-finally-blocks leads to unrunnable Java byte code
  *								bug 407297 - [1.8][compiler] Control generation of parameter names by option
@@ -12640,12 +12641,12 @@ public void test313_warn_options() {
 		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
 		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
 		"	                     ^^^^^^\n" + 
-		"Missing nullable annotation: inherited method from X declares this parameter as @Nullable\n" + 
+		"Missing nullable annotation: inherited method from X specifies this parameter as @Nullable\n" + 
 		"----------\n" + 
 		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" +
 		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" +
 		"	                               ^^^^^^\n" +
-		"Missing non-null annotation: inherited method from X declares this parameter as @NonNull\n" +
+		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" +
 		"----------\n" +
 		"3 problems (3 warnings)", 
 		true);
@@ -12689,12 +12690,12 @@ public void test314_warn_options() {
 		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
 		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
 		"	                     ^^^^^^\n" + 
-		"Missing nullable annotation: inherited method from X declares this parameter as @Nullable\n" + 
+		"Missing nullable annotation: inherited method from X specifies this parameter as @Nullable\n" + 
 		"----------\n" + 
 		"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" +
 		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" +
 		"	                               ^^^^^^\n" +
-		"Missing non-null annotation: inherited method from X declares this parameter as @NonNull\n" +
+		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" +
 		"----------\n" +
 		"3 problems (3 errors)", 
 		true);
@@ -13452,7 +13453,8 @@ public void testBug375409e() {
 				"import java.lang.annotation.*;\n" +
 				"public class X {\n" +
 				"  @NonNull Object foo(@Nullable Object o, @NonNull Object o2) {\n" +
-				"	 return new X().bar();\n" +
+				"	 Object o3 = new X().bar();\n" + // need a local to involve flow analysis
+				"	 return o3;\n" +
 				"  }\n" +
 				"  @Nullable Object bar() {\n" +
 				"	 return null;\n" +
@@ -13680,12 +13682,12 @@ public void testBug375366c() throws IOException {
 			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
 			"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
 			"	                     ^^^^^^\n" + 
-			"Missing nullable annotation: inherited method from X declares this parameter as @Nullable\n" + 
+			"Missing nullable annotation: inherited method from X specifies this parameter as @Nullable\n" + 
 			"----------\n" + 
 			"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" +
 			"	@Nullable Object foo(Object o, Object o2) { return null; }\n" +
 			"	                               ^^^^^^\n" +
-			"Missing non-null annotation: inherited method from X declares this parameter as @NonNull\n" +
+			"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" +
 			"----------\n" +
 			"3 problems (2 errors, 1 warning)", 
 			false/*don't flush*/);
@@ -13734,7 +13736,7 @@ public void testBug375366d() throws IOException {
 			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" +
 			"	@Nullable Object foo(Object o, Object o2) { return null; }\n" +
 			"	                     ^^^^^^\n" +
-			"Missing nullable annotation: inherited method from X declares this parameter as @Nullable\n" +
+			"Missing nullable annotation: inherited method from X specifies this parameter as @Nullable\n" +
 			"----------\n" +
 			"2 problems (2 errors)", 
 			false/*don't flush*/);

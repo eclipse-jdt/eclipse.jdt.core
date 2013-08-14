@@ -64,12 +64,12 @@ public void testLambda_01() {
 		"1. WARNING in X.java (at line 3)\n" + 
 		"	ISAM printer = (p,o) -> p.concat(o.toString());\n" + 
 		"	                        ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Null type safety: The expression of type String needs unchecked conversion to conform to \'@NonNull String\'\n" + 
+		"Null type safety (type annotations): The expression of type 'String' needs unchecked conversion to conform to \'@NonNull String\'\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 3)\n" + 
 		"	ISAM printer = (p,o) -> p.concat(o.toString());\n" + 
 		"	                                 ^\n" + 
-		"Potential null pointer access: The variable o may be null at this location\n" + 
+		"Potential null pointer access: this expression has a '@Nullable' type\n" + 
 		"----------\n");
 }
 
@@ -139,17 +139,17 @@ public void testLambda_03() {
 		"2. ERROR in X.java (at line 7)\n" + 
 		"	-> System.out.println(o1.toString()+o2.toString()+o3.toString());\n" + 
 		"	                      ^^\n" + 
-		"Potential null pointer access: The variable o1 may be null at this location\n" + 
+		"Potential null pointer access: this expression has a '@Nullable' type\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 7)\n" + 
 		"	-> System.out.println(o1.toString()+o2.toString()+o3.toString());\n" + 
 		"	                                    ^^\n" + 
-		"Potential null pointer access: The variable o2 may be null at this location\n" + 
+		"Potential null pointer access: this expression has a '@Nullable' type\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 7)\n" + 
 		"	-> System.out.println(o1.toString()+o2.toString()+o3.toString());\n" + 
 		"	                                                  ^^\n" + 
-		"Potential null pointer access: The variable o3 may be null at this location\n" + 
+		"Potential null pointer access: this expression has a '@Nullable' type\n" + 
 		"----------\n");
 }
 
@@ -175,7 +175,7 @@ public void testLambda_04() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	ISAM printer1 = (@NonNull int i) \n" + 
-		"	                 ^^^^^^^^^^^^\n" + 
+		"	                 ^^^^^^^^\n" + 
 		"The nullness annotation @NonNull is not applicable for the primitive type int\n" + 
 		"----------\n");
 }

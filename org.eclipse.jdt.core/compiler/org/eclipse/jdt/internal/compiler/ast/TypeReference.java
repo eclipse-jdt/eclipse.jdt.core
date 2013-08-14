@@ -15,6 +15,7 @@
  *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
@@ -602,8 +603,8 @@ protected void resolveAnnotations(Scope scope) {
 					}
 				} else {
 					if (tagBits != 0) {
-						if (this.resolvedType instanceof ReferenceBinding) {
-							this.resolvedType = scope.environment().createAnnotatedType((ReferenceBinding) this.resolvedType, tagBits);
+						if (this.resolvedType.isBaseType()) {
+							this.resolvedType = scope.environment().createAnnotatedType(this.resolvedType, tagBits);
 						} else {
 							// TODO(stephan) report null annotation on non-reference type
 						}
@@ -646,6 +647,6 @@ protected TypeBinding captureTypeAnnotations(Scope scope, ReferenceBinding enclo
 	}
     if (annotationBits == 0L)
     	return argType;
-	return scope.environment().createAnnotatedType((ReferenceBinding) argType, annotationBits);
+	return scope.environment().createAnnotatedType(argType, annotationBits);
 }
 }

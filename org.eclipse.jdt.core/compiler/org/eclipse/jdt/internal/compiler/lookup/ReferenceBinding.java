@@ -23,6 +23,7 @@
  *								bug 400421 - [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
  *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -35,6 +36,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 /*
@@ -1445,15 +1447,16 @@ public MethodBinding[] methods() {
 	return Binding.NO_METHODS;
 }
 
-public char[] nullAnnotatedReadableName(LookupEnvironment env, boolean shortNames) /* java.lang.Object @o.e.j.a.NonNull[] */ {
+public char[] nullAnnotatedReadableName(CompilerOptions options, boolean shortNames) /* java.lang.Object @o.e.j.a.NonNull[] */ {
+	// TODO(stephan): respect annotatable enclosing types!
 	char[] typeName = shortNames ? shortReadableName() : readableName();
 	if ((this.tagBits & TagBits.AnnotationNullMASK) == 0)
 		return typeName;
 	char[][] fqAnnotationName;
 	if ((this.tagBits & TagBits.AnnotationNonNull) != 0)
-		fqAnnotationName = env.getNonNullAnnotationName();
+		fqAnnotationName = options.nonNullAnnotationName;
 	else
-		fqAnnotationName = env.getNullableAnnotationName();
+		fqAnnotationName = options.nullableAnnotationName;
 	char[] annotationName = shortNames
 								? fqAnnotationName[fqAnnotationName.length-1]
 								: CharOperation.concatWith(fqAnnotationName, '.');				

@@ -18,6 +18,7 @@
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 382353 - [1.8][compiler] Implementation property modifiers should be accepted on default methods.
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *								bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
@@ -106,7 +107,10 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					FlowInfo.DEAD_END);
 
 			// nullity and mark as assigned
-			analyseArguments(flowInfo, this.arguments, this.binding);
+			if (classScope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8)
+				analyseArguments(flowInfo, this.arguments, this.binding);
+			else
+				analyseArguments18(flowInfo, this.arguments, this.binding);
 
 			if (this.binding.declaringClass instanceof MemberTypeBinding && !this.binding.declaringClass.isStatic()) {
 				// method of a non-static member type can't be static.
@@ -351,10 +355,12 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	    return this.typeParameters;
 	}
 	
-	void validateNullAnnotations() {
-		super.validateNullAnnotations();
+	void validateNullAnnotations(long sourceLevel) {
+		super.validateNullAnnotations(sourceLevel);
 		// null-annotations on the return type?
-		if (this.binding != null)
-			this.scope.validateNullAnnotation(this.binding.tagBits, this.returnType, this.annotations);
+		if (this.binding != null && this.binding.returnType != null) {
+			long tagBits = (sourceLevel < ClassFileConstants.JDK1_8) ? this.binding.tagBits : this.binding.returnType.tagBits;
+			this.scope.validateNullAnnotation(tagBits, this.returnType, this.annotations);
+		}
 	}
 }

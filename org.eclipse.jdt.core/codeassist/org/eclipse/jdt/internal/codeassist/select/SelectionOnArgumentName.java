@@ -5,8 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.select;
 
@@ -23,7 +29,7 @@ public class SelectionOnArgumentName extends Argument {
 		super(name, posNom, tr, modifiers);
 	}
 
-	public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
+	public TypeBinding bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
 
 		super.bind(scope, typeBinding, used);
 		throw new SelectionNodeFound(this.binding);

@@ -17,6 +17,7 @@
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -56,12 +57,13 @@ public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flow
 }
 
 protected boolean checkNullableFieldDereference(Scope scope, FieldBinding field, long sourcePosition) {
-	if ((field.tagBits & TagBits.AnnotationNullable) != 0) {
-		scope.problemReporter().nullableFieldDereference(field, sourcePosition);
-		return true;
-	}
+	// preference to type annotations if we have any
 	if ((field.type.tagBits & TagBits.AnnotationNullable) != 0) {
 		scope.problemReporter().dereferencingNullableExpression(sourcePosition, scope.environment());
+		return true;
+	}
+	if ((field.tagBits & TagBits.AnnotationNullable) != 0) {
+		scope.problemReporter().nullableFieldDereference(field, sourcePosition);
 		return true;
 	}
 	return false;
