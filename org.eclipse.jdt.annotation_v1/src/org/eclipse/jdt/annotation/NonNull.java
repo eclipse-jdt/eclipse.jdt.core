@@ -5,17 +5,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *     IBM Corporation - bug fixes
  *******************************************************************************/
 package org.eclipse.jdt.annotation;
 
-import static java.lang.annotation.ElementType.TYPE_USE;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -23,14 +22,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
  
 /**
- * Qualifier for a reference type in a {@link TYPE_USE} position:
- * The type that has this annotation is intended to not include the value <code>null</code>.
+ * Qualifier for a type in a method signature or a local variable declaration:
+ * The entity (return value, parameter, field, local variable) whose type has this
+ * annotation can never have the value <code>null</code> at runtime.
  * <p>
- * If annotation based null analysis is enabled using this annotation has two consequences:
+ * This has two consequences:
  * <ol>
- * <li>Dereferencing an expression of this type is safe, i.e., no <code>NullPointerException</code> can occur at runtime.</li>
- * <li>An attempt to bind a <code>null</code> value to an entity (field, local variable, method parameter or method return value)
- *      of this type is a compile time error.</li>
+ * <li>Dereferencing the entity is safe, i.e., no <code>NullPointerException</code> can occur at runtime.</li>
+ * <li>An attempt to bind a <code>null</code> value to the entity is a compile time error.</li>
  * </ol>
  * For the second case, diagnostics issued by the compiler should distinguish three situations:
  * <ol>
@@ -46,7 +45,7 @@ import java.lang.annotation.Target;
  */
 @Documented
 @Retention(RetentionPolicy.CLASS)
-@Target({ TYPE_USE })
+@Target({ FIELD, METHOD, PARAMETER, LOCAL_VARIABLE })
 public @interface NonNull {
 	// marker annotation with no members
 }

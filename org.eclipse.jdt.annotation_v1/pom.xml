@@ -19,6 +19,6 @@
   </parent>
   <groupId>org.eclipse.jdt</groupId>
   <artifactId>org.eclipse.jdt.annotation</artifactId>
-  <version>2.0.0-SNAPSHOT</version>
+  <version>1.1.0.v20130513-1648</version>
   <packaging>eclipse-plugin</packaging>
 </project>
