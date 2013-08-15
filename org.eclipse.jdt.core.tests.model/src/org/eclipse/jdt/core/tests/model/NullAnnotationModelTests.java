@@ -44,6 +44,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.osgi.framework.Bundle;
 
 public class NullAnnotationModelTests extends ReconcilerTests {
 
@@ -63,7 +64,8 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 
 	public void setUp() throws Exception {
 		super.setUp();
-		File bundleFile = FileLocator.getBundleFile(Platform.getBundle("org.eclipse.jdt.annotation"));
+		Bundle[] bundles = Platform.getBundles("org.eclipse.jdt.annotation", "[1.1.0,2.0.0)");
+		File bundleFile = FileLocator.getBundleFile(bundles[0]);
 		this.ANNOTATION_LIB = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
 	}
 
