@@ -13,10 +13,9 @@
  *     IBM Corporation - initial API and implementation
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *                          Bug 409246 - [1.8][compiler] Type annotations on catch parameters not handled properly
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
-
-import java.util.List;
 
 import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -59,17 +58,5 @@ public class MultiCatchExceptionLabel extends ExceptionLabel {
 			temp += this.exceptionLabels[i].getCount();
 		}
 		return temp;
-	}
-
-	public int getAllAnnotationContexts(int tableIndex, List allTypeAnnotationContexts) {
-		int localCount = 0;
-		for (int i = 0, max = this.exceptionLabels.length; i < max; i++) {
-			ExceptionLabel exceptionLabel = this.exceptionLabels[i];
-			if (exceptionLabel.exceptionTypeReference != null) { // ignore those which cannot be annotated
-				exceptionLabel.exceptionTypeReference.getAllAnnotationContexts(AnnotationTargetTypeConstants.EXCEPTION_PARAMETER, tableIndex + localCount, allTypeAnnotationContexts);
-			}
-			tableIndex++;
-		}
-		return localCount;
 	}
 }

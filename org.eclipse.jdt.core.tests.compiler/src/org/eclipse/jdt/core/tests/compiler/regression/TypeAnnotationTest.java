@@ -14,6 +14,7 @@
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
+ *                          Bug 409246 - [1.8][compiler] Type annotations on catch parameters not handled properly
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -2167,7 +2168,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	
-	public void _test052_codeblocks_exceptionParameter() throws Exception {
+	public void test052_codeblocks_exceptionParameter() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2210,7 +2211,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	
-	public void _test053_codeblocks_exceptionParameter() throws Exception {
+	public void test053_codeblocks_exceptionParameter() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2260,7 +2261,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	
-	public void _test054_codeblocks_exceptionParameter() throws Exception {
+	public void test054_codeblocks_exceptionParameter() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2306,7 +2307,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	
-	public void _test055_codeblocks_exceptionParameterMultiCatch() throws Exception {
+	public void test055_codeblocks_exceptionParameterMultiCatch() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -4701,4 +4702,393 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	
+	public void test055a_codeblocks_exceptionParameterNestedType() throws Exception {
+ 		this.runConformTest(
+ 			new String[] {
+ 				"X.java",
+ 				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"         foo();\n" +
+				"		} catch(@B(1) Outer.@B(2) MyException e) {\n" + 
+				"			e.printStackTrace();\n" + 
+ 				"		}\n" + 
+ 				"	}\n" + 
+				"   static void foo() throws Outer.MyException {}\n" +
+				"}\n" +
+				"class Outer {\n" +
+				"	class MyException extends Exception {\n" +
+				"		private static final long serialVersionUID = 1L;\n" +
+				"	}\n" +
+ 				"}",
+ 				
+				"B.java",
+ 				"import java.lang.annotation.*;\n" + 
+ 				"@Target(ElementType.TYPE_USE)\n" + 
+ 				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default 0;\n" + 
+ 				"}\n",
+ 		},
+ 		"");
+ 		String expectedOutput =
+ 			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #30 @B(\n" + 
+			"        #31 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 0\n" + 
+			"      )\n" + 
+			"      #30 @B(\n" + 
+			"        #31 value=(int) 2 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 0\n" + 
+			"        location = [INNER_TYPE]\n" + 
+			"      )\n" + 
+			"  \n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+ 	}
+
+	public void test055b_codeblocks_exceptionParameterMultiCatchNestedType() throws Exception {
+ 		this.runConformTest(
+ 			new String[] {
+ 				"X.java",
+ 				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"         foo();\n" +
+				"		} catch(@B(1) Outer.@B(2) MyException | @B(3) Outer2.@B(4) MyException2 e) {\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+ 				"	}\n" + 
+				"   static void foo() throws Outer.MyException, Outer2.MyException2 {}\n" +
+				"}\n" +
+				"class Outer {\n" +
+				"	class MyException extends Exception {\n" +
+				"		private static final long serialVersionUID = 1L;\n" +
+				"	}\n" +
+				"}\n" +
+				"class Outer2 {\n" +
+				"	class MyException2 extends Exception {\n" +
+				"		private static final long serialVersionUID = 1L;\n" +
+				"	}\n" +
+ 				"}",
+ 				"B.java",
+ 				"import java.lang.annotation.*;\n" + 
+ 				"@Target(ElementType.TYPE_USE)\n" + 
+ 				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+ 				"@interface B {\n" + 
+				"	int value() default 0;\n" + 
+				"}\n",
+ 		},
+ 		"");
+ 		String expectedOutput =
+ 			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #34 @B(\n" + 
+			"        #35 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 0\n" + 
+			"      )\n" + 
+			"      #34 @B(\n" + 
+			"        #35 value=(int) 2 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 0\n" + 
+			"        location = [INNER_TYPE]\n" + 
+			"      )\n" + 
+			"      #34 @B(\n" + 
+			"        #35 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 1\n" + 
+			"      )\n" + 
+			"      #34 @B(\n" +
+			"        #35 value=(int) 4 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 1\n" + 
+			"        location = [INNER_TYPE]\n" + 
+ 			"      )\n";
+ 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+ 	}
+ 	
+	public void test055c_codeblocks_exceptionParameterMultiCatch() throws Exception {
+ 		this.runConformTest(
+ 			new String[] {
+ 				"X.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"class Exc1 extends RuntimeException {" +				
+				"    private static final long serialVersionUID = 1L;\n" +
+				"}\n"+
+				"class Exc2 extends RuntimeException {" +				
+				"    private static final long serialVersionUID = 1L;\n" +
+				"}\n"+
+				"class Exc3 extends RuntimeException {" +				
+				"    private static final long serialVersionUID = 1L;\n" +
+				"}\n"+
+ 				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			System.out.println(42);\n" +
+				"		} catch(Exc1 | @B(1) Exc2 | @B(2) Exc3 t) {\n" + 
+				"			t.printStackTrace();\n" + 
+				"		}\n" + 
+ 				"	}\n" + 
+ 				"}",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default 99;\n" + 
+				"}\n",
+ 		},
+		"42");
+ 		String expectedOutput =
+ 			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #45 @B(\n" + 
+			"        #46 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 1\n" + 
+			"      )\n" + 
+			"      #45 @B(\n" + 
+			"        #46 value=(int) 2 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 2\n" + 
+ 			"      )\n";
+ 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+ 	}
+ 
+	public void test055d_codeblocks_exceptionParameterMultiCatch() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"class Exc1 extends RuntimeException {" +				
+				"    private static final long serialVersionUID = 1L;\n" +
+				"}\n"+
+				"class Exc2 extends RuntimeException {" +				
+				"    private static final long serialVersionUID = 1L;\n" +
+				"}\n"+
+				"class Exc3 extends RuntimeException {" +				
+				"    private static final long serialVersionUID = 1L;\n" +
+				"}\n"+
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			System.out.println(42);\n" +
+				"		} catch(@A(1) @B(2) Exc1 | Exc2 | @A(3) @B(4) Exc3 t) {\n" + 
+				"			t.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	int value() default 99;\n" + 
+				"}\n",
+				
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default 99;\n" + 
+				"}\n",
+		},
+		"42");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #45 @A(\n" + 
+			"        #46 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 0\n" + 
+			"      )\n" + 
+			"      #48 @B(\n" + 
+			"        #46 value=(int) 2 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 0\n" + 
+			"      )\n" + 
+			"      #45 @A(\n" + 
+			"        #46 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 2\n" + 
+			"      )\n" + 
+			"      #48 @B(\n" + 
+			"        #46 value=(int) 4 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 2\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test055e_codeblocks_exceptionParameterMultiCatch() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"class Exc1 extends RuntimeException {" +				
+				"    private static final long serialVersionUID = 1L;\n" +
+				"}\n"+
+				"class Exc2 extends RuntimeException {" +				
+				"    private static final long serialVersionUID = 1L;\n" +
+				"}\n"+
+				"class Exc3 extends RuntimeException {" +				
+				"    private static final long serialVersionUID = 1L;\n" +
+				"}\n"+
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			System.out.println(42);\n" +
+				"		} catch(@A(1) @B(2) Exc1 | Exc2 | @A(3) @B(4) Exc3 t) {\n" + 
+				"			t.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface A {\n" + 
+				"	int value() default 99;\n" + 
+				"}\n",
+				
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default 99;\n" + 
+				"}\n",
+		},
+		"42");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #45 @A(\n" + 
+			"        #46 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 0\n" + 
+			"      )\n" + 
+			"      #48 @B(\n" + 
+			"        #46 value=(int) 2 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 0\n" + 
+			"      )\n" + 
+			"      #45 @A(\n" + 
+			"        #46 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 2\n" + 
+			"      )\n" + 
+			"      #48 @B(\n" + 
+			"        #46 value=(int) 4 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 2\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test055f_codeblocks_exceptionParameterComplex() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"class Exc1 extends RuntimeException {" +				
+				"    private static final long serialVersionUID = 1L;\n" +
+				"}\n"+
+				"class Exc2 extends RuntimeException {" +				
+				"    private static final long serialVersionUID = 1L;\n" +
+				"}\n"+
+				"class Exc3 extends RuntimeException {" +				
+				"    private static final long serialVersionUID = 1L;\n" +
+				"}\n"+
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			System.out.println(42);\n" +
+				"		} catch(@B(1) Exc1 | Exc2 | @B(2) Exc3 t) {\n" + 
+				"			t.printStackTrace();\n" + 
+				"		}\n" + 
+				"		try {\n" + 
+				"			System.out.println(43);\n" +
+				"		} catch(@B(1) Exc1 t) {\n" + 
+				"			t.printStackTrace();\n" + 
+				"		}\n" + 
+				"		try {\n" + 
+				"			System.out.println(44);\n" +
+				"		} catch(@B(1) Exc1 | @B(2) Exc2 t) {\n" + 
+				"			t.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default 99;\n" + 
+				"}\n",
+		},
+		"42\n43\n44");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #47 @B(\n" + 
+			"        #48 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 0\n" + 
+			"      )\n" + 
+			"      #47 @B(\n" + 
+			"        #48 value=(int) 2 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 2\n" + 
+			"      )\n" + 
+			"      #47 @B(\n" + 
+			"        #48 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 3\n" + 
+			"      )\n" + 
+			"      #47 @B(\n" + 
+			"        #48 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 4\n" + 
+			"      )\n" + 
+			"      #47 @B(\n" + 
+			"        #48 value=(int) 2 (constant type)\n" + 
+			"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+			"        exception table index = 5\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	
 }
+

@@ -16,6 +16,7 @@
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
+ *                          Bug 409246 - [1.8][compiler] Type annotations on catch parameters not handled properly
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
@@ -62,7 +63,6 @@ import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.codegen.ExceptionLabel;
-import org.eclipse.jdt.internal.compiler.codegen.MultiCatchExceptionLabel;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrame;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream;
@@ -1401,17 +1401,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		
 		ExceptionLabel[] exceptionLabels = this.codeStream.exceptionLabels;
-		int tableIndex = 0;
 		for (int i = 0, max = this.codeStream.exceptionLabelsCounter; i < max; i++) {
 			ExceptionLabel exceptionLabel = exceptionLabels[i];
-			if (exceptionLabel instanceof MultiCatchExceptionLabel) {
-				MultiCatchExceptionLabel multiCatchExceptionLabel = (MultiCatchExceptionLabel)exceptionLabel;
-				tableIndex += multiCatchExceptionLabel.getAllAnnotationContexts(tableIndex, allTypeAnnotationContexts);
-			} else {
-				if (exceptionLabel.exceptionTypeReference != null) { // ignore those which cannot be annotated
-					exceptionLabel.exceptionTypeReference.getAllAnnotationContexts(AnnotationTargetTypeConstants.EXCEPTION_PARAMETER, tableIndex, allTypeAnnotationContexts);
-				}
-				tableIndex++;
+			if (exceptionLabel.exceptionTypeReference != null && (exceptionLabel.exceptionTypeReference.bits & ASTNode.HasTypeAnnotations) != 0) {
+				exceptionLabel.exceptionTypeReference.getAllAnnotationContexts(AnnotationTargetTypeConstants.EXCEPTION_PARAMETER, i, allTypeAnnotationContexts);
 			}
 		}
 		
