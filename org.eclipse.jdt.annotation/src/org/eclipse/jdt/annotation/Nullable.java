@@ -18,21 +18,22 @@ package org.eclipse.jdt.annotation;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
  
 /**
- * Qualifier for a reference type in a {@link TYPE_USE} position:
+ * Qualifier for a reference type in a {@link ElementType#TYPE_USE TYPE_USE} position:
  * The type that has this annotation explicitly includes the value <code>null</code>.
  * <p>
  * If annotation based null analysis is enabled using this annotation has two consequences:
+ * </p>
  * <ol>
  * <li>Binding a <code>null</code> value to an entity (field, local variable, method parameter or method return value)
  *     of this type is legal.</li>
  * <li>Dereferencing an expression of this type is unsafe, i.e., a <code>NullPointerException</code> can occur at runtime.</li>
  * </ol>
- * </p>
  * @since 1.0
  */
 @Documented
