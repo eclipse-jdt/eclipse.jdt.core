@@ -18,6 +18,7 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *                          Bug 409517 - [1.8][compiler] Type annotation problems on more elaborate array references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -128,10 +129,24 @@ public abstract class Annotation extends Expression {
 			public boolean visit(SingleTypeReference typeReference, BlockScope scope) {
 				if (!this.search) return false;
 
-				// depth allows for the syntax "outerInstance.new @A InnerType();"
-				int depth = 0;
-				if (typeReference.resolvedType instanceof ReferenceBinding) {
-					depth = getInnerDepth((ReferenceBinding)typeReference.resolvedType);
+				// Example case handled by this block: X[][] x = new @A X @B [] @C[]{ { null }, { null } };
+				if (dimensions != 0 && annotationsOnDimensionsOnExpression != null) {
+					for (int i = 0, max = annotationsOnDimensionsOnExpression.length; i < max; i++) {
+						Annotation[] annotations = annotationsOnDimensionsOnExpression[i];
+						if (annotations != null) {
+							for (int j = 0, max2 = annotations.length; j < max2; j++) {
+								Annotation current = annotations[j];
+								if (current == this.currentAnnotation) {
+									this.search = false;
+									// Found it, insert relevant type path elements
+									for (int k = 0, maxk = i; k < maxk; k++) {
+										this.typePathEntries.push(TYPE_PATH_ELEMENT_ARRAY);
+									}
+									return false;
+								}
+							}
+						}
+					}
 				}
 				
 				if (dimensions != 0) {
@@ -148,6 +163,7 @@ public abstract class Annotation extends Expression {
 						if (current[j] == this.currentAnnotation) {
 							// Found
 							this.search = false;
+							int depth = getInnerDepth(typeReference.resolvedType);
 							if (depth != 0) {
 								for (int k = 0; k<depth; k++) {
 									this.typePathEntries.add(TYPE_PATH_INNER_TYPE);
@@ -229,21 +245,40 @@ public abstract class Annotation extends Expression {
 						}
 					}
 				}
-				Annotation[][] annotations = typeReference.annotations;
-				if (annotations == null) {
-					annotations = new Annotation[][] { primaryAnnotation };
-				}
-				int annotationsLevels = annotations.length;
-				for (int i = 0; i < annotationsLevels; i++) {
-					Annotation [] current = annotations[i];
-					int annotationsLength = current == null ? 0 : current.length;
-					for (int j = 0; j < annotationsLength; j++) {
-						if (current[j] == this.currentAnnotation) {
-							this.search = false;
-							for (int k = 0, maxk=typeReference.dimensions; k < maxk; k++) {
+
+				if (primaryAnnotation != null) {
+					for (int i = 0, max = primaryAnnotation.length; i < max; i++) {
+						if (primaryAnnotation[i] == this.currentAnnotation) {							this.search = false;
+						for (int k = 0, maxk = typeReference.dimensions; k < maxk; k++) {
 								this.typePathEntries.push(TYPE_PATH_ELEMENT_ARRAY);
 							}
 							return false;
+						}
+					}
+				}
+
+				Annotation[][] annotations = typeReference.annotations;
+				if (annotations != null) {
+					int annotationsLevels = annotations.length;
+					for (int i = 0; i < annotationsLevels; i++) {
+						Annotation [] current = annotations[i];
+						int annotationsLength = current == null ? 0 : current.length;
+						for (int j = 0; j < annotationsLength; j++) {
+							if (current[j] == this.currentAnnotation) {
+								this.search = false;
+								for (int k = 0, maxk = typeReference.dimensions; k < maxk; k++) {
+									this.typePathEntries.push(TYPE_PATH_ELEMENT_ARRAY);
+								}
+								// depth allows for references like: one.two.three.@B Foo[]
+								// the inner_type elements to the type path depend on the types not the package qualifiers
+								int depth = getInnerDepth(typeReference.resolvedType);
+								if (depth != 0) {
+									for (int k = 0; k < depth; k++) {
+										this.typePathEntries.push(TYPE_PATH_INNER_TYPE);
+									}
+								}
+								return false;
+							}
 						}
 					}
 				}
@@ -365,9 +400,17 @@ public abstract class Annotation extends Expression {
 				return needsInnerEntryInfo;
 			}
 			
-			private int getInnerDepth(ReferenceBinding resolvedType) {
+			private int getInnerDepth(TypeBinding resolvedType) {
+				ReferenceBinding type = null;
+				if (resolvedType instanceof ReferenceBinding) {
+					type = (ReferenceBinding)resolvedType;
+				} else if (resolvedType instanceof ArrayBinding) {
+					TypeBinding leafComponentType = ((ArrayBinding)resolvedType).leafComponentType;
+					if (leafComponentType instanceof ReferenceBinding) {
+						type = (ReferenceBinding)leafComponentType;
+					}
+				}
 				int depth = 0;
-				ReferenceBinding type = resolvedType;
 				while (type != null) {
 					depth += (type.isStatic())?0:1;
 					type = type.enclosingType();
@@ -378,6 +421,12 @@ public abstract class Annotation extends Expression {
 			public boolean visit(QualifiedTypeReference typeReference, BlockScope scope) {
 				if (!this.search) return false;
 				boolean[] needsInnerEntryInfo = computeInnerEntryInfo(typeReference);
+				
+				if (dimensions != 0) {
+					for (int k = 0; k < dimensions; k++) {
+						this.typePathEntries.push(TYPE_PATH_ELEMENT_ARRAY);
+					}
+				}
 				
 				// Example cases handled by this block:
 				// java.util.@A List, com.demo.@A Outer.@B Inner, java.util.Map.@A Entry
@@ -402,6 +451,11 @@ public abstract class Annotation extends Expression {
 							}
 							return false;
 						}
+					}
+				}
+				if (dimensions != 0) {
+					for (int k = 0; k < dimensions; k++) {
+						this.typePathEntries.pop();
 					}
 				}
 				return true;

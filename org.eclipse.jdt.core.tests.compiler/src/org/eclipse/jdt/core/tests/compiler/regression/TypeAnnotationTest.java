@@ -15,6 +15,7 @@
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
  *                          Bug 409246 - [1.8][compiler] Type annotations on catch parameters not handled properly
+ *                          Bug 409517 - [1.8][compiler] Type annotation problems on more elaborate array references
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1409,6 +1410,52 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	
+	public void test038a_field() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class AA { class BB<T> {}}" + 
+				"class X {\n" +
+				"  @B AA.@A BB[] @C[] field;\n" +
+				"}\n",
+
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface A { }\n",
+				
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface B { }\n",
+				
+				"C.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface C { }\n",
+		},
+		"");
+		
+	String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #8 @B(\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY, ARRAY]\n" + 
+				"      )\n" + 
+				"      #9 @A(\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY, ARRAY, INNER_TYPE]\n" + 
+				"      )\n" + 
+				"      #10 @C(\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY]\n" + 
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
 	public void test039_field() throws Exception {
 		this.runConformTest(
 			new String[] {
@@ -2556,6 +2603,336 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	
+	public void test060a_codeblocks_new_newArrayWithInitializer() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public boolean foo(String s) {\n" + 
+				"		System.out.println(\"xyz\");\n" +
+				"		X[][] x = new @A X @B [] @C[]{ { null }, { null } };\n" + 
+				"		return true;\n" + 
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface B {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+
+				"C.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface C {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #37 @A(\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 9\n" + 
+			"        location = [ARRAY, ARRAY]\n" + 
+			"      )\n" + 
+			"      #38 @B(\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 9\n" + 
+			"      )\n" + 
+			"      #39 @C(\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 9\n" + 
+			"        location = [ARRAY]\n" +
+			"      )\n" + 
+			"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test060b_codeblocks_new_multiNewArray() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public boolean foo(String s) {\n" + 
+				"		System.out.println(\"xyz\");\n" +
+				"		X[][] x = new @A X @B [1] @C[2];\n" + 
+				"		return true;\n" + 
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface B {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+
+				"C.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface C {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #36 @A(\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 10\n" + 
+			"        location = [ARRAY, ARRAY]\n" + 
+			"      )\n" + 
+			"      #37 @B(\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 10\n" + 
+			"      )\n" + 
+			"      #38 @C(\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 10\n" + 
+			"        location = [ARRAY]\n" +
+			"      )\n" + 
+			"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test060c_codeblocks_new_multiNewArray() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public boolean foo(String s) {\n" + 
+				"		System.out.println(\"xyz\");\n" +
+				"		X [][][] x = new @A X @B[10] @C[10] @D[];\n" +
+				"		return true;\n" + 
+				"	}\n" + 
+				"}",
+				
+				"A.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface A {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface B {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+
+				"C.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface C {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+				
+				"D.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@interface D {\n" + 
+				"	String value() default \"default\";\n" + 
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeInvisibleTypeAnnotations: \n" + 
+			"      #36 @A(\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 12\n" + 
+			"        location = [ARRAY, ARRAY, ARRAY]\n" + 
+			"      )\n" + 
+			"      #37 @B(\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 12\n" + 
+			"      )\n" + 
+			"      #38 @C(\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 12\n" + 
+			"        location = [ARRAY]\n" + 
+			"      )\n" + 
+			"      #39 @D(\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 12\n" + 
+			"        location = [ARRAY, ARRAY]\n" + 
+			"      )\n" + 
+			"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test060d_codeblocks_new_arraysWithNestedTypes() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public boolean foo(String s) {\n" + 
+				"		System.out.println(\"xyz\");\n" +
+				"		Object o = new @B(1) Outer.@B(2) Inner @B(3) [2];\n" + 
+				"		return true;\n" + 
+				"	}\n" + 
+				"}\n" +
+				"class Outer { class Inner {}}\n",
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default 99;\n" + 
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #37 @B(\n" + 
+			"        #38 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 9\n" + 
+			"        location = [ARRAY]\n" + 
+			"      )\n" + 
+			"      #37 @B(\n" + 
+			"        #38 value=(int) 2 (constant type)\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 9\n" + 
+			"        location = [ARRAY, INNER_TYPE]\n" + 
+			"      )\n" + 
+			"      #37 @B(\n" + 
+			"        #38 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 9\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	public void test060e_codeblocks_new_arraysWithNestedTypes() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public boolean foo(String s) {\n" + 
+				"		System.out.println(\"xyz\");\n" +
+				"		Object o = new @B(1) Outer.@B(2) Inner @B(3) [2] @B(4)[4];\n" + 
+				"		return true;\n" + 
+				"	}\n" + 
+				"}\n" +
+				"class Outer { class Inner {}}\n",
+				"B.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default 99;\n" + 
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #37 @B(\n" + 
+			"        #38 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 10\n" + 
+			"        location = [ARRAY, ARRAY]\n" + 
+			"      )\n" + 
+			"      #37 @B(\n" + 
+			"        #38 value=(int) 2 (constant type)\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 10\n" + 
+			"        location = [ARRAY, ARRAY, INNER_TYPE]\n" + 
+			"      )\n" + 
+			"      #37 @B(\n" + 
+			"        #38 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 10\n" + 
+			"      )\n" + 
+			"      #37 @B(\n" + 
+			"        #38 value=(int) 4 (constant type)\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 10\n" + 
+			"        location = [ARRAY]\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test060f_codeblocks_new_arraysWithQualifiedNestedTypes() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"Z.java",
+				"public class Z {}",
+				"X.java",
+				"package org.foo.bar;\n" +
+				"public class X {\n" + 
+				"	public boolean foo(String s) {\n" + 
+				"		System.out.println(\"xyz\");\n" +
+				"		Object o = new org.foo.bar.@B(1) Outer.@B(2) Inner @B(3) [2] @B(4)[4];\n" + 
+				"		return true;\n" + 
+				"	}\n" + 
+				"}\n" +
+				"class Outer { class Inner {}}\n",
+				"B.java",
+				"package org.foo.bar;\n" +
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface B {\n" + 
+				"	int value() default 99;\n" + 
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #37 @org.foo.bar.B(\n" + 
+			"        #38 value=(int) 1 (constant type)\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 10\n" + 
+			"        location = [ARRAY, ARRAY]\n" + 
+			"      )\n" + 
+			"      #37 @org.foo.bar.B(\n" + 
+			"        #38 value=(int) 2 (constant type)\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 10\n" + 
+			"        location = [ARRAY, ARRAY, INNER_TYPE]\n" + 
+			"      )\n" + 
+			"      #37 @org.foo.bar.B(\n" + 
+			"        #38 value=(int) 3 (constant type)\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 10\n" + 
+			"      )\n" + 
+			"      #37 @org.foo.bar.B(\n" + 
+			"        #38 value=(int) 4 (constant type)\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 10\n" + 
+			"        location = [ARRAY]\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "org" + File.separator + "foo" + File.separator + "bar" + File.separator + "X.class",
+				"org.foo.bar.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
 	public void test061_codeblocks_new_newArrayWithInitializer() throws Exception {
 		this.runConformTest(
 			new String[] {
