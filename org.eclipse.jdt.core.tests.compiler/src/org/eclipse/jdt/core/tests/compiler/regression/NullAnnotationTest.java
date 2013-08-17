@@ -6229,4 +6229,64 @@ public void testBug412076() {
 		options,
 		"");	
 }
+
+public void testBug413460() {
+	runConformTestWithLibs(
+		new String[] {
+			"Class2.java",
+			"\n" + 
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"public class Class2 {\n" + 
+			"	public class Class3 {\n" + 
+			"		public Class3(String nonNullArg) {\n" + 
+			"			assert nonNullArg != null;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public Class2(String nonNullArg) {\n" + 
+			"		assert nonNullArg != null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static Class2 create(String nonNullArg) {\n" + 
+			"		return new Class2(nonNullArg);\n" + 
+			"	}\n" + 
+			"}\n"
+		}, 
+		getCompilerOptions(), 
+		"");
+	runNegativeTestWithLibs(false,
+		new String[] {
+			"Class1.java",
+			"public class Class1 {\n" + 
+			"	public static Class2 works() {\n" + 
+			"		return Class2.create(null);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static Class2 bug() {\n" + 
+			"		return new Class2(null);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static Class2.Class3 qualifiedbug() {\n" + 
+			"		return new Class2(\"\").new Class3(null);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" +
+		"1. ERROR in Class1.java (at line 3)\n" + 
+		"	return Class2.create(null);\n" + 
+		"	                     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n" +
+		"2. ERROR in Class1.java (at line 7)\n" + 
+		"	return new Class2(null);\n" + 
+		"	                  ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n" +
+		"3. ERROR in Class1.java (at line 11)\n" + 
+		"	return new Class2(\"\").new Class3(null);\n" + 
+		"	                                 ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n");
+}
 }
