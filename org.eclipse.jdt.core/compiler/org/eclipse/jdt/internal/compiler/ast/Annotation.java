@@ -15,7 +15,8 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
  *								bug 331649 - [compiler][null] consider null annotations for fields
- *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409517 - [1.8][compiler] Type annotation problems on more elaborate array references
@@ -978,32 +979,21 @@ public abstract class Annotation extends Expression {
 						break;
 					case Binding.LOCAL :
 						LocalVariableBinding variable = (LocalVariableBinding) this.recipient;
-						if ((annotationType.tagBits & TagBits.AnnotationTargetMASK) == TagBits.AnnotationForTypeUse) {
-							if (variable.type != null) {
+						if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) {
+							variable.tagBits |= tagBits;
+							if ((variable.tagBits & TAGBITS_NULLABLE_OR_NONNULL) == TAGBITS_NULLABLE_OR_NONNULL) {
+								scope.problemReporter().contradictoryNullAnnotations(this);
+								variable.tagBits &= ~TAGBITS_NULLABLE_OR_NONNULL; // avoid secondary problems
+							}
+						} else if (variable.type != null) {
+							// bits not relating to null analysis go into the variable:
+							variable.tagBits |= tagBits & ~TagBits.AnnotationNullMASK;
+							// null bits go into the type:
+							long nullTagBits = tagBits & TagBits.AnnotationNullMASK;
+							if (nullTagBits != 0) {
 								if (variable.type.isBaseType()) {
 									scope.problemReporter().illegalAnnotationForBaseType(this, variable.type);
 								} else {
-									long nullTagBits = tagBits & TagBits.AnnotationNullMASK;
-									variable.type = scope.environment().createAnnotatedType(variable.type, nullTagBits);
-									if ((variable.type.tagBits & TAGBITS_NULLABLE_OR_NONNULL) == TAGBITS_NULLABLE_OR_NONNULL) {
-										scope.problemReporter().contradictoryNullAnnotations(this);
-										variable.type.tagBits &= ~TAGBITS_NULLABLE_OR_NONNULL; // avoid secondary problems
-									}
-								}
-							}
-						} else {
-							if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) {
-								variable.tagBits |= tagBits;
-								if ((variable.tagBits & TAGBITS_NULLABLE_OR_NONNULL) == TAGBITS_NULLABLE_OR_NONNULL) {
-									scope.problemReporter().contradictoryNullAnnotations(this);
-									variable.tagBits &= ~TAGBITS_NULLABLE_OR_NONNULL; // avoid secondary problems
-								}
-							} else if (variable.type != null) {
-								// bits not relating to null analysis go into the variable:
-								variable.tagBits |= tagBits & ~TagBits.AnnotationNullMASK;
-								// null bits go into the type:
-								long nullTagBits = tagBits & TagBits.AnnotationNullMASK;
-								if (nullTagBits != 0) {
 									variable.type = scope.environment().pushAnnotationIntoType(variable.type, variable.declaration.type, nullTagBits);
 									if ((variable.type.tagBits & TAGBITS_NULLABLE_OR_NONNULL) == TAGBITS_NULLABLE_OR_NONNULL) {
 										scope.problemReporter().contradictoryNullAnnotations(this);
