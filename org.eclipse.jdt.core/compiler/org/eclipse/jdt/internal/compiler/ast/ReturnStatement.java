@@ -29,6 +29,7 @@
  *								bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *								bug 401030 - [1.8][null] Null analysis support for lambda methods.
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *     Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -158,24 +159,31 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return FlowInfo.DEAD_END;
 }
 void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, int nullStatus) {
+	long tagBits;
+	MethodBinding methodBinding = null;
+	boolean useTypeAnnotations = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8;
+	try {
+		methodBinding = scope.methodScope().referenceMethodBinding();
+		tagBits = (useTypeAnnotations) ? methodBinding.returnType.tagBits : methodBinding.tagBits;
+	} catch (NullPointerException npe) {
+		// chain of references in try-block has several potential nulls;
+		// any null means we cannot perform the following check
+		return;			
+	}
+	if (useTypeAnnotations) {
+		int severity = findNullTypeAnnotationMismatch(methodBinding.returnType, this.expression.resolvedType, nullStatus);
+		if (severity == 3) {
+			scope.problemReporter().nullityMismatchingTypeAnnotation(this.expression, this.expression.resolvedType, methodBinding.returnType, severity);
+			return;
+		} else if (severity == 2) {
+			flowContext.recordNullityMismatch(scope, this.expression, this.expression.resolvedType, methodBinding.returnType, nullStatus);
+			return;
+		}
+	}
 	if (nullStatus != FlowInfo.NON_NULL) {
 		// if we can't prove non-null check against declared null-ness of the enclosing method:
-		long tagBits;
-		MethodBinding methodBinding = null;
-		boolean useTypeAnnotations = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8;
-		try {
-			methodBinding = scope.methodScope().referenceMethodBinding();
-			tagBits = (useTypeAnnotations) ? methodBinding.returnType.tagBits : methodBinding.tagBits;
-		} catch (NullPointerException npe) {
-			// chain of references in try-block has several potential nulls;
-			// any null means we cannot perform the following check
-			return;			
-		}
 		if ((tagBits & TagBits.AnnotationNonNull) != 0) {
-			if (useTypeAnnotations && (this.expression.resolvedType.tagBits & TagBits.AnnotationNullMASK) != 0) // TODO(stephan) more detailed checking
-				scope.problemReporter().nullityMismatchingTypeAnnotation(this.expression, this.expression.resolvedType, methodBinding.returnType, 3);
-			else
-				flowContext.recordNullityMismatch(scope, this.expression, this.expression.resolvedType, methodBinding.returnType, nullStatus);
+			flowContext.recordNullityMismatch(scope, this.expression, this.expression.resolvedType, methodBinding.returnType, nullStatus);
 		}
 	}
 }
