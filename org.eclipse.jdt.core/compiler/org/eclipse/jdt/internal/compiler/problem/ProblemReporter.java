@@ -39,6 +39,7 @@
  *								bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -8832,7 +8833,7 @@ public void explicitlyClosedAutoCloseable(FakedTrackingVariable trackVar) {
 
 public void nullityMismatch(Expression expression, TypeBinding providedType, TypeBinding requiredType, int nullStatus, char[][] annotationName) {
 	if ((nullStatus & FlowInfo.NULL) != 0) {
-		nullityMismatchIsNull(expression, requiredType, annotationName);
+		nullityMismatchIsNull(expression, requiredType);
 		return;
 	}
 	if (expression instanceof MessageSend) {
@@ -8856,15 +8857,15 @@ public void nullityMismatch(Expression expression, TypeBinding providedType, Typ
 	if (this.options.sourceLevel < ClassFileConstants.JDK1_8)
 		nullityMismatchIsUnknown(expression, providedType, requiredType, annotationName);
 	else
-		nullityMismatchingTypeAnnotation(expression, providedType, requiredType, 2/*unchecked*/);
+		nullityMismatchingTypeAnnotation(expression, providedType, requiredType, 1/*unchecked*/);
 }
-public void nullityMismatchIsNull(Expression expression, TypeBinding requiredType, char[][] annotationName) {
+public void nullityMismatchIsNull(Expression expression, TypeBinding requiredType) {
 	int problemId = IProblem.RequiredNonNullButProvidedNull;
 	String[] arguments = new String[] {
-			annotatedTypeName(requiredType, annotationName)
+			annotatedTypeName(requiredType, this.options.nonNullAnnotationName)
 	};
 	String[] argumentsShort = new String[] {
-			shortAnnotatedTypeName(requiredType, annotationName)
+			shortAnnotatedTypeName(requiredType, this.options.nonNullAnnotationName)
 	};
 	this.handle(problemId, arguments, argumentsShort, expression.sourceStart, expression.sourceEnd);
 }
@@ -9365,6 +9366,10 @@ public void arrayReferencePotentialNullReference(ArrayReference arrayReference) 
 }
 public void nullityMismatchingTypeAnnotation(Expression expression, TypeBinding providedType, TypeBinding requiredType, int severity) 
 {
+	if (providedType.id == TypeIds.T_null) {
+		nullityMismatchIsNull(expression, requiredType);
+		return;
+	}
 	String[] arguments = new String[] {
 		String.valueOf(requiredType.nullAnnotatedReadableName(this.options, false)),
 		String.valueOf(providedType.nullAnnotatedReadableName(this.options, false))
@@ -9373,7 +9378,7 @@ public void nullityMismatchingTypeAnnotation(Expression expression, TypeBinding 
 		String.valueOf(requiredType.nullAnnotatedReadableName(this.options, true)),
 		String.valueOf(providedType.nullAnnotatedReadableName(this.options, true))
 	};
-	int problemId = severity == 2 ? IProblem.NullityUncheckedTypeAnnotationDetail : IProblem.NullityMismatchingTypeAnnotation;			
+	int problemId = severity == 1 ? IProblem.NullityUncheckedTypeAnnotationDetail : IProblem.NullityMismatchingTypeAnnotation;			
 	this.handle(
 			problemId,
 			arguments, shortArguments, expression.sourceStart, expression.sourceEnd);

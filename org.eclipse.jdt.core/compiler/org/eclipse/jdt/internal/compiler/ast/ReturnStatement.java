@@ -172,10 +172,10 @@ void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, int n
 	}
 	if (useTypeAnnotations) {
 		int severity = findNullTypeAnnotationMismatch(methodBinding.returnType, this.expression.resolvedType, nullStatus);
-		if (severity == 3) {
+		if (severity == 2) {
 			scope.problemReporter().nullityMismatchingTypeAnnotation(this.expression, this.expression.resolvedType, methodBinding.returnType, severity);
 			return;
-		} else if (severity == 2) {
+		} else if (severity == 1) {
 			flowContext.recordNullityMismatch(scope, this.expression, this.expression.resolvedType, methodBinding.returnType, nullStatus);
 			return;
 		}

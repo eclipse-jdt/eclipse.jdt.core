@@ -23,6 +23,7 @@
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *        Andy Clement - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -133,11 +134,10 @@ void analyseOneArgument18(BlockScope currentScope, FlowContext flowContext, Flow
 	int nullStatus = argument.nullStatus(flowInfo, flowContext); // slight loss of precision: should also use the null info from the receiver.
 	int severity = findNullTypeAnnotationMismatch(expectedType, argument.resolvedType, nullStatus);
 	switch (severity) {
-		case 3:
+		case 2:
 			// immediate reporting:
 			currentScope.problemReporter().nullityMismatchingTypeAnnotation(argument, argument.resolvedType, expectedType, severity);
 			break;
-		case 2:
 		case 1:
 			flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, nullStatus);
 			break;
@@ -155,10 +155,10 @@ protected int checkAssignmentAgainstNullAnnotation(BlockScope currentScope, Flow
 	} else {
 		lhsTagBits = var.type.tagBits & TagBits.AnnotationNullMASK;
 		int severity = findNullTypeAnnotationMismatch(var.type, providedType, nullStatus);
-		if (severity == 3) {
+		if (severity == 2) {
 			currentScope.problemReporter().nullityMismatchingTypeAnnotation(expression, providedType, var.type, severity);
 			hasReported = true;
-		} else if (severity == 2) {
+		} else if (severity == 1) {
 			flowContext.recordNullityMismatch(currentScope, expression, providedType, var.type, nullStatus);
 			hasReported = true;
 		}
@@ -172,7 +172,7 @@ protected int checkAssignmentAgainstNullAnnotation(BlockScope currentScope, Flow
 	}
 	return nullStatus;
 }
-// return: severity: 0 = no problem; 1 = flow related problem; 2 = unchecked wrt type detail; 3 = conflicting annotations
+//return: severity: 0 = no problem; 1 = unchecked conversion; 2 = conflicting annotations
 protected int findNullTypeAnnotationMismatch(TypeBinding requiredType, TypeBinding providedType, int nullStatus) {
 	int severity = 0;
 	if (requiredType instanceof ArrayBinding) {
@@ -190,13 +190,13 @@ protected int findNullTypeAnnotationMismatch(TypeBinding requiredType, TypeBindi
 						if (i > 0)
 							nullStatus = 0; // don't use beyond the outermost dimension
 						severity = Math.max(severity, computeNullProblemSeverity(requiredBits, providedBits, nullStatus));
-						if (severity == 3)
+						if (severity == 2)
 							return severity;
 					}
 				}
 			} else if (providedType.id == TypeIds.T_null) {
 				if (dims > 0 && requiredDimsTagBits[0] == TagBits.AnnotationNonNull)
-					return 1;
+					return 2;
 			}
 		}
 	} else if (requiredType instanceof ParameterizedTypeBinding) {
@@ -212,24 +212,15 @@ protected int findNullTypeAnnotationMismatch(TypeBinding requiredType, TypeBindi
 static int computeNullProblemSeverity(long requiredBits, long providedBits, int nullStatus) {
 	if (requiredBits != 0 && requiredBits != providedBits) {
 		if (providedBits != 0) {
-			return 3; // mismatching annotations
+			return 2; // mismatching annotations
 		} else {
-			if (requiredBits == TagBits.AnnotationNonNull) {
-				if ((nullStatus & FlowInfo.POTENTIALLY_NULL) != 0) {
-					return 1; // @NonNull vs. inferred @Nullable
-				} else if (nullStatus == FlowInfo.NULL) {
-					return 1; // @NonNull vs. null
-				} else if (nullStatus == FlowInfo.NON_NULL) {
-					return 0;
-				} else {
-					return 2; // need unchecked conversion regarding type detail
-				}
-			} else {
-				return 2; // need unchecked conversion regarding type detail
+			if (requiredBits == TagBits.AnnotationNonNull && nullStatus == FlowInfo.NON_NULL) {
+				return 0; // OK by flow analysis
 			}
+			return 1; // need unchecked conversion regarding type detail
 		}
 	}
-	return 0;
+	return 0; // OK by tagBits
 }
 /**
  * INTERNAL USE ONLY.
