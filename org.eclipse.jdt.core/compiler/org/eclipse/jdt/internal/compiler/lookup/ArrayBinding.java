@@ -16,6 +16,7 @@
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -58,6 +59,7 @@ public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environm
 	if (nullTagBitsPerDimension != null) {
 		this.tagBits |= nullTagBitsPerDimension[0]; // outer-most dimension
 		this.nullTagBitsPerDimension = nullTagBitsPerDimension;
+		this.tagBits |= TagBits.HasNullTypeAnnotation;
 	}
 }
 

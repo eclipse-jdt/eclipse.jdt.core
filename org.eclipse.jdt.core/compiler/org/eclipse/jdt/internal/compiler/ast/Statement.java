@@ -24,6 +24,7 @@
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
+ *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
  *        Andy Clement - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -137,10 +138,13 @@ void analyseOneArgument18(BlockScope currentScope, FlowContext flowContext, Flow
 		case 2:
 			// immediate reporting:
 			currentScope.problemReporter().nullityMismatchingTypeAnnotation(argument, argument.resolvedType, expectedType, severity);
-			break;
+			return;
 		case 1:
 			flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, nullStatus);
-			break;
+			return;
+	}
+	if ((expectedType.tagBits & TagBits.AnnotationNonNull) != 0 && nullStatus != FlowInfo.NON_NULL) {
+		flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, nullStatus);
 	}
 }
 
@@ -172,7 +176,8 @@ protected int checkAssignmentAgainstNullAnnotation(BlockScope currentScope, Flow
 	}
 	return nullStatus;
 }
-//return: severity: 0 = no problem; 1 = unchecked conversion; 2 = conflicting annotations
+// return: severity: 0 = no problem; 1 = unchecked conversion wrt type detail; 2 = conflicting annotations
+// nullStatus: we are only interested in NULL or NON_NULL, -1 indicates that we are in a recursion, where flow info is ignored
 protected int findNullTypeAnnotationMismatch(TypeBinding requiredType, TypeBinding providedType, int nullStatus) {
 	int severity = 0;
 	if (requiredType instanceof ArrayBinding) {
@@ -188,7 +193,7 @@ protected int findNullTypeAnnotationMismatch(TypeBinding requiredType, TypeBindi
 						long requiredBits = requiredDimsTagBits[i] & TagBits.AnnotationNullMASK;
 						long providedBits = providedDimsTagBits[i] & TagBits.AnnotationNullMASK;
 						if (i > 0)
-							nullStatus = 0; // don't use beyond the outermost dimension
+							nullStatus = -1; // don't use beyond the outermost dimension
 						severity = Math.max(severity, computeNullProblemSeverity(requiredBits, providedBits, nullStatus));
 						if (severity == 2)
 							return severity;
@@ -201,11 +206,21 @@ protected int findNullTypeAnnotationMismatch(TypeBinding requiredType, TypeBindi
 		}
 	} else if (requiredType instanceof ParameterizedTypeBinding) {
 		long requiredBits = requiredType.tagBits & TagBits.AnnotationNullMASK;
-		if (requiredBits == TagBits.AnnotationNullable)
+		if (requiredBits == TagBits.AnnotationNullable && nullStatus != -1) // at detail/recursion even nullable must be matched exactly
 			return 0; // accepting anything
 		long providedBits = providedType.tagBits & TagBits.AnnotationNullMASK;
 		severity = computeNullProblemSeverity(requiredBits, providedBits, nullStatus);
-		// TODO(stephan): descend into type parameters
+		if (severity < 3 && providedType.isParameterizedType()) { // TODO(stephan): handle providedType.isRaw()
+			TypeBinding[] requiredArguments = ((ParameterizedTypeBinding) requiredType).arguments;
+			TypeBinding[] providedArguments = ((ParameterizedTypeBinding) providedType).arguments;
+			if (requiredArguments != null && providedArguments != null && requiredArguments.length == providedArguments.length) {
+				for (int i = 0; i < requiredArguments.length; i++) {
+					severity = Math.max(severity, findNullTypeAnnotationMismatch(requiredArguments[i], providedArguments[i], -1));
+					if (severity == 2)
+						return severity;
+				}
+			}
+		}
 	}
 	return severity;
 }

@@ -1305,4 +1305,385 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"----------\n");
 	}
 
+	public void testConditional1() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n"
+				+ "import java.util.*;\n"
+				+ "public class X {\n"
+				+ "	List<@NonNull String> foo(List<@NonNull String> good, List<String> dubious, int f) {\n"
+				+ "		if (f < 2)\n"
+				+ "			return f == 0 ? good : dubious;\n"
+				+ "		if (f < 4)\n"
+				+ "			return f == 2 ? dubious : good;\n"
+				+ "		if (f < 6)\n"
+				+ "			return f == 4 ? good : good;\n"
+				+ "		return null;\n"
+				+ "	}\n"
+				+ "}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	return f == 0 ? good : dubious;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	return f == 2 ? dubious : good;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
+			"----------\n");
+	}
+
+	// types with null annotations on details (type parameter) are compatible to equal types
+	public void testCompatibility1() {
+		runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n"
+				+ "import java.util.*;\n"
+				+ "public class X {\n"
+				+ "	List<@NonNull String> return1(List<@NonNull String> noNulls) {\n"
+				+ "		return noNulls;\n"
+				+ "	}\n"
+				+ "	List<@Nullable String> return2(List<@Nullable String> withNulls) {\n"
+				+ "		return withNulls;\n"
+				+ "	}\n"
+				+ "	void assigns(List<@NonNull String> noNulls, List<String> dubious, List<@Nullable String> withNulls) {\n"
+				+ "		List<@NonNull String> l1 = noNulls;\n"
+				+ "		List<@Nullable String> l2 = withNulls;\n"
+				+ "		List<String> l3 = dubious;\n"
+				+ "	}\n"
+				+ "	void arguments(List<@NonNull String> noNulls, List<String> dubious, List<@Nullable String> withNulls) {\n"
+				+ "		assigns(noNulls, dubious, withNulls);\n"
+				+ "	}\n"
+				+ "}\n"
+			},
+			getCompilerOptions(),
+			"");
+	}
+
+	// types with null annotations on details (array content) are compatible to equal types
+	public void testCompatibility1a() {
+		runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n"
+				+ "public class X {\n"
+				+ "	@NonNull String[] return1(@NonNull String[] noNulls) {\n"
+				+ "		return noNulls;\n"
+				+ "	}\n"
+				+ "	@Nullable String[] return2(@Nullable String[] noNulls) {\n"
+				+ "		return noNulls;\n"
+				+ "	}\n"
+				+ "	void assigns(@NonNull String[] noNulls, String dubious[], @Nullable String[] withNulls) {\n"
+				+ "		@NonNull String[] l1 = noNulls;\n"
+				+ "		@Nullable String[] l2 = withNulls;\n"
+				+ "		String[] l3 = dubious;\n"
+				+ "	}\n"
+				+ "	void arguments(@NonNull String[] noNulls, String[] dubious, @Nullable String[] withNulls) {\n"
+				+ "		assigns(noNulls, dubious, withNulls);\n"
+				+ "	}\n"
+				+ "}\n"
+			},
+			getCompilerOptions(),
+			"");
+	}
+
+	// types with null annotations on details (type parameter) are compatible to types lacking the annotation
+	public void testCompatibility2() {
+		runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n"
+				+ "import java.util.*;\n"
+				+ "public class X {\n"
+				+ "	List<String> return1(List<@NonNull String> noNulls) {\n"
+				+ "		return noNulls;\n"
+				+ "	}\n"
+				+ "	List<String> return2(List<String> dubious) {\n"
+				+ "		return dubious;\n"
+				+ "	}\n"
+				+ "	List<String> return3(List<@Nullable String> withNulls) {\n"
+				+ "		return withNulls;\n"
+				+ "	}\n"
+				+ "	void assigns(List<@NonNull String> noNulls, List<String> dubious, List<@Nullable String> withNulls) {\n"
+				+ "		List<String> l1 = noNulls;\n"
+				+ "		List<String> l2 = dubious;\n"
+				+ "		List<String> l3 = withNulls;\n"
+				+ "	}\n"
+				+ "	void arguments(List<@NonNull String> noNulls, List<String> dubious, List<@Nullable String> withNulls) {\n"
+				+ "		takeAny(noNulls);\n"
+				+ "		takeAny(dubious);\n"
+				+ "		takeAny(withNulls);\n"
+				+ "	}\n"
+				+ "	void takeAny(List<String> any) {}\n"
+				+ "}\n"
+			},
+			getCompilerOptions(),
+			"");
+	}
+
+	// types with null annotations on details (array content) are compatible to types lacking the annotation
+	public void testCompatibility2a() {
+		runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n"
+				+ "public class X {\n"
+				+ "	String[] return1(@NonNull String[] noNulls) {\n"
+				+ "		return noNulls;\n"
+				+ "	}\n"
+				+ "	String[] return2(String[] dubious) {\n"
+				+ "		return dubious;\n"
+				+ "	}\n"
+				+ "	String[] return3(@Nullable String[] withNulls) {\n"
+				+ "		return withNulls;\n"
+				+ "	}\n"
+				+ "	void assigns(@NonNull String[] noNulls, String[] dubious, @Nullable String[] withNulls) {\n"
+				+ "		String[] l1 = noNulls;\n"
+				+ "		String[] l2 = dubious;\n"
+				+ "		String[] l3 = withNulls;\n"
+				+ "	}\n"
+				+ "	void arguments(@NonNull String[] noNulls, String[] dubious, @Nullable String[] withNulls) {\n"
+				+ "		takeAny(noNulls);\n"
+				+ "		takeAny(dubious);\n"
+				+ "		takeAny(withNulls);\n"
+				+ "	}\n"
+				+ "	void takeAny(String[] any) {}\n"
+				+ "}\n"
+			},
+			getCompilerOptions(),
+			"");
+	}
+
+	// types without null annotations are converted (unsafe) to types with detail annotations (type parameter)
+	public void testCompatibility3() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n"
+				+ "import java.util.*;\n"
+				+ "public class X {\n"
+				+ "	List<@NonNull String> return1(List<String> dubious) {\n"
+				+ "		return dubious;\n"
+				+ "	}\n"
+				+ "	List<@Nullable String> return2(List<String> dubious) {\n"
+				+ "		return dubious;\n"
+				+ "	}\n"
+				+ "	void assigns(List<String> dubious) {\n"
+				+ "		List<@Nullable String> l1 = dubious;\n"
+				+ "		List<@NonNull String> l2 = dubious;\n"
+				+ "	}\n"
+				+ "	void arguments(List<String> dubious) {\n"
+				+ "		acceptNulls(dubious);\n"
+				+ "		acceptNoNulls(dubious);\n"
+				+ "	}\n"
+				+ "	void acceptNulls(List<@NonNull String> noNulls) {}\n"
+				+ "	void acceptNoNulls(List<@NonNull String> noNulls) {}\n"
+				+ "}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	return dubious;\n" + 
+			"	       ^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	return dubious;\n" + 
+			"	       ^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@Nullable String>\'\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 11)\n" + 
+			"	List<@Nullable String> l1 = dubious;\n" + 
+			"	                            ^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@Nullable String>\'\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 12)\n" + 
+			"	List<@NonNull String> l2 = dubious;\n" + 
+			"	                           ^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 15)\n" + 
+			"	acceptNulls(dubious);\n" + 
+			"	            ^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 16)\n" + 
+			"	acceptNoNulls(dubious);\n" + 
+			"	              ^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
+			"----------\n");
+	}
+
+	// types without null annotations are converted (unsafe) to types with detail annotations (array content)
+	public void testCompatibility3a() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n"
+				+ "public class X {\n"
+				+ "	@NonNull String[] return1(String[] dubious) {\n"
+				+ "		return dubious;\n"
+				+ "	}\n"
+				+ "	@Nullable String[] return2(String[] dubious) {\n"
+				+ "		return dubious;\n"
+				+ "	}\n"
+				+ "	void assigns(String[] dubious) {\n"
+				+ "		@Nullable String[] l1 = dubious;\n"
+				+ "		@NonNull String[] l2 = dubious;\n"
+				+ "	}\n"
+				+ "	void arguments(String[] dubious) {\n"
+				+ "		acceptNulls(dubious);\n"
+				+ "		acceptNoNulls(dubious);\n"
+				+ "	}\n"
+				+ "	void acceptNulls(@NonNull String[] noNulls) {}\n"
+				+ "	void acceptNoNulls(@NonNull String[] noNulls) {}\n"
+				+ "}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	return dubious;\n" + 
+			"	       ^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'String @NonNull[]\'\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
+			"	return dubious;\n" + 
+			"	       ^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'String @Nullable[]\'\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
+			"	@Nullable String[] l1 = dubious;\n" + 
+			"	                        ^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'String @Nullable[]\'\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 11)\n" + 
+			"	@NonNull String[] l2 = dubious;\n" + 
+			"	                       ^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'String @NonNull[]\'\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 14)\n" + 
+			"	acceptNulls(dubious);\n" + 
+			"	            ^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'String @NonNull[]\'\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 15)\n" + 
+			"	acceptNoNulls(dubious);\n" + 
+			"	              ^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'String @NonNull[]\'\n" + 
+			"----------\n");
+	}
+
+	// types with null annotations on details (type parameter) are incompatible to opposite types
+	public void testCompatibility4() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n"
+				+ "import java.util.*;\n"
+				+ "public class X {\n"
+				+ "	List<@Nullable String> return1(List<@NonNull String> noNulls) {\n"
+				+ "		return noNulls;\n"
+				+ "	}\n"
+				+ "	List<@NonNull String> return2(List<@Nullable String> withNulls) {\n"
+				+ "		return withNulls;\n"
+				+ "	}\n"
+				+ "	void assigns(List<@NonNull String> noNulls, List<@Nullable String> withNulls) {\n"
+				+ "		List<@NonNull String> l1 = withNulls;\n"
+				+ "		List<@Nullable String> l2 = noNulls;\n"
+				+ "	}\n"
+				+ "	void arguments(List<@NonNull String> noNulls, List<@Nullable String> withNulls) {\n"
+				+ "		assigns(withNulls, noNulls);\n"
+				+ "	}\n"
+				+ "}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	return noNulls;\n" + 
+			"	       ^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required 'List<@Nullable String>' but this expression has type 'List<@NonNull String>'\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	return withNulls;\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required 'List<@NonNull String>' but this expression has type 'List<@Nullable String>'\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 11)\n" + 
+			"	List<@NonNull String> l1 = withNulls;\n" + 
+			"	                           ^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required 'List<@NonNull String>' but this expression has type 'List<@Nullable String>'\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 12)\n" + 
+			"	List<@Nullable String> l2 = noNulls;\n" + 
+			"	                            ^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required 'List<@Nullable String>' but this expression has type 'List<@NonNull String>'\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 15)\n" + 
+			"	assigns(withNulls, noNulls);\n" + 
+			"	        ^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required 'List<@NonNull String>' but this expression has type 'List<@Nullable String>'\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 15)\n" + 
+			"	assigns(withNulls, noNulls);\n" + 
+			"	                   ^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required 'List<@Nullable String>' but this expression has type 'List<@NonNull String>'\n" + 
+			"----------\n");
+	}
+
+	// types with null annotations on details (array content) are incompatible to opposite types
+	public void testCompatibility4a() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n"
+				+ "public class X {\n"
+				+ "	@Nullable String[] return1(@NonNull String[] noNulls) {\n"
+				+ "		return noNulls;\n"
+				+ "	}\n"
+				+ "	@NonNull String[] return2(@Nullable String[] withNulls) {\n"
+				+ "		return withNulls;\n"
+				+ "	}\n"
+				+ "	void assigns(@NonNull String[] noNulls, @Nullable String[] withNulls) {\n"
+				+ "		@NonNull String[] l1 = withNulls;\n"
+				+ "		@Nullable String[] l2 = noNulls;\n"
+				+ "	}\n"
+				+ "	void arguments(@NonNull String[] noNulls, @Nullable String[] withNulls) {\n"
+				+ "		assigns(withNulls, noNulls);\n"
+				+ "	}\n"
+				+ "}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	return noNulls;\n" + 
+			"	       ^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required \'String @Nullable[]\' but this expression has type \'String @NonNull[]\'\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	return withNulls;\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required \'String @NonNull[]\' but this expression has type \'String @Nullable[]\'\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	@NonNull String[] l1 = withNulls;\n" + 
+			"	                       ^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required \'String @NonNull[]\' but this expression has type \'String @Nullable[]\'\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 11)\n" + 
+			"	@Nullable String[] l2 = noNulls;\n" + 
+			"	                        ^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required \'String @Nullable[]\' but this expression has type \'String @NonNull[]\'\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 14)\n" + 
+			"	assigns(withNulls, noNulls);\n" + 
+			"	        ^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required \'String @NonNull[]\' but this expression has type \'String @Nullable[]\'\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 14)\n" + 
+			"	assigns(withNulls, noNulls);\n" + 
+			"	                   ^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required \'String @Nullable[]\' but this expression has type \'String @NonNull[]\'\n" + 
+			"----------\n");
+	}
+
 }

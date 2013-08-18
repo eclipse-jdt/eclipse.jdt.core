@@ -19,6 +19,7 @@
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1077,7 +1078,8 @@ public ParameterizedTypeBinding createParameterizedType(ReferenceBinding generic
 			    if (cachedType == null) break nextCachedType;
 			    if (cachedType.actualType() != genericType) continue nextCachedType; // remain of unresolved type
 			    if (cachedType.enclosingType() != enclosingType) continue nextCachedType;
-			    if (annotationBits != 0 && ((cachedType.tagBits & annotationBits) != annotationBits)) continue nextCachedType;
+			    long cachedBits = cachedType.tagBits & TagBits.AnnotationNullMASK;
+			    if ((cachedBits | annotationBits) != 0 && cachedBits != annotationBits) continue nextCachedType;
 				TypeBinding[] cachedArguments = cachedType.arguments;
 				int cachedArgLength = cachedArguments == null ? 0 : cachedArguments.length;
 				if (argLength != cachedArgLength) continue nextCachedType; // would be an error situation (from unresolved binaries)
@@ -1100,7 +1102,8 @@ public ParameterizedTypeBinding createParameterizedType(ReferenceBinding generic
 	}
 	// add new binding
 	ParameterizedTypeBinding parameterizedType = new ParameterizedTypeBinding(genericType,typeArguments, enclosingType, this);
-	parameterizedType.tagBits |= annotationBits;
+	if (annotationBits != 0L)
+		parameterizedType.tagBits |= annotationBits | TagBits.HasNullTypeAnnotation;
 	cachedInfo[index] = parameterizedType;
 	return parameterizedType;
 }

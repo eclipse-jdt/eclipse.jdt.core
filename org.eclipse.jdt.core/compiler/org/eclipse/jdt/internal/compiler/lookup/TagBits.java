@@ -15,6 +15,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
+ *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -168,6 +169,8 @@ public interface TagBits {
 				| AnnotationNonNullByDefault
 				| AnnotationNullUnspecifiedByDefault;
 	long AnnotationNullMASK = AnnotationNullable | AnnotationNonNull;
+	/** @since 3.9_BETA_JAVA8 marks a type that has a nullness annotation directly or on a detail (array dimension/type argument). */
+	long HasNullTypeAnnotation = ASTNode.Bit21;
 
 	long DefaultValueResolved = ASTNode.Bit60L;
 

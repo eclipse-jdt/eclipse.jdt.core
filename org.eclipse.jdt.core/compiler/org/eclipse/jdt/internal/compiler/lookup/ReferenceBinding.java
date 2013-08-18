@@ -24,6 +24,7 @@
  *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -1166,9 +1167,9 @@ public boolean isClass() {
  * since per nature, the compatibility check is recursive through parameterized type arguments (122775)
  */
 public boolean isCompatibleWith(TypeBinding otherType, /*@Nullable*/ Scope captureScope) {
-	if (otherType.isAnnotatedTypeWithoutArguments() && kind() != PARAMETERIZED_TYPE)
-		otherType = otherType.original(); // for now consider un-annotated type as compatible to type with any type annotations
-	// FIXME(stephan): separate checking for annotation compatibility!
+	otherType = otherType.unannotated(); // for now consider un-annotated type as compatible to type with any type annotations
+	if ((this.tagBits & TagBits.HasNullTypeAnnotation) != 0)
+		return unannotated().isCompatibleWith(otherType, captureScope);
 	if (otherType == this)
 		return true;
 	if (otherType.id == TypeIds.T_JavaLangObject)

@@ -17,6 +17,7 @@
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -575,6 +576,13 @@ public final boolean isParameterizedType() {
  */
 public boolean isAnnotatedTypeWithoutArguments() {
 	return false;
+}
+/**
+ * Does this type or any of its details (array dimensions, type arguments)
+ * have a null type annotation?
+ */
+public boolean hasNullTypeAnnotations() {
+	return (this.tagBits & TagBits.HasNullTypeAnnotation) != 0;
 }
 
 public boolean isIntersectionCastType() {

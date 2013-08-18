@@ -17,6 +17,7 @@
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -58,10 +59,15 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (type instanceof UnresolvedReferenceBinding)
 			((UnresolvedReferenceBinding) type).addWrapper(this, environment);
 		if (arguments != null) {
-			for (int i = 0, l = arguments.length; i < l; i++)
+			for (int i = 0, l = arguments.length; i < l; i++) {
 				if (arguments[i] instanceof UnresolvedReferenceBinding)
 					((UnresolvedReferenceBinding) arguments[i]).addWrapper(this, environment);
+				if (arguments[i].hasNullTypeAnnotations())
+					this.tagBits |= TagBits.HasNullTypeAnnotation;
+			}
 		}
+		if (enclosingType != null && enclosingType.hasNullTypeAnnotations())
+			this.tagBits |= TagBits.HasNullTypeAnnotation;
 		this.tagBits |=  TagBits.HasUnresolvedTypeVariables; // cleared in resolve()
 	}
 
@@ -784,9 +790,19 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	public TypeBinding unannotated() {
+		if (!hasNullTypeAnnotations())
+			return this;
 		if (isAnnotatedTypeWithoutArguments())
 			return this.type;
-		return this.environment.createParameterizedType(this.type, this.arguments, this.enclosingType);
+		TypeBinding[] unannotatedArguments = null;
+		if (this.arguments != null) {
+			unannotatedArguments = new TypeBinding[this.arguments.length];
+			for (int i = 0; i < unannotatedArguments.length; i++) {
+				unannotatedArguments[i] = this.arguments[i].unannotated();
+			}
+		}
+		return this.environment.createParameterizedType(this.type, unannotatedArguments, 
+				this.enclosingType == null ? null : (ReferenceBinding) this.enclosingType.unannotated());
 	}
 
 	public int kind() {

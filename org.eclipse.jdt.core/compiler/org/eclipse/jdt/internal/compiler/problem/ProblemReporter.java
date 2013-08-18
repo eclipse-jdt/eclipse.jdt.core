@@ -40,6 +40,7 @@
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
+ *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -7584,13 +7585,23 @@ public void typeMismatchError(TypeBinding actualType, TypeBinding expectedType, 
 	}
 	char[] actualShortReadableName = actualType.shortReadableName();
 	char[] expectedShortReadableName = expectedType.shortReadableName();
+	char[] actualReadableName = actualType.readableName();
+	char[] expectedReadableName = expectedType.readableName();
 	if (CharOperation.equals(actualShortReadableName, expectedShortReadableName)) {
-		actualShortReadableName = actualType.readableName();
-		expectedShortReadableName = expectedType.readableName();
+		if (CharOperation.equals(actualReadableName, expectedReadableName)) {
+			// if full type names are equal, assume the incompatibility is due to mismatching null annotations:
+			actualReadableName = actualType.nullAnnotatedReadableName(this.options, false);
+			expectedReadableName = expectedType.nullAnnotatedReadableName(this.options, false);
+			actualShortReadableName = actualType.nullAnnotatedReadableName(this.options, true);
+			expectedShortReadableName = expectedType.nullAnnotatedReadableName(this.options, true);
+		} else {
+			actualShortReadableName = actualReadableName;
+			expectedShortReadableName = expectedReadableName;
+		}
 	}
 	this.handle(
 		IProblem.TypeMismatch,
-		new String[] {new String(actualType.readableName()), new String(expectedType.readableName())},
+		new String[] {new String(actualReadableName), new String(expectedReadableName)},
 		new String[] {new String(actualShortReadableName), new String(expectedShortReadableName)},
 		location.sourceStart,
 		location.sourceEnd);
