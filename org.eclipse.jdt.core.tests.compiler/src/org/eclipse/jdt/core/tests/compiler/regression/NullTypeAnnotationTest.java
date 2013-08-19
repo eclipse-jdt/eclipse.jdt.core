@@ -22,27 +22,6 @@ import org.eclipse.jdt.core.JavaCore;
 
 public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
-	// FIXME (stephan): use this type as long as we don't compile against a JRE8:
-	private static final String ELEMENT_TYPE_JAVA = "java/lang/annotation/ElementType.java";
-	private static final String ELEMENT_TYPE_SOURCE = "package java.lang.annotation;\n" +
-	"public enum ElementType {\n" +
-	"    TYPE,\n" +
-	"    FIELD,\n" +
-	"    METHOD,\n" +
-	"    PARAMETER,\n" +
-	"    CONSTRUCTOR,\n" +
-	"    LOCAL_VARIABLE,\n" +
-	"    ANNOTATION_TYPE,\n" +
-	"    PACKAGE,\n" +
-	"    TYPE_PARAMETER,\n" +
-	"    TYPE_USE\n" +
-	"}\n";
-
-
-
-	// FIXME (stephan): using CUSTOM_NULLABLE_CONTENT_JSR308 et al. throughout,
-	// as long as we don't compile against an updated org.eclipse.jdt.annotation bundle
-
 	public NullTypeAnnotationTest(String name) {
 		super(name);
 	}
@@ -65,13 +44,41 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// a list with nullable elements is used
 	public void test_nonnull_list_elements_01() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				  "import org.eclipse.jdt.annotation.*;\n" +
+				  "import java.util.List;\n" +
+				  "public class X {\n" +
+				  "    void foo(List<@Nullable Object> l) {\n" +
+				  "        System.out.print(l.get(0).toString()); // problem: retrieved element can be null\n" +
+				  "        l.add(null);\n" +
+				  "    }\n" +
+				  "    void bar(java.util.List<@Nullable Object> l) {\n" +
+				  "        System.out.print(l.get(1).toString()); // problem: retrieved element can be null\n" +
+				  "        l.add(null);\n" +
+				  "    }\n" +
+				  "}\n"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	System.out.print(l.get(0).toString()); // problem: retrieved element can be null\n" + 
+			"	                 ^^^^^^^^\n" + 
+			"Potential null pointer access: The method get(int) may return null\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	System.out.print(l.get(1).toString()); // problem: retrieved element can be null\n" + 
+			"	                 ^^^^^^^^\n" + 
+			"Potential null pointer access: The method get(int) may return null\n" + 
+			"----------\n");
+	}
+
+	// a list with nullable elements is used, custom annotations
+	public void test_nonnull_list_elements_01a() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
 		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
 		runNegativeTest(
 			new String[] {
-				ELEMENT_TYPE_JAVA,
-				ELEMENT_TYPE_SOURCE,
 				CUSTOM_NULLABLE_NAME,
 				CUSTOM_NULLABLE_CONTENT_JSR308,
 				CUSTOM_NONNULL_NAME,
@@ -107,17 +114,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// a list with nullable elements is used, @Nullable is second annotation
 	public void test_nonnull_list_elements_02() {
-		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
-		runNegativeTest(
+		runNegativeTestWithLibs(
 			new String[] {
-				ELEMENT_TYPE_JAVA,
-				ELEMENT_TYPE_SOURCE,
-				CUSTOM_NULLABLE_NAME,
-				CUSTOM_NULLABLE_CONTENT_JSR308,
-				CUSTOM_NONNULL_NAME,
-				CUSTOM_NONNULL_CONTENT_JSR308,
 				"Dummy.java",
 				"import static java.lang.annotation.ElementType.*;\n" +
 				"import java.lang.annotation.*;\n" +
@@ -126,7 +124,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"public @interface Dummy {\n" +
 				"}\n",
 				"X.java",
-				  "import org.foo.*;\n" +
+				  "import org.eclipse.jdt.annotation.*;\n" +
 				  "import java.util.List;\n" +
 				  "public class X {\n" +
 				  "    void foo(List<@Dummy @Nullable Object> l) {\n" +
@@ -148,27 +146,15 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	System.out.print(l.get(1).toString()); // problem: retrieved element can be null\n" + 
 			"	                 ^^^^^^^^\n" + 
 			"Potential null pointer access: The method get(int) may return null\n" + 
-			"----------\n",
-			null,
-			true, /* shouldFlush*/
-			customOptions);
+			"----------\n");
 	}
 
 	// a list with non-null elements is used, list itself is nullable
 	public void test_nonnull_list_elements_03() {
-		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
-		runNegativeTest(
+		runNegativeTestWithLibs(
 			new String[] {
-				ELEMENT_TYPE_JAVA,
-				ELEMENT_TYPE_SOURCE,
-				CUSTOM_NULLABLE_NAME,
-				CUSTOM_NULLABLE_CONTENT_JSR308,
-				CUSTOM_NONNULL_NAME,
-				CUSTOM_NONNULL_CONTENT_JSR308,
 				"X.java",
-				  "import org.foo.*;\n" +
+				  "import org.eclipse.jdt.annotation.*;\n" +
 				  "import java.util.List;\n" +
 				  "public class X {\n" +
 				  "    void foo(@Nullable List<@NonNull Object> l) {\n" +
@@ -200,28 +186,16 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	l.add(0, null); // problem: cannot insert \'null\' into this list\n" + 
 			"	         ^^^^\n" + 
 			"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-			"----------\n",
-			null,
-			true, /* shouldFlush*/
-			customOptions);
+			"----------\n");
 	}
 
 	// an outer and inner class both have a type parameter,
 	// client instantiates with nullable/nonnull actual type arguments
 	public void test_nestedType_01() {
-		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
-		runNegativeTest(
+		runNegativeTestWithLibs(
 			new String[] {
-				ELEMENT_TYPE_JAVA,
-				ELEMENT_TYPE_SOURCE,
-				CUSTOM_NULLABLE_NAME,
-				CUSTOM_NULLABLE_CONTENT_JSR308,
-				CUSTOM_NONNULL_NAME,
-				CUSTOM_NONNULL_CONTENT_JSR308,
 				"A.java",
-				  "import org.foo.*;\n" +
+				  "import org.eclipse.jdt.annotation.*;\n" +
 				  "public class A<X> {\n" +
 				  "    public class I<Y> {\n" +
 				  "        public X foo(Y l) {\n" +
@@ -242,10 +216,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	@NonNull Object o = i.foo(null); // problems: argument and assignment violate null contracts\n" + 
 			"	                          ^^^^\n" + 
 			"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-			"----------\n",
-			null,
-			true, /* shouldFlush*/
-			customOptions);
+			"----------\n");
 	}
 
 	// an outer and inner class both have a type parameter,
@@ -253,17 +224,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// and correctly implements an abstract inherited method
 	// compile errors only inside that method
 	public void test_nestedType_02() {
-		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
-		runNegativeTest(
+		runNegativeTestWithLibs(
 			new String[] {
-				ELEMENT_TYPE_JAVA,
-				ELEMENT_TYPE_SOURCE,
-				CUSTOM_NULLABLE_NAME,
-				CUSTOM_NULLABLE_CONTENT_JSR308,
-				CUSTOM_NONNULL_NAME,
-				CUSTOM_NONNULL_CONTENT_JSR308,
 				"A.java",
 				  "public class A<X> {\n" +
 				  "    public abstract class I<Y> {\n" +
@@ -273,7 +235,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				  "    }\n" +
 				  "}\n",
 				"B.java",
-				  "import org.foo.*;\n" +
+				  "import org.eclipse.jdt.annotation.*;\n" +
 				  "public class B extends A<@NonNull Object> {\n" +
 				  "    public class J extends I<@Nullable String> {\n" +
 				  "        @Override\n" +
@@ -293,27 +255,15 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	return idY(null);\n" + 
 			"	       ^^^^^^^^^\n" + 
 			"Null type mismatch (type annotations): required '@NonNull Object' but this expression has type '@Nullable String'\n" + 
-			"----------\n",
-			null,
-			true, /* shouldFlush*/
-			customOptions);
+			"----------\n");
 	}
 
 	// an outer and inner class both have a type parameter,
 	// a subclass instantiates with nullable/nonnull actual type arguments
 	// and incorrectly implements an abstract inherited method
 	public void test_nestedType_03() {
-		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
-		runNegativeTest(
+		runNegativeTestWithLibs(
 			new String[] {
-				ELEMENT_TYPE_JAVA,
-				ELEMENT_TYPE_SOURCE,
-				CUSTOM_NULLABLE_NAME,
-				CUSTOM_NULLABLE_CONTENT_JSR308,
-				CUSTOM_NONNULL_NAME,
-				CUSTOM_NONNULL_CONTENT_JSR308,
 				"A.java",
 				  "public class A<X> {\n" +
 				  "    public abstract class I<Y> {\n" +
@@ -321,7 +271,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				  "    }\n" +
 				  "}\n",
 				"B.java",
-				  "import org.foo.*;\n" +
+				  "import org.eclipse.jdt.annotation.*;\n" +
 				  "public class B extends A<@NonNull Object> {\n" +
 				  "    public class J extends I<@Nullable String> {\n" +
 				  "        @Override\n" +
@@ -340,25 +290,13 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	public @Nullable Object foo(@NonNull String l) {\n" + 
 			"	                            ^^^^^^^^^^^^^^^\n" + 
 			"Illegal redefinition of parameter l, inherited method from A<Object>.I<String> declares this parameter as @Nullable\n" + 
-			"----------\n",
-			null,
-			true, /* shouldFlush*/
-			customOptions);
+			"----------\n");
 	}
 
 	// a reference to a nested type has annotations for both types
 	public void test_nestedType_04() {
-		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
-		runNegativeTest(
+		runNegativeTestWithLibs(
 			new String[] {
-				ELEMENT_TYPE_JAVA,
-				ELEMENT_TYPE_SOURCE,
-				CUSTOM_NULLABLE_NAME,
-				CUSTOM_NULLABLE_CONTENT_JSR308,
-				CUSTOM_NONNULL_NAME,
-				CUSTOM_NONNULL_CONTENT_JSR308,
 				"A.java",
 				  "public class A<X> {\n" +
 				  "    public abstract class I<Y> {\n" +
@@ -366,7 +304,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				  "    }\n" +
 				  "}\n",
 				"B.java",
-				  "import org.foo.*;\n" +
+				  "import org.eclipse.jdt.annotation.*;\n" +
 				  "public class B {\n" +
 				  "    public void foo(@NonNull A<Object>.@Nullable I<@NonNull String> ai) {\n" +
 				  "            ai.foo(null); // problems: ai can be null, arg must not be null\n" +
@@ -382,25 +320,13 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	ai.foo(null); // problems: ai can be null, arg must not be null\n" + 
 			"	       ^^^^\n" + 
 			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-			"----------\n",
-			null,
-			true, /* shouldFlush*/
-			customOptions);
+			"----------\n");
 	}
 
 	// a reference to a nested type has annotations for both types, mismatch in detail of outer
 	public void test_nestedType_05() {
-		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
-		runNegativeTest(
+		runNegativeTestWithLibs(
 			new String[] {
-				ELEMENT_TYPE_JAVA,
-				ELEMENT_TYPE_SOURCE,
-				CUSTOM_NULLABLE_NAME,
-				CUSTOM_NULLABLE_CONTENT_JSR308,
-				CUSTOM_NONNULL_NAME,
-				CUSTOM_NONNULL_CONTENT_JSR308,
 				"A.java",
 				  "public class A<X> {\n" +
 				  "    public abstract class I<Y> {\n" +
@@ -408,7 +334,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				  "    }\n" +
 				  "}\n",
 				"B.java",
-				  "import org.foo.*;\n" +
+				  "import org.eclipse.jdt.annotation.*;\n" +
 				  "public class B {\n" +
 				  "    public void foo(A<@NonNull Object>.@Nullable I<@NonNull String> ai1) {\n" +
 				  "		A<@Nullable Object>.@Nullable I<@NonNull String> ai2 = ai1;\n" +
@@ -419,10 +345,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	A<@Nullable Object>.@Nullable I<@NonNull String> ai2 = ai1;\n" + 
 			"	                                                       ^^^\n" + 
 			"Null type mismatch (type annotations): required \'A<@Nullable Object>.@Nullable I<@NonNull String>\' but this expression has type \'A<@NonNull Object>.@Nullable I<@NonNull String>\'\n" + 
-			"----------\n",
-			null,
-			true, /* shouldFlush*/
-			customOptions);
+			"----------\n");
 	}
 
 	public void testMissingAnnotationTypes_01() {
@@ -450,24 +373,15 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
 	// annotation on leaf type in 1-dim array
 	public void testArrayType_01() {
-		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
-		runNegativeTest(
+		runNegativeTestWithLibs(
 			new String[] {
-				ELEMENT_TYPE_JAVA,
-				ELEMENT_TYPE_SOURCE,
-				CUSTOM_NULLABLE_NAME,
-				CUSTOM_NULLABLE_CONTENT_JSR308,
-				CUSTOM_NONNULL_NAME,
-				CUSTOM_NONNULL_CONTENT_JSR308,
 				"Wrapper.java",
 				  "public class Wrapper<T> {\n" +
 				  "	T content;" +
 				  "	public T content() { return content; }\n" +
 				  "}\n",
 				"A.java",
-				  "import org.foo.*;\n" +
+				  "import org.eclipse.jdt.annotation.*;\n" +
 				  "public class A {\n" +
 // Using Wrapper is a workaround until bug 391331 is fixed (to force the interesting annotation to be consumed as a type annotation):
 				  "    void bar(Wrapper<@NonNull String[]> realStrings, Wrapper<@Nullable String[]> maybeStrings) {\n" +
@@ -487,33 +401,21 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	System.out.println(maybeStrings.content()[0].toUpperCase()); // problem: element can be null\n" + 
 			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Potential null pointer access: array element may be null\n" + 
-			"----------\n",
-			null,
-			true, /* shouldFlush*/
-			customOptions);
+			"----------\n");
 	}
 
 	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
 	// annotation on leaf type in 2-dim array
 	public void testArrayType_02() {
-		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
-		runNegativeTest(
+		runNegativeTestWithLibs(
 			new String[] {
-				ELEMENT_TYPE_JAVA,
-				ELEMENT_TYPE_SOURCE,
-				CUSTOM_NULLABLE_NAME,
-				CUSTOM_NULLABLE_CONTENT_JSR308,
-				CUSTOM_NONNULL_NAME,
-				CUSTOM_NONNULL_CONTENT_JSR308,
 				"Wrapper.java",
 				  "public class Wrapper<T> {\n" +
 				  "	T content;" +
 				  "	public T content() { return content; }\n" +
 				  "}\n",
 				"A.java",
-				  "import org.foo.*;\n" +
+				  "import org.eclipse.jdt.annotation.*;\n" +
 				  "public class A {\n" +
 // Using Wrapper is a workaround until bug 391331 is fixed (to force the interesting annotation to be consumed as a type annotation):
 				  "    void bar(Wrapper<@NonNull String[][]> realStrings, Wrapper<@Nullable String[][]> maybeStrings) {\n" +
@@ -533,28 +435,16 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	System.out.println(maybeStrings.content()[0][0].toUpperCase()); // problem: element can be null\n" + 
 			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Potential null pointer access: array element may be null\n" + 
-			"----------\n",
-			null,
-			true, /* shouldFlush*/
-			customOptions);
+			"----------\n");
 	}
 
 	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
 	// annotation on array type (1-dim array)
 	public void testArrayType_03() {
-		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
-		runNegativeTest(
+		runNegativeTestWithLibs(
 			new String[] {
-				ELEMENT_TYPE_JAVA,
-				ELEMENT_TYPE_SOURCE,
-				CUSTOM_NULLABLE_NAME,
-				CUSTOM_NULLABLE_CONTENT_JSR308,
-				CUSTOM_NONNULL_NAME,
-				CUSTOM_NONNULL_CONTENT_JSR308,
 				"A.java",
-				  "import org.foo.*;\n" +
+				  "import org.eclipse.jdt.annotation.*;\n" +
 				  "public class A {\n" +
 				  "    void array(String @NonNull[] realStringArray, String @Nullable[] maybeStringArray) {\n" +
 				  "        @NonNull Object array;\n" +
@@ -604,28 +494,16 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
     		"	maybeStringArray[0] = null; 	 // problem: indexing nullable array\n" + 
     		"	^^^^^^^^^^^^^^^^\n" + 
     		"Potential null pointer access: this expression has a '@Nullable' type\n" + 
-			"----------\n",
-			null,
-			true, /* shouldFlush*/
-			customOptions);
+			"----------\n");
 	}
 
 	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
 	// annotation on intermediate type in 2-dim array
 	public void testArrayType_04() {
-		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
-		runNegativeTest(
+		runNegativeTestWithLibs(
 			new String[] {
-				ELEMENT_TYPE_JAVA,
-				ELEMENT_TYPE_SOURCE,
-				CUSTOM_NULLABLE_NAME,
-				CUSTOM_NULLABLE_CONTENT_JSR308,
-				CUSTOM_NONNULL_NAME,
-				CUSTOM_NONNULL_CONTENT_JSR308,
 				"A.java",
-				  "import org.foo.*;\n" +
+				  "import org.eclipse.jdt.annotation.*;\n" +
 				  "public class A {\n" +
 				  "    void outer(String [] @NonNull[] realArrays, String [] @Nullable[] maybeArrays) {\n" +
 				  "        @NonNull Object array;\n" +
@@ -689,28 +567,16 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	maybeArrays[0][0] = null; // problem: indexing nullable array\n" + 
 			"	^^^^^^^^^^^^^^\n" + 
 			"Potential null pointer access: array element may be null\n" + 
-			"----------\n",
-			null,
-			true, /* shouldFlush*/
-			customOptions);
+			"----------\n");
 	}
 
 	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
 	// mismatches against outer array type, test display of type annotation in error messages
 	public void testArrayType_05() {
-		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
-		runNegativeTest(
+		runNegativeTestWithLibs(
 			new String[] {
-				ELEMENT_TYPE_JAVA,
-				ELEMENT_TYPE_SOURCE,
-				CUSTOM_NULLABLE_NAME,
-				CUSTOM_NULLABLE_CONTENT_JSR308,
-				CUSTOM_NONNULL_NAME,
-				CUSTOM_NONNULL_CONTENT_JSR308,
 				"A.java",
-				  "import org.foo.*;\n" +
+				  "import org.eclipse.jdt.annotation.*;\n" +
 				  "public class A {\n" +
 				  "    void outer(String @NonNull[] @NonNull[] realArrays, String @NonNull[] @Nullable[] maybeArrays, String @Nullable[][] unknownArrays) {\n" +
 				  "        realArrays[0] = maybeArrays[0];		// problem: inner array can be null\n" +
@@ -759,28 +625,16 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	consume(unknownStrings);\n" + 
 			"	        ^^^^^^^^^^^^^^\n" + 
 			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'String @NonNull[]\'\n" + 
-			"----------\n",
-			null,
-			true, /* shouldFlush*/
-			customOptions);
+			"----------\n");
 	}
 
 	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
 	// more compiler messages
 	public void testArrayType_10() {
-		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
-		runNegativeTest(
+		runNegativeTestWithLibs(
 			new String[] {
-				ELEMENT_TYPE_JAVA,
-				ELEMENT_TYPE_SOURCE,
-				CUSTOM_NULLABLE_NAME,
-				CUSTOM_NULLABLE_CONTENT_JSR308,
-				CUSTOM_NONNULL_NAME,
-				CUSTOM_NONNULL_CONTENT_JSR308,
 				"A.java",
-				  "import org.foo.*;\n" +
+				  "import org.eclipse.jdt.annotation.*;\n" +
 				  "public class A {\n" +
 				  "    void outer(String @NonNull[] @NonNull[] realArrays, String @NonNull[] @Nullable[] maybeArrays, String @Nullable[][] unknownArrays, String @NonNull[][] mixedArrays) {\n" +
 				  "        realArrays = maybeArrays;			// problem on inner dimension!\n" +
@@ -839,10 +693,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	consume(maybeArrays, mixedArrays, maybeArrays);\n" + 
 			"	                                  ^^^^^^^^^^^\n" + 
 			"Null type mismatch (type annotations): required \'String @Nullable[] []\' but this expression has type \'String @NonNull[] @Nullable[]\'\n" + 
-			"----------\n",
-			null,
-			true, /* shouldFlush*/
-			customOptions);
+			"----------\n");
 	}
 	
 	// https://bugs.eclipse.org/403216 - [1.8][null] TypeReference#captureTypeAnnotations treats type annotations as type argument annotations 
@@ -869,21 +720,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// https://bugs.eclipse.org/403457 - [1.8][compiler] NPE in WildcardBinding.signature
 	public void testBug403457() {
-		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
 		runNegativeTestWithLibs(
 			new String[] {
-				ELEMENT_TYPE_JAVA,
-				ELEMENT_TYPE_SOURCE,
-				CUSTOM_NULLABLE_NAME,
-				CUSTOM_NULLABLE_CONTENT_JSR308,
-				CUSTOM_NONNULL_NAME,
-				CUSTOM_NONNULL_CONTENT_JSR308,
 				"X.java",
 				"import java.lang.annotation.ElementType;\n" + 
 				"import java.lang.annotation.Target;\n" + 
-				"import org.foo.*;\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" + 
 				"\n" + 
 				"public class X {\n" + 
 				"	void foo(Map<@Marker ? super @Marker Object, @Marker ? extends @Marker String> m){}\n" + 
@@ -895,7 +737,6 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	\n" + 
 				"}\n"
 			},
-			customOptions,
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	void foo(Map<@Marker ? super @Marker Object, @Marker ? extends @Marker String> m){}\n" + 
@@ -912,21 +753,13 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// storing and decoding null-type-annotations to/from classfile: RETURN_TYPE
 	public void testBinary01() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
 		runConformTestWithLibs(
 				new String[] {
-					ELEMENT_TYPE_JAVA,
-					ELEMENT_TYPE_SOURCE,
-					CUSTOM_NULLABLE_NAME,
-					CUSTOM_NULLABLE_CONTENT_JSR308,
-					CUSTOM_NONNULL_NAME,
-					CUSTOM_NONNULL_CONTENT_JSR308,
 					"p/X.java",
 					"package p;\n" +
 					"import java.util.List;\n" +
-					"import org.foo.*;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
 					"public class X {\n" +
 					"	public List<@Nullable String> getSomeStrings() { return null; }\n" +
 					"}\n"
@@ -958,21 +791,13 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// Note: receiver annotation is not evaluated by the compiler, this part of the test only serves debugging purposes.
 	public void testBinary02() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
 		runConformTestWithLibs(
 				new String[] {
-					ELEMENT_TYPE_JAVA,
-					ELEMENT_TYPE_SOURCE,
-					CUSTOM_NULLABLE_NAME,
-					CUSTOM_NULLABLE_CONTENT_JSR308,
-					CUSTOM_NONNULL_NAME,
-					CUSTOM_NONNULL_CONTENT_JSR308,
 					"p/X.java",
 					"package p;\n" +
 					"import java.util.List;\n" +
-					"import org.foo.*;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
 					"import static java.lang.annotation.ElementType.*;\n" +
 					"import java.lang.annotation.*;\n" +
 					"@Retention(RetentionPolicy.CLASS)\n" +
@@ -989,7 +814,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"Y.java",
 					"import p.X;\n" +
 					"import java.util.List;\n" +
-					"import org.foo.*;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
 					"public class Y {\n" +
 					"	public void test(X x, List<@Nullable String> ss) {\n" +
 					"		x.setAllStrings(-1, ss);\n" +
@@ -1009,21 +834,13 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// storing and decoding null-type-annotations to/from classfile: FIELD
 	public void testBinary03() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
 		customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
 		runConformTestWithLibs(
 				new String[] {
-					ELEMENT_TYPE_JAVA,
-					ELEMENT_TYPE_SOURCE,
-					CUSTOM_NULLABLE_NAME,
-					CUSTOM_NULLABLE_CONTENT_JSR308,
-					CUSTOM_NONNULL_NAME,
-					CUSTOM_NONNULL_CONTENT_JSR308,
 					"p/X1.java",
 					"package p;\n" +
-					"import org.foo.*;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
 					"public abstract class X1 {\n" +
 					"	public static String @Nullable [] f1 = null;\n" +
 					"	public static String [] @Nullable [] f2 = new String[][] { null };\n" +
@@ -1060,28 +877,20 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// storing and decoding null-type-annotations to/from classfile: SUPER_TYPE
 	public void testBinary04() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
 		customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
 		runConformTestWithLibs(
 				new String[] {
-					ELEMENT_TYPE_JAVA,
-					ELEMENT_TYPE_SOURCE,
-					CUSTOM_NULLABLE_NAME,
-					CUSTOM_NULLABLE_CONTENT_JSR308,
-					CUSTOM_NONNULL_NAME,
-					CUSTOM_NONNULL_CONTENT_JSR308,
 					"p/X1.java",
 					"package p;\n" +
 					"import java.util.ArrayList;\n" +
-					"import org.foo.*;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
 					"public abstract class X1 extends ArrayList<@Nullable String> {\n" +
 					"}\n",
 					"p/X2.java",
 					"package p;\n" +
 					"import java.util.List;\n" +
-					"import org.foo.*;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
 					"public abstract class X2 implements List<@Nullable String> {\n" +
 					"}\n"
 				},
@@ -1125,22 +934,14 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// storing and decoding null-type-annotations to/from classfile: CLASS_TYPE_PARAMETER & METHOD_TYPE_PARAMETER
 	public void testBinary05() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
 		customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
 		runConformTestWithLibs(
 				new String[] {
-					ELEMENT_TYPE_JAVA,
-					ELEMENT_TYPE_SOURCE,
-					CUSTOM_NULLABLE_NAME,
-					CUSTOM_NULLABLE_CONTENT_JSR308,
-					CUSTOM_NONNULL_NAME,
-					CUSTOM_NONNULL_CONTENT_JSR308,
 					"p/X1.java",
 					"package p;\n" +
 					"import java.util.ArrayList;\n" +
-					"import org.foo.*;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
 					"public abstract class X1<@NonNull T> extends ArrayList<T> {\n" +
 					"    public <@Nullable S> void foo(S s) {}\n" +
 					"}\n"
@@ -1153,7 +954,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				new String[] {
 					"Y1.java",
 					"import p.X1;\n" +
-					"import org.foo.*;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
 					"public class Y1 {\n" +
 					"	X1<@Nullable String> maybeStrings;\n" + // incompatible: T is constrained to @NonNull
 					"	void test(X1<@NonNull String> x) {\n" + // OK
@@ -1175,24 +976,16 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// storing and decoding null-type-annotations to/from classfile: CLASS_TYPE_PARAMETER_BOUND & METHOD_TYPE_PARAMETER_BOUND
 	public void testBinary06() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
 		customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
 // FIXME(stephan): change to negative tests and fill in desired error messages
 //		runNegativeTestWithLibs(
 		runConformTestWithLibs(
 				new String[] {
-					ELEMENT_TYPE_JAVA,
-					ELEMENT_TYPE_SOURCE,
-					CUSTOM_NULLABLE_NAME,
-					CUSTOM_NULLABLE_CONTENT_JSR308,
-					CUSTOM_NONNULL_NAME,
-					CUSTOM_NONNULL_CONTENT_JSR308,
 					"p/X1.java",
 					"package p;\n" +
 					"import java.util.ArrayList;\n" +
-					"import org.foo.*;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
 					"public abstract class X1<T extends @NonNull Object> extends ArrayList<T> {\n" +
 					"    public <U, V extends @Nullable Object> void foo(U u, V v) {}\n" +
 					"}\n" +
@@ -1206,7 +999,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				new String[] {
 					"Y1.java",
 					"import p.X1;\n" +
-					"import org.foo.*;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
 					"public class Y1 {\n" +
 					"	X1<@Nullable String> maybeStrings;\n" + // incompatible: T is constrained to @NonNull
 					"	void test(X1<@NonNull String> x) {\n" + // OK
@@ -1228,22 +1021,14 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// storing and decoding null-type-annotations to/from classfile: method with all kinds of type annotations
 	public void testBinary07() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
 		customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
 		runConformTestWithLibs(
 				new String[] {
-					ELEMENT_TYPE_JAVA,
-					ELEMENT_TYPE_SOURCE,
-					CUSTOM_NULLABLE_NAME,
-					CUSTOM_NULLABLE_CONTENT_JSR308,
-					CUSTOM_NONNULL_NAME,
-					CUSTOM_NONNULL_CONTENT_JSR308,
 					"p/X1.java",
 					"package p;\n" +
 					"import java.util.*;\n" +
-					"import org.foo.*;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
 					"import static java.lang.annotation.ElementType.*;\n" +
 					"import java.lang.annotation.*;\n" +
 					"@Retention(RetentionPolicy.CLASS)\n" +
@@ -1260,7 +1045,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				new String[] {
 					"Y1.java",
 					"import p.X1;\n" +
-					"import org.foo.*;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
 					"public class Y1 {\n" +
 					"	void test(X1 x) {\n" +
 					"		x.<@NonNull Y1, @NonNull Object>foo(this, new Object())\n" + // @NonNull Object conflicts with "V extends @Nullable Object"
@@ -1280,22 +1065,14 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// storing and decoding null-type-annotations to/from classfile: details
 	public void testBinary08() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
 		customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
 		runConformTestWithLibs(
 				new String[] {
-					ELEMENT_TYPE_JAVA,
-					ELEMENT_TYPE_SOURCE,
-					CUSTOM_NULLABLE_NAME,
-					CUSTOM_NULLABLE_CONTENT_JSR308,
-					CUSTOM_NONNULL_NAME,
-					CUSTOM_NONNULL_CONTENT_JSR308,
 					"p/X1.java",
 					"package p;\n" +
 					"import java.util.*;\n" +
-					"import org.foo.*;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
 					"public abstract class X1 {\n" +
 					"    public class Inner {}\n" +
 					"    public Object []@NonNull[] arrays(Object @NonNull[][] oa1) { return null; }\n" +
@@ -1311,7 +1088,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				new String[] {
 					"Y1.java",
 					"import p.X1;\n" +
-					"import org.foo.*;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
 //					"import java.util.*;\n" +
 					"public class Y1 {\n" +
 					"	void test(X1 x) {\n" +
