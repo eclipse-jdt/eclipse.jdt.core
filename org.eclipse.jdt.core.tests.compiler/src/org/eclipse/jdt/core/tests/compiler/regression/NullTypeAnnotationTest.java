@@ -388,6 +388,43 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			customOptions);
 	}
 
+	// a reference to a nested type has annotations for both types, mismatch in detail of outer
+	public void test_nestedType_05() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+		runNegativeTest(
+			new String[] {
+				ELEMENT_TYPE_JAVA,
+				ELEMENT_TYPE_SOURCE,
+				CUSTOM_NULLABLE_NAME,
+				CUSTOM_NULLABLE_CONTENT_JSR308,
+				CUSTOM_NONNULL_NAME,
+				CUSTOM_NONNULL_CONTENT_JSR308,
+				"A.java",
+				  "public class A<X> {\n" +
+				  "    public abstract class I<Y> {\n" +
+				  "        public abstract X foo(Y l);\n" +
+				  "    }\n" +
+				  "}\n",
+				"B.java",
+				  "import org.foo.*;\n" +
+				  "public class B {\n" +
+				  "    public void foo(A<@NonNull Object>.@Nullable I<@NonNull String> ai1) {\n" +
+				  "		A<@Nullable Object>.@Nullable I<@NonNull String> ai2 = ai1;\n" +
+				  "    }\n" +
+				  "}\n"},
+			"----------\n" + 
+			"1. ERROR in B.java (at line 4)\n" + 
+			"	A<@Nullable Object>.@Nullable I<@NonNull String> ai2 = ai1;\n" + 
+			"	                                                       ^^^\n" + 
+			"Null type mismatch (type annotations): required \'A<@Nullable Object>.@Nullable I<@NonNull String>\' but this expression has type \'A<@NonNull Object>.@Nullable I<@NonNull String>\'\n" + 
+			"----------\n",
+			null,
+			true, /* shouldFlush*/
+			customOptions);
+	}
+
 	public void testMissingAnnotationTypes_01() {
 		runNegativeTest(
 			new String[] {

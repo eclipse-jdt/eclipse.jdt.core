@@ -206,20 +206,28 @@ protected int findNullTypeAnnotationMismatch(TypeBinding requiredType, TypeBindi
 		}
 	} else if (requiredType instanceof ParameterizedTypeBinding) {
 		long requiredBits = requiredType.tagBits & TagBits.AnnotationNullMASK;
-		if (requiredBits == TagBits.AnnotationNullable && nullStatus != -1) // at detail/recursion even nullable must be matched exactly
-			return 0; // accepting anything
-		long providedBits = providedType.tagBits & TagBits.AnnotationNullMASK;
-		severity = computeNullProblemSeverity(requiredBits, providedBits, nullStatus);
-		if (severity < 3 && providedType.isParameterizedType()) { // TODO(stephan): handle providedType.isRaw()
-			TypeBinding[] requiredArguments = ((ParameterizedTypeBinding) requiredType).arguments;
-			TypeBinding[] providedArguments = ((ParameterizedTypeBinding) providedType).arguments;
-			if (requiredArguments != null && providedArguments != null && requiredArguments.length == providedArguments.length) {
-				for (int i = 0; i < requiredArguments.length; i++) {
-					severity = Math.max(severity, findNullTypeAnnotationMismatch(requiredArguments[i], providedArguments[i], -1));
-					if (severity == 2)
-						return severity;
+		if (requiredBits != TagBits.AnnotationNullable // nullable lhs accepts everything, ...
+				|| nullStatus == -1) // only at detail/recursion even nullable must be matched exactly
+		{
+			long providedBits = providedType.tagBits & TagBits.AnnotationNullMASK;
+			severity = computeNullProblemSeverity(requiredBits, providedBits, nullStatus);
+		}
+		if (severity < 3) {
+			if (providedType.isParameterizedType()) { // TODO(stephan): handle providedType.isRaw()
+				TypeBinding[] requiredArguments = ((ParameterizedTypeBinding) requiredType).arguments;
+				TypeBinding[] providedArguments = ((ParameterizedTypeBinding) providedType).arguments;
+				if (requiredArguments != null && providedArguments != null && requiredArguments.length == providedArguments.length) {
+					for (int i = 0; i < requiredArguments.length; i++) {
+						severity = Math.max(severity, findNullTypeAnnotationMismatch(requiredArguments[i], providedArguments[i], -1));
+						if (severity == 2)
+							return severity;
+					}
 				}
 			}
+			TypeBinding requiredEnclosing = requiredType.enclosingType();
+			TypeBinding providedEnclosing = providedType.enclosingType();
+			if (requiredEnclosing != null && providedEnclosing != null)
+				severity = Math.max(severity, findNullTypeAnnotationMismatch(requiredEnclosing, providedEnclosing, -1));
 		}
 	}
 	return severity;

@@ -18,6 +18,7 @@
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
+ *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -987,7 +988,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	char[] nullAnnotatedReadableName(CompilerOptions options) {
 	    StringBuffer nameBuffer = new StringBuffer(10);
 		if (isMemberType()) {
-			nameBuffer.append(enclosingType().readableName());
+			nameBuffer.append(enclosingType().nullAnnotatedReadableName(options, false));
 			nameBuffer.append('.');
 			appendNullAnnotation(nameBuffer);
 			nameBuffer.append(this.sourceName);
@@ -1022,7 +1023,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	char[] nullAnnotatedShortReadableName(CompilerOptions options) {
 	    StringBuffer nameBuffer = new StringBuffer(10);
 		if (isMemberType()) {
-			nameBuffer.append(enclosingType().shortReadableName());
+			nameBuffer.append(enclosingType().nullAnnotatedReadableName(options, true));
 			nameBuffer.append('.');
 			appendNullAnnotation(nameBuffer);
 			nameBuffer.append(this.sourceName);
