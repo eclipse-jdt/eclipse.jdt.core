@@ -27,6 +27,7 @@
  *								bug 380896 - [compiler][null] Enum constants not recognised as being NonNull.
  *								bug 391376 - [1.8] check interaction of default methods with bridge methods and generics
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1536,9 +1537,9 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 					// validate null annotation:
 					this.scope.validateNullAnnotation(field.tagBits, fieldDecl.type, fieldDecl.annotations);
 				}
-				if (sourceLevel >= ClassFileConstants.JDK1_8 && field.type instanceof ReferenceBinding) {
+				if (sourceLevel >= ClassFileConstants.JDK1_8 && !fieldType.isBaseType()) {
 					long nullTagBits = field.tagBits & TagBits.AnnotationNullMASK;
-					if (nullTagBits != 0 && nullTagBits != (field.type.tagBits & TagBits.AnnotationNullMASK))
+					if (nullTagBits != 0 && nullTagBits != (fieldType.tagBits & TagBits.AnnotationNullMASK))
 						field.type = environment.pushAnnotationIntoType(fieldType, fieldDecl.type, nullTagBits);
 					// do not reset field.tagBits, since more fields may need to share this information ("@NonNull Object o1, o2;")
 				}
