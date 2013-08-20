@@ -23,6 +23,7 @@
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -729,7 +730,9 @@ private TypeVariableBinding[] createTypeVariables(SignatureWrapper wrapper, bool
 						char[] variableName = CharOperation.subarray(typeSignature, i, colon);
 						TypeVariableBinding typeVariable = new TypeVariableBinding(variableName, this, rank, this.environment);
 						IBinaryAnnotation[] annotations = walker.toTypeParameter(isClassTypeParameter, rank++).getAnnotationsAtCursor();
-						typeVariable.tagBits  |= this.environment.typeAnnotationsToTagBits(annotations);
+						long annotationTagBits = this.environment.typeAnnotationsToTagBits(annotations);
+						if (annotationTagBits != 0)
+							typeVariable.tagBits  |= annotationTagBits | TagBits.HasNullTypeAnnotation;
 						variables.add(typeVariable);
 					}
 			}

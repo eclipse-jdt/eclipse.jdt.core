@@ -15,6 +15,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
+ *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -61,7 +62,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 			for (int i = 0; i < length; i++) { // copy original type variable to relocate
 				TypeVariableBinding originalVariable = originalVariables[i];
 				substitutedVariables[i] = new TypeVariableBinding(originalVariable.sourceName, this, originalVariable.rank, parameterizedDeclaringClass.environment);
-				substitutedVariables[i].tagBits |= (originalVariable.tagBits & TagBits.AnnotationNullMASK);
+				substitutedVariables[i].tagBits |= (originalVariable.tagBits & (TagBits.AnnotationNullMASK|TagBits.HasNullTypeAnnotation));
 			}
 			this.typeVariables = substitutedVariables;
 
@@ -197,7 +198,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 							this,
 							originalVariable.rank,
 							environment);
-				substitutedVariables[i].tagBits |= (originalVariable.tagBits & TagBits.AnnotationNullMASK);
+				substitutedVariables[i].tagBits |= (originalVariable.tagBits & (TagBits.AnnotationNullMASK|TagBits.HasNullTypeAnnotation));
 			}
 			this.typeVariables = substitutedVariables;
 

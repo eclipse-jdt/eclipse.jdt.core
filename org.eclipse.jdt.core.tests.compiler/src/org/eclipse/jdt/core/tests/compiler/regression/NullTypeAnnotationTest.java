@@ -948,9 +948,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				},
 				customOptions,
 				"");
-// FIXME(stephan): change to negative tests and fill in desired error messages
-		runConformTestWithLibs(
-//		runNegativeTestWithLibs(
+		runNegativeTestWithLibs(
 				new String[] {
 					"Y1.java",
 					"import p.X1;\n" +
@@ -963,13 +961,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"}\n"
 				}, 
 				customOptions,
-				""
-//				"----------\n" + 
-//				"1. ERROR in Y1.java (at line 5)\n" + 
-//				"	X1<@Nullable String> maybeStrings;\n" + 
-//				"	   ^^^^^^^^^^^^^^^^\n" + 
-//				"Incompatible type argument ...\n" + 
-//				"----------\n"
+				"----------\n" + 
+				"1. ERROR in Y1.java (at line 6)\n" + 
+				"	x.<@NonNull Object>foo(new Object());\n" + 
+				"	   ^^^^^^^^^^^^^^^\n" + 
+				"Null constraint mismatch: The type '@NonNull Object' is not a valid substitute for the type parameter 'S' which is constrained as '@Nullable'\n" + 
+				"----------\n"
 				);
 	}
 
@@ -993,9 +990,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				},
 				customOptions,
 				"");
-// FIXME(stephan): change to negative tests and fill in desired error messages
-		runConformTestWithLibs(
-//		runNegativeTestWithLibs(
+		runNegativeTestWithLibs(
 				new String[] {
 					"Y1.java",
 					"import p.X1;\n" +
@@ -1003,18 +998,17 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"public class Y1 {\n" +
 					"	X1<@Nullable String> maybeStrings;\n" + // incompatible: T is constrained to @NonNull
 					"	void test(X1<@NonNull String> x) {\n" + // OK
-					"		x.<Y1, @NonNull Object>foo(this, new Object());\n" + // incompatible: S is constrained to @Nullable
+					"		x.<Y1, @NonNull Object>foo(this, new Object());\n" + // incompatible: V is constrained to @Nullable via superclass
 					"	}\n" +
 					"}\n"
 				}, 
 				customOptions,
-				""
-//				"----------\n" + 
-//				"1. ERROR in Y1.java (at line 5)\n" + 
-//				"	X1<@Nullable String> maybeStrings;\n" + 
-//				"	   ^^^^^^^^^^^^^^^^\n" + 
-//				"Incompatible type argument ...\n" + 
-//				"----------\n"
+				"----------\n" + 
+				"1. ERROR in Y1.java (at line 6)\n" + 
+				"	x.<Y1, @NonNull Object>foo(this, new Object());\n" + 
+				"	       ^^^^^^^^^^^^^^^\n" + 
+				"Null constraint mismatch: The type '@NonNull Object' is not a valid substitute for the type parameter 'V' which is constrained as '@Nullable'\n" + 
+				"----------\n"
 				);
 	}
 
@@ -1040,7 +1034,6 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				},
 				customOptions,
 				"");
-// FIXME(stephan): add desired error message
 		runNegativeTestWithLibs(
 				new String[] {
 					"Y1.java",
@@ -1055,7 +1048,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				}, 
 				customOptions,
 				"----------\n" + 
-				"1. ERROR in Y1.java (at line 6)\n" + 
+				"1. ERROR in Y1.java (at line 5)\n" + 
+				"	x.<@NonNull Y1, @NonNull Object>foo(this, new Object())\n" + 
+				"	                ^^^^^^^^^^^^^^^\n" + 
+				"Null constraint mismatch: The type '@NonNull Object' is not a valid substitute for the type parameter 'V' which is constrained as '@Nullable'\n" + 
+				"----------\n" + 
+				"2. ERROR in Y1.java (at line 6)\n" + 
 				"	.get(0).put(null, null);\n" + 
 				"	                  ^^^^\n" + 
 				"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 

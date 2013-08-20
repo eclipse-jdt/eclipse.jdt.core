@@ -372,6 +372,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.ConflictingNullAnnotations:
 		case IProblem.ConflictingInheritedNullAnnotations:
 		case IProblem.NullityMismatchingTypeAnnotation:
+		case IProblem.NullityMismatchTypeArgument:
 		case IProblem.UninitializedNonNullField:
 		case IProblem.UninitializedNonNullFieldHintMissingDefault:
 		case IProblem.ReferenceExpressionParameterMismatchPromisedNullable:
@@ -9394,6 +9395,28 @@ public void nullityMismatchingTypeAnnotation(Expression expression, TypeBinding 
 			problemId,
 			arguments, shortArguments, expression.sourceStart, expression.sourceEnd);
 }
+
+public void nullityMismatchTypeArgument(TypeBinding typeVariable, TypeBinding typeArgument, ASTNode location) {
+	long tagBits = typeVariable.tagBits & TagBits.AnnotationNullMASK;
+	char[][] annotationName = tagBits == TagBits.AnnotationNonNull ? this.options.nonNullAnnotationName : this.options.nullableAnnotationName;
+	String[] arguments = {
+		String.valueOf(typeVariable.readableName()),
+		String.valueOf(CharOperation.concatWith(annotationName, '.')),
+		String.valueOf(typeArgument.nullAnnotatedReadableName(this.options, false))
+	};
+	String[] shortArguments = {
+		String.valueOf(typeVariable.shortReadableName()),
+		String.valueOf(annotationName[annotationName.length-1]),
+		String.valueOf(typeArgument.nullAnnotatedReadableName(this.options, true))
+	};
+	this.handle(
+			IProblem.NullityMismatchTypeArgument, 
+			arguments, 
+			shortArguments, 
+			location.sourceStart, 
+			location.sourceEnd);
+}
+
 public void dereferencingNullableExpression(Expression expression) {
 	if (expression instanceof MessageSend) {
 		MessageSend send = (MessageSend) expression;

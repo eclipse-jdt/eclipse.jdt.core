@@ -18,6 +18,7 @@
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
+ *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -461,7 +462,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 			long superNullTagBits = resolveType.tagBits & TagBits.AnnotationNullMASK;
 			if (superNullTagBits != 0L) {
 				if (nullTagBits == 0L) {
-					this.tagBits |= superNullTagBits;
+					this.tagBits |= (superNullTagBits | TagBits.HasNullTypeAnnotation);
 				} else {
 //					System.err.println("TODO(stephan): report proper error: conflict binary TypeVariable vs. first bound");
 				}
@@ -478,7 +479,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 				long superNullTagBits = resolveType.tagBits & TagBits.AnnotationNullMASK;
 				if (superNullTagBits != 0L) {
 					if (nullTagBits == 0L) {
-						this.tagBits |= superNullTagBits;
+						this.tagBits |= (superNullTagBits | TagBits.HasNullTypeAnnotation);
 					} else {
 //						System.err.println("TODO(stephan): report proper error: conflict binary TypeVariable vs. bound "+i);
 					}
@@ -551,7 +552,9 @@ public class TypeVariableBinding extends ReferenceBinding {
 			Binding recipient = annotations[j].recipient;
 			if (recipient instanceof Annotation.TypeUseBinding) {
 				// FIXME(stephan): detect contradictions
-				this.tagBits |= ((Annotation.TypeUseBinding)recipient).tagBits & TagBits.AnnotationNullMASK;
+				long annotationsTagBits = ((Annotation.TypeUseBinding)recipient).tagBits & TagBits.AnnotationNullMASK;
+				if (annotationsTagBits != 0)
+					this.tagBits |= annotationsTagBits | TagBits.HasNullTypeAnnotation;
 			}
 		}
 		long nullTagBits = this.tagBits & TagBits.AnnotationNullMASK;
@@ -581,6 +584,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 				interfaces[i] = resolveType;
 			}
 		}
-		this.tagBits |= nullTagBits;
+		if (nullTagBits != 0)
+			this.tagBits |= nullTagBits | TagBits.HasNullTypeAnnotation;
 	}
 }

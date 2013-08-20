@@ -10,9 +10,11 @@
  *     Stephan Herrmann - Contributions for
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
+ *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /**
@@ -357,6 +359,17 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		}
 	    this.wasInferred = true;// resulting from method invocation inferrence
 	    this.parameterNonNullness = originalMethod.parameterNonNullness;
+	}
+
+	public void checkNullConstraints(Scope scope, TypeReference typeArgument, int rank) {
+    	TypeBinding[] variables = this.originalMethod.typeVariables();
+		if (variables != null && variables.length > rank) {
+			if (variables[rank].hasNullTypeAnnotations()) {
+				if ((typeArgument.resolvedType.tagBits & TagBits.AnnotationNullMASK) != (variables[rank].tagBits & TagBits.AnnotationNullMASK)) {
+					scope.problemReporter().nullityMismatchTypeArgument(variables[rank], typeArgument.resolvedType, typeArgument);
+				}
+	    	}
+		}
 	}
 
 	/*

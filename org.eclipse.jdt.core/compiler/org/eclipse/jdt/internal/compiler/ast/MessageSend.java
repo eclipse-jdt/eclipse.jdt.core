@@ -33,7 +33,8 @@
  *								bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
  *								bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
- *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -163,6 +164,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			}
 		}
 		analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);
+	}
+	if (this.binding instanceof ParameterizedGenericMethodBinding && this.typeArguments != null) {
+		ParameterizedGenericMethodBinding parameterizedBinding = (ParameterizedGenericMethodBinding) this.binding;
+		for (int i = 0; i < this.typeArguments.length; i++)
+			parameterizedBinding.checkNullConstraints(currentScope, this.typeArguments[i], i);
 	}
 	ReferenceBinding[] thrownExceptions;
 	if ((thrownExceptions = this.binding.thrownExceptions) != Binding.NO_EXCEPTIONS) {
