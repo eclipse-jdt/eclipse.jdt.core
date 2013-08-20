@@ -26,7 +26,7 @@ import junit.framework.Test;
 public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 
 	static {
-		TESTS_NUMBERS = new int [] { 19 };
+//		TESTS_NUMBERS = new int [] { 19 };
 //		TESTS_NAMES = new String [] { "testAbbreviatedInnerClass" };
 	}
 	public static Class testClass() {
