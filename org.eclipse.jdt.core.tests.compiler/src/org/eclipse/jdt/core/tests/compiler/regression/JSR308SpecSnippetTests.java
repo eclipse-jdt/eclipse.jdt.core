@@ -837,4 +837,472 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"    )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	public void test020() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.@NotAllowed Date; // illegal!\n" +
+				"import @IllegalSyntax java.util.Date; // illegal syntax\n" +
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface Even {}\n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface NonEmpty {}\n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface NotAllowed {}\n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface IllegalSyntax {}\n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface Legal {}\n" +
+				"class X {\n" +
+				"	static int staticField;\n" +
+				"	static class StaticNestedClass {}\n" +
+				"	void foo() {\n" +
+				"		Object o = @Even int.class; // illegal!\n" +
+				"		o = int @NonEmpty [].class; // illegal!\n" +
+				"		int x = @IllegalSyntax X.staticField;\n" +
+				"		StaticNestedClass snc = (@IllegalSyntax X.StaticNestedClass) null;\n" +
+				"		X.@Legal StaticNestedClass lsnc = (X.@Legal StaticNestedClass) null;\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	import java.util.@NotAllowed Date; // illegal!\n" + 
+		"	                 ^^^^^^^^^^^\n" + 
+		"Syntax error, type annotations are illegal here\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	import @IllegalSyntax java.util.Date; // illegal syntax\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"Syntax error, type annotations are illegal here\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 2)\n" + 
+		"	import @IllegalSyntax java.util.Date; // illegal syntax\n" + 
+		"	                      ^^^^^^^^^^^^^^\n" + 
+		"The import java.util.Date is never used\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 19)\n" + 
+		"	Object o = @Even int.class; // illegal!\n" + 
+		"	           ^^^^^\n" + 
+		"Syntax error, type annotations are illegal here\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 20)\n" + 
+		"	o = int @NonEmpty [].class; // illegal!\n" + 
+		"	        ^^^^^^^^^\n" + 
+		"Syntax error, type annotations are illegal here\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 21)\n" + 
+		"	int x = @IllegalSyntax X.staticField;\n" + 
+		"	        ^^^^^^^^^^^^^^\n" + 
+		"Syntax error, type annotations are illegal here\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 22)\n" + 
+		"	StaticNestedClass snc = (@IllegalSyntax X.StaticNestedClass) null;\n" + 
+		"	                         ^^^^^^^^^^^^^^\n" + 
+		"Type annotations are not allowed on type names used to access static members\n" + 
+		"----------\n");
+	}
+	public void test021() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.@NotAllowed Date; // illegal!\n" +
+				"import @IllegalSyntax java.util.Date; // illegal syntax\n" +
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface Even {}\n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface NonEmpty {}\n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface NotAllowed {}\n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface IllegalSyntax {}\n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface Legal {}\n" +
+				"interface I {\n" +
+				"	int f(Y y);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	int f;\n" +
+				"	int x(Y y) {}\n" +
+				"}\n" +
+				"class X extends Y {\n" +
+				"	static int staticField;\n" +
+				"	static class StaticNestedClass {}\n" +
+				"	void foo() {\n" +
+				"		Object o = @Even int.class; // illegal!\n" +
+				"		o = int @NonEmpty [].class; // illegal!\n" +
+				"		int x = @IllegalSyntax X.staticField;\n" +
+				"		StaticNestedClass snc = (@IllegalSyntax X.StaticNestedClass) null;\n" +
+				"		X.@Legal StaticNestedClass lsnc = (X.@Legal StaticNestedClass) null;\n" +
+				"		int x2 = @IllegalSyntax X.super.f;\n" +
+				"		I i = @IllegalSyntax X.super::x;\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	import java.util.@NotAllowed Date; // illegal!\n" + 
+		"	                 ^^^^^^^^^^^\n" + 
+		"Syntax error, type annotations are illegal here\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	import @IllegalSyntax java.util.Date; // illegal syntax\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"Syntax error, type annotations are illegal here\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 2)\n" + 
+		"	import @IllegalSyntax java.util.Date; // illegal syntax\n" + 
+		"	                      ^^^^^^^^^^^^^^\n" + 
+		"The import java.util.Date is never used\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 26)\n" + 
+		"	Object o = @Even int.class; // illegal!\n" + 
+		"	           ^^^^^\n" + 
+		"Syntax error, type annotations are illegal here\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 27)\n" + 
+		"	o = int @NonEmpty [].class; // illegal!\n" + 
+		"	        ^^^^^^^^^\n" + 
+		"Syntax error, type annotations are illegal here\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 28)\n" + 
+		"	int x = @IllegalSyntax X.staticField;\n" + 
+		"	        ^^^^^^^^^^^^^^\n" + 
+		"Syntax error, type annotations are illegal here\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 29)\n" + 
+		"	StaticNestedClass snc = (@IllegalSyntax X.StaticNestedClass) null;\n" + 
+		"	                         ^^^^^^^^^^^^^^\n" + 
+		"Type annotations are not allowed on type names used to access static members\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 31)\n" + 
+		"	int x2 = @IllegalSyntax X.super.f;\n" + 
+		"	         ^^^^^^^^^^^^^^\n" + 
+		"Syntax error, type annotations are illegal here\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 32)\n" + 
+		"	I i = @IllegalSyntax X.super::x;\n" + 
+		"	      ^^^^^^^^^^^^^^\n" + 
+		"Syntax error, type annotations are illegal here\n" + 
+		"----------\n");
+	}
+	public void test022() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface Readonly {}\n" +
+				"class X {\n" +
+				"	@Readonly int foo() @Readonly [] {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #17 @Readonly(\n" + 
+				"        target type = 0x14 METHOD_RETURN\n" + 
+				"        location = [ARRAY]\n" + 
+				"      )\n" + 
+				"      #17 @Readonly(\n" + 
+				"        target type = 0x14 METHOD_RETURN\n" + 
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void test023() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface Readonly {}\n" +
+				"interface X {\n" +
+				"	default @Readonly int foo() @Readonly [] {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #13 @Readonly(\n" + 
+				"        target type = 0x14 METHOD_RETURN\n" + 
+				"        location = [ARRAY]\n" + 
+				"      )\n" + 
+				"      #13 @Readonly(\n" + 
+				"        target type = 0x14 METHOD_RETURN\n" + 
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void test024() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface Readonly {}\n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface Critical {}\n" +
+				"class X {\n" +
+				"	void foo() {\n" +
+				"		try {\n" +
+				"           System.out.println();\n" +
+				"		} catch (@Readonly NullPointerException | @Critical ArrayIndexOutOfBoundsException e) {\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #34 @Readonly(\n" + 
+				"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+				"        exception table index = 0\n" + 
+				"      )\n" + 
+				"      #35 @Critical(\n" + 
+				"        target type = 0x42 EXCEPTION_PARAMETER\n" + 
+				"        exception table index = 1\n" + 
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void test025() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface Readonly {}\n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface Critical {}\n" +
+				"class X {\n" +
+				"	void foo(@Readonly int [] [] @Critical ... x) {\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #19 @Readonly(\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"        location = [ARRAY, ARRAY, ARRAY]\n" + 
+				"      )\n" + 
+				"      #20 @Critical(\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"        location = [ARRAY, ARRAY]\n" + 
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void test026() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface Readonly {}\n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface Critical {}\n" +
+				"class X {\n" +
+				"	void foo(@Readonly int [] [] @Critical ... x) {\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #19 @Readonly(\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"        location = [ARRAY, ARRAY, ARRAY]\n" + 
+				"      )\n" + 
+				"      #20 @Critical(\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"        location = [ARRAY, ARRAY]\n" + 
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void test027() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface NonNull {}\n" +
+				"class X {\n" +
+				"	@NonNull String var1, arr2[];\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #8 @NonNull(\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Field descriptor #10 [Ljava/lang/String;\n" + 
+				"  java.lang.String[] arr2;\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #8 @NonNull(\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY]\n" + 
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void test028() throws Exception { // // WILL FAIL WHEN https://bugs.eclipse.org/bugs/show_bug.cgi?id=415397 IS FIXED.
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import java.util.List;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface NonNull {}\n" +
+				"class X<@NonNull T> {\n" +
+				"	<@NonNull K> void foo() {}\n" +
+				"	List<@NonNull ?> l;\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #23 @NonNull(\n" + 
+				"        target type = 0x1 METHOD_TYPE_PARAMETER\n" + 
+				"        type parameter index = 0\n" + 
+				"      )\n" + 
+				"\n" + 
+				"  RuntimeInvisibleTypeAnnotations: \n" + 
+				"    #23 @NonNull(\n" + 
+				"      target type = 0x0 CLASS_TYPE_PARAMETER\n" + 
+				"      type parameter index = 0\n" + 
+				"    )\n" + 
+				"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void test029() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target({TYPE_USE}) @interface TAnno { }\n" +
+				"@Target({METHOD}) @interface MAnno { }\n" +
+				"@Target({METHOD, TYPE_USE}) @interface MTAnno { }\n" +
+				"@Target({FIELD}) @interface FAnno { }\n" +
+				"@Target({FIELD, TYPE_USE}) @interface FTAnno { }\n" +
+				"class X {\n" +
+				"@FAnno Object field4; // legal, one field annotation\n" +
+				"@TAnno Object field5; // legal, one type annotation\n" +
+				"@FTAnno Object field6; // legal, one field annotation and one type annotation\n" +
+				"@FAnno java.lang.Object field7; // legal, one field annotation\n" +
+				"@TAnno java.lang.Object field8; // illegal\n" +
+				"@FTAnno java.lang.Object field9; // legal, one field annotation\n" +
+				"java.lang. @FAnno Object field10; // illegal\n" +
+				"java.lang. @TAnno Object field11; // legal, one type annotation\n" +
+				"java.lang. @FTAnno Object field12; // legal, one type annotation\n" +
+				"@MAnno void myMethod1() { } // legal, one method annotation\n" +
+				"@TAnno void myMethod2() { } // illegal\n" +
+				"@MTAnno void myMethod3() { } // legal, one method annotation\n" +
+				"@MAnno Object myMethod4() {  } // legal, one method annotation\n" +
+				"@TAnno Object myMethod5() { } // legal, one type annotation\n" +
+				"@MTAnno Object myMethod6() {  } // legal, one method annotation and one type annotation\n" +
+				"@MAnno java.lang.Object myMethod7() {  } // legal, one method annotation\n" +
+				"@TAnno java.lang.Object myMethod8() {  } // illegal\n" +
+				"@MTAnno java.lang.Object myMethod9() {  } // legal, one method annotation\n" +
+				"java.lang. @MAnno Object myMethod10() { } // illegal\n" +
+				"java.lang. @TAnno Object myMethod11() {  } // legal, one type annotation\n" +
+				"java.lang. @MTAnno Object myMethod12() {  } // legal, one type annotation\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
+		"	@TAnno java.lang.Object field8; // illegal\n" + 
+		"	^^^^^^\n" + 
+		"The annotation @TAnno is disallowed for this location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 15)\n" + 
+		"	java.lang. @FAnno Object field10; // illegal\n" + 
+		"	           ^^^^^^\n" + 
+		"The annotation @FAnno is disallowed for this location\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 19)\n" + 
+		"	@TAnno void myMethod2() { } // illegal\n" + 
+		"	^^^^^^\n" + 
+		"Type annotation is illegal for a method that returns void\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 25)\n" + 
+		"	@TAnno java.lang.Object myMethod8() {  } // illegal\n" + 
+		"	^^^^^^\n" + 
+		"The annotation @TAnno is disallowed for this location\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 27)\n" + 
+		"	java.lang. @MAnno Object myMethod10() { } // illegal\n" + 
+		"	           ^^^^^^\n" + 
+		"The annotation @MAnno is disallowed for this location\n" + 
+		"----------\n");
+	}
+	public void test030() throws Exception { // WILL FAIL WHEN https://bugs.eclipse.org/bugs/show_bug.cgi?id=415470 IS FIXED.
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target({TYPE_USE}) @interface TypeAnnotation { }\n" +
+				"@Target({TYPE}) @interface Annotation { }\n" +
+				"@Annotation @TypeAnnotation class X {\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"// Compiled from X.java (version 1.8 : 52.0, super bit)\n" + 
+				"class X {\n" + 
+				"  Constant pool:\n" + 
+				"    constant #1 class: #2 X\n" + 
+				"    constant #2 utf8: \"X\"\n" + 
+				"    constant #3 class: #4 java/lang/Object\n" + 
+				"    constant #4 utf8: \"java/lang/Object\"\n" + 
+				"    constant #5 utf8: \"<init>\"\n" + 
+				"    constant #6 utf8: \"()V\"\n" + 
+				"    constant #7 utf8: \"Code\"\n" + 
+				"    constant #8 method_ref: #3.#9 java/lang/Object.<init> ()V\n" + 
+				"    constant #9 name_and_type: #5.#6 <init> ()V\n" + 
+				"    constant #10 utf8: \"LineNumberTable\"\n" + 
+				"    constant #11 utf8: \"LocalVariableTable\"\n" + 
+				"    constant #12 utf8: \"this\"\n" + 
+				"    constant #13 utf8: \"LX;\"\n" + 
+				"    constant #14 utf8: \"SourceFile\"\n" + 
+				"    constant #15 utf8: \"X.java\"\n" + 
+				"    constant #16 utf8: \"RuntimeInvisibleAnnotations\"\n" + 
+				"    constant #17 utf8: \"LAnnotation;\"\n" + 
+				"  \n" + 
+				"  // Method descriptor #6 ()V\n" + 
+				"  // Stack: 1, Locals: 1\n" + 
+				"  X();\n" + 
+				"    0  aload_0 [this]\n" + 
+				"    1  invokespecial java.lang.Object() [8]\n" + 
+				"    4  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 5]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+				"\n" + 
+				"  RuntimeInvisibleAnnotations: \n" + 
+				"    #17 @Annotation(\n" + 
+				"    )\n" + 
+				"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
 }
