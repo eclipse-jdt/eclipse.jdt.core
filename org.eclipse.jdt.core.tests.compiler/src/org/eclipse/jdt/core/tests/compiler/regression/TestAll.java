@@ -139,6 +139,7 @@ public static Test suite() {
 	since_1_8.add(GrammarCoverageTests308.class);
 	since_1_8.add(FlowAnalysisTest8.class);
 	since_1_8.add(TypeAnnotationTest.class);
+	since_1_8.add(JSR308SpecSnippetTests.class);
 	since_1_8.add(Deprecated18Test.class);
 	since_1_8.add(MethodParametersAttributeTest.class);
 	since_1_8.add(ClassFileReaderTest_1_8.class);
