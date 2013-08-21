@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 GK Software AG and others.
+ * Copyright (c) 2011, 2013 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,12 +25,24 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class ResourceLeakTests extends AbstractRegressionTest {
 
-// well-known helper class:
+// well-known helper classes:
 private static final String GUAVA_CLOSEABLES_JAVA = "com/google/common/io/Closeables.java";
 private static final String GUAVA_CLOSEABLES_CONTENT = "package com.google.common.io;\n" +
 	"public class Closeables {\n" +
 	"    public static void closeQuietly(java.io.Closeable closeable) {}\n" +
 	"    public static void close(java.io.Closeable closeable, boolean flag) {}\n" +
+	"}\n";
+private static final String APACHE_DBUTILS_JAVA = "org/apache/commons/dbutils/DbUtils.java";
+private static final String APACHE_DBUTILS_CONTENT = "package org.apache.commons.dbutils;\n" +
+	"import java.sql.*;\n" +
+	"public class DbUtils {\n" +
+	"    public static void close(Connection connection) {}\n" +
+	"    public static void close(ResultSet resultSet) {}\n" +
+	"    public static void close(Statement statement) {}\n" +
+	"    public static void closeQuietly(Connection connection) {}\n" +
+	"    public static void closeQuietly(ResultSet resultSet) {}\n" +
+	"    public static void closeQuietly(Statement statement) {}\n" +
+	"    public static void closeQuietly(Connection conn, Statement stmt, ResultSet rs) {}\n" +
 	"}\n";
 
 static {
@@ -4070,6 +4082,61 @@ public void testBug381445_1() {
 		"	InputStream stream4 = new FileInputStream(path);\n" + 
 		"	            ^^^^^^^\n" + 
 		"Potential resource leak: \'stream4\' may not be closed\n" + 
+		"----------\n",
+		null,
+		true,
+		options,
+		null);	
+}
+
+// Bug 405569 - Resource leak check false positive when using DbUtils.closeQuietly
+// A resource is closed using more known close helpers
+public void testBug381445_1b() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			APACHE_DBUTILS_JAVA,
+			APACHE_DBUTILS_CONTENT,
+			"Bug381445.java",
+			"import java.sql.*;\n" +
+			"\n" +
+			"public class Bug381445 {\n" +
+			"	public void performQuery1(String url, String q1, String q2) throws Exception {\n" +
+			"		Connection conn = DriverManager.getConnection(url);\n" +
+			"		Statement stat = conn.createStatement();\n" +
+			"		ResultSet rset = stat.executeQuery(q1);\n" +
+			"		ResultSet rset2 = stat.executeQuery(q2);\n" +
+			"		try {\n" +
+			"			// empty\n" +
+			"		} finally {\n" +
+			"			org.apache.commons.dbutils.DbUtils.closeQuietly(conn);\n" +
+			"			org.apache.commons.dbutils.DbUtils.close(stat);\n" +
+			"			org.apache.commons.dbutils.DbUtils.closeQuietly(rset);\n" +
+			"			Closeables.closeQuietly(rset2);\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public void performQuery2(String url, String q1, String q2) throws Exception {\n" +
+			"		Connection conn = DriverManager.getConnection(url);\n" +
+			"		Statement stat = conn.createStatement();\n" +
+			"		ResultSet rset = stat.executeQuery(q1);\n" +
+			"		try {\n" +
+			"			// empty\n" +
+			"		} finally {\n" +
+			"			org.apache.commons.dbutils.DbUtils.closeQuietly(conn, stat, rset);\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class Closeables {\n" + // fake, should not be recognized
+			"	public static void closeQuietly(java.lang.AutoCloseable closeable) {}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Bug381445.java (at line 8)\n" + 
+		"	ResultSet rset2 = stat.executeQuery(q2);\n" +
+		"	          ^^^^^\n" + 
+		"Potential resource leak: \'rset2\' may not be closed\n" + 
 		"----------\n",
 		null,
 		true,
