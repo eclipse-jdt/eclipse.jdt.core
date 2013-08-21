@@ -171,7 +171,7 @@ public final class AST {
 	/**
 	 * Internal synonym for {@link #JLS4}. Use to alleviate
 	 * deprecation warnings.
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	/*package*/ static final int JLS4_INTERNAL = JLS4;
 	
@@ -187,7 +187,7 @@ public final class AST {
 	 * up to and including Java SE 8 (aka JDK 1.8).
 	 * </p>
 	 *
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	public static final int JLS8 = 8;
 
@@ -1351,7 +1351,7 @@ public final class AST {
 	 * 
 	 * @return a new unparented creation reference expression node
 	 * @exception UnsupportedOperationException if this operation is used in a JLS2, JLS3 or JLS4 AST
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	public CreationReference newCreationReference() {
 		CreationReference result = new CreationReference(this);
@@ -1432,7 +1432,7 @@ public final class AST {
 	 * 
 	 * @return a new unparented expression method reference expression node
 	 * @exception UnsupportedOperationException if this operation is used in a JLS2, JLS3 or JLS4 AST
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	public ExpressionMethodReference newExpressionMethodReference() {
 		ExpressionMethodReference result = new ExpressionMethodReference(this);
@@ -1476,7 +1476,7 @@ public final class AST {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used
 	 *            in a JLS2, JLS3 or JLS4 AST
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	public ExtraDimension newExtraDimension() {
 		ExtraDimension result = new ExtraDimension(this);
@@ -1627,7 +1627,7 @@ public final class AST {
 	 * 
 	 * @return a new unparented lambda expression node
 	 * @exception UnsupportedOperationException if this operation is used in a JLS2, JLS3 or JLS4 AST
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	public LambdaExpression newLambdaExpression() {
 		LambdaExpression result = new LambdaExpression(this);
@@ -2011,7 +2011,7 @@ public final class AST {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2, JLS3 and JLS4 AST
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	public PackageQualifiedType newPackageQualifiedType(Name qualifier, SimpleName name) {
 		PackageQualifiedType result = new PackageQualifiedType(this);
@@ -2276,7 +2276,7 @@ public final class AST {
 	 * and there is no qualifier and no type arguments.
 	 *
 	 * @return a new unparented super method reference node
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	public SuperMethodReference newSuperMethodReference() {
 		SuperMethodReference result = new SuperMethodReference(this);
@@ -2470,7 +2470,7 @@ public final class AST {
 	 * 
 	 * @return a new unparented type method reference node
 	 * @exception UnsupportedOperationException if this operation is used in a JLS2, JLS3 or JLS4 AST
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	public TypeMethodReference newTypeMethodReference() {
 		TypeMethodReference result = new TypeMethodReference(this);
@@ -2511,7 +2511,7 @@ public final class AST {
 	 * @return a new unparented IntersectionType node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2, JLS3 or JLS4 AST
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	public IntersectionType newIntersectionType() {
 		return new IntersectionType(this);

@@ -1431,7 +1431,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	/*
 	 * @see ASTVisitor#visit(PackageQualifiedType)
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	public boolean visit(PackageQualifiedType node) {
 		getChildNode(node, PackageQualifiedType.QUALIFIER_PROPERTY).accept(this);

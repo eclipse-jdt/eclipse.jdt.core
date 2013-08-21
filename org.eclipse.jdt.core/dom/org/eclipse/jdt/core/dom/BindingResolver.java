@@ -596,7 +596,7 @@ class BindingResolver {
 	 * @param methodReference the  method reference of interest
 	 * @return the binding for the given  method reference, or
 	 *    <code>null</code> if no binding is available
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	IMethodBinding resolveMethod(MethodReference methodReference) {
 		return null;

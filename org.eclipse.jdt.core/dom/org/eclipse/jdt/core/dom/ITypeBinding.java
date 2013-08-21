@@ -744,7 +744,7 @@ public interface ITypeBinding extends IBinding {
 	 *
 	 * @return <code>true</code> if this object represents a functional interface,
 	 *    and <code>false</code> otherwise
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	public boolean isFunctionalInterface();
 

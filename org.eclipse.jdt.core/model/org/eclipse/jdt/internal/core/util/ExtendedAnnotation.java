@@ -53,7 +53,7 @@ import org.eclipse.jdt.core.util.ILocalVariableReferenceInfo;
    } element_value_pairs[num_element_value_pairs];
 */
 /**
- * @since 3.9 BETA_JAVA8
+ * @since 3.10 BETA_JAVA8
  */
 public class ExtendedAnnotation extends ClassFileStruct implements IExtendedAnnotation {
 

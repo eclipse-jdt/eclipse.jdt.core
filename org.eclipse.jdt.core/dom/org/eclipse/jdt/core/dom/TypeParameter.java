@@ -33,7 +33,7 @@ public class TypeParameter extends ASTNode {
 
 	/**
 	 * The "annotations" structural property of this node type (element type: {@link Annotation}) (added in JLS8 API).
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
 			new ChildListPropertyDescriptor(TypeParameter.class, "annotations", Annotation.class, CYCLE_RISK); //$NON-NLS-1$
@@ -60,7 +60,7 @@ public class TypeParameter extends ASTNode {
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	private static final List PROPERTY_DESCRIPTORS_8_0;
 
@@ -296,7 +296,7 @@ public class TypeParameter extends ASTNode {
 	 * @return the live list of annotations (element type: {@link Annotation})
 	 * @exception UnsupportedOperationException if this operation is used
 	 *            in a JLS2, JLS3 or JLS4 AST
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	public List annotations() {
 		// more efficient than just calling unsupportedIn2_3_4() to check

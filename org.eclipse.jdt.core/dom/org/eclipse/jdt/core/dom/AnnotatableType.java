@@ -22,7 +22,7 @@ import java.util.List;
  * Introduced in JLS8, type references that can be annotated are represented by 
  * AnnotatableType. For the list of types extending AnnotatableType, see {@link Type}.</p>
  *
- * @since 3.9 BETA_JAVA8
+ * @since 3.10 BETA_JAVA8
  */
 public abstract class AnnotatableType extends Type {
 	

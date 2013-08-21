@@ -282,7 +282,7 @@ public final class JavaCore extends Plugin {
 	 * <dt>Possible values:</dt><dd><code>{ "generate", "do not generate" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"do not generate"</code></dd>
 	 * </dl>
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_CODEGEN_METHOD_PARAMETERS_ATTR = PLUGIN_ID + ".compiler.codegen.methodParameters"; //$NON-NLS-1$
@@ -2662,7 +2662,7 @@ public final class JavaCore extends Plugin {
 	public static final String VERSION_1_7 = "1.7"; //$NON-NLS-1$
 	/**
 	 * Configurable option value: {@value}.
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 * @category OptionValue
 	 */
 	public static final String VERSION_1_8 = "1.8"; //$NON-NLS-1$

@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
  * Description of an extended annotation target types constants as described in the JVM specifications
  * (added in JavaSE-1.8).
  *
- * @since 3.9 BETA_JAVA8
+ * @since 3.10 BETA_JAVA8
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  */

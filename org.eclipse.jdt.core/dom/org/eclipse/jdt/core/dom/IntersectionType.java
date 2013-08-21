@@ -28,7 +28,7 @@ import java.util.List;
  * This kind of node is used only inside a cast expression.
  * </p>
  *
- * @since 3.9 BETA_JAVA8
+ * @since 3.10 BETA_JAVA8
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class IntersectionType extends Type {

@@ -169,11 +169,11 @@ public interface ITerminalSymbols {
 	int TokenNamegoto = 404;  // goto not found in Java ? :)
 
 	/**
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	int TokenNameARROW = 405;
 	/**
-	 * @since 3.9 BETA_JAVA8
+	 * @since 3.10 BETA_JAVA8
 	 */
 	int TokenNameCOLON_COLON = 406;
 	

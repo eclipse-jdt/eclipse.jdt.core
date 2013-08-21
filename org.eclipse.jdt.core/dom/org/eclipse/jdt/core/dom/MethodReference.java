@@ -38,7 +38,7 @@ import java.util.List;
  * @see ExpressionMethodReference
  * @see SuperMethodReference
  * @see TypeMethodReference
- * @since 3.9 BETA_JAVA8
+ * @since 3.10 BETA_JAVA8
  */
 public abstract class MethodReference extends Expression {
 

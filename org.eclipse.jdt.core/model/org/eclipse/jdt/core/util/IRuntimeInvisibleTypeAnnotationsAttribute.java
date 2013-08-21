@@ -22,7 +22,7 @@ package org.eclipse.jdt.core.util;
  *
  * This interface may be implemented by clients.
  *
- * @since 3.9 BETA_JAVA8
+ * @since 3.10 BETA_JAVA8
  */
 public interface IRuntimeInvisibleTypeAnnotationsAttribute extends IClassFileAttribute {
 
