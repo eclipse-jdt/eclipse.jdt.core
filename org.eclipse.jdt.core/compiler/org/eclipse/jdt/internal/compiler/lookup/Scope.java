@@ -19,6 +19,7 @@
  *								bug 401271 - StackOverflowError when searching for a methods references
  *								bug 405706 - Eclipse compiler fails to give compiler error when return type is a inferred generic
  *								Bug 408441 - Type mismatch using Arrays.asList with 3 or more implementations of an interface with the interface type as the last parameter
+ *								Bug 413958 - Function override returning inherited Generic Type
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -302,7 +303,7 @@ public abstract class Scope {
 	}
 
 	// 5.1.10
-	public static TypeBinding[] greaterLowerBound(TypeBinding[] types, /*@Nullable*/ Scope scope) {
+	public static TypeBinding[] greaterLowerBound(TypeBinding[] types, /*@Nullable*/ Scope scope, LookupEnvironment environment) {
 		if (types == null) return null;
 		int length = types.length;
 		if (length == 0) return null;
@@ -324,10 +325,34 @@ public abstract class Scope {
 				} else if (!jType.isCompatibleWith(iType, scope)) {
 					// avoid creating unsatisfiable intersection types (see https://bugs.eclipse.org/405706):
 					if (iType.isParameterizedType() && jType.isParameterizedType()) {
-						if (iType.original().isCompatibleWith(jType.original(), scope)
-								|| jType.original().isCompatibleWith(iType.original(), scope)) 
-						{
-							// parameterized types are incompatible due to incompatible type arguments => unsatisfiable
+						// if the wider of the two types (judged by originals) has type variables
+						// substitute those with their upper bounds and re-check (see https://bugs.eclipse.org/413958):
+						ParameterizedTypeBinding wideType, narrowType;
+						if (iType.original().isCompatibleWith(jType.original(), scope)) {
+							wideType = (ParameterizedTypeBinding) jType;
+							narrowType = (ParameterizedTypeBinding) iType;
+						} else if (jType.original().isCompatibleWith(iType.original(), scope)) {
+							wideType = (ParameterizedTypeBinding) iType;
+							narrowType = (ParameterizedTypeBinding) jType;
+						} else {
+							continue;
+						}
+						if (wideType.arguments == null)
+							continue; // assume we already have an error here
+						int numTypeArgs = wideType.arguments.length;
+						TypeBinding[] bounds = new TypeBinding[numTypeArgs];
+						for (int k = 0; k < numTypeArgs; k++) {
+							TypeBinding argument = wideType.arguments[k];
+							bounds[k] = argument.isTypeVariable() ? ((TypeVariableBinding)argument).upperBound() : argument;
+						}
+						ReferenceBinding wideOriginal = (ReferenceBinding) wideType.original();
+						TypeBinding substitutedWideType =
+								environment.createParameterizedType(wideOriginal, bounds, wideOriginal.enclosingType());
+						// if the narrow type is compatible with the substituted wide type, we keep silent, 
+						// substituting type variables with proper types can still satisfy all constraints,
+						// otherwise ... 
+						if (!narrowType.isCompatibleWith(substitutedWideType, scope)) {
+							// ... parameterized types are incompatible due to incompatible type arguments => unsatisfiable
 							return null;
 						}
 					}
@@ -438,7 +463,7 @@ public abstract class Scope {
 			    			TypeBinding [] bounds = new TypeBinding[1 + substitutedOtherBounds.length];
 			    			bounds[0] = substitutedBound;
 			    			System.arraycopy(substitutedOtherBounds, 0, bounds, 1, substitutedOtherBounds.length);
-			    			TypeBinding[] glb = Scope.greaterLowerBound(bounds, null); // re-evaluate
+			    			TypeBinding[] glb = Scope.greaterLowerBound(bounds, null, substitution.environment()); // re-evaluate
 			    			if (glb != null && glb != bounds) {
 			    				substitutedBound = glb[0];
 		    					if (glb.length == 1) {
@@ -3412,7 +3437,7 @@ public abstract class Scope {
 					case Wildcard.SUPER :
 						// ? super U, ? super V
 						if (wildU.boundKind == Wildcard.SUPER) {
-							TypeBinding[] glb = greaterLowerBound(new TypeBinding[]{wildU.bound,wildV.bound}, this);
+							TypeBinding[] glb = greaterLowerBound(new TypeBinding[]{wildU.bound,wildV.bound}, this, this.environment());
 							if (glb == null) return null;
 							return environment().createWildcard(genericType, rank, glb[0], null /*no extra bound*/, Wildcard.SUPER);	// TODO (philippe) need to capture entire bounds
 						}
@@ -3428,7 +3453,7 @@ public abstract class Scope {
 						return environment().createWildcard(genericType, rank, lub, null /*no extra bound*/, Wildcard.EXTENDS);
 					// U, ? super V
 					case Wildcard.SUPER :
-						TypeBinding[] glb = greaterLowerBound(new TypeBinding[]{u,wildV.bound}, this);
+						TypeBinding[] glb = greaterLowerBound(new TypeBinding[]{u,wildV.bound}, this, this.environment());
 						if (glb == null) return null;
 						return environment().createWildcard(genericType, rank, glb[0], null /*no extra bound*/, Wildcard.SUPER);	// TODO (philippe) need to capture entire bounds
 					case Wildcard.UNBOUND :
@@ -3446,7 +3471,7 @@ public abstract class Scope {
 					return environment().createWildcard(genericType, rank, lub, null /*no extra bound*/, Wildcard.EXTENDS);
 				// U, ? super V
 				case Wildcard.SUPER :
-					TypeBinding[] glb = greaterLowerBound(new TypeBinding[]{wildU.bound, v}, this);
+					TypeBinding[] glb = greaterLowerBound(new TypeBinding[]{wildU.bound, v}, this, this.environment());
 					if (glb == null) return null;
 					return environment().createWildcard(genericType, rank, glb[0], null /*no extra bound*/, Wildcard.SUPER); // TODO (philippe) need to capture entire bounds
 				case Wildcard.UNBOUND :

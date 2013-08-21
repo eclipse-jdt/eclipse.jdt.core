@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
+ *								bug 413958 - Function override returning inherited Generic Type
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -263,7 +264,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					if (substitute != null) continue nextTypeParameter; // already inferred previously
 					TypeBinding [] bounds = inferenceContext.getSubstitutes(current, TypeConstants.CONSTRAINT_EXTENDS);
 					if (bounds == null) continue nextTypeParameter;
-					TypeBinding[] glb = Scope.greaterLowerBound(bounds, scope);
+					TypeBinding[] glb = Scope.greaterLowerBound(bounds, scope, scope.environment());
 					TypeBinding mostSpecificSubstitute = null;
 					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=341795 - Per 15.12.2.8, we should fully apply glb
 					if (glb != null) {
