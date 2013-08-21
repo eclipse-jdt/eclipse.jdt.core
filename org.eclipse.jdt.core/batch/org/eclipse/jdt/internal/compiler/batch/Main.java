@@ -25,6 +25,7 @@
  *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
  *     Jesper S Moller   - Contributions for
  *								bug 407297 - [1.8][compiler] Control generation of parameter names by option
+ *    Mat Booth - Contribution for bug 405176 
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -920,7 +921,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						}));
 				}
 			}
-			if ((this.tagBits & Logger.EMACS) != 0) {
+			if ((this.tagBits & Logger.XML) == 0) {
 				this.printlnErr();
 			}
 		}
