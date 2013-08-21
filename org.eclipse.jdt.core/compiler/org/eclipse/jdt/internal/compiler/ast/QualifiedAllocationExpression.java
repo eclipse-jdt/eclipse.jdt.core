@@ -23,9 +23,11 @@
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *								bug 378674 - "The method can be declared as static" is wrong
- *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409245 - [1.8][compiler] Type annotations dropped when call is routed through a synthetic bridge method
+ *     Till Brychcy - Contributions for
+ *     							bug 413460 - NonNullByDefault is not inherited to Constructors when accessed via Class File
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -35,10 +37,12 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.ImplicitNullAnnotationVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
@@ -271,7 +275,18 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		if (this.anonymousType == null && this.enclosingInstance == null) {
 			return super.resolveType(scope);
 		}
-
+		TypeBinding result=resolveTypeForQualifiedAllocationExpression(scope);
+		if(result != null) {
+			final CompilerOptions compilerOptions = scope.compilerOptions();
+			if (compilerOptions.isAnnotationBasedNullAnalysisEnabled && (this.binding.tagBits & TagBits.IsNullnessKnown) == 0) {
+				new ImplicitNullAnnotationVerifier(compilerOptions.inheritNullAnnotations)
+						.checkImplicitNullAnnotations(this.binding, null/*srcMethod*/, false, scope);
+			}
+		}
+		return result;
+	}
+	
+	private TypeBinding resolveTypeForQualifiedAllocationExpression(BlockScope scope) {
 		// Propagate the type checking to the arguments, and checks if the constructor is defined.
 		// ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
 		// ClassInstanceCreationExpression ::= Name '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
