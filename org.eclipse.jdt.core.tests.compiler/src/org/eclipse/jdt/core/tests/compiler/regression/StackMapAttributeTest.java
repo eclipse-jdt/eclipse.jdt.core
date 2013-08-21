@@ -8396,6 +8396,11 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"		Object o2 = new Object();\n" + 
 					"	}\n" + 
 					"}\n",
+					"org/eclipse/jdt/annotation/NonNull.java",
+					"package org.eclipse.jdt.annotation;\n" +
+					"import java.lang.annotation.*;\n" +
+					"@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE })\n" +
+					"public @interface NonNull {}\n"
 				},
 				"",
 				getLibsWithNullAnnotations(),
@@ -8513,6 +8518,11 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"		Object o2 = new Object();\n" + 
 					"	}\n" + 
 					"}\n",
+					"org/eclipse/jdt/annotation/NonNull.java",
+					"package org.eclipse.jdt.annotation;\n" +
+					"import java.lang.annotation.*;\n" +
+					"@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE })\n" +
+					"public @interface NonNull {}\n"
 				},
 				"",
 				getLibsWithNullAnnotations(),
