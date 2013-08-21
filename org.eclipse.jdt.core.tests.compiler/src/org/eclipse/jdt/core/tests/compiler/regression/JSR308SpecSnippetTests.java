@@ -27,7 +27,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 
 	static {
 //		TESTS_NUMBERS = new int [] { 19 };
-//		TESTS_NAMES = new String [] { "testAbbreviatedInnerClass" };
+//		TESTS_NAMES = new String [] { "test033" };
 	}
 	public static Class testClass() {
 		return JSR308SpecSnippetTests.class;
@@ -1302,6 +1302,183 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"  RuntimeInvisibleAnnotations: \n" + 
 				"    #17 @Annotation(\n" + 
 				"    )\n" + 
+				"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	// Test that annotations in initializer code are not attached to the field.
+	public void test031() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target({TYPE_USE}) @interface NonNull { }\n" +
+				"class X {\n" +
+				"	X x = new @NonNull X();\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"  X();\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  invokespecial java.lang.Object() [10]\n" + 
+				"     4  aload_0 [this]\n" + 
+				"     5  new X [1]\n" + 
+				"     8  dup\n" + 
+				"     9  invokespecial X() [12]\n" + 
+				"    12  putfield X.x : X [13]\n" + 
+				"    15  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 4]\n" + 
+				"        [pc: 4, line: 5]\n" + 
+				"        [pc: 15, line: 4]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 16] local: this index: 0 type: X\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #19 @NonNull(\n" + 
+				"        target type = 0x44 NEW\n" + 
+				"        offset = 5\n" + 
+				"      )\n" + 
+				"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	// Test co-existence of parameter annotations and type annotations.
+	public void test032() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target({TYPE_USE}) @interface NonNull { }\n" +
+				"@Target({PARAMETER}) @interface ParameterAnnot { }\n" +
+				"class X {\n" +
+				"	void foo(@NonNull X this, @ParameterAnnot @NonNull X x) {\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"  void foo(X x);\n" + 
+				"    0  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 7]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 1] local: x index: 1 type: X\n" + 
+				"    RuntimeInvisibleParameterAnnotations: \n" + 
+				"      Number of annotations for parameter 0: 1\n" + 
+				"        #17 @ParameterAnnot(\n" + 
+				"        )\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #20 @NonNull(\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"      )\n" + 
+				"      #20 @NonNull(\n" + 
+				"        target type = 0x15 METHOD_RECEIVER\n" + 
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	// Test type annotations in initializer code.
+	public void test033() throws Exception { // WILL NEED TO BE ADJUSTED ONCE https://bugs.eclipse.org/bugs/show_bug.cgi?id=415541 IS FIXED.
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target({TYPE_USE}) @interface NonNull { }\n" +
+				"class X {\n" +
+				"	static {\n" +
+				"		Object o = (@NonNull Object) new @NonNull Object();\n" +
+				"	}\n" +
+				"	{\n" +
+				"		new @NonNull Object();\n" +
+				"	}\n" +
+				"	X() {\n" +
+				"	}\n" +
+				"	X (int x) {\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"// Compiled from X.java (version 1.8 : 52.0, super bit)\n" + 
+				"class X {\n" + 
+				"  Constant pool:\n" + 
+				"    constant #1 class: #2 X\n" + 
+				"    constant #2 utf8: \"X\"\n" + 
+				"    constant #3 class: #4 java/lang/Object\n" + 
+				"    constant #4 utf8: \"java/lang/Object\"\n" + 
+				"    constant #5 utf8: \"<clinit>\"\n" + 
+				"    constant #6 utf8: \"()V\"\n" + 
+				"    constant #7 utf8: \"Code\"\n" + 
+				"    constant #8 method_ref: #3.#9 java/lang/Object.<init> ()V\n" + 
+				"    constant #9 name_and_type: #10.#6 <init> ()V\n" + 
+				"    constant #10 utf8: \"<init>\"\n" + 
+				"    constant #11 utf8: \"LineNumberTable\"\n" + 
+				"    constant #12 utf8: \"LocalVariableTable\"\n" + 
+				"    constant #13 utf8: \"this\"\n" + 
+				"    constant #14 utf8: \"LX;\"\n" + 
+				"    constant #15 utf8: \"RuntimeInvisibleTypeAnnotations\"\n" + 
+				"    constant #16 utf8: \"LNonNull;\"\n" + 
+				"    constant #17 utf8: \"(I)V\"\n" + 
+				"    constant #18 utf8: \"x\"\n" + 
+				"    constant #19 utf8: \"I\"\n" + 
+				"    constant #20 utf8: \"SourceFile\"\n" + 
+				"    constant #21 utf8: \"X.java\"\n" + 
+				"  \n" + 
+				"  // Method descriptor #6 ()V\n" + 
+				"  // Stack: 2, Locals: 1\n" + 
+				"  static {};\n" + 
+				"    0  new java.lang.Object [3]\n" + 
+				"    3  dup\n" + 
+				"    4  invokespecial java.lang.Object() [8]\n" + 
+				"    7  astore_0\n" + 
+				"    8  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 6]\n" + 
+				"        [pc: 8, line: 7]\n" + 
+				"  \n" + 
+				"  // Method descriptor #6 ()V\n" + 
+				"  // Stack: 1, Locals: 1\n" + 
+				"  X();\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  invokespecial java.lang.Object() [8]\n" + 
+				"     4  new java.lang.Object [3]\n" + 
+				"     7  invokespecial java.lang.Object() [8]\n" + 
+				"    10  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 11]\n" + 
+				"        [pc: 4, line: 9]\n" + 
+				"        [pc: 10, line: 12]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 11] local: this index: 0 type: X\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #16 @NonNull(\n" + 
+				"        target type = 0x44 NEW\n" + 
+				"        offset = 4\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Method descriptor #17 (I)V\n" + 
+				"  // Stack: 1, Locals: 2\n" + 
+				"  X(int x);\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  invokespecial java.lang.Object() [8]\n" + 
+				"     4  new java.lang.Object [3]\n" + 
+				"     7  invokespecial java.lang.Object() [8]\n" + 
+				"    10  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 13]\n" + 
+				"        [pc: 4, line: 9]\n" + 
+				"        [pc: 10, line: 14]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 11] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 11] local: x index: 1 type: int\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #16 @NonNull(\n" + 
+				"        target type = 0x44 NEW\n" + 
+				"        offset = 4\n" + 
+				"      )\n" + 
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
