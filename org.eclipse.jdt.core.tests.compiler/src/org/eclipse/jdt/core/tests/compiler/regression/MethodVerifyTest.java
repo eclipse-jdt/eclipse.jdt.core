@@ -23,6 +23,7 @@
  *								bug 402237 - [1.8][compiler] investigate differences between compilers re MethodVerifyTest
 =======
  *								bug 395681 - [compiler] Improve simulation of javac6 behavior from bug 317719 after fixing bug 388795
+ *								bug 409473 - [compiler] JDT cannot compile against JRE 1.8
  *	   Andy Clement - Contribution for
  *								bug 406928 - computation of inherited methods seems damaged (affecting @Overrides)
 >>>>>>> 97c9363 Bug 406928 - computation of inherited methods seems damaged (affecting @Overrides)
@@ -13939,5 +13940,14 @@ public void testBug406928() {
 			"}\n"
 		},
 		"");
+}
+// https://bugs.eclipse.org/409473 - [compiler] JDT cannot compile against JRE 1.8
+// Test failed when running on a JRE 1.8 b90
+public void testBug409473() {
+    this.runConformTest(
+        new String[] {
+            "Foo.java",
+            "public abstract class Foo<E> implements java.util.List<E> { } "
+        });
 }
 }

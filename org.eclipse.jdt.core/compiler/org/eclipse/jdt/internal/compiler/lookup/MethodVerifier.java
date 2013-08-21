@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
  *     Stephan Herrmann - Contribution for
+<<<<<<< BETA_JAVA8
  *     								bug 382347 - [1.8][compiler] Compiler accepts incorrect default method inheritance
  *									bug 388954 - [1.8][compiler] detect default methods in class files
  *									bug 388281 - [compiler][null] inheritance of null annotations as an option
@@ -22,6 +23,12 @@
  *									bug 388281 - [compiler][null] inheritance of null annotations as an option
  *									bug 395681 - [compiler] Improve simulation of javac6 behavior from bug 317719 after fixing bug 388795
  *									bug 406928 - computation of inherited methods seems damaged (affecting @Overrides)
+=======
+ *								bug 388281 - [compiler][null] inheritance of null annotations as an option
+ *								bug 395681 - [compiler] Improve simulation of javac6 behavior from bug 317719 after fixing bug 388795
+ *								bug 406928 - computation of inherited methods seems damaged (affecting @Overrides)
+ *								bug 409473 - [compiler] JDT cannot compile against JRE 1.8
+>>>>>>> 760ef9b Fix for bug 409473 - [compiler] JDT cannot compile against JRE 1.8
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
