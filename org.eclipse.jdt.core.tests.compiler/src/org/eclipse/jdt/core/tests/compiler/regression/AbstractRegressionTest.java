@@ -16,6 +16,7 @@
  *								bug 388800 - [1.8] adjust tests to 1.8 JRE
  *								bug 402237 - [1.8][compiler] investigate differences between compilers re MethodVerifyTest
  *								bug 391376 - [1.8] check interaction of default methods with bridge methods and generics
+ *								Bug 412203 - [compiler] Internal compiler error: java.lang.IllegalArgumentException: info cannot be null
  *     Jesper S Moller - Contributions for bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
@@ -1197,6 +1198,19 @@ protected static class JavacTestOptions {
 
 	protected String[] getDefaultClassPaths() {
 		return DefaultJavaRuntimeEnvironment.getDefaultClassPaths();
+	}
+	/** Get class library paths built from default class paths plus the JDT null annotations. */
+	protected String[] getLibsWithNullAnnotations() throws IOException {
+		String[] defaultLibs = getDefaultClassPaths();
+		int len = defaultLibs.length;
+		String[] libs = new String[len+1];
+		System.arraycopy(defaultLibs, 0, libs, 0, len);
+		File bundleFile = FileLocator.getBundleFile(Platform.getBundle("org.eclipse.jdt.annotation"));
+		if (bundleFile.isDirectory())
+			libs[len] = bundleFile.getPath()+"/bin";
+		else
+			libs[len] = bundleFile.getPath();
+		return libs;
 	}
 	protected IErrorHandlingPolicy getErrorHandlingPolicy() {
 		return new IErrorHandlingPolicy() {

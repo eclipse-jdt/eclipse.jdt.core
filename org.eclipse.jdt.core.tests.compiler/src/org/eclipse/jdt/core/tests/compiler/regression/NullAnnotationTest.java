@@ -110,6 +110,9 @@ protected void setUp() throws Exception {
 	super.setUp();
 	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
 		this.TEST_JAR_SUFFIX = "_1.8.jar";
+	if (this.LIBS == null) {
+		this.LIBS = getLibsWithNullAnnotations();
+	}
 }
 
 // a nullable argument is dereferenced without a check
@@ -3879,7 +3882,7 @@ public void test_nonnull_field_2e() {
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
-			"public class X {\n" +
+			"public class X<T> {\n" +
 			"    @NonNull Object f;\n" +
 			"    {\n" +
 			"         this.f = new Object();\n" +
