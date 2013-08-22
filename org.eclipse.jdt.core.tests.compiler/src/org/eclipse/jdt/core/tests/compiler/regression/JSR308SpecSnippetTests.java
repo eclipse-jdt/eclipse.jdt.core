@@ -1482,4 +1482,181 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	public void test034() throws Exception { // WILL NEED TO BE ADJUSTED ONCE https://bugs.eclipse.org/bugs/show_bug.cgi?id=415541 IS FIXED.
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target({TYPE_USE}) @interface NonNull { }\n" +
+				"class X <T extends @NonNull Comparable> {\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"  RuntimeInvisibleTypeAnnotations: \n" + 
+				"    #21 @NonNull(\n" + 
+				"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND\n" + 
+				"      type parameter index = 0 type parameter bound index = 0\n" + 
+				"    )\n" + 
+				"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void test035() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target({TYPE_USE}) @interface NonNull { }\n" +
+				"\n" +
+				"class X {\n" +
+				"	void foo() {\n" +
+				"		@NonNull X [] x = new X[10];\n" +
+				"		System.out.println(x);\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"  void foo();\n" + 
+				"     0  bipush 10\n" + 
+				"     2  anewarray X [1]\n" + 
+				"     5  astore_1 [x]\n" + 
+				"     6  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+				"     9  aload_1 [x]\n" + 
+				"    10  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [21]\n" + 
+				"    13  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 7]\n" + 
+				"        [pc: 6, line: 8]\n" + 
+				"        [pc: 13, line: 9]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 14] local: this index: 0 type: X\n" + 
+				"        [pc: 6, pc: 14] local: x index: 1 type: X[]\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #30 @NonNull(\n" + 
+				"        target type = 0x40 LOCAL_VARIABLE\n" + 
+				"        local variable entries:\n" + 
+				"          [pc: 6, pc: 14] index: 1\n" + 
+				"        location = [ARRAY]\n" + 
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	// test that parameter index does not include explicit this parameter.
+	public void test036() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target({TYPE_USE}) @interface NonNull { }\n" +
+				"class X  {\n" +
+				"	void foo(@NonNull X this, @NonNull X x) {\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"  void foo(X x);\n" + 
+				"    0  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 6]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 1] local: x index: 1 type: X\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #18 @NonNull(\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"      )\n" + 
+				"      #18 @NonNull(\n" + 
+				"        target type = 0x15 METHOD_RECEIVER\n" + 
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void test037() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@interface Readonly {\n" +
+				"	String value() default \"default\";\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	X [] x = new @Readonly X @Readonly [10];\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"  public X();\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  invokespecial java.lang.Object() [10]\n" + 
+				"     4  aload_0 [this]\n" + 
+				"     5  bipush 10\n" + 
+				"     7  anewarray X [1]\n" + 
+				"    10  putfield X.x : X[] [12]\n" + 
+				"    13  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 7]\n" + 
+				"        [pc: 4, line: 8]\n" + 
+				"        [pc: 13, line: 7]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 14] local: this index: 0 type: X\n" + 
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #19 @Readonly(\n" + 
+				"        target type = 0x44 NEW\n" + 
+				"        offset = 7\n" + 
+				"        location = [ARRAY]\n" + 
+				"      )\n" + 
+				"      #19 @Readonly(\n" + 
+				"        target type = 0x44 NEW\n" + 
+				"        offset = 7\n" + 
+				"      )\n" + 
+				"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	// test anonymous class, the class itself should have class_extends target ? 
+	public void test038() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@interface Readonly {\n" +
+				"	String value() default \"default\";\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	X x = new @Readonly X() {\n" +
+				"	};\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"  public X();\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  invokespecial java.lang.Object() [10]\n" + 
+				"     4  aload_0 [this]\n" + 
+				"     5  new X$1 [12]\n" + 
+				"     8  dup\n" + 
+				"     9  aload_0 [this]\n" + 
+				"    10  invokespecial X$1(X) [14]\n" + 
+				"    13  putfield X.x : X [17]\n" + 
+				"    16  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 7]\n" + 
+				"        [pc: 4, line: 8]\n" + 
+				"        [pc: 16, line: 7]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 17] local: this index: 0 type: X\n" + 
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #23 @Readonly(\n" + 
+				"        target type = 0x44 NEW\n" + 
+				"        offset = 5\n" + 
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
 }
