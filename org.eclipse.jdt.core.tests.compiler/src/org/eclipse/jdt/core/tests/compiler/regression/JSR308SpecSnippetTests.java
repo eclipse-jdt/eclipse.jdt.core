@@ -11,7 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- * 
+ *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                          Bug 415541 - [1.8][compiler] Type annotations in the body of static initializer get dropped
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1380,7 +1381,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Test type annotations in initializer code.
-	public void test033() throws Exception { // WILL NEED TO BE ADJUSTED ONCE https://bugs.eclipse.org/bugs/show_bug.cgi?id=415541 IS FIXED.
+	public void test033() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1401,6 +1402,18 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"}\n",
 		},
 		"");
+		// javac b100
+		// For the annotations in the static {...} the clinit has:
+		//		RuntimeInvisibleTypeAnnotations:
+		//	        0: #11(): CAST, offset=0, type_index=0
+		//	        1: #11(): NEW, offset=0
+		// javac is skipping production of the cast so offset is 0. JDT is currently always producing the
+		// checkcast for an annotated cast so the offset is 7.
+		
+		// For the annotations in the initializer {...} the constructors both have:
+		//	      RuntimeInvisibleTypeAnnotations:
+		//	          0: #11(): NEW, offset=4
+
 		String expectedOutput =
 				"// Compiled from X.java (version 1.8 : 52.0, super bit)\n" + 
 				"class X {\n" + 
@@ -1417,10 +1430,10 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"    constant #10 utf8: \"<init>\"\n" + 
 				"    constant #11 utf8: \"LineNumberTable\"\n" + 
 				"    constant #12 utf8: \"LocalVariableTable\"\n" + 
-				"    constant #13 utf8: \"this\"\n" + 
-				"    constant #14 utf8: \"LX;\"\n" + 
-				"    constant #15 utf8: \"RuntimeInvisibleTypeAnnotations\"\n" + 
-				"    constant #16 utf8: \"LNonNull;\"\n" + 
+				"    constant #13 utf8: \"RuntimeInvisibleTypeAnnotations\"\n" + 
+				"    constant #14 utf8: \"LNonNull;\"\n" + 
+				"    constant #15 utf8: \"this\"\n" + 
+				"    constant #16 utf8: \"LX;\"\n" + 
 				"    constant #17 utf8: \"(I)V\"\n" + 
 				"    constant #18 utf8: \"x\"\n" + 
 				"    constant #19 utf8: \"I\"\n" + 
@@ -1430,14 +1443,25 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"  // Method descriptor #6 ()V\n" + 
 				"  // Stack: 2, Locals: 1\n" + 
 				"  static {};\n" + 
-				"    0  new java.lang.Object [3]\n" + 
-				"    3  dup\n" + 
-				"    4  invokespecial java.lang.Object() [8]\n" + 
-				"    7  astore_0\n" + 
-				"    8  return\n" + 
+				"     0  new java.lang.Object [3]\n" + 
+				"     3  dup\n" + 
+				"     4  invokespecial java.lang.Object() [8]\n" + 
+				"     7  checkcast java.lang.Object [3]\n" + 
+				"    10  astore_0\n" + 
+				"    11  return\n" + 
 				"      Line numbers:\n" + 
 				"        [pc: 0, line: 6]\n" + 
-				"        [pc: 8, line: 7]\n" + 
+				"        [pc: 11, line: 7]\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #14 @NonNull(\n" + 
+				"        target type = 0x44 NEW\n" + 
+				"        offset = 0\n" + 
+				"      )\n" + 
+				"      #14 @NonNull(\n" + 
+				"        target type = 0x47 CAST\n" + 
+				"        offset = 7\n" + 
+				"        type argument index = 0\n" + 
+				"      )\n" + 
 				"  \n" + 
 				"  // Method descriptor #6 ()V\n" + 
 				"  // Stack: 1, Locals: 1\n" + 
@@ -1454,7 +1478,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      Local variable table:\n" + 
 				"        [pc: 0, pc: 11] local: this index: 0 type: X\n" + 
 				"    RuntimeInvisibleTypeAnnotations: \n" + 
-				"      #16 @NonNull(\n" + 
+				"      #14 @NonNull(\n" + 
 				"        target type = 0x44 NEW\n" + 
 				"        offset = 4\n" + 
 				"      )\n" + 
@@ -1475,7 +1499,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        [pc: 0, pc: 11] local: this index: 0 type: X\n" + 
 				"        [pc: 0, pc: 11] local: x index: 1 type: int\n" + 
 				"    RuntimeInvisibleTypeAnnotations: \n" + 
-				"      #16 @NonNull(\n" + 
+				"      #14 @NonNull(\n" + 
 				"        target type = 0x44 NEW\n" + 
 				"        offset = 4\n" + 
 				"      )\n" + 

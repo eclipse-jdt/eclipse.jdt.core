@@ -19,6 +19,8 @@
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								bug 401017 - [compiler][null] casted reference to @Nullable field lacks a warning
  *								bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
+ *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                          Bug 415541 - [1.8][compiler] Type annotations in the body of static initializer get dropped
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -57,8 +59,6 @@ public CastExpression(Expression expression, TypeReference type) {
 	this.expression = expression;
 	this.type = type;
 	type.bits |= ASTNode.IgnoreRawTypeCheck; // no need to worry about raw type usage
-	if ((this.type.bits & ASTNode.HasTypeAnnotations) != 0)
-		this.bits |= ASTNode.GenerateCheckcast;
 }
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
@@ -422,11 +422,12 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
  */
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	int pc = codeStream.position;
+	boolean annotatedCast = (this.type.bits & ASTNode.HasTypeAnnotations) != 0;
 	boolean needRuntimeCheckcast = (this.bits & ASTNode.GenerateCheckcast) != 0;
 	if (this.constant != Constant.NotAConstant) {
-		if (valueRequired || needRuntimeCheckcast) { // Added for: 1F1W9IG: IVJCOM:WINNT - Compiler omits casting check
+		if (valueRequired || needRuntimeCheckcast || annotatedCast) { // Added for: 1F1W9IG: IVJCOM:WINNT - Compiler omits casting check
 			codeStream.generateConstant(this.constant, this.implicitConversion);
-			if (needRuntimeCheckcast) {
+			if (needRuntimeCheckcast || annotatedCast) {
 				codeStream.checkcast(this.type, this.resolvedType);
 			}
 			if (!valueRequired) {
@@ -438,7 +439,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		return;
 	}
 	this.expression.generateCode(currentScope, codeStream, valueRequired || needRuntimeCheckcast);
-	if (needRuntimeCheckcast && this.expression.postConversionType(currentScope) != this.resolvedType.erasure()) { // no need to issue a checkcast if already done as genericCast
+	if (annotatedCast || (needRuntimeCheckcast && this.expression.postConversionType(currentScope) != this.resolvedType.erasure())) { // no need to issue a checkcast if already done as genericCast
 		codeStream.checkcast(this.type, this.resolvedType);
 	}
 	if (valueRequired) {

@@ -17,6 +17,7 @@
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
  *                          Bug 409246 - [1.8][compiler] Type annotations on catch parameters not handled properly
+ *                          Bug 415541 - [1.8][compiler] Type annotations in the body of static initializer get dropped
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
@@ -1562,6 +1563,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 					true);
 		}
 
+		if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
+			attributesNumber += generateTypeAnnotationsOnCodeAttribute();
+		}
+
 		// update the number of attributes
 		// ensure first that there is enough space available inside the contents array
 		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
@@ -1672,6 +1677,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 					true);
 		}
 
+		if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
+			attributesNumber += generateTypeAnnotationsOnCodeAttribute();
+		}
+		
 		// update the number of attributes
 		// ensure first that there is enough space available inside the contents array
 		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
