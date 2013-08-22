@@ -11,6 +11,7 @@
  *								bug 388795 - [compiler] detection of name clash depends on order of super interfaces
  *								bug 395681 - [compiler] Improve simulation of javac6 behavior from bug 317719 after fixing bug 388795
  *								bug 409473 - [compiler] JDT cannot compile against JRE 1.8
+ *								Bug 410325 - [1.7][compiler] Generified method override different between javac and eclipse compiler
  *	   Andy Clement - Contribution for
  *								bug 406928 - computation of inherited methods seems damaged (affecting @Overrides)
  *******************************************************************************/
@@ -13838,5 +13839,95 @@ public void testBug409473() {
             "Foo.java",
             "public abstract class Foo<E> implements java.util.List<E> { } "
         });
+}
+// https://bugs.eclipse.org/410325 - [1.7][compiler] Generified method override different between javac and eclipse compiler
+public void testBug410325() {
+	runConformTest(
+		new String[] {
+			"Main.java",
+			"public class Main {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		F3 f3 = new F3();\n" + 
+			"		SubSub sub = new SubSub();\n" + 
+			"		sub.foo(f3);\n" + 
+			"\n" + 
+			"		Sub<F3> sub2 = sub;\n" + 
+			"		Base<F3> base = sub;\n" + 
+			"		sub2.foo(f3);\n" + 
+			"		base.foo(f3);\n" + 
+			"\n" + 
+			"		F2 f2 = new F2();\n" + 
+			"		sub2.foo(f2);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static class F1 {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static class F2 extends F1 {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static class F3 extends F2 {\n" + 
+			"		public void bar() {\n" + 
+			"			System.out.println(\"bar in F3\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static abstract class Base<T extends F1> {\n" + 
+			"		public abstract void foo(T bar);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static abstract class Sub<T extends F2> extends Base<T> {\n" + 
+			"		@Override\n" + 
+			"		public void foo(F2 bar) {\n" + 
+			"			System.out.println(getClass().getSimpleName() + \": F2 + \"\n" + 
+			"					+ bar.getClass().getSimpleName());\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static class SubSub extends Sub<F3> {\n" + 
+			"	}\n" + 
+			"}"
+		});
+}
+// https://bugs.eclipse.org/410325 - [1.7][compiler] Generified method override different between javac and eclipse compiler
+// test from duplicate bug 411811
+public void testBug411811() {
+	runConformTest(
+		new String[] {
+			"FaultyType.java",
+			"    class ParamType {}\n" + 
+			"\n" + 
+			"    abstract class AbstractType<T extends ParamType> {\n" + 
+			"        public abstract void foo(T t);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    abstract class SubAbstractType<T extends ParamType> extends AbstractType<T> {\n" + 
+			"        @Override public void foo(ParamType t) {}\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    class SubParamType extends ParamType {}\n" + 
+			"    \n" + 
+			"public class FaultyType extends SubAbstractType<SubParamType> {}"
+		});
+}
+// https://bugs.eclipse.org/410325 - [1.7][compiler] Generified method override different between javac and eclipse compiler
+// test from duplicate bug 415600
+public void testBug415600() {
+	runConformTest(
+		new String[] {
+			"A.java",
+			"import java.io.Reader;\n" + 
+			"import java.io.StringReader;\n" + 
+			"\n" + 
+			"public abstract class A<E extends Reader> {\n" + 
+			"	protected abstract void create(E element);\n" + 
+			"}\n" + 
+			"\n" + 
+			"abstract class B<T extends Reader> extends A<T> {\n" + 
+			"	public void create(Reader element) { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class C extends B<StringReader> { }\n"
+		});
 }
 }
