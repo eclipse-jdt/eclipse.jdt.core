@@ -13,6 +13,8 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
+ *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                          Bug 415543 - [1.8][compiler] Incorrect bound index in RuntimeInvisibleTypeAnnotations attribute
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -66,9 +68,15 @@ public class TypeParameter extends AbstractVariableDeclaration {
 			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER :
 				collector.targetType = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND;
 		}
-		if (this.type != null && ((this.type.bits & ASTNode.HasTypeAnnotations) != 0)) {
-			collector.info2 = 0;
-			this.type.traverse(collector, (BlockScope) null);
+		int boundIndex = 0;
+		if (this.type != null) {
+			// boundIndex 0 is always a class
+			if (this.type.resolvedType.isInterface())
+				boundIndex = 1;
+			if ((this.type.bits & ASTNode.HasTypeAnnotations) != 0) {
+				collector.info2 = boundIndex;
+				this.type.traverse(collector, (BlockScope) null);
+			}
 		}
 		if (this.bounds != null) {
 			int boundsLength = this.bounds.length;
@@ -77,7 +85,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 				if ((bound.bits & ASTNode.HasTypeAnnotations) == 0) {
 					continue;
 				}
-				collector.info2 = i + 1;
+				collector.info2 = ++boundIndex;
 				bound.traverse(collector, (BlockScope) null);
 			}
 		}

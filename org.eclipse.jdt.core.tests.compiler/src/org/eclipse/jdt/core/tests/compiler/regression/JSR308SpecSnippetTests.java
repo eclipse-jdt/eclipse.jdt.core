@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 415541 - [1.8][compiler] Type annotations in the body of static initializer get dropped
+ *                          Bug 415543 - [1.8][compiler] Incorrect bound index in RuntimeInvisibleTypeAnnotations attribute
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1517,11 +1518,240 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"}\n",
 		},
 		"");
+		// javac b100
+		//		  RuntimeInvisibleTypeAnnotations:
+		//			    0: #13(): CLASS_TYPE_PARAMETER_BOUND, param_index=0, bound_index=1		
+		// bound_index is 1 because the bound is an interface, not a class
 		String expectedOutput =
+				"// Compiled from X.java (version 1.8 : 52.0, super bit)\n" + 
+				"// Signature: <T::Ljava/lang/Comparable;>Ljava/lang/Object;\n" + 
+				"class X {\n" + 
+				"  Constant pool:\n" + 
+				"    constant #1 class: #2 X\n" + 
+				"    constant #2 utf8: \"X\"\n" + 
+				"    constant #3 class: #4 java/lang/Object\n" + 
+				"    constant #4 utf8: \"java/lang/Object\"\n" + 
+				"    constant #5 utf8: \"<init>\"\n" + 
+				"    constant #6 utf8: \"()V\"\n" + 
+				"    constant #7 utf8: \"Code\"\n" + 
+				"    constant #8 method_ref: #3.#9 java/lang/Object.<init> ()V\n" + 
+				"    constant #9 name_and_type: #5.#6 <init> ()V\n" + 
+				"    constant #10 utf8: \"LineNumberTable\"\n" + 
+				"    constant #11 utf8: \"LocalVariableTable\"\n" + 
+				"    constant #12 utf8: \"this\"\n" + 
+				"    constant #13 utf8: \"LX;\"\n" + 
+				"    constant #14 utf8: \"LocalVariableTypeTable\"\n" + 
+				"    constant #15 utf8: \"LX<TT;>;\"\n" + 
+				"    constant #16 utf8: \"SourceFile\"\n" + 
+				"    constant #17 utf8: \"X.java\"\n" + 
+				"    constant #18 utf8: \"Signature\"\n" + 
+				"    constant #19 utf8: \"<T::Ljava/lang/Comparable;>Ljava/lang/Object;\"\n" + 
+				"    constant #20 utf8: \"RuntimeInvisibleTypeAnnotations\"\n" + 
+				"    constant #21 utf8: \"LNonNull;\"\n" + 
+				"  \n" + 
+				"  // Method descriptor #6 ()V\n" + 
+				"  // Stack: 1, Locals: 1\n" + 
+				"  X();\n" + 
+				"    0  aload_0 [this]\n" + 
+				"    1  invokespecial java.lang.Object() [8]\n" + 
+				"    4  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 4]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X<T>\n" + 
+				"\n" + 
 				"  RuntimeInvisibleTypeAnnotations: \n" + 
 				"    #21 @NonNull(\n" + 
 				"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND\n" + 
-				"      type parameter index = 0 type parameter bound index = 0\n" + 
+				"      type parameter index = 0 type parameter bound index = 1\n" + 
+				"    )\n" + 
+				"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	// Bug 415543 - Incorrect bound index in RuntimeInvisibleTypeAnnotations attribute
+	public void test034b() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import java.io.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target({TYPE_USE}) @interface NonNull { }\n" +
+				"\n" +
+				"class X <T extends Comparable & @NonNull Serializable> {\n" +
+				"  <T extends @NonNull Comparable> void one(T t) {}\n" +
+				"  <T extends Comparable & @NonNull Serializable> void two(T t) {}\n" +
+				"  <T extends @NonNull Comparable & @NonNull Serializable> void three(T t) {}\n" +
+				"  <T extends Object & @NonNull Serializable> void four(T t) {}\n" +
+				"  <T extends Object & @NonNull Serializable & @NonNull Runnable> void five(T t) {}\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"// Compiled from X.java (version 1.8 : 52.0, super bit)\n" + 
+				"// Signature: <T::Ljava/lang/Comparable;:Ljava/io/Serializable;>Ljava/lang/Object;\n" + 
+				"class X {\n" + 
+				"  Constant pool:\n" + 
+				"    constant #1 class: #2 X\n" + 
+				"    constant #2 utf8: \"X\"\n" + 
+				"    constant #3 class: #4 java/lang/Object\n" + 
+				"    constant #4 utf8: \"java/lang/Object\"\n" + 
+				"    constant #5 utf8: \"<init>\"\n" + 
+				"    constant #6 utf8: \"()V\"\n" + 
+				"    constant #7 utf8: \"Code\"\n" + 
+				"    constant #8 method_ref: #3.#9 java/lang/Object.<init> ()V\n" + 
+				"    constant #9 name_and_type: #5.#6 <init> ()V\n" + 
+				"    constant #10 utf8: \"LineNumberTable\"\n" + 
+				"    constant #11 utf8: \"LocalVariableTable\"\n" + 
+				"    constant #12 utf8: \"this\"\n" + 
+				"    constant #13 utf8: \"LX;\"\n" + 
+				"    constant #14 utf8: \"LocalVariableTypeTable\"\n" + 
+				"    constant #15 utf8: \"LX<TT;>;\"\n" + 
+				"    constant #16 utf8: \"one\"\n" + 
+				"    constant #17 utf8: \"(Ljava/lang/Comparable;)V\"\n" + 
+				"    constant #18 utf8: \"Signature\"\n" + 
+				"    constant #19 utf8: \"<T::Ljava/lang/Comparable;>(TT;)V\"\n" + 
+				"    constant #20 utf8: \"t\"\n" + 
+				"    constant #21 utf8: \"Ljava/lang/Comparable;\"\n" + 
+				"    constant #22 utf8: \"TT;\"\n" + 
+				"    constant #23 utf8: \"RuntimeInvisibleTypeAnnotations\"\n" + 
+				"    constant #24 utf8: \"LNonNull;\"\n" + 
+				"    constant #25 utf8: \"two\"\n" + 
+				"    constant #26 utf8: \"<T::Ljava/lang/Comparable;:Ljava/io/Serializable;>(TT;)V\"\n" + 
+				"    constant #27 utf8: \"three\"\n" + 
+				"    constant #28 utf8: \"four\"\n" + 
+				"    constant #29 utf8: \"(Ljava/lang/Object;)V\"\n" + 
+				"    constant #30 utf8: \"<T:Ljava/lang/Object;:Ljava/io/Serializable;>(TT;)V\"\n" + 
+				"    constant #31 utf8: \"Ljava/lang/Object;\"\n" + 
+				"    constant #32 utf8: \"five\"\n" + 
+				"    constant #33 utf8: \"<T:Ljava/lang/Object;:Ljava/io/Serializable;:Ljava/lang/Runnable;>(TT;)V\"\n" + 
+				"    constant #34 utf8: \"SourceFile\"\n" + 
+				"    constant #35 utf8: \"X.java\"\n" + 
+				"    constant #36 utf8: \"<T::Ljava/lang/Comparable;:Ljava/io/Serializable;>Ljava/lang/Object;\"\n" + 
+				"  \n" + 
+				"  // Method descriptor #6 ()V\n" + 
+				"  // Stack: 1, Locals: 1\n" + 
+				"  X();\n" + 
+				"    0  aload_0 [this]\n" + 
+				"    1  invokespecial java.lang.Object() [8]\n" + 
+				"    4  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 6]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X<T>\n" + 
+				"  \n" + 
+				"  // Method descriptor #17 (Ljava/lang/Comparable;)V\n" + 
+				"  // Signature: <T::Ljava/lang/Comparable;>(TT;)V\n" + 
+				"  // Stack: 0, Locals: 2\n" + 
+				"  void one(java.lang.Comparable t);\n" + 
+				"    0  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 7]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 1] local: t index: 1 type: java.lang.Comparable\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X<T>\n" + 
+				"        [pc: 0, pc: 1] local: t index: 1 type: T\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #24 @NonNull(\n" + 
+				"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" + 
+				"        type parameter index = 0 type parameter bound index = 1\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Method descriptor #17 (Ljava/lang/Comparable;)V\n" + 
+				"  // Signature: <T::Ljava/lang/Comparable;:Ljava/io/Serializable;>(TT;)V\n" + 
+				"  // Stack: 0, Locals: 2\n" + 
+				"  void two(java.lang.Comparable t);\n" + 
+				"    0  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 8]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 1] local: t index: 1 type: java.lang.Comparable\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X<T>\n" + 
+				"        [pc: 0, pc: 1] local: t index: 1 type: T\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #24 @NonNull(\n" + 
+				"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" + 
+				"        type parameter index = 0 type parameter bound index = 2\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Method descriptor #17 (Ljava/lang/Comparable;)V\n" + 
+				"  // Signature: <T::Ljava/lang/Comparable;:Ljava/io/Serializable;>(TT;)V\n" + 
+				"  // Stack: 0, Locals: 2\n" + 
+				"  void three(java.lang.Comparable t);\n" + 
+				"    0  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 9]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 1] local: t index: 1 type: java.lang.Comparable\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X<T>\n" + 
+				"        [pc: 0, pc: 1] local: t index: 1 type: T\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #24 @NonNull(\n" + 
+				"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" + 
+				"        type parameter index = 0 type parameter bound index = 1\n" + 
+				"      )\n" + 
+				"      #24 @NonNull(\n" + 
+				"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" + 
+				"        type parameter index = 0 type parameter bound index = 2\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Method descriptor #29 (Ljava/lang/Object;)V\n" + 
+				"  // Signature: <T:Ljava/lang/Object;:Ljava/io/Serializable;>(TT;)V\n" + 
+				"  // Stack: 0, Locals: 2\n" + 
+				"  void four(java.lang.Object t);\n" + 
+				"    0  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 10]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 1] local: t index: 1 type: java.lang.Object\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X<T>\n" + 
+				"        [pc: 0, pc: 1] local: t index: 1 type: T\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #24 @NonNull(\n" + 
+				"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" + 
+				"        type parameter index = 0 type parameter bound index = 1\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Method descriptor #29 (Ljava/lang/Object;)V\n" + 
+				"  // Signature: <T:Ljava/lang/Object;:Ljava/io/Serializable;:Ljava/lang/Runnable;>(TT;)V\n" + 
+				"  // Stack: 0, Locals: 2\n" + 
+				"  void five(java.lang.Object t);\n" + 
+				"    0  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 11]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 1] local: t index: 1 type: java.lang.Object\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X<T>\n" + 
+				"        [pc: 0, pc: 1] local: t index: 1 type: T\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #24 @NonNull(\n" + 
+				"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" + 
+				"        type parameter index = 0 type parameter bound index = 1\n" + 
+				"      )\n" + 
+				"      #24 @NonNull(\n" + 
+				"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" + 
+				"        type parameter index = 0 type parameter bound index = 2\n" + 
+				"      )\n" + 
+				"\n" + 
+				"  RuntimeInvisibleTypeAnnotations: \n" + 
+				"    #24 @NonNull(\n" + 
+				"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND\n" + 
+				"      type parameter index = 0 type parameter bound index = 2\n" + 
 				"    )\n" + 
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
