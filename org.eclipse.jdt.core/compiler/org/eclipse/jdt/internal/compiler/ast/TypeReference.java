@@ -19,6 +19,7 @@
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
+ *                          Bug 415399 - [1.8][compiler] Type annotations on constructor results dropped by the code generator
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -105,6 +106,15 @@ static class AnnotationCollector extends ASTVisitor {
 		this.typeReference = methodDeclaration.returnType;
 		this.targetType = targetType;
 		this.primaryAnnotations = methodDeclaration.annotations;
+	}
+
+	public AnnotationCollector(
+			ConstructorDeclaration constructorDeclaration,
+			int targetType,
+			List annotationContexts) {
+		this.annotationContexts = annotationContexts;
+		this.targetType = targetType;
+		this.primaryAnnotations = constructorDeclaration.annotations;
 	}
 
 	public AnnotationCollector(

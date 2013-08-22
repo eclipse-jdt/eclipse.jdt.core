@@ -18,6 +18,7 @@
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
  *                          Bug 409246 - [1.8][compiler] Type annotations on catch parameters not handled properly
  *                          Bug 415541 - [1.8][compiler] Type annotations in the body of static initializer get dropped
+ *                          Bug 415399 - [1.8][compiler] Type annotations on constructor results dropped by the code generator
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
@@ -2087,7 +2088,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					}
 				}
 				Annotation[] annotations = methodDeclaration.annotations;
-				if (annotations != null && binding.returnType.id != T_void) {
+				if (annotations != null) {
 					methodDeclaration.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN, allTypeAnnotationContexts);
 				}
 				if (!methodDeclaration.isConstructor() && !methodDeclaration.isClinit() && binding.returnType.id != T_void) {

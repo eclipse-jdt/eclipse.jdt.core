@@ -15,6 +15,7 @@
  *                          Bug 415541 - [1.8][compiler] Type annotations in the body of static initializer get dropped
  *                          Bug 415543 - [1.8][compiler] Incorrect bound index in RuntimeInvisibleTypeAnnotations attribute
  *                          Bug 415397 - [1.8][compiler] Type Annotations on wildcard type argument dropped
+ *                          Bug 415399 - [1.8][compiler] Type annotations on constructor results dropped by the code generator
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -662,7 +663,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	public void test013() throws Exception { // WILL FAIL WHEN https://bugs.eclipse.org/bugs/show_bug.cgi?id=415399 IS FIXED.
+	public void test013() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -677,7 +678,11 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"}\n",
 		},
 		"");
+		// javac b100 gives:
+		//		RuntimeInvisibleTypeAnnotations:
+		//		      0: #9(): METHOD_RETURN
 		String expectedOutput =
+				"// Compiled from X.java (version 1.8 : 52.0, super bit)\n" + 
 				"class X {\n" + 
 				"  Constant pool:\n" + 
 				"    constant #1 class: #2 X\n" + 
@@ -693,8 +698,10 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"    constant #11 utf8: \"LocalVariableTable\"\n" + 
 				"    constant #12 utf8: \"this\"\n" + 
 				"    constant #13 utf8: \"LX;\"\n" + 
-				"    constant #14 utf8: \"SourceFile\"\n" + 
-				"    constant #15 utf8: \"X.java\"\n" + 
+				"    constant #14 utf8: \"RuntimeInvisibleTypeAnnotations\"\n" + 
+				"    constant #15 utf8: \"LImmutable;\"\n" + 
+				"    constant #16 utf8: \"SourceFile\"\n" + 
+				"    constant #17 utf8: \"X.java\"\n" + 
 				"  \n" + 
 				"  // Method descriptor #6 ()V\n" + 
 				"  // Stack: 1, Locals: 1\n" + 
@@ -707,6 +714,10 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        [pc: 4, line: 8]\n" + 
 				"      Local variable table:\n" + 
 				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #15 @Immutable(\n" + 
+				"        target type = 0x14 METHOD_RETURN\n" + 
+				"      )\n" + 
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
@@ -1664,7 +1675,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	public void test034() throws Exception { // WILL NEED TO BE ADJUSTED ONCE https://bugs.eclipse.org/bugs/show_bug.cgi?id=415541 IS FIXED.
+	public void test034() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
