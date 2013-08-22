@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                          Bug 415397 - [1.8][compiler] Type Annotations on wildcard type argument dropped
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -120,6 +122,12 @@ public class Wildcard extends SingleTypeReference {
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
+			if (this.annotations != null) {
+				Annotation [] typeAnnotations = this.annotations[0];
+				for (int i = 0, length = typeAnnotations == null ? 0 : typeAnnotations.length; i < length; i++) {
+					typeAnnotations[i].traverse(visitor, scope);
+				}
+			}
 			if (this.bound != null) {
 				this.bound.traverse(visitor, scope);
 			}
@@ -129,6 +137,12 @@ public class Wildcard extends SingleTypeReference {
 
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		if (visitor.visit(this, scope)) {
+			if (this.annotations != null) {
+				Annotation [] typeAnnotations = this.annotations[0];
+				for (int i = 0, length = typeAnnotations == null ? 0 : typeAnnotations.length; i < length; i++) {
+					typeAnnotations[i].traverse(visitor, scope);
+				}
+			}
 			if (this.bound != null) {
 				this.bound.traverse(visitor, scope);
 			}

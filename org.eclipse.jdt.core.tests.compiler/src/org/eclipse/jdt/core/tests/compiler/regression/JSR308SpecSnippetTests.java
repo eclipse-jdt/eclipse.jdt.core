@@ -14,6 +14,7 @@
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 415541 - [1.8][compiler] Type annotations in the body of static initializer get dropped
  *                          Bug 415543 - [1.8][compiler] Incorrect bound index in RuntimeInvisibleTypeAnnotations attribute
+ *                          Bug 415397 - [1.8][compiler] Type Annotations on wildcard type argument dropped
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -440,55 +441,137 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	public void test011() throws Exception { // WILL FAIL WHEN https://bugs.eclipse.org/bugs/show_bug.cgi?id=415397 IS FIXED.
+	
+	public void test011() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"import java.lang.annotation.*;\n" +
-				"import java.util.List;\n" +
+				"import java.util.*;\n" +
+				"import java.io.*;\n" +
 				"import static java.lang.annotation.ElementType.*; \n" +
 				"@Target(TYPE_USE)\n" +
-				"@interface Immutable {}\n" +
+				"@interface Immutable { int value() default 0; }\n" +
 				"class X {\n" +
-				"	List<@Immutable ? extends Comparable<X>> x;\n" +
+				"	List<@Immutable ? extends Comparable<X>> a;\n" +
+				"	List<? extends @Immutable Comparable<X>> b;\n" +
+				"	List<@Immutable(1) ? extends @Immutable(2) Comparable<X>> c;\n" +
+				"	Map<@Immutable(1) ? extends Comparable<X>,@Immutable(2) ? extends @Immutable(3) Serializable> d;\n" +
 				"}\n",
 		},
 		"");
+		// javac b100
+		// Field a:
+		//   RuntimeInvisibleTypeAnnotations:
+		//    0: #9(): FIELD, location=[TYPE_ARGUMENT(0)]
+		// Field b:
+		//   RuntimeInvisibleTypeAnnotations:
+		//    0: #9(): FIELD, location=[TYPE_ARGUMENT(0), WILDCARD]
+		// Field c:
+		//   RuntimeInvisibleTypeAnnotations:
+		//    0: #9(#12=I#13): FIELD, location=[TYPE_ARGUMENT(0)]
+		//    1: #9(#12=I#14): FIELD, location=[TYPE_ARGUMENT(0), WILDCARD]
+		// Field d:
+		//   RuntimeInvisibleTypeAnnotations:
+		//    0: #9(#12=I#13): FIELD, location=[TYPE_ARGUMENT(0)]
+		//    1: #9(#12=I#14): FIELD, location=[TYPE_ARGUMENT(1)]
+		//    2: #9(#12=I#18): FIELD, location=[TYPE_ARGUMENT(1), WILDCARD]
 		String expectedOutput =
+				"// Compiled from X.java (version 1.8 : 52.0, super bit)\n" + 
 				"class X {\n" + 
 				"  Constant pool:\n" + 
 				"    constant #1 class: #2 X\n" + 
 				"    constant #2 utf8: \"X\"\n" + 
 				"    constant #3 class: #4 java/lang/Object\n" + 
 				"    constant #4 utf8: \"java/lang/Object\"\n" + 
-				"    constant #5 utf8: \"x\"\n" + 
+				"    constant #5 utf8: \"a\"\n" + 
 				"    constant #6 utf8: \"Ljava/util/List;\"\n" + 
 				"    constant #7 utf8: \"Signature\"\n" + 
 				"    constant #8 utf8: \"Ljava/util/List<+Ljava/lang/Comparable<LX;>;>;\"\n" + 
-				"    constant #9 utf8: \"<init>\"\n" + 
-				"    constant #10 utf8: \"()V\"\n" + 
-				"    constant #11 utf8: \"Code\"\n" + 
-				"    constant #12 method_ref: #3.#13 java/lang/Object.<init> ()V\n" + 
-				"    constant #13 name_and_type: #9.#10 <init> ()V\n" + 
-				"    constant #14 utf8: \"LineNumberTable\"\n" + 
-				"    constant #15 utf8: \"LocalVariableTable\"\n" + 
-				"    constant #16 utf8: \"this\"\n" + 
-				"    constant #17 utf8: \"LX;\"\n" + 
-				"    constant #18 utf8: \"SourceFile\"\n" + 
-				"    constant #19 utf8: \"X.java\"\n" + 
+				"    constant #9 utf8: \"RuntimeInvisibleTypeAnnotations\"\n" + 
+				"    constant #10 utf8: \"LImmutable;\"\n" + 
+				"    constant #11 utf8: \"b\"\n" + 
+				"    constant #12 utf8: \"c\"\n" + 
+				"    constant #13 utf8: \"value\"\n" + 
+				"    constant #14 integer: 1\n" + 
+				"    constant #15 integer: 2\n" + 
+				"    constant #16 utf8: \"d\"\n" + 
+				"    constant #17 utf8: \"Ljava/util/Map;\"\n" + 
+				"    constant #18 utf8: \"Ljava/util/Map<+Ljava/lang/Comparable<LX;>;+Ljava/io/Serializable;>;\"\n" + 
+				"    constant #19 integer: 3\n" + 
+				"    constant #20 utf8: \"<init>\"\n" + 
+				"    constant #21 utf8: \"()V\"\n" + 
+				"    constant #22 utf8: \"Code\"\n" + 
+				"    constant #23 method_ref: #3.#24 java/lang/Object.<init> ()V\n" + 
+				"    constant #24 name_and_type: #20.#21 <init> ()V\n" + 
+				"    constant #25 utf8: \"LineNumberTable\"\n" + 
+				"    constant #26 utf8: \"LocalVariableTable\"\n" + 
+				"    constant #27 utf8: \"this\"\n" + 
+				"    constant #28 utf8: \"LX;\"\n" + 
+				"    constant #29 utf8: \"SourceFile\"\n" + 
+				"    constant #30 utf8: \"X.java\"\n" + 
 				"  \n" + 
 				"  // Field descriptor #6 Ljava/util/List;\n" + 
 				"  // Signature: Ljava/util/List<+Ljava/lang/Comparable<LX;>;>;\n" + 
-				"  java.util.List x;\n" + 
+				"  java.util.List a;\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #10 @Immutable(\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [TYPE_ARGUMENT(0)]\n" + 
+				"      )\n" + 
 				"  \n" + 
-				"  // Method descriptor #10 ()V\n" + 
+				"  // Field descriptor #6 Ljava/util/List;\n" + 
+				"  // Signature: Ljava/util/List<+Ljava/lang/Comparable<LX;>;>;\n" + 
+				"  java.util.List b;\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #10 @Immutable(\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [TYPE_ARGUMENT(0), WILDCARD]\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Field descriptor #6 Ljava/util/List;\n" + 
+				"  // Signature: Ljava/util/List<+Ljava/lang/Comparable<LX;>;>;\n" + 
+				"  java.util.List c;\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #10 @Immutable(\n" + 
+				"        #13 value=(int) 1 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [TYPE_ARGUMENT(0)]\n" + 
+				"      )\n" + 
+				"      #10 @Immutable(\n" + 
+				"        #13 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [TYPE_ARGUMENT(0), WILDCARD]\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Field descriptor #17 Ljava/util/Map;\n" + 
+				"  // Signature: Ljava/util/Map<+Ljava/lang/Comparable<LX;>;+Ljava/io/Serializable;>;\n" + 
+				"  java.util.Map d;\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #10 @Immutable(\n" + 
+				"        #13 value=(int) 1 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [TYPE_ARGUMENT(0)]\n" + 
+				"      )\n" + 
+				"      #10 @Immutable(\n" + 
+				"        #13 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [TYPE_ARGUMENT(1)]\n" + 
+				"      )\n" + 
+				"      #10 @Immutable(\n" + 
+				"        #13 value=(int) 3 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [TYPE_ARGUMENT(1), WILDCARD]\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Method descriptor #21 ()V\n" + 
 				"  // Stack: 1, Locals: 1\n" + 
 				"  X();\n" + 
 				"    0  aload_0 [this]\n" + 
-				"    1  invokespecial java.lang.Object() [12]\n" + 
+				"    1  invokespecial java.lang.Object() [23]\n" + 
 				"    4  return\n" + 
 				"      Line numbers:\n" + 
-				"        [pc: 0, line: 6]\n" + 
+				"        [pc: 0, line: 7]\n" + 
 				"      Local variable table:\n" + 
 				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
 				"}";
@@ -1164,7 +1247,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	public void test028() throws Exception { // // WILL FAIL WHEN https://bugs.eclipse.org/bugs/show_bug.cgi?id=415397 IS FIXED.
+	public void test028() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1179,15 +1262,89 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"}\n",
 		},
 		"");
+		// javac b100
+		// On the type declaration:
+		//  RuntimeInvisibleTypeAnnotations:
+		//   0: #9(): CLASS_TYPE_PARAMETER, param_index=0
+		// On the method:
+	    //  RuntimeInvisibleTypeAnnotations:
+	    //   0: #9(): METHOD_TYPE_PARAMETER, param_index=0
+		// On the field:
+		//  RuntimeInvisibleTypeAnnotations:
+		//   0: #9(): FIELD, location=[TYPE_ARGUMENT(0)]
 		String expectedOutput =
+				"// Compiled from X.java (version 1.8 : 52.0, super bit)\n" + 
+				"// Signature: <T:Ljava/lang/Object;>Ljava/lang/Object;\n" + 
+				"class X {\n" + 
+				"  Constant pool:\n" + 
+				"    constant #1 class: #2 X\n" + 
+				"    constant #2 utf8: \"X\"\n" + 
+				"    constant #3 class: #4 java/lang/Object\n" + 
+				"    constant #4 utf8: \"java/lang/Object\"\n" + 
+				"    constant #5 utf8: \"l\"\n" + 
+				"    constant #6 utf8: \"Ljava/util/List;\"\n" + 
+				"    constant #7 utf8: \"Signature\"\n" + 
+				"    constant #8 utf8: \"Ljava/util/List<*>;\"\n" + 
+				"    constant #9 utf8: \"RuntimeInvisibleTypeAnnotations\"\n" + 
+				"    constant #10 utf8: \"LNonNull;\"\n" + 
+				"    constant #11 utf8: \"<init>\"\n" + 
+				"    constant #12 utf8: \"()V\"\n" + 
+				"    constant #13 utf8: \"Code\"\n" + 
+				"    constant #14 method_ref: #3.#15 java/lang/Object.<init> ()V\n" + 
+				"    constant #15 name_and_type: #11.#12 <init> ()V\n" + 
+				"    constant #16 utf8: \"LineNumberTable\"\n" + 
+				"    constant #17 utf8: \"LocalVariableTable\"\n" + 
+				"    constant #18 utf8: \"this\"\n" + 
+				"    constant #19 utf8: \"LX;\"\n" + 
+				"    constant #20 utf8: \"LocalVariableTypeTable\"\n" + 
+				"    constant #21 utf8: \"LX<TT;>;\"\n" + 
+				"    constant #22 utf8: \"foo\"\n" + 
+				"    constant #23 utf8: \"<K:Ljava/lang/Object;>()V\"\n" + 
+				"    constant #24 utf8: \"SourceFile\"\n" + 
+				"    constant #25 utf8: \"X.java\"\n" + 
+				"    constant #26 utf8: \"<T:Ljava/lang/Object;>Ljava/lang/Object;\"\n" + 
+				"  \n" + 
+				"  // Field descriptor #6 Ljava/util/List;\n" + 
+				"  // Signature: Ljava/util/List<*>;\n" + 
+				"  java.util.List l;\n" + 
 				"    RuntimeInvisibleTypeAnnotations: \n" + 
-				"      #23 @NonNull(\n" + 
+				"      #10 @NonNull(\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [TYPE_ARGUMENT(0)]\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Method descriptor #12 ()V\n" + 
+				"  // Stack: 1, Locals: 1\n" + 
+				"  X();\n" + 
+				"    0  aload_0 [this]\n" + 
+				"    1  invokespecial java.lang.Object() [14]\n" + 
+				"    4  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 6]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X<T>\n" + 
+				"  \n" + 
+				"  // Method descriptor #12 ()V\n" + 
+				"  // Signature: <K:Ljava/lang/Object;>()V\n" + 
+				"  // Stack: 0, Locals: 1\n" + 
+				"  void foo();\n" + 
+				"    0  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 7]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X<T>\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #10 @NonNull(\n" + 
 				"        target type = 0x1 METHOD_TYPE_PARAMETER\n" + 
 				"        type parameter index = 0\n" + 
 				"      )\n" + 
 				"\n" + 
 				"  RuntimeInvisibleTypeAnnotations: \n" + 
-				"    #23 @NonNull(\n" + 
+				"    #10 @NonNull(\n" + 
 				"      target type = 0x0 CLASS_TYPE_PARAMETER\n" + 
 				"      type parameter index = 0\n" + 
 				"    )\n" + 
@@ -1911,6 +2068,42 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        target type = 0x44 NEW\n" + 
 				"        offset = 5\n" + 
 				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void test039() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import java.util.List;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@interface Readonly {\n" +
+				"	String value() default \"default\";\n" +
+				"}\n" +
+				"public class X  { \n" +
+				"	void foo(List<@Readonly ?> l) {\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"  void foo(java.util.List l);\n" + 
+				"    0  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 10]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 1] local: l index: 1 type: java.util.List\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 1] local: l index: 1 type: java.util.List<?>\n" + 
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #23 @Readonly(\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"        location = [TYPE_ARGUMENT(0)]\n" + 
+				"      )\n" + 
+				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 }

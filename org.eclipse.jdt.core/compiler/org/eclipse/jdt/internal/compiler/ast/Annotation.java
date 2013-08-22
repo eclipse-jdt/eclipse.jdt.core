@@ -20,6 +20,7 @@
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409517 - [1.8][compiler] Type annotation problems on more elaborate array references
+ *                          Bug 415397 - [1.8][compiler] Type Annotations on wildcard type argument dropped
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -249,8 +250,9 @@ public abstract class Annotation extends Expression {
 
 				if (primaryAnnotation != null) {
 					for (int i = 0, max = primaryAnnotation.length; i < max; i++) {
-						if (primaryAnnotation[i] == this.currentAnnotation) {							this.search = false;
-						for (int k = 0, maxk = typeReference.dimensions; k < maxk; k++) {
+						if (primaryAnnotation[i] == this.currentAnnotation) {
+							this.search = false;
+							for (int k = 0, maxk = typeReference.dimensions; k < maxk; k++) {
 								this.typePathEntries.push(TYPE_PATH_ELEMENT_ARRAY);
 							}
 							return false;
@@ -374,6 +376,24 @@ public abstract class Annotation extends Expression {
 			
 			public boolean visit(Wildcard typeReference, BlockScope scope) {
 				if (!this.search) return false;
+				
+				// This block handles List<@Foo ? extends Serializable>
+				Annotation[][] annotations = typeReference.annotations;
+				if (annotations == null) {
+					annotations = new Annotation[][] { primaryAnnotation };
+				}
+				int annotationsLevels = annotations.length;
+				for (int i = 0; i < annotationsLevels; i++) {
+					Annotation [] current = annotations[i];
+					int annotationsLength = current == null ? 0 : current.length;
+					for (int j = 0; j < annotationsLength; j++) {
+						if (current[j] == this.currentAnnotation) {
+							this.search = false;
+							return false;
+						}
+					}
+				}
+
 				TypeReference bound = typeReference.bound;
 				this.typePathEntries.push(TYPE_PATH_ANNOTATION_ON_WILDCARD_BOUND);
 				bound.traverse(this, scope);
