@@ -8208,8 +8208,8 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"StartingDone");
 	}
 	
-	// https://bugs.eclipse.org/412076
-	public void testBug412076_a() throws Exception {
+	// https://bugs.eclipse.org/412203
+	public void testBug412203_a() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // using <>
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
@@ -8276,7 +8276,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"}\n",
 				},
 				"",
-				getLibsWithNullAnnotations(),
+				getLibsWithNullAnnotations(ClassFileConstants.JDK1_7),
 				true/*flush*/,
 				null/*vmArgs*/,
 				options,
@@ -8365,9 +8365,9 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 
-	// https://bugs.eclipse.org/412076
+	// https://bugs.eclipse.org/412203
 	// yet simplified version - using FieldReference
-	public void testBug412076_b() throws Exception {
+	public void testBug412203_b() throws Exception {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 		options.put(JavaCore.COMPILER_PB_NULL_REFERENCE, JavaCore.ERROR);
@@ -8396,14 +8396,9 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"		Object o2 = new Object();\n" + 
 					"	}\n" + 
 					"}\n",
-					"org/eclipse/jdt/annotation/NonNull.java",
-					"package org.eclipse.jdt.annotation;\n" +
-					"import java.lang.annotation.*;\n" +
-					"@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE })\n" +
-					"public @interface NonNull {}\n"
 				},
 				"",
-				getLibsWithNullAnnotations(),
+				getLibsWithNullAnnotations(ClassFileConstants.JDK1_7),
 				true/*flush*/,
 				null/*vmArgs*/,
 				options,
@@ -8487,9 +8482,9 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 
-	// https://bugs.eclipse.org/412076
+	// https://bugs.eclipse.org/412203
 	// yet simplified version - using SingleNameReference
-	public void testBug412076_c() throws Exception {
+	public void testBug412203_c() throws Exception {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 		options.put(JavaCore.COMPILER_PB_NULL_REFERENCE, JavaCore.ERROR);
@@ -8518,14 +8513,9 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"		Object o2 = new Object();\n" + 
 					"	}\n" + 
 					"}\n",
-					"org/eclipse/jdt/annotation/NonNull.java",
-					"package org.eclipse.jdt.annotation;\n" +
-					"import java.lang.annotation.*;\n" +
-					"@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE })\n" +
-					"public @interface NonNull {}\n"
 				},
 				"",
-				getLibsWithNullAnnotations(),
+				getLibsWithNullAnnotations(ClassFileConstants.JDK1_7),
 				true/*flush*/,
 				null/*vmArgs*/,
 				options,

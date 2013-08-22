@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -42,10 +46,12 @@ public class EqualExpression extends BinaryExpression {
 		// - allocation expression, some literals, this reference (see inside expressionNonNullComparison(..))
 		// these checks do not leverage the flowInfo.
 		boolean checkEquality = ((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL;
-		if (leftStatus == FlowInfo.NON_NULL && rightStatus == FlowInfo.NULL) {
-			leftNonNullChecked = scope.problemReporter().expressionNonNullComparison(this.left, checkEquality);
-		} else if (leftStatus == FlowInfo.NULL && rightStatus == FlowInfo.NON_NULL) {
-			rightNonNullChecked = scope.problemReporter().expressionNonNullComparison(this.right, checkEquality);
+		if ((flowContext.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING_MASK) == 0) {
+			if (leftStatus == FlowInfo.NON_NULL && rightStatus == FlowInfo.NULL) {
+				leftNonNullChecked = scope.problemReporter().expressionNonNullComparison(this.left, checkEquality);
+			} else if (leftStatus == FlowInfo.NULL && rightStatus == FlowInfo.NON_NULL) {
+				rightNonNullChecked = scope.problemReporter().expressionNonNullComparison(this.right, checkEquality);
+			}
 		}
 		
 		boolean contextualCheckEquality = checkEquality ^ ((flowContext.tagBits & FlowContext.INSIDE_NEGATION) != 0);

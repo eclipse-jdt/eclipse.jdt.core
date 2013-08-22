@@ -72,6 +72,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
 import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
+import org.osgi.framework.Bundle;
 
 public abstract class AbstractRegressionTest extends AbstractCompilerTest implements StopableTestCase {
 
@@ -1200,12 +1201,14 @@ protected static class JavacTestOptions {
 		return DefaultJavaRuntimeEnvironment.getDefaultClassPaths();
 	}
 	/** Get class library paths built from default class paths plus the JDT null annotations. */
-	protected String[] getLibsWithNullAnnotations() throws IOException {
+	protected String[] getLibsWithNullAnnotations(long sourceLevel) throws IOException {
 		String[] defaultLibs = getDefaultClassPaths();
 		int len = defaultLibs.length;
 		String[] libs = new String[len+1];
 		System.arraycopy(defaultLibs, 0, libs, 0, len);
-		File bundleFile = FileLocator.getBundleFile(Platform.getBundle("org.eclipse.jdt.annotation"));
+		String version = sourceLevel < ClassFileConstants.JDK1_8 ? "[1.1.0,2.0.0)" : "[2.0.0,3.0.0)";
+		Bundle[] bundles = Platform.getBundles("org.eclipse.jdt.annotation", version);
+		File bundleFile = FileLocator.getBundleFile(bundles[0]);
 		if (bundleFile.isDirectory())
 			libs[len] = bundleFile.getPath()+"/bin";
 		else
