@@ -19,6 +19,7 @@
  *                          Bug 409246 - [1.8][compiler] Type annotations on catch parameters not handled properly
  *                          Bug 415541 - [1.8][compiler] Type annotations in the body of static initializer get dropped
  *                          Bug 415399 - [1.8][compiler] Type annotations on constructor results dropped by the code generator
+ *                          Bug 415470 - [1.8][compiler] Type annotations on class declaration go vanishing
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
@@ -354,7 +355,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (typeDeclaration != null) {
 				final Annotation[] annotations = typeDeclaration.annotations;
 				if (annotations != null) {
-					attributesNumber += generateRuntimeAnnotations(annotations);
+					attributesNumber += generateRuntimeAnnotations(annotations, true);
 				}
 			}
 		}
@@ -450,7 +451,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (fieldDeclaration != null) {
 				Annotation[] annotations = fieldDeclaration.annotations;
 				if (annotations != null) {
-					attributesNumber += generateRuntimeAnnotations(annotations);
+					attributesNumber += generateRuntimeAnnotations(annotations, false);
 				}
 
 				if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
@@ -3180,7 +3181,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (methodDeclaration != null) {
 				Annotation[] annotations = methodDeclaration.annotations;
 				if (annotations != null) {
-					attributesNumber += generateRuntimeAnnotations(annotations);
+					attributesNumber += generateRuntimeAnnotations(annotations, false);
 				}
 				if ((methodBinding.tagBits & TagBits.HasParameterAnnotations) != 0) {
 					Argument[] arguments = methodDeclaration.arguments;
@@ -3384,9 +3385,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 	/**
 	 * @param annotations
+	 * @param includeTypeUseAnnotations Used to support JSR308 Section 2.3 special allowance for TYPE_USE annotation used on a type declaration
 	 * @return the number of attributes created while dumping the annotations in the .class file
 	 */
-	private int generateRuntimeAnnotations(final Annotation[] annotations) {
+	private int generateRuntimeAnnotations(final Annotation[] annotations, final boolean includeTypeUseAnnotations) {
 		int attributesNumber = 0;
 		final int length = annotations.length;
 		int visibleAnnotationsCounter = 0;
@@ -3394,9 +3396,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		for (int i = 0; i < length; i++) {
 			Annotation annotation = annotations[i];
-			if (annotation.isRuntimeInvisible()) {
+			if (annotation.isRuntimeInvisible() || (includeTypeUseAnnotations && annotation.isRuntimeTypeInvisible())) {
 				invisibleAnnotationsCounter++;
-			} else if (annotation.isRuntimeVisible()) {
+			} else if (annotation.isRuntimeVisible() || (includeTypeUseAnnotations && annotation.isRuntimeTypeVisible())) {
 				visibleAnnotationsCounter++;
 			}
 		}
@@ -3422,7 +3424,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 			loop: for (int i = 0; i < length; i++) {
 				if (invisibleAnnotationsCounter == 0) break loop;
 				Annotation annotation = annotations[i];
-				if (annotation.isRuntimeInvisible()) {
+				if (annotation.isRuntimeInvisible() || 
+						// No need to explicitly check it is type_use and not type_parameter, 
+						// that will already have been checked
+						(includeTypeUseAnnotations && annotation.isRuntimeTypeInvisible())) {
 					int currentAnnotationOffset = this.contentsOffset;
 					generateAnnotation(annotation, currentAnnotationOffset);
 					invisibleAnnotationsCounter--;
@@ -3469,7 +3474,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 			loop: for (int i = 0; i < length; i++) {
 				if (visibleAnnotationsCounter == 0) break loop;
 				Annotation annotation = annotations[i];
-				if (annotation.isRuntimeVisible()) {
+				if (annotation.isRuntimeVisible() || 
+					// No need to explicitly check it is type_use and not type_parameter, 
+					// that will already have been checked
+					(includeTypeUseAnnotations && annotation.isRuntimeTypeVisible())) {
 					visibleAnnotationsCounter--;
 					int currentAnnotationOffset = this.contentsOffset;
 					generateAnnotation(annotation, currentAnnotationOffset);
@@ -3495,6 +3503,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		return attributesNumber;
 	}
+	
 	private int generateRuntimeAnnotationsForParameters(Argument[] arguments) {
 		final int argumentsLength = arguments.length;
 		final int VISIBLE_INDEX = 0;

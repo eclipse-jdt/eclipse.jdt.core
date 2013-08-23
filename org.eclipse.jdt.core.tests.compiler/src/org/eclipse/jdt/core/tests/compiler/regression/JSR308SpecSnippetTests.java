@@ -16,6 +16,7 @@
  *                          Bug 415543 - [1.8][compiler] Incorrect bound index in RuntimeInvisibleTypeAnnotations attribute
  *                          Bug 415397 - [1.8][compiler] Type Annotations on wildcard type argument dropped
  *                          Bug 415399 - [1.8][compiler] Type annotations on constructor results dropped by the code generator
+ *                          Bug 415470 - [1.8][compiler] Type annotations on class declaration go vanishing
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1424,13 +1425,74 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"The annotation @MAnno is disallowed for this location\n" + 
 		"----------\n");
 	}
-	public void test030() throws Exception { // WILL FAIL WHEN https://bugs.eclipse.org/bugs/show_bug.cgi?id=415470 IS FIXED.
+	public void test030() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"import java.lang.annotation.*;\n" +
 				"import static java.lang.annotation.ElementType.*; \n" +
 				"@Target({TYPE_USE}) @interface TypeAnnotation { }\n" +
+				"@Target({TYPE}) @interface Annotation { }\n" +
+				"@Annotation @TypeAnnotation class X {\n" +
+				"}\n",
+		},
+		"");
+		// javac b100 produces:
+		//		  RuntimeInvisibleAnnotations:
+		//			    0: #11() LAnnotation;
+		//			    1: #12() LTypeAnnotation;
+		String expectedOutput =
+				"// Compiled from X.java (version 1.8 : 52.0, super bit)\n" + 
+				"class X {\n" + 
+				"  Constant pool:\n" + 
+				"    constant #1 class: #2 X\n" + 
+				"    constant #2 utf8: \"X\"\n" + 
+				"    constant #3 class: #4 java/lang/Object\n" + 
+				"    constant #4 utf8: \"java/lang/Object\"\n" + 
+				"    constant #5 utf8: \"<init>\"\n" + 
+				"    constant #6 utf8: \"()V\"\n" + 
+				"    constant #7 utf8: \"Code\"\n" + 
+				"    constant #8 method_ref: #3.#9 java/lang/Object.<init> ()V\n" + 
+				"    constant #9 name_and_type: #5.#6 <init> ()V\n" + 
+				"    constant #10 utf8: \"LineNumberTable\"\n" + 
+				"    constant #11 utf8: \"LocalVariableTable\"\n" + 
+				"    constant #12 utf8: \"this\"\n" + 
+				"    constant #13 utf8: \"LX;\"\n" + 
+				"    constant #14 utf8: \"SourceFile\"\n" + 
+				"    constant #15 utf8: \"X.java\"\n" + 
+				"    constant #16 utf8: \"RuntimeInvisibleAnnotations\"\n" + 
+				"    constant #17 utf8: \"LAnnotation;\"\n" + 
+				"    constant #18 utf8: \"LTypeAnnotation;\"\n" + 
+				"  \n" + 
+				"  // Method descriptor #6 ()V\n" + 
+				"  // Stack: 1, Locals: 1\n" + 
+				"  X();\n" + 
+				"    0  aload_0 [this]\n" + 
+				"    1  invokespecial java.lang.Object() [8]\n" + 
+				"    4  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 5]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+				"\n" + 
+				"  RuntimeInvisibleAnnotations: \n" + 
+				"    #17 @Annotation(\n" + 
+				"    )\n" + 
+				"    #18 @TypeAnnotation(\n" + 
+				"    )\n" + 
+				"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	public void test030a() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@Target({TYPE_USE}) @interface TypeAnnotation { }\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
 				"@Target({TYPE}) @interface Annotation { }\n" +
 				"@Annotation @TypeAnnotation class X {\n" +
 				"}\n",
@@ -1455,8 +1517,9 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"    constant #13 utf8: \"LX;\"\n" + 
 				"    constant #14 utf8: \"SourceFile\"\n" + 
 				"    constant #15 utf8: \"X.java\"\n" + 
-				"    constant #16 utf8: \"RuntimeInvisibleAnnotations\"\n" + 
+				"    constant #16 utf8: \"RuntimeVisibleAnnotations\"\n" + 
 				"    constant #17 utf8: \"LAnnotation;\"\n" + 
+				"    constant #18 utf8: \"LTypeAnnotation;\"\n" + 
 				"  \n" + 
 				"  // Method descriptor #6 ()V\n" + 
 				"  // Stack: 1, Locals: 1\n" + 
@@ -1465,12 +1528,92 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"    1  invokespecial java.lang.Object() [8]\n" + 
 				"    4  return\n" + 
 				"      Line numbers:\n" + 
-				"        [pc: 0, line: 5]\n" + 
+				"        [pc: 0, line: 7]\n" + 
 				"      Local variable table:\n" + 
 				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
 				"\n" + 
-				"  RuntimeInvisibleAnnotations: \n" + 
+				"  RuntimeVisibleAnnotations: \n" + 
 				"    #17 @Annotation(\n" + 
+				"    )\n" + 
+				"    #18 @TypeAnnotation(\n" + 
+				"    )\n" + 
+				"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	public void test030b() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				// Only TYPE_USE annotations get this special treatment
+				"@Target({TYPE_PARAMETER}) @interface TypeAnnotation { }\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@Target({TYPE}) @interface Annotation { }\n" +
+				"@Annotation @TypeAnnotation class X {\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	@Annotation @TypeAnnotation class X {\n" + 
+		"	            ^^^^^^^^^^^^^^^\n" + 
+		"The annotation @TypeAnnotation is disallowed for this location\n" + 
+		"----------\n");
+	}
+	public void test030c() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@Target({TYPE_USE,TYPE_PARAMETER}) @interface TypeAnnotation { }\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@Target({TYPE}) @interface Annotation { }\n" +
+				"@Annotation @TypeAnnotation class X {\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"// Compiled from X.java (version 1.8 : 52.0, super bit)\n" + 
+				"class X {\n" + 
+				"  Constant pool:\n" + 
+				"    constant #1 class: #2 X\n" + 
+				"    constant #2 utf8: \"X\"\n" + 
+				"    constant #3 class: #4 java/lang/Object\n" + 
+				"    constant #4 utf8: \"java/lang/Object\"\n" + 
+				"    constant #5 utf8: \"<init>\"\n" + 
+				"    constant #6 utf8: \"()V\"\n" + 
+				"    constant #7 utf8: \"Code\"\n" + 
+				"    constant #8 method_ref: #3.#9 java/lang/Object.<init> ()V\n" + 
+				"    constant #9 name_and_type: #5.#6 <init> ()V\n" + 
+				"    constant #10 utf8: \"LineNumberTable\"\n" + 
+				"    constant #11 utf8: \"LocalVariableTable\"\n" + 
+				"    constant #12 utf8: \"this\"\n" + 
+				"    constant #13 utf8: \"LX;\"\n" + 
+				"    constant #14 utf8: \"SourceFile\"\n" + 
+				"    constant #15 utf8: \"X.java\"\n" + 
+				"    constant #16 utf8: \"RuntimeVisibleAnnotations\"\n" + 
+				"    constant #17 utf8: \"LAnnotation;\"\n" + 
+				"    constant #18 utf8: \"LTypeAnnotation;\"\n" + 
+				"  \n" + 
+				"  // Method descriptor #6 ()V\n" + 
+				"  // Stack: 1, Locals: 1\n" + 
+				"  X();\n" + 
+				"    0  aload_0 [this]\n" + 
+				"    1  invokespecial java.lang.Object() [8]\n" + 
+				"    4  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 7]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+				"\n" + 
+				"  RuntimeVisibleAnnotations: \n" + 
+				"    #17 @Annotation(\n" + 
+				"    )\n" + 
+				"    #18 @TypeAnnotation(\n" + 
 				"    )\n" + 
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
