@@ -21,6 +21,7 @@
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409517 - [1.8][compiler] Type annotation problems on more elaborate array references
  *                          Bug 415397 - [1.8][compiler] Type Annotations on wildcard type argument dropped
+ *                          Bug 414384 - [1.8] type annotation on abbreviated inner class is not marked as inner type
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -157,7 +158,10 @@ public abstract class Annotation extends Expression {
 					}
 				}
 				Annotation[][] annotations = typeReference.annotations;
-				int annotationsLevels = annotations == null ? 0 : annotations.length;
+				if (annotations == null) {
+					annotations = new Annotation[][] { primaryAnnotation };
+				}
+				int annotationsLevels = annotations.length;
 				for (int i = 0; i < annotationsLevels; i++) {
 					Annotation [] current = annotations[i];
 					int annotationsLength = current == null ? 0 : current.length;

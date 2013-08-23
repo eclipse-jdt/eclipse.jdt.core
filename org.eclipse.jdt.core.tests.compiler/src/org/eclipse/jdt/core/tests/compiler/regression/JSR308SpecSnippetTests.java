@@ -17,6 +17,7 @@
  *                          Bug 415397 - [1.8][compiler] Type Annotations on wildcard type argument dropped
  *                          Bug 415399 - [1.8][compiler] Type annotations on constructor results dropped by the code generator
  *                          Bug 415470 - [1.8][compiler] Type annotations on class declaration go vanishing
+ *                          Bug 414384 - [1.8] type annotation on abbreviated inner class is not marked as inner type
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -2388,5 +2389,85 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      )\n" + 
 				"  \n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	// Bug 414384 - [1.8] type annotation on abbreviated inner class is not marked as inner type
+	public void test043() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"pkg/Clazz.java",
+				"package pkg;\n" +
+				"import java.lang.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*;\n" +
+				"\n" +
+				"@Target({TYPE_USE}) @interface P { }\n" +
+				"@Target({TYPE_USE}) @interface O { }\n" +
+				"@Target({TYPE_USE}) @interface I { }\n" +
+				"\n" +
+				"public abstract class Clazz {\n" +
+				"  public class Inner {}\n" +
+				"  public abstract void n1(@I Inner i1);\n" +
+				"  public abstract void n2(@O Clazz.@I Inner i2);\n" +
+				"  public abstract void n3(pkg.@O Clazz.@I Inner i3);\n" +
+				"}\n",
+		},
+		"");
+		// javac b100 produces for the methods:
+		//		  public abstract void n1(pkg.Clazz$Inner);
+		//		    RuntimeInvisibleTypeAnnotations:
+		//		      0: #14(): METHOD_FORMAL_PARAMETER, param_index=0, location=[INNER_TYPE]
+		//
+		//		  public abstract void n2(pkg.Clazz$Inner);
+		//		    RuntimeInvisibleTypeAnnotations:
+		//		      0: #14(): METHOD_FORMAL_PARAMETER, param_index=0, location=[INNER_TYPE]
+		//		      1: #16(): METHOD_FORMAL_PARAMETER, param_index=0
+		//
+		//		  public abstract void n3(pkg.Clazz$Inner);
+		//		    RuntimeInvisibleTypeAnnotations:
+		//		      0: #14(): METHOD_FORMAL_PARAMETER, param_index=0, location=[INNER_TYPE]
+		//		      1: #16(): METHOD_FORMAL_PARAMETER, param_index=0
+		String expectedOutput =
+				"  // Method descriptor #15 (Lpkg/Clazz$Inner;)V\n" + 
+				"  public abstract void n1(pkg.Clazz.Inner arg0);\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #17 @pkg.I(\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"        location = [INNER_TYPE]\n" + 
+				"      )\n" + 
+				"  \n" + 
+				
+				"  // Method descriptor #15 (Lpkg/Clazz$Inner;)V\n" + 
+				"  public abstract void n2(pkg.Clazz.Inner arg0);\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #19 @pkg.O(\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"      )\n" + 
+				"      #17 @pkg.I(\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"        location = [INNER_TYPE]\n" + 
+				"      )\n" + 
+				"  \n" + 
+				
+				"  // Method descriptor #15 (Lpkg/Clazz$Inner;)V\n" + 
+				"  public abstract void n3(pkg.Clazz.Inner arg0);\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #19 @pkg.O(\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"      )\n" + 
+				"      #17 @pkg.I(\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"        location = [INNER_TYPE]\n" + 
+				"      )\n" + 
+				"\n" + 
+				"  Inner classes:\n" + 
+				"    [inner class info: #24 pkg/Clazz$Inner, outer class info: #1 pkg/Clazz\n" + 
+				"     inner name: #26 Inner, accessflags: 1 public]\n" + 
+				"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "pkg" + File.separator + "Clazz.class", "pkg.Clazz", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 }
