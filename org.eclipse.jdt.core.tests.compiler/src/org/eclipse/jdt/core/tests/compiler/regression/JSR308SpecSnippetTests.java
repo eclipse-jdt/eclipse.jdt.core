@@ -2117,4 +2117,133 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	public void test040() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@interface Readonly {\n" +
+				"	String value() default \"default\";\n" +
+				"}\n" +
+				"class X {\n" +
+				"	class Y {}\n" +
+				"	void foo() {\n" +
+				"		@Readonly X x = new X();\n" +
+				"		x.new @Readonly Y();\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #27 @Readonly(\n" + 
+				"        target type = 0x44 NEW\n" + 
+				"        offset = 8\n" + 
+				"        location = [INNER_TYPE]\n" + 
+				"      )\n" + 
+				"      #27 @Readonly(\n" + 
+				"        target type = 0x40 LOCAL_VARIABLE\n" + 
+				"        local variable entries:\n" + 
+				"          [pc: 8, pc: 21] index: 1\n" + 
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void test041() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface A {\n" +
+				"	String value() default \"default\";\n" +
+				"}\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface B {\n" +
+				"	String value() default \"default\";\n" +
+				"}\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface C {\n" +
+				"	String value() default \"default\";\n" +
+				"}\n" +
+				"class X<T extends @A Object & @B Comparable, U extends @C Cloneable> {\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"  RuntimeInvisibleTypeAnnotations: \n" + 
+				"    #21 @A(\n" + 
+				"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND\n" + 
+				"      type parameter index = 0 type parameter bound index = 0\n" + 
+				"    )\n" + 
+				"    #22 @B(\n" + 
+				"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND\n" + 
+				"      type parameter index = 0 type parameter bound index = 1\n" + 
+				"    )\n" + 
+				"    #23 @C(\n" + 
+				"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND\n" + 
+				"      type parameter index = 1 type parameter bound index = 1\n" + 
+				"    )\n" + 
+				"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	// type path tests.
+	public void test042() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import java.util.Map;\n" +
+				"import java.util.List;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface A {\n" +
+				"	String value() default \"default\";\n" +
+				"}\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface B {\n" +
+				"	String value() default \"default\";\n" +
+				"}\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface C {\n" +
+				"	String value() default \"default\";\n" +
+				"}\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface D {\n" +
+				"	String value() default \"default\";\n" +
+				"}\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface E {\n" +
+				"	String value() default \"default\";\n" +
+				"}\n" +
+				"class X {\n" +
+				"	@A Map <@B ? extends @C String, @D List<@E Object>> f;\n" +
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"  java.util.Map f;\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #10 @A(\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"      )\n" + 
+				"      #11 @B(\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [TYPE_ARGUMENT(0)]\n" + 
+				"      )\n" + 
+				"      #12 @C(\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [TYPE_ARGUMENT(0), WILDCARD]\n" + 
+				"      )\n" + 
+				"      #13 @D(\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [TYPE_ARGUMENT(1)]\n" + 
+				"      )\n" + 
+				"      #14 @E(\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [TYPE_ARGUMENT(1), TYPE_ARGUMENT(0)]\n" + 
+				"      )\n" + 
+				"  \n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
 }
