@@ -14,6 +14,7 @@
  *								bug 405706 - Eclipse compiler fails to give compiler error when return type is a inferred generic
  *								Bug 408441 - Type mismatch using Arrays.asList with 3 or more implementations of an interface with the interface type as the last parameter
  *								Bug 413958 - Function override returning inherited Generic Type
+ *								Bug 415734 - Eclipse gives compilation error calling method with an inferred generic return type
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -3264,6 +3265,31 @@ public void testBug413958_2() {
 		"	final WritableWrapper<TestA2,TestB> v4 = v1.icopy();\n" +
 		"	                                         ^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from ReadOnlyWrapper<TestA,TestB> to WritableWrapper<TestA2,TestB>\n" +
+		"----------\n");
+}
+public void testBug415734() {
+	runNegativeTest(
+		new String[] {
+			"Compile.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"\n" +
+			"public class Compile {\n" +
+			"\n" +
+			"    public <T, Exp extends List<T>> Exp typedNull() {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"\n" +
+			"    public void call() {\n" +
+			"        ArrayList<String> list = typedNull();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in Compile.java (at line 11)\n" +
+		"	ArrayList<String> list = typedNull();\n" +
+		"	                         ^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from List<Object> to ArrayList<String>\n" +
 		"----------\n");
 }
 }
