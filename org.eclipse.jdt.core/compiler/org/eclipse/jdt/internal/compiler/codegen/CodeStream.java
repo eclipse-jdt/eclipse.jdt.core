@@ -20,6 +20,7 @@
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409247 - [1.8][compiler] Verify error with code allocating multidimensional array
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
+ *                          Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
@@ -1874,7 +1875,7 @@ public void generateEmulationForConstructor(Scope scope, MethodBinding methodBin
 	invokeClassForName();
 	int paramLength = methodBinding.parameters.length;
 	this.generateInlinedValue(paramLength);
-	newArray(null, scope.createArrayType(scope.getType(TypeConstants.JAVA_LANG_CLASS, 3), 1));
+	newArray(scope.createArrayType(scope.getType(TypeConstants.JAVA_LANG_CLASS, 3), 1));
 	if (paramLength > 0) {
 		dup();
 		for (int i = 0; i < paramLength; i++) {
@@ -1930,7 +1931,7 @@ public void generateEmulationForMethod(Scope scope, MethodBinding methodBinding)
 	this.ldc(String.valueOf(methodBinding.selector));
 	int paramLength = methodBinding.parameters.length;
 	this.generateInlinedValue(paramLength);
-	newArray(null, scope.createArrayType(scope.getType(TypeConstants.JAVA_LANG_CLASS, 3), 1));
+	newArray(scope.createArrayType(scope.getType(TypeConstants.JAVA_LANG_CLASS, 3), 1));
 	if (paramLength > 0) {
 		dup();
 		for (int i = 0; i < paramLength; i++) {
@@ -2530,7 +2531,7 @@ public void generateSyntheticBodyForEnumValues(SyntheticMethodBinding methodBind
 	arraylength();
 	dup();
 	istore_1();
-	newArray(null, (ArrayBinding) enumArray);
+	newArray((ArrayBinding) enumArray);
 	dup();
 	astore_2();
 	iconst_0();
@@ -5756,10 +5757,6 @@ public void newarray(int array_Type) {
 }
 
 public void newArray(ArrayBinding arrayBinding) {
-	this.newArray(null, arrayBinding);
-}
-
-public void newArray(TypeReference typeReference, ArrayBinding arrayBinding) {
 	this.newArray(null, null, arrayBinding);
 }
 

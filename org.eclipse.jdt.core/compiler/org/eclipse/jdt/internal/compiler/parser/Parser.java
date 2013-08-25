@@ -26,6 +26,7 @@
  *									bug 393192 - Incomplete type hierarchy with > 10 annotations
  *        Andy Clement - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
+ *                          Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
@@ -3522,7 +3523,6 @@ protected void consumeEnterVariable() {
 					declaration.annotations = new Annotation[length],
 					0,
 					length);
-				declaration.bits |= ASTNode.HasTypeAnnotations;
 			}
 			type = getTypeReference(typeDim = this.intStack[this.intPtr--]); // type dimension
 			if (declaration.declarationSourceStart == -1) {
@@ -3544,7 +3544,6 @@ protected void consumeEnterVariable() {
 					declaration.annotations = new Annotation[length],
 					0,
 					length);
-				declaration.bits |= ASTNode.HasTypeAnnotations;
 			}
 			// Store javadoc only on first declaration as it is the same for all ones
 			FieldDeclaration fieldDeclaration = (FieldDeclaration) declaration;
@@ -3562,7 +3561,6 @@ protected void consumeEnterVariable() {
 		if (annotations != null) {
 			final int annotationsLength = annotations.length;
 			System.arraycopy(annotations, 0, declaration.annotations = new Annotation[annotationsLength], 0, annotationsLength);
-			declaration.bits |= ASTNode.HasTypeAnnotations;
 		}
 	}
 
@@ -3575,7 +3573,7 @@ protected void consumeEnterVariable() {
 		Annotation[][] annotationsOnDimensions = type.getAnnotationsOnDimensions();
 		if (annotationsOnDimensions != null || annotationsOnExtendedDimensions != null) {
 			annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(typeDim, annotationsOnDimensions, extendedDimension, annotationsOnExtendedDimensions); 
-			declaration.bits |= (type.bits & ASTNode.HasTypeAnnotations);
+//			declaration.bits |= (type.bits & ASTNode.HasTypeAnnotations);
 		}
 		declaration.type = copyDims(type, dimension, annotationsOnAllDimensions);
 	}

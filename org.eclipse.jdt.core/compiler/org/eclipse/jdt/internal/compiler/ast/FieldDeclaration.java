@@ -15,6 +15,8 @@
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
+ *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *								Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -225,6 +227,17 @@ public void resolve(MethodScope initializationScope) {
 		initializationScope.lastVisibleFieldID = this.binding.id;
 
 		resolveAnnotations(initializationScope, this.annotations, this.binding);
+		// Check if this declaration should now have the type annotations bit set
+		if (this.annotations != null) {
+			for (int i = 0, max = this.annotations.length; i < max; i++) {
+				TypeBinding resolvedAnnotationType = this.annotations[i].resolvedType;
+				if (resolvedAnnotationType != null && (resolvedAnnotationType.getAnnotationTagBits() & TagBits.AnnotationForTypeUse) != 0) {
+					this.bits |= ASTNode.HasTypeAnnotations;
+					break;
+				}
+			}
+		}
+		
 		// check @Deprecated annotation presence
 		if ((this.binding.getAnnotationTagBits() & TagBits.AnnotationDeprecated) == 0
 				&& (this.binding.modifiers & ClassFileConstants.AccDeprecated) != 0

@@ -15,6 +15,7 @@
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409247 - [1.8][compiler] Verify error with code allocating multidimensional array
  *                          Bug 409517 - [1.8][compiler] Type annotation problems on more elaborate array references
+ *                          Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
@@ -98,7 +99,7 @@ public class TypeAnnotationCodeStream extends StackMapFrameCodeStream {
 					: AnnotationTargetTypeConstants.METHOD_INVOCATION_TYPE_ARGUMENT;
 			for (int i = 0, max = typeArguments.length; i < max; i++) {
 				TypeReference typeArgument = typeArguments[i];
-				if ((typeArgument.bits & ASTNode.HasTypeAnnotations) != 0) { // TODO can check this at a higher level?
+				if ((typeArgument.bits & ASTNode.HasTypeAnnotations) != 0) {
 					addAnnotationContext(typeArgument, this.position, i, targetType);
 				}
 			}

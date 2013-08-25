@@ -27,6 +27,8 @@
  *							bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *     Jesper S Moller - Contributions for
  *							Bug 378674 - "The method can be declared as static" is wrong
+ *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *							Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -279,6 +281,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		// only resolve annotation at the end, for constant to be positioned before (96991)
 		resolveAnnotations(scope, this.annotations, this.binding);
+		// Check if this declaration should now have the type annotations bit set
+		if (this.annotations != null) {
+			for (int i = 0, max = this.annotations.length; i < max; i++) {
+				TypeBinding resolvedAnnotationType = this.annotations[i].resolvedType;
+				if (resolvedAnnotationType != null && (resolvedAnnotationType.getAnnotationTagBits() & TagBits.AnnotationForTypeUse) != 0) {
+					this.bits |= ASTNode.HasTypeAnnotations;
+					break;
+				}
+			}
+		}
 		scope.validateNullAnnotation(this.binding.tagBits, this.type, this.annotations);
 	}
 
