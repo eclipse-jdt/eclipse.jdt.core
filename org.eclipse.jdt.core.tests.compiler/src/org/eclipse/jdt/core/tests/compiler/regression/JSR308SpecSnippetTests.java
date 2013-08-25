@@ -2829,4 +2829,90 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	public void test049() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@interface B { int value() default -1; }\n" +
+				"public class X {\n" +
+				"    class Y {\n" +
+				"    }\n" +
+				"    @B(1) X. @B(2) Y xy;\n" +
+				"    void foo(@B(3) X. @B(4) Y xy) {\n" +
+				"        @B(5) X. @B(6) Y local = null; \n" +
+				"    }\n" +
+				"}\n",
+		},
+		"");
+
+		String expectedOutput =
+				"  // Field descriptor #6 LX$Y;\n" + 
+				"  X$Y xy;\n" + 
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #8 @B(\n" + 
+				"        #9 value=(int) 1 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"      )\n" + 
+				"      #8 @B(\n" + 
+				"        #9 value=(int) 2 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [INNER_TYPE]\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Method descriptor #13 ()V\n" + 
+				"  // Stack: 1, Locals: 1\n" + 
+				"  public X();\n" + 
+				"    0  aload_0 [this]\n" + 
+				"    1  invokespecial java.lang.Object() [15]\n" + 
+				"    4  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 5]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+				"  \n" + 
+				"  // Method descriptor #22 (LX$Y;)V\n" + 
+				"  // Stack: 1, Locals: 3\n" + 
+				"  void foo(X.Y xy);\n" + 
+				"    0  aconst_null\n" + 
+				"    1  astore_2 [local]\n" + 
+				"    2  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 10]\n" + 
+				"        [pc: 2, line: 11]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 3] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 3] local: xy index: 1 type: X.Y\n" + 
+				"        [pc: 2, pc: 3] local: local index: 2 type: X.Y\n" + 
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #8 @B(\n" + 
+				"        #9 value=(int) 5 (constant type)\n" + 
+				"        target type = 0x40 LOCAL_VARIABLE\n" + 
+				"        local variable entries:\n" + 
+				"          [pc: 2, pc: 3] index: 2\n" + 
+				"      )\n" + 
+				"      #8 @B(\n" + 
+				"        #9 value=(int) 6 (constant type)\n" + 
+				"        target type = 0x40 LOCAL_VARIABLE\n" + 
+				"        local variable entries:\n" + 
+				"          [pc: 2, pc: 3] index: 2\n" + 
+				"        location = [INNER_TYPE]\n" + 
+				"      )\n" + 
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #8 @B(\n" + 
+				"        #9 value=(int) 3 (constant type)\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"      )\n" + 
+				"      #8 @B(\n" + 
+				"        #9 value=(int) 4 (constant type)\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"        location = [INNER_TYPE]\n" + 
+				"      )\n" + 
+				"\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
 }

@@ -5464,8 +5464,6 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        exception table index = 5\n" + 
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-	}
-	
-	
+	}	
 }
 
