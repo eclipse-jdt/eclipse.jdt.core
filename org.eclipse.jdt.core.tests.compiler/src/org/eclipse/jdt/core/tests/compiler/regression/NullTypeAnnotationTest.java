@@ -718,6 +718,47 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			});
 	}
 
+	// issue from https://bugs.eclipse.org/bugs/show_bug.cgi?id=403216#c7
+	public void testBug403216_2() {
+		runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"import java.util.*;\n" +
+				"public class X {\n" +
+				"    void test(List<@NonNull String> strings) {\n" + 
+				"        List<String> someStrings;\n" + 
+				"        someStrings = strings;\n" +
+				"    }\n" +
+				"}\n"
+			},
+			getCompilerOptions(),
+			"");
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403216#c9 
+	public void testBug403216_3() {
+		runConformTestWithLibs(
+			new String[] {
+				"Test.java",
+				"import java.lang.annotation.ElementType;\n" + 
+				"import java.lang.annotation.Target;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"public class Test {}\n" + 
+				"\n" + 
+				"class X {\n" + 
+				"	class Y {\n" + 
+				"		public void foo( @A X. @NonNull Y this) {}\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"@Target(value={ElementType.TYPE_USE})\n" + 
+				"@interface A {}\n"
+			},
+			getCompilerOptions(),
+			"");
+	}
+
 	// https://bugs.eclipse.org/403457 - [1.8][compiler] NPE in WildcardBinding.signature
 	public void testBug403457() {
 		runNegativeTestWithLibs(

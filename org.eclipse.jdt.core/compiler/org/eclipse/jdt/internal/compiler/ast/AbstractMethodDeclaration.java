@@ -22,6 +22,7 @@
  *								bug 401030 - [1.8][null] Null analysis support for lambda methods.
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
+ *								Bug 403216 - [1.8][null] TypeReference#captureTypeAnnotations treats type annotations as type argument annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -583,7 +584,7 @@ public abstract class AbstractMethodDeclaration
 			this.receiver.qualifyingName = null;
 		}
 
-		if (enclosingReceiver != resolvedReceiverType) {
+		if (enclosingReceiver != resolvedReceiverType.unannotated()) {
 			this.scope.problemReporter().illegalTypeForExplicitThis(this.receiver, enclosingReceiver);
 			this.receiver = null;
 		}
