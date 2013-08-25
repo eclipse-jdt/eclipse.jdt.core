@@ -760,7 +760,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// https://bugs.eclipse.org/403457 - [1.8][compiler] NPE in WildcardBinding.signature
-	public void testBug403457() {
+	public void testBug403457_1() {
 		runNegativeTestWithLibs(
 			new String[] {
 				"X.java",
@@ -786,6 +786,33 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	void goo(Map<@Marker ? extends @Marker Object, @Marker ? super @Marker String> m){}\n" + 
+			"	         ^^^\n" + 
+			"Map cannot be resolved to a type\n" + 
+			"----------\n");
+	}
+
+	// https://bugs.eclipse.org/403457 - [1.8][compiler] NPE in WildcardBinding.signature
+	// variant with null annotations
+	public void testBug403457_2() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"// import java.util.Map;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void foo(Map<@Nullable ? super @Nullable Object, @Nullable ? extends @Nullable String> m){}\n" + 
+				"   void goo(Map<@Nullable ? extends @Nullable Object, @Nullable ? super @Nullable String> m){}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	void foo(Map<@Nullable ? super @Nullable Object, @Nullable ? extends @Nullable String> m){}\n" + 
+			"	         ^^^\n" + 
+			"Map cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	void goo(Map<@Nullable ? extends @Nullable Object, @Nullable ? super @Nullable String> m){}\n" + 
 			"	         ^^^\n" + 
 			"Map cannot be resolved to a type\n" + 
 			"----------\n");
