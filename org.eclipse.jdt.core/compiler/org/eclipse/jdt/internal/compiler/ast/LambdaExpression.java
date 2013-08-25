@@ -16,7 +16,8 @@
  *							bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *     Stephan Herrmann - Contribution for
  *							bug 401030 - [1.8][null] Null analysis support for lambda methods.
- *							Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
+ *							Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *							Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -349,8 +350,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if (this.binding != null) {
 			int length = this.binding.parameters.length;
 			for (int i=0; i<length; i++) {
-				long nullAnnotationTagBit =  this.binding.returnType.tagBits & TagBits.AnnotationNullMASK;
-				this.scope.validateNullAnnotation(nullAnnotationTagBit, this.arguments[i].type, this.arguments[i].annotations);
+				if (!this.scope.validateNullAnnotation(this.binding.returnType.tagBits, this.arguments[i].type, this.arguments[i].annotations))
+					this.binding.returnType = this.binding.returnType.unannotated();
 			}
 		}
 	}

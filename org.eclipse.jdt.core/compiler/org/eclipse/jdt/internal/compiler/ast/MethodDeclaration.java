@@ -18,7 +18,8 @@
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 382353 - [1.8][compiler] Implementation property modifiers should be accepted on default methods.
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
- *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *								bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
@@ -353,14 +354,5 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	}
 	public TypeParameter[] typeParameters() {
 	    return this.typeParameters;
-	}
-	
-	void validateNullAnnotations(long sourceLevel) {
-		super.validateNullAnnotations(sourceLevel);
-		// null-annotations on the return type?
-		if (this.binding != null && this.binding.returnType != null) {
-			long tagBits = (sourceLevel < ClassFileConstants.JDK1_8) ? this.binding.tagBits : this.binding.returnType.tagBits;
-			this.scope.validateNullAnnotation(tagBits, this.returnType, this.annotations);
-		}
 	}
 }

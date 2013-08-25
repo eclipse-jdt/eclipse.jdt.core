@@ -29,7 +29,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testArrayType_10" };
+//			TESTS_NAMES = new String[] { "testUnsupportedLocation" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -306,7 +306,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"B.java",
 				  "import org.eclipse.jdt.annotation.*;\n" +
 				  "public class B {\n" +
-				  "    public void foo(@NonNull A<Object>.@Nullable I<@NonNull String> ai) {\n" +
+				  "    public void foo(A<Object>.@Nullable I<@NonNull String> ai) {\n" +
 				  "            ai.foo(null); // problems: ai can be null, arg must not be null\n" +
 				  "    }\n" +
 				  "}\n"},
@@ -1074,7 +1074,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"public abstract class X1 {\n" +
 					"    public class Inner {}\n" +
 					"    public Object []@NonNull[] arrays(Object @NonNull[][] oa1) { return null; }\n" +
-					"    public void nesting(@NonNull Inner i1, @NonNull X1.@Nullable Inner i2) { }\n" +
+					"    public void nesting(@NonNull Inner i1, X1.@Nullable Inner i2) { }\n" +
 					"    public void wildcard1(List<@Nullable ? extends @NonNull X1> l) { }\n" + // contradiction
 					"    public void wildcard2(List<? super @NonNull X1> l) { }\n" +
 					"}\n"
@@ -1108,12 +1108,11 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	x.arrays(a)[0] = null;\n" + 
 				"	^^^^^^^^^^^^^^\n" + 
 				"Null type mismatch: required \'Object @NonNull[]\' but the provided value is null\n" +
-// TODO(stephan): not reported due to Bug 414384 - [1.8] type annotation on abbreviated inner class is not marked as inner type
-//				"----------\n" + 
-//				"3. ERROR in Y1.java (at line 8)\n" + 
-//				"	x.nesting(null, null);\n" + 
-//				"	          ^^^^\n" + 
-//				"Null type mismatch: required \'@NonNull X1.Inner\' but the provided value is null\n" + 
+				"----------\n" + 
+				"2. ERROR in Y1.java (at line 7)\n" + 
+				"	x.nesting(null, null);\n" + 
+				"	          ^^^^\n" + 
+				"Null type mismatch: required \'X1.@NonNull Inner\' but the provided value is null\n" + 
 				"----------\n");
 	}
 
@@ -1498,4 +1497,57 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	// illegal for type declaration
+	public void testUnsupportedLocation01() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public @NonNull class X {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	public @NonNull class X {}\n" + 
+			"	       ^^^^^^^^\n" + 
+			"The nullness annotation \'NonNull\' is not applicable at this location\n" + 
+			"----------\n");
+	}
+
+	// illegal for enclosing class (locations: field, argument, return type, local
+	public void testUnsupportedLocation02() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class X {\n" +
+				"    class Inner {}\n" +
+				"    @NonNull X.Inner f;\n" +
+				"    @NonNull X.Inner foo(@NonNull X.Inner arg) {\n" +
+				"        @NonNull X.Inner local = arg;\n" +
+				"        return local;\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	@NonNull X.Inner f;\n" + 
+			"	^^^^^^^^\n" + 
+			"The nullness annotation \'NonNull\' is not applicable at this location\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	@NonNull X.Inner foo(@NonNull X.Inner arg) {\n" + 
+			"	^^^^^^^^\n" + 
+			"The nullness annotation \'NonNull\' is not applicable at this location\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	@NonNull X.Inner foo(@NonNull X.Inner arg) {\n" + 
+			"	                     ^^^^^^^^\n" + 
+			"The nullness annotation \'NonNull\' is not applicable at this location\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 6)\n" + 
+			"	@NonNull X.Inner local = arg;\n" + 
+			"	^^^^^^^^\n" + 
+			"The nullness annotation \'NonNull\' is not applicable at this location\n" + 
+			"----------\n");
+	}
 }

@@ -28,6 +28,7 @@
  *								bug 391376 - [1.8] check interaction of default methods with bridge methods and generics
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
+ *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1535,12 +1536,13 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 						field.fillInDefaultNonNullness(fieldDecl, initializationScope);
 					}
 					// validate null annotation:
-					this.scope.validateNullAnnotation(field.tagBits, fieldDecl.type, fieldDecl.annotations);
+					if (!this.scope.validateNullAnnotation(field.tagBits, fieldDecl.type, fieldDecl.annotations))
+						field.tagBits &= ~TagBits.AnnotationNullMASK;
 				}
 				if (sourceLevel >= ClassFileConstants.JDK1_8 && !fieldType.isBaseType()) {
 					long nullTagBits = field.tagBits & TagBits.AnnotationNullMASK;
 					if (nullTagBits != 0 && nullTagBits != (fieldType.tagBits & TagBits.AnnotationNullMASK))
-						field.type = environment.pushAnnotationIntoType(fieldType, fieldDecl.type, nullTagBits);
+						field.type = environment.createAnnotatedType(fieldType, nullTagBits);
 					// do not reset field.tagBits, since more fields may need to share this information ("@NonNull Object o1, o2;")
 				}
 			}
@@ -1721,18 +1723,22 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 	}
 	CompilerOptions compilerOptions = this.scope.compilerOptions();
 	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled) {
-		if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
+		if (!method.isConstructor()) {
 			long nullTagBits = method.tagBits & TagBits.AnnotationNullMASK;
-			if (nullTagBits != (method.returnType.tagBits & TagBits.AnnotationNullMASK)) {
-				TypeReference returnTypeRef = ((MethodDeclaration)methodDecl).returnType;
-				if (method.returnType.isBaseType()) {
-					if (method.returnType.id != TypeIds.T_void)  // type annotations are *always* illegal for 'void'
-						this.scope.problemReporter().illegalAnnotationForBaseType(returnTypeRef, methodDecl.annotations, nullTagBits);
-				} else {
-					// annotation was mistakenly associated to the method, create the annotated type now:
-					method.returnType = this.scope.environment().pushAnnotationIntoType(method.returnType, returnTypeRef, nullTagBits);
+			TypeReference returnTypeRef = ((MethodDeclaration)methodDecl).returnType;
+			if (compilerOptions.sourceLevel < ClassFileConstants.JDK1_8) {
+				if (!this.scope.validateNullAnnotation(nullTagBits, returnTypeRef, methodDecl.annotations))
+					method.tagBits &= ~TagBits.AnnotationNullMASK;
+			} else {
+				if (nullTagBits != (method.returnType.tagBits & TagBits.AnnotationNullMASK)) {
+					if (!this.scope.validateNullAnnotation(nullTagBits, returnTypeRef, methodDecl.annotations)) {
+						method.returnType = method.returnType.unannotated();
+					} else {
+						// annotation was mistakenly associated to the method, create the annotated type now:
+						method.returnType = this.scope.environment().createAnnotatedType(method.returnType, nullTagBits);
+					}
+					method.tagBits &= ~TagBits.AnnotationNullMASK;
 				}
-				method.tagBits &= ~TagBits.AnnotationNullMASK;
 			}
 		}
 		createArgumentBindings(method, compilerOptions); // need annotations resolved already at this point

@@ -17,6 +17,7 @@
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
+ *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409517 - [1.8][compiler] Type annotation problems on more elaborate array references
@@ -1017,8 +1018,10 @@ public abstract class Annotation extends Expression {
 							if (nullTagBits != 0) {
 								if (variable.type.isBaseType()) {
 									scope.problemReporter().illegalAnnotationForBaseType(this, variable.type);
-								} else {
-									variable.type = scope.environment().pushAnnotationIntoType(variable.type, variable.declaration.type, nullTagBits);
+								} else if (variable.declaration.type instanceof QualifiedTypeReference) {
+									scope.problemReporter().nullAnnotationUnsupportedLocation(this);
+								} else if (nullTagBits != (variable.type.tagBits & TagBits.AnnotationNullMASK)) {
+									variable.type = scope.environment().createAnnotatedType(variable.type, nullTagBits);
 									if ((variable.type.tagBits & TAGBITS_NULLABLE_OR_NONNULL) == TAGBITS_NULLABLE_OR_NONNULL) {
 										scope.problemReporter().contradictoryNullAnnotations(this);
 										variable.type = variable.type.unannotated();

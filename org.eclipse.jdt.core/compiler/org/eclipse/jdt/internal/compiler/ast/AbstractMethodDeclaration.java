@@ -20,7 +20,8 @@
  *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 401030 - [1.8][null] Null analysis support for lambda methods.
- *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -651,15 +652,16 @@ public abstract class AbstractMethodDeclaration
 					if (this.binding.parameterNonNullness[i] != null) {
 						long nullAnnotationTagBit =  this.binding.parameterNonNullness[i].booleanValue()
 								? TagBits.AnnotationNonNull : TagBits.AnnotationNullable;
-						this.scope.validateNullAnnotation(nullAnnotationTagBit, this.arguments[i].type, this.arguments[i].annotations);
+						if (!this.scope.validateNullAnnotation(nullAnnotationTagBit, this.arguments[i].type, this.arguments[i].annotations))
+							this.binding.parameterNonNullness[i] = null;
 					}
 				}
 			}
 		} else {
 			int length = this.binding.parameters.length;
 			for (int i=0; i<length; i++) {
-				long nullAnnotationTagBit = this.binding.parameters[i].tagBits & TagBits.AnnotationNullMASK;
-				this.scope.validateNullAnnotation(nullAnnotationTagBit, this.arguments[i].type, this.arguments[i].annotations);
+				if (!this.scope.validateNullAnnotation(this.binding.parameters[i].tagBits, this.arguments[i].type, this.arguments[i].annotations))
+					this.binding.parameters[i] = this.binding.parameters[i].unannotated();
 			}			
 		}
 	}

@@ -20,6 +20,7 @@
  *								bug 405706 - Eclipse compiler fails to give compiler error when return type is a inferred generic
  *								Bug 408441 - Type mismatch using Arrays.asList with 3 or more implementations of an interface with the interface type as the last parameter
  *								Bug 413958 - Function override returning inherited Generic Type
+ *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -4466,14 +4467,28 @@ public abstract class Scope {
 		return visibleIndex == 1 ? visible[0] : mostSpecificMethodBinding(visible, visibleIndex, argumentTypes, allocationSite, allocationType);
 	}
 
-	public void validateNullAnnotation(long tagBits, TypeReference typeRef, Annotation[] annotations) {
+	public boolean validateNullAnnotation(long tagBits, TypeReference typeRef, Annotation[] annotations) {
 		long nullAnnotationTagBit = tagBits & (TagBits.AnnotationNullMASK);
 		if (nullAnnotationTagBit != 0) {
 			TypeBinding type = typeRef.resolvedType;
 			if (type != null && type.isBaseType()) {
-				problemReporter().illegalAnnotationForBaseType(typeRef, annotations, nullAnnotationTagBit);
+				// type annotations are *always* illegal for 'void' (already reported)
+				if (!(typeRef.resolvedType.id == TypeIds.T_void && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8))
+					problemReporter().illegalAnnotationForBaseType(typeRef, annotations, nullAnnotationTagBit);
+				return false;
+			}
+			if (annotations != null && typeRef instanceof QualifiedTypeReference) {
+				// illegal @NonNull Outer.Inner:
+				for (int i = 0; i < annotations.length; i++) {
+					int id = annotations[i].resolvedType.id;
+					if (id == TypeIds.T_ConfiguredAnnotationNonNull || id == TypeIds.T_ConfiguredAnnotationNullable) {
+						problemReporter().nullAnnotationUnsupportedLocation(annotations[i]);
+						return false;
+					}
+				}
 			}
 		}
+		return true;
 	}
 	public static BlockScope typeAnnotationsResolutionScope(Scope scope) {
 		BlockScope resolutionScope = null;

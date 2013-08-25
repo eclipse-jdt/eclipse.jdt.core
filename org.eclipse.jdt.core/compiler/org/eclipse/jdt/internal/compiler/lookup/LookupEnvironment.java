@@ -20,6 +20,7 @@
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
+ *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -33,8 +34,6 @@ import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFilePool;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.TypeAnnotationWalker;
@@ -1025,39 +1024,6 @@ public TypeBinding createAnnotatedType(TypeBinding genericType, long annotationB
 	}
 	// TODO(stephan): PolyTypeBinding
 	return genericType;
-}
-
-/**
- * Create an annotated type from 'type' by applying 'annotationBits' to its outermost enclosing type.
- * This is used for those locations where a null annotations was parsed as a declaration annotation
- * and later must be pushed into the type.
- * @param type
- * @param annotationBits
- */
-public TypeBinding pushAnnotationIntoType(TypeBinding type, TypeReference typeRef, long annotationBits) {
-	TypeBinding outermostType = type;
-	if (typeRef instanceof QualifiedTypeReference) {
-		int depth = typeRef.getAnnotatableLevels();
-		while (--depth > 0)
-			outermostType = outermostType.enclosingType();
-	}
-	if ((outermostType.tagBits & TagBits.AnnotationNullMASK) != annotationBits) {
-		if (type == outermostType)
-			return createAnnotatedType(type, annotationBits);
-		// types with true enclosingType() must be ReferenceBindings
-		return reWrap((ReferenceBinding) type, outermostType, (ReferenceBinding)createAnnotatedType(outermostType, annotationBits));
-	}
-	return type;
-}
-
-private ReferenceBinding reWrap(ReferenceBinding inner, TypeBinding outer, ReferenceBinding annotatedOuter) {
-	ReferenceBinding annotatedEnclosing =  (inner.enclosingType() == outer) 
-			? annotatedOuter
-			: reWrap(inner.enclosingType(), outer, annotatedOuter);
-	TypeBinding[] arguments = (inner instanceof ParameterizedTypeBinding)
-			? ((ParameterizedTypeBinding) inner).arguments 
-			: Binding.NO_TYPES;
-	return createParameterizedType((ReferenceBinding)inner.original(), arguments, inner.tagBits, annotatedEnclosing);	
 }
 
 /**

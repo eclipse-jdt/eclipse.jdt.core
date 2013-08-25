@@ -25,6 +25,7 @@
  *							bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *							bug 383368 - [compiler][null] syntactic null analysis for field references
  *							bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
+ *							Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *     Jesper S Moller - Contributions for
  *							Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -291,7 +292,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				}
 			}
 		}
-		scope.validateNullAnnotation(this.binding.tagBits, this.type, this.annotations);
+		if (!scope.validateNullAnnotation(this.binding.tagBits, this.type, this.annotations))
+			this.binding.tagBits &= ~TagBits.AnnotationNullMASK;
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
