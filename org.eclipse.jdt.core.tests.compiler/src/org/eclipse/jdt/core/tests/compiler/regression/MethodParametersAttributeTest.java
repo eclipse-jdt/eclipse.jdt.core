@@ -15,6 +15,8 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Map;
 
 import junit.framework.Test;
 
@@ -22,7 +24,9 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class MethodParametersAttributeTest extends AbstractRegressionTest {
 	public MethodParametersAttributeTest(String name) {
@@ -36,7 +40,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 	// Use this static initializer to specify subset for tests
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_PREFIX = "testBug95521";
+//		TESTS_PREFIX = "test008";
 //		TESTS_NAMES = new String[] { "testBug359495" };
 //		TESTS_NUMBERS = new int[] { 53 };
 //		TESTS_RANGE = new int[] { 23 -1,};
@@ -159,13 +163,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 					"}";
 
 
-			int index = actualOutput.indexOf(expectedOutput);
-			if (index == -1 || expectedOutput.length() == 0) {
-				System.out.println(Util.displayString(actualOutput, 2));
-			}
-			if (index == -1) {
-				assertEquals("Wrong contents", expectedOutput, actualOutput);
-			}
+			assertSubstring(actualOutput, expectedOutput);
 	}
 	public void test002() throws Exception {
 
@@ -231,13 +229,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 			"  Enclosing Method: #27  #28 ParameterNames.makeInnerWithCapture(Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/Callable;\n" + 
 			"}";
 
-		int index = actualOutput.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(actualOutput, 2));
-		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, actualOutput);
-		}
+		assertSubstring(actualOutput, expectedOutput);
 	}
 
 	public void test003() throws Exception {
@@ -311,13 +303,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 			"  Enclosing Method: #26  #27 ParameterNames.localMath(Ljava/lang/String;Ljava/lang/String;)I\n" + 
 			"}";
 
-		int index = actualOutput.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(actualOutput, 2));
-		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, actualOutput);
-		}
+		assertSubstring(actualOutput, expectedOutput);
 	}
 
 	public void test004() throws Exception {
@@ -346,5 +332,345 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		assertEquals("this$0", new String(methodInfos[0].getArgumentNames()[0]));
 		assertEquals("val$capturedB", new String(methodInfos[0].getArgumentNames()[1]));
 	}
+	public void test006() throws Exception {
+		// Test that the code generator can emit the names, so the ClassFileReader may read them back
+		
+		this.runParameterNameTest(
+			"X.java",
+			"public class X {\n" +
+			"    X(int wholeNumber) {\n" +
+			"    }\n" +
+			"    void foo(final float pluggedTheHoles, boolean yesItFloats) {\n" +
+			"    }\n" +
+			"}");
 
+		try {
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
+			IBinaryMethod[] methods = classFileReader.getMethods();
+			assertNotNull("No methods", methods);
+			assertEquals("Wrong size", 2, methods.length);
+			assertEquals("Wrong name", "<init>", new String(methods[0].getSelector()));
+			char[][] argumentNames = methods[0].getArgumentNames();
+			assertEquals("<init> should have 1 parameter", 1, argumentNames.length);
+			assertEquals("wholeNumber", new String(argumentNames[0]));
+			assertEquals("Wrong name", "foo", new String(methods[1].getSelector()));
+			assertEquals("pluggedTheHoles", new String(methods[1].getArgumentNames()[0]));
+			assertEquals("yesItFloats", new String(methods[1].getArgumentNames()[1]));
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}
+
+	public void test007() throws Exception {
+		// Test that the code generator can emit the names, so the disassembler may read them back (same source as was compiled with javac)
+		
+		this.runParameterNameTest(
+			"ParameterNames.java",
+			this.originalSource);
+
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String path = OUTPUT_DIR + File.separator + "ParameterNames.class";
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(path));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED);
+	
+		String expectedOutput =
+				"// Compiled from ParameterNames.java (version 1.8 : 52.0, super bit)\n" + 
+				"public class ParameterNames {\n" + 
+				"  \n" + 
+				"  // Method descriptor #6 ()V\n" + 
+				"  // Stack: 1, Locals: 1\n" + 
+				"  public ParameterNames();\n" + 
+				"    0  aload_0 [this]\n" + 
+				"    1  invokespecial java.lang.Object() [8]\n" + 
+				"    4  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 3]\n" + 
+				"  \n" + 
+				"  // Method descriptor #12 (ID)V\n" + 
+				"  // Stack: 0, Locals: 4\n" + 
+				"  public void someMethod(int simple, double complex);\n" + 
+				"    0  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 6]\n" + 
+				"      Method Parameters:\n" + 
+				"        simple\n" + 
+				"        final complex\n" + 
+				"  \n" + 
+				"  // Method descriptor #17 (Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/Callable;\n" + 
+				"  // Signature: (Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/Callable<Ljava/lang/String;>;\n" + 
+				"  // Stack: 4, Locals: 3\n" + 
+				"  public java.util.concurrent.Callable makeInnerWithCapture(java.lang.String finalMessage, java.lang.String mutableMessage);\n" + 
+				"     0  new ParameterNames$1 [20]\n" + 
+				"     3  dup\n" + 
+				"     4  aload_0 [this]\n" + 
+				"     5  aload_1 [finalMessage]\n" + 
+				"     6  invokespecial ParameterNames$1(ParameterNames, java.lang.String) [22]\n" + 
+				"     9  areturn\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 9]\n" + 
+				"      Method Parameters:\n" + 
+				"        final finalMessage\n" + 
+				"        mutableMessage\n" + 
+				"  \n" + 
+				"  // Method descriptor #28 (Ljava/lang/String;Ljava/lang/String;)I\n" + 
+				"  // Stack: 5, Locals: 4\n" + 
+				"  public int localMath(java.lang.String finalMessage, java.lang.String mutableMessage);\n" + 
+				"     0  bipush 42\n" + 
+				"     2  istore_3\n" + 
+				"     3  new ParameterNames$1Local [29]\n" + 
+				"     6  dup\n" + 
+				"     7  aload_0 [this]\n" + 
+				"     8  iconst_2\n" + 
+				"     9  iload_3\n" + 
+				"    10  invokespecial ParameterNames$1Local(ParameterNames, int, int) [31]\n" + 
+				"    13  iconst_3\n" + 
+				"    14  invokevirtual ParameterNames$1Local.calculate(int) : int [34]\n" + 
+				"    17  ireturn\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 17]\n" + 
+				"        [pc: 3, line: 29]\n" + 
+				"      Method Parameters:\n" + 
+				"        final finalMessage\n" + 
+				"        mutableMessage\n" + 
+				"\n" + 
+				"  Inner classes:\n" + 
+				"    [inner class info: #20 ParameterNames$1, outer class info: #0\n" + 
+				"     inner name: #0, accessflags: 0 default],\n" + 
+				"    [inner class info: #29 ParameterNames$1Local, outer class info: #0\n" + 
+				"     inner name: #41 Local, accessflags: 0 default]\n" + 
+				"}";
+
+		assertSubstring(actualOutput, expectedOutput);
+	}
+
+	public void test008() throws Exception {
+		// Test that the code generator can emit synthetic and mandated names, just to match javac as closely as possibly
+		
+		this.runParameterNameTest(
+			"ParameterNames.java",
+			this.originalSource);
+
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String path = OUTPUT_DIR + File.separator + "ParameterNames$1.class";
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(path));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED);
+
+		String expectedOutput =
+			"// Compiled from ParameterNames.java (version 1.8 : 52.0, super bit)\n" + 
+			"// Signature: Ljava/lang/Object;Ljava/util/concurrent/Callable<Ljava/lang/String;>;\n" + 
+			"class ParameterNames$1 implements java.util.concurrent.Callable {\n" + 
+			"  \n" + 
+			"  // Field descriptor #8 LParameterNames;\n" + 
+			"  final synthetic ParameterNames this$0;\n" + 
+			"  \n" + 
+			"  // Field descriptor #10 Ljava/lang/String;\n" + 
+			"  private final synthetic java.lang.String val$finalMessage;\n" + 
+			"  \n" + 
+			"  // Method descriptor #12 (LParameterNames;Ljava/lang/String;)V\n" + 
+			"  // Stack: 2, Locals: 3\n" + 
+			"  ParameterNames$1(ParameterNames this$0, java.lang.String val$finalMessage);\n" + 
+			"     0  aload_0 [this]\n" + 
+			"     1  aload_1 [this$0]\n" + 
+			"     2  putfield ParameterNames$1.this$0 : ParameterNames [14]\n" + 
+			"     5  aload_0 [this]\n" + 
+			"     6  aload_2 [val$finalMessage]\n" + 
+			"     7  putfield ParameterNames$1.val$finalMessage : java.lang.String [16]\n" + 
+			"    10  aload_0 [this]\n" + 
+			"    11  invokespecial java.lang.Object() [18]\n" + 
+			"    14  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n" + 
+			"        [pc: 10, line: 9]\n" + 
+			"      Method Parameters:\n" + 
+			"        final mandated this$0\n" + 
+			"        final synthetic val$finalMessage\n" + 
+			"  \n" + 
+			"  // Method descriptor #24 ()Ljava/lang/String;\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  public java.lang.String call() throws java.lang.Exception;\n" + 
+			"    0  aload_0 [this]\n" + 
+			"    1  getfield ParameterNames$1.val$finalMessage : java.lang.String [16]\n" + 
+			"    4  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 11]\n" + 
+			"  \n" + 
+			"  // Method descriptor #28 ()Ljava/lang/Object;\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  public bridge synthetic java.lang.Object call() throws java.lang.Exception;\n" + 
+			"    0  aload_0 [this]\n" + 
+			"    1  invokevirtual ParameterNames$1.call() : java.lang.String [29]\n" + 
+			"    4  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n" + 
+			"\n" + 
+			"  Inner classes:\n" + 
+			"    [inner class info: #1 ParameterNames$1, outer class info: #0\n" + 
+			"     inner name: #0, accessflags: 0 default]\n" + 
+			"  Enclosing Method: #36  #38 ParameterNames.makeInnerWithCapture(Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/Callable;\n" + 
+			"}"	;
+
+		assertSubstring(actualOutput, expectedOutput);
+	}
+
+	public void test009() throws Exception {
+		// Test that the code generator can emit synthetic and mandated names, just to match javac as closely as possibly
+		
+		this.runParameterNameTest(
+			"FancyEnum.java",
+			"\n" + 
+			"public enum FancyEnum {\n" + 
+			"	ONE(1), TWO(2);\n" + 
+			"	\n" + 
+			"	private FancyEnum(final int v) { this.var = v; }\n" + 
+			"	int var;\n" + 
+			"}\n" + 
+			"");
+
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String path = OUTPUT_DIR + File.separator + "FancyEnum.class";
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(path));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED);
+
+		String expectedOutput =
+			"// Compiled from FancyEnum.java (version 1.8 : 52.0, super bit)\n" + 
+			"// Signature: Ljava/lang/Enum<LFancyEnum;>;\n" + 
+			"public final enum FancyEnum {\n" + 
+			"  \n" + 
+			"  // Field descriptor #6 LFancyEnum;\n" + 
+			"  public static final enum FancyEnum ONE;\n" + 
+			"  \n" + 
+			"  // Field descriptor #6 LFancyEnum;\n" + 
+			"  public static final enum FancyEnum TWO;\n" + 
+			"  \n" + 
+			"  // Field descriptor #9 I\n" + 
+			"  int var;\n" + 
+			"  \n" + 
+			"  // Field descriptor #11 [LFancyEnum;\n" + 
+			"  private static final synthetic FancyEnum[] ENUM$VALUES;\n" + 
+			"  \n" + 
+			"  // Method descriptor #13 ()V\n" + 
+			"  // Stack: 5, Locals: 0\n" + 
+			"  static {};\n" + 
+			"     0  new FancyEnum [1]\n" + 
+			"     3  dup\n" + 
+			"     4  ldc <String \"ONE\"> [15]\n" + 
+			"     6  iconst_0\n" + 
+			"     7  iconst_1\n" + 
+			"     8  invokespecial FancyEnum(java.lang.String, int, int) [16]\n" + 
+			"    11  putstatic FancyEnum.ONE : FancyEnum [20]\n" + 
+			"    14  new FancyEnum [1]\n" + 
+			"    17  dup\n" + 
+			"    18  ldc <String \"TWO\"> [22]\n" + 
+			"    20  iconst_1\n" + 
+			"    21  iconst_2\n" + 
+			"    22  invokespecial FancyEnum(java.lang.String, int, int) [16]\n" + 
+			"    25  putstatic FancyEnum.TWO : FancyEnum [23]\n" + 
+			"    28  iconst_2\n" + 
+			"    29  anewarray FancyEnum [1]\n" + 
+			"    32  dup\n" + 
+			"    33  iconst_0\n" + 
+			"    34  getstatic FancyEnum.ONE : FancyEnum [20]\n" + 
+			"    37  aastore\n" + 
+			"    38  dup\n" + 
+			"    39  iconst_1\n" + 
+			"    40  getstatic FancyEnum.TWO : FancyEnum [23]\n" + 
+			"    43  aastore\n" + 
+			"    44  putstatic FancyEnum.ENUM$VALUES : FancyEnum[] [25]\n" + 
+			"    47  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 28, line: 2]\n" + 
+			"  \n" + 
+			"  // Method descriptor #19 (Ljava/lang/String;II)V\n" + 
+			"  // Stack: 3, Locals: 4\n" + 
+			"  private FancyEnum(java.lang.String $enum$name, int $enum$ordinal, int v);\n" + 
+			"     0  aload_0 [this]\n" + 
+			"     1  aload_1 [$enum$name]\n" + 
+			"     2  iload_2 [$enum$ordinal]\n" + 
+			"     3  invokespecial java.lang.Enum(java.lang.String, int) [28]\n" + 
+			"     6  aload_0 [this]\n" + 
+			"     7  iload_3 [v]\n" + 
+			"     8  putfield FancyEnum.var : int [31]\n" + 
+			"    11  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 5]\n" + 
+			"      Method Parameters:\n" + 
+			"        synthetic $enum$name\n" + 
+			"        synthetic $enum$ordinal\n" + 
+			"        final v\n" + 
+			"  \n" + 
+			"  // Method descriptor #38 ()[LFancyEnum;\n" + 
+			"  // Stack: 5, Locals: 3\n" + 
+			"  public static FancyEnum[] values();\n" + 
+			"     0  getstatic FancyEnum.ENUM$VALUES : FancyEnum[] [25]\n" + 
+			"     3  dup\n" + 
+			"     4  astore_0\n" + 
+			"     5  iconst_0\n" + 
+			"     6  aload_0\n" + 
+			"     7  arraylength\n" + 
+			"     8  dup\n" + 
+			"     9  istore_1\n" + 
+			"    10  anewarray FancyEnum [1]\n" + 
+			"    13  dup\n" + 
+			"    14  astore_2\n" + 
+			"    15  iconst_0\n" + 
+			"    16  iload_1\n" + 
+			"    17  invokestatic java.lang.System.arraycopy(java.lang.Object, int, java.lang.Object, int, int) : void [39]\n" + 
+			"    20  aload_2\n" + 
+			"    21  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n" + 
+			"  \n" + 
+			"  // Method descriptor #46 (Ljava/lang/String;)LFancyEnum;\n" + 
+			"  // Stack: 2, Locals: 1\n" + 
+			"  public static FancyEnum valueOf(java.lang.String arg0);\n" + 
+			"     0  ldc <Class FancyEnum> [1]\n" + 
+			"     2  aload_0 [arg0]\n" + 
+			"     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [47]\n" + 
+			"     6  checkcast FancyEnum [1]\n" + 
+			"     9  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n" + 
+			"      Attribute: MethodParameters Length: 5\n" + 
+			"}";
+
+		assertSubstring(actualOutput, expectedOutput);
+	}
+
+	private void runParameterNameTest(String fileName, String body) {
+		Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
+		compilerOptions.put(CompilerOptions.OPTION_MethodParametersAttribute, CompilerOptions.GENERATE);
+		this.runConformTest(
+			new String[] {
+				fileName, 
+				body
+			},
+			compilerOptions /* custom options */
+		);
+	}
+
+	private void assertSubstring(String actualOutput, String expectedOutput) {
+		int index = actualOutput.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(actualOutput, 2));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, actualOutput);
+		}
+	}
 }

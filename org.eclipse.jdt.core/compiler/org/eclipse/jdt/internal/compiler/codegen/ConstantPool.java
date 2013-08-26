@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
  *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335        
+ *							Bug 406982 - [1.8][compiler] Generation of MethodParameters Attribute in classfile
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
@@ -86,6 +87,8 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] doubleDoubleSignature = "(D)Ljava/lang/Double;".toCharArray(); //$NON-NLS-1$
 	public static final char[] DOUBLEVALUE_DOUBLE_METHOD_NAME = "doubleValue".toCharArray(); //$NON-NLS-1$
 	public static final char[] DOUBLEVALUE_DOUBLE_METHOD_SIGNATURE = "()D".toCharArray(); //$NON-NLS-1$
+	public static final char[] EnumName = "$enum$name".toCharArray();//$NON-NLS-1$
+	public static final char[] EnumOrdinal = "$enum$ordinal".toCharArray();//$NON-NLS-1$
 	public static final char[] Exit = "exit".toCharArray(); //$NON-NLS-1$
 	public static final char[] ExitIntSignature = "(I)V".toCharArray(); //$NON-NLS-1$
 	public static final char[] FloatConstrSignature = "(F)V".toCharArray(); //$NON-NLS-1$
