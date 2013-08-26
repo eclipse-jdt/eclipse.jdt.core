@@ -597,7 +597,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		tabNumber += 2;
 		writeNewLine(buffer, lineSeparator, tabNumber);
 		buffer.append(Messages.disassembler_methodparametersheader);
-		for (int i = 0; i < methodParametersAttribute.getMethodParameterLength(); ++i) {
+		for (int i = 0, length = methodParametersAttribute.getMethodParameterLength(); i < length; ++i) {
 			writeNewLine(buffer, lineSeparator, tabNumber + 1);
 			short accessFlags = methodParametersAttribute.getAccessFlags(i);
 			decodeModifiersForMethodParameters(buffer, accessFlags);
