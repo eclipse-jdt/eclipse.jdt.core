@@ -24,6 +24,7 @@
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
+ *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -52,6 +53,8 @@ null is NOT a valid value for a non-public field... it just means the field is n
 */
 
 public class BinaryTypeBinding extends ReferenceBinding {
+
+	private static final IBinaryMethod[] NO_BINARY_METHODS = new IBinaryMethod[0];
 
 	// all of these fields are ONLY guaranteed to be initialized if accessed using their public accessor method
 	protected ReferenceBinding superclass;
@@ -388,8 +391,9 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		}
 
 		if (needFieldsAndMethods) {
-			createFields(binaryType.getFields(), sourceLevel, missingTypeNames);
-			createMethods(binaryType.getMethods(), sourceLevel, missingTypeNames);
+			IBinaryField[] iFields = binaryType.getFields();
+			createFields(iFields, sourceLevel, missingTypeNames);
+			IBinaryMethod[] iMethods = createMethods(binaryType.getMethods(), sourceLevel, missingTypeNames);
 			boolean isViewedAsDeprecated = isViewedAsDeprecated();
 			if (isViewedAsDeprecated) {
 				for (int i = 0, max = this.fields.length; i < max; i++) {
@@ -403,6 +407,19 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 					if (!method.isDeprecated()) {
 						method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 					}
+				}
+			}
+			if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+				// need annotations on the type before processing null annotations on members respecting any @NonNullByDefault:
+				scanTypeForNullDefaultAnnotation(binaryType, this.fPackage, this);
+
+				if (iFields != null) {
+					for (int i = 0; i < iFields.length; i++)
+						scanFieldForNullAnnotation(iFields[i], this.fields[i]);
+				}
+				if (iMethods != null) {
+					for (int i = 0; i < iMethods.length; i++)
+						scanMethodForNullAnnotation(iMethods[i], this.methods[i]);
 				}
 			}
 		}
@@ -461,12 +478,6 @@ private void createFields(IBinaryField[] iFields, long sourceLevel, char[][][] m
 				for (int i = firstAnnotatedFieldIndex; i <size; i++) {
 					IBinaryField binaryField = iFields[i];
 					this.fields[i].setAnnotations(createAnnotations(binaryField.getAnnotations(), this.environment, missingTypeNames));
-				}
-			}
-			if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
-				for (int i = 0; i <size; i++) {
-					IBinaryField binaryField = iFields[i];
-					scanFieldForNullAnnotation(binaryField, this.fields[i]);
 				}
 			}
 		}
@@ -640,15 +651,15 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 	for (int i = 0, length = typeVars.length; i < length; i++)
 		typeVars[i].declaringElement = result;
 
-	scanMethodForNullAnnotation(method, result);
-
 	return result;
 }
 
 /**
  * Create method bindings for binary type, filtering out <clinit> and synthetics
+ * As some iMethods may be ignored in this process we return the matching array of those
+ * iMethods for which MethodBindings have been created; indices match those in this.methods.
  */
-private void createMethods(IBinaryMethod[] iMethods, long sourceLevel, char[][][] missingTypeNames) {
+private IBinaryMethod[] createMethods(IBinaryMethod[] iMethods, long sourceLevel, char[][][] missingTypeNames) {
 	int total = 0, initialTotal = 0, iClinit = -1;
 	int[] toSkip = null;
 	if (iMethods != null) {
@@ -675,7 +686,7 @@ private void createMethods(IBinaryMethod[] iMethods, long sourceLevel, char[][][
 	}
 	if (total == 0) {
 		this.methods = Binding.NO_METHODS;
-		return;
+		return NO_BINARY_METHODS;
 	}
 
 	boolean hasRestrictedAccess = hasRestrictedAccess();
@@ -687,15 +698,19 @@ private void createMethods(IBinaryMethod[] iMethods, long sourceLevel, char[][][
 				method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 			this.methods[i] = method;
 		}
+		return iMethods;
 	} else {
+		IBinaryMethod[] mappedBinaryMethods = new IBinaryMethod[total];
 		for (int i = 0, index = 0; i < initialTotal; i++) {
 			if (iClinit != i && (toSkip == null || toSkip[i] != -1)) {
 				MethodBinding method = createMethod(iMethods[i], sourceLevel, missingTypeNames);
 				if (hasRestrictedAccess)
 					method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
+				mappedBinaryMethods[index] = iMethods[i];
 				this.methods[index++] = method;
 			}
 		}
+		return mappedBinaryMethods;
 	}
 }
 

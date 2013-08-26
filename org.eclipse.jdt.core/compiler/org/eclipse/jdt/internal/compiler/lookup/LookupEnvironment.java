@@ -21,6 +21,7 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
+ *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -678,7 +679,7 @@ public ArrayBinding createArrayType(TypeBinding leafComponentType, int dimension
 		if (currentBinding == null) // no matching array, but space left
 			return arrayBindings[index] = new ArrayBinding(leafComponentType, dimensionCount, this, nullTagBitsPerDimension);
 		if (currentBinding.leafComponentType == leafComponentType
-				&& (nullTagBitsPerDimension == null || Arrays.equals(currentBinding.nullTagBitsPerDimension, nullTagBitsPerDimension)))
+				&& Arrays.equals(currentBinding.nullTagBitsPerDimension, nullTagBitsPerDimension))
 			return currentBinding;
 	}
 
@@ -753,9 +754,6 @@ public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBin
 	}
 	packageBinding.addType(binaryBinding);
 	setAccessRestriction(binaryBinding, accessRestriction);
-	// need type annotations before processing methods (for @NonNullByDefault)
-	if (this.globalOptions.isAnnotationBasedNullAnalysisEnabled)
-		binaryBinding.scanTypeForNullDefaultAnnotation(binaryType, packageBinding, binaryBinding);
 	binaryBinding.cachePartsFrom(binaryType, needFieldsAndMethods);
 	return binaryBinding;
 }

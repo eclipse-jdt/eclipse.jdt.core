@@ -17,6 +17,7 @@
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
+ *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -199,6 +200,10 @@ public int hashCode() {
 /* Answer true if the receiver type can be assigned to the argument type (right)
 */
 public boolean isCompatibleWith(TypeBinding otherType, Scope captureScope) {
+	otherType = otherType.unannotated(); // for now consider un-annotated type as compatible to type with any type annotations
+	if ((this.tagBits & TagBits.HasNullTypeAnnotation) != 0)
+		return unannotated().isCompatibleWith(otherType, captureScope);
+
 	if (this == otherType)
 		return true;
 
@@ -334,6 +339,8 @@ public String toString() {
 	return this.leafComponentType != null ? debugName() : "NULL TYPE ARRAY"; //$NON-NLS-1$
 }
 public TypeBinding unannotated() {
+	if (this.nullTagBitsPerDimension == null)
+		return this;
 	return this.environment.createArrayType(this.leafComponentType, this.dimensions);
 }
 }

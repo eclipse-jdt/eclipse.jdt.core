@@ -1158,7 +1158,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 //					"import java.util.*;\n" +
 					"public class Y1 {\n" +
 					"	void test(X1 x) {\n" +
-					"		Object @NonNull[][] a = new Object[0][];\n" +
+					"		Object @NonNull[][] a = new Object[0][];\n" + // unsafe
 					"		x.arrays(a)[0] = null;\n" + // illegal
 					"		x.nesting(null, null);\n" + // 1st null is illegal
 //					"		x.wildcard2(new ArrayList<@NonNull Object>());\n" +
@@ -1172,12 +1172,17 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 //				"	   ^^^^^^^^^^^^^^^^\n" + 
 //				"Incompatible type argument ...\n" + 
 //				"----------\n" + 
-				"1. ERROR in Y1.java (at line 6)\n" + 
+				"1. WARNING in Y1.java (at line 5)\n" + 
+				"	Object @NonNull[][] a = new Object[0][];\n" + 
+				"	                        ^^^^^^^^^^^^^^^\n" + 
+				"Null type safety (type annotations): The expression of type \'Object[][]\' needs unchecked conversion to conform to \'Object @NonNull[] []\'\n" + 
+				"----------\n" + 
+				"2. ERROR in Y1.java (at line 6)\n" + 
 				"	x.arrays(a)[0] = null;\n" + 
 				"	^^^^^^^^^^^^^^\n" + 
 				"Null type mismatch: required \'Object @NonNull[]\' but the provided value is null\n" +
 				"----------\n" + 
-				"2. ERROR in Y1.java (at line 7)\n" + 
+				"3. ERROR in Y1.java (at line 7)\n" + 
 				"	x.nesting(null, null);\n" + 
 				"	          ^^^^\n" + 
 				"Null type mismatch: required \'X1.@NonNull Inner\' but the provided value is null\n" + 
@@ -1709,6 +1714,32 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			},
 			getCompilerOptions(),
 			"");
+	}
+
+	// don't let type annotations on array dimensions spoil type compatibility
+	public void testBug415850_05() {
+		runNegativeTestWithLibs(
+			new String[]{
+				"X.java",
+				"import java.lang.annotation.Target;\n" +
+				"import static java.lang.annotation.ElementType.*;\n" +
+				"public class X {\n" +
+				"	public void foo() {\n" +
+				"		int @Marker [][][] i = new @Marker int @Marker [2] @Marker [@Marker bar()] @Marker [];\n" +
+				"	}\n" +
+				"	public int bar() {\n" +
+				"		return 2;\n" +
+				"	}\n" +
+				"}\n" +
+				"@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface Marker {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	int @Marker [][][] i = new @Marker int @Marker [2] @Marker [@Marker bar()] @Marker [];\n" + 
+			"	                                                            ^^^^^^^\n" + 
+			"Syntax error, type annotations are illegal here\n" + 
+			"----------\n"); 
 	}
 
 }
