@@ -386,7 +386,7 @@ public void test004_no_dash_d_option() throws IOException {
 		return;
 	}
 	File binDirectory = new File(OUTPUT_DIR + File.separator + "bin");
-	binDirectory.mkdir();
+	binDirectory.mkdirs();
 	StandardJavaFileManager javacStandardJavaFileManager =  JAVAC_COMPILER.getStandardFileManager(null, null, null); // will pick defaults up
 	javacStandardJavaFileManager.setLocation(
 			StandardLocation.CLASS_OUTPUT, 
