@@ -18,6 +18,7 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
+ *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409517 - [1.8][compiler] Type annotation problems on more elaborate array references
@@ -1147,7 +1148,7 @@ public abstract class Annotation extends Expression {
 		return this.resolvedType;
 	}
 	private boolean isTypeUseCompatible(TypeReference reference, Scope scope) {
-		if (!(reference instanceof SingleTypeReference)) {
+		if (reference != null && !(reference instanceof SingleTypeReference)) {
 			Binding binding = scope.getPackage(reference.getTypeName());
 			// In case of ProblemReferenceBinding, don't report additional error
 			if (binding instanceof PackageBinding) {

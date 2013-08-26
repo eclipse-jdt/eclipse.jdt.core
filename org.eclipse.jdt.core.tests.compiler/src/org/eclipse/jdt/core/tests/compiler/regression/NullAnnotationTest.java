@@ -6306,4 +6306,33 @@ public void testBug413460() {
 		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
 		"----------\n");
 }
+
+// missing type in constructor declaration must not cause NPE in QAE#resolveType(..)
+public void testBug415850_a() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"public class X {\n" +
+				"	void foo(X1 x1) {\n" +
+				"		Object o = new X1(x1){};\n" +
+				"	}\n" +
+				"}\n",
+				"X1.java", //-----------------------------------------------------------------------
+				"public class X1 {\n" +
+				"	public X1(Zork z) {}\n" +
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	Object o = new X1(x1){};\n" +
+			"	               ^^^^^^\n" +
+			"The constructor X1(Zork) refers to the missing type Zork\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. ERROR in X1.java (at line 2)\n" +
+			"	public X1(Zork z) {}\n" +
+			"	          ^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n");
+}
 }

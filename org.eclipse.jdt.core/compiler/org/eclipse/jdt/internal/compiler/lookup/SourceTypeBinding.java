@@ -29,6 +29,7 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
+ *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1723,7 +1724,7 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 	}
 	CompilerOptions compilerOptions = this.scope.compilerOptions();
 	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled) {
-		if (!method.isConstructor()) {
+		if (!method.isConstructor() && method.returnType != null) {
 			long nullTagBits = method.tagBits & TagBits.AnnotationNullMASK;
 			TypeReference returnTypeRef = ((MethodDeclaration)methodDecl).returnType;
 			if (compilerOptions.sourceLevel < ClassFileConstants.JDK1_8) {

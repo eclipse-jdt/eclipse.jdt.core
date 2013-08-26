@@ -84,6 +84,11 @@ public class ImplicitNullAnnotationVerifier {
 			if (isInstanceMethod) {
 				List superMethodList = new ArrayList();
 				
+				// need super types connected:
+				if (currentType instanceof SourceTypeBinding && !currentType.isHierarchyConnected() && !currentType.isAnonymousType()) {
+					((SourceTypeBinding) currentType).scope.connectTypeHierarchy();
+				}
+
 				int paramLen = currentMethod.parameters.length;
 				findAllOverriddenMethods(currentMethod.original(), currentMethod.selector, paramLen,
 								currentType, new HashSet(), superMethodList);

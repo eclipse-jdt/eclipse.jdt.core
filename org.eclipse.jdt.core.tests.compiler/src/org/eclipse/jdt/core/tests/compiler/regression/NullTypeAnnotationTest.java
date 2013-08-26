@@ -29,7 +29,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testUnsupportedLocation" };
+//			TESTS_NAMES = new String[] { "testBug415850_01" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -1618,4 +1618,97 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"The nullness annotation \'NonNull\' is not applicable at this location\n" + 
 			"----------\n");
 	}
+	
+	// missing return type should not cause NPE
+	public void testBug415850_01() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class X {\n" +
+				"	@NonNull foo() {}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	@NonNull foo() {}\n" + 
+			"	         ^^^^^\n" + 
+			"Return type for the method is missing\n" + 
+			"----------\n");
+	}
+	
+	// enum constant inside raw type: initialization must be recognized as conform to the implicitly @NonNull declaration 
+	public void testBug415850_02(){
+		runConformTestWithLibs(
+			new String[] {
+				"Callable.java",
+				"interface Callable<T> {\n" +
+				"	public enum Result {\n" +
+				"		GOOD, BAD\n" +
+				"	};\n" +
+				"	public Result call(T arg);\n" +
+				"}\n"
+			},
+			getCompilerOptions(),
+			"");
+	}
+
+	// when mapping 1st parameter to method receiver, avoid AIOOBE in ReferenceExpression#resolveType(..)
+	public void testBug415850_03() throws Exception {
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_DEPRECATION, JavaCore.IGNORE);
+		runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import java.util.Date;\n" +
+				"import static java.lang.annotation.ElementType.*; \n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface Vernal {}\n" +
+				"interface I {\n" +
+				"	int f(Date d);\n" +
+				"}\n" +
+				"class X {\n" +
+				"	static void monitorTemperature(Object myObject) {\n" +
+				"		I i = @Vernal Date::getDay;\n" +
+				"	}\n" +
+				"}\n",
+			},
+			options,
+			"");
+	}
+
+	// ensure annotation type has super types connected, to avoid NPE in ImplicitNullAnnotationVerifier.collectOverriddenMethods(..)
+	public void testBug415850_04() throws Exception {
+		runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"public class X implements @B @C('i') J { }",
+				"B.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(CLASS)\n" + 
+				"@interface B {\n" + 
+				"	int value() default -1;\n" + 
+				"}",
+				"C.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface C {\n" + 
+				"	char value() default '-';\n" + 
+				"}\n",
+				"J.java",
+				"interface J {}\n"
+			},
+			getCompilerOptions(),
+			"");
+	}
+
 }

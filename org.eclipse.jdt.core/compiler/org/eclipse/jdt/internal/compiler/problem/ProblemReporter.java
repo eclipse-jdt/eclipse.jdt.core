@@ -41,6 +41,7 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
+ *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -8991,7 +8992,7 @@ public void illegalReturnRedefinition(AbstractMethodDeclaration abstractMethodDe
 		sourceStart,
 		methodDecl.returnType.sourceEnd);
 }
-public void parameterLackingNullableAnnotation(ReferenceExpression location, MethodBinding descriptorMethod, int idx,
+public void parameterLackingNullableAnnotation(ReferenceExpression location, MethodBinding descriptorMethod, int idx, int paramOffset,
 				char[][] providedAnnotationName, char/*@Nullable*/[][] requiredAnnotationName, TypeBinding requiredType) {
 	StringBuffer requiredPrefix = new StringBuffer(); 
 	StringBuffer requiredShortPrefix = new StringBuffer(); 
@@ -8999,7 +9000,7 @@ public void parameterLackingNullableAnnotation(ReferenceExpression location, Met
 		requiredPrefix.append('@').append(CharOperation.toString(requiredAnnotationName)).append(' ');
 		requiredShortPrefix.append('@').append(requiredAnnotationName[requiredAnnotationName.length-1]).append(' ');
 	}
-	TypeBinding provided = descriptorMethod.parameters[idx];
+	TypeBinding provided = descriptorMethod.parameters[idx+paramOffset];
 	StringBuffer methodSignature = new StringBuffer();
 	methodSignature
 		.append(descriptorMethod.declaringClass.readableName())

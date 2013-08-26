@@ -21,6 +21,7 @@
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 412076 - [compiler] @NonNullByDefault doesn't work for varargs parameter when in generic interface
  *								Bug 403216 - [1.8][null] TypeReference#captureTypeAnnotations treats type annotations as type argument annotations
+ *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -789,7 +790,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public boolean isAnnotatedTypeWithoutArguments() {
 		if (this.arguments != null)
 			return false;
-		if (this.enclosingType instanceof ParameterizedTypeBinding)
+		if (this.enclosingType != null && this.enclosingType.isParameterizedType())
 			return this.enclosingType.isAnnotatedTypeWithoutArguments();
 		return true;
 	}
