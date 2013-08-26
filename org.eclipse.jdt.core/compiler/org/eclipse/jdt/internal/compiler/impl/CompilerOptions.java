@@ -1217,6 +1217,8 @@ public class CompilerOptions {
 
 		// indicates if unused/optimizable local variables need to be preserved (debugging purpose)
 		this.preserveAllLocalVariables = false;
+		
+		this.produceMethodParameters = false;
 
 		// indicates whether literal expressions are inlined at parse-time or not
 		this.parseLiteralExpressionsAsConstants = true;
