@@ -473,7 +473,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 
 	/**
 	 * Returns whether the given flags includes the "default" modifier.
-	 * Applicable only to methods.
+	 * Applicable only to methods in interfaces.
 	 *
 	 * @param flags the modifier flags
 	 * @return <code>true</code> if the <code>DEFAULT</code> bit is set
