@@ -16,6 +16,8 @@
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
  *                          Bug 409246 - [1.8][compiler] Type annotations on catch parameters not handled properly
  *                          Bug 409517 - [1.8][compiler] Type annotation problems on more elaborate array references
+ *        Stephan Herrmann - Contribution for
+ *							Bug 415911 - [1.8][compiler] NPE when TYPE_USE annotated method with missing return type
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -5464,6 +5466,32 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        exception table index = 5\n" + 
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-	}	
+	}
+
+	public void testBug415911() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" + 
+				"import java.lang.annotation.Target;\n" + 
+				"\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@interface Marker {\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @Marker\n" + 
+				"    foo(String s) {\n" + 
+				"\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	foo(String s) {\n" + 
+			"	^^^^^^^^^^^^^\n" + 
+			"Return type for the method is missing\n" + 
+			"----------\n");
+	}
 }
 
