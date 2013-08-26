@@ -139,7 +139,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			} else {
 				this.bits &= ~ASTNode.FirstAssignmentToLocal;
 			}
-			if (flowInfo.isPotentiallyAssigned(localBinding)) {
+			if (flowInfo.isPotentiallyAssigned(localBinding) || (this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
 				localBinding.tagBits &= ~TagBits.IsEffectivelyFinal;
 				if (!isFinal && (this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
 					currentScope.problemReporter().cannotReferToNonEffectivelyFinalOuterLocal(localBinding, this);

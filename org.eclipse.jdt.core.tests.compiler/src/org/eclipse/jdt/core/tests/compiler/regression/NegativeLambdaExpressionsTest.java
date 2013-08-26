@@ -6877,6 +6877,71 @@ public void test412650() {
 		null /* custom options */
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=409544
+// Bug 409544 - [1.8][compiler] Any local variable used but not declared in a lambda body must be definitely assigned before the lambda body.
+public void test409544() {
+	this.runNegativeTest(
+		new String[] {
+				"Sample.java",
+				"public class Sample{\n" + 
+				"	interface Int { void setInt(int[] i); }\n" + 
+				"	public static void main(String[] args) {\n" +
+				"		int j;\n" +
+				"		Int int1 = (int... i) -> {\n" +
+				"										j=10;\n" +
+				"								};\n" +
+				"	}\n" +
+				"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Sample.java (at line 6)\n" +
+		"	j=10;\n" +
+		"	^\n" +
+		"Variable j is required to be final or effectively final\n" +
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		null /* custom options */
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=409544
+// Bug 409544 - [1.8][compiler] Any local variable used but not declared in a lambda body must be definitely assigned before the lambda body.
+public void test409544b() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    interface Int {\n" +
+				"	void setInt(int[] i);\n" +
+				"    }\n" +
+				"    public static void main(String[] args) {\n" +
+				"\n" +
+				"    int j = 0;\n" +
+				"    Int i = new Int() {\n" +
+				"		@Override\n" +
+				"		public void setInt(int[] i) {\n" +
+				"			j = 10;\n" +
+				"		}\n" +
+				"	};\n" +
+				"    }\n" +
+				"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 10)\n" + 
+		"	public void setInt(int[] i) {\n" + 
+		"	                         ^\n" + 
+		"The parameter i is hiding another local variable defined in an enclosing scope\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	j = 10;\n" + 
+		"	^\n" + 
+		"Variable j is required to be final or effectively final\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		null /* custom options */
+	);
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
