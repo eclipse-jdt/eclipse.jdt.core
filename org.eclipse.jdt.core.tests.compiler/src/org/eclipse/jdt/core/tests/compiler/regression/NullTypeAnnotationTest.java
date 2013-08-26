@@ -1742,4 +1742,26 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n"); 
 	}
 
+	// don't let type annotations on array dimensions spoil type compatibility
+	// case without any error
+	public void testBug415850_06() {
+		runConformTestWithLibs(
+			new String[]{
+				"X.java",
+				"import java.lang.annotation.Target;\n" +
+				"public class X {\n" +
+				"	public void foo() {\n" +
+				"		int @Marker [][][] i = new @Marker int @Marker [2] @Marker [bar()] @Marker [];\n" +
+				"	}\n" +
+				"	public int bar() {\n" +
+				"		return 2;\n" +
+				"	}\n" +
+				"}\n" +
+				"@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface Marker {}\n"
+			},
+			getCompilerOptions(),
+			""); 
+	}
+
 }

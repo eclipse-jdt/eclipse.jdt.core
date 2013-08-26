@@ -16,6 +16,7 @@
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
+ *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
@@ -570,13 +571,16 @@ protected void resolveAnnotations(Scope scope) {
 							for (int j=0; j<len; j++) {
 								Binding recipient = currentAnnotations[j].recipient;
 								if (recipient instanceof Annotation.TypeUseBinding) {
-									if (isArrayReference) {
-										if (tagBitsPerDimension == null)
-											tagBitsPerDimension = new long[dimensions+1]; // each dimension plus leaf component type at last position
-										// @NonNull Foo [][][] means the leaf component type is @NonNull:
-										tagBitsPerDimension[dimensions] = ((Annotation.TypeUseBinding)recipient).tagBits & TagBits.AnnotationNullMASK;
-									} else {
-										tagBits |= ((Annotation.TypeUseBinding)recipient).tagBits & TagBits.AnnotationNullMASK;
+									long nullTagBits = ((Annotation.TypeUseBinding)recipient).tagBits & TagBits.AnnotationNullMASK;
+									if (nullTagBits != 0) {
+										if (isArrayReference) {
+											if (tagBitsPerDimension == null)
+												tagBitsPerDimension = new long[dimensions+1]; // each dimension plus leaf component type at last position
+											// @NonNull Foo [][][] means the leaf component type is @NonNull:
+											tagBitsPerDimension[dimensions] = nullTagBits;
+										} else {
+											tagBits |= nullTagBits;
+										}
 									}
 								}
 							}
@@ -595,9 +599,12 @@ protected void resolveAnnotations(Scope scope) {
 							for (int j=0; j<len; j++) {
 								Binding recipient = dimensionAnnotations[j].recipient;
 								if (recipient instanceof Annotation.TypeUseBinding) {
-									if (tagBitsPerDimension == null)
-										tagBitsPerDimension = new long[dimensions+1];
-									tagBitsPerDimension[i] = ((Annotation.TypeUseBinding)recipient).tagBits & TagBits.AnnotationNullMASK;
+									long nullTagBits = ((Annotation.TypeUseBinding)recipient).tagBits & TagBits.AnnotationNullMASK;
+									if (nullTagBits != 0) {
+										if (tagBitsPerDimension == null)
+											tagBitsPerDimension = new long[dimensions+1];
+										tagBitsPerDimension[i] = nullTagBits;
+									}
 								}
 							}
 						}
