@@ -2932,21 +2932,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"}\n" +
 				"@java.lang.annotation.Target ({java.lang.annotation.ElementType.TYPE_USE})\n" +
 				"@interface Marker8 {\n" +
-				"}\n",
-				
-				"java/lang/annotation/ElementType.java",
-				"package java.lang.annotation;\n" +
-				"public enum ElementType {\n" +
-				"    TYPE,\n" +
-				"    FIELD,\n" +
-				"    METHOD,\n" +
-				"    PARAMETER,\n" +
-				"    CONSTRUCTOR,\n" +
-				"    LOCAL_VARIABLE,\n" +
-				"    ANNOTATION_TYPE,\n" +
-				"    PACKAGE,\n" +
-				"    TYPE_PARAMETER,\n" +
-				"    TYPE_USE\n" +
 				"}\n"
 			},
 			"----------\n" + 
@@ -2965,8 +2950,12 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"  RuntimeInvisibleAnnotations: \n" + 
 				"    #24 @Marker78(\n" + 
 				"    )\n" + 
-				"    #25 @Marker7(\n" + 
-				"    )\n";
+				"    #25 @Marker8(\n" + 
+				"    )\n" + 
+				"    #26 @Marker7(\n" + 
+				"    )\n" + 
+				"  Attribute: MissingTypes Length: 4\n" + 
+				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=392119, variant with explicit class file retention.
@@ -2989,21 +2978,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS)\n" +
 				"@java.lang.annotation.Target ({java.lang.annotation.ElementType.TYPE_USE})\n" +
 				"@interface Marker8 {\n" +
-				"}\n",
-				
-				"java/lang/annotation/ElementType.java",
-				"package java.lang.annotation;\n" +
-				"public enum ElementType {\n" +
-				"    TYPE,\n" +
-				"    FIELD,\n" +
-				"    METHOD,\n" +
-				"    PARAMETER,\n" +
-				"    CONSTRUCTOR,\n" +
-				"    LOCAL_VARIABLE,\n" +
-				"    ANNOTATION_TYPE,\n" +
-				"    PACKAGE,\n" +
-				"    TYPE_PARAMETER,\n" +
-				"    TYPE_USE\n" +
 				"}\n"
 			},
 			"----------\n" + 
@@ -3022,11 +2996,15 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"  RuntimeInvisibleAnnotations: \n" + 
 				"    #24 @Marker78(\n" + 
 				"    )\n" + 
-				"    #25 @Marker7(\n" + 
-				"    )\n";
+				"    #25 @Marker8(\n" + 
+				"    )\n" + 
+				"    #26 @Marker7(\n" + 
+				"    )\n" + 
+				"  Attribute: MissingTypes Length: 4\n" + 
+				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=392119, variant with explicit class file retention.
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=392119, variant with explicit runtime retention.
 	public void test392119c() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -3046,21 +3024,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)\n" +
 				"@java.lang.annotation.Target ({java.lang.annotation.ElementType.TYPE_USE})\n" +
 				"@interface Marker8 {\n" +
-				"}\n",
-				
-				"java/lang/annotation/ElementType.java",
-				"package java.lang.annotation;\n" +
-				"public enum ElementType {\n" +
-				"    TYPE,\n" +
-				"    FIELD,\n" +
-				"    METHOD,\n" +
-				"    PARAMETER,\n" +
-				"    CONSTRUCTOR,\n" +
-				"    LOCAL_VARIABLE,\n" +
-				"    ANNOTATION_TYPE,\n" +
-				"    PACKAGE,\n" +
-				"    TYPE_PARAMETER,\n" +
-				"    TYPE_USE\n" +
 				"}\n"
 			},
 			"----------\n" + 
@@ -3079,7 +3042,9 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"  RuntimeVisibleAnnotations: \n" + 
 				"    #24 @Marker78(\n" + 
 				"    )\n" + 
-				"    #25 @Marker7(\n" + 
+				"    #25 @Marker8(\n" + 
+				"    )\n" + 
+				"    #26 @Marker7(\n" + 
 				"    )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
