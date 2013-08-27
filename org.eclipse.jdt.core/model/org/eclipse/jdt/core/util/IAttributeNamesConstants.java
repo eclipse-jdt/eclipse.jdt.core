@@ -151,13 +151,13 @@ public interface IAttributeNamesConstants {
 	
  	/**
 	 * "RuntimeVisibleTypeAnnotations" attribute (added in jsr 308).
-	 * @since 3.10 BETA_JAVA8
+	 * @since 3.9 BETA_JAVA8
 	 */
 	char[] RUNTIME_VISIBLE_TYPE_ANNOTATIONS = "RuntimeVisibleTypeAnnotations".toCharArray(); //$NON-NLS-1$
 
 	/**
 	 * "RuntimeInvisibleTypeAnnotations" attribute (added in jsr 308).
-	 * @since 3.10 BETA_JAVA8
+	 * @since 3.9 BETA_JAVA8
 	 */
 	char[] RUNTIME_INVISIBLE_TYPE_ANNOTATIONS = "RuntimeInvisibleTypeAnnotations".toCharArray(); //$NON-NLS-1$
 
@@ -170,7 +170,7 @@ public interface IAttributeNamesConstants {
 
 	/**
 	 * "MethodParameters" attribute (added in jep118).
-	 * @since 3.10 BETA_JAVA8
+	 * @since 3.9 BETA_JAVA8
 	 */
 	char[] METHOD_PARAMETERS = "MethodParameters".toCharArray(); //$NON-NLS-1$
 }

@@ -35,7 +35,7 @@ import java.util.List;
  * @see SimpleType
  * @see QualifiedType
  * 
- * @since 3.10 BETA_JAVA8
+ * @since 3.9 BETA_JAVA8
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class PackageQualifiedType extends AnnotatableType {

@@ -69,7 +69,7 @@ public interface IModifierConstants {
 
 	/**
 	 * Indicates a mandated parameter, such as this$1 (added in Java SE 8).
-	 * @since 3.10 BETA_JAVA8
+	 * @since 3.9 BETA_JAVA8
 	 */
 	int ACC_MANDATED     = 0x8000;
 }
