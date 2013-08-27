@@ -205,7 +205,7 @@ protected int findNullTypeAnnotationMismatch(TypeBinding requiredType, TypeBindi
 					return 2;
 			}
 		}
-	} else if (requiredType instanceof ParameterizedTypeBinding) {
+	} else if (requiredType.hasNullTypeAnnotations() || providedType.hasNullTypeAnnotations()) {
 		long requiredBits = requiredType.tagBits & TagBits.AnnotationNullMASK;
 		if (requiredBits != TagBits.AnnotationNullable // nullable lhs accepts everything, ...
 				|| nullStatus == -1) // only at detail/recursion even nullable must be matched exactly
@@ -213,8 +213,8 @@ protected int findNullTypeAnnotationMismatch(TypeBinding requiredType, TypeBindi
 			long providedBits = providedType.tagBits & TagBits.AnnotationNullMASK;
 			severity = computeNullProblemSeverity(requiredBits, providedBits, nullStatus);
 		}
-		if (severity < 3) {
-			if (providedType.isParameterizedType()) { // TODO(stephan): handle providedType.isRaw()
+		if (severity < 2) {
+			if (requiredType.isParameterizedType()  && providedType.isParameterizedType()) { // TODO(stephan): handle providedType.isRaw()
 				TypeBinding[] requiredArguments = ((ParameterizedTypeBinding) requiredType).arguments;
 				TypeBinding[] providedArguments = ((ParameterizedTypeBinding) providedType).arguments;
 				if (requiredArguments != null && providedArguments != null && requiredArguments.length == providedArguments.length) {
@@ -224,6 +224,8 @@ protected int findNullTypeAnnotationMismatch(TypeBinding requiredType, TypeBindi
 							return severity;
 					}
 				}
+			} else 	if (requiredType instanceof WildcardBinding) {
+				severity = Math.max(severity, findNullTypeAnnotationMismatch(((WildcardBinding) requiredType).bound, providedType, nullStatus));
 			}
 			TypeBinding requiredEnclosing = requiredType.enclosingType();
 			TypeBinding providedEnclosing = providedType.enclosingType();

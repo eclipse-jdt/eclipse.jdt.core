@@ -187,6 +187,7 @@
  *									RedundantNullCheckAgainstNonNullType
  *									NullAnnotationUnsupportedLocation
  *									NullityMismatchTypeArgument
+ *									ContradictoryNullAnnotationsOnBound
  *      Jesper S Moller  - added the following constants
  *									TargetTypeNotAFunctionalInterface
  *									OuterLocalMustBeEffectivelyFinal
@@ -1697,6 +1698,8 @@ void setSourceStart(int sourceStart);
 	int NullAnnotationUnsupportedLocation = Internal + 960;
 	/** @since 3.9 BETA_JAVA8 */
 	int NullityMismatchTypeArgument = Internal + 961;
+	/** @since 3.9 BETA_JAVA8 */
+	int ContradictoryNullAnnotationsOnBound = Internal + 962;
 
 	// Java 8 work
 	/** @since 3.9 BETA_JAVA8 */

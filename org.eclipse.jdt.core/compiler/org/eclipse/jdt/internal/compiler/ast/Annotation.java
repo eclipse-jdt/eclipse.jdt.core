@@ -1022,10 +1022,11 @@ public abstract class Annotation extends Expression {
 								} else if (variable.declaration.type instanceof QualifiedTypeReference) {
 									scope.problemReporter().nullAnnotationUnsupportedLocation(this);
 								} else if (nullTagBits != (variable.type.tagBits & TagBits.AnnotationNullMASK)) {
-									variable.type = scope.environment().createAnnotatedType(variable.type, nullTagBits);
-									if ((variable.type.tagBits & TAGBITS_NULLABLE_OR_NONNULL) == TAGBITS_NULLABLE_OR_NONNULL) {
+									if (((variable.type.tagBits & TagBits.AnnotationNullMASK) | nullTagBits ) == TagBits.AnnotationNullMASK) {
 										scope.problemReporter().contradictoryNullAnnotations(this);
 										variable.type = variable.type.unannotated();
+									} else {
+										variable.type = scope.environment().createAnnotatedType(variable.type, nullTagBits);
 									}
 								}
 							}

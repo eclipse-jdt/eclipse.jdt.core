@@ -22,6 +22,7 @@
  *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
+ *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1007,7 +1008,7 @@ public TypeBinding createAnnotatedType(TypeBinding genericType, long annotationB
 	}
 	if (genericType instanceof ReferenceBinding) {
 		TypeBinding[] typeArguments = genericType.isParameterizedType() ? ((ParameterizedTypeBinding) genericType).arguments : null;
-		ParameterizedTypeBinding parameterizedType = createParameterizedType((ReferenceBinding) genericType, typeArguments, 
+		ParameterizedTypeBinding parameterizedType = createParameterizedType((ReferenceBinding) genericType.original(), typeArguments, 
 																			annotationBits, genericType.enclosingType());
 		parameterizedType.id = genericType.id; // for well-known types shared the id (only here since those types are not generic, are they?)
 		return parameterizedType;
@@ -1107,6 +1108,9 @@ public RawTypeBinding createRawType(ReferenceBinding genericType, ReferenceBindi
 }
 
 public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind) {
+	return createWildcard(genericType, rank, bound, otherBounds, boundKind, 0);
+}
+public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind, long annotationTagBits) {
 	// cached info is array of already created wildcard  types for this type
 	if (genericType == null) // pseudo wildcard denoting composite bounds for lub computation
 		genericType = ReferenceBinding.LUB_GENERIC;
@@ -1121,6 +1125,7 @@ public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, Ty
 			    if (cachedType == null) break nextCachedType;
 			    if (cachedType.genericType != genericType) continue nextCachedType; // remain of unresolved type
 			    if (cachedType.rank != rank) continue nextCachedType;
+			    if ((cachedType.tagBits & TagBits.AnnotationNullMASK) != annotationTagBits) continue nextCachedType;
 			    if (cachedType.boundKind != boundKind) continue nextCachedType;
 			    if (cachedType.bound != bound) continue nextCachedType;
 			    if (cachedType.otherBounds != otherBounds) {
@@ -1147,6 +1152,8 @@ public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, Ty
 	}
 	// add new binding
 	WildcardBinding wildcard = new WildcardBinding(genericType, rank, bound, otherBounds, boundKind, this);
+	if (annotationTagBits != 0)
+		wildcard.tagBits |= annotationTagBits | TagBits.HasNullTypeAnnotation;
 	cachedInfo[index] = wildcard;
 	return wildcard;
 }
@@ -1588,17 +1595,20 @@ TypeBinding getTypeFromVariantTypeSignature(
 		case '-' :
 			// ? super aType
 			wrapper.start++;
-			TypeBinding bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType, missingTypeNames, walker);
-			return createWildcard(genericType, rank, bound, null /*no extra bound*/, Wildcard.SUPER);
+			TypeBinding bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType, missingTypeNames, walker.toWildcardBound());
+			long tagBits = typeAnnotationsToTagBits(walker.getAnnotationsAtCursor());
+			return createWildcard(genericType, rank, bound, null /*no extra bound*/, Wildcard.SUPER, tagBits);
 		case '+' :
 			// ? extends aType
 			wrapper.start++;
-			bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType, missingTypeNames, walker);
-			return createWildcard(genericType, rank, bound, null /*no extra bound*/, Wildcard.EXTENDS);
+			bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType, missingTypeNames, walker.toWildcardBound());
+			tagBits = typeAnnotationsToTagBits(walker.getAnnotationsAtCursor());
+			return createWildcard(genericType, rank, bound, null /*no extra bound*/, Wildcard.EXTENDS, tagBits);
 		case '*' :
 			// ?
 			wrapper.start++;
-			return createWildcard(genericType, rank, null, null /*no extra bound*/, Wildcard.UNBOUND);
+			tagBits = typeAnnotationsToTagBits(walker.getAnnotationsAtCursor());
+			return createWildcard(genericType, rank, null, null /*no extra bound*/, Wildcard.UNBOUND, tagBits);
 		default :
 			return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType, missingTypeNames, walker);
 	}

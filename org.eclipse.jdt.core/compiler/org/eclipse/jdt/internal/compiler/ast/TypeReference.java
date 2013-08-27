@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -47,6 +48,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public abstract class TypeReference extends Expression {
@@ -559,7 +561,7 @@ protected void resolveAnnotations(Scope scope) {
 			long[] tagBitsPerDimension = null;
 			int dimensions = this.dimensions();
 			boolean evalNullAnnotations = scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled;
-			boolean isArrayReference = this instanceof ArrayTypeReference && dimensions > 0;
+			boolean isArrayReference = dimensions > 0;
 			if (this.annotations != null) {
 				int annotationsLevels = this.annotations.length;
 				for (int i = 0; i < annotationsLevels; i++) {
@@ -665,5 +667,46 @@ protected TypeBinding captureTypeAnnotations(Scope scope, ReferenceBinding enclo
     if (annotationBits == 0L)
     	return argType;
 	return scope.environment().createAnnotatedType(argType, annotationBits);
+}
+/** Check all typeArguments against null constraints on their corresponding type variables. */
+void checkNullConstraints(Scope scope, TypeReference[] typeArguments) {
+	CompilerOptions compilerOptions = scope.compilerOptions();
+	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled
+			&& compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8
+			&& typeArguments != null)
+	{
+		TypeVariableBinding[] typeVariables = this.resolvedType.original().typeVariables();
+		for (int i = 0; i < typeArguments.length; i++) {
+			TypeReference arg = typeArguments[i];
+			if (arg.resolvedType != null && arg.resolvedType.hasNullTypeAnnotations())
+				arg.checkNullConstraints(scope, typeVariables, i);
+		}
+	}
+}
+/** Check whether this type reference conforms to all null constraints defined for any of the given type variables. */
+void checkNullConstraints(Scope scope, TypeBinding[] variables, int rank) {
+	if (variables != null && variables.length > rank) {
+		if (variables[rank].hasNullTypeAnnotations()) {
+			if ((this.resolvedType.tagBits & TagBits.AnnotationNullMASK) != (variables[rank].tagBits & TagBits.AnnotationNullMASK)) {
+				scope.problemReporter().nullityMismatchTypeArgument(variables[rank], this.resolvedType, this);
+			}
+    	}
+	}
+}
+/** Retrieve the null annotation that has been translated to the given nullTagBits. */
+public Annotation findAnnotation(long nullTagBits) {
+	if (this.annotations != null) {
+		Annotation[] innerAnnotations = this.annotations[this.annotations.length-1];
+		if (innerAnnotations != null) {
+			int annId = nullTagBits == TagBits.AnnotationNonNull ? TypeIds.T_ConfiguredAnnotationNonNull : TypeIds.T_ConfiguredAnnotationNullable;
+			for (int i = 0; i < innerAnnotations.length; i++) {
+				if (innerAnnotations[i] != null 
+						&& innerAnnotations[i].resolvedType != null 
+						&& innerAnnotations[i].resolvedType.id == annId)
+					return innerAnnotations[i];
+			}
+		}
+	}
+	return null;
 }
 }

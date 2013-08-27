@@ -24,6 +24,8 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
+import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
@@ -546,7 +548,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 		return this.superclass; // java/lang/Object
 	}
 
-	public void evaluateNullAnnotations(Annotation[] annotations) {
+	public void evaluateNullAnnotations(Scope scope, TypeParameter parameter) {
+		Annotation[] annotations = parameter.annotations;
 		int len = annotations.length;
 		for (int j=0; j<len; j++) {
 			Binding recipient = annotations[j].recipient;
@@ -564,7 +567,11 @@ public class TypeVariableBinding extends ReferenceBinding {
 				if (nullTagBits == 0L) {
 					nullTagBits |= superNullTagBits;
 				} else if (superNullTagBits != nullTagBits) {
-//					System.err.println("TODO(stephan): report proper error: conflict TypeVariable vs. first bound");
+					// not finding either bound or ann should be considered a compiler bug
+					TypeReference bound = findBound(this.firstBound, parameter);
+					Annotation ann = bound.findAnnotation(superNullTagBits);
+					scope.problemReporter().contradictoryNullAnnotationsOnBounds(ann, nullTagBits);
+					this.tagBits &= ~TagBits.AnnotationNullMASK;
 				}
 			}
 		}	
@@ -578,7 +585,11 @@ public class TypeVariableBinding extends ReferenceBinding {
 					if (nullTagBits == 0L) {
 						nullTagBits |= superNullTagBits;
 					} else if (superNullTagBits != nullTagBits) {
-//						System.err.println("TODO(stephan): report proper error: conflict TypeVariable vs. bound "+i);
+						// not finding either bound or ann should be considered a compiler bug
+						TypeReference bound = findBound(this.firstBound, parameter);
+						Annotation ann = bound.findAnnotation(superNullTagBits);
+						scope.problemReporter().contradictoryNullAnnotationsOnBounds(ann, nullTagBits);
+						this.tagBits &= ~TagBits.AnnotationNullMASK;
 					}
 				}
 				interfaces[i] = resolveType;
@@ -586,5 +597,17 @@ public class TypeVariableBinding extends ReferenceBinding {
 		}
 		if (nullTagBits != 0)
 			this.tagBits |= nullTagBits | TagBits.HasNullTypeAnnotation;
+	}
+	private TypeReference findBound(TypeBinding bound, TypeParameter parameter) {
+		if (parameter.type != null && parameter.type.resolvedType == bound)
+			return parameter.type;
+		TypeReference[] bounds = parameter.bounds;
+		if (bounds != null) {
+			for (int i = 0; i < bounds.length; i++) {
+				if (bounds[i].resolvedType == bound)
+					return bounds[i];
+			}
+		}
+		return null;
 	}
 }

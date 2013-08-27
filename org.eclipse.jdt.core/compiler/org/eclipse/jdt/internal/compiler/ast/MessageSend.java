@@ -77,6 +77,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class MessageSend extends Expression implements InvocationSite {
@@ -102,7 +103,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	flowInfo = this.receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic).unconditionalInits();
 
 	// recording the closing of AutoCloseable resources:
-	boolean analyseResources = currentScope.compilerOptions().analyseResourceLeaks;
+	CompilerOptions compilerOptions = currentScope.compilerOptions();
+	boolean analyseResources = compilerOptions.analyseResourceLeaks;
 	if (analyseResources) {
 		if (nonStatic) {
 			// closeable.close()
@@ -157,10 +159,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);
 	}
-	if (this.binding instanceof ParameterizedGenericMethodBinding && this.typeArguments != null) {
-		ParameterizedGenericMethodBinding parameterizedBinding = (ParameterizedGenericMethodBinding) this.binding;
-		for (int i = 0; i < this.typeArguments.length; i++)
-			parameterizedBinding.checkNullConstraints(currentScope, this.typeArguments[i], i);
+	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled && compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
+		if (this.binding instanceof ParameterizedGenericMethodBinding && this.typeArguments != null) {
+			TypeVariableBinding[] typeVariables = this.binding.original().typeVariables();
+			for (int i = 0; i < this.typeArguments.length; i++)
+				this.typeArguments[i].checkNullConstraints(currentScope, typeVariables, i);
+		}
 	}
 	ReferenceBinding[] thrownExceptions;
 	if ((thrownExceptions = this.binding.thrownExceptions) != Binding.NO_EXCEPTIONS) {

@@ -170,6 +170,9 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		resolveAnnotations(scope);
 		TypeBinding type = internalResolveLeafType(scope, checkBounds);
 		createArrayType(scope);
+		if (this.typeArguments != null)
+			// relevant null annotations are on the inner most type:
+			checkNullConstraints(scope, this.typeArguments[this.typeArguments.length-1]); 
 		return type == null ? type : this.resolvedType;
 	}
 	private TypeBinding internalResolveLeafType(Scope scope, boolean checkBounds) {

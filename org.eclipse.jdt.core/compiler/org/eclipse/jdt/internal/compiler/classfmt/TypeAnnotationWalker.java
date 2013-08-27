@@ -250,6 +250,23 @@ public class TypeAnnotationWalker {
 		return restrict(newMatches, this.pathPtr+2);		
 	}
 
+	/** Walk to the bound of a wildcard. */
+	public TypeAnnotationWalker toWildcardBound() {
+		long newMatches = this.matches;
+		if (newMatches == 0)
+			return EMPTY_ANNOTATION_WALKER;
+		int length = this.typeAnnotations.length;
+		for (int i = 0, mask = 1; i < length; i++, mask = mask << 1) {
+			IBinaryTypeAnnotation candidate = this.typeAnnotations[i];
+			int[] path = candidate.getTypePath();
+			if (this.pathPtr >= path.length 
+					|| path[this.pathPtr] != AnnotationTargetTypeConstants.WILDCARD_BOUND) {
+				newMatches &= ~mask;
+			}
+		}
+		return restrict(newMatches, this.pathPtr+2);		
+	}
+
 	/**
 	 * Descend down one level of array dimensions.
 	 */

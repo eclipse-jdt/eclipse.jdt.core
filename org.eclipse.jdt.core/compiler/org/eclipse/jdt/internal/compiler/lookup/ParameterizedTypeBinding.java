@@ -22,6 +22,7 @@
  *								Bug 412076 - [compiler] @NonNullByDefault doesn't work for varargs parameter when in generic interface
  *								Bug 403216 - [1.8][null] TypeReference#captureTypeAnnotations treats type annotations as type argument annotations
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
+ *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -337,7 +338,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 */
 	public String debugName() {
 	    StringBuffer nameBuffer = new StringBuffer(10);
-	    appendNullAnnotation(nameBuffer);
+	    appendNullAnnotation(nameBuffer, this.environment.globalOptions);
 	    if (this.type instanceof UnresolvedReferenceBinding) {
 	    	nameBuffer.append(this.type);
 	    } else {
@@ -422,6 +423,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 */
 	public char[] genericTypeSignature() {
 		if (this.genericTypeSignature == null) {
+			if (isAnnotatedTypeWithoutArguments())
+				return this.genericTypeSignature = this.type.genericTypeSignature();
+
 			if ((this.modifiers & ExtraCompilerModifiers.AccGenericSignature) == 0) {
 		    	this.genericTypeSignature = this.type.signature();
 			} else {
@@ -788,9 +792,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	public boolean isAnnotatedTypeWithoutArguments() {
-		if (this.arguments != null)
+		if (this.arguments != null || !hasNullTypeAnnotations())
 			return false;
-		if (this.enclosingType != null && this.enclosingType.isParameterizedType())
+		if (this.enclosingType != null && this.enclosingType instanceof ParameterizedTypeBinding)
 			return this.enclosingType.isAnnotatedTypeWithoutArguments();
 		return true;
 	}
@@ -807,7 +811,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				unannotatedArguments[i] = this.arguments[i].unannotated();
 			}
 		}
-		return this.environment.createParameterizedType(this.type, unannotatedArguments, 
+		return this.environment.createParameterizedType((ReferenceBinding) this.type.unannotated(), unannotatedArguments, 
 				this.enclosingType == null ? null : (ReferenceBinding) this.enclosingType.unannotated());
 	}
 
@@ -995,7 +999,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (isMemberType()) {
 			nameBuffer.append(enclosingType().nullAnnotatedReadableName(options, false));
 			nameBuffer.append('.');
-			appendNullAnnotation(nameBuffer);
+			appendNullAnnotation(nameBuffer, options);
 			nameBuffer.append(this.sourceName);
 		} else if (this.type.compoundName != null) {
 			int i;
@@ -1004,11 +1008,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				nameBuffer.append(this.type.compoundName[i]);
 				nameBuffer.append('.');
 			}
-		    appendNullAnnotation(nameBuffer);
+		    appendNullAnnotation(nameBuffer, options);
 			nameBuffer.append(this.type.compoundName[i]);
 		} else {
 			// case of TypeVariableBinding with nullAnnotationTagBits:
-			appendNullAnnotation(nameBuffer);
+			appendNullAnnotation(nameBuffer, options);
 			nameBuffer.append(this.type.sourceName);
 		}
 		if (this.arguments != null && this.arguments.length > 0) { // empty arguments array happens when PTB has been created just to capture type annotations
@@ -1030,10 +1034,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (isMemberType()) {
 			nameBuffer.append(enclosingType().nullAnnotatedReadableName(options, true));
 			nameBuffer.append('.');
-			appendNullAnnotation(nameBuffer);
+			appendNullAnnotation(nameBuffer, options);
 			nameBuffer.append(this.sourceName);
 		} else {
-			appendNullAnnotation(nameBuffer);
+			appendNullAnnotation(nameBuffer, options);
 			nameBuffer.append(this.type.sourceName);
 		}
 		if (this.arguments != null && this.arguments.length > 0) { // empty arguments array happens when PTB has been created just to capture type annotations
@@ -1050,18 +1054,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	    return shortReadableName;
 	}
 
-	private void appendNullAnnotation(StringBuffer nameBuffer) {
-		if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
-			// restore applied null annotation from tagBits:
-		    if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
-		    	char[][] nonNullAnnotationName = environment().getNonNullAnnotationName();
-				nameBuffer.append('@').append(nonNullAnnotationName[nonNullAnnotationName.length-1]).append(' ');
-		    } else if ((this.tagBits & TagBits.AnnotationNullable) != 0) {
-		    	char[][] nullableAnnotationName = environment().getNullableAnnotationName();
-				nameBuffer.append('@').append(nullableAnnotationName[nullableAnnotationName.length-1]).append(' ');
-		    }
-		}
-	}
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#signature()

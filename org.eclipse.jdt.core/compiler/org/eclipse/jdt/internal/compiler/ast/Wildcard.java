@@ -13,6 +13,8 @@
  *     IBM Corporation - initial API and implementation
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 415397 - [1.8][compiler] Type Annotations on wildcard type argument dropped
+ *        Stephan Herrmann - Contribution for
+ *							Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -61,7 +63,6 @@ public class Wildcard extends SingleTypeReference {
 
 	private TypeBinding internalResolveType(Scope scope, ReferenceBinding genericType, int rank) {
 		TypeBinding boundType = null;
-		resolveAnnotations(scope);
 		if (this.bound != null) {
 			boundType = scope.kind == Scope.CLASS_SCOPE
 					? this.bound.resolveType((ClassScope)scope)
@@ -71,8 +72,17 @@ public class Wildcard extends SingleTypeReference {
 				return null;
 			}
 		}
-		WildcardBinding wildcard = scope.environment().createWildcard(genericType, rank, boundType, null /*no extra bound*/, this.kind);
-		return this.resolvedType = wildcard;
+		this.resolvedType = scope.environment().createWildcard(genericType, rank, boundType, null /*no extra bound*/, this.kind);
+		resolveAnnotations(scope);
+		if (boundType != null && boundType.hasNullTypeAnnotations() && this.resolvedType.hasNullTypeAnnotations()) {
+			if (((boundType.tagBits | this.resolvedType.tagBits) & TagBits.AnnotationNullMASK) == TagBits.AnnotationNullMASK) { // are both set?
+				Annotation annotation = this.bound.findAnnotation(boundType.tagBits & TagBits.AnnotationNullMASK);
+				scope.problemReporter().contradictoryNullAnnotationsOnBounds(annotation, this.resolvedType.tagBits);
+				this.resolvedType = this.resolvedType.unannotated();
+				this.bound.resolvedType = ((WildcardBinding)this.resolvedType).bound = boundType.unannotated();
+			}
+		}
+		return this.resolvedType;
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output){

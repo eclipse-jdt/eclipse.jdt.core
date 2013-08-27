@@ -38,6 +38,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 /*
@@ -1494,6 +1495,19 @@ public char[] readableName() /*java.lang.Object,  p.X<T> */ {
 		nameBuffer.getChars(0, nameLength, readableName, 0);
 	}
 	return readableName;
+}
+
+protected void appendNullAnnotation(StringBuffer nameBuffer, CompilerOptions options) {
+	if (options.isAnnotationBasedNullAnalysisEnabled) {
+		// restore applied null annotation from tagBits:
+	    if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
+	    	char[][] nonNullAnnotationName = options.nonNullAnnotationName;
+			nameBuffer.append('@').append(nonNullAnnotationName[nonNullAnnotationName.length-1]).append(' ');
+	    } else if ((this.tagBits & TagBits.AnnotationNullable) != 0) {
+	    	char[][] nullableAnnotationName = options.nullableAnnotationName;
+			nameBuffer.append('@').append(nullableAnnotationName[nullableAnnotationName.length-1]).append(' ');
+	    }
+	}
 }
 
 public AnnotationHolder retrieveAnnotationHolder(Binding binding, boolean forceInitialization) {

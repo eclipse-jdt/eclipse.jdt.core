@@ -143,6 +143,8 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		this.bits |= ASTNode.DidResolve;
 		TypeBinding type = internalResolveLeafType(scope, enclosingType, checkBounds);
 		resolveAnnotations(scope);
+		checkNullConstraints(scope, this.typeArguments);
+
 		// handle three different outcomes:
 		if (type == null) {
 			this.resolvedType = createArrayType(scope, this.resolvedType);

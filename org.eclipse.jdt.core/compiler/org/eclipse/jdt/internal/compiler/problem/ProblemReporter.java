@@ -9195,6 +9195,17 @@ public void contradictoryNullAnnotations(Annotation annotation) {
 	this.handle(IProblem.ContradictoryNullAnnotations, arguments, shortArguments, annotation.sourceStart, annotation.sourceEnd);
 }
 
+public void contradictoryNullAnnotationsOnBounds(Annotation annotation, long previousTagBit) {
+	char[][] annotationName = previousTagBit == TagBits.AnnotationNonNull ? this.options.nonNullAnnotationName : this.options.nullableAnnotationName;
+	String[] arguments = {
+		new String(CharOperation.concatWith(annotationName, '.')),
+	};
+	String[] shortArguments = {
+		new String(annotationName[annotationName.length-1]),
+	};
+	this.handle(IProblem.ContradictoryNullAnnotationsOnBound, arguments, shortArguments, annotation.sourceStart, annotation.sourceEnd);
+}
+
 // conflict default <-> inherited
 public void conflictingNullAnnotations(MethodBinding currentMethod, ASTNode location, MethodBinding inheritedMethod)
 {
