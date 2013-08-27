@@ -650,6 +650,193 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 
 		assertSubstring(actualOutput, expectedOutput);
 	}
+	
+	public void test010() throws Exception {
+		// Test that the non private inner class gets a mandated enclosing instance parameter.
+		
+		this.runParameterNameTest(
+			"X.java",
+			"public class X {\n" +
+			"    class Y {}\n" +
+			"}\n"
+		);
+
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String path = OUTPUT_DIR + File.separator + "X$Y.class";
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(path));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED);
+
+		String expectedOutput =
+				"  X$Y(X this$0);\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  aload_1 [this$0]\n" + 
+				"     2  putfield X$Y.this$0 : X [10]\n" + 
+				"     5  aload_0 [this]\n" + 
+				"     6  invokespecial java.lang.Object() [12]\n" + 
+				"     9  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 2]\n" + 
+				"      Method Parameters:\n" + 
+				"        final mandated this$0\n" + 
+				"\n";
+
+		assertSubstring(actualOutput, expectedOutput);
+	}
+	
+	public void _test011() throws Exception {
+		// Test that a private inner class does not get a mandated enclosing instance parameter.
+		
+		this.runParameterNameTest(
+			"X.java",
+			"public class X {\n" +
+			"    private class Y {}\n" +
+			"}\n"
+		);
+
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String path = OUTPUT_DIR + File.separator + "X$Y.class";
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(path));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED);
+
+		String expectedOutput =
+				"  private X$Y(X this$0);\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  aload_1 [this$0]\n" + 
+				"     2  putfield X$Y.this$0 : X [10]\n" + 
+				"     5  aload_0 [this]\n" + 
+				"     6  invokespecial java.lang.Object() [12]\n" + 
+				"     9  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 2]\n" + 
+				"      Method Parameters:\n" + 
+				"        final synthetic this$0\n" + 
+				"\n";
+
+		assertSubstring(actualOutput, expectedOutput);
+	}
+	
+	public void _test012() throws Exception {
+		
+		this.runParameterNameTest(
+			"X.java",
+			"public class X {\n" +
+			"    void foo() {\n" +
+			"        new Y().new Z() {\n" +
+			"        };\n" +
+			"    }\n" +
+			"}\n" +
+			"class Y {\n" +
+			"    class Z {}\n" +
+			"}\n" 
+		);
+
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String path = OUTPUT_DIR + File.separator + "X$1.class";
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(path));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED);
+
+		String expectedOutput =
+				"  X$1(X this$0, Y this$1);\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  aload_1 [this$0]\n" + 
+				"     2  putfield X$1.this$0 : X [10]\n" + 
+				"     5  aload_0 [this]\n" + 
+				"     6  aload_2 [this$1]\n" + 
+				"     7  invokespecial Y$Z(Y) [12]\n" + 
+				"    10  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 1]\n" + 
+				"        [pc: 5, line: 3]\n" + 
+				"      Method Parameters:\n" + 
+				"        final synthetic this$0\n" + 
+				"        final synthetic this$1\n" + 
+				"\n";
+
+		assertSubstring(actualOutput, expectedOutput);
+	}
+	
+	public void test013() throws Exception {
+		// Test that synthesized enum constructor arguments show up as synthetic
+		
+		this.runParameterNameTest(
+			"FancyEnum.java",
+			"\n" + 
+			"public enum FancyEnum {\n" + 
+			"	ONE, TWO;\n" + 
+			"}\n" + 
+			"");
+
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String path = OUTPUT_DIR + File.separator + "FancyEnum.class";
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(path));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED);
+
+		String expectedOutput =
+				"  private FancyEnum(java.lang.String $enum$name, int $enum$ordinal);\n" + 
+				"    0  aload_0 [this]\n" + 
+				"    1  aload_1 [$enum$name]\n" + 
+				"    2  iload_2 [$enum$ordinal]\n" + 
+				"    3  invokespecial java.lang.Enum(java.lang.String, int) [26]\n" + 
+				"    6  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 2]\n" + 
+				"      Method Parameters:\n" + 
+				"        synthetic $enum$name\n" + 
+				"        synthetic $enum$ordinal\n" + 
+				"  \n";
+
+		assertSubstring(actualOutput, expectedOutput);
+	}
+	
+	public void _test014() throws Exception {
+		// Test that the name argument of enum valueOf shows up as mandated
+		
+		this.runParameterNameTest(
+			"FancyEnum.java",
+			"\n" + 
+			"public enum FancyEnum {\n" + 
+			"	ONE, TWO;\n" + 
+			"}\n" + 
+			"");
+
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String path = OUTPUT_DIR + File.separator + "FancyEnum.class";
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(path));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED);
+
+		String expectedOutput =
+				"  public static FancyEnum valueOf(java.lang.String arg0);\n" + 
+						"     0  ldc <Class FancyEnum> [1]\n" + 
+						"     2  aload_0 [arg0]\n" + 
+						"     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [40]\n" + 
+						"     6  checkcast FancyEnum [1]\n" + 
+						"     9  areturn\n" + 
+						"      Line numbers:\n" + 
+						"        [pc: 0, line: 1]\n" + 
+						"      Method Parameters:\n" + 
+						"        mandated name\n";
+		assertSubstring(actualOutput, expectedOutput);
+	}
 
 	private void runParameterNameTest(String fileName, String body) {
 		Map compilerOptions = getCompilerOptions();
