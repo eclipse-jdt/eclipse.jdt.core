@@ -6942,6 +6942,70 @@ public void test409544b() {
 		null /* custom options */
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=415844
+// Bug 415844 - [1.8][compiler] Blank final initialized in a lambda expression should not pass
+public void test415844a() {
+	this.runNegativeTest(
+		new String[] {
+				"Sample.java",
+				"public class Sample{\n" + 
+				"	interface Int { void setInt(int i); }\n" + 
+				"	public static void main(String[] args) {\n" +
+				"		final int j;\n" +
+				"		Int int1 = (int i) -> {\n" +
+				"								j=10;\n" +
+				"		};\n" +
+				"	}\n" +
+				"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Sample.java (at line 6)\n" +
+		"	j=10;\n" +
+		"	^\n" +
+		"The final local variable j cannot be assigned, since it is defined in an enclosing type\n" +
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		null /* custom options */
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=415844
+// Bug 415844 - [1.8][compiler] Blank final initialized in a lambda expression should not pass
+public void test415844b() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    interface Int {\n" +
+				"		void setInt(int[] i);\n" +
+				"    }\n" +
+				"    public static void main(String[] args) {\n" +
+				"    	final int j;\n" +
+				"    	Int i = new Int() {\n" +
+				"			@Override\n" +
+				"			public void setInt(int[] i) {\n" +
+				"				j = 10;\n" +
+				"			}\n" +
+				"		};\n" +
+				"    }\n" +
+				"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 9)\n" + 
+		"	public void setInt(int[] i) {\n" + 
+		"	                         ^\n" + 
+		"The parameter i is hiding another local variable defined in an enclosing scope\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	j = 10;\n" + 
+		"	^\n" + 
+		"The final local variable j cannot be assigned, since it is defined in an enclosing type\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		null /* custom options */
+	);
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
