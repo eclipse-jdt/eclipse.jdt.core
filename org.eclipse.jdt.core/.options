@@ -25,13 +25,13 @@ org.eclipse.jdt.core/debug/cpresolution/advanced=false
 # Reports failures during classpath variable initialization, and classpath container resolution
 org.eclipse.jdt.core/debug/cpresolution/failure=false
 
-# Reports bad node nesting in DOM AST
+# Reports bad node nesting in DOM AST (for interactive usage)
 org.eclipse.jdt.core/debug/dom/ast=false
 
-# Throws an exception in case of bad node nesting in DOM AST
+# Throws an exception in case of bad node nesting in DOM AST (enabled in tests)
 org.eclipse.jdt.core/debug/dom/ast/throw=false
 
-# Reports type errors when using ASTRewrite
+# Reports type errors when using ASTRewrite (throws exceptions; not enabled by default, since some non-typesafe operations are fine in practice)
 org.eclipse.jdt.core/debug/dom/rewrite=false
 
 # Report type hierarchy connections, refreshes and deltas
