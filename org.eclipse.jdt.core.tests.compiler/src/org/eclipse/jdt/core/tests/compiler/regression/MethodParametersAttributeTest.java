@@ -637,15 +637,16 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 			"  \n" + 
 			"  // Method descriptor #46 (Ljava/lang/String;)LFancyEnum;\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
-			"  public static FancyEnum valueOf(java.lang.String arg0);\n" + 
+			"  public static FancyEnum valueOf(java.lang.String name);\n" + 
 			"     0  ldc <Class FancyEnum> [1]\n" + 
-			"     2  aload_0 [arg0]\n" + 
+			"     2  aload_0 [name]\n" + 
 			"     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [47]\n" + 
 			"     6  checkcast FancyEnum [1]\n" + 
 			"     9  areturn\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 1]\n" + 
-			"      Attribute: MethodParameters Length: 5\n" + 
+			"      Method Parameters:\n" + 
+			"        mandated name\n" + 
 			"}";
 
 		assertSubstring(actualOutput, expectedOutput);
@@ -687,7 +688,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		assertSubstring(actualOutput, expectedOutput);
 	}
 	
-	public void _test011() throws Exception {
+	public void test011() throws Exception {
 		// Test that a private inner class does not get a mandated enclosing instance parameter.
 		
 		this.runParameterNameTest(
@@ -804,7 +805,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		assertSubstring(actualOutput, expectedOutput);
 	}
 	
-	public void _test014() throws Exception {
+	public void test014() throws Exception {
 		// Test that the name argument of enum valueOf shows up as mandated
 		
 		this.runParameterNameTest(
@@ -825,9 +826,9 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				ClassFileBytesDisassembler.DETAILED);
 
 		String expectedOutput =
-				"  public static FancyEnum valueOf(java.lang.String arg0);\n" + 
+				"  public static FancyEnum valueOf(java.lang.String name);\n" + 
 						"     0  ldc <Class FancyEnum> [1]\n" + 
-						"     2  aload_0 [arg0]\n" + 
+						"     2  aload_0 [name]\n" + 
 						"     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [40]\n" + 
 						"     6  checkcast FancyEnum [1]\n" + 
 						"     9  areturn\n" + 

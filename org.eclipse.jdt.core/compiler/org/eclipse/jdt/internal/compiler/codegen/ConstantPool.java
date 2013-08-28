@@ -184,6 +184,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] longLongSignature = "(J)Ljava/lang/Long;".toCharArray(); //$NON-NLS-1$
 	public static final char[] LONGVALUE_LONG_METHOD_NAME = "longValue".toCharArray(); //$NON-NLS-1$
 	public static final char[] LONGVALUE_LONG_METHOD_SIGNATURE = "()J".toCharArray(); //$NON-NLS-1$
+	public static final char[] Name = "name".toCharArray();//$NON-NLS-1$
 	public static final char[] NewInstance = "newInstance".toCharArray(); //$NON-NLS-1$
 	public static final char[] NewInstanceSignature = "(Ljava/lang/Class;[I)Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 	public static final char[] Next = "next".toCharArray();//$NON-NLS-1$

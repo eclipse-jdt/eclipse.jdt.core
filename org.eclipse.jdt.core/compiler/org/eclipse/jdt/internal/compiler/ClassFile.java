@@ -1053,6 +1053,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 				.compilationResult
 				.getLineSeparatorPositions());
 		// update the number of attributes
+		if ((this.produceAttributes & ClassFileConstants.ATTR_METHOD_PARAMETERS) != 0) {
+			attributeNumber += generateMethodParameters(methodBinding);
+		}
 		this.contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		this.contents[methodAttributeOffset] = (byte) attributeNumber;
 	}
@@ -2016,9 +2019,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 					codeAttributeOffset,
 					max_locals,
 					false);
-		}
-		if ((this.produceAttributes & ClassFileConstants.ATTR_METHOD_PARAMETERS) != 0) {
-			attributesNumber += generateMethodParameters(binding);
 		}
 
 		// update the number of attributes
@@ -3781,22 +3781,29 @@ public class ClassFile implements TypeConstants, TypeIds {
 		
 		boolean isConstructor = binding.isConstructor();
 		TypeBinding[] targetParameters = binding.parameters;
-		if (isConstructor && binding.declaringClass.isEnum()) { // insert String name,int ordinal
-			writeArgumentName(ConstantPool.EnumName, ClassFileConstants.AccSynthetic, 0);
-			writeArgumentName(ConstantPool.EnumOrdinal, ClassFileConstants.AccSynthetic, 1);
-			length = 2;
+		ReferenceBinding declaringClass = binding.declaringClass;
+
+		if (declaringClass.isEnum()) {
+			if (isConstructor) { // insert String name,int ordinal
+				length = writeArgumentName(ConstantPool.EnumName, ClassFileConstants.AccSynthetic, length);
+				length = writeArgumentName(ConstantPool.EnumOrdinal, ClassFileConstants.AccSynthetic, length);
+			} else if (CharOperation.equals(ConstantPool.ValueOf, binding.selector)) { // insert String name
+				length = writeArgumentName(ConstantPool.Name, ClassFileConstants.AccMandated, length);
+				targetParameters =  Binding.NO_PARAMETERS; // Override "unknown" synthetics below
+			}
 		}
 
-		boolean needSynthetics = isConstructor && binding.declaringClass.isNestedType();
+		boolean needSynthetics = isConstructor && declaringClass.isNestedType();
 		if (needSynthetics) {
 			// take into account the synthetic argument names
-			ReferenceBinding[] syntheticArgumentTypes = binding.declaringClass.syntheticEnclosingInstanceTypes();
+			int modifier = (! declaringClass.isPrivate()) || declaringClass.isAnonymousType() ? ClassFileConstants.AccMandated : ClassFileConstants.AccSynthetic;
+			ReferenceBinding[] syntheticArgumentTypes = declaringClass.syntheticEnclosingInstanceTypes();
 			if (syntheticArgumentTypes != null) {
 				for (int i = 0, count = syntheticArgumentTypes.length; i < count; i++) {
 					char[] name = CharOperation.concat(
 							TypeConstants.SYNTHETIC_ENCLOSING_INSTANCE_PREFIX,
 							String.valueOf(i).toCharArray()); // cannot use depth, can be identical
-					length = writeArgumentName(name, ClassFileConstants.AccMandated | ClassFileConstants.AccFinal, length);
+					length = writeArgumentName(name, modifier | ClassFileConstants.AccFinal, length);
 				}
 			}
 			if (binding instanceof SyntheticMethodBinding) {
@@ -3815,7 +3822,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 		}
 		if (needSynthetics) {
-			SyntheticArgumentBinding[] syntheticOuterArguments = binding.declaringClass.syntheticOuterLocalVariables();
+			SyntheticArgumentBinding[] syntheticOuterArguments = declaringClass.syntheticOuterLocalVariables();
 			int count = syntheticOuterArguments == null ? 0 : syntheticOuterArguments.length;
 			for (int i = 0; i < count; i++) {
 				length = writeArgumentName(syntheticOuterArguments[i].name, syntheticOuterArguments[i].modifiers  | ClassFileConstants.AccSynthetic, length);
