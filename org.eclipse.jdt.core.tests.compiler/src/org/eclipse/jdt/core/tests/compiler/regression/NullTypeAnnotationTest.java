@@ -29,7 +29,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testBinary03" };
+//			TESTS_NAMES = new String[] { "testBug416175" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -1997,5 +1997,36 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			},
 			getCompilerOptions(),
 			""); 
+	}
+	
+	public void testBug416175() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		List<@NonNull ? extends @NonNull String> ls = new ArrayList<String>();\n" + 
+				"		ls.add(null);\n" + 
+				"		@NonNull String s = ls.get(0);\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	List<@NonNull ? extends @NonNull String> ls = new ArrayList<String>();\n" + 
+			"	                                              ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'List<@NonNull ? extends String>\'\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	ls.add(null);\n" + 
+			"	       ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull ? extends String\' but the provided value is null\n" + 
+			"----------\n");
 	}
 }

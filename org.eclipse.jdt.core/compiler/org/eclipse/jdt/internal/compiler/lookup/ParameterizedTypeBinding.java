@@ -23,6 +23,7 @@
  *								Bug 403216 - [1.8][null] TypeReference#captureTypeAnnotations treats type annotations as type argument annotations
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
+ *								Bug 416175 - [1.8][compiler][null] NPE with a code snippet that used null annotations on wildcards
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1013,7 +1014,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		} else {
 			// case of TypeVariableBinding with nullAnnotationTagBits:
 			appendNullAnnotation(nameBuffer, options);
-			nameBuffer.append(this.type.sourceName);
+			if (this.type.sourceName != null)
+				nameBuffer.append(this.type.sourceName);
+			else // WildcardBinding, CaptureBinding have no sourceName
+				nameBuffer.append(this.type.readableName());
 		}
 		if (this.arguments != null && this.arguments.length > 0) { // empty arguments array happens when PTB has been created just to capture type annotations
 			nameBuffer.append('<');
@@ -1038,7 +1042,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			nameBuffer.append(this.sourceName);
 		} else {
 			appendNullAnnotation(nameBuffer, options);
-			nameBuffer.append(this.type.sourceName);
+			if (this.type.sourceName != null)
+				nameBuffer.append(this.type.sourceName);
+			else // WildcardBinding, CaptureBinding have no sourceName
+				nameBuffer.append(this.type.shortReadableName());
 		}
 		if (this.arguments != null && this.arguments.length > 0) { // empty arguments array happens when PTB has been created just to capture type annotations
 			nameBuffer.append('<');
