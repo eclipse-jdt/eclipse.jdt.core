@@ -496,7 +496,7 @@ public void test_nonnull_parameter_012() {
 		"2. ERROR in X.java (at line 4)\n" + 
 		"	ContainingInner2.Inner inner = container.new Inner(null);\n" + 
 		"	                                                   ^^^^\n" + 
-		mismatch_NonNull_Null("Object", "T") +
+		mismatch_NonNull_Null("Object", "Object") +
 		"----------\n"  /* compiler output */);
 }
 // a method of a local class has a non-null parameter, client passes null

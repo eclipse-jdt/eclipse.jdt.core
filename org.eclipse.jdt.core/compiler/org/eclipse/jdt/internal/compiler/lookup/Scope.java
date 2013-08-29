@@ -21,6 +21,7 @@
  *								Bug 408441 - Type mismatch using Arrays.asList with 3 or more implementations of an interface with the interface type as the last parameter
  *								Bug 413958 - Function override returning inherited Generic Type
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
+ *								Bug 416183 - [1.8][compiler][null] Overload resolution fails with null annotations
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -408,6 +409,16 @@ public abstract class Scope {
 	 *  of its type in the generic declaration corresponding to C." 
 	 */
 	public static TypeBinding substitute(Substitution substitution, TypeBinding originalType) {
+		TypeBinding unannotatedOriginal = originalType.unannotated();
+		TypeBinding substitute = substitute0(substitution, unannotatedOriginal);
+		if (unannotatedOriginal == originalType)		// no annotation => use naked substitute
+			return substitute;
+		else if (substitute == unannotatedOriginal)		// no substitution => re-use annotated type
+			return originalType;
+		else 											// substitution and annotation: merge both
+			return substitution.environment().copyAnnotations(originalType, substitute);
+	}
+	private static TypeBinding substitute0(Substitution substitution, TypeBinding originalType) {
 		if (originalType == null) return null;
 		switch (originalType.kind()) {
 

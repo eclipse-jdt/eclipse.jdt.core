@@ -2126,12 +2126,33 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"2. ERROR in X.java (at line 10)\n" + 
 			"	xs.foo(null);\n" + 
 			"	       ^^^^\n" + 
-			"Null type mismatch: required '@NonNull T' but the provided value is null\n" + 
+			"Null type mismatch: required '@NonNull String' but the provided value is null\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 14)\n" + 
 			"	X<@Nullable String> xs = x;\n" + 
 			"	                         ^\n" + 
 			"Null type safety (type annotations): The expression of type \'X<String>\' needs unchecked conversion to conform to \'X<@Nullable String>\'\n" + 
 			"----------\n");
+	}
+	
+	public void testBug416183() {
+		runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"	T foo(@NonNull T t) {\n" + 
+				"		return t;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X<String> xs = new X<String>();\n" + 
+				"		xs.foo(\"\");\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"");
 	}
 }

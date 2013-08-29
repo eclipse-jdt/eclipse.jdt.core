@@ -23,6 +23,7 @@
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
+ *								Bug 416183 - [1.8][compiler][null] Overload resolution fails with null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1021,8 +1022,50 @@ public TypeBinding createAnnotatedType(TypeBinding genericType, long annotationB
 			return createArrayType(genericType.leafComponentType(), genericType.dimensions(), tagBitsPerDims);
 		}
 	}
-	// TODO(stephan): PolyTypeBinding
 	return genericType;
+}
+
+/**
+ * After an 'annotatedType' has been substituted yielding 'unannotatedSubstitute,
+ * use this method to re-apply the null type annotations from 'annotatedType' to the substitute.
+ * We assume that both types are structurally equivalent.
+ */
+public TypeBinding copyAnnotations(TypeBinding annotatedType, TypeBinding unannotatedSubstite) {
+	if (!annotatedType.hasNullTypeAnnotations())
+		return unannotatedSubstite;
+
+	// FIXME(stephan): what if both types have (some) null annotations??
+	if (unannotatedSubstite instanceof ReferenceBinding) {
+		TypeBinding[] newArguments = null;
+		if (annotatedType.isParameterizedType() && unannotatedSubstite.isParameterizedType()) {
+			ParameterizedTypeBinding unannotatedPTB = (ParameterizedTypeBinding) unannotatedSubstite;
+			ParameterizedTypeBinding annotatedPTB = (ParameterizedTypeBinding) annotatedType;
+			if (unannotatedPTB.arguments != null 
+					&& annotatedPTB.arguments != null
+					&& unannotatedPTB.arguments.length == annotatedPTB.arguments.length) {
+				int length = annotatedPTB.arguments.length;
+				newArguments = new TypeBinding[length];
+				for (int i = 0; i < length; i++) {
+					newArguments[i] = copyAnnotations(annotatedPTB.arguments[i], unannotatedPTB.arguments[i]);
+				}
+			}
+		}
+		ReferenceBinding annotatedEnclosing = annotatedType.enclosingType();
+		ReferenceBinding newEnclosing = unannotatedSubstite.enclosingType();
+		if (annotatedEnclosing != null && annotatedEnclosing.hasNullTypeAnnotations())
+			newEnclosing = (ReferenceBinding) copyAnnotations(annotatedEnclosing, newEnclosing);
+		long nullTagBits = annotatedType.tagBits & TagBits.AnnotationNullMASK;
+		return createParameterizedType((ReferenceBinding)unannotatedSubstite, newArguments, nullTagBits, newEnclosing);
+
+	} else if (annotatedType instanceof ArrayBinding && unannotatedSubstite instanceof ArrayBinding) {
+		long[] tagBitsOnDimensions = ((ArrayBinding) annotatedType).nullTagBitsPerDimension;
+		TypeBinding annotatedLeaf = annotatedType.leafComponentType();
+		TypeBinding newLeafType = unannotatedSubstite.leafComponentType(); 
+		if (annotatedLeaf.hasNullTypeAnnotations())
+			newLeafType = copyAnnotations(annotatedLeaf, newLeafType);
+		return createArrayType(newLeafType, unannotatedSubstite.dimensions(), tagBitsOnDimensions);
+	}
+	return unannotatedSubstite; // shouldn't happen actually
 }
 
 /**
