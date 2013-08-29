@@ -29,7 +29,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testBug416175" };
+//			TESTS_NAMES = new String[] { "testBug416172" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -2057,4 +2057,39 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"The method foo(List<X>) of type Z should be tagged with @Override since it actually overrides a superclass method\n" + 
 			"----------\n");
 	}
+
+	public void testBug416172() {
+        runNegativeTestWithLibs(
+            new String[] {
+                "X.java",
+                "import org.eclipse.jdt.annotation.NonNull;\n" + 
+                "\n" + 
+                "public class X {\n" + 
+                "   class Y {}\n" + 
+                "   X.@NonNull Y  foo(X.@NonNull Y xy) {\n" + 
+                "       return new X().new Y();\n" + 
+                "   }\n" + 
+                "}\n" + 
+                "\n" + 
+                "class Z extends X {\n" +
+                "   @Override\n" + 
+                "   X.@NonNull Y  foo(X.Y xy) {\n" + 
+                "       return null;\n" + 
+                "   }\n" + 
+                "}\n"
+            },
+            getCompilerOptions(),
+            "----------\n" + 
+    		"1. WARNING in X.java (at line 12)\n" + 
+    		"	X.@NonNull Y  foo(X.Y xy) {\n" + 
+    		"	                  ^^^\n" + 
+    		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" + 
+    		"----------\n" + 
+    		"2. ERROR in X.java (at line 13)\n" + 
+    		"	return null;\n" + 
+    		"	       ^^^^\n" + 
+    		"Null type mismatch: required \'X.@NonNull Y\' but the provided value is null\n" + 
+    		"----------\n");
+    }
+
 }

@@ -30,6 +30,7 @@
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
+ *								Bug 416172 - [1.8][compiler][null] null type annotation not evaluated on method return type
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1726,19 +1727,21 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled) {
 		if (!method.isConstructor() && method.returnType != null) {
 			long nullTagBits = method.tagBits & TagBits.AnnotationNullMASK;
-			TypeReference returnTypeRef = ((MethodDeclaration)methodDecl).returnType;
-			if (compilerOptions.sourceLevel < ClassFileConstants.JDK1_8) {
-				if (!this.scope.validateNullAnnotation(nullTagBits, returnTypeRef, methodDecl.annotations))
-					method.tagBits &= ~TagBits.AnnotationNullMASK;
-			} else {
-				if (nullTagBits != (method.returnType.tagBits & TagBits.AnnotationNullMASK)) {
-					if (!this.scope.validateNullAnnotation(nullTagBits, returnTypeRef, methodDecl.annotations)) {
-						method.returnType = method.returnType.unannotated();
-					} else {
-						// annotation was mistakenly associated to the method, create the annotated type now:
-						method.returnType = this.scope.environment().createAnnotatedType(method.returnType, nullTagBits);
+			if (nullTagBits != 0) {
+				TypeReference returnTypeRef = ((MethodDeclaration)methodDecl).returnType;
+				if (compilerOptions.sourceLevel < ClassFileConstants.JDK1_8) {
+					if (!this.scope.validateNullAnnotation(nullTagBits, returnTypeRef, methodDecl.annotations))
+						method.tagBits &= ~TagBits.AnnotationNullMASK;
+				} else {
+					if (nullTagBits != (method.returnType.tagBits & TagBits.AnnotationNullMASK)) {
+						if (!this.scope.validateNullAnnotation(nullTagBits, returnTypeRef, methodDecl.annotations)) {
+							method.returnType = method.returnType.unannotated();
+						} else {
+							// annotation was mistakenly associated to the method, create the annotated type now:
+							method.returnType = this.scope.environment().createAnnotatedType(method.returnType, nullTagBits);
+						}
+						method.tagBits &= ~TagBits.AnnotationNullMASK;
 					}
-					method.tagBits &= ~TagBits.AnnotationNullMASK;
 				}
 			}
 		}
