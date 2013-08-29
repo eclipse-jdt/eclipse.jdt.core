@@ -29,7 +29,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testBug416172" };
+//			TESTS_NAMES = new String[] { "testBug416182" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -2092,4 +2092,46 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
     		"----------\n");
     }
 
+	public void testBug416182() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"import org.eclipse.jdt.annotation.Nullable;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"	T foo(@NonNull T t) {\n" + 
+				"		return t;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X<@Nullable String> xs = new X<String>();\n" + 
+				"		xs.foo(null);\n" + 
+				"	}\n" + 
+				"	\n" +
+				"	public void test(X<String> x) {\n" + 
+				"		X<@Nullable String> xs = x;\n" + 
+				"		xs.bar(null);\n" + 
+				"	}\n" + 
+				"	public void bar(T t) {}\n" + 
+				"\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. WARNING in X.java (at line 9)\n" + 
+			"	X<@Nullable String> xs = new X<String>();\n" + 
+			"	                         ^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type 'X<String>' needs unchecked conversion to conform to 'X<@Nullable String>'\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	xs.foo(null);\n" + 
+			"	       ^^^^\n" + 
+			"Null type mismatch: required '@NonNull T' but the provided value is null\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 14)\n" + 
+			"	X<@Nullable String> xs = x;\n" + 
+			"	                         ^\n" + 
+			"Null type safety (type annotations): The expression of type \'X<String>\' needs unchecked conversion to conform to \'X<@Nullable String>\'\n" + 
+			"----------\n");
+	}
 }
