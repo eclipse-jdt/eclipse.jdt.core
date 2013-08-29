@@ -24,6 +24,7 @@
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 416175 - [1.8][compiler][null] NPE with a code snippet that used null annotations on wildcards
+ *								Bug 416174 - [1.8][compiler][null] Bogus name clash error with null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -725,6 +726,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	public boolean isEquivalentTo(TypeBinding otherType) {
+		otherType = otherType.unannotated(); // for now consider un-annotated type as equivalent to type with any type annotations
+		if ((this.tagBits & TagBits.HasNullTypeAnnotation) != 0)
+			return unannotated().isEquivalentTo(otherType);
+
 		if (this == otherType)
 		    return true;
 	    if (otherType == null)

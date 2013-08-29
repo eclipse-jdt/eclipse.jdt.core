@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
+ *								Bug 416174 - [1.8][compiler][null] Bogus name clash error with null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -136,6 +137,10 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	}
 
     public boolean isEquivalentTo(TypeBinding otherType) {
+		otherType = otherType.unannotated(); // for now consider un-annotated type as equivalent to type with any type annotations
+		if ((this.tagBits & TagBits.HasNullTypeAnnotation) != 0)
+			return unannotated().isEquivalentTo(otherType);
+
 		if (this == otherType || erasure() == otherType)
 		    return true;
 	    if (otherType == null)

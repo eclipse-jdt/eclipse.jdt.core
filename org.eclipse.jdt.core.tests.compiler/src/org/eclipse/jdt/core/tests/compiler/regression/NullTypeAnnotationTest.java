@@ -2029,4 +2029,32 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"Null type mismatch: required \'@NonNull ? extends String\' but the provided value is null\n" + 
 			"----------\n");
 	}
+	
+	public void testBug416174() {
+		// FIXME(stephan): should report null spec violation
+		runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void  foo(List<X> lx) {\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Z extends X {\n" + 
+				"	void  foo(List<@NonNull X> xy) {\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. WARNING in X.java (at line 11)\n" + 
+			"	void  foo(List<@NonNull X> xy) {\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The method foo(List<X>) of type Z should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n");
+	}
 }
