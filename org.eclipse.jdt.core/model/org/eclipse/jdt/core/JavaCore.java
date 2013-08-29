@@ -948,9 +948,10 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_RAW_TYPE_REFERENCE = PLUGIN_ID + ".compiler.problem.rawTypeReference"; //$NON-NLS-1$
 	/**
-	 * Compiler option ID: Reporting of Unavoidable Generic Type Problems.
-	 * <p> When enabled, the compiler will issue an error or warning even when it detects a generic type problem
-	 *     that could not have been avoided by the programmer. As an example, a type may be forced to use raw types
+	 * Compiler option ID: Reporting of Unavoidable Generic Type Problems due to raw APIs.
+	 * <p> When enabled, the compiler will issue an error or warning even when it detects a generics-related type problem
+	 *     that could not have been avoided by the programmer, because a referenced API already contains raw types.
+	 *     As an example, a type may be forced to use raw types
 	 *     in its method signatures and return types because the methods it overrides from a super type are declared to
 	 *     use raw types in the first place.</p>
 	 * <dl>
