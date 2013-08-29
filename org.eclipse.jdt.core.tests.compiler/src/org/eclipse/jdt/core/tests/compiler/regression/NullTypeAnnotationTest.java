@@ -29,7 +29,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testBinary08" };
+//			TESTS_NAMES = new String[] { "testBinary03" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -922,7 +922,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"import p.X1;\n" +
 					"public class Y1 {\n" +
 					"	public void test() {\n" +
-					"		System.out.println(X1.f1.length);\n" +
+					"		System.out.println(p.X1.f1.length);\n" +
 					"		System.out.println(X1.f2[0].length);\n" +
 					"	}\n" +
 					"}\n"
@@ -930,8 +930,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				customOptions,
 				"----------\n" + 
 				"1. ERROR in Y1.java (at line 4)\n" + 
-				"	System.out.println(X1.f1.length);\n" + 
-				"	                   ^^\n" + // FIXME(stephan) should point to f1, see https://bugs.eclipse.org/414380 
+				"	System.out.println(p.X1.f1.length);\n" + 
+				"	                        ^^\n" + 
 				"Potential null pointer access: this expression has a '@Nullable' type\n" + 
 				"----------\n" + 
 				"2. ERROR in Y1.java (at line 5)\n" + 

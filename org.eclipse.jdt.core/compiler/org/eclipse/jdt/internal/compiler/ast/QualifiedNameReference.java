@@ -17,6 +17,7 @@
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+ *								Bug 414380 - [compiler][internal] QualifiedNameReference#indexOfFirstFieldBinding does not point to the first field
  *     Jesper S Moller - Contributions for
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 331649 - [compiler][null] consider null annotations for fields
@@ -63,7 +64,9 @@ public class QualifiedNameReference extends NameReference {
 	public long[] sourcePositions;
 	public FieldBinding[] otherBindings;
 	int[] otherDepths;
-	public int indexOfFirstFieldBinding;//points (into tokens) for the first token that corresponds to first FieldBinding
+	public int indexOfFirstFieldBinding; 	// points into tokens & sourcePositions for the first token that corresponds to first FieldBinding
+										  	// *** the index is 1-based ***
+											// during BlockScope#getBinding(..) it will walk through positions until it finds the first field
 	public SyntheticMethodBinding syntheticWriteAccessor;
 	public SyntheticMethodBinding[] syntheticReadAccessors;
 	public TypeBinding genericCast;
@@ -253,12 +256,12 @@ private void checkInternalNPE(BlockScope scope, FlowContext flowContext, FlowInf
 	if (this.otherBindings != null) {
 		if ((this.bits & ASTNode.RestrictiveFlagMASK) == Binding.FIELD) {
 			// is the first field dereferenced annotated Nullable? If so, report immediately
-			checkNullableFieldDereference(scope, (FieldBinding) this.binding, this.sourcePositions[0]);
+			checkNullableFieldDereference(scope, (FieldBinding) this.binding, this.sourcePositions[this.indexOfFirstFieldBinding-1]);
 		}
 		// look for annotated fields, they do not depend on flow context -> check immediately:
 		int length = this.otherBindings.length - 1; // don't check the last binding
 		for (int i = 0; i < length; i++) {
-			checkNullableFieldDereference(scope, this.otherBindings[i], this.sourcePositions[i+1]);
+			checkNullableFieldDereference(scope, this.otherBindings[i], this.sourcePositions[this.indexOfFirstFieldBinding+i]);
 		}
 	}
 }

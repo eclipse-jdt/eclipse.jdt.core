@@ -42,6 +42,7 @@
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
+ *								Bug 414380 - [compiler][internal] QualifiedNameReference#indexOfFirstFieldBinding does not point to the first field
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -5688,16 +5689,15 @@ public void nullUnboxing(ASTNode expression, TypeBinding boxType) {
 	String[] argumentsShort = new String[] { String.valueOf(boxType.shortReadableName()) };
 	this.handle(IProblem.NullUnboxing, arguments, argumentsShort, expression.sourceStart, expression.sourceEnd);
 }
-public void nullableFieldDereference(VariableBinding variable, long position) {
-	String[] arguments = new String[] {new String(variable.name)};
+public void nullableFieldDereference(FieldBinding variable, long position) {
 	char[][] nullableName = this.options.nullableAnnotationName;
-		arguments = new String[] {new String(variable.name), new String(nullableName[nullableName.length-1])};
+	String[] arguments = new String[] {new String(variable.name), new String(nullableName[nullableName.length-1])};
 	this.handle(
 		IProblem.NullableFieldReference,
 		arguments,
 		arguments,
 		(int)(position >>> 32),
-		(int)(position));
+		(int)position);
 }
 
 public void localVariableRedundantCheckOnNonNull(LocalVariableBinding local, ASTNode location) {
