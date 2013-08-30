@@ -21,6 +21,10 @@
   <version>3.9.1-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 
+  <properties>
+    <defaultSigning-excludeInnerJars>true</defaultSigning-excludeInnerJars>
+  </properties>
+
   <build>
     <plugins>
     <plugin>
