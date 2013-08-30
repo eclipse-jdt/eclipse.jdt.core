@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - contributions for
@@ -18,6 +22,8 @@
  *								bug 376263 - Bogus "Potential null pointer access" warning
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *								bug 406384 - Internal error with I20130413
+ *     Jesper S Moller - contributions for
+ *								bug 404657 - [1.8][compiler] Analysis for effectively final variables fails to consider loops
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -33,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
@@ -120,10 +127,13 @@ public void complainOnDeferredFinalChecks(BlockScope scope, FlowInfo flowInfo) {
 			}
 		} else {
 			if (flowInfo.isPotentiallyAssigned((LocalVariableBinding)variable)) {
-				complained = true;
-				scope.problemReporter().duplicateInitializationOfFinalLocal(
-					(LocalVariableBinding) variable,
-					this.finalAssignments[i]);
+				variable.tagBits &= ~TagBits.IsEffectivelyFinal;
+				if (variable.isFinal()) {
+					complained = true;
+					scope.problemReporter().duplicateInitializationOfFinalLocal(
+						(LocalVariableBinding) variable,
+						this.finalAssignments[i]);
+				}
 			}
 		}
 		// any reference reported at this level is removed from the parent context where it

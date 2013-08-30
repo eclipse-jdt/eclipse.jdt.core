@@ -15,6 +15,7 @@
  *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *							bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *                          Bug 384687 - [1.8] Wildcard type arguments should be rejected for lambda and reference expressions
+ *                          Bug 404657 - [1.8][compiler] Analysis for effectively final variables fails to consider loops
  *     Stephan Herrmann - Contribution for
  *							bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super via I.super.m() syntax
  *							bug 404728 - [1.8]NPE on QualifiedSuperReference error
@@ -7005,6 +7006,63 @@ public void test415844b() {
 		true /* flush output directory */,
 		null /* custom options */
 	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=404657 [1.8][compiler] Analysis for effectively final variables fails to consider loops
+public void test404657_final() {
+		this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"public class X {\n" + 
+					" void executeLater(Runnable r) { /* ... */\n" + 
+					" }\n" + 
+					" public int testFinally() {\n" + 
+					"  int n;\n" + 
+					"  try {\n" + 
+					"   n = 42;\n" + 
+					"    executeLater(() -> System.out.println(n)); // Error: n is not effectively final\n" + 
+					"  } finally {\n" + 
+					"   n = 23;\n" + 
+					"  }\n" + 
+					"  return n;\n" + 
+					" }\n" + 
+					"\n" + 
+					"}\n" + 
+					""
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	executeLater(() -> System.out.println(n)); // Error: n is not effectively final\n" + 
+			"	                                      ^\n" + 
+			"Variable n is required to be final or effectively final\n" + 
+			"----------\n"
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=404657 [1.8][compiler] Analysis for effectively final variables fails to consider loops
+public void test404657_loop() {
+		this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"public class X {\n" + 
+					" void executeLater(Runnable r) { /* ... */\n" + 
+					" }\n" + 
+					" public void testLoop() {\n" + 
+					"  int n;\n" + 
+					"  for (int i = 0; i < 3; i++) {\n" + 
+					"   n = i;\n" + 
+					"   executeLater(() -> System.out.println(n)); // Error: n is not effectively final\n" + 
+					"  }\n" + 
+					" }\n" + 
+					"\n" + 
+					"}\n" + 
+					""
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	executeLater(() -> System.out.println(n)); // Error: n is not effectively final\n" + 
+			"	                                      ^\n" + 
+			"Variable n is required to be final or effectively final\n" + 
+			"----------\n"
+		);
 }
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
