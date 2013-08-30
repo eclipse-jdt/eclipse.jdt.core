@@ -19,6 +19,8 @@
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *     Jesper Steen Moller - Contributions for
+ *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -50,6 +52,9 @@ public class MethodBinding extends Binding {
 
 	/** Store nullness information from annotation (incl. applicable default). */
 	public Boolean[] parameterNonNullness;  // TRUE means @NonNull declared, FALSE means @Nullable declared, null means nothing declared
+
+	/** Store parameter names from MethodParameters attribute (incl. applicable default). */
+	public char[][] parameterNames = Binding.NO_PARAMETER_NAMES;
 
 protected MethodBinding() {
 	// for creating problem or synthetic method

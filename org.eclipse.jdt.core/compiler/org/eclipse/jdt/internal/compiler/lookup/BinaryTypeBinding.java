@@ -25,6 +25,8 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
+ *    Jesper Steen Moller - Contributions for
+ *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -501,6 +503,8 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 	AnnotationBinding[][] paramAnnotations = null;
 	TypeBinding returnType = null;
 
+	char[][] argumentNames = method.getArgumentNames();
+
 	final boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850, Since a 1.4 project can have a 1.5
 	   type as a super type and the 1.5 type could be generic, we must internalize usages of type
@@ -571,6 +575,19 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 
 		if (!method.isConstructor())
 			returnType = this.environment.getTypeFromSignature(methodDescriptor, index + 1, -1, false, this, missingTypeNames, walker.toMethodReturn());   // index is currently pointing at the ')'
+		
+		final int argumentNamesLength = argumentNames == null ? 0 : argumentNames.length;
+		if (startIndex > 0 && argumentNamesLength > 0) {
+			// We'll have to slice the starting arguments off
+			if (startIndex >= argumentNamesLength) {
+				argumentNames = Binding.NO_PARAMETER_NAMES; // We know nothing about the argument names
+			} else {
+				char[][] slicedArgumentNames = new char[argumentNamesLength - startIndex][];
+				System.arraycopy(argumentNames, startIndex, slicedArgumentNames, 0, argumentNamesLength - startIndex);
+				argumentNames = slicedArgumentNames;
+			}
+		}
+
 	} else {
 		methodModifiers |= ExtraCompilerModifiers.AccGenericSignature;
 		// MethodTypeSignature = ParameterPart(optional) '(' TypeSignatures ')' return_typeSignature ['^' TypeSignature (optional)]
@@ -644,6 +661,8 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 			isAnnotationType() ? convertMemberValue(method.getDefaultValue(), this.environment, missingTypeNames) : null,
 			this.environment);
 
+	if (argumentNames != null) result.parameterNames = argumentNames;
+	
 	if (use15specifics)
 		result.tagBits |= method.getTagBits();
 	result.typeVariables = typeVars;
