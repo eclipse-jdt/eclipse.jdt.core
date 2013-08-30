@@ -2118,6 +2118,37 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			getCompilerOptions(),
 			"");
 	}
+
+	public void testBug416181() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"	class Y {\n" + 
+				"		\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	X<String>.@NonNull Y y = null; // 1st error here.\n" + 
+				"	\n" + 
+				"	@NonNull Y y2 = null; // 2nd error here.\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	X<String>.@NonNull Y y = null; // 1st error here.\n" + 
+			"	                         ^^^^\n" + 
+			"Null type mismatch: required \'X<String>.@NonNull Y\' but the provided value is null\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	@NonNull Y y2 = null; // 2nd error here.\n" + 
+			"	                ^^^^\n" + 
+			"Null type mismatch: required \'X<T>.@NonNull Y\' but the provided value is null\n" + 
+			"----------\n");
+	}
+
 	public void testBug416182() {
 		runNegativeTestWithLibs(
 			new String[] {
