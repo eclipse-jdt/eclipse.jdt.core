@@ -1998,65 +1998,6 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			getCompilerOptions(),
 			""); 
 	}
-	
-	public void testBug416175() {
-		runNegativeTestWithLibs(
-			new String[] {
-				"X.java",
-				"import java.util.ArrayList;\n" + 
-				"import java.util.List;\n" + 
-				"\n" + 
-				"import org.eclipse.jdt.annotation.NonNull;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		List<@NonNull ? extends @NonNull String> ls = new ArrayList<String>();\n" + 
-				"		ls.add(null);\n" + 
-				"		@NonNull String s = ls.get(0);\n" + 
-				"	}\n" + 
-				"}\n"
-			},
-			getCompilerOptions(),
-			"----------\n" + 
-			"1. WARNING in X.java (at line 8)\n" + 
-			"	List<@NonNull ? extends @NonNull String> ls = new ArrayList<String>();\n" + 
-			"	                                              ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'List<@NonNull ? extends String>\'\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 9)\n" + 
-			"	ls.add(null);\n" + 
-			"	       ^^^^\n" + 
-			"Null type mismatch: required \'@NonNull ? extends String\' but the provided value is null\n" + 
-			"----------\n");
-	}
-	
-	public void testBug416174() {
-		// FIXME(stephan): should report null spec violation
-		runConformTestWithLibs(
-			new String[] {
-				"X.java",
-				"import java.util.List;\n" + 
-				"\n" + 
-				"import org.eclipse.jdt.annotation.NonNull;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"	void  foo(List<X> lx) {\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"class Z extends X {\n" + 
-				"	void  foo(List<@NonNull X> xy) {\n" + 
-				"	}\n" + 
-				"}\n"
-			},
-			getCompilerOptions(),
-			"----------\n" + 
-			"1. WARNING in X.java (at line 11)\n" + 
-			"	void  foo(List<@NonNull X> xy) {\n" + 
-			"	      ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The method foo(List<X>) of type Z should be tagged with @Override since it actually overrides a superclass method\n" + 
-			"----------\n");
-	}
 
 	public void testBug416172() {
         runNegativeTestWithLibs(
@@ -2091,7 +2032,92 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
     		"Null type mismatch: required \'X.@NonNull Y\' but the provided value is null\n" + 
     		"----------\n");
     }
+	
+	public void testBug416174() {
+		// FIXME(stephan): should report null spec violation
+		runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void  foo(List<X> lx) {\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Z extends X {\n" + 
+				"	void  foo(List<@NonNull X> xy) {\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. WARNING in X.java (at line 11)\n" + 
+			"	void  foo(List<@NonNull X> xy) {\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The method foo(List<X>) of type Z should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"----------\n");
+	}
 
+	public void testBug416175() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		List<@NonNull ? extends @NonNull String> ls = new ArrayList<String>();\n" + 
+				"		ls.add(null);\n" + 
+				"		@NonNull String s = ls.get(0);\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	List<@NonNull ? extends @NonNull String> ls = new ArrayList<String>();\n" + 
+			"	                                              ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'List<@NonNull ? extends String>\'\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	ls.add(null);\n" + 
+			"	       ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull ? extends String\' but the provided value is null\n" + 
+			"----------\n");
+	}
+
+	public void testBug416180() {
+		runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"	T foo(T t) {\n" + 
+				"		return t;\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X<String> x = new Y();\n" + 
+				"	}\n" + 
+				"} \n" + 
+				"\n" + 
+				"class Y extends X<@NonNull String> {\n" +
+				"   @Override\n" + 
+				"	@NonNull String foo(java.lang.@NonNull String t) {\n" + 
+				"		return \"\";\n" + 
+				"	};\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"");
+	}
 	public void testBug416182() {
 		runNegativeTestWithLibs(
 			new String[] {
