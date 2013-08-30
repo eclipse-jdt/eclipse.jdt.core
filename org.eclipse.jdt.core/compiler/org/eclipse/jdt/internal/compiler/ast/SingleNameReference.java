@@ -146,7 +146,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 					currentScope.problemReporter().cannotReferToNonEffectivelyFinalOuterLocal(localBinding, this);
 				}
 			}
-			if (! isFinal && (localBinding.tagBits & TagBits.IsEffectivelyFinal) != 0) {
+			if (! isFinal && (localBinding.tagBits & TagBits.IsEffectivelyFinal) != 0 && (localBinding.tagBits & TagBits.IsArgument) == 0) {
 				flowContext.recordSettingFinal(localBinding, this, flowInfo);
 			} else if (isFinal) {
 				if ((this.bits & ASTNode.DepthMASK) == 0) {
