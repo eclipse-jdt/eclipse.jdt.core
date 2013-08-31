@@ -19,6 +19,7 @@
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								bug 401017 - [compiler][null] casted reference to @Nullable field lacks a warning
  *								bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
+ *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 415541 - [1.8][compiler] Type annotations in the body of static initializer get dropped
  *******************************************************************************/
@@ -75,7 +76,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
  * Complain if assigned expression is cast, but not actually used as such, e.g. Object o = (List) object;
  */
 public static void checkNeedForAssignedCast(BlockScope scope, TypeBinding expectedType, CastExpression rhs) {
-	if (scope.compilerOptions().getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
+	CompilerOptions compilerOptions = scope.compilerOptions();
+	if (compilerOptions.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
 
 	TypeBinding castedExpressionType = rhs.expression.resolvedType;
 	//	int i = (byte) n; // cast still had side effect
@@ -83,6 +85,11 @@ public static void checkNeedForAssignedCast(BlockScope scope, TypeBinding expect
 	if (castedExpressionType == null || rhs.resolvedType.isBaseType()) return;
 	//if (castedExpressionType.id == T_null) return; // tolerate null expression cast
 	if (castedExpressionType.isCompatibleWith(expectedType, scope)) {
+		if (compilerOptions.isAnnotationBasedNullAnalysisEnabled && compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
+			// are null annotations compatible, too?
+			if (findNullTypeAnnotationMismatch(expectedType, castedExpressionType, -1) > 0)
+				return; // already reported unchecked cast (nullness), say no more.
+		}
 		scope.problemReporter().unnecessaryCast(rhs);
 	}
 }
@@ -527,17 +534,28 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (castType != null) {
 		if (expressionType != null) {
-			boolean isLegal = checkCastTypesCompatibility(scope, castType, expressionType, this.expression);
+
+			// internally for type checking use the unannotated types:
+			TypeBinding unannotatedCastType = castType.unannotated();
+			int nullityMismatch = findNullTypeAnnotationMismatch(castType, expressionType, -1);
+			if (nullityMismatch > 0)
+				castType = unannotatedCastType; // problem exists, so use the unannotated type also externally
+			expressionType = expressionType.unannotated();
+
+			boolean isLegal = checkCastTypesCompatibility(scope, unannotatedCastType, expressionType, this.expression);
 			if (isLegal) {
-				this.expression.computeConversion(scope, castType, expressionType);
+				this.expression.computeConversion(scope, unannotatedCastType, expressionType);
 				if ((this.bits & ASTNode.UnsafeCast) != 0) { // unsafe cast
 					if (scope.compilerOptions().reportUnavoidableGenericTypeProblems
 							|| !(expressionType.isRawType() && this.expression.forcedToBeRaw(scope.referenceContext()))) {
 						scope.problemReporter().unsafeCast(this, scope);
 					}
+				} else if (nullityMismatch > 0) {
+					// report null annotation issue at medium priority
+					scope.problemReporter().unsafeNullnessCast(this, scope);
 				} else {
-					if (castType.isRawType() && scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore){
-						scope.problemReporter().rawTypeReference(this.type, castType);
+					if (unannotatedCastType.isRawType() && scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore){
+						scope.problemReporter().rawTypeReference(this.type, unannotatedCastType);
 					}
 					if ((this.bits & (ASTNode.UnnecessaryCast|ASTNode.DisableUnnecessaryCastCheck)) == ASTNode.UnnecessaryCast) { // unnecessary cast
 						if (!isIndirectlyUsed()) // used for generic type inference or boxing ?
@@ -545,8 +563,8 @@ public TypeBinding resolveType(BlockScope scope) {
 					}
 				}
 			} else { // illegal cast
-				if ((castType.tagBits & TagBits.HasMissingType) == 0) { // no complaint if secondary error
-					scope.problemReporter().typeCastError(this, castType, expressionType);
+				if ((unannotatedCastType.tagBits & TagBits.HasMissingType) == 0) { // no complaint if secondary error
+					scope.problemReporter().typeCastError(this, unannotatedCastType, expressionType);
 				}
 				this.bits |= ASTNode.DisableUnnecessaryCastCheck; // disable further secondary diagnosis
 			}

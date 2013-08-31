@@ -29,7 +29,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testBug416182" };
+//			TESTS_NAMES = new String[] { "testUnsupportedLocation" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -1888,7 +1888,130 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"The nullness annotation \'NonNull\' is not applicable at this location\n" + 
 			"----------\n");
 	}
-	
+
+	// illegal for cast & instanceof with scalar type
+	public void testUnsupportedLocation03() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class X {\n" +
+				"    @NonNull X foo(X arg) {\n" +
+				"        if (!(arg instanceof @NonNull X))\n" +
+				"			return (@NonNull X)arg;\n" +
+				"        return arg;\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	if (!(arg instanceof @NonNull X))\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The expression of type X is already an instance of type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	if (!(arg instanceof @NonNull X))\n" + 
+			"	                     ^^^^^^^^^^\n" + 
+			"Nullness annotations are not applicable at this location \n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
+			"	return (@NonNull X)arg;\n" + 
+			"	       ^^^^^^^^^^^^^^^\n" + 
+			"Null type safety: Unchecked cast from X to @NonNull X\n" + 
+			"----------\n");
+	}
+
+	// illegal for cast & instanceof with complex type
+	public void testUnsupportedLocation04() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"import java.util.*;\n" +
+				"public class X {\n" +
+				"    List<@NonNull X> parameterized(List<X> arg) {\n" +
+				"        if (!(arg instanceof List<@NonNull X>))\n" +
+				"			return (java.util.List<@NonNull X>)arg;\n" +
+				"        return arg;\n" +
+				"    }\n" +
+				"    X @NonNull[] arrays(X[] arg) {\n" +
+				"        if (!(arg instanceof X @NonNull[]))\n" +
+				"			return (p.X @NonNull[])arg;\n" +
+				"        return arg;\n" +
+				"    }\n" +
+				"	ArrayList<@NonNull String> foo(List<@NonNull String> l) {\n" + 
+				"		return (ArrayList<@NonNull String>) l;\n" + // OK 
+				"	}" +
+				"	ArrayList<@NonNull String> foo2(List<@NonNull String> l) {\n" + 
+				"		return (ArrayList<String>) l;\n" + // warn, TODO(stephan) with flow analysis (bug 415292) we might recover the original @NonNull...
+				"	}" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in p\\X.java (at line 6)\n" + 
+			"	if (!(arg instanceof List<@NonNull X>))\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot perform instanceof check against parameterized type List<X>. Use the form List<?> instead since further generic type information will be erased at runtime\n" + 
+			"----------\n" + 
+			"2. ERROR in p\\X.java (at line 6)\n" + 
+			"	if (!(arg instanceof List<@NonNull X>))\n" + 
+			"	                     ^^^^^^^^^^^^^^^^\n" + 
+			"Nullness annotations are not applicable at this location \n" + 
+			"----------\n" + 
+			"3. WARNING in p\\X.java (at line 7)\n" + 
+			"	return (java.util.List<@NonNull X>)arg;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety: Unchecked cast from List<X> to List<@NonNull X>\n" + 
+			"----------\n" + 
+			"4. WARNING in p\\X.java (at line 11)\n" + 
+			"	if (!(arg instanceof X @NonNull[]))\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The expression of type X[] is already an instance of type X[]\n" + 
+			"----------\n" + 
+			"5. ERROR in p\\X.java (at line 11)\n" + 
+			"	if (!(arg instanceof X @NonNull[]))\n" + 
+			"	                     ^^^^^^^^^^^^\n" + 
+			"Nullness annotations are not applicable at this location \n" + 
+			"----------\n" + 
+			"6. WARNING in p\\X.java (at line 12)\n" + 
+			"	return (p.X @NonNull[])arg;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety: Unchecked cast from X[] to X @NonNull[]\n" + 
+			"----------\n" + 
+			"7. WARNING in p\\X.java (at line 18)\n" + 
+			"	return (ArrayList<String>) l;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'ArrayList<@NonNull String>\'\n" + 
+			"----------\n");
+	}
+
+	// illegal for allocation expression
+	public void testUnsupportedLocation05() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class X {\n" +
+				"	X x = new @NonNull X();\n" +
+				"	class Inner {}\n" +
+				"   Inner i = this.new @Nullable Inner();\n" +
+				"	java.util.List<@NonNull String> s = new java.util.ArrayList<@NonNull String>();\n" + // OK
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	X x = new @NonNull X();\n" + 
+			"	          ^^^^^^^^\n" + 
+			"The nullness annotation \'NonNull\' is not applicable at this location\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	Inner i = this.new @Nullable Inner();\n" + 
+			"	                   ^^^^^^^^^\n" + 
+			"The nullness annotation \'Nullable\' is not applicable at this location\n" + 
+			"----------\n");
+	}
+
 	public void testForeach() {
 		runNegativeTestWithLibs(
 			new String[] {

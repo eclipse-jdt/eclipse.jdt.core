@@ -43,6 +43,7 @@
  *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *								Bug 414380 - [compiler][internal] QualifiedNameReference#indexOfFirstFieldBinding does not point to the first field
+ *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -390,6 +391,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.NullityUncheckedTypeAnnotationDetail:
 		case IProblem.ReferenceExpressionParameterRequiredNonnullUnchecked:
 		case IProblem.ReferenceExpressionReturnNullRedefUnchecked:
+		case IProblem.UnsafeNullnessCast:
 			return CompilerOptions.NullUncheckedConversion;
 		case IProblem.RedundantNullAnnotation:
 		case IProblem.RedundantNullDefaultAnnotation:
@@ -5629,6 +5631,26 @@ public void nullAnnotationUnsupportedLocation(Annotation annotation) {
 	handle(IProblem.NullAnnotationUnsupportedLocation,
 		arguments, shortArguments, annotation.sourceStart, annotation.sourceEnd);
 }
+public void nullAnnotationUnsupportedLocation(TypeReference type) {
+	int sourceEnd = type.sourceEnd;
+	if (type instanceof ParameterizedSingleTypeReference) {
+		ParameterizedSingleTypeReference typeReference = (ParameterizedSingleTypeReference) type;
+		TypeReference[] typeArguments = typeReference.typeArguments;
+		if (typeArguments[typeArguments.length - 1].sourceEnd > typeReference.sourceEnd) {
+			sourceEnd = retrieveClosingAngleBracketPosition(typeReference.sourceEnd);
+		} else {
+			sourceEnd = type.sourceEnd;
+		}
+	} else if (type instanceof ParameterizedQualifiedTypeReference) {
+		ParameterizedQualifiedTypeReference typeReference = (ParameterizedQualifiedTypeReference) type;
+		sourceEnd = retrieveClosingAngleBracketPosition(typeReference.sourceEnd);
+	} else {
+		sourceEnd = type.sourceEnd;
+	}
+
+	handle(IProblem.NullAnnotationUnsupportedLocationAtType,
+		NoArgument, NoArgument, type.sourceStart, sourceEnd);
+}
 public void localVariableNullInstanceof(LocalVariableBinding local, ASTNode location) {
 	int severity = computeSeverity(IProblem.NullLocalVariableInstanceofYieldsFalse);
 	if (severity == ProblemSeverities.Ignore) return;
@@ -8019,6 +8041,22 @@ public void unsafeCast(CastExpression castExpression, Scope scope) {
 			new String(castExpressionResolvedType.shortReadableName())
 		},
 		severity,
+		castExpression.sourceStart,
+		castExpression.sourceEnd);
+}
+public void unsafeNullnessCast(CastExpression castExpression, Scope scope) {
+	TypeBinding castedExpressionType = castExpression.expression.resolvedType;
+	TypeBinding castExpressionResolvedType = castExpression.resolvedType;
+	this.handle(
+		IProblem.UnsafeNullnessCast,
+		new String[]{
+			new String(castedExpressionType.nullAnnotatedReadableName(this.options, false)),
+			new String(castExpressionResolvedType.nullAnnotatedReadableName(this.options, false))
+		},
+		new String[]{
+			new String(castedExpressionType.nullAnnotatedReadableName(this.options, true)),
+			new String(castExpressionResolvedType.nullAnnotatedReadableName(this.options, true))
+		},
 		castExpression.sourceStart,
 		castExpression.sourceEnd);
 }

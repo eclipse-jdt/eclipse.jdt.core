@@ -32,6 +32,7 @@
  *								bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
+ *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *     Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -821,6 +822,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("NotVisibleType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("NullableFieldReference", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("NullAnnotationUnsupportedLocation", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("NullAnnotationUnsupportedLocationAtType", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("NullExpressionReference", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("NullLocalVariableComparisonYieldsFalse", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("NullLocalVariableInstanceofYieldsFalse", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -1001,6 +1003,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("UnsafeElementTypeConversion", new ProblemAttributes(CategorizedProblem.CAT_UNCHECKED_RAW));
 		expectedProblemAttributes.put("UnsafeGenericArrayForVarargs", new ProblemAttributes(CategorizedProblem.CAT_UNCHECKED_RAW));
 		expectedProblemAttributes.put("UnsafeGenericCast", new ProblemAttributes(CategorizedProblem.CAT_UNCHECKED_RAW));
+		expectedProblemAttributes.put("UnsafeNullnessCast", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("UnsafeRawConstructorInvocation", new ProblemAttributes(CategorizedProblem.CAT_UNCHECKED_RAW));
 		expectedProblemAttributes.put("UnsafeRawFieldAssignment", new ProblemAttributes(CategorizedProblem.CAT_UNCHECKED_RAW));
 		expectedProblemAttributes.put("UnsafeRawGenericConstructorInvocation", new ProblemAttributes(CategorizedProblem.CAT_UNCHECKED_RAW));
@@ -1611,6 +1614,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("NotVisibleType", SKIP);
 		expectedProblemAttributes.put("NullableFieldReference", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_REFERENCE));
 		expectedProblemAttributes.put("NullAnnotationUnsupportedLocation", SKIP);
+		expectedProblemAttributes.put("NullAnnotationUnsupportedLocationAtType", SKIP);
 		expectedProblemAttributes.put("NullityMismatchingTypeAnnotation", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
 		expectedProblemAttributes.put("NullityMismatchTypeArgument", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
 		expectedProblemAttributes.put("NullityUncheckedTypeAnnotationDetail", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION));
@@ -1791,6 +1795,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("UnsafeElementTypeConversion", new ProblemAttributes(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION));
 		expectedProblemAttributes.put("UnsafeGenericArrayForVarargs", new ProblemAttributes(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION));
 		expectedProblemAttributes.put("UnsafeGenericCast", new ProblemAttributes(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION));
+		expectedProblemAttributes.put("UnsafeNullnessCast", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION));
 		expectedProblemAttributes.put("UnsafeRawConstructorInvocation", new ProblemAttributes(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION));
 		expectedProblemAttributes.put("UnsafeRawFieldAssignment", new ProblemAttributes(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION));
 		expectedProblemAttributes.put("UnsafeRawGenericConstructorInvocation", new ProblemAttributes(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION));

@@ -186,8 +186,10 @@
  *									PotentialNullExpressionReference
  *									RedundantNullCheckAgainstNonNullType
  *									NullAnnotationUnsupportedLocation
+ *									NullAnnotationUnsupportedLocationAtType
  *									NullityMismatchTypeArgument
  *									ContradictoryNullAnnotationsOnBound
+ *									UnsafeNullnessCast
  *      Jesper S Moller  - added the following constants
  *									TargetTypeNotAFunctionalInterface
  *									OuterLocalMustBeEffectivelyFinal
@@ -1697,9 +1699,13 @@ void setSourceStart(int sourceStart);
 	/** @since 3.9 BETA_JAVA8 */
 	int NullAnnotationUnsupportedLocation = Internal + 960;
 	/** @since 3.9 BETA_JAVA8 */
-	int NullityMismatchTypeArgument = Internal + 961;
+	int NullAnnotationUnsupportedLocationAtType = Internal + 961;
 	/** @since 3.9 BETA_JAVA8 */
-	int ContradictoryNullAnnotationsOnBound = Internal + 962;
+	int NullityMismatchTypeArgument = Internal + 962;
+	/** @since 3.9 BETA_JAVA8 */
+	int ContradictoryNullAnnotationsOnBound = Internal + 963;
+	/** @since 3.9 BETA_JAVA8 */
+	int UnsafeNullnessCast = Internal + 964;
 
 	// Java 8 work
 	/** @since 3.9 BETA_JAVA8 */

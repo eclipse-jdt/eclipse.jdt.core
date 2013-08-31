@@ -25,6 +25,7 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
+ *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *        Andy Clement - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
@@ -179,7 +180,7 @@ protected int checkAssignmentAgainstNullAnnotation(BlockScope currentScope, Flow
 }
 // return: severity: 0 = no problem; 1 = unchecked conversion wrt type detail; 2 = conflicting annotations
 // nullStatus: we are only interested in NULL or NON_NULL, -1 indicates that we are in a recursion, where flow info is ignored
-protected int findNullTypeAnnotationMismatch(TypeBinding requiredType, TypeBinding providedType, int nullStatus) {
+protected static int findNullTypeAnnotationMismatch(TypeBinding requiredType, TypeBinding providedType, int nullStatus) {
 	int severity = 0;
 	if (requiredType instanceof ArrayBinding) {
 		long[] requiredDimsTagBits = ((ArrayBinding)requiredType).nullTagBitsPerDimension;

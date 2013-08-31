@@ -11,6 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -84,10 +86,11 @@ public class SingleTypeReference extends TypeReference {
 	}
 
 	public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {
-		TypeBinding memberType = this.resolvedType = scope.getMemberType(this.token, enclosingType);
+		this.resolvedType = scope.getMemberType(this.token, enclosingType);
 		boolean hasError = false;
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391500
 		resolveAnnotations(scope);
+		TypeBinding memberType = this.resolvedType; // load after possible update in resolveAnnotations()
 		if (!memberType.isValidBinding()) {
 			hasError = true;
 			scope.problemReporter().invalidEnclosingType(this, memberType, enclosingType);
