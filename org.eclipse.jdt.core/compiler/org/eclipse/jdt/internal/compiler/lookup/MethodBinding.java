@@ -146,7 +146,7 @@ public final boolean areParametersEqual(MethodBinding method) {
 		return false;
 
 	for (int i = 0; i < length; i++)
-		if (this.parameters[i] != args[i])
+		if (this.parameters[i].unannotated() != args[i].unannotated())
 			return false;
 	return true;
 }

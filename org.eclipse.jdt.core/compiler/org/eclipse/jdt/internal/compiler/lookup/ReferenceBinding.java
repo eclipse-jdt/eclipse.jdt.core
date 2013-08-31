@@ -26,6 +26,7 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
+ *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -1168,9 +1169,13 @@ public boolean isClass() {
  * since per nature, the compatibility check is recursive through parameterized type arguments (122775)
  */
 public boolean isCompatibleWith(TypeBinding otherType, /*@Nullable*/ Scope captureScope) {
-	otherType = otherType.unannotated(); // for now consider un-annotated type as compatible to type with any type annotations
-	if ((this.tagBits & TagBits.HasNullTypeAnnotation) != 0)
-		return unannotated().isCompatibleWith(otherType, captureScope);
+	// disregard any type annotations on this and otherType
+	// recursive call needed when this is annotated, unless the annotation was introduced on a declaration
+	otherType = otherType.unannotated();
+	TypeBinding unannotated = unannotated();
+	if (unannotated != this)
+		return unannotated.isCompatibleWith(otherType, captureScope);
+
 	if (otherType == this)
 		return true;
 	if (otherType.id == TypeIds.T_JavaLangObject)

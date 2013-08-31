@@ -22,6 +22,7 @@
  *								Bug 413958 - Function override returning inherited Generic Type
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *								Bug 416183 - [1.8][compiler][null] Overload resolution fails with null annotations
+ *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -723,7 +724,8 @@ public abstract class Scope {
 		Map invocations = new HashMap(2);
 		boolean noProblems = true;
 		// preinitializing each type variable
-		for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
+		int paramLength = typeParameters.length;
+		for (int i = 0; i < paramLength; i++) {
 			TypeParameter typeParameter = typeParameters[i];
 			TypeVariableBinding typeVariable = typeParameter.binding;
 			if (typeVariable == null) return false;
@@ -733,7 +735,7 @@ public abstract class Scope {
 			// set firstBound to the binding of the first explicit bound in parameter declaration
 			typeVariable.firstBound = null; // first bound used to compute erasure
 		}
-		nextVariable: for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
+		nextVariable: for (int i = 0; i < paramLength; i++) {
 			TypeParameter typeParameter = typeParameters[i];
 			TypeVariableBinding typeVariable = typeParameter.binding;
 			TypeReference typeRef = typeParameter.type;
@@ -860,6 +862,10 @@ public abstract class Scope {
 			}
 			noProblems &= (typeVariable.tagBits & TagBits.HierarchyHasProblems) == 0;
 		}
+		// after bounds have been resolved we're ready for resolving the type parameter itself,
+		// which includes resolving/evaluating type annotations and checking for inconsistencies
+		for (int i = 0; i < paramLength; i++)
+			resolveTypeParameter(typeParameters[i]);
 		return noProblems;
 	}
 
@@ -932,6 +938,10 @@ public abstract class Scope {
 		if (count != length)
 			System.arraycopy(typeVariableBindings, 0, typeVariableBindings = new TypeVariableBinding[count], 0, count);
 		return typeVariableBindings;
+	}
+
+	void resolveTypeParameter(TypeParameter typeParameter) {
+		// valid only for ClassScope and MethodScope
 	}
 
 	public final ClassScope enclosingClassScope() {

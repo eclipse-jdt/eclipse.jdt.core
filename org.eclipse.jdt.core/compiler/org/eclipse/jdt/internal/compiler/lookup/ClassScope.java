@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for 
@@ -15,6 +19,7 @@
  *     						Bug 358903 - Filter practically unimportant resource leak warnings
  *							Bug 395977 - [compiler][resource] Resource leak warning behavior possibly incorrect for anonymous inner class
  *							Bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
+ *							Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -422,6 +427,10 @@ public class ClassScope extends Scope {
 		}
 		sourceType.typeVariables = createTypeVariables(typeParameters, sourceType);
 		sourceType.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+	}
+
+	void resolveTypeParameter(TypeParameter typeParameter) {
+		typeParameter.resolve(this);
 	}
 
 	private void checkAndSetModifiers() {

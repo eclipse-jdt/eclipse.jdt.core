@@ -17,7 +17,8 @@
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								bug 400421 - [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
- *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 415399 - [1.8][compiler] Type annotations on constructor results dropped by the code generator
  *******************************************************************************/
@@ -548,11 +549,7 @@ public void resolveStatements() {
 	if (!CharOperation.equals(sourceType.sourceName, this.selector)){
 		this.scope.problemReporter().missingReturnType(this);
 	}
-	if (this.typeParameters != null) {
-		for (int i = 0, length = this.typeParameters.length; i < length; i++) {
-			this.typeParameters[i].resolve(this.scope);
-		}
-	}
+	// typeParameters are already resolved from Scope#connectTypeVariables()
 	if (this.binding != null && !this.binding.isPrivate()) {
 		sourceType.tagBits |= TagBits.HasNonPrivateConstructor;
 	}

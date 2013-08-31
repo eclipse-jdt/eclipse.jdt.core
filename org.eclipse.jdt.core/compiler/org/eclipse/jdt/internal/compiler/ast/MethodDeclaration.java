@@ -20,6 +20,7 @@
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
+ *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *								bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
@@ -212,7 +213,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			for (int i = 0, length = this.typeParameters.length; i < length; i++) {
 				TypeParameter typeParameter = this.typeParameters[i];
 				this.bits |= (typeParameter.bits & ASTNode.HasTypeAnnotations);
-				typeParameter.resolve(this.scope);
+				// typeParameter is already resolved from Scope#connectTypeVariables()
 				if (returnsUndeclTypeVar && this.typeParameters[i].binding == this.returnType.resolvedType) {
 					returnsUndeclTypeVar = false;
 				}

@@ -2092,6 +2092,91 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	// original test (was throwing stack overflow)
+	public void testBug416176() {
+		runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"\n" + 
+				"public class X<@NonNull T> {\n" + 
+				"	T foo(T t) {\n" + 
+				"		return t;\n" + 
+				"	}\n" +
+				"}\n"
+			},
+			getCompilerOptions(),
+			"");
+	}
+
+	// variant to challenge merging of annotation on type variable and its use
+	public void testBug416176a() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"import org.eclipse.jdt.annotation.Nullable;\n" + 
+				"\n" + 
+				"public class X<@NonNull T> {\n" + 
+				"	T foo(T t) {\n" + 
+				"		return t;\n" + 
+				"	}\n" +
+				"	@NonNull T bar1(@NonNull T t) {\n" +
+				"		return t;\n" +
+				"	}\n" + 
+				"	@NonNull T bar2(@Nullable T t) { // contradiction: cannot make T @Nullable\n" +
+				"		return t;\n" +
+				"	}\n" + 
+				"	T bar3() {\n" +
+				"		return null;\n" +
+				"	}\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	@NonNull T bar2(@Nullable T t) { // contradiction: cannot make T @Nullable\n" + 
+			"	                ^^^^^^^^^\n" + 
+			"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 15)\n" + 
+			"	return null;\n" + 
+			"	       ^^^^\n" + 
+			"Null type mismatch: required \'T\' but the provided value is null\n" + 
+			"----------\n");
+	}
+
+	// variant to challenge duplicate methods, though with different parameter annotations
+	public void testBug416176b() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"import org.eclipse.jdt.annotation.Nullable;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"	@NonNull T bar(@NonNull T t) {\n" +
+				"		return t;\n" +
+				"	}\n" + 
+				"	@NonNull T bar(@Nullable T t) {\n" +
+				"		return t;\n" +
+				"	}\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	@NonNull T bar(@NonNull T t) {\n" + 
+			"	           ^^^^^^^^^^^^^^^^^\n" + 
+			"Duplicate method bar(T) in type X<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	@NonNull T bar(@Nullable T t) {\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^\n" + 
+			"Duplicate method bar(T) in type X<T>\n" + 
+			"----------\n");
+	}
+
 	public void testBug416180() {
 		runConformTestWithLibs(
 			new String[] {

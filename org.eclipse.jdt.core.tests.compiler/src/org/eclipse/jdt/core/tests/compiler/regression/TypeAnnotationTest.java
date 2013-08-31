@@ -18,6 +18,7 @@
  *                          Bug 409517 - [1.8][compiler] Type annotation problems on more elaborate array references
  *        Stephan Herrmann - Contribution for
  *							Bug 415911 - [1.8][compiler] NPE when TYPE_USE annotated method with missing return type
+ *							Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -32,6 +33,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
+//		TESTS_NAMES = new String[] { "testTypeVariable" };
 	}
 	public static Class testClass() {
 		return TypeAnnotationTest.class;
@@ -5491,6 +5493,21 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"	foo(String s) {\n" + 
 			"	^^^^^^^^^^^^^\n" + 
 			"Return type for the method is missing\n" + 
+			"----------\n");
+	}
+
+	public void testTypeVariable() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<@Missing T> {\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X<@Missing T> {\n" + 
+			"	                ^^^^^^^\n" + 
+			"Missing cannot be resolved to a type\n" + 
 			"----------\n");
 	}
 }

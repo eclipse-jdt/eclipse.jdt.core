@@ -25,6 +25,7 @@
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 416175 - [1.8][compiler][null] NPE with a code snippet that used null annotations on wildcards
  *								Bug 416174 - [1.8][compiler][null] Bogus name clash error with null annotations
+ *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -726,9 +727,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	public boolean isEquivalentTo(TypeBinding otherType) {
-		otherType = otherType.unannotated(); // for now consider un-annotated type as equivalent to type with any type annotations
-		if ((this.tagBits & TagBits.HasNullTypeAnnotation) != 0)
-			return unannotated().isEquivalentTo(otherType);
+		// disregard any type annotations on this and otherType
+		// recursive call needed when this is annotated, unless the annotation was introduced on a declaration
+		otherType = otherType.unannotated();
+		TypeBinding unannotated = unannotated();
+		if (unannotated != this)
+			return unannotated.isEquivalentTo(otherType);
 
 		if (this == otherType)
 		    return true;

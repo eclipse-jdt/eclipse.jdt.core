@@ -14,7 +14,8 @@
  *     Stephan Herrmann - Contributions for
  *								Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
  *								Bug 388630 - @NonNull diagnostics at line 0
- *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *     Keigo Imai - Contribution for  bug 388903 - Cannot extend inner class as an anonymous class when it extends the outer class
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
@@ -1102,11 +1103,6 @@ public void resolve() {
 		boolean hasEnumConstants = false;
 		FieldDeclaration[] enumConstantsWithoutBody = null;
 
-		if (this.typeParameters != null) {
-			for (int i = 0, count = this.typeParameters.length; i < count; i++) {
-				this.typeParameters[i].resolve(this.scope);
-			}
-		}
 		if (this.memberTypes != null) {
 			for (int i = 0, count = this.memberTypes.length; i < count; i++) {
 				this.memberTypes[i].resolve(this.scope);

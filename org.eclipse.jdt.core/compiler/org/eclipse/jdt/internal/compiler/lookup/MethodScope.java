@@ -16,7 +16,8 @@
  *								bug 374605 - Unreasonable warning for enum-based switch statements
  *								bug 382353 - [1.8][compiler] Implementation property modifiers should be accepted on default methods.
  *								bug 382354 - [1.8][compiler] Compiler silent on conflicting modifier
- *								bug 401030 - [1.8][null] Null analysis support for lambda methods. 
+ *								bug 401030 - [1.8][null] Null analysis support for lambda methods.
+ *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *     Jesper S Moller - Contributions for
  *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -557,5 +558,9 @@ public MethodBinding referenceMethodBinding() {
 public TypeDeclaration referenceType() {
 	ClassScope scope = enclosingClassScope();
 	return scope == null ? null : scope.referenceContext;
+}
+
+void resolveTypeParameter(TypeParameter typeParameter) {
+	typeParameter.resolve(this);
 }
 }
