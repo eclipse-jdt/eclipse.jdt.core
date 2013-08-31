@@ -18,6 +18,7 @@
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
+ *								Bug 411964 - [1.8][null] leverage null type annotation in foreach statement
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -148,10 +149,7 @@ public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
 		}
 	}
 	if (this.resolvedType != null) {
-		if ((this.resolvedType.tagBits & TagBits.AnnotationNonNull) != 0)
-			return FlowInfo.NON_NULL;
-		else if ((this.resolvedType.tagBits & TagBits.AnnotationNullable) != 0)
-			return FlowInfo.POTENTIALLY_NULL;
+		return FlowInfo.tagBitsToNullStatus(this.resolvedType.tagBits);
 	}
 	return FlowInfo.UNKNOWN;
 }

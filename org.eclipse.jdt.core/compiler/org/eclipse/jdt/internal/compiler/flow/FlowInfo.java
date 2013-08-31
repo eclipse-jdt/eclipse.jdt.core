@@ -5,12 +5,17 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for 
  *			     				bug 292478 - Report potentially null across variable assignment
  *     							bug 332637 - Dead Code detection removing code that isn't dead
  *								bug 394768 - [compiler][resource] Incorrect resource leak warning when creating stream in conditional
+ *								Bug 411964 - [1.8][null] leverage null type annotation in foreach statement
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -18,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.IfStatement;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 
 public abstract class FlowInfo {
 
@@ -654,4 +660,16 @@ abstract public UnconditionalFlowInfo unconditionalInitsWithoutSideEffect();
  * @param local
  */
 abstract public void resetAssignmentInfo(LocalVariableBinding local);
+
+/**
+ * Check whether 'tagBits' contains either {@link TagBits#AnnotationNonNull} or {@link TagBits#AnnotationNullable},
+ * and answer the corresponding null status ({@link #NON_NULL} etc.).
+ */
+public static int tagBitsToNullStatus(long tagBits) {
+	if ((tagBits & TagBits.AnnotationNonNull) != 0)
+		return NON_NULL;
+	if ((tagBits & TagBits.AnnotationNullable) != 0)
+		return POTENTIALLY_NULL | POTENTIALLY_NON_NULL;
+	return UNKNOWN;
+}
 }

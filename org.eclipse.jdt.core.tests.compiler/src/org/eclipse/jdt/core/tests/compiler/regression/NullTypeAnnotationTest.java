@@ -1859,6 +1859,33 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 	
+	public void testForeach() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"import java.util.*;\n" +
+				"public class X {\n" +
+				"	void foo(List<@NonNull String> nns) {\n" +
+				"		for(String s1 : nns) {\n" +
+				"			logMsg(s1);\n" +
+				"		}\n" +
+				"		for(String s2 : getStrings()) {\n" +
+				"			logMsg(s2);\n" +
+				"		}\n" +
+				"	}\n" +
+				"	Collection<@Nullable String> getStrings() { return null; }\n" +
+				"	void logMsg(@NonNull String msg) { }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	logMsg(s2);\n" + 
+			"	       ^^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is inferred as @Nullable\n" + 
+			"----------\n");
+	}
+	
 	// missing return type should not cause NPE
 	public void testBug415850_01() {
 		runNegativeTestWithLibs(

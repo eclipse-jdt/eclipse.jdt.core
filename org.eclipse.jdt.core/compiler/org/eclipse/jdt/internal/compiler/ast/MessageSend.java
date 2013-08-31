@@ -36,6 +36,7 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 405569 - Resource leak check false positive when using DbUtils.closeQuietly
+ *								Bug 411964 - [1.8][null] leverage null type annotation in foreach statement
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -503,13 +504,10 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
 	if (this.binding.isValidBinding()) {
 		// try to retrieve null status of this message send from an annotation of the called method:
-		long tagBits = this.binding.tagBits & TagBits.AnnotationNullMASK;
-		if (tagBits == 0L) // alternatively look for type annotation (will only be present in 1.8+):
-			tagBits = this.binding.returnType.tagBits & TagBits.AnnotationNullMASK;
-		if ((tagBits & TagBits.AnnotationNonNull) != 0)
-			return FlowInfo.NON_NULL;
-		if ((tagBits & TagBits.AnnotationNullable) != 0)
-			return FlowInfo.POTENTIALLY_NULL | FlowInfo.POTENTIALLY_NON_NULL;
+		long tagBits = this.binding.tagBits;
+		if ((tagBits & TagBits.AnnotationNullMASK) == 0L) // alternatively look for type annotation (will only be present in 1.8+):
+			tagBits = this.binding.returnType.tagBits;
+		return FlowInfo.tagBitsToNullStatus(tagBits);
 	}
 	return FlowInfo.UNKNOWN;
 }
