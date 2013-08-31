@@ -135,6 +135,10 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				  "        System.out.print(l.get(1).toString()); // problem: retrieved element can be null\n" +
 				  "        l.add(null);\n" +
 				  "    }\n" +
+				  "    void bar2(java.util.List<java.lang.@Dummy @Nullable Object> l2) {\n" +
+				  "        System.out.print(l2.get(1).toString()); // problem: retrieved element can be null\n" +
+				  "        l2.add(null);\n" +
+				  "    }\n" +
 				  "}\n"},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 5)\n" + 
@@ -146,6 +150,11 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	System.out.print(l.get(1).toString()); // problem: retrieved element can be null\n" + 
 			"	                 ^^^^^^^^\n" + 
 			"Potential null pointer access: The method get(int) may return null\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 13)\n" + 
+			"	System.out.print(l2.get(1).toString()); // problem: retrieved element can be null\n" + 
+			"	                 ^^^^^^^^^\n" + 
+			"Potential null pointer access: The method get(int) may return null\n" + 
 			"----------\n");
 	}
 
@@ -153,6 +162,13 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	public void test_nonnull_list_elements_03() {
 		runNegativeTestWithLibs(
 			new String[] {
+				"Dummy.java",
+				  "import static java.lang.annotation.ElementType.*;\n" +
+				  "import java.lang.annotation.*;\n" +
+				  "@Retention(RetentionPolicy.CLASS)\n" +
+				  "@Target({METHOD,PARAMETER,LOCAL_VARIABLE,TYPE_USE})\n" +
+				  "public @interface Dummy {\n" +
+				  "}\n",
 				"X.java",
 				  "import org.eclipse.jdt.annotation.*;\n" +
 				  "import java.util.List;\n" +
@@ -161,9 +177,13 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				  "        System.out.print(l.get(0).toString()); // problem: l may be null\n" +
 				  "        l.add(null); // problem: cannot insert 'null' into this list\n" +
 				  "    }\n" +
-				  "    void bar(@Nullable List<@NonNull Object> l) {\n" +
+				  "    void bar(@Nullable List<java.lang.@NonNull Object> l) {\n" +
 				  "        System.out.print(l.get(0).toString()); // problem: l may be null\n" +
 				  "        l.add(0, null); // problem: cannot insert 'null' into this list\n" +
+				  "    }\n" +
+				  "    void bar2(@Dummy java.util.@Nullable List<java.lang.@NonNull Object> l2) {\n" +
+				  "        System.out.print(l2.get(0).toString()); // problem: l2 may be null\n" +
+				  "        l2.add(0, null); // problem: cannot insert 'null' into this list\n" +
 				  "    }\n" +
 				  "}\n"},
 			"----------\n" + 
@@ -185,6 +205,16 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"4. ERROR in X.java (at line 10)\n" + 
 			"	l.add(0, null); // problem: cannot insert \'null\' into this list\n" + 
 			"	         ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 13)\n" + 
+			"	System.out.print(l2.get(0).toString()); // problem: l2 may be null\n" + 
+			"	                 ^^\n" + 
+			"Potential null pointer access: this expression has a '@Nullable' type\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 14)\n" + 
+			"	l2.add(0, null); // problem: cannot insert \'null\' into this list\n" + 
+			"	          ^^^^\n" + 
 			"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 			"----------\n");
 	}
@@ -1370,7 +1400,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"public abstract class X1 {\n" +
 					"    public class Inner {}\n" +
 					"    public java.lang.Object []@NonNull[] arrays(java.lang.Object @NonNull[][] oa1) { return null; }\n" +
-					"    public void nesting(@NonNull Inner i1, X1.@Nullable Inner i2) { }\n" +
+					"    public void nesting(@NonNull Inner i1, p.X1.@Nullable Inner i2) { }\n" +
 					"    public void wildcard1(List<@Nullable ? extends p.X1> l) { }\n" +
 					"    public void wildcard2(List<? super p.@NonNull X1> l) { }\n" +
 					"}\n"
