@@ -42,29 +42,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class Statement extends ASTNode {
 
-	/** Result from analyzing null annotation compatibility. */
-	public static class NullAnnotationStatus {
-		/* 0 = OK, 1 = unchecked, 2 = definite mismatch */
-		final int severity;
-		/** If non-null this field holds the supertype of the provided type which was used for direct matching. */
-		public final TypeBinding superTypeHint;
-		
-		public NullAnnotationStatus(int severity, TypeBinding superTypeHint) {
-			this.severity = severity;
-			this.superTypeHint = superTypeHint;
-		}
-
-		public boolean isAnyMismatch() { return this.severity != 0; }
-		public boolean isUnchecked() { return this.severity == 1; }
-		public boolean isDefiniteMismatch() { return this.severity == 2; }
-		public String superTypeHintName(CompilerOptions options, boolean shortNames) {
-			return String.valueOf(this.superTypeHint.nullAnnotatedReadableName(options, shortNames));
-		}
-	}
-	public static final NullAnnotationStatus NULL_ANNOTATIONS_OK = new NullAnnotationStatus(0, null);
-	public static final NullAnnotationStatus NULL_ANNOTATIONS_UNCHECKED = new NullAnnotationStatus(1, null);
-	public static final NullAnnotationStatus NULL_ANNOTATIONS_MISMATCH = new NullAnnotationStatus(2, null);
-
 	/**
 	 * Answers true if the if is identified as a known coding pattern which
 	 * should be tolerated by dead code analysis.
@@ -159,7 +136,7 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 void analyseOneArgument18(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo,
 		TypeBinding expectedType, Expression argument) {
 	int nullStatus = argument.nullStatus(flowInfo, flowContext);
-	NullAnnotationStatus annotationStatus = findNullTypeAnnotationMismatch(expectedType, argument.resolvedType, nullStatus);
+	NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(expectedType, argument.resolvedType, nullStatus);
 	if (annotationStatus.isDefiniteMismatch()) {
 		// immediate reporting:
 		currentScope.problemReporter().nullityMismatchingTypeAnnotation(argument, argument.resolvedType, expectedType, annotationStatus);
@@ -168,114 +145,6 @@ void analyseOneArgument18(BlockScope currentScope, FlowContext flowContext, Flow
 	}
 }
 
-/** Check null-ness of 'var' against a possible null annotation */
-protected int checkAssignmentAgainstNullAnnotation(BlockScope currentScope, FlowContext flowContext,
-												   VariableBinding var, int nullStatus, Expression expression, TypeBinding providedType)
-{
-	long lhsTagBits = 0L;
-	boolean hasReported = false;
-	if (currentScope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) {
-		lhsTagBits = var.tagBits & TagBits.AnnotationNullMASK;
-	} else {
-		lhsTagBits = var.type.tagBits & TagBits.AnnotationNullMASK;
-		NullAnnotationStatus annotationStatus = findNullTypeAnnotationMismatch(var.type, providedType, nullStatus);
-		if (annotationStatus.isDefiniteMismatch()) {
-			currentScope.problemReporter().nullityMismatchingTypeAnnotation(expression, providedType, var.type, annotationStatus);
-			hasReported = true;
-		} else if (annotationStatus.isUnchecked()) {
-			flowContext.recordNullityMismatch(currentScope, expression, providedType, var.type, nullStatus);
-			hasReported = true;
-		}
-	}
-	if (lhsTagBits == TagBits.AnnotationNonNull && nullStatus != FlowInfo.NON_NULL) {
-		if (!hasReported)
-			flowContext.recordNullityMismatch(currentScope, expression, providedType, var.type, nullStatus);
-		return FlowInfo.NON_NULL;
-	} else if (lhsTagBits == TagBits.AnnotationNullable && nullStatus == FlowInfo.UNKNOWN) {	// provided a legacy type?
-		return FlowInfo.POTENTIALLY_NULL;			// -> use more specific info from the annotation
-	}
-	return nullStatus;
-}
-// nullStatus: we are only interested in NULL or NON_NULL, -1 indicates that we are in a recursion, where flow info is ignored
-protected static NullAnnotationStatus findNullTypeAnnotationMismatch(TypeBinding requiredType, TypeBinding providedType, int nullStatus) {
-	int severity = 0;
-	TypeBinding superTypeHint = null;
-	if (requiredType instanceof ArrayBinding) {
-		long[] requiredDimsTagBits = ((ArrayBinding)requiredType).nullTagBitsPerDimension;
-		if (requiredDimsTagBits != null) {
-			int dims = requiredType.dimensions();
-			if (requiredType.dimensions() == providedType.dimensions()) {
-				long[] providedDimsTagBits = ((ArrayBinding)providedType).nullTagBitsPerDimension;
-				if (providedDimsTagBits == null) {
-					severity = 1; // required is annotated, provided not, need unchecked conversion
-				} else {
-					for (int i=0; i<dims; i++) {
-						long requiredBits = requiredDimsTagBits[i] & TagBits.AnnotationNullMASK;
-						long providedBits = providedDimsTagBits[i] & TagBits.AnnotationNullMASK;
-						if (i > 0)
-							nullStatus = -1; // don't use beyond the outermost dimension
-						severity = Math.max(severity, computeNullProblemSeverity(requiredBits, providedBits, nullStatus));
-						if (severity == 2)
-							return NULL_ANNOTATIONS_MISMATCH;
-					}
-				}
-			} else if (providedType.id == TypeIds.T_null) {
-				if (dims > 0 && requiredDimsTagBits[0] == TagBits.AnnotationNonNull)
-					return NULL_ANNOTATIONS_MISMATCH;
-			}
-		}
-	} else if (requiredType.hasNullTypeAnnotations() || providedType.hasNullTypeAnnotations()) {
-		long requiredBits = requiredType.tagBits & TagBits.AnnotationNullMASK;
-		if (requiredBits != TagBits.AnnotationNullable // nullable lhs accepts everything, ...
-				|| nullStatus == -1) // only at detail/recursion even nullable must be matched exactly
-		{
-			long providedBits = providedType.tagBits & TagBits.AnnotationNullMASK;
-			severity = computeNullProblemSeverity(requiredBits, providedBits, nullStatus);
-		}
-		if (severity < 2) {
-			TypeBinding providedSuper = providedType.findSuperTypeOriginatingFrom(requiredType);
-			if (providedSuper != providedType)
-				superTypeHint = providedSuper;
-			if (requiredType.isParameterizedType()  && providedSuper instanceof ParameterizedTypeBinding) { // TODO(stephan): handle providedType.isRaw()
-				TypeBinding[] requiredArguments = ((ParameterizedTypeBinding) requiredType).arguments;
-				TypeBinding[] providedArguments = ((ParameterizedTypeBinding) providedSuper).arguments;
-				if (requiredArguments != null && providedArguments != null && requiredArguments.length == providedArguments.length) {
-					for (int i = 0; i < requiredArguments.length; i++) {
-						NullAnnotationStatus status = findNullTypeAnnotationMismatch(requiredArguments[i], providedArguments[i], -1);
-						severity = Math.max(severity, status.severity);
-						if (severity == 2)
-							return new NullAnnotationStatus(severity, superTypeHint);
-					}
-				}
-			} else 	if (requiredType instanceof WildcardBinding) {
-				NullAnnotationStatus status = findNullTypeAnnotationMismatch(((WildcardBinding) requiredType).bound, providedType, nullStatus);
-				severity = Math.max(severity, status.severity);
-			}
-			TypeBinding requiredEnclosing = requiredType.enclosingType();
-			TypeBinding providedEnclosing = providedType.enclosingType();
-			if (requiredEnclosing != null && providedEnclosing != null) {
-				NullAnnotationStatus status = findNullTypeAnnotationMismatch(requiredEnclosing, providedEnclosing, -1);
-				severity = Math.max(severity, status.severity);
-			}
-		}
-	}
-	if (severity == 0)
-		return NULL_ANNOTATIONS_OK;
-	return new NullAnnotationStatus(severity, superTypeHint);
-}
-static int computeNullProblemSeverity(long requiredBits, long providedBits, int nullStatus) {
-	if (requiredBits != 0 && requiredBits != providedBits) {
-		if (providedBits != 0) {
-			return 2; // mismatching annotations
-		} else {
-			if (requiredBits == TagBits.AnnotationNonNull && nullStatus == FlowInfo.NON_NULL) {
-				return 0; // OK by flow analysis
-			}
-			return 1; // need unchecked conversion regarding type detail
-		}
-	}
-	return 0; // OK by tagBits
-}
 /**
  * INTERNAL USE ONLY.
  * This is used to redirect inter-statements jumps.

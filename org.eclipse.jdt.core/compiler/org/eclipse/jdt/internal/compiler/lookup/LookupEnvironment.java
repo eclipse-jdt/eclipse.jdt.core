@@ -1031,15 +1031,15 @@ public TypeBinding createAnnotatedType(TypeBinding genericType, long annotationB
  * use this method to re-apply the null type annotations from 'annotatedType' to the substitute.
  * We assume that both types are structurally equivalent.
  */
-public TypeBinding copyAnnotations(TypeBinding annotatedType, TypeBinding unannotatedSubstite) {
+public TypeBinding copyAnnotations(TypeBinding annotatedType, TypeBinding unannotatedSubstitute) {
 	if (!annotatedType.hasNullTypeAnnotations())
-		return unannotatedSubstite;
+		return unannotatedSubstitute;
 
 	// FIXME(stephan): what if both types have (some) null annotations??
-	if (unannotatedSubstite instanceof ReferenceBinding) {
+	if (unannotatedSubstitute instanceof ReferenceBinding) {
 		TypeBinding[] newArguments = null;
-		if (annotatedType.isParameterizedType() && unannotatedSubstite.isParameterizedType()) {
-			ParameterizedTypeBinding unannotatedPTB = (ParameterizedTypeBinding) unannotatedSubstite;
+		if (annotatedType.isParameterizedType() && unannotatedSubstitute.isParameterizedType()) {
+			ParameterizedTypeBinding unannotatedPTB = (ParameterizedTypeBinding) unannotatedSubstitute;
 			ParameterizedTypeBinding annotatedPTB = (ParameterizedTypeBinding) annotatedType;
 			if (unannotatedPTB.arguments != null 
 					&& annotatedPTB.arguments != null
@@ -1052,21 +1052,21 @@ public TypeBinding copyAnnotations(TypeBinding annotatedType, TypeBinding unanno
 			}
 		}
 		ReferenceBinding annotatedEnclosing = annotatedType.enclosingType();
-		ReferenceBinding newEnclosing = unannotatedSubstite.enclosingType();
+		ReferenceBinding newEnclosing = unannotatedSubstitute.enclosingType();
 		if (annotatedEnclosing != null && annotatedEnclosing.hasNullTypeAnnotations())
 			newEnclosing = (ReferenceBinding) copyAnnotations(annotatedEnclosing, newEnclosing);
 		long nullTagBits = annotatedType.tagBits & TagBits.AnnotationNullMASK;
-		return createParameterizedType((ReferenceBinding)unannotatedSubstite.original(), newArguments, nullTagBits, newEnclosing);
+		return createParameterizedType((ReferenceBinding)unannotatedSubstitute.original(), newArguments, nullTagBits, newEnclosing);
 
-	} else if (annotatedType instanceof ArrayBinding && unannotatedSubstite instanceof ArrayBinding) {
+	} else if (annotatedType instanceof ArrayBinding && unannotatedSubstitute instanceof ArrayBinding) {
 		long[] tagBitsOnDimensions = ((ArrayBinding) annotatedType).nullTagBitsPerDimension;
 		TypeBinding annotatedLeaf = annotatedType.leafComponentType();
-		TypeBinding newLeafType = unannotatedSubstite.leafComponentType(); 
+		TypeBinding newLeafType = unannotatedSubstitute.leafComponentType(); 
 		if (annotatedLeaf.hasNullTypeAnnotations())
 			newLeafType = copyAnnotations(annotatedLeaf, newLeafType);
-		return createArrayType(newLeafType, unannotatedSubstite.dimensions(), tagBitsOnDimensions);
+		return createArrayType(newLeafType, unannotatedSubstitute.dimensions(), tagBitsOnDimensions);
 	}
-	return unannotatedSubstite; // shouldn't happen actually
+	return unannotatedSubstitute; // shouldn't happen actually
 }
 
 /**

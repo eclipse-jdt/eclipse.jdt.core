@@ -172,7 +172,7 @@ void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, int n
 		return;			
 	}
 	if (useTypeAnnotations) {
-		NullAnnotationStatus annotationStatus = findNullTypeAnnotationMismatch(methodBinding.returnType, this.expression.resolvedType, nullStatus);
+		NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(methodBinding.returnType, this.expression.resolvedType, nullStatus);
 		if (annotationStatus.isDefiniteMismatch()) {
 			scope.problemReporter().nullityMismatchingTypeAnnotation(this.expression, this.expression.resolvedType, methodBinding.returnType, annotationStatus);
 		} else if (annotationStatus.isUnchecked()) {

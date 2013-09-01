@@ -21,6 +21,7 @@
  *								bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *								Bug 416307 - [1.8][compiler][null] subclass with type parameter substitution confuses null checking
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 415541 - [1.8][compiler] Type annotations in the body of static initializer get dropped
  *******************************************************************************/
@@ -88,7 +89,7 @@ public static void checkNeedForAssignedCast(BlockScope scope, TypeBinding expect
 	if (castedExpressionType.isCompatibleWith(expectedType, scope)) {
 		if (compilerOptions.isAnnotationBasedNullAnalysisEnabled && compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
 			// are null annotations compatible, too?
-			if (findNullTypeAnnotationMismatch(expectedType, castedExpressionType, -1).isAnyMismatch())
+			if (NullAnnotationMatching.analyse(expectedType, castedExpressionType, -1).isAnyMismatch())
 				return; // already reported unchecked cast (nullness), say no more.
 		}
 		scope.problemReporter().unnecessaryCast(rhs);
@@ -538,7 +539,7 @@ public TypeBinding resolveType(BlockScope scope) {
 
 			// internally for type checking use the unannotated types:
 			TypeBinding unannotatedCastType = castType.unannotated();
-			boolean nullAnnotationMismatch = findNullTypeAnnotationMismatch(castType, expressionType, -1).isAnyMismatch();
+			boolean nullAnnotationMismatch = NullAnnotationMatching.analyse(castType, expressionType, -1).isAnyMismatch();
 			if (nullAnnotationMismatch)
 				castType = unannotatedCastType; // problem exists, so use the unannotated type also externally
 			expressionType = expressionType.unannotated();
