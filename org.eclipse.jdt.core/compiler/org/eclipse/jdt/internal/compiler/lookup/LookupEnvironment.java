@@ -24,6 +24,7 @@
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 416183 - [1.8][compiler][null] Overload resolution fails with null annotations
+ *								Bug 416307 - [1.8][compiler][null] subclass with type parameter substitution confuses null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1055,7 +1056,7 @@ public TypeBinding copyAnnotations(TypeBinding annotatedType, TypeBinding unanno
 		if (annotatedEnclosing != null && annotatedEnclosing.hasNullTypeAnnotations())
 			newEnclosing = (ReferenceBinding) copyAnnotations(annotatedEnclosing, newEnclosing);
 		long nullTagBits = annotatedType.tagBits & TagBits.AnnotationNullMASK;
-		return createParameterizedType((ReferenceBinding)unannotatedSubstite, newArguments, nullTagBits, newEnclosing);
+		return createParameterizedType((ReferenceBinding)unannotatedSubstite.original(), newArguments, nullTagBits, newEnclosing);
 
 	} else if (annotatedType instanceof ArrayBinding && unannotatedSubstite instanceof ArrayBinding) {
 		long[] tagBitsOnDimensions = ((ArrayBinding) annotatedType).nullTagBitsPerDimension;

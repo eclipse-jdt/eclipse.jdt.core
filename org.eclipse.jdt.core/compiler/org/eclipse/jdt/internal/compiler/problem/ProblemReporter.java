@@ -44,6 +44,7 @@
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *								Bug 414380 - [compiler][internal] QualifiedNameReference#indexOfFirstFieldBinding does not point to the first field
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
+ *								Bug 416307 - [1.8][compiler][null] subclass with type parameter substitution confuses null checking
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -375,6 +376,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.ConflictingNullAnnotations:
 		case IProblem.ConflictingInheritedNullAnnotations:
 		case IProblem.NullityMismatchingTypeAnnotation:
+		case IProblem.NullityMismatchingTypeAnnotationSuperHint:
 		case IProblem.NullityMismatchTypeArgument:
 		case IProblem.UninitializedNonNullField:
 		case IProblem.UninitializedNonNullFieldHintMissingDefault:
@@ -389,6 +391,7 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.NullAnnotationInferenceConflict;
 		case IProblem.RequiredNonNullButProvidedUnknown:
 		case IProblem.NullityUncheckedTypeAnnotationDetail:
+		case IProblem.NullityUncheckedTypeAnnotationDetailSuperHint:
 		case IProblem.ReferenceExpressionParameterRequiredNonnullUnchecked:
 		case IProblem.ReferenceExpressionReturnNullRedefUnchecked:
 		case IProblem.UnsafeNullnessCast:
@@ -8901,7 +8904,7 @@ public void nullityMismatch(Expression expression, TypeBinding providedType, Typ
 	if (this.options.sourceLevel < ClassFileConstants.JDK1_8)
 		nullityMismatchIsUnknown(expression, providedType, requiredType, annotationName);
 	else
-		nullityMismatchingTypeAnnotation(expression, providedType, requiredType, 1/*unchecked*/);
+		nullityMismatchingTypeAnnotation(expression, providedType, requiredType, Statement.NULL_ANNOTATIONS_UNCHECKED);
 }
 public void nullityMismatchIsNull(Expression expression, TypeBinding requiredType) {
 	int problemId = IProblem.RequiredNonNullButProvidedNull;
@@ -9419,24 +9422,34 @@ public void arrayReferencePotentialNullReference(ArrayReference arrayReference) 
 	this.handle(IProblem.ArrayReferencePotentialNullReference, NoArgument, NoArgument, arrayReference.sourceStart, arrayReference.sourceEnd);
 	
 }
-public void nullityMismatchingTypeAnnotation(Expression expression, TypeBinding providedType, TypeBinding requiredType, int severity) 
+public void nullityMismatchingTypeAnnotation(Expression expression, TypeBinding providedType, TypeBinding requiredType, Statement.NullAnnotationStatus status) 
 {
 	if (providedType.id == TypeIds.T_null) {
 		nullityMismatchIsNull(expression, requiredType);
 		return;
 	}
-	String[] arguments = new String[] {
-		String.valueOf(requiredType.nullAnnotatedReadableName(this.options, false)),
-		String.valueOf(providedType.nullAnnotatedReadableName(this.options, false))
-	};
-	String[] shortArguments = new String[] {
-		String.valueOf(requiredType.nullAnnotatedReadableName(this.options, true)),
-		String.valueOf(providedType.nullAnnotatedReadableName(this.options, true))
-	};
-	int problemId = severity == 1 ? IProblem.NullityUncheckedTypeAnnotationDetail : IProblem.NullityMismatchingTypeAnnotation;			
-	this.handle(
-			problemId,
-			arguments, shortArguments, expression.sourceStart, expression.sourceEnd);
+	String[] arguments ;
+	String[] shortArguments;
+		
+	int problemId = 0;
+	if (status.superTypeHint != null) {
+		problemId = (status.isUnchecked()
+			? IProblem.NullityUncheckedTypeAnnotationDetailSuperHint
+			: IProblem.NullityMismatchingTypeAnnotationSuperHint);
+		arguments      = new String[] { null, null, status.superTypeHintName(this.options, false) };
+		shortArguments = new String[] { null, null, status.superTypeHintName(this.options, true) };
+	} else {
+		problemId = (status.isUnchecked()
+			? IProblem.NullityUncheckedTypeAnnotationDetail
+			: IProblem.NullityMismatchingTypeAnnotation);
+		arguments      = new String[2];
+		shortArguments = new String[2];
+	}
+	arguments[0] = String.valueOf(requiredType.nullAnnotatedReadableName(this.options, false));
+	arguments[1] = String.valueOf(providedType.nullAnnotatedReadableName(this.options, false));
+	shortArguments[0] = String.valueOf(requiredType.nullAnnotatedReadableName(this.options, true));
+	shortArguments[1] = String.valueOf(providedType.nullAnnotatedReadableName(this.options, true));
+	this.handle(problemId, arguments, shortArguments, expression.sourceStart, expression.sourceEnd);
 }
 
 public void nullityMismatchTypeArgument(TypeBinding typeVariable, TypeBinding typeArgument, ASTNode location) {

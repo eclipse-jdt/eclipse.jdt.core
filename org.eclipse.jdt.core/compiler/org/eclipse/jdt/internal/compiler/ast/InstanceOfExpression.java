@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contribution for
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
+ *								Bug 416307 - [1.8][compiler][null] subclass with type parameter substitution confuses null checking
  *        Andy Clement - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -89,7 +90,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	this.constant = Constant.NotAConstant;
 	TypeBinding expressionType = this.expression.resolveType(scope);
 	TypeBinding checkedType = this.type.resolveType(scope, true /* check bounds*/);
-	if (expressionType != null && checkedType != null && findNullTypeAnnotationMismatch(checkedType, expressionType, -1) > 0) {
+	if (expressionType != null && checkedType != null && findNullTypeAnnotationMismatch(checkedType, expressionType, -1).isAnyMismatch()) {
 		scope.problemReporter().nullAnnotationUnsupportedLocation(this.type);
 		checkedType = checkedType.unannotated();
 	}

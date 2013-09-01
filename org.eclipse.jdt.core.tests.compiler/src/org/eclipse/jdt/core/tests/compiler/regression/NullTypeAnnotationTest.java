@@ -29,7 +29,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testUnsupportedLocation" };
+//			TESTS_NAMES = new String[] { "testCompatibility6" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -1355,12 +1355,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"4. ERROR in Y1.java (at line 10)\n" + 
 				"	x.wildcard2(new ArrayList<@Nullable Object>()); // incompatible(1)\n" + 
 				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Null type mismatch (type annotations): required \'List<? super @NonNull X1>\' but this expression has type \'ArrayList<@Nullable Object>\'\n" + 
+				"Null type mismatch (type annotations): required \'List<? super @NonNull X1>\' but this expression has type \'ArrayList<@Nullable Object>\', corresponding supertype is \'List<@Nullable Object>\'\n" + 
 				"----------\n" + 
 				"5. ERROR in Y1.java (at line 11)\n" + 
 				"	x.wildcard1(new ArrayList<@NonNull X1>()); // incompatible(2)\n" + 
 				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Null type mismatch (type annotations): required \'List<@Nullable ? extends p.X1>\' but this expression has type \'ArrayList<@NonNull X1>\'\n" + 
+				"Null type mismatch (type annotations): required \'List<@Nullable ? extends p.X1>\' but this expression has type \'ArrayList<@NonNull X1>\', corresponding supertype is \'List<@NonNull X1>\'\n" + 
 				"----------\n");
 	}
 
@@ -1445,12 +1445,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"4. ERROR in Y1.java (at line 10)\n" + 
 				"	x.wildcard2(new ArrayList<java.lang.@Nullable Object>()); // incompatible(1)\n" + 
 				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Null type mismatch (type annotations): required \'List<? super @NonNull X1>\' but this expression has type \'ArrayList<@Nullable Object>\'\n" + 
+				"Null type mismatch (type annotations): required \'List<? super @NonNull X1>\' but this expression has type \'ArrayList<@Nullable Object>\', corresponding supertype is \'List<@Nullable Object>\'\n" + 
 				"----------\n" + 
 				"5. ERROR in Y1.java (at line 11)\n" + 
 				"	x.wildcard1(new ArrayList<p.@NonNull X1>()); // incompatible(2)\n" + 
 				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Null type mismatch (type annotations): required \'List<@Nullable ? extends p.X1>\' but this expression has type \'ArrayList<@NonNull X1>\'\n" + 
+				"Null type mismatch (type annotations): required \'List<@Nullable ? extends p.X1>\' but this expression has type \'ArrayList<@NonNull X1>\', corresponding supertype is \'List<@NonNull X1>\'\n" + 
 				"----------\n");
 	}
 
@@ -1832,6 +1832,56 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	assigns(withNulls, noNulls);\n" + 
 			"	                   ^^^^^^^\n" + 
 			"Null type mismatch (type annotations): required \'String @Nullable[]\' but this expression has type \'String @NonNull[]\'\n" + 
+			"----------\n");
+	}
+
+	// challenge parameterized type with partial substitution of super's type parameters
+	public void testCompatibility5() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import java.util.Map;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"abstract public class X<Y> implements Map<@NonNull String,Y> {\n" + 
+				"	void foo(X<Object> x) {\n" + 
+				"		Map<@NonNull String, Object> m1 = x; // OK\n" + 
+				"		Map<@Nullable String, Object> m2 = x; // NOK\n" + 
+				"	}\n" + 
+				"}"
+			},
+			getCompilerOptions(),
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	Map<@Nullable String, Object> m2 = x; // NOK\n" + 
+			"	                                   ^\n" + 
+			"Null type mismatch (type annotations): required \'Map<@Nullable String,Object>\' but this expression has type \'X<Object>\', corresponding supertype is \'Map<@NonNull String,Object>\'\n" + 
+			"----------\n");
+	}
+
+	// challenge parameterized type with partial substitution of super's type parameters
+	public void testCompatibility6() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import java.util.Map;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"abstract public class X<@Nullable Y> implements Map<@Nullable String,Y> {\n" + 
+				"	void foo(X<Object> x) {\n" + 
+				"		Map<@Nullable String, @Nullable Object> m1 = x; // OK\n" + 
+				"		Map<@Nullable String, @NonNull Object> m2 = x; // NOK\n" + 
+				"	}\n" + 
+				"}"
+			},
+			getCompilerOptions(),
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	Map<@Nullable String, @NonNull Object> m2 = x; // NOK\n" + 
+			"	                                            ^\n" + 
+			"Null type mismatch (type annotations): required \'Map<@Nullable String,@NonNull Object>\' but this expression has type \'X<Object>\', corresponding supertype is \'Map<@Nullable String,@Nullable Object>\'\n" + 
 			"----------\n");
 	}
 

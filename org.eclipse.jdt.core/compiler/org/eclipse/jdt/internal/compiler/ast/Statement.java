@@ -26,6 +26,7 @@
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
+ *								Bug 416307 - [1.8][compiler][null] subclass with type parameter substitution confuses null checking
  *        Andy Clement - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
@@ -40,6 +41,29 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class Statement extends ASTNode {
+
+	/** Result from analyzing null annotation compatibility. */
+	public static class NullAnnotationStatus {
+		/* 0 = OK, 1 = unchecked, 2 = definite mismatch */
+		final int severity;
+		/** If non-null this field holds the supertype of the provided type which was used for direct matching. */
+		public final TypeBinding superTypeHint;
+		
+		public NullAnnotationStatus(int severity, TypeBinding superTypeHint) {
+			this.severity = severity;
+			this.superTypeHint = superTypeHint;
+		}
+
+		public boolean isAnyMismatch() { return this.severity != 0; }
+		public boolean isUnchecked() { return this.severity == 1; }
+		public boolean isDefiniteMismatch() { return this.severity == 2; }
+		public String superTypeHintName(CompilerOptions options, boolean shortNames) {
+			return String.valueOf(this.superTypeHint.nullAnnotatedReadableName(options, shortNames));
+		}
+	}
+	public static final NullAnnotationStatus NULL_ANNOTATIONS_OK = new NullAnnotationStatus(0, null);
+	public static final NullAnnotationStatus NULL_ANNOTATIONS_UNCHECKED = new NullAnnotationStatus(1, null);
+	public static final NullAnnotationStatus NULL_ANNOTATIONS_MISMATCH = new NullAnnotationStatus(2, null);
 
 	/**
 	 * Answers true if the if is identified as a known coding pattern which
@@ -134,18 +158,12 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 }
 void analyseOneArgument18(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo,
 		TypeBinding expectedType, Expression argument) {
-	int nullStatus = argument.nullStatus(flowInfo, flowContext); // slight loss of precision: should also use the null info from the receiver.
-	int severity = findNullTypeAnnotationMismatch(expectedType, argument.resolvedType, nullStatus);
-	switch (severity) {
-		case 2:
-			// immediate reporting:
-			currentScope.problemReporter().nullityMismatchingTypeAnnotation(argument, argument.resolvedType, expectedType, severity);
-			return;
-		case 1:
-			flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, nullStatus);
-			return;
-	}
-	if ((expectedType.tagBits & TagBits.AnnotationNonNull) != 0 && nullStatus != FlowInfo.NON_NULL) {
+	int nullStatus = argument.nullStatus(flowInfo, flowContext);
+	NullAnnotationStatus annotationStatus = findNullTypeAnnotationMismatch(expectedType, argument.resolvedType, nullStatus);
+	if (annotationStatus.isDefiniteMismatch()) {
+		// immediate reporting:
+		currentScope.problemReporter().nullityMismatchingTypeAnnotation(argument, argument.resolvedType, expectedType, annotationStatus);
+	} else if (annotationStatus.isUnchecked()) {
 		flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, nullStatus);
 	}
 }
@@ -160,11 +178,11 @@ protected int checkAssignmentAgainstNullAnnotation(BlockScope currentScope, Flow
 		lhsTagBits = var.tagBits & TagBits.AnnotationNullMASK;
 	} else {
 		lhsTagBits = var.type.tagBits & TagBits.AnnotationNullMASK;
-		int severity = findNullTypeAnnotationMismatch(var.type, providedType, nullStatus);
-		if (severity == 2) {
-			currentScope.problemReporter().nullityMismatchingTypeAnnotation(expression, providedType, var.type, severity);
+		NullAnnotationStatus annotationStatus = findNullTypeAnnotationMismatch(var.type, providedType, nullStatus);
+		if (annotationStatus.isDefiniteMismatch()) {
+			currentScope.problemReporter().nullityMismatchingTypeAnnotation(expression, providedType, var.type, annotationStatus);
 			hasReported = true;
-		} else if (severity == 1) {
+		} else if (annotationStatus.isUnchecked()) {
 			flowContext.recordNullityMismatch(currentScope, expression, providedType, var.type, nullStatus);
 			hasReported = true;
 		}
@@ -178,10 +196,10 @@ protected int checkAssignmentAgainstNullAnnotation(BlockScope currentScope, Flow
 	}
 	return nullStatus;
 }
-// return: severity: 0 = no problem; 1 = unchecked conversion wrt type detail; 2 = conflicting annotations
 // nullStatus: we are only interested in NULL or NON_NULL, -1 indicates that we are in a recursion, where flow info is ignored
-protected static int findNullTypeAnnotationMismatch(TypeBinding requiredType, TypeBinding providedType, int nullStatus) {
+protected static NullAnnotationStatus findNullTypeAnnotationMismatch(TypeBinding requiredType, TypeBinding providedType, int nullStatus) {
 	int severity = 0;
+	TypeBinding superTypeHint = null;
 	if (requiredType instanceof ArrayBinding) {
 		long[] requiredDimsTagBits = ((ArrayBinding)requiredType).nullTagBitsPerDimension;
 		if (requiredDimsTagBits != null) {
@@ -198,12 +216,12 @@ protected static int findNullTypeAnnotationMismatch(TypeBinding requiredType, Ty
 							nullStatus = -1; // don't use beyond the outermost dimension
 						severity = Math.max(severity, computeNullProblemSeverity(requiredBits, providedBits, nullStatus));
 						if (severity == 2)
-							return severity;
+							return NULL_ANNOTATIONS_MISMATCH;
 					}
 				}
 			} else if (providedType.id == TypeIds.T_null) {
 				if (dims > 0 && requiredDimsTagBits[0] == TagBits.AnnotationNonNull)
-					return 2;
+					return NULL_ANNOTATIONS_MISMATCH;
 			}
 		}
 	} else if (requiredType.hasNullTypeAnnotations() || providedType.hasNullTypeAnnotations()) {
@@ -215,26 +233,35 @@ protected static int findNullTypeAnnotationMismatch(TypeBinding requiredType, Ty
 			severity = computeNullProblemSeverity(requiredBits, providedBits, nullStatus);
 		}
 		if (severity < 2) {
-			if (requiredType.isParameterizedType()  && providedType.isParameterizedType()) { // TODO(stephan): handle providedType.isRaw()
+			TypeBinding providedSuper = providedType.findSuperTypeOriginatingFrom(requiredType);
+			if (providedSuper != providedType)
+				superTypeHint = providedSuper;
+			if (requiredType.isParameterizedType()  && providedSuper instanceof ParameterizedTypeBinding) { // TODO(stephan): handle providedType.isRaw()
 				TypeBinding[] requiredArguments = ((ParameterizedTypeBinding) requiredType).arguments;
-				TypeBinding[] providedArguments = ((ParameterizedTypeBinding) providedType).arguments;
+				TypeBinding[] providedArguments = ((ParameterizedTypeBinding) providedSuper).arguments;
 				if (requiredArguments != null && providedArguments != null && requiredArguments.length == providedArguments.length) {
 					for (int i = 0; i < requiredArguments.length; i++) {
-						severity = Math.max(severity, findNullTypeAnnotationMismatch(requiredArguments[i], providedArguments[i], -1));
+						NullAnnotationStatus status = findNullTypeAnnotationMismatch(requiredArguments[i], providedArguments[i], -1);
+						severity = Math.max(severity, status.severity);
 						if (severity == 2)
-							return severity;
+							return new NullAnnotationStatus(severity, superTypeHint);
 					}
 				}
 			} else 	if (requiredType instanceof WildcardBinding) {
-				severity = Math.max(severity, findNullTypeAnnotationMismatch(((WildcardBinding) requiredType).bound, providedType, nullStatus));
+				NullAnnotationStatus status = findNullTypeAnnotationMismatch(((WildcardBinding) requiredType).bound, providedType, nullStatus);
+				severity = Math.max(severity, status.severity);
 			}
 			TypeBinding requiredEnclosing = requiredType.enclosingType();
 			TypeBinding providedEnclosing = providedType.enclosingType();
-			if (requiredEnclosing != null && providedEnclosing != null)
-				severity = Math.max(severity, findNullTypeAnnotationMismatch(requiredEnclosing, providedEnclosing, -1));
+			if (requiredEnclosing != null && providedEnclosing != null) {
+				NullAnnotationStatus status = findNullTypeAnnotationMismatch(requiredEnclosing, providedEnclosing, -1);
+				severity = Math.max(severity, status.severity);
+			}
 		}
 	}
-	return severity;
+	if (severity == 0)
+		return NULL_ANNOTATIONS_OK;
+	return new NullAnnotationStatus(severity, superTypeHint);
 }
 static int computeNullProblemSeverity(long requiredBits, long providedBits, int nullStatus) {
 	if (requiredBits != 0 && requiredBits != providedBits) {

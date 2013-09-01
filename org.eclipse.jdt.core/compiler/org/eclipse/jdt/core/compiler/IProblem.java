@@ -161,7 +161,9 @@
  *									ArrayReferencePotentialNullReference
  *									DereferencingNullableExpression
  *									NullityMismatchingTypeAnnotation
+ *									NullityMismatchingTypeAnnotationSuperHint
  *									NullityUncheckedTypeAnnotationDetail
+ *									NullityUncheckedTypeAnnotationDetailSuperHint
  *									NullableFieldReference
  *									UninitializedNonNullField
  *									UninitializedNonNullFieldHintMissingDefault
@@ -1685,27 +1687,31 @@ void setSourceStart(int sourceStart);
 	/** @since 3.9 BETA_JAVA8 */
 	int NullityMismatchingTypeAnnotation = Internal + 953;
 	/** @since 3.9 BETA_JAVA8 */
-	int NullityUncheckedTypeAnnotationDetail = Internal + 954;
+	int NullityMismatchingTypeAnnotationSuperHint = Internal + 954;
 	/** @since 3.9 BETA_JAVA8 */
-	int ReferenceExpressionParameterMismatchPromisedNullable = MethodRelated + 955;
+	int NullityUncheckedTypeAnnotationDetail = Internal + 955;
 	/** @since 3.9 BETA_JAVA8 */
-	int ReferenceExpressionParameterRequiredNonnullUnchecked = MethodRelated + 956;
+	int NullityUncheckedTypeAnnotationDetailSuperHint = Internal + 956;
 	/** @since 3.9 BETA_JAVA8 */
-	int ReferenceExpressionReturnNullRedef = MethodRelated + 957;
+	int ReferenceExpressionParameterMismatchPromisedNullable = MethodRelated + 957;
 	/** @since 3.9 BETA_JAVA8 */
-	int ReferenceExpressionReturnNullRedefUnchecked = MethodRelated + 958;
+	int ReferenceExpressionParameterRequiredNonnullUnchecked = MethodRelated + 958;
 	/** @since 3.9 BETA_JAVA8 */
-	int RedundantNullCheckAgainstNonNullType = Internal + 959;
+	int ReferenceExpressionReturnNullRedef = MethodRelated + 959;
 	/** @since 3.9 BETA_JAVA8 */
-	int NullAnnotationUnsupportedLocation = Internal + 960;
+	int ReferenceExpressionReturnNullRedefUnchecked = MethodRelated + 960;
 	/** @since 3.9 BETA_JAVA8 */
-	int NullAnnotationUnsupportedLocationAtType = Internal + 961;
+	int RedundantNullCheckAgainstNonNullType = Internal + 961;
 	/** @since 3.9 BETA_JAVA8 */
-	int NullityMismatchTypeArgument = Internal + 962;
+	int NullAnnotationUnsupportedLocation = Internal + 962;
 	/** @since 3.9 BETA_JAVA8 */
-	int ContradictoryNullAnnotationsOnBound = Internal + 963;
+	int NullAnnotationUnsupportedLocationAtType = Internal + 963;
 	/** @since 3.9 BETA_JAVA8 */
-	int UnsafeNullnessCast = Internal + 964;
+	int NullityMismatchTypeArgument = Internal + 964;
+	/** @since 3.9 BETA_JAVA8 */
+	int ContradictoryNullAnnotationsOnBound = Internal + 965;
+	/** @since 3.9 BETA_JAVA8 */
+	int UnsafeNullnessCast = Internal + 966;
 
 	// Java 8 work
 	/** @since 3.9 BETA_JAVA8 */
