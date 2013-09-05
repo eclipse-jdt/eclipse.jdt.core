@@ -1305,11 +1305,10 @@ void initializeForStaticImports() {
 	this.scope.buildMethods();
 }
 
-private void initializeNullDefault() {
+private int getNullDefault() {
 	
 	if (this != this.prototype) {
-		this.prototype.initializeNullDefault();
-		return;
+		return this.prototype.getNullDefault();
 	}
 	// ensure nullness defaults are initialized at all enclosing levels:
 	switch (this.nullnessDefaultInitialized) {
@@ -1320,6 +1319,7 @@ private void initializeNullDefault() {
 		getPackage().isViewedAsDeprecated(); // initialize annotations
 		this.nullnessDefaultInitialized = 2;
 	}
+	return this.defaultNullness;
 }
 
 /**
@@ -1718,7 +1718,6 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 					// enum constants neither have a type declaration nor can they be null
 					field.tagBits |= TagBits.AnnotationNonNull;
 				} else {
-					initializeNullDefault();
 					if (hasNonNullDefault()) {
 						field.fillInDefaultNonNullness(fieldDecl, initializationScope);
 					}
@@ -1959,7 +1958,7 @@ private void createArgumentBindings(MethodBinding method, CompilerOptions compil
 	
 	if (this != this.prototype) throw new IllegalStateException();
 	
-	initializeNullDefault();
+	getNullDefault(); // ensure initialized
 	AbstractMethodDeclaration methodDecl = method.sourceMethod();
 	if (methodDecl != null) {
 		// while creating argument bindings we also collect explicit null annotations:
@@ -2039,8 +2038,7 @@ protected boolean checkRedundantNullnessDefaultOne(ASTNode location, Annotation[
 	
 	if (this != this.prototype) throw new IllegalStateException();
 	
-	initializeNullDefault();
-	int thisDefault = this.defaultNullness;
+	int thisDefault = getNullDefault();
 	if (thisDefault == NONNULL_BY_DEFAULT) {
 		if ((annotationTagBits & TagBits.AnnotationNonNullByDefault) != 0) {
 			this.scope.problemReporter().nullDefaultAnnotationIsRedundant(location, annotations, this);
@@ -2073,8 +2071,7 @@ boolean hasNonNullDefault() {
 			case Scope.CLASS_SCOPE:
 				currentType = ((ClassScope)currentScope).referenceContext.binding;
 				if (currentType != null) {
-					currentType.initializeNullDefault();
-					int foundDefaultNullness = currentType.defaultNullness;
+					int foundDefaultNullness = currentType.getNullDefault();
 					if (foundDefaultNullness != NO_NULL_DEFAULT) {
 						return foundDefaultNullness == NONNULL_BY_DEFAULT;
 					}
