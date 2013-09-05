@@ -40,7 +40,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 	// Use this static initializer to specify subset for tests
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_PREFIX = "test008";
+//		TESTS_PREFIX = "test012";
 //		TESTS_NAMES = new String[] { "testBug359495" };
 //		TESTS_NUMBERS = new int[] { 53 };
 //		TESTS_RANGE = new int[] { 23 -1,};
@@ -724,7 +724,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		assertSubstring(actualOutput, expectedOutput);
 	}
 	
-	public void _test012() throws Exception {
+	public void test012() throws Exception {
 		
 		this.runParameterNameTest(
 			"X.java",
@@ -762,7 +762,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				"        [pc: 5, line: 3]\n" + 
 				"      Method Parameters:\n" + 
 				"        final synthetic this$0\n" + 
-				"        final synthetic this$1\n" + 
+				"        final mandated this$1\n" + 
 				"\n";
 
 		assertSubstring(actualOutput, expectedOutput);
@@ -836,6 +836,45 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 						"        [pc: 0, line: 1]\n" + 
 						"      Method Parameters:\n" + 
 						"        mandated name\n";
+		assertSubstring(actualOutput, expectedOutput);
+	}
+
+	public void test015() throws Exception {
+		// Test that the name argument of enum valueOf shows up as mandated
+		
+		this.runParameterNameTest(
+			"InnerLocalClassTest.java",
+			"public class InnerLocalClassTest {\n" + 
+			"   void test() {\n" + 
+			"     class Local { }\n" + 
+			"     new Local() { };\n" + 
+			"   } \n" + 
+			"}\n");
+
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String path = OUTPUT_DIR + File.separator + "InnerLocalClassTest$1.class";
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(path));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED);
+
+		String expectedOutput =
+			"  InnerLocalClassTest$1(InnerLocalClassTest this$0, InnerLocalClassTest this$1);\n" + 
+			"     0  aload_0 [this]\n" + 
+			"     1  aload_2 [this$1]\n" + 
+			"     2  putfield InnerLocalClassTest$1.this$0 : InnerLocalClassTest [10]\n" + 
+			"     5  aload_0 [this]\n" + 
+			"     6  aload_1 [this$0]\n" + 
+			"     7  invokespecial InnerLocalClassTest$1Local(InnerLocalClassTest) [12]\n" + 
+			"    10  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n" + 
+			"        [pc: 5, line: 4]\n" + 
+			"      Method Parameters:\n" + 
+			"        final synthetic this$0\n" + 
+			"        final synthetic this$1\n";
 		assertSubstring(actualOutput, expectedOutput);
 	}
 
