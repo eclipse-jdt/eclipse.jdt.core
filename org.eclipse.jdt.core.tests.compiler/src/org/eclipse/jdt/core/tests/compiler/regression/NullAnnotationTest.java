@@ -6324,4 +6324,104 @@ public void testBug415413() {
 		"Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" + 
 		"----------\n");
 }
+// Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
+// Variant: non-null before the loop and at the end of the loop body
+public void testBug415413a() {
+ Map options = getCompilerOptions();
+ runConformTestWithLibs(
+     new String[]{
+         "ClassF.java",      
+         "import org.eclipse.jdt.annotation.NonNull;\n" + 
+         "public class ClassF {\n" + 
+         "  public static void needNonNull(@NonNull Object o) {\n" + 
+         "    o.hashCode();\n" + 
+         "  }\n" + 
+         "  public void method() {\n" + 
+         "    for (int j = 0; j < 1; j++) {\n" + 
+         "      try {\n" + 
+         "        this.hashCode();\n" + 
+         "      } finally {\n" + 
+         "        Object o = new Object();\n" + 
+         "        for (int i = 0; i < 1; i++) {\n" + 
+         "          needNonNull(o);\n" +
+         "          o = new Object();\n" + 
+         "        }\n" + 
+         "      }\n" + 
+         "    }\n" + 
+         "  }\n" + 
+         "}\n"
+     }, 
+     options,
+     "");
+}
+// Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
+// Variant: null before the loop and non-null at the end of the loop body
+public void testBug415413b() {
+ Map options = getCompilerOptions();
+ runNegativeTestWithLibs(
+     new String[]{
+         "ClassF.java",      
+         "import org.eclipse.jdt.annotation.NonNull;\n" + 
+         "public class ClassF {\n" + 
+         "  public static void needNonNull(@NonNull Object o) {\n" + 
+         "    o.hashCode();\n" + 
+         "  }\n" + 
+         "  public void method() {\n" + 
+         "    for (int j = 0; j < 1; j++) {\n" + 
+         "      try {\n" + 
+         "        this.hashCode();\n" + 
+         "      } finally {\n" + 
+         "        Object o = null;\n" + 
+         "        for (int i = 0; i < 1; i++) {\n" + 
+         "          needNonNull(o);\n" +
+         "          o = new Object();\n" + 
+         "        }\n" + 
+         "      }\n" + 
+         "    }\n" + 
+         "  }\n" + 
+         "}\n"
+     }, 
+     options,
+     "----------\n" + 
+     "1. ERROR in ClassF.java (at line 13)\n" + 
+     "	needNonNull(o);\n" + 
+     "	            ^\n" + 
+     "Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" + 
+     "----------\n");
+}
+// Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
+// Variant: non-null before the loop and null at the end of the loop body
+public void testBug415413c() {
+ Map options = getCompilerOptions();
+ runNegativeTestWithLibs(
+     new String[]{
+         "ClassF.java",      
+         "import org.eclipse.jdt.annotation.NonNull;\n" + 
+         "public class ClassF {\n" + 
+         "  public static void needNonNull(@NonNull Object o) {\n" + 
+         "    o.hashCode();\n" + 
+         "  }\n" + 
+         "  public void method() {\n" + 
+         "    for (int j = 0; j < 1; j++) {\n" + 
+         "      try {\n" + 
+         "        this.hashCode();\n" + 
+         "      } finally {\n" + 
+         "        Object o = new Object();\n" + 
+         "        for (int i = 0; i < 1; i++) {\n" + 
+         "          needNonNull(o);\n" +
+         "          o = null;\n" + 
+         "        }\n" + 
+         "      }\n" + 
+         "    }\n" + 
+         "  }\n" + 
+         "}\n"
+     }, 
+     options,
+     "----------\n" + 
+     "1. ERROR in ClassF.java (at line 13)\n" + 
+     "	needNonNull(o);\n" + 
+     "	            ^\n" + 
+     "Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" + 
+     "----------\n");
+}
 }
