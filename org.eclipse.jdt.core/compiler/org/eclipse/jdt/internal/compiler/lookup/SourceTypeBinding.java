@@ -21,6 +21,8 @@
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 380896 - [compiler][null] Enum constants not recognised as being NonNull.
+ *     Till Brychcy - Contributions for
+ *     							bug 415269 - NonNullByDefault is not always inherited to nested classes
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1726,6 +1728,7 @@ protected void checkRedundantNullnessDefaultRecurse(ASTNode location, Annotation
 
 // return: should caller continue searching?
 protected boolean checkRedundantNullnessDefaultOne(ASTNode location, Annotation[] annotations, long annotationTagBits) {
+	initializeNullDefault();
 	int thisDefault = this.defaultNullness;
 	if (thisDefault == NONNULL_BY_DEFAULT) {
 		if ((annotationTagBits & TagBits.AnnotationNonNullByDefault) != 0) {
@@ -1756,6 +1759,7 @@ boolean hasNonNullDefault() {
 			case Scope.CLASS_SCOPE:
 				currentType = ((ClassScope)currentScope).referenceContext.binding;
 				if (currentType != null) {
+					currentType.initializeNullDefault();
 					int foundDefaultNullness = currentType.defaultNullness;
 					if (foundDefaultNullness != NO_NULL_DEFAULT) {
 						return foundDefaultNullness == NONNULL_BY_DEFAULT;

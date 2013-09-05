@@ -9,6 +9,7 @@
  *     Stephan Herrmann - initial API and implementation
  *     Till Brychcy <register.eclipse@brychcy.de> - Contribution for
  *								Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
+ *								Bug 415269 - [compiler][null] NonNullByDefault is not always inherited to nested classes
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -6423,5 +6424,29 @@ public void testBug415413c() {
      "	            ^\n" + 
      "Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" + 
      "----------\n");
+}
+public void testBug_415269() {
+	Map options = getCompilerOptions();
+	runConformTestWithLibs(
+		new String[]{
+			"Y.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n"+
+			"public class Y {\n"+
+			"  public static class C implements X.I {\n"+
+			"    public void method(@NonNull Object arg) {\n"+
+			"    }\n"+
+			"  }\n"+
+			"}\n",
+			"X.java",
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n"+
+			"@NonNullByDefault\n"+
+			"public class X {\n"+
+			"  public interface I {\n"+
+			"    public void method(Object arg);\n"+
+			"  }\n"+
+			"}\n"
+		}, 
+		options,
+		"");
 }
 }
