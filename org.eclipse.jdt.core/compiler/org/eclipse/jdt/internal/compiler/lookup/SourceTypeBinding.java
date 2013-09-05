@@ -34,6 +34,8 @@
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
+ *     Till Brychcy - Contributions for
+ *     							bug 415269 - NonNullByDefault is not always inherited to nested classes
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -2037,6 +2039,7 @@ protected boolean checkRedundantNullnessDefaultOne(ASTNode location, Annotation[
 	
 	if (this != this.prototype) throw new IllegalStateException();
 	
+	initializeNullDefault();
 	int thisDefault = this.defaultNullness;
 	if (thisDefault == NONNULL_BY_DEFAULT) {
 		if ((annotationTagBits & TagBits.AnnotationNonNullByDefault) != 0) {
@@ -2070,6 +2073,7 @@ boolean hasNonNullDefault() {
 			case Scope.CLASS_SCOPE:
 				currentType = ((ClassScope)currentScope).referenceContext.binding;
 				if (currentType != null) {
+					currentType.initializeNullDefault();
 					int foundDefaultNullness = currentType.defaultNullness;
 					if (foundDefaultNullness != NO_NULL_DEFAULT) {
 						return foundDefaultNullness == NONNULL_BY_DEFAULT;
