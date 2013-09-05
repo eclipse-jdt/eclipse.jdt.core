@@ -11,6 +11,8 @@
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
+ *     Till Brychcy <register.eclipse@brychcy.de> - Contribution for
+ *								Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -6444,6 +6446,39 @@ public void testBug417295_7() {
 		"	aann.s3 = null;\n" + 
 		"	          ^^^^\n" + 
 		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+			"----------\n");
+}		
+// Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
+public void testBug415413() {
+	Map options = getCompilerOptions();
+	runNegativeTestWithLibs(
+		new String[]{
+			"ClassF.java",		
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"public class ClassF {\n" + 
+			"  public static void needNonNull(@NonNull Object o) {\n" + 
+			"    o.hashCode();\n" + 
+			"  }\n" + 
+			"  public void method() {\n" + 
+			"    for (int j = 0; j < 1; j++) {\n" + 
+			"      try {\n" + 
+			"        this.hashCode();\n" + 
+			"      } finally {\n" + 
+			"        for (int i = 0; i < 1; i++) {\n" + 
+			"          Object o = null;\n" + 
+			"          needNonNull(o);\n" + 
+			"        }\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"
+		}, 
+		options,
+		"----------\n" + 
+		"1. ERROR in ClassF.java (at line 13)\n" + 
+		"	needNonNull(o);\n" + 
+		"	            ^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" + 
 		"----------\n");
 }
 }
