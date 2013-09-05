@@ -22,6 +22,7 @@
  *								bug 376263 - Bogus "Potential null pointer access" warning
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *								bug 406384 - Internal error with I20130413
+ *								Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
  *     Jesper S Moller - contributions for
  *								bug 404657 - [1.8][compiler] Analysis for effectively final variables fails to consider loops
  *******************************************************************************/
@@ -272,7 +273,7 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 					if (nullStatus != FlowInfo.NON_NULL) {
 						this.parent.recordNullityMismatch(scope, (Expression)location, this.providedExpectedTypes[i][0], this.providedExpectedTypes[i][1], nullStatus);
 					}
-					break;
+					continue; // no more delegation to parent
 				case EXIT_RESOURCE:
 						FakedTrackingVariable trackingVar = local.closeTracker;
 						if (trackingVar != null) {
