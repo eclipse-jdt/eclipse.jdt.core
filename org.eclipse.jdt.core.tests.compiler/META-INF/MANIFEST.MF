@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.core.tests.compiler;singleton:=true
 Bundle-Version: 3.9.0.qualifier
-Bundle-ClassPath: jdtcoretestscompiler.jar
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: org.eclipse.jdt.core.tests.compiler.parser,
