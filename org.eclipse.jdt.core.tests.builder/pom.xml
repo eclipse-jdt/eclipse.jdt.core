@@ -21,4 +21,9 @@
   <artifactId>org.eclipse.jdt.core.tests.builder</artifactId>
   <version>3.8.2-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
+
+  <properties>
+    <testClass>org.eclipse.jdt.core.tests.builder.BuilderTests</testClass>
+    <testSuite>${project.artifactId}</testSuite>
+  </properties>
 </project>
