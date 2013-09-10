@@ -444,7 +444,7 @@ public void test0009() throws JavaModelException {
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
-public void test0010() throws JavaModelException {
+public void _test0010() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
