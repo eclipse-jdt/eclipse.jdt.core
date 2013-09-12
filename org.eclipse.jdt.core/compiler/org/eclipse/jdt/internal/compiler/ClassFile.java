@@ -14,6 +14,7 @@
  *     Jesper S Moller - Contributions for
  *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335             
  *							Bug 406982 - [1.8][compiler] Generation of MethodParameters Attribute in classfile
+ *							Bug 416885 - [1.8][compiler]IncompatibleClassChange error (edit)
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
@@ -2869,7 +2870,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.contents[localContentsOffset++] = 0;
 			this.contents[localContentsOffset++] = (byte) 3;
 			
-			int functionalDescriptorIndex = this.constantPool.literalIndexForMethodHandle(functional.descriptor.original());
+			int functionalDescriptorIndex = this.constantPool.literalIndexForMethodType(functional.descriptor.original().signature());
 			this.contents[localContentsOffset++] = (byte) (functionalDescriptorIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) functionalDescriptorIndex;
 

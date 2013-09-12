@@ -14,6 +14,7 @@
  *     Jesper S Moller - Contributions for
  *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *                          Bug 384687 - [1.8] Wildcard type arguments should be rejected for lambda and reference expressions
+ *							Bug 416885 - [1.8][compiler]IncompatibleClassChange error (edit)
  *	   Stephan Herrmann - Contribution for
  *							bug 402028 - [1.8][compiler] null analysis for reference expressions 
  *							bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super via I.super.m() syntax
@@ -58,7 +59,6 @@ import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 public class ReferenceExpression extends FunctionalExpression implements InvocationSite {
 	
-	private static char [] LAMBDA = { 'l', 'a', 'm', 'b', 'd', 'a' };
 	public Expression lhs;
 	public TypeReference [] typeArguments;
 	public char [] selector;
@@ -154,7 +154,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		buffer.append(this.resolvedType.constantPoolName());
 		buffer.append(';');
 		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
-		codeStream.invokeDynamic(invokeDynamicNumber, argumentsSize, 1, LAMBDA, buffer.toString().toCharArray(), 
+		codeStream.invokeDynamic(invokeDynamicNumber, argumentsSize, 1, this.descriptor.selector, buffer.toString().toCharArray(), 
 				this.isConstructorReference(), (this.lhs instanceof TypeReference? (TypeReference) this.lhs : null), this.typeArguments);
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}

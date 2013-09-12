@@ -18,6 +18,8 @@
  *                          Bug 415399 - [1.8][compiler] Type annotations on constructor results dropped by the code generator
  *                          Bug 415470 - [1.8][compiler] Type annotations on class declaration go vanishing
  *                          Bug 414384 - [1.8] type annotation on abbreviated inner class is not marked as inner type
+ *     Jesper S Moller - Contributions for
+ *                          Bug 416885 - [1.8][compiler]IncompatibleClassChange error (edit)
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -428,16 +430,16 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"");
 		String expectedOutput =
 				"    RuntimeInvisibleTypeAnnotations: \n" + 
-				"      #35 @Vernal(\n" + 
+				"      #36 @Vernal(\n" + 
 				"        target type = 0x46 METHOD_REFERENCE\n" + 
 				"        offset = 0\n" + 
 				"      )\n" + 
-				"      #36 @English(\n" + 
+				"      #37 @English(\n" + 
 				"        target type = 0x46 METHOD_REFERENCE\n" + 
 				"        offset = 6\n" + 
 				"        location = [TYPE_ARGUMENT(0)]\n" + 
 				"      )\n" + 
-				"      #37 @NonNegative(\n" + 
+				"      #38 @NonNegative(\n" + 
 				"        target type = 0x4b METHOD_REFERENCE_TYPE_ARGUMENT\n" + 
 				"        offset = 12\n" + 
 				"        type argument index = 0\n" + 

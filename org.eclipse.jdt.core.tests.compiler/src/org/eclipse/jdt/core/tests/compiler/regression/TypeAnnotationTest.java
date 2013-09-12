@@ -19,6 +19,8 @@
  *        Stephan Herrmann - Contribution for
  *							Bug 415911 - [1.8][compiler] NPE when TYPE_USE annotated method with missing return type
  *							Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
+ *         Jesper S Moller - Contributions for
+ *                          Bug 416885 - [1.8][compiler]IncompatibleClassChange error (edit)
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -3215,7 +3217,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 		String expectedOutput =
 			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #48 @A(\n" + 
+			"      #47 @A(\n" + 
 			"        target type = 0x46 METHOD_REFERENCE\n" + 
 			"        offset = 8\n" + 
 			"      )\n";
@@ -3247,14 +3249,14 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 		String expectedOutput =
 			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #31 @B(\n" + 
-			"        #32 value=(int) 1 (constant type)\n" + 
+			"      #30 @B(\n" + 
+			"        #31 value=(int) 1 (constant type)\n" + 
 			"        target type = 0x46 METHOD_REFERENCE\n" + 
 			"        offset = 0\n" + 
 			"        location = [ARRAY]\n" + 
 			"      )\n" + 
-			"      #31 @B(\n" + 
-			"        #32 value=(int) 2 (constant type)\n" + 
+			"      #30 @B(\n" + 
+			"        #31 value=(int) 2 (constant type)\n" + 
 			"        target type = 0x46 METHOD_REFERENCE\n" + 
 			"        offset = 0\n" + 
 			"      )\n";
@@ -3289,7 +3291,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 		String expectedOutput =
 			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #54 @A(\n" + 
+			"      #53 @A(\n" + 
 			"        target type = 0x4a CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT\n" + 
 			"        offset = 8\n" + 
 			"        type argument index = 0\n" + 
@@ -3324,7 +3326,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"");
 		String expectedOutput =
 			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #48 @A(\n" + 
+			"      #47 @A(\n" + 
 			"        target type = 0x4b METHOD_REFERENCE_TYPE_ARGUMENT\n" + 
 			"        offset = 8\n" + 
 			"        type argument index = 0\n" + 
