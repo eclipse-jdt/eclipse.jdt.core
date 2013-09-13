@@ -159,7 +159,9 @@ public class UnionTypeReference extends TypeReference {
 		}
 		return output;
 	}
-
+	public boolean isUnionType() {
+		return true;
+	}
 	public TypeReference copyDims(int dim, Annotation[][] annotationsOnDimensions) {
 		return this; // arrays are not legal as union types.
 	}

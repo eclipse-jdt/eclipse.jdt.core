@@ -58,10 +58,12 @@ class TypeBinding implements ITypeBinding {
 		Modifier.ABSTRACT | Modifier.STATIC | Modifier.FINAL | Modifier.STRICTFP;
 
 	org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding;
+	private TypeBinding prototype = null;
 	private String key;
 	private BindingResolver resolver;
 	private IVariableBinding[] fields;
 	private IAnnotationBinding[] annotations;
+	private IAnnotationBinding[] typeAnnotations;
 	private IMethodBinding[] methods;
 	private ITypeBinding[] members;
 	private ITypeBinding[] interfaces;
@@ -72,6 +74,8 @@ class TypeBinding implements ITypeBinding {
 	public TypeBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding) {
 		this.binding = binding;
 		this.resolver = resolver;
+		org.eclipse.jdt.internal.compiler.lookup.TypeBinding compilerPrototype = binding.prototype();
+		this.prototype = (TypeBinding) (compilerPrototype == null || compilerPrototype == binding ? null : resolver.getTypeBinding(compilerPrototype));
 	}
 
 	public ITypeBinding createArrayType(int dimension) {
@@ -84,6 +88,9 @@ class TypeBinding implements ITypeBinding {
 	}
 
 	public IAnnotationBinding[] getAnnotations() {
+		if (this.prototype != null) {
+			return this.prototype.getAnnotations();
+		}
 		if (this.annotations != null) {
 			return this.annotations;
 		}
@@ -94,29 +101,35 @@ class TypeBinding implements ITypeBinding {
 			refType = (org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding) this.binding;
 		}
 		if (refType != null) {
-			org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] internalAnnotations = refType.getAnnotations();
-			int length = internalAnnotations == null ? 0 : internalAnnotations.length;
-			if (length != 0) {
-				IAnnotationBinding[] tempAnnotations = new IAnnotationBinding[length];
-				int convertedAnnotationCount = 0;
-				for (int i = 0; i < length; i++) {
-					org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalAnnotation = internalAnnotations[i];
-					IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(internalAnnotation);
-					if (annotationInstance == null) {
-						continue;
-					}
-					tempAnnotations[convertedAnnotationCount++] = annotationInstance;
-				}
-				if (convertedAnnotationCount != length) {
-					if (convertedAnnotationCount == 0) {
-						return this.annotations = AnnotationBinding.NoAnnotations;
-					}
-					System.arraycopy(tempAnnotations, 0, (tempAnnotations = new IAnnotationBinding[convertedAnnotationCount]), 0, convertedAnnotationCount);
-				}
-				return this.annotations = tempAnnotations;
-			}
+			return this.annotations = resolveAnnotationBindings(refType.getAnnotations(), false);
 		}
 		return this.annotations = AnnotationBinding.NoAnnotations;
+	}
+	private IAnnotationBinding[] resolveAnnotationBindings(org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] internalAnnotations, boolean isTypeUse) {
+		int length = internalAnnotations == null ? 0 : internalAnnotations.length;
+		if (length != 0) {
+			IAnnotationBinding[] tempAnnotations = new IAnnotationBinding[length];
+			int convertedAnnotationCount = 0;
+			for (int i = 0; i < length; i++) {
+				org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalAnnotation = internalAnnotations[i];
+				if (isTypeUse && internalAnnotation == null) {
+					break;
+				}
+				IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(internalAnnotation);
+				if (annotationInstance == null) {
+					continue;
+				}
+				tempAnnotations[convertedAnnotationCount++] = annotationInstance;
+			}
+			if (convertedAnnotationCount != length) {
+				if (convertedAnnotationCount == 0) {
+					return this.annotations = AnnotationBinding.NoAnnotations;
+				}
+				System.arraycopy(tempAnnotations, 0, (tempAnnotations = new IAnnotationBinding[convertedAnnotationCount]), 0, convertedAnnotationCount);
+			}
+			return tempAnnotations;
+		}
+		return AnnotationBinding.NoAnnotations;
 	}
 
 	/*
@@ -219,6 +232,9 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#getDeclaredFields()
 	 */
 	public synchronized IVariableBinding[] getDeclaredFields() {
+		if (this.prototype != null) {
+			return this.prototype.getDeclaredFields();
+		}
 		if (this.fields != null) {
 			return this.fields;
 		}
@@ -262,6 +278,9 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#getDeclaredMethods()
 	 */
 	public synchronized IMethodBinding[] getDeclaredMethods() {
+		if (this.prototype != null) {
+			return this.prototype.getDeclaredMethods();
+		}
 		if (this.methods != null) {
 			return this.methods;
 		}
@@ -314,6 +333,9 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#getDeclaredTypes()
 	 */
 	public synchronized ITypeBinding[] getDeclaredTypes() {
+		if (this.prototype != null) {
+			return this.prototype.getDeclaredTypes();
+		}
 		if (this.members != null) {
 			return this.members;
 		}
@@ -459,6 +481,9 @@ class TypeBinding implements ITypeBinding {
 	}
 
 	public synchronized ITypeBinding[] getInterfaces() {
+		if (this.prototype != null) {
+			return this.prototype.getInterfaces();
+		}
 		if (this.interfaces != null) {
 			return this.interfaces;
 		}
@@ -829,6 +854,9 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getTypeArguments()
 	 */
 	public ITypeBinding[] getTypeArguments() {
+		if (this.prototype != null) {
+			return this.prototype.getTypeArguments();
+		}
 		if (this.typeArguments != null) {
 			return this.typeArguments;
 		}
@@ -853,6 +881,9 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getTypeBounds()
 	 */
 	public ITypeBinding[] getTypeBounds() {
+		if (this.prototype != null) {
+			return this.prototype.getTypeBounds();
+		}
 		if (this.bounds != null) {
 			return this.bounds;
 		}
@@ -905,6 +936,9 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getTypeParameters()
 	 */
 	public ITypeBinding[] getTypeParameters() {
+		if (this.prototype != null) {
+			return this.prototype.getTypeParameters();
+		}
 		if (this.typeParameters != null) {
 			return this.typeParameters;
 		}
@@ -1071,6 +1105,9 @@ class TypeBinding implements ITypeBinding {
 			return false;
 		}
 		org.eclipse.jdt.internal.compiler.lookup.TypeBinding otherBinding = ((TypeBinding) other).binding;
+		if (otherBinding.unannotated() == this.binding.unannotated()) {
+			return true;
+		}
 		// check return type
 		return BindingComparator.isEqual(this.binding, otherBinding);
 	}
@@ -1283,5 +1320,16 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public String toString() {
 		return this.binding.toString();
+	}
+
+	/*
+	 * @see ITypeBinding#getTypeUseAnnotations()
+	 */
+	public IAnnotationBinding[] getTypeAnnotations() {
+		if (this.typeAnnotations != null) {
+			return this.typeAnnotations;
+		}
+		this.typeAnnotations = resolveAnnotationBindings(this.binding.getTypeAnnotations(), true);
+		return this.typeAnnotations;
 	}
 }

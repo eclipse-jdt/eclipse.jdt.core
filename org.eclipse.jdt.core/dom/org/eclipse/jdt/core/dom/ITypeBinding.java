@@ -965,4 +965,23 @@ public interface ITypeBinding extends IBinding {
 	 * @see #isUpperbound()
 	 */
 	public boolean isWildcardType();
+
+	/**
+	 * Returns the annotations that this type reference is annotated with. Since JLS8, 
+	 * multiple instances of type bindings may be created if they are annotated with 
+	 * different type use annotations.
+	 * <p>
+	 * For example, the following two type references would produce two distinct type 
+	 * bindings for java.lang.String.
+	 * <ul>
+	 * <li>java.lang.@Marker1 String</li>
+	 * <li>java.lang.@Marker2 String</li>
+	 * </ul>
+	 * </p>
+	 * @return type annotations specified on this type reference, or an empty array if
+	 * no type use annotations are found.
+	 * @since 3.9 BETA_JAVA8
+	 */
+	public IAnnotationBinding[] getTypeAnnotations();
+	
 }

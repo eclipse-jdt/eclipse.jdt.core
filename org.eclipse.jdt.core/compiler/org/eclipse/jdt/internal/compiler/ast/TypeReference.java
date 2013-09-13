@@ -482,6 +482,9 @@ public boolean isTypeReference() {
 public boolean isWildcard() {
 	return false;
 }
+public boolean isUnionType() {
+	return false;
+}
 public boolean isParameterizedTypeReference() {
 	return false;
 }

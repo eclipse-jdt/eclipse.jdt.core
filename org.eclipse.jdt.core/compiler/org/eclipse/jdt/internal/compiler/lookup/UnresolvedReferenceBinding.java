@@ -79,6 +79,11 @@ public boolean hasTypeBit(int bit) {
 	// shouldn't happen since we are not called before analyseCode(), but play safe:
 	return false;
 }
+
+public TypeBinding prototype() {
+	return this.prototype;
+}
+
 ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericToRawType) {
 	if (this != this.prototype) {
 		this.prototype.resolve(environment, convertGenericToRawType);

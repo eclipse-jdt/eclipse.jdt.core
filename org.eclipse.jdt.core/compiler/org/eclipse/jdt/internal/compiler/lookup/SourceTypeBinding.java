@@ -1562,6 +1562,11 @@ public MethodBinding[] methods() {
 	}
 	return this.methods;
 }
+
+public TypeBinding prototype() {
+	return this.prototype;
+}
+
 public FieldBinding resolveTypeFor(FieldBinding field) {
 	
 	if (this != this.prototype)

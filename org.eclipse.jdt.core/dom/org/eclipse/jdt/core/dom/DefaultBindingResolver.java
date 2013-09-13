@@ -27,10 +27,10 @@ import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
-import org.eclipse.jdt.internal.compiler.ast.JavadocImplicitTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
+import org.eclipse.jdt.internal.compiler.ast.JavadocImplicitTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
 import org.eclipse.jdt.internal.compiler.ast.JavadocQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocSingleNameReference;
@@ -1603,7 +1603,8 @@ class DefaultBindingResolver extends BindingResolver {
 					}
 					ArrayType arrayType = (ArrayType) type;
 					ArrayBinding arrayBinding = (ArrayBinding) typeBinding;
-					return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, arrayType.getDimensions()));
+					int dimensions = arrayType.getDimensions();
+					return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, dimensions, getTypeAnnotations(dimensions, arrayBinding)));
 				}
 				if (typeBinding.isArrayType()) {
 					// 'typeBinding' can still be an array type because 'node' may be "larger" than 'type' (see comment of newAstToOldAst).
@@ -1652,7 +1653,8 @@ class DefaultBindingResolver extends BindingResolver {
 						return null;
 					}
 					ArrayBinding arrayBinding = (ArrayBinding) binding;
-					return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, arrayType.getDimensions()));
+					int dimensions = arrayType.getDimensions();
+					return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, dimensions, getTypeAnnotations(dimensions, arrayBinding)));
 				} else if (binding.isArrayType()) {
 					// 'binding' can still be an array type because 'node' may be "larger" than 'type' (see comment of newAstToOldAst).
 					ArrayBinding arrayBinding = (ArrayBinding) binding;
@@ -1669,6 +1671,22 @@ class DefaultBindingResolver extends BindingResolver {
 			}
 		}
 		return null;
+	}
+
+	private org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] getTypeAnnotations(int dimensions, ArrayBinding binding) {
+		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding [] oldies = binding.getTypeAnnotations();
+		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] newbies = Binding.NO_ANNOTATIONS;
+		for (int i = 0, length = oldies == null ? 0 : oldies.length; i < length; i++) {
+			if (oldies[i] == null) {
+				dimensions--;
+				if (dimensions == 0) {
+					System.arraycopy(oldies, 0, newbies = 
+							new org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[i+1], 0, i+1);
+					break;
+				}
+			}
+		}
+		return newbies;
 	}
 
 	/*

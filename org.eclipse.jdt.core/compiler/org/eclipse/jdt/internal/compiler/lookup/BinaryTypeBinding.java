@@ -1278,6 +1278,11 @@ public MethodBinding[] methods() {
 	this.tagBits |= TagBits.AreMethodsComplete;
 	return this.methods;
 }
+
+public TypeBinding prototype() {
+	return this.prototype;
+}
+
 private FieldBinding resolveTypeFor(FieldBinding field) {
 	
 	if (this != this.prototype)

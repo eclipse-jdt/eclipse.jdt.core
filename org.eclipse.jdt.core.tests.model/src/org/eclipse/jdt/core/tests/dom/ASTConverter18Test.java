@@ -2872,5 +2872,126 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertTrue(singleVariableDeclaration.varargsAnnotations().size() == 1);
 
 	}
+	// 	https://bugs.eclipse.org/bugs/show_bug.cgi?id=409586
+	public void testBug409586() throws JavaModelException {
+		String contents = 
+				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface Marker {\n" +
+				" 	String value() default \"\";\n" +
+				"}\n" +
+				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface Marker2 {\n" +
+				" 	String value() default \"22\";\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public @Marker(\"1\") String foo(int @Marker @Marker2 [] args) {\n" +
+				"      return null;\n" +
+				"	}\n" +
+				"	public @Marker(\"3\") String bar() {\n" +
+				"      return null;\n" +
+				"	}\n" +
+				"   public String @Marker(\"i0\") @Marker2 [] [] @Marker(\"i1\") [] str = null;\n" +
+				"   public @Marker String str2 = null;\n" +
+				"   public @Marker String str3 = null;\n" +
+				"   public String str4 = null;\n" +
+				"}";
 
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 2, 0);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		IMethodBinding mBinding = methodDeclaration.resolveBinding();
+		assertNotNull("Should not be null", mBinding);
+		ITypeBinding tBinding1 = mBinding.getReturnType();
+		assertNotNull("Should not be null", tBinding1);
+		
+		List params = methodDeclaration.parameters();
+		assertEquals("Incorrect params", 1, params.size());
+		SingleVariableDeclaration param = (SingleVariableDeclaration) params.get(0);
+		ArrayType type = (ArrayType) param.getType();
+		ITypeBinding tBinding = type.resolveBinding();
+		assertNotNull("Should not be null", tBinding);
+		IAnnotationBinding[] annots = tBinding.getTypeAnnotations();
+		assertEquals("Incorrect type annotations", 2, annots.length);
+		assertEquals("Incorrect annotation", "@Marker()", annots[0].toString());
+		assertEquals("Incorrect annotation", "@Marker2()", annots[1].toString());
+		
+		node = getASTNode(compilationUnit, 2, 1);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		methodDeclaration = (MethodDeclaration) node;
+		mBinding = methodDeclaration.resolveBinding();
+		assertNotNull("Should not be null", mBinding);
+		ITypeBinding tBinding2 = mBinding.getReturnType();
+		assertNotNull("Should not be null", tBinding1);
+		assertNotSame("Type bindings should not be same", tBinding1, tBinding2);
+		annots = tBinding1.getTypeAnnotations();
+		assertEquals("Incorrect type annotations", 1, annots.length);
+		IAnnotationBinding annot = annots[0];
+		assertEquals("Incorrect annotation", "@Marker(value = 1)", annot.toString());
+		annots = tBinding2.getTypeAnnotations();
+		assertEquals("Incorrect type annotations", 1, annots.length);
+		annot = annots[0];
+		assertEquals("Incorrect annotation", "@Marker(value = 3)", annot.toString());
+
+		node = getASTNode(compilationUnit, 2, 2);
+		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
+		FieldDeclaration field = (FieldDeclaration) node;
+		List fragments = field.fragments();
+		assertEquals("Incorrect no of fragments", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		IVariableBinding variable = fragment.resolveBinding();
+		assertNotNull("Should not be null", variable);
+		ITypeBinding tBinding3 = variable.getType();
+		assertNotNull("Should not be null", tBinding3);
+		annots = tBinding3.getTypeAnnotations();
+
+		assertEquals("Incorrect type annotations", 2, annots.length);
+		assertEquals("Incorrect annotation", "@Marker(value = i0)", annots[0].toString());
+		assertEquals("Incorrect annotation", "@Marker2()", annots[1].toString());
+		tBinding3 = tBinding3.getComponentType();
+		annots = tBinding3.getTypeAnnotations();
+		assertEquals("Incorrect type annotations", 0, annots.length);
+		tBinding3 = tBinding3.getComponentType();
+		annots = tBinding3.getTypeAnnotations();
+		assertEquals("Incorrect type annotations", 1, annots.length);
+		assertEquals("Incorrect annotation", "@Marker(value = i1)", annots[0].toString());
+		
+		node = getASTNode(compilationUnit, 2, 3);
+		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
+		field = (FieldDeclaration) node;
+		fragments = field.fragments();
+		assertEquals("Incorrect no of fragments", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		variable = fragment.resolveBinding();
+		assertNotNull("Should not be null", variable);
+		tBinding1 = variable.getType();
+		
+		node = getASTNode(compilationUnit, 2, 4);
+		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
+		field = (FieldDeclaration) node;
+		fragments = field.fragments();
+		assertEquals("Incorrect no of fragments", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		variable = fragment.resolveBinding();
+		assertNotNull("Should not be null", variable);
+		tBinding2 = variable.getType();
+		assertSame("Type bindings should be same", tBinding1, tBinding2);
+		assertTrue("Unannotated bindings should be same", tBinding1.isEqualTo(tBinding2));
+		
+		node = getASTNode(compilationUnit, 2, 5);
+		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
+		field = (FieldDeclaration) node;
+		fragments = field.fragments();
+		assertEquals("Incorrect no of fragments", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		variable = fragment.resolveBinding();
+		assertNotNull("Should not be null", variable);
+		tBinding2 = variable.getType();
+		assertNotSame("Type bindings should not be same", tBinding1, tBinding2);
+		assertTrue("Unannotated bindings should be same", tBinding1.isEqualTo(tBinding2));
+	}
 }

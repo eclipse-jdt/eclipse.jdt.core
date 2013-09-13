@@ -880,15 +880,24 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	private static TypeBinding mergeAnnotationsIntoType(BlockScope scope, AnnotationBinding[] se8Annotations, long se8nullBits, Annotation se8NullAnnotation,
 			TypeReference typeRef, TypeBinding existingType) 
 	{
+		if (existingType == null || !existingType.isValidBinding()) return existingType;
+		TypeReference unionRef = typeRef.isUnionType() ? ((UnionTypeReference) typeRef).typeReferences[0] : null;
+		
 		long prevNullBits = existingType.tagBits & TagBits.AnnotationNullMASK;
 		if (se8nullBits != 0 && prevNullBits != se8nullBits && ((prevNullBits | se8nullBits) == TagBits.AnnotationNullMASK)) {
 			scope.problemReporter().contradictoryNullAnnotations(se8NullAnnotation);
 		}
-		TypeBinding oldLeafType = existingType.leafComponentType();
+		TypeBinding oldLeafType = (unionRef == null) ? existingType.leafComponentType() : unionRef.resolvedType;
 		AnnotationBinding [][] goodies = new AnnotationBinding[typeRef.getAnnotatableLevels()][];
 		goodies[0] = se8Annotations;  // @T X.Y.Z local; ==> @T should annotate X
 		TypeBinding newLeafType = scope.environment().createAnnotatedType(oldLeafType, goodies);
-		return typeRef.resolvedType = existingType.isArrayType() ? scope.environment().createArrayType(newLeafType, existingType.dimensions(), existingType.getTypeAnnotations()) : newLeafType;
+
+		if (unionRef == null) {
+			typeRef.resolvedType = existingType.isArrayType() ? scope.environment().createArrayType(newLeafType, existingType.dimensions(), existingType.getTypeAnnotations()) : newLeafType;
+		} else {
+			unionRef.resolvedType = newLeafType;
+		}
+		return typeRef.resolvedType;
 	}
 
 /**

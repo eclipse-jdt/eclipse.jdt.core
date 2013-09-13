@@ -1430,5 +1430,12 @@ public static boolean notEquals(TypeBinding that, TypeBinding other) {
 		return false;
 	return true;
 }
+/** Return the primordial type from which the receiver was cloned. Not all types track a prototype, only {@link SourceTypeBinding},
+ * {@link BinaryTypeBinding} and {@link UnresolvedReferenceBinding} do so as of now. In fact some types e.g {@link ParameterizedTypeBinding}
+ * should not do so. Deflecting a query to a prototype would lead to wrong results in the case of {@link ParameterizedTypeBinding}
+ */
+public TypeBinding prototype() {
+	return null;
+}
 
 }

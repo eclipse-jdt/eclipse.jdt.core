@@ -860,8 +860,12 @@ public abstract class Scope {
 	}
 
 	public ArrayBinding createArrayType(TypeBinding type, int dimension) {
+		return createArrayType(type, dimension, Binding.NO_ANNOTATIONS);
+	}
+
+	public ArrayBinding createArrayType(TypeBinding type, int dimension, AnnotationBinding[] annotations) {
 		if (type.isValidBinding())
-			return environment().createArrayType(type, dimension);
+			return environment().createArrayType(type, dimension, annotations);
 		// do not cache obvious invalid types
 		return new ArrayBinding(type, dimension, environment());
 	}
