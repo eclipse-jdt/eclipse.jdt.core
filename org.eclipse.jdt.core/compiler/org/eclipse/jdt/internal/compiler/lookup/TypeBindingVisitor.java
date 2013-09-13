@@ -15,7 +15,6 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
-import org.eclipse.jdt.internal.compiler.ast.Annotation.TypeUseBinding;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 
@@ -48,10 +47,6 @@ public class TypeBindingVisitor {
 	}
 	
 	public boolean visit(IntersectionCastTypeBinding intersectionCastTypeBinding) {
-		return true;  // continue traversal.
-	}
-	
-	public boolean visit(TypeUseBinding typeUseBinding) {
 		return true;  // continue traversal.
 	}
 	
@@ -137,10 +132,6 @@ public class TypeBindingVisitor {
 				IntersectionCastTypeBinding intersectionCastTypeBinding = (IntersectionCastTypeBinding) type;
 				if (visitor.visit(intersectionCastTypeBinding))
 					visit(visitor, intersectionCastTypeBinding.intersectingTypes);
-				break;
-				
-			case Binding.TYPE_USE:
-				visitor.visit((TypeUseBinding) type);
 				break;
 				
 			default:

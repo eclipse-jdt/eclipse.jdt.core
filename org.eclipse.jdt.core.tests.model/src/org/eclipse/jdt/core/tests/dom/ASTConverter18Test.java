@@ -1390,7 +1390,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 				+ "@interface Marker1 {}\n"
 				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
 				+ "@interface Marker2 {}\n"
-				+ "@Target (java.lang.annotation.ElementType.TYPE_PARAMETER)\n"
+				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
 				+ "@interface Marker3 {}\n";
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
 		

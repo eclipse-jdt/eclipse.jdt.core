@@ -1556,4 +1556,20 @@ public class Util implements SuffixConstants {
 				return scanTypeSignature(string, start);
 		}
 	}
+
+	public static boolean effectivelyEqual(Object [] one, Object [] two) {
+		if (one == two)
+			return true;
+		int oneLength = one == null ? 0 : one.length;
+		int twoLength = two == null ? 0 : two.length;
+		if (oneLength != twoLength)
+			return false;
+		if (oneLength == 0)
+			return true;
+		for (int i = 0; i < one.length; i++) {
+			if (one[i] != two[i])
+				return false;
+		}
+		return true;
+	}
 }

@@ -305,7 +305,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						typeIsConsistent = false;
 					}
 				}
-				ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(currentOriginal, argTypes, currentType.tagBits & TagBits.AnnotationNullMASK, qualifyingType);
+				ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(currentOriginal, argTypes, qualifyingType);
 				// check argument type compatibility for non <> cases - <> case needs no bounds check, we will scream foul if needed during inference.
 				if (!isDiamond) {
 					if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution

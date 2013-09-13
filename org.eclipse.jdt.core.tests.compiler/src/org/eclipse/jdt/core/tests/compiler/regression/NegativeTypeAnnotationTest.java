@@ -23,6 +23,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 
 	static { 
 //		TESTS_NUMBERS = new int [] { 35 };
+//		TESTS_NAMES = new String [] { "test0390882b" };
 	}
 	public static Class testClass() {
 		return NegativeTypeAnnotationTest.class;
@@ -2719,7 +2720,12 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"    TYPE_USE\n" +
 				"}\n"},
 				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	X<@Marker ?> l;\n" + 
+				"	  ^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
 				"	X<@Marker3 ?> l3;\n" + 
 				"	  ^^^^^^^^\n" + 
 				"Annotation types that do not specify explicit target element types cannot be applied here\n" + 

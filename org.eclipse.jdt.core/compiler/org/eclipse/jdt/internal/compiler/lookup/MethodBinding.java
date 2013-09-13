@@ -99,7 +99,7 @@ public final boolean areParameterErasuresEqual(MethodBinding method) {
 		return false;
 
 	for (int i = 0; i < length; i++)
-		if (this.parameters[i] != args[i] && this.parameters[i].erasure() != args[i].erasure())
+		if (TypeBinding.notEquals(this.parameters[i], args[i]) && TypeBinding.notEquals(this.parameters[i].erasure(), args[i].erasure()))
 			return false;
 	return true;
 }
@@ -146,7 +146,7 @@ public final boolean areParametersEqual(MethodBinding method) {
 		return false;
 
 	for (int i = 0; i < length; i++)
-		if (this.parameters[i].unannotated() != args[i].unannotated())
+		if (TypeBinding.notEquals(this.parameters[i], args[i]))
 			return false;
 	return true;
 }
@@ -518,7 +518,8 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 		if (existing == 0L) {
 			added = true;
 			if (!parameter.isBaseType()) {
-				this.parameters[i] = env.createAnnotatedType(parameter, TagBits.AnnotationNonNull);
+				// TODO(Stephan): Synthesize AnnotationBinding[] and call LE#createAnnotatedType(TB, AB[]);
+				// this.parameters[i] = env.createAnnotatedType(parameter, TagBits.AnnotationNonNull);
 				if (sourceMethod != null)
 					sourceMethod.arguments[i].binding.type = this.parameters[i];
 			}
@@ -532,7 +533,8 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 		&& !this.returnType.isBaseType()
 		&& (this.returnType.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) == 0)
 	{
-		this.returnType = env.createAnnotatedType(this.returnType, TagBits.AnnotationNonNull);
+		// TODO(Stephan: Synthesize AnnotationBinding[] and call LE#createAnnotatedType(TB, AB[]);
+		// this.returnType = env.createAnnotatedType(this.returnType, TagBits.AnnotationNonNull);
 	} else if (sourceMethod != null && (this.returnType.tagBits & TagBits.AnnotationNonNull) != 0) {
 		sourceMethod.scope.problemReporter().nullAnnotationIsRedundant(sourceMethod, -1/*signifies method return*/);
 	}

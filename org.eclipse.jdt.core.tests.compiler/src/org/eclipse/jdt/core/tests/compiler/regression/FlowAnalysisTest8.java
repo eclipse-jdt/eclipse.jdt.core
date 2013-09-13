@@ -153,7 +153,7 @@ public void testLambda_03() {
 		"----------\n");
 }
 
-// Lambda with declared args has illegal @NonNull an primitive argument
+// Lambda with declared args has illegal @NonNull an primitive argument, we now emit an additional not-invalid message.
 public void testLambda_04() {
 	Map customOptions = getCompilerOptions();
 	runNegativeTestWithLibs(
@@ -177,6 +177,11 @@ public void testLambda_04() {
 		"	ISAM printer1 = (@NonNull int i) \n" + 
 		"	                 ^^^^^^^^\n" + 
 		"The nullness annotation @NonNull is not applicable for the primitive type int\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	ISAM printer1 = (@NonNull int i) \n" + 
+		"	                 ^^^^^^^^^^^^\n" + 
+		"Illegal redefinition of parameter i, inherited method from ISAM does not constrain this parameter\n" + 
 		"----------\n");
 }
 

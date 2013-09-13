@@ -76,8 +76,9 @@ public class ParameterizedMethodBinding extends MethodBinding {
 				}
 				public TypeBinding substitute(TypeVariableBinding typeVariable) {
 					// check this variable can be substituted given copied variables
-					if (typeVariable.rank < length && originalVariables[typeVariable.rank] == typeVariable) {
-						return substitutedVariables[typeVariable.rank];
+					if (typeVariable.rank < length && TypeBinding.equalsEquals(originalVariables[typeVariable.rank], typeVariable)) {
+						TypeBinding substitute = substitutedVariables[typeVariable.rank];
+						return typeVariable.hasTypeAnnotations() ? environment().createAnnotatedType(substitute, typeVariable.getTypeAnnotations()) : substitute;
 					}
 					if (!isStatic)
 						return parameterizedDeclaringClass.substitute(typeVariable);
@@ -212,8 +213,9 @@ public class ParameterizedMethodBinding extends MethodBinding {
 				}
 				public TypeBinding substitute(TypeVariableBinding typeVariable) {
 			        // check this variable can be substituted given copied variables
-			        if (typeVariable.rank < length && originalVariables[typeVariable.rank] == typeVariable) {
-						return substitutedVariables[typeVariable.rank];
+			        if (typeVariable.rank < length && TypeBinding.equalsEquals(originalVariables[typeVariable.rank], typeVariable)) {
+			        	TypeBinding substitute = substitutedVariables[typeVariable.rank];
+						return typeVariable.hasTypeAnnotations() ? environment().createAnnotatedType(substitute, typeVariable.getTypeAnnotations()) : substitute;
 			        }
 			        return typeVariable;
 				}

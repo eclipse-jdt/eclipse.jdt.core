@@ -584,7 +584,7 @@ public abstract class AbstractMethodDeclaration
 			this.receiver.qualifyingName = null;
 		}
 
-		if (enclosingReceiver != resolvedReceiverType.unannotated()) {
+		if (TypeBinding.notEquals(enclosingReceiver, resolvedReceiverType)) {
 			this.scope.problemReporter().illegalTypeForExplicitThis(this.receiver, enclosingReceiver);
 			this.receiver = null;
 		}

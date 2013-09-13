@@ -525,7 +525,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		}
 		// With T mapping to I<T>, answer of I<?>, when given T, having eliminated the circularity/self reference.
 		public TypeBinding substitute(TypeVariableBinding typeVariable) {
-			if (typeVariable.rank >= this.variables.length || this.variables[typeVariable.rank] != typeVariable) {   // not kosher, don't touch.
+			if (typeVariable.rank >= this.variables.length || TypeBinding.notEquals(this.variables[typeVariable.rank], typeVariable)) {   // not kosher, don't touch.
 				return typeVariable;
 			}
 			if (this.substitutes != null) {
@@ -558,8 +558,9 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
         TypeVariableBinding[] variables = this.originalMethod.typeVariables;
         int length = variables.length;
         // check this variable can be substituted given parameterized type
-        if (originalVariable.rank < length && variables[originalVariable.rank] == originalVariable) {
-			return this.typeArguments[originalVariable.rank];
+        if (originalVariable.rank < length && TypeBinding.equalsEquals(variables[originalVariable.rank], originalVariable)) {
+        	TypeBinding substitute = this.typeArguments[originalVariable.rank];
+        	return originalVariable.hasTypeAnnotations() ? this.environment.createAnnotatedType(substitute, originalVariable.getTypeAnnotations()) : substitute;
         }
 	    return originalVariable;
 	}

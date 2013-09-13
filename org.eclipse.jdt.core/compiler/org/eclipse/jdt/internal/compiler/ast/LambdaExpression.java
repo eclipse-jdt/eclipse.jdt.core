@@ -209,7 +209,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				if ((parameterType.tagBits & TagBits.HasMissingType) != 0) {
 					this.binding.tagBits |= TagBits.HasMissingType;
 				}
-				if (haveDescriptor && expectedParameterType != null && parameterType.isValidBinding() && parameterType.unannotated() != expectedParameterType.unannotated()) {
+				if (haveDescriptor && expectedParameterType != null && parameterType.isValidBinding() && TypeBinding.notEquals(parameterType, expectedParameterType)) {
 					this.scope.problemReporter().lambdaParameterTypeMismatched(argument, argument.type, expectedParameterType);
 				}
 
@@ -368,8 +368,20 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			long ourTagBits = ourParameters[i].tagBits & TagBits.AnnotationNullMASK;
 			long descTagBits = descParameters[i].tagBits & TagBits.AnnotationNullMASK;
 			if (ourTagBits == 0L) {
-				if (descTagBits != 0L && !ourParameters[i].isBaseType())
-					ourParameters[i] = env.createAnnotatedType(ourParameters[i], descTagBits);
+				if (descTagBits != 0L && !ourParameters[i].isBaseType()) {
+					AnnotationBinding [] annotations = descParameters[i].getTypeAnnotations();
+					for (int j = 0, length = annotations.length; j < length; j++) {
+						AnnotationBinding annotation = annotations[j];
+						if (annotation != null) {
+							switch (annotation.getAnnotationType().id) {
+								case TypeIds.T_ConfiguredAnnotationNullable :
+								case TypeIds.T_ConfiguredAnnotationNonNull :
+									ourParameters[i] = env.createAnnotatedType(ourParameters[i], new AnnotationBinding [] { annotation });
+									break;
+							}
+						}
+					}
+				}
 			} else if (ourTagBits != descTagBits) {
 				if (ourTagBits == TagBits.AnnotationNonNull) { // requested @NonNull not provided
 					char[][] inheritedAnnotationName = null;

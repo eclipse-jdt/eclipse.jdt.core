@@ -627,24 +627,31 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		}
 		return polyExpressionsHaveErrors;
 	}
+
+	// Method retained with original signature to satisfy reference from APT.
+	public static void resolveAnnotations(BlockScope scope, Annotation[] sourceAnnotations, Binding recipient) {
+		resolveAnnotations(scope, sourceAnnotations, recipient, false);
+	}
+	
 	/**
 	 * Resolve annotations, and check duplicates, answers combined tagBits
-	 * for recognized standard annotations
+	 * for recognized standard annotations. Return null if nothing new is
+	 * resolved.
 	 */
-	public static void resolveAnnotations(BlockScope scope, Annotation[] sourceAnnotations, Binding recipient) {
+	public static AnnotationBinding [] resolveAnnotations(BlockScope scope, Annotation[] sourceAnnotations, Binding recipient, boolean copySE8AnnotationsToType) {
 		AnnotationBinding[] annotations = null;
 		int length = sourceAnnotations == null ? 0 : sourceAnnotations.length;
 		if (recipient != null) {
 			switch (recipient.kind()) {
 				case Binding.PACKAGE :
 					PackageBinding packageBinding = (PackageBinding) recipient;
-					if ((packageBinding.tagBits & TagBits.AnnotationResolved) != 0) return;
+					if ((packageBinding.tagBits & TagBits.AnnotationResolved) != 0) return annotations;
 					packageBinding.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 					break;
 				case Binding.TYPE :
 				case Binding.GENERIC_TYPE :
 					ReferenceBinding type = (ReferenceBinding) recipient;
-					if ((type.tagBits & TagBits.AnnotationResolved) != 0) return;
+					if ((type.tagBits & TagBits.AnnotationResolved) != 0) return annotations;
 					type.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 					if (length > 0) {
 						annotations = new AnnotationBinding[length];
@@ -653,7 +660,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					break;
 				case Binding.METHOD :
 					MethodBinding method = (MethodBinding) recipient;
-					if ((method.tagBits & TagBits.AnnotationResolved) != 0) return;
+					if ((method.tagBits & TagBits.AnnotationResolved) != 0) return annotations;
 					method.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 					if (length > 0) {
 						annotations = new AnnotationBinding[length];
@@ -662,7 +669,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					break;
 				case Binding.FIELD :
 					FieldBinding field = (FieldBinding) recipient;
-					if ((field.tagBits & TagBits.AnnotationResolved) != 0) return;
+					if ((field.tagBits & TagBits.AnnotationResolved) != 0) return annotations;
 					field.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 					if (length > 0) {
 						annotations = new AnnotationBinding[length];
@@ -671,7 +678,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					break;
 				case Binding.LOCAL :
 					LocalVariableBinding local = (LocalVariableBinding) recipient;
-					if ((local.tagBits & TagBits.AnnotationResolved) != 0) return;
+					if ((local.tagBits & TagBits.AnnotationResolved) != 0) return annotations;
 					local.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 					if (length > 0) {
 						annotations = new AnnotationBinding[length];
@@ -679,30 +686,16 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					}
 					break;
 				case Binding.TYPE_PARAMETER :
-					// jsr308
-					ReferenceBinding typeVariableBinding = (ReferenceBinding) recipient;
-					if ((typeVariableBinding.tagBits & TagBits.AnnotationResolved) != 0) return;
-					typeVariableBinding.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
-					if (length > 0) {
-						annotations = new AnnotationBinding[length];
-						typeVariableBinding.setAnnotations(annotations);
-					}
-					break;
 				case Binding.TYPE_USE :
-					ReferenceBinding typeUseBinding = (ReferenceBinding) recipient;
-					if ((typeUseBinding.tagBits & TagBits.AnnotationResolved) != 0) return;
-					typeUseBinding.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
-					if (length > 0) {
-						annotations = new AnnotationBinding[length];
-						typeUseBinding.setAnnotations(annotations);
-					}
+					// deliberately don't set the annotation resolved tagbits, it is not material and also we are working with a dummy static object.
+					annotations = new AnnotationBinding[length];
 					break;
 				default :
-					return;
+					return annotations;
 			}
 		}
 		if (sourceAnnotations == null)
-			return;
+			return annotations;
 		for (int i = 0; i < length; i++) {
 			Annotation annotation = sourceAnnotations[i];
 			final Binding annotationRecipient = annotation.recipient;
@@ -756,7 +749,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						}
 						break;
 				}
-				return;
+				return annotations;
 			} else {
 				annotation.recipient = recipient;
 				annotation.resolveType(scope);
@@ -766,8 +759,12 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				}
 			}
 		}
+
+		if (copySE8AnnotationsToType)
+			copySE8AnnotationsToType(scope, recipient, annotations);
+		
 		// check duplicate annotations
-		if (annotations != null) {
+		if (annotations != null && length > 1) {
 			AnnotationBinding[] distinctAnnotations = annotations; // only copy after 1st duplicate is detected
 			for (int i = 0; i < length; i++) {
 				AnnotationBinding annotation = distinctAnnotations[i];
@@ -788,6 +785,95 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				}
 				if (foundDuplicate) {
 					scope.problemReporter().duplicateAnnotation(sourceAnnotations[i]);
+				}
+			}
+		}
+		return annotations;
+	}
+	
+	/**	Resolve JSR308 annotations on a type reference, array creation expression or a wildcard. Type parameters go directly to the subroutine,
+	    By construction the bindings associated with QTR, PQTR etc get resolved first and then annotations for different levels get resolved
+	    and applied at one go. Likewise for multidimensional arrays.
+	    
+	    @Returns the annotated type binding. 
+	*/
+	public static TypeBinding resolveAnnotations(BlockScope scope, Annotation[][] sourceAnnotations, TypeBinding type) {
+		int levels = sourceAnnotations == null ? 0 : sourceAnnotations.length;
+		if (type == null || levels == 0)
+			return type;
+		AnnotationBinding [][] annotationBindings = new AnnotationBinding [levels][];
+
+		for (int i = 0; i < levels; i++) {
+			Annotation[] annotations = sourceAnnotations[i];
+			if (annotations != null && annotations.length > 0) {
+				annotationBindings[i] = resolveAnnotations(scope, annotations, TypeBinding.TYPE_USE_BINDING, false);
+			}
+		}
+		return scope.environment().createAnnotatedType(type, annotationBindings);
+	}
+
+	/** When SE8 annotations feature in SE7 locations, they get attributed to the declared entity. Copy these to the type of the declared entity (field, local, argument etc.)
+	    We leave in the annotation in the declared entity's binding as of now, i.e we do a copy not a transfer.
+	*/
+	public static void copySE8AnnotationsToType(BlockScope scope, Binding recipient, AnnotationBinding[] annotations) {
+		if (annotations != null && recipient.kind() != Binding.TYPE_USE) {
+			AnnotationBinding [] se8Annotations = null;
+			int se8count = 0;
+			for (int i = 0, length = annotations.length; i < length; i++) {
+				final ReferenceBinding annotationType = annotations[i].getAnnotationType();
+				long metaTagBits = annotationType.getAnnotationTagBits();
+				if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
+					if (se8Annotations == null) {
+						se8Annotations = new AnnotationBinding[] { annotations[i] };
+						se8count = 1;
+					} else {
+						System.arraycopy(se8Annotations, 0, se8Annotations = new AnnotationBinding[se8count + 1], 0, se8count);
+						se8Annotations[se8count++] = annotations[i];
+					}
+				}
+			}
+			if (se8Annotations != null) {
+				switch (recipient.kind()) {
+					case Binding.LOCAL:
+						LocalVariableBinding local = (LocalVariableBinding) recipient;
+						if (Annotation.isTypeUseCompatible(local.declaration.type, scope)) { // discard hybrid annotations on package qualified types.
+							local.declaration.bits |= HasTypeAnnotations;
+							final TypeBinding localType = local.type;
+							TypeBinding oldLeafType = localType.leafComponentType();
+							AnnotationBinding [][] goodies = new AnnotationBinding[local.declaration.type.getAnnotatableLevels()][];
+							goodies[0] = se8Annotations;  // @T X.Y.Z local; ==> @T should annotate X
+							TypeBinding newLeafType = scope.environment().createAnnotatedType(oldLeafType, goodies);
+							local.type = localType.isArrayType() ? scope.environment().createArrayType(newLeafType, localType.dimensions(), localType.getTypeAnnotations()) : newLeafType;
+						}
+						break;
+					case Binding.FIELD:
+						FieldBinding field = (FieldBinding) recipient;
+						SourceTypeBinding sourceType = (SourceTypeBinding) field.declaringClass;
+						FieldDeclaration fieldDeclaration = sourceType.scope.referenceContext.declarationOf(field);
+						if (Annotation.isTypeUseCompatible(fieldDeclaration.type, scope)) { // discard hybrid annotations on package qualified types.
+							TypeBinding fieldType = field.type;
+							TypeBinding oldLeafType = fieldType.leafComponentType();
+							AnnotationBinding [][] goodies = new AnnotationBinding[fieldDeclaration.type.getAnnotatableLevels()][];
+							goodies[0] = se8Annotations; // @T X.Y.Z field; ==> @T should annotate X
+							TypeBinding newLeafType = scope.environment().createAnnotatedType(oldLeafType, goodies);
+							field.type = fieldType.isArrayType() ? scope.environment().createArrayType(newLeafType, fieldType.dimensions(), fieldType.getTypeAnnotations()) : newLeafType;
+						}
+						break;
+					case Binding.METHOD:
+						MethodBinding method = (MethodBinding) recipient;
+						if (!method.isConstructor()) {
+							sourceType = (SourceTypeBinding) method.declaringClass;
+							MethodDeclaration methodDecl = (MethodDeclaration) sourceType.scope.referenceContext.declarationOf(method);
+							if (Annotation.isTypeUseCompatible(methodDecl.returnType, scope)) {
+								final TypeBinding returnType = method.returnType;
+								TypeBinding oldLeafType = returnType.leafComponentType();
+								AnnotationBinding [][] goodies = new AnnotationBinding[methodDecl.returnType.getAnnotatableLevels()][];
+								goodies[0] = se8Annotations;
+								TypeBinding newLeafType = scope.environment().createAnnotatedType(oldLeafType, goodies);
+								method.returnType = returnType.isArrayType() ? scope.environment().createArrayType(newLeafType, returnType.dimensions(), returnType.getTypeAnnotations()) : newLeafType;
+							}
+						}
+						break;
 				}
 			}
 		}

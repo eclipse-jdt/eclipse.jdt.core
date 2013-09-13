@@ -105,7 +105,7 @@ public class NullAnnotationMatching {
 					if (providedDimsTagBits == null) {
 						severity = 1; // required is annotated, provided not, need unchecked conversion
 					} else {
-						for (int i=0; i<dims; i++) {
+						for (int i=0; i<=dims; i++) {
 							long requiredBits = requiredDimsTagBits[i] & TagBits.AnnotationNullMASK;
 							long providedBits = providedDimsTagBits[i] & TagBits.AnnotationNullMASK;
 							if (i > 0)

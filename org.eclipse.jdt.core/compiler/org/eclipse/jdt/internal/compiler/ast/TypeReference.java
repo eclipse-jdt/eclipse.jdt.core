@@ -36,7 +36,6 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -556,78 +555,14 @@ protected void resolveAnnotations(Scope scope) {
 	if (this.annotations != null || annotationsOnDimensions != null) {
 		BlockScope resolutionScope = Scope.typeAnnotationsResolutionScope(scope);
 		if (resolutionScope != null) {
-			long tagBits = 0;
-			long[] tagBitsPerDimension = null;
 			int dimensions = this.dimensions();
-			boolean evalNullAnnotations = scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled;
-			boolean isArrayReference = dimensions > 0;
 			if (this.annotations != null) {
-				int annotationsLevels = this.annotations.length;
-				for (int i = 0; i < annotationsLevels; i++) {
-					Annotation[] currentAnnotations = this.annotations[i];
-					if (currentAnnotations != null) {
-						resolveAnnotations(resolutionScope, currentAnnotations, new Annotation.TypeUseBinding(isWildcard() ? Binding.TYPE_PARAMETER : Binding.TYPE_USE));
-						if (evalNullAnnotations) {
-							int len = currentAnnotations.length;
-							for (int j=0; j<len; j++) {
-								Binding recipient = currentAnnotations[j].recipient;
-								if (recipient instanceof Annotation.TypeUseBinding) {
-									long nullTagBits = ((Annotation.TypeUseBinding)recipient).tagBits & TagBits.AnnotationNullMASK;
-									if (nullTagBits != 0) {
-										if (isArrayReference) {
-											if (tagBitsPerDimension == null)
-												tagBitsPerDimension = new long[dimensions+1]; // each dimension plus leaf component type at last position
-											// @NonNull Foo [][][] means the leaf component type is @NonNull:
-											tagBitsPerDimension[dimensions] = nullTagBits;
-										} else {
-											tagBits |= nullTagBits;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
+				TypeBinding leafComponentType = this.resolvedType.leafComponentType();
+				leafComponentType = resolveAnnotations(resolutionScope, this.annotations, leafComponentType);
+				this.resolvedType = dimensions > 0 ? scope.environment().createArrayType(leafComponentType, dimensions) : leafComponentType;
 			}
-
 			if (annotationsOnDimensions != null) {
-				for (int i = 0, length = annotationsOnDimensions.length; i < length; i++) {
-					Annotation [] dimensionAnnotations = annotationsOnDimensions[i];
-					if (dimensionAnnotations  != null) {
-						resolveAnnotations(resolutionScope, dimensionAnnotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
-						if (evalNullAnnotations && isArrayReference) {
-							int len = dimensionAnnotations.length;
-							for (int j=0; j<len; j++) {
-								Binding recipient = dimensionAnnotations[j].recipient;
-								if (recipient instanceof Annotation.TypeUseBinding) {
-									long nullTagBits = ((Annotation.TypeUseBinding)recipient).tagBits & TagBits.AnnotationNullMASK;
-									if (nullTagBits != 0) {
-										if (tagBitsPerDimension == null)
-											tagBitsPerDimension = new long[dimensions+1];
-										tagBitsPerDimension[i] = nullTagBits;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			if (this.resolvedType != null && this.resolvedType.isValidBinding()) {
-				if (isArrayReference) {
-					if (tagBitsPerDimension != null) {
-						// TODO(stephan): wouldn't it be more efficient to store the array bindings inside the type binding rather than the environment?
-						// cf. LocalTypeBinding.createArrayType()
-						this.resolvedType = scope.environment().createArrayType(this.resolvedType.leafComponentType(), dimensions, tagBitsPerDimension);
-					}
-				} else {
-					if (tagBits != 0) {
-						if (!this.resolvedType.isBaseType()) {
-							this.resolvedType = scope.environment().createAnnotatedType(this.resolvedType, tagBits);
-						} else {
-							// TODO(stephan) report null annotation on non-reference type
-						}
-					}
-				}
+				this.resolvedType = resolveAnnotations(resolutionScope, annotationsOnDimensions, this.resolvedType);		
 			}
 		}
 	}

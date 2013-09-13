@@ -46,9 +46,6 @@ public final class ArrayBinding extends TypeBinding {
 	public long[] nullTagBitsPerDimension;
 
 public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environment) {
-	this(type, dimensions, environment, null);
-}
-public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environment, long[] nullTagBitsPerDimension) {
 	this.tagBits |= TagBits.IsArrayType;
 	this.leafComponentType = type;
 	this.dimensions = dimensions;
@@ -57,10 +54,10 @@ public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environm
 		((UnresolvedReferenceBinding) type).addWrapper(this, environment);
 	else
 		this.tagBits |= type.tagBits & (TagBits.HasTypeVariable | TagBits.HasDirectWildcard | TagBits.HasMissingType | TagBits.ContainsNestedTypeReferences);
-	
-	if (nullTagBitsPerDimension != null) {
-		this.tagBits |= nullTagBitsPerDimension[0]; // outer-most dimension
-		this.nullTagBitsPerDimension = nullTagBitsPerDimension;
+	long mask = type.tagBits & TagBits.AnnotationNullMASK;
+	if (mask != 0) {
+		this.nullTagBitsPerDimension = new long[this.dimensions + 1];
+		this.nullTagBitsPerDimension[this.dimensions] = mask;
 		this.tagBits |= TagBits.HasNullTypeAnnotation;
 	}
 }
@@ -140,11 +137,33 @@ public char[] constantPoolName() {
 	return this.constantPoolName = CharOperation.concat(brackets, this.leafComponentType.signature());
 }
 public String debugName() {
+	if (this.hasTypeAnnotations())
+		return annotatedDebugName();
 	StringBuffer brackets = new StringBuffer(this.dimensions * 2);
 	for (int i = this.dimensions; --i >= 0;)
 		brackets.append("[]"); //$NON-NLS-1$
 	return this.leafComponentType.debugName() + brackets.toString();
 }
+
+public String annotatedDebugName() {
+	StringBuffer brackets = new StringBuffer(this.dimensions * 2);
+	brackets.append(this.leafComponentType.annotatedDebugName());
+	brackets.append(' ');
+	AnnotationBinding [] annotations = getTypeAnnotations();
+	for (int i = 0, j = -1; i < this.dimensions; i++) {
+		if (annotations != null) {
+			if (i != 0)
+				brackets.append(' ');
+			while (++j < annotations.length && annotations[j] != null) {
+				brackets.append(annotations[j]);
+				brackets.append(' ');
+			}
+		}
+		brackets.append("[]"); //$NON-NLS-1$
+	}
+	return brackets.toString();
+}
+
 public int dimensions() {
 	return this.dimensions;
 }
@@ -155,18 +174,22 @@ public int dimensions() {
 */
 
 public TypeBinding elementsType() {
-	long[] nullTagBitsSub = null;
-	if (this.nullTagBitsPerDimension != null) {
-		int len = this.nullTagBitsPerDimension.length-1;
-		System.arraycopy(this.nullTagBitsPerDimension, 1, nullTagBitsSub = new long[len], 0, len);
-	}
-	if (this.dimensions == 1) {
-		if (nullTagBitsSub != null && nullTagBitsSub[0] != 0L)
-			return this.environment.createAnnotatedType(this.leafComponentType, nullTagBitsSub[0]);
+	
+	if (this.dimensions == 1) 
 		return this.leafComponentType;
+	
+	AnnotationBinding [] oldies = getTypeAnnotations();
+	AnnotationBinding [] newbies = Binding.NO_ANNOTATIONS;
+	
+	for (int i = 0, length = oldies == null ? 0 : oldies.length; i < length; i++) {
+		if (oldies[i] == null) {
+			System.arraycopy(oldies, i+1, newbies = new AnnotationBinding[length - i - 1], 0, length - i - 1);
+			break;
+		}
 	}
-	return this.environment.createArrayType(this.leafComponentType, this.dimensions - 1, nullTagBitsSub);
+	return this.environment.createArrayType(this.leafComponentType, this.dimensions - 1, newbies);
 }
+
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#erasure()
  */
@@ -201,14 +224,7 @@ public int hashCode() {
 /* Answer true if the receiver type can be assigned to the argument type (right)
 */
 public boolean isCompatibleWith(TypeBinding otherType, Scope captureScope) {
-	// disregard any type annotations on this and otherType
-	// recursive call needed when this is annotated, unless the annotation was introduced on a declaration
-	otherType = otherType.unannotated();
-	TypeBinding unannotated = unannotated();
-	if (unannotated != this)
-		return unannotated.isCompatibleWith(otherType, captureScope);
-
-	if (this == otherType)
+	if (equalsEquals(this, otherType))
 		return true;
 
 	switch (otherType.kind()) {
@@ -317,6 +333,43 @@ public char[] readableName() /* java.lang.Object[] */ {
 	}
 	return CharOperation.concat(this.leafComponentType.readableName(), brackets);
 }
+
+public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
+	
+	this.typeAnnotations = annotations;
+	this.tagBits |= TagBits.HasTypeAnnotations | TagBits.HasTypeAnnotations;
+	
+	if (evalNullAnnotations) {
+		long nullTagBits = 0;
+		if (this.nullTagBitsPerDimension == null)
+			this.nullTagBitsPerDimension = new long[this.dimensions + 1];
+		
+		int dimension = 0;
+		for (int i = 0, length = annotations.length; i < length; i++) {
+			AnnotationBinding annotation = annotations[i];
+			if (annotation != null) {
+				switch (annotation.type.id) {
+					case TypeIds.T_ConfiguredAnnotationNullable :
+						nullTagBits  |= TagBits.AnnotationNullable;
+						this.tagBits |= TagBits.HasNullTypeAnnotation;
+						break;
+					case TypeIds.T_ConfiguredAnnotationNonNull :
+						nullTagBits  |= TagBits.AnnotationNonNull;
+						this.tagBits |= TagBits.HasNullTypeAnnotation;
+						break;
+				}
+			} else {
+				// null signals end of annotations for the current dimension in the serialized form.
+				if (nullTagBits != 0) {
+					this.nullTagBitsPerDimension[dimension] = nullTagBits;
+					nullTagBits = 0;
+				}
+				dimension++;
+			}
+		}
+		this.tagBits |= this.nullTagBitsPerDimension[0]; // outer-most dimension
+	}
+}
 public char[] shortReadableName(){
 	char[] brackets = new char[this.dimensions * 2];
 	for (int i = this.dimensions * 2 - 1; i >= 0; i -= 2) {
@@ -340,11 +393,10 @@ public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceB
 	}
 }
 public String toString() {
-	return this.leafComponentType != null ? debugName() : "NULL TYPE ARRAY"; //$NON-NLS-1$
+	return this.leafComponentType != null ? this.hasTypeAnnotations() ? annotatedDebugName() : debugName() : "NULL TYPE ARRAY"; //$NON-NLS-1$
 }
 public TypeBinding unannotated() {
-	if (this.nullTagBitsPerDimension == null)
-		return this;
-	return this.environment.createArrayType(this.leafComponentType, this.dimensions);
+	return this.hasTypeAnnotations() ? this.environment.getUnannotatedType(this) : this;
 }
+
 }

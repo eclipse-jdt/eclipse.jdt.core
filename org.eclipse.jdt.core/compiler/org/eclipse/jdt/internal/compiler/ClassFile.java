@@ -4989,11 +4989,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.innerClassesBindings = new HashSet(INNER_CLASSES_SIZE);
 		}
 		ReferenceBinding innerClass = (ReferenceBinding) binding;
-		this.innerClassesBindings.add(innerClass.erasure());
+		this.innerClassesBindings.add(innerClass.erasure().unannotated());  // should not emit yet another inner class for Outer.@Inner Inner.
 		ReferenceBinding enclosingType = innerClass.enclosingType();
 		while (enclosingType != null
 				&& enclosingType.isNestedType()) {
-			this.innerClassesBindings.add(enclosingType.erasure());
+			this.innerClassesBindings.add(enclosingType.erasure().unannotated());
 			enclosingType = enclosingType.enclosingType();
 		}
 	}

@@ -331,23 +331,30 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public char[] constantPoolName() {
 		return this.type.constantPoolName(); // erasure
 	}
+	
+	public TypeBinding clone(TypeBinding outerType, TypeBinding[] typeArguments) {
+		ParameterizedTypeBinding copy = new ParameterizedTypeBinding(this.type, typeArguments, (ReferenceBinding) outerType, this.environment);
+		if (this.hasTypeAnnotations())
+			copy.setTypeAnnotations(this.getTypeAnnotations(), this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
+		return copy;
+	}
 
 	public ParameterizedMethodBinding createParameterizedMethod(MethodBinding originalMethod) {
 		return new ParameterizedMethodBinding(this, originalMethod);
 	}
-
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#debugName()
 	 */
 	public String debugName() {
-	    StringBuffer nameBuffer = new StringBuffer(10);
-	    appendNullAnnotation(nameBuffer, this.environment.globalOptions);
+	    if (this.hasTypeAnnotations())
+	    	return annotatedDebugName();
+		StringBuffer nameBuffer = new StringBuffer(10);	
 	    if (this.type instanceof UnresolvedReferenceBinding) {
 	    	nameBuffer.append(this.type);
 	    } else {
 			nameBuffer.append(this.type.sourceName());
 	    }
-		if (this.arguments != null && this.arguments.length > 0) { // empty arguments array happens when PTB has been created just to capture type annotations
+		if (this.arguments != null && this.arguments.length > 0) {
 			nameBuffer.append('<');
 		    for (int i = 0, length = this.arguments.length; i < length; i++) {
 		        if (i > 0) nameBuffer.append(',');
@@ -356,6 +363,19 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    nameBuffer.append('>');
 		}
 	    return nameBuffer.toString();
+	}
+	
+	public String annotatedDebugName() {
+		StringBuffer nameBuffer = new StringBuffer(super.annotatedDebugName());
+		if (this.arguments != null && this.arguments.length > 0) {
+			nameBuffer.append('<');
+			for (int i = 0, length = this.arguments.length; i < length; i++) {
+				if (i > 0) nameBuffer.append(',');
+				nameBuffer.append(this.arguments[i].annotatedDebugName());
+			}
+			nameBuffer.append('>');
+		}
+		return nameBuffer.toString();
 	}
 
 	/**
@@ -727,14 +747,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	public boolean isEquivalentTo(TypeBinding otherType) {
-		// disregard any type annotations on this and otherType
-		// recursive call needed when this is annotated, unless the annotation was introduced on a declaration
-		otherType = otherType.unannotated();
-		TypeBinding unannotated = unannotated();
-		if (unannotated != this)
-			return unannotated.isEquivalentTo(otherType);
-
-		if (this == otherType)
+		if (equalsEquals(this, otherType))
 		    return true;
 	    if (otherType == null)
 	        return false;
@@ -769,8 +782,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	            for (int i = 0; i < length; i++) {
 	            	if (!this.arguments[i].isTypeArgumentContainedBy(otherArguments[i]))
 	            		return false;
-	            	if ((this.arguments[i].tagBits & TagBits.AnnotationNullMASK) != (otherArguments[i].tagBits & TagBits.AnnotationNullMASK))
-	            		return false;
+	            	// Stephan : is this intentional ?? 
+//	            	if ((this.arguments[i].tagBits & TagBits.AnnotationNullMASK) != (otherArguments[i].tagBits & TagBits.AnnotationNullMASK))
+//	            		return false;
 	            }
 	            return true;
 
@@ -810,19 +824,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	public TypeBinding unannotated() {
-		if (!hasNullTypeAnnotations())
-			return this;
-		if (isAnnotatedTypeWithoutArguments())
-			return this.type;
-		TypeBinding[] unannotatedArguments = null;
-		if (this.arguments != null) {
-			unannotatedArguments = new TypeBinding[this.arguments.length];
-			for (int i = 0; i < unannotatedArguments.length; i++) {
-				unannotatedArguments[i] = this.arguments[i].unannotated();
-			}
-		}
-		return this.environment.createParameterizedType((ReferenceBinding) this.type.unannotated(), unannotatedArguments, 
-				this.enclosingType == null ? null : (ReferenceBinding) this.enclosingType.unannotated());
+		return this.hasTypeAnnotations() ? this.environment.getUnannotatedType(this) : this;
 	}
 
 	public int kind() {
@@ -1098,15 +1100,16 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			TypeVariableBinding[] typeVariables = currentType.type.typeVariables();
 			int length = typeVariables.length;
 			// check this variable can be substituted given parameterized type
-			if (originalVariable.rank < length && typeVariables[originalVariable.rank] == originalVariable) {
+			if (originalVariable.rank < length && TypeBinding.equalsEquals(typeVariables[originalVariable.rank], originalVariable)) {
 			    // lazy init, since cannot do so during binding creation if during supertype connection
 			    if (currentType.arguments == null)
 					currentType.initializeArguments(); // only for raw types
 			    if (currentType.arguments != null) {
 			    	 if (currentType.arguments.length == 0) { // diamond type
 					    	return originalVariable;
-					    }
-			    	 return currentType.arguments[originalVariable.rank];
+					 }
+			    	 TypeBinding substitute = currentType.arguments[originalVariable.rank];
+			    	 return originalVariable.hasTypeAnnotations() ? this.environment.createAnnotatedType(substitute, originalVariable.getTypeAnnotations()) : substitute;
 			    }	
 			}
 			// recurse on enclosing type, as it may hold more substitutions to perform
@@ -1184,8 +1187,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-	    StringBuffer buffer = new StringBuffer(30);
-	    if (this.type instanceof UnresolvedReferenceBinding) {
+		if (this.hasTypeAnnotations()) {
+			return annotatedDebugName();
+		}
+		StringBuffer buffer = new StringBuffer(30);
+		if (this.type instanceof UnresolvedReferenceBinding) {
 	    	buffer.append(debugName());
 	    } else {
 			if (isDeprecated()) buffer.append("deprecated "); //$NON-NLS-1$
@@ -1265,6 +1271,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			return this.type.typeVariables();
 		}
 		return Binding.NO_TYPE_VARIABLES;
+	}
+	
+	public TypeBinding[] typeArguments() {
+		return this.arguments;
 	}
 	
 	public FieldBinding[] unResolvedFields() {

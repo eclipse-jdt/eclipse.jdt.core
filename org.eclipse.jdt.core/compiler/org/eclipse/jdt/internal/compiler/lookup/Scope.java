@@ -410,16 +410,6 @@ public abstract class Scope {
 	 *  of its type in the generic declaration corresponding to C." 
 	 */
 	public static TypeBinding substitute(Substitution substitution, TypeBinding originalType) {
-		TypeBinding unannotatedOriginal = originalType.unannotated();
-		TypeBinding substitute = substitute0(substitution, unannotatedOriginal);
-		if (unannotatedOriginal == originalType)		// no annotation => use naked substitute
-			return substitute;
-		else if (substitute == unannotatedOriginal)		// no substitution => re-use annotated type
-			return originalType;
-		else 											// substitution and annotation: merge both
-			return substitution.environment().copyAnnotations(originalType, substitute);
-	}
-	private static TypeBinding substitute0(Substitution substitution, TypeBinding originalType) {
 		if (originalType == null) return null;
 		switch (originalType.kind()) {
 
@@ -3575,6 +3565,7 @@ public abstract class Scope {
 			case 0 : return TypeBinding.VOID;
 			case 1 : return mecs[0];
 			case 2 :
+				// TODO(Stephan) : if null annotations differ, we need to create an intersection type and return.
 				if ((commonDim == 0 ? mecs[1].id : mecs[1].leafComponentType().id) == TypeIds.T_JavaLangObject) return mecs[0];
 				if ((commonDim == 0 ? mecs[0].id : mecs[0].leafComponentType().id) == TypeIds.T_JavaLangObject) return mecs[1];
 		}
@@ -3586,7 +3577,7 @@ public abstract class Scope {
 				otherBounds[rank++] = mec;
 			}
 		}
-		TypeBinding intersectionType = environment().createWildcard(null, 0, firstBound, otherBounds, Wildcard.EXTENDS);
+		TypeBinding intersectionType = environment().createWildcard(null, 0, firstBound, otherBounds, Wildcard.EXTENDS);  // pass common null annotations by synthesized annotation bindings.
 		return commonDim == 0 ? intersectionType : environment().createArrayType(intersectionType, commonDim);
 	}
 
@@ -3653,7 +3644,7 @@ public abstract class Scope {
 				firstErasure = firstType;
 				break;
 		}
-		if (firstErasure != firstType) {
+		if (TypeBinding.notEquals(firstErasure, firstType)) {
 			allInvocations.put(firstErasure, firstType);
 		}
 		typesToVisit.add(firstType);
@@ -3713,7 +3704,7 @@ public abstract class Scope {
 						typesToVisit.add(superType);
 						max++;
 						TypeBinding superTypeErasure = (firstBound.isTypeVariable() || firstBound.isWildcard() /*&& !itsInterface.isCapture()*/) ? superType : superType.erasure();
-						if (superTypeErasure != superType) {
+						if (TypeBinding.notEquals(superTypeErasure, superType)) {
 							allInvocations.put(superTypeErasure, superType);
 						}
 					}
@@ -3730,7 +3721,7 @@ public abstract class Scope {
 						typesToVisit.add(superType);
 						max++;
 						TypeBinding superTypeErasure = (itsInterface.isTypeVariable() || itsInterface.isWildcard() /*&& !itsInterface.isCapture()*/) ? superType : superType.erasure();
-						if (superTypeErasure != superType) {
+						if (TypeBinding.notEquals(superTypeErasure, superType)) {
 							allInvocations.put(superTypeErasure, superType);
 						}
 					}
@@ -3743,7 +3734,7 @@ public abstract class Scope {
 					typesToVisit.add(superType);
 					max++;
 					TypeBinding superTypeErasure = (itsSuperclass.isTypeVariable() || itsSuperclass.isWildcard() /*&& !itsSuperclass.isCapture()*/) ? superType : superType.erasure();
-					if (superTypeErasure != superType) {
+					if (TypeBinding.notEquals(superTypeErasure, superType)) {
 						allInvocations.put(superTypeErasure, superType);
 					}
 				}
@@ -3777,7 +3768,7 @@ public abstract class Scope {
 					if (invocationData == null) {
 						allInvocations.put(erasedSuperType, match); // no array for singleton
 					} else if (invocationData instanceof TypeBinding) {
-						if (match != invocationData) {
+						if (TypeBinding.notEquals(match, (TypeBinding) invocationData)) {
 							// using an array to record invocations in order (188103)
 							TypeBinding[] someInvocations = { (TypeBinding) invocationData, match, };
 							allInvocations.put(erasedSuperType, someInvocations);
@@ -3820,7 +3811,7 @@ public abstract class Scope {
 				if (invocationData == null) {
 					allInvocations.put(erasedSuperType, match); // no array for singleton
 				} else if (invocationData instanceof TypeBinding) {
-					if (match != invocationData) {
+					if (TypeBinding.notEquals(match, (TypeBinding) invocationData)) {
 						// using an array to record invocations in order (188103)
 						TypeBinding[] someInvocations = { (TypeBinding) invocationData, match, };
 						allInvocations.put(erasedSuperType, someInvocations);
@@ -4261,7 +4252,7 @@ public abstract class Scope {
 		for (int i = 0; i < lastIndex; i++) {
 			TypeBinding param = parameters[i];
 			TypeBinding arg = (tiebreakingVarargsMethods && (i == (argLength - 1))) ? ((ArrayBinding)arguments[i]).elementsType() : arguments[i];
-			if (arg != param) {
+			if (TypeBinding.notEquals(arg,param)) {
 				int newLevel = parameterCompatibilityLevel(arg, param, env, tiebreakingVarargsMethods);
 				if (newLevel == NOT_COMPATIBLE)
 					return NOT_COMPATIBLE;
@@ -4408,7 +4399,7 @@ public abstract class Scope {
 					}
 					public TypeBinding substitute(TypeVariableBinding typeVariable) {
 						TypeBinding retVal = (TypeBinding) map.get(typeVariable);
-						return retVal != null ? retVal : typeVariable;
+						return typeVariable.hasTypeAnnotations() ? environment().createAnnotatedType(retVal, typeVariable.getTypeAnnotations()) : retVal;
 					}
 				};
 

@@ -652,7 +652,7 @@ public void computeConversion(Scope scope, TypeBinding runtimeType, TypeBinding 
 		return;
 	}
 	int compileTimeTypeID, runtimeTypeID;
-	if ((compileTimeTypeID = compileTimeType.id) == TypeIds.NoId) { // e.g. ? extends String  ==> String (103227)
+	if ((compileTimeTypeID = compileTimeType.id) >= TypeIds.T_LastWellKnownTypeId) { // e.g. ? extends String  ==> String (103227); >= TypeIds.T_LastWellKnownTypeId implies TypeIds.NoId
 		compileTimeTypeID = compileTimeType.erasure().id == TypeIds.T_JavaLangString ? TypeIds.T_JavaLangString : TypeIds.T_JavaLangObject;
 	}
 	switch (runtimeTypeID = runtimeType.id) {

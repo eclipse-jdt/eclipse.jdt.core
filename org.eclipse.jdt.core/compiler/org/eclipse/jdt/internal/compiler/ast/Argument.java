@@ -67,7 +67,7 @@ public class Argument extends LocalDeclaration {
 				}
 			}
 		}
-		resolveAnnotations(scope, this.annotations, this.binding);
+		resolveAnnotations(scope, this.annotations, this.binding, true);
 		this.binding.declaration = this;
 		return this.binding.type; // might have been updated during resolveAnnotations (for typeAnnotations)
 	}
@@ -190,7 +190,7 @@ public class Argument extends LocalDeclaration {
 		} else {
 			this.binding = new CatchParameterBinding(this, exceptionType, this.modifiers, false); // argument decl, but local var  (where isArgument = false)
 		}
-		resolveAnnotations(scope, this.annotations, this.binding);
+		resolveAnnotations(scope, this.annotations, this.binding, true);
 
 		// Type annotations may need attaching to the type references
 		// Example of code this block handles: } catch(@A Exception e) {

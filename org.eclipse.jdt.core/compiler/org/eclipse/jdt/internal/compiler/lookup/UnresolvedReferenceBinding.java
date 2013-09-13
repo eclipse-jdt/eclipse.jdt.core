@@ -24,20 +24,34 @@ public class UnresolvedReferenceBinding extends ReferenceBinding {
 
 ReferenceBinding resolvedType;
 TypeBinding[] wrappers;
-ReferenceBinding original; // used by a clone to refer to the source of cloning
+UnresolvedReferenceBinding prototype;
+TypeBinding enclosingType;
 
 UnresolvedReferenceBinding(char[][] compoundName, PackageBinding packageBinding) {
 	this.compoundName = compoundName;
 	this.sourceName = compoundName[compoundName.length - 1]; // reasonable guess
 	this.fPackage = packageBinding;
 	this.wrappers = null;
+	this.prototype = this;
+	computeId();
 }
-// for cloning with tagBits:
-UnresolvedReferenceBinding(ReferenceBinding refType, long tagBits) {
-	this(refType.compoundName, refType.fPackage);
-	this.original = refType;
-	this.tagBits |= tagBits;
+
+public UnresolvedReferenceBinding(UnresolvedReferenceBinding prototype) {
+	super(prototype);
+	this.resolvedType = prototype.resolvedType;
+	this.wrappers = null;
+	this.prototype = prototype.prototype;
 }
+
+public TypeBinding clone(TypeBinding outerType, TypeBinding[] someTypeArguments) {
+	if (this.resolvedType != null)
+		throw new IllegalStateException();
+	UnresolvedReferenceBinding copy = new UnresolvedReferenceBinding(this);
+	copy.enclosingType = outerType;
+	this.addWrapper(copy, null);
+	return copy;
+}
+
 void addWrapper(TypeBinding wrapper, LookupEnvironment environment) {
 	if (this.resolvedType != null) {
 		// the type reference B<B<T>.M> means a signature of <T:Ljava/lang/Object;>LB<LB<TT;>.M;>;
@@ -66,10 +80,14 @@ public boolean hasTypeBit(int bit) {
 	return false;
 }
 ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericToRawType) {
+	if (this != this.prototype) {
+		this.prototype.resolve(environment, convertGenericToRawType);
+		return this.resolvedType;
+	}
     ReferenceBinding targetType = this.resolvedType;
 	if (targetType == null) {
 		targetType = this.fPackage.getType0(this.compoundName[this.compoundName.length - 1]);
-		if (targetType == this || targetType == this.original) {
+		if (targetType == this) {
 			targetType = environment.askForType(this.compoundName);
 		}
 		if (targetType == null || targetType == this) { // could not resolve any better, error was already reported against it
@@ -82,12 +100,6 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 			}
 			// create a proxy for the missing BinaryType
 			targetType = environment.createMissingType(null, this.compoundName);
-		} else if (!(targetType instanceof UnresolvedReferenceBinding)) {
-			// for a clone pre-populated with tagBits wrap the resolved type in an annotated type
-			// (represented by a ParameterizedTypeBinding):
-			long nullTagBits = this.tagBits & TagBits.AnnotationNullMASK;
-			if (nullTagBits != 0L)
-				targetType = (ReferenceBinding) environment.createAnnotatedType(targetType, nullTagBits);
 		}
 		setResolvedType(targetType, environment);
 	}
@@ -108,7 +120,22 @@ void setResolvedType(ReferenceBinding targetType, LookupEnvironment environment)
 			this.wrappers[i].swapUnresolved(this, targetType, environment);
 	environment.updateCaches(this, targetType);
 }
+
+public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding unannotatedType, LookupEnvironment environment) {
+	if (this.resolvedType != null) return;
+	ReferenceBinding annotatedType = (ReferenceBinding) unannotatedType.clone(this.enclosingType != null ? this.enclosingType : unannotatedType.enclosingType(), null);
+	
+	this.resolvedType = annotatedType;
+	annotatedType.setTypeAnnotations(getTypeAnnotations(), environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
+	annotatedType.id = unannotatedType.id = this.id;
+	if (this.wrappers != null)
+		for (int i = 0, l = this.wrappers.length; i < l; i++)
+			this.wrappers[i].swapUnresolved(this, annotatedType, environment);
+	environment.updateCaches(this, annotatedType);
+}
 public String toString() {
+	if (this.hasTypeAnnotations())
+		return super.annotatedDebugName() + "(unresolved)"; //$NON-NLS-1$
 	return "Unresolved type " + ((this.compoundName != null) ? CharOperation.toString(this.compoundName) : "UNNAMED"); //$NON-NLS-1$ //$NON-NLS-2$
 }
 }

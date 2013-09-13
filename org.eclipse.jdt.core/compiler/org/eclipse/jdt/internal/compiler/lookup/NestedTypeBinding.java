@@ -15,7 +15,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 
-public class NestedTypeBinding extends SourceTypeBinding {
+public abstract class NestedTypeBinding extends SourceTypeBinding {
 
 	public SourceTypeBinding enclosingType;
 
@@ -28,6 +28,15 @@ public NestedTypeBinding(char[][] typeName, ClassScope scope, SourceTypeBinding 
 	super(typeName, enclosingType.fPackage, scope);
 	this.tagBits |= (TagBits.IsNestedType | TagBits.ContainsNestedTypeReferences);
 	this.enclosingType = enclosingType;
+}
+
+public NestedTypeBinding(NestedTypeBinding prototype) {
+	super(prototype);
+	this.enclosingType = prototype.enclosingType;
+	this.enclosingInstances = prototype.enclosingInstances;
+	this.enclosingTypes = prototype.enclosingTypes;
+	this.outerLocalVariables = prototype.outerLocalVariables;
+	this.outerLocalVariablesSlotSize = prototype.outerLocalVariablesSlotSize;
 }
 
 /* Add a new synthetic argument for <actualOuterLocalVariable>.

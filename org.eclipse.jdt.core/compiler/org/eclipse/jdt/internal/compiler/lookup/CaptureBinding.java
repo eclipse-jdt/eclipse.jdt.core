@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -26,7 +30,13 @@ public class CaptureBinding extends TypeVariableBinding {
 
 	public CaptureBinding(WildcardBinding wildcard, ReferenceBinding sourceType, int position, int captureID) {
 		super(TypeConstants.WILDCARD_CAPTURE_NAME_PREFIX, null, 0, wildcard.environment);
-		this.wildcard = wildcard;
+		// Capture the unannotated wildcard and then capture the annotations.
+		if (wildcard.hasTypeAnnotations()) {
+			this.wildcard = (WildcardBinding) wildcard.unannotated();
+			setTypeAnnotations(wildcard.getTypeAnnotations(), wildcard.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
+		} else {
+			this.wildcard = wildcard;
+		}
 		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat capture as public
 		this.fPackage = wildcard.fPackage;
 		this.sourceType = sourceType;
@@ -59,6 +69,11 @@ public class CaptureBinding extends TypeVariableBinding {
 
 		if (this.wildcard != null) {
 			StringBuffer buffer = new StringBuffer(10);
+			AnnotationBinding [] annotations = getTypeAnnotations();
+			for (int i = 0, length = annotations == null ? 0 : annotations.length; i < length; i++) {
+				buffer.append(annotations[i]);
+				buffer.append(' ');
+			}
 			buffer
 				.append(TypeConstants.WILDCARD_CAPTURE_NAME_PREFIX)
 				.append(this.captureID)
@@ -199,7 +214,7 @@ public class CaptureBinding extends TypeVariableBinding {
 	 * @see TypeBinding#isEquivalentTo(TypeBinding)
 	 */
 	public boolean isEquivalentTo(TypeBinding otherType) {
-	    if (this == otherType) return true;
+	    if (equalsEquals(this, otherType)) return true;
 	    if (otherType == null) return false;
 		// capture of ? extends X[]
 		if (this.firstBound != null && this.firstBound.isArrayType()) {
@@ -249,6 +264,11 @@ public class CaptureBinding extends TypeVariableBinding {
 	public String toString() {
 		if (this.wildcard != null) {
 			StringBuffer buffer = new StringBuffer(10);
+			AnnotationBinding [] annotations = getTypeAnnotations();
+			for (int i = 0, length = annotations == null ? 0 : annotations.length; i < length; i++) {
+				buffer.append(annotations[i]);
+				buffer.append(' ');
+			}
 			buffer
 				.append(TypeConstants.WILDCARD_CAPTURE_NAME_PREFIX)
 				.append(this.captureID)

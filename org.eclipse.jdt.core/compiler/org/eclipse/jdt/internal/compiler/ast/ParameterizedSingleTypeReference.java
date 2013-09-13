@@ -142,19 +142,26 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		}
 		this.bits |= ASTNode.DidResolve;
 		TypeBinding type = internalResolveLeafType(scope, enclosingType, checkBounds);
-		resolveAnnotations(scope);
-		checkNullConstraints(scope, this.typeArguments);
 
 		// handle three different outcomes:
 		if (type == null) {
 			this.resolvedType = createArrayType(scope, this.resolvedType);
+			resolveAnnotations(scope);
+			checkNullConstraints(scope, this.typeArguments);
 			return null;							// no useful type, but still captured dimensions into this.resolvedType
 		} else {
 			type = createArrayType(scope, type);
-			if (!this.resolvedType.isValidBinding())
+			if (!this.resolvedType.isValidBinding()) {
+				resolveAnnotations(scope);
+				checkNullConstraints(scope, this.typeArguments);
 				return type;						// found some error, but could recover useful type (like closestMatch)
-			else 
-				return this.resolvedType = type; 	// no complaint, keep fully resolved type (incl. dimensions)
+			} else {
+				this.resolvedType = type; 	// no complaint, keep fully resolved type (incl. dimensions)
+				resolveAnnotations(scope);
+				checkNullConstraints(scope, this.typeArguments);
+				return this.resolvedType; // pick up any annotated type.
+			}
+
 		}
 	}
 	private TypeBinding internalResolveLeafType(Scope scope, ReferenceBinding enclosingType, boolean checkBounds) {

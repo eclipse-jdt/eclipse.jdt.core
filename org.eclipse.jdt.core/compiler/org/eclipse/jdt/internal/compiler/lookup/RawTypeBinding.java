@@ -76,6 +76,13 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		sig.getChars(0, sigLength, uniqueKey, 0);
 		return uniqueKey;
    	}
+	
+	public TypeBinding clone(TypeBinding outerType, TypeBinding[] typeArguments) {
+		RawTypeBinding copy = new RawTypeBinding(this.actualType(), (ReferenceBinding) outerType, this.environment);
+		if (this.hasTypeAnnotations())
+			copy.setTypeAnnotations(this.getTypeAnnotations(), this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
+		return copy;
+	}
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding#createParameterizedMethod(org.eclipse.jdt.internal.compiler.lookup.MethodBinding)
@@ -99,11 +106,17 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#debugName()
 	 */
 	public String debugName() {
-	    StringBuffer nameBuffer = new StringBuffer(10);
+		if (this.hasTypeAnnotations())
+			return annotatedDebugName();
+		StringBuffer nameBuffer = new StringBuffer(10);
 		nameBuffer.append(actualType().sourceName()).append("#RAW"); //$NON-NLS-1$
 	    return nameBuffer.toString();
 	}
-
+	public String annotatedDebugName() {
+		StringBuffer buffer = new StringBuffer(super.annotatedDebugName());
+		buffer.append("#RAW"); //$NON-NLS-1$
+		return buffer.toString();
+	}
 	/**
 	 * Ltype<param1 ... paramN>;
 	 * LY<TT;>;
@@ -138,14 +151,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	}
 
     public boolean isEquivalentTo(TypeBinding otherType) {
-    	// disregard any type annotations on this and otherType
-    	// recursive call needed when this is annotated, unless the annotation was introduced on a declaration
-    	otherType = otherType.unannotated();
-    	TypeBinding unannotated = unannotated();
-    	if (unannotated != this)
-    		return unannotated.isEquivalentTo(otherType);
-
-		if (this == otherType || erasure() == otherType)
+		if (equalsEquals(this, otherType) || equalsEquals(erasure(), otherType))
 		    return true;
 	    if (otherType == null)
 	        return false;

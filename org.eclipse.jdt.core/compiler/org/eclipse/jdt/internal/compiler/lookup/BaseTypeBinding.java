@@ -134,6 +134,12 @@ public final class BaseTypeBinding extends TypeBinding {
 		this.simpleName = name;
 		this.constantPoolName = constantPoolName;
 	}
+	
+	BaseTypeBinding(BaseTypeBinding prototype) {
+		super(prototype);
+		this.simpleName = prototype.simpleName;
+		this.constantPoolName = prototype.constantPoolName;
+	}
 
 	/**
 	 * int -> I
@@ -149,6 +155,10 @@ public final class BaseTypeBinding extends TypeBinding {
 		return this.constantPoolName;
 	}
 
+	public TypeBinding clone(TypeBinding enclosingType, TypeBinding[] typeArguments) {
+		return new BaseTypeBinding(this);
+	}
+	
 	public PackageBinding getPackage() {
 
 		return null;
@@ -157,7 +167,7 @@ public final class BaseTypeBinding extends TypeBinding {
 	/* Answer true if the receiver type can be assigned to the argument type (right)
 	*/
 	public final boolean isCompatibleWith(TypeBinding right, Scope captureScope) {
-		if (this == right)
+		if (equalsEquals(this, right))
 			return true;
 		int right2left = this.id + (right.id<<4);
 		if (right2left >= 0 
@@ -167,6 +177,28 @@ public final class BaseTypeBinding extends TypeBinding {
 		return this == TypeBinding.NULL && !right.isBaseType();
 	}
 	
+	public TypeBinding unannotated() {
+		switch (this.id) {
+			case TypeIds.T_boolean:
+				return TypeBinding.BOOLEAN;
+			case TypeIds.T_byte:
+				return TypeBinding.BYTE;
+			case TypeIds.T_char:
+				return TypeBinding.CHAR;
+			case TypeIds.T_double:
+				return TypeBinding.DOUBLE;
+			case TypeIds.T_float:
+				return TypeBinding.FLOAT;
+			case TypeIds.T_int:
+				return TypeBinding.INT;
+			case TypeIds.T_long:
+				return TypeBinding.LONG;
+			case TypeIds.T_short:
+				return TypeBinding.SHORT;
+			default:
+				throw new IllegalStateException();
+			}
+	}
 	/**
 	 * T_null is acting as an unchecked exception
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isUncheckedException(boolean)
@@ -198,6 +230,6 @@ public final class BaseTypeBinding extends TypeBinding {
 	}
 
 	public String toString() {
-		return new String(this.constantPoolName) + " (id=" + this.id + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+		return this.hasTypeAnnotations() ? annotatedDebugName() : new String(readableName());
 	}
 }

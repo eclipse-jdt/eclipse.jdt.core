@@ -317,7 +317,7 @@ private static void checkAlternateBinding(BlockScope scope, Expression receiver,
 }
 
 public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
-	if (match == castType) {
+	if (TypeBinding.equalsEquals(match, castType)) {
 		if (!isNarrowing && match == this.resolvedType.leafComponentType()) { // do not tag as unnecessary when recursing through upper bounds
 			tagAsUnnecessaryCast(scope, castType);
 		}
@@ -537,16 +537,11 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (castType != null) {
 		if (expressionType != null) {
 
-			// internally for type checking use the unannotated types:
-			TypeBinding unannotatedCastType = castType.unannotated();
 			boolean nullAnnotationMismatch = NullAnnotationMatching.analyse(castType, expressionType, -1).isAnyMismatch();
-			if (nullAnnotationMismatch)
-				castType = unannotatedCastType; // problem exists, so use the unannotated type also externally
-			expressionType = expressionType.unannotated();
 
-			boolean isLegal = checkCastTypesCompatibility(scope, unannotatedCastType, expressionType, this.expression);
+			boolean isLegal = checkCastTypesCompatibility(scope, castType, expressionType, this.expression);
 			if (isLegal) {
-				this.expression.computeConversion(scope, unannotatedCastType, expressionType);
+				this.expression.computeConversion(scope, castType, expressionType);
 				if ((this.bits & ASTNode.UnsafeCast) != 0) { // unsafe cast
 					if (scope.compilerOptions().reportUnavoidableGenericTypeProblems
 							|| !(expressionType.isRawType() && this.expression.forcedToBeRaw(scope.referenceContext()))) {
@@ -556,8 +551,8 @@ public TypeBinding resolveType(BlockScope scope) {
 					// report null annotation issue at medium priority
 					scope.problemReporter().unsafeNullnessCast(this, scope);
 				} else {
-					if (unannotatedCastType.isRawType() && scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore){
-						scope.problemReporter().rawTypeReference(this.type, unannotatedCastType);
+					if (castType.isRawType() && scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore){
+						scope.problemReporter().rawTypeReference(this.type, castType);
 					}
 					if ((this.bits & (ASTNode.UnnecessaryCast|ASTNode.DisableUnnecessaryCastCheck)) == ASTNode.UnnecessaryCast) { // unnecessary cast
 						if (!isIndirectlyUsed()) // used for generic type inference or boxing ?
@@ -565,8 +560,8 @@ public TypeBinding resolveType(BlockScope scope) {
 					}
 				}
 			} else { // illegal cast
-				if ((unannotatedCastType.tagBits & TagBits.HasMissingType) == 0) { // no complaint if secondary error
-					scope.problemReporter().typeCastError(this, unannotatedCastType, expressionType);
+				if ((castType.tagBits & TagBits.HasMissingType) == 0) { // no complaint if secondary error
+					scope.problemReporter().typeCastError(this, castType, expressionType);
 				}
 				this.bits |= ASTNode.DisableUnnecessaryCastCheck; // disable further secondary diagnosis
 			}

@@ -263,7 +263,7 @@ public void resolve(MethodScope initializationScope) {
 				}
 			} else if ((initializationType = this.initialization.resolveType(initializationScope)) != null) {
 
-				if (fieldType != initializationType) // must call before computeConversion() and typeMismatchError()
+				if (TypeBinding.notEquals(fieldType, initializationType)) // must call before computeConversion() and typeMismatchError()
 					initializationScope.compilationUnitScope().recordTypeConversion(fieldType, initializationType);
 				if (this.initialization.isConstantValueOfTypeAssignableToType(initializationType, fieldType)
 						|| initializationType.isCompatibleWith(fieldType, classScope)) {

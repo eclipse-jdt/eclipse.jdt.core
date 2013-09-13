@@ -129,8 +129,10 @@ public interface TypeIds {
 	// new in 3.9 to identify known @Inject annotations
 	final int T_JavaxInjectInject = 80;
 	final int T_ComGoogleInjectInject = 81;
+	// If you add new type id, make sure to bump up T_LastWellKnownTypeId if there is a cross over.
 
-
+	final int T_LastWellKnownTypeId = 128;
+	
 	final int NoId = Integer.MAX_VALUE;
 
 	public static final int IMPLICIT_CONVERSION_MASK = 0xFF;

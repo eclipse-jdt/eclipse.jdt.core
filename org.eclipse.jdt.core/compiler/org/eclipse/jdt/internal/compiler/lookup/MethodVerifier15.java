@@ -108,7 +108,7 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 
 	// so the parameters are equal and the return type is compatible b/w the currentMethod & the substituted inheritedMethod
 	MethodBinding originalInherited = inheritedMethod.original();
-	if (originalInherited.returnType != currentMethod.returnType)
+	if (TypeBinding.notEquals(originalInherited.returnType, currentMethod.returnType))
 		if (!isAcceptableReturnTypeOverride(currentMethod, inheritedMethod))
 			problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, this.type);
 
@@ -490,8 +490,7 @@ void checkMethods() {
 	char[][] methodSelectors = this.inheritedMethods.keyTable;
 	nextSelector : for (int s = methodSelectors.length; --s >= 0;) {
 		if (methodSelectors[s] == null) continue nextSelector;
-
-		MethodBinding[] current = (MethodBinding[]) this.currentMethods.get(methodSelectors[s]);
+        MethodBinding[] current = (MethodBinding[]) this.currentMethods.get(methodSelectors[s]);
 		MethodBinding[] inherited = (MethodBinding[]) this.inheritedMethods.valueTable[s];
 		// ensure that if we have a concrete method this shows up at position [0]:
 		inherited = Sorting.concreteFirst(inherited, inherited.length);
@@ -569,6 +568,7 @@ void checkMethods() {
 		// (and perform some side effects : bridge methods & use flags)
 		for (int i = 0; i < inheritedLength; i++) {
 			MethodBinding matchMethod = foundMatch[i];
+			
 			if (matchMethod == null && current != null && this.type.isPublic()) { // current == null case handled already.
 				MethodBinding inheritedMethod = inherited[i];
 				if (inheritedMethod.isPublic() && !inheritedMethod.declaringClass.isPublic()) {

@@ -471,11 +471,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		
 		TypeBinding valueIfTrueType = this.originalValueIfTrueType;
 		TypeBinding valueIfFalseType = this.originalValueIfFalseType;
-		if (use18specifics && valueIfTrueType != null && valueIfFalseType != null && valueIfTrueType != valueIfFalseType) {
-			valueIfTrueType = valueIfTrueType.unannotated();
-			valueIfFalseType = valueIfFalseType.unannotated();
-		}
-		if (use15specifics && valueIfTrueType != valueIfFalseType) {
+		if (use15specifics && TypeBinding.notEquals(valueIfTrueType, valueIfFalseType)) {
 			if (valueIfTrueType.isBaseType()) {
 				if (valueIfFalseType.isBaseType()) {
 					// bool ? baseType : baseType

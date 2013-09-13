@@ -282,17 +282,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					: Constant.NotAConstant);
 		}
 		// only resolve annotation at the end, for constant to be positioned before (96991)
-		resolveAnnotations(scope, this.annotations, this.binding);
-		// Check if this declaration should now have the type annotations bit set
-		if (this.annotations != null) {
-			for (int i = 0, max = this.annotations.length; i < max; i++) {
-				TypeBinding resolvedAnnotationType = this.annotations[i].resolvedType;
-				if (resolvedAnnotationType != null && (resolvedAnnotationType.getAnnotationTagBits() & TagBits.AnnotationForTypeUse) != 0) {
-					this.bits |= ASTNode.HasTypeAnnotations;
-					break;
-				}
-			}
-		}
+		resolveAnnotations(scope, this.annotations, this.binding, true);
 		if (!scope.validateNullAnnotation(this.binding.tagBits, this.type, this.annotations))
 			this.binding.tagBits &= ~TagBits.AnnotationNullMASK;
 	}
