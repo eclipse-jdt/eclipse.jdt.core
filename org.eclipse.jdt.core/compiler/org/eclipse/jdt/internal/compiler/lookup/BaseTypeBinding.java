@@ -178,6 +178,8 @@ public final class BaseTypeBinding extends TypeBinding {
 	}
 	
 	public TypeBinding unannotated() {
+		if (!this.hasTypeAnnotations())
+			return this;
 		switch (this.id) {
 			case TypeIds.T_boolean:
 				return TypeBinding.BOOLEAN;
