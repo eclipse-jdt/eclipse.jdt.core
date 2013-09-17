@@ -1359,7 +1359,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"5. ERROR in Y1.java (at line 11)\n" + 
 				"	x.wildcard1(new ArrayList<@NonNull X1>()); // incompatible(2)\n" + 
 				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Null type mismatch (type annotations): required \'List<@Nullable ? extends p.X1>\' but this expression has type \'ArrayList<@NonNull X1>\', corresponding supertype is \'List<@NonNull X1>\'\n" + 
+				"Null type mismatch (type annotations): required \'List<@Nullable ? extends X1>\' but this expression has type \'ArrayList<@NonNull X1>\', corresponding supertype is \'List<@NonNull X1>\'\n" + 
 				"----------\n");
 	}
 
@@ -1449,7 +1449,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"5. ERROR in Y1.java (at line 11)\n" + 
 				"	x.wildcard1(new ArrayList<p.@NonNull X1>()); // incompatible(2)\n" + 
 				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Null type mismatch (type annotations): required \'List<@Nullable ? extends p.X1>\' but this expression has type \'ArrayList<@NonNull X1>\', corresponding supertype is \'List<@NonNull X1>\'\n" + 
+				"Null type mismatch (type annotations): required \'List<@Nullable ? extends X1>\' but this expression has type \'ArrayList<@NonNull X1>\', corresponding supertype is \'List<@NonNull X1>\'\n" + 
 				"----------\n");
 	}
 	// TODO(Stephan): Fix lub computation to create an intersection type when annotations differ. See comment in Scope#lowerUpperBound.
