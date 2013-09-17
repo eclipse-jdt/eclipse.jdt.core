@@ -25,6 +25,7 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
+ *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *    Jesper Steen Moller - Contributions for
  *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *******************************************************************************/
@@ -1349,6 +1350,17 @@ SimpleLookupTable storedAnnotations(boolean forceInitialize) {
 }
 
 private void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBinding) {
+	if (this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
+		TypeBinding fieldType = fieldBinding.type;
+		if (fieldType != null
+				&& !fieldType.isBaseType()
+				&& (fieldType.tagBits & TagBits.AnnotationNullMASK) == 0
+				&& (this.tagBits & TagBits.AnnotationNonNullByDefault) != 0) {
+			fieldBinding.type = this.environment.createAnnotatedType(fieldType, new AnnotationBinding[]{this.environment.getNonNullAnnotation()});
+		}
+		return; // not using fieldBinding.tagBits when we have type annotations.
+	}
+
 	// global option is checked by caller
 	char[][] nullableAnnotationName = this.environment.getNullableAnnotationName();
 	char[][] nonNullAnnotationName = this.environment.getNonNullAnnotationName();

@@ -6401,4 +6401,34 @@ public void testBug417295_5() {
 		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
 		"----------\n");
 }
+public void testBug417295_7() {
+	runConformTestWithLibs(
+			new String[] {
+				"p1/AllAreNonNull.java",
+				"package p1;\n" +
+				"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+				"public class AllAreNonNull {\n" + 
+				"	public String s3 = \"\";\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"");
+	runNegativeTestWithLibs(
+		false,
+		new String[] {
+			"Client.java",
+			"public class Client {\n" + 
+			"	void test(p1.AllAreNonNull aann) {\n" + 
+			"		aann.s3 = null;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in Client.java (at line 3)\n" + 
+		"	aann.s3 = null;\n" + 
+		"	          ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n");
+}
 }
