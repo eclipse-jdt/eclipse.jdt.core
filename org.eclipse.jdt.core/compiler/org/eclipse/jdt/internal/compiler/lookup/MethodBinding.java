@@ -19,6 +19,7 @@
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *     Jesper Steen Moller - Contributions for
  *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *******************************************************************************/
@@ -518,8 +519,7 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 		if (existing == 0L) {
 			added = true;
 			if (!parameter.isBaseType()) {
-				// TODO(Stephan): Synthesize AnnotationBinding[] and call LE#createAnnotatedType(TB, AB[]);
-				// this.parameters[i] = env.createAnnotatedType(parameter, TagBits.AnnotationNonNull);
+				this.parameters[i] = env.createAnnotatedType(parameter, new AnnotationBinding[]{env.getNonNullAnnotation()});
 				if (sourceMethod != null)
 					sourceMethod.arguments[i].binding.type = this.parameters[i];
 			}
@@ -533,8 +533,7 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 		&& !this.returnType.isBaseType()
 		&& (this.returnType.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) == 0)
 	{
-		// TODO(Stephan: Synthesize AnnotationBinding[] and call LE#createAnnotatedType(TB, AB[]);
-		// this.returnType = env.createAnnotatedType(this.returnType, TagBits.AnnotationNonNull);
+		this.returnType = env.createAnnotatedType(this.returnType, new AnnotationBinding[]{env.getNonNullAnnotation()});
 	} else if (sourceMethod != null && (this.returnType.tagBits & TagBits.AnnotationNonNull) != 0) {
 		sourceMethod.scope.problemReporter().nullAnnotationIsRedundant(sourceMethod, -1/*signifies method return*/);
 	}
