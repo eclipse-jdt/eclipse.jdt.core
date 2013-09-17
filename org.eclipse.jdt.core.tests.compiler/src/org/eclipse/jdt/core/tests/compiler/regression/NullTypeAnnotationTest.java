@@ -1668,7 +1668,6 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// types without null annotations are converted (unsafe) to types with detail annotations (array content)
-	// FIXME(Stephan) : Old messages are wrong, the new diagnostics are correct, but the leaf component types differ - null annotated readable names don't reflect that - this needs to be fixed.
 	public void testCompatibility3a() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -1689,7 +1688,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				+ "		acceptNulls(dubious);\n"
 				+ "		acceptNoNulls(dubious);\n"
 				+ "	}\n"
-				+ "	void acceptNulls(@NonNull String[] noNulls) {}\n"
+				+ "	void acceptNulls(@Nullable String[] withNulls) {}\n"
 				+ "	void acceptNoNulls(@NonNull String[] noNulls) {}\n"
 				+ "}\n"
 			},
@@ -1697,32 +1696,32 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	return dubious;\n" + 
 			"	       ^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'String []\'\n" + 
+			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'@NonNull String []\'\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 7)\n" + 
 			"	return dubious;\n" + 
 			"	       ^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'String []\'\n" + 
+			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'@Nullable String []\'\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 10)\n" + 
 			"	@Nullable String[] l1 = dubious;\n" + 
 			"	                        ^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'String []\'\n" + 
+			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'@Nullable String []\'\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 11)\n" + 
 			"	@NonNull String[] l2 = dubious;\n" + 
 			"	                       ^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'String []\'\n" + 
+			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'@NonNull String []\'\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 14)\n" + 
 			"	acceptNulls(dubious);\n" + 
 			"	            ^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'String []\'\n" + 
+			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'@Nullable String []\'\n" + 
 			"----------\n" + 
 			"6. WARNING in X.java (at line 15)\n" + 
 			"	acceptNoNulls(dubious);\n" + 
 			"	              ^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'String []\'\n" + 
+			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'@NonNull String []\'\n" + 
 			"----------\n");
 	}
 
@@ -1783,8 +1782,6 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// types with null annotations on details (array content) are incompatible to opposite types
-	// TODO(Stephan) : Per the right interpretation of the spec, @Nullable and @NonNull are annotating the component type and not the arrays. The new diagnostics are correct, but
-	// should mention the annotation on the leaf type.
 	public void testCompatibility4a() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -1810,32 +1807,32 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	return noNulls;\n" + 
 			"	       ^^^^^^^\n" + 
-			"Null type mismatch (type annotations): required \'String []\' but this expression has type \'String []\'\n" + 
+			"Null type mismatch (type annotations): required \'@Nullable String []\' but this expression has type \'@NonNull String []\'\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	return withNulls;\n" + 
 			"	       ^^^^^^^^^\n" + 
-			"Null type mismatch (type annotations): required \'String []\' but this expression has type \'String []\'\n" + 
+			"Null type mismatch (type annotations): required \'@NonNull String []\' but this expression has type \'@Nullable String []\'\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 10)\n" + 
 			"	@NonNull String[] l1 = withNulls;\n" + 
 			"	                       ^^^^^^^^^\n" + 
-			"Null type mismatch (type annotations): required \'String []\' but this expression has type \'String []\'\n" + 
+			"Null type mismatch (type annotations): required \'@NonNull String []\' but this expression has type \'@Nullable String []\'\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 11)\n" + 
 			"	@Nullable String[] l2 = noNulls;\n" + 
 			"	                        ^^^^^^^\n" + 
-			"Null type mismatch (type annotations): required \'String []\' but this expression has type \'String []\'\n" + 
+			"Null type mismatch (type annotations): required \'@Nullable String []\' but this expression has type \'@NonNull String []\'\n" + 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 14)\n" + 
 			"	assigns(withNulls, noNulls);\n" + 
 			"	        ^^^^^^^^^\n" + 
-			"Null type mismatch (type annotations): required \'String []\' but this expression has type \'String []\'\n" + 
+			"Null type mismatch (type annotations): required \'@NonNull String []\' but this expression has type \'@Nullable String []\'\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 14)\n" + 
 			"	assigns(withNulls, noNulls);\n" + 
 			"	                   ^^^^^^^\n" + 
-			"Null type mismatch (type annotations): required \'String []\' but this expression has type \'String []\'\n" + 
+			"Null type mismatch (type annotations): required \'@Nullable String []\' but this expression has type \'@NonNull String []\'\n" + 
 			"----------\n");
 	}
 

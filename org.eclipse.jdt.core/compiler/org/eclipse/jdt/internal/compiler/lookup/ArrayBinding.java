@@ -19,6 +19,7 @@
  *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
+ *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -298,8 +299,7 @@ public char[] nullAnnotatedReadableName(CompilerOptions options, boolean shortNa
 			brackets[i] = new char[]{'[', ']'}; 
 		}
 	}
-	char[] leafTypeName = shortNames ? this.leafComponentType.shortReadableName() : this.leafComponentType.readableName();
-	return CharOperation.concat(leafTypeName, 
+	return CharOperation.concat(this.leafComponentType.nullAnnotatedReadableName(options, shortNames), 
 								 CharOperation.concatWith(brackets, ' '),
 								 ' ');
 }
