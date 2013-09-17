@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contributions for
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
+ *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 409246 - [1.8][compiler] Type annotations on catch parameters not handled properly
  *******************************************************************************/
@@ -67,7 +68,11 @@ public class Argument extends LocalDeclaration {
 				}
 			}
 		}
-		resolveAnnotations(scope, this.annotations, this.binding, true);
+		if ((this.binding.tagBits & TagBits.AnnotationResolved) == 0) {
+			resolveAnnotations(scope, this.annotations, this.binding, true);
+			if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8)
+				scope.validateNullAnnotation(this.binding.tagBits, this.type, this.annotations);
+		}
 		this.binding.declaration = this;
 		return this.binding.type; // might have been updated during resolveAnnotations (for typeAnnotations)
 	}

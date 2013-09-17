@@ -2348,8 +2348,15 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	@NonNull T bar1(@NonNull T t) {\n" +
 				"		return t;\n" +
 				"	}\n" + 
-				"	@NonNull T bar2(@Nullable T t) { // contradiction: cannot make T @Nullable\n" +
+				"	@NonNull T bar2(@Nullable T t) { // argument: contradiction (1)\n" +
 				"		return t;\n" +
+				"	}\n" + 
+				"	@Nullable T bar3(T t) { // return type: contradiction (2)\n" +
+				"		@Nullable T l = t; // local: contradiction (3)\n" +
+				"		return l;\n" +
+				"	}\n" +
+				"	class Inner {\n" +
+				"		@Nullable T f; // field: contradiction (4)\n" +
 				"	}\n" + 
 				"	T bar3() {\n" +
 				"		return null;\n" +
@@ -2359,11 +2366,26 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			getCompilerOptions(),
 			"----------\n" + 
 			"1. ERROR in X.java (at line 11)\n" + 
-			"	@NonNull T bar2(@Nullable T t) { // contradiction: cannot make T @Nullable\n" + 
+			"	@NonNull T bar2(@Nullable T t) { // argument: contradiction (1)\n" + 
 			"	                ^^^^^^^^^\n" + 
 			"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 15)\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
+			"	@Nullable T bar3(T t) { // return type: contradiction (2)\n" + 
+			"	^^^^^^^^^\n" + 
+			"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 15)\n" + 
+			"	@Nullable T l = t; // local: contradiction (3)\n" + 
+			"	^^^^^^^^^\n" + 
+			"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 19)\n" + 
+			"	@Nullable T f; // field: contradiction (4)\n" + 
+			"	^^^^^^^^^\n" + 
+			"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 22)\n" + 
 			"	return null;\n" + 
 			"	       ^^^^\n" + 
 			"Null type mismatch: required \'@NonNull T\' but the provided value is null\n" + 

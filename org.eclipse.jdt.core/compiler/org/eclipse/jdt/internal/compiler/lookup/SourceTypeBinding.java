@@ -31,6 +31,7 @@
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *								Bug 416172 - [1.8][compiler][null] null type annotation not evaluated on method return type
+ *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1620,7 +1621,7 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 			if (sourceLevel >= ClassFileConstants.JDK1_8) {
 				AnnotationBinding [] annotations = field.getAnnotations();
 				if (annotations != null && annotations != Binding.NO_ANNOTATIONS) {
-					ASTNode.copySE8AnnotationsToType(initializationScope, field, annotations);
+					ASTNode.copySE8AnnotationsToType(initializationScope, field, fieldDecl.annotations);
 				}
 			}
 			// apply null default:
@@ -1805,7 +1806,7 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 				if (sourceLevel >= ClassFileConstants.JDK1_8) {
 					AnnotationBinding [] annotations = method.getAnnotations();
 					if (annotations != null && annotations != Binding.NO_ANNOTATIONS) {
-						ASTNode.copySE8AnnotationsToType(methodDecl.scope, method, annotations);
+						ASTNode.copySE8AnnotationsToType(methodDecl.scope, method, methodDecl.annotations);
 					}
 				}
 				TypeBinding leafType = methodType.leafComponentType();

@@ -20,7 +20,8 @@
  *								bug 374605 - Unreasonable warning for enum-based switch statements
  *								bug 384870 - [compiler] @Deprecated annotation not detected if preceded by other annotation
  *								bug 393719 - [compiler] inconsistent warnings on iteration variables
- *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *     Jesper S Moller - Contributions for
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *******************************************************************************/
@@ -761,7 +762,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		}
 
 		if (copySE8AnnotationsToType)
-			copySE8AnnotationsToType(scope, recipient, annotations);
+			copySE8AnnotationsToType(scope, recipient, sourceAnnotations);
 		
 		// check duplicate annotations
 		if (annotations != null && length > 1) {
@@ -815,20 +816,31 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	/** When SE8 annotations feature in SE7 locations, they get attributed to the declared entity. Copy these to the type of the declared entity (field, local, argument etc.)
 	    We leave in the annotation in the declared entity's binding as of now, i.e we do a copy not a transfer.
 	*/
-	public static void copySE8AnnotationsToType(BlockScope scope, Binding recipient, AnnotationBinding[] annotations) {
+	public static void copySE8AnnotationsToType(BlockScope scope, Binding recipient, Annotation[] annotations) {
 		if (annotations != null && recipient.kind() != Binding.TYPE_USE) {
 			AnnotationBinding [] se8Annotations = null;
 			int se8count = 0;
+			long se8nullBits = 0;
+			Annotation se8NullAnnotation = null;
 			for (int i = 0, length = annotations.length; i < length; i++) {
-				final ReferenceBinding annotationType = annotations[i].getAnnotationType();
+				AnnotationBinding annotation = annotations[i].getCompilerAnnotation();
+				if (annotation == null) continue;
+				final ReferenceBinding annotationType = annotation.getAnnotationType();
 				long metaTagBits = annotationType.getAnnotationTagBits();
 				if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
 					if (se8Annotations == null) {
-						se8Annotations = new AnnotationBinding[] { annotations[i] };
+						se8Annotations = new AnnotationBinding[] { annotation };
 						se8count = 1;
 					} else {
 						System.arraycopy(se8Annotations, 0, se8Annotations = new AnnotationBinding[se8count + 1], 0, se8count);
-						se8Annotations[se8count++] = annotations[i];
+						se8Annotations[se8count++] = annotation;
+					}
+					if (annotationType.id == TypeIds.T_ConfiguredAnnotationNonNull) {
+						se8nullBits = TagBits.AnnotationNonNull;
+						se8NullAnnotation = annotations[i];
+					} else if (annotationType.id == TypeIds.T_ConfiguredAnnotationNullable) {
+						se8nullBits = TagBits.AnnotationNullable;
+						se8NullAnnotation = annotations[i];
 					}
 				}
 			}
@@ -839,6 +851,10 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						if (Annotation.isTypeUseCompatible(local.declaration.type, scope)) { // discard hybrid annotations on package qualified types.
 							local.declaration.bits |= HasTypeAnnotations;
 							final TypeBinding localType = local.type;
+							long prevNullBits = localType.tagBits & TagBits.AnnotationNullMASK;
+							if (se8nullBits != 0 && prevNullBits != se8nullBits && ((prevNullBits | se8nullBits) == TagBits.AnnotationNullMASK)) {
+								scope.problemReporter().contradictoryNullAnnotations(se8NullAnnotation);
+							}
 							TypeBinding oldLeafType = localType.leafComponentType();
 							AnnotationBinding [][] goodies = new AnnotationBinding[local.declaration.type.getAnnotatableLevels()][];
 							goodies[0] = se8Annotations;  // @T X.Y.Z local; ==> @T should annotate X
@@ -852,6 +868,10 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						FieldDeclaration fieldDeclaration = sourceType.scope.referenceContext.declarationOf(field);
 						if (Annotation.isTypeUseCompatible(fieldDeclaration.type, scope)) { // discard hybrid annotations on package qualified types.
 							TypeBinding fieldType = field.type;
+							long prevNullBits = fieldType.tagBits & TagBits.AnnotationNullMASK;
+							if (se8nullBits != 0 && prevNullBits != se8nullBits && ((prevNullBits | se8nullBits) == TagBits.AnnotationNullMASK)) {
+								scope.problemReporter().contradictoryNullAnnotations(se8NullAnnotation);
+							}
 							TypeBinding oldLeafType = fieldType.leafComponentType();
 							AnnotationBinding [][] goodies = new AnnotationBinding[fieldDeclaration.type.getAnnotatableLevels()][];
 							goodies[0] = se8Annotations; // @T X.Y.Z field; ==> @T should annotate X
@@ -866,6 +886,10 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 							MethodDeclaration methodDecl = (MethodDeclaration) sourceType.scope.referenceContext.declarationOf(method);
 							if (Annotation.isTypeUseCompatible(methodDecl.returnType, scope)) {
 								final TypeBinding returnType = method.returnType;
+								long prevNullBits = returnType.tagBits & TagBits.AnnotationNullMASK;
+								if (se8nullBits != 0 && prevNullBits != se8nullBits && ((prevNullBits | se8nullBits) == TagBits.AnnotationNullMASK)) {
+									scope.problemReporter().contradictoryNullAnnotations(se8NullAnnotation);
+								}
 								TypeBinding oldLeafType = returnType.leafComponentType();
 								AnnotationBinding [][] goodies = new AnnotationBinding[methodDecl.returnType.getAnnotatableLevels()][];
 								goodies[0] = se8Annotations;

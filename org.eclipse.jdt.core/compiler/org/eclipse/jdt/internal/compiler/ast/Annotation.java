@@ -985,28 +985,10 @@ public abstract class Annotation extends Expression {
 						break;
 					case Binding.LOCAL :
 						LocalVariableBinding variable = (LocalVariableBinding) this.recipient;
-						if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) {
-							variable.tagBits |= tagBits;
-							if ((variable.tagBits & TagBits.AnnotationNullMASK) == TagBits.AnnotationNullMASK) {
-								scope.problemReporter().contradictoryNullAnnotations(this);
-								variable.tagBits &= ~TagBits.AnnotationNullMASK; // avoid secondary problems
-							}
-						} else if (variable.type != null) {
-							// bits not relating to null analysis go into the variable:
-							variable.tagBits |= tagBits & ~TagBits.AnnotationNullMASK;
-							// null bits go into the type:
-							long nullTagBits = tagBits & TagBits.AnnotationNullMASK;
-							if (nullTagBits != 0) {
-								if (variable.type.isBaseType()) {
-									scope.problemReporter().illegalAnnotationForBaseType(this, variable.type);
-								} else if (variable.declaration.type instanceof QualifiedTypeReference) {
-									scope.problemReporter().nullAnnotationUnsupportedLocation(this);
-								} else if (nullTagBits != (variable.type.tagBits & TagBits.AnnotationNullMASK)) {
-									if (((variable.type.tagBits & TagBits.AnnotationNullMASK) | nullTagBits ) == TagBits.AnnotationNullMASK) {
-										scope.problemReporter().contradictoryNullAnnotations(this);
-									}
-								}
-							}
+						variable.tagBits |= tagBits;
+						if ((variable.tagBits & TagBits.AnnotationNullMASK) == TagBits.AnnotationNullMASK) {
+							scope.problemReporter().contradictoryNullAnnotations(this);
+							variable.tagBits &= ~TagBits.AnnotationNullMASK; // avoid secondary problems
 						}
 						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
 							LocalDeclaration localDeclaration = variable.declaration;
