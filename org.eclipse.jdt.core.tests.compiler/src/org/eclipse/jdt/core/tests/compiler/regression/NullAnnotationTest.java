@@ -6449,4 +6449,26 @@ public void testBug_415269() {
 		options,
 		"");
 }
+public void testBug416267() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	void test() {\n" +
+			"		Missing m = new Missing() { };\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Missing m = new Missing() { };\n" + 
+		"	^^^^^^^\n" + 
+		"Missing cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	Missing m = new Missing() { };\n" + 
+		"	                ^^^^^^^\n" + 
+		"Missing cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
