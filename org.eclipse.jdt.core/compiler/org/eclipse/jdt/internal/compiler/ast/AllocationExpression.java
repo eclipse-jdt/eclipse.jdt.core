@@ -23,6 +23,7 @@
  *							bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *							bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *							Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
+ *							Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *							bug 378674 - "The method can be declared as static" is wrong
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -303,7 +304,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		this.resolvedType = scope.enclosingReceiverType();
 	} else {
 		this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);
-		this.resolvedType = checkIllegalNullAnnotation(scope, this.resolvedType);
+		checkIllegalNullAnnotation(scope, this.resolvedType);
 		checkParameterizedAllocation: {
 			if (this.type instanceof ParameterizedQualifiedTypeReference) { // disallow new X<String>.Y<Integer>()
 				ReferenceBinding currentType = (ReferenceBinding)this.resolvedType;
@@ -468,19 +469,16 @@ public TypeBinding resolveType(BlockScope scope) {
 
 /**
  * Check if 'allocationType' illegally has a top-level null annotation.
- * If so: report an error and return the unannotated variant.
  */
-TypeBinding checkIllegalNullAnnotation(BlockScope scope, TypeBinding allocationType) {
+void checkIllegalNullAnnotation(BlockScope scope, TypeBinding allocationType) {
 	if (allocationType != null) {
 		// only check top-level null annotation (annots on details are OK):
 		long nullTagBits = allocationType.tagBits & TagBits.AnnotationNullMASK;
 		if (nullTagBits != 0) {
 			Annotation annotation = this.type.findAnnotation(nullTagBits);
 			scope.problemReporter().nullAnnotationUnsupportedLocation(annotation);
-			return allocationType.unannotated();
 		}
 	}
-	return allocationType;
 }
 
 public TypeBinding[] inferElidedTypes(ReferenceBinding allocationType, ReferenceBinding enclosingType, TypeBinding[] argumentTypes, final BlockScope scope) {

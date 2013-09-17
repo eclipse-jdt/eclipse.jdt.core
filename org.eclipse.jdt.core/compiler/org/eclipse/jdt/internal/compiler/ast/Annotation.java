@@ -19,6 +19,7 @@
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
+ *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409517 - [1.8][compiler] Type annotation problems on more elaborate array references
@@ -1003,7 +1004,6 @@ public abstract class Annotation extends Expression {
 								} else if (nullTagBits != (variable.type.tagBits & TagBits.AnnotationNullMASK)) {
 									if (((variable.type.tagBits & TagBits.AnnotationNullMASK) | nullTagBits ) == TagBits.AnnotationNullMASK) {
 										scope.problemReporter().contradictoryNullAnnotations(this);
-										variable.type = variable.type.unannotated();
 									}
 								}
 							}

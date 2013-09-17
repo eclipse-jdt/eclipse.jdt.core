@@ -19,11 +19,13 @@
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
+ *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
+import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
@@ -193,9 +195,9 @@ public class TypeVariableBinding extends ReferenceBinding {
 				}
 	    	}
 	    }
-	    long nullTagBits = this.tagBits & TagBits.AnnotationNullMASK;
+	    long nullTagBits = NullAnnotationMatching.validNullTagBits(this.tagBits);
 	    if (nullTagBits != 0) {
-	    	long argBits = argumentType.tagBits & TagBits.AnnotationNullMASK;
+	    	long argBits = NullAnnotationMatching.validNullTagBits(argumentType.tagBits);
 	    	if (argBits != nullTagBits) {
 //	    		System.err.println("TODO(stephan): issue proper error: bound conflict at "+String.valueOf(this.declaringElement.readableName()));
 	    	}
@@ -592,9 +594,9 @@ public class TypeVariableBinding extends ReferenceBinding {
 	}
 
 	public void evaluateNullAnnotations(Scope scope, TypeParameter parameter) {
-		long nullTagBits = this.tagBits & TagBits.AnnotationNullMASK;
+		long nullTagBits = NullAnnotationMatching.validNullTagBits(this.tagBits);
 		if (this.firstBound != null && this.firstBound.isValidBinding()) {
-			long superNullTagBits = this.firstBound.tagBits & TagBits.AnnotationNullMASK;
+			long superNullTagBits = NullAnnotationMatching.validNullTagBits(this.firstBound.tagBits);
 			if (superNullTagBits != 0L) {
 				if (nullTagBits == 0L) {
 					nullTagBits |= superNullTagBits;
@@ -612,7 +614,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 		if ((length = interfaces.length) != 0) {
 			for (int i = length; --i >= 0;) {
 				ReferenceBinding resolveType = interfaces[i];
-				long superNullTagBits = resolveType.tagBits & TagBits.AnnotationNullMASK;
+				long superNullTagBits = NullAnnotationMatching.validNullTagBits(resolveType.tagBits);
 				if (superNullTagBits != 0L) {
 					if (nullTagBits == 0L) {
 						nullTagBits |= superNullTagBits;

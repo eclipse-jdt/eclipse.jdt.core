@@ -15,6 +15,7 @@
  *                          Bug 415397 - [1.8][compiler] Type Annotations on wildcard type argument dropped
  *        Stephan Herrmann - Contribution for
  *							Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
+ *							Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -78,8 +79,6 @@ public class Wildcard extends SingleTypeReference {
 			if (((boundType.tagBits | this.resolvedType.tagBits) & TagBits.AnnotationNullMASK) == TagBits.AnnotationNullMASK) { // are both set?
 				Annotation annotation = this.bound.findAnnotation(boundType.tagBits & TagBits.AnnotationNullMASK);
 				scope.problemReporter().contradictoryNullAnnotationsOnBounds(annotation, this.resolvedType.tagBits);
-				this.resolvedType = this.resolvedType.unannotated();
-				this.bound.resolvedType = ((WildcardBinding)this.resolvedType).bound = boundType.unannotated();
 			}
 		}
 		return this.resolvedType;

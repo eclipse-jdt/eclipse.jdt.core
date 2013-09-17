@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -391,7 +392,7 @@ public class ImplicitNullAnnotationVerifier {
 		if (useTypeAnnotations) {
 			TypeBinding parameter = method.parameters[i];
 			if (parameter != null) {
-				long nullBits = parameter.tagBits & TagBits.AnnotationNullMASK;
+				long nullBits = NullAnnotationMatching.validNullTagBits(parameter.tagBits);
 				if (nullBits != 0L)
 					return Boolean.valueOf(nullBits == TagBits.AnnotationNonNull);
 			}
@@ -405,7 +406,7 @@ public class ImplicitNullAnnotationVerifier {
 		if (useTypeAnnotations) {
 			if (method.returnType == null)
 				return 0L;
-			return method.returnType.tagBits & TagBits.AnnotationNullMASK;
+			return NullAnnotationMatching.validNullTagBits(method.returnType.tagBits);
 		}
 		return method.tagBits & TagBits.AnnotationNullMASK;
 	}

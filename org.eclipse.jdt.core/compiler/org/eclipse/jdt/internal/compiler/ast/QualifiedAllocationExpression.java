@@ -23,6 +23,7 @@
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
+ *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *								bug 378674 - "The method can be declared as static" is wrong
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -326,7 +327,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				hasError = true;
 			} else {
 				receiverType = ((SingleTypeReference) this.type).resolveTypeEnclosing(scope, (ReferenceBinding) enclosingInstanceType);
-				receiverType = checkIllegalNullAnnotation(scope, receiverType);
+				checkIllegalNullAnnotation(scope, receiverType);
 				if (receiverType != null && enclosingInstanceContainsCast) {
 					CastExpression.checkNeedForEnclosingInstanceCast(scope, this.enclosingInstance, enclosingInstanceType, receiverType);
 				}
@@ -337,7 +338,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				receiverType = scope.enclosingSourceType();
 			} else {
 				receiverType = this.type.resolveType(scope, true /* check bounds*/);
-				receiverType = checkIllegalNullAnnotation(scope, receiverType);
+				checkIllegalNullAnnotation(scope, receiverType);
 				checkParameterizedAllocation: {
 					if (receiverType == null || !receiverType.isValidBinding()) break checkParameterizedAllocation;
 					if (this.type instanceof ParameterizedQualifiedTypeReference) { // disallow new X<String>.Y<Integer>()

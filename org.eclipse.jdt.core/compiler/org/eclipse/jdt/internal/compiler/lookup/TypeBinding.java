@@ -18,6 +18,7 @@
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
+ *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -1368,6 +1369,7 @@ public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNull
 				}
 			}
 		}
+		// we do accept contradictory tagBits here, to support detecting contradictions caused by type substitution
 	}
 }
 

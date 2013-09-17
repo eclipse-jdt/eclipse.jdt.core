@@ -17,6 +17,7 @@
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
+ *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
@@ -589,7 +590,7 @@ protected void checkNullConstraints(Scope scope, TypeReference[] typeArguments) 
 protected void checkNullConstraints(Scope scope, TypeBinding[] variables, int rank) {
 	if (variables != null && variables.length > rank) {
 		if (variables[rank].hasNullTypeAnnotations()) {
-			if ((this.resolvedType.tagBits & TagBits.AnnotationNullMASK) != (variables[rank].tagBits & TagBits.AnnotationNullMASK)) {
+			if (NullAnnotationMatching.validNullTagBits(this.resolvedType.tagBits) != NullAnnotationMatching.validNullTagBits(variables[rank].tagBits)) {
 				scope.problemReporter().nullityMismatchTypeArgument(variables[rank], this.resolvedType, this);
 			}
     	}

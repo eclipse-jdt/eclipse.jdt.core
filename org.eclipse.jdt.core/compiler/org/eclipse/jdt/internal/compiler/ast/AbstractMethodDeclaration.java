@@ -23,6 +23,7 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *								Bug 403216 - [1.8][null] TypeReference#captureTypeAnnotations treats type annotations as type argument annotations
+ *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -661,8 +662,9 @@ public abstract class AbstractMethodDeclaration
 		} else {
 			int length = this.binding.parameters.length;
 			for (int i=0; i<length; i++) {
-				if (!this.scope.validateNullAnnotation(this.binding.parameters[i].tagBits, this.arguments[i].type, this.arguments[i].annotations))
-					this.binding.parameters[i] = this.binding.parameters[i].unannotated();
+				this.scope.validateNullAnnotation(this.binding.parameters[i].tagBits, this.arguments[i].type, this.arguments[i].annotations);
+// TODO(stephan) remove once we're sure:
+//					this.binding.parameters[i] = this.binding.parameters[i].unannotated();
 			}			
 		}
 	}

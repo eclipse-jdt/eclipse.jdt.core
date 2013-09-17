@@ -106,8 +106,8 @@ public class NullAnnotationMatching {
 						severity = 1; // required is annotated, provided not, need unchecked conversion
 					} else {
 						for (int i=0; i<=dims; i++) {
-							long requiredBits = requiredDimsTagBits[i] & TagBits.AnnotationNullMASK;
-							long providedBits = providedDimsTagBits[i] & TagBits.AnnotationNullMASK;
+							long requiredBits = validNullTagBits(requiredDimsTagBits[i]);
+							long providedBits = validNullTagBits(providedDimsTagBits[i]);
 							if (i > 0)
 								nullStatus = -1; // don't use beyond the outermost dimension
 							severity = Math.max(severity, computeNullProblemSeverity(requiredBits, providedBits, nullStatus));
@@ -121,11 +121,11 @@ public class NullAnnotationMatching {
 				}
 			}
 		} else if (requiredType.hasNullTypeAnnotations() || providedType.hasNullTypeAnnotations()) {
-			long requiredBits = requiredType.tagBits & TagBits.AnnotationNullMASK;
+			long requiredBits = validNullTagBits(requiredType.tagBits);
 			if (requiredBits != TagBits.AnnotationNullable // nullable lhs accepts everything, ...
 					|| nullStatus == -1) // only at detail/recursion even nullable must be matched exactly
 			{
-				long providedBits = providedType.tagBits & TagBits.AnnotationNullMASK;
+				long providedBits = validNullTagBits(providedType.tagBits);
 				severity = computeNullProblemSeverity(requiredBits, providedBits, nullStatus);
 			}
 			if (severity < 2) {
@@ -158,6 +158,11 @@ public class NullAnnotationMatching {
 		if (severity == 0)
 			return NullAnnotationMatching.NULL_ANNOTATIONS_OK;
 		return new NullAnnotationMatching(severity, superTypeHint);
+	}
+
+	public static long validNullTagBits(long bits) {
+		bits &= TagBits.AnnotationNullMASK;
+		return bits == TagBits.AnnotationNullMASK ? 0 : bits;
 	}
 
 	private static int computeNullProblemSeverity(long requiredBits, long providedBits, int nullStatus) {

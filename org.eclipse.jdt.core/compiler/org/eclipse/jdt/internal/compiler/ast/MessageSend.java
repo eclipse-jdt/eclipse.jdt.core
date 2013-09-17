@@ -37,6 +37,7 @@
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 405569 - Resource leak check false positive when using DbUtils.closeQuietly
  *								Bug 411964 - [1.8][null] leverage null type annotation in foreach statement
+ *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -159,13 +160,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			}
 		}
 		analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);
-	}
-	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled && compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
-		if (this.binding instanceof ParameterizedGenericMethodBinding && this.typeArguments != null) {
-			TypeVariableBinding[] typeVariables = this.binding.original().typeVariables();
-			for (int i = 0; i < this.typeArguments.length; i++)
-				this.typeArguments[i].checkNullConstraints(currentScope, typeVariables, i);
-		}
 	}
 	ReferenceBinding[] thrownExceptions;
 	if ((thrownExceptions = this.binding.thrownExceptions) != Binding.NO_EXCEPTIONS) {
@@ -732,10 +726,19 @@ public TypeBinding resolveType(BlockScope scope) {
 		return null;
 	}
 
-	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled && (this.binding.tagBits & TagBits.IsNullnessKnown) == 0) {
-		// not interested in reporting problems against this.binding:
-		new ImplicitNullAnnotationVerifier(compilerOptions.inheritNullAnnotations)
-				.checkImplicitNullAnnotations(this.binding, null/*srcMethod*/, false, scope);
+	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled) {
+		if ((this.binding.tagBits & TagBits.IsNullnessKnown) == 0) {
+			// not interested in reporting problems against this.binding:
+			new ImplicitNullAnnotationVerifier(compilerOptions.inheritNullAnnotations)
+					.checkImplicitNullAnnotations(this.binding, null/*srcMethod*/, false, scope);
+		}
+		if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
+			if (this.binding instanceof ParameterizedGenericMethodBinding && this.typeArguments != null) {
+				TypeVariableBinding[] typeVariables = this.binding.original().typeVariables();
+				for (int i = 0; i < this.typeArguments.length; i++)
+					this.typeArguments[i].checkNullConstraints(scope, typeVariables, i);
+			}
+		}
 	}
 	
 	if (((this.bits & ASTNode.InsideExpressionStatement) != 0)
