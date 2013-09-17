@@ -10,6 +10,7 @@
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
  *								bug 185682 - Increment/decrement operators mark local variables as read
  *								bug 331649 - [compiler][null] consider null annotations for fields
+ *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -226,11 +227,15 @@ public Constant constant() {
 }
 
 public void fillInDefaultNonNullness(FieldDeclaration sourceField, Scope scope) {
+	LookupEnvironment environment = scope.environment();
 	if (   this.type != null
 		&& !this.type.isBaseType()
 		&& (this.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) == 0)
 	{
-		this.tagBits |= TagBits.AnnotationNonNull;
+		if (environment.globalOptions.sourceLevel < ClassFileConstants.JDK1_8)
+			this.tagBits |= TagBits.AnnotationNonNull;
+		else
+			this.type = environment.createAnnotatedType(this.type, new AnnotationBinding[]{environment.getNonNullAnnotation()});
 	} else if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
 		scope.problemReporter().nullAnnotationIsRedundant(sourceField);
 	}

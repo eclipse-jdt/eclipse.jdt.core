@@ -6382,4 +6382,23 @@ public void testBug415850_b() {
 		"",
 		"class test180.Test");
 }
+public void testBug417295_5() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"AllAreNonNull.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class AllAreNonNull {\n" + 
+			"	String s3 = \"\";\n" + 
+			"	void test() {\n" + 
+			"		this.s3 = null;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in AllAreNonNull.java (at line 5)\n" + 
+		"	this.s3 = null;\n" + 
+		"	          ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n");
+}
 }
