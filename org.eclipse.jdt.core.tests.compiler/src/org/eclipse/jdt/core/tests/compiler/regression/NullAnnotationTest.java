@@ -6289,4 +6289,42 @@ public void testBug413460() {
 		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
 		"----------\n");
 }
+public void testBug416267() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	void test() {\n" +
+			"		Missing m = new Missing() { };\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Missing m = new Missing() { };\n" + 
+		"	^^^^^^^\n" + 
+		"Missing cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	Missing m = new Missing() { };\n" + 
+		"	                ^^^^^^^\n" + 
+		"Missing cannot be resolved to a type\n" + 
+		"----------\n");
+}
+// duplicate of bug 416267
+public void testBug418843() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"TestEnum.java",
+			"public enum TestEnum {\n" + 
+			"	TestEntry(1){};\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in TestEnum.java (at line 2)\n" + 
+		"	TestEntry(1){};\n" + 
+		"	^^^^^^^^^\n" + 
+		"The constructor TestEnum(int) is undefined\n" + 
+		"----------\n");
+}
 }
