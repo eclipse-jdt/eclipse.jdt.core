@@ -848,18 +848,10 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				switch (recipient.kind()) {
 					case Binding.LOCAL:
 						LocalVariableBinding local = (LocalVariableBinding) recipient;
-						if (Annotation.isTypeUseCompatible(local.declaration.type, scope)) { // discard hybrid annotations on package qualified types.
+						TypeReference typeRef = local.declaration.type;
+						if (Annotation.isTypeUseCompatible(typeRef, scope)) { // discard hybrid annotations on package qualified types.
 							local.declaration.bits |= HasTypeAnnotations;
-							final TypeBinding localType = local.type;
-							long prevNullBits = localType.tagBits & TagBits.AnnotationNullMASK;
-							if (se8nullBits != 0 && prevNullBits != se8nullBits && ((prevNullBits | se8nullBits) == TagBits.AnnotationNullMASK)) {
-								scope.problemReporter().contradictoryNullAnnotations(se8NullAnnotation);
-							}
-							TypeBinding oldLeafType = localType.leafComponentType();
-							AnnotationBinding [][] goodies = new AnnotationBinding[local.declaration.type.getAnnotatableLevels()][];
-							goodies[0] = se8Annotations;  // @T X.Y.Z local; ==> @T should annotate X
-							TypeBinding newLeafType = scope.environment().createAnnotatedType(oldLeafType, goodies);
-							local.type = localType.isArrayType() ? scope.environment().createArrayType(newLeafType, localType.dimensions(), localType.getTypeAnnotations()) : newLeafType;
+							local.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, typeRef, local.type);
 						}
 						break;
 					case Binding.FIELD:
@@ -867,16 +859,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						SourceTypeBinding sourceType = (SourceTypeBinding) field.declaringClass;
 						FieldDeclaration fieldDeclaration = sourceType.scope.referenceContext.declarationOf(field);
 						if (Annotation.isTypeUseCompatible(fieldDeclaration.type, scope)) { // discard hybrid annotations on package qualified types.
-							TypeBinding fieldType = field.type;
-							long prevNullBits = fieldType.tagBits & TagBits.AnnotationNullMASK;
-							if (se8nullBits != 0 && prevNullBits != se8nullBits && ((prevNullBits | se8nullBits) == TagBits.AnnotationNullMASK)) {
-								scope.problemReporter().contradictoryNullAnnotations(se8NullAnnotation);
-							}
-							TypeBinding oldLeafType = fieldType.leafComponentType();
-							AnnotationBinding [][] goodies = new AnnotationBinding[fieldDeclaration.type.getAnnotatableLevels()][];
-							goodies[0] = se8Annotations; // @T X.Y.Z field; ==> @T should annotate X
-							TypeBinding newLeafType = scope.environment().createAnnotatedType(oldLeafType, goodies);
-							field.type = fieldType.isArrayType() ? scope.environment().createArrayType(newLeafType, fieldType.dimensions(), fieldType.getTypeAnnotations()) : newLeafType;
+							field.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, fieldDeclaration.type, field.type);
 						}
 						break;
 					case Binding.METHOD:
@@ -885,22 +868,27 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 							sourceType = (SourceTypeBinding) method.declaringClass;
 							MethodDeclaration methodDecl = (MethodDeclaration) sourceType.scope.referenceContext.declarationOf(method);
 							if (Annotation.isTypeUseCompatible(methodDecl.returnType, scope)) {
-								final TypeBinding returnType = method.returnType;
-								long prevNullBits = returnType.tagBits & TagBits.AnnotationNullMASK;
-								if (se8nullBits != 0 && prevNullBits != se8nullBits && ((prevNullBits | se8nullBits) == TagBits.AnnotationNullMASK)) {
-									scope.problemReporter().contradictoryNullAnnotations(se8NullAnnotation);
-								}
-								TypeBinding oldLeafType = returnType.leafComponentType();
-								AnnotationBinding [][] goodies = new AnnotationBinding[methodDecl.returnType.getAnnotatableLevels()][];
-								goodies[0] = se8Annotations;
-								TypeBinding newLeafType = scope.environment().createAnnotatedType(oldLeafType, goodies);
-								method.returnType = returnType.isArrayType() ? scope.environment().createArrayType(newLeafType, returnType.dimensions(), returnType.getTypeAnnotations()) : newLeafType;
+								method.returnType = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, methodDecl.returnType, method.returnType);
 							}
 						}
 						break;
 				}
 			}
 		}
+	}
+
+	private static TypeBinding mergeAnnotationsIntoType(BlockScope scope, AnnotationBinding[] se8Annotations, long se8nullBits, Annotation se8NullAnnotation,
+			TypeReference typeRef, TypeBinding existingType) 
+	{
+		long prevNullBits = existingType.tagBits & TagBits.AnnotationNullMASK;
+		if (se8nullBits != 0 && prevNullBits != se8nullBits && ((prevNullBits | se8nullBits) == TagBits.AnnotationNullMASK)) {
+			scope.problemReporter().contradictoryNullAnnotations(se8NullAnnotation);
+		}
+		TypeBinding oldLeafType = existingType.leafComponentType();
+		AnnotationBinding [][] goodies = new AnnotationBinding[typeRef.getAnnotatableLevels()][];
+		goodies[0] = se8Annotations;  // @T X.Y.Z local; ==> @T should annotate X
+		TypeBinding newLeafType = scope.environment().createAnnotatedType(oldLeafType, goodies);
+		return existingType.isArrayType() ? scope.environment().createArrayType(newLeafType, existingType.dimensions(), existingType.getTypeAnnotations()) : newLeafType;
 	}
 
 /**
