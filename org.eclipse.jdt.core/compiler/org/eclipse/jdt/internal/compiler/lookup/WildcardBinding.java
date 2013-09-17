@@ -15,6 +15,7 @@
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *     							bug 359362 - FUP of bug 349326: Resource leak on non-Closeable resource
  *								bug 358903 - Filter practically unimportant resource leak warnings
+ *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -594,7 +595,8 @@ public class WildcardBinding extends ReferenceBinding {
                 break;
             case Wildcard.EXTENDS :
             	if (this.otherBounds == null) {
-            		buffer.append(TypeConstants.WILDCARD_NAME).append(TypeConstants.WILDCARD_EXTENDS).append(this.bound.readableName());
+            		buffer.append(TypeConstants.WILDCARD_NAME).append(TypeConstants.WILDCARD_EXTENDS);
+            		buffer.append(shortNames ? this.bound.shortReadableName(): this.bound.readableName());
             	} else {
 	            	buffer.append(this.bound.nullAnnotatedReadableName(options, shortNames));
 	            	for (int i = 0, length = this.otherBounds.length; i < length; i++) {

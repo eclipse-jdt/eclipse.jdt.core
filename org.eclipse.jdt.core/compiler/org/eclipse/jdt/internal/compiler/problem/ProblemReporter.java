@@ -134,6 +134,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
@@ -8908,6 +8909,11 @@ public void nullityMismatch(Expression expression, TypeBinding providedType, Typ
 		nullityMismatchingTypeAnnotation(expression, providedType, requiredType, NullAnnotationMatching.NULL_ANNOTATIONS_UNCHECKED);
 }
 public void nullityMismatchIsNull(Expression expression, TypeBinding requiredType) {
+	if (requiredType instanceof CaptureBinding) {
+		CaptureBinding capture = (CaptureBinding) requiredType;
+		if (capture.wildcard != null)
+			requiredType = capture.wildcard;
+	}
 	int problemId = IProblem.RequiredNonNullButProvidedNull;
 	String[] arguments = new String[] {
 			annotatedTypeName(requiredType, this.options.nonNullAnnotationName)
