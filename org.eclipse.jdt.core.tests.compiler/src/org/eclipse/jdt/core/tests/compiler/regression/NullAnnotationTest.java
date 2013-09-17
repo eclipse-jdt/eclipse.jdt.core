@@ -111,6 +111,13 @@ String nonNullArrayOf(String string) {
 			: "Object @NonNull[]";
 }
 
+
+String targetTypeUseIfAvailable() {
+	return this.complianceLevel >= ClassFileConstants.JDK1_8
+				? "@Target(ElementType.TYPE_USE)\n"
+				: "";
+}
+
 protected void setUp() throws Exception {
 	super.setUp();
 	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
@@ -535,7 +542,10 @@ public void test_nonnull_parameter_015() {
 			"        if (o != null)\n" +
 			"              System.out.print(o.toString());\n" +
 			"    }\n" +
-			"    void foo2(int i, @NonNull Object ... o) {\n" +
+			((this.complianceLevel < ClassFileConstants.JDK1_8)
+			? "    void foo2(int i, @NonNull Object ... o) {\n"
+			: "    void foo2(int i, Object @NonNull ... o) {\n"
+			) +
 			"        if (o.length > 0 && o[0] != null)\n" +
 			"              System.out.print(o[0].toString());\n" +
 			"    }\n" +
@@ -1939,17 +1949,19 @@ public void test_annotation_import_005() {
 			"package org.foo;\n" +
 			"import java.lang.annotation.*;\n" +
 			"@Retention(RetentionPolicy.CLASS)\n" +
+			targetTypeUseIfAvailable() +
 			"public @interface MayBeNull {}\n",
 
 			"org/foo/MustNotBeNull.java",
 			"package org.foo;\n" +
 			"import java.lang.annotation.*;\n" +
 			"@Retention(RetentionPolicy.CLASS)\n" +
+			targetTypeUseIfAvailable() +
 			"public @interface MustNotBeNull {}\n",
 
 			"Lib.java",
 			"public class Lib {\n" +
-			"    Object getObject() { return new Object(); }\n" +
+			"    public Object getObject() { return new Object(); }\n" +
 			"}\n",
 			"X.java",
 			"import org.foo.*;\n" +
