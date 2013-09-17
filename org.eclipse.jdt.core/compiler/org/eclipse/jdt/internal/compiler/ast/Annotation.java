@@ -1009,7 +1009,7 @@ public abstract class Annotation extends Expression {
 							}
 						}
 						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
-							 LocalDeclaration localDeclaration = variable.declaration;
+							LocalDeclaration localDeclaration = variable.declaration;
 							recordSuppressWarnings(scope, localDeclaration.declarationSourceStart, localDeclaration.declarationSourceEnd, scope.compilerOptions().suppressWarnings);
 						}
 						break;
