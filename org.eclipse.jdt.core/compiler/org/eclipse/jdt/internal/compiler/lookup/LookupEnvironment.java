@@ -25,6 +25,7 @@
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 416183 - [1.8][compiler][null] Overload resolution fails with null annotations
  *								Bug 416307 - [1.8][compiler][null] subclass with type parameter substitution confuses null checking
+ *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1030,6 +1031,14 @@ public char[][] getNullableAnnotationName() {
 public AnnotationBinding getNonNullAnnotation() {
 	ReferenceBinding nonNull = getResolvedType(this.globalOptions.nonNullAnnotationName, null);
 	return new AnnotationBinding(nonNull, Binding.NO_ELEMENT_VALUE_PAIRS);
+}
+
+public AnnotationBinding[] nullAnnotationsFromTagBits(long nullTagBits) {
+	if (nullTagBits == TagBits.AnnotationNonNull)
+		return new AnnotationBinding[] { getNonNullAnnotation() };
+	else if (nullTagBits == TagBits.AnnotationNullable)
+		return new AnnotationBinding[] { getNullableAnnotation() };
+	return null;
 }
 
 public char[][] getNonNullAnnotationName() {
