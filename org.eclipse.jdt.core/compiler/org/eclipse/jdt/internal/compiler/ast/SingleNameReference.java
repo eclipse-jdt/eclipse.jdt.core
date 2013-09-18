@@ -856,7 +856,7 @@ public VariableBinding nullAnnotatedVariableBinding(boolean supportTypeAnnotatio
 		case Binding.FIELD : // reading a field
 		case Binding.LOCAL : // reading a local variable
 			if (supportTypeAnnotations 
-					|| (((VariableBinding)this.binding).tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) != 0)
+					|| (((VariableBinding)this.binding).tagBits & TagBits.AnnotationNullMASK) != 0)
 				return (VariableBinding) this.binding;
 	}
 	return null;

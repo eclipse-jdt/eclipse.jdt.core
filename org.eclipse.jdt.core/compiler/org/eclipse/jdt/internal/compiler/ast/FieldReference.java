@@ -727,7 +727,7 @@ public void traverse(ASTVisitor visitor, BlockScope scope) {
 public VariableBinding nullAnnotatedVariableBinding(boolean supportTypeAnnotations) {
 	if (this.binding != null) {
 		if (supportTypeAnnotations
-				|| ((this.binding.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) != 0)) {
+				|| ((this.binding.tagBits & TagBits.AnnotationNullMASK) != 0)) {
 			return this.binding;
 		}
 	}

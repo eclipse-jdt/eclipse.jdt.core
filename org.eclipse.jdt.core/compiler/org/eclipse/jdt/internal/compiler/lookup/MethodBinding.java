@@ -500,7 +500,7 @@ protected void fillInDefaultNonNullness(AbstractMethodDeclaration sourceMethod) 
 		this.tagBits |= TagBits.HasParameterAnnotations;
 	if (   this.returnType != null
 		&& !this.returnType.isBaseType()
-		&& (this.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) == 0)
+		&& (this.tagBits & TagBits.AnnotationNullMASK) == 0)
 	{
 		this.tagBits |= TagBits.AnnotationNonNull;
 	} else if (sourceMethod != null && (this.tagBits & TagBits.AnnotationNonNull) != 0) {
@@ -531,7 +531,7 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 		this.tagBits |= TagBits.HasParameterAnnotations;
 	if (   this.returnType != null
 		&& !this.returnType.isBaseType()
-		&& (this.returnType.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) == 0)
+		&& (this.returnType.tagBits & TagBits.AnnotationNullMASK) == 0)
 	{
 		this.returnType = env.createAnnotatedType(this.returnType, new AnnotationBinding[]{env.getNonNullAnnotation()});
 	} else if (sourceMethod != null && (this.returnType.tagBits & TagBits.AnnotationNonNull) != 0) {

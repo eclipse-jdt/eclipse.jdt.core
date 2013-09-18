@@ -1418,12 +1418,11 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 			if (CharOperation.equals(typeName, nonNullByDefaultAnnotationName)) {
 				methodBinding.tagBits |= TagBits.AnnotationNonNullByDefault;
 			}
-			if (!useTypeAnnotations) {
-				if (!explicitNullness && CharOperation.equals(typeName, nonNullAnnotationName)) {
+			if (!useTypeAnnotations && !explicitNullness) {
+				if (CharOperation.equals(typeName, nonNullAnnotationName)) {
 					methodBinding.tagBits |= TagBits.AnnotationNonNull;
 					explicitNullness = true;
-				}
-				if (!explicitNullness && CharOperation.equals(typeName, nullableAnnotationName)) {
+				} else if (CharOperation.equals(typeName, nullableAnnotationName)) {
 					methodBinding.tagBits |= TagBits.AnnotationNullable;
 					explicitNullness = true;
 				}

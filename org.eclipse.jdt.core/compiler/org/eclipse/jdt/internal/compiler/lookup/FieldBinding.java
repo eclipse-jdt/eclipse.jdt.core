@@ -234,7 +234,7 @@ public void fillInDefaultNonNullness(FieldDeclaration sourceField, Scope scope) 
 	LookupEnvironment environment = scope.environment();
 	if (   this.type != null
 		&& !this.type.isBaseType()
-		&& (this.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) == 0)
+		&& (this.tagBits & TagBits.AnnotationNullMASK) == 0)
 	{
 		if (environment.globalOptions.sourceLevel < ClassFileConstants.JDK1_8)
 			this.tagBits |= TagBits.AnnotationNonNull;
