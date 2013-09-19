@@ -170,16 +170,20 @@ public class NullAnnotationMatching {
 		if (one == null) return null;
 		long oneNullBits = validNullTagBits(one.tagBits);
 		long twoNullBits = validNullTagBits(two.tagBits);
-		if (oneNullBits == twoNullBits)
-			return one;			// same difference
-		if (oneNullBits == TagBits.AnnotationNullable)
-			return one;			// nullable is dangerous
-		if (twoNullBits == TagBits.AnnotationNullable)
-			return two;			// nullable is dangerous
-		// below this point we have unknown vs. nonnull, which is which?
-		if (oneNullBits == 0)
-			return one;			// unknown is more dangerous than nonnull
-		return two;				// unknown is more dangerous than nonnull
+		if (oneNullBits != twoNullBits) {
+			if (oneNullBits == TagBits.AnnotationNullable)
+				return one;			// nullable is dangerous
+			if (twoNullBits == TagBits.AnnotationNullable)
+				return two;			// nullable is dangerous
+			// below this point we have unknown vs. nonnull, which is which?
+			if (oneNullBits == 0)
+				return one;			// unknown is more dangerous than nonnull
+			return two;				// unknown is more dangerous than nonnull
+		} else if (one != two) {
+			if (analyse(one, two, -1).isAnyMismatch())
+				return two;			// two doesn't snugly fit into one, so it must be more dangerous
+		}
+		return one;
 	}
 
 	private static int computeNullProblemSeverity(long requiredBits, long providedBits, int nullStatus) {

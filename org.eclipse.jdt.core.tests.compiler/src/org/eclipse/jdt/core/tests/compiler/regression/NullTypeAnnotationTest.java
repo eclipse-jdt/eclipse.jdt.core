@@ -29,7 +29,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testCompatibility6" };
+//			TESTS_NAMES = new String[] { "testConditional2" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -1452,7 +1452,6 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"Null type mismatch (type annotations): required \'List<@Nullable ? extends X1>\' but this expression has type \'ArrayList<@NonNull X1>\', corresponding supertype is \'List<@NonNull X1>\'\n" + 
 				"----------\n");
 	}
-	// TODO(Stephan): Fix lub computation to create an intersection type when annotations differ. See comment in Scope#lowerUpperBound.
 	public void testConditional1() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -1472,7 +1471,43 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				+ "}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 8)\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	return f == 0 ? good : dubious;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	return f == 2 ? dubious : good;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
+			"----------\n");
+	}
+
+	public void _testConditional2() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n"
+				+ "import java.util.*;\n"
+				+ "public class X {\n"
+				+ "	List<@NonNull String> foo(List<@NonNull String> good, ArrayList<String> dubious, int f) {\n"
+				+ "		if (f < 2)\n"
+				+ "			return f == 0 ? good : dubious;\n"
+				+ "		if (f < 4)\n"
+				+ "			return f == 2 ? dubious : good;\n"
+				+ "		if (f < 6)\n"
+				+ "			return f == 4 ? good : good;\n"
+				+ "		return null;\n"
+				+ "	}\n"
+				+ "}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	return f == 0 ? good : dubious;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
 			"	return f == 2 ? dubious : good;\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
@@ -2284,7 +2319,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"The method foo(List<X>) of type Z should be tagged with @Override since it actually overrides a superclass method\n" + 
 			"----------\n");
 	}
-	// TODO(Stephan) : the message needs clean up.
+
 	public void testBug416175() {
 		runNegativeTestWithLibs(
 			new String[] {
