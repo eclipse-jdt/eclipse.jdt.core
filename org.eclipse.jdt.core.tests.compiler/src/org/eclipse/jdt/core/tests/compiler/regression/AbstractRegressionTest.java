@@ -103,18 +103,18 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				"	public java.util.Comparator<*> thenComparing(java.util.Comparator<? super *> other) { return null;}\n" +
 				"	public <% extends java.lang.Comparable<? super %>> java.util.Comparator<*> thenComparing(java.util.function.Function<? super *, ? extends %> keyExtractor, java.util.Comparator<? super %> keyComparator) { return null;}\n" +
 				"	public <% extends java.lang.Comparable<? super %>> java.util.Comparator<*> thenComparing(java.util.function.Function<? super *, ? extends %> keyExtractor) { return null;}\n" +
-				"	public java.util.Comparator<*> thenComparing(java.util.function.ToIntFunction<? super *> keyExtractor) { return null;}\n" +
-				"	public java.util.Comparator<*> thenComparing(java.util.function.ToLongFunction<? super *> keyExtractor) { return null;}\n" +
-				"	public java.util.Comparator<*> thenComparing(java.util.function.ToDoubleFunction<? super *> keyExtractor) { return null;}\n";
+				"	public java.util.Comparator<*> thenComparingInt(java.util.function.ToIntFunction<? super *> keyExtractor) { return null;}\n" +
+				"	public java.util.Comparator<*> thenComparingLong(java.util.function.ToLongFunction<? super *> keyExtractor) { return null;}\n" +
+				"	public java.util.Comparator<*> thenComparingDouble(java.util.function.ToDoubleFunction<? super *> keyExtractor) { return null;}\n";
 			COMPARATOR_RAW_IMPL_JRE8 =
 				"	public java.util.Comparator reverseOrder() { return null;}\n" +
 				"	public java.util.Comparator reversed() { return null;}\n" +
 				"	public java.util.Comparator thenComparing(java.util.Comparator other) { return null;}\n" +
 				"	public java.util.Comparator thenComparing(java.util.function.Function keyExtractor, java.util.Comparator keyComparator) { return null;}\n" +
 				"	public java.util.Comparator thenComparing(java.util.function.Function keyExtractor) { return null;}\n" +
-				"	public java.util.Comparator thenComparing(java.util.function.ToIntFunction keyExtractor) { return null;}\n" +
-				"	public java.util.Comparator thenComparing(java.util.function.ToLongFunction keyExtractor) { return null;}\n" +
-				"	public java.util.Comparator thenComparing(java.util.function.ToDoubleFunction keyExtractor) { return null;}\n";
+				"	public java.util.Comparator thenComparingInt(java.util.function.ToIntFunction keyExtractor) { return null;}\n" +
+				"	public java.util.Comparator thenComparingLong(java.util.function.ToLongFunction keyExtractor) { return null;}\n" +
+				"	public java.util.Comparator thenComparingDouble(java.util.function.ToDoubleFunction keyExtractor) { return null;}\n";
 			COLLECTION_IMPL_JRE8 =
 				"	public boolean removeAll(java.util.function.Predicate<? super *> filter) { return false;}\n" +
 				"	public boolean removeIf(java.util.function.Predicate<? super *> filter) { return false;}\n" +
