@@ -98,6 +98,9 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	PackageBinding nonnullAnnotationPackage;			// the package supposed to contain the NonNull annotation type
 	PackageBinding nonnullByDefaultAnnotationPackage;	// the package supposed to contain the NonNullByDefault annotation type
 
+	AnnotationBinding nonNullAnnotation;
+	AnnotationBinding nullableAnnotation;
+
 	final static int BUILD_FIELDS_AND_METHODS = 4;
 	final static int BUILD_TYPE_HIERARCHY = 1;
 	final static int CHECK_AND_SET_IMPORTS = 2;
@@ -1020,8 +1023,10 @@ public ReferenceBinding getCachedType(char[][] compoundName) {
 }
 
 public AnnotationBinding getNullableAnnotation() {
+	if (this.nullableAnnotation != null)
+		return this.nullableAnnotation;
 	ReferenceBinding nullable = getResolvedType(this.globalOptions.nullableAnnotationName, null);
-	return new AnnotationBinding(nullable, Binding.NO_ELEMENT_VALUE_PAIRS);
+	return this.nullableAnnotation = this.typeSystem.getAnnotationType(nullable);
 }
 
 public char[][] getNullableAnnotationName() {
@@ -1029,8 +1034,10 @@ public char[][] getNullableAnnotationName() {
 }
 
 public AnnotationBinding getNonNullAnnotation() {
+	if (this.nonNullAnnotation != null) 
+		return this.nonNullAnnotation;
 	ReferenceBinding nonNull = getResolvedType(this.globalOptions.nonNullAnnotationName, null);
-	return new AnnotationBinding(nonNull, Binding.NO_ELEMENT_VALUE_PAIRS);
+	return this.nonNullAnnotation = this.typeSystem.getAnnotationType(nonNull);
 }
 
 public AnnotationBinding[] nullAnnotationsFromTagBits(long nullTagBits) {
