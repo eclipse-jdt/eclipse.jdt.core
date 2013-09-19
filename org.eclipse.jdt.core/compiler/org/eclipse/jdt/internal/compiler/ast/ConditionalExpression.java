@@ -22,6 +22,7 @@
  *							bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *							Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *							Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
+ *							Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -516,7 +517,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			// from valueIFTrue or valueIfFalse to the receiver constant
 			this.constant = condConstant.booleanValue() ? trueConstant : falseConstant;
 		}
-		if (valueIfTrueType == valueIfFalseType) { // harmed the implicit conversion
+		if (TypeBinding.equalsEquals(valueIfTrueType, valueIfFalseType)) { // harmed the implicit conversion
 			this.valueIfTrue.computeConversion(scope, valueIfTrueType, this.originalValueIfTrueType);
 			this.valueIfFalse.computeConversion(scope, valueIfFalseType, this.originalValueIfFalseType);
 			if (valueIfTrueType == TypeBinding.BOOLEAN) {
@@ -533,7 +534,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 						: this.optimizedIfFalseConstant;
 				}
 			}
-			return this.resolvedType = valueIfTrueType;
+			return this.resolvedType = NullAnnotationMatching.moreDangerousType(valueIfTrueType, valueIfFalseType);
 		}
 		// Determine the return type depending on argument types
 		// Numeric types

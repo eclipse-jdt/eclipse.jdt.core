@@ -221,9 +221,6 @@ public static Test suite() {
 		tests_1_8.addAll(since_1_6);
 		tests_1_8.addAll(since_1_7);
 		tests_1_8.addAll(since_1_8);
-		// TODO(stephan) temporary workaround, several tests currently fail at 1.8:
-		tests_1_8.remove(NullAnnotationTest.class);
-		//
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;

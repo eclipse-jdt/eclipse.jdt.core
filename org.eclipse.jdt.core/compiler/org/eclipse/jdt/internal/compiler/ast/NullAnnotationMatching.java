@@ -164,15 +164,32 @@ public class NullAnnotationMatching {
 		bits &= TagBits.AnnotationNullMASK;
 		return bits == TagBits.AnnotationNullMASK ? 0 : bits;
 	}
+	
+	/** Provided that both types are {@link TypeBinding#equalsEquals}, return the one that is more likely to show null at runtime. */
+	public static TypeBinding moreDangerousType(TypeBinding one, TypeBinding two) {
+		if (one == null) return null;
+		long oneNullBits = validNullTagBits(one.tagBits);
+		long twoNullBits = validNullTagBits(two.tagBits);
+		if (oneNullBits == twoNullBits)
+			return one;			// same difference
+		if (oneNullBits == TagBits.AnnotationNullable)
+			return one;			// nullable is dangerous
+		if (twoNullBits == TagBits.AnnotationNullable)
+			return two;			// nullable is dangerous
+		// below this point we have unknown vs. nonnull, which is which?
+		if (oneNullBits == 0)
+			return one;			// unknown is more dangerous than nonnull
+		return two;				// unknown is more dangerous than nonnull
+	}
 
 	private static int computeNullProblemSeverity(long requiredBits, long providedBits, int nullStatus) {
 		if (requiredBits != 0 && requiredBits != providedBits) {
+			if (requiredBits == TagBits.AnnotationNonNull && nullStatus == FlowInfo.NON_NULL) {
+				return 0; // OK by flow analysis
+			}
 			if (providedBits != 0) {
 				return 2; // mismatching annotations
 			} else {
-				if (requiredBits == TagBits.AnnotationNonNull && nullStatus == FlowInfo.NON_NULL) {
-					return 0; // OK by flow analysis
-				}
 				return 1; // need unchecked conversion regarding type detail
 			}
 		}
