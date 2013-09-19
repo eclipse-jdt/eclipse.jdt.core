@@ -782,9 +782,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	            for (int i = 0; i < length; i++) {
 	            	if (!this.arguments[i].isTypeArgumentContainedBy(otherArguments[i]))
 	            		return false;
-	            	// Stephan : is this intentional ?? 
-//	            	if ((this.arguments[i].tagBits & TagBits.AnnotationNullMASK) != (otherArguments[i].tagBits & TagBits.AnnotationNullMASK))
-//	            		return false;
 	            }
 	            return true;
 
