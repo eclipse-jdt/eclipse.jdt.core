@@ -2193,6 +2193,11 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		ITypeBinding binding = qualifiedType.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong qualified name", "test404489.bug.X.Y", binding.getQualifiedName());
+		SimpleType simpleType = (SimpleType) qualifiedType.getQualifier();
+		assertEquals("incorrect type", "@A X", simpleType.toString());
+		binding = simpleType.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong qualified name", "test404489.bug.X", binding.getQualifiedName());
 		List annotations = qualifiedType.annotations();
 		assertTrue(annotations.size() == 1);
 		MarkerAnnotation marker	= (MarkerAnnotation) annotations.get(0);
@@ -2212,11 +2217,11 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong qualified name", "test404489.bug.B", binding.getQualifiedName());
 		assertTrue(qualifiedType.getQualifier().isSimpleType());
-		SimpleType simpleType = (SimpleType) qualifiedType.getQualifier();
+		simpleType = (SimpleType) qualifiedType.getQualifier();
 		assertEquals("incorrect type", "@A X", simpleType.toString());
 		binding = simpleType.resolveBinding();
 		assertNotNull("No binding", binding);
-		assertEquals("Wrong qualified name", "test404489.bug.X.Y", binding.getQualifiedName());
+		assertEquals("Wrong qualified name", "test404489.bug.X", binding.getQualifiedName());
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=404489

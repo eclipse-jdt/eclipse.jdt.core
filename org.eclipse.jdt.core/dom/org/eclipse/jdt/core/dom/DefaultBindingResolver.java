@@ -1629,7 +1629,9 @@ class DefaultBindingResolver extends BindingResolver {
 					binding = typeBinding;
 				}
 			} else if (node instanceof TypeReference) {
-				if (type instanceof QualifiedType) {
+				if (type instanceof SimpleType && node instanceof QualifiedTypeReference) {
+					return resolveTypeBindingForName(((SimpleType)type).getName());
+				} else if (type instanceof QualifiedType) {
 					return resolveTypeBindingForName(((QualifiedType)type).getName());
 				} else if (type instanceof PackageQualifiedType){
 					return resolveTypeBindingForName(((PackageQualifiedType)type).getName());
