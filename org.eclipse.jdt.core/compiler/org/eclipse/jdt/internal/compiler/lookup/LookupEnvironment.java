@@ -964,6 +964,10 @@ public ParameterizedTypeBinding createParameterizedType(ReferenceBinding generic
 	return this.typeSystem.getParameterizedType(genericType, typeArguments, enclosingType, Binding.NO_ANNOTATIONS);
 }
 
+public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType, AnnotationBinding [] annotations) {
+	return this.typeSystem.getParameterizedType(genericType, typeArguments, enclosingType, annotations);
+}
+
 public TypeBinding createAnnotatedType(TypeBinding type, AnnotationBinding[][] annotations) {
 	return this.typeSystem.getAnnotatedType(type, annotations);
 }
@@ -989,8 +993,16 @@ public RawTypeBinding createRawType(ReferenceBinding genericType, ReferenceBindi
 	return this.typeSystem.getRawType(genericType, enclosingType, Binding.NO_ANNOTATIONS);
 }
 
+public RawTypeBinding createRawType(ReferenceBinding genericType, ReferenceBinding enclosingType, AnnotationBinding [] annotations) {
+	return this.typeSystem.getRawType(genericType, enclosingType, annotations);
+}
+
 public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind) {
 	return this.typeSystem.getWildcard(genericType, rank, bound, otherBounds, boundKind, Binding.NO_ANNOTATIONS);
+}
+
+public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind, AnnotationBinding [] annotations) {
+	return this.typeSystem.getWildcard(genericType, rank, bound, otherBounds, boundKind, annotations);
 }
 
 /**

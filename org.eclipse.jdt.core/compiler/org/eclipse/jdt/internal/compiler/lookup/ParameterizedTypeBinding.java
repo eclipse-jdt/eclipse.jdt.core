@@ -138,7 +138,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				capturedArguments[i] = argument;
 			}
 		}
-		ParameterizedTypeBinding capturedParameterizedType = this.environment.createParameterizedType(this.type, capturedArguments, enclosingType());
+		ParameterizedTypeBinding capturedParameterizedType = this.environment.createParameterizedType(this.type, capturedArguments, enclosingType(), this.getTypeAnnotations());
 		for (int i = 0; i < length; i++) {
 			TypeBinding argument = capturedArguments[i];
 			if (argument.isCapture()) {

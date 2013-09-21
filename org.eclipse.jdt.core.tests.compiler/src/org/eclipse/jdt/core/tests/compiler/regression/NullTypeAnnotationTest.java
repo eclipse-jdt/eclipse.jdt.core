@@ -2573,4 +2573,167 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			getCompilerOptions(),
 			"");
 	}
+	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=417113#c25, point 4.
+	public void testSubstitution() { 
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"import java.util.List;\n" +
+				"import java.util.ArrayList;\n" +
+				"public class X<T> {\n" +
+				"	T foo(@NonNull List<@NonNull T> l) {\n" +
+				"		return l.get(0);\n" +
+				"	}	\n" +
+				"	public static void main(String[] args) {\n" +
+				"		X<String> s = new X<>();\n" +
+				"		s.foo(new ArrayList<String>()); // (1)\n" +
+				"		s.foo(null); // (2)\n" +
+				"	}\n" +
+				"}\n"
+
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. WARNING in X.java (at line 10)\n" + 
+			"	s.foo(new ArrayList<String>()); // (1)\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'@NonNull List<@NonNull String>\'\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 11)\n" + 
+			"	s.foo(null); // (2)\n" + 
+			"	      ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull List<@NonNull String>\' but the provided value is null\n" + 
+			"----------\n");
+	}
+	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=417113#c25, point 4.
+	public void testSubstitution2() { 
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"import org.eclipse.jdt.annotation.Nullable;\n" + 
+				"public class X<T> {\n" +
+				"	T foo(@NonNull T @NonNull [] l) {\n" +
+				"		return l[0];\n" +
+				"	}	\n" +
+				"	public static void main(String[] args) {\n" +
+				"		X<String> s = new X<>();\n" +
+				"       s.foo(new String [] { null });\n" +
+				"       s.foo(new String @Nullable [] { null });\n" +
+				"       s.foo(new String @NonNull [] { null });\n" +
+				"       s.foo(new @Nullable String @NonNull [] { null });\n" +
+				"       s.foo(new @NonNull String @NonNull [] { null });\n" +
+				"		s.foo(null); // (2)\n" +
+				"	}\n" +
+				"}\n"
+
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. WARNING in X.java (at line 9)\n" + 
+			"	s.foo(new String [] { null });\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'@NonNull String @NonNull[]\'\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 10)\n" + 
+			"	s.foo(new String @Nullable [] { null });\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'String @Nullable[]\' needs unchecked conversion to conform to \'@NonNull String @NonNull[]\'\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 11)\n" + 
+			"	s.foo(new String @NonNull [] { null });\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'String @NonNull[]\' needs unchecked conversion to conform to \'@NonNull String @NonNull[]\'\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 12)\n" + 
+			"	s.foo(new @Nullable String @NonNull [] { null });\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required \'@NonNull String @NonNull[]\' but this expression has type \'@Nullable String @NonNull[]\'\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 14)\n" + 
+			"	s.foo(null); // (2)\n" + 
+			"	      ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull String @NonNull[]\' but the provided value is null\n" + 
+			"----------\n");
+	}
+	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=417113#c25, point 4.
+	public void testSubstitution3() { 
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"public class X<T> {\n" +
+				"	T foo(@NonNull T l) {\n" +
+				"		return l;\n" +
+				"	}	\n" +
+				"	public static void main(String[] args) {\n" +
+				"		X<String> s = new X<>();\n" +
+				"       s.foo(null);\n" +
+				"	}\n" +
+				"}\n"
+
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	s.foo(null);\n" + 
+			"	      ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+			"----------\n");
+	}
+	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=417113#c25, point 4.
+	public void testSubstitution4() { 
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import org.eclipse.jdt.annotation.NonNull;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface TypeAnnotation {\n" +
+				"}\n" +
+				"public class X<T> {\n" +
+				"    class Y {}\n" +
+				"    void foo(@TypeAnnotation X<T>.@NonNull Y l) {\n" +
+				"    }	\n" +
+				"    public static void main(String[] args) {\n" +
+				"        X<String> s = new X<>();\n" +
+				"        s.foo(null);\n" +
+				"    }\n" +
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
+			"	s.foo(null);\n" + 
+			"	      ^^^^\n" + 
+			"Null type mismatch: required \'X<String>.@NonNull Y\' but the provided value is null\n" + 
+			"----------\n");
+	}
+	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=417113#c25, point 4.
+	public void testSubstitution5() { 
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" +
+				"public class X<T> {\n" +
+				"    void foo(@NonNull X<@NonNull ? extends T> p) {\n" +
+				"    }	\n" +
+				"    public static void main(String[] args) {\n" +
+				"        X<String> s = new X<>();\n" +
+				"        X<@NonNull String> s2 = new X<@NonNull String>();\n" +
+				"        s.foo(s);\n" +
+				"        s.foo(s2);\n" +
+				"    }\n" +
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	s.foo(s);\n" + 
+			"	      ^\n" + 
+			"Null type safety (type annotations): The expression of type \'X<String>\' needs unchecked conversion to conform to \'@NonNull X<@NonNull ? extends String>\'\n" + 
+			"----------\n");
+	}
 }

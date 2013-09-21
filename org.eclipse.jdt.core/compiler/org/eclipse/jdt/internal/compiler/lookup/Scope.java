@@ -424,19 +424,19 @@ public abstract class Scope {
 					substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
 					if (isMemberTypeOfRaw(originalType, substitutedEnclosing))
 						return originalParameterizedType.environment.createRawType(
-								originalParameterizedType.genericType(), substitutedEnclosing);
+								originalParameterizedType.genericType(), substitutedEnclosing, originalType.getTypeAnnotations());
 				}
 				TypeBinding[] originalArguments = originalParameterizedType.arguments;
 				TypeBinding[] substitutedArguments = originalArguments;
 				if (originalArguments != null) {
 					if (substitution.isRawSubstitution()) {
-						return originalParameterizedType.environment.createRawType(originalParameterizedType.genericType(), substitutedEnclosing);
+						return originalParameterizedType.environment.createRawType(originalParameterizedType.genericType(), substitutedEnclosing, originalType.getTypeAnnotations());
 					}
 					substitutedArguments = substitute(substitution, originalArguments);
 				}
 				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
 					return originalParameterizedType.environment.createParameterizedType(
-							originalParameterizedType.genericType(), substitutedArguments, substitutedEnclosing);
+							originalParameterizedType.genericType(), substitutedArguments, substitutedEnclosing, originalType.getTypeAnnotations());
 				}
 				break;
 
@@ -445,7 +445,7 @@ public abstract class Scope {
 				TypeBinding originalLeafComponentType = originalArrayType.leafComponentType;
 				TypeBinding substitute = substitute(substitution, originalLeafComponentType); // substitute could itself be array type
 				if (substitute != originalLeafComponentType) {
-					return originalArrayType.environment.createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalType.dimensions());
+					return originalArrayType.environment.createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalType.dimensions(), originalType.getTypeAnnotations());
 				}
 				break;
 
@@ -476,7 +476,7 @@ public abstract class Scope {
 			    				}
 			    			}
 			        	}
-		        		return wildcard.environment.createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, substitutedOtherBounds, wildcard.boundKind);
+		        		return wildcard.environment.createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, substitutedOtherBounds, wildcard.boundKind, wildcard.getTypeAnnotations());
 			        }
 		        }
 				break;
@@ -489,14 +489,14 @@ public abstract class Scope {
 				if (originalEnclosing != null) {
 					substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
 					if (isMemberTypeOfRaw(originalType, substitutedEnclosing))
-						return substitution.environment().createRawType(originalReferenceType, substitutedEnclosing);
+						return substitution.environment().createRawType(originalReferenceType, substitutedEnclosing, originalType.getTypeAnnotations());
 				}
 
 			    // treat as if parameterized with its type variables (non generic type gets 'null' arguments)
 				if (substitutedEnclosing != originalEnclosing) {
 					return substitution.isRawSubstitution()
-						? substitution.environment().createRawType(originalReferenceType, substitutedEnclosing)
-						:  substitution.environment().createParameterizedType(originalReferenceType, null, substitutedEnclosing);
+						? substitution.environment().createRawType(originalReferenceType, substitutedEnclosing, originalType.getTypeAnnotations())
+						:  substitution.environment().createParameterizedType(originalReferenceType, null, substitutedEnclosing, originalType.getTypeAnnotations());
 				}
 				break;
 			case Binding.GENERIC_TYPE:
@@ -506,16 +506,16 @@ public abstract class Scope {
 				if (originalEnclosing != null) {
 					substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
 					if (isMemberTypeOfRaw(originalType, substitutedEnclosing))
-						return substitution.environment().createRawType(originalReferenceType, substitutedEnclosing);
+						return substitution.environment().createRawType(originalReferenceType, substitutedEnclosing, originalType.getTypeAnnotations());
 				}
 
 				if (substitution.isRawSubstitution()) {
-					return substitution.environment().createRawType(originalReferenceType, substitutedEnclosing);
+					return substitution.environment().createRawType(originalReferenceType, substitutedEnclosing, originalType.getTypeAnnotations());
 				}
 			    // treat as if parameterized with its type variables (non generic type gets 'null' arguments)
 				originalArguments = originalReferenceType.typeVariables();
 				substitutedArguments = substitute(substitution, originalArguments);
-				return substitution.environment().createParameterizedType(originalReferenceType, substitutedArguments, substitutedEnclosing);
+				return substitution.environment().createParameterizedType(originalReferenceType, substitutedArguments, substitutedEnclosing, originalType.getTypeAnnotations());
 		}
 		return originalType;
 	}
