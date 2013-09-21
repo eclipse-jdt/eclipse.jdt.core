@@ -888,7 +888,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		AnnotationBinding [][] goodies = new AnnotationBinding[typeRef.getAnnotatableLevels()][];
 		goodies[0] = se8Annotations;  // @T X.Y.Z local; ==> @T should annotate X
 		TypeBinding newLeafType = scope.environment().createAnnotatedType(oldLeafType, goodies);
-		return existingType.isArrayType() ? scope.environment().createArrayType(newLeafType, existingType.dimensions(), existingType.getTypeAnnotations()) : newLeafType;
+		return typeRef.resolvedType = existingType.isArrayType() ? scope.environment().createArrayType(newLeafType, existingType.dimensions(), existingType.getTypeAnnotations()) : newLeafType;
 	}
 
 /**
