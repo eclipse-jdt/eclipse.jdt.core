@@ -5512,5 +5512,61 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"Missing cannot be resolved to a type\n" + 
 			"----------\n");
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417660, [1.8][compiler] Incorrect parsing of Annotations with array dimensions in arguments
+	public void test417660() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"import java.lang.annotation.Documented;\n" +
+					"import java.lang.annotation.ElementType;\n" +
+					"import java.lang.annotation.Retention;\n" +
+					"import java.lang.annotation.RetentionPolicy;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"public class X {\n" +
+					"  int bar(int [] @TakeType(int[].class)[] x) { \n" +
+					"	  return x[0][0]; \n" +
+					"  } \n" +
+					"  public static void main(String[] args) {\n" +
+					"	System.out.println(new X().bar(new int [][] { { 1234 }}));\n" +
+					"  }\n" +
+					"}\n" +
+					"@Target(ElementType.TYPE_USE)\n" +
+					"@Retention(RetentionPolicy.RUNTIME)\n" +
+					"@Documented\n" +
+					"@interface TakeType {\n" +
+					"	Class value() default int[].class;\n" +
+					"}\n"
+				},
+				"1234");
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417660, [1.8][compiler] Incorrect parsing of Annotations with array dimensions in arguments
+	public void test417660b() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"import java.lang.annotation.Documented;\n" +
+					"import java.lang.annotation.ElementType;\n" +
+					"import java.lang.annotation.Retention;\n" +
+					"import java.lang.annotation.RetentionPolicy;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"public class X {\n" +
+					"  int bar(int [][] @TakeType(int[].class)[][] x @TakeType(int[].class)[]) { \n" +
+					"	  return x[0][0][0][0][0]; \n" +
+					"  } \n" +
+					"  public static void main(String[] args) {\n" +
+					"	System.out.println(new X().bar(new int [][][][][] { { { { { 1234 } } } } }));\n" +
+					"  }\n" +
+					"}\n" +
+					"@Target(ElementType.TYPE_USE)\n" +
+					"@Retention(RetentionPolicy.RUNTIME)\n" +
+					"@Documented\n" +
+					"@interface TakeType {\n" +
+					"	Class value() default int[].class;\n" +
+					"}\n"
+				},
+				"1234");
+	}
 }
 

@@ -5390,6 +5390,7 @@ protected void consumeTypeAnnotation() {
 		Annotation annotation = this.typeAnnotationStack[this.typeAnnotationPtr];
 		problemReporter().invalidUsageOfTypeAnnotations(annotation);
 	}
+	this.dimensions = this.intStack[this.intPtr--]; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=417660
 }
 protected void consumeOneMoreTypeAnnotation() {
 	// TypeAnnotations ::= TypeAnnotations TypeAnnotation
@@ -8977,6 +8978,9 @@ protected void consumeToken(int type) {
 			this.lParenPos = this.scanner.startPosition;
 			break;
 		case TokenNameAT308:
+			pushOnIntStack(this.dimensions); // https://bugs.eclipse.org/bugs/show_bug.cgi?id=417660: Stack the dimensions, they get unstacked in consumeTypeAnnotation.
+			this.dimensions = 0;
+			//$FALL-THROUGH$
 		case TokenNameAT :
 			pushOnIntStack(this.scanner.startPosition);
 			break;
