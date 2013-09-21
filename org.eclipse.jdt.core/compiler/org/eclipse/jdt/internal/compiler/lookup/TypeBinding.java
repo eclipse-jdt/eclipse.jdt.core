@@ -209,7 +209,7 @@ public void collectSubstitutes(Scope scope, TypeBinding actualType, InferenceCon
     make sense for every type in the hierarchy, in which case they are silently ignored. A type may
     choose to retain a copy of the prototype for reference. 
 */
-public TypeBinding clone(TypeBinding enclosingType, TypeBinding[] typeArguments) {
+public TypeBinding clone(TypeBinding enclosingType) {
 	throw new IllegalStateException("TypeBinding#clone() should have been overridden"); //$NON-NLS-1$
 }
 

@@ -741,7 +741,7 @@ public int kind() {
 	return Binding.TYPE;
 }
 
-public TypeBinding clone(TypeBinding immaterial, TypeBinding[] irrelevant) {
+public TypeBinding clone(TypeBinding immaterial) {
 	return new SourceTypeBinding(this);
 }
 
@@ -894,6 +894,8 @@ public char[] genericSignature() {
 /**
  * Compute the tagbits for standard annotations. For source types, these could require
  * lazily resolving corresponding annotation nodes, in case of forward references.
+ * For type use bindings, this method still returns the tagbits corresponding to the type 
+ * declaration binding.
  * @see org.eclipse.jdt.internal.compiler.lookup.Binding#getAnnotationTagBits()
  */
 public long getAnnotationTagBits() {

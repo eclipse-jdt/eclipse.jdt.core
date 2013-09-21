@@ -45,7 +45,7 @@ public MissingTypeBinding(MissingTypeBinding prototype) {
 	super(prototype);
 }
 
-public TypeBinding clone(TypeBinding outerType, TypeBinding[] typeArguments) {
+public TypeBinding clone(TypeBinding outerType) {
 	MissingTypeBinding copy = new MissingTypeBinding(this);
 	copy.enclosingType = (ReferenceBinding) outerType; // for better or worse.
 	return copy;

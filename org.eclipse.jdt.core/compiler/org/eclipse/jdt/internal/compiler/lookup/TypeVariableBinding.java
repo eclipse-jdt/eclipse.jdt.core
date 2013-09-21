@@ -303,7 +303,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    return this.superclass.constantPoolName(); // java/lang/Object
 	}
 	
-	public TypeBinding clone(TypeBinding enclosingType, TypeBinding[] typeArguments) {
+	public TypeBinding clone(TypeBinding enclosingType) {
 		return new TypeVariableBinding(this);
 	}
 	public String annotatedDebugName() {

@@ -413,7 +413,7 @@ public class WildcardBinding extends ReferenceBinding {
 		return erasure().constantPoolName();
 	}
 
-	public TypeBinding clone(TypeBinding immaterial, TypeBinding[] irrelevant) {
+	public TypeBinding clone(TypeBinding immaterial) {
 		return new WildcardBinding(this);
 	}
 	

@@ -225,7 +225,7 @@ public class AnnotatableTypeSystem {
 		   Likewise so the bindings for @Readonly List<@NonNull String> != @Readonly List<@Nullable String> != @Readonly List<@Interned String> 
 		*/
 		TypeBinding unannotatedType = this.unannotatedTypeSystem.getUnannotatedType(type);
-		TypeBinding annotatedType = type.clone(enclosingType, typeArguments);
+		TypeBinding annotatedType = type.clone(enclosingType);
 		annotatedType.id = unannotatedType.id;
 		annotatedType.setTypeAnnotations(annotations, this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
 		return cachedInfo[i] = annotatedType;

@@ -156,7 +156,7 @@ public final class BaseTypeBinding extends TypeBinding {
 		return this.constantPoolName;
 	}
 
-	public TypeBinding clone(TypeBinding enclosingType, TypeBinding[] typeArguments) {
+	public TypeBinding clone(TypeBinding enclosingType) {
 		return new BaseTypeBinding(this);
 	}
 	

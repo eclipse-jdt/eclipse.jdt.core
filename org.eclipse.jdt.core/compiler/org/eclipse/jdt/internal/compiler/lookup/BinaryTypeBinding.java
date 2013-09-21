@@ -102,7 +102,7 @@ static Object convertMemberValue(Object binaryValue, LookupEnvironment env, char
 	throw new IllegalStateException();
 }
 
-public TypeBinding clone(TypeBinding outerType, TypeBinding[] typeArguments) {
+public TypeBinding clone(TypeBinding outerType) {
 	BinaryTypeBinding copy = new BinaryTypeBinding(this);
 	
 	copy.enclosingType = (ReferenceBinding) outerType;

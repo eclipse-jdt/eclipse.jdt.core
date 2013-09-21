@@ -43,7 +43,7 @@ public UnresolvedReferenceBinding(UnresolvedReferenceBinding prototype) {
 	this.prototype = prototype.prototype;
 }
 
-public TypeBinding clone(TypeBinding outerType, TypeBinding[] someTypeArguments) {
+public TypeBinding clone(TypeBinding outerType) {
 	if (this.resolvedType != null)
 		throw new IllegalStateException();
 	UnresolvedReferenceBinding copy = new UnresolvedReferenceBinding(this);
@@ -123,7 +123,7 @@ void setResolvedType(ReferenceBinding targetType, LookupEnvironment environment)
 
 public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding unannotatedType, LookupEnvironment environment) {
 	if (this.resolvedType != null) return;
-	ReferenceBinding annotatedType = (ReferenceBinding) unannotatedType.clone(this.enclosingType != null ? this.enclosingType : unannotatedType.enclosingType(), null);
+	ReferenceBinding annotatedType = (ReferenceBinding) unannotatedType.clone(this.enclosingType != null ? this.enclosingType : unannotatedType.enclosingType());
 	
 	this.resolvedType = annotatedType;
 	annotatedType.setTypeAnnotations(getTypeAnnotations(), environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);

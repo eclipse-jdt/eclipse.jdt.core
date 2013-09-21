@@ -163,11 +163,9 @@ public char[] constantPoolName() /* java/lang/Object */ {
 	return this.constantPoolName;	
 }
 
-public TypeBinding clone(TypeBinding outerType, TypeBinding[] typeArguments) {
+public TypeBinding clone(TypeBinding outerType) {
 	LocalTypeBinding copy = new LocalTypeBinding(this);
-	if (outerType == null) {
-		outerType = enclosingType();
-	}
+	copy.enclosingType = (SourceTypeBinding) outerType;
 	return copy;
 }
 
