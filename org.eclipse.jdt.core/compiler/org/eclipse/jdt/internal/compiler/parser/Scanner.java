@@ -1152,6 +1152,8 @@ public int getNextToken() throws InvalidInputException {
 	}
 	if (token == TokenNameLPAREN || token == TokenNameLESS || token == TokenNameAT) {
 		token = disambiguatedToken(token);
+	} else if (token == TokenNameELLIPSIS) {
+		this.consumingEllipsisAnnotations = false;
 	}
 	this.lookBack[0] = this.lookBack[1];
 	this.lookBack[1] = token;
@@ -1279,7 +1281,6 @@ protected int getNextToken0() throws InvalidInputException {
 					int temp = this.currentPosition;
 					if (getNextChar('.')) {
 						if (getNextChar('.')) {
-							this.consumingEllipsisAnnotations = false;
 							return TokenNameELLIPSIS;
 						} else {
 							this.currentPosition = temp;
