@@ -195,6 +195,7 @@ public class Scanner implements TerminalTokens {
 	private VanguardScanner vanguardScanner;
 	private VanguardParser vanguardParser;
 	private ConflictedParser activeParser = null;
+	private boolean consumingEllipsisAnnotations = false;
 	
 	public static final int RoundBracket = 0;
 	public static final int SquareBracket = 1;
@@ -226,6 +227,7 @@ public Scanner(
 	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
 	this.sourceLevel = sourceLevel;
 	this.lookBack[0] = this.lookBack[1] = this.nextToken = TokenNameNotAToken;
+	this.consumingEllipsisAnnotations = false;
 	this.complianceLevel = complianceLevel;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
 	if (taskTags != null) {
@@ -1277,6 +1279,7 @@ protected int getNextToken0() throws InvalidInputException {
 					int temp = this.currentPosition;
 					if (getNextChar('.')) {
 						if (getNextChar('.')) {
+							this.consumingEllipsisAnnotations = false;
 							return TokenNameELLIPSIS;
 						} else {
 							this.currentPosition = temp;
@@ -2732,6 +2735,7 @@ public void resetTo(int begin, int end) {
 	this.commentPtr = -1; // reset comment stack
 	this.foundTaskCount = 0;
 	this.lookBack[0] = this.lookBack[1] = this.nextToken = TokenNameNotAToken;
+	this.consumingEllipsisAnnotations = false;
 }
 
 protected final void scanEscapeCharacter() throws InvalidInputException {
@@ -4408,7 +4412,9 @@ protected final boolean maybeAtReferenceExpression() { // Did the '<' we saw jus
 	}
 	return this.activeParser.atConflictScenario(TokenNameLESS);
 }
-protected final boolean maybeAtEllipsisAnnotation() { // Did the '@' we saw just now herald a type annotation on a ... ? Presumed to be at type annotation already.
+private final boolean maybeAtEllipsisAnnotationsStart() { // Did the '@' we saw just now herald a type annotation on a ... ? Presumed to be at type annotation already.
+	if (this.consumingEllipsisAnnotations)
+		return false;
 	switch (this.lookBack[1]) {
 		case TokenNamenew:
 		case TokenNameCOMMA:
@@ -4453,8 +4459,9 @@ private int disambiguatedToken(int token) {
 		}
 	} else if (token == TokenNameAT && atTypeAnnotation()) {
 		token = TokenNameAT308;
-		if (maybeAtEllipsisAnnotation()) {
+		if (maybeAtEllipsisAnnotationsStart()) {
 			if (parser.parse(Goal.VarargTypeAnnotationGoal) == VanguardParser.SUCCESS) {
+				this.consumingEllipsisAnnotations = true;
 				this.nextToken = TokenNameAT308;
 				return TokenNameAT308DOTDOTDOT;
 			}

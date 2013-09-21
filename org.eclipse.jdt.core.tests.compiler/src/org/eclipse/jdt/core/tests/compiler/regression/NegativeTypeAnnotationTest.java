@@ -3427,4 +3427,64 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"p.q cannot be resolved to a type\n" + 
 				"----------\n");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417076, Eclipse compiler rejects multiple annotations for varargs.
+	public void test417076() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.lang.annotation.ElementType;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"@Target(ElementType.TYPE_USE)\n" +
+					"@interface A {\n" +
+					"}\n" +
+					"@Target(ElementType.TYPE_USE)\n" +
+					"@interface B {\n" +
+					"}\n" +
+					"@Target(ElementType.TYPE_USE)\n" +
+					"@interface C {\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	public @A String foo(int @B @C @D ... args) {\n" +
+					"	      return null;\n" +
+					"	}\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 13)\n" + 
+				"	public @A String foo(int @B @C @D ... args) {\n" + 
+				"	                                ^\n" + 
+				"D cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417076, Eclipse compiler rejects multiple annotations for varargs.
+	public void test417076b() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.lang.annotation.ElementType;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"@Target(ElementType.TYPE_USE)\n" +
+					"@interface A {\n" +
+					"}\n" +
+					"@Target(ElementType.TYPE_USE)\n" +
+					"@interface B {\n" +
+					"}\n" +
+					"@Target(ElementType.TYPE_USE)\n" +
+					"@interface C {\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	public @A String foo(int @B @C @A ... args) {\n" +
+					"	      return null;\n" +
+					"	}\n" +
+					"	public @A String goo(int @B @C @A ... args) {\n" +
+					"	}\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 16)\n" + 
+				"	public @A String goo(int @B @C @A ... args) {\n" + 
+				"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"This method must return a result of type String\n" + 
+				"----------\n");
+	}
 }
