@@ -31,6 +31,7 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 416307 - [1.8][compiler][null] subclass with type parameter substitution confuses null checking
+ *								Bug 417758 - [1.8][null] Null safety compromise during array creation.
  *     Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -72,7 +73,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
 		this.expression.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 		if (flowInfo.reachMode() == FlowInfo.REACHABLE)
-			checkAgainstNullAnnotation(currentScope, flowContext, this.expression.nullStatus(flowInfo, flowContext));
+			checkAgainstNullAnnotation(currentScope, flowContext, flowInfo);
 		if (currentScope.compilerOptions().analyseResourceLeaks) {
 			FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.expression, flowInfo, flowContext);
 			if (trackingVariable != null) {
@@ -159,7 +160,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	flowContext.recordAbruptExit();
 	return FlowInfo.DEAD_END;
 }
-void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, int nullStatus) {
+void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+	int nullStatus = this.expression.nullStatus(flowInfo, flowContext);
 	long tagBits;
 	MethodBinding methodBinding = null;
 	boolean useTypeAnnotations = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8;
@@ -172,12 +174,7 @@ void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, int n
 		return;			
 	}
 	if (useTypeAnnotations) {
-		NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(methodBinding.returnType, this.expression.resolvedType, nullStatus);
-		if (annotationStatus.isDefiniteMismatch()) {
-			scope.problemReporter().nullityMismatchingTypeAnnotation(this.expression, this.expression.resolvedType, methodBinding.returnType, annotationStatus);
-		} else if (annotationStatus.isUnchecked()) {
-			flowContext.recordNullityMismatch(scope, this.expression, this.expression.resolvedType, methodBinding.returnType, nullStatus);
-		}
+		checkAgainstNullTypeAnnotation(scope, methodBinding.returnType, this.expression, flowContext, flowInfo);
 	} else if (nullStatus != FlowInfo.NON_NULL) {
 		// if we can't prove non-null check against declared null-ness of the enclosing method:
 		if ((tagBits & TagBits.AnnotationNonNull) != 0) {

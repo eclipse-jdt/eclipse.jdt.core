@@ -2623,7 +2623,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"       s.foo(new String @Nullable [] { null });\n" +
 				"       s.foo(new String @NonNull [] { null });\n" +
 				"       s.foo(new @Nullable String @NonNull [] { null });\n" +
-				"       s.foo(new @NonNull String @NonNull [] { null });\n" +
+				"       s.foo(new @NonNull String @NonNull [] { \"\" });\n" +
 				"		s.foo(null); // (2)\n" +
 				"	}\n" +
 				"}\n"
@@ -2734,6 +2734,113 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	s.foo(s);\n" + 
 			"	      ^\n" + 
 			"Null type safety (type annotations): The expression of type \'X<String>\' needs unchecked conversion to conform to \'@NonNull X<@NonNull ? extends String>\'\n" + 
+			"----------\n");
+	}
+	
+	// https://bugs.eclipse.org/417758 - [1.8][null] Null safety compromise during array creation.
+	// original test case
+	public void testArray1() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"   \n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		@NonNull String @NonNull [] s = new @NonNull String [] { null };\n" + 
+				"		if (s != null && s[0] != null) {\n" + 
+				"			System.out.println(\"Not null\");\n" + 
+				"		}\n" + 
+				"		System.out.println(\"Length = \" + s[0].length());\n" + 
+				"	}\n" + 
+				"}"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	@NonNull String @NonNull [] s = new @NonNull String [] { null };\n" + 
+			"	                                                         ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	if (s != null && s[0] != null) {\n" + 
+			"	    ^\n" + 
+			"Redundant null check: comparing \'@NonNull String @NonNull[]\' against null\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	if (s != null && s[0] != null) {\n" + 
+			"	                 ^^^^\n" + 
+			"Redundant null check: comparing \'@NonNull String\' against null\n" + 
+			"----------\n");
+	}
+	
+	// https://bugs.eclipse.org/417758 - [1.8][null] Null safety compromise during array creation.
+	// two-dim array with annotations on dimensions
+	public void testArray2() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"   \n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		@NonNull String @NonNull [][] s1 = new @NonNull String @NonNull [][] { null, { null} }; // problem at inner null\n" + 
+				"		@NonNull String @NonNull [][] s2 = new @NonNull String [] @NonNull [] { null, { null} }; // problem at both nulls\n" + 
+				"	}\n" + 
+				"}"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	@NonNull String @NonNull [][] s1 = new @NonNull String @NonNull [][] { null, { null} }; // problem at inner null\n" + 
+			"	                                                                               ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	@NonNull String @NonNull [][] s2 = new @NonNull String [] @NonNull [] { null, { null} }; // problem at both nulls\n" + 
+			"	                                                                        ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull String @NonNull[]\' but the provided value is null\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	@NonNull String @NonNull [][] s2 = new @NonNull String [] @NonNull [] { null, { null} }; // problem at both nulls\n" + 
+			"	                                                                                ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+			"----------\n");
+	}
+
+	// https://bugs.eclipse.org/417758 - [1.8][null] Null safety compromise during array creation.
+	// three-dim array with annotations on dimensions, also assignment has a problem
+	public void testArray3() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"   \n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		@NonNull String [][] @NonNull [] s = new @NonNull String []@NonNull [][] { null, { {null}, null/*ok*/ } };\n" + 
+				"	}\n" + 
+				"}"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	@NonNull String [][] @NonNull [] s = new @NonNull String []@NonNull [][] { null, { {null}, null/*ok*/ } };\n" + 
+			"	                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'@NonNull String [] @NonNull[] []\' needs unchecked conversion to conform to \'@NonNull String [] [] @NonNull[]\'\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	@NonNull String [][] @NonNull [] s = new @NonNull String []@NonNull [][] { null, { {null}, null/*ok*/ } };\n" + 
+			"	                                                                           ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull String @NonNull[] []\' but the provided value is null\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
+			"	@NonNull String [][] @NonNull [] s = new @NonNull String []@NonNull [][] { null, { {null}, null/*ok*/ } };\n" + 
+			"	                                                                                    ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
 			"----------\n");
 	}
 
