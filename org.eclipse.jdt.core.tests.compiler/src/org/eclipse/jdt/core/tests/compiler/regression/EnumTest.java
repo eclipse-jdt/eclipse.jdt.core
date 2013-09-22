@@ -2556,7 +2556,7 @@ public void test081() {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	enum E {}\n" +
 		"	     ^\n" +
-		"The member enum E can only be defined inside a top-level class or interface\n" +
+		"The member enum E can only be defined inside a top-level class or interface or in a static context\n" +
 		"----------\n");
 }
 
@@ -2602,7 +2602,7 @@ public void test082() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	enum E {}\n" +
 		"	     ^\n" +
-		"The member enum E can only be defined inside a top-level class or interface\n" +
+		"The member enum E can only be defined inside a top-level class or interface or in a static context\n" +
 		"----------\n");
 }
 

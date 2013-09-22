@@ -4795,7 +4795,7 @@ public void test143() {
     		"1. ERROR in X.java (at line 3)\n" +
     		"	@interface Bar {\n" +
     		"	           ^^^\n" +
-    		"The member annotation Bar can only be defined inside a top-level class or interface\n" +
+    		"The member annotation Bar can only be defined inside a top-level class or interface or in a static context\n" +
     		"----------\n");
     }
 
@@ -10971,6 +10971,46 @@ public void test384567_2() {
 		"	public final synchronized private package xy;\n" + 
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Syntax error, modifiers are not allowed here\n" + 
+			"----------\n");
+}
+// Bug 416107 - Incomplete error message for member interface and annotation
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=416107
+public void test416107a() {
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"public class X {\n" +
+			"	class Y {\n" +
+			"		 @interface Bar {\n" +
+			"			public String bar = \"BUG\";\n" +
+			"		}\n" +
+			"	}\n" +
+			"}",
+        },
+        "----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	@interface Bar {\n" +
+		"	           ^^^\n" +
+		"The member annotation Bar can only be defined inside a top-level class or interface or in a static context\n" +
+		"----------\n");
+}
+public void test416107b() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	class Y {\n" +
+			"		interface Bar {\n" +
+			"			public String bar = \"BUG\";\n" +
+			"		}\n" +
+			"	}\n" +
+			"}",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	interface Bar {\n" +
+		"	          ^^^\n" +
+		"The member interface Bar can only be defined inside a top-level class or interface or in a static context\n" +
 		"----------\n");
 }
 }

@@ -4761,7 +4761,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertNotNull("No node", node);
     	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
     	CompilationUnit compilationUnit = (CompilationUnit) node;
-        final String expectedErrors = "The member enum E can only be defined inside a top-level class or interface";
+        final String expectedErrors = "The member enum E can only be defined inside a top-level class or interface or in a static context";
     	assertProblemsSize(compilationUnit, 1, expectedErrors);
 		node = getASTNode(compilationUnit, 0, 0, 0);
    		assertEquals("Not a type declaration statement", ASTNode.TYPE_DECLARATION_STATEMENT, node.getNodeType());
