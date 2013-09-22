@@ -2736,4 +2736,37 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"Null type safety (type annotations): The expression of type \'X<String>\' needs unchecked conversion to conform to \'@NonNull X<@NonNull ? extends String>\'\n" + 
 			"----------\n");
 	}
+
+	public void testBug417759() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"	void foo(@NonNull X<@NonNull ?> l) { \n" + 
+				"	}	\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		@NonNull X<String> s = new X<>();\n" + 
+				"       s.foo(s);  // String vs. @NonNull ?\n" +
+				"       @NonNull X<@Nullable String> s2 = new X<>();\n" +
+				"		s.foo(s2); // @Nullable String vs. @NonNull ?\n" +
+				"       @NonNull X<@NonNull String> s3 = new X<>();\n" +
+				"		s.foo(s3); // good\n" +
+				"	}\n" + 
+				"}"
+			}, 
+			getCompilerOptions(), 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	s.foo(s);  // String vs. @NonNull ?\n" + 
+			"	      ^\n" + 
+			"Null type safety (type annotations): The expression of type \'@NonNull X<String>\' needs unchecked conversion to conform to \'@NonNull X<@NonNull ?>\'\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	s.foo(s2); // @Nullable String vs. @NonNull ?\n" + 
+			"	      ^^\n" + 
+			"Null type mismatch (type annotations): required \'@NonNull X<@NonNull ?>\' but this expression has type \'@NonNull X<@Nullable String>\'\n" + 
+			"----------\n");		
+	}
 }

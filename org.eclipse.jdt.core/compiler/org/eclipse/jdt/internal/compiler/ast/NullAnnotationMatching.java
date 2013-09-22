@@ -144,8 +144,12 @@ public class NullAnnotationMatching {
 						}
 					}
 				} else 	if (requiredType instanceof WildcardBinding) {
-					NullAnnotationMatching status = analyse(((WildcardBinding) requiredType).bound, providedType, nullStatus);
-					severity = Math.max(severity, status.severity);
+					WildcardBinding wildcardBinding = (WildcardBinding) requiredType;
+					if (wildcardBinding.bound != null) {
+						NullAnnotationMatching status = analyse(wildcardBinding.bound, providedType, nullStatus);
+						severity = Math.max(severity, status.severity);
+					}
+					// TODO(stephan): what about otherBounds? Do we accept "? extends @NonNull I1 & @Nullable I2" in the first place??
 				}
 				TypeBinding requiredEnclosing = requiredType.enclosingType();
 				TypeBinding providedEnclosing = providedType.enclosingType();
