@@ -538,7 +538,11 @@ public static UnconditionalFlowInfo mergedOptimizedBranchesIfElse(
 		// if a variable is only initialized in one branch and not initialized in the other,
 		// then we need to cast a doubt on its initialization in the merged info
 		mergedInfo.definiteInits &= initsWhenFalse.unconditionalCopy().definiteInits;
-		
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=415997, classify unreachability precisely, IsElseStatementUnreachable could be due to null analysis
+		if ((mergedInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0 && (initsWhenFalse.tagBits & FlowInfo.UNREACHABLE) == FlowInfo.UNREACHABLE_BY_NULLANALYSIS) {
+			mergedInfo.tagBits &= ~UNREACHABLE_OR_DEAD;
+			mergedInfo.tagBits |= UNREACHABLE_BY_NULLANALYSIS;
+		}
 	}
 	else if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0 &&
 			(ifStatement.bits & ASTNode.IsThenStatementUnreachable) != 0 && initsWhenTrue != FlowInfo.DEAD_END
@@ -554,6 +558,11 @@ public static UnconditionalFlowInfo mergedOptimizedBranchesIfElse(
 		// if a variable is only initialized in one branch and not initialized in the other,
 		// then we need to cast a doubt on its initialization in the merged info
 		mergedInfo.definiteInits &= initsWhenTrue.unconditionalCopy().definiteInits;
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=415997, classify unreachability precisely, IsThenStatementUnreachable could be due to null analysis
+		if ((mergedInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0 && (initsWhenTrue.tagBits & FlowInfo.UNREACHABLE) == FlowInfo.UNREACHABLE_BY_NULLANALYSIS) {
+			mergedInfo.tagBits &= ~UNREACHABLE_OR_DEAD;
+			mergedInfo.tagBits |= UNREACHABLE_BY_NULLANALYSIS;
+		}
 	}
 	else {
 		mergedInfo = initsWhenTrue.

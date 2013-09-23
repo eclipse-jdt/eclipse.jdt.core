@@ -2639,6 +2639,67 @@ public void testBug391517() {
 			}, 
 			"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=415997
+// Bug 415997 - java.lang.VerifyError: Expecting a stackmap frame at branch target 
+public void testBug415997a() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Object o = null;\n" +
+			"		if (o == null)\n" +
+			"			if (true)\n" +
+			"				return;\n" +
+			"	}\n" +
+			"}"
+		},
+		"");
+}
+public void testBug415997b() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Object o = null;\n" +
+			"		if (o == null) {}\n" +
+			"		else\n" +
+			"			if (true)\n" +
+			"				return;\n" +
+			"	}\n" +
+			"}"
+		},
+		"");
+}
+public void testBug415997c() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) throws Exception {\n" +
+			"		System.out.println(ParseExpr11());\n" +
+			"	}\n" +
+			"	static final public Object ParseExpr11() throws Exception {\n" +
+			"		Object expr;\n" +
+			"		Object op = null;\n" +
+			"		expr = ParseVarExpr();\n" +
+			"		if (op == null) {\n" +
+			"			if (true)\n" +
+			"				return expr;\n" +
+			"		}\n" +
+			"		{\n" +
+			"			throw new Exception(\"++/-- not supported in TUD Bantam Java.\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"	private static Object ParseVarExpr() {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return \"test\";\n" +
+			"	}\n" +
+			"}"
+		},
+		"test");
+}
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }
