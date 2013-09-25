@@ -19,6 +19,7 @@
  *								bug 407191 - [1.8] Binary access support for type annotations
  *       Jesper Steen Moeller - Contributions for:
  *								Bug 406973 - [compiler] Parse MethodParameters attribute
+ *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -143,6 +144,7 @@ public static Test suite() {
 	since_1_8.add(Deprecated18Test.class);
 	since_1_8.add(MethodParametersAttributeTest.class);
 	since_1_8.add(ClassFileReaderTest_1_8.class);
+	since_1_8.add(RepeatableAnnotationTest.class);
 
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());

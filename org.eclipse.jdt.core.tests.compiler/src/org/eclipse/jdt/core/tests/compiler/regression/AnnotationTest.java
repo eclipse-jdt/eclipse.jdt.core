@@ -22,6 +22,7 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
  *     Jesper S Moller  - Contributions for
  *								bug 384567 - [1.5][compiler] Compiler accepts illegal modifiers on package declaration
+ *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -64,6 +65,8 @@ public class AnnotationTest extends AbstractComparableTest {
 	}
 
 	String reportMissingJavadocComments = null;
+	private String repeatableIntroText;
+	private String repeatableTrailerText;
 
 	public AnnotationTest(String name) {
 		super(name);
@@ -94,6 +97,14 @@ public class AnnotationTest extends AbstractComparableTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.reportMissingJavadocComments = null;
+		this.repeatableIntroText = this.complianceLevel >= ClassFileConstants.JDK1_8 ?
+		"Duplicate annotation of non-repeatable type "
+		:
+		"Duplicate annotation ";
+		this.repeatableTrailerText = this.complianceLevel >= ClassFileConstants.JDK1_8 ?
+		". Only annotation types marked @Repeatable can be used multiple times at one target.\n"
+		:
+		". Repeated annotations are allowed only at source level 1.8 or above\n";
 	}
 
 	public void test001() {
@@ -333,12 +344,12 @@ public class AnnotationTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	@Foo @Foo\n" +
 			"	^^^^\n" +
-			"Duplicate annotation @Foo\n" +
+			this.repeatableIntroText + "@Foo"+ this.repeatableTrailerText + 
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	@Foo @Foo\n" +
 			"	     ^^^^\n" +
-			"Duplicate annotation @Foo\n" +
+			this.repeatableIntroText + "@Foo"+ this.repeatableTrailerText + 
 			"----------\n");
 	}
 
@@ -8848,12 +8859,12 @@ public void test266() {
 		"1. ERROR in p\\package-info.java (at line 1)\n" + 
 		"	@Deprecated\n" + 
 		"	^^^^^^^^^^^\n" + 
-		"Duplicate annotation @Deprecated\n" + 
+		this.repeatableIntroText + "@Deprecated"+ this.repeatableTrailerText + 
 		"----------\n" + 
 		"2. ERROR in p\\package-info.java (at line 2)\n" + 
 		"	@Deprecated\n" + 
 		"	^^^^^^^^^^^\n" + 
-		"Duplicate annotation @Deprecated\n" + 
+		this.repeatableIntroText + "@Deprecated"+ this.repeatableTrailerText + 
 		"----------\n"
 	);
 }

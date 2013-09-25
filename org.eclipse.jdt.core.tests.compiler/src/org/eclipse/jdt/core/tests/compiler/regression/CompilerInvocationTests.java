@@ -38,6 +38,7 @@
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 384567 - [1.5][compiler] Compiler accepts illegal modifiers on package declaration
+ *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -442,10 +443,12 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("DereferencingNullableExpression", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("DiamondNotBelow17", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DirectInvocationOfAbstractMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("DisallowedTargetForContainerAnnotation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DisallowedTargetForAnnotation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DisallowedExplicitThisParameter", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("DiscouragedReference", new ProblemAttributes(CategorizedProblem.CAT_RESTRICTION));
 		expectedProblemAttributes.put("DuplicateAnnotation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("DuplicateAnnotationNotMarkedRepeatable", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DuplicateAnnotationMember", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("DuplicateBlankFinalFieldInitialization", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("DuplicateBounds", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -911,6 +914,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("RequiredNonNullButProvidedSpecdNullable", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("RequiredNonNullButProvidedUnknown", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ReferenceToForwardTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("RepeatedAnnotationWithContainerAnnotation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ResourceHasToImplementAutoCloseable", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ReturnTypeAmbiguous", DEPRECATED);
 		expectedProblemAttributes.put("ReturnTypeCannotBeVoidArray", DEPRECATED);
@@ -1238,8 +1242,10 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("DiamondNotBelow17", SKIP);
 		expectedProblemAttributes.put("DirectInvocationOfAbstractMethod", SKIP);
 		expectedProblemAttributes.put("DisallowedTargetForAnnotation", SKIP);
+		expectedProblemAttributes.put("DisallowedTargetForContainerAnnotation", SKIP);
 		expectedProblemAttributes.put("DiscouragedReference", new ProblemAttributes(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE));
 		expectedProblemAttributes.put("DuplicateAnnotation", SKIP);
+		expectedProblemAttributes.put("DuplicateAnnotationNotMarkedRepeatable", SKIP);
 		expectedProblemAttributes.put("DuplicateAnnotationMember", SKIP);
 		expectedProblemAttributes.put("DuplicateBlankFinalFieldInitialization", SKIP);
 		expectedProblemAttributes.put("DuplicateBounds", SKIP);
@@ -1701,6 +1707,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ReferenceExpressionReturnNullRedefUnchecked", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION));
 		expectedProblemAttributes.put("ReferenceToForwardField", SKIP);
 		expectedProblemAttributes.put("ReferenceToForwardTypeVariable", SKIP);
+		expectedProblemAttributes.put("RepeatedAnnotationWithContainerAnnotation", SKIP);
 		expectedProblemAttributes.put("RequiredNonNullButProvidedNull", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
 		expectedProblemAttributes.put("RequiredNonNullButProvidedPotentialNull", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_ANNOTATION_INFERENCE_CONFLICT));
 		expectedProblemAttributes.put("RequiredNonNullButProvidedUnknown", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION));

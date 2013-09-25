@@ -49,6 +49,7 @@
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 384567 - [1.5][compiler] Compiler accepts illegal modifiers on package declaration
+ *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -560,7 +561,7 @@ public static int getIrritant(int problemID) {
 			
 		case IProblem.UnusedTypeParameter:
 			return CompilerOptions.UnusedTypeParameter;
-	}
+}
 	return 0;
 }
 /**
@@ -1702,9 +1703,9 @@ public void multiCatchNotBelow17(ASTNode node) {
 			node.sourceStart,
 			node.sourceEnd);
 }
-public void duplicateAnnotation(Annotation annotation) {
+public void duplicateAnnotation(Annotation annotation, long sourceLevel) {
 	this.handle(
-		IProblem.DuplicateAnnotation,
+		sourceLevel >= ClassFileConstants.JDK1_8 ? IProblem.DuplicateAnnotationNotMarkedRepeatable : IProblem.DuplicateAnnotation,
 		new String[] {new String(annotation.resolvedType.readableName())},
 		new String[] {new String(annotation.resolvedType.shortReadableName())},
 		annotation.sourceStart,
@@ -7053,6 +7054,14 @@ public void referenceMustBeArrayTypeAt(TypeBinding arrayType, ArrayReference arr
 		arrayRef.sourceStart,
 		arrayRef.sourceEnd);
 }
+public void repeatedAnnotationWithContainer(Annotation annotation, Annotation container) {
+	this.handle(
+		IProblem.RepeatedAnnotationWithContainerAnnotation,
+		new String[] {new String(annotation.resolvedType.readableName()), new String(container.resolvedType.readableName())},
+		new String[] {new String(annotation.resolvedType.shortReadableName()), new String(container.resolvedType.shortReadableName())},
+		annotation.sourceStart,
+		annotation.sourceEnd);
+}
 public void reset() {
 	this.positionScanner = null;
 }
@@ -9758,5 +9767,13 @@ public void illegalSuperCallBypassingOverride(InvocationSite location, MethodBin
 							String.valueOf(overrider.shortReadableName()) },
 			location.sourceStart(),
 			location.sourceEnd());
+}
+public void disallowedTargetForContainerAnnotation(Annotation annotation, TypeBinding containerAnnotationType) {
+	this.handle(
+		IProblem.DisallowedTargetForContainerAnnotation,
+		new String[] {new String(annotation.resolvedType.readableName()), new String(containerAnnotationType.readableName())},
+		new String[] {new String(annotation.resolvedType.shortReadableName()), new String(containerAnnotationType.shortReadableName())},
+		annotation.sourceStart,
+		annotation.sourceEnd);
 }
 }

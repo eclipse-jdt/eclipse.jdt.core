@@ -25,6 +25,8 @@
  *                          Bug 409517 - [1.8][compiler] Type annotation problems on more elaborate array references
  *                          Bug 415397 - [1.8][compiler] Type Annotations on wildcard type argument dropped
  *                          Bug 414384 - [1.8] type annotation on abbreviated inner class is not marked as inner type
+ *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
+ *                          Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -665,6 +667,12 @@ public abstract class Annotation extends Expression {
 			case TypeIds.T_JavaLangAnnotationInherited :
 				tagBits |= TagBits.AnnotationInherited;
 				break;
+			case TypeIds.T_JavaLangAnnotationRepeatable :
+				Object value = valueAttribute.compilerElementPair.value;
+				if (this.recipient instanceof ReferenceBinding && value instanceof ReferenceBinding) {
+					((ReferenceBinding) this.recipient).setContainerAnnotation((ReferenceBinding)value);  
+				}
+				break;
 			case TypeIds.T_JavaLangOverride :
 				tagBits |= TagBits.AnnotationOverride;
 				break;
@@ -997,116 +1005,135 @@ public abstract class Annotation extends Expression {
 						break;
 				}
 			}
-			// check (meta)target compatibility
-			checkTargetCompatibility: {
-				if (!annotationType.isValidBinding()) {
-					// no need to check annotation usage if missing
-					break checkTargetCompatibility;
-				}
-
-				long metaTagBits = annotationType.getAnnotationTagBits(); // could be forward reference
-				if ((metaTagBits & TagBits.AnnotationTargetMASK) == 0) {
-					// does not specify any target restriction - all locations supported in Java 7 and before are possible
-					if (kind == Binding.TYPE_PARAMETER || kind == Binding.TYPE_USE) {
-						scope.problemReporter().explitAnnotationTargetRequired(this);
-					}
-					break checkTargetCompatibility;
-				}
-
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391201
-				if ((metaTagBits & TagBits.SE7AnnotationTargetMASK) == 0
-						&& (metaTagBits & (TagBits.AnnotationForTypeUse | TagBits.AnnotationForTypeParameter)) != 0) {
-					if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) {
-						switch (kind) {
-							case Binding.PACKAGE :
-							case Binding.TYPE :
-							case Binding.GENERIC_TYPE :
-							case Binding.METHOD :
-							case Binding.FIELD :
-							case Binding.LOCAL :
-								scope.problemReporter().invalidUsageOfTypeAnnotations(this);
-						}
-					}
-				}
-				switch (kind) {
-					case Binding.PACKAGE :
-						if ((metaTagBits & TagBits.AnnotationForPackage) != 0)
-							break checkTargetCompatibility;
-						break;
-					case Binding.TYPE_USE :
-						if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-							// jsr 308
-							break checkTargetCompatibility;
-						}
-						break;
-					case Binding.TYPE :
-					case Binding.GENERIC_TYPE :
-						if (((ReferenceBinding)this.recipient).isAnnotationType()) {
-							if ((metaTagBits & (TagBits.AnnotationForAnnotationType | TagBits.AnnotationForType)) != 0)
-							break checkTargetCompatibility;
-						} else if ((metaTagBits & (TagBits.AnnotationForType | TagBits.AnnotationForTypeUse)) != 0) {
-							break checkTargetCompatibility;
-						} else if ((metaTagBits & TagBits.AnnotationForPackage) != 0) {
-							if (CharOperation.equals(((ReferenceBinding)this.recipient).sourceName, TypeConstants.PACKAGE_INFO_NAME))
-								break checkTargetCompatibility;
-						}
-						break;
-					case Binding.METHOD :
-						MethodBinding methodBinding = (MethodBinding) this.recipient;
-						if (methodBinding.isConstructor()) {
-							if ((metaTagBits & (TagBits.AnnotationForConstructor | TagBits.AnnotationForTypeUse)) != 0)
-								break checkTargetCompatibility;
-						} else if ((metaTagBits & TagBits.AnnotationForMethod) != 0) {
-							break checkTargetCompatibility;
-						} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-							SourceTypeBinding sourceType = (SourceTypeBinding) methodBinding.declaringClass;
-							MethodDeclaration methodDecl = (MethodDeclaration) sourceType.scope.referenceContext.declarationOf(methodBinding);
-							if (isTypeUseCompatible(methodDecl.returnType, scope)) {
-								break checkTargetCompatibility;
-							}
-						}
-						break;
-					case Binding.FIELD :
-						if ((metaTagBits & TagBits.AnnotationForField) != 0) {
-							break checkTargetCompatibility;
-						} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-							FieldBinding sourceField = (FieldBinding) this.recipient;
-							SourceTypeBinding sourceType = (SourceTypeBinding) sourceField.declaringClass;
-							FieldDeclaration fieldDeclaration = sourceType.scope.referenceContext.declarationOf(sourceField);
-							if (isTypeUseCompatible(fieldDeclaration.type, scope)) {
-								break checkTargetCompatibility;
-							}
-						}
-						break;
-					case Binding.LOCAL :
-						LocalVariableBinding localVariableBinding = (LocalVariableBinding)this.recipient;
-						if ((localVariableBinding.tagBits & TagBits.IsArgument) != 0) {
-							if ((metaTagBits & TagBits.AnnotationForParameter) != 0) {
-								break checkTargetCompatibility;
-							} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-								if (isTypeUseCompatible(localVariableBinding.declaration.type, scope)) {
-									break checkTargetCompatibility;
-								}
-							}
-						} else if ((annotationType.tagBits & TagBits.AnnotationForLocalVariable) != 0) {
-							break checkTargetCompatibility;
-						} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-							if (isTypeUseCompatible(localVariableBinding.declaration.type, scope)) {
-								break checkTargetCompatibility;
-							}
-						}
-						break;
-					case Binding.TYPE_PARAMETER : // jsr308
-						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391196
-						if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) != 0) {
-							break checkTargetCompatibility;
-						}
-					}
-				scope.problemReporter().disallowedTargetForAnnotation(this);
-			}
+			checkAnnotationTarget(this, scope, annotationType, kind);
 		}
 		return this.resolvedType;
 	}
+
+	static boolean isAnnotationTargetAllowed(Annotation annotation, BlockScope scope, TypeBinding annotationType, int kind) {
+		long metaTagBits = annotationType.getAnnotationTagBits(); // could be forward reference
+		if ((metaTagBits & TagBits.AnnotationTargetMASK) == 0) {
+			// does not specify any target restriction - all locations supported in Java 7 and before are possible
+			if (kind == Binding.TYPE_PARAMETER || kind == Binding.TYPE_USE) {
+				scope.problemReporter().explitAnnotationTargetRequired(annotation);
+			}
+			return true;
+		}
+
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391201
+		if ((metaTagBits & TagBits.SE7AnnotationTargetMASK) == 0
+				&& (metaTagBits & (TagBits.AnnotationForTypeUse | TagBits.AnnotationForTypeParameter)) != 0) {
+			if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) {
+				switch (kind) {
+					case Binding.PACKAGE :
+					case Binding.TYPE :
+					case Binding.GENERIC_TYPE :
+					case Binding.METHOD :
+					case Binding.FIELD :
+					case Binding.LOCAL :
+						scope.problemReporter().invalidUsageOfTypeAnnotations(annotation);
+				}
+			}
+		}
+		switch (kind) {
+			case Binding.PACKAGE :
+				if ((metaTagBits & TagBits.AnnotationForPackage) != 0)
+					return true;
+				break;
+			case Binding.TYPE_USE :
+				if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
+					// jsr 308
+					return true;
+				}
+				break;
+			case Binding.TYPE :
+			case Binding.GENERIC_TYPE :
+				if (((ReferenceBinding)annotation.recipient).isAnnotationType()) {
+					if ((metaTagBits & (TagBits.AnnotationForAnnotationType | TagBits.AnnotationForType)) != 0)
+					return true;
+				} else if ((metaTagBits & (TagBits.AnnotationForType | TagBits.AnnotationForTypeUse)) != 0) {
+					return true;
+				} else if ((metaTagBits & TagBits.AnnotationForPackage) != 0) {
+					if (CharOperation.equals(((ReferenceBinding) annotation.recipient).sourceName, TypeConstants.PACKAGE_INFO_NAME))
+						return true;
+				}
+				break;
+			case Binding.METHOD :
+				MethodBinding methodBinding = (MethodBinding) annotation.recipient;
+				if (methodBinding.isConstructor()) {
+					if ((metaTagBits & (TagBits.AnnotationForConstructor | TagBits.AnnotationForTypeUse)) != 0)
+						return true;
+				} else if ((metaTagBits & TagBits.AnnotationForMethod) != 0) {
+					return true;
+				} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
+					SourceTypeBinding sourceType = (SourceTypeBinding) methodBinding.declaringClass;
+					MethodDeclaration methodDecl = (MethodDeclaration) sourceType.scope.referenceContext.declarationOf(methodBinding);
+					if (isTypeUseCompatible(methodDecl.returnType, scope)) {
+						return true;
+					}
+				}
+				break;
+			case Binding.FIELD :
+				if ((metaTagBits & TagBits.AnnotationForField) != 0) {
+					return true;
+				} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
+					FieldBinding sourceField = (FieldBinding) annotation.recipient;
+					SourceTypeBinding sourceType = (SourceTypeBinding) sourceField.declaringClass;
+					FieldDeclaration fieldDeclaration = sourceType.scope.referenceContext.declarationOf(sourceField);
+					if (isTypeUseCompatible(fieldDeclaration.type, scope)) {
+						return true;
+					}
+				}
+				break;
+			case Binding.LOCAL :
+				LocalVariableBinding localVariableBinding = (LocalVariableBinding) annotation.recipient;
+				if ((localVariableBinding.tagBits & TagBits.IsArgument) != 0) {
+					if ((metaTagBits & TagBits.AnnotationForParameter) != 0) {
+						return true;
+					} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
+						if (isTypeUseCompatible(localVariableBinding.declaration.type, scope)) {
+							return true;
+						}
+					}
+				} else if ((annotationType.tagBits & TagBits.AnnotationForLocalVariable) != 0) {
+					return true;
+				} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
+					if (isTypeUseCompatible(localVariableBinding.declaration.type, scope)) {
+						return true;
+					}
+				}
+				break;
+			case Binding.TYPE_PARAMETER : // jsr308
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391196
+				if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) != 0) {
+					return true;
+				}
+		}
+		return false;
+	}
+
+	static void checkAnnotationTarget(Annotation annotation, BlockScope scope, ReferenceBinding annotationType, int kind) {
+		// check (meta)target compatibility
+		if (!annotationType.isValidBinding()) {
+			// no need to check annotation usage if missing
+			return;
+		}
+		if (! isAnnotationTargetAllowed(annotation, scope, annotationType, kind)) {
+			scope.problemReporter().disallowedTargetForAnnotation(annotation);
+		}
+	}
+
+	public static void checkAnnotationContainerTarget(Annotation annotation, BlockScope scope, TypeBinding annotationType, TypeBinding containerAnnotationType) {
+		// check (meta)target compatibility
+		if (!annotationType.isValidBinding()) {
+			// no need to check annotation usage if missing
+			return;
+		}
+		if (! isAnnotationTargetAllowed(annotation, scope, containerAnnotationType, annotation.recipient.kind())) {
+			scope.problemReporter().disallowedTargetForContainerAnnotation(annotation, containerAnnotationType);
+		}
+	}
+
 	public static boolean isTypeUseCompatible(TypeReference reference, Scope scope) {
 		if (reference != null && !(reference instanceof SingleTypeReference)) {
 			Binding binding = scope.getPackage(reference.getTypeName());

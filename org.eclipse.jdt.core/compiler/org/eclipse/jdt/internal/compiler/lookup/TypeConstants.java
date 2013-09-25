@@ -19,7 +19,8 @@
  *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
  *								Bug 405569 - Resource leak check false positive when using DbUtils.closeQuietly
  *    Jesper S Moller - Contributions for
- *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
+ *								Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
+ *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -146,6 +147,7 @@ public interface TypeConstants {
 	char[][] JAVA_LANG_DEPRECATED = {JAVA, LANG, "Deprecated".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_ANNOTATION_DOCUMENTED = {JAVA, LANG, ANNOTATION, "Documented".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_ANNOTATION_INHERITED = {JAVA, LANG, ANNOTATION, "Inherited".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_LANG_ANNOTATION_REPEATABLE = {JAVA, LANG, ANNOTATION, "Repeatable".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_OVERRIDE = {JAVA, LANG, "Override".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_FUNCTIONAL_INTERFACE = {JAVA, LANG, "FunctionalInterface".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_ANNOTATION_RETENTION = {JAVA, LANG, ANNOTATION, "Retention".toCharArray()}; //$NON-NLS-1$

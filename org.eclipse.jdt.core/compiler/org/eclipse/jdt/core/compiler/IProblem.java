@@ -196,6 +196,9 @@
  *									TargetTypeNotAFunctionalInterface
  *									OuterLocalMustBeEffectivelyFinal
  *									IllegalModifiersForPackage
+ *									DuplicateAnnotationNotMarkedRepeatable
+ *									DisallowedTargetForContainerAnnotation
+ *									RepeatedAnnotationWithContainerAnnotation
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
@@ -1609,6 +1612,12 @@ void setSourceStart(int sourceStart);
 	int MultipleFunctionalInterfaces = TypeRelated + 895;
 	/** @since 3.9 BETA_JAVA8 */
 	int StaticInterfaceMethodNotBelow18 = Internal + Syntax + 896;
+	/** @since 3.9 BETA_JAVA8 */
+	int DuplicateAnnotationNotMarkedRepeatable = TypeRelated + 897;
+	/** @since 3.9 BETA_JAVA8 */
+	int DisallowedTargetForContainerAnnotation = TypeRelated + 898;
+	/** @since 3.9 BETA_JAVA8 */
+	int RepeatedAnnotationWithContainerAnnotation = TypeRelated + 899;
 	
 	/**
 	 * Errors/warnings from annotation based null analysis

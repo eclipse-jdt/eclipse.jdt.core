@@ -29,6 +29,7 @@
  *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
+ *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -707,6 +708,10 @@ public void computeId() {
 										if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_RETENTION[3]))
 											this.id = TypeIds.T_JavaLangAnnotationRetention;
 										return;
+									case 10 :
+										if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_REPEATABLE[3]))
+											this.id = TypeIds.T_JavaLangAnnotationRepeatable;
+										return;
 									case 15 :
 										if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ANNOTATION_RETENTIONPOLICY[3]))
 											this.id = TypeIds.T_JavaLangAnnotationRetentionPolicy;
@@ -1374,6 +1379,13 @@ public final boolean isPublic() {
 }
 
 /**
+ * Answer true if the receiver is an annotation which may be repeatable. Overridden as appropriate.
+ */
+public boolean isRepeatableAnnotation() {
+	return false;
+}
+
+/**
  * Answer true if the receiver is a static member type (or toplevel)
  */
 public final boolean isStatic() {
@@ -1517,6 +1529,10 @@ public char[] readableName() /*java.lang.Object,  p.X<T> */ {
 	return readableName;
 }
 
+public ReferenceBinding resolveContainerAnnotation() {
+	return null;
+}
+
 protected void appendNullAnnotation(StringBuffer nameBuffer, CompilerOptions options) {
 	if (options.isAnnotationBasedNullAnalysisEnabled) {
 		// restore applied null annotation from tagBits:
@@ -1542,6 +1558,9 @@ AnnotationBinding[] retrieveAnnotations(Binding binding) {
 
 public void setAnnotations(AnnotationBinding[] annotations) {
 	storeAnnotations(this, annotations);
+}
+public void setContainerAnnotation(ReferenceBinding value) {
+	// Leave this to subclasses
 }
 
 /**

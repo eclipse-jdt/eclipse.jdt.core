@@ -32,6 +32,8 @@
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *								Bug 416172 - [1.8][compiler][null] null type annotation not evaluated on method return type
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
+ *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
+ *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -84,6 +86,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	private int defaultNullness;
 	private int nullnessDefaultInitialized = 0; // 0: nothing; 1: type; 2: package
 	private int lambdaOrdinal = 0;
+	private ReferenceBinding containerAnnotation = null;
 	
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
 	this.compoundName = compoundName;
@@ -1329,6 +1332,9 @@ public boolean isHierarchyConnected() {
 		return this.prototype.isHierarchyConnected();
 	return (this.tagBits & TagBits.EndHierarchyCheck) != 0;
 }
+public boolean isRepeatableAnnotation() {
+	return this.containerAnnotation != null;
+}
 public ReferenceBinding[] memberTypes() {
 	if (this != this.prototype)
 		return this.prototype.memberTypes();
@@ -1567,6 +1573,12 @@ public TypeBinding prototype() {
 	return this.prototype;
 }
 
+public ReferenceBinding resolveContainerAnnotation() {
+	if (this.containerAnnotation instanceof UnresolvedReferenceBinding) {
+		this.containerAnnotation = (ReferenceBinding)BinaryTypeBinding.resolveType(this.containerAnnotation, this.scope.environment(), false);
+	}
+	return this.containerAnnotation;
+}
 public FieldBinding resolveTypeFor(FieldBinding field) {
 	
 	if (this != this.prototype)
@@ -2011,6 +2023,9 @@ public AnnotationHolder retrieveAnnotationHolder(Binding binding, boolean forceI
 	if (forceInitialization)
 		binding.getAnnotationTagBits(); // ensure annotations are up to date
 	return super.retrieveAnnotationHolder(binding, false);
+}
+public void setContainerAnnotation(ReferenceBinding value) {
+	this.containerAnnotation  = value;
 }
 public void setFields(FieldBinding[] fields) {
 	this.fields = fields;

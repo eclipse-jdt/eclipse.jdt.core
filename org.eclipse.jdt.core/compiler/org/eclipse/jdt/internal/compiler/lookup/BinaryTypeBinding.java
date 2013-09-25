@@ -28,6 +28,7 @@
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *    Jesper Steen Moller - Contributions for
  *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
+ *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.TypeAnnotationWalker;
+import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -73,6 +75,8 @@ public class BinaryTypeBinding extends ReferenceBinding {
 	protected LookupEnvironment environment;
 
 	protected SimpleLookupTable storedAnnotations = null; // keys are this ReferenceBinding & its fields and methods, value is an AnnotationHolder
+
+	private ReferenceBinding containerAnnotation;
 
 static Object convertMemberValue(Object binaryValue, LookupEnvironment env, char[][][] missingTypeNames) {
 	if (binaryValue == null) return null;
@@ -464,6 +468,8 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		}
 		if (this.environment.globalOptions.storeAnnotations)
 			setAnnotations(createAnnotations(binaryType.getAnnotations(), this.environment, missingTypeNames));
+		if (this.isAnnotationType())
+			scanTypeForContainerAnnotation(binaryType, missingTypeNames);
 	} finally {
 		// protect against incorrect use of the needFieldsAndMethods flag, see 48459
 		if (this.fields == null)
@@ -1234,6 +1240,9 @@ public boolean isHierarchyConnected() {
 	
 	return (this.tagBits & (TagBits.HasUnresolvedSuperclass | TagBits.HasUnresolvedSuperinterfaces)) == 0;
 }
+public boolean isRepeatableAnnotation() {
+	return this.containerAnnotation != null;
+}
 public int kind() {
 	
 	if (this != this.prototype)
@@ -1281,6 +1290,13 @@ public MethodBinding[] methods() {
 
 public TypeBinding prototype() {
 	return this.prototype;
+}
+
+public ReferenceBinding resolveContainerAnnotation() {
+	if (this.containerAnnotation instanceof UnresolvedReferenceBinding) {
+		this.containerAnnotation = (ReferenceBinding) BinaryTypeBinding.resolveType(this.containerAnnotation, this.environment, false);
+	}
+	return this.containerAnnotation;
 }
 
 private FieldBinding resolveTypeFor(FieldBinding field) {
@@ -1340,6 +1356,9 @@ AnnotationBinding[] retrieveAnnotations(Binding binding) {
 		return this.prototype.retrieveAnnotations(binding);
 	
 	return AnnotationBinding.addStandardAnnotations(super.retrieveAnnotations(binding), binding.getAnnotationTagBits(), this.environment);
+}
+public void setContainerAnnotation(ReferenceBinding value) {
+	this.containerAnnotation = value;
 }
 SimpleLookupTable storedAnnotations(boolean forceInitialize) {
 	
@@ -1543,6 +1562,26 @@ private void scanTypeForNullDefaultAnnotation(IBinaryType binaryType, PackageBin
 		case Binding.NULL_UNSPECIFIED_BY_DEFAULT :
 			binaryBinding.tagBits |= TagBits.AnnotationNullUnspecifiedByDefault;
 			break;
+	}
+}
+
+private void scanTypeForContainerAnnotation(IBinaryType binaryType, char[][][] missingTypeNames) {
+	IBinaryAnnotation[] annotations = binaryType.getAnnotations();
+	if (annotations != null) {
+		int length = annotations.length;
+		for (int i = 0; i < length; i++) {
+			char[] annotationTypeName = annotations[i].getTypeName();
+			if (CharOperation.equals(annotationTypeName, ConstantPool.JAVA_LANG_ANNOTATION_REPEATABLE)) {
+				IBinaryElementValuePair[] elementValuePairs = annotations[i].getElementValuePairs();
+				if (elementValuePairs != null && elementValuePairs.length == 1) {
+					Object value = elementValuePairs[0].getValue();
+					if (value instanceof ClassSignature) {
+						this.containerAnnotation = (ReferenceBinding) this.environment.getTypeFromSignature(((ClassSignature)value).getTypeName(), 0, -1, false, null, missingTypeNames, TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER);
+					}
+				}
+				break;
+			}
+		}
 	}
 }
 

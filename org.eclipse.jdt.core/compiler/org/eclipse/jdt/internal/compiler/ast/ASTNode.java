@@ -24,14 +24,39 @@
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *     Jesper S Moller - Contributions for
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
+ *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
-import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 
 public abstract class ASTNode implements TypeConstants, TypeIds {
 
@@ -767,25 +792,47 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		// check duplicate annotations
 		if (annotations != null && length > 1) {
 			AnnotationBinding[] distinctAnnotations = annotations; // only copy after 1st duplicate is detected
+			Map implicitContainerAnnotations = null;
 			for (int i = 0; i < length; i++) {
 				AnnotationBinding annotation = distinctAnnotations[i];
 				if (annotation == null) continue;
-				TypeBinding annotationType = annotation.getAnnotationType();
+				ReferenceBinding annotationType = annotation.getAnnotationType();
 				boolean foundDuplicate = false;
 				for (int j = i+1; j < length; j++) {
 					AnnotationBinding otherAnnotation = distinctAnnotations[j];
 					if (otherAnnotation == null) continue;
 					if (otherAnnotation.getAnnotationType() == annotationType) {
-						foundDuplicate = true;
-						if (distinctAnnotations == annotations) {
-							System.arraycopy(distinctAnnotations, 0, distinctAnnotations = new AnnotationBinding[length], 0, length);
+						if (annotationType.isRepeatableAnnotation()) {
+							ReferenceBinding resolvedContainer = annotationType.resolveContainerAnnotation();
+							if (resolvedContainer != null) {
+								// Since this is a repeated annotation, we need to check if the container is also used - so store it
+								// in a map of (container's ReferenceBinding -> the repeated source Annotation)
+								if (implicitContainerAnnotations == null) implicitContainerAnnotations = new HashMap(3);
+								implicitContainerAnnotations.put(resolvedContainer, sourceAnnotations[i]);
+								Annotation.checkAnnotationContainerTarget(sourceAnnotations[i], scope, annotationType, resolvedContainer);
+							}
+						} else {
+							foundDuplicate = true;
+							if (distinctAnnotations == annotations) {
+								System.arraycopy(distinctAnnotations, 0, distinctAnnotations = new AnnotationBinding[length], 0, length);
+							}
+							distinctAnnotations[j] = null; // report it only once
+							scope.problemReporter().duplicateAnnotation(sourceAnnotations[j], scope.compilerOptions().sourceLevel);
 						}
-						distinctAnnotations[j] = null; // report it only once
-						scope.problemReporter().duplicateAnnotation(sourceAnnotations[j]);
 					}
 				}
 				if (foundDuplicate) {
-					scope.problemReporter().duplicateAnnotation(sourceAnnotations[i]);
+					scope.problemReporter().duplicateAnnotation(sourceAnnotations[i], scope.compilerOptions().sourceLevel);
+				}
+			}
+			if (implicitContainerAnnotations != null) {
+				for (int i = 0; i < length; i++) {
+					if (distinctAnnotations[i] == null) continue;
+					Annotation annotation = sourceAnnotations[i];
+					ReferenceBinding annotationType = distinctAnnotations[i].getAnnotationType();
+					if (implicitContainerAnnotations.containsKey(annotationType)) {
+						scope.problemReporter().repeatedAnnotationWithContainer((Annotation) implicitContainerAnnotations.get(annotationType), annotation);
+					}
 				}
 			}
 		}
