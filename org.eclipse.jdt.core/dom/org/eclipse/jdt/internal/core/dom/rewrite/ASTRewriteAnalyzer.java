@@ -2077,15 +2077,15 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			RewriteEvent dimEvent= getEvent(node, ArrayCreation.DIMENSIONS_PROPERTY);
 			boolean hasDimensionChanges= (dimEvent != null && dimEvent.getChangeKind() != RewriteEvent.UNCHANGED);
 			RewriteEvent[] events= hasDimensionChanges ? dimEvent.getChildren() : null;
-			ArrayType currentLevel= (ArrayType) replacingType.getElementType().getParent();
+			boolean astLevelGTE8 = node.getAST().apiLevel() >= AST.JLS8 ? true : false;
+			ArrayType currentLevel = astLevelGTE8 ? null : (ArrayType) replacingType.getElementType().getParent();
+			int replacingTypeDimensions = replacingType.getDimensions();
 			int i=0, dimSize= (events == null) ? 0 : events.length;
 			Type elementType= arrayType.getElementType();
 			int offset= elementType.getStartPosition() + elementType.getLength();
-			while(currentLevel != null) {
-				if (node.getAST().apiLevel() >= AST.JLS8) {
-					rewriteTypeAnnotations(currentLevel, ArrayType.ANNOTATIONS_PROPERTY, offset);
-				}
+			while(currentLevel != null || astLevelGTE8) {
 				if (i < dimSize) {
+					if (astLevelGTE8) internalExtraDimensionRewrite(replacingType, i, offset);
 					 offset= getScanner().getTokenEndOffset(TerminalTokens.TokenNameLBRACKET, offset);
 					if (hasDimensionChanges) {
 						RewriteEvent event= events[i];
@@ -2120,13 +2120,19 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						offset= retrieveRightBracketEndPosition(offset, 1, true);
 					}
 				} else if (i < nOldBrackets) {
+					if (astLevelGTE8) internalExtraDimensionRewrite(replacingType, i, offset);
 					offset= retrieveRightBracketEndPosition(offset, 1, false);
 				} else {
+					internalExtraDimensionAddition(replacingType, i, offset, editGroup, astLevelGTE8);
 					doTextInsert(offset, "[]", editGroup); //$NON-NLS-1$
 				}
 				i++;
-				if (currentLevel == replacingType) break;
-				currentLevel= (ArrayType) currentLevel.getParent();
+				if (astLevelGTE8) {
+					if (i == replacingTypeDimensions) break;
+				} else {
+					if (currentLevel == replacingType) break;
+					currentLevel= (ArrayType) currentLevel.getParent();
+				}
 			}
 			if (i < nOldBrackets) {
 				int endPos= retrieveRightBracketEndPosition(offset, nOldBrackets - i, false);
@@ -2144,6 +2150,26 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			handleException(e);
 		}
 		return false;
+	}
+
+	private void internalExtraDimensionAddition(ArrayType replacingType, int index, int pos, TextEditGroup editGroup,
+			boolean astLevelGTE8) {
+		if (astLevelGTE8) {
+			ExtraDimension dim = (ExtraDimension) replacingType.dimensions().get(index);
+			List annotations = dim.annotations();
+			if (annotations != null) {
+				for (int j = 0; j < annotations.size(); j++) {
+					Annotation annotation = (Annotation) annotations.get(j);
+					doTextInsert(pos, annotation.toString() + " ", editGroup); //$NON-NLS-1$
+				}
+				
+			}
+		}
+	}
+
+	private void internalExtraDimensionRewrite(ArrayType replacingType, int index, int pos) {
+		ExtraDimension dim = (ExtraDimension) replacingType.dimensions().get(index);
+		rewriteTypeAnnotations(dim, ExtraDimension.ANNOTATIONS_PROPERTY, pos);
 	}
 
 	/**
@@ -2175,6 +2201,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	private Type getElementType(ArrayType parent) {
+		if (parent.getAST().apiLevel() >= AST.JLS8) {
+			return (Type) getOriginalValue(parent, ArrayType.ELEMENT_TYPE_PROPERTY);
+		}
 		Type t = (Type) getOriginalValue(parent, ArrayType.COMPONENT_TYPE_PROPERTY);
 		while (t.isArrayType()) {
 			t = (Type) getOriginalValue(t, ArrayType.COMPONENT_TYPE_PROPERTY);
@@ -2183,6 +2212,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	private int getDimensions(ArrayType parent) {
+		if (parent.getAST().apiLevel() >= AST.JLS8) {
+			return ((List) getOriginalValue(parent, ArrayType.DIMENSIONS_PROPERTY)).size();
+		}
 		Type t = (Type) getOriginalValue(parent, ArrayType.COMPONENT_TYPE_PROPERTY);
 		int dimensions = 1; // always include this array type
 		while (t.isArrayType()) {
@@ -2214,9 +2246,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		int pos = rewriteRequiredNode(node, ArrayType.COMPONENT_TYPE_PROPERTY);
-		if (node.getAST().apiLevel() >= AST.JLS8) {
-			rewriteTypeAnnotations(node, ArrayType.ANNOTATIONS_PROPERTY, pos);
+		if (node.getAST().apiLevel() < AST.JLS8) {
+			rewriteRequiredNode(node, ArrayType.COMPONENT_TYPE_PROPERTY);
+		} else {
+			int pos = rewriteRequiredNode(node, ArrayType.ELEMENT_TYPE_PROPERTY);
+			rewriteNodeList(node, ArrayType.DIMENSIONS_PROPERTY, pos, Util.EMPTY_STRING, " "); //$NON-NLS-1$
 		}
 		return false;
 	}

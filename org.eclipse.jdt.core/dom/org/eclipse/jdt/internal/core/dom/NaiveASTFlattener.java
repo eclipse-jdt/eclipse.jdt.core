@@ -370,9 +370,17 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(ArrayType)
 	 */
 	public boolean visit(ArrayType node) {
-		node.getComponentType().accept(this);
-		visitTypeAnnotations(node);
-		this.buffer.append("[]");//$NON-NLS-1$
+		if (node.getAST().apiLevel() < AST.JLS8) {
+			visitComponentType(node);
+			this.buffer.append("[]");//$NON-NLS-1$
+		} else {
+			node.getElementType().accept(this);
+			List dimensions = node.dimensions();
+			for (int i = 0; i < dimensions.size() ; i++) {
+				ExtraDimension aDimension = (ExtraDimension) dimensions.get(i);
+				aDimension.accept(this);
+			}
+		}
 		return false;
 	}
 
@@ -1942,6 +1950,13 @@ public class NaiveASTFlattener extends ASTVisitor {
 			bound.accept(this);
 		}
 		return false;
+	}
+
+	/**
+	 * @deprecated
+	 */
+	private void visitComponentType(ArrayType node) {
+		node.getComponentType().accept(this);
 	}
 
 }

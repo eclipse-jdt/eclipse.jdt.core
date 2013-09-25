@@ -4,6 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -54,6 +58,13 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 */
 	private static List internalThrownExceptions(MethodDeclaration methodDeclaration) {
 		return methodDeclaration.thrownExceptions();
+	}
+
+	/**
+	 * @deprecated
+	 */
+	private Type componentType(ArrayType array) {
+		return array.getComponentType();
 	}
 
 	/**
@@ -2631,11 +2642,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		checkSourceRange(type, "Class[][]", source);
 		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
-		Type componentType = arrayType.getComponentType();
+		Type componentType = componentType(arrayType);
 		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
 		checkSourceRange(componentType, "Class[]", source);
 		arrayType = (ArrayType) componentType;
-		componentType = arrayType.getComponentType();
+		componentType = componentType(arrayType);
 		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
 		checkSourceRange(componentType, "Class", source);
 	}
@@ -2657,15 +2668,15 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		checkSourceRange(type, "Class[][][]", source);
 		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
-		Type componentType = arrayType.getComponentType();
+		Type componentType = componentType(arrayType);
 		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
 		checkSourceRange(componentType, "Class[][]", source);
 		arrayType = (ArrayType) componentType;
-		componentType = arrayType.getComponentType();
+		componentType = componentType(arrayType);
 		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
 		checkSourceRange(componentType, "Class[]", source);
 		arrayType = (ArrayType) componentType;
-		componentType = arrayType.getComponentType();
+		componentType = componentType(arrayType);
 		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
 		checkSourceRange(componentType, "Class", source);
 	}
@@ -2687,11 +2698,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		checkSourceRange(type, "Class[][]", source);
 		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
-		Type componentType = arrayType.getComponentType();
+		Type componentType = componentType(arrayType);
 		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
 		checkSourceRange(componentType, "Class[]", source);
 		arrayType = (ArrayType) componentType;
-		componentType = arrayType.getComponentType();
+		componentType = componentType(arrayType);
 		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
 		checkSourceRange(componentType, "Class", source);
 		List fragments = fieldDeclaration.fragments();
@@ -2717,19 +2728,19 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		checkSourceRange(type, "Class[][][][]", source);
 		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
-		Type componentType = arrayType.getComponentType();
+		Type componentType = componentType(arrayType);
 		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
 		checkSourceRange(componentType, "Class[][][]", source);
 		arrayType = (ArrayType) componentType;
-		componentType = arrayType.getComponentType();
+		componentType = componentType(arrayType);
 		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
 		checkSourceRange(componentType, "Class[][]", source);
 		arrayType = (ArrayType) componentType;
-		componentType = arrayType.getComponentType();
+		componentType = componentType(arrayType);
 		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
 		checkSourceRange(componentType, "Class[]", source);
 		arrayType = (ArrayType) componentType;
-		componentType = arrayType.getComponentType();
+		componentType = componentType(arrayType);
 		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
 		checkSourceRange(componentType, "Class", source);
 	}
@@ -2751,7 +2762,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		checkSourceRange(type, "Class[]", source);
 		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
-		Type componentType = arrayType.getComponentType();
+		Type componentType = componentType(arrayType);
 		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
 		checkSourceRange(componentType, "Class", source);
 	}

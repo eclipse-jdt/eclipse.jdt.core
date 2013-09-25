@@ -164,6 +164,13 @@ public class ASTMatcher {
 	}
 
 	/**
+	 * @deprecated
+	 */
+	private Type componentType(ArrayType array) {
+		return array.getComponentType();
+	}
+
+	/**
 	 * Returns whether the given node and the other object match.
 	 * <p>
 	 * The default implementation provided by this class tests whether the
@@ -331,8 +338,11 @@ public class ASTMatcher {
 		}
 		ArrayType o = (ArrayType) other;
 		int level = node.getAST().apiLevel;
-		return safeSubtreeMatch(node.getComponentType(), o.getComponentType())
-				&& (level >= AST.JLS8 ? safeSubtreeListMatch(node.annotations(), o.annotations()) : true);
+		if (level < AST.JLS8) {
+			return safeSubtreeMatch(componentType(node), componentType(o));
+		}
+		return safeSubtreeMatch(node.getElementType(), o.getElementType())
+				&& safeSubtreeListMatch(node.dimensions(), o.dimensions());
 	}
 
 	/**

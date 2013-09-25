@@ -999,6 +999,14 @@ public final class AST {
 	}
 
 	/**
+	 * A local method to workaround calling deprecated method in array type.
+	 * @deprecated
+	 */
+	private void setArrayComponentType(ArrayType arrayType, Type type) {
+		arrayType.setComponentType(type);
+	}
+
+	/**
 	 * Creates and returns a new unparented annotation type declaration
 	 * node for an unspecified, but legal, name; no modifiers; no javadoc;
 	 * and an empty list of member declarations.
@@ -1109,19 +1117,31 @@ public final class AST {
 
 	/**
 	 * Creates and returns a new unparented array type node with the given
-	 * component type, which may be another array type.
+	 * component type, which may be another array type for levels less than JLS8.
+	 * For JLS8 and above this type has to be an annotatable type.
 	 *
-	 * @param componentType the component type (possibly another array type)
+	 * @param type the component type (possibly another array type) for level less than JLS8, 
+	 * a <code>AnnotatableType</code>  for JLS8 and above
 	 * @return a new unparented array type node
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
+	 * <li> level is greater than or equal to JLS8 and type not an array type</li>
 	 * </ul>
 	 */
-	public ArrayType newArrayType(Type componentType) {
-		ArrayType result = new ArrayType(this);
-		result.setComponentType(componentType);
+	public ArrayType newArrayType(Type type) {
+		ArrayType result;
+		if (this.apiLevel < AST.JLS8) {
+			result = new ArrayType(this);
+			setArrayComponentType(result, type);
+			return result;
+		}
+		if (type.isArrayType()) {
+			throw new IllegalArgumentException();
+		}
+		result = new ArrayType(this);
+		result.setElementType(type);
 		return result;
 	}
 
@@ -1133,7 +1153,7 @@ public final class AST {
 	 * element type of the result will not be the same as what was passed in.
 	 * </p>
 	 *
-	 * @param elementType the element type (can be an array type)
+	 * @param elementType the element type (can be an array type for JLS8. For level JLS8 and above this should be an <code>AnnotatableType</code>)
 	 * @param dimensions the number of dimensions, a positive number
 	 * @return a new unparented array type node
 	 * @exception IllegalArgumentException if:
@@ -1143,6 +1163,7 @@ public final class AST {
 	 * <li>the element type is null</li>
 	 * <li>the number of dimensions is lower than 1</li>
 	 * <li>the number of dimensions is greater than 1000</li>
+	 * <li>for levels from JLS8 and later, if the element type is not an array type </li>
 	 * </ul>
 	 */
 	public ArrayType newArrayType(Type elementType, int dimensions) {
@@ -1153,10 +1174,24 @@ public final class AST {
 			// we would blow our stacks anyway with a 1000-D array
 			throw new IllegalArgumentException();
 		}
-		ArrayType result = new ArrayType(this);
-		result.setComponentType(elementType);
-		for (int i = 2; i <= dimensions; i++) {
-			result = newArrayType(result);
+		ArrayType result;
+		if (this.apiLevel < AST.JLS8) {
+			result = new ArrayType(this);
+			setArrayComponentType(result, elementType);
+			for (int i = 2; i <= dimensions; i++) {
+				result = newArrayType(result);
+			}
+			return result;
+		}
+		//level >= JLS8
+		if (elementType.isArrayType()) {
+			throw new IllegalArgumentException();
+		}
+		result = new ArrayType(this);
+		result.setElementType(elementType);
+		// index starting from 1 since there is a dimension already available by default.
+		for (int i = 1; i < dimensions; ++i) {
+			result.dimensions().add(new ExtraDimension(this));
 		}
 		return result;
 

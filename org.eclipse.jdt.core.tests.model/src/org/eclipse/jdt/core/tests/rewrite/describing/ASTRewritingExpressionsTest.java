@@ -263,23 +263,25 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 			memberValuePair.setName(ast.newSimpleName("v"));
 			memberValuePair.setValue(ast.newNumberLiteral("99"));
 			annotationC.values().add(memberValuePair);
-			arrayType.annotations().add(annotationC);
+			ExtraDimension dim0 = arrayType.getDimensionAt(0);
+			dim0.annotations().add(annotationC);
 			
-			arrayType= ast.newArrayType(arrayType);
 			SingleMemberAnnotation annotationB= ast.newSingleMemberAnnotation();
 			annotationB.setTypeName(ast.newSimpleName("B"));
 			annotationB.setValue(ast.newNumberLiteral("0"));
-			arrayType.annotations().add(annotationB);
+			ExtraDimension dim1 = ast.newExtraDimension();
+			dim1.annotations().add(annotationB);
+			arrayType.dimensions().add(0, dim1);
 			
-			arrayType= ast.newArrayType(arrayType);
 			MarkerAnnotation annotationA= ast.newMarkerAnnotation();
 			annotationA.setTypeName(ast.newSimpleName("A"));
-			arrayType.annotations().add(annotationA);
-			
-			arrayCreation.setType(arrayType);
+			ExtraDimension dim2 = ast.newExtraDimension();
+			dim2.annotations().add(annotationA);
+			arrayType.dimensions().add(0, dim2);
 			
 			arrayCreation.dimensions().add(ast.newNumberLiteral("1"));
 			arrayCreation.dimensions().add(ast.newNumberLiteral("2"));
+			arrayCreation.setType(arrayType);
 			
 			rewrite.getListRewrite(invocation, MethodInvocation.ARGUMENTS_PROPERTY).insertLast(arrayCreation, null);
 		}

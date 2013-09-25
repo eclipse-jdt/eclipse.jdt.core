@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -33,6 +37,13 @@ ASTConverterJavadocFlattener(String comment) {
 }
 
 /**
+ * @deprecated
+ */
+private Type componentType(ArrayType array) {
+	return array.getComponentType();
+}
+
+/**
  * Returns the string accumulated in the visit.
  *
  * @return the serialized
@@ -52,8 +63,15 @@ public void reset() {
  * @see ASTVisitor#visit(ArrayType)
  */
 public boolean visit(ArrayType node) {
-	node.getComponentType().accept(this);
-	this.buffer.append("[]");//$NON-NLS-1$
+	if (node.getAST().apiLevel() < AST.JLS8) {
+		componentType(node).accept(this);
+		this.buffer.append("[]");//$NON-NLS-1$
+	} else {
+		node.getElementType().accept(this);
+		for (int i = 0;  i < node.getDimensions(); ++i) {
+			((ExtraDimension) node.dimensions().get(i)).accept(this);
+		}
+	}
 	return false;
 }
 

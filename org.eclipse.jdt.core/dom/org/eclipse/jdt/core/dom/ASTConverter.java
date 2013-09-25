@@ -351,6 +351,13 @@ class ASTConverter {
 			}
 		}
 	}
+
+	private void checkAndSetMalformed(ASTNode oldASTNode, ASTNode newASTNode) {
+		if ((oldASTNode.getFlags() & ASTNode.MALFORMED) != 0) {
+			newASTNode.setFlags(newASTNode.getFlags() | ASTNode.MALFORMED);
+		}
+	}
+
 	/** 
 	 * Internal access method to SingleVariableDeclaration#setExtraDimensions() for avoiding deprecated warnings
 	 *
@@ -465,14 +472,26 @@ class ASTConverter {
 
 	protected void completeRecord(ArrayType arrayType, org.eclipse.jdt.internal.compiler.ast.ASTNode astNode) {
 		ArrayType array = arrayType;
+		this.recordNodes(arrayType, astNode);
+		if (this.ast.apiLevel() >= AST.JLS8) {
+			this.recordNodes(arrayType.getElementType(), astNode);
+			return;
+		}
 		int dimensions = array.getDimensions();
 		for (int i = 0; i < dimensions; i++) {
-			Type componentType = array.getComponentType();
+			Type componentType = componentType(array);
 			this.recordNodes(componentType, astNode);
 			if (componentType.isArrayType()) {
 				array = (ArrayType) componentType;
 			}
 		}
+	}
+	
+	/**
+	 * @deprecated
+	 */
+	private Type componentType(ArrayType array) {
+		return array.getComponentType();
 	}
 
 	public ASTNode convert(boolean isInterface, org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration methodDeclaration) {
@@ -909,12 +928,18 @@ class ASTConverter {
 		if (isVarArgs) {
 			setTypeForSingleVariableDeclaration(variableDecl, type, extraDimensions + 1);
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391898
-			if (type.isAnnotatable()) {
-				AnnotatableType annotatableType = (AnnotatableType) type;
-				if (this.ast.apiLevel() >= AST.JLS8 && !annotatableType.annotations().isEmpty()) {
-					Iterator annotations = annotatableType.annotations().iterator();
-					while (annotations.hasNext()) {
-						Annotation annotation = (Annotation) annotations.next();
+			if (this.ast.apiLevel() >= AST.JLS8) {
+				List annotations  = null;
+				if (type.isAnnotatable()) {
+					annotations = ((AnnotatableType) type).annotations();
+				} else if (type.isArrayType()) {
+					ArrayType arrayType = (ArrayType) type;
+					annotations = arrayType.dimensions().isEmpty() ? null : ((arrayType.getDimensionAt(0)).annotations());
+				}
+				if (annotations != null) {
+					Iterator iter = annotations.iterator();
+					while (iter.hasNext()) {
+						Annotation annotation = (Annotation) iter.next();
 						annotation.setParent(null, null);
 						variableDecl.varargsAnnotations().add(annotation);
 					}
@@ -981,27 +1006,19 @@ class ASTConverter {
 		ArrayType arrayType = null;
 		if (type.isArrayType()) {
 			arrayType = (ArrayType) type;
+			if (expression.annotationsOnDimensions != null) {
+				if (this.ast.apiLevel() < AST.JLS8) {
+					arrayType.setFlags(arrayType.getFlags() | ASTNode.MALFORMED);
+				} else {
+					setArrayTypeAnnotationsAndSource(arrayType, expression.annotationsOnDimensions);
+				}
+			}
 		} else {
-			arrayType = this.ast.newArrayType(type, dimensionsLength);
-			if (this.resolveBindings) {
-				completeRecord(arrayType, expression);
-			}
-			int start = type.getStartPosition();
-			int end = type.getStartPosition() + type.getLength();
-			int previousSearchStart = end - 1;
-			ArrayType componentType = (ArrayType) type.getParent();
-			for (int i = 0; i < dimensionsLength; i++) {
-				previousSearchStart = retrieveRightBracketPosition(previousSearchStart + 1, this.compilationUnitSourceLength);
-				componentType.setSourceRange(start, previousSearchStart - start + 1);
-				componentType = (ArrayType) componentType.getParent();
-			}
-		}
-		if (expression.annotationsOnDimensions != null) {
-			annotateType(arrayType, expression.annotationsOnDimensions);
+			arrayType = convertToArray(type, type.getStartPosition(), -1, dimensionsLength, expression.annotationsOnDimensions);
 		}
 		arrayCreation.setType(arrayType);
 		if (this.resolveBindings) {
-			recordNodes(arrayType, expression);
+			completeRecord(arrayType, expression);
 		}
 		if (expression.initializer != null) {
 			arrayCreation.setInitializer(convert(expression.initializer));
@@ -3121,6 +3138,31 @@ class ASTConverter {
 		return packageDeclaration;
 	}
 
+	private ArrayType convertToArray(Type subType, int sourceStart, int length, int noOfDimensions,
+			org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDims) {
+		ArrayType arrayType = this.ast.newArrayType(subType, noOfDimensions);
+		if (length > 0) arrayType.setSourceRange(sourceStart, length);
+		if (this.ast.apiLevel() < AST.JLS8) {
+			if (annotationsOnDims != null) {
+				arrayType.setFlags(arrayType.getFlags() | ASTNode.MALFORMED);
+			}
+			ArrayType subarrayType = arrayType;
+			int index = noOfDimensions - 1;
+			int arrayEnd = retrieveProperRightBracketPosition(noOfDimensions, sourceStart);
+			while (index > 0) {
+				subarrayType = (ArrayType) componentType(subarrayType);
+				int end = retrieveProperRightBracketPosition(index, sourceStart);
+				subarrayType.setSourceRange(sourceStart, end - sourceStart + 1);
+				index--;
+			}
+			if (length <= 0) arrayType.setSourceRange(sourceStart, arrayEnd - sourceStart + 1);
+			return arrayType;
+		}
+
+		setArrayTypeAnnotationsAndSource(arrayType, annotationsOnDims);
+		return arrayType;
+	}
+
 	private EnumDeclaration convertToEnumDeclaration(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
 		checkCanceled();
 		// enum declaration cannot be built if the source is not >= 1.5, since enum is then seen as an identifier
@@ -3351,6 +3393,37 @@ class ASTConverter {
 		}
 	}
 
+	private void setArrayTypeAnnotations(ExtraDimension currentDimension,
+			org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDims, int index) {
+		if (annotationsOnDims == null) return;
+		org.eclipse.jdt.internal.compiler.ast.Annotation[] annotation = annotationsOnDims[index];
+		if (annotation != null) {
+			for (int j = 0; j < annotation.length; j++) {
+				Annotation annot = convert(annotation[j]);
+				currentDimension.annotations().add(annot);
+			}
+		}
+	}
+	
+	private void setArrayTypeAnnotationsAndSource(ArrayType arrayType,
+			org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDims) {
+		List dimensions = arrayType.dimensions();
+		Type elemType = arrayType.getElementType();
+		int start = elemType.getStartPosition();
+		int endElement = start + elemType.getLength();
+		int length = arrayType.getLength();
+		int end = (length <= 0) ? retrieveProperRightBracketPosition(dimensions.size(), endElement) : start + length - 1;
+		arrayType.setSourceRange(start, end - start + 1);
+		
+		start = endElement;
+		for (int i = 0; i < dimensions.size(); i++) {
+			ExtraDimension currentDimension = (ExtraDimension) dimensions.get(i);
+			setArrayTypeAnnotations(currentDimension, annotationsOnDims, i);
+			retrieveDimensionAndSetPositions(start, end, currentDimension);
+			start = currentDimension.getStartPosition() + currentDimension.getLength();
+		}
+	}
+
 	protected VariableDeclarationStatement convertToVariableDeclarationStatement(org.eclipse.jdt.internal.compiler.ast.LocalDeclaration localDeclaration) {
 		final VariableDeclarationFragment variableDeclarationFragment = convertToVariableDeclarationFragment(localDeclaration);
 		final VariableDeclarationStatement variableDeclarationStatement = new VariableDeclarationStatement(this.ast);
@@ -3375,6 +3448,9 @@ class ASTConverter {
 				type.setFlags(type.getFlags() | ASTNode.MALFORMED);
 				break;
 			default:
+				if (annotations == null) break;
+				int start = type.getStartPosition();
+				int length = type.getLength();
 				int annotationsLength = annotations.length;
 				for (int i = 0; i < annotationsLength; i++) {
 					org.eclipse.jdt.internal.compiler.ast.Annotation typeAnnotation = annotations[i];
@@ -3383,20 +3459,14 @@ class ASTConverter {
 						type.annotations().add(annotation);
 					}
 				}
+				int annotationsStart;
+				if (annotations[0] != null && (annotationsStart = annotations[0].sourceStart) < start && annotationsStart > 0) {
+					length +=  start - annotationsStart;
+					start = annotationsStart;
+				}
+				type.setSourceRange(start, length);
 		}
 	}
-	private void annotateType(Type type, org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotations) {
-		int level = annotations.length - 1;
-		while(type.isArrayType()) {
-			ArrayType arrayType = (ArrayType) type;
-			org.eclipse.jdt.internal.compiler.ast.Annotation[] typeAnnotations = annotations[level--];
-			if (typeAnnotations != null) {
-				annotateType(arrayType, typeAnnotations);
-			}
-			type = arrayType.getComponentType();
-		}
-	}
-
 	private void annotateTypeParameter(TypeParameter typeParameter, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations) {
 		switch(this.ast.apiLevel) {
 			case AST.JLS2_INTERNAL :
@@ -3544,23 +3614,7 @@ class ASTConverter {
 				}
 			}
 			if (dimensions != 0) {
-				org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDimensions = typeReference.getAnnotationsOnDimensions();
-				type = this.ast.newArrayType(type, dimensions);
-				type.setSourceRange(sourceStart, length);
-				ArrayType subarrayType = (ArrayType) type;
-				int index = dimensions - 1;
-				while (index > 0) {
-					if (annotationsOnDimensions != null && (annotations = annotationsOnDimensions[index]) != null) {
-						annotateType(subarrayType, annotations);
-					}
-					subarrayType = (ArrayType) subarrayType.getComponentType();
-					int end = retrieveProperRightBracketPosition(index, sourceStart);
-					subarrayType.setSourceRange(sourceStart, end - sourceStart + 1);
-					index--;
-				}
-				if (annotationsOnDimensions != null && (annotations = annotationsOnDimensions[0]) != null) {
-					annotateType(subarrayType, annotations);
-				}
+				type = convertToArray(type, sourceStart, length, dimensions, typeReference.getAnnotationsOnDimensions());
 				if (this.resolveBindings) {
 					// store keys for inner types
 					completeRecord((ArrayType) type, typeReference);
@@ -3812,30 +3866,9 @@ class ASTConverter {
 
 			length = typeReference.sourceEnd - sourceStart + 1;
 			if (dimensions != 0) {
-				org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDimensions = typeReference.getAnnotationsOnDimensions();
-				type = this.ast.newArrayType(type, dimensions);
+				type = convertToArray(type, sourceStart, -1, dimensions, typeReference.getAnnotationsOnDimensions());
 				if (this.resolveBindings) {
 					completeRecord((ArrayType) type, typeReference);
-				}
-				int end = retrieveEndOfDimensionsPosition(sourceStart+length, this.compilationUnitSourceLength);
-				if (end != -1) {
-					type.setSourceRange(sourceStart, end - sourceStart + 1);
-				} else {
-					type.setSourceRange(sourceStart, length);
-				}
-				ArrayType subarrayType = (ArrayType) type;
-				int index = dimensions - 1;
-				while (index > 0) {
-					if (annotationsOnDimensions != null  && (annotations = annotationsOnDimensions[index]) != null) {
-						annotateType(subarrayType, annotations);
-					}
-					subarrayType = (ArrayType) subarrayType.getComponentType();
-					end = retrieveProperRightBracketPosition(index, sourceStart);
-					subarrayType.setSourceRange(sourceStart, end - sourceStart + 1);
-					index--;
-				}
-				if (annotationsOnDimensions != null  && (annotations = annotationsOnDimensions[0]) != null) {
-					annotateType(subarrayType, annotations);
 				}
 			}
 		}
@@ -3896,16 +3929,11 @@ class ASTConverter {
 	private void setSourceRangeAnnotationsAndRecordNodes(TypeReference typeReference, AnnotatableType annotatableType,
 			org.eclipse.jdt.internal.compiler.ast.Annotation[][] typeAnnotations, int index, int start, int end) {
 		org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations;
-		int annotationsStart = start;
 		int length = end - start + 1;
+		annotatableType.setSourceRange(start, length);
 		if (typeAnnotations != null && (annotations = typeAnnotations[index]) != null) {
 			annotateType(annotatableType, annotations);
-			if (annotations[0] != null && (annotationsStart = annotations[0].sourceStart) < start) {
-				length += annotationsStart > 0 ? start - annotationsStart : 0;
-				start = annotationsStart;
-			}
 		}
-		annotatableType.setSourceRange(start, length);
 		if (this.resolveBindings) {
 			recordNodes(annotatableType, typeReference);
 		}
@@ -4603,38 +4631,6 @@ class ASTConverter {
 	}
 
 	/**
-	 * This method is used to retrieve the ending position for a type declaration when the dimension is right after the type
-	 * name.
-	 * For example:
-	 *    int[] i; => return 5, but int i[] => return -1;
-	 * @return int the dimension found
-	 */
-	protected int retrieveEndOfDimensionsPosition(int start, int end) {
-		this.scanner.resetTo(start, end);
-		int foundPosition = -1;
-		try {
-			int token;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
-				switch(token) {
-					case TerminalTokens.TokenNameLBRACKET:
-					case TerminalTokens.TokenNameCOMMENT_BLOCK:
-					case TerminalTokens.TokenNameCOMMENT_JAVADOC:
-					case TerminalTokens.TokenNameCOMMENT_LINE:
-						break;
-					case TerminalTokens.TokenNameRBRACKET://166
-						foundPosition = this.scanner.currentPosition - 1;
-						break;
-					default:
-						return foundPosition;
-				}
-			}
-		} catch(InvalidInputException e) {
-			// ignore
-		}
-		return foundPosition;
-	}
-
-	/**
 	 * This method is used to retrieve the start and end position of a name or primitive type token.
 	 * 
 	 * @return int[] a single dimensional array, with two elements, for the start and end positions of the name respectively
@@ -4644,8 +4640,15 @@ class ASTConverter {
 		boolean isAnnotation = false;
 		try {
 			int token;
+			int count = 0;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
+					case TerminalTokens.TokenNameLPAREN:
+						++count;
+						break;
+					case TerminalTokens.TokenNameRPAREN:
+						--count;
+						break;
 					case TerminalTokens.TokenNameAT:
 						isAnnotation = true;
 						break;
@@ -4663,6 +4666,7 @@ class ASTConverter {
 					case TerminalTokens.TokenNamelong:
 					case TerminalTokens.TokenNameshort:
 					case TerminalTokens.TokenNameboolean:
+						if (count > 0) break;
 						return new int[]{this.scanner.startPosition, this.scanner.currentPosition - 1};
 				}
 			}
@@ -4712,9 +4716,17 @@ class ASTConverter {
 		this.scanner.resetTo(start, end);
 		int dimensions = 0;
 		try {
-			int token;
-			boolean isAnnotation = false;
+			int token, lParenCount = 0;
+			boolean isAnnotation = false, foundAnnotation = false;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+				if (foundAnnotation) {
+					if (token == TerminalTokens.TokenNameLPAREN) ++lParenCount;
+					else if (token == TerminalTokens.TokenNameRPAREN) {
+						--lParenCount;
+						continue;
+					}
+					if (lParenCount > 0) continue;
+				}
 				switch(token) {
 					case TerminalTokens.TokenNameLBRACKET:
 					case TerminalTokens.TokenNameCOMMENT_BLOCK:
@@ -4724,6 +4736,7 @@ class ASTConverter {
 						break;
 					case TerminalTokens.TokenNameAT:
 						isAnnotation = true;
+						foundAnnotation = true; /* check for params */
 						break;
 					case TerminalTokens.TokenNameIdentifier:
 						if (!isAnnotation) {
@@ -4748,22 +4761,36 @@ class ASTConverter {
 	protected void retrieveDimensionAndSetPositions(int start, int end, ExtraDimension dim) {
 		this.scanner.resetTo(start, end);
 		int token;
+		int count = 0, lParenCount = 0;
 		boolean startSet = false;
 		try {
 			while((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF)  {
-				switch(token) {
-					case TerminalTokens.TokenNameWHITESPACE:
-						break;
-					case TerminalTokens.TokenNameRBRACKET:
-						int endDim = this.scanner.currentPosition - 1;
-						dim.setSourceRange(start, endDim - start + 1);
-						return;
-					default:
-						if (!startSet) {
-							start = this.scanner.startPosition;
-							startSet = true;
-						}
-						break;
+				if (token != TerminalTokens.TokenNameWHITESPACE) {
+					if (!startSet) {
+						start = this.scanner.startPosition;
+						startSet = true;
+					}
+					switch(token) {
+						case TerminalTokens.TokenNameRBRACKET:
+							if (lParenCount > 0) break;
+							--count;
+							if (count > 0) break;
+							int endDim = this.scanner.currentPosition - 1;
+							dim.setSourceRange(start, endDim - start + 1);
+							return;
+						case TerminalTokens.TokenNameLBRACKET:
+							if (lParenCount > 0) break;
+							count++;
+							break;
+						case TerminalTokens.TokenNameLPAREN:
+							lParenCount++;
+							break;
+						case TerminalTokens.TokenNameRPAREN:
+							--lParenCount;
+							break;
+						default:
+							break;
+					}
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -4841,10 +4868,22 @@ class ASTConverter {
 		int balance = 0;
 		int pos = initializerEnd > nameEnd ? initializerEnd - 1 : nameEnd;
 		try {
-			int token;
+			int token, lParenCount = 0;
+			boolean hasAnnotations = false;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				hasTokens = true;
+				if (hasAnnotations) {
+					if (token == TerminalTokens.TokenNameLPAREN) ++lParenCount;
+					else if (token == TerminalTokens.TokenNameRPAREN) {
+						--lParenCount; 
+						continue;
+					}
+					if (lParenCount > 0) continue;
+				}
 				switch(token) {
+					case TerminalTokens.TokenNameAT:
+						hasAnnotations = true;
+						break;
 					case TerminalTokens.TokenNameLBRACE :
 					case TerminalTokens.TokenNameLBRACKET :
 						balance++;
@@ -4874,10 +4913,22 @@ class ASTConverter {
 	protected int retrieveProperRightBracketPosition(int bracketNumber, int start) {
 		this.scanner.resetTo(start, this.compilationUnitSourceLength);
 		try {
-			int token, count = 0;
+			int token, count = 0, lParentCount = 0, balance = 0;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
+					case TerminalTokens.TokenNameLPAREN:
+						++lParentCount;
+						break;
+					case TerminalTokens.TokenNameRPAREN:
+						--lParentCount;
+						break;
+					case TerminalTokens.TokenNameLBRACKET:
+						++balance;
+						break;
 					case TerminalTokens.TokenNameRBRACKET:
+						--balance;
+						if (lParentCount > 0) break;
+						if (balance > 0) break;
 						count++;
 						if (count == bracketNumber) {
 							return this.scanner.currentPosition - 1;
@@ -4924,32 +4975,6 @@ class ASTConverter {
 				switch(token) {
 					case TerminalTokens.TokenNameRBRACE :
 						return this.scanner.currentPosition - 1;
-				}
-			}
-		} catch(InvalidInputException e) {
-			// ignore
-		}
-		return -1;
-	}
-
-	/**
-	 * This method is used to retrieve the position of the right bracket.
-	 * @return int the dimension found, -1 if none
-	 */
-	protected int retrieveRightBracketPosition(int start, int end) {
-		this.scanner.resetTo(start, end);
-		try {
-			int token;
-			int balance = 0;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
-				switch(token) {
-					case TerminalTokens.TokenNameLBRACKET :
-						balance++;
-						break;
-					case TerminalTokens.TokenNameRBRACKET :
-						balance--;
-						if (balance == 0) return this.scanner.currentPosition - 1;
-						break;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5643,32 +5668,51 @@ class ASTConverter {
 					this.ast.getBindingResolver().updateKey(type, elementType);
 					fieldDeclaration.setType(elementType);
 				} else {
-					int start = type.getStartPosition();
-					ArrayType subarrayType = arrayType;
-					int index = extraDimension;
-					while (index > 0) {
-						subarrayType = (ArrayType) subarrayType.getComponentType();
-						index--;
-					}
-					int end = retrieveProperRightBracketPosition(remainingDimensions, start);
-					subarrayType.setSourceRange(start, end - start + 1);
-					// cut the child loose from its parent (without creating garbage)
-					subarrayType.setParent(null, null);
+					ArrayType subarrayType = extractSubArrayType(arrayType, remainingDimensions, extraDimension);
 					fieldDeclaration.setType(subarrayType);
-					updateInnerPositions(subarrayType, remainingDimensions);
 					this.ast.getBindingResolver().updateKey(type, subarrayType);
 				}
+				checkAndSetMalformed(type, fieldDeclaration);
 			} else {
 				fieldDeclaration.setType(type);
 			}
 		} else {
-			if (type.isArrayType()) {
+			if (type.isArrayType() && (this.ast.apiLevel() < AST.JLS8)) {
 				// update positions of the component types of the array type
 				int dimensions = ((ArrayType) type).getDimensions();
 				updateInnerPositions(type, dimensions);
 			}
 			fieldDeclaration.setType(type);
 		}
+	}
+
+	/** extracts the subArrayType for a given declaration for AST levels less
+	 * @param arrayType parent type
+	 * @param remainingDimensions 
+	 * @param extraDimensions
+	 * @return an ArrayType
+	 */
+	private ArrayType extractSubArrayType(ArrayType arrayType, int remainingDimensions, int extraDimensions) {
+		ArrayType subArrayType = arrayType;
+		int start = subArrayType.getStartPosition();
+		if (this.ast.apiLevel() < AST.JLS8) {
+			while (extraDimensions > 0 ) {
+				subArrayType = (ArrayType) componentType(subArrayType);
+				extraDimensions--;
+			}
+			updateInnerPositions(subArrayType, remainingDimensions);
+		} else {
+			List dimensions = subArrayType.dimensions();
+			while (extraDimensions > 0 ) {
+				dimensions.remove(dimensions.size() - 1);
+				extraDimensions--;
+			}
+		}
+		int end = retrieveProperRightBracketPosition(remainingDimensions, start);
+		subArrayType.setSourceRange(start, end - start + 1);
+		// cut the child loose from its parent (without creating garbage)
+		subArrayType.setParent(null, null);
+		return subArrayType;
 	}
 
 	protected void setTypeForMethodDeclaration(MethodDeclaration methodDeclaration, Type type, int extraDimension) {
@@ -5691,18 +5735,7 @@ class ASTConverter {
 						break;
 					}
 				} else {
-					int start = type.getStartPosition();
-					ArrayType subarrayType = arrayType;
-					int index = extraDimension;
-					while (index > 0) {
-						subarrayType = (ArrayType) subarrayType.getComponentType();
-						index--;
-					}
-					int end = retrieveProperRightBracketPosition(remainingDimensions, start);
-					subarrayType.setSourceRange(start, end - start + 1);
-					// cut the child loose from its parent (without creating garbage)
-					subarrayType.setParent(null, null);
-					updateInnerPositions(subarrayType, remainingDimensions);
+					ArrayType subarrayType = extractSubArrayType(arrayType, remainingDimensions, extraDimension);
 					switch(this.ast.apiLevel) {
 						case AST.JLS2_INTERNAL :
 							methodDeclaration.internalSetReturnType(subarrayType);
@@ -5713,6 +5746,7 @@ class ASTConverter {
 					}
 					this.ast.getBindingResolver().updateKey(type, subarrayType);
 				}
+				checkAndSetMalformed(type, methodDeclaration);
 			} else {
 				switch(this.ast.apiLevel) {
 					case AST.JLS2_INTERNAL :
@@ -5752,21 +5786,12 @@ class ASTConverter {
 					this.ast.getBindingResolver().updateKey(type, elementType);
 					singleVariableDeclaration.setType(elementType);
 				} else {
-					int start = type.getStartPosition();
-					ArrayType subarrayType = arrayType;
-					int index = extraDimension;
-					while (index > 0) {
-						subarrayType = (ArrayType) subarrayType.getComponentType();
-						index--;
-					}
-					int end = retrieveProperRightBracketPosition(remainingDimensions, start);
-					subarrayType.setSourceRange(start, end - start + 1);
-					// cut the child loose from its parent (without creating garbage)
-					subarrayType.setParent(null, null);
-					updateInnerPositions(subarrayType, remainingDimensions);
-					singleVariableDeclaration.setType(subarrayType);
+					ArrayType subarrayType = extractSubArrayType(arrayType, remainingDimensions, extraDimension);
 					this.ast.getBindingResolver().updateKey(type, subarrayType);
+					singleVariableDeclaration.setType(subarrayType);
 				}
+				checkAndSetMalformed(type, singleVariableDeclaration);
+					
 			} else {
 				singleVariableDeclaration.setType(type);
 			}
@@ -5788,21 +5813,11 @@ class ASTConverter {
 					this.ast.getBindingResolver().updateKey(type, elementType);
 					variableDeclarationExpression.setType(elementType);
 				} else {
-					int start = type.getStartPosition();
-					ArrayType subarrayType = arrayType;
-					int index = extraDimension;
-					while (index > 0) {
-						subarrayType = (ArrayType) subarrayType.getComponentType();
-						index--;
-					}
-					int end = retrieveProperRightBracketPosition(remainingDimensions, start);
-					subarrayType.setSourceRange(start, end - start + 1);
-					// cut the child loose from its parent (without creating garbage)
-					subarrayType.setParent(null, null);
-					updateInnerPositions(subarrayType, remainingDimensions);
+					ArrayType subarrayType = extractSubArrayType(arrayType, remainingDimensions, extraDimension);
 					variableDeclarationExpression.setType(subarrayType);
 					this.ast.getBindingResolver().updateKey(type, subarrayType);
 				}
+				checkAndSetMalformed(type, variableDeclarationExpression);
 			} else {
 				variableDeclarationExpression.setType(type);
 			}
@@ -5824,21 +5839,11 @@ class ASTConverter {
 					this.ast.getBindingResolver().updateKey(type, elementType);
 					variableDeclarationStatement.setType(elementType);
 				} else {
-					int start = type.getStartPosition();
-					ArrayType subarrayType = arrayType;
-					int index = extraDimension;
-					while (index > 0) {
-						subarrayType = (ArrayType) subarrayType.getComponentType();
-						index--;
-					}
-					int end = retrieveProperRightBracketPosition(remainingDimensions, start);
-					subarrayType.setSourceRange(start, end - start + 1);
-					// cut the child loose from its parent (without creating garbage)
-					subarrayType.setParent(null, null);
-					updateInnerPositions(subarrayType, remainingDimensions);
+					ArrayType subarrayType = extractSubArrayType(arrayType, remainingDimensions, extraDimension);
 					variableDeclarationStatement.setType(subarrayType);
 					this.ast.getBindingResolver().updateKey(type, subarrayType);
 				}
+				checkAndSetMalformed(type, variableDeclarationStatement);
 			} else {
 				variableDeclarationStatement.setType(type);
 			}
@@ -5851,13 +5856,13 @@ class ASTConverter {
 		if (dimensions > 1) {
 			// need to set positions for intermediate array type see 42839
 			int start = type.getStartPosition();
-			Type currentComponentType = ((ArrayType) type).getComponentType();
+			Type currentComponentType = componentType(((ArrayType) type));
 			int searchedDimension = dimensions - 1;
 			int rightBracketEndPosition = start;
 			while (currentComponentType.isArrayType()) {
 				rightBracketEndPosition = retrieveProperRightBracketPosition(searchedDimension, start);
 				currentComponentType.setSourceRange(start, rightBracketEndPosition - start + 1);
-				currentComponentType = ((ArrayType) currentComponentType).getComponentType();
+				currentComponentType = componentType(((ArrayType) currentComponentType));
 				searchedDimension--;
 			}
 		}

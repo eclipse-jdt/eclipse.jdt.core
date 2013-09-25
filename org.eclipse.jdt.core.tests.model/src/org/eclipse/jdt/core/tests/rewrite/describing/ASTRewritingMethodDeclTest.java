@@ -111,7 +111,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 				listRewrite.remove(extraDimension, null);
 			}
 			for (int i= 0; i < extraDimensions; i++) {
-				listRewrite.insertLast(methodDecl.getAST().newExtraDimension(), null);
+				listRewrite.insertFirst(methodDecl.getAST().newExtraDimension(), null);
 			}
 		}
 	}

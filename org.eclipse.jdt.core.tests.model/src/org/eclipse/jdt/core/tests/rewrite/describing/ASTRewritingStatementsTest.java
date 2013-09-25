@@ -5942,24 +5942,25 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			ListRewrite listRewrite= rewrite.getListRewrite(fragment, VariableDeclarationFragment.EXTRA_DIMENSIONS2_PROPERTY);
 			ExtraDimension dim= ast.newExtraDimension();
 			MarkerAnnotation markerAnnotation;
-			listRewrite.insertAt(dim, 0, null);
+			listRewrite.insertFirst(dim, null);
 
 			ArrayType creationType = creation.getType();
-			ArrayType newArrayType = ast.newArrayType((ArrayType) ASTNode.copySubtree(ast, creationType));
-			newArrayType = ast.newArrayType(newArrayType);
-			rewrite.set(creation, ArrayCreation.TYPE_PROPERTY, newArrayType, null);
-
-			listRewrite= rewrite.getListRewrite(newArrayType, ArrayType.ANNOTATIONS_PROPERTY);
+			ArrayType newArrayType = (ArrayType) ASTNode.copySubtree(ast, creationType);
+			newArrayType.dimensions().add(ast.newExtraDimension());
+			
+			ExtraDimension dim0 = ast.newExtraDimension();
 			markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot3"));
-			listRewrite.insertAt(markerAnnotation, 0, null);
-			newArrayType.annotations().add(markerAnnotation);
+			dim0.annotations().add(markerAnnotation);
 			markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot2"));
-			listRewrite.insertAt(markerAnnotation, 1, null);
+			dim0.annotations().add(markerAnnotation);
 			markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
-			listRewrite.insertAt(markerAnnotation, 2, null);
+			dim0.annotations().add(markerAnnotation);
+			newArrayType.dimensions().add(dim0);
+			rewrite.set(creation, ArrayCreation.TYPE_PROPERTY, newArrayType, null);
+
 		}
 		{
 			statement = (VariableDeclarationStatement) statements.get(1);
@@ -5978,43 +5979,44 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			Expression exp = (Expression) expressions.get(1);
 			listRewrite.remove(exp, null);
 
-			listRewrite = rewrite.getListRewrite(creationType, ArrayType.ANNOTATIONS_PROPERTY);
-			MarkerAnnotation annotation = (MarkerAnnotation) creationType.annotations().get(0);
+			ExtraDimension dim = creationType.getDimensionAt(2);
+			listRewrite = rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			MarkerAnnotation annotation = (MarkerAnnotation) dim.annotations().get(0);
 			listRewrite.remove(annotation, null);
 
-			creationType = (ArrayType) creationType.getComponentType();
-			listRewrite = rewrite.getListRewrite(creationType, ArrayType.ANNOTATIONS_PROPERTY);
-			annotation = (MarkerAnnotation) creationType.annotations().get(1);
+			dim = creationType.getDimensionAt(1);
+			listRewrite = rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			annotation = (MarkerAnnotation) dim.annotations().get(1);
 			listRewrite.remove(annotation, null);
 
-			creationType = (ArrayType) creationType.getComponentType();
-			listRewrite = rewrite.getListRewrite(creationType, ArrayType.ANNOTATIONS_PROPERTY);
-			annotation = (MarkerAnnotation) creationType.annotations().get(1);
+			dim = creationType.getDimensionAt(0);
+			listRewrite = rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			annotation = (MarkerAnnotation) dim.annotations().get(1);
 			listRewrite.remove(annotation, null);
 
 			fragment = (VariableDeclarationFragment) fragments.get(1);
 
 			creation = (ArrayCreation) fragment.getInitializer();
 			creationType = creation.getType();
-
-			listRewrite = rewrite.getListRewrite(creationType, ArrayType.ANNOTATIONS_PROPERTY);
-			annotation = (MarkerAnnotation) creationType.annotations().get(0);
+			dim = creationType.getDimensionAt(2);
+			listRewrite = rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			annotation = (MarkerAnnotation) dim.annotations().get(1);
 			listRewrite.remove(annotation, null);
-			annotation = (MarkerAnnotation) creationType.annotations().get(1);
-			listRewrite.remove(annotation, null);
-
-			creationType = (ArrayType) creationType.getComponentType();
-			listRewrite = rewrite.getListRewrite(creationType, ArrayType.ANNOTATIONS_PROPERTY);
-			annotation = (MarkerAnnotation) creationType.annotations().get(0);
-			listRewrite.remove(annotation, null);
-			annotation = (MarkerAnnotation) creationType.annotations().get(1);
+			annotation = (MarkerAnnotation) dim.annotations().get(0);
 			listRewrite.remove(annotation, null);
 
-			creationType = (ArrayType) creationType.getComponentType();
-			listRewrite = rewrite.getListRewrite(creationType, ArrayType.ANNOTATIONS_PROPERTY);
-			annotation = (MarkerAnnotation) creationType.annotations().get(0);
+			dim = creationType.getDimensionAt(1);
+			listRewrite = rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			annotation = (MarkerAnnotation) dim.annotations().get(1);
 			listRewrite.remove(annotation, null);
-			annotation = (MarkerAnnotation) creationType.annotations().get(1);
+			annotation = (MarkerAnnotation) dim.annotations().get(0);
+			listRewrite.remove(annotation, null);
+
+			dim = creationType.getDimensionAt(0);
+			listRewrite = rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			annotation = (MarkerAnnotation) dim.annotations().get(1);
+			listRewrite.remove(annotation, null);
+			annotation = (MarkerAnnotation) dim.annotations().get(0);
 			listRewrite.remove(annotation, null);
 
 			expressions = creation.dimensions();
@@ -6035,8 +6037,8 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
-		buf.append("    	int [] i [] @Annot1 @Annot2 [] @Annot1 @Annot3 [] = new int @Annot1 @Annot2  [2] @Annot2 @Annot3 [size()] @Annot2 @Annot1 [][] @Annot3 @Annot2 @Annot1[];\n");
-		buf.append("    	int [] j [][] = new int @Annot1 [2] @Annot2 [] @Annot3 [], k [][] = new int[2][10][size()];\n");
+		buf.append("    	int [] i [] @Annot1 @Annot2 [] @Annot1 @Annot3 [] = new int @Annot1 @Annot2  [2] @Annot2 @Annot3 [size()] @Annot2 @Annot1 [][]@Annot3 @Annot2 @Annot1 [];\n");
+		buf.append("    	int [] j [][] = new int @Annot2 [2] @Annot2 [] @Annot1 [], k [][] = new int [2] [10] [size()];\n");
 		buf.append("    }\n");
 		buf.append("    public int size() { return 2; }\n");
 		buf.append("}\n");
@@ -6086,10 +6088,10 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			ArrayCreation creation = (ArrayCreation) fragment.getInitializer();
 
 			ArrayType arrayType = creation.getType();
-			arrayType = (ArrayType) arrayType.getComponentType();
-			ListRewrite listRewrite= rewrite.getListRewrite(arrayType, ArrayType.ANNOTATIONS_PROPERTY);
-			listRewrite.remove((ASTNode)arrayType.annotations().get(0), null);
-			listRewrite.remove((ASTNode)arrayType.annotations().get(1), null);
+			ExtraDimension dim = arrayType.getDimensionAt(1);
+			ListRewrite listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			listRewrite.remove((ASTNode)dim.annotations().get(0), null);
+			listRewrite.remove((ASTNode)dim.annotations().get(1), null);
 			rewrite.set(creation, ArrayCreation.TYPE_PROPERTY, arrayType, null);
 		}
 		{
@@ -6101,16 +6103,12 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			assertEquals("Incorrect type", ASTNode.ARRAY_TYPE, type.getNodeType());
 			ArrayCreation creation = (ArrayCreation) fragment.getInitializer();
 			ArrayType creationType = creation.getType();
-
-			ArrayType newArrayType = (ArrayType) creationType.getComponentType();
-			rewrite.set(creation, ArrayCreation.TYPE_PROPERTY, newArrayType, null);
-
+			rewrite.remove(creationType.getDimensionAt(0), null);
 			fragment = (VariableDeclarationFragment) fragments.get(1);
 			creation = (ArrayCreation) fragment.getInitializer();
 			creationType = creation.getType();
 
-			newArrayType = (ArrayType) creationType.getComponentType();
-			rewrite.set(creation, ArrayCreation.TYPE_PROPERTY, newArrayType, null);
+			rewrite.remove(creationType.getDimensionAt(0), null);
 		}
 		// Get new code
 		String preview= evaluateRewrite(cu, rewrite);
@@ -6120,7 +6118,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
-		buf.append("    	int [] i [][] = new int @Annot1 @Annot2  [2][size(new int[][]{})];\n");
+		buf.append("    	int [] i [][] = new int @Annot1 @Annot2  [2]  [size(new int[][]{})] [];\n");
 		buf.append("    	int [] j [][] = new int @Annot1 @Annot2 [2] @Annot2 @Annot3 [size(new int[]{})], k [][] = new int @Annot1 @Annot2 [2] @Annot2 @Annot3 [10];\n");
 		buf.append("    }\n");
 		buf.append("    public int size(Object obj) { return 2; }\n");

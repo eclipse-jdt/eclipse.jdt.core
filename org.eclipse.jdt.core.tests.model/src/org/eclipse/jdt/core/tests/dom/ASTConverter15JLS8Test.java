@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 IBM Corporation and others.
+ * Copyright (c) 2011, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1708,7 +1708,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 		checkSourceRange(type, "String[]", source);
 		assertTrue("not an array type", type.isArrayType());
 		ArrayType arrayType = (ArrayType) type;
-		checkSourceRange(arrayType.getComponentType(), "String", source);
+		checkSourceRange(arrayType.getElementType(), "String", source);
 		assertEquals("Wrong extra dimensions", 1, singleVariableDeclaration.getExtraDimensions());
 	}
 
@@ -1736,7 +1736,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 		checkSourceRange(type, "String[]", source);
 		assertTrue("not an array type", type.isArrayType());
 		ArrayType arrayType = (ArrayType) type;
-		checkSourceRange(arrayType.getComponentType(), "String", source);
+		checkSourceRange(arrayType.getElementType(), "String", source);
 		assertEquals("Wrong extra dimensions", 0, singleVariableDeclaration.getExtraDimensions());
 	}
 	/**
@@ -2427,12 +2427,9 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 		checkSourceRange(type, "Map<String, Double>[][]", source);
 		assertEquals("wrong type", ASTNode.ARRAY_TYPE, type.getNodeType());
 		ArrayType arrayType = (ArrayType) type;
-		type = arrayType.getComponentType();
-		checkSourceRange(type, "Map<String, Double>[]", source);
-		assertEquals("wrong type", ASTNode.ARRAY_TYPE, type.getNodeType());
-		arrayType = (ArrayType) type;
-		type = arrayType.getComponentType();
+		type = arrayType.getElementType();
 		checkSourceRange(type, "Map<String, Double>", source);
+		assertEquals("wrong type", ASTNode.PARAMETERIZED_TYPE, type.getNodeType());
 	}
 
 	/*
@@ -2454,12 +2451,9 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 		checkSourceRange(type, "java.util.Map<String, Double>[][]", source);
 		assertEquals("wrong type", ASTNode.ARRAY_TYPE, type.getNodeType());
 		ArrayType arrayType = (ArrayType) type;
-		type = arrayType.getComponentType();
-		checkSourceRange(type, "java.util.Map<String, Double>[]", source);
-		assertEquals("wrong type", ASTNode.ARRAY_TYPE, type.getNodeType());
-		arrayType = (ArrayType) type;
-		type = arrayType.getComponentType();
+		type = arrayType.getElementType();
 		checkSourceRange(type, "java.util.Map<String, Double>", source);
+		assertEquals("wrong type", ASTNode.PARAMETERIZED_TYPE, type.getNodeType());
 	}
 
 	/*
@@ -4118,7 +4112,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
     	assertEquals("wrong dimensions", 1, typeBinding.getDimensions());
     	ArrayType arrayType = (ArrayType) type;
     	assertEquals("Wrong dimension", 1, arrayType.getDimensions());
-    	type = arrayType.getComponentType();
+    	type = arrayType.getElementType();
     	assertTrue("Not a simple type", type.isSimpleType());
     	checkSourceRange(type, "String", contents);
     	assertEquals("Wrong extra dimension", 1, singleVariableDeclaration.getExtraDimensions());
@@ -4502,7 +4496,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
     	assertEquals("wrong dimensions", 1, typeBinding.getDimensions());
     	ArrayType arrayType = (ArrayType) type;
     	assertEquals("Wrong dimension", 1, arrayType.getDimensions());
-    	type = arrayType.getComponentType();
+    	type = arrayType.getElementType();
     	assertTrue("Not a simple type", type.isSimpleType());
     	checkSourceRange(type, "String", contents);
     	assertEquals("Wrong extra dimension", 0, singleVariableDeclaration.getExtraDimensions());
@@ -11186,7 +11180,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 		ITypeBinding binding = type.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong qualified name", "test0347.Outer<java.lang.Integer>.Inner<java.lang.Double>[]", binding.getQualifiedName());
-		Type componentType = type.getComponentType();
+		Type componentType = type.getElementType();
 		binding = componentType.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong qualified name", "test0347.Outer<java.lang.Integer>.Inner<java.lang.Double>", binding.getQualifiedName());

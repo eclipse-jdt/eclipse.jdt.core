@@ -273,13 +273,13 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		ITypeBinding binding = type.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong qualified name", "test0004.Outer<java.lang.Integer>.Inner<java.lang.Double>[]", binding.getQualifiedName());
-		Type componentType = type.getComponentType();
-		binding = componentType.resolveBinding();
+		Type elementType = type.getElementType();
+		binding = elementType.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong qualified name",
 				"test0004.Outer<java.lang.Integer>.Inner<java.lang.Double>", binding.getQualifiedName());
-		assertTrue("Not parameterized", componentType.isParameterizedType());
-		ParameterizedType parameterizedType = (ParameterizedType) componentType;
+		assertTrue("Not parameterized", elementType.isParameterizedType());
+		ParameterizedType parameterizedType = (ParameterizedType) elementType;
 		Type type2 = parameterizedType.getType();
 		assertTrue("Not qualified", type2.isQualifiedType());
 		QualifiedType qualifiedType = (QualifiedType) type2;
@@ -1139,13 +1139,12 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		Type type = creation.getType();
 		assertEquals("Incorrect type", true, type.isArrayType());
 		checkSourceRange(type, "@Marker2 int @Marker @Marker2 [2] @Marker2 @Marker3 [bar()] @Marker3 @Marker []", contents.toCharArray());
-		assertEquals("Incorrect annotations", "@Marker3 @Marker ", convertAnnotationsList(((ArrayType) type).annotations()));
-		type = ((ArrayType) type).getComponentType();
-		assertEquals("Incorrect type", true, type.isArrayType());
-		assertEquals("Incorrect annotations", "@Marker2 @Marker3 ", convertAnnotationsList(((ArrayType) type).annotations()));
-		type = ((ArrayType) type).getComponentType();
-		assertEquals("Incorrect type", true, type.isArrayType());
-		assertEquals("Incorrect annotations", "@Marker @Marker2 ", convertAnnotationsList(((ArrayType) type).annotations()));
+		ExtraDimension extraDimension = ((ArrayType) type).getDimensionAt(0);
+		assertEquals("Incorrect annotations", "@Marker3 @Marker ", convertAnnotationsList(extraDimension.annotations()));
+		extraDimension = ((ArrayType) type).getDimensionAt(1);
+		assertEquals("Incorrect annotations", "@Marker2 @Marker3 ", convertAnnotationsList(extraDimension.annotations()));
+		extraDimension = ((ArrayType) type).getDimensionAt(2);
+		assertEquals("Incorrect annotations", "@Marker @Marker2 ", convertAnnotationsList(extraDimension.annotations()));
 		List dimensions = creation.dimensions();
 		assertEquals("Incorrect expressions", 2, dimensions.size());
 		assertEquals("Incorrect expressions", "2", dimensions.get(0).toString());
@@ -1159,13 +1158,12 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		
 		type = creation.getType();
 		assertEquals("Incorrect type", true, type.isArrayType());
-		assertEquals("Incorrect annotations", "@Marker2 @Marker3 ", convertAnnotationsList(((ArrayType) type).annotations()));
-		type = ((ArrayType) type).getComponentType();
-		assertEquals("Incorrect type", true, type.isArrayType());
-		assertEquals("Incorrect annotations", "@Marker @Marker2 ", convertAnnotationsList(((ArrayType) type).annotations()));
-		type = ((ArrayType) type).getComponentType();
-		assertEquals("Incorrect type", true, type.isArrayType());
-		assertEquals("Incorrect annotations", "@Marker3 @Marker ", convertAnnotationsList(((ArrayType) type).annotations()));
+		extraDimension = ((ArrayType) type).getDimensionAt(0);
+		assertEquals("Incorrect annotations", "@Marker2 @Marker3 ", convertAnnotationsList(extraDimension.annotations()));
+		extraDimension = ((ArrayType) type).getDimensionAt(1);
+		assertEquals("Incorrect annotations", "@Marker @Marker2 ", convertAnnotationsList(extraDimension.annotations()));
+		extraDimension = ((ArrayType) type).getDimensionAt(2);
+		assertEquals("Incorrect annotations", "@Marker3 @Marker ", convertAnnotationsList(extraDimension.annotations()));
 		dimensions = creation.dimensions();
 		assertEquals("Incorrect expressions", 2, dimensions.size());
 		assertEquals("Incorrect expressions", "2", dimensions.get(0).toString());
@@ -1236,12 +1234,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) list.get(0);
 		ArrayCreation creation = (ArrayCreation) fragment.getInitializer();
 		Type type = creation.getType();
-		assertEquals("Incorrect type", true, type.isArrayType());
-		assertEquals("Type should be malformed", ASTNode.MALFORMED, (type.getFlags() & ASTNode.MALFORMED));
-		type = ((ArrayType) type).getComponentType();
-		assertEquals("Incorrect type", true, type.isArrayType());
-		assertEquals("Type should be malformed", ASTNode.MALFORMED, (type.getFlags() & ASTNode.MALFORMED));
-		type = ((ArrayType) type).getComponentType();
 		assertEquals("Incorrect type", true, type.isArrayType());
 		assertEquals("Type should be malformed", ASTNode.MALFORMED, (type.getFlags() & ASTNode.MALFORMED));
 	}
@@ -1614,14 +1606,14 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		Expression expression = fragment.getInitializer();
 		assertTrue(expression instanceof LambdaExpression);
 		LambdaExpression lambdaExpression = (LambdaExpression)expression;
-		assertEquals("(int[] ia) -> {\n  return ia.clone();\n}\n", lambdaExpression.toString());
+		assertEquals("(int [] ia) -> {\n  return ia.clone();\n}\n", lambdaExpression.toString());
 		IMethodBinding binding = lambdaExpression.resolveMethodBinding();
 		assertEquals("private static java.lang.Object lambda$0(int[]) ", binding.toString());
 		assertTrue(lambdaExpression.parameters().size() == 1);
 		VariableDeclaration variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
 		assertTrue(variableDeclaration instanceof SingleVariableDeclaration);
 		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration)variableDeclaration;
-		assertEquals("int[] ia", singleVariableDeclaration.toString());		
+		assertEquals("int [] ia", singleVariableDeclaration.toString());		
 	}
 
 	/**
@@ -2652,6 +2644,233 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		type =  (TypeDeclaration) unit.types().get(4);
 		typeBinding = type.resolveBinding();
 		assertFalse("A Functional interface", typeBinding.isFunctionalInterface());
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=413942
+	// also refer https://bugs.eclipse.org/bugs/show_bug.cgi?id=413569
+	public void testBug413942() throws JavaModelException {
+		String contents =
+		"public class X extends @NonNull(int[].class) Object {\n" +
+		"    Object field = new ArrayList< @NonEmpty(0) int @NonNull(value1 = 1) [] @NonEmpty(1) [ ]>() ;\n" +
+		"    @Annot int @Annot1 [] a1 @Annot2 @Annot3 @NonNull (value = int[].class, value1 = 0)[/* [] */ ] @Annot3 @Annot2 [] @Annot4 [];\n" +
+		"    int[] xxx[];\n" +
+		"    int [][] ii = new int[2][3];" +
+		"    ArrayList<int[]> [][] yyy; // source ranges already broken in AST.JLS4\n" +
+		"    ArrayList<int[][]> [][][][] zzz;\n" +
+		"    ArrayList<Float> [][][] zzz2;\n" +
+		"    Object a = new ArrayList< @TakeType(int[][].class) int @TakeType(float.class) [] @TakeType(double.class) []>() ;\n" +
+		"    Object b = new @NonNull(value1 = Math.PI) ArrayList< >() ; \n" +
+		"    Object c = new ArrayList<@NonNull(value1= Math.PI ) Object[]>() ;\n" +
+		"\n" +
+		"    int foo(@TakeType(int[].class)int i ) @TakeType(int[].class) [] {\n" +
+		"        int[] arr =  new int[2];\n" +
+		"        for (String tab @TakeType(int[].class) [] = null;; ++i) { break; }\n" +
+		"        for (@Deprecated String tab@TakeType(int[].class) [][]  = null;; ++i) {}\n" +
+		"    }\n" +
+		"    int bar(int [] /*@TakeType(int[].class)*/ [] a ) {\n" +
+		"    	return 0;\n" +
+		"    }\n" +
+		"public int var1(int @TakeType(int[].class)... args) { return 0;}\n" +
+		"public int var2(int @Annot ... args) { return 0;}\n" +
+		"}\n" +
+		"\n" +
+		"@Target(ElementType.TYPE_USE)\n" +
+		"@Retention(RetentionPolicy.RUNTIME)\n" +
+		"@Documented\n" +
+		"@interface NonNull {\n" +
+		"	Class value() default int.class;\n" +
+		"	double value1() default 0;\n" +
+		"}\n" +
+		"\n" +
+		"@Target(ElementType.TYPE_USE)\n" +
+		"@Retention(RetentionPolicy.RUNTIME)\n" +
+		"@Documented\n" +
+		"@interface NonEmpty {\n" +
+		"	int value() default 0;\n" +
+		"}\n" +
+		"\n" +
+		"@Target(ElementType.TYPE_USE)\n" +
+		"@Retention(RetentionPolicy.RUNTIME)\n" +
+		"@Documented\n" +
+		"@interface TakeType {\n" +
+		"	Class value() default int[].class;\n" +
+		"}\n" +
+		"\n" +
+		"@Target(ElementType.TYPE_USE)\n" +
+		"@Retention(RetentionPolicy.RUNTIME)\n" +
+		"@Documented\n" +
+		"@interface Annot {}\n" +
+		"\n" +
+		"@Target(ElementType.TYPE_USE)\n" +
+		"@Retention(RetentionPolicy.RUNTIME)\n" +
+		"@Documented\n" +
+		"@interface Annot1 {}\n" +
+		"\n" +
+		"@Target(ElementType.TYPE_USE)\n" +
+		"@Retention(RetentionPolicy.RUNTIME)\n" +
+		"@Documented\n" +
+		"@interface Annot2 {}\n" +
+		"\n" +
+		"@Target(ElementType.TYPE_USE)\n" +
+		"@Retention(RetentionPolicy.RUNTIME)\n" +
+		"@Documented\n" +
+		"@interface Annot3 {}\n" +
+		"\n" +
+		"@Target(ElementType.TYPE_USE)\n" +
+		"@Retention(RetentionPolicy.RUNTIME)\n" +
+		"@Documented\n" +
+		"@interface Annot4 {}\n" +
+		"\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		
+		TypeDeclaration type =  (TypeDeclaration) unit.types().get(0);
+		SimpleType simpleType =  (SimpleType) type.getSuperclassType();
+		checkSourceRange(simpleType, "@NonNull(int[].class) Object", contents);
+		SingleMemberAnnotation singleMemberAnnotation = (SingleMemberAnnotation) simpleType.annotations().get(0);
+		checkSourceRange(singleMemberAnnotation, "@NonNull(int[].class)", contents);
+		TypeLiteral typeLiteral = (TypeLiteral) singleMemberAnnotation.getValue();
+		checkSourceRange(typeLiteral, "int[].class", contents);
+		ArrayType arrayType = (ArrayType) typeLiteral.getType();
+		checkSourceRange(arrayType, "int[]", contents);
+		
+		int count = 0;
+		FieldDeclaration field = (FieldDeclaration) type.bodyDeclarations().get(count++);
+		checkSourceRange(field, "Object field = new ArrayList< @NonEmpty(0) int @NonNull(value1 = 1) [] @NonEmpty(1) [ ]>() ;", contents);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) field.fragments().get(0);
+		ClassInstanceCreation instance = (ClassInstanceCreation) fragment.getInitializer();
+		ParameterizedType parameterizedType = (ParameterizedType) instance.getType();
+		arrayType = (ArrayType) parameterizedType.typeArguments().get(0);
+		checkSourceRange(arrayType, "@NonEmpty(0) int @NonNull(value1 = 1) [] @NonEmpty(1) [ ]", contents);
+		PrimitiveType primitiveType = (PrimitiveType) arrayType.getElementType();
+		checkSourceRange(primitiveType, "@NonEmpty(0) int", contents);
+		ExtraDimension extraDimension = arrayType.getDimensionAt(1);
+		checkSourceRange(extraDimension, "@NonNull(value1 = 1) []", contents);
+		extraDimension = arrayType.getDimensionAt(0);
+		checkSourceRange(extraDimension, "@NonEmpty(1) [ ]", contents);
+		
+		field = (FieldDeclaration) type.bodyDeclarations().get(count++);
+		checkSourceRange(field, "@Annot int @Annot1 [] a1 @Annot2 @Annot3 @NonNull (value = int[].class, value1 = 0)[/* [] */ ] @Annot3 @Annot2 [] @Annot4 [];", contents);
+		arrayType = (ArrayType) field.getType();
+		checkSourceRange(arrayType, "int @Annot1 []", contents);
+		fragment = (VariableDeclarationFragment) field.fragments().get(0);
+		extraDimension = (ExtraDimension) fragment.extraDimensions().get(0);
+		checkSourceRange(extraDimension, "@Annot2 @Annot3 @NonNull (value = int[].class, value1 = 0)[/* [] */ ]", contents);
+		extraDimension = (ExtraDimension) fragment.extraDimensions().get(1);
+		checkSourceRange(extraDimension, "@Annot3 @Annot2 []", contents);
+		
+		field = (FieldDeclaration) type.bodyDeclarations().get(count++);
+		checkSourceRange(field, "int[] xxx[];", contents);
+		assertTrue(field.getType().isArrayType());
+		arrayType = (ArrayType) field.getType();
+		checkSourceRange(arrayType, "int[]", contents);
+		
+		field = (FieldDeclaration) type.bodyDeclarations().get(count++);
+		checkSourceRange(field, "int [][] ii = new int[2][3];", contents);
+		arrayType = (ArrayType) field.getType();
+		checkSourceRange(arrayType, "int [][]", contents);
+		fragment = (VariableDeclarationFragment) field.fragments().get(0);
+		ArrayCreation arrayCreation = (ArrayCreation) fragment.getInitializer();
+		arrayType = arrayCreation.getType();
+		assertTrue(arrayType.getElementType().isPrimitiveType());
+		assertTrue(arrayType.getDimensions() == 2);
+		
+		field = (FieldDeclaration) type.bodyDeclarations().get(count++);
+		checkSourceRange(field, "ArrayList<int[]> [][] yyy;", contents);
+		arrayType = (ArrayType) field.getType();
+		checkSourceRange(arrayType, "ArrayList<int[]> [][]", contents);
+
+		field = (FieldDeclaration) type.bodyDeclarations().get(count++);
+		checkSourceRange(field, "ArrayList<int[][]> [][][][] zzz;", contents);
+		arrayType = (ArrayType) field.getType();
+		assertTrue(arrayType.getElementType().isParameterizedType());
+		assertTrue(arrayType.getDimensions() == 4);
+		
+		field = (FieldDeclaration) type.bodyDeclarations().get(count++);
+		checkSourceRange(field, "ArrayList<Float> [][][] zzz2;", contents);
+		arrayType = (ArrayType) field.getType();
+		assertTrue(arrayType.getElementType().isParameterizedType());
+		assertTrue(arrayType.getDimensions() == 3);
+		
+		field = (FieldDeclaration) type.bodyDeclarations().get(count++);
+		checkSourceRange(field, "Object a = new ArrayList< @TakeType(int[][].class) int @TakeType(float.class) [] @TakeType(double.class) []>() ;", contents);
+		fragment = (VariableDeclarationFragment) field.fragments().get(0);
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) fragment.getInitializer();
+		parameterizedType = (ParameterizedType) classInstanceCreation.getType();
+		arrayType = (ArrayType) parameterizedType.typeArguments().get(0);
+		checkSourceRange(arrayType, "@TakeType(int[][].class) int @TakeType(float.class) [] @TakeType(double.class) []", contents);
+		checkSourceRange(arrayType.getElementType(), "@TakeType(int[][].class) int", contents);
+		assertTrue(arrayType.getElementType().isPrimitiveType());
+		extraDimension = arrayType.getDimensionAt(1);
+		checkSourceRange(extraDimension, "@TakeType(float.class) []", contents);
+		extraDimension = arrayType.getDimensionAt(0);
+		Annotation annotation = (Annotation) extraDimension.annotations().get(0);
+		assertTrue(annotation.isSingleMemberAnnotation());
+		singleMemberAnnotation = (SingleMemberAnnotation) annotation;
+		typeLiteral = (TypeLiteral) singleMemberAnnotation.getValue();
+		checkSourceRange(typeLiteral, "double.class", contents);
+		
+		field = (FieldDeclaration) type.bodyDeclarations().get(count++);
+		checkSourceRange(field, "Object b = new @NonNull(value1 = Math.PI) ArrayList< >() ;", contents);
+		fragment = (VariableDeclarationFragment) field.fragments().get(0);
+		classInstanceCreation = (ClassInstanceCreation) fragment.getInitializer();
+		parameterizedType = (ParameterizedType) classInstanceCreation.getType();
+		checkSourceRange(parameterizedType.getType(), "@NonNull(value1 = Math.PI) ArrayList", contents);
+		
+		field = (FieldDeclaration) type.bodyDeclarations().get(count++);
+		checkSourceRange(field, "Object c = new ArrayList<@NonNull(value1= Math.PI ) Object[]>() ;", contents);
+		fragment = (VariableDeclarationFragment) field.fragments().get(0);
+		classInstanceCreation = (ClassInstanceCreation) fragment.getInitializer();
+		parameterizedType = (ParameterizedType) classInstanceCreation.getType();
+		arrayType = (ArrayType) parameterizedType.typeArguments().get(0);
+		assertTrue(arrayType.getDimensions() == 1);
+		
+		MethodDeclaration method = (MethodDeclaration) type.bodyDeclarations().get(count++);
+		extraDimension = (ExtraDimension) method.extraDimensions().get(0);
+		checkSourceRange(extraDimension, "@TakeType(int[].class) []", contents);
+		singleMemberAnnotation = (SingleMemberAnnotation) extraDimension.annotations().get(0);
+		typeLiteral = (TypeLiteral) singleMemberAnnotation.getValue();
+		arrayType = (ArrayType) typeLiteral.getType();
+		assertTrue(arrayType.getElementType().isPrimitiveType());
+		assertTrue(arrayType.getDimensions() == 1);
+		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) method.parameters().get(0);
+		singleMemberAnnotation = (SingleMemberAnnotation) singleVariableDeclaration.modifiers().get(0);
+		checkSourceRange(singleMemberAnnotation, "@TakeType(int[].class)", contents);
+		typeLiteral = (TypeLiteral) singleMemberAnnotation.getValue();
+		arrayType = (ArrayType) typeLiteral.getType();
+		assertTrue(arrayType.getElementType().isPrimitiveType());
+		assertTrue(arrayType.getDimensions() == 1);
+		ForStatement forStatement = (ForStatement) method.getBody().statements().get(1);
+		VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) forStatement.initializers().get(0);
+		fragment = (VariableDeclarationFragment) variableDeclarationExpression.fragments().get(0);
+		extraDimension = (ExtraDimension) fragment.extraDimensions().get(0);
+		checkSourceRange(extraDimension, "@TakeType(int[].class) []", contents);
+		forStatement = (ForStatement) method.getBody().statements().get(1);
+		variableDeclarationExpression = (VariableDeclarationExpression) forStatement.initializers().get(0);
+		fragment = (VariableDeclarationFragment) variableDeclarationExpression.fragments().get(0);
+		extraDimension = (ExtraDimension) fragment.extraDimensions().get(0);
+		checkSourceRange(extraDimension, "@TakeType(int[].class) []", contents);
+		
+		method = (MethodDeclaration) type.bodyDeclarations().get(count++);
+		singleVariableDeclaration = (SingleVariableDeclaration) method.parameters().get(0);
+		// test case active only after bug 417660 is fixed (uncomment)
+		checkSourceRange(singleVariableDeclaration, "int [] /*@TakeType(int[].class)*/ [] a", contents);
+		
+		method = (MethodDeclaration) type.bodyDeclarations().get(count++);
+		singleVariableDeclaration = (SingleVariableDeclaration) method.parameters().get(0);
+		checkSourceRange(singleVariableDeclaration, "int @TakeType(int[].class)... args", contents);
+		singleMemberAnnotation = (SingleMemberAnnotation) singleVariableDeclaration.varargsAnnotations().get(0);
+		typeLiteral = (TypeLiteral) singleMemberAnnotation.getValue();
+		arrayType = (ArrayType) typeLiteral.getType();
+		assertTrue(arrayType.getElementType().isPrimitiveType());
+		assertTrue(arrayType.getDimensions() == 1);
+		
+		method = (MethodDeclaration) type.bodyDeclarations().get(count++);
+		singleVariableDeclaration = (SingleVariableDeclaration) method.parameters().get(0);
+		checkSourceRange(singleVariableDeclaration, "int @Annot ... args", contents);
+		assertTrue(singleVariableDeclaration.varargsAnnotations().size() == 1);
+
 	}
 
 }

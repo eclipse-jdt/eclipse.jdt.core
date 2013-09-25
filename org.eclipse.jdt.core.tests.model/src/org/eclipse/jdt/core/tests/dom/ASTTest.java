@@ -2057,6 +2057,18 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(PrimitiveType.toCode("not-a-type") == null); //$NON-NLS-1$
 	}
 
+	/**
+	 * @deprecated
+	 */
+	Type getArrayComponentType(ArrayType array) {
+		return array.getComponentType();
+	}
+	/**
+	 * @deprecated
+	 */
+	void setArrayComponentType(ArrayType array, Type type) {
+		array.setComponentType(type);
+	}
 	public void testArrayType() {
 		SimpleName x1 = this.ast.newSimpleName("String"); //$NON-NLS-1$
 		SimpleType x2 = this.ast.newSimpleType(x1);
@@ -2066,7 +2078,11 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		previousCount = this.ast.modificationCount();
 		assertTrue(x.getAST() == this.ast);
 		assertTrue(x.getParent() == null);
-		assertTrue(x.getComponentType().getParent() == x);
+		if (this.ast.apiLevel() < AST.JLS8) {
+			assertTrue(getArrayComponentType(x).getParent() == x);
+		} else {
+			assertTrue(x.getElementType().getParent() == x);
+		}
 		// make sure that reading did not change modification count
 		assertTrue(this.ast.modificationCount() == previousCount);
 		assertTrue(!x.isSimpleType());
@@ -2081,39 +2097,69 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getDimensions() == 1);
 		assertTrue(x.getElementType() == x2);
 
-		genericPropertyTest(x, new Property("ComponentType", true, Type.class) { //$NON-NLS-1$
-			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleType result = targetAst.newSimpleType(
-					targetAst.newSimpleName("a")); //$NON-NLS-1$
-				if (parented) {
-					targetAst.newArrayType(result);
+		if (this.ast.apiLevel() < AST.JLS8) {
+			genericPropertyTest(x, new Property("ComponentType", true, Type.class) { //$NON-NLS-1$
+				public ASTNode sample(AST targetAst, boolean parented) {
+					SimpleType result = targetAst.newSimpleType(
+						targetAst.newSimpleName("a")); //$NON-NLS-1$
+					if (parented) {
+						targetAst.newArrayType(result);
+					}
+					return result;
 				}
-				return result;
-			}
-			public ASTNode wrap() {
-				ArrayType result = ASTTest.this.ast.newArrayType(x);
-				return result;
-			}
-			public void unwrap() {
-				ArrayType a = (ArrayType) x.getParent();
-				a.setComponentType(ASTTest.this.ast.newPrimitiveType(PrimitiveType.INT));
-			}
-			public ASTNode get() {
-				return x.getComponentType();
-			}
-			public void set(ASTNode value) {
-				x.setComponentType((Type) value);
-			}
-		});
+				public ASTNode wrap() {
+					ArrayType result = ASTTest.this.ast.newArrayType(x);
+					return result;
+				}
+				public void unwrap() {
+					ArrayType a = (ArrayType) x.getParent();
+					setArrayComponentType(a, ASTTest.this.ast.newPrimitiveType(PrimitiveType.INT));
+				}
+				public ASTNode get() {
+					return getArrayComponentType(x);
+				}
+				public void set(ASTNode value) {
+					setArrayComponentType(x, (Type) value);
+				}
+			});
 
-		x.setComponentType(
-			this.ast.newArrayType(this.ast.newPrimitiveType(PrimitiveType.INT), 4));
+			setArrayComponentType(x,
+				this.ast.newArrayType(this.ast.newPrimitiveType(PrimitiveType.INT), 4));
+			assertTrue(x.getDimensions() == 5);
+			assertTrue(x.getElementType().isPrimitiveType());
+			final ArrayType x3 = this.ast.newArrayType(x, 2);
+			assertTrue(x3.getDimensions() == 7);
+		} else {
+			genericPropertyTest(x, new Property("ElementType", true, Type.class) { //$NON-NLS-1$
+				public ASTNode sample(AST targetAst, boolean parented) {
+					SimpleType result = targetAst.newSimpleType(
+						targetAst.newSimpleName("a")); //$NON-NLS-1$
+					if (parented) {
+						targetAst.newArrayType(result);
+					}
+					return result;
+				}
+				public ASTNode wrap() {
+					ArrayType result = ASTTest.this.ast.newArrayType(x, 5);
+					return result;
+				}
+				public void unwrap() {
+					ArrayType a = (ArrayType) x.getParent();
+					a.setElementType(ASTTest.this.ast.newPrimitiveType(PrimitiveType.INT));
+				}
+				public ASTNode get() {
+					return x.getElementType();
+				}
+				public void set(ASTNode value) {
+					x.setElementType((Type) value);
+				}
+			});
 
-		assertTrue(x.getDimensions() == 5);
-		assertTrue(x.getElementType().isPrimitiveType());
-		final ArrayType x3 = this.ast.newArrayType(x, 2);
-		assertTrue(x3.getDimensions() == 7);
-		
+			x.setElementType(this.ast.newPrimitiveType(PrimitiveType.INT));
+			assertTrue(x.getDimensions() == 1);
+			assertTrue(x.getElementType().isPrimitiveType());
+		}
+
 		try {
 			this.ast.newArrayType(null, 2);
 		} catch(IllegalArgumentException e) {

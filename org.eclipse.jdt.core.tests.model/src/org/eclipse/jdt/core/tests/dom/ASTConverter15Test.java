@@ -78,6 +78,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		}
 	}
 
+	/**
+	 * @deprecated
+	 */
+	private Type componentType(ArrayType array) {
+		return array.getComponentType();
+	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=234609 BindingKey#toSignature() fails with key from createWilcardTypeBindingKey(..)
 	public void test234609() throws JavaModelException {
 
@@ -1718,7 +1725,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(type, "String[]", source);
 		assertTrue("not an array type", type.isArrayType());
 		ArrayType arrayType = (ArrayType) type;
-		checkSourceRange(arrayType.getComponentType(), "String", source);
+		checkSourceRange(componentType(arrayType), "String", source);
 		assertEquals("Wrong extra dimensions", 1, singleVariableDeclaration.getExtraDimensions());
 	}
 
@@ -1746,7 +1753,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(type, "String[]", source);
 		assertTrue("not an array type", type.isArrayType());
 		ArrayType arrayType = (ArrayType) type;
-		checkSourceRange(arrayType.getComponentType(), "String", source);
+		checkSourceRange(componentType(arrayType), "String", source);
 		assertEquals("Wrong extra dimensions", 0, singleVariableDeclaration.getExtraDimensions());
 	}
 	/**
@@ -2437,11 +2444,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(type, "Map<String, Double>[][]", source);
 		assertEquals("wrong type", ASTNode.ARRAY_TYPE, type.getNodeType());
 		ArrayType arrayType = (ArrayType) type;
-		type = arrayType.getComponentType();
+		type = componentType(arrayType);
 		checkSourceRange(type, "Map<String, Double>[]", source);
 		assertEquals("wrong type", ASTNode.ARRAY_TYPE, type.getNodeType());
 		arrayType = (ArrayType) type;
-		type = arrayType.getComponentType();
+		type = componentType(arrayType);
 		checkSourceRange(type, "Map<String, Double>", source);
 	}
 
@@ -2464,11 +2471,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(type, "java.util.Map<String, Double>[][]", source);
 		assertEquals("wrong type", ASTNode.ARRAY_TYPE, type.getNodeType());
 		ArrayType arrayType = (ArrayType) type;
-		type = arrayType.getComponentType();
+		type = componentType(arrayType);
 		checkSourceRange(type, "java.util.Map<String, Double>[]", source);
 		assertEquals("wrong type", ASTNode.ARRAY_TYPE, type.getNodeType());
 		arrayType = (ArrayType) type;
-		type = arrayType.getComponentType();
+		type = componentType(arrayType);
 		checkSourceRange(type, "java.util.Map<String, Double>", source);
 	}
 
@@ -4128,7 +4135,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertEquals("wrong dimensions", 1, typeBinding.getDimensions());
     	ArrayType arrayType = (ArrayType) type;
     	assertEquals("Wrong dimension", 1, arrayType.getDimensions());
-    	type = arrayType.getComponentType();
+    	type = componentType(arrayType);
     	assertTrue("Not a simple type", type.isSimpleType());
     	checkSourceRange(type, "String", contents);
     	assertEquals("Wrong extra dimension", 1, singleVariableDeclaration.getExtraDimensions());
@@ -4512,7 +4519,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertEquals("wrong dimensions", 1, typeBinding.getDimensions());
     	ArrayType arrayType = (ArrayType) type;
     	assertEquals("Wrong dimension", 1, arrayType.getDimensions());
-    	type = arrayType.getComponentType();
+    	type = componentType(arrayType);
     	assertTrue("Not a simple type", type.isSimpleType());
     	checkSourceRange(type, "String", contents);
     	assertEquals("Wrong extra dimension", 0, singleVariableDeclaration.getExtraDimensions());
@@ -11197,7 +11204,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding binding = type.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong qualified name", "test0347.Outer<java.lang.Integer>.Inner<java.lang.Double>[]", binding.getQualifiedName());
-		Type componentType = type.getComponentType();
+		Type componentType = componentType(type);
 		binding = componentType.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong qualified name", "test0347.Outer<java.lang.Integer>.Inner<java.lang.Double>", binding.getQualifiedName());
@@ -11323,7 +11330,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit unit = (CompilationUnit) result;
 		MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
-		Type componentType = ((ArrayType)methodDeclaration.getReturnType2()).getComponentType();
+		Type componentType = componentType(((ArrayType)methodDeclaration.getReturnType2()));
 		ITypeBinding typeBinding = componentType.resolveBinding();
 		assertEquals("Wrong fully qualified name", "test0351.I1", typeBinding.getQualifiedName());
 	}
