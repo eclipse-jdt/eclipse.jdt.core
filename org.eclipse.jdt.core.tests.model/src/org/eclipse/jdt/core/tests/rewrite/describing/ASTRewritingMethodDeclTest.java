@@ -993,7 +993,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 0 thrown exceptions", thrownExceptions.size() == 0);
 
-			Name newThrownException= ast.newSimpleName("InterruptedException");
+			ASTNode newThrownException= createNewExceptionType(ast, "InterruptedException");
 			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertFirst(newThrownException, null);
 
 		}
@@ -1015,7 +1015,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			assertTrue("must be 1 thrown exceptions", thrownExceptions.size() == 1);
 
 			ASTNode firstException= (ASTNode) thrownExceptions.get(0);
-			Name newThrownException= ast.newSimpleName("InterruptedException");
+			ASTNode newThrownException= createNewExceptionType(ast, "InterruptedException");
 			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertBefore(newThrownException, firstException, null);
 		}
 		{ // insert after last param & insert after first exception & add synchronized, static
@@ -1035,7 +1035,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			assertTrue("must be 1 thrown exceptions", thrownExceptions.size() == 1);
 
 			ASTNode firstException= (ASTNode) thrownExceptions.get(0);
-			Name newThrownException= ast.newSimpleName("InterruptedException");
+			ASTNode newThrownException= createNewExceptionType(ast, "InterruptedException");
 			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertAfter(newThrownException, firstException, null);
 
 		}
@@ -1057,7 +1057,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			assertTrue("must be 2 thrown exceptions", thrownExceptions.size() == 2);
 
 			ASTNode firstException= (ASTNode) thrownExceptions.get(0);
-			Name newThrownException= ast.newSimpleName("InterruptedException");
+			ASTNode newThrownException= createNewExceptionType(ast, "InterruptedException");
 			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertAfter(newThrownException, firstException, null);
 		}
 		{ // insert 2 params after first & replace the second exception and insert new after
@@ -1077,10 +1077,10 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 2 thrown exceptions", thrownExceptions.size() == 2);
 
-			Name newThrownException1= ast.newSimpleName("InterruptedException");
+			ASTNode newThrownException1= createNewExceptionType(ast, "InterruptedException");
 			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertLast(newThrownException1, null);
 
-			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
+			ASTNode newThrownException2= createNewExceptionType(ast, "ArrayStoreException");
 			rewrite.replace((ASTNode) thrownExceptions.get(1), newThrownException2, null);
 		}
 		{ // insert 2 params after last & remove the last exception and insert new after
@@ -1103,7 +1103,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			ASTNode lastException= (ASTNode) thrownExceptions.get(2);
 			rewrite.remove(lastException, null);
 
-			Name newThrownException= ast.newSimpleName("InterruptedException");
+			ASTNode newThrownException= createNewExceptionType(ast, "InterruptedException");
 			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertBefore(newThrownException, lastException, null);
 		}
 		{ // insert at first and last position & remove 2nd, add after 2nd, remove 3rd
@@ -1126,7 +1126,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.remove(secondException, null);
 			rewrite.remove(lastException, null);
 
-			Name newThrownException= ast.newSimpleName("InterruptedException");
+			ASTNode newThrownException= createNewExceptionType(ast, "InterruptedException");
 			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertAfter(newThrownException, secondException, null);
 
 		}

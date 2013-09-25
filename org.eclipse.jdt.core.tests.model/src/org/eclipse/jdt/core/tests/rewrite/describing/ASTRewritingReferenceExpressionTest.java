@@ -100,10 +100,9 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			variableDeclarationStatement = (VariableDeclarationStatement) methodDecl.getBody().statements().get(1);
 			variableDeclarationFragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 			creationReference = (CreationReference) variableDeclarationFragment.getInitializer();
-			typeParameter= ast.newTypeParameter();
-			typeParameter.setName(ast.newSimpleName("Integer"));			
+			SimpleType simpleType = ast.newSimpleType(ast.newSimpleName("Integer"));
 			listRewrite = rewrite.getListRewrite(creationReference, CreationReference.TYPE_ARGUMENTS_PROPERTY);
-			listRewrite.insertLast(typeParameter, null);
+			listRewrite.insertLast(simpleType, null);
 			
 			// case 3: delete a type argument.
 			variableDeclarationStatement = (VariableDeclarationStatement) methodDecl.getBody().statements().get(2);
@@ -129,15 +128,14 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			variableDeclarationFragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 			creationReference = (CreationReference) variableDeclarationFragment.getInitializer();
 			listRewrite = rewrite.getListRewrite(creationReference, CreationReference.TYPE_ARGUMENTS_PROPERTY);
-			typeParameter= ast.newTypeParameter();
-			typeParameter.setName(ast.newSimpleName("String"));			
-			listRewrite.insertFirst(typeParameter, null);
+			simpleType = ast.newSimpleType(ast.newSimpleName("String"));
+			listRewrite.insertFirst(simpleType, null);
 
 			// case 8: change a CreationReference to a TypeMethodReference.
 			variableDeclarationStatement = (VariableDeclarationStatement) methodDecl.getBody().statements().get(7);
 			variableDeclarationFragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 			creationReference = (CreationReference) variableDeclarationFragment.getInitializer();
-			SimpleType simpleType = ast.newSimpleType(ast.newQualifiedName(ast.newSimpleName("Y"), ast.newSimpleName("Z")));
+			simpleType = ast.newSimpleType(ast.newQualifiedName(ast.newSimpleName("Y"), ast.newSimpleName("Z")));
 			rewrite.replace(creationReference.getType(), simpleType, null);
 		}
 		
@@ -270,10 +268,9 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) methodDecl.getBody().statements().get(2);
 			VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 			ExpressionMethodReference expressionMethodReference = (ExpressionMethodReference) variableDeclarationFragment.getInitializer();
-			TypeParameter typeParameter= ast.newTypeParameter();
-			typeParameter.setName(ast.newSimpleName("String"));			
+			SimpleType simpleType = ast.newSimpleType((ast.newSimpleName("String")));
 			rewrite.replace(expressionMethodReference.getExpression(), ast.newSimpleName("z"), null);
-			rewrite.getListRewrite(expressionMethodReference, ExpressionMethodReference.TYPE_ARGUMENTS_PROPERTY).insertFirst(typeParameter, null);
+			rewrite.getListRewrite(expressionMethodReference, ExpressionMethodReference.TYPE_ARGUMENTS_PROPERTY).insertFirst(simpleType, null);
 			rewrite.replace(expressionMethodReference.getName(), ast.newSimpleName("bar"), null);
 			
 			variableDeclarationStatement = (VariableDeclarationStatement) methodDecl.getBody().statements().get(3);
@@ -356,11 +353,10 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) methodDecl.getBody().statements().get(0);
 			VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 			TypeMethodReference typeMethodReference = (TypeMethodReference) variableDeclarationFragment.getInitializer();
-			TypeParameter typeParameter= ast.newTypeParameter();
-			typeParameter.setName(ast.newSimpleName("Integer"));
+			SimpleType simpleType = ast.newSimpleType((ast.newSimpleName("Integer")));
 			Type newType = ast.newSimpleType(ast.newSimpleName("W"));
 			rewrite.replace(typeMethodReference.getType(), newType, null);
-			rewrite.getListRewrite(typeMethodReference, TypeMethodReference.TYPE_ARGUMENTS_PROPERTY).insertFirst(typeParameter, null);
+			rewrite.getListRewrite(typeMethodReference, TypeMethodReference.TYPE_ARGUMENTS_PROPERTY).insertFirst(simpleType, null);
 			rewrite.replace(typeMethodReference.getName(), ast.newSimpleName("bar"), null);
 			
 			variableDeclarationStatement = (VariableDeclarationStatement) methodDecl.getBody().statements().get(1);
@@ -450,9 +446,8 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			variableDeclarationFragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 			superMethodReference = (SuperMethodReference) variableDeclarationFragment.getInitializer();
 			rewrite.remove(superMethodReference.getQualifier(), null);
-			TypeParameter typeParameter= ast.newTypeParameter();
-			typeParameter.setName(ast.newSimpleName("String"));
-			rewrite.getListRewrite(superMethodReference, SuperMethodReference.TYPE_ARGUMENTS_PROPERTY).insertFirst(typeParameter, null);
+			SimpleType simpleType = ast.newSimpleType(ast.newSimpleName("String"));
+			rewrite.getListRewrite(superMethodReference, SuperMethodReference.TYPE_ARGUMENTS_PROPERTY).insertFirst(simpleType, null);
 			rewrite.replace(superMethodReference.getName(), ast.newSimpleName("foo"), null);
 			
 		}
