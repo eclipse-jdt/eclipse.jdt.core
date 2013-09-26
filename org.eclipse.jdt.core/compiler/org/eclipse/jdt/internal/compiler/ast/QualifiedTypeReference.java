@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -91,14 +91,11 @@ public class QualifiedTypeReference extends TypeReference {
 		}
 	}
 
-	protected void rejectAnnotationsOnStaticMemberQualififer(Scope scope, ReferenceBinding currentType, int tokenIndex) {
+	protected static void rejectAnnotationsOnStaticMemberQualififer(Scope scope, ReferenceBinding currentType, Annotation[] qualifierAnnot) {
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385137
-		if (this.annotations != null && currentType.isMemberType() && currentType.isStatic()) {
-			Annotation[] qualifierAnnot = this.annotations[tokenIndex - 1];
-			if (qualifierAnnot != null) {
-				scope.problemReporter().illegalTypeAnnotationsInStaticMemberAccess(qualifierAnnot[0],
-						qualifierAnnot[qualifierAnnot.length - 1]);
-			}
+		if (currentType.isMemberType() && currentType.isStatic() && qualifierAnnot != null && qualifierAnnot.length > 0) {
+			scope.problemReporter().illegalTypeAnnotationsInStaticMemberAccess(qualifierAnnot[0],
+					qualifierAnnot[qualifierAnnot.length - 1]);
 		}
 	}
 
@@ -137,7 +134,9 @@ public class QualifiedTypeReference extends TypeReference {
 					return null;
 			ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
 			if (qualifiedType != null) {
-				rejectAnnotationsOnStaticMemberQualififer(scope, currentType, i);
+				if (this.annotations != null) {
+					rejectAnnotationsOnStaticMemberQualififer(scope, currentType, this.annotations[i-1]);
+				}
 				ReferenceBinding enclosingType = currentType.enclosingType();
 				if (enclosingType != null && enclosingType.erasure() != qualifiedType.erasure()) {
 					qualifiedType = enclosingType; // inherited member type, leave it associated with its enclosing rather than subtype

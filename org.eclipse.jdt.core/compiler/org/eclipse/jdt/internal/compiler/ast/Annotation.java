@@ -1133,7 +1133,8 @@ public abstract class Annotation extends Expression {
 			scope.problemReporter().disallowedTargetForContainerAnnotation(annotation, containerAnnotationType);
 		}
 	}
-
+	
+	// Check and answer if an attempt to annotate a package is being made. Error should be reported by caller.
 	public static boolean isTypeUseCompatible(TypeReference reference, Scope scope) {
 		if (reference != null && !(reference instanceof SingleTypeReference)) {
 			Binding binding = scope.getPackage(reference.getTypeName());
@@ -1143,6 +1144,32 @@ public abstract class Annotation extends Expression {
 			}
 		}
 		return true;
+	}
+	
+	// Complain if an attempt to annotate the enclosing type of a static member type is being made.
+	public static void isTypeUseCompatible(TypeReference reference, Scope scope, Annotation[] annotations) {
+		if (annotations == null || reference == null || reference.getAnnotatableLevels() == 1)
+			return;
+
+		TypeBinding resolvedType = reference.resolvedType == null ? null : reference.resolvedType.leafComponentType();
+		if (resolvedType == null || !resolvedType.isNestedType())
+			return;
+
+		nextAnnotation:
+			for (int i = 0, annotationsLength = annotations.length; i < annotationsLength; i++) {
+				Annotation annotation = annotations[i];
+				long metaTagBits = annotation.resolvedType.getAnnotationTagBits();
+				if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0 && (metaTagBits & TagBits.SE7AnnotationTargetMASK) == 0) {
+					ReferenceBinding currentType = (ReferenceBinding) resolvedType;
+					while (currentType.isNestedType()) {
+						if (currentType.isStatic()) {
+							QualifiedTypeReference.rejectAnnotationsOnStaticMemberQualififer(scope, currentType, new Annotation [] { annotation });
+							continue nextAnnotation;
+						}
+						currentType = currentType.enclosingType();
+					}
+				}
+			}
 	}
 
 	public abstract void traverse(ASTVisitor visitor, BlockScope scope);

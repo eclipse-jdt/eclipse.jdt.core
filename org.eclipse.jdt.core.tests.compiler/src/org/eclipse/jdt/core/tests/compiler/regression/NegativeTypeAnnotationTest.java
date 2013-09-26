@@ -3487,4 +3487,400 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"This method must return a result of type String\n" + 
 				"----------\n");
 	}
+	// [1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
+	// This is the basic test case which demonstrated the issue for a local variable.
+	// We correctly identified the problem in function bar but failed to do so for foo.
+	public void test415308a() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.lang.annotation.ElementType;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"\n" +
+					"@Target(ElementType.TYPE_USE)\n" +
+					"@interface Illegal {\n" +
+					"}\n" +
+					"class Y {\n" +
+					"	static class Z {\n" +
+					"		Z() {}\n" +
+					"	}\n" +
+					"}\n" +
+					"class X {\n" +
+					"	Y.Z foo() {\n" +
+					"		@Illegal Y.Z z = null;\n" +
+					"		return z;\n" +
+					"	}\n" +
+					"	Y.Z bar() {\n" +
+					"		Y.Z z = (@Illegal Y.Z)null;\n" +
+					"		return z;\n" +
+					"	}\n" +
+					"}\n"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 14)\n" +
+				"	@Illegal Y.Z z = null;\n" +
+				"	^^^^^^^^\n" +
+				"Type annotations are not allowed on type names used to access static members\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 18)\n" +
+				"	Y.Z z = (@Illegal Y.Z)null;\n" +
+				"	         ^^^^^^^^\n" +
+				"Type annotations are not allowed on type names used to access static members\n" +
+				"----------\n");
+	}
+	// [1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
+	// This test case is similar to test415308a. SimpleTypes on which annotations are applied are modified to array
+	// types.
+	public void test415308a2() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.ElementType;\n" +
+						"import java.lang.annotation.Target;\n" +
+						"\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface Illegal {\n" +
+						"}\n" +
+						"class Y {\n" +
+						"	static class Z {\n" +
+						"		Z() {}\n" +
+						"	}\n" +
+						"}\n" +
+						"class X {\n" +
+						"	Y.Z[] foo() {\n" +
+						"		@Illegal Y.Z[] z = null;\n" +
+						"		return z;\n" +
+						"	}\n" +
+						"	Y.Z[] bar() {\n" +
+						"		Y.Z[] z = (@Illegal Y.Z[])null;\n" +
+						"		return z;\n" +
+						"	}\n" +
+						"}\n"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 14)\n" +
+				"	@Illegal Y.Z[] z = null;\n" +
+				"	^^^^^^^^\n" +
+				"Type annotations are not allowed on type names used to access static members\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 18)\n" +
+				"	Y.Z[] z = (@Illegal Y.Z[])null;\n" +
+				"	           ^^^^^^^^\n" +
+				"Type annotations are not allowed on type names used to access static members\n" +
+				"----------\n");
+	}
+	// [1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
+	// Testing type use annotations on nested types.
+	// We check all the qualifiers as we look for a static type. This test checks if we are able to
+	// go beyond 1 level as part of the loop.
+	public void test415308b() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.ElementType;\n" +
+						"import java.lang.annotation.Target;\n" +
+						"\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface Illegal {\n" +
+						"}\n" +
+						"class Y {\n" +
+						"	static class YY {\n" +
+						"		class Z {\n" +
+						"			Z() {}\n" +
+						"		}\n" +
+						"	}\n" +
+						"}\n" +
+						"class X {\n" +
+						"	Y.YY.Z foo() {\n" +
+						"		@Illegal Y.YY.Z z = null;\n" +
+						"		return z;\n" +
+						"	}\n" +
+						"	Y.YY.Z foo2() {\n" +
+						"		Y.@Illegal YY.Z z = null;\n" +
+						"		return z;\n" +
+						"	}\n" +
+						"	Y.YY.Z foo3() {\n" +
+						"		Y.YY.@Illegal Z z = null;\n" +
+						"		return z;\n" +
+						"	}\n" +
+						"}\n"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 16)\n" +
+				"	@Illegal Y.YY.Z z = null;\n" +
+				"	^^^^^^^^\n" +
+				"Type annotations are not allowed on type names used to access static members\n" +
+				"----------\n");
+	}
+	// [1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
+	// This test case is similar to test415308a. SimpleTypes on which annotations are applied are modified to array
+	// types.
+	public void test415308b2() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.ElementType;\n" +
+						"import java.lang.annotation.Target;\n" +
+						"\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface Illegal {\n" +
+						"}\n" +
+						"class Y {\n" +
+						"	static class YY {\n" +
+						"		class Z {\n" +
+						"			Z() {}\n" +
+						"		}\n" +
+						"	}\n" +
+						"}\n" +
+						"class X {\n" +
+						"	Y.YY.Z[] foo() {\n" +
+						"		@Illegal Y.YY.Z[] z = null;\n" +
+						"		return z;\n" +
+						"	}\n" +
+						"	Y.YY.Z[] foo2() {\n" +
+						"		Y.@Illegal YY.Z[] z = null;\n" +
+						"		return z;\n" +
+						"	}\n" +
+						"	Y.YY.Z[] foo3() {\n" +
+						"		Y.YY.@Illegal Z[] z = null;\n" +
+						"		return z;\n" +
+						"	}\n" +
+						"}\n"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 16)\n" +
+				"	@Illegal Y.YY.Z[] z = null;\n" +
+				"	^^^^^^^^\n" +
+				"Type annotations are not allowed on type names used to access static members\n" +
+				"----------\n");
+	}
+	// [1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
+	// The test case is to validate that we report errors for only type annotations and nothing else in case of
+	// of parameter types.
+	public void test415308c() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.ElementType;\n" +
+						"import java.lang.annotation.Target;\n" +
+						"\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface IllegalTypeUse {\n" +
+						"}\n" +
+						"@Target({ElementType.TYPE_USE, ElementType.PARAMETER})\n" +
+						"@interface LegalTypeUseParam {\n" +
+						"}\n" +
+						"@Target(ElementType.PARAMETER)\n" +
+						"@interface LegalParam {\n" +
+						"}\n" +
+						"class Y {\n" +
+						"	static class Z {\n" +
+						"		Z() {}\n" +
+						"	}\n" +
+						"}\n" +
+						"class X {\n" +
+						"	Y.Z foo(@LegalParam Y.Z z) { //Legal\n" +
+						"		return z;\n" +
+						"	}\n" +
+						"	Y.Z foo2(@LegalTypeUseParam Y.Z z) { //Legal\n" +
+						"		return z;\n" +
+						"	}\n" +
+						"	Y.Z foo3(@IllegalTypeUse @LegalParam Y.Z z) { //Illegal\n" +
+						"		return z;\n" +
+						"	}\n" +
+						"}\n"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 25)\n" +
+				"	Y.Z foo3(@IllegalTypeUse @LegalParam Y.Z z) { //Illegal\n" +
+				"	         ^^^^^^^^^^^^^^^\n" +
+				"Type annotations are not allowed on type names used to access static members\n" +
+				"----------\n");
+	}
+	//[1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
+	//The test case is to validate type use annotation for class fields.
+	public void test415308d() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.ElementType;\n" +
+						"import java.lang.annotation.Target;\n" +
+						"\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface Illegal {\n" +
+						"}\n" +
+						"class Y {\n" +
+						"	static class Z {\n" +
+						"		Z() {}\n" +
+						"	}\n" +
+						"}\n" +
+						"class X {\n" +
+						"   @Illegal \n" +
+						"	Y.Z z;\n" +
+						"}\n"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 13)\n" +
+				"	@Illegal \n" +
+				"	^^^^^^^^\n" +
+				"Type annotations are not allowed on type names used to access static members\n" +
+				"----------\n");
+	}
+	//[1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
+	//The test case checks for annotations which are not exclusively TYPE_USE. We should not report a error.
+	public void test415308d2() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.ElementType;\n" +
+						"import java.lang.annotation.Target;\n" +
+						"\n" +
+						"@Target({ElementType.TYPE_USE, ElementType.FIELD})\n" +
+						"@interface Legal {\n" +
+						"}\n" +
+						"class Y {\n" +
+						"	static class Z {\n" +
+						"		Z() {}\n" +
+						"	}\n" +
+						"}\n" +
+						"class X {\n" +
+						"   @Legal \n" +
+						"	Y.Z z;\n" +
+						"}\n"
+				},
+				"");
+	}
+	//[1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
+	//The test case is to validate type use annotation for class fields.
+	//We check all the qualifiers as we look for a static type. This test checks if we are able to
+	//go beyond 1 level as part of the loop.
+	public void test415308e() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.ElementType;\n" +
+						"import java.lang.annotation.Target;\n" +
+						"\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface Illegal {\n" +
+						"}\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface Illegal2 {\n" +
+						"}\n" +
+						"@Target(ElementType.FIELD)\n" +
+						"@interface Legal {\n" +
+						"}\n" +
+						"class Y {\n" +
+						"	static class YY {\n" +
+						"		class Z {\n" +
+						"			Z() {}\n" +
+						"		}\n" +
+						"	}\n" +
+						"}\n" +
+						"class X {\n" +
+						"   @Legal @Illegal @Illegal2\n" +
+						"	Y.YY.Z z;\n" +
+						"}\n"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 21)\n" +
+				"	@Legal @Illegal @Illegal2\n" +
+				"	       ^^^^^^^^\n" +
+				"Type annotations are not allowed on type names used to access static members\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 21)\n" +
+				"	@Legal @Illegal @Illegal2\n" +
+				"	                ^^^^^^^^^\n" +
+				"Type annotations are not allowed on type names used to access static members\n" +
+				"----------\n");
+	}
+	// [1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
+	// The test case is to validate type use annotations on return types for methods.
+	public void test415308f() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.ElementType;\n" +
+						"import java.lang.annotation.Target;\n" +
+						"\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface Illegal {\n" +
+						"}\n" +
+						"class Y {\n" +
+						"	static class Z {\n" +
+						"		Z() {}\n" +
+						"	}\n" +
+						"}\n" +
+						"class X {\n" +
+						"   public @Illegal Y.Z foo() { return null;}\n" +
+						"}\n"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 13)\n" +
+				"	public @Illegal Y.Z foo() { return null;}\n" +
+				"	       ^^^^^^^^\n" +
+				"Type annotations are not allowed on type names used to access static members\n" +
+				"----------\n");
+	}
+	// [1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
+	// The test case is a array version of test415308f.
+	public void test415308f2() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.ElementType;\n" +
+						"import java.lang.annotation.Target;\n" +
+						"\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface Illegal {\n" +
+						"}\n" +
+						"class Y {\n" +
+						"	static class Z {\n" +
+						"		Z() {}\n" +
+						"	}\n" +
+						"}\n" +
+						"class X {\n" +
+						"   public @Illegal Y.Z[] foo() { return null;}\n" +
+						"}\n"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 13)\n" +
+				"	public @Illegal Y.Z[] foo() { return null;}\n" +
+				"	       ^^^^^^^^\n" +
+				"Type annotations are not allowed on type names used to access static members\n" +
+				"----------\n");
+	}
+	// [1.8][compiler] Illegal type annotations not rejected (https://bugs.eclipse.org/bugs/show_bug.cgi?id=415308)
+	// The test case is used to test enums with type annotations.
+	public void test415308g() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.lang.annotation.ElementType;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"\n" +
+					"@Target(ElementType.TYPE_USE)\n" +
+					"@interface Illegal {\n" +
+					"}\n" +
+					"class Y {\n" +
+					"	enum A { B }\n" +
+					"}\n" +
+					"class X {\n" +
+					"	@Illegal Y.A foo(@Illegal Y.A a) {\n" +
+					"		return a;\n" +
+					"	}\n" +
+					"}\n"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 11)\n" +
+				"	@Illegal Y.A foo(@Illegal Y.A a) {\n" +
+				"	^^^^^^^^\n" +
+				"Type annotations are not allowed on type names used to access static members\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 11)\n" +
+				"	@Illegal Y.A foo(@Illegal Y.A a) {\n" +
+				"	                 ^^^^^^^^\n" +
+				"Type annotations are not allowed on type names used to access static members\n" +
+				"----------\n");
+	}
 }

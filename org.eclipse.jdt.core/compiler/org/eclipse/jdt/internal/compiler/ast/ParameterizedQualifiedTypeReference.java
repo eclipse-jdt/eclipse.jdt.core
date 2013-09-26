@@ -235,7 +235,8 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						: scope.environment().convertToParameterizedType(qualifyingType);
 				}
 			} else {
-				 rejectAnnotationsOnStaticMemberQualififer(scope, currentType, i);
+				if (this.annotations != null)
+					rejectAnnotationsOnStaticMemberQualififer(scope, currentType, this.annotations[i-1]);
 				if (typeIsConsistent && currentType.isStatic()
 						&& (qualifyingType.isParameterizedTypeWithActualArguments() || qualifyingType.isGenericType())) {
 					scope.problemReporter().staticMemberOfParameterizedType(this, scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifyingType), i);

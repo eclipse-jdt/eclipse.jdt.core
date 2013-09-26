@@ -1643,6 +1643,7 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 					ASTNode.copySE8AnnotationsToType(initializationScope, field, fieldDecl.annotations);
 				}
 			}
+			Annotation.isTypeUseCompatible(fieldDecl.type, this.scope, fieldDecl.annotations);
 			// apply null default:
 			LookupEnvironment environment = this.scope.environment();
 			if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
@@ -1828,6 +1829,7 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 						ASTNode.copySE8AnnotationsToType(methodDecl.scope, method, methodDecl.annotations);
 					}
 				}
+				Annotation.isTypeUseCompatible(returnType, this.scope, methodDecl.annotations);
 				TypeBinding leafType = methodType.leafComponentType();
 				if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
 					method.modifiers |= ExtraCompilerModifiers.AccGenericSignature;

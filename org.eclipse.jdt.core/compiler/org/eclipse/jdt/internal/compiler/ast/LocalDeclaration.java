@@ -283,6 +283,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		// only resolve annotation at the end, for constant to be positioned before (96991)
 		resolveAnnotations(scope, this.annotations, this.binding, true);
+		Annotation.isTypeUseCompatible(this.type, scope, this.annotations);
 		if (!scope.validateNullAnnotation(this.binding.tagBits, this.type, this.annotations))
 			this.binding.tagBits &= ~TagBits.AnnotationNullMASK;
 	}

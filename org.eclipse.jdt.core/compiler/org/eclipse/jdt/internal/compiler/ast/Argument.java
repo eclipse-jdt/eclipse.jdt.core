@@ -70,6 +70,7 @@ public class Argument extends LocalDeclaration {
 		}
 		if ((this.binding.tagBits & TagBits.AnnotationResolved) == 0) {
 			resolveAnnotations(scope, this.annotations, this.binding, true);
+			Annotation.isTypeUseCompatible(this.type, scope, this.annotations);
 			if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8)
 				scope.validateNullAnnotation(this.binding.tagBits, this.type, this.annotations);
 		}
@@ -196,6 +197,7 @@ public class Argument extends LocalDeclaration {
 			this.binding = new CatchParameterBinding(this, exceptionType, this.modifiers, false); // argument decl, but local var  (where isArgument = false)
 		}
 		resolveAnnotations(scope, this.annotations, this.binding, true);
+		Annotation.isTypeUseCompatible(this.type, scope, this.annotations);
 
 		// Type annotations may need attaching to the type references
 		// Example of code this block handles: } catch(@A Exception e) {
