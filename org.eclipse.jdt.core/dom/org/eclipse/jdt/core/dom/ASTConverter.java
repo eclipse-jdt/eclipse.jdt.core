@@ -352,9 +352,9 @@ class ASTConverter {
 		}
 	}
 
-	private void checkAndSetMalformed(ASTNode oldASTNode, ASTNode newASTNode) {
-		if ((oldASTNode.getFlags() & ASTNode.MALFORMED) != 0) {
-			newASTNode.setFlags(newASTNode.getFlags() | ASTNode.MALFORMED);
+	private void checkAndSetMalformed(ASTNode spannedNode, ASTNode spanningNode) {
+		if ((spannedNode.getFlags() & ASTNode.MALFORMED) != 0) {
+			spanningNode.setFlags(spanningNode.getFlags() | ASTNode.MALFORMED);
 		}
 	}
 
@@ -1010,7 +1010,7 @@ class ASTConverter {
 				if (this.ast.apiLevel() < AST.JLS8) {
 					arrayType.setFlags(arrayType.getFlags() | ASTNode.MALFORMED);
 				} else {
-					setArrayTypeAnnotationsAndSource(arrayType, expression.annotationsOnDimensions);
+					setTypeAnnotationsAndSourceRangeOnArray(arrayType, expression.annotationsOnDimensions);
 				}
 			}
 		} else {
@@ -3138,17 +3138,16 @@ class ASTConverter {
 		return packageDeclaration;
 	}
 
-	private ArrayType convertToArray(Type subType, int sourceStart, int length, int noOfDimensions,
-			org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDims) {
-		ArrayType arrayType = this.ast.newArrayType(subType, noOfDimensions);
+	private ArrayType convertToArray(Type elementType, int sourceStart, int length, int dimensions, org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDimensions) {
+		ArrayType arrayType = this.ast.newArrayType(elementType, dimensions);
 		if (length > 0) arrayType.setSourceRange(sourceStart, length);
 		if (this.ast.apiLevel() < AST.JLS8) {
-			if (annotationsOnDims != null) {
+			if (annotationsOnDimensions != null) {
 				arrayType.setFlags(arrayType.getFlags() | ASTNode.MALFORMED);
 			}
 			ArrayType subarrayType = arrayType;
-			int index = noOfDimensions - 1;
-			int arrayEnd = retrieveProperRightBracketPosition(noOfDimensions, sourceStart);
+			int index = dimensions - 1;
+			int arrayEnd = retrieveProperRightBracketPosition(dimensions, sourceStart);
 			while (index > 0) {
 				subarrayType = (ArrayType) componentType(subarrayType);
 				int end = retrieveProperRightBracketPosition(index, sourceStart);
@@ -3159,7 +3158,7 @@ class ASTConverter {
 			return arrayType;
 		}
 
-		setArrayTypeAnnotationsAndSource(arrayType, annotationsOnDims);
+		setTypeAnnotationsAndSourceRangeOnArray(arrayType, annotationsOnDimensions);
 		return arrayType;
 	}
 
@@ -3393,24 +3392,22 @@ class ASTConverter {
 		}
 	}
 
-	private void setArrayTypeAnnotations(ExtraDimension currentDimension,
-			org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDims, int index) {
-		if (annotationsOnDims == null) return;
-		org.eclipse.jdt.internal.compiler.ast.Annotation[] annotation = annotationsOnDims[index];
-		if (annotation != null) {
-			for (int j = 0; j < annotation.length; j++) {
-				Annotation annot = convert(annotation[j]);
-				currentDimension.annotations().add(annot);
+	private void setTypeAnnotationsOnDimension(ExtraDimension currentDimension, org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDimensions, int dimension) {
+		if (annotationsOnDimensions == null) return;
+		org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = annotationsOnDimensions[dimension];
+		if (annotations != null) {
+			for (int j = 0, length = annotations.length; j < length; j++) {
+				Annotation annotation = convert(annotations[j]);
+				currentDimension.annotations().add(annotation);
 			}
 		}
 	}
 	
-	private void setArrayTypeAnnotationsAndSource(ArrayType arrayType,
-			org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDims) {
+	private void setTypeAnnotationsAndSourceRangeOnArray(ArrayType arrayType, org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDimensions) {
 		List dimensions = arrayType.dimensions();
-		Type elemType = arrayType.getElementType();
-		int start = elemType.getStartPosition();
-		int endElement = start + elemType.getLength();
+		Type elementType = arrayType.getElementType();
+		int start = elementType.getStartPosition();
+		int endElement = start + elementType.getLength();
 		int length = arrayType.getLength();
 		int end = (length <= 0) ? retrieveProperRightBracketPosition(dimensions.size(), endElement) : start + length - 1;
 		arrayType.setSourceRange(start, end - start + 1);
@@ -3418,7 +3415,7 @@ class ASTConverter {
 		start = endElement;
 		for (int i = 0; i < dimensions.size(); i++) {
 			ExtraDimension currentDimension = (ExtraDimension) dimensions.get(i);
-			setArrayTypeAnnotations(currentDimension, annotationsOnDims, i);
+			setTypeAnnotationsOnDimension(currentDimension, annotationsOnDimensions, i);
 			retrieveDimensionAndSetPositions(start, end, currentDimension);
 			start = currentDimension.getStartPosition() + currentDimension.getLength();
 		}
