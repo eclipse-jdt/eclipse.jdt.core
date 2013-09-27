@@ -267,11 +267,11 @@ protected void consumeLocalVariableDeclarationStatement() {
  * The CSToCuMapper could not be used, since it could have interfered with
  * the syntax recovery specific to code snippets.
  */
-protected void consumeMethodDeclaration(boolean isNotAbstract) {
+protected void consumeMethodDeclaration(boolean isNotAbstract, boolean isDefaultMethod) {
 	// MethodDeclaration ::= MethodHeader MethodBody
 	// AbstractMethodDeclaration ::= MethodHeader ';'
 
-	super.consumeMethodDeclaration(isNotAbstract);
+	super.consumeMethodDeclaration(isNotAbstract, isDefaultMethod);
 
 	// now we know that we have a method declaration at the top of the ast stack
 	MethodDeclaration methodDecl = (MethodDeclaration) this.astStack[this.astPtr];
@@ -592,7 +592,7 @@ protected CompilationUnitDeclaration endParse(int act) {
 			}
 			consumeMethodBody();
 			if (!this.diet) {
-				consumeMethodDeclaration(true);
+				consumeMethodDeclaration(true, false);
 				if (fieldsCount > 0) {
 					consumeClassBodyDeclarations();
 				}

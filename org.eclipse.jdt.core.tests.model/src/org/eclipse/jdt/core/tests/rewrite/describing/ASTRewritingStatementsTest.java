@@ -75,7 +75,9 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
+import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
 
@@ -6131,6 +6133,29 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("@interface Annot3 {}\n");
 		assertEqualString(preview, buf.toString());
 	}
+	
+	public void testBug413592a() throws Exception {
+		String buf = "default int func2(){return 1;}";
+		Document doc = new Document(buf);
+		String formattedString = "\tdefault int func2() {\n" +
+								 "\t\treturn 1;\n" + 
+								 "\t}";
+		TextEdit edit = new ASTRewriteFormatter(null, null, JavaCore.getOptions(), "\n").formatString(CodeFormatter.K_CLASS_BODY_DECLARATIONS, buf, 0, buf.length(), 1);
+		edit.apply(doc);
+		assertTrue("Incorrect Formatting", doc.get().equals(formattedString));
+	}
+
+	public void testBug413592b() throws Exception {
+		String buf = "default int func2(){return 2*(3+4)/5/(6+7);}";
+		Document doc = new Document(buf);
+		String formattedString = "\tdefault int func2() {\n" +
+								 "\t\treturn 2 * (3 + 4) / 5 / (6 + 7);\n" + 
+								 "\t}";
+		TextEdit edit = new ASTRewriteFormatter(null, null, JavaCore.getOptions(), "\n").formatString(CodeFormatter.K_CLASS_BODY_DECLARATIONS, buf, 0, buf.length(), 1);
+		edit.apply(doc);
+		assertTrue("Incorrect Formatting", doc.get().equals(formattedString));
+	}
+
 }
 
 

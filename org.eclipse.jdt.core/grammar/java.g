@@ -702,12 +702,17 @@ VariableInitializer -> ArrayInitializer
 MethodDeclaration -> AbstractMethodDeclaration
 MethodDeclaration ::= MethodHeader MethodBody 
 /.$putCase // set to true to consume a method with a body
- consumeMethodDeclaration(true); $break ./
+ consumeMethodDeclaration(true, false); $break ./
+/:$readableName MethodDeclaration:/
+
+MethodDeclaration ::= DefaultMethodHeader MethodBody 
+/.$putCase // set to true to consume a method with a body
+ consumeMethodDeclaration(true, true); $break ./
 /:$readableName MethodDeclaration:/
 
 AbstractMethodDeclaration ::= MethodHeader ';'
 /.$putCase // set to false to consume a method without body
- consumeMethodDeclaration(false); $break ./
+ consumeMethodDeclaration(false, false); $break ./
 /:$readableName MethodDeclaration:/
 
 MethodHeader ::= MethodHeaderName FormalParameterListopt MethodHeaderRightParen MethodHeaderExtendedDims MethodHeaderThrowsClauseopt

@@ -525,6 +525,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalCast", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalClassLiteralForTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalDeclarationOfThisParameter", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("IllegalDefaultModifierSpecification", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalDefinitionToNonNullParameter", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("IllegalDimension", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("IllegalEnclosingInstanceSpecification", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1322,6 +1323,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IllegalCast", SKIP);
 		expectedProblemAttributes.put("IllegalClassLiteralForTypeVariable", SKIP);
 		expectedProblemAttributes.put("IllegalDeclarationOfThisParameter", SKIP);
+		expectedProblemAttributes.put("IllegalDefaultModifierSpecification", SKIP);
 		expectedProblemAttributes.put("IllegalDefinitionToNonNullParameter", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
 		expectedProblemAttributes.put("IllegalDimension", SKIP);
 		expectedProblemAttributes.put("IllegalEnclosingInstanceSpecification", SKIP);

@@ -1597,6 +1597,13 @@ public void defaultMethodOverridesObjectMethod(MethodBinding currentMethod) {
 		sourceStart, sourceEnd);
 }
 
+public void defaultModifierIllegallySpecified(int sourceStart, int sourceEnd) {
+	this.handle(
+		IProblem.IllegalDefaultModifierSpecification,
+		NoArgument, NoArgument,
+		sourceStart, sourceEnd);
+}
+
 public void deprecatedField(FieldBinding field, ASTNode location) {
 	int severity = computeSeverity(IProblem.UsingDeprecatedField);
 	if (severity == ProblemSeverities.Ignore) return;

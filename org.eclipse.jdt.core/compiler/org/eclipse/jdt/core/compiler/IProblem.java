@@ -1749,6 +1749,8 @@ void setSourceStart(int sourceStart);
 	int IllegalModifierCombinationForInterfaceMethod = MethodRelated + 1056;
 	/** @since 3.9 BETA_JAVA8 */
 	int IllegalStrictfpForAbstractInterfaceMethod = MethodRelated + 1057;
+	/** @since 3.9 BETA_JAVA8 */
+	int IllegalDefaultModifierSpecification = MethodRelated + 1058;
 
 	/**
 	 * External problems -- These are problems defined by other plugins

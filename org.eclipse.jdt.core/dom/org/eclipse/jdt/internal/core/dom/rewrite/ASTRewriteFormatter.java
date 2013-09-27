@@ -42,7 +42,7 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
-/* package */ final class ASTRewriteFormatter {
+public final class ASTRewriteFormatter {
 
 	public static class NodeMarker extends Position {
 		public Object data;
