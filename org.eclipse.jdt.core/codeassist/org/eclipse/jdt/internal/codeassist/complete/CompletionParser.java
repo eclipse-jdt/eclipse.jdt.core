@@ -2663,18 +2663,13 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		int firstDimensions = this.intStack[this.intPtr--];
 		TypeReference type = getTypeReference(firstDimensions);
 		
-		final int typeDimensions = firstDimensions + extendedDimensions + (isVarArgs ? 1 : 0);
-		if (typeDimensions != firstDimensions) {
-			// jsr308 type annotations management
-			Annotation [][] annotationsOnFirstDimensions = firstDimensions == 0 ? null : type.getAnnotationsOnDimensions();
-			Annotation [][] annotationsOnAllDimensions = annotationsOnFirstDimensions;
-			if (annotationsOnExtendedDimensions != null) {
-				annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(firstDimensions, annotationsOnFirstDimensions, extendedDimensions, annotationsOnExtendedDimensions);
+		if (isVarArgs || extendedDimensions != 0) {
+			if (isVarArgs) {
+				type = augmentTypeWithAdditionalDimensions(type, 1, varArgsAnnotations != null ? new Annotation[][] { varArgsAnnotations } : null, true);	
 			}
-			if (varArgsAnnotations != null) {
-				annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(firstDimensions + extendedDimensions, annotationsOnAllDimensions, 1, new Annotation[][]{varArgsAnnotations});
+			if (extendedDimensions != 0) { // combination illegal.
+				type = augmentTypeWithAdditionalDimensions(type, extendedDimensions, annotationsOnExtendedDimensions, false);
 			}
-			type = copyDims(type, typeDimensions, annotationsOnAllDimensions);
 			type.sourceEnd = type.isParameterizedTypeReference() ? this.endStatementPosition : this.endPosition;
 		}
 		if (isVarArgs) {
@@ -4509,21 +4504,11 @@ protected StringLiteral createStringLiteral(char[] token, int start, int end, in
 	}
 	return super.createStringLiteral(token, start, end, lineNumber);
 }
-protected TypeReference copyDims(TypeReference typeRef, int dim) {
+protected TypeReference augmentTypeWithAdditionalDimensions(TypeReference typeRef, int additionalDimensions, Annotation[][] additionalAnnotations, boolean isVarargs) {
 	if (this.assistNode == typeRef) {
 		return typeRef;
 	}
-	TypeReference result = super.copyDims(typeRef, dim);
-	if (this.assistNodeParent == typeRef) {
-		this.assistNodeParent = result;
-	}
-	return result;
-}
-protected TypeReference copyDims(TypeReference typeRef, int dim, Annotation[][] annotationsOnDimensions) {
-	if (this.assistNode == typeRef) {
-		return typeRef;
-	}
-	TypeReference result = super.copyDims(typeRef, dim, annotationsOnDimensions);
+	TypeReference result = super.augmentTypeWithAdditionalDimensions(typeRef, additionalDimensions, additionalAnnotations, isVarargs);
 	if (this.assistNodeParent == typeRef) {
 		this.assistNodeParent = result;
 	}

@@ -56,13 +56,7 @@ public void aboutToResolve(Scope scope) {
 /*
  * No expansion of the completion reference into an array one
  */
-public TypeReference copyDims(int dim){
-	return this;
-}
-/*
- * No expansion of the completion reference into an array one
- */
-public TypeReference copyDims(int dim, Annotation[][] annotationsOnDimensions){
+public TypeReference augmentTypeWithAdditionalDimensions(int additionalDimensions, Annotation[][] additionalAnnotations, boolean isVarargs) {
 	return this;
 }
 protected TypeBinding getTypeBinding(Scope scope) {

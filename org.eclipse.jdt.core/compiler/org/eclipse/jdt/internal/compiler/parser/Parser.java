@@ -2428,7 +2428,7 @@ protected void consumeCatchFormalParameter() {
 	int extendedDimensions = this.intStack[this.intPtr--]; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348369
 	TypeReference type = (TypeReference) this.astStack[this.astPtr--];
 	if (extendedDimensions > 0) {
-		type = type.copyDims(type.dimensions() + extendedDimensions);
+		type = augmentTypeWithAdditionalDimensions(type, extendedDimensions, null, false);
 		type.sourceEnd = this.endPosition;
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391092
 		if (type instanceof UnionTypeReference) {
@@ -3488,9 +3488,9 @@ protected void consumeEnterVariable() {
 
 	char[] identifierName = this.identifierStack[this.identifierPtr];
 	long namePosition = this.identifierPositionStack[this.identifierPtr];
-	int extendedDimension = this.intStack[this.intPtr--];
+	int extendedDimensions = this.intStack[this.intPtr--];
 	// pop any annotations on extended dimensions now, so they don't pollute the base dimensions.
-	Annotation [][] annotationsOnExtendedDimensions = extendedDimension == 0 ? null : getAnnotationsOnDimensions(extendedDimension);
+	Annotation [][] annotationsOnExtendedDimensions = extendedDimensions == 0 ? null : getAnnotationsOnDimensions(extendedDimensions);
 	AbstractVariableDeclaration declaration;
 	// create the ast node
 	boolean isLocalDeclaration = this.nestedMethod[this.nestedType] != 0;
@@ -3508,7 +3508,6 @@ protected void consumeEnterVariable() {
 	this.identifierLengthPtr--;
 	TypeReference type;
 	int variableIndex = this.variablesCounter[this.nestedType];
-	int typeDim = 0;
 	if (variableIndex == 0) {
 		// first variable of the declaration (FieldDeclaration or LocalDeclaration)
 		if (isLocalDeclaration) {
@@ -3524,14 +3523,14 @@ protected void consumeEnterVariable() {
 					0,
 					length);
 			}
-			type = getTypeReference(typeDim = this.intStack[this.intPtr--]); // type dimension
+			type = getTypeReference(this.intStack[this.intPtr--]); // type dimension
 			if (declaration.declarationSourceStart == -1) {
 				// this is true if there is no modifiers for the local variable declaration
 				declaration.declarationSourceStart = type.sourceStart;
 			}
 			pushOnAstStack(type);
 		} else {
-			type = getTypeReference(typeDim = this.intStack[this.intPtr--]); // type dimension
+			type = getTypeReference(this.intStack[this.intPtr--]); // type dimension
 			pushOnAstStack(type);
 			declaration.declarationSourceStart = this.intStack[this.intPtr--];
 			declaration.modifiers = this.intStack[this.intPtr--];
@@ -3552,7 +3551,6 @@ protected void consumeEnterVariable() {
 		this.javadoc = null;
 	} else {
 		type = (TypeReference) this.astStack[this.astPtr - variableIndex];
-		typeDim = type.dimensions();
 		AbstractVariableDeclaration previousVariable =
 			(AbstractVariableDeclaration) this.astStack[this.astPtr];
 		declaration.declarationSourceStart = previousVariable.declarationSourceStart;
@@ -3564,19 +3562,9 @@ protected void consumeEnterVariable() {
 		}
 	}
 
-	if (extendedDimension == 0) {
-		declaration.type = type;
-		declaration.bits |= (type.bits & ASTNode.HasTypeAnnotations);
-	} else {
-		int dimension = typeDim + extendedDimension;
-		Annotation [][] annotationsOnAllDimensions = null;
-		Annotation[][] annotationsOnDimensions = type.getAnnotationsOnDimensions();
-		if (annotationsOnDimensions != null || annotationsOnExtendedDimensions != null) {
-			annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(typeDim, annotationsOnDimensions, extendedDimension, annotationsOnExtendedDimensions); 
-//			declaration.bits |= (type.bits & ASTNode.HasTypeAnnotations);
-		}
-		declaration.type = copyDims(type, dimension, annotationsOnAllDimensions);
-	}
+	declaration.type = extendedDimensions == 0 ? type : augmentTypeWithAdditionalDimensions(type, extendedDimensions, annotationsOnExtendedDimensions, false);
+	declaration.bits |= (type.bits & ASTNode.HasTypeAnnotations);
+	
 	this.variablesCounter[this.nestedType]++;
 	pushOnAstStack(declaration);
 	// recovery
@@ -3601,27 +3589,6 @@ protected void consumeEnterVariable() {
 		}
 		this.lastIgnoredToken = -1;
 	}
-}
-protected Annotation[][] getMergedAnnotationsOnDimensions(int dims, Annotation[][] annotationsOnDimensions,
-		int extendedDims, Annotation[][] annotationsOnExtendedDimensions) {
-
-	if (annotationsOnDimensions == null && annotationsOnExtendedDimensions == null)
-		return null;
-
-	Annotation [][] mergedAnnotations = new Annotation[dims + extendedDims][];
-	
-	if (annotationsOnDimensions != null) {
-		for (int i = 0; i < dims; i++) {
-			mergedAnnotations[i] = annotationsOnDimensions[i];
-		} 
-	}
-	if (annotationsOnExtendedDimensions != null) {
-		for (int i = dims, j = 0; i < dims + extendedDims; i++, j++) {
-			mergedAnnotations[i] = annotationsOnExtendedDimensions[j];
-		}
-	}
-
-	return mergedAnnotations;
 }
 protected void consumeEnumBodyNoConstants() {
 	// nothing to do
@@ -4271,19 +4238,13 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	}
 	int firstDimensions = this.intStack[this.intPtr--];
 	TypeReference type = getTypeReference(firstDimensions);
-	final int typeDimensions = firstDimensions + extendedDimensions + (isVarArgs ? 1 : 0);
-
-	if (typeDimensions != firstDimensions) {
-		// jsr308 type annotations management
-		Annotation [][] annotationsOnFirstDimensions = firstDimensions == 0 ? null : type.getAnnotationsOnDimensions();
-		Annotation [][] annotationsOnAllDimensions = annotationsOnFirstDimensions;
-		if (annotationsOnExtendedDimensions != null) {
-			annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(firstDimensions, annotationsOnFirstDimensions, extendedDimensions, annotationsOnExtendedDimensions);
+	if (isVarArgs || extendedDimensions != 0) {
+		if (isVarArgs) {
+			type = augmentTypeWithAdditionalDimensions(type, 1, varArgsAnnotations != null ? new Annotation[][] { varArgsAnnotations } : null, true);	
+		} 
+		if (extendedDimensions != 0) {
+			type = augmentTypeWithAdditionalDimensions(type, extendedDimensions, annotationsOnExtendedDimensions, false);
 		}
-		if (varArgsAnnotations != null) {
-			annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(firstDimensions + extendedDimensions, annotationsOnAllDimensions, 1, new Annotation[][]{varArgsAnnotations});
-		}
-		type = copyDims(type, typeDimensions, annotationsOnAllDimensions);
 		type.sourceEnd = type.isParameterizedTypeReference() ? this.endStatementPosition : this.endPosition;
 	}
 	if (isVarArgs) {
@@ -5005,21 +4966,13 @@ protected void consumeMethodHeaderExtendedDims() {
 	// MethodHeaderExtendedDims ::= Dimsopt
 	// now we update the returnType of the method
 	MethodDeclaration md = (MethodDeclaration) this.astStack[this.astPtr];
-	int extendedDims = this.intStack[this.intPtr--];
+	int extendedDimensions = this.intStack[this.intPtr--];
 	if(md.isAnnotationMethod()) {
-		((AnnotationMethodDeclaration)md).extendedDimensions = extendedDims;
+		((AnnotationMethodDeclaration)md).extendedDimensions = extendedDimensions;
 	}
-	if (extendedDims != 0) {
-		TypeReference returnType = md.returnType;
+	if (extendedDimensions != 0) {
 		md.sourceEnd = this.endPosition;
-		int dims = returnType.dimensions() + extendedDims;
-		Annotation [][] annotationsOnDimensions = returnType.getAnnotationsOnDimensions();
-		Annotation [][] annotationsOnExtendedDimensions = getAnnotationsOnDimensions(extendedDims);
-		Annotation [][] annotationsOnAllDimensions = null;
-		if (annotationsOnDimensions != null || annotationsOnExtendedDimensions != null) {
-			annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(returnType.dimensions(), annotationsOnDimensions, extendedDims, annotationsOnExtendedDimensions);
-		}
-		md.returnType = copyDims(returnType, dims, annotationsOnAllDimensions);
+		md.returnType = augmentTypeWithAdditionalDimensions(md.returnType, extendedDimensions, getAnnotationsOnDimensions(extendedDimensions), false);
 		if (this.currentToken == TokenNameLBRACE){
 			md.bodyStart = this.endPosition + 1;
 		}
@@ -5683,7 +5636,7 @@ private void rejectIllegalTypeAnnotations(TypeReference typeReference) {
 			problemReporter().misplacedTypeAnnotations(misplacedAnnotations[0], misplacedAnnotations[misplacedAnnotations.length - 1]);
 		}
 	}
-	annotations = typeReference.getAnnotationsOnDimensions();
+	annotations = typeReference.getAnnotationsOnDimensions(true);
 	for (int i = 0, length = annotations == null ? 0 : annotations.length; i < length; i++) {
 		misplacedAnnotations = annotations[i];
 		if (misplacedAnnotations != null) {
@@ -9525,12 +9478,8 @@ public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, Co
 	return m;
 }
 
-protected TypeReference copyDims(TypeReference typeRef, int dim) {
-	return typeRef.copyDims(dim);
-}
-
-protected TypeReference copyDims(TypeReference typeRef, int dim, Annotation[][]annotationsOnDimensions) {
-	return typeRef.copyDims(dim, annotationsOnDimensions);
+protected TypeReference augmentTypeWithAdditionalDimensions(TypeReference typeReference, int additionalDimensions, Annotation[][] additionalAnnotations, boolean isVarargs) {
+	return typeReference.augmentTypeWithAdditionalDimensions(additionalDimensions, additionalAnnotations, isVarargs);
 }
 
 protected FieldDeclaration createFieldDeclaration(char[] fieldDeclarationName, int sourceStart, int sourceEnd) {

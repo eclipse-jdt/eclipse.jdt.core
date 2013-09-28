@@ -40,11 +40,7 @@ public class IntersectionCastTypeReference extends TypeReference {
 		}
 	}
 
-	public TypeReference copyDims(int dim) {
-		throw new UnsupportedOperationException(); // no syntax for this.
-	}
-	
-	public TypeReference copyDims(int dim, Annotation[][] annotationsOnDimensions) {
+	public TypeReference augmentTypeWithAdditionalDimensions(int additionalDimensions, Annotation[][] additionalAnnotations, boolean isVarargs) {
 		throw new UnsupportedOperationException(); // no syntax for this.
 	}
 

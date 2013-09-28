@@ -5568,5 +5568,127 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				},
 				"1234");
 	}
+	
+	public void testAnnotatedExtendedDimensions() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	@NonNull String @Nullable [] f @NonNull [] = null;\n" +
+					"	static @NonNull String @Nullable [] foo(@NonNull String @Nullable [] p @NonNull []) @NonNull [] {\n" +
+					"		p = null;\n" +
+					"		@NonNull String @Nullable [] l @NonNull [] = null;\n" +
+					"       return p;\n" +
+					"	}\n" +
+					"}\n",
+					
+					"NonNull.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface NonNull {}\n",
+					
+					"Nullable.java",
+					"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.TYPE_USE)\n" + 
+					"@Retention(RetentionPolicy.RUNTIME)\n" + 
+					"@interface Nullable {}\n",
+			},
+			"");
+			String expectedOutput =
+					"  // Field descriptor #6 [[Ljava/lang/String;\n" + 
+					"  java.lang.String[][] f;\n" + 
+					"    RuntimeVisibleTypeAnnotations: \n" + 
+					"      #8 @NonNull(\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY, ARRAY]\n" + 
+					"      )\n" + 
+					"      #9 @Nullable(\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY]\n" + 
+					"      )\n" + 
+					"      #8 @NonNull(\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"      )\n" + 
+					"  \n" + 
+					"  // Method descriptor #11 ()V\n" + 
+					"  // Stack: 2, Locals: 1\n" + 
+					"  public X();\n" + 
+					"     0  aload_0 [this]\n" + 
+					"     1  invokespecial java.lang.Object() [13]\n" + 
+					"     4  aload_0 [this]\n" + 
+					"     5  aconst_null\n" + 
+					"     6  putfield X.f : java.lang.String[][] [15]\n" + 
+					"     9  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 1]\n" + 
+					"        [pc: 4, line: 2]\n" + 
+					"        [pc: 9, line: 1]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #22 ([[Ljava/lang/String;)[[Ljava/lang/String;\n" + 
+					"  // Stack: 1, Locals: 2\n" + 
+					"  static java.lang.String[][] foo(java.lang.String[][] p);\n" + 
+					"    0  aconst_null\n" + 
+					"    1  astore_0 [p]\n" + 
+					"    2  aconst_null\n" + 
+					"    3  astore_1 [l]\n" + 
+					"    4  aload_0 [p]\n" + 
+					"    5  areturn\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 4]\n" + 
+					"        [pc: 2, line: 5]\n" + 
+					"        [pc: 4, line: 6]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 6] local: p index: 0 type: java.lang.String[][]\n" + 
+					"        [pc: 4, pc: 6] local: l index: 1 type: java.lang.String[][]\n" + 
+					"    RuntimeVisibleTypeAnnotations: \n" + 
+					"      #8 @NonNull(\n" + 
+					"        target type = 0x40 LOCAL_VARIABLE\n" + 
+					"        local variable entries:\n" + 
+					"          [pc: 4, pc: 6] index: 1\n" + 
+					"        location = [ARRAY, ARRAY]\n" + 
+					"      )\n" + 
+					"      #9 @Nullable(\n" + 
+					"        target type = 0x40 LOCAL_VARIABLE\n" + 
+					"        local variable entries:\n" + 
+					"          [pc: 4, pc: 6] index: 1\n" + 
+					"        location = [ARRAY]\n" + 
+					"      )\n" + 
+					"      #8 @NonNull(\n" + 
+					"        target type = 0x40 LOCAL_VARIABLE\n" + 
+					"        local variable entries:\n" + 
+					"          [pc: 4, pc: 6] index: 1\n" + 
+					"      )\n" + 
+					"    RuntimeVisibleTypeAnnotations: \n" + 
+					"      #8 @NonNull(\n" + 
+					"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+					"        method parameter index = 0\n" + 
+					"        location = [ARRAY, ARRAY]\n" + 
+					"      )\n" + 
+					"      #9 @Nullable(\n" + 
+					"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+					"        method parameter index = 0\n" + 
+					"        location = [ARRAY]\n" + 
+					"      )\n" + 
+					"      #8 @NonNull(\n" + 
+					"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+					"        method parameter index = 0\n" + 
+					"      )\n" + 
+					"      #8 @NonNull(\n" + 
+					"        target type = 0x14 METHOD_RETURN\n" + 
+					"        location = [ARRAY, ARRAY]\n" + 
+					"      )\n" + 
+					"      #9 @Nullable(\n" + 
+					"        target type = 0x14 METHOD_RETURN\n" + 
+					"        location = [ARRAY]\n" + 
+					"      )\n" + 
+					"      #8 @NonNull(\n" + 
+					"        target type = 0x14 METHOD_RETURN\n" + 
+					"      )\n" + 
+					"}";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
 }
 

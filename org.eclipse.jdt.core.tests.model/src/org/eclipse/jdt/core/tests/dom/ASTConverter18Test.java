@@ -2994,4 +2994,57 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertNotSame("Type bindings should not be same", tBinding1, tBinding2);
 		assertTrue("Unannotated bindings should be same", tBinding1.isEqualTo(tBinding2));
 	}
+	
+	public void testExtendedDimensions() throws JavaModelException {
+		String contents = 
+				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface Marker {\n" +
+				" 	String value() default \"\";\n" +
+				"}\n" +
+				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface Marker2 {\n" +
+				" 	String value() default \"22\";\n" +
+				"}\n" +
+				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface Marker3 {\n" +
+				" 	String value() default \"22\";\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public @Marker(\"1\") String @Marker(\"2\") [] foo(int @Marker @Marker2 [] args @Marker3 []) @Marker3(\"3\") [] {\n" +
+				"      return null;\n" +
+				"	}\n" +
+				"   public String @Marker(\"i0\") @Marker2 [] [] @Marker(\"i1\") [] str @Marker(\"Extended\") [] = null;\n" +
+				"}\n";
+
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 3, 0);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Type returnType = methodDeclaration.getReturnType2();
+		ITypeBinding tBinding1 = returnType.resolveBinding();
+		assertEquals("Unexpected type", tBinding1.toString(), "@Marker{ value = (String)\"1\"} String @Marker{ value = (String)\"2\"} []");
+		assertEquals("Unexpected type", methodDeclaration.resolveBinding().getReturnType().toString(), "@Marker{ value = (String)\"1\"} String @Marker3{ value = (String)\"3\"} [] @Marker{ value = (String)\"2\"} []");
+		
+		List params = methodDeclaration.parameters();
+		assertEquals("Incorrect params", 1, params.size());
+		SingleVariableDeclaration param = (SingleVariableDeclaration) params.get(0);
+		ArrayType type = (ArrayType) param.getType();
+		ITypeBinding tBinding = type.resolveBinding();
+		assertEquals("Unexpected type", tBinding.toString(), "int @Marker @Marker2 []");
+		assertEquals("Unexpected type", param.resolveBinding().getType().toString(), "int @Marker3 [] @Marker @Marker2 []");
+
+		// public String @Marker(\"i0\") @Marker2 [] [] @Marker(\"i1\") [] str @Marker(\"Extended\") [] = null;
+		node = getASTNode(compilationUnit, 3, 1);
+		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
+		FieldDeclaration field = (FieldDeclaration) node;
+		List fragments = field.fragments();
+		assertEquals("Incorrect no of fragments", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		assertEquals("Unexpected type", fragment.resolveBinding().getType().toString(), "String @Marker{ value = (String)\"Extended\"} [] @Marker{ value = (String)\"i0\"} @Marker2 [] [] @Marker{ value = (String)\"i1\"} []");
+		assertEquals("Unexpected type", field.getType().toString(), "String @Marker(\"i0\") @Marker2 [] [] @Marker(\"i1\") []");
+	}
 }

@@ -716,7 +716,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
 				this.scribe.space();
 			}
-			Annotation[][] annotationsOnDimensions = typeReference != null ? typeReference.getAnnotationsOnDimensions() : null;
+			Annotation[][] annotationsOnDimensions = typeReference != null ? typeReference.getAnnotationsOnDimensions(true) : null;
 			for (int i = 0; i < count; i++) {
 				int dimensionIndex = anchor + i;
 				if (annotationsOnDimensions != null && annotationsOnDimensions.length > dimensionIndex) {
@@ -2763,7 +2763,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 
 		if (argument.isVarArgs()) {
-			Annotation [][] annotationsOnDimensions = argumentType.getAnnotationsOnDimensions();
+			Annotation [][] annotationsOnDimensions = argumentType.getAnnotationsOnDimensions(true);
 			if (annotationsOnDimensions != null) {
 				Annotation [] varargAnnotations = annotationsOnDimensions[annotationsOnDimensions.length - 1];
 				if (varargAnnotations != null) {

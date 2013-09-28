@@ -23,8 +23,9 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ArrayTypeReference extends SingleTypeReference {
 	public int dimensions;
-	public Annotation[][] annotationsOnDimensions; // jsr308 style type annotations on dimensions.
+	private Annotation[][] annotationsOnDimensions; // jsr308 style type annotations on dimensions.
 	public int originalSourceEnd;
+	public int extendedDimensions;
 
 	/**
 	 * ArrayTypeReference constructor comment.
@@ -53,9 +54,19 @@ public class ArrayTypeReference extends SingleTypeReference {
 		return this.dimensions;
 	}
 	
-	public Annotation[][] getAnnotationsOnDimensions() {
-		return this.annotationsOnDimensions;
+	/**
+	 @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getAnnotationsOnDimensions(boolean)
+	*/
+	public Annotation[][] getAnnotationsOnDimensions(boolean useSourceOrder) {
+		if (useSourceOrder || this.annotationsOnDimensions == null || this.annotationsOnDimensions.length == 0 || this.extendedDimensions == 0 || this.extendedDimensions == this.dimensions)
+			return this.annotationsOnDimensions;
+		Annotation [][] externalAnnotations = new Annotation[this.dimensions][];
+		final int baseDimensions = this.dimensions - this.extendedDimensions;
+		System.arraycopy(this.annotationsOnDimensions, baseDimensions, externalAnnotations, 0, this.extendedDimensions);
+		System.arraycopy(this.annotationsOnDimensions, 0, externalAnnotations, this.extendedDimensions, baseDimensions);
+		return externalAnnotations;
 	}
+	
 	public void setAnnotationsOnDimensions(Annotation [][] annotationsOnDimensions) {
 		this.annotationsOnDimensions = annotationsOnDimensions;
 	}

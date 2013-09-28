@@ -1452,6 +1452,90 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"Null type mismatch (type annotations): required \'List<@Nullable ? extends X1>\' but this expression has type \'ArrayList<@NonNull X1>\', corresponding supertype is \'List<@NonNull X1>\'\n" + 
 				"----------\n");
 	}
+	
+	// storing and decoding null-type-annotations to/from classfile: EXTENDED DIMENSIONS.
+	public void testBinary09() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+		runNegativeTestWithLibs(
+				new String[] {
+					"X.java",
+					"import org.eclipse.jdt.annotation.NonNull;\n" +
+					"import org.eclipse.jdt.annotation.Nullable;\n" +
+					"public class X {\n" +
+					"	@NonNull String @Nullable [] f @NonNull [] = null;\n" +
+					"	static void foo(@NonNull String @Nullable [] p @NonNull []) {\n" +
+					"		p = null;\n" +
+					"		@NonNull String @Nullable [] l @NonNull [] = null;\n" +
+					"	}\n" +
+					"}\n"
+
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	@NonNull String @Nullable [] f @NonNull [] = null;\n" + 
+				"	                                             ^^^^\n" + 
+				"Null type mismatch: required \'@NonNull String @NonNull[] @Nullable[]\' but the provided value is null\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	p = null;\n" + 
+				"	    ^^^^\n" + 
+				"Null type mismatch: required \'@NonNull String @NonNull[] @Nullable[]\' but the provided value is null\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
+				"	@NonNull String @Nullable [] l @NonNull [] = null;\n" + 
+				"	                                             ^^^^\n" + 
+				"Null type mismatch: required \'@NonNull String @NonNull[] @Nullable[]\' but the provided value is null\n" + 
+				"----------\n");
+		// fix the error:
+		runConformTestWithLibs(
+				new String[] {
+						"X.java",
+						"import org.eclipse.jdt.annotation.NonNull;\n" +
+						"import org.eclipse.jdt.annotation.Nullable;\n" +
+						"public class X {\n" +
+						"	@NonNull String @Nullable [] f @NonNull [] = new @NonNull String @Nullable [0] @NonNull [];\n" +
+						"}\n"
+				},
+				customOptions,
+				"");
+
+		runNegativeTestWithLibs(
+				new String[] {
+					"Y.java",
+					"import org.eclipse.jdt.annotation.*;\n" +
+					"public class Y {\n" +
+					"	void test(X x) {\n" +
+					"       x.f = null;\n" +
+					"       x.f[0] = null;\n" +
+					"       x.f[0][0] = null;\n" +
+					"	}\n" +
+					"}\n"
+				}, 
+				customOptions,
+				"----------\n" + 
+				"1. WARNING in Y.java (at line 1)\n" + 
+				"	import org.eclipse.jdt.annotation.*;\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The import org.eclipse.jdt.annotation is never used\n" + 
+				"----------\n" + 
+				"2. ERROR in Y.java (at line 4)\n" + 
+				"	x.f = null;\n" + 
+				"	      ^^^^\n" + 
+				"Null type mismatch: required \'@NonNull String @NonNull[] @Nullable[]\' but the provided value is null\n" + 
+				"----------\n" + 
+				"3. ERROR in Y.java (at line 6)\n" + 
+				"	x.f[0][0] = null;\n" + 
+				"	^^^^^^\n" + 
+				"Potential null pointer access: array element may be null\n" + 
+				"----------\n" + 
+				"4. ERROR in Y.java (at line 6)\n" + 
+				"	x.f[0][0] = null;\n" + 
+				"	^^^^^^^^^\n" + 
+				"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+				"----------\n");
+	}
+	
 	public void testConditional1() {
 		runNegativeTestWithLibs(
 			new String[] {

@@ -32,20 +32,13 @@ public class QualifiedTypeReference extends TypeReference {
 		this.sourceEnd = (int)(this.sourcePositions[this.sourcePositions.length-1] & 0x00000000FFFFFFFFL ) ;
 	}
 
-	public TypeReference copyDims(int dim){
-		//return a type reference copy of me with some dimensions
-		//warning : the new type ref has a null binding
-		return new ArrayQualifiedTypeReference(this.tokens, dim, this.sourcePositions);
-	}
-	
-	public TypeReference copyDims(int dim, Annotation[][] annotationsOnDimensions) {
-		//return a type reference copy of me with some dimensions
-		//warning : the new type ref has a null binding
-		ArrayQualifiedTypeReference arrayQualifiedTypeReference = new ArrayQualifiedTypeReference(this.tokens, dim, annotationsOnDimensions, this.sourcePositions);
+	public TypeReference augmentTypeWithAdditionalDimensions(int additionalDimensions, Annotation[][] additionalAnnotations, boolean isVarargs) {
+		int totalDimensions = this.dimensions() + additionalDimensions;
+		Annotation [][] allAnnotations = getMergedAnnotationsOnDimensions(additionalDimensions, additionalAnnotations);
+		ArrayQualifiedTypeReference arrayQualifiedTypeReference = new ArrayQualifiedTypeReference(this.tokens, totalDimensions, allAnnotations, this.sourcePositions);
 		arrayQualifiedTypeReference.bits |= (this.bits & ASTNode.HasTypeAnnotations);
-		if (annotationsOnDimensions != null) {
-			arrayQualifiedTypeReference.bits |= ASTNode.HasTypeAnnotations;
-		}
+		if (!isVarargs)
+			arrayQualifiedTypeReference.extendedDimensions = additionalDimensions;
 		return arrayQualifiedTypeReference;
 	}
 

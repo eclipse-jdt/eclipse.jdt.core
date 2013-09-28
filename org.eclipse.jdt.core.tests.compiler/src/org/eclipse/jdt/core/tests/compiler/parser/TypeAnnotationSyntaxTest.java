@@ -577,7 +577,7 @@ public void test0018() throws IOException {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<String, Object>[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) {\n" + 
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<String, Object>[] @Normal(Value = 10) [][][] @SingleMember(10) [][] args) {\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0018", expectedUnitToString);
@@ -592,7 +592,7 @@ public void test0019() throws IOException {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<String, Object>.Iterator[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) {\n" + 
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<String, Object>.Iterator[] @Normal(Value = 10) [][][] @SingleMember(10) [][] args) {\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0019", expectedUnitToString);
@@ -1123,7 +1123,7 @@ public void test0048() throws IOException {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty [][] foo() {\n" + 
+		"  public @Marker HashMap<@Positive Integer, @Negative Integer> @NonEmpty [][][] foo() {\n" + 
 		"    return null;\n" + 
 		"  }\n" + 
 		"  public HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty [][] bar() {\n" + 
@@ -1143,7 +1143,7 @@ public void test0049() throws IOException {
 		"  public A() {\n" + 
 		"    super();\n" + 
 		"  }\n" + 
-		"  public @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][] foo() {\n" + 
+		"  public @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator @NonEmpty [][][] foo() {\n" + 
 		"    return null;\n" + 
 		"  }\n" + 
 		"  public HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][] bar() {\n" + 
@@ -1286,8 +1286,8 @@ public void test0056() throws IOException {
 		"    super();\n" + 
 		"  }\n" + 
 		"  public void foo() {\n" + 
-		"    @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonNull [] @NonEmpty [][] p;\n" + 
-		"    HashMap<@Positive Integer, @Negative Integer>[] @NonNull [] @NonEmpty [][] q;\n" + 
+		"    @Marker HashMap<@Positive Integer, @Negative Integer> @NonEmpty [][][] @NonNull [] p;\n" + 
+		"    HashMap<@Positive Integer, @Negative Integer> @NonEmpty [][][] @NonNull [] q;\n" + 
 		"  }\n" + 
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0056", expectedUnitToString);
@@ -1306,7 +1306,7 @@ public void test0057() throws IOException {
 		"    super();\n" + 
 		"  }\n" + 
 		"  public void foo() {\n" + 
-		"    @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull [] @NonEmpty [][] p;\n" + 
+		"    @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator @NonEmpty [][][] @NonNull [] p;\n" + 
 		"    HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull [] @NonEmpty [][] q;\n" + 
 		"  }\n" + 
 		"}\n";

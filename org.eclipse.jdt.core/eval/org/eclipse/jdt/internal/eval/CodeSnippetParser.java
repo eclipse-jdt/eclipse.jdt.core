@@ -318,7 +318,7 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 			}
 			int dimCount = CharOperation.occurencesOf('[', this.evaluationContext.localVariableTypeNames[i]);
 			if (dimCount > 0) {
-				typeReference = copyDims(typeReference, dimCount);
+				typeReference = augmentTypeWithAdditionalDimensions(typeReference, dimCount, null, false);
 			}
 			NameReference init = new SingleNameReference(
 									CharOperation.concat(LOCAL_VAR_PREFIX, this.evaluationContext.localVariableNames[i]), position);

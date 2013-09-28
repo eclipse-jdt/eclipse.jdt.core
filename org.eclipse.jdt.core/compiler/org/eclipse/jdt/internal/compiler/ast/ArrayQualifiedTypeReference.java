@@ -21,7 +21,8 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 	int dimensions;
-	Annotation[][] annotationsOnDimensions;  // jsr308 style type annotations on dimensions
+	private Annotation[][] annotationsOnDimensions;  // jsr308 style type annotations on dimensions
+	public int extendedDimensions;
 
 	public ArrayQualifiedTypeReference(char[][] sources , int dim, long[] poss) {
 
@@ -42,8 +43,17 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 		return this.dimensions;
 	}
 	
-	public Annotation[][] getAnnotationsOnDimensions() {
-		return this.annotationsOnDimensions;
+	/**
+	 @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getAnnotationsOnDimensions(boolean)
+	*/
+	public Annotation[][] getAnnotationsOnDimensions(boolean useSourceOrder) {
+		if (useSourceOrder || this.annotationsOnDimensions == null || this.annotationsOnDimensions.length == 0 || this.extendedDimensions == 0 || this.extendedDimensions == this.dimensions)
+			return this.annotationsOnDimensions;
+		Annotation [][] externalAnnotations = new Annotation[this.dimensions][];
+		final int baseDimensions = this.dimensions - this.extendedDimensions;
+		System.arraycopy(this.annotationsOnDimensions, baseDimensions, externalAnnotations, 0, this.extendedDimensions);
+		System.arraycopy(this.annotationsOnDimensions, 0, externalAnnotations, this.extendedDimensions, baseDimensions);
+		return externalAnnotations;
 	}
 	
 	public void setAnnotationsOnDimensions(Annotation [][] annotationsOnDimensions) {

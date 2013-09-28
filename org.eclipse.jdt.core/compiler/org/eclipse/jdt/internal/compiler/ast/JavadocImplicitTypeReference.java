@@ -28,14 +28,8 @@ public class JavadocImplicitTypeReference extends TypeReference {
 		this.sourceStart = pos;
 		this.sourceEnd = pos;
 	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#copyDims(int)
-	 */
-	public TypeReference copyDims(int dim) {
-		return null;
-	}
 	
-	public TypeReference copyDims(int dim, Annotation[][] annotationsOnDimensions) {
+	public TypeReference augmentTypeWithAdditionalDimensions(int additionalDimensions, Annotation[][] additionalAnnotations, boolean isVarargs) {
 		return null;
 	}
 

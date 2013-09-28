@@ -347,11 +347,39 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 public void checkBounds(Scope scope) {
 	// only parameterized type references have bounds
 }
-public abstract TypeReference copyDims(int dim);
-public abstract TypeReference copyDims(int dim, Annotation[][] annotationsOnDimensions);
+public abstract TypeReference augmentTypeWithAdditionalDimensions(int additionalDimensions, Annotation[][] additionalAnnotations, boolean isVarargs);
+
+protected Annotation[][] getMergedAnnotationsOnDimensions(int additionalDimensions, Annotation[][] additionalAnnotations) {
+	/* Note, we actually concatenate the additional annotations after base annotations, in bindings, they should appear before base annotations.
+	   Given @English int @Nullable [] x @NonNull []; the type x is a @NonNull arrays of of @Nullable arrays of @English Strings, not the other
+	   way about. Changing this in the compiler AST representation will cause too many ripples, so we leave it as is. On the bindings, the type
+	   will reflect rotated (i.e will reflect correctly). See AnnotatableTypeSystem.flattenedAnnotations
+	*/
+	Annotation[][] annotationsOnDimensions = this.getAnnotationsOnDimensions(true);
+	int dimensions = this.dimensions();
+	
+	if (annotationsOnDimensions == null && additionalAnnotations == null)
+		return null;
+
+	final int totalDimensions = dimensions + additionalDimensions;
+	Annotation [][] mergedAnnotations = new Annotation[totalDimensions][];
+	if (annotationsOnDimensions != null) {
+		for (int i = 0; i < dimensions; i++) {
+			mergedAnnotations[i] = annotationsOnDimensions[i];
+		} 
+	}
+	if (additionalAnnotations != null) {
+		for (int i = dimensions, j = 0; i < totalDimensions; i++, j++) {
+			mergedAnnotations[i] = additionalAnnotations[j];
+		}
+	}
+	return mergedAnnotations;
+}
+
 public int dimensions() {
 	return 0;
 }
+
 public AnnotationContext[] getAllAnnotationContexts(int targetType) {
 	List allAnnotationContexts = new ArrayList();
 	AnnotationCollector collector = new AnnotationCollector(this, targetType, allAnnotationContexts);
@@ -394,6 +422,19 @@ public void getAllAnnotationContexts(int targetType, List allAnnotationContexts)
 	this.traverse(collector, (BlockScope) null);
 }
 public Annotation[][] getAnnotationsOnDimensions() {
+	return getAnnotationsOnDimensions(false);
+}
+
+/**
+ * @param useSourceOrder if true annotations on dimensions are returned in source order, otherwise they are returned per
+ * how they ought to be interpreted by a type system, or external persistence view. For example, given the following:
+ * int @Nullable [] f @NonNull [] ==> f is really a @NonNull array of @Nullable arrays of ints. This is the type system
+ * view since extended dimensions bind more readily than type components that precede the identifier. This is how it ought
+ * to be encoded in bindings and how it ought to be persisted in class files. However for DOM/AST construction, we need the
+ * dimensions in source order, so we provide a way for the clients to ask what they want. 
+ * 
+ */
+public Annotation[][] getAnnotationsOnDimensions(boolean useSourceOrder) {
 	return null;
 }
 

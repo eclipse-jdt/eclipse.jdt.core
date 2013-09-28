@@ -743,16 +743,8 @@ protected void consumeWildcardBoundsSuper() {
 	}
 }
 
-protected TypeReference copyDims(TypeReference typeRef, int dim) {
-	TypeReference result = super.copyDims(typeRef, dim);
-	 if (this.nodeSet.removePossibleMatch(typeRef) != null)
-		this.nodeSet.addPossibleMatch(result);
-	 else if (this.nodeSet.removeTrustedMatch(typeRef) != null)
-		this.nodeSet.addTrustedMatch(result, true);
-	return result;
-}
-protected TypeReference copyDims(TypeReference typeRef, int dim, Annotation [][] annotationsOnDimensions) {
-	TypeReference result = super.copyDims(typeRef, dim, annotationsOnDimensions);
+protected TypeReference augmentTypeWithAdditionalDimensions(TypeReference typeRef, int additionalDimensions, Annotation [][] additionalAnnotations, boolean isVarargs) {
+	TypeReference result = super.augmentTypeWithAdditionalDimensions(typeRef, additionalDimensions, additionalAnnotations, isVarargs);
 	 if (this.nodeSet.removePossibleMatch(typeRef) != null)
 		this.nodeSet.addPossibleMatch(result);
 	 else if (this.nodeSet.removeTrustedMatch(typeRef) != null)

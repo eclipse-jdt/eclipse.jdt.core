@@ -68,7 +68,7 @@ public abstract class Annotation extends Expression {
 			public boolean visit(ParameterizedSingleTypeReference typeReference, BlockScope scope) {
 				if (!this.search) return false;
 								
-				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
+				Annotation[][] annotationsOnDimensions = typeReference.getAnnotationsOnDimensions();
 				if (annotationsOnDimensions != null) {
 					for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
 						Annotation[] annotations = annotationsOnDimensions[i];
@@ -195,7 +195,7 @@ public abstract class Annotation extends Expression {
 			public boolean visit(ArrayTypeReference typeReference, BlockScope scope) {
 				if (!this.search) return false;
 				
-				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
+				Annotation[][] annotationsOnDimensions = typeReference.getAnnotationsOnDimensions();
 				if (annotationsOnDimensions != null) {
 					for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
 						Annotation[] annotations = annotationsOnDimensions[i];
@@ -237,7 +237,7 @@ public abstract class Annotation extends Expression {
 			
 			public boolean visit(ArrayQualifiedTypeReference typeReference, BlockScope scope) {
 				if (!this.search) return false;
-				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
+				Annotation[][] annotationsOnDimensions = typeReference.getAnnotationsOnDimensions();
 				if (annotationsOnDimensions != null) {
 					for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
 						Annotation[] annotations = annotationsOnDimensions[i];
@@ -301,7 +301,7 @@ public abstract class Annotation extends Expression {
 				if (!this.search) return false;
 				
 				// Example case handled by this block: java.util.List<String>[]@A[]
-				Annotation[][] annotationsOnDimensions = typeReference.annotationsOnDimensions;
+				Annotation[][] annotationsOnDimensions = typeReference.getAnnotationsOnDimensions();
 				if (annotationsOnDimensions != null) {
 					for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
 						Annotation[] annotations = annotationsOnDimensions[i];

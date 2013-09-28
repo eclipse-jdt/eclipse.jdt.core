@@ -1604,6 +1604,8 @@ class DefaultBindingResolver extends BindingResolver {
 					ArrayType arrayType = (ArrayType) type;
 					ArrayBinding arrayBinding = (ArrayBinding) typeBinding;
 					int dimensions = arrayType.getDimensions();
+					if (dimensions == arrayBinding.dimensions)
+						return getTypeBinding(arrayBinding);
 					return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, dimensions, getTypeAnnotations(dimensions, arrayBinding)));
 				}
 				if (typeBinding.isArrayType()) {
@@ -1654,6 +1656,8 @@ class DefaultBindingResolver extends BindingResolver {
 					}
 					ArrayBinding arrayBinding = (ArrayBinding) binding;
 					int dimensions = arrayType.getDimensions();
+					if (dimensions == arrayBinding.dimensions)
+						return getTypeBinding(arrayBinding);
 					return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, dimensions, getTypeAnnotations(dimensions, arrayBinding)));
 				} else if (binding.isArrayType()) {
 					// 'binding' can still be an array type because 'node' may be "larger" than 'type' (see comment of newAstToOldAst).
@@ -1673,15 +1677,19 @@ class DefaultBindingResolver extends BindingResolver {
 		return null;
 	}
 
-	private org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] getTypeAnnotations(int dimensions, ArrayBinding binding) {
-		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding [] oldies = binding.getTypeAnnotations();
+	private org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] getTypeAnnotations(int dimensions, ArrayBinding arrayBinding) {
+		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding [] oldies = arrayBinding.getTypeAnnotations();
 		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] newbies = Binding.NO_ANNOTATIONS;
+		// Skip past extended dimensions encoded ahead of base dimensions.
+		int extendedDimensions = arrayBinding.dimensions - dimensions;
+		if (extendedDimensions <= 0)
+			return oldies;
 		for (int i = 0, length = oldies == null ? 0 : oldies.length; i < length; i++) {
 			if (oldies[i] == null) {
-				dimensions--;
-				if (dimensions == 0) {
-					System.arraycopy(oldies, 0, newbies = 
-							new org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[i+1], 0, i+1);
+				extendedDimensions--;
+				if (extendedDimensions == 0) {
+					int cells = oldies.length - ++i;
+					System.arraycopy(oldies, i, newbies = new org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[cells], 0, cells);
 					break;
 				}
 			}

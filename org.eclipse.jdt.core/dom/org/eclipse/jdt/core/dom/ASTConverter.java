@@ -3382,7 +3382,7 @@ class ASTConverter {
 
 	protected void setExtraAnnotatedDimensions(int start, int end, TypeReference type, final List extraAnnotatedDimensions, int extraDimension) {
 		if (extraDimension > 0) {
-			org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDims = type.getAnnotationsOnDimensions();
+			org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDims = type.getAnnotationsOnDimensions(true);
 			int length = (annotationsOnDims == null) ? 0 : annotationsOnDims.length;
 			for (int i = (length - extraDimension); i < length; i++) {
 				ExtraDimension dim = convertToExtraDimensions(start, end, (annotationsOnDims == null) ? null : annotationsOnDims[i]);
@@ -3611,7 +3611,7 @@ class ASTConverter {
 				}
 			}
 			if (dimensions != 0) {
-				type = convertToArray(type, sourceStart, length, dimensions, typeReference.getAnnotationsOnDimensions());
+				type = convertToArray(type, sourceStart, length, dimensions, typeReference.getAnnotationsOnDimensions(true));
 				if (this.resolveBindings) {
 					// store keys for inner types
 					completeRecord((ArrayType) type, typeReference);
@@ -3863,7 +3863,7 @@ class ASTConverter {
 
 			length = typeReference.sourceEnd - sourceStart + 1;
 			if (dimensions != 0) {
-				type = convertToArray(type, sourceStart, -1, dimensions, typeReference.getAnnotationsOnDimensions());
+				type = convertToArray(type, sourceStart, -1, dimensions, typeReference.getAnnotationsOnDimensions(true));
 				if (this.resolveBindings) {
 					completeRecord((ArrayType) type, typeReference);
 				}
