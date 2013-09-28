@@ -526,6 +526,9 @@ public boolean isWildcard() {
 public boolean isUnionType() {
 	return false;
 }
+public boolean isVarargs() {
+	return (this.bits & ASTNode.IsVarArgs) != 0;
+}
 public boolean isParameterizedTypeReference() {
 	return false;
 }

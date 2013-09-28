@@ -1604,9 +1604,10 @@ class DefaultBindingResolver extends BindingResolver {
 					ArrayType arrayType = (ArrayType) type;
 					ArrayBinding arrayBinding = (ArrayBinding) typeBinding;
 					int dimensions = arrayType.getDimensions();
+					boolean isVarargs = typeReference.isVarargs();
 					if (dimensions == arrayBinding.dimensions)
-						return getTypeBinding(arrayBinding);
-					return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, dimensions, getTypeAnnotations(dimensions, arrayBinding)));
+						return getTypeBinding(arrayBinding); // reuse.
+					return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, dimensions, getTypeAnnotations(dimensions, arrayBinding, isVarargs)));
 				}
 				if (typeBinding.isArrayType()) {
 					// 'typeBinding' can still be an array type because 'node' may be "larger" than 'type' (see comment of newAstToOldAst).
@@ -1656,9 +1657,10 @@ class DefaultBindingResolver extends BindingResolver {
 					}
 					ArrayBinding arrayBinding = (ArrayBinding) binding;
 					int dimensions = arrayType.getDimensions();
+					boolean isVarargs = node instanceof TypeReference && ((TypeReference) node).isVarargs();
 					if (dimensions == arrayBinding.dimensions)
-						return getTypeBinding(arrayBinding);
-					return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, dimensions, getTypeAnnotations(dimensions, arrayBinding)));
+						return getTypeBinding(arrayBinding); // reuse
+					return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, dimensions, getTypeAnnotations(dimensions, arrayBinding, isVarargs)));
 				} else if (binding.isArrayType()) {
 					// 'binding' can still be an array type because 'node' may be "larger" than 'type' (see comment of newAstToOldAst).
 					ArrayBinding arrayBinding = (ArrayBinding) binding;
@@ -1677,13 +1679,13 @@ class DefaultBindingResolver extends BindingResolver {
 		return null;
 	}
 
-	private org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] getTypeAnnotations(int dimensions, ArrayBinding arrayBinding) {
+	private org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] getTypeAnnotations(int dimensions, ArrayBinding arrayBinding, boolean isVarargs) {
 		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding [] oldies = arrayBinding.getTypeAnnotations();
 		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] newbies = Binding.NO_ANNOTATIONS;
-		// Skip past extended dimensions encoded ahead of base dimensions.
-		int extendedDimensions = arrayBinding.dimensions - dimensions;
+		// Skip past extended dimensions encoded ahead of base dimensions. Dimension for variable argument array comes after the base dimensions.
+		int extendedDimensions = arrayBinding.dimensions - dimensions - (isVarargs ? 1 : 0);
 		if (extendedDimensions <= 0)
-			return oldies;
+			return oldies; // if isVarargs, we will return extra trailing annotations, but that should be harmless.
 		for (int i = 0, length = oldies == null ? 0 : oldies.length; i < length; i++) {
 			if (oldies[i] == null) {
 				extendedDimensions--;
@@ -1694,7 +1696,7 @@ class DefaultBindingResolver extends BindingResolver {
 				}
 			}
 		}
-		return newbies;
+		return newbies; // if isVarargs, we will return extra trailing annotations, but that should be harmless.
 	}
 
 	/*

@@ -207,8 +207,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		verifyAnnotationOnType(param.getType(), new String[]{"@Marker()"});
 	}
 
-	// FIXME(Srikanth)
-	public void _test005() throws Exception {
+	public void test005() throws Exception {
 			String contents = 
 				"public class X {\n" +
 						"    int x(@Marker int @Marker2 [] @Marker3 ... p) { return 10; };\n" +
