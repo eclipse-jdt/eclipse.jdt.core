@@ -3883,4 +3883,157 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Type annotations are not allowed on type names used to access static members\n" +
 				"----------\n");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418041, NPE during AST creation.
+	public void test418041() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.lang.annotation.ElementType;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"import java.util.List;\n" +
+					"@Target(ElementType.TYPE_USE)\n" +
+					"@interface Readonly {\n" +
+					"}\n" +
+					"class UnmodifiableList<T> implements\n" +
+					"@Readonly List<@Readonly T> { }\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.addAll(int, Collection<? extends T>)\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.addAll(Collection<? extends T>)\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.lastIndexOf(Object)\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.subList(int, int)\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.contains(Object)\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.get(int)\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.retainAll(Collection<?>)\n" + 
+				"----------\n" + 
+				"8. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.clear()\n" + 
+				"----------\n" + 
+				"9. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.indexOf(Object)\n" + 
+				"----------\n" + 
+				"10. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.toArray(T[])\n" + 
+				"----------\n" + 
+				"11. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.toArray()\n" + 
+				"----------\n" + 
+				"12. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.isEmpty()\n" + 
+				"----------\n" + 
+				"13. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.listIterator(int)\n" + 
+				"----------\n" + 
+				"14. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.listIterator()\n" + 
+				"----------\n" + 
+				"15. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.add(int, T)\n" + 
+				"----------\n" + 
+				"16. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.add(T)\n" + 
+				"----------\n" + 
+				"17. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.set(int, T)\n" + 
+				"----------\n" + 
+				"18. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.size()\n" + 
+				"----------\n" + 
+				"19. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.containsAll(Collection<?>)\n" + 
+				"----------\n" + 
+				"20. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.remove(int)\n" + 
+				"----------\n" + 
+				"21. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.remove(Object)\n" + 
+				"----------\n" + 
+				"22. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.removeAll(Collection<?>)\n" + 
+				"----------\n" + 
+				"23. ERROR in X.java (at line 7)\n" + 
+				"	class UnmodifiableList<T> implements\n" + 
+				"	      ^^^^^^^^^^^^^^^^\n" + 
+				"The type UnmodifiableList<T> must implement the inherited abstract method List<T>.iterator()\n" + 
+				"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418041, NPE during AST creation.
+	public void test418041a() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X <@Marker T extends @Marker Y<@Marker ?>, @Marker Q extends @Marker Integer> {\n" +
+					"}\n" +
+					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@interface Marker {}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 1)\n" + 
+				"	public class X <@Marker T extends @Marker Y<@Marker ?>, @Marker Q extends @Marker Integer> {\n" + 
+				"	                                  ^^^^^^^^^\n" + 
+				"Y cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 1)\n" + 
+				"	public class X <@Marker T extends @Marker Y<@Marker ?>, @Marker Q extends @Marker Integer> {\n" + 
+				"	                                                                          ^^^^^^^^^^^^^^^\n" + 
+				"The type parameter Q should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
+				"----------\n");
+	}
 }

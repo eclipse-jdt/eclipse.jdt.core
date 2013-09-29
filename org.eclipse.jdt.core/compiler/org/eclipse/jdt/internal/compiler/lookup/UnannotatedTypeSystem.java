@@ -50,7 +50,7 @@ public class UnannotatedTypeSystem extends TypeSystem {
 
 	public TypeBinding getUnannotatedType(TypeBinding type) {
 		if (type.id == TypeIds.NoId) {
-			if (type.hasTypeAnnotations() && !type.isTypeVariable())
+			if (type.hasTypeAnnotations())
 				throw new IllegalStateException();
 			int typesLength = this.types.length;
 			if (this.typeid == typesLength)

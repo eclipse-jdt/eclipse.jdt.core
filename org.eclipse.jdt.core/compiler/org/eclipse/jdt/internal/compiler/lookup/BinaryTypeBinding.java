@@ -1188,7 +1188,7 @@ private void initializeTypeVariable(TypeVariableBinding variable, TypeVariableBi
 
 	// variable is visible to its bounds
 	variable.modifiers |= ExtraCompilerModifiers.AccUnresolved;
-	variable.superclass = type;
+	variable.setSuperClass(type);
 
 	ReferenceBinding[] bounds = null;
 	if (wrapper.signature[wrapper.start] == Util.C_COLON) {
@@ -1201,11 +1201,11 @@ private void initializeTypeVariable(TypeVariableBinding variable, TypeVariableBi
 		types.toArray(bounds);
 	}
 
-	variable.superInterfaces = bounds == null ? Binding.NO_SUPERINTERFACES : bounds;
+	variable.setSuperInterfaces(bounds == null ? Binding.NO_SUPERINTERFACES : bounds);
 	if (firstBound == null) {
 		firstBound = variable.superInterfaces.length == 0 ? null : variable.superInterfaces[0];
 	}
-	variable.firstBound = firstBound;
+	variable.setFirstBound(firstBound);
 }
 /**
  * Returns true if a type is identical to another one,

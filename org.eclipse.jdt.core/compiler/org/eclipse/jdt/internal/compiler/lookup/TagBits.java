@@ -178,4 +178,5 @@ public interface TagBits {
 
 	// set when type contains non-private constructor(s)
 	long HasNonPrivateConstructor = ASTNode.Bit61L;
+	long HasAnnotatedVariants = ASTNode.Bit61L; // TVB only, which cannot have constructors, so no clash with HasNonPrivateConstructor.
 }

@@ -720,10 +720,10 @@ public abstract class Scope {
 			TypeVariableBinding typeVariable = typeParameter.binding;
 			if (typeVariable == null) return false;
 
-			typeVariable.superclass = getJavaLangObject();
-			typeVariable.superInterfaces = Binding.NO_SUPERINTERFACES;
+			typeVariable.setSuperClass(getJavaLangObject());
+			typeVariable.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
 			// set firstBound to the binding of the first explicit bound in parameter declaration
-			typeVariable.firstBound = null; // first bound used to compute erasure
+			typeVariable.setFirstBound(null); // first bound used to compute erasure
 		}
 		nextVariable: for (int i = 0; i < paramLength; i++) {
 			TypeParameter typeParameter = typeParameters[i];
@@ -782,12 +782,12 @@ public abstract class Scope {
 					}
 					ReferenceBinding superRefType = (ReferenceBinding) superType;
 					if (!superType.isInterface()) {
-						typeVariable.superclass = superRefType;
+						typeVariable.setSuperClass(superRefType);
 					} else {
-						typeVariable.superInterfaces = new ReferenceBinding[] {superRefType};
+						typeVariable.setSuperInterfaces(new ReferenceBinding[] {superRefType});
 					}
 					typeVariable.tagBits |= superType.tagBits & TagBits.ContainsNestedTypeReferences;
-					typeVariable.firstBound = superRefType; // first bound used to compute erasure
+					typeVariable.setFirstBound(superRefType); // first bound used to compute erasure
 				}
 			}
 			TypeReference[] boundRefs = typeParameter.bounds;
@@ -845,7 +845,7 @@ public abstract class Scope {
 							}
 						}
 						int size = typeVariable.superInterfaces.length;
-						System.arraycopy(typeVariable.superInterfaces, 0, typeVariable.superInterfaces = new ReferenceBinding[size + 1], 0, size);
+						System.arraycopy(typeVariable.superInterfaces, 0, typeVariable.setSuperInterfaces(new ReferenceBinding[size + 1]), 0, size);
 						typeVariable.superInterfaces[size] = superRefType;
 					}
 				}
@@ -4416,25 +4416,27 @@ public abstract class Scope {
 					TypeBinding substitutedSuperclass = Scope.substitute(substitution, originalVariable.superclass);
 					ReferenceBinding[] substitutedInterfaces = Scope.substitute(substitution, originalVariable.superInterfaces);
 					if (originalVariable.firstBound != null) {
-						substitutedVariable.firstBound = originalVariable.firstBound == originalVariable.superclass
+						TypeBinding firstBound;
+						firstBound = originalVariable.firstBound == originalVariable.superclass
 								? substitutedSuperclass // could be array type or interface
 										: substitutedInterfaces[0];
+						substitutedVariable.setFirstBound(firstBound);
 					}
 					switch (substitutedSuperclass.kind()) {
 						case Binding.ARRAY_TYPE :
-							substitutedVariable.superclass = environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null);
-							substitutedVariable.superInterfaces = substitutedInterfaces;
+							substitutedVariable.setSuperClass(environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null));
+							substitutedVariable.setSuperInterfaces(substitutedInterfaces);
 							break;
 						default:
 							if (substitutedSuperclass.isInterface()) {
-								substitutedVariable.superclass = environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null);
+								substitutedVariable.setSuperClass(environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null));
 								int interfaceCount = substitutedInterfaces.length;
 								System.arraycopy(substitutedInterfaces, 0, substitutedInterfaces = new ReferenceBinding[interfaceCount+1], 1, interfaceCount);
 								substitutedInterfaces[0] = (ReferenceBinding) substitutedSuperclass;
-								substitutedVariable.superInterfaces = substitutedInterfaces;
+								substitutedVariable.setSuperInterfaces(substitutedInterfaces);
 							} else {
-								substitutedVariable.superclass = (ReferenceBinding) substitutedSuperclass; // typeVar was extending other typeVar which got substituted with interface
-								substitutedVariable.superInterfaces = substitutedInterfaces;
+								substitutedVariable.setSuperClass((ReferenceBinding) substitutedSuperclass); // typeVar was extending other typeVar which got substituted with interface
+								substitutedVariable.setSuperInterfaces(substitutedInterfaces);
 							}
 					}
 				}

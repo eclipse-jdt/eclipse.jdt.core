@@ -975,8 +975,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	// TypeParameter ::= TypeParameterHeader 'extends' ReferenceType AdditionalBoundList
 	// AdditionalBound ::= '&' ReferenceType
 	// TypeParameter1 ::= TypeParameterHeader 'extends' ReferenceType AdditionalBoundList1
-	// TODO(Srikanth): fix and re-enable test.
-	public void _test023() throws Exception {
+	public void test023() throws Exception {
 		this.runNegativeTest(
 				new String[] {
 					"I.java",

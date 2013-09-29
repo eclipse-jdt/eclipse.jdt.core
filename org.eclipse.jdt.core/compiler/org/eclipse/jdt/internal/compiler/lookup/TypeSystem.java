@@ -56,4 +56,9 @@ public abstract class TypeSystem {
 	public abstract void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType);
 
 	public abstract TypeBinding getUnannotatedType(TypeBinding type);
+
+	// Given a type, return all its variously annotated versions.
+	public TypeBinding[] getAnnotatedTypes(TypeBinding type) {
+		return Binding.NO_TYPES;
+	}
 }

@@ -45,6 +45,34 @@ public class AnnotatableTypeSystem extends TypeSystem {
 		return this.unannotatedTypeSystem.getUnannotatedType(type);
 	}
 	
+	// Given a type, return all its variously annotated versions.
+	public TypeBinding[] getAnnotatedTypes(TypeBinding type) {
+		
+		TypeBinding keyType = getUnannotatedType(type);
+		TypeBinding[] cachedInfo = (TypeBinding[]) this.annotatedTypes.get(keyType);
+		if (cachedInfo == null)
+			return Binding.NO_TYPES;
+		
+		final int length = cachedInfo.length;
+		TypeBinding [] annotatedVersions = new TypeBinding[length];
+		int versions = 0;
+		for (int i = 0; i < length; i++) {
+			final TypeBinding cachedType = cachedInfo[i];
+			if (cachedType == null)
+				break;
+			if (cachedType.id == type.id)
+				annotatedVersions[versions++] = cachedType;
+		}
+		
+		if (versions == 0)
+			return Binding.NO_TYPES;
+		
+		if (versions != length)
+			System.arraycopy(annotatedVersions, 0, annotatedVersions = new TypeBinding[versions], 0, versions);
+			
+		return annotatedVersions;
+	}
+	
 	public ArrayBinding getArrayType(TypeBinding leaftType, int dimensions) {
 		return getArrayType(leaftType, dimensions, Binding.NO_ANNOTATIONS);
 	}

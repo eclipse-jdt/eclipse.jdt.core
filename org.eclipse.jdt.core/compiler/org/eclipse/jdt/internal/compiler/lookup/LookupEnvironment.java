@@ -1581,4 +1581,9 @@ public void addResolutionListener(IQualifiedTypeResolutionListener resolutionLis
 public TypeBinding getUnannotatedType(TypeBinding typeBinding) {
 	return this.typeSystem.getUnannotatedType(typeBinding);
 }
+
+// Given a type, return all its variously annotated versions.
+public TypeBinding[] getAnnotatedTypes(TypeBinding type) {
+	return this.typeSystem.getAnnotatedTypes(type);
+}
 }

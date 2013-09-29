@@ -93,7 +93,6 @@ public TypeBinding() {
 public TypeBinding(TypeBinding prototype) {  // faithfully copy all instance state - clone operation should specialize/override suitably.
 	this.id = prototype.id;
 	this.tagBits = prototype.tagBits;
-	this.typeAnnotations = prototype.typeAnnotations;
 }
 
 /**

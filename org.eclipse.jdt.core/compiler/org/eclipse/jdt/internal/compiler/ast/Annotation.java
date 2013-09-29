@@ -403,9 +403,10 @@ public abstract class Annotation extends Expression {
 					}
 				}
 
-				TypeReference bound = typeReference.bound;
 				this.typePathEntries.push(TYPE_PATH_ANNOTATION_ON_WILDCARD_BOUND);
-				bound.traverse(this, scope);
+				TypeReference bound = typeReference.bound;
+				if (bound != null)
+					bound.traverse(this, scope);
 				if (!this.search) {
 					return false;
 				}
