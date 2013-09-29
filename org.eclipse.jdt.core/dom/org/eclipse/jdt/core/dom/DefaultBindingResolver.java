@@ -1684,19 +1684,20 @@ class DefaultBindingResolver extends BindingResolver {
 		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] newbies = Binding.NO_ANNOTATIONS;
 		// Skip past extended dimensions encoded ahead of base dimensions. Dimension for variable argument array comes after the base dimensions.
 		int extendedDimensions = arrayBinding.dimensions - dimensions - (isVarargs ? 1 : 0);
-		if (extendedDimensions <= 0)
-			return oldies; // if isVarargs, we will return extra trailing annotations, but that should be harmless.
-		for (int i = 0, length = oldies == null ? 0 : oldies.length; i < length; i++) {
-			if (oldies[i] == null) {
+		int i, length;
+		for (i = 0, length = oldies == null ? 0 : oldies.length; i < length && extendedDimensions > 0 ; i++) {
+			if (oldies[i] == null)
 				extendedDimensions--;
-				if (extendedDimensions == 0) {
-					int cells = oldies.length - ++i;
-					System.arraycopy(oldies, i, newbies = new org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[cells], 0, cells);
-					break;
-				}
-			}
 		}
-		return newbies; // if isVarargs, we will return extra trailing annotations, but that should be harmless.
+		int cells = 0;
+		for (int j = i; j < length && dimensions > 0 ; j++) {
+			if (oldies[j] == null)
+				dimensions--;
+			cells ++;
+		}
+		if (cells > 0)
+			System.arraycopy(oldies, i, newbies = new org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[cells], 0, cells);
+		return newbies;
 	}
 
 	/*
