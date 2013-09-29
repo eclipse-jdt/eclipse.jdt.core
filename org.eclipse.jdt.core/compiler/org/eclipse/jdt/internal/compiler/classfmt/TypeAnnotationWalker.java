@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.compiler.classfmt;
 
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
-import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 
 /**
@@ -36,12 +35,13 @@ public class TypeAnnotationWalker {
 	 * At the end of any walk an empty array of annotations is returned.
 	 */
 	public static final TypeAnnotationWalker EMPTY_ANNOTATION_WALKER = new TypeAnnotationWalker(new IBinaryTypeAnnotation[0], 0L) {
+		public TypeAnnotationWalker toField() { return this; }
 		public TypeAnnotationWalker toTarget(int targetType) { return this; }
 		public TypeAnnotationWalker toThrows(int rank) { return this; }
 		public TypeAnnotationWalker toTypeArgument(int rank) { return this; }
 		public TypeAnnotationWalker toMethodParameter(short index) { return this; }
 		public TypeAnnotationWalker toSupertype(short index) { return this; }
-		public TypeAnnotationWalker toTypeBarameterBounds(boolean isClassTypeParameter, int parameterRank) { return this; }
+		public TypeAnnotationWalker toTypeParameterBounds(boolean isClassTypeParameter, int parameterRank) { return this; }
 		public TypeAnnotationWalker toTypeBound(short boundIndex) { return this; }
 		public TypeAnnotationWalker toTypeParameter(boolean isClassTypeParameter, int rank) { return this; }
 		public TypeAnnotationWalker toNextDetail(int detailKind) { return this; }
@@ -53,7 +53,7 @@ public class TypeAnnotationWalker {
 	final private int pathPtr;							// pointer into the typePath
 
 	// precondition: not-empty typeAnnotations
-	private TypeAnnotationWalker(IBinaryTypeAnnotation[] typeAnnotations) {
+	public TypeAnnotationWalker(IBinaryTypeAnnotation[] typeAnnotations) {
 		this(typeAnnotations, -1L >>> (64-typeAnnotations.length)); // initialize so lowest length bits are 1
 	}
 	TypeAnnotationWalker(IBinaryTypeAnnotation[] typeAnnotations, long matchBits) {
@@ -72,19 +72,6 @@ public class TypeAnnotationWalker {
 		return new TypeAnnotationWalker(this.typeAnnotations, newMatches, newPathPtr);
 	}
 
-	/** Answer a walker for the given type annotations initialized to the root of the tree. */
-	public static TypeAnnotationWalker create(IBinaryTypeAnnotation[] typeAnnotations) {
-		if (typeAnnotations == null || typeAnnotations.length == 0)
-			return EMPTY_ANNOTATION_WALKER;
-		return new TypeAnnotationWalker(typeAnnotations);
-	}
-	/** Answer a walker for the type annotations of the given method initialized to the root of the tree. */
-	public static TypeAnnotationWalker create(IBinaryMethod method) {
-		if (method instanceof MethodInfoWithAnnotations)
-			return create(((MethodInfoWithAnnotations) method).getTypeAnnotations());
-		return EMPTY_ANNOTATION_WALKER;
-	}
-	
 	// ==== filter by top-level targetType: ====
 	
 	/** Walk to a field. */
@@ -146,7 +133,7 @@ public class TypeAnnotationWalker {
 	 * @param isClassTypeParameter whether we are looking at a class type parameter (else: method type type parameter)
 	 * @param parameterRank rank of the type parameter.
 	 */
-	public TypeAnnotationWalker toTypeBarameterBounds(boolean isClassTypeParameter, int parameterRank) {
+	public TypeAnnotationWalker toTypeParameterBounds(boolean isClassTypeParameter, int parameterRank) {
 		long newMatches = this.matches;
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
@@ -162,7 +149,7 @@ public class TypeAnnotationWalker {
 		return restrict(newMatches, 0);	
 	}
 	/**
-	 * Detail of {@link #toTypeBarameterBounds(boolean, int)}: walk to the bounds
+	 * Detail of {@link #toTypeParameterBounds(boolean, int)}: walk to the bounds
 	 * of the previously selected type parameter. 
 	 * @param boundIndex
 	 */

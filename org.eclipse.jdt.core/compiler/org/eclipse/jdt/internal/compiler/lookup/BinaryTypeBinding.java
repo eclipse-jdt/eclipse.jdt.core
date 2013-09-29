@@ -366,7 +366,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		   and/or super interfaces in order to be able to detect overriding in the presence
 		   of generics.
 		 */
-		TypeAnnotationWalker walker = sourceLevel >= ClassFileConstants.JDK1_8 ? TypeAnnotationWalker.create(binaryType.getTypeAnnotations()) : TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER;
+		TypeAnnotationWalker walker = getTypeAnnotationWalker(binaryType.getTypeAnnotations());
 		char[] typeSignature = binaryType.getGenericSignature(); // use generic signature even in 1.4
 		this.tagBits |= binaryType.getTagBits();
 		
@@ -479,6 +479,13 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 	}
 }
 
+private TypeAnnotationWalker getTypeAnnotationWalker(IBinaryTypeAnnotation[] annotations) {
+	if (annotations == null || annotations.length == 0)
+		return TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER;
+	
+	return this.environment.usesAnnotatedTypeSystem() ? new TypeAnnotationWalker(annotations) : TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER;
+}
+
 private void createFields(IBinaryField[] iFields, long sourceLevel, char[][][] missingTypeNames) {
 	this.fields = Binding.NO_FIELDS;
 	if (iFields != null) {
@@ -486,13 +493,12 @@ private void createFields(IBinaryField[] iFields, long sourceLevel, char[][][] m
 		if (size > 0) {
 			this.fields = new FieldBinding[size];
 			boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
-			boolean use18specifics = sourceLevel >= ClassFileConstants.JDK1_8;
 			boolean hasRestrictedAccess = hasRestrictedAccess();
 			int firstAnnotatedFieldIndex = -1;
 			for (int i = 0; i < size; i++) {
 				IBinaryField binaryField = iFields[i];
 				char[] fieldSignature = use15specifics ? binaryField.getGenericSignature() : null;
-				TypeAnnotationWalker walker = use18specifics ? TypeAnnotationWalker.create(binaryField.getTypeAnnotations()).toField() : TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER;
+				TypeAnnotationWalker walker = getTypeAnnotationWalker(binaryField.getTypeAnnotations()).toField();
 				TypeBinding type = fieldSignature == null
 					? this.environment.getTypeFromSignature(binaryField.getTypeName(), 0, -1, false, this, missingTypeNames, walker)
 					: this.environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature), Binding.NO_TYPE_VARIABLES, this, missingTypeNames, walker);
@@ -553,7 +559,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 	   variables properly in order to be able to apply substitutions and thus be able to detect
 	   overriding in the presence of generics. Seeing the erased form is not good enough.
 	 */
-	TypeAnnotationWalker walker = sourceLevel >= ClassFileConstants.JDK1_8  ? TypeAnnotationWalker.create(method) : TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER;
+	TypeAnnotationWalker walker = getTypeAnnotationWalker(method.getTypeAnnotations());
 	char[] methodSignature = method.getGenericSignature(); // always use generic signature, even in 1.4
 	if (methodSignature == null) { // no generics
 		char[] methodDescriptor = method.getMethodDescriptor();   // of the form (I[Ljava/jang/String;)V
@@ -821,7 +827,7 @@ private TypeVariableBinding[] createTypeVariables(SignatureWrapper wrapper, bool
 	if (assignVariables)
 		this.typeVariables = result;
 	for (int i = 0; i < rank; i++) {
-		initializeTypeVariable(result[i], result, wrapper, missingTypeNames, walker.toTypeBarameterBounds(isClassTypeParameter, i));
+		initializeTypeVariable(result[i], result, wrapper, missingTypeNames, walker.toTypeParameterBounds(isClassTypeParameter, i));
 	}
 	return result;
 }

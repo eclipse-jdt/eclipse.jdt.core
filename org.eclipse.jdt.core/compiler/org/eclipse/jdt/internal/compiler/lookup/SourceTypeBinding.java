@@ -2058,7 +2058,7 @@ SimpleLookupTable storedAnnotations(boolean forceInitialize) {
 	if (forceInitialize && this.storedAnnotations == null && this.scope != null) { // scope null when no annotation cached, and type got processed fully (159631)
 		this.scope.referenceCompilationUnit().compilationResult.hasAnnotations = true;
 		final CompilerOptions globalOptions = this.scope.environment().globalOptions;
-		if (!globalOptions.storeAnnotations && !globalOptions.isAnnotationBasedNullAnalysisEnabled)
+		if (!globalOptions.storeAnnotations)
 			return null; // not supported during this compile
 		this.storedAnnotations = new SimpleLookupTable(3);
 	}

@@ -132,7 +132,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 		compilerOptions.performMethodsFullRecovery = statementsRecovery;
 		compilerOptions.performStatementsRecovery = statementsRecovery;
 		compilerOptions.parseLiteralExpressionsAsConstants = !creatingAST; /*parse literal expressions as constants only if not creating a DOM AST*/
-		compilerOptions.storeAnnotations = creatingAST; /*store annotations in the bindings if creating a DOM AST*/
+		if (creatingAST)
+			compilerOptions.storeAnnotations = true; /* store annotations in the bindings if creating a DOM AST */
 		return compilerOptions;
 	}
 

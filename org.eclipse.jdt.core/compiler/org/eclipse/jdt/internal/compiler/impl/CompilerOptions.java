@@ -1639,6 +1639,7 @@ public class CompilerOptions {
 			this.isAnnotationBasedNullAnalysisEnabled = ENABLED.equals(optionValue);
 		}
 		if (this.isAnnotationBasedNullAnalysisEnabled) {
+			this.storeAnnotations = true;
 			if ((optionValue = optionsMap.get(OPTION_ReportNullSpecViolation)) != null) {
 				if (ERROR.equals(optionValue)) {
 					this.errorThreshold.set(NullSpecViolation);
@@ -1779,7 +1780,8 @@ public class CompilerOptions {
 				this.storeAnnotations = true; // annotation processing requires annotation to be stored
 			} else if (DISABLED.equals(optionValue)) {
 				this.processAnnotations = false;
-				this.storeAnnotations = false;
+				if (!this.isAnnotationBasedNullAnalysisEnabled)
+					this.storeAnnotations = false;
 			}
 		}
 	}

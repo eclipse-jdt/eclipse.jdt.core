@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -19,7 +23,7 @@ UnresolvedAnnotationBinding(ReferenceBinding type, ElementValuePair[] pairs, Loo
 	this.env = env;
 }
 
-public ReferenceBinding getAnnotationType() {
+public void resolve() { // in place resolution.
 	if (this.typeUnresolved) { // the type is resolved when requested
 		boolean wasToleratingMissingTypeProcessingAnnotations = this.env.mayTolerateMissingType;
 		this.env.mayTolerateMissingType = true; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=388042
@@ -31,13 +35,16 @@ public ReferenceBinding getAnnotationType() {
 		}
 		this.typeUnresolved = false;
 	}
+}
+public ReferenceBinding getAnnotationType() {
+	resolve();
 	return this.type;
 }
 
 public ElementValuePair[] getElementValuePairs() {
 	if (this.env != null) {
 		if (this.typeUnresolved) {
-			getAnnotationType(); // resolve the annotation type
+			resolve();
 		}
 		// resolve method binding and value type (if unresolved) for each pair
 		for (int i = this.pairs.length; --i >= 0;) {

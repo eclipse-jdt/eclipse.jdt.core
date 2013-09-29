@@ -61,7 +61,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private int lastCompletedUnitIndex = -1;
 	private int lastUnitIndex = -1;
 
-	private AnnotatableTypeSystem typeSystem;
+	private TypeSystem typeSystem;
 	
 	public INameEnvironment nameEnvironment;
 	public CompilerOptions globalOptions;
@@ -125,7 +125,12 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.accessRestrictions = new HashMap(3);
 	this.classFilePool = ClassFilePool.newInstance();
 	this.typesBeingConnected = new HashSet();
-	this.typeSystem = new AnnotatableTypeSystem(this);
+	boolean stillTesting = true;
+	if (this.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8 && (stillTesting || this.globalOptions.storeAnnotations)) {
+		this.typeSystem = new AnnotatableTypeSystem(this);
+	} else {
+		this.typeSystem = new UnannotatedTypeSystem(this);
+	}
 }
 
 /**
@@ -636,22 +641,32 @@ public TypeBinding convertUnresolvedBinaryToRawType(TypeBinding type) {
 	}
 	return type;
 }
-/*
- *  Used to guarantee annotation identity: we do that only for marker annotations. We don't have the machinery for the general case as of now.
- */
+/* Used to guarantee annotation identity: we do that only for marker annotations and others with all default values.
+   We don't have the machinery for the general case as of now.
+*/
 public AnnotationBinding createAnnotation(ReferenceBinding annotationType, ElementValuePair[] pairs) {
 	if (pairs.length != 0) {
 		AnnotationBinding.setMethodBindings(annotationType, pairs);
 		return new AnnotationBinding(annotationType, pairs);
 	}
-	return this.typeSystem.getAnnotationType(annotationType);
+	return this.typeSystem.getAnnotationType(annotationType, true);
+}
+
+/* Used to guarantee annotation identity: we do that only for marker annotations and others with all default values.
+   We don't have the machinery for the general case as of now.
+*/
+public AnnotationBinding createUnresolvedAnnotation(ReferenceBinding annotationType, ElementValuePair[] pairs) {
+	if (pairs.length != 0) {
+		return new UnresolvedAnnotationBinding(annotationType, pairs, this);
+	}
+	return this.typeSystem.getAnnotationType(annotationType, false);
 }
 
 /*
  *  Used to guarantee array type identity.
  */
 public ArrayBinding createArrayType(TypeBinding leafComponentType, int dimensionCount) {
-	return this.typeSystem.getArrayType(leafComponentType, dimensionCount, Binding.NO_ANNOTATIONS);
+	return this.typeSystem.getArrayType(leafComponentType, dimensionCount);
 }
 
 public ArrayBinding createArrayType(TypeBinding leafComponentType, int dimensionCount, AnnotationBinding [] annotations) {
@@ -907,6 +922,11 @@ public PolymorphicMethodBinding createPolymorphicMethod(MethodBinding originalPo
 	cachedInfo[index] = polymorphicMethod;
 	return polymorphicMethod;
 }
+
+public boolean usesAnnotatedTypeSystem() {
+	return this.typeSystem.isAnnotatedTypeSystem();
+}
+
 public MethodBinding updatePolymorphicMethodReturnType(PolymorphicMethodBinding binding, TypeBinding typeBinding) {
 	// update the return type to be the given return type, but reuse existing binding if one can match
 	String key = new String(binding.selector);
@@ -961,7 +981,7 @@ public ParameterizedMethodBinding createGetClassMethod(TypeBinding receiverType,
 }
 
 public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType) {
-	return this.typeSystem.getParameterizedType(genericType, typeArguments, enclosingType, Binding.NO_ANNOTATIONS);
+	return this.typeSystem.getParameterizedType(genericType, typeArguments, enclosingType);
 }
 
 public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType, AnnotationBinding [] annotations) {
@@ -990,7 +1010,7 @@ public TypeBinding createAnnotatedType(TypeBinding type, AnnotationBinding[] new
 }
 
 public RawTypeBinding createRawType(ReferenceBinding genericType, ReferenceBinding enclosingType) {
-	return this.typeSystem.getRawType(genericType, enclosingType, Binding.NO_ANNOTATIONS);
+	return this.typeSystem.getRawType(genericType, enclosingType);
 }
 
 public RawTypeBinding createRawType(ReferenceBinding genericType, ReferenceBinding enclosingType, AnnotationBinding [] annotations) {
@@ -998,7 +1018,7 @@ public RawTypeBinding createRawType(ReferenceBinding genericType, ReferenceBindi
 }
 
 public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind) {
-	return this.typeSystem.getWildcard(genericType, rank, bound, otherBounds, boundKind, Binding.NO_ANNOTATIONS);
+	return this.typeSystem.getWildcard(genericType, rank, bound, otherBounds, boundKind);
 }
 
 public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind, AnnotationBinding [] annotations) {
@@ -1038,7 +1058,7 @@ public AnnotationBinding getNullableAnnotation() {
 	if (this.nullableAnnotation != null)
 		return this.nullableAnnotation;
 	ReferenceBinding nullable = getResolvedType(this.globalOptions.nullableAnnotationName, null);
-	return this.nullableAnnotation = this.typeSystem.getAnnotationType(nullable);
+	return this.nullableAnnotation = this.typeSystem.getAnnotationType(nullable, true);
 }
 
 public char[][] getNullableAnnotationName() {
@@ -1049,7 +1069,7 @@ public AnnotationBinding getNonNullAnnotation() {
 	if (this.nonNullAnnotation != null) 
 		return this.nonNullAnnotation;
 	ReferenceBinding nonNull = getResolvedType(this.globalOptions.nonNullAnnotationName, null);
-	return this.nonNullAnnotation = this.typeSystem.getAnnotationType(nonNull);
+	return this.nonNullAnnotation = this.typeSystem.getAnnotationType(nonNull, true);
 }
 
 public AnnotationBinding[] nullAnnotationsFromTagBits(long nullTagBits) {

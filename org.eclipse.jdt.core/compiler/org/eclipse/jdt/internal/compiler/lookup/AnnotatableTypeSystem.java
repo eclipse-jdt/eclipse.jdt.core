@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
  	
    We do not keep track of unannotated types here, that is done by UTS whose handle we maintain.
 */
-public class AnnotatableTypeSystem {
+public class AnnotatableTypeSystem extends TypeSystem {
 
 	LookupEnvironment environment;
 	UnannotatedTypeSystem unannotatedTypeSystem;
@@ -45,38 +45,49 @@ public class AnnotatableTypeSystem {
 		return this.unannotatedTypeSystem.getUnannotatedType(type);
 	}
 	
+	public ArrayBinding getArrayType(TypeBinding leaftType, int dimensions) {
+		return getArrayType(leaftType, dimensions, Binding.NO_ANNOTATIONS);
+	}
+
 	/* This method replaces the version that used to sit in LE. The parameter `annotations' is a flattened sequence of annotations, 
 	   where each dimension's annotations end with a sentinel null.
 	*/
-	public ArrayBinding getArrayType(TypeBinding leafType, int dimensions, AnnotationBinding [] annotations) {
+	public ArrayBinding getArrayType(TypeBinding leafComponentType, int dimensions, AnnotationBinding [] annotations) {
 		
-		if (!haveTypeAnnotations(leafType, annotations))
-			return this.unannotatedTypeSystem.getArrayType(leafType, dimensions);
+		if (!haveTypeAnnotations(leafComponentType, annotations))
+			return this.unannotatedTypeSystem.getArrayType(leafComponentType, dimensions);
 		
-		TypeBinding[] cachedInfo = (TypeBinding[]) this.annotatedTypes.get(leafType);
+		//  Leaf component type can be an annotated type.
+		TypeBinding keyType = getUnannotatedType(leafComponentType);
+		TypeBinding[] cachedInfo = (TypeBinding[]) this.annotatedTypes.get(keyType);  // unannotated key promotes better instance sharing.
 		int index = 0;
 		if (cachedInfo != null) {
 			for (int max = cachedInfo.length; index < max; index++) {
 				TypeBinding cachedType = cachedInfo[index];
 				if (cachedType == null) break;
+				if (cachedType.leafComponentType() != leafComponentType) continue;
 				if (cachedType.isArrayType() && cachedType.dimensions() == dimensions && Util.effectivelyEqual(cachedType.getTypeAnnotations(), annotations)) 
 					return (ArrayBinding) cachedType;
 			}
 		} else {
-			this.annotatedTypes.put(leafType, cachedInfo = new TypeBinding[4]);
+			this.annotatedTypes.put(keyType, cachedInfo = new TypeBinding[4]);
 		}
 		
 		int length = cachedInfo.length;
 		if (index == length) {
 			System.arraycopy(cachedInfo, 0, cachedInfo = new TypeBinding[length * 2], 0, length);
-			this.annotatedTypes.put(leafType, cachedInfo);
+			this.annotatedTypes.put(keyType, cachedInfo);
 		}
 		// Add the newcomer, ensuring its identity is the same as the naked version of it.
-		ArrayBinding unannotatedArrayType = this.unannotatedTypeSystem.getArrayType(leafType, dimensions);
-		TypeBinding arrayBinding = new ArrayBinding(leafType, dimensions, this.environment);
+		ArrayBinding unannotatedArrayType = this.unannotatedTypeSystem.getArrayType(leafComponentType, dimensions);
+		TypeBinding arrayBinding = new ArrayBinding(leafComponentType, dimensions, this.environment);
 		arrayBinding.id = unannotatedArrayType.id;
 		arrayBinding.setTypeAnnotations(annotations, this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
 		return (ArrayBinding) (cachedInfo[index] = arrayBinding);
+	}
+	
+	public ParameterizedTypeBinding getParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType) {
+		return getParameterizedType(genericType, typeArguments, enclosingType, Binding.NO_ANNOTATIONS);
 	}
 
 	public ParameterizedTypeBinding getParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType, AnnotationBinding [] annotations) {
@@ -88,7 +99,7 @@ public class AnnotatableTypeSystem {
 		   really belong to the parameterized type that is being created just now. e.g @T List<String> => comes in as (@T List)<String>. The question really 
 		   is List being parameterized by String and then the resultant type is annotated or is "@T List" being parameterized with String ? We don't care one
 		   way or other except that we would want a uniform treatment. As a stop gap, we "repair" the situation here, so it is consistent with treatment of 
-		   type references in source code. Probably need similar treatment for raw types and wildcards ?
+		   type references in source code.
 		*/
 		AnnotationBinding [] misplacedAnnotations = genericType.getTypeAnnotations();
 		if (misplacedAnnotations != null && misplacedAnnotations != Binding.NO_ANNOTATIONS) {
@@ -97,9 +108,11 @@ public class AnnotatableTypeSystem {
 			annotations = misplacedAnnotations;
 			genericType = (ReferenceBinding) this.unannotatedTypeSystem.getUnannotatedType(genericType);
 		}
-			
+		// generic type is expected to come in unannotated, if it came in with any misattributed annotations, they have been duly re-attributed and it is unannotated now.	
+		
 		int index = 0;
-		TypeBinding[] cachedInfo = (TypeBinding[]) this.annotatedTypes.get(genericType);
+		TypeBinding keyType = getUnannotatedType(genericType);
+		TypeBinding[] cachedInfo = (TypeBinding[]) this.annotatedTypes.get(keyType); // promotes better instance sharing
 		if (cachedInfo != null) {
 			for (int max = cachedInfo.length; index < max; index++){
 				TypeBinding cachedType = cachedInfo[index];
@@ -111,12 +124,12 @@ public class AnnotatableTypeSystem {
 					return (ParameterizedTypeBinding) cachedType;
 			}
 		} else {
-			this.annotatedTypes.put(genericType, cachedInfo = new TypeBinding[4]);
+			this.annotatedTypes.put(keyType, cachedInfo = new TypeBinding[4]);
 		}
 		int length = cachedInfo.length;
 		if (index == length) {
 			System.arraycopy(cachedInfo, 0, cachedInfo = new TypeBinding[length * 2], 0, length);
-			this.annotatedTypes.put(genericType, cachedInfo);
+			this.annotatedTypes.put(keyType, cachedInfo);
 		}
 		// Add the new comer, retaining the same type binding id as the naked type.
 		ParameterizedTypeBinding unannotatedParameterizedType = this.unannotatedTypeSystem.getParameterizedType(genericType, typeArguments, enclosingType);
@@ -126,12 +139,27 @@ public class AnnotatableTypeSystem {
 		return (ParameterizedTypeBinding) (cachedInfo[index] = parameterizedType);
 	}
 	
+	public RawTypeBinding getRawType(ReferenceBinding genericType, ReferenceBinding enclosingType) {
+		return getRawType(genericType, enclosingType, Binding.NO_ANNOTATIONS);
+	}
+	
 	public RawTypeBinding getRawType(ReferenceBinding genericType, ReferenceBinding enclosingType, AnnotationBinding [] annotations) {
 		
 		if (!haveTypeAnnotations(genericType, enclosingType, null, annotations))
 			return this.unannotatedTypeSystem.getRawType(genericType, enclosingType);
 		
-		TypeBinding[] cachedInfo = (TypeBinding[]) this.annotatedTypes.get(genericType);
+		// See explanation on misplaced annotations in getParameterizedType.
+		AnnotationBinding [] misplacedAnnotations = genericType.getTypeAnnotations();
+		if (misplacedAnnotations != null && misplacedAnnotations != Binding.NO_ANNOTATIONS) {
+			if (annotations != null && annotations != Binding.NO_ANNOTATIONS)
+				throw new IllegalStateException(); // cannot cut both ways.
+			annotations = misplacedAnnotations;
+			genericType = (ReferenceBinding) this.unannotatedTypeSystem.getUnannotatedType(genericType);
+		}
+		// generic type is expected to come in unannotated, if it came in with any misattributed annotations, they have been duly re-attributed and it is unannotated now.	
+		
+		TypeBinding keyType = getUnannotatedType(genericType);
+		TypeBinding[] cachedInfo = (TypeBinding[]) this.annotatedTypes.get(keyType);
 		int index = 0;
 		if (cachedInfo != null) {
 			for (int max = cachedInfo.length; index < max; index++) {
@@ -142,13 +170,13 @@ public class AnnotatableTypeSystem {
 					return (RawTypeBinding) cachedType;
 			}
 		} else {
-			this.annotatedTypes.put(genericType, cachedInfo = new TypeBinding[4]);
+			this.annotatedTypes.put(keyType, cachedInfo = new TypeBinding[4]);
 		}
 		
 		int length = cachedInfo.length;
 		if (index == length) {
 			System.arraycopy(cachedInfo, 0, cachedInfo = new TypeBinding[length * 2], 0, length);
-			this.annotatedTypes.put(genericType, cachedInfo);
+			this.annotatedTypes.put(keyType, cachedInfo);
 		}
 		// Add the new comer, retaining the same type binding id as the naked type.
 		RawTypeBinding unannotatedRawType = this.unannotatedTypeSystem.getRawType(genericType, enclosingType);
@@ -158,6 +186,10 @@ public class AnnotatableTypeSystem {
 		return (RawTypeBinding) (cachedInfo[index] = rawType);
 	}
 		
+	public WildcardBinding getWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind) {
+		return getWildcard(genericType, rank, bound, otherBounds, boundKind, Binding.NO_ANNOTATIONS);
+	}
+
 	public WildcardBinding getWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind, AnnotationBinding [] annotations) {
 		
 		if (!haveTypeAnnotations(genericType, bound, otherBounds, annotations))
@@ -166,7 +198,18 @@ public class AnnotatableTypeSystem {
 		if (genericType == null) // pseudo wildcard denoting composite bounds for lub computation
 			genericType = ReferenceBinding.LUB_GENERIC;
 
-		TypeBinding[] cachedInfo = (TypeBinding[]) this.annotatedTypes.get(genericType);
+		// See explanation on misplaced annotations in getParameterizedType.
+		AnnotationBinding [] misplacedAnnotations = genericType.getTypeAnnotations();
+		if (misplacedAnnotations != null && misplacedAnnotations != Binding.NO_ANNOTATIONS) {
+			if (annotations != null && annotations != Binding.NO_ANNOTATIONS)
+				throw new IllegalStateException(); // cannot cut both ways.
+			annotations = misplacedAnnotations;
+			genericType = (ReferenceBinding) this.unannotatedTypeSystem.getUnannotatedType(genericType);
+		}
+		// generic type is expected to come in unannotated, if it came in with any misattributed annotations, they have been duly re-attributed and it is unannotated now.	
+		
+		TypeBinding keyType = getUnannotatedType(genericType);		
+		TypeBinding[] cachedInfo = (TypeBinding[]) this.annotatedTypes.get(keyType);  // promotes better instance sharing.
 		int index = 0;
 		if (cachedInfo != null) {
 			for (int max = cachedInfo.length; index < max; index++) {
@@ -181,13 +224,13 @@ public class AnnotatableTypeSystem {
 					return (WildcardBinding) cachedType;
 			}
 		} else {
-			this.annotatedTypes.put(genericType, cachedInfo = new TypeBinding[4]);
+			this.annotatedTypes.put(keyType, cachedInfo = new TypeBinding[4]);
 		}
 
 		int length = cachedInfo.length;
 		if (index == length) {
 			System.arraycopy(cachedInfo, 0, cachedInfo = new TypeBinding[length * 2], 0, length);
-			this.annotatedTypes.put(genericType, cachedInfo);
+			this.annotatedTypes.put(keyType, cachedInfo);
 		}
 		// Add the new comer, retaining the same type binding id as the naked type.
 		TypeBinding unannotatedWildcard = this.unannotatedTypeSystem.getWildcard(genericType, rank, bound, otherBounds, boundKind);
@@ -199,7 +242,8 @@ public class AnnotatableTypeSystem {
 
 	// Private subroutine for getAnnotatedType(TypeBinding type, AnnotationBinding[][] annotations)
 	private TypeBinding getAnnotatedType(TypeBinding type, TypeBinding enclosingType, TypeBinding [] typeArguments, AnnotationBinding[] annotations) {
-		TypeBinding[] cachedInfo = (TypeBinding[]) this.annotatedTypes.get(type);
+		TypeBinding keyType = getUnannotatedType(type);
+		TypeBinding[] cachedInfo = (TypeBinding[]) this.annotatedTypes.get(keyType);
 		int i = 0;
 		if (cachedInfo != null) {
 			for (int length = cachedInfo.length; i < length; i++) {
@@ -212,12 +256,12 @@ public class AnnotatableTypeSystem {
 				}
 			}
 		} else {
-			this.annotatedTypes.put(type, cachedInfo = new TypeBinding[4]);
+			this.annotatedTypes.put(keyType, cachedInfo = new TypeBinding[4]);
 		}
 		int length = cachedInfo.length;
 		if (i == length) {
 			System.arraycopy(cachedInfo, 0, cachedInfo = new TypeBinding[length * 2], 0, length);
-			this.annotatedTypes.put(type, cachedInfo);
+			this.annotatedTypes.put(keyType, cachedInfo);
 		}
 		/* Add the new comer, retaining the same type binding id as the naked type. To materialize the new comer we can't use new since this is a general
 		   purpose method designed to deal type bindings of all types. "Clone" the incoming type, specializing for any enclosing type and type arguments
@@ -282,12 +326,14 @@ public class AnnotatableTypeSystem {
 					enclosingType = annotatedType;
 				}
 				break;
+			default:
+				throw new IllegalStateException();
 		}
 		return annotatedType;
 	}
 
-	public AnnotationBinding getAnnotationType(ReferenceBinding annotationType) {
-		return this.unannotatedTypeSystem.getAnnotationType(annotationType); // deflect, annotation type uses cannot be type annotated.
+	public AnnotationBinding getAnnotationType(ReferenceBinding annotationType, boolean requireResolved) {
+		return this.unannotatedTypeSystem.getAnnotationType(annotationType, requireResolved); // deflect, annotation type uses cannot be type annotated.
 	}
 
 	private boolean haveTypeAnnotations(TypeBinding baseType, TypeBinding someType, TypeBinding[] someTypes, AnnotationBinding[] annotations) {
@@ -356,5 +402,9 @@ public class AnnotatableTypeSystem {
 			}
 		}
 		this.unannotatedTypeSystem.updateCaches(unresolvedType.prototype, unresolvedType.prototype.resolvedType);
+	}
+	
+	public boolean isAnnotatedTypeSystem() {
+		return true;
 	}
 }
