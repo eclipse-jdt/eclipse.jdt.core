@@ -70,6 +70,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		int totalDimensions = this.dimensions() + additionalDimensions;
 		Annotation [][] allAnnotations = getMergedAnnotationsOnDimensions(additionalDimensions, additionalAnnotations);
 		ParameterizedSingleTypeReference parameterizedSingleTypeReference = new ParameterizedSingleTypeReference(this.token, this.typeArguments, totalDimensions, allAnnotations, (((long) this.sourceStart) << 32) + this.sourceEnd);
+		parameterizedSingleTypeReference.annotations = this.annotations;
 		parameterizedSingleTypeReference.bits |= (this.bits & ASTNode.HasTypeAnnotations);
 		if (!isVarargs)
 			parameterizedSingleTypeReference.extendedDimensions = additionalDimensions;

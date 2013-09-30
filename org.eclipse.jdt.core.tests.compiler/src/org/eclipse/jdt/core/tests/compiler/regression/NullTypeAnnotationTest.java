@@ -1534,6 +1534,63 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	^^^^^^^^^\n" + 
 				"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
 				"----------\n");
+}
+	
+	// storing and decoding null-type-annotations to/from classfile: array annotations.
+	public void testBinary10() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+		runNegativeTestWithLibs(
+				new String[] {
+					"X.java",
+					"import java.util.ArrayList;\n" +
+					"import org.eclipse.jdt.annotation.NonNull;\n" +
+					"public class X  {\n" +
+					"	void foo(ArrayList<String> @NonNull [] p) {\n" +
+					"	}\n" +
+					"}\n" +
+					"class Y extends X {\n" +
+					"	void foo() {\n" +
+					"		super.foo(null);\n" +
+					"	}\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 9)\n" + 
+				"	super.foo(null);\n" + 
+				"	          ^^^^\n" + 
+				"Null type mismatch: required \'ArrayList<String> @NonNull[]\' but the provided value is null\n" + 
+				"----------\n");
+		// fix the error:
+		runConformTestWithLibs(
+				new String[] {
+						"X.java",
+						"import java.util.ArrayList;\n" +
+						"import org.eclipse.jdt.annotation.NonNull;\n" +
+						"public class X  {\n" +
+						"	void foo(ArrayList<String> @NonNull [] p) {\n" +
+						"	}\n" +
+						"}\n"
+				},
+				customOptions,
+				"");
+
+		runNegativeTestWithLibs(
+				new String[] {
+					"Y.java",
+					"public class Y extends X {\n" +
+					"	void foo() {\n" +
+					"		super.foo(null);\n" +
+					"	}\n" +
+					"}\n"
+				}, 
+				customOptions,
+				"----------\n" + 
+				"1. ERROR in Y.java (at line 3)\n" + 
+				"	super.foo(null);\n" + 
+				"	          ^^^^\n" + 
+				"Null type mismatch: required \'ArrayList<String> @NonNull[]\' but the provided value is null\n" + 
+				"----------\n");
 	}
 	
 	public void testConditional1() {
@@ -2986,6 +3043,31 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	@Junk T t2 = null;\n" + 
 			"	             ^^^^\n" + 
 			"Null type mismatch: required \'@NonNull T\' but the provided value is null\n" + 
+			"----------\n");		
+	}
+	public void testSE7AnnotationCopy() { // we were dropping annotations here, but null analysis worked already since the tagbits were not "dropped", just the same capturing in a test
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import org.eclipse.jdt.annotation.NonNull;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	class Y {}\n" +
+				"	void foo(@T X.@NonNull Y p) {\n" +
+				"		foo(null);\n" +
+				"	}\n" +
+				"}\n"
+			}, 
+			getCompilerOptions(), 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	foo(null);\n" + 
+			"	    ^^^^\n" + 
+			"Null type mismatch: required \'X.@NonNull Y\' but the provided value is null\n" + 
 			"----------\n");		
 	}
 }

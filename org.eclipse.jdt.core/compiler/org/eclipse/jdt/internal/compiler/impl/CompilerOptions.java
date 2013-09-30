@@ -146,6 +146,8 @@ public class CompilerOptions {
 	public static final String OPTION_ReportOverridingMethodWithoutSuperInvocation =  "org.eclipse.jdt.core.compiler.problem.overridingMethodWithoutSuperInvocation"; //$NON-NLS-1$
 	public static final String OPTION_GenerateClassFiles = "org.eclipse.jdt.core.compiler.generateClassFiles"; //$NON-NLS-1$
 	public static final String OPTION_Process_Annotations = "org.eclipse.jdt.core.compiler.processAnnotations"; //$NON-NLS-1$
+	// OPTION_Store_Annotations: undocumented option for testing purposes
+	public static final String OPTION_Store_Annotations = "org.eclipse.jdt.core.compiler.storeAnnotations"; //$NON-NLS-1$
 	public static final String OPTION_ReportRedundantSuperinterface =  "org.eclipse.jdt.core.compiler.problem.redundantSuperinterface"; //$NON-NLS-1$
 	public static final String OPTION_ReportComparingIdentical =  "org.eclipse.jdt.core.compiler.problem.comparingIdentical"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingSynchronizedOnInheritedMethod =  "org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod"; //$NON-NLS-1$
@@ -1127,6 +1129,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportOverridingMethodWithoutSuperInvocation, getSeverityString(OverridingMethodWithoutSuperInvocation));
 		optionsMap.put(OPTION_GenerateClassFiles, this.generateClassFiles ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_Process_Annotations, this.processAnnotations ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_Store_Annotations, this.storeAnnotations ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportRedundantSuperinterface, getSeverityString(RedundantSuperinterface));
 		optionsMap.put(OPTION_ReportComparingIdentical, getSeverityString(ComparingIdentical));
 		optionsMap.put(OPTION_ReportMissingSynchronizedOnInheritedMethod, getSeverityString(MissingSynchronizedModifierInInheritedMethod));
@@ -1781,6 +1784,14 @@ public class CompilerOptions {
 			} else if (DISABLED.equals(optionValue)) {
 				this.processAnnotations = false;
 				if (!this.isAnnotationBasedNullAnalysisEnabled)
+					this.storeAnnotations = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_Store_Annotations)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.storeAnnotations = true;
+			} else if (DISABLED.equals(optionValue)) {
+				if (!this.isAnnotationBasedNullAnalysisEnabled && !this.processAnnotations)
 					this.storeAnnotations = false;
 			}
 		}

@@ -37,6 +37,7 @@ public class SingleTypeReference extends TypeReference {
 		int totalDimensions = this.dimensions() + additionalDimensions;
 		Annotation [][] allAnnotations = getMergedAnnotationsOnDimensions(additionalDimensions, additionalAnnotations);
 		ArrayTypeReference arrayTypeReference = new ArrayTypeReference(this.token, totalDimensions, allAnnotations, (((long) this.sourceStart) << 32) + this.sourceEnd);
+		arrayTypeReference.annotations = this.annotations;
 		arrayTypeReference.bits |= (this.bits & ASTNode.HasTypeAnnotations);
 		if (!isVarargs)
 			arrayTypeReference.extendedDimensions = additionalDimensions;

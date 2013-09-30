@@ -36,6 +36,7 @@ public class QualifiedTypeReference extends TypeReference {
 		int totalDimensions = this.dimensions() + additionalDimensions;
 		Annotation [][] allAnnotations = getMergedAnnotationsOnDimensions(additionalDimensions, additionalAnnotations);
 		ArrayQualifiedTypeReference arrayQualifiedTypeReference = new ArrayQualifiedTypeReference(this.tokens, totalDimensions, allAnnotations, this.sourcePositions);
+		arrayQualifiedTypeReference.annotations = this.annotations;
 		arrayQualifiedTypeReference.bits |= (this.bits & ASTNode.HasTypeAnnotations);
 		if (!isVarargs)
 			arrayQualifiedTypeReference.extendedDimensions = additionalDimensions;

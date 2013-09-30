@@ -89,6 +89,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		int totalDimensions = this.dimensions() + additionalDimensions;
 		Annotation [][] allAnnotations = getMergedAnnotationsOnDimensions(additionalDimensions, additionalAnnotations);
 		ParameterizedQualifiedTypeReference pqtr = new ParameterizedQualifiedTypeReference(this.tokens, this.typeArguments, totalDimensions, allAnnotations, this.sourcePositions);
+		pqtr.annotations = this.annotations;
 		pqtr.bits |= (this.bits & ASTNode.HasTypeAnnotations);
 		if (!isVarargs)
 			pqtr.extendedDimensions = additionalDimensions;

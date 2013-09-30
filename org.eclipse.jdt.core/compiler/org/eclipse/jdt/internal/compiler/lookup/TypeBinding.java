@@ -1345,7 +1345,7 @@ public abstract char[] qualifiedSourceName();
 /**
  * @return the JSR 308 annotations for this type.
  */
-public AnnotationBinding[] getTypeAnnotations() {
+final public AnnotationBinding[] getTypeAnnotations() {
 	return this.typeAnnotations;
 }
 
@@ -1435,6 +1435,10 @@ public static boolean notEquals(TypeBinding that, TypeBinding other) {
  */
 public TypeBinding prototype() {
 	return null;
+}
+
+public boolean isUnresolvedType() {
+	return false;
 }
 
 }

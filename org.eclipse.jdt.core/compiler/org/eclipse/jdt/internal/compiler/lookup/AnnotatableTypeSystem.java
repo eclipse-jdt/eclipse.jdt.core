@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
@@ -331,6 +332,10 @@ public class AnnotatableTypeSystem extends TypeSystem {
 				   java.lang.@T X.@T Y.@T Z
 				   in all these cases the incoming type binding is for Z, but annotations are for different levels. Align their layout for proper attribution.
 				 */
+				
+				if (type.isUnresolvedType() && CharOperation.indexOf('$', type.sourceName()) > 0)
+				    type = BinaryTypeBinding.resolveType(type, this.environment, false /* no raw conversion */); // must resolve member types before asking for enclosingType
+				
 				int levels = type.depth() + 1;
 				TypeBinding [] types = new TypeBinding[levels];
 				types[--levels] = type;
@@ -350,7 +355,10 @@ public class AnnotatableTypeSystem extends TypeSystem {
 					return type;
 				// types[j] is the first component being annotated. Its annotations are annotations[i]
 				for (enclosingType = j == 0 ? null : types[j - 1]; i < levels; i++, j++) {
-					annotatedType = getAnnotatedType(types[j], enclosingType, types[j].typeArguments(), annotations[i]);
+					final TypeBinding currentType = types[j];
+					// while handling annotations from SE7 locations, take care not to drop existing annotations.
+					AnnotationBinding [] currentAnnotations = annotations[i] != null && annotations[i].length > 0 ? annotations[i] : currentType.getTypeAnnotations();
+					annotatedType = getAnnotatedType(currentType, enclosingType, currentType.typeArguments(), currentAnnotations);
 					enclosingType = annotatedType;
 				}
 				break;

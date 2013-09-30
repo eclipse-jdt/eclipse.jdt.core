@@ -14,21 +14,30 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 import junit.framework.Test;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.CreationReference;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -50,6 +59,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WildcardType;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class TypeBindingTests308 extends ConverterTestSetup {
 
@@ -1078,5 +1088,163 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		verifyAnnotationsOnBinding(binding = binding.getComponentType(), new String[]{"@TypeUseAnnotation(value = a1)"});
 		verifyAnnotationsOnBinding(binding = binding.getComponentType(), new String[]{"@TypeUseAnnotation(value = a2)"});
 		verifyAnnotationsOnBinding(binding = binding.getComponentType(), new String[]{"@TypeUseAnnotation(value = a)"});
+	}
+	
+	public void testAnnotatedBinaryMemberType() throws CoreException, IOException {
+		String jarName = "TypeBindingTests308.jar";
+		String srcName = "TypeBindingTests308_src.zip";
+		final IJavaProject javaProject = getJavaProject("Converter18");
+		try {
+			String[] pathAndContents = new String[] {
+				"Outer.java",
+				"public class Outer  {\n" +
+				"	class Middle {\n" +
+				"		class Inner {\n" +
+				"		}\n" +
+				"	}\n" +
+				"	public @Marker(\"Outer\") Outer.@Marker (\"Middle\") Middle.@Marker(\"Inner\") Inner omi;\n" +
+				"}\n" +
+				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface Marker {\n" +
+				"	String value() default \"GOK\";\n" +
+				"}\n"
+			};
+		
+			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
+			libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
+			
+			String contents = 
+					"public class X {\n" +
+					"    void foo(Outer o) {\n" +
+					"        o.omi = null;\n" +
+					"    }\n" +
+					"}";
+			
+			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+			ASTNode node = buildAST(contents, this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			List types = compilationUnit.types();
+			assertEquals("Incorrect no of types", 1, types.size());
+			TypeDeclaration typeDecl = (TypeDeclaration) types.get(0);
+			
+			MethodDeclaration[] methods = typeDecl.getMethods();
+			assertEquals("Incorrect no of methods", 1, methods.length);
+			MethodDeclaration method = methods[0];
+			Block body = method.getBody();
+			ExpressionStatement stmt = (ExpressionStatement) body.statements().get(0);
+			Assignment assignment = (Assignment) stmt.getExpression();
+			Expression left = assignment.getLeftHandSide();
+			ITypeBinding type = left.resolveTypeBinding();
+			assertEquals("Wrong type", "@Marker{ value = (String)\"Outer\"} Outer.@Marker{ value = (String)\"Middle\"} Middle.@Marker{ value = (String)\"Inner\"} Inner", type.toString());		
+		} finally {
+				removeLibrary(javaProject, jarName, srcName);
+		}
+	}
+	public void testAnnotatedBinaryMemberType2() throws CoreException, IOException {
+		String jarName = "TypeBindingTests308.jar";
+		String srcName = "TypeBindingTests308_src.zip";
+		final IJavaProject javaProject = getJavaProject("Converter18");
+		try {
+			String[] pathAndContents = new String[] {
+				"Outer.java",
+				"public class Outer  {\n" +
+				"	class Middle {\n" +
+				"		class Inner {\n" +
+				"		}\n" +
+				"	}\n" +
+				"	public @Marker(\"Outer\") Outer.@Marker (\"Middle\") Middle.@Marker(\"Inner\") Inner @Marker(\"Prefix []\") [] omi @Marker(\"Extended []\") [];\n" +
+				"}\n" +
+				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface Marker {\n" +
+				"	String value() default \"GOK\";\n" +
+				"}\n"
+			};
+		
+			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
+			libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
+			
+			String contents = 
+					"public class X {\n" +
+					"    void foo(Outer o) {\n" +
+					"        o.omi = null;\n" +
+					"    }\n" +
+					"}";
+			
+			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+			ASTNode node = buildAST(contents, this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			List types = compilationUnit.types();
+			assertEquals("Incorrect no of types", 1, types.size());
+			TypeDeclaration typeDecl = (TypeDeclaration) types.get(0);
+			
+			MethodDeclaration[] methods = typeDecl.getMethods();
+			assertEquals("Incorrect no of methods", 1, methods.length);
+			MethodDeclaration method = methods[0];
+			Block body = method.getBody();
+			ExpressionStatement stmt = (ExpressionStatement) body.statements().get(0);
+			Assignment assignment = (Assignment) stmt.getExpression();
+			Expression left = assignment.getLeftHandSide();
+			ITypeBinding type = left.resolveTypeBinding();
+			assertEquals("Wrong type", "@Marker{ value = (String)\"Outer\"} Outer.Middle.@Marker{ value = (String)\"Middle\"} @Marker{ value = (String)\"Inner\"} Inner @Marker{ value = (String)\"Extended []\"} [] @Marker{ value = (String)\"Prefix []\"} []", type.toString());		
+		} finally {
+				removeLibrary(javaProject, jarName, srcName);
+		}
+	}
+	public void _testAnnotatedBinaryMemberType3() throws CoreException, IOException {
+		String jarName = "TypeBindingTests308.jar";
+		String srcName = "TypeBindingTests308_src.zip";
+		final IJavaProject javaProject = getJavaProject("Converter18");
+		try {
+			String[] pathAndContents = new String[] {
+				"Outer.java",
+				"public class Outer<K>  {\n" +
+				"	class Inner<P> {\n" +
+				"	}\n" +
+				"	public @T(1) Outer<@T(2) String>.@T(3) Inner<@T(4) Integer> @T(5) [] omi @T(6) [];\n" +
+				"}\n" +
+				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"	int value();\n" +
+				"}\n"
+			};
+		
+			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
+			libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
+			
+			String contents = 
+					"public class X {\n" +
+					"    void foo(Outer<String> o) {\n" +
+					"        o.omi = null;\n" +
+					"    }\n" +
+					"}";
+			
+			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+			ASTNode node = buildAST(contents, this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			List types = compilationUnit.types();
+			assertEquals("Incorrect no of types", 1, types.size());
+			TypeDeclaration typeDecl = (TypeDeclaration) types.get(0);
+			
+			MethodDeclaration[] methods = typeDecl.getMethods();
+			assertEquals("Incorrect no of methods", 1, methods.length);
+			MethodDeclaration method = methods[0];
+			Block body = method.getBody();
+			ExpressionStatement stmt = (ExpressionStatement) body.statements().get(0);
+			Assignment assignment = (Assignment) stmt.getExpression();
+			Expression left = assignment.getLeftHandSide();
+			ITypeBinding type = left.resolveTypeBinding();
+			assertEquals("Wrong type", "@Marker{ value = (String)\"Outer\"} Outer.Middle.@Marker{ value = (String)\"Middle\"} @Marker{ value = (String)\"Inner\"} Inner @Marker{ value = (String)\"Extended []\"} [] @Marker{ value = (String)\"Prefix []\"} []", type.toString());		
+		} finally {
+				removeLibrary(javaProject, jarName, srcName);
+		}
 	}
 }

@@ -67,6 +67,9 @@ void addWrapper(TypeBinding wrapper, LookupEnvironment environment) {
 		this.wrappers[length] = wrapper;
 	}
 }
+public boolean isUnresolvedType() {
+	return true;
+}
 public String debugName() {
 	return toString();
 }
