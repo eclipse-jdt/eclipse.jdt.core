@@ -3047,4 +3047,35 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("Unexpected type", fragment.resolveBinding().getType().toString(), "String @Marker{ value = (String)\"Extended\"} [] @Marker{ value = (String)\"i0\"} @Marker2 [] [] @Marker{ value = (String)\"i1\"} []");
 		assertEquals("Unexpected type", field.getType().toString(), "String @Marker(\"i0\") @Marker2 [] [] @Marker(\"i1\") []");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417669
+	public void testBug417669() throws JavaModelException {
+		String contents = 
+				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface Marker {}\n" +
+				"public class X {\n" +
+				"	public static void main(String [] args) {\n" +
+				"      W<String> w = (@Marker W<String>) null;\n" +
+				"	}\n" +
+				"}\n" +
+				"class W<T> {}";
+
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 1, 0);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration method = (MethodDeclaration) node;
+		assertEquals("Method should not be malformed", 0, (method.getFlags() & ASTNode.MALFORMED));
+		
+		List statements = method.getBody().statements();
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) statements.get(0);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+		CastExpression cast = (CastExpression) fragment.getInitializer();
+		ParameterizedType castType = (ParameterizedType) cast.getType();
+		Type type = castType.getType();
+		checkSourceRange(castType, "@Marker W<String>", contents);
+		checkSourceRange(type, "@Marker W", contents);
+	}
 }
