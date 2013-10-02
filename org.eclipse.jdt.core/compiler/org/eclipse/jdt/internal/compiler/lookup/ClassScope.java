@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,8 @@
  *							Bug 395977 - [compiler][resource] Resource leak warning behavior possibly incorrect for anonymous inner class
  *							Bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *							Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
+ *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                          Bug 415821 - [1.8][compiler] CLASS_EXTENDS target type annotation missing for anonymous classes
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -76,6 +78,7 @@ public class ClassScope extends Scope {
 			anonymousType.superInterfaces = new ReferenceBinding[] { supertype };
 			TypeReference typeReference = this.referenceContext.allocation.type;
 			if (typeReference != null) {
+				this.referenceContext.superInterfaces = new TypeReference[] { typeReference };
 				if ((supertype.tagBits & TagBits.HasDirectWildcard) != 0) {
 					problemReporter().superTypeCannotUseWildcard(anonymousType, typeReference, supertype);
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
@@ -87,6 +90,7 @@ public class ClassScope extends Scope {
 			anonymousType.superInterfaces = Binding.NO_SUPERINTERFACES;
 			TypeReference typeReference = this.referenceContext.allocation.type;
 			if (typeReference != null) { // no check for enum constant body
+				this.referenceContext.superclass = typeReference;
 				if (supertype.erasure().id == TypeIds.T_JavaLangEnum) {
 					problemReporter().cannotExtendEnum(anonymousType, typeReference, supertype);
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;

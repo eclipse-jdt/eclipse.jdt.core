@@ -27,6 +27,7 @@
  *        Andy Clement - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
+ *                          Bug 415821 - [1.8][compiler] CLASS_EXTENDS target type annotation missing for anonymous classes
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
@@ -3417,6 +3418,7 @@ protected void consumeEnterAnonymousClassBody(boolean qualified) {
 	TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult);
 	anonymousType.name = CharOperation.NO_CHAR;
 	anonymousType.bits |= (ASTNode.IsAnonymousType|ASTNode.IsLocalType);
+	anonymousType.bits |= (typeReference.bits & ASTNode.HasTypeAnnotations);
 	QualifiedAllocationExpression alloc = new QualifiedAllocationExpression(anonymousType);
 	markEnclosingMemberWithLocalType();
 	pushOnAstStack(anonymousType);

@@ -16,6 +16,7 @@
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
  *                          Bug 409246 - [1.8][compiler] Type annotations on catch parameters not handled properly
  *                          Bug 409517 - [1.8][compiler] Type annotation problems on more elaborate array references
+ *                          Bug 415821 - [1.8][compiler] CLASS_EXTENDS target type annotation missing for anonymous classes
  *        Stephan Herrmann - Contribution for
  *							Bug 415911 - [1.8][compiler] NPE when TYPE_USE annotated method with missing return type
  *							Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
@@ -2529,6 +2530,65 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        location = [INNER_TYPE]\n" +
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test057_codeblocks_new3_415821() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface X { }\n" +
+				"\n" +
+				"class Foo {}\n",
+				"C.java",
+				"class C { void m() { new @X Foo() {}; } }\n",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #21 @X(\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 0\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "C.class", "C", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #28 @X(\n" + 
+			"      target type = 0x10 CLASS_EXTENDS\n" + 
+			"      type index = -1\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "C$1.class", "C$1", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void test057_codeblocks_new4_415821() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" + 
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface X { }\n" +
+				"\n",
+				"C.java",
+				"class C { void m() { new @X Runnable() { public void run() {}}; } }\n",
+		},
+		"");
+		String expectedOutput =
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #21 @X(\n" + 
+			"        target type = 0x44 NEW\n" + 
+			"        offset = 0\n" + 
+			"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "C.class", "C", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		expectedOutput =
+			"  RuntimeVisibleTypeAnnotations: \n" + 
+			"    #31 @X(\n" + 
+			"      target type = 0x10 CLASS_EXTENDS\n" + 
+			"      type index = 0\n" + 
+			"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "C$1.class", "C$1", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	
 	public void test059_codeblocks_new_newArray() throws Exception {
