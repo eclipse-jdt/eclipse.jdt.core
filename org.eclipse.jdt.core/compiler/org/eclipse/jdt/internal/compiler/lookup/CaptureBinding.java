@@ -30,18 +30,15 @@ public class CaptureBinding extends TypeVariableBinding {
 
 	public CaptureBinding(WildcardBinding wildcard, ReferenceBinding sourceType, int position, int captureID) {
 		super(TypeConstants.WILDCARD_CAPTURE_NAME_PREFIX, null, 0, wildcard.environment);
-		// Capture the unannotated wildcard and then capture the annotations.
-		if (wildcard.hasTypeAnnotations()) {
-			this.wildcard = (WildcardBinding) wildcard.unannotated();
-			setTypeAnnotations(wildcard.getTypeAnnotations(), wildcard.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
-		} else {
-			this.wildcard = wildcard;
-		}
+		this.wildcard = wildcard;
 		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat capture as public
 		this.fPackage = wildcard.fPackage;
 		this.sourceType = sourceType;
 		this.position = position;
 		this.captureID = captureID;
+		if (wildcard.hasTypeAnnotations()) {
+			setTypeAnnotations(wildcard.getTypeAnnotations(), wildcard.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
+		}
 	}
 
 	/*
