@@ -1395,7 +1395,7 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 	    int varEnd = wrapper.computeEnd();
 		for (int i = staticVariables.length; --i >= 0;)
 			if (CharOperation.equals(staticVariables[i].sourceName, wrapper.signature, varStart, varEnd))
-				return getTypeFromTypeVariable(staticVariables[i], dimension, walker, missingTypeNames);
+				return getTypeFromTypeVariable(staticVariables[i], dimension, annotationsOnDimensions, walker, missingTypeNames);
 	    ReferenceBinding initialType = enclosingType;
 		do {
 			TypeVariableBinding[] enclosingTypeVariables;
@@ -1406,7 +1406,7 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 			}
 			for (int i = enclosingTypeVariables.length; --i >= 0;)
 				if (CharOperation.equals(enclosingTypeVariables[i].sourceName, wrapper.signature, varStart, varEnd))
-					return getTypeFromTypeVariable(enclosingTypeVariables[i], dimension, walker, missingTypeNames);
+					return getTypeFromTypeVariable(enclosingTypeVariables[i], dimension, annotationsOnDimensions, walker, missingTypeNames);
 		} while ((enclosingType = enclosingType.enclosingType()) != null);
 		this.problemReporter.undefinedTypeVariableSignature(CharOperation.subarray(wrapper.signature, varStart, varEnd), initialType);
 		return null; // cannot reach this, since previous problem will abort compilation
@@ -1426,8 +1426,9 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 	if (actualEnclosing != null) { // convert needed if read some static member type
 		actualEnclosing = (ReferenceBinding) convertToRawType(actualEnclosing, false /*do not force conversion of enclosing types*/);
 	}
+	AnnotationBinding [] annotations = BinaryTypeBinding.createAnnotations(walker.getAnnotationsAtCursor(), this, missingTypeNames);
 	TypeBinding[] typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, actualType, missingTypeNames, walker);
-	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments, actualEnclosing);
+	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments, actualEnclosing, annotations);
 
 	while (wrapper.signature[wrapper.start] == '.') {
 		wrapper.start++; // skip '.'
@@ -1438,37 +1439,25 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 		// need to protect against the member type being null when the signature is invalid
 		if (memberType == null)
 			this.problemReporter.corruptedSignature(parameterizedType, wrapper.signature, memberStart); // aborts
+		walker = walker.toNextNestedType();
+		annotations = BinaryTypeBinding.createAnnotations(walker.getAnnotationsAtCursor(), this, missingTypeNames);
 		if (wrapper.signature[wrapper.start] == '<') {
 			wrapper.start++; // skip '<'
 			typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, memberType, missingTypeNames, walker);
 		} else {
 			typeArguments = null;
 		}
-		parameterizedType = createParameterizedType(memberType, typeArguments, parameterizedType);
+		parameterizedType = createParameterizedType(memberType, typeArguments, parameterizedType, annotations);
 	}
 	wrapper.start++; // skip ';'
 	return dimension == 0 ? (TypeBinding) parameterizedType : createArrayType(parameterizedType, dimension, AnnotatableTypeSystem.flattenedAnnotations(annotationsOnDimensions));
 }
 
-private TypeBinding getTypeFromTypeVariable(TypeVariableBinding typeVariableBinding, int dimension, TypeAnnotationWalker walker, char [][][] missingTypeNames) {
-	AnnotationBinding [] annotations;
-	AnnotationBinding [][] annotationsOnDimensions = null;
-	if (walker != TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER) {
-		for (int i = 0; i < dimension; i++) {
-			annotations = BinaryTypeBinding.createAnnotations(walker.getAnnotationsAtCursor(), this, missingTypeNames);
-			if (annotations != Binding.NO_ANNOTATIONS) { 
-				if (annotationsOnDimensions == null)
-					annotationsOnDimensions = new AnnotationBinding[dimension][];
-				annotationsOnDimensions[i] = annotations;
-			}
-			walker = walker.toNextArrayDimension();
-		}
-	}
-	
-	annotations = BinaryTypeBinding.createAnnotations(walker.getAnnotationsAtCursor(), this, missingTypeNames);
+private TypeBinding getTypeFromTypeVariable(TypeVariableBinding typeVariableBinding, int dimension, AnnotationBinding [][] annotationsOnDimensions, TypeAnnotationWalker walker, char [][][] missingTypeNames) {
+	AnnotationBinding [] annotations = BinaryTypeBinding.createAnnotations(walker.getAnnotationsAtCursor(), this, missingTypeNames);
 	if (annotations != null && annotations != Binding.NO_ANNOTATIONS)
 		typeVariableBinding = (TypeVariableBinding) createAnnotatedType(typeVariableBinding, new AnnotationBinding [][] { annotations });
-	
+
 	if (dimension == 0) {
 		return typeVariableBinding;
 	}

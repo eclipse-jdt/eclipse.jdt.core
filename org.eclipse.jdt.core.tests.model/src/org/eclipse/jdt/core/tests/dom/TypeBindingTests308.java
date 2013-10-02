@@ -1090,7 +1090,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		verifyAnnotationsOnBinding(binding = binding.getComponentType(), new String[]{"@TypeUseAnnotation(value = a)"});
 	}
 	
-	public void _testAnnotatedBinaryMemberType() throws CoreException, IOException {
+	public void _testAnnotatedBinaryType() throws CoreException, IOException {
 		String jarName = "TypeBindingTests308.jar";
 		String srcName = "TypeBindingTests308_src.zip";
 		IJavaProject javaProject = getJavaProject("Converter18");
@@ -1112,9 +1112,6 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		
 			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
 			libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
-			libraryOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
-			libraryOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
-			libraryOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
 			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
 			
 			String contents = 
@@ -1146,7 +1143,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 				removeLibrary(javaProject, jarName, srcName);
 		}
 	}
-	public void _testAnnotatedBinaryMemberType2() throws CoreException, IOException {
+	public void _testAnnotatedBinaryType2() throws CoreException, IOException {
 		String jarName = "TypeBindingTests308.jar";
 		String srcName = "TypeBindingTests308_src.zip";
 		IJavaProject javaProject = getJavaProject("Converter18");
@@ -1194,12 +1191,12 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			Assignment assignment = (Assignment) stmt.getExpression();
 			Expression left = assignment.getLeftHandSide();
 			ITypeBinding type = left.resolveTypeBinding();
-			assertEquals("Wrong type", "@Marker{ value = (String)\"Outer\"} Outer.Middle.@Marker{ value = (String)\"Middle\"} @Marker{ value = (String)\"Inner\"} Inner @Marker{ value = (String)\"Extended []\"} [] @Marker{ value = (String)\"Prefix []\"} []", type.toString());		
+			assertEquals("Wrong type", "@Marker{ value = (String)\"Outer\"} Outer.@Marker{ value = (String)\"Middle\"} Middle.@Marker{ value = (String)\"Inner\"} Inner @Marker{ value = (String)\"Extended []\"} [] @Marker{ value = (String)\"Prefix []\"} []", type.toString());		
 		} finally {
 				removeLibrary(javaProject, jarName, srcName);
 		}
 	}
-	public void _testAnnotatedBinaryMemberType3() throws CoreException, IOException {
+	public void _testAnnotatedBinaryType3() throws CoreException, IOException {
 		String jarName = "TypeBindingTests308.jar";
 		String srcName = "TypeBindingTests308_src.zip";
 		final IJavaProject javaProject = getJavaProject("Converter18");
@@ -1216,7 +1213,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 				"	int value();\n" +
 				"}\n"
 			};
-			// Outer<@T(2) String>.Inner<@T(2) Integer> @T(1) @T(6) [] @T(5) []
+			
 			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
 			libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
 			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
@@ -1245,9 +1242,163 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			Assignment assignment = (Assignment) stmt.getExpression();
 			Expression left = assignment.getLeftHandSide();
 			ITypeBinding type = left.resolveTypeBinding();
-			assertEquals("Wrong type", "@Marker{ value = (String)\"Outer\"} Outer.Middle.@Marker{ value = (String)\"Middle\"} @Marker{ value = (String)\"Inner\"} Inner @Marker{ value = (String)\"Extended []\"} [] @Marker{ value = (String)\"Prefix []\"} []", type.toString());		
+			assertEquals("Wrong type", "@T{ value = (int)1} Outer<@T{ value = (int)2} String>.@T{ value = (int)3} Inner<@T{ value = (int)4} Integer> @T{ value = (int)6} [] @T{ value = (int)5} []", type.toString());		
 		} finally {
 				removeLibrary(javaProject, jarName, srcName);
 		}
 	}
+	
+	public void _testAnnotatedBinaryType4() throws CoreException, IOException {
+		String jarName = "TypeBindingTests308.jar";
+		String srcName = "TypeBindingTests308_src.zip";
+		final IJavaProject javaProject = getJavaProject("Converter18");
+		try {
+			String[] pathAndContents = new String[] {
+				"Outer.java",
+				"public class Outer<K>  {\n" +
+				"	class Inner<P> {\n" +
+				"	}\n" +
+				"	@T(1) K @T(2) [] f @T(3) [];\n" +
+				"}\n" +
+				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"	int value();\n" +
+				"}\n"
+			};
+			
+			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
+			libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
+			
+			String contents = 
+					"public class X {\n" +
+					"    void foo(Outer<String> o) {\n" +
+					"        o.f = null;\n" +
+					"    }\n" +
+					"}";
+			
+			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+			ASTNode node = buildAST(contents, this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			List types = compilationUnit.types();
+			assertEquals("Incorrect no of types", 1, types.size());
+			TypeDeclaration typeDecl = (TypeDeclaration) types.get(0);
+			
+			MethodDeclaration[] methods = typeDecl.getMethods();
+			assertEquals("Incorrect no of methods", 1, methods.length);
+			MethodDeclaration method = methods[0];
+			Block body = method.getBody();
+			ExpressionStatement stmt = (ExpressionStatement) body.statements().get(0);
+			Assignment assignment = (Assignment) stmt.getExpression();
+			Expression left = assignment.getLeftHandSide();
+			ITypeBinding type = left.resolveTypeBinding();
+			assertEquals("Wrong type", "@T{ value = (int)1} String @T{ value = (int)3} [] @T{ value = (int)2} []", type.toString());		
+		} finally {
+				removeLibrary(javaProject, jarName, srcName);
+		}
+	}
+	public void _testAnnotatedBinaryType5() throws CoreException, IOException {
+		String jarName = "TypeBindingTests308.jar";
+		String srcName = "TypeBindingTests308_src.zip";
+		final IJavaProject javaProject = getJavaProject("Converter18");
+		try {
+			String[] pathAndContents = new String[] {
+				"Outer.java",
+				"public class Outer<K>  {\n" +
+				"	class Inner<P> {\n" +
+				"	}\n" +
+				"	@T(1) Outer<@T(2) ? extends @T(3) String>.@T(4) Inner<@T(5) ? super @T(6) Integer> @T(7) [] f @T(8) [];\n" +
+				"}\n" +
+				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"	int value();\n" +
+				"}\n"
+			};
+			
+			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
+			libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
+			
+			String contents = 
+					"public class X {\n" +
+					"    void foo(Outer<String> o) {\n" +
+					"        o.f = null;\n" +
+					"    }\n" +
+					"}";
+			
+			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+			ASTNode node = buildAST(contents, this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			List types = compilationUnit.types();
+			assertEquals("Incorrect no of types", 1, types.size());
+			TypeDeclaration typeDecl = (TypeDeclaration) types.get(0);
+			
+			MethodDeclaration[] methods = typeDecl.getMethods();
+			assertEquals("Incorrect no of methods", 1, methods.length);
+			MethodDeclaration method = methods[0];
+			Block body = method.getBody();
+			ExpressionStatement stmt = (ExpressionStatement) body.statements().get(0);
+			Assignment assignment = (Assignment) stmt.getExpression();
+			Expression left = assignment.getLeftHandSide();
+			ITypeBinding type = left.resolveTypeBinding();
+			assertEquals("Wrong type", "@T{ value = (int)1} Outer<@T{ value = (int)2} ? extends @T{ value = (int)3} String>.@T{ value = (int)4} Inner<@T{ value = (int)5} ? super @T{ value = (int)6} Integer> @T{ value = (int)8} [] @T{ value = (int)7} []", type.toString());		
+		} finally {
+				removeLibrary(javaProject, jarName, srcName);
+		}
+	}
+	public void _testAnnotatedBinaryType6() throws CoreException, IOException {
+		String jarName = "TypeBindingTests308.jar";
+		String srcName = "TypeBindingTests308_src.zip";
+		final IJavaProject javaProject = getJavaProject("Converter18");
+		try {
+			String[] pathAndContents = new String[] {
+				"Outer.java",
+				"public class Outer<K>  {\n" +
+				"	class Inner<P> {\n" +
+				"	}\n" +
+				"	@T(1) Outer.@T(2) Inner @T(3) [] f @T(4) [];\n" +
+				"}\n" +
+				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"	int value();\n" +
+				"}\n"
+			};
+			
+			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
+			libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
+			
+			String contents = 
+					"public class X {\n" +
+					"    void foo(Outer<String> o) {\n" +
+					"        o.f = null;\n" +
+					"    }\n" +
+					"}";
+			
+			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+			ASTNode node = buildAST(contents, this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			List types = compilationUnit.types();
+			assertEquals("Incorrect no of types", 1, types.size());
+			TypeDeclaration typeDecl = (TypeDeclaration) types.get(0);
+			
+			MethodDeclaration[] methods = typeDecl.getMethods();
+			assertEquals("Incorrect no of methods", 1, methods.length);
+			MethodDeclaration method = methods[0];
+			Block body = method.getBody();
+			ExpressionStatement stmt = (ExpressionStatement) body.statements().get(0);
+			Assignment assignment = (Assignment) stmt.getExpression();
+			Expression left = assignment.getLeftHandSide();
+			ITypeBinding type = left.resolveTypeBinding();
+			assertEquals("Wrong type", "@T{ value = (int)1} Outer#RAW.@T{ value = (int)2} Inner#RAW @T{ value = (int)4} [] @T{ value = (int)3} []", type.toString());		
+		} finally {
+				removeLibrary(javaProject, jarName, srcName);
+		}
+	}	
 }
