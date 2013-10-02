@@ -5868,5 +5868,101 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$Y.class", "Y", expectedOutForY, ClassFileBytesDisassembler.SYSTEM);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
+	public void test418347() throws Exception {
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.*;\n" +
+						"import static java.lang.annotation.ElementType.*;\n" +
+						"@Target({TYPE_USE}) @interface P { }\n" +
+						"@Target({TYPE_USE}) @interface O { }\n" +
+						"@Target({TYPE_USE}) @interface I { }\n" +
+						"public abstract class X<T> {\n" +
+						"	class Y<Q> {\n" +
+						"	}\n" +
+						"	void foo(@P Y<P> p) {}\n" +
+						"}\n",
+			},
+			"");
+			String expectedOutput =
+					"    RuntimeInvisibleTypeAnnotations: \n" + 
+					"      #24 @P(\n" + 
+					"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+					"        method parameter index = 0\n" + 
+					"        location = [INNER_TYPE]\n" + 
+					"      )\n" + 
+					"\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
+	public void test418347a() throws Exception {
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.*;\n" +
+						"import static java.lang.annotation.ElementType.*;\n" +
+						"@Target({TYPE_USE}) @interface P { }\n" +
+						"@Target({TYPE_USE}) @interface O { }\n" +
+						"@Target({TYPE_USE}) @interface I { }\n" +
+						"public abstract class X {\n" +
+						"	class Y {\n" +
+						"		class Z {}\n" +
+						"	}\n" +
+						"	void foo(@P X.@O Y.@I Z[] p) {}\n" +
+						"}\n",
+			},
+			"");
+			String expectedOutput =
+					"    RuntimeInvisibleTypeAnnotations: \n" + 
+					"      #19 @P(\n" + 
+					"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+					"        method parameter index = 0\n" + 
+					"        location = [ARRAY]\n" + 
+					"      )\n" + 
+					"      #20 @O(\n" + 
+					"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+					"        method parameter index = 0\n" + 
+					"        location = [ARRAY, INNER_TYPE]\n" + 
+					"      )\n" + 
+					"      #21 @I(\n" + 
+					"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+					"        method parameter index = 0\n" + 
+					"        location = [ARRAY, INNER_TYPE, INNER_TYPE]\n" + 
+					"      )\n" + 
+					"\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
+	public void test418347b() throws Exception {
+		this.runConformTest(
+			new String[] {
+					"X.java",
+					"public abstract class X {\n" +
+					"	java.util.List [][] l = new java.util.ArrayList @pkg.NonNull [0] @pkg.NonNull[];     \n" +
+					"}\n",
+					"pkg/NonNull.java",
+					"package pkg;\n" +
+					"import java.lang.annotation.ElementType;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"@Target(ElementType.TYPE_USE)\n" +
+					"public @interface NonNull {\n" +
+					"}\n"
+			},
+			"");
+			String expectedOutput =
+					"    RuntimeInvisibleTypeAnnotations: \n" + 
+					"      #21 @pkg.NonNull(\n" + 
+					"        target type = 0x44 NEW\n" + 
+					"        offset = 6\n" + 
+					"      )\n" + 
+					"      #21 @pkg.NonNull(\n" + 
+					"        target type = 0x44 NEW\n" + 
+					"        offset = 6\n" + 
+					"        location = [ARRAY]\n" + 
+					"      )\n" + 
+					"}";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}	
 }
 
