@@ -61,7 +61,6 @@ public class TypeAnnotationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	
 	static final class LocationPrinterVisitor extends ASTVisitor {
-		Annotation[] primaryAnnotations;
 		TypeReference enclosingReference;
 		Map locations;
 
@@ -73,13 +72,10 @@ public class TypeAnnotationSyntaxTest extends AbstractSyntaxTreeTest {
 			return this.locations;
 		}
 		public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
-			Annotation[] annotations = fieldDeclaration.annotations;
 			this.enclosingReference = fieldDeclaration.type;
-			this.primaryAnnotations = annotations;
 			return true;
 		}
 		public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
-			this.primaryAnnotations = methodDeclaration.annotations;
 			TypeReference returnType = methodDeclaration.returnType;
 			if (returnType != null) {
 				this.enclosingReference = returnType;
@@ -90,39 +86,34 @@ public class TypeAnnotationSyntaxTest extends AbstractSyntaxTreeTest {
 				for (int i = 0; i < thrownExceptionsLength; i++) {
 					TypeReference typeReference = methodDeclaration.thrownExceptions[i];
 					this.enclosingReference = typeReference;
-					this.primaryAnnotations = null;
 					typeReference.traverse(this, scope);
 				}
 			}
 			return false;
 		}
 		public boolean visit(Argument argument, ClassScope scope) {
-			Annotation[] annotations = argument.annotations;
 			this.enclosingReference = argument.type;
-			this.primaryAnnotations = annotations;
 			return true;
 		}
 		public boolean visit(Argument argument, BlockScope scope) {
-			Annotation[] annotations = argument.annotations;
 			this.enclosingReference = argument.type;
-			this.primaryAnnotations = annotations;
 			return true;
 		}
 		public boolean visit(MarkerAnnotation annotation, BlockScope scope) {
 			if (this.enclosingReference != null) {
-				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation, null, 0));
+				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, annotation));
 			}
 			return false;
 		}
 		public boolean visit(SingleMemberAnnotation annotation, BlockScope scope) {
 			if (this.enclosingReference != null) {
-				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation, null, 0));
+				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, annotation));
 			}
 			return false;
 		}
 		public boolean visit(NormalAnnotation annotation, BlockScope scope) {
 			if (this.enclosingReference != null) {
-				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation, null, 0));
+				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, annotation));
 			}
 			return false;
 		}

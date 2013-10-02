@@ -1031,6 +1031,13 @@ public boolean isReifiable() {
 }
 
 /**
+ * Answer true if the receiver is a static member type (or toplevel)
+ */
+public boolean isStatic() {
+	return false;
+}
+
+/**
  * Returns true if a given type may be thrown
  */
 public boolean isThrowable() {

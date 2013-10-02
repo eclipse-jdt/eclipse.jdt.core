@@ -1415,7 +1415,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		for (int i = 0, max = this.codeStream.exceptionLabelsCounter; i < max; i++) {
 			ExceptionLabel exceptionLabel = exceptionLabels[i];
 			if (exceptionLabel.exceptionTypeReference != null && (exceptionLabel.exceptionTypeReference.bits & ASTNode.HasTypeAnnotations) != 0) {
-				exceptionLabel.exceptionTypeReference.getAllAnnotationContexts(AnnotationTargetTypeConstants.EXCEPTION_PARAMETER, i, allTypeAnnotationContexts);
+				exceptionLabel.exceptionTypeReference.getAllAnnotationContexts(AnnotationTargetTypeConstants.EXCEPTION_PARAMETER, i, allTypeAnnotationContexts, exceptionLabel.se7Annotations);
 			}
 		}
 		
@@ -4492,10 +4492,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		int[] locations = Annotation.getLocations(
 			annotationContext.typeReference,
-			annotationContext.primaryAnnotations,
-			annotationContext.annotation,
-			annotationContext.annotationsOnDimensions,
-			annotationContext.dimensions);
+			annotationContext.annotation);
 
 		if (this.contentsOffset + 5 >= this.contents.length) {
 			resizeContents(5);
@@ -4513,10 +4510,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		int[] locations = Annotation.getLocations(
 				annotationContext.typeReference,
-				null,
-				annotationContext.annotation,
-				null,
-				0);
+				annotationContext.annotation);
 		// reserve enough space
 		if (this.contentsOffset + 5 >= this.contents.length) {
 			resizeContents(5);

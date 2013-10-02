@@ -17,6 +17,7 @@
 package org.eclipse.jdt.internal.compiler.codegen;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -26,11 +27,13 @@ public class ExceptionLabel extends Label {
 	private int count = 0; // incremented each time placeStart or placeEnd is called
 	public TypeBinding exceptionType;
 	public TypeReference exceptionTypeReference;
+	public Annotation [] se7Annotations;
 
-public ExceptionLabel(CodeStream codeStream, TypeBinding exceptionType, TypeReference exceptionTypeReference) {
+public ExceptionLabel(CodeStream codeStream, TypeBinding exceptionType, TypeReference exceptionTypeReference, Annotation [] se7Annotations) {
 	super(codeStream);
 	this.exceptionType = exceptionType;
 	this.exceptionTypeReference = exceptionTypeReference;
+	this.se7Annotations = se7Annotations;
 }
 
 public ExceptionLabel(CodeStream codeStream, TypeBinding exceptionType) {

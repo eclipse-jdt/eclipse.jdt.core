@@ -70,13 +70,13 @@ public class ArrayInitializer extends Expression {
 	/**
 	 * Code generation for a array initializer
 	 */
-	public void generateCode(TypeReference typeReference, Annotation[][] annotationsOnDimensions, BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+	public void generateCode(TypeReference typeReference, ArrayAllocationExpression allocationExpression, BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 
 		// Flatten the values and compute the dimensions, by iterating in depth into nested array initializers
 		int pc = codeStream.position;
 		int expressionLength = (this.expressions == null) ? 0: this.expressions.length;
 		codeStream.generateInlinedValue(expressionLength);
-		codeStream.newArray(typeReference, annotationsOnDimensions, this.binding);
+		codeStream.newArray(typeReference, allocationExpression, this.binding);
 		if (this.expressions != null) {
 			// binding is an ArrayType, so I can just deal with the dimension
 			int elementsTypeID = this.binding.dimensions > 1 ? -1 : this.binding.leafComponentType.id;

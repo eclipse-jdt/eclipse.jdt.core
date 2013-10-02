@@ -54,9 +54,8 @@ public abstract class TypeReference extends Expression {
 	public static final TypeReference[] NO_TYPE_ARGUMENTS = new TypeReference[0];
 static class AnnotationCollector extends ASTVisitor {
 	List annotationContexts;
-	TypeReference typeReference;
+	Expression typeReference;
 	int targetType;
-	Annotation[] primaryAnnotations;
 	int info = 0;
 	int info2 = 0;
 	LocalVariableBinding localVariable;
@@ -72,7 +71,6 @@ static class AnnotationCollector extends ASTVisitor {
 		this.annotationContexts = annotationContexts;
 		this.typeReference = typeParameter.type;
 		this.targetType = targetType;
-		this.primaryAnnotations = typeParameter.annotations;
 		this.info = typeParameterIndex;
 	}
 
@@ -84,7 +82,6 @@ static class AnnotationCollector extends ASTVisitor {
 		this.annotationContexts = annotationContexts;
 		this.typeReference = localDeclaration.type;
 		this.targetType = targetType;
-		this.primaryAnnotations = localDeclaration.annotations;
 		this.localVariable = localVariable;
 	}
 
@@ -96,38 +93,9 @@ static class AnnotationCollector extends ASTVisitor {
 		this.annotationContexts = annotationContexts;
 		this.typeReference = localDeclaration.type;
 		this.targetType = targetType;
-		this.primaryAnnotations = localDeclaration.annotations;
 		this.info = parameterIndex;
 	}
 
-	public AnnotationCollector(
-			MethodDeclaration methodDeclaration,
-			int targetType,
-			List annotationContexts) {
-		this.annotationContexts = annotationContexts;
-		this.typeReference = methodDeclaration.returnType;
-		this.targetType = targetType;
-		this.primaryAnnotations = methodDeclaration.annotations;
-	}
-
-	public AnnotationCollector(
-			ConstructorDeclaration constructorDeclaration,
-			int targetType,
-			List annotationContexts) {
-		this.annotationContexts = annotationContexts;
-		this.targetType = targetType;
-		this.primaryAnnotations = constructorDeclaration.annotations;
-	}
-
-	public AnnotationCollector(
-			FieldDeclaration fieldDeclaration,
-			int targetType,
-			List annotationContexts) {
-		this.annotationContexts = annotationContexts;
-		this.typeReference = fieldDeclaration.type;
-		this.targetType = targetType;
-		this.primaryAnnotations = fieldDeclaration.annotations;
-	}
 	public AnnotationCollector(
 			TypeReference typeReference,
 			int targetType,
@@ -137,7 +105,7 @@ static class AnnotationCollector extends ASTVisitor {
 		this.targetType = targetType;
 	}
 	public AnnotationCollector(
-			TypeReference typeReference,
+			Expression typeReference,
 			int targetType,
 			int info,
 			List annotationContexts) {
@@ -181,9 +149,9 @@ static class AnnotationCollector extends ASTVisitor {
 	private boolean internalVisit(Annotation annotation) {
 		AnnotationContext annotationContext = null;
 		if (annotation.isRuntimeTypeInvisible()) {
-			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.INVISIBLE, this.annotationsOnDimensions, this.dimensions);
+			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, AnnotationContext.INVISIBLE);
 		} else if (annotation.isRuntimeTypeVisible()) {
-			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, this.primaryAnnotations, AnnotationContext.VISIBLE, this.annotationsOnDimensions, this.dimensions);
+			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, AnnotationContext.VISIBLE);
 		}
 		if (annotationContext != null) {
 			annotationContext.wildcard = this.currentWildcard;
@@ -396,6 +364,14 @@ public void getAllAnnotationContexts(int targetType, int info, List allAnnotatio
 	AnnotationCollector collector = new AnnotationCollector(this, targetType, info, allAnnotationContexts);
 	this.traverse(collector, (BlockScope) null);
 }
+public void getAllAnnotationContexts(int targetType, int info, List allAnnotationContexts, Annotation [] se7Annotations) {
+	AnnotationCollector collector = new AnnotationCollector(this, targetType, info, allAnnotationContexts);
+	for (int i = 0, length = se7Annotations == null ? 0 : se7Annotations.length; i < length; i++) {
+		Annotation annotation = se7Annotations[i];
+		annotation.traverse(collector, (BlockScope) null);
+	}
+	this.traverse(collector, (BlockScope) null);
+}
 /**
  * info can be either a type index (superclass/superinterfaces) or a pc into the bytecode
  */
@@ -425,6 +401,9 @@ public Annotation[][] getAnnotationsOnDimensions() {
 	return getAnnotationsOnDimensions(false);
 }
 
+public TypeReference [][] getTypeArguments() {
+	return null;
+}
 /**
  * @param useSourceOrder if true annotations on dimensions are returned in source order, otherwise they are returned per
  * how they ought to be interpreted by a type system, or external persistence view. For example, given the following:

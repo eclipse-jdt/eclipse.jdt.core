@@ -136,6 +136,10 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		return qParamName;
 	}
 
+	public TypeReference[][] getTypeArguments() {
+		return this.typeArguments;
+	}
+	
 	/* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
      */

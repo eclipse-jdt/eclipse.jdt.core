@@ -906,6 +906,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						TypeReference typeRef = local.declaration.type;
 						if (Annotation.isTypeUseCompatible(typeRef, scope)) { // discard hybrid annotations on package qualified types.
 							local.declaration.bits |= HasTypeAnnotations;
+							typeRef.bits |= HasTypeAnnotations;
 							local.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, typeRef, local.type);
 						}
 						break;
@@ -914,6 +915,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						SourceTypeBinding sourceType = (SourceTypeBinding) field.declaringClass;
 						FieldDeclaration fieldDeclaration = sourceType.scope.referenceContext.declarationOf(field);
 						if (Annotation.isTypeUseCompatible(fieldDeclaration.type, scope)) { // discard hybrid annotations on package qualified types.
+							fieldDeclaration.bits |= HasTypeAnnotations;
+							fieldDeclaration.type.bits |= HasTypeAnnotations;
 							field.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, fieldDeclaration.type, field.type);
 						}
 						break;
@@ -923,6 +926,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 							sourceType = (SourceTypeBinding) method.declaringClass;
 							MethodDeclaration methodDecl = (MethodDeclaration) sourceType.scope.referenceContext.declarationOf(method);
 							if (Annotation.isTypeUseCompatible(methodDecl.returnType, scope)) {
+								methodDecl.bits |= HasTypeAnnotations;
+								methodDecl.returnType.bits |= HasTypeAnnotations;
 								method.returnType = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, methodDecl.returnType, method.returnType);
 							}
 						}
@@ -951,6 +956,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			typeRef.resolvedType = existingType.isArrayType() ? scope.environment().createArrayType(newLeafType, existingType.dimensions(), existingType.getTypeAnnotations()) : newLeafType;
 		} else {
 			unionRef.resolvedType = newLeafType;
+			unionRef.bits |= HasTypeAnnotations;
 		}
 		return typeRef.resolvedType;
 	}

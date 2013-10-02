@@ -103,6 +103,11 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		}
 		return new char[][]{ name };
 	}
+	
+	public TypeReference[][] getTypeArguments() {
+		return new TypeReference[][] { this.typeArguments };
+	}
+	
 	/**
      * @see org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
      */

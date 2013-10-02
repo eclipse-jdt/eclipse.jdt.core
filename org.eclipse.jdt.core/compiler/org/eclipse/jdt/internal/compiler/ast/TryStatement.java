@@ -498,10 +498,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			ExceptionLabel exceptionLabel = null;
 			if ((argument.binding.tagBits & TagBits.MultiCatchParameter) != 0) {
 				MultiCatchExceptionLabel multiCatchExceptionLabel = new MultiCatchExceptionLabel(codeStream, argument.binding.type);
-				multiCatchExceptionLabel.initialize((UnionTypeReference) argument.type);
+				multiCatchExceptionLabel.initialize((UnionTypeReference) argument.type, argument.annotations);
 				exceptionLabel = multiCatchExceptionLabel;
 			} else {
-				exceptionLabel = new ExceptionLabel(codeStream, argument.binding.type, argument.type);
+				exceptionLabel = new ExceptionLabel(codeStream, argument.binding.type, argument.type, argument.annotations);
 			}
 			exceptionLabel.placeStart();
 			exceptionLabels[i] = exceptionLabel;

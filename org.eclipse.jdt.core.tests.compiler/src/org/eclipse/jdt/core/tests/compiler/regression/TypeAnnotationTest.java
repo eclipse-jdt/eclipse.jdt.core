@@ -5690,5 +5690,183 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"}";
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
+	public void testPQTRArray() throws Exception {
+		this.runConformTest(
+				new String[] {
+						"Outer.java",
+						"public class Outer<K>  {\n" +
+						"	class Inner<P> {\n" +
+						"	}\n" +
+						"	public @T(1) Outer<@T(2) String>.@T(3) Inner<@T(4) Integer> @T(5) [] omi @T(6) [];\n" +
+						"}\n" +
+						"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+						"@interface T {\n" +
+						"	int value();\n" +
+						"}\n",
+			},
+			"");
+			String expectedOutput =
+					"  public Outer$Inner[][] omi;\n" + 
+					"    RuntimeInvisibleTypeAnnotations: \n" + 
+					"      #10 @T(\n" + 
+					"        #11 value=(int) 1 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY, ARRAY]\n" + 
+					"      )\n" + 
+					"      #10 @T(\n" + 
+					"        #11 value=(int) 3 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY, ARRAY, INNER_TYPE]\n" + 
+					"      )\n" + 
+					"      #10 @T(\n" + 
+					"        #11 value=(int) 5 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY]\n" + 
+					"      )\n" + 
+					"      #10 @T(\n" + 
+					"        #11 value=(int) 6 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"      )\n" + 
+					"      #10 @T(\n" + 
+					"        #11 value=(int) 2 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY, ARRAY, TYPE_ARGUMENT(0)]\n" + 
+					"      )\n" + 
+					"      #10 @T(\n" + 
+					"        #11 value=(int) 4 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY, ARRAY, INNER_TYPE, TYPE_ARGUMENT(0)]\n" + 
+					"      )\n" + 
+					"  \n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "Outer.class", "Outer", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
+	public void testPQTRArray2() throws Exception {
+		this.runConformTest(
+				new String[] {
+						"Outer.java",
+						"public class Outer<K1, K2>  {\n" +
+						"	class Inner<P1, P2> {\n" +
+						"	}\n" +
+						"	public @T(1) Outer<@T(2) String, @T(3) Inner>.@T(4) Inner<@T(5) Integer, @T(6) Outer.@T(7) Inner> @T(7) [] omi @T(8) [];\n" +
+						"}\n" +
+						"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+						"@interface T {\n" +
+						"	int value();\n" +
+						"}\n",
+			},
+			"");
+			String expectedOutput =
+					"  // Field descriptor #6 [[LOuter$Inner;\n" + 
+					"  // Signature: [[LOuter<Ljava/lang/String;LOuter$Inner;>.Inner<Ljava/lang/Integer;LOuter$Inner;>;\n" + 
+					"  public Outer$Inner[][] omi;\n" + 
+					"    RuntimeInvisibleTypeAnnotations: \n" + 
+					"      #10 @T(\n" + 
+					"        #11 value=(int) 1 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY, ARRAY]\n" + 
+					"      )\n" + 
+					"      #10 @T(\n" + 
+					"        #11 value=(int) 4 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY, ARRAY, INNER_TYPE]\n" + 
+					"      )\n" + 
+					"      #10 @T(\n" + 
+					"        #11 value=(int) 7 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY]\n" + 
+					"      )\n" + 
+					"      #10 @T(\n" + 
+					"        #11 value=(int) 8 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"      )\n" + 
+					"      #10 @T(\n" + 
+					"        #11 value=(int) 2 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY, ARRAY, TYPE_ARGUMENT(0)]\n" + 
+					"      )\n" + 
+					"      #10 @T(\n" + 
+					"        #11 value=(int) 3 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY, ARRAY, TYPE_ARGUMENT(1), INNER_TYPE]\n" + 
+					"      )\n" + 
+					"      #10 @T(\n" + 
+					"        #11 value=(int) 5 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY, ARRAY, INNER_TYPE, TYPE_ARGUMENT(0)]\n" + 
+					"      )\n" + 
+					"      #10 @T(\n" + 
+					"        #11 value=(int) 6 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY, ARRAY, INNER_TYPE, TYPE_ARGUMENT(1)]\n" + 
+					"      )\n" + 
+					"      #10 @T(\n" + 
+					"        #11 value=(int) 7 (constant type)\n" + 
+					"        target type = 0x13 FIELD\n" + 
+					"        location = [ARRAY, ARRAY, INNER_TYPE, TYPE_ARGUMENT(1), INNER_TYPE]\n" + 
+					"      )\n" + 
+					"  \n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "Outer.class", "Outer", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
+	public void testConstructorResult() throws Exception {
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.ElementType;\n" +
+						"import java.lang.annotation.Target;\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface T {\n" +
+						"}\n" +
+						"public class X {\n" +
+						"	@T X() {}\n" +
+						"	class Y {\n" +
+						"	 @T Y () {\n" +
+						"	}\n" +
+						"	}\n" +
+						"}\n",
+			},
+			"");
+			String expectedOutput =
+					"  // Method descriptor #6 ()V\n" + 
+					"  // Stack: 1, Locals: 1\n" + 
+					"  X();\n" + 
+					"    0  aload_0 [this]\n" + 
+					"    1  invokespecial java.lang.Object() [8]\n" + 
+					"    4  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 7]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+					"    RuntimeInvisibleTypeAnnotations: \n" + 
+					"      #15 @T(\n" + 
+					"        target type = 0x14 METHOD_RETURN\n" + 
+					"      )\n" + 
+					"\n";
+			String expectedOutForY = 
+					"  // Method descriptor #8 (LX;)V\n" + 
+					"  // Stack: 2, Locals: 2\n" + 
+					"  X$Y(X arg0);\n" + 
+					"     0  aload_0 [this]\n" + 
+					"     1  aload_1 [arg0]\n" + 
+					"     2  putfield X$Y.this$0 : X [10]\n" + 
+					"     5  aload_0 [this]\n" + 
+					"     6  invokespecial java.lang.Object() [12]\n" + 
+					"     9  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 9]\n" + 
+					"        [pc: 9, line: 10]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 10] local: this index: 0 type: X.Y\n" + 
+					"    RuntimeInvisibleTypeAnnotations: \n" + 
+					"      #20 @T(\n" + 
+					"        target type = 0x14 METHOD_RETURN\n" + 
+					"      )\n" + 
+					"\n";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$Y.class", "Y", expectedOutForY, ClassFileBytesDisassembler.SYSTEM);
+	}
 }
 

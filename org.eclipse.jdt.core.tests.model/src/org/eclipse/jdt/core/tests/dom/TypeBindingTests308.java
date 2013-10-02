@@ -1093,7 +1093,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	public void _testAnnotatedBinaryMemberType() throws CoreException, IOException {
 		String jarName = "TypeBindingTests308.jar";
 		String srcName = "TypeBindingTests308_src.zip";
-		
+		IJavaProject javaProject = getJavaProject("Converter18");
 		try {
 			String[] pathAndContents = new String[] {
 				"Outer.java",
@@ -1110,9 +1110,12 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 				"}\n"
 			};
 		
-			HashMap libraryOptions = new HashMap(this.currentProject.getOptions(true));
+			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
 			libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
-			addLibrary(this.currentProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
+			libraryOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+			libraryOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+			libraryOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
+			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
 			
 			String contents = 
 					"public class X {\n" +
@@ -1140,12 +1143,13 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			ITypeBinding type = left.resolveTypeBinding();
 			assertEquals("Wrong type", "@Marker{ value = (String)\"Outer\"} Outer.@Marker{ value = (String)\"Middle\"} Middle.@Marker{ value = (String)\"Inner\"} Inner", type.toString());		
 		} finally {
-				removeLibrary(this.currentProject, jarName, srcName);
+				removeLibrary(javaProject, jarName, srcName);
 		}
 	}
 	public void _testAnnotatedBinaryMemberType2() throws CoreException, IOException {
 		String jarName = "TypeBindingTests308.jar";
 		String srcName = "TypeBindingTests308_src.zip";
+		IJavaProject javaProject = getJavaProject("Converter18");
 		try {
 			String[] pathAndContents = new String[] {
 				"Outer.java",
@@ -1162,9 +1166,9 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 				"}\n"
 			};
 		
-			HashMap libraryOptions = new HashMap(this.currentProject.getOptions(true));
+			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
 			libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
-			addLibrary(this.currentProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
+			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
 			
 			String contents = 
 					"public class X {\n" +
@@ -1192,7 +1196,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			ITypeBinding type = left.resolveTypeBinding();
 			assertEquals("Wrong type", "@Marker{ value = (String)\"Outer\"} Outer.Middle.@Marker{ value = (String)\"Middle\"} @Marker{ value = (String)\"Inner\"} Inner @Marker{ value = (String)\"Extended []\"} [] @Marker{ value = (String)\"Prefix []\"} []", type.toString());		
 		} finally {
-				removeLibrary(this.currentProject, jarName, srcName);
+				removeLibrary(javaProject, jarName, srcName);
 		}
 	}
 	public void _testAnnotatedBinaryMemberType3() throws CoreException, IOException {
@@ -1212,7 +1216,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 				"	int value();\n" +
 				"}\n"
 			};
-		
+			// Outer<@T(2) String>.Inner<@T(2) Integer> @T(1) @T(6) [] @T(5) []
 			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
 			libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
 			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);

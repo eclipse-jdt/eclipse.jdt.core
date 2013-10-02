@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.Annotation;
+import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
@@ -40,8 +40,8 @@ public class TypeAnnotationCodeStream extends StackMapFrameCodeStream {
 		this.allTypeAnnotationContexts = new ArrayList();
 	}
 	
-	private void addAnnotationContext(TypeReference typeReference, int info, int targetType, Annotation[][] annotationsOnDimensions, int dimensions) {
-		typeReference.getAllAnnotationContexts(targetType, info, this.allTypeAnnotationContexts, annotationsOnDimensions, dimensions);
+	private void addAnnotationContext(TypeReference typeReference, int info, int targetType, ArrayAllocationExpression allocationExpression) {
+		allocationExpression.getAllAnnotationContexts(targetType, info, this.allTypeAnnotationContexts);
 	}
 	
 	private void addAnnotationContext(TypeReference typeReference, int info, int targetType) {
@@ -63,12 +63,11 @@ public class TypeAnnotationCodeStream extends StackMapFrameCodeStream {
 			TypeReference typeReference,
 			TypeBinding typeBinding,
 			int dimensions,
-			int declaredDimensions,
-			Annotation [][] annotationsOnDimensions) {
+			ArrayAllocationExpression allocationExpression) {
 		if (typeReference != null && (typeReference.bits & ASTNode.HasTypeAnnotations) != 0) {
-			addAnnotationContext(typeReference, this.position, AnnotationTargetTypeConstants.NEW, annotationsOnDimensions, declaredDimensions);
+			addAnnotationContext(typeReference, this.position, AnnotationTargetTypeConstants.NEW, allocationExpression);
 		}
-		super.multianewarray(typeReference, typeBinding, dimensions, declaredDimensions, annotationsOnDimensions);
+		super.multianewarray(typeReference, typeBinding, dimensions, allocationExpression);
 	}
 
 	public void new_(TypeReference typeReference, TypeBinding typeBinding) {
@@ -78,11 +77,11 @@ public class TypeAnnotationCodeStream extends StackMapFrameCodeStream {
 		super.new_(typeReference, typeBinding);
 	}
 	
-	public void newArray(TypeReference typeReference, Annotation[][] annotationsOnDimensions, ArrayBinding arrayBinding) {
+	public void newArray(TypeReference typeReference, ArrayAllocationExpression allocationExpression, ArrayBinding arrayBinding) {
 		if (typeReference != null && (typeReference.bits & ASTNode.HasTypeAnnotations) != 0) {
-			addAnnotationContext(typeReference, this.position, AnnotationTargetTypeConstants.NEW, annotationsOnDimensions, arrayBinding.dimensions);
+			addAnnotationContext(typeReference, this.position, AnnotationTargetTypeConstants.NEW, allocationExpression);
 		}
-		super.newArray(typeReference, annotationsOnDimensions, arrayBinding);
+		super.newArray(typeReference, allocationExpression, arrayBinding);
 	}
 	
 	public void checkcast(TypeReference typeReference, TypeBinding typeBinding) {

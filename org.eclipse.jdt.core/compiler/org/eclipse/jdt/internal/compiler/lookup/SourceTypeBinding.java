@@ -1642,8 +1642,8 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 				if (annotations != null && annotations != Binding.NO_ANNOTATIONS) {
 					ASTNode.copySE8AnnotationsToType(initializationScope, field, fieldDecl.annotations);
 				}
+				Annotation.isTypeUseCompatible(fieldDecl.type, this.scope, fieldDecl.annotations);
 			}
-			Annotation.isTypeUseCompatible(fieldDecl.type, this.scope, fieldDecl.annotations);
 			// apply null default:
 			LookupEnvironment environment = this.scope.environment();
 			if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {

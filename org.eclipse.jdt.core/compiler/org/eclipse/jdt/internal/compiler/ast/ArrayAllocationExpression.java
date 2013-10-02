@@ -22,8 +22,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.List;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -62,7 +65,7 @@ public class ArrayAllocationExpression extends Expression {
 		int pc = codeStream.position;
 
 		if (this.initializer != null) {
-			this.initializer.generateCode(this.type, this.annotationsOnDimensions, currentScope, codeStream, valueRequired);
+			this.initializer.generateCode(this.type, this, currentScope, codeStream, valueRequired);
 			return;
 		}
 
@@ -77,10 +80,10 @@ public class ArrayAllocationExpression extends Expression {
 		// array allocation
 		if (explicitDimCount == 1) {
 			// Mono-dimensional array
-			codeStream.newArray(this.type, this.annotationsOnDimensions, (ArrayBinding)this.resolvedType);
+			codeStream.newArray(this.type, this, (ArrayBinding)this.resolvedType);
 		} else {
 			// Multi-dimensional array
-			codeStream.multianewarray(this.type, this.resolvedType, explicitDimCount, this.dimensions.length, this.annotationsOnDimensions);
+			codeStream.multianewarray(this.type, this.resolvedType, explicitDimCount, this);
 		}
 		if (valueRequired) {
 			codeStream.generateImplicitConversion(this.implicitConversion);
@@ -193,6 +196,11 @@ public class ArrayAllocationExpression extends Expression {
 			int dimensionsLength = this.dimensions.length;
 			this.type.traverse(visitor, scope);
 			for (int i = 0; i < dimensionsLength; i++) {
+				Annotation [] annotations = this.annotationsOnDimensions == null ? null : this.annotationsOnDimensions[i];
+				int annotationsLength = annotations == null ? 0 : annotations.length;
+				for (int j = 0; j < annotationsLength; j++) {
+					annotations[j].traverse(visitor, scope);
+				}
 				if (this.dimensions[i] != null)
 					this.dimensions[i].traverse(visitor, scope);
 			}
@@ -200,5 +208,24 @@ public class ArrayAllocationExpression extends Expression {
 				this.initializer.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
+	}
+
+	public void getAllAnnotationContexts(int targetType, int info, List allTypeAnnotationContexts) {
+		AnnotationCollector collector = new AnnotationCollector(this, targetType, info, allTypeAnnotationContexts);
+		this.type.traverse(collector, (BlockScope) null);
+		if (this.annotationsOnDimensions != null)  {
+			int dimensionsLength = this.dimensions.length;
+			for (int i = 0; i < dimensionsLength; i++) {
+				Annotation [] annotations = this.annotationsOnDimensions[i];
+				int annotationsLength = annotations == null ? 0 : annotations.length;
+				for (int j = 0; j < annotationsLength; j++) {
+					annotations[j].traverse(collector, (BlockScope) null);
+				}
+			}
+		}
+	}
+
+	public Annotation[][] getAnnotationsOnDimensions() {
+		return this.annotationsOnDimensions;
 	}
 }
