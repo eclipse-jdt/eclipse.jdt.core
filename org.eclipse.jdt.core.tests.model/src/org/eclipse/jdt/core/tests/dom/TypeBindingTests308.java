@@ -1090,7 +1090,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		verifyAnnotationsOnBinding(binding = binding.getComponentType(), new String[]{"@TypeUseAnnotation(value = a)"});
 	}
 	
-	public void _testAnnotatedBinaryType() throws CoreException, IOException {
+	public void testAnnotatedBinaryType() throws CoreException, IOException {
 		String jarName = "TypeBindingTests308.jar";
 		String srcName = "TypeBindingTests308_src.zip";
 		IJavaProject javaProject = getJavaProject("Converter18");
@@ -1140,10 +1140,10 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			ITypeBinding type = left.resolveTypeBinding();
 			assertEquals("Wrong type", "@Marker{ value = (String)\"Outer\"} Outer.@Marker{ value = (String)\"Middle\"} Middle.@Marker{ value = (String)\"Inner\"} Inner", type.toString());		
 		} finally {
-				removeLibrary(javaProject, jarName, srcName);
+			removeLibrary(javaProject, jarName, srcName);
 		}
 	}
-	public void _testAnnotatedBinaryType2() throws CoreException, IOException {
+	public void testAnnotatedBinaryType2() throws CoreException, IOException {
 		String jarName = "TypeBindingTests308.jar";
 		String srcName = "TypeBindingTests308_src.zip";
 		IJavaProject javaProject = getJavaProject("Converter18");
@@ -1193,10 +1193,10 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			ITypeBinding type = left.resolveTypeBinding();
 			assertEquals("Wrong type", "@Marker{ value = (String)\"Outer\"} Outer.@Marker{ value = (String)\"Middle\"} Middle.@Marker{ value = (String)\"Inner\"} Inner @Marker{ value = (String)\"Extended []\"} [] @Marker{ value = (String)\"Prefix []\"} []", type.toString());		
 		} finally {
-				removeLibrary(javaProject, jarName, srcName);
+			removeLibrary(javaProject, jarName, srcName);
 		}
 	}
-	public void _testAnnotatedBinaryType3() throws CoreException, IOException {
+	public void testAnnotatedBinaryType3() throws CoreException, IOException {
 		String jarName = "TypeBindingTests308.jar";
 		String srcName = "TypeBindingTests308_src.zip";
 		final IJavaProject javaProject = getJavaProject("Converter18");
@@ -1244,11 +1244,11 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			ITypeBinding type = left.resolveTypeBinding();
 			assertEquals("Wrong type", "@T{ value = (int)1} Outer<@T{ value = (int)2} String>.@T{ value = (int)3} Inner<@T{ value = (int)4} Integer> @T{ value = (int)6} [] @T{ value = (int)5} []", type.toString());		
 		} finally {
-				removeLibrary(javaProject, jarName, srcName);
+			removeLibrary(javaProject, jarName, srcName);
 		}
 	}
 	
-	public void _testAnnotatedBinaryType4() throws CoreException, IOException {
+	public void testAnnotatedBinaryType4() throws CoreException, IOException {
 		String jarName = "TypeBindingTests308.jar";
 		String srcName = "TypeBindingTests308_src.zip";
 		final IJavaProject javaProject = getJavaProject("Converter18");
@@ -1296,10 +1296,10 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			ITypeBinding type = left.resolveTypeBinding();
 			assertEquals("Wrong type", "@T{ value = (int)1} String @T{ value = (int)3} [] @T{ value = (int)2} []", type.toString());		
 		} finally {
-				removeLibrary(javaProject, jarName, srcName);
+			removeLibrary(javaProject, jarName, srcName);
 		}
 	}
-	public void _testAnnotatedBinaryType5() throws CoreException, IOException {
+	public void testAnnotatedBinaryType5() throws CoreException, IOException {
 		String jarName = "TypeBindingTests308.jar";
 		String srcName = "TypeBindingTests308_src.zip";
 		final IJavaProject javaProject = getJavaProject("Converter18");
@@ -1347,10 +1347,10 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			ITypeBinding type = left.resolveTypeBinding();
 			assertEquals("Wrong type", "@T{ value = (int)1} Outer<@T{ value = (int)2} ? extends @T{ value = (int)3} String>.@T{ value = (int)4} Inner<@T{ value = (int)5} ? super @T{ value = (int)6} Integer> @T{ value = (int)8} [] @T{ value = (int)7} []", type.toString());		
 		} finally {
-				removeLibrary(javaProject, jarName, srcName);
+			removeLibrary(javaProject, jarName, srcName);
 		}
 	}
-	public void _testAnnotatedBinaryType6() throws CoreException, IOException {
+	public void testAnnotatedBinaryType6() throws CoreException, IOException {
 		String jarName = "TypeBindingTests308.jar";
 		String srcName = "TypeBindingTests308_src.zip";
 		final IJavaProject javaProject = getJavaProject("Converter18");
@@ -1398,7 +1398,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			ITypeBinding type = left.resolveTypeBinding();
 			assertEquals("Wrong type", "@T{ value = (int)1} Outer#RAW.@T{ value = (int)2} Inner#RAW @T{ value = (int)4} [] @T{ value = (int)3} []", type.toString());		
 		} finally {
-				removeLibrary(javaProject, jarName, srcName);
+			removeLibrary(javaProject, jarName, srcName);
 		}
 	}	
 }

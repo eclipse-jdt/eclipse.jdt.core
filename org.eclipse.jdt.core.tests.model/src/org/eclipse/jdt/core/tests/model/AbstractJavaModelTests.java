@@ -1836,12 +1836,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 	}
 	protected String[] getJCL15PlusLibraryIfNeeded(String compliance) throws JavaModelException, IOException {
-		if (compliance.charAt(compliance.length()-1) >= '8' && (AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_1_8) == 0) {
+		if (compliance.charAt(compliance.length()-1) >= '8' && (AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_1_8) != 0) {
 			// ensure that the JCL 18 lib is setup (i.e. that the jclMin18.jar is copied)
 			setUpJCLClasspathVariables("1.8");
 			return new String[] {getExternalJCLPathString("1.8")};
 		}
-		if (compliance.charAt(compliance.length()-1) >= '5' && (AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_1_5) == 0) {
+		if (compliance.charAt(compliance.length()-1) >= '5' && (AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_1_5) != 0) {
 			// ensure that the JCL 15 lib is setup (i.e. that the jclMin15.jar is copied)
 			setUpJCLClasspathVariables("1.5");
 			return new String[] {getExternalJCLPathString("1.5")};
