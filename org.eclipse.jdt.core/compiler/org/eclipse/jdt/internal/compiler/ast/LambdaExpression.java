@@ -49,6 +49,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticArgumentBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -782,6 +783,17 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			if (this.outerLocalVariables[i].actualOuterLocalVariable == actualOuterLocalVariable)
 				return this.outerLocalVariables[i];
 		return null;
+	}
+
+	// Return the actual method binding devoid of synthetics. 
+	public MethodBinding getMethodBinding() {
+		if (this.actualMethodBinding == null) {
+			this.actualMethodBinding = new MethodBinding(this.binding.modifiers, this.binding.selector, this.binding.returnType, 
+					this.binding instanceof SyntheticMethodBinding ? this.descriptor.parameters : this.binding.parameters,  // retain any faults in parameter list.
+							this.binding.thrownExceptions, this.binding.declaringClass);
+			this.actualMethodBinding.tagBits = this.binding.tagBits;
+		}
+		return this.actualMethodBinding;
 	}
 }
 class IncongruentLambdaException extends RuntimeException {

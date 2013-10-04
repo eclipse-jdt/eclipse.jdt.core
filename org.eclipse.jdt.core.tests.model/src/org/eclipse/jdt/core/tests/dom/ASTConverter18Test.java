@@ -2645,6 +2645,200 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		typeBinding = type.resolveBinding();
 		assertFalse("A Functional interface", typeBinding.isFunctionalInterface());
 	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=417017
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test417017a() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test417017/X.java",
+				true/* resolve */);
+		String contents = "package test417017;"
+				+ "interface I {\n"
+				+ "	int foo(int x);\n"
+				+ "}\n" 
+				+ "public class X {\n"
+				+ " void fun(int a) {\n"
+				+"  	I i1 = x1-> x1;\n"
+				+"  	I i2 = xxx-> {\n"
+				+"  		i1.foo(a);\n"
+				+"  		return xxx;\n"
+				+"  	};\n"
+				+"  }\n"
+				+"}\n";
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
+		MethodDeclaration methodDeclaration = typedeclaration.getMethods()[0];
+		VariableDeclarationFragment vdf= (VariableDeclarationFragment) ((VariableDeclarationStatement) methodDeclaration.getBody().statements().get(1)).fragments().get(0);
+		LambdaExpression lambda= (LambdaExpression) vdf.getInitializer();
+		List parameters = lambda.parameters();
+		assertTrue("Incorrect Number of parameters", parameters.size() == 1);
+		ITypeBinding[] parameterTypes= lambda.resolveMethodBinding().getParameterTypes();
+		assertTrue("Incorrect Number of parameter type", parameterTypes.length == 1);
+		assertEquals("Incorrect parameter type", "int", parameterTypes[0].toString());
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=417017
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test417017b() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test417017/X.java",
+				true/* resolve */);
+		String contents = "package test417017;" +
+				"interface I1 {\n" +
+				"	int foo(int a);\n" +
+				"}\n" +
+				"\n" +
+				"interface I2 {\n" +
+				"	public default int foo() {\n" +
+				"		I1 i1 = (a) -> {\n" +
+				"			return a;\n" +
+				"		};\n" +
+				"		//return 0;\n" + // Error on purpose
+				"	}\n" +
+				"}\n" ;
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy, false);
+		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
+		MethodDeclaration methodDeclaration = typedeclaration.getMethods()[0];
+		VariableDeclarationFragment vdf= (VariableDeclarationFragment) ((VariableDeclarationStatement) methodDeclaration.getBody().statements().get(0)).fragments().get(0);
+		LambdaExpression lambda= (LambdaExpression) vdf.getInitializer();
+		List parameters = lambda.parameters();
+		assertTrue("Incorrect Number of parameters", parameters.size() == 1);
+		ITypeBinding[] parameterTypes= lambda.resolveMethodBinding().getParameterTypes();
+		assertTrue("Incorrect Number of parameter type", parameterTypes.length == 1);
+		assertEquals("Incorrect parameter type", "int", parameterTypes[0].toString());
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=417017
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test417017c() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test417017/X.java",
+				true/* resolve */);
+		String contents = "package test417017;" +
+				"interface I1 {\n" +
+				"	int foo(int a);\n" +
+				"}\n" +
+				"\n" +
+				"interface I2 {\n" +
+				"	public default int foo() {\n" +
+				"		I1 i1 = (float a) -> {\n" +
+				"			return a;\n" +
+				"		};\n" +
+				"		//return 0;\n" + // Error on purpose
+				"	}\n" +
+				"}\n" ;
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy, false);
+		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
+		MethodDeclaration methodDeclaration = typedeclaration.getMethods()[0];
+		VariableDeclarationFragment vdf= (VariableDeclarationFragment) ((VariableDeclarationStatement) methodDeclaration.getBody().statements().get(0)).fragments().get(0);
+		LambdaExpression lambda= (LambdaExpression) vdf.getInitializer();
+		List parameters = lambda.parameters();
+		assertTrue("Incorrect Number of parameters", parameters.size() == 1);
+		ITypeBinding[] parameterTypes= lambda.resolveMethodBinding().getParameterTypes();
+		assertTrue("Incorrect Number of parameter type", parameterTypes.length == 1);
+		assertEquals("Incorrect parameter type", "float", parameterTypes[0].toString());
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=417017
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test417017d() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test399794/X.java",
+				true/* resolve */);
+		String contents = "package test399794;" +
+				"interface I {\n" +
+				"	void foo(X x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void foo(X x) {\n" +
+				"	}\n" +
+				"	I i = this::foo;\n" +
+				"}\n";
+			
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) getASTNode(cu, 1);
+		FieldDeclaration field = typeDeclaration.getFields()[0];
+		
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) field.fragments().get(0);
+		Expression expression = fragment.getInitializer();
+		ExpressionMethodReference methodReference = (ExpressionMethodReference) expression;
+		IMethodBinding methodBinding = methodReference.resolveMethodBinding();
+		assertNotNull(methodBinding);
+		ITypeBinding [] parameterTypes = methodBinding.getParameterTypes();
+		assertTrue("Incorrect Number of parameter type", parameterTypes.length == 1);
+		assertEquals("Incorrect parameter type", "X", parameterTypes[0].getName());
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=417017
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test417017e() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test399794/X.java",
+				true/* resolve */);
+		String contents = "package test399794;" +
+				"interface I {\n" +
+				"	int [] foo(int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	I i = int []::new;\n" +
+				"}\n";
+			
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) getASTNode(cu, 1);
+		FieldDeclaration field = typeDeclaration.getFields()[0];
+
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) field.fragments().get(0);
+		Expression expression = fragment.getInitializer();
+		CreationReference creationReference = (CreationReference) expression;
+		IMethodBinding methodBinding = creationReference.resolveMethodBinding();
+		assertNotNull(methodBinding);
+		assertEquals("Wrong name", "lambda$0", methodBinding.getName());
+		ITypeBinding [] parameterTypes = methodBinding.getParameterTypes();
+		assertTrue("Incorrect Number of parameter type", parameterTypes.length == 1);
+		assertEquals("Incorrect parameter type", "int", parameterTypes[0].getName());
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=417017
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test417017f() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test399794/X.java",
+				true/* resolve */);
+		String contents = "package test399794;" +
+				"interface I {\n" +
+				"	void foo(X x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	private void foo(X x) {\n" +
+				"	}\n" +
+				"	class Y {\n" +
+				"		I i = X.this::foo;\n" +
+				"	}\n" +
+				"}\n";
+
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) getASTNode(cu, 1);
+		typeDeclaration = typeDeclaration.getTypes()[0];
+		FieldDeclaration field = typeDeclaration.getFields()[0];
+
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) field.fragments().get(0);
+		Expression expression = fragment.getInitializer();
+		ExpressionMethodReference reference = (ExpressionMethodReference) expression;
+		IMethodBinding methodBinding = reference.resolveMethodBinding();
+		assertNotNull(methodBinding);
+		assertEquals("Wrong name", "foo", methodBinding.getName());
+		ITypeBinding [] parameterTypes = methodBinding.getParameterTypes();
+		assertTrue("Incorrect Number of parameter type", parameterTypes.length == 1);
+		assertEquals("Incorrect parameter type", "X", parameterTypes[0].getName());
+	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=413942
 	// also refer https://bugs.eclipse.org/bugs/show_bug.cgi?id=413569
 	public void testBug413942() throws JavaModelException {

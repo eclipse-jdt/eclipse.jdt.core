@@ -883,7 +883,7 @@ class DefaultBindingResolver extends BindingResolver {
 		Object oldNode = this.newAstToOldAst.get(lambda);
 		if (oldNode instanceof org.eclipse.jdt.internal.compiler.ast.LambdaExpression) {
 			org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression = (org.eclipse.jdt.internal.compiler.ast.LambdaExpression) oldNode;
-			IMethodBinding methodBinding = getMethodBinding(lambdaExpression.binding);
+			IMethodBinding methodBinding = getMethodBinding(lambdaExpression.getMethodBinding());
 			if (methodBinding == null) {
 				return null;
 			}
@@ -934,7 +934,7 @@ class DefaultBindingResolver extends BindingResolver {
 		Object oldNode = this.newAstToOldAst.get(methodReference);
 		if (oldNode instanceof org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) {
 			org.eclipse.jdt.internal.compiler.ast.ReferenceExpression referenceExpression = (org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) oldNode;
-			IMethodBinding methodBinding = getMethodBinding(referenceExpression.binding);
+			IMethodBinding methodBinding = getMethodBinding(referenceExpression.getMethodBinding());
 			if (methodBinding == null) {
 				return null;
 			}
@@ -1166,7 +1166,7 @@ class DefaultBindingResolver extends BindingResolver {
 			return method.getReturnType();
 		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) {
 			org.eclipse.jdt.internal.compiler.ast.ReferenceExpression referenceExpression = (org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) node;
-			IMethodBinding method = getMethodBinding(referenceExpression.binding);
+			IMethodBinding method = getMethodBinding(referenceExpression.getMethodBinding());
 			if (method == null) return null;
 			return method.getReturnType();
 		}
@@ -1431,7 +1431,7 @@ class DefaultBindingResolver extends BindingResolver {
 			return getMethodBinding(memberValuePair.binding);
 		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) {
 			org.eclipse.jdt.internal.compiler.ast.ReferenceExpression referenceExpression = (org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) node;
-			return getMethodBinding(referenceExpression.binding);
+			return getMethodBinding(referenceExpression.getMethodBinding());
 		}
 		return null;
 	}

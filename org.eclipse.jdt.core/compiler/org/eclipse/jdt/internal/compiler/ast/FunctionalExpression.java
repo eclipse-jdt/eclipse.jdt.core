@@ -38,7 +38,8 @@ public abstract class FunctionalExpression extends Expression {
 	
 	TypeBinding expectedType;
 	public MethodBinding descriptor;
-	public MethodBinding binding;
+	public MethodBinding binding;                 // Code generation binding. May include synthetics. See getMethodBinding()
+	protected MethodBinding actualMethodBinding;  // void of synthetics.
 	boolean ignoreFurtherInvestigation;
 	protected ExpressionContext expressionContext = VANILLA_CONTEXT;
 	protected SimpleLookupTable resultExpressions;
@@ -51,7 +52,10 @@ public abstract class FunctionalExpression extends Expression {
 	public FunctionalExpression(CompilationResult compilationResult) {
 		this.compilationResult = compilationResult;
 	}
-
+	// Return the actual (non-code generation) method binding that is void of synthetics.
+	public MethodBinding getMethodBinding() {
+		return null;
+	}
 	public void setExpectedType(TypeBinding expectedType) {
 		this.expectedType = this.ellipsisArgument ? ((ArrayBinding) expectedType).elementsType() : expectedType;
 	}

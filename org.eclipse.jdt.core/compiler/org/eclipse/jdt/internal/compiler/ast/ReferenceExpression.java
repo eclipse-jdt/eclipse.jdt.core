@@ -81,6 +81,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	}
  
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+		this.actualMethodBinding = this.binding; // grab before synthetics come into play.
 		SourceTypeBinding sourceType = currentScope.enclosingSourceType();
 		if (this.receiverType.isArrayType()) {
 			if (isConstructorReference()) {
@@ -636,5 +637,11 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		t = t.capture(this.enclosingScope, this.sourceEnd);
 		tSam = t.getSingleAbstractMethod(this.enclosingScope);
 		return resultExpression.tIsMoreSpecific(tSam.returnType, sSam.returnType);
+	}
+
+	public org.eclipse.jdt.internal.compiler.lookup.MethodBinding getMethodBinding() {
+		if (this.actualMethodBinding == null)  // array new/clone, no real binding.
+			this.actualMethodBinding = this.binding;
+		return this.actualMethodBinding;
 	}
 }
