@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2013 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -56,7 +56,6 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
         visitor.visitDeclaration(this);     
     }        
 
-    @SuppressWarnings("unchecked")
 	<A extends Annotation> A _getAnnotation(Class<A> annotationClass,
                                             IAnnotationBinding[] annoInstances)
     {

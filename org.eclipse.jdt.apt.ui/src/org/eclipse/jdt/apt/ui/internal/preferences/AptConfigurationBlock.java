@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2011 BEA Systems, Inc. and others.
+ * Copyright (c) 2005, 2013 BEA Systems, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -161,7 +161,6 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	 * Sorts items in the Processor Options list control.
 	 */
 	private static class ProcessorOptionSorter extends ViewerComparator {
-		@SuppressWarnings("unchecked") // getComparator() returns a raw Comparator rather than a Comparator<T>
 		public int compare(Viewer viewer, Object e1, Object e2) {
 			return getComparator().compare(((ProcessorOption) e1).key, ((ProcessorOption) e2).key);
 		}

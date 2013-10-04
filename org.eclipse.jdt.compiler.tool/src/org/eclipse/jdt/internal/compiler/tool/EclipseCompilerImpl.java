@@ -309,7 +309,6 @@ public class EclipseCompilerImpl extends Main {
 	}
 
 	@Override
-	@SuppressWarnings("rawtypes")
 	protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit, Map customDefaultOptions, CompilationProgress compilationProgress) {
 		super.initialize(outWriter, errWriter, systemExit, customDefaultOptions, compilationProgress);
 		this.javaFileObjectMap = new HashMap<CompilationUnit, JavaFileObject>();
@@ -404,7 +403,6 @@ public class EclipseCompilerImpl extends Main {
 	}
 
 	@Override
-	@SuppressWarnings({"unchecked","rawtypes"})
 	protected void setPaths(ArrayList bootclasspaths,
 			String sourcepathClasspathArg,
 			ArrayList sourcepathClasspaths,

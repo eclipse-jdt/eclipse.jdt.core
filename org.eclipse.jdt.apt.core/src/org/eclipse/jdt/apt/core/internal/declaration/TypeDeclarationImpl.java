@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 BEA Systems, Inc.
+ * Copyright (c) 2005, 2013 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,11 +77,10 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
 
     public ITypeBinding getTypeBinding(){ return (ITypeBinding)_binding; }
     
-    @SuppressWarnings({"rawtypes", "unchecked"})
 	private void getASTFields(
     		final AbstractTypeDeclaration typeDecl, 
     		final List<FieldDeclaration> results){
-    	final List bodyDecls = typeDecl.bodyDeclarations();
+    	final List<?> bodyDecls = typeDecl.bodyDeclarations();
     	for( int i=0, len=bodyDecls.size(); i<len; i++ ){
     		final BodyDeclaration bodyDecl = (BodyDeclaration)bodyDecls.get(i);
     		IFile file = null; 
