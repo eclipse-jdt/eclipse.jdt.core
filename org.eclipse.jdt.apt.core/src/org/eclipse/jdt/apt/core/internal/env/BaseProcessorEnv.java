@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 BEA Systems Inc. and others
+ * Copyright (c) 2005, 2013 BEA Systems Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -232,7 +232,6 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		return mirrorDecls;
     }
     
-    @SuppressWarnings("unchecked")
 	protected List<AbstractTypeDeclaration> searchLocallyForTypeDeclarations()
     {
     	return _astRoot.types();
@@ -322,7 +321,6 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	 * @param decls the list to be populated.
 	 *        adding the declaration(s) corresponding to the ast node to this list.
 	 */
-    @SuppressWarnings("unchecked")
 	protected void getDeclarations(ASTNode node, List<Declaration>decls)
     {
     	if( node == null ) return;

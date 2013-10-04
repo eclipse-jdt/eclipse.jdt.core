@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2013 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,7 +77,6 @@ public abstract class ASTBasedExecutableDeclarationImpl
     {
         final StringBuilder buffer = new StringBuilder();
         final org.eclipse.jdt.core.dom.MethodDeclaration methodAstNode = getMethodAstNode();
-        @SuppressWarnings("unchecked")
     	final List<TypeParameter> typeParams = methodAstNode.typeParameters();
         if( typeParams != null && typeParams.size() > 0 ){
         	 buffer.append('<');
@@ -95,7 +94,6 @@ public abstract class ASTBasedExecutableDeclarationImpl
         buffer.append(methodAstNode.getName());
         buffer.append('(');
         int i=0;
-        @SuppressWarnings("unchecked")
     	final List<SingleVariableDeclaration> params = methodAstNode.parameters();
         for( SingleVariableDeclaration param : params ){
             if( i++ != 0 )

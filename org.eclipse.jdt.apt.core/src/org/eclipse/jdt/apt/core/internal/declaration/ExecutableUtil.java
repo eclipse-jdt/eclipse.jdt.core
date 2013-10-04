@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc.
+ * Copyright (c) 2005, 2013 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,7 +54,6 @@ class ExecutableUtil {
 			// Synthetic methods will have no ast node
 			if (methodAstNode == null)
 				return Collections.emptyList();
-	    	@SuppressWarnings("unchecked")
 	    	final List<TypeParameter> typeParams = methodAstNode.typeParameters();
 	    	final List<TypeParameterDeclaration> result = new ArrayList<TypeParameterDeclaration>();
 	    	for(TypeParameter typeParam : typeParams){
@@ -117,7 +116,6 @@ class ExecutableUtil {
 			if (methodAstNode == null)
 				return Collections.emptyList();
 			
-	    	@SuppressWarnings("unchecked") 
 	    	final List<SingleVariableDeclaration> params = methodAstNode.parameters();
 	    	if( params == null || params.size() == 0 )
 	    		return Collections.emptyList();  
@@ -177,7 +175,6 @@ class ExecutableUtil {
 			if (methodAstNode == null) 
 				return Collections.emptyList();
 			
-	    	@SuppressWarnings("unchecked") 
 	    	final List<Name> exceptions = methodAstNode.thrownExceptions();
 	    	if(exceptions == null || exceptions.size() == 0 )
 	    		return Collections.emptyList();
