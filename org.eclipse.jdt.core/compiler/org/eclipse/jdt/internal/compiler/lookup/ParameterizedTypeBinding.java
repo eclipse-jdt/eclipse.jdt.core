@@ -333,10 +333,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 	
 	public TypeBinding clone(TypeBinding outerType) {
-		ParameterizedTypeBinding copy = new ParameterizedTypeBinding(this.type, this.arguments, (ReferenceBinding) outerType, this.environment);
-		if (this.hasTypeAnnotations())
-			copy.setTypeAnnotations(this.getTypeAnnotations(), this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
-		return copy;
+		return new ParameterizedTypeBinding(this.type, this.arguments, (ReferenceBinding) outerType, this.environment);
 	}
 
 	public ParameterizedMethodBinding createParameterizedMethod(MethodBinding originalMethod) {

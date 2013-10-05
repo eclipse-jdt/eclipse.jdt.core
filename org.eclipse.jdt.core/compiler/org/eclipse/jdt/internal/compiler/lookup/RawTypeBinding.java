@@ -78,10 +78,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
    	}
 	
 	public TypeBinding clone(TypeBinding outerType) {
-		RawTypeBinding copy = new RawTypeBinding(this.actualType(), (ReferenceBinding) outerType, this.environment);
-		if (this.hasTypeAnnotations())
-			copy.setTypeAnnotations(this.getTypeAnnotations(), this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
-		return copy;
+		return new RawTypeBinding(this.actualType(), (ReferenceBinding) outerType, this.environment);
 	}
 
 	/**
