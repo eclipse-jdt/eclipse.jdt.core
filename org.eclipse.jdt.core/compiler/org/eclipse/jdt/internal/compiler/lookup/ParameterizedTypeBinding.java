@@ -55,14 +55,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] arguments,  ReferenceBinding enclosingType, LookupEnvironment environment){
 		this.environment = environment;
 		this.enclosingType = enclosingType; // never unresolved, never lazy per construction
-//		if (enclosingType != null && enclosingType.isGenericType()) {
-//			RuntimeException e = new RuntimeException("PARAM TYPE with GENERIC ENCLOSING");
-//			e.printStackTrace();
-//			throw e;
-//		}
-//		if (!(type instanceof UnresolvedReferenceBinding) && type.typeVariables() == Binding.NO_TYPE_VARIABLES) {
-//			System.out.println();
-//		}
 		initialize(type, arguments);
 		if (type instanceof UnresolvedReferenceBinding)
 			((UnresolvedReferenceBinding) type).addWrapper(this, environment);
@@ -138,7 +130,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				capturedArguments[i] = argument;
 			}
 		}
-		ParameterizedTypeBinding capturedParameterizedType = this.environment.createParameterizedType(this.type, capturedArguments, enclosingType(), this.getTypeAnnotations());
+		ParameterizedTypeBinding capturedParameterizedType = this.environment.createParameterizedType(this.type, capturedArguments, enclosingType(), this.typeAnnotations);
 		for (int i = 0; i < length; i++) {
 			TypeBinding argument = capturedArguments[i];
 			if (argument.isCapture()) {

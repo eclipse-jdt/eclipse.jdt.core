@@ -3070,4 +3070,97 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"Null type mismatch: required \'X.@NonNull Y\' but the provided value is null\n" + 
 			"----------\n");		
 	}
+	public void testWildcardCapture() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"import org.eclipse.jdt.annotation.NonNull;\n" +
+				"\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"}\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"       List<X> ax = new ArrayList<X>();\n" +
+				"       ax.add(new X());\n" +
+				"		List<? extends X> lx = ax;\n" +
+				"		getAdd(lx);\n" +
+				"	}\n" +
+				"	static <@NonNull P>  void getAdd(List<P> lt) {\n" +
+				"		lt.add(lt.get(0));\n" +
+				"	}\n" +
+				"}\n"
+			}, 
+			getCompilerOptions(), 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 16)\n" + 
+			"	getAdd(lx);\n" + 
+			"	       ^^\n" + 
+			"Null type safety (type annotations): The expression of type \'List<capture#>\' needs unchecked conversion to conform to \'List<@NonNull capture#>\'\n" + 
+			"----------\n");		
+	}
+	public void testWildcardCapture2() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"import org.eclipse.jdt.annotation.NonNull;\n" +
+				"\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"}\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"       List<@NonNull X> ax = new ArrayList<@NonNull X>();\n" +
+				"       ax.add(new X());\n" +
+				"		List<@NonNull ? extends X> lx = ax;\n" +
+				"		getAdd(lx);\n" +
+				"	}\n" +
+				"	static <@NonNull P>  void getAdd(List<P> lt) {\n" +
+				"		lt.add(lt.get(0));\n" +
+				"	}\n" +
+				"}\n"
+			}, 
+			getCompilerOptions(), 
+			"");		
+	}
+	public void testWildcardCapture3() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"import org.eclipse.jdt.annotation.NonNull;\n" +
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"}\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"       List<@Nullable X> ax = new ArrayList<@Nullable X>();\n" +
+				"       ax.add(new X());\n" +
+				"		List<@Nullable ? extends X> lx = ax;\n" +
+				"		getAdd(lx);\n" +
+				"	}\n" +
+				"	static <@NonNull P>  void getAdd(List<P> lt) {\n" +
+				"		lt.add(lt.get(0));\n" +
+				"	}\n" +
+				"}\n"
+			}, 
+			getCompilerOptions(), 
+			"");		
+	}
 }

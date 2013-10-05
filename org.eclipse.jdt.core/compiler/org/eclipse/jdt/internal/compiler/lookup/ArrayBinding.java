@@ -335,9 +335,10 @@ public char[] readableName() /* java.lang.Object[] */ {
 }
 
 public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
-	
+	this.tagBits |= TagBits.HasTypeAnnotations;
+	if (annotations == null || annotations.length == 0)
+		return;
 	this.typeAnnotations = annotations;
-	this.tagBits |= TagBits.HasTypeAnnotations | TagBits.HasTypeAnnotations;
 	
 	if (evalNullAnnotations) {
 		long nullTagBits = 0;
@@ -393,7 +394,7 @@ public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceB
 	}
 }
 public String toString() {
-	return this.leafComponentType != null ? this.hasTypeAnnotations() ? annotatedDebugName() : debugName() : "NULL TYPE ARRAY"; //$NON-NLS-1$
+	return this.leafComponentType != null ? debugName() : "NULL TYPE ARRAY"; //$NON-NLS-1$
 }
 public TypeBinding unannotated() {
 	return this.hasTypeAnnotations() ? this.environment.getUnannotatedType(this) : this;

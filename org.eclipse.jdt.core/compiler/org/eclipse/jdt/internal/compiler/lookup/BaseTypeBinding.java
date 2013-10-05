@@ -135,12 +135,6 @@ public final class BaseTypeBinding extends TypeBinding {
 		this.simpleName = name;
 		this.constantPoolName = constantPoolName;
 	}
-	
-	BaseTypeBinding(BaseTypeBinding prototype) {
-		super(prototype);
-		this.simpleName = prototype.simpleName;
-		this.constantPoolName = prototype.constantPoolName;
-	}
 
 	/**
 	 * int -> I
@@ -157,7 +151,7 @@ public final class BaseTypeBinding extends TypeBinding {
 	}
 
 	public TypeBinding clone(TypeBinding enclosingType) {
-		return new BaseTypeBinding(this);
+		return new BaseTypeBinding(this.id, this.simpleName, this.constantPoolName);
 	}
 	
 	public PackageBinding getPackage() {

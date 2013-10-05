@@ -53,32 +53,12 @@ public class WildcardBinding extends ReferenceBinding {
 		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat wildcard as public
 		this.environment = environment;
 		initialize(genericType, bound, otherBounds);
-
-//		if (!genericType.isGenericType() && !(genericType instanceof UnresolvedReferenceBinding)) {
-//			RuntimeException e = new RuntimeException("WILDCARD with NON GENERIC");
-//			e.printStackTrace();
-//			throw e;
-//		}
 		if (genericType instanceof UnresolvedReferenceBinding)
 			((UnresolvedReferenceBinding) genericType).addWrapper(this, environment);
 		if (bound instanceof UnresolvedReferenceBinding)
 			((UnresolvedReferenceBinding) bound).addWrapper(this, environment);
 		this.tagBits |=  TagBits.HasUnresolvedTypeVariables; // cleared in resolve()
 		this.typeBits = TypeIds.BitUninitialized;
-	}
-
-	public WildcardBinding(WildcardBinding prototype) {
-		super(prototype);
-		this.genericType = prototype.genericType;
-		this.rank = prototype.rank;
-	    this.bound = prototype.bound;
-	    this.otherBounds = prototype.otherBounds;
-		this.genericSignature = prototype.genericSignature;
-		this.boundKind = prototype.boundKind;
-		this.superclass = prototype.superclass;
-		this.superInterfaces = prototype.superInterfaces;
-		this.typeVariable = prototype.typeVariable;
-		this.environment = prototype.environment;
 	}
 
 	TypeBinding bound() {
@@ -414,7 +394,7 @@ public class WildcardBinding extends ReferenceBinding {
 	}
 
 	public TypeBinding clone(TypeBinding immaterial) {
-		return new WildcardBinding(this);
+		return new WildcardBinding(this.genericType, this.rank, this.bound, this.otherBounds, this.boundKind, this.environment);
 	}
 	
 	public String annotatedDebugName() {
@@ -432,7 +412,7 @@ public class WildcardBinding extends ReferenceBinding {
                 	return buffer.append(CharOperation.concat(TypeConstants.WILDCARD_NAME, TypeConstants.WILDCARD_EXTENDS, this.bound.annotatedDebugName().toCharArray())).toString();
             	buffer.append(this.bound.annotatedDebugName());
             	for (int i = 0, length = this.otherBounds.length; i < length; i++) {
-            		buffer.append('&').append(this.otherBounds[i].annotatedDebugName());
+            		buffer.append(" & ").append(this.otherBounds[i].annotatedDebugName()); //$NON-NLS-1$
             	}
             	return buffer.toString();
 			default: // SUPER

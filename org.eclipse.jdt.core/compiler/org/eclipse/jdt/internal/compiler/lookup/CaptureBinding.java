@@ -40,6 +40,11 @@ public class CaptureBinding extends TypeVariableBinding {
 			setTypeAnnotations(wildcard.getTypeAnnotations(), wildcard.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
 		}
 	}
+	
+	// Captures may get cloned and annotated during type inference.
+	public TypeBinding clone(TypeBinding enclosingType) {
+		return new CaptureBinding(this.wildcard, this.sourceType, this.position, this.captureID);
+	}
 
 	/*
 	 * sourceTypeKey ! wildcardKey position semi-colon

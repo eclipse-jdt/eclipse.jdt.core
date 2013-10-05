@@ -543,10 +543,13 @@ public class TypeVariableBinding extends ReferenceBinding {
 		return this;
 	}
 	
-	// TVB should inherit annotations from declaration site.
+	/* TVB should inherit annotations from declaration site. For example given class X<@NonNull T> { @Readonly T t; }, 
+	   the type of the field t is "@NonNull @Readonly T". This is not true for capture of the wildcard as the wildcard 
+	   cannot be subsequently referenced by virtue of being anonymous.
+	*/
 	public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
-		TypeVariableBinding prototype = (TypeVariableBinding) this.environment.getUnannotatedType(this); // also exposes original TVB to type system.
-		if (prototype != this) {
+		TypeVariableBinding prototype = (TypeVariableBinding) this.environment.getUnannotatedType(this); // also exposes original TVB/capture to type system for id stamping purposes.
+		if (prototype != this && !this.isCapture()) {
 			AnnotationBinding [] declarationAnnotations = prototype.getTypeAnnotations();
 			final int declarationAnnotationsLength = declarationAnnotations == null ? 0 : declarationAnnotations.length;
 			if (declarationAnnotationsLength > 0) {

@@ -1354,7 +1354,7 @@ final public AnnotationBinding[] getTypeAnnotations() {
 
 public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
 	this.tagBits |= TagBits.HasTypeAnnotations;
-	if (annotations == null || annotations == Binding.NO_ANNOTATIONS)
+	if (annotations == null || annotations.length == 0)
 		return;
 	this.typeAnnotations = annotations;
 	if (evalNullAnnotations) {
