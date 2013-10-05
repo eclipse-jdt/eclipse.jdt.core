@@ -50,7 +50,8 @@
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 384567 - [1.5][compiler] Compiler accepts illegal modifiers on package declaration
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
- *******************************************************************************/
+ *								bug 412151 - [1.8][compiler] Check repeating annotation's collection type
+ ********************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
 import java.io.CharConversionException;
@@ -7069,6 +7070,73 @@ public void repeatedAnnotationWithContainer(Annotation annotation, Annotation co
 		annotation.sourceStart,
 		annotation.sourceEnd);
 }
+public void containingAnnotationMustHaveValue(ASTNode markerNode, ReferenceBinding containerAnnotationType) {
+	this.handle(
+		IProblem.ContainingAnnotationMustHaveValue,
+		new String[] {new String(containerAnnotationType.readableName())},
+		new String[] {new String(containerAnnotationType.shortReadableName())},
+		markerNode.sourceStart,
+		markerNode.sourceEnd);
+}
+public void containingAnnotationHasWrongValueType(ASTNode markerNode, ReferenceBinding containerAnnotationType, ReferenceBinding annotationType, TypeBinding returnType) {
+	this.handle(
+		IProblem.ContainingAnnotationHasWrongValueType,
+		new String[] {new String(containerAnnotationType.readableName()), new String(annotationType.readableName()), new String(returnType.readableName())},
+		new String[] {new String(containerAnnotationType.shortReadableName()), new String(annotationType.shortReadableName()), new String(returnType.shortReadableName())},
+		markerNode.sourceStart,
+		markerNode.sourceEnd);
+}
+public void containingAnnotationHasNonDefaultMembers(ASTNode markerNode, ReferenceBinding containerAnnotationType, char[] selector) {
+	this.handle(
+		IProblem.ContainingAnnotationHasNonDefaultMembers,
+		new String[] {new String(containerAnnotationType.readableName()), new String(selector)},
+		new String[] {new String(containerAnnotationType.shortReadableName()), new String(selector)},
+		markerNode.sourceStart,
+		markerNode.sourceEnd);
+}
+public void containingAnnotationHasShorterRetention(ASTNode markerNode, ReferenceBinding annotationType, String annotationRetention, ReferenceBinding containerAnnotationType, String containerRetention) {
+	this.handle(
+		IProblem.ContainingAnnotationHasShorterRetention,
+		new String[] {new String(annotationType.readableName()), annotationRetention, new String(containerAnnotationType.readableName()), containerRetention},
+		new String[] {new String(annotationType.shortReadableName()), annotationRetention, new String(containerAnnotationType.shortReadableName()), containerRetention},
+		markerNode.sourceStart,
+		markerNode.sourceEnd);
+}
+public void repeatableAnnotationHasTargets(ASTNode markerNode, ReferenceBinding annotationType, ReferenceBinding containerAnnotationType) {
+	this.handle(
+		IProblem.RepeatableAnnotationHasTargets,
+		new String[] {new String(annotationType.readableName()), new String(containerAnnotationType.readableName())},
+		new String[] {new String(annotationType.shortReadableName()), new String(containerAnnotationType.shortReadableName())},
+		markerNode.sourceStart,
+		markerNode.sourceEnd);
+}
+public void repeatableAnnotationTargetMismatch(ASTNode markerNode, ReferenceBinding annotationType, ReferenceBinding containerAnnotationType, String unmetTargets) {
+	this.handle(
+		IProblem.RepeatableAnnotationTargetMismatch,
+		new String[] {new String(annotationType.readableName()), new String(containerAnnotationType.readableName()), unmetTargets},
+		new String[] {new String(annotationType.shortReadableName()), new String(containerAnnotationType.shortReadableName()), unmetTargets},
+		markerNode.sourceStart,
+		markerNode.sourceEnd);
+}
+
+public void repeatableAnnotationIsDocumented(ASTNode markerNode, ReferenceBinding annotationType, ReferenceBinding containerAnnotationType) {
+	this.handle(
+		IProblem.RepeatableAnnotationIsDocumented,
+		new String[] {new String(annotationType.readableName()), new String(containerAnnotationType.readableName())},
+		new String[] {new String(annotationType.shortReadableName()), new String(containerAnnotationType.shortReadableName())},
+		markerNode.sourceStart,
+		markerNode.sourceEnd);
+}
+
+public void repeatableAnnotationIsInherited(ASTNode markerNode, ReferenceBinding annotationType, ReferenceBinding containerAnnotationType) {
+	this.handle(
+		IProblem.RepeatableAnnotationIsInherited,
+		new String[] {new String(annotationType.readableName()), new String(containerAnnotationType.readableName())},
+		new String[] {new String(annotationType.shortReadableName()), new String(containerAnnotationType.shortReadableName())},
+		markerNode.sourceStart,
+		markerNode.sourceEnd);
+}
+
 public void reset() {
 	this.positionScanner = null;
 }

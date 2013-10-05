@@ -11,6 +11,7 @@
  *
  * Contributors:
  *     Jesper S Moller - initial API and implementation
+ *     					Bug 412151 - [1.8][compiler] Check repeating annotation's collection type
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -273,4 +274,567 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 					}
 			});
 	}
+	// Bug 412151: [1.8][compiler] Check repeating annotation's collection type
+	// 412151: The collections type's (TC) declaration must have a array of Ts as its value() - with Foo and FooContainer in same compilation round
+	public void test010() {
+		this.runNegativeTest(
+			new String[] {
+			"Foo.java",
+			"@interface FooContainer {\n" +
+			"}\n" +
+			"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+			"@interface Foo {}\n"
+			}, 
+		"----------\n" + 
+		"1. ERROR in Foo.java (at line 3)\n" + 
+		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" + 
+		"	                                 ^^^^^^^^^^^^^^^^^^\n" + 
+		"The containing annotation @FooContainer must declare a member value()\n" + 
+		"----------\n");
+	}
+	// 412151: The collections type's (TC) declaration must have a array of Ts as its value() - with Foo and FooContainer in same compilation round
+	public void test011() {
+		this.runNegativeTest(
+			new String[] {
+			"Foo.java",
+			"@interface FooContainer {\n" +
+			"    int[] value();\n" +
+			"}\n" +
+			"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+			"@interface Foo {}\n"
+			}, 
+		"----------\n" + 
+		"1. ERROR in Foo.java (at line 4)\n" + 
+		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" + 
+		"	                                 ^^^^^^^^^^^^^^^^^^\n" + 
+		"The value method in the containing annotation @FooContainer must be of type Foo[] but is int[]\n" + 
+		"----------\n");
+	}
+	// 412151: The collections type's (TC) declaration must have a array of Ts as its value() - with Foo and FooContainer in same compilation round
+	public void test012() {
+		this.runNegativeTest(
+			new String[] {
+				"Foo.java",
+				"@interface FooContainer {\n" +
+				"    Foo[][] value();\n" +
+				"}\n" +
+				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"@interface Foo {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Foo.java (at line 2)\n" + 
+			"	Foo[][] value();\n" + 
+			"	^^^^^^^\n" + 
+			"Invalid type Foo[][] for the annotation attribute FooContainer.value; only primitive type, String, Class, annotation, enumeration are permitted or 1-dimensional arrays thereof\n" + 
+			"----------\n" + 
+			"2. ERROR in Foo.java (at line 4)\n" + 
+			"	@java.lang.annotation.Repeatable(FooContainer.class)\n" + 
+			"	                                 ^^^^^^^^^^^^^^^^^^\n" + 
+			"The value method in the containing annotation @FooContainer must be of type Foo[] but is Foo[][]\n" + 
+			"----------\n"
+		);
+	}
+	// 412151: Any methods declared by TC other than value() have a default value (§9.6.2).
+	public void test013() {
+		this.runNegativeTest(
+			new String[] {
+				"Foo.java",
+				"@interface FooContainer {\n" +
+				"    Foo[] value();\n" +
+				"    int hasDefaultValue() default 1337;\n" +
+				"    int doesntHaveDefaultValue();\n" +
+				"}\n" +
+				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"@interface Foo {}\n"
+			}, 
+		"----------\n" + 
+		"1. ERROR in Foo.java (at line 6)\n" + 
+		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" + 
+		"	                                 ^^^^^^^^^^^^^^^^^^\n" + 
+		"The containing annotation @FooContainer must declare a default value for the annotation attribute \'doesntHaveDefaultValue\'\n" + 
+		"----------\n");
+	}
+	// 412151: The @Retention meta-annotation of TC must at least include the retention of T ()
+	public void test014() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.RetentionPolicy;\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" +
+				"@interface FooContainer {\n" +
+				"    Foo[] value();\n" +
+				"}\n" +
+				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"@Retention(RetentionPolicy.CLASS)\n" +
+				"@interface Foo {\n" +
+				"}\n"
+			}, 
+		"");
+	}
+
+	// 
+	public void test015() {
+		// These are fine:
+		this.runConformTest(
+			new String[] {
+					"FooContainer.java",
+					"public @interface FooContainer {\n" +
+					"	Foo[] value();\n" +
+					"}\n",
+					"Foo.java",
+					"@java.lang.annotation.Repeatable(FooContainer.class) public @interface Foo {\n" +
+					"}\n"
+				}, 
+				"");
+		// This changes FooContainer without re-checking Foo
+		this.runConformTest(
+				new String[] {
+						"FooContainer.java",
+						"public @interface FooContainer {\n" +
+						"	int[] value();\n" +
+						"}\n"
+					},
+					"",
+					null,
+					false,
+					null);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@Foo @Foo public class X { /* Problem since Foo now uses FooContainer which doesn't work anymore*/\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	@Foo @Foo public class X { /* Problem since Foo now uses FooContainer which doesn\'t work anymore*/\n" + 
+			"	^^^^\n" + 
+			"The value method in the containing annotation @FooContainer must be of type Foo[] but is int[]\n" + 
+			"----------\n",
+			null, false /* don't flush*/);
+	}
+
+	// 412151: The @Retention meta-annotation of TC must at least include the retention of T ()
+	// Base example, both targets are specified
+	public void test016() {
+		this.runNegativeTest(
+			new String[] {
+				"Foo.java",
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.RetentionPolicy;\n" + 
+				"@Retention(RetentionPolicy.SOURCE)\n" +
+				"@interface FooContainer { Foo[] value(); }\n" +
+				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@interface Foo { }\n"
+			}, 
+		"----------\n" + 
+		"1. ERROR in Foo.java (at line 5)\n" + 
+		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" + 
+		"	                                 ^^^^^^^^^^^^^^^^^^\n" + 
+		"Retention \'RUNTIME\' of @Foo is longer than the retention of the containing annotation @FooContainer, which is \'SOURCE\'\n" + 
+		"----------\n");
+	}
+
+	// 412151: The @Retention meta-annotation of TC must at least include the retention of T ()
+	// Only specified on FooContainer
+	public void test017() {
+		this.runNegativeTest(
+			new String[] {
+				"Foo.java",
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.RetentionPolicy;\n" + 
+				"@Retention(RetentionPolicy.SOURCE)\n" +
+				"@interface FooContainer { Foo[] value(); }\n" +
+				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"@interface Foo { }\n"
+			}, 
+		"----------\n" + 
+		"1. ERROR in Foo.java (at line 5)\n" + 
+		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" + 
+		"	                                 ^^^^^^^^^^^^^^^^^^\n" + 
+		"Retention \'CLASS\' of @Foo is longer than the retention of the containing annotation @FooContainer, which is \'SOURCE\'\n" + 
+		"----------\n");
+	}
+
+	// 412151: The @Retention meta-annotation of TC must at least include the retention of T ()
+	// Only specified on Foo
+	public void test018() {
+		this.runNegativeTest(
+			new String[] {
+				"Foo.java",
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.RetentionPolicy;\n" + 
+				"@interface FooContainer { Foo[] value(); }\n" +
+				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@interface Foo { }\n"
+			}, 
+		"----------\n" + 
+		"1. ERROR in Foo.java (at line 4)\n" + 
+		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" + 
+		"	                                 ^^^^^^^^^^^^^^^^^^\n" + 
+		"Retention \'RUNTIME\' of @Foo is longer than the retention of the containing annotation @FooContainer, which is \'CLASS\'\n" + 
+		"----------\n");
+	}
+
+	// 412151: The @Retention meta-annotation of TC must at least include the retention of T ()
+	// Only specified on Foo - but positive
+	public void test019() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.RetentionPolicy;\n" + 
+				"@interface FooContainer { Foo[] value(); }\n" +
+				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"@Retention(RetentionPolicy.SOURCE)\n" +
+				"@interface Foo { }\n"
+			});
+	}
+
+	// 412151: The @Retention meta-annotation of TC must at least include the retention of T
+	// Only specified on FooContainer, separate compilation
+	public void test020() {
+		this.runConformTest(
+			new String[] {
+					"FooContainer.java",
+					"import java.lang.annotation.Retention;\n" + 
+					"import java.lang.annotation.RetentionPolicy;\n" + 
+					"@Retention(RetentionPolicy.SOURCE)\n" +
+					"public @interface FooContainer { Foo[] value(); }\n",
+					"Foo.java",
+					"import java.lang.annotation.Retention;\n" + 
+					"import java.lang.annotation.RetentionPolicy;\n" + 
+					"@Retention(RetentionPolicy.SOURCE)\n" +
+					"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+					"public @interface Foo { }\n"
+				});
+		this.runNegativeTest(
+			new String[] {
+				"Foo.java",
+				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"public @interface Foo { } // If omitted, retention is class\n"
+			}, 
+		"----------\n" + 
+		"1. ERROR in Foo.java (at line 1)\n" + 
+		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" + 
+		"	                                 ^^^^^^^^^^^^^^^^^^\n" + 
+		"Retention \'CLASS\' of @Foo is longer than the retention of the containing annotation @FooContainer, which is \'SOURCE\'\n" + 
+		"----------\n",
+		null, false /* don't flush*/);
+	}
+
+	// 412151: The @Retention meta-annotation of TC must at least include the retention of T ()
+	// Only specified on Foo, separate compilation
+	public void test021() {
+		this.runConformTest(
+			new String[] {
+				"FooContainer.java",
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.RetentionPolicy;\n" + 
+				"public @interface FooContainer { Foo[] value(); }\n",
+				"Foo.java",
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.RetentionPolicy;\n" + 
+				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"public @interface Foo { }\n"
+			});
+		this.runNegativeTest(
+			new String[] {
+				"Foo.java",
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.RetentionPolicy;\n" + 
+				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@interface Foo { }\n"
+			}, 
+		"----------\n" + 
+		"1. ERROR in Foo.java (at line 3)\n" + 
+		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" + 
+		"	                                 ^^^^^^^^^^^^^^^^^^\n" + 
+		"Retention \'RUNTIME\' of @Foo is longer than the retention of the containing annotation @FooContainer, which is \'CLASS\'\n" + 
+		"----------\n",
+		null, false /* don't flush*/);
+	}
+
+	// 412151: TC's @Targets, if specified, must be a subset or the same as T's @Targets
+	// TC's @Targets, if specified, must be a subset or the same as T's @Targets. Simple test
+	public void test022() {
+		this.runNegativeTest(
+			new String[] {
+				"FooContainer.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import java.lang.annotation.ElementType;\n" + 
+				"public @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})\n" +
+				"@interface FooContainer { Foo[] value(); }\n",
+				"Foo.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import java.lang.annotation.ElementType;\n" + 
+				"public @java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"@Target({ElementType.FIELD})\n" +
+				"@interface Foo { }\n"
+			},
+		"----------\n" + 
+		"1. ERROR in Foo.java (at line 3)\n" + 
+		"	public @java.lang.annotation.Repeatable(FooContainer.class)\n" + 
+		"	                                        ^^^^^^^^^^^^^^^^^^\n" + 
+		"The containing annotation @FooContainer is allowed at targets where the repeatable annotation @Foo is not: TYPE, METHOD\n" + 
+		"----------\n");
+	}
+
+	// 412151: TC's @Targets, if specified, must be a subset or the same as T's @Targets
+	// TC's @Targets, if specified, must be a subset or the same as T's @Targets. Test this as a separate pass, so that
+	// FooContainer is loaded from binary.
+	public void test023() {
+		this.runConformTest(
+			new String[] {
+				"FooContainer.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import java.lang.annotation.ElementType;\n" + 
+				"public @Target({ElementType.METHOD})\n" +
+				"@interface FooContainer { Foo[] value(); }\n",
+				"Foo.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import java.lang.annotation.ElementType;\n" + 
+				"public @Target({ElementType.METHOD})\n" +
+				"@interface Foo { }\n"
+			});
+		this.runNegativeTest(
+			new String[] {
+				"Foo.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import java.lang.annotation.ElementType;\n" + 
+				"public @java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"@java.lang.annotation.Target({ElementType.FIELD})\n" +
+				"@interface Foo { }\n"
+			}, 
+		"----------\n" + 
+		"1. ERROR in Foo.java (at line 3)\n" + 
+		"	public @java.lang.annotation.Repeatable(FooContainer.class)\n" + 
+		"	                                        ^^^^^^^^^^^^^^^^^^\n" + 
+		"The containing annotation @FooContainer is allowed at targets where the repeatable annotation @Foo is not: METHOD\n" + 
+		"----------\n",
+		null, false /* don't flush*/);
+	}
+
+	// 412151: TC's @Targets, if specified, must be a subset or the same as T's @Targets
+	// TC's may target ANNOTATION_TYPE but that should match TYPE for T, since it's a superset
+	public void test024() {
+		this.runConformTest(
+			new String[] {
+				"FooContainer.java",
+				"import java.lang.annotation.ElementType;\n" + 
+				"@java.lang.annotation.Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})\n" +
+				"@interface FooContainer { Foo[] value(); }\n",
+				"Foo.java",
+				"import java.lang.annotation.ElementType;\n" + 
+				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"@java.lang.annotation.Target({ElementType.METHOD, ElementType.TYPE})\n" +
+				"@interface Foo { }\n"
+			});
+	}
+
+	// 412151: TC's @Targets, if specified, must be a subset or the same as T's @Targets
+	// Test that all ElementTypes can be reported
+	public void test025() {
+		this.runNegativeTest(
+			new String[] {
+				"FooContainer.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import java.lang.annotation.ElementType;\n" + 
+				"public @Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.CONSTRUCTOR, ElementType.LOCAL_VARIABLE, ElementType.ANNOTATION_TYPE, ElementType.PACKAGE, ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})\n" +
+				"@interface FooContainer { Foo[] value(); }\n",
+				"Foo.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import java.lang.annotation.ElementType;\n" + 
+				"public @java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"@Target({})\n" +
+				"@interface Foo { }\n"
+			},
+		"----------\n" + 
+		"1. ERROR in Foo.java (at line 3)\n" + 
+		"	public @java.lang.annotation.Repeatable(FooContainer.class)\n" + 
+		"	                                        ^^^^^^^^^^^^^^^^^^\n" + 
+		"The containing annotation @FooContainer is allowed at targets where the repeatable annotation @Foo is not: TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE, ANNOTATION_TYPE, PACKAGE, TYPE_PARAMETER, TYPE_USE\n" + 
+		"----------\n");
+	}
+
+	// 412151: TC's @Targets, if specified, must be a subset or the same as T's @Targets
+	// TC's has no @Targets (=everywhere), but @Foo has, then complain.
+	public void test026() {
+		this.runConformTest(
+			new String[] {
+				"FooContainer.java",
+				"@interface FooContainer { Foo[] value(); }\n",
+				"Foo.java",
+				"@interface Foo { }\n"
+			});
+		this.runNegativeTest(
+			new String[] {
+				"Foo.java",
+				"import java.lang.annotation.Target;\n" + 
+				"import java.lang.annotation.ElementType;\n" + 
+				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"@java.lang.annotation.Target({ElementType.FIELD})\n" +
+				"@interface Foo { }\n"
+			}, 
+		"----------\n" + 
+		"1. ERROR in Foo.java (at line 3)\n" + 
+		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" + 
+		"	                                 ^^^^^^^^^^^^^^^^^^\n" + 
+		"The repeatable annotation @Foo has a @Target annotation, @FooContainer does not\n" + 
+		"----------\n",
+		null, false /* don't flush*/);
+	}
+
+	// 412151: If T is @Documented, then TC should also be Documented
+	public void test027() {
+		this.runConformTest(
+			new String[] {
+				"FooContainer.java",
+				"@java.lang.annotation.Documented @interface FooContainer { Foo[] value(); }\n",
+				"Foo.java",
+				"@java.lang.annotation.Documented @interface Foo { }\n"});
+	}
+	
+	// 412151: If T is @Documented, then TC should also be Documented, OK for TC to be documented while T is not
+	public void test028() {
+		this.runConformTest(
+			new String[] {
+				"FooContainer.java",
+				"@java.lang.annotation.Documented @interface FooContainer { Foo[] value(); }\n",
+				"Foo.java",
+				"@interface Foo { }\n"});
+	}
+
+	// 412151: If T is @Documented, then TC should also be Documented
+	public void test029() {
+		this.runNegativeTest(
+			new String[] {
+				"FooContainer.java",
+				"@interface FooContainer { Foo[] value(); }\n",
+				"Foo.java",
+				"@java.lang.annotation.Repeatable(FooContainer.class) @java.lang.annotation.Documented\n" +
+				"@interface Foo { }\n"
+			}, 
+			"----------\n" + 
+			"1. ERROR in Foo.java (at line 1)\n" + 
+			"	@java.lang.annotation.Repeatable(FooContainer.class) @java.lang.annotation.Documented\n" + 
+			"	                                 ^^^^^^^^^^^^^^^^^^\n" + 
+			"The repeatable annotation @Foo is marked @Documented, but the containing annotation @FooContainer is not\n" + 
+			"----------\n");
+	}
+
+	// 412151: If T is @Documented, then TC should also be Documented - check from previous compilation
+	public void test030() {
+		this.runConformTest(
+				new String[] {
+					"FooContainer.java",
+					"@java.lang.annotation.Documented @interface FooContainer { Foo[] value(); }\n",
+					"Foo.java",
+					"@java.lang.annotation.Documented @interface Foo { }\n"
+				});
+			this.runConformTest(
+				new String[] {
+					"Foo.java",
+					"public @java.lang.annotation.Documented @java.lang.annotation.Repeatable(FooContainer.class)\n" +
+					"@interface Foo { }\n"
+				},
+				"",
+				null,
+				false,
+				null);
+	}
+
+	// 412151: If T is @Inherited, then TC should also be Inherited
+	public void test031() {
+		this.runConformTest(
+			new String[] {
+				"FooContainer.java",
+				"@java.lang.annotation.Inherited @interface FooContainer { Foo[] value(); }\n",
+				"Foo.java",
+				"@java.lang.annotation.Inherited @interface Foo { }\n"});
+	}
+
+	// 412151: If T is @Inherited, then TC should also be Inherited, OK for TC to be inherited while T is not.
+	public void test032() {
+		this.runConformTest(
+			new String[] {
+				"FooContainer.java",
+				"@java.lang.annotation.Inherited @interface FooContainer { Foo[] value(); }\n",
+				"Foo.java",
+				"@interface Foo { }\n"});
+	}
+	// 412151: If T is @Inherited, then TC should also be Inherited
+	public void test033() {
+		this.runNegativeTest(
+			new String[] {
+				"FooContainer.java",
+				"@interface FooContainer { Foo[] value(); }\n",
+				"Foo.java",
+				"@java.lang.annotation.Repeatable(FooContainer.class) @java.lang.annotation.Inherited\n" +
+				"@interface Foo { }\n"
+			}, 
+			"----------\n" + 
+			"1. ERROR in Foo.java (at line 1)\n" + 
+			"	@java.lang.annotation.Repeatable(FooContainer.class) @java.lang.annotation.Inherited\n" + 
+			"	                                 ^^^^^^^^^^^^^^^^^^\n" + 
+			"The repeatable annotation @Foo is marked @Inherited, but the containing annotation @FooContainer is not\n" + 
+			"----------\n");
+	}
+
+	// 412151: If T is @Inherited, then TC should also be Inherited - check from previous compilation
+	public void test034() {
+		this.runConformTest(
+				new String[] {
+					"FooContainer.java",
+					"@java.lang.annotation.Inherited @interface FooContainer { Foo[] value(); }\n",
+					"Foo.java",
+					"@java.lang.annotation.Inherited @interface Foo { }\n"
+				});
+			this.runConformTest(
+				new String[] {
+					"Foo.java",
+					"public @java.lang.annotation.Inherited @java.lang.annotation.Repeatable(FooContainer.class)\n" +
+					"@interface Foo { }\n"
+				},
+				"",
+				null,
+				false,
+				null);
+	}
+	// 412151: Ensure no double reporting for bad target.
+	public void test035() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Repeatable;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"@Target(ElementType.FIELD)\n" +
+				"@interface TC {\n" +
+				"	T [] value();\n" +
+				"}\n" +
+				"@Target(ElementType.TYPE)\n" +
+				"@Repeatable(TC.class)\n" +
+				"@interface T {\n" +
+				"}\n" +
+				"@T @T // we used to double report here.\n" +
+				"public class X { \n" +
+				"	X f;\n" +
+				"}\n"
+			}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	@Repeatable(TC.class)\n" + 
+			"	            ^^^^^^^^\n" + 
+			"The containing annotation @TC is allowed at targets where the repeatable annotation @T is not: FIELD\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	@T @T // we used to double report here.\n" + 
+			"	^^\n" + 
+			"The repeatable annotation @T is disallowed for this location since its container annotation @TC is disallowed at this location\n" + 
+			"----------\n");
+	}	
 }

@@ -25,6 +25,7 @@
  *     Jesper S Moller - Contributions for
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
+ *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -796,6 +797,18 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 		if (copySE8AnnotationsToType)
 			copySE8AnnotationsToType(scope, recipient, sourceAnnotations);
+
+		if (annotations != null && length > 0 && recipient != null && recipient.isAnnotationType()) {
+			// See if this is meta-annotated as repeatable and if so validate constraints.
+			for (int i = 0; i < length; i++) {
+				Annotation annotation = sourceAnnotations[i];
+				MemberValuePair[] valuePairs = annotation.memberValuePairs();
+				ReferenceBinding annotationType = annotations[i] != null ? annotations[i].getAnnotationType() : null;
+				if (annotationType != null && annotationType.id == TypeIds.T_JavaLangAnnotationRepeatable && valuePairs != null && valuePairs.length > 0) {
+					annotation.checkRepeatableAnnotation(valuePairs[0], scope, valuePairs[0].compilerElementPair.value);
+				}
+			}
+		}
 		
 		// check duplicate annotations
 		if (annotations != null && length > 1) {
@@ -817,7 +830,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 								// in a map of (container's ReferenceBinding -> the repeated source Annotation)
 								if (implicitContainerAnnotations == null) implicitContainerAnnotations = new HashMap(3);
 								implicitContainerAnnotations.put(resolvedContainer, sourceAnnotations[i]);
-								Annotation.checkAnnotationContainerTarget(sourceAnnotations[i], scope, annotationType, resolvedContainer);
+								// Validate the repeated *use* of a repeatable annotation.
+								Annotation.checkContainingAnnotation(sourceAnnotations[i], scope, resolvedContainer, annotationType);
 							}
 						} else {
 							foundDuplicate = true;
@@ -833,6 +847,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					scope.problemReporter().duplicateAnnotation(sourceAnnotations[i], scope.compilerOptions().sourceLevel);
 				}
 			}
+			// Check for presence of repeating annotation together with the containing annotation
 			if (implicitContainerAnnotations != null) {
 				for (int i = 0; i < length; i++) {
 					if (distinctAnnotations[i] == null) continue;

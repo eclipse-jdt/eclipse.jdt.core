@@ -27,6 +27,7 @@
  *                          Bug 414384 - [1.8] type annotation on abbreviated inner class is not marked as inner type
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *                          Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
+#							Bug 412151 - [1.8][compiler] Check repeating annotation's collection type
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -359,12 +360,6 @@ public abstract class Annotation extends Expression {
 			case TypeIds.T_JavaLangAnnotationInherited :
 				tagBits |= TagBits.AnnotationInherited;
 				break;
-			case TypeIds.T_JavaLangAnnotationRepeatable :
-				Object value = valueAttribute.compilerElementPair.value;
-				if (this.recipient instanceof ReferenceBinding && value instanceof ReferenceBinding) {
-					((ReferenceBinding) this.recipient).setContainerAnnotation((ReferenceBinding)value);  
-				}
-				break;
 			case TypeIds.T_JavaLangOverride :
 				tagBits |= TagBits.AnnotationOverride;
 				break;
@@ -400,6 +395,155 @@ public abstract class Annotation extends Expression {
 		return tagBits;
 	}
 
+	static String getRetentionName(long tagBits) {
+		if ((tagBits & TagBits.AnnotationRuntimeRetention) == TagBits.AnnotationRuntimeRetention) {
+			// TagBits.AnnotationRuntimeRetention combines both TagBits.AnnotationClassRetention & TagBits.AnnotationSourceRetention
+			return new String(UPPER_RUNTIME);
+		} else if ((tagBits & TagBits.AnnotationSourceRetention) != 0) {
+			return new String(UPPER_SOURCE);
+		} else {
+			return new String(TypeConstants.UPPER_CLASS);
+		}
+	}
+
+	private static long getAnnotationRetention(ReferenceBinding binding) {
+		long retention = binding.getAnnotationTagBits() & TagBits.AnnotationRetentionMASK;
+		// Retention defaults to CLASS
+		return retention != 0 ? retention : TagBits.AnnotationClassRetention;
+	}
+	
+	public void checkRepeatableAnnotation(ASTNode valueAttribute, Scope scope, Object containingBinding) {
+		if (! (this.recipient instanceof ReferenceBinding && containingBinding instanceof ReferenceBinding)) return; // Has deeper problems...
+		ReferenceBinding containing = (ReferenceBinding)containingBinding;
+		ReferenceBinding repeatableAnnotation = (ReferenceBinding) this.recipient;
+		repeatableAnnotation.setContainingAnnotation(containing);
+
+		checkContainingAnnotation(valueAttribute, scope, containing, repeatableAnnotation);
+	}
+
+	public static void checkContainingAnnotation(ASTNode markerNode, Scope scope, ReferenceBinding container, ReferenceBinding repeatableAnnotation) {
+		MethodBinding[] annotationMethods = container.methods();
+		boolean sawValue = false;
+		for (int i = 0, length = annotationMethods.length; i < length; ++i) {
+			MethodBinding method = annotationMethods[i];
+			if (CharOperation.equals(method.selector, TypeConstants.VALUE)) {
+				sawValue = true;
+				if (method.returnType.isArrayType() && method.returnType.dimensions() == 1) {
+					ArrayBinding array = (ArrayBinding) method.returnType;
+					if (TypeBinding.equalsEquals(array.elementsType(), repeatableAnnotation)) continue;
+				}
+				scope.problemReporter().containingAnnotationHasWrongValueType(markerNode, container, repeatableAnnotation, method.returnType);
+			} else {
+				// Not the value() - must have default (or else isn't suitable as container
+				if ((method.modifiers & ClassFileConstants.AccAnnotationDefault) == 0) {
+					scope.problemReporter().containingAnnotationHasNonDefaultMembers(markerNode, container, method.selector);
+				}
+			}
+		}
+		if (!sawValue) {
+			scope.problemReporter().containingAnnotationMustHaveValue(markerNode, container);
+		}
+		
+		checkContainingAnnotationRetention(markerNode, scope, container, repeatableAnnotation);
+		if (markerNode instanceof Annotation)
+			checkContainingAnnotationTarget((Annotation) markerNode, (BlockScope) scope, (TypeBinding) container, repeatableAnnotation);
+		else
+			checkContainingAnnotationTarget(markerNode, scope, container, repeatableAnnotation);
+		checkContaintAnnotationDocumented(markerNode, scope, container, repeatableAnnotation);
+		checkContaintAnnotationInherited(markerNode, scope, container, repeatableAnnotation);
+	}
+
+	// This is for error reporting for bad targets at the repeated annotation use site (as opposed to repeatable annotation type declaration site) - Leads to better message.
+	public static void checkContainingAnnotationTarget(Annotation annotation, BlockScope scope, TypeBinding containerAnnotationType, TypeBinding annotationType) {
+		// check (meta)target compatibility
+		if (!annotationType.isValidBinding()) {
+			// no need to check annotation usage if missing
+			return;
+		}
+		if (! isAnnotationTargetAllowed(annotation, scope, containerAnnotationType, annotation.recipient.kind())) {
+			scope.problemReporter().disallowedTargetForContainerAnnotation(annotation, containerAnnotationType);
+		}
+	}
+	
+	// This is for error reporting for bad targets at annotation type declaration site (as opposed to the repeat site)
+	private static void checkContainingAnnotationTarget(ASTNode markerNode, Scope scope, ReferenceBinding container, ReferenceBinding repeatableAnnotation) {
+		long tagBits = repeatableAnnotation.getAnnotationTagBits();
+		if ((tagBits & TagBits.AnnotationTargetMASK) != 0) { 
+			long containingTagBits = container.getAnnotationTagBits();
+			if ((containingTagBits & TagBits.AnnotationTargetMASK) == 0) {
+				scope.problemReporter().repeatableAnnotationHasTargets(markerNode, repeatableAnnotation, container);
+			} else {
+				final long targets = tagBits & TagBits.AnnotationTargetMASK;
+				final long containingTargets = containingTagBits & TagBits.AnnotationTargetMASK;
+				
+				if ((containingTargets & ~targets) != 0) {
+					class MissingTargetBuilder {
+						StringBuffer targetBuffer = new StringBuffer();
+						void check(long targetMask, char[] targetName) {
+							if ((containingTargets & targetMask & ~targets) != 0) {
+								add(targetName);
+							}
+						}
+						void checkAnnotationType(char[] targetName) {
+							if ((containingTargets & TagBits.AnnotationForAnnotationType) != 0 &&
+									((targets & (TagBits.AnnotationForAnnotationType | TagBits.AnnotationForType))) == 0) {
+								add(targetName);
+							}
+						}
+						private void add(char[] targetName) {
+							if (this.targetBuffer.length() != 0) {
+								this.targetBuffer.append(", "); //$NON-NLS-1$
+							}
+							this.targetBuffer.append(targetName);
+						}
+						public String toString() {
+							return this.targetBuffer.toString();
+						}
+						public boolean hasError() {
+							return this.targetBuffer.length() != 0;
+						}
+					}
+					MissingTargetBuilder builder = new MissingTargetBuilder();
+
+					builder.check(TagBits.AnnotationForType, TypeConstants.TYPE);
+					builder.check(TagBits.AnnotationForField, TypeConstants.UPPER_FIELD);
+					builder.check(TagBits.AnnotationForMethod, TypeConstants.UPPER_METHOD);
+					builder.check(TagBits.AnnotationForParameter, TypeConstants.UPPER_PARAMETER);
+					builder.check(TagBits.AnnotationForConstructor, TypeConstants.UPPER_CONSTRUCTOR);
+					builder.check(TagBits.AnnotationForLocalVariable, TypeConstants.UPPER_LOCAL_VARIABLE);
+					builder.checkAnnotationType(TypeConstants.UPPER_ANNOTATION_TYPE);
+					builder.check(TagBits.AnnotationForPackage, TypeConstants.UPPER_PACKAGE);
+					builder.check(TagBits.AnnotationForTypeParameter, TypeConstants.TYPE_PARAMETER_TARGET);
+					builder.check(TagBits.AnnotationForTypeUse, TypeConstants.TYPE_USE_TARGET);
+					if (builder.hasError()) {
+						scope.problemReporter().repeatableAnnotationTargetMismatch(markerNode, repeatableAnnotation, container, builder.toString());
+					}
+				}
+			}
+		}
+	}
+
+	private static void checkContaintAnnotationDocumented(ASTNode markerNode, Scope scope, ReferenceBinding containing, ReferenceBinding repeatableAnnotation) {
+		if ((repeatableAnnotation.getAnnotationTagBits() & TagBits.AnnotationDocumented) != 0 && (containing.getAnnotationTagBits() & TagBits.AnnotationDocumented) == 0) {
+			scope.problemReporter().repeatableAnnotationIsDocumented(markerNode, repeatableAnnotation, containing);
+		}
+	}
+
+	private static void checkContaintAnnotationInherited(ASTNode markerNode, Scope scope, ReferenceBinding containing, ReferenceBinding repeatableAnnotation) {
+		if ((repeatableAnnotation.getAnnotationTagBits() & TagBits.AnnotationInherited) != 0 && (containing.getAnnotationTagBits() & TagBits.AnnotationInherited) == 0) {
+			scope.problemReporter().repeatableAnnotationIsInherited(markerNode, repeatableAnnotation, containing);
+		}
+	}
+
+	private static void checkContainingAnnotationRetention(ASTNode markerNode, Scope scope, ReferenceBinding container, ReferenceBinding repeatableAnnotation) {
+		long annotationBits = getAnnotationRetention(repeatableAnnotation);
+		long containerBits = getAnnotationRetention(container); 
+		// Due to clever layout of the bits, we can compare the absolute value directly
+		if (containerBits < annotationBits) {
+			scope.problemReporter().containingAnnotationHasShorterRetention(markerNode, repeatableAnnotation, getRetentionName(annotationBits), container, getRetentionName(containerBits));
+		}
+	}
+	
 	public AnnotationBinding getCompilerAnnotation() {
 		return this.compilerAnnotation;
 	}
@@ -815,17 +959,6 @@ public abstract class Annotation extends Expression {
 		}
 	}
 
-	public static void checkAnnotationContainerTarget(Annotation annotation, BlockScope scope, TypeBinding annotationType, TypeBinding containerAnnotationType) {
-		// check (meta)target compatibility
-		if (!annotationType.isValidBinding()) {
-			// no need to check annotation usage if missing
-			return;
-		}
-		if (! isAnnotationTargetAllowed(annotation, scope, containerAnnotationType, annotation.recipient.kind())) {
-			scope.problemReporter().disallowedTargetForContainerAnnotation(annotation, containerAnnotationType);
-		}
-	}
-	
 	// Check and answer if an attempt to annotate a package is being made. Error should be reported by caller.
 	public static boolean isTypeUseCompatible(TypeReference reference, Scope scope) {
 		if (reference != null && !(reference instanceof SingleTypeReference)) {

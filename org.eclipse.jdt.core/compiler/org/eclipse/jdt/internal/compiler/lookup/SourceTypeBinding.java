@@ -86,7 +86,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	private int defaultNullness;
 	private int nullnessDefaultInitialized = 0; // 0: nothing; 1: type; 2: package
 	private int lambdaOrdinal = 0;
-	private ReferenceBinding containerAnnotation = null;
+	private ReferenceBinding containingAnnotation = null;
 	
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
 	this.compoundName = compoundName;
@@ -1333,7 +1333,7 @@ public boolean isHierarchyConnected() {
 	return (this.tagBits & TagBits.EndHierarchyCheck) != 0;
 }
 public boolean isRepeatableAnnotation() {
-	return this.containerAnnotation != null;
+	return this.containingAnnotation != null;
 }
 public ReferenceBinding[] memberTypes() {
 	if (this != this.prototype)
@@ -1574,10 +1574,10 @@ public TypeBinding prototype() {
 }
 
 public ReferenceBinding resolveContainerAnnotation() {
-	if (this.containerAnnotation instanceof UnresolvedReferenceBinding) {
-		this.containerAnnotation = (ReferenceBinding)BinaryTypeBinding.resolveType(this.containerAnnotation, this.scope.environment(), false);
+	if (this.containingAnnotation instanceof UnresolvedReferenceBinding) {
+		this.containingAnnotation = (ReferenceBinding)BinaryTypeBinding.resolveType(this.containingAnnotation, this.scope.environment(), false);
 	}
-	return this.containerAnnotation;
+	return this.containingAnnotation;
 }
 public FieldBinding resolveTypeFor(FieldBinding field) {
 	
@@ -2026,8 +2026,8 @@ public AnnotationHolder retrieveAnnotationHolder(Binding binding, boolean forceI
 		binding.getAnnotationTagBits(); // ensure annotations are up to date
 	return super.retrieveAnnotationHolder(binding, false);
 }
-public void setContainerAnnotation(ReferenceBinding value) {
-	this.containerAnnotation  = value;
+public void setContainingAnnotation(ReferenceBinding value) {
+	this.containingAnnotation  = value;
 }
 public void setFields(FieldBinding[] fields) {
 	this.fields = fields;

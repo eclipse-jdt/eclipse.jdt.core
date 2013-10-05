@@ -199,7 +199,15 @@
  *									DuplicateAnnotationNotMarkedRepeatable
  *									DisallowedTargetForContainerAnnotation
  *									RepeatedAnnotationWithContainerAnnotation
- *******************************************************************************/
+ *									ContainingAnnotationMustHaveValue
+ *									ContainingAnnotationHasNonDefaultMembers
+ *									ContainingAnnotationHasWrongValueType
+ *								 	ContainingAnnotationHasShorterRetention
+ *									RepeatableAnnotationHasTargets
+ *									RepeatableAnnotationTargetMismatch
+ *									RepeatableAnnotationIsDocumented
+ *									RepeatableAnnotationIsInherited
+*******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -1620,6 +1628,35 @@ void setSourceStart(int sourceStart);
 	int RepeatedAnnotationWithContainerAnnotation = TypeRelated + 899;
 	
 	/**
+	 * External problems -- These are problems defined by other plugins
+	 */
+
+	/** @since 3.2 */
+	int ExternalProblemNotFixable = 900;
+
+	// indicates an externally defined problem that has a quick-assist processor
+	// associated with it
+	/** @since 3.2 */
+	int ExternalProblemFixable = 901;
+	
+	/** @since 3.9 BETA_JAVA8 */
+	int ContainingAnnotationHasWrongValueType = TypeRelated + 902;
+	/** @since 3.9 BETA_JAVA8 */
+	int ContainingAnnotationMustHaveValue = TypeRelated + 903;
+	/** @since 3.9 BETA_JAVA8 */
+	int ContainingAnnotationHasNonDefaultMembers = TypeRelated + 904;
+	/** @since 3.9 BETA_JAVA8 */
+	int ContainingAnnotationHasShorterRetention = TypeRelated + 905;
+	/** @since 3.9 BETA_JAVA8 */
+	int RepeatableAnnotationHasTargets = TypeRelated + 906;
+	/** @since 3.9 BETA_JAVA8 */
+	int RepeatableAnnotationTargetMismatch = TypeRelated + 907;
+	/** @since 3.9 BETA_JAVA8 */
+	int RepeatableAnnotationIsDocumented = TypeRelated + 908;
+	/** @since 3.9 BETA_JAVA8 */
+	int RepeatableAnnotationIsInherited = TypeRelated + 909;
+	
+	/**
 	 * Errors/warnings from annotation based null analysis
 	 */
 	/** @since 3.8 */
@@ -1751,16 +1788,4 @@ void setSourceStart(int sourceStart);
 	int IllegalStrictfpForAbstractInterfaceMethod = MethodRelated + 1057;
 	/** @since 3.9 BETA_JAVA8 */
 	int IllegalDefaultModifierSpecification = MethodRelated + 1058;
-
-	/**
-	 * External problems -- These are problems defined by other plugins
-	 */
-
-	/** @since 3.2 */
-	int ExternalProblemNotFixable = 900;
-
-	// indicates an externally defined problem that has a quick-assist processor
-	// associated with it
-	/** @since 3.2 */
-	int ExternalProblemFixable = 901;
 }

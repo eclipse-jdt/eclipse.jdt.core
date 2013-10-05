@@ -425,6 +425,10 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("CodeCannotBeReached", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("CodeSnippetMissingClass", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("CodeSnippetMissingMethod", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("ContainingAnnotationHasNonDefaultMembers", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("ContainingAnnotationHasShorterRetention", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("ContainingAnnotationHasWrongValueType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("ContainingAnnotationMustHaveValue", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ContradictoryNullAnnotations", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ContradictoryNullAnnotationsOnBound", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ComparingIdentical", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -915,6 +919,10 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("RequiredNonNullButProvidedSpecdNullable", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("RequiredNonNullButProvidedUnknown", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ReferenceToForwardTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("RepeatableAnnotationHasTargets", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("RepeatableAnnotationIsDocumented", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("RepeatableAnnotationIsInherited", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("RepeatableAnnotationTargetMismatch", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("RepeatedAnnotationWithContainerAnnotation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ResourceHasToImplementAutoCloseable", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ReturnTypeAmbiguous", DEPRECATED);
@@ -1231,6 +1239,10 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ConstructionTypeMismatch", SKIP);
 		expectedProblemAttributes.put("ConflictingInheritedNullAnnotations", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
 		expectedProblemAttributes.put("ConstructorReferenceNotBelow18", SKIP);
+		expectedProblemAttributes.put("ContainingAnnotationHasNonDefaultMembers", SKIP);
+		expectedProblemAttributes.put("ContainingAnnotationHasShorterRetention", SKIP);
+		expectedProblemAttributes.put("ContainingAnnotationHasWrongValueType", SKIP);
+		expectedProblemAttributes.put("ContainingAnnotationMustHaveValue", SKIP);
 		expectedProblemAttributes.put("ContradictoryNullAnnotations", SKIP);
 		expectedProblemAttributes.put("ContradictoryNullAnnotationsOnBound", SKIP);
 		expectedProblemAttributes.put("ConstructorVarargsArgumentNeedCast", new ProblemAttributes(JavaCore.COMPILER_PB_VARARGS_ARGUMENT_NEED_CAST));
@@ -1709,6 +1721,10 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ReferenceExpressionReturnNullRedefUnchecked", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION));
 		expectedProblemAttributes.put("ReferenceToForwardField", SKIP);
 		expectedProblemAttributes.put("ReferenceToForwardTypeVariable", SKIP);
+		expectedProblemAttributes.put("RepeatableAnnotationHasTargets", SKIP);
+		expectedProblemAttributes.put("RepeatableAnnotationIsDocumented", SKIP);
+		expectedProblemAttributes.put("RepeatableAnnotationIsInherited", SKIP);
+		expectedProblemAttributes.put("RepeatableAnnotationTargetMismatch", SKIP);
 		expectedProblemAttributes.put("RepeatedAnnotationWithContainerAnnotation", SKIP);
 		expectedProblemAttributes.put("RequiredNonNullButProvidedNull", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
 		expectedProblemAttributes.put("RequiredNonNullButProvidedPotentialNull", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_ANNOTATION_INFERENCE_CONFLICT));

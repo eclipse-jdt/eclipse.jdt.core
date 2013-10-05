@@ -107,6 +107,10 @@ public abstract class Binding {
 		// empty block
 	}
 
+	public boolean isAnnotationType() {
+		return false;
+	}
+	
 	/* API
 	* Answer true if the receiver is not a problem binding
 	*/

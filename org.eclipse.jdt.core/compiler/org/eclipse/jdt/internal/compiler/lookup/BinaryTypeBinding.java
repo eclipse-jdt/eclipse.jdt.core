@@ -76,7 +76,7 @@ public class BinaryTypeBinding extends ReferenceBinding {
 
 	protected SimpleLookupTable storedAnnotations = null; // keys are this ReferenceBinding & its fields and methods, value is an AnnotationHolder
 
-	private ReferenceBinding containerAnnotation;
+	private ReferenceBinding containingAnnotation;
 
 static Object convertMemberValue(Object binaryValue, LookupEnvironment env, char[][][] missingTypeNames) {
 	if (binaryValue == null) return null;
@@ -1247,7 +1247,7 @@ public boolean isHierarchyConnected() {
 	return (this.tagBits & (TagBits.HasUnresolvedSuperclass | TagBits.HasUnresolvedSuperinterfaces)) == 0;
 }
 public boolean isRepeatableAnnotation() {
-	return this.containerAnnotation != null;
+	return this.containingAnnotation != null;
 }
 public int kind() {
 	
@@ -1299,10 +1299,10 @@ public TypeBinding prototype() {
 }
 
 public ReferenceBinding resolveContainerAnnotation() {
-	if (this.containerAnnotation instanceof UnresolvedReferenceBinding) {
-		this.containerAnnotation = (ReferenceBinding) BinaryTypeBinding.resolveType(this.containerAnnotation, this.environment, false);
+	if (this.containingAnnotation instanceof UnresolvedReferenceBinding) {
+		this.containingAnnotation = (ReferenceBinding) BinaryTypeBinding.resolveType(this.containingAnnotation, this.environment, false);
 	}
-	return this.containerAnnotation;
+	return this.containingAnnotation;
 }
 
 private FieldBinding resolveTypeFor(FieldBinding field) {
@@ -1363,8 +1363,8 @@ AnnotationBinding[] retrieveAnnotations(Binding binding) {
 	
 	return AnnotationBinding.addStandardAnnotations(super.retrieveAnnotations(binding), binding.getAnnotationTagBits(), this.environment);
 }
-public void setContainerAnnotation(ReferenceBinding value) {
-	this.containerAnnotation = value;
+public void setContainingAnnotation(ReferenceBinding value) {
+	this.containingAnnotation = value;
 }
 SimpleLookupTable storedAnnotations(boolean forceInitialize) {
 	
@@ -1582,7 +1582,7 @@ private void scanTypeForContainerAnnotation(IBinaryType binaryType, char[][][] m
 				if (elementValuePairs != null && elementValuePairs.length == 1) {
 					Object value = elementValuePairs[0].getValue();
 					if (value instanceof ClassSignature) {
-						this.containerAnnotation = (ReferenceBinding) this.environment.getTypeFromSignature(((ClassSignature)value).getTypeName(), 0, -1, false, null, missingTypeNames, TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER);
+						this.containingAnnotation = (ReferenceBinding) this.environment.getTypeFromSignature(((ClassSignature)value).getTypeName(), 0, -1, false, null, missingTypeNames, TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER);
 					}
 				}
 				break;

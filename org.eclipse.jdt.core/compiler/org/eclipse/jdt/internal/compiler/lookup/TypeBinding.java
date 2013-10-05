@@ -491,10 +491,6 @@ void initializeForStaticImports() {
 	// only applicable to source types
 }
 
-public boolean isAnnotationType() {
-	return false;
-}
-
 public final boolean isAnonymousType() {
 	return (this.tagBits & TagBits.IsAnonymousType) != 0;
 }
