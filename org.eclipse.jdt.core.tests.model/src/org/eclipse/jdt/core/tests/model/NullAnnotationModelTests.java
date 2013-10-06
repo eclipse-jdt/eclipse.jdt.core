@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 GK Software AG and others.
+ * Copyright (c) 2011, 2013 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -509,5 +509,59 @@ public class NullAnnotationModelTests extends ReconcilerTests {
     	} finally {
     		deleteProject("P");
     	}
+	}
+	
+	// see https://bugs.eclipse.org/418233
+	public void testNonNullDefaultInInner()  throws CoreException, IOException, InterruptedException  {
+		IJavaProject project15 = null;
+		try {
+			project15 = createJavaProject("TestAnnot", new String[] {"src"}, new String[] {"JCL15_LIB", this.ANNOTATION_LIB}, "bin", "1.5");
+			createFolder("/TestAnnot/src/p1");
+			createFile(
+					"/TestAnnot/src/p1/Interfaces.java",
+					"package p1;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" + 
+					"\n" + 
+					"@NonNullByDefault\n" + 
+					"public interface Interfaces {\n" + 
+					"  public interface InnerInterface {\n" + 
+					"    Object doSomethingElse(Object o);\n" + 
+					"  }\n" + 
+					"}"
+				);
+			String source =
+					"package p1;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" + 
+					"\n" + 
+					"@NonNullByDefault\n" + 
+					"public class Implementations implements Interfaces.InnerInterface {\n" + 
+					"	public Object doSomethingElse(Object o) {\n" + 
+					"		return o; \n" + 
+					"	}\n" + 
+					"}";
+			createFile(
+					"/TestAnnot/src/p1/Implementations.java",
+					source
+				);
+			project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+			project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+			project15.setOption(JavaCore.COMPILER_PB_NULL_REFERENCE, JavaCore.ERROR);
+			project15.setOption(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+			project15.setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
+			project15.setOption(JavaCore.COMPILER_PB_INCLUDE_ASSERTS_IN_NULL_ANALYSIS, JavaCore.ENABLED);
+			project15.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+	
+			this.workingCopies = new ICompilationUnit[1];
+			char[] sourceChars = source.toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			this.workingCopies[0] = getCompilationUnit("/TestAnnot/src/p1/Implementations.java").getWorkingCopy(this.wcOwner, null);
+			this.workingCopies[0].makeConsistent(null);
+			this.workingCopies[0].reconcile(ICompilationUnit.NO_AST, false, null, null);
+	
+			assertNoProblem(sourceChars, this.workingCopies[0]);
+		} finally {
+			if (project15 != null)
+				deleteProject(project15);
+		}
 	}
 }
