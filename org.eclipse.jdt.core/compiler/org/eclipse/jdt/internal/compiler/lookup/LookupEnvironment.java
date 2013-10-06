@@ -683,13 +683,13 @@ public TypeBinding createIntersectionCastType(ReferenceBinding[] intersectingTyp
 
 	if (count < length) {
 		if ((intersectionCastTypeBindings = this.uniqueIntersectionCastTypeBindings[count]) == null)
-			this.uniqueIntersectionCastTypeBindings[count] = intersectionCastTypeBindings = new IntersectionCastTypeBinding[10];
+			this.uniqueIntersectionCastTypeBindings[count] = intersectionCastTypeBindings = new IntersectionCastTypeBinding[4];
 	} else {
 		System.arraycopy(
 			this.uniqueIntersectionCastTypeBindings, 0,
 			this.uniqueIntersectionCastTypeBindings = new IntersectionCastTypeBinding[count + 1][], 0,
 			length);
-		this.uniqueIntersectionCastTypeBindings[count] = intersectionCastTypeBindings = new IntersectionCastTypeBinding[10];
+		this.uniqueIntersectionCastTypeBindings[count] = intersectionCastTypeBindings = new IntersectionCastTypeBinding[4];
 	}
 
 	int index = -1;
@@ -701,7 +701,7 @@ public TypeBinding createIntersectionCastType(ReferenceBinding[] intersectingTyp
 		ReferenceBinding [] priorIntersectingTypes = priorBinding.intersectingTypes;
 		for (int i = 0; i < count; i++) {
 			if (intersectingTypes[i] != priorIntersectingTypes[i])
-					continue next;
+				continue next;
 		}	
 		return priorBinding;
 	}
@@ -979,7 +979,9 @@ public ParameterizedMethodBinding createGetClassMethod(TypeBinding receiverType,
 	}
 	return retVal;
 }
-
+public ReferenceBinding createMemberType(ReferenceBinding memberType, ReferenceBinding enclosingType) {
+	return this.typeSystem.getMemberType(memberType, enclosingType);
+}
 public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType) {
 	return this.typeSystem.getParameterizedType(genericType, typeArguments, enclosingType);
 }

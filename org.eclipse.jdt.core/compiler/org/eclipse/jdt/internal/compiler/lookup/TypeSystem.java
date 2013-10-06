@@ -61,4 +61,8 @@ public abstract class TypeSystem {
 	public TypeBinding[] getAnnotatedTypes(TypeBinding type) {
 		return Binding.NO_TYPES;
 	}
+
+	public ReferenceBinding getMemberType(ReferenceBinding memberType, ReferenceBinding enclosingType) {
+		return memberType;  // nothing to do for plain vanilla type system.
+	}
 }

@@ -268,6 +268,17 @@ public interface ITypeBinding extends IBinding {
 	public ITypeBinding getElementType();
 
 	/**
+	 * Returns the binding representing the enclosing type of this type,
+	 * or <code>null</code> if the receiver is an array type binding or a top level
+	 * type or a primitive type.
+	 *
+	 * @return the enclosing type binding, or <code>null</code> if this is
+	 *   an array type, or a primitive type or a top level type.
+	 * @since 3.9 BETA_JAVA8
+	 */
+	public ITypeBinding getEnclosingType();
+
+	/**
 	 * Returns the erasure of this type binding.
 	 * <ul>
 	 * <li>For parameterized types ({@link #isParameterizedType()})

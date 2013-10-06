@@ -115,6 +115,12 @@ public class AnnotatableTypeSystem extends TypeSystem {
 		return (ArrayBinding) (cachedInfo[index] = arrayBinding);
 	}
 	
+	public ReferenceBinding getMemberType(ReferenceBinding memberType, ReferenceBinding enclosingType) {
+		if (!haveTypeAnnotations(memberType, enclosingType))
+			return this.unannotatedTypeSystem.getMemberType(memberType, enclosingType);
+		return (ReferenceBinding) getAnnotatedType(memberType, enclosingType, memberType.typeArguments(), memberType.getTypeAnnotations());
+	}
+	
 	public ParameterizedTypeBinding getParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType) {
 		return getParameterizedType(genericType, typeArguments, enclosingType, Binding.NO_ANNOTATIONS);
 	}
@@ -240,7 +246,7 @@ public class AnnotatableTypeSystem extends TypeSystem {
 		return (WildcardBinding) (cachedInfo[index] = wildcard);
 	}
 
-	// Private subroutine for getAnnotatedType(TypeBinding type, AnnotationBinding[][] annotations)
+	// Private subroutine for public APIs.
 	private TypeBinding getAnnotatedType(TypeBinding type, TypeBinding enclosingType, TypeBinding [] typeArguments, AnnotationBinding[] annotations) {
 		TypeBinding keyType = getUnannotatedType(type);
 		TypeBinding[] cachedInfo = (TypeBinding[]) this.annotatedTypes.get(keyType);
@@ -264,9 +270,9 @@ public class AnnotatableTypeSystem extends TypeSystem {
 			this.annotatedTypes.put(keyType, cachedInfo);
 		}
 		/* Add the new comer, retaining the same type binding id as the naked type. To materialize the new comer we can't use new since this is a general
-		   purpose method designed to deal type bindings of all types. "Clone" the incoming type, specializing for any enclosing type and type arguments
-		   that may themselves be possibly be annotated. This is so the binding for @Outer Outer.Inner != Outer.@Inner Inner != @Outer Outer.@Inner Inner.
-		   Likewise so the bindings for @Readonly List<@NonNull String> != @Readonly List<@Nullable String> != @Readonly List<@Interned String> 
+		   purpose method designed to deal type bindings of all types. "Clone" the incoming type, specializing for any enclosing type that may itself be 
+		   possibly be annotated. This is so the binding for @Outer Outer.Inner != Outer.@Inner Inner != @Outer Outer.@Inner Inner. Likewise so the bindings 
+		   for @Readonly List<@NonNull String> != @Readonly List<@Nullable String> != @Readonly List<@Interned String> 
 		*/
 		TypeBinding unannotatedType = this.unannotatedTypeSystem.getUnannotatedType(type);
 		TypeBinding annotatedType = type.clone(enclosingType);
@@ -359,6 +365,10 @@ public class AnnotatableTypeSystem extends TypeSystem {
 
 	private boolean haveTypeAnnotations(TypeBinding leafType, AnnotationBinding[] annotations) {
 		return haveTypeAnnotations(leafType, null, null, annotations);
+	}
+	
+	private boolean haveTypeAnnotations(TypeBinding memberType, TypeBinding enclosingType) {
+		return haveTypeAnnotations(memberType, enclosingType, null, null);
 	}
 
 	/* Utility method to "flatten" annotations. For multidimensional arrays, we encode the annotations into a flat array 

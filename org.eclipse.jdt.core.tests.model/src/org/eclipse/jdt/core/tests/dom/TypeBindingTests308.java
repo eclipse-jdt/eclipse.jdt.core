@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -1400,5 +1401,227 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		} finally {
 			removeLibrary(javaProject, jarName, srcName);
 		}
+	}
+	public void testIntersectionCastType() throws CoreException, IOException {
+		String contents = 
+				"import java.lang.annotation.ElementType;\n" +
+						"import java.lang.annotation.Target;\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface T1 {\n" +
+						"}\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface T2 {\n" +
+						"}\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface T3 {\n" +
+						"}\n" +
+						"public class X {\n" +
+						"	Object o = (@T1 Object & @T2 Runnable & java.io.@T3 Serializable) null;\n" +
+						"	Object p = (@T1 Object & @T2 Runnable & java.io.@T3 Serializable) null;\n" +
+						"}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		List types = compilationUnit.types();
+		assertEquals("Incorrect no of types", 4, types.size());
+		TypeDeclaration typeDecl = (TypeDeclaration) types.get(3);
+		FieldDeclaration[] fields = typeDecl.getFields();
+		assertEquals("Incorrect no of fields", 2, fields.length);
+		FieldDeclaration field = fields[0];
+		List fragments = field.fragments();
+		assertEquals("Incorrect no of fragments", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		CastExpression cast = (CastExpression) fragment.getInitializer();
+		Type castType = cast.getType();
+		ITypeBinding binding1 = castType.resolveBinding();
+		assertEquals("Wrong annotations", "@T1 Object & @T2 Runnable & @T3 Serializable", binding1.toString());
+		
+		field = fields[1];
+		fragments = field.fragments();
+		assertEquals("Incorrect no of fragments", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		cast = (CastExpression) fragment.getInitializer();
+		castType = cast.getType();
+		ITypeBinding binding2 = castType.resolveBinding();
+		assertEquals("Wrong annotations", "@T1 Object & @T2 Runnable & @T3 Serializable", binding2.toString());
+		assertSame("Should be equal", binding1, binding2);
+	}
+	public void testMemberType() throws CoreException, IOException {
+		String jarName = "TypeBindingTests308.jar";
+		String srcName = "TypeBindingTests308_src.zip";
+		final IJavaProject javaProject = getJavaProject("Converter18");
+		try {
+			String[] pathAndContents = new String[] {
+				"Outer.java",
+				"public class Outer  {\n" +
+				"	class Inner {\n" +
+				"	}\n" +
+				"}\n"
+			};
+			
+			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
+			libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
+			
+			String contents = 
+					"public class X {\n" +
+					"    void foo(@T Outer o) {\n" +
+					"    }\n" +
+					"}\n" +
+					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@interface T {\n" +
+					"}\n";
+					
+			
+			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+			ASTNode node = buildAST(contents, this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			List types = compilationUnit.types();
+			assertEquals("Incorrect no of types", 2, types.size());
+			TypeDeclaration typeDecl = (TypeDeclaration) types.get(0);
+			
+			MethodDeclaration[] methods = typeDecl.getMethods();
+			assertEquals("Incorrect no of methods", 1, methods.length);
+			MethodDeclaration method = methods[0];
+			List parameters = method.parameters();
+			SingleVariableDeclaration parameter = (SingleVariableDeclaration) parameters.get(0);
+			ITypeBinding binding = parameter.resolveBinding().getType();
+			assertEquals("@T Outer", binding.toString());
+			ITypeBinding [] memberTypes = binding.getDeclaredTypes();
+			assertEquals("Incorrect no of types", 1, memberTypes.length);
+			assertEquals("Incorrect no of types", "@T Outer.Inner", memberTypes[0].toString());
+			assertEquals("Incorrect no of types", "@T Outer", memberTypes[0].getEnclosingType().toString());
+		} finally {
+			removeLibrary(javaProject, jarName, srcName);
+		}
+	}
+	public void testMemberType2() throws CoreException, IOException {
+		String jarName = "TypeBindingTests308.jar";
+		String srcName = "TypeBindingTests308_src.zip";
+		final IJavaProject javaProject = getJavaProject("Converter18");
+		try {
+			String[] pathAndContents = new String[] {
+				"Outer.java",
+				"public class Outer  {\n" +
+				"    @T Outer f;\n"+
+				"}\n" +
+				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"}\n"
+			};
+			
+			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
+			libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
+			
+			String contents = 
+					"public class X {\n" +
+					"    void foo(Outer o) {\n" +
+					"		o.f = null;\n" +
+					"    }\n" +
+					"}\n";
+					
+			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+			ASTNode node = buildAST(contents, this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			List types = compilationUnit.types();
+			assertEquals("Incorrect no of types", 1, types.size());
+			TypeDeclaration typeDecl = (TypeDeclaration) types.get(0);
+			
+			MethodDeclaration[] methods = typeDecl.getMethods();
+			assertEquals("Incorrect no of methods", 1, methods.length);
+			MethodDeclaration method = methods[0];
+			Block body = method.getBody();
+			ExpressionStatement stmt = (ExpressionStatement) body.statements().get(0);
+			Assignment assignment = (Assignment) stmt.getExpression();
+			Expression left = assignment.getLeftHandSide();
+			ITypeBinding type = left.resolveTypeBinding();
+			assertEquals("Wrong type", "@T Outer", type.toString());
+			IVariableBinding[] declaredFields = type.getDeclaredFields();
+			assertEquals("Wrong type", 1, declaredFields.length);
+			assertEquals("Wrong type", "@T Outer", declaredFields[0].getType().toString());
+		} finally {
+			removeLibrary(javaProject, jarName, srcName);
+		}
+	}
+	public void testBinarySuperInterfaces() throws CoreException, IOException {
+		String jarName = "TypeBindingTests308.jar";
+		String srcName = "TypeBindingTests308_src.zip";
+		final IJavaProject javaProject = getJavaProject("Converter18");
+		try {
+			String[] pathAndContents = new String[] {
+				"Y.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface T1 {\n" +
+				"}\n" +
+				"public abstract class Y implements Comparable<@T1 Y>{  \n" +
+				"}\n"
+			};
+			
+			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
+			libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
+			
+			String contents = 
+					"public class X {\n" +
+					"    void foo(Y y) {\n" +
+					"    }\n" +
+					"}\n";
+					
+			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+			ASTNode node = buildAST(contents, this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			List types = compilationUnit.types();
+			assertEquals("Incorrect no of types", 1, types.size());
+			TypeDeclaration typeDecl = (TypeDeclaration) types.get(0);
+			
+			MethodDeclaration[] methods = typeDecl.getMethods();
+			assertEquals("Incorrect no of methods", 1, methods.length);
+			MethodDeclaration method = methods[0];
+			List parameters = method.parameters();
+			SingleVariableDeclaration parameter = (SingleVariableDeclaration) parameters.get(0);
+			ITypeBinding binding = parameter.resolveBinding().getType();
+			ITypeBinding binding2 = binding.getInterfaces()[0].getTypeArguments()[0];
+			assertEquals("Wrong type", "@T1 Y", binding2.toString());
+			assertEquals("Wrong type", "Comparable<@T1 Y>", binding2.getInterfaces()[0].toString());		
+		} finally {
+			removeLibrary(javaProject, jarName, srcName);
+		}
+	}
+	public void testMemberTypeSource() throws CoreException, IOException {
+		String contents = 
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    class Y {}\n" +
+				"    @T X.Y xy;\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		List types = compilationUnit.types();
+		assertEquals("Incorrect no of types", 2, types.size());
+		TypeDeclaration typeDecl = (TypeDeclaration) types.get(1);
+		FieldDeclaration[] fields = typeDecl.getFields();
+		assertEquals("Incorrect no of fields", 1, fields.length);
+		FieldDeclaration field = fields[0];
+		ITypeBinding binding = field.getType().resolveBinding();
+		assertEquals("Wrong Type", "@T X", (binding = binding.getEnclosingType()).toString());
+		assertEquals("Wrong Type", "@T X.Y", (binding = binding.getDeclaredTypes()[0]).toString());
 	}	
 }

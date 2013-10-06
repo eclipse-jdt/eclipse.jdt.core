@@ -249,7 +249,7 @@ public final boolean canBeSeenBy(PackageBinding invocationPackage) {
 public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding invocationType) {
 	if (isPublic()) return true;
 
-	if (invocationType == this && invocationType == receiverType) return true;
+	if (TypeBinding.equalsEquals(invocationType, this) && TypeBinding.equalsEquals(invocationType, receiverType)) return true;
 
 	if (isProtected()) {
 		// answer true if the invocationType is the declaringClass or they are in the same package
@@ -257,12 +257,12 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
 		//    AND the invocationType is the invocationType or its subclass
 		//    OR the type is a static method accessed directly through a type
 		//    OR previous assertions are true for one of the enclosing type
-		if (invocationType == this) return true;
+		if (TypeBinding.equalsEquals(invocationType, this)) return true;
 		if (invocationType.fPackage == this.fPackage) return true;
 
 		TypeBinding currentType = invocationType.erasure();
 		TypeBinding declaringClass = enclosingType().erasure(); // protected types always have an enclosing one
-		if (declaringClass == invocationType) return true;
+		if (TypeBinding.equalsEquals(declaringClass, invocationType)) return true;
 		if (declaringClass == null) return false; // could be null if incorrect top-level protected type
 		//int depth = 0;
 		do {
@@ -277,7 +277,7 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
 		// answer true if the receiverType is the receiver or its enclosingType
 		// AND the invocationType and the receiver have a common enclosingType
 		receiverCheck: {
-			if (!(receiverType == this || receiverType == enclosingType())) {
+			if (!(TypeBinding.equalsEquals(receiverType, this) || TypeBinding.equalsEquals(receiverType, enclosingType()))) {
 				// special tolerance for type variable direct bounds, but only if compliance <= 1.6, see: https://bugs.eclipse.org/bugs/show_bug.cgi?id=334622
 				if (receiverType.isTypeVariable()) {
 					TypeVariableBinding typeVariable = (TypeVariableBinding) receiverType;
@@ -288,7 +288,7 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
 			}
 		}
 
-		if (invocationType != this) {
+		if (TypeBinding.notEquals(invocationType, this)) {
 			ReferenceBinding outerInvocationType = invocationType;
 			ReferenceBinding temp = outerInvocationType.enclosingType();
 			while (temp != null) {
@@ -302,7 +302,7 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
 				outerDeclaringClass = temp;
 				temp = temp.enclosingType();
 			}
-			if (outerInvocationType != outerDeclaringClass) return false;
+			if (TypeBinding.notEquals(outerInvocationType, outerDeclaringClass)) return false;
 		}
 		return true;
 	}
@@ -314,9 +314,9 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
 	TypeBinding originalDeclaringClass = (enclosingType() == null ? this : enclosingType()).original();
 	do {
 		if (currentType.isCapture()) {  // https://bugs.eclipse.org/bugs/show_bug.cgi?id=285002
-			if (originalDeclaringClass == currentType.erasure().original()) return true;
+			if (TypeBinding.equalsEquals(originalDeclaringClass, currentType.erasure().original())) return true;
 		} else { 
-			if (equalsEquals(originalDeclaringClass, currentType.original())) return true;
+			if (TypeBinding.equalsEquals(originalDeclaringClass, currentType.original())) return true;
 		}
 		PackageBinding currentPackage = currentType.fPackage;
 		// package could be null for wildcards/intersection types, ignore and recurse in superclass

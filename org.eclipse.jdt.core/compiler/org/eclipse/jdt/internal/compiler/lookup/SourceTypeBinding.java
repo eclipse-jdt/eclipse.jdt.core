@@ -60,15 +60,16 @@ import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class SourceTypeBinding extends ReferenceBinding {
-	public ReferenceBinding superclass;
-	public ReferenceBinding[] superInterfaces;
-	private FieldBinding[] fields;
-	private MethodBinding[] methods;
-	public ReferenceBinding[] memberTypes;
-	public TypeVariableBinding[] typeVariables;
+	public ReferenceBinding superclass;                    // MUST NOT be modified directly, use setter !
+	public ReferenceBinding[] superInterfaces;             // MUST NOT be modified directly, use setter !
+	private FieldBinding[] fields;                         // MUST NOT be modified directly, use setter !
+	private MethodBinding[] methods;                       // MUST NOT be modified directly, use setter !
+	public ReferenceBinding[] memberTypes;                 // MUST NOT be modified directly, use setter !
+	public TypeVariableBinding[] typeVariables;            // MUST NOT be modified directly, use setter !
 
 	public ClassScope scope;
 	protected SourceTypeBinding prototype;
+	LookupEnvironment environment;
 
 	// Synthetics are separated into 4 categories: methods, super methods, fields, class literals and bridge methods
 	// if a new category is added, also increment MAX_SYNTHETICS
@@ -95,6 +96,7 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 	this.modifiers = scope.referenceContext.modifiers;
 	this.sourceName = scope.referenceContext.name;
 	this.scope = scope;
+	this.environment = scope.environment();
 
 	// expect the fields & methods to be initialized correctly later
 	this.fields = Binding.UNINITIALIZED_FIELDS;
@@ -105,19 +107,18 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 
 public SourceTypeBinding(SourceTypeBinding prototype) {
 	super(prototype);
+	
 	this.prototype = prototype.prototype;
-    this.compoundName = prototype.compoundName;
-	this.fPackage = prototype.fPackage;
-	this.fileName = prototype.fileName;
-	this.modifiers = prototype.modifiers;
-	this.sourceName = prototype.sourceName;
-
+	this.prototype.tagBits |= TagBits.HasAnnotatedVariants;
+	this.tagBits &= ~TagBits.HasAnnotatedVariants;
+    
 	this.superclass = prototype.superclass;
 	this.superInterfaces = prototype.superInterfaces;
 	this.fields = prototype.fields;
 	this.methods = prototype.methods;
 	this.memberTypes = prototype.memberTypes;
 	this.typeVariables = prototype.typeVariables;
+	this.environment = prototype.environment;
 
 	// this.scope = prototype.scope;  // Will defeat CompilationUnitDeclaration.cleanUp(TypeDeclaration) && CompilationUnitDeclaration.cleanUp(), so not copied, not an issue for JSR 308.
 
@@ -127,9 +128,14 @@ public SourceTypeBinding(SourceTypeBinding prototype) {
 	this.defaultNullness = prototype.defaultNullness;
 	this.nullnessDefaultInitialized= prototype.nullnessDefaultInitialized;
 	this.lambdaOrdinal = prototype.lambdaOrdinal;
+	this.containingAnnotation = prototype.containingAnnotation;
+	this.tagBits |= TagBits.HasUnresolvedMemberTypes; // see memberTypes()
 }
 
 private void addDefaultAbstractMethods() {
+	
+	if (this != this.prototype) throw new IllegalStateException();
+	
 	if ((this.tagBits & TagBits.KnowsDefaultAbstractMethods) != 0) return;
 
 	this.tagBits |= TagBits.KnowsDefaultAbstractMethods;
@@ -189,7 +195,7 @@ private void addDefaultAbstractMethods() {
 			}
 			if (defaultAbstractsCount > 0) {
 				int length = this.methods.length;
-				System.arraycopy(this.methods, 0, this.methods = new MethodBinding[length + defaultAbstractsCount], 0, length);
+				System.arraycopy(this.methods, 0, setMethods(new MethodBinding[length + defaultAbstractsCount]), 0, length);
 				System.arraycopy(defaultAbstracts, 0, this.methods, length, defaultAbstractsCount);
 				// re-sort methods
 				length = length + defaultAbstractsCount;
@@ -204,6 +210,9 @@ private void addDefaultAbstractMethods() {
 *	Answer the new field or the existing field if one already existed.
 */
 public FieldBinding addSyntheticFieldForInnerclass(LocalVariableBinding actualOuterLocalVariable) {
+	
+	if (this != this.prototype) throw new IllegalStateException();
+	
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
@@ -250,6 +259,9 @@ public FieldBinding addSyntheticFieldForInnerclass(LocalVariableBinding actualOu
 *	Answer the new field or the existing field if one already existed.
 */
 public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingType) {
+	
+	if (this != this.prototype) throw new IllegalStateException();
+	
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
@@ -299,6 +311,9 @@ public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingTyp
 *	Answer the new field or the existing field if one already existed.
 */
 public FieldBinding addSyntheticFieldForClassLiteral(TypeBinding targetType, BlockScope blockScope) {
+	
+	if (this != this.prototype) throw new IllegalStateException();
+	
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.CLASS_LITERAL_EMUL] == null)
@@ -338,6 +353,9 @@ public FieldBinding addSyntheticFieldForClassLiteral(TypeBinding targetType, Blo
 *	Answer the new field or the existing field if one already existed.
 */
 public FieldBinding addSyntheticFieldForAssert(BlockScope blockScope) {
+	
+	if (this != this.prototype) throw new IllegalStateException();
+	
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
@@ -382,6 +400,8 @@ public FieldBinding addSyntheticFieldForAssert(BlockScope blockScope) {
 *	Answer the new field or the existing field if one already existed.
 */
 public FieldBinding addSyntheticFieldForEnumValues() {
+
+	if (this != this.prototype) throw new IllegalStateException();
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
@@ -427,6 +447,7 @@ public FieldBinding addSyntheticFieldForEnumValues() {
 	Answer the new method or the existing method if one already existed.
 */
 public SyntheticMethodBinding addSyntheticMethod(FieldBinding targetField, boolean isReadAccess, boolean isSuperAccess) {
+	if (this != this.prototype) throw new IllegalStateException();
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
@@ -450,6 +471,7 @@ public SyntheticMethodBinding addSyntheticMethod(FieldBinding targetField, boole
  * char[] constants from TypeConstants must be used: TypeConstants.VALUES/VALUEOF
 */
 public SyntheticMethodBinding addSyntheticEnumMethod(char[] selector) {
+	if (this != this.prototype) throw new IllegalStateException();
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
@@ -473,6 +495,7 @@ public SyntheticMethodBinding addSyntheticEnumMethod(char[] selector) {
  * Add a synthetic field to handle the cache of the switch translation table for the corresponding enum type
  */
 public SyntheticFieldBinding addSyntheticFieldForSwitchEnum(char[] fieldName, String key) {
+	if (this != this.prototype) throw new IllegalStateException();
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
@@ -517,6 +540,7 @@ public SyntheticFieldBinding addSyntheticFieldForSwitchEnum(char[] fieldName, St
  * char[] constants from TypeConstants must be used: TypeConstants.VALUES/VALUEOF
 */
 public SyntheticMethodBinding addSyntheticMethodForSwitchEnum(TypeBinding enumBinding) {
+	if (this != this.prototype) throw new IllegalStateException();
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
@@ -544,6 +568,7 @@ public SyntheticMethodBinding addSyntheticMethodForSwitchEnum(TypeBinding enumBi
 	return accessMethod;
 }
 public SyntheticMethodBinding addSyntheticMethodForEnumInitialization(int begin, int end) {
+	if (this != this.prototype) throw new IllegalStateException();
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
@@ -556,6 +581,7 @@ public SyntheticMethodBinding addSyntheticMethodForEnumInitialization(int begin,
 	return accessMethod;
 }
 public SyntheticMethodBinding addSyntheticMethod(LambdaExpression lambda) {
+	if (this != this.prototype) throw new IllegalStateException();
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
@@ -578,6 +604,7 @@ public SyntheticMethodBinding addSyntheticMethod(LambdaExpression lambda) {
 	Answer the new method or the existing method if one already existed.
 */
 public SyntheticMethodBinding addSyntheticMethod(MethodBinding targetMethod, boolean isSuperAccess) {
+	if (this != this.prototype) throw new IllegalStateException();
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
@@ -607,6 +634,7 @@ public SyntheticMethodBinding addSyntheticMethod(MethodBinding targetMethod, boo
 	return accessMethod;
 }
 public SyntheticMethodBinding addSyntheticArrayMethod(ArrayBinding arrayType, int purpose) {
+	if (this != this.prototype) throw new IllegalStateException();
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
@@ -629,6 +657,7 @@ public SyntheticMethodBinding addSyntheticArrayMethod(ArrayBinding arrayType, in
 	return arrayMethod;
 }
 public SyntheticMethodBinding addSyntheticFactoryMethod(MethodBinding privateConstructor, MethodBinding publicConstructor, TypeBinding [] enclosingInstances) {
+	if (this != this.prototype) throw new IllegalStateException();
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
@@ -643,6 +672,7 @@ public SyntheticMethodBinding addSyntheticFactoryMethod(MethodBinding privateCon
  * Record the fact that bridge methods need to be generated to override certain inherited methods
  */
 public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge, MethodBinding targetMethod) {
+	if (this != this.prototype) throw new IllegalStateException();
 	if (isInterface()) return null; // only classes & enums get bridge methods
 	// targetMethod may be inherited
 	if (TypeBinding.equalsEquals(inheritedMethodToBridge.returnType.erasure(), targetMethod.returnType.erasure())
@@ -688,6 +718,7 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
  * from a non-public class into a public class (only in 1.6 or greater)
  */
 public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge) {
+	if (this != this.prototype) throw new IllegalStateException();
 	if (this.scope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_5) {
 		return null;
 	}
@@ -740,6 +771,8 @@ boolean areMethodsInitialized() {
 	return this.methods != Binding.UNINITIALIZED_METHODS;
 }
 public int kind() {
+	if (this != this.prototype)
+		return this.prototype.kind();
 	if (this.typeVariables != Binding.NO_TYPE_VARIABLES) return Binding.GENERIC_TYPE;
 	return Binding.TYPE;
 }
@@ -791,6 +824,7 @@ public char[] computeUniqueKey(boolean isLeaf) {
 }
 
 void faultInTypesForFieldsAndMethods() {
+	if (this != this.prototype) throw new IllegalStateException();
 	// check @Deprecated annotation
 	getAnnotationTagBits(); // marks as deprecated by side effect
 	ReferenceBinding enclosingType = enclosingType();
@@ -805,8 +839,12 @@ void faultInTypesForFieldsAndMethods() {
 // NOTE: the type of each field of a source type is resolved when needed
 public FieldBinding[] fields() {
 	
-	if (this != this.prototype)
-		return this.prototype.fields();
+	if (this != this.prototype) {
+		if ((this.tagBits & TagBits.AreFieldsComplete) != 0)
+			return this.fields;
+		this.tagBits |= TagBits.AreFieldsComplete;
+		return this.fields = this.prototype.fields();
+	}
 	
 	if ((this.tagBits & TagBits.AreFieldsComplete) != 0)
 		return this.fields;
@@ -836,14 +874,14 @@ public FieldBinding[] fields() {
 			// ensure fields are consistent reqardless of the error
 			int newSize = resolvedFields.length - failed;
 			if (newSize == 0)
-				return this.fields = Binding.NO_FIELDS;
+				return setFields(Binding.NO_FIELDS);
 
 			FieldBinding[] newFields = new FieldBinding[newSize];
 			for (int i = 0, j = 0, length = resolvedFields.length; i < length; i++) {
 				if (resolvedFields[i] != null)
 					newFields[j++] = resolvedFields[i];
 			}
-			this.fields = newFields;
+			setFields(newFields);
 		}
 	}
 	this.tagBits |= TagBits.AreFieldsComplete;
@@ -1077,8 +1115,10 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 
 //NOTE: the type of a field of a source type is resolved when needed
 public FieldBinding getField(char[] fieldName, boolean needResolve) {
+	
 	if (this != this.prototype)
 		return this.prototype.getField(fieldName, needResolve);
+	
 	if ((this.tagBits & TagBits.AreFieldsComplete) != 0)
 		return ReferenceBinding.binarySearch(fieldName, this.fields);
 
@@ -1101,7 +1141,7 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 				// ensure fields are consistent reqardless of the error
 				int newSize = this.fields.length - 1;
 				if (newSize == 0) {
-					this.fields = Binding.NO_FIELDS;
+					setFields(Binding.NO_FIELDS);
 				} else {
 					FieldBinding[] newFields = new FieldBinding[newSize];
 					int index = 0;
@@ -1110,7 +1150,7 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 						if (f == field) continue;
 						newFields[index++] = f;
 					}
-					this.fields = newFields;
+					setFields(newFields);
 				}
 			}
 		}
@@ -1177,6 +1217,7 @@ public MethodBinding[] getMethods(char[] selector) {
 *	or null if one does not exist.
 */
 public FieldBinding getSyntheticField(LocalVariableBinding actualOuterLocalVariable) {
+	if (this != this.prototype) throw new IllegalStateException();
 	if (this.synthetics == null || this.synthetics[SourceTypeBinding.FIELD_EMUL] == null) return null;
 	return (FieldBinding) this.synthetics[SourceTypeBinding.FIELD_EMUL].get(actualOuterLocalVariable);
 }
@@ -1184,7 +1225,7 @@ public FieldBinding getSyntheticField(LocalVariableBinding actualOuterLocalVaria
 *	or null if one does not exist.
 */
 public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, boolean onlyExactMatch) {
-
+	if (this != this.prototype) throw new IllegalStateException();
 	if (this.synthetics == null || this.synthetics[SourceTypeBinding.FIELD_EMUL] == null) return null;
 	FieldBinding field = (FieldBinding) this.synthetics[SourceTypeBinding.FIELD_EMUL].get(targetEnclosingType);
 	if (field != null) return field;
@@ -1207,6 +1248,7 @@ public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, bool
  * Answer the bridge method associated for an  inherited methods or null if one does not exist
  */
 public SyntheticMethodBinding getSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge) {
+	if (this != this.prototype) throw new IllegalStateException();
 	if (this.synthetics == null) return null;
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null) return null;
 	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(inheritedMethodToBridge);
@@ -1262,6 +1304,11 @@ void initializeForStaticImports() {
 }
 
 private void initializeNullDefault() {
+	
+	if (this != this.prototype) {
+		this.prototype.initializeNullDefault();
+		return;
+	}
 	// ensure nullness defaults are initialized at all enclosing levels:
 	switch (this.nullnessDefaultInitialized) {
 	case 0:
@@ -1333,11 +1380,21 @@ public boolean isHierarchyConnected() {
 	return (this.tagBits & TagBits.EndHierarchyCheck) != 0;
 }
 public boolean isRepeatableAnnotation() {
+	if (this != this.prototype) throw new IllegalStateException();
 	return this.containingAnnotation != null;
 }
 public ReferenceBinding[] memberTypes() {
-	if (this != this.prototype)
-		return this.prototype.memberTypes();
+	if (this != this.prototype) {
+		if ((this.tagBits & TagBits.HasUnresolvedMemberTypes) == 0)
+			return this.memberTypes;
+		ReferenceBinding [] members = this.memberTypes = this.prototype.memberTypes();
+		int membersLength = members == null ? 0 : members.length;
+		this.memberTypes = new ReferenceBinding[membersLength];
+		for (int i = 0; i < membersLength; i++) {
+			this.memberTypes[i] = this.environment.createMemberType(members[i], this);
+		}
+		this.tagBits &= ~TagBits.HasUnresolvedMemberTypes;
+	}
 	return this.memberTypes;
 }
 
@@ -1350,8 +1407,12 @@ public boolean hasMemberTypes() {
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 public MethodBinding[] methods() {
 	
-	if (this != this.prototype)
-		return this.prototype.methods();
+	if (this != this.prototype) {
+		if ((this.tagBits & TagBits.AreMethodsComplete) != 0)
+			return this.methods;
+		this.tagBits |= TagBits.AreMethodsComplete;
+		return this.methods = this.prototype.methods();
+	}
 	
 	if ((this.tagBits & TagBits.AreMethodsComplete) != 0)
 		return this.methods;
@@ -1552,13 +1613,13 @@ public MethodBinding[] methods() {
 		if (failed > 0) {
 			int newSize = resolvedMethods.length - failed;
 			if (newSize == 0) {
-				this.methods = Binding.NO_METHODS;
+				setMethods(Binding.NO_METHODS);
 			} else {
 				MethodBinding[] newMethods = new MethodBinding[newSize];
 				for (int i = 0, j = 0, length = resolvedMethods.length; i < length; i++)
 					if (resolvedMethods[i] != null)
 						newMethods[j++] = resolvedMethods[i];
-				this.methods = newMethods;
+				setMethods(newMethods);
 			}
 		}
 
@@ -1574,11 +1635,15 @@ public TypeBinding prototype() {
 }
 
 public ReferenceBinding resolveContainerAnnotation() {
+	
+	if (this != this.prototype) throw new IllegalStateException();
+	
 	if (this.containingAnnotation instanceof UnresolvedReferenceBinding) {
 		this.containingAnnotation = (ReferenceBinding)BinaryTypeBinding.resolveType(this.containingAnnotation, this.scope.environment(), false);
 	}
 	return this.containingAnnotation;
 }
+
 public FieldBinding resolveTypeFor(FieldBinding field) {
 	
 	if (this != this.prototype)
@@ -1645,8 +1710,7 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 				Annotation.isTypeUseCompatible(fieldDecl.type, this.scope, fieldDecl.annotations);
 			}
 			// apply null default:
-			LookupEnvironment environment = this.scope.environment();
-			if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+			if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
 				// TODO(SH): different strategy for 1.8, or is "repair" below enough?
 				if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
 					// enum constants neither have a type declaration nor can they be null
@@ -1876,7 +1940,7 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 	return method;
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=391108
-private void rejectTypeAnnotatedVoidMethod(AbstractMethodDeclaration methodDecl) {
+private static void rejectTypeAnnotatedVoidMethod(AbstractMethodDeclaration methodDecl) {
 	Annotation[] annotations = methodDecl.annotations;
 	int length = annotations == null ? 0 : annotations.length;
 	for (int i = 0; i < length; i++) {
@@ -1888,7 +1952,11 @@ private void rejectTypeAnnotatedVoidMethod(AbstractMethodDeclaration methodDecl)
 		}
 	}
 }
+
 private void createArgumentBindings(MethodBinding method, CompilerOptions compilerOptions) {
+	
+	if (this != this.prototype) throw new IllegalStateException();
+	
 	initializeNullDefault();
 	AbstractMethodDeclaration methodDecl = method.sourceMethod();
 	if (methodDecl != null) {
@@ -1901,7 +1969,10 @@ private void createArgumentBindings(MethodBinding method, CompilerOptions compil
 		}
 	}
 }
+
 private void evaluateNullAnnotations(long annotationTagBits) {
+	
+	if (this != this.prototype) throw new IllegalStateException();
 	
 	if (this.nullnessDefaultInitialized > 0 || !this.scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled)
 		return;
@@ -1949,10 +2020,9 @@ private void evaluateNullAnnotations(long annotationTagBits) {
 }
 
 protected void checkRedundantNullnessDefaultRecurse(ASTNode location, Annotation[] annotations, long annotationTagBits) {
-	if (this != this.prototype) {
-		this.prototype.checkRedundantNullnessDefaultRecurse(location, annotations, annotationTagBits);
-		return;
-	}
+	
+	if (this != this.prototype) throw new IllegalStateException();
+	
 	if (this.fPackage.defaultNullness != NO_NULL_DEFAULT) {
 		if ((this.fPackage.defaultNullness == NONNULL_BY_DEFAULT
 				&& ((annotationTagBits & TagBits.AnnotationNonNullByDefault) != 0))) {
@@ -1964,9 +2034,9 @@ protected void checkRedundantNullnessDefaultRecurse(ASTNode location, Annotation
 
 // return: should caller continue searching?
 protected boolean checkRedundantNullnessDefaultOne(ASTNode location, Annotation[] annotations, long annotationTagBits) {
-	if (this != this.prototype)
-		return this.prototype.checkRedundantNullnessDefaultOne(location, annotations, annotationTagBits);
-
+	
+	if (this != this.prototype) throw new IllegalStateException();
+	
 	int thisDefault = this.defaultNullness;
 	if (thisDefault == NONNULL_BY_DEFAULT) {
 		if ((annotationTagBits & TagBits.AnnotationNonNullByDefault) != 0) {
@@ -1979,9 +2049,8 @@ protected boolean checkRedundantNullnessDefaultOne(ASTNode location, Annotation[
 
 boolean hasNonNullDefault() {
 	
-	if (this != this.prototype)
-		return this.prototype.hasNonNullDefault();
-
+	if (this != this.prototype) throw new IllegalStateException();
+	
 	// find the applicable default inside->out:
 
 	SourceTypeBinding currentType = null;
@@ -2026,19 +2095,101 @@ public AnnotationHolder retrieveAnnotationHolder(Binding binding, boolean forceI
 		binding.getAnnotationTagBits(); // ensure annotations are up to date
 	return super.retrieveAnnotationHolder(binding, false);
 }
+
 public void setContainingAnnotation(ReferenceBinding value) {
+	if (this != this.prototype) throw new IllegalStateException();
 	this.containingAnnotation  = value;
 }
-public void setFields(FieldBinding[] fields) {
-	this.fields = fields;
+
+// Propagate writes to all annotated variants so the clones evolve along.
+public FieldBinding [] setFields(FieldBinding[] fields) {
+	
 	if (this != this.prototype)
-		this.prototype.setFields(fields);
+		return this.prototype.setFields(fields);
+
+	if ((this.tagBits & TagBits.HasAnnotatedVariants) != 0) {
+		TypeBinding [] annotatedTypes = this.scope.environment().getAnnotatedTypes(this);
+		for (int i = 0, length = annotatedTypes == null ? 0 : annotatedTypes.length; i < length; i++) {
+			SourceTypeBinding annotatedType = (SourceTypeBinding) annotatedTypes[i];
+			annotatedType.fields = fields;
+		}
+	}
+	return this.fields = fields;
 }
-public void setMethods(MethodBinding[] methods) {
-	this.methods = methods;
+
+// We need to specialize member types, can't just propagate. Can't specialize here, clones could created post setMemberTypes()
+public ReferenceBinding [] setMemberTypes(ReferenceBinding[] memberTypes) {
+	
 	if (this != this.prototype)
-		this.prototype.setMethods(methods);
+		return this.prototype.setMemberTypes(memberTypes);
+
+	return this.memberTypes = memberTypes;
 }
+
+// Propagate writes to all annotated variants so the clones evolve along.
+public MethodBinding [] setMethods(MethodBinding[] methods) {
+	
+	if (this != this.prototype)
+		return this.prototype.setMethods(methods);
+	
+	if ((this.tagBits & TagBits.HasAnnotatedVariants) != 0) {
+		TypeBinding [] annotatedTypes = this.scope.environment().getAnnotatedTypes(this);
+		for (int i = 0, length = annotatedTypes == null ? 0 : annotatedTypes.length; i < length; i++) {
+			SourceTypeBinding annotatedType = (SourceTypeBinding) annotatedTypes[i];
+			annotatedType.methods = methods;
+		}
+	}
+	return this.methods = methods;
+}
+
+// Propagate writes to all annotated variants so the clones evolve along.
+public ReferenceBinding setSuperClass(ReferenceBinding superClass) {
+	
+	if (this != this.prototype)
+		return this.prototype.setSuperClass(superClass);
+	
+	if ((this.tagBits & TagBits.HasAnnotatedVariants) != 0) {
+		TypeBinding [] annotatedTypes = this.scope.environment().getAnnotatedTypes(this);
+		for (int i = 0, length = annotatedTypes == null ? 0 : annotatedTypes.length; i < length; i++) {
+			SourceTypeBinding annotatedType = (SourceTypeBinding) annotatedTypes[i];
+			annotatedType.superclass = superClass;
+		}
+	}
+	return this.superclass = superClass;
+}
+
+// Propagate writes to all annotated variants so the clones evolve along.
+public ReferenceBinding [] setSuperInterfaces(ReferenceBinding [] superInterfaces) {
+	
+	if (this != this.prototype)
+		return this.prototype.setSuperInterfaces(superInterfaces);
+	
+	if ((this.tagBits & TagBits.HasAnnotatedVariants) != 0) {
+		TypeBinding [] annotatedTypes = this.scope.environment().getAnnotatedTypes(this);
+		for (int i = 0, length = annotatedTypes == null ? 0 : annotatedTypes.length; i < length; i++) {
+			SourceTypeBinding annotatedType = (SourceTypeBinding) annotatedTypes[i];
+			annotatedType.superInterfaces = superInterfaces;
+		}
+	}
+	return this.superInterfaces = superInterfaces;
+}
+
+// Propagate writes to all annotated variants so the clones evolve along.
+public TypeVariableBinding [] setTypeVariables(TypeVariableBinding [] typeVariables) {
+	
+	if (this != this.prototype)
+		return this.prototype.setTypeVariables(typeVariables);
+	
+	if ((this.tagBits & TagBits.HasAnnotatedVariants) != 0) {
+		TypeBinding [] annotatedTypes = this.scope.environment().getAnnotatedTypes(this);
+		for (int i = 0, length = annotatedTypes == null ? 0 : annotatedTypes.length; i < length; i++) {
+			SourceTypeBinding annotatedType = (SourceTypeBinding) annotatedTypes[i];
+			annotatedType.typeVariables = typeVariables;
+		}
+	}
+	return this.typeVariables = typeVariables;
+}
+
 public final int sourceEnd() {
 	if (this != this.prototype)
 		return this.prototype.sourceEnd();
@@ -2064,16 +2215,23 @@ SimpleLookupTable storedAnnotations(boolean forceInitialize) {
 	}
 	return this.storedAnnotations;
 }
+
 public ReferenceBinding superclass() {
+	if (this != this.prototype)
+		return this.superclass = this.prototype.superclass();
 	return this.superclass;
 }
+
 public ReferenceBinding[] superInterfaces() {
+	if (this != this.prototype)
+		return this.superInterfaces = this.prototype.superInterfaces();
 	return this.superInterfaces;
 }
-public SyntheticMethodBinding[] syntheticMethods() {
-	if (this != this.prototype)
-		return this.prototype.syntheticMethods();
 
+public SyntheticMethodBinding[] syntheticMethods() {
+	
+	if (this != this.prototype) throw new IllegalStateException();
+	
 	if (this.synthetics == null 
 			|| this.synthetics[SourceTypeBinding.METHOD_EMUL] == null 
 			|| this.synthetics[SourceTypeBinding.METHOD_EMUL].size() == 0) {
@@ -2107,8 +2265,8 @@ public SyntheticMethodBinding[] syntheticMethods() {
  * Answer the collection of synthetic fields to append into the classfile
  */
 public FieldBinding[] syntheticFields() {
-	if (this != this.prototype)
-		return this.prototype.syntheticFields();
+	
+	if (this != this.prototype) throw new IllegalStateException();
 	
 	if (this.synthetics == null) return null;
 	int fieldSize = this.synthetics[SourceTypeBinding.FIELD_EMUL] == null ? 0 : this.synthetics[SourceTypeBinding.FIELD_EMUL].size();
@@ -2232,14 +2390,13 @@ public String toString() {
 }
 public TypeVariableBinding[] typeVariables() {
 	if (this != this.prototype)
-		return this.prototype.typeVariables();
+		return this.typeVariables = this.prototype.typeVariables();
 	return this.typeVariables != null ? this.typeVariables : Binding.NO_TYPE_VARIABLES;
 }
 void verifyMethods(MethodVerifier verifier) {
-	if (this != this.prototype) {
-		this.prototype.verifyMethods(verifier);
-		return;
-	}
+	
+	if (this != this.prototype) throw new IllegalStateException();
+	
 	verifier.verify(this);
 
 	for (int i = this.memberTypes.length; --i >= 0;)

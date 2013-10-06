@@ -332,10 +332,7 @@ class TypeBinding implements ITypeBinding {
 	/*
 	 * @see ITypeBinding#getDeclaredTypes()
 	 */
-	public synchronized ITypeBinding[] getDeclaredTypes() {
-		if (this.prototype != null) {
-			return this.prototype.getDeclaredTypes();
-		}
+	public synchronized ITypeBinding[] getDeclaredTypes() { // should not deflect to prototype.
 		if (this.members != null) {
 			return this.members;
 		}
@@ -473,6 +470,13 @@ class TypeBinding implements ITypeBinding {
 		return this;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getEnclosingType()
+	 */
+	public ITypeBinding getEnclosingType() {
+		return this.resolver.getTypeBinding(this.binding.enclosingType());
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getErasure()
 	 */
