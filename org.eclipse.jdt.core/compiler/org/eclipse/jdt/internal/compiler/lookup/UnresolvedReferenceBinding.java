@@ -25,7 +25,6 @@ public class UnresolvedReferenceBinding extends ReferenceBinding {
 ReferenceBinding resolvedType;
 TypeBinding[] wrappers;
 UnresolvedReferenceBinding prototype;
-TypeBinding enclosingType;
 
 UnresolvedReferenceBinding(char[][] compoundName, PackageBinding packageBinding) {
 	this.compoundName = compoundName;
@@ -44,10 +43,9 @@ public UnresolvedReferenceBinding(UnresolvedReferenceBinding prototype) {
 }
 
 public TypeBinding clone(TypeBinding outerType) {
-	if (this.resolvedType != null)
+	if (this.resolvedType != null || this.depth() > 0)
 		throw new IllegalStateException();
 	UnresolvedReferenceBinding copy = new UnresolvedReferenceBinding(this);
-	copy.enclosingType = outerType;
 	this.addWrapper(copy, null);
 	return copy;
 }
@@ -131,8 +129,7 @@ void setResolvedType(ReferenceBinding targetType, LookupEnvironment environment)
 
 public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding unannotatedType, LookupEnvironment environment) {
 	if (this.resolvedType != null) return;
-	ReferenceBinding annotatedType = (ReferenceBinding) unannotatedType.clone(this.enclosingType != null ? this.enclosingType : unannotatedType.enclosingType());
-	
+	ReferenceBinding annotatedType = (ReferenceBinding) unannotatedType.clone(null);
 	this.resolvedType = annotatedType;
 	annotatedType.setTypeAnnotations(getTypeAnnotations(), environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
 	annotatedType.id = unannotatedType.id = this.id;
@@ -141,6 +138,7 @@ public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceB
 			this.wrappers[i].swapUnresolved(this, annotatedType, environment);
 	environment.updateCaches(this, annotatedType);
 }
+
 public String toString() {
 	if (this.hasTypeAnnotations())
 		return super.annotatedDebugName() + "(unresolved)"; //$NON-NLS-1$

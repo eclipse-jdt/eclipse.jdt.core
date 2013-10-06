@@ -723,16 +723,12 @@ public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBin
 
 	// resolve any array bindings which reference the unresolvedType
 	ReferenceBinding cachedType = packageBinding.getType0(binaryBinding.compoundName[binaryBinding.compoundName.length - 1]);
-	if (cachedType != null) { // update reference to unresolved binding after having read classfile (knows whether generic for raw conversion)
-		if (cachedType instanceof UnresolvedReferenceBinding) {
-			((UnresolvedReferenceBinding) cachedType).setResolvedType(binaryBinding, this);
-		} else {
-			if (cachedType.isBinaryBinding()) // sanity check... at this point the cache should ONLY contain unresolved types
-				return (BinaryTypeBinding) cachedType;
-			// it is possible with a large number of source files (exceeding AbstractImageBuilder.MAX_AT_ONCE) that a member type can be in the cache as an UnresolvedType,
-			// but because its enclosingType is resolved while its created (call to BinaryTypeBinding constructor), its replaced with a source type
-			return null;
-		}
+	if (cachedType != null && !cachedType.isUnresolvedType()) {
+		if (cachedType.isBinaryBinding()) // sanity check... at this point the cache should ONLY contain unresolved types
+			return (BinaryTypeBinding) cachedType;
+		// it is possible with a large number of source files (exceeding AbstractImageBuilder.MAX_AT_ONCE) that a member type can be in the cache as an UnresolvedType,
+		// but because its enclosingType is resolved while its created (call to BinaryTypeBinding constructor), its replaced with a source type
+		return null;
 	}
 	packageBinding.addType(binaryBinding);
 	setAccessRestriction(binaryBinding, accessRestriction);

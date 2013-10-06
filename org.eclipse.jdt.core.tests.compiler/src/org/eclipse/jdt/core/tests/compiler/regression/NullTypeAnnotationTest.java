@@ -3163,4 +3163,60 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			getCompilerOptions(), 
 			"");		
 	}
+	public void testLocalArrays() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import org.eclipse.jdt.annotation.NonNull;\n" +
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"}\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"       class L {};\n" +
+				"       L @NonNull [] @Nullable [] la = new L[5][];\n" +
+				"       L @Nullable [] @NonNull [] la2 = new L[3][];\n" +
+				"       la = la2;\n" +
+				"   }\n" +
+				"}\n"
+			}, 
+			getCompilerOptions(), 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 13)\n" + 
+			"	L @NonNull [] @Nullable [] la = new L[5][];\n" + 
+			"	                                ^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'L[][]\' needs unchecked conversion to conform to \'L @NonNull[] @Nullable[]\'\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 14)\n" + 
+			"	L @Nullable [] @NonNull [] la2 = new L[3][];\n" + 
+			"	                                 ^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'L[][]\' needs unchecked conversion to conform to \'L @Nullable[] @NonNull[]\'\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 15)\n" + 
+			"	la = la2;\n" + 
+			"	     ^^^\n" + 
+			"Null type mismatch (type annotations): required \'L @NonNull[] @Nullable[]\' but this expression has type \'L @Nullable[] @NonNull[]\'\n" + 
+			"----------\n");
+		
+		// Without annotations.
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"       class L {};\n" +
+					"       L [] [] la = new L[5][];\n" +
+					"       L []  [] la2 = new L[3][];\n" +
+					"       la = la2;\n" +
+					"       System.out.println(\"Done\");\n" +
+					"   }\n" +
+					"}\n"
+				}, 
+				"Done");
+	}	
 }

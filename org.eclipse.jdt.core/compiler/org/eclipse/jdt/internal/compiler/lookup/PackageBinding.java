@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -68,7 +72,12 @@ void addType(ReferenceBinding element) {
 	if ((element.tagBits & TagBits.HasMissingType) == 0) clearMissingTagBit();
 	if (this.knownTypes == null)
 		this.knownTypes = new HashtableOfType(25);
-	this.knownTypes.put(element.compoundName[element.compoundName.length - 1], element);
+	char [] name = element.compoundName[element.compoundName.length - 1];
+	ReferenceBinding priorType = this.knownTypes.get(name);
+	this.knownTypes.put(name, element);
+	if (priorType != null && priorType.isUnresolvedType() && !element.isUnresolvedType()) {
+		((UnresolvedReferenceBinding) priorType).setResolvedType(element, this.environment);
+	}
 	if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled)
 		if (element.isAnnotationType() || element instanceof UnresolvedReferenceBinding) // unresolved types don't yet have the modifiers set
 			checkIfNullAnnotationType(element);

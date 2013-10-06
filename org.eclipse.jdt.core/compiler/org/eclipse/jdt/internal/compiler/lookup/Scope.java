@@ -443,7 +443,7 @@ public abstract class Scope {
 			case Binding.ARRAY_TYPE:
 				ArrayBinding originalArrayType = (ArrayBinding) originalType;
 				TypeBinding originalLeafComponentType = originalArrayType.leafComponentType;
-				TypeBinding substitute = substitute(substitution, originalLeafComponentType); // substitute could itself be array type
+				TypeBinding substitute = substitute(substitution, originalLeafComponentType); // substitute could itself be array type, TODO(Srikanth): need a test case.
 				if (substitute != originalLeafComponentType) {
 					return originalArrayType.environment.createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalType.dimensions(), originalType.getTypeAnnotations());
 				}

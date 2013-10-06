@@ -24,6 +24,7 @@ public MemberTypeBinding(MemberTypeBinding prototype) {
 }
 
 void checkSyntheticArgsAndFields() {
+	if (this != this.prototype) throw new IllegalStateException();
 	if (isStatic()) return;
 	if (isInterface()) return;
 	if (this != this.prototype) {
