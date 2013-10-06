@@ -13,6 +13,7 @@
  *								bug 395681 - [compiler] Improve simulation of javac6 behavior from bug 317719 after fixing bug 388795
  *								bug 406928 - computation of inherited methods seems damaged (affecting @Overrides)
  *								bug 409473 - [compiler] JDT cannot compile against JRE 1.8
+ *								Bug 418235 - [compiler][null] Unreported nullness error when using generic
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -33,7 +34,6 @@ public abstract class MethodVerifier extends ImplicitNullAnnotationVerifier {
 	SourceTypeBinding type;
 	HashtableOfObject inheritedMethods;
 	HashtableOfObject currentMethods;
-	LookupEnvironment environment;
 	private boolean allowCompatibleReturnTypes;
 /*
 Binding creation is responsible for reporting all problems with types:
@@ -53,7 +53,7 @@ Binding creation is responsible for reporting all problems with types:
 		- defining an interface as a local type (local types can only be classes)
 */
 MethodVerifier(LookupEnvironment environment) {
-	super(environment.globalOptions);
+	super(environment);
 	this.type = null;  // Initialized with the public method verify(SourceTypeBinding)
 	this.inheritedMethods = null;
 	this.currentMethods = null;
@@ -61,9 +61,6 @@ MethodVerifier(LookupEnvironment environment) {
 	this.allowCompatibleReturnTypes =
 		environment.globalOptions.complianceLevel >= ClassFileConstants.JDK1_5
 			&& environment.globalOptions.sourceLevel < ClassFileConstants.JDK1_5;
-}
-boolean areMethodsCompatible(MethodBinding one, MethodBinding two) {
-	return isParameterSubsignature(one, two) && areReturnTypesCompatible(one, two);
 }
 boolean areReturnTypesCompatible(MethodBinding one, MethodBinding two) {
 	if (one.returnType == two.returnType) return true;
@@ -639,45 +636,6 @@ void computeMethods() {
 	}
 }
 
-MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBinding currentMethod) {
-	if (inheritedMethod == null) return null;
-	if (currentMethod.parameters.length != inheritedMethod.parameters.length) return null; // no match
-	return inheritedMethod;
-}
-
-boolean couldMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
-	if (!org.eclipse.jdt.core.compiler.CharOperation.equals(method.selector, inheritedMethod.selector))
-		return false;
-	if (method == inheritedMethod || method.isStatic() || inheritedMethod.isStatic())
-		return false;
-	if (inheritedMethod.isPrivate())
-		return false;
-	if (inheritedMethod.isDefault() && method.declaringClass.getPackage() != inheritedMethod.declaringClass.getPackage())
-		return false;
-	if (!method.isPublic()) { // inheritedMethod is either public or protected & method is less than public
-		if (inheritedMethod.isPublic())
-			return false;
-		if (inheritedMethod.isProtected() && !method.isProtected())
-			return false;
-	}
-	return true;
-}
-
-// Answer whether the method overrides the inheritedMethod
-// Check the necessary visibility rules & inheritance from the inheritedMethod's declaringClass
-// See isMethodSubsignature() for parameter comparisons
-public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
-	if (!couldMethodOverride(method, inheritedMethod))
-		return false;
-
-	inheritedMethod = inheritedMethod.original();
-	TypeBinding match = method.declaringClass.findSuperTypeOriginatingFrom(inheritedMethod.declaringClass);
-	if (!(match instanceof ReferenceBinding))
-		return false; // method's declaringClass does not inherit from inheritedMethod's
-
-	return isParameterSubsignature(method, inheritedMethod);
-}
-
 SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
 	return null; // noop in 1.4
 }
@@ -772,10 +730,6 @@ boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBindin
 public boolean isMethodSubsignature(MethodBinding method, MethodBinding inheritedMethod) {
 	return org.eclipse.jdt.core.compiler.CharOperation.equals(method.selector, inheritedMethod.selector)
 		&& isParameterSubsignature(method, inheritedMethod);
-}
-
-boolean isParameterSubsignature(MethodBinding method, MethodBinding inheritedMethod) {
-	return areParametersEqual(method, inheritedMethod);
 }
 
 boolean isSameClassOrSubclassOf(ReferenceBinding testClass, ReferenceBinding superclass) {

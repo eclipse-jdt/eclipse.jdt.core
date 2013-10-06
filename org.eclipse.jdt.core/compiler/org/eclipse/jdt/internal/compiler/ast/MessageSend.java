@@ -27,6 +27,7 @@
  *								bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *								Bug 405569 - Resource leak check false positive when using DbUtils.closeQuietly
+ *								Bug 418235 - [compiler][null] Unreported nullness error when using generic
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
@@ -701,7 +702,7 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled && (this.binding.tagBits & TagBits.IsNullnessKnown) == 0) {
 		// not interested in reporting problems against this.binding:
-		new ImplicitNullAnnotationVerifier(compilerOptions.inheritNullAnnotations)
+		new ImplicitNullAnnotationVerifier(scope.environment(), compilerOptions.inheritNullAnnotations)
 				.checkImplicitNullAnnotations(this.binding, null/*srcMethod*/, false, scope);
 	}
 	

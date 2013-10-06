@@ -18,6 +18,7 @@
  *								bug 395977 - [compiler][resource] Resource leak warning behavior possibly incorrect for anonymous inner class
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *								Bug 416267 - NPE in QualifiedAllocationExpression.resolveType
+ *								Bug 418235 - [compiler][null] Unreported nullness error when using generic
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *								bug 378674 - "The method can be declared as static" is wrong
  *     Till Brychcy - Contributions for
@@ -273,7 +274,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		if(result != null && this.binding != null) {
 			final CompilerOptions compilerOptions = scope.compilerOptions();
 			if (compilerOptions.isAnnotationBasedNullAnalysisEnabled && (this.binding.tagBits & TagBits.IsNullnessKnown) == 0) {
-				new ImplicitNullAnnotationVerifier(compilerOptions.inheritNullAnnotations)
+				new ImplicitNullAnnotationVerifier(scope.environment(), compilerOptions.inheritNullAnnotations)
 						.checkImplicitNullAnnotations(this.binding, null/*srcMethod*/, false, scope);
 			}
 		}
