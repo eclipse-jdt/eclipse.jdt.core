@@ -1281,7 +1281,7 @@ public boolean isEquivalentTo(TypeBinding otherType) {
 	if (this != this.prototype)
 		return this.prototype.isEquivalentTo(otherType);
 	
-	if (this == otherType) return true;
+	if (TypeBinding.equalsEquals(this, otherType)) return true;
 	if (otherType == null) return false;
 	switch(otherType.kind()) {
 

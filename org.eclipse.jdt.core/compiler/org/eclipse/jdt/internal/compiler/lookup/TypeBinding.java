@@ -1041,7 +1041,7 @@ public boolean isThrowable() {
 }
 // JLS3: 4.5.1.1
 public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
-	if (this == otherType)
+	if (TypeBinding.equalsEquals(this, otherType))
 		return true;
 	switch (otherType.kind()) {
 		// handle captured wildcards.
@@ -1113,7 +1113,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 			TypeBinding otherBound = otherWildcard.bound;
 			switch (otherWildcard.boundKind) {
 				case Wildcard.EXTENDS:
-					if (otherBound == this)
+					if (TypeBinding.equalsEquals(otherBound, this))
 						return true; // ? extends T  <=  ? extends ? extends T
 					if (upperBound == null)
 						return false;

@@ -748,7 +748,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 
 	    	case Binding.PARAMETERIZED_TYPE :
 	            ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
-	            if (this.type != otherParamType.type)
+	            if (TypeBinding.notEquals(this.type, otherParamType.type)) 
 	                return false;
 	            if (!isStatic()) { // static member types do not compare their enclosing
 	            	ReferenceBinding enclosing = enclosingType();
@@ -756,7 +756,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	            		ReferenceBinding otherEnclosing = otherParamType.enclosingType();
 	            		if (otherEnclosing == null) return false;
 	            		if ((otherEnclosing.tagBits & TagBits.HasDirectWildcard) == 0) {
-							if (enclosing != otherEnclosing) return false;
+							if (TypeBinding.notEquals(enclosing, otherEnclosing)) return false;
 	            		} else {
 	            			if (!enclosing.isEquivalentTo(otherParamType.enclosingType())) return false;
 	            		}

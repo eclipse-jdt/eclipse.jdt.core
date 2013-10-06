@@ -4036,4 +4036,51 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"The type parameter Q should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
 				"----------\n");
 	}
+	public void testWildcardCapture() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import java.util.List;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface NonNull {\n" +
+				"}\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface Nullable {\n" +
+				"}\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		List<@Nullable ? extends X> lx1 = null;\n" +
+				"		List<@NonNull ? extends X> lx2 = null;\n" +
+				"		lx1 = lx2;\n" +
+				"		lx1.add(lx2.get(0));\n" +
+				"		lx1.add(lx1.get(0));\n" +
+				"       getAdd(lx1, lx2);\n" +
+				"	}\n" +
+				"	static <@NonNull P>  void getAdd(List<P> p1, List<P> p2) {\n" +
+				"		p1.add(p2.get(0));\n" +
+				"	}\n" +
+				"}\n"
+			}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 18)\n" + 
+			"	lx1.add(lx2.get(0));\n" + 
+			"	    ^^^\n" + 
+			"The method add(capture#3-of ? extends X) in the type List<capture#3-of ? extends X> is not applicable for the arguments (capture#4-of ? extends X)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 19)\n" + 
+			"	lx1.add(lx1.get(0));\n" + 
+			"	    ^^^\n" + 
+			"The method add(capture#5-of ? extends X) in the type List<capture#5-of ? extends X> is not applicable for the arguments (capture#6-of ? extends X)\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 20)\n" + 
+			"	getAdd(lx1, lx2);\n" + 
+			"	^^^^^^\n" + 
+			"The method getAdd(List<P>, List<P>) in the type X is not applicable for the arguments (List<capture#7-of ? extends X>, List<capture#8-of ? extends X>)\n" + 
+			"----------\n");		
+	}	
 }

@@ -43,11 +43,11 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * Denote the first explicit (binding) bound amongst the supertypes (from declaration in source)
 	 * If no superclass was specified, then it denotes the first superinterface, or null if none was specified.
 	 */
-	public TypeBinding firstBound;             // For non-captures, must not be modified directly, use setter !
+	public TypeBinding firstBound;             // MUST NOT be modified directly, use setter !
 
 	// actual resolved variable supertypes (if no superclass bound, then associated to Object)
-	public ReferenceBinding superclass;        // For non-captures, must not be modified directly, use setter !
-	public ReferenceBinding[] superInterfaces; // For non-captures, must not be modified directly, use setter !
+	public ReferenceBinding superclass;        // MUST NOT be modified directly, use setter !
+	public ReferenceBinding[] superInterfaces; // MUST NOT be modified directly, use setter !
 	public char[] genericTypeSignature;
 	LookupEnvironment environment;
 	
@@ -310,7 +310,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 	}
 	public String annotatedDebugName() {
 		StringBuffer buffer = new StringBuffer(10);
-		buffer.append('<');
 		buffer.append(super.annotatedDebugName());
 		if (this.superclass != null && this.firstBound == this.superclass) {
 		    buffer.append(" extends ").append(this.superclass.annotatedDebugName()); //$NON-NLS-1$
@@ -326,7 +325,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 				buffer.append(this.superInterfaces[i].annotatedDebugName());
 			}
 		}
-		buffer.append('>');
 		return buffer.toString();
 	}
 	/**
@@ -600,6 +598,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 		return buffer.toString();
 	}
 
+	// May still carry declaration site annotations.
 	public TypeBinding unannotated() {
 		return this.hasTypeAnnotations() ? this.environment.getUnannotatedType(this) : this;
 	}

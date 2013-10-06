@@ -1230,7 +1230,7 @@ public boolean isCompatibleWith(TypeBinding otherType, /*@Nullable*/ Scope captu
  * Answer true if the receiver type can be assigned to the argument type (right)
  */
 private boolean isCompatibleWith0(TypeBinding otherType, /*@Nullable*/ Scope captureScope) {
-	if (otherType == this)
+	if (TypeBinding.equalsEquals(otherType, this))
 		return true;
 	if (otherType.id == TypeIds.T_JavaLangObject)
 		return true;
@@ -1262,7 +1262,7 @@ private boolean isCompatibleWith0(TypeBinding otherType, /*@Nullable*/ Scope cap
 				case Binding.GENERIC_TYPE :
 				case Binding.PARAMETERIZED_TYPE :
 				case Binding.RAW_TYPE :
-					if (erasure() == otherType.erasure())
+					if (TypeBinding.equalsEquals(erasure(), otherType.erasure())) 
 						return false; // should have passed equivalence check
 										// above if same erasure
 			}
