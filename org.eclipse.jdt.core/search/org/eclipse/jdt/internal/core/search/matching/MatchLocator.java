@@ -914,7 +914,7 @@ public MethodBinding getMethodBinding(MethodPattern methodPattern) {
     // special handling for methods of anonymous/local types. Since these cannot be looked up in the environment the usual way ...
     if (methodPattern.focus instanceof SourceMethod) {
     	char[] typeName = PatternLocator.qualifiedPattern(methodPattern.declaringSimpleName, methodPattern.declaringQualification);
-    	if (CharOperation.indexOf(IIndexConstants.ONE_STAR, typeName, true) >= 0) { // See org.eclipse.jdt.core.search.SearchPattern.enclosingTypeNames(IType)
+    	if (typeName != null && CharOperation.indexOf(IIndexConstants.ONE_STAR, typeName, true) >= 0) { // See org.eclipse.jdt.core.search.SearchPattern.enclosingTypeNames(IType)
     		IType type = methodPattern.declaringType;
     		IType enclosingType = type.getDeclaringType();
     		while (enclosingType != null) {
