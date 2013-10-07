@@ -60,6 +60,31 @@ public ReferenceBinding get(char[] key) {
 	}
 	return null;
 }
+// Returns old value.
+public ReferenceBinding getput(char[] key, ReferenceBinding value) {
+	ReferenceBinding retVal = null;
+	int length = this.keyTable.length,
+		index = CharOperation.hashCode(key) % length;
+	int keyLength = key.length;
+	char[] currentKey;
+	while ((currentKey = this.keyTable[index]) != null) {
+		if (currentKey.length == keyLength && CharOperation.equals(currentKey, key)) {
+			retVal = this.valueTable[index];
+			this.valueTable[index] = value;
+			return retVal;
+		}
+		if (++index == length) {
+			index = 0;
+		}
+	}
+	this.keyTable[index] = key;
+	this.valueTable[index] = value;
+
+	// assumes the threshold is never equal to the size of the table
+	if (++this.elementSize > this.threshold)
+		rehash();
+	return retVal;
+}
 public ReferenceBinding put(char[] key, ReferenceBinding value) {
 	int length = this.keyTable.length,
 		index = CharOperation.hashCode(key) % length;

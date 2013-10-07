@@ -73,8 +73,7 @@ void addType(ReferenceBinding element) {
 	if (this.knownTypes == null)
 		this.knownTypes = new HashtableOfType(25);
 	char [] name = element.compoundName[element.compoundName.length - 1];
-	ReferenceBinding priorType = this.knownTypes.get(name);
-	this.knownTypes.put(name, element);
+	ReferenceBinding priorType = this.knownTypes.getput(name, element);
 	if (priorType != null && priorType.isUnresolvedType() && !element.isUnresolvedType()) {
 		((UnresolvedReferenceBinding) priorType).setResolvedType(element, this.environment);
 	}

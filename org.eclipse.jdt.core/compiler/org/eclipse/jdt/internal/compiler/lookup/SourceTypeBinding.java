@@ -2123,7 +2123,16 @@ public ReferenceBinding [] setMemberTypes(ReferenceBinding[] memberTypes) {
 	if (this != this.prototype)
 		return this.prototype.setMemberTypes(memberTypes);
 
-	return this.memberTypes = memberTypes;
+	this.memberTypes = memberTypes;
+	if ((this.tagBits & TagBits.HasAnnotatedVariants) != 0) {
+		TypeBinding [] annotatedTypes = this.scope.environment().getAnnotatedTypes(this);
+		for (int i = 0, length = annotatedTypes == null ? 0 : annotatedTypes.length; i < length; i++) {
+			SourceTypeBinding annotatedType = (SourceTypeBinding) annotatedTypes[i];
+			annotatedType.tagBits |= TagBits.HasUnresolvedMemberTypes;
+			annotatedType.memberTypes(); // recompute.
+		}
+	}
+	return this.memberTypes;
 }
 
 // Propagate writes to all annotated variants so the clones evolve along.
