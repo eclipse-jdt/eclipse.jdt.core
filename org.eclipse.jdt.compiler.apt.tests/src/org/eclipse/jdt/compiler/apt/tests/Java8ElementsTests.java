@@ -106,7 +106,7 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations6");
 	}
-	public void testTypeAnnotations6WithJavac() throws Exception {
+	public void _testTypeAnnotations6WithJavac() throws Exception {   // Disabled for now. Javac 8b108 drops annotations arrays preceding varargs.
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations6");
 	}
@@ -114,7 +114,7 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations7");
 	}
-	public void testTypeAnnotations7WithJavac() throws Exception {
+	public void _testTypeAnnotations7WithJavac() throws Exception {  // Disabled for now. Javac 8b108 misattributes annotations on type parameters 
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations7");
 	}
@@ -122,7 +122,7 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations8");
 	}
-	public void testTypeAnnotations8WithJavac() throws Exception {
+	public void _testTypeAnnotations8WithJavac() throws Exception {     // Disabled for now. Javac 8b108 misattributes annotations on type parameters
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations8");
 	}
