@@ -163,7 +163,7 @@ public class ImplicitNullAnnotationVerifier {
 			MethodBinding currentMethod = ifcMethods[i];
 			if (currentMethod.isStatic())
 				continue;
-			if (areParametersEqual(original, currentMethod.original())) {
+			if (doesMethodOverride(original, currentMethod)) {
 				result.add(currentMethod);
 				return; // at most one method is overridden from any supertype
 			}
