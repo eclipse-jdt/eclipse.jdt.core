@@ -2729,15 +2729,43 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 
-		int pos= rewriteRequiredNode(node, InfixExpression.LEFT_OPERAND_PROPERTY);
+		Expression right= node.getRightOperand();
+		int pos;
+		
+		RewriteEvent leftEvent= getEvent(node, InfixExpression.LEFT_OPERAND_PROPERTY);
+		boolean removeLeft = leftEvent != null && leftEvent.getChangeKind() == RewriteEvent.REMOVED;
+		RewriteEvent rightEvent= getEvent(node, InfixExpression.RIGHT_OPERAND_PROPERTY);
+		boolean removeRight = rightEvent != null && rightEvent.getChangeKind() == RewriteEvent.REMOVED;
+		
+		if (removeLeft) {
+			Expression left= node.getLeftOperand();
+			int leftStart= getExtendedOffset(left);
+			pos= getExtendedOffset(right);
+			TextEditGroup editGroup= getEditGroup(leftEvent);
+			doTextRemoveAndVisit(leftStart, pos - leftStart, left, editGroup);
+		} else {
+			pos = rewriteRequiredNode(node, InfixExpression.LEFT_OPERAND_PROPERTY);
+		}
 
 		boolean needsNewOperation= isChanged(node, InfixExpression.OPERATOR_PROPERTY);
 		String operation= getNewValue(node, InfixExpression.OPERATOR_PROPERTY).toString();
-		if (needsNewOperation) {
+		if (needsNewOperation && !removeLeft && !removeRight) {
 			replaceOperation(pos, operation, getEditGroup(node, InfixExpression.OPERATOR_PROPERTY));
 		}
 
-		pos= rewriteRequiredNode(node, InfixExpression.RIGHT_OPERAND_PROPERTY);
+		if (removeRight) {
+			int end;
+			if (removeLeft && node.extendedOperands().size() > 0) {
+				end= getExtendedOffset((Expression) node.extendedOperands().get(0));
+			} else {
+				end= getExtendedEnd(right);
+			}
+			TextEditGroup editGroup= getEditGroup(rightEvent);
+			doTextRemoveAndVisit(pos, end - pos, right, editGroup);
+			pos= end;
+		} else {
+			pos= rewriteRequiredNode(node, InfixExpression.RIGHT_OPERAND_PROPERTY);
+		}
 
 		RewriteEvent event= getEvent(node, InfixExpression.EXTENDED_OPERANDS_PROPERTY);
 		String prefixString= ' ' + operation + ' ';
