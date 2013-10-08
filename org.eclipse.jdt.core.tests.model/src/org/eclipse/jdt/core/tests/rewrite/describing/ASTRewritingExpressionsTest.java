@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.tests.rewrite.describing;
 import java.util.List;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -72,12 +71,6 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 
 	public static Test allTests() {
 		return new Suite(THIS);
-	}
-
-	public static Test setUpTest(Test someTest) {
-		TestSuite suite= new Suite("one test");
-		suite.addTest(someTest);
-		return suite;
 	}
 
 	public static Test suite() {
@@ -1032,6 +1025,88 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 
+	}
+
+	public void testInfixExpression2() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        i= 0 + 2;\n");
+		buf.append("        j= 1 + 0;\n");
+		buf.append("        k= 0 + 2 + 3 + 4 + 5;\n");
+		buf.append("        l= 1 + 0 + 3 + 4 + 5;\n");
+		buf.append("        m= 0 + 0 + 0 + 4 + 5;\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+	
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+	
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List statements= block.statements();
+		{ // remove left side
+			ExpressionStatement stmt= (ExpressionStatement) statements.get(0);
+			Assignment assignment= (Assignment) stmt.getExpression();
+			InfixExpression expr= (InfixExpression) assignment.getRightHandSide();
+	
+			rewrite.remove(expr.getLeftOperand(), null);
+		}
+	
+		{ // remove right side
+			ExpressionStatement stmt= (ExpressionStatement) statements.get(1);
+			Assignment assignment= (Assignment) stmt.getExpression();
+			InfixExpression expr= (InfixExpression) assignment.getRightHandSide();
+	
+			rewrite.remove(expr.getRightOperand(), null);
+		}
+	
+		{ // remove left side (with extended operands)
+			ExpressionStatement stmt= (ExpressionStatement) statements.get(2);
+			Assignment assignment= (Assignment) stmt.getExpression();
+			InfixExpression expr= (InfixExpression) assignment.getRightHandSide();
+	
+			rewrite.remove(expr.getLeftOperand(), null);
+		}
+	
+		{ // remove right side (with extended operands)
+			ExpressionStatement stmt= (ExpressionStatement) statements.get(3);
+			Assignment assignment= (Assignment) stmt.getExpression();
+			InfixExpression expr= (InfixExpression) assignment.getRightHandSide();
+			
+			rewrite.remove(expr.getRightOperand(), null);
+		}
+		
+		{ // remove left, right, and extended operand
+			ExpressionStatement stmt= (ExpressionStatement) statements.get(4);
+			Assignment assignment= (Assignment) stmt.getExpression();
+			InfixExpression expr= (InfixExpression) assignment.getRightHandSide();
+			
+			rewrite.remove(expr.getLeftOperand(), null);
+			rewrite.remove(expr.getRightOperand(), null);
+			rewrite.remove((ASTNode) expr.extendedOperands().get(0), null);
+		}
+		
+		String preview= evaluateRewrite(cu, rewrite);
+	
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        i= 2;\n");
+		buf.append("        j= 1;\n");
+		buf.append("        k= 2 + 3 + 4 + 5;\n");
+		buf.append("        l= 1 + 3 + 4 + 5;\n");
+		buf.append("        m= 4 + 5;\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	
 	}
 
 	/** @deprecated using deprecated code */
