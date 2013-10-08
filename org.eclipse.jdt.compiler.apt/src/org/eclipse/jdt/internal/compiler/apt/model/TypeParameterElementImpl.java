@@ -1,14 +1,19 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 BEA Systems, Inc.
+ * Copyright (c) 2007, 2013 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
  *    IBM Corporation - fix for 342470
  *    IBM Corporation - fix for 342598
+ *    IBM Corporation - Java 8 support
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.model;
@@ -128,13 +133,13 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 
 	/*
 	 * (non-Javadoc)
-	 * Java does not currently support annotations on type parameters.
+	 * Java supports annotations on type parameters from JLS8
 	 * @see javax.lang.model.element.Element#getAnnotationMirrors()
 	 */
 	@Override
 	protected AnnotationBinding[] getAnnotationBindings()
 	{
-		return null;
+		return ((TypeVariableBinding)_binding).getTypeAnnotations();
 	}
 
 	/*

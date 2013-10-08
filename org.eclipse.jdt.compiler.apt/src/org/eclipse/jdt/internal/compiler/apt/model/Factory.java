@@ -1,18 +1,25 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 BEA Systems, Inc. and others 
+ * Copyright (c) 2007, 2013 BEA Systems, Inc. and others 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
  *    IBM Corporation - fix for 342598
+ *    IBM Corporation - Java 8 support
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.model;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -31,6 +38,7 @@ import javax.lang.model.type.NullType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
@@ -64,6 +72,8 @@ public class Factory {
 	public static final Short DUMMY_SHORT = 0;
 
 	private final BaseProcessingEnvImpl _env;
+	public static Annotation[] EMPTY_ANNOTATIONS = new Annotation[0];
+	public static List<? extends AnnotationMirror> EMPTY_ANNOTATION_MIRRORS = Collections.emptyList();
 	
 	/**
 	 * This object should only be constructed by the BaseProcessingEnvImpl.
@@ -88,6 +98,58 @@ public class Factory {
 		return Collections.unmodifiableList(list);
 	}
 	
+	@SuppressWarnings("unchecked") // for the cast to A
+	public <A extends Annotation> A[] getAnnotationsByType(AnnotationBinding[] annoInstances, Class<A> annotationClass) {
+		A[] result = getAnnotations(annoInstances, annotationClass, false);
+		return result == null ? (A[]) EMPTY_ANNOTATIONS : result;
+	}
+	
+	
+	public <A extends Annotation> A getAnnotation(AnnotationBinding[] annoInstances, Class<A> annotationClass) {
+		A[] result = getAnnotations(annoInstances, annotationClass, true);
+		return result == null ? null : result[0];
+	}
+
+	@SuppressWarnings("unchecked") // for cast of newProxyInstance() to A
+	private <A extends Annotation> A[] getAnnotations(AnnotationBinding[] annoInstances, Class<A> annotationClass, boolean justTheFirst) {
+		if(annoInstances == null || annoInstances.length == 0 || annotationClass == null ) 
+			return null;
+
+		String annoTypeName = annotationClass.getName();
+		if(annoTypeName == null ) return null;
+
+		List<A> list = new ArrayList<A>(annoInstances.length);
+		for(AnnotationBinding annoInstance : annoInstances) {
+			if (annoInstance == null)
+				continue;
+			
+			AnnotationMirrorImpl annoMirror = createAnnotationMirror(annoTypeName, annoInstance);
+			if (annoMirror != null) {
+				list.add((A)Proxy.newProxyInstance(annotationClass.getClassLoader(), new Class[]{ annotationClass }, annoMirror));
+				if (justTheFirst) break;
+			}
+		}
+		return list.size() > 0 ? (A[]) list.toArray(new Annotation[list.size()]) :  null;
+	}
+
+	private AnnotationMirrorImpl createAnnotationMirror(String annoTypeName, AnnotationBinding annoInstance) {
+		ReferenceBinding binding = annoInstance.getAnnotationType();
+		if (binding != null && binding.isAnnotationType() ) {
+			char[] qName;
+			if (binding.isMemberType()) {
+				annoTypeName = annoTypeName.replace('$', '.');
+				qName = CharOperation.concatWith(binding.enclosingType().compoundName, binding.sourceName, '.');
+				CharOperation.replace(qName, '$', '.');
+			} else {
+				qName = CharOperation.concatWith(binding.compoundName, '.');
+			}
+			if(annoTypeName.equals(new String(qName)) ){
+				return (AnnotationMirrorImpl)_env.getFactory().newAnnotationMirror(annoInstance);
+			}
+		}
+		return null;
+	}
+
 	private static void appendModifier(Set<Modifier> result, int modifiers, int modifierConstant, Modifier modifier) {
 		if ((modifiers & modifierConstant) != 0) {
 			result.add(modifier);
@@ -342,6 +404,14 @@ public class Factory {
 			throw new IllegalStateException();
 		}
 	}
+	
+	public PrimitiveTypeImpl getPrimitiveType(BaseTypeBinding binding) {
+		AnnotationBinding[] annotations = binding.getTypeAnnotations();
+		if (annotations == null || annotations.length == 0) {
+			return getPrimitiveType(PrimitiveTypeImpl.getKind(binding));
+		}
+		return new PrimitiveTypeImpl(_env, binding);
+	}
 
 	/**
 	 * Given a binding of uncertain type, try to create the right sort of TypeMirror for it.
@@ -379,12 +449,12 @@ public class Factory {
 		case Binding.BASE_TYPE:
 			BaseTypeBinding btb = (BaseTypeBinding)binding;
 			switch (btb.id) {
-			case TypeIds.T_void:
-				return getNoType(TypeKind.VOID);
-			case TypeIds.T_null:
-				return getNullType();
-			default:
-				return getPrimitiveType(PrimitiveTypeImpl.getKind((BaseTypeBinding)binding));
+				case TypeIds.T_void:
+					return getNoType(TypeKind.VOID);
+				case TypeIds.T_null:
+					return getNullType();
+				default:
+					return getPrimitiveType(btb);
 			}
 
 		case Binding.WILDCARD_TYPE:

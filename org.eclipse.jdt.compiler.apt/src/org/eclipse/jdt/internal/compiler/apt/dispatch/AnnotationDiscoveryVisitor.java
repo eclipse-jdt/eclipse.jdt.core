@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.AptSourceLocalVariableBinding;
@@ -35,6 +36,7 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /**
  * This class is used to visit the JDT compiler internal AST to discover annotations, 
@@ -92,14 +94,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 					annotations,
 					constructorBinding);
 		}
-		Argument[] arguments = constructorDeclaration.arguments;
-		if (arguments != null) {
-			int argumentLength = arguments.length;
-			for (int i = 0; i < argumentLength; i++) {
-				arguments[i].traverse(this, constructorDeclaration.scope);
-			}
-		}
-		return false;
+		return true;
 	}
 
 	@Override
@@ -112,6 +107,32 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 			}
 			((SourceTypeBinding) fieldBinding.declaringClass).resolveTypeFor(fieldBinding);
 			this.resolveAnnotations(scope, annotations, fieldBinding);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean visit(TypeParameter typeParameter, ClassScope scope) {
+		Annotation[] annotations = typeParameter.annotations;
+		if (annotations != null) {
+			TypeVariableBinding binding = typeParameter.binding;
+			if (binding == null) {
+				return false;
+			}
+			this.resolveAnnotations(scope.referenceContext.initializerScope, annotations, binding);
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean visit(TypeParameter typeParameter, BlockScope scope) {
+		Annotation[] annotations = typeParameter.annotations;
+		if (annotations != null) {
+			TypeVariableBinding binding = typeParameter.binding;
+			if (binding == null) {
+				return false;
+			}
+			this.resolveAnnotations(scope, annotations, binding);
 		}
 		return false;
 	}
@@ -130,15 +151,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 					annotations,
 					methodBinding);
 		}
-
-		Argument[] arguments = methodDeclaration.arguments;
-		if (arguments != null) {
-			int argumentLength = arguments.length;
-			for (int i = 0; i < argumentLength; i++) {
-				arguments[i].traverse(this, methodDeclaration.scope);
-			}
-		}
-		return false;
+		return true;
 	}
 
 	@Override
@@ -177,10 +190,14 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 			BlockScope scope,
 			Annotation[] annotations,
 			Binding currentBinding) {
-		ASTNode.resolveAnnotations(scope, annotations, currentBinding);
-		
+		boolean resolved = false;
 		for (Annotation annotation : annotations) {
 			AnnotationBinding binding = annotation.getCompilerAnnotation();
+			if (binding == null && !resolved) {
+				ASTNode.resolveAnnotations(scope, annotations, currentBinding, true);
+				binding = annotation.getCompilerAnnotation();
+				resolved = true;
+			}
 			if (binding != null) { // binding should be resolved, but in case it's not, ignore it
 				TypeElement anno = (TypeElement)_factory.newElement(binding.getAnnotationType()); 
 				Element element = _factory.newElement(currentBinding);

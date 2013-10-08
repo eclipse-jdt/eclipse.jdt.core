@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 IBM Corporation and others.
+ * Copyright (c) 2005, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -332,6 +336,22 @@ public class ExecutableElementImpl extends ElementImpl implements
 			}
 		}
 		return false;
+	}
+
+	public TypeMirror getReceiverType() {
+		MethodBinding binding = (MethodBinding)_binding;
+		if (binding.receiver != null) {
+			return _env.getFactory().newTypeMirror(binding.receiver);
+		}
+		if (binding.declaringClass != null) {
+			return _env.getFactory().newTypeMirror(binding.declaringClass);
+		}
+		return NoTypeImpl.NO_TYPE_NONE;
+	}
+
+	public boolean isDefault() {
+		MethodBinding binding = (MethodBinding)_binding;
+		return binding.isDefaultMethod();
 	}
 
 }

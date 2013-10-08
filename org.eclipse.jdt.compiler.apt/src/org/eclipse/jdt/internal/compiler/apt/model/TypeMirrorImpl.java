@@ -1,23 +1,33 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2013 BEA Systems, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *    IBM Corporation - Java 8 support
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.model;
 
+import java.lang.annotation.Annotation;
+import java.util.List;
+
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 /**
  * Implementation of a TypeMirror.  TypeMirror represents a type, including
@@ -26,7 +36,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
  */
 public class TypeMirrorImpl implements TypeMirror {
 
-	// Caution: _env will be NULL for PrimitiveTypeImpl.
+	// Caution: _env will be NULL for unannotated primitive types (PrimitiveTypeImpl).
 	protected final BaseProcessingEnvImpl _env;
 	protected final Binding _binding;
 	
@@ -104,6 +114,22 @@ public class TypeMirrorImpl implements TypeMirror {
 			return false;
 		final TypeMirrorImpl other = (TypeMirrorImpl) obj;
 		return _binding == other._binding;
+	}
+
+	protected AnnotationBinding[] getAnnotationBindings() {
+		return ((TypeBinding)_binding).getTypeAnnotations();
+	}
+
+	public List<? extends AnnotationMirror> getAnnotationMirrors() {
+		return _env.getFactory().getAnnotationMirrors(getAnnotationBindings());
+	}
+
+	public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
+		return _env.getFactory().getAnnotation(getAnnotationBindings(), annotationType);
+	}
+
+	public <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationType) {
+		return _env.getFactory().getAnnotationsByType(getAnnotationBindings(), annotationType);
 	}
 
 	
