@@ -6471,6 +6471,22 @@ public void testBug416267() {
 		"Missing cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//duplicate of bug 416267
+public void testBug418843() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"TestEnum.java",
+			"public enum TestEnum {\n" + 
+			"	TestEntry(1){};\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in TestEnum.java (at line 2)\n" + 
+		"	TestEntry(1){};\n" + 
+		"	^^^^^^^^^\n" + 
+		"The constructor TestEnum(int) is undefined\n" + 
+		"----------\n");
+}
 public void testBug418235() {
     runNegativeTestWithLibs(
             new String[] {
