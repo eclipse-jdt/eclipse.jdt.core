@@ -118,6 +118,7 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
 
     }
 
+	@SuppressWarnings("unchecked")
 	public Collection<MethodDeclaration> getMethods()
     {
         return (Collection<MethodDeclaration>)_getMethods();

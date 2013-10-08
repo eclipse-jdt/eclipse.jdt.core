@@ -56,6 +56,7 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
         visitor.visitDeclaration(this);     
     }        
 
+	@SuppressWarnings("unchecked")
 	<A extends Annotation> A _getAnnotation(Class<A> annotationClass,
                                             IAnnotationBinding[] annoInstances)
     {
