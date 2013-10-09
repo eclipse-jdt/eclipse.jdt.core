@@ -4082,5 +4082,24 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"	^^^^^^\n" + 
 			"The method getAdd(List<P>, List<P>) in the type X is not applicable for the arguments (List<capture#7-of ? extends X>, List<capture#8-of ? extends X>)\n" + 
 			"----------\n");		
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=414038, [1.8][compiler] CCE in resolveAnnotations
+	public void testBug414038() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface NonNull { int[].class value() default 0;}\n" +
+				"public class X extends @NonNull() Object {    \n" +
+				"    public static int i = 0; \n" +
+				"}\n"
+			}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	@interface NonNull { int[].class value() default 0;}\n" + 
+			"	                          ^^^^^^\n" + 
+			"Syntax error on tokens, delete these tokens\n" + 
+			"----------\n");		
 	}	
 }

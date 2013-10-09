@@ -739,6 +739,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						break;
 					case Binding.FIELD :
 						FieldBinding field = (FieldBinding) recipient;
+						if (!(annotationRecipient instanceof FieldBinding))
+							break;
 						field.tagBits = ((FieldBinding) annotationRecipient).tagBits;
 						if (annotations != null) {
 							// need to fill the instances array
@@ -750,6 +752,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						break;
 					case Binding.LOCAL :
 						LocalVariableBinding local = (LocalVariableBinding) recipient;
+						if (!(annotationRecipient instanceof LocalVariableBinding))
+							break;
 						long otherLocalTagBits = ((LocalVariableBinding) annotationRecipient).tagBits;
 						local.tagBits = otherLocalTagBits;
 						if ((otherLocalTagBits & TagBits.AnnotationSuppressWarnings) == 0) {
