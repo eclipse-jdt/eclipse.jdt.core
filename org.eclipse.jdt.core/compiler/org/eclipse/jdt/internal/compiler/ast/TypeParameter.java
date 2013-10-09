@@ -120,9 +120,12 @@ public class TypeParameter extends AbstractVariableDeclaration {
 		BlockScope resolutionScope = Scope.typeAnnotationsResolutionScope(scope);
 		if (resolutionScope != null) {
 			AnnotationBinding [] annotationBindings = resolveAnnotations(resolutionScope, this.annotations, this.binding, false);
-			this.binding.setTypeAnnotations(annotationBindings, scope.environment().globalOptions.isAnnotationBasedNullAnalysisEnabled);
-			if (this.binding != null && this.binding.isValidBinding())
-				this.binding.evaluateNullAnnotations(scope, this);
+			if (annotationBindings != null && annotationBindings.length > 0) {
+				this.binding.setTypeAnnotations(annotationBindings, scope.environment().globalOptions.isAnnotationBasedNullAnalysisEnabled);
+				scope.referenceCompilationUnit().compilationResult.hasAnnotations = true;
+				if (this.binding != null && this.binding.isValidBinding())
+					this.binding.evaluateNullAnnotations(scope, this);
+			}
 		}	
 	}
 	/* (non-Javadoc)

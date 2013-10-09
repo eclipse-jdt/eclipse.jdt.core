@@ -339,19 +339,14 @@ public class ExecutableElementImpl extends ElementImpl implements
 	}
 
 	public TypeMirror getReceiverType() {
-		MethodBinding binding = (MethodBinding)_binding;
-		if (binding.receiver != null) {
-			return _env.getFactory().newTypeMirror(binding.receiver);
-		}
-		if (binding.declaringClass != null) {
-			return _env.getFactory().newTypeMirror(binding.declaringClass);
-		}
-		return NoTypeImpl.NO_TYPE_NONE;
+		return _env.getFactory().getReceiverType((MethodBinding) _binding);
 	}
 
 	public boolean isDefault() {
-		MethodBinding binding = (MethodBinding)_binding;
-		return binding.isDefaultMethod();
+		if (_binding != null) {
+			return ((MethodBinding)_binding).isDefaultMethod();
+		}
+		return false;
 	}
 
 }

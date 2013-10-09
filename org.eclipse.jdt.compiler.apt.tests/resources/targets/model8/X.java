@@ -22,9 +22,11 @@ import org.eclipse.jdt.compiler.apt.tests.annotations.Type.One;
 public class X extends @Type("s") Object implements @Type("i1") I, @Type("i2") J {
 	@Type("f") String _field = null;
 	@Type("f1") X _field1 = null;
+	@Type("f1") X _field11 = null;
 	@Type$1 @One String _field2 = null;
 	X _field3 = null;
 	X. @Type("xy") XY xy;
+	int _i = 10;
 	public void noAnnotationHere() {
 	}
 	@Deprecated @Type("m") String foo() {
@@ -32,7 +34,12 @@ public class X extends @Type("s") Object implements @Type("i1") I, @Type("i2") J
 	}
 	void bar(@Type("p1") String p1, @Type("p2") String p2) {}
 	public void bar2(@Type("receiver") X this) {}
-	class XY {}
+	// Static methods and top level constructors do not have receivers
+	public static void main(String[] args) {}
+	public X(){}
+	class XY {
+		XY(@Type("receiver") X X.this) {}
+	}
 }
 
 interface I {}

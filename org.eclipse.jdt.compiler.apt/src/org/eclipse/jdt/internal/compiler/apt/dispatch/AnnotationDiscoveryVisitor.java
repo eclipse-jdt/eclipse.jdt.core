@@ -94,7 +94,23 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 					annotations,
 					constructorBinding);
 		}
-		return true;
+		
+		TypeParameter[] typeParameters = constructorDeclaration.typeParameters;
+		if (typeParameters != null) {
+			int typeParametersLength = typeParameters.length;
+			for (int i = 0; i < typeParametersLength; i++) {
+				typeParameters[i].traverse(this, constructorDeclaration.scope);
+			}
+		}
+		
+		Argument[] arguments = constructorDeclaration.arguments;
+		if (arguments != null) {
+			int argumentLength = arguments.length;
+			for (int i = 0; i < argumentLength; i++) {
+				arguments[i].traverse(this, constructorDeclaration.scope);
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -132,6 +148,9 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 			if (binding == null) {
 				return false;
 			}
+			// when we get here, it is guaranteed that class type parameters are connected, but method type parameters may not be.			
+			MethodBinding methodBinding = (MethodBinding) binding.declaringElement;
+			((SourceTypeBinding) methodBinding.declaringClass).resolveTypesFor(methodBinding);
 			this.resolveAnnotations(scope, annotations, binding);
 		}
 		return false;
@@ -151,7 +170,23 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 					annotations,
 					methodBinding);
 		}
-		return true;
+		
+		TypeParameter[] typeParameters = methodDeclaration.typeParameters;
+		if (typeParameters != null) {
+			int typeParametersLength = typeParameters.length;
+			for (int i = 0; i < typeParametersLength; i++) {
+				typeParameters[i].traverse(this, methodDeclaration.scope);
+			}
+		}
+		
+		Argument[] arguments = methodDeclaration.arguments;
+		if (arguments != null) {
+			int argumentLength = arguments.length;
+			for (int i = 0; i < argumentLength; i++) {
+				arguments[i].traverse(this, methodDeclaration.scope);
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -190,17 +225,16 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 			BlockScope scope,
 			Annotation[] annotations,
 			Binding currentBinding) {
-		boolean resolved = false;
+		ASTNode.resolveAnnotations(scope, annotations, currentBinding, true);
+		Element element = null;
+		
 		for (Annotation annotation : annotations) {
 			AnnotationBinding binding = annotation.getCompilerAnnotation();
-			if (binding == null && !resolved) {
-				ASTNode.resolveAnnotations(scope, annotations, currentBinding, true);
-				binding = annotation.getCompilerAnnotation();
-				resolved = true;
-			}
 			if (binding != null) { // binding should be resolved, but in case it's not, ignore it
-				TypeElement anno = (TypeElement)_factory.newElement(binding.getAnnotationType()); 
-				Element element = _factory.newElement(currentBinding);
+				TypeElement anno = (TypeElement)_factory.newElement(binding.getAnnotationType());
+				if (element == null) {
+					element = _factory.newElement(currentBinding);
+				}
 				_annoToElement.put(anno, element);
 			}
 		}

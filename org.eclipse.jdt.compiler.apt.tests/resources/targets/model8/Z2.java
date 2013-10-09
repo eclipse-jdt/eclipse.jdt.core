@@ -12,24 +12,10 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-
 package targets.model8;
 
-public class LambdaTest {
-	public String foo() {
-		return null;
-	}
-}     
+import org.eclipse.jdt.compiler.apt.tests.annotations.Type;
 
-interface DefaultInterface {
-	public default String defaultMethod () {
-		return null;
-	}
-	public static String staticMethod () {
-		return null;
-	}
-}     
-
-interface FunctionalInterface {
-	public abstract String abstractMethod ();
+public class Z2 {
+	public <@Type("mp1") KKK, @Type("mp2") VVV> void foo() {}
 }

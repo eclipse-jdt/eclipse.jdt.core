@@ -135,43 +135,77 @@ public class Java8ElementsTests extends TestCase {
 		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations9");
 	}
 	public void testTypeAnnotations10() throws Exception {
-		System.out.println("Eclipse compiler:");
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations10");
 	}
 	public void testTypeAnnotations10WithJavac() throws Exception {
-		System.out.println("Javac compiler:");
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations10");
 	}
 	public void testTypeAnnotations11() throws Exception {
-		System.out.println("Eclipse compiler:");
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations11");
 	}
 	public void testTypeAnnotations11WithJavac() throws Exception {
-		System.out.println("Javac compiler:");
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations11");
 	}
 	public void testTypeAnnotations12() throws Exception {
-		System.out.println("Eclipse compiler:");
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations12");
 	}
 	public void testTypeAnnotations12WithJavac() throws Exception {
-		System.out.println("Javac compiler:");
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations12");
 	}
+	public void testTypeAnnotations13() throws Exception {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations13");
+	}
+	public void testTypeAnnotations13WithJavac() throws Exception {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations13");
+	}
+	public void testTypeAnnotations14() throws Exception {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations14");
+	}
+	public void _testTypeAnnotations14WithJavac() throws Exception { // Disabled for now. Javac returns null as receiver type where it should be type 'None'
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations14");
+	}
+	public void testTypeAnnotations15() throws Exception {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations15", "Z1.java");
+	}
+	public void testTypeAnnotations15WithJavac() throws Exception {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations15", "Z1.java");
+	}
+	public void testTypeAnnotations16() throws Exception {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations16", "Z2.java");
+	}
+	public void testTypeAnnotations16WithJavac() throws Exception {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, TYPE_ANNOTATION_PROC, "testTypeAnnotations16", "Z2.java");
+	}
 
 	private void internalTest(JavaCompiler compiler, String processor, String testMethod) throws IOException {
+		internalTest(compiler, processor, testMethod, null);
+	}
+	private void internalTest(JavaCompiler compiler, String processor, String testMethod, String testClass) throws IOException {
 		if (!canRunJava8()) {
 			return;
 		}
 		System.clearProperty(processor);
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "model8");
-		BatchTestUtils.copyResources("targets/model8", targetFolder);
+		if (testClass == null || testClass.equals("")) {
+			BatchTestUtils.copyResources("targets/model8", targetFolder);
+		} else {
+			BatchTestUtils.copyResource("targets/model8/" + testClass, targetFolder);
+		}
+		
 
 		List<String> options = new ArrayList<String>();
 		options.add("-A" + processor);

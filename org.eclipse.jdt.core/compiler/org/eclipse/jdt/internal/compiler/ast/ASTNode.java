@@ -787,11 +787,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 							}
 						}
 						break;
-					default:
-						if (annotations != null) {
-							annotations[i] = annotation.getCompilerAnnotation();
-						}
-						break;
 				}
 				return annotations;
 			} else {

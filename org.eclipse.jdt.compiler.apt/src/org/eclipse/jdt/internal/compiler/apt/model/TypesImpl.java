@@ -395,7 +395,14 @@ public class TypesImpl implements Types {
         }
         Binding b1 = ((TypeMirrorImpl)t1).binding();
         Binding b2 = ((TypeMirrorImpl)t2).binding();
-        return b1 == b2;
+
+        if (b1 == b2) {
+            return true;
+        }
+        if (!(b1 instanceof TypeBinding) || !(b2 instanceof TypeBinding)) {
+            return false;
+        }
+        return ((TypeBinding) b1).unannotated() == ((TypeBinding) b2).unannotated(); 
     }
 
     /* (non-Javadoc)

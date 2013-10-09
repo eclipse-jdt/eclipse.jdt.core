@@ -128,13 +128,6 @@ public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType
 	}
 
 	public TypeMirror getReceiverType() {
-		MethodBinding binding = (MethodBinding)_binding;
-		if (binding.receiver != null) {
-			return _env.getFactory().newTypeMirror(binding.receiver);
-		}
-		if (binding.declaringClass != null) {
-			return _env.getFactory().newTypeMirror(binding.declaringClass);
-		}
-		return NoTypeImpl.NO_TYPE_NONE;
+		return _env.getFactory().getReceiverType((MethodBinding) _binding);
 	}
 }

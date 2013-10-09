@@ -108,14 +108,7 @@ public abstract class ElementImpl
 
 	@Override
 	public String toString() {
-		StringBuffer buf = new StringBuffer();
-		List<? extends AnnotationMirror> annots = getAnnotationMirrors();
-		for (AnnotationMirror annotationMirror : annots) {
-			buf.append(annotationMirror.toString());
-			buf.append(' ');
-		}
-		buf.append(_binding.toString());
-		return buf.toString();
+		return _binding.toString();
 	}
 
 	@Override

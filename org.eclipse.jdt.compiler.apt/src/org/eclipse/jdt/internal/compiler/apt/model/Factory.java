@@ -222,6 +222,20 @@ public class Factory {
     		return null;
     }
     
+	public TypeMirror getReceiverType(MethodBinding binding) {
+		if (binding != null) {
+			if (binding.receiver != null) {
+				return _env.getFactory().newTypeMirror(binding.receiver);
+			}
+			if (binding.declaringClass != null) {
+				if (!binding.isStatic() && (!binding.isConstructor() || binding.declaringClass.isMemberType())) {
+					return _env.getFactory().newTypeMirror(binding.declaringClass);	
+				}
+			}
+		}
+		return NoTypeImpl.NO_TYPE_NONE;
+	}
+    
 	public static Set<Modifier> getModifiers(int modifiers, ElementKind kind) {
 		return getModifiers(modifiers, kind, false);
 	}

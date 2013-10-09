@@ -56,8 +56,9 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class Java8ElementProcessor extends BaseProcessor {
 	
-		private static final String[] ELEMENT_NAMES = new String[] {
-			"targets.model8.X", "T", "U", "K", "V"};
+		private static final String[] ELEMENT_NAMES = new String[] {"targets.model8.X", "T", "U", "K", "V", "KK", "VV", "KKK", "VVV"};
+		private static final String[] TYPE_PARAM_ELEMENTS_Z1 = new String[] {"KK", "VV"};
+		private static final String[] TYPE_PARAM_ELEMENTS_Z2 = new String[] {"KKK", "VVV"};
 	
 	RoundEnvironment roundEnv = null;
 	// Always return false from this processor, because it supports "*".
@@ -88,6 +89,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		return false;
 	}
+
 	public boolean invokeTestMethods(Map<String, String> options) throws Throwable {
 		Method testMethod = null;
 		Set<String> keys = options.keySet();
@@ -109,6 +111,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		return testsFound;
 	}
+
 	public void testAll() throws AssertionFailedError {
 		testSE8Specifics();
 		testLambdaSpecifics();
@@ -124,6 +127,11 @@ public class Java8ElementProcessor extends BaseProcessor {
 		testTypeAnnotations9();
 		testTypeAnnotations10();
 		testTypeAnnotations11();
+		testTypeAnnotations12();
+		testTypeAnnotations13();
+		testTypeAnnotations14();
+		testTypeAnnotations15();
+		testTypeAnnotations16();
 	}
 	
 	public void testLambdaSpecifics() {
@@ -188,7 +196,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 
 		List<? extends Element> members = _elementUtils.getAllMembers(annotatedType);
 		ExecutableElement method = null;
-		VariableElement field = null, field1 = null;
+		VariableElement field = null, field1 = null, field11 = null;
 		ExecutableElement method2 = null;
 		for (Element member : members) {
 			if ("foo".equals(member.getSimpleName().toString())) {
@@ -199,7 +207,10 @@ public class Java8ElementProcessor extends BaseProcessor {
 				method2 = (ExecutableElement) member;
 			} else if ("_field1".equals(member.getSimpleName().toString())) {
 				field1 = (VariableElement) member;
+			} else if ("_field11".equals(member.getSimpleName().toString())) {
+				field11 = (VariableElement) member;
 			}
+			
 		}
 		assertNotNull("Method should not be null", method);
 		TypeMirror typeMirror = method.getReturnType();
@@ -211,8 +222,12 @@ public class Java8ElementProcessor extends BaseProcessor {
 		typeMirror = field.asType(); 
 		examineSE8AnnotationMethods("Java8ElementProcessor#examineSE8Specifics: ", typeMirror, "f");
 		
+		TypeMirror similar = typeMirror;
 		typeMirror = field1.asType();
+		assertFalse("Should be of same type", _typeUtils.isSameType(typeMirror, similar));
 		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=f1)"});
+		similar = field11.asType();
+		assertTrue("Should be of same type", _typeUtils.isSameType(typeMirror, similar));
 		
 		typeMirror = method2.getReturnType();
 		assertNotNull("Java8ElementProcessor#examineSE8Specifics: Element for method noAnnotationHere should not be null", typeMirror);
@@ -435,8 +450,10 @@ public class Java8ElementProcessor extends BaseProcessor {
 		assertEquals("Incorrect no of type params", 2, typeParams.size());
 		TypeParameterElement typeParam = typeParams.get(0);
 		verifyTypeAnnotations(typeParam, new String[]{"@Type(value=mp1)"});
+		verifyTypeAnnotations(typeParam.asType(), new String[]{"@Type(value=mp1)"});
 		typeParam = typeParams.get(1);
 		verifyTypeAnnotations(typeParam, new String[]{"@Type(value=mp2)"});
+		verifyTypeAnnotations(typeParam.asType(), new String[]{"@Type(value=mp2)"});
 		//Z<@Type("ta1") String, @Type("ta2") Object> z1 = null;
 		// APIs don't expose the type arguments on a TypeMirror
 		TypeMirror typeMirror = field.asType();
@@ -525,6 +542,107 @@ public class Java8ElementProcessor extends BaseProcessor {
 		ExecutableType type = (ExecutableType) bar2.asType();
 		verifyTypeAnnotations(type.getReceiverType(), new String[]{"@Type(value=receiver)"});
 	}
+	
+	public void testTypeAnnotations13() {
+		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.X");
+		List<? extends Element> members = _elementUtils.getAllMembers(annotatedType);
+		
+		VariableElement field = null;
+		for (VariableElement member : ElementFilter.fieldsIn(members)) {
+			if ("_i".equals(member.getSimpleName().toString())) {
+				field = (VariableElement) member;
+				break;
+			}
+		}
+		TypeMirror typeMirror = field.asType();
+		verifyTypeAnnotations(typeMirror, new String[]{});
+	}
+
+	public void testTypeAnnotations14() {
+		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.X");
+		List<? extends Element> members = _elementUtils.getAllMembers(annotatedType);
+		ExecutableElement main = null;
+		ExecutableElement constr = null;
+		TypeElement XY = null;
+		for (Element member : members) {
+			if ("main".equals(member.getSimpleName().toString())) {
+				main = (ExecutableElement) member;
+			} else if ("<init>".equals(member.getSimpleName().toString())) {
+				constr = (ExecutableElement) member;
+			} else if ("XY".equals(member.getSimpleName().toString())) {
+				XY = (TypeElement) member;
+			}
+		}
+		TypeMirror typeMirror = main.getReceiverType();
+		assertNotNull("TypeMirror should not be null", typeMirror);
+		assertSame("Should be no type", TypeKind.NONE, typeMirror.getKind());
+		ExecutableType type = (ExecutableType) main.asType();
+		typeMirror = type.getReceiverType();
+		assertNotNull("TypeMirror should not be null", typeMirror);
+		assertSame("Should be no type", TypeKind.NONE, typeMirror.getKind());				
+		typeMirror = constr.getReceiverType();
+		assertNotNull("TypeMirror should not be null", typeMirror);
+		assertSame("Should be no type", TypeKind.NONE, typeMirror.getKind());
+		type = (ExecutableType) constr.asType();
+		typeMirror = type.getReceiverType();
+		assertNotNull("TypeMirror should not be null", typeMirror);
+		assertSame("Should be no type", TypeKind.NONE, typeMirror.getKind());
+		
+		members = _elementUtils.getAllMembers(XY);
+		for (Element member : members) {
+			if ("<init>".equals(member.getSimpleName().toString())) {
+				constr = (ExecutableElement) member;
+			}
+		}
+		typeMirror = constr.getReceiverType();
+		assertNotNull("TypeMirror should not be null", typeMirror);
+		assertNotSame("Should not be no type", TypeKind.NONE, typeMirror.getKind());
+		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=receiver)"});
+		type = (ExecutableType) constr.asType();
+		typeMirror = type.getReceiverType();
+		assertNotNull("TypeMirror should not be null", typeMirror);
+		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=receiver)"});
+		assertNotSame("Should not be no type", TypeKind.NONE, typeMirror.getKind());
+	}
+
+	public void testTypeAnnotations15() {
+		Set<String> expectedElementNames = new HashSet<String>(TYPE_PARAM_ELEMENTS_Z1.length);
+		for (String name : TYPE_PARAM_ELEMENTS_Z1) {
+			expectedElementNames.add(name);
+		}
+		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Type.class);
+		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
+		
+		for (Element e : actualElments) {
+			if (e instanceof TypeParameterElement) {
+				String name = ((TypeParameterElement) e).getSimpleName().toString();
+				if (!expectedElementNames.remove(name)) {
+					reportError("Missing root element " + name);
+				}
+			}
+		}
+		assertTrue("Found unexpected extra elements", expectedElementNames.isEmpty());
+	}
+
+	public void testTypeAnnotations16() {
+		Set<String> expectedElementNames = new HashSet<String>(TYPE_PARAM_ELEMENTS_Z2.length);
+		for (String name : TYPE_PARAM_ELEMENTS_Z2) {
+			expectedElementNames.add(name);
+		}
+		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Type.class);
+		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
+		
+		for (Element e : actualElments) {
+			if (e instanceof TypeParameterElement) {
+				String name = ((TypeParameterElement) e).getSimpleName().toString();
+				if (!expectedElementNames.remove(name)) {
+					reportError("Missing root element " + name);
+				}
+			}
+		}
+		assertTrue("Found unexpected extra elements", expectedElementNames.isEmpty());
+	}
+
 	private String getExceptionStackTrace(Throwable t) {
 		StringBuffer buf = new StringBuffer(t.getMessage());
 		StackTraceElement[] traces = t.getStackTrace();
@@ -537,7 +655,6 @@ public class Java8ElementProcessor extends BaseProcessor {
 		return buf.toString();
 	}
 
-	
 	private void verifyTypeAnnotations(AnnotatedConstruct construct, String[] annots) {
 		List<? extends AnnotationMirror> annotations = construct.getAnnotationMirrors();
 		assertEquals("Incorrect no of annotations", annots.length, annotations.size());
@@ -546,6 +663,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 			assertEquals("Invalid annotation value", annots[i], getAnnotationString(mirror));
 		}
 	}
+
 	private String getAnnotationString(AnnotationMirror annot) {
 		DeclaredType annotType = annot.getAnnotationType();
 		TypeElement type = (TypeElement) annotType.asElement();
@@ -562,6 +680,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		buf.append(')');
 		return buf.toString();
 	}
+
 	private <A extends Annotation> void examineSE8AnnotationMethods(String msg, AnnotatedConstruct construct,  String value) {
 		Type annot = construct.getAnnotation(Type.class);
 		assertNotNull(msg + "Annotation for element " + construct.toString() + " should not be null", annot);
@@ -588,6 +707,11 @@ public class Java8ElementProcessor extends BaseProcessor {
 	public void assertSame(String msg, Object obj1, Object obj2) {
 		if (obj1 != obj2) {
 			reportError(msg + ", should be " + obj1.toString() + " but " + obj2.toString());
+		}
+	}
+	public void assertNotSame(String msg, Object obj1, Object obj2) {
+		if (obj1 == obj2) {
+			reportError(msg + ", " + obj1.toString() + " should not be same as " + obj2.toString());
 		}
 	}
 	public void assertNotNull(String msg, Object obj) {
@@ -635,5 +759,4 @@ public class Java8ElementProcessor extends BaseProcessor {
 			super(msg);
 		}
 	}
-	
 }
