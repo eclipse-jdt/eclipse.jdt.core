@@ -4,3 +4,4 @@ Bug 407853 - ECJ download misses legal file (about.html)
 Bug 407852 - ECJ source download is not correct
 Bug 408447 - compiler (log message) needs updating for copyright and bundle_qualifier
 Bug 416598 - org.eclipse.jdt.core project needs to be touched in R4_3_maintenace
+Bug 418646 - org.eclipse.jdt.core does not provide an artifact with classifier 'antadapter'
