@@ -24,13 +24,19 @@ import javax.lang.model.SourceVersion;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
-import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
-
+import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 
 public class Java8ElementsTests extends TestCase {
 	
 	private static final String JAVA8_ANNOTATION_PROC = "org.eclipse.jdt.compiler.apt.tests.processors.elements.Java8ElementProcessor";
+
+	public static Test suite() {
+		return new TestSuite(Java8ElementsTests.class);
+	}
 
 	@Override
 	protected void setUp() throws Exception {
