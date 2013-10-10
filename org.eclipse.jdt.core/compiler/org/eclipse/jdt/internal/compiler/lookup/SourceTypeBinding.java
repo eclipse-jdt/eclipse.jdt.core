@@ -1966,7 +1966,7 @@ private void createArgumentBindings(MethodBinding method, CompilerOptions compil
 			methodDecl.createArgumentBindings();
 		// add implicit annotations (inherited(?) & default):
 		if (compilerOptions.isAnnotationBasedNullAnalysisEnabled) {
-			new ImplicitNullAnnotationVerifier(compilerOptions.inheritNullAnnotations).checkImplicitNullAnnotations(method, methodDecl, true, this.scope);
+			new ImplicitNullAnnotationVerifier(this.scope.environment()).checkImplicitNullAnnotations(method, methodDecl, true, this.scope);
 		}
 	}
 }

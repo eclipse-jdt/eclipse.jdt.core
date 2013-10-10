@@ -391,7 +391,7 @@ void checkNullSpecInheritance(MethodBinding currentMethod, AbstractMethodDeclara
 	if (currentMethod.declaringClass != this.type 
 			&& (currentMethod.tagBits & TagBits.IsNullnessKnown) == 0) 
 	{
-		this.buddyImplicitNullAnnotationsVerifier.checkImplicitNullAnnotations(currentMethod, srcMethod, complain, this.type.scope);
+		this.buddyImplicitNullAnnotationsVerifier.checkImplicitNullAnnotations(currentMethod, srcMethod, complain, scope);
 	}
 	super.checkNullSpecInheritance(currentMethod, srcMethod, hasNonNullDefault, complain, inheritedMethod, scope, inheritedNonNullnessInfos);
 }

@@ -49,7 +49,6 @@ public abstract class MethodVerifier extends ImplicitNullAnnotationVerifier {
 	SourceTypeBinding type;
 	HashtableOfObject inheritedMethods;
 	HashtableOfObject currentMethods;
-	LookupEnvironment environment;
 	/*
 Binding creation is responsible for reporting all problems with types:
 	- all modifier problems (duplicates & multiple visibility modifiers + incompatible combinations - abstract/final)
@@ -68,11 +67,10 @@ Binding creation is responsible for reporting all problems with types:
 		- defining an interface as a local type (local types can only be classes)
 */
 MethodVerifier(LookupEnvironment environment) {
-	super(environment.globalOptions);
+	super(environment);
 	this.type = null;  // Initialized with the public method verify(SourceTypeBinding)
 	this.inheritedMethods = null;
 	this.currentMethods = null;
-	this.environment = environment;
 }
 boolean areMethodsCompatible(MethodBinding one, MethodBinding two) {
 	return areMethodsCompatible(one, two, this.environment);
@@ -703,31 +701,26 @@ static MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, Meth
 		environment.createParameterizedGenericMethod(inheritedMethod, arguments);
 	for (int i = 0; i < inheritedLength; i++) {
 		TypeVariableBinding inheritedTypeVariable = inheritedTypeVariables[i];
-		TypeBinding argument = arguments[i];
-		if (argument instanceof TypeVariableBinding) {
-			TypeVariableBinding typeVariable = (TypeVariableBinding) argument;
-			if (typeVariable.firstBound == inheritedTypeVariable.firstBound) {
-				if (typeVariable.firstBound == null)
-					continue; // both are null
-			} else if (typeVariable.firstBound != null && inheritedTypeVariable.firstBound != null) {
-				if (typeVariable.firstBound.isClass() != inheritedTypeVariable.firstBound.isClass())
-					return inheritedMethod; // not a match
-			}
-			if (Scope.substitute(substitute, inheritedTypeVariable.superclass) != typeVariable.superclass)
+		TypeVariableBinding typeVariable = (TypeVariableBinding) arguments[i]; // cast is safe by construction: arguments is copied from TypeVariableBinding[]
+		if (typeVariable.firstBound == inheritedTypeVariable.firstBound) {
+			if (typeVariable.firstBound == null)
+				continue; // both are null
+		} else if (typeVariable.firstBound != null && inheritedTypeVariable.firstBound != null) {
+			if (typeVariable.firstBound.isClass() != inheritedTypeVariable.firstBound.isClass())
 				return inheritedMethod; // not a match
-			int interfaceLength = inheritedTypeVariable.superInterfaces.length;
-			ReferenceBinding[] interfaces = typeVariable.superInterfaces;
-			if (interfaceLength != interfaces.length)
-				return inheritedMethod; // not a match
-			next : for (int j = 0; j < interfaceLength; j++) {
-				TypeBinding superType = Scope.substitute(substitute, inheritedTypeVariable.superInterfaces[j]);
-				for (int k = 0; k < interfaceLength; k++)
-					if (superType == interfaces[k])
-						continue next;
-				return inheritedMethod; // not a match
-			}
-		} else if (inheritedTypeVariable.boundCheck(substitute, argument, null) != TypeConstants.OK) {
-	    	return inheritedMethod;
+		}
+		if (Scope.substitute(substitute, inheritedTypeVariable.superclass) != typeVariable.superclass)
+			return inheritedMethod; // not a match
+		int interfaceLength = inheritedTypeVariable.superInterfaces.length;
+		ReferenceBinding[] interfaces = typeVariable.superInterfaces;
+		if (interfaceLength != interfaces.length)
+			return inheritedMethod; // not a match
+		next : for (int j = 0; j < interfaceLength; j++) {
+			TypeBinding superType = Scope.substitute(substitute, inheritedTypeVariable.superInterfaces[j]);
+			for (int k = 0; k < interfaceLength; k++)
+				if (superType == interfaces[k])
+					continue next;
+			return inheritedMethod; // not a match
 		}
 	}
    return substitute;
