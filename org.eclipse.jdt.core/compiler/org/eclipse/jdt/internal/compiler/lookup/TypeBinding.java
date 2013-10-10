@@ -161,6 +161,10 @@ int rank() {
 	return -1; // overridden in WildcardBinding
 }
 
+public ReferenceBinding resolveContainerAnnotation() {
+	return null;
+}
+
 /* Answer true if the receiver can be instantiated
  */
 public boolean canBeInstantiated() {
@@ -984,6 +988,13 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 			return true; // ground types should have been the same
 		}
 	}
+}
+
+/**
+ * Answer true if the receiver is an annotation which may be repeatable. Overridden as appropriate.
+ */
+public boolean isRepeatableAnnotation() {
+	return false;
 }
 
 public final boolean isRawType() {

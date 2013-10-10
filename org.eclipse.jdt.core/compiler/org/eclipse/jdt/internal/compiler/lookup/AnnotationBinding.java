@@ -171,7 +171,7 @@ private static AnnotationBinding buildTargetAnnotation(long bits, LookupEnvironm
 			});
 }
 
-AnnotationBinding(ReferenceBinding type, ElementValuePair[] pairs) {
+public AnnotationBinding(ReferenceBinding type, ElementValuePair[] pairs) {
 	this.type = type;
 	this.pairs = pairs;
 }

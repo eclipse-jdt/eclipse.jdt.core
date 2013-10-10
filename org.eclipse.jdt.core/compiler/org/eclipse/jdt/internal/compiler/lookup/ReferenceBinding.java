@@ -1379,13 +1379,6 @@ public final boolean isPublic() {
 }
 
 /**
- * Answer true if the receiver is an annotation which may be repeatable. Overridden as appropriate.
- */
-public boolean isRepeatableAnnotation() {
-	return false;
-}
-
-/**
  * Answer true if the receiver is a static member type (or toplevel)
  */
 public final boolean isStatic() {
@@ -1527,10 +1520,6 @@ public char[] readableName() /*java.lang.Object,  p.X<T> */ {
 		nameBuffer.getChars(0, nameLength, readableName, 0);
 	}
 	return readableName;
-}
-
-public ReferenceBinding resolveContainerAnnotation() {
-	return null;
 }
 
 protected void appendNullAnnotation(StringBuffer nameBuffer, CompilerOptions options) {

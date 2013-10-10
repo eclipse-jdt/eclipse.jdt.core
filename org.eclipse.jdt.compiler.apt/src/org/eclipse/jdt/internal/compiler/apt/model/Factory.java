@@ -45,11 +45,13 @@ import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
@@ -757,5 +759,96 @@ public class Factory {
 			Array.set(array, i, null);
 		}
 	}
-    
+
+	/* Wrap repeating annotations into their container, return an array of bindings.
+	   Second and subsequent repeating annotations are replaced with nulls. Caller
+	   must be prepared to handle with nulls. Incoming array is not modified.
+	*/
+	public static AnnotationBinding [] getPackedAnnotationBindings(AnnotationBinding [] annotations) {
+		
+		int length = annotations == null ? 0 : annotations.length;
+		if (length == 0)
+			return annotations;
+		
+		AnnotationBinding[] repackagedBindings = annotations; // only replicate if repackaging.
+		for (int i = 0; i < length; i++) {
+			AnnotationBinding annotation = repackagedBindings[i];
+			if (annotation == null) continue;
+			ReferenceBinding annotationType = annotation.getAnnotationType();
+			if (!annotationType.isRepeatableAnnotation())
+				continue;
+			ReferenceBinding containerType = annotationType.resolveContainerAnnotation();
+			if (containerType == null)
+				continue; // FUBAR.
+			MethodBinding [] values = containerType.getMethods(TypeConstants.VALUE);
+			if (values == null || values.length != 1)
+				continue; // FUBAR.
+			MethodBinding value = values[0];
+			if (value.returnType == null || value.returnType.leafComponentType() != annotationType)
+				continue; // FUBAR
+			
+			// We have a kosher repeatable annotation with a kosher containing type. See if actually repeats.
+			List<AnnotationBinding> containees = null;
+			for (int j = i + 1; j < length; j++) {
+				AnnotationBinding otherAnnotation = repackagedBindings[j];
+				if (otherAnnotation == null) continue;
+				if (otherAnnotation.getAnnotationType() == annotationType) {
+					if (repackagedBindings == annotations)
+						System.arraycopy(repackagedBindings, 0, repackagedBindings = new AnnotationBinding[length], 0, length);
+					repackagedBindings[j] = null; // so it is not double packed.
+					if (containees == null) {
+						containees = new ArrayList<AnnotationBinding>();
+						containees.add(annotation);
+					}
+					containees.add(otherAnnotation);
+				}
+			}
+			if (containees != null) {
+				ElementValuePair [] elementValuePairs = new ElementValuePair [] { new ElementValuePair(TypeConstants.VALUE, containees.toArray(), value) };
+				repackagedBindings[i] = new AnnotationBinding(containerType, elementValuePairs);
+			}
+		}
+		return repackagedBindings;
+	}
+	
+	/* Unwrap container annotations into the repeated annotations, return an array of bindings. non-contained annotations are not returned.
+	*/
+	public static AnnotationBinding [] getOnlyUnpackedAnnotationBindings(AnnotationBinding [] annotations) {
+		
+		int length = annotations == null ? 0 : annotations.length;
+		if (length == 0)
+			return annotations;
+		
+		List<AnnotationBinding> unpackedAnnotations = new ArrayList<AnnotationBinding>();
+		for (int i = 0; i < length; i++) {
+			AnnotationBinding annotation = annotations[i];
+			if (annotation == null) continue;
+			ReferenceBinding annotationType = annotation.getAnnotationType();
+			
+			MethodBinding [] values = annotationType.getMethods(TypeConstants.VALUE);
+			if (values == null || values.length != 1)
+				continue;
+			MethodBinding value = values[0];
+			
+			TypeBinding containeeType = value.returnType.leafComponentType();
+			if (containeeType == null || !containeeType.isAnnotationType() || !containeeType.isRepeatableAnnotation())
+				continue;
+			
+			if (containeeType.resolveContainerAnnotation() != annotationType)
+				continue;
+			
+			// We have a kosher container: unwrap the contained annotations.
+			ElementValuePair [] elementValuePairs = annotation.getElementValuePairs();
+			for (ElementValuePair elementValuePair : elementValuePairs) {
+				if (CharOperation.equals(elementValuePair.getName(), TypeConstants.VALUE)) {
+					Object [] containees = (Object []) elementValuePair.getValue();
+					for (Object object : containees) {
+						unpackedAnnotations.add((AnnotationBinding) object);
+					}
+					break;
+				}
+			}
+		}
+		return (AnnotationBinding[]) unpackedAnnotations.toArray(new AnnotationBinding [unpackedAnnotations.size()]);
+	}	
 }

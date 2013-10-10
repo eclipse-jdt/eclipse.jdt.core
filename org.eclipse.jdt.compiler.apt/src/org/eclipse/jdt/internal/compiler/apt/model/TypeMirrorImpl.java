@@ -17,6 +17,7 @@
 package org.eclipse.jdt.internal.compiler.apt.model;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.util.List;
 
 import javax.lang.model.element.AnnotationMirror;
@@ -116,24 +117,55 @@ public class TypeMirrorImpl implements TypeMirror {
 		return _binding == other._binding;
 	}
 
+	/* Package any repeating annotations into containers, return others as is.
+	   In the compiler bindings repeating annotations are left in as is, hence
+	   this step. The return value would match what one would expect to see in
+	   a class file.
+	*/
+	public final AnnotationBinding [] getPackedAnnotationBindings() {
+		return Factory.getPackedAnnotationBindings(getAnnotationBindings());
+	}
+	
+	/* Return only the contained annotations. Anything not inside a container is not 
+	   part of result. Since the compiler bindings encode repeating annotations as is,
+	   we need the packaging step first.
+	*/
+	public final AnnotationBinding [] getOnlyUnpackedAnnotationBindings() {
+		return Factory.getOnlyUnpackedAnnotationBindings(getPackedAnnotationBindings());
+	}
+
 	protected AnnotationBinding[] getAnnotationBindings() {
 		return ((TypeBinding)_binding).getTypeAnnotations();
 	}
 
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
 		return _env == null ? Factory.EMPTY_ANNOTATION_MIRRORS : 
-								_env.getFactory().getAnnotationMirrors(getAnnotationBindings());
+								_env.getFactory().getAnnotationMirrors(getPackedAnnotationBindings());
 	}
 
 	public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
-		return _env == null ? null : _env.getFactory().getAnnotation(getAnnotationBindings(), annotationType);
+		return _env == null ? null : _env.getFactory().getAnnotation(getPackedAnnotationBindings(), annotationType);
 	}
 
 	@SuppressWarnings("unchecked")
 	public <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationType) {
-		return _env == null ? (A[]) Factory.EMPTY_ANNOTATIONS : 
-								_env.getFactory().getAnnotationsByType(getAnnotationBindings(), annotationType);
+		
+		if (_env == null)
+			return (A[]) Factory.EMPTY_ANNOTATIONS;
+		
+		A [] result1 = _env.getFactory().getAnnotationsByType(getPackedAnnotationBindings(), annotationType);
+		A [] result2 = _env.getFactory().getAnnotationsByType(getOnlyUnpackedAnnotationBindings(), annotationType);
+		
+		if (result1.length == 0)
+			return result2;
+		if (result2.length == 0)
+			return result1;
+		
+		A [] result = (A[]) Array.newInstance(result1[0].getClass(), result1.length + result2.length);
+		
+		System.arraycopy(result1, 0, result, 0, result1.length);
+		System.arraycopy(result2, 0, result, result1.length, result2.length);
+		
+		return result;
 	}
-
-	
 }

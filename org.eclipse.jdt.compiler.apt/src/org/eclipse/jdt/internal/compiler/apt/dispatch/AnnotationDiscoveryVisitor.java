@@ -14,6 +14,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.apt.model.ElementImpl;
 import org.eclipse.jdt.internal.compiler.apt.model.Factory;
 import org.eclipse.jdt.internal.compiler.apt.util.ManyToMany;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -221,20 +222,18 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 		return true;
 	}
 
-	private void resolveAnnotations(
-			BlockScope scope,
-			Annotation[] annotations,
-			Binding currentBinding) {
-		ASTNode.resolveAnnotations(scope, annotations, currentBinding, true);
-		Element element = null;
+	private void resolveAnnotations(BlockScope scope, Annotation[] annotations, Binding currentBinding) {
 		
-		for (Annotation annotation : annotations) {
-			AnnotationBinding binding = annotation.getCompilerAnnotation();
-			if (binding != null) { // binding should be resolved, but in case it's not, ignore it
+		int length = annotations == null ? 0 : annotations.length;
+		if (length == 0)
+			return;
+		
+		ASTNode.resolveAnnotations(scope, annotations, currentBinding, true);
+		ElementImpl element = (ElementImpl) _factory.newElement(currentBinding);
+		AnnotationBinding [] annotationBindings = element.getPackedAnnotationBindings(); // discovery is never in terms of repeating annotation.
+		for (AnnotationBinding binding : annotationBindings) {
+			if (binding != null) { // binding should be resolved, but in case it's not, ignore it: it could have been wrapped into a container.
 				TypeElement anno = (TypeElement)_factory.newElement(binding.getAnnotationType());
-				if (element == null) {
-					element = _factory.newElement(currentBinding);
-				}
 				_annoToElement.put(anno, element);
 			}
 		}

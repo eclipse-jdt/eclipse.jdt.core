@@ -42,6 +42,13 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 
+import org.eclipse.jdt.compiler.apt.tests.annotations.Foo;
+import org.eclipse.jdt.compiler.apt.tests.annotations.FooContainer;
+import org.eclipse.jdt.compiler.apt.tests.annotations.FooNonContainer;
+import org.eclipse.jdt.compiler.apt.tests.annotations.Goo;
+import org.eclipse.jdt.compiler.apt.tests.annotations.GooNonContainer;
+import org.eclipse.jdt.compiler.apt.tests.annotations.TFoo;
+import org.eclipse.jdt.compiler.apt.tests.annotations.TFooContainer;
 import org.eclipse.jdt.compiler.apt.tests.annotations.Type;
 import org.eclipse.jdt.compiler.apt.tests.annotations.Type$1;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
@@ -52,7 +59,11 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
  * -Aorg.eclipse.jdt.compiler.apt.tests.processors.elements.Java8ElementProcessor to the command line.
  * @since 3.9 BETA_JAVA8
  */
-@SupportedAnnotationTypes({"org.eclipse.jdt.compiler.apt.tests.annotations.Type", "org.eclipse.jdt.compiler.apt.tests.annotations.Type$1"})
+@SupportedAnnotationTypes({"org.eclipse.jdt.compiler.apt.tests.annotations.Type", "org.eclipse.jdt.compiler.apt.tests.annotations.Type$1", 
+	                       "org.eclipse.jdt.compiler.apt.tests.annotations.Foo", "org.eclipse.jdt.compiler.apt.tests.annotations.FooContainer",
+	                       "org.eclipse.jdt.compiler.apt.tests.annotations.Goo", "org.eclipse.jdt.compiler.apt.tests.annotations.GooNonContainer",
+	                       "org.eclipse.jdt.compiler.apt.tests.annotations.FooNonContainer"})
+
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class Java8ElementProcessor extends BaseProcessor {
 	
@@ -132,6 +143,12 @@ public class Java8ElementProcessor extends BaseProcessor {
 		testTypeAnnotations14();
 		testTypeAnnotations15();
 		testTypeAnnotations16();
+		testRepeatedAnnotations17();
+		testRepeatedAnnotations18();
+		testRepeatedAnnotations19();
+		testRepeatedAnnotations20();
+		testRepeatedAnnotations21();
+		testRepeatedAnnotations22();
 	}
 	
 	public void testLambdaSpecifics() {
@@ -225,7 +242,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		TypeMirror similar = typeMirror;
 		typeMirror = field1.asType();
 		assertFalse("Should be of same type", _typeUtils.isSameType(typeMirror, similar));
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=f1)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=f1)"});
 		similar = field11.asType();
 		assertTrue("Should be of same type", _typeUtils.isSameType(typeMirror, similar));
 		
@@ -241,15 +258,15 @@ public class Java8ElementProcessor extends BaseProcessor {
 		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.X");
 		TypeMirror superType = annotatedType.getSuperclass();
 		assertNotNull("Java8ElementProcessor#examineSE8Specifics: super type not be null", superType);
-		verifyTypeAnnotations(superType, new String[]{"@Type(value=s)"});
+		verifyAnnotations(superType, new String[]{"@Type(value=s)"});
 
 		List<? extends TypeMirror> interfaces  = annotatedType.getInterfaces();
 		assertNotNull("Java8ElementProcessor#examineSE8Specifics: super interfaces list should not be null", interfaces);
 		assertEquals("Java8ElementProcessor#examineSE8Specifics: incorrect no of super interfaces", 2, interfaces.size());
 		superType = interfaces.get(0);
-		verifyTypeAnnotations(superType, new String[]{"@Type(value=i1)"});
+		verifyAnnotations(superType, new String[]{"@Type(value=i1)"});
 		superType = interfaces.get(1);
-		verifyTypeAnnotations(superType, new String[]{"@Type(value=i2)"});
+		verifyAnnotations(superType, new String[]{"@Type(value=i2)"});
 	}
 	
 	public void testTypeAnnotations1() {
@@ -265,10 +282,10 @@ public class Java8ElementProcessor extends BaseProcessor {
 		assertEquals("Incorrect no of params for method bar()", 2, params.size());
 		VariableElement param = (VariableElement) params.get(0);
 		TypeMirror typeMirror = param.asType();
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=p1)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=p1)"});
 		param = (VariableElement) params.get(1);
 		typeMirror = param.asType();
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=p2)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=p2)"});
 	}
 	
 	public void testTypeAnnotations2() {
@@ -288,27 +305,27 @@ public class Java8ElementProcessor extends BaseProcessor {
 		assertNotNull("Java8ElementProcessor#examineSE8Specifics: Element for field _field2 should not be null", field2);
 		TypeMirror typeMirror = field2.asType();
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=f3)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=f3)"});
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=f1)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=f1)"});
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=f2)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=f2)"});
 
 		assertNotNull("Java8ElementProcessor#examineSE8Specifics: Element for field _field3 should not be null", field3);
 		typeMirror = field3.asType();
 		// The second field binding doesn't seem to have the annotations. To be investigated
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=f4)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=f4)"});
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
-		verifyTypeAnnotations(typeMirror, new String[]{});
+		verifyAnnotations(typeMirror, new String[]{});
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=f1)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=f1)"});
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=f2)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=f2)"});
 	}
 	
 	public void testTypeAnnotations3() {
@@ -323,16 +340,16 @@ public class Java8ElementProcessor extends BaseProcessor {
 		// @Type("m") String @Type("m1") [] foo() @Type("m2") [] @Type("m3") [] {}
 		assertNotNull("Method should not be null", method);
 		TypeMirror typeMirror = method.getReturnType();
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=m2)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=m2)"});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=m3)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=m3)"});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=m1)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=m1)"});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=m)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=m)"});
 	}
 
 	public void testTypeAnnotations4() {
@@ -350,28 +367,28 @@ public class Java8ElementProcessor extends BaseProcessor {
 		assertEquals("Incorrect no of params for method bar()", 2, params.size());
 		VariableElement param = (VariableElement) params.get(0);
 		TypeMirror typeMirror = param.asType();
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=p2)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=p2)"});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
 		
-		verifyTypeAnnotations(typeMirror, new String[]{});
+		verifyAnnotations(typeMirror, new String[]{});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=p1)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=p1)"});
 
 		param = (VariableElement) params.get(1);
 		typeMirror = param.asType();
-		verifyTypeAnnotations(typeMirror, new String[]{});
+		verifyAnnotations(typeMirror, new String[]{});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
 		
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=p5)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=p5)"});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=p4)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=p4)"});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=p3)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=p3)"});
 		
 	}
 	
@@ -388,9 +405,9 @@ public class Java8ElementProcessor extends BaseProcessor {
 		List<?extends TypeMirror> exceptions = method.getThrownTypes();
 		assertEquals("Incorrect no of thrown exceptions", 2, exceptions.size());
 		TypeMirror typeMirror = exceptions.get(0);
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=e1)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=e1)"});
 		typeMirror = exceptions.get(1);
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=e2)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=e2)"});
 	}
 
 	public void testTypeAnnotations6() {
@@ -406,13 +423,13 @@ public class Java8ElementProcessor extends BaseProcessor {
 		List<? extends VariableElement> params = method.getParameters();
 		assertEquals("Incorrect no of parameters", 1, params.size());
 		TypeMirror typeMirror = params.get(0).asType();
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=p2)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=p2)"});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=p3)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=p3)"});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=p1)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=p1)"});
 
 	}
 
@@ -423,13 +440,13 @@ public class Java8ElementProcessor extends BaseProcessor {
 		List<? extends TypeParameterElement> typeParams = typeZ.getTypeParameters();
 		assertEquals("Incorrect no of type params", 2, typeParams.size());
 		TypeParameterElement typeParam = typeParams.get(0);
-		verifyTypeAnnotations(typeParam, new String[]{"@Type(value=tp1)"});
+		verifyAnnotations(typeParam, new String[]{"@Type(value=tp1)"});
 		typeMirror = typeParam.asType();
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=tp1)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=tp1)"});
 		typeParam = typeParams.get(1);
 		typeMirror = typeParam.asType();
-		verifyTypeAnnotations(typeParam, new String[]{"@Type(value=tp2)"});
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=tp2)"});
+		verifyAnnotations(typeParam, new String[]{"@Type(value=tp2)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=tp2)"});
 	}
 	
 	public void testTypeAnnotations8() {
@@ -449,15 +466,15 @@ public class Java8ElementProcessor extends BaseProcessor {
 		List<? extends TypeParameterElement> typeParams = method.getTypeParameters();
 		assertEquals("Incorrect no of type params", 2, typeParams.size());
 		TypeParameterElement typeParam = typeParams.get(0);
-		verifyTypeAnnotations(typeParam, new String[]{"@Type(value=mp1)"});
-		verifyTypeAnnotations(typeParam.asType(), new String[]{"@Type(value=mp1)"});
+		verifyAnnotations(typeParam, new String[]{"@Type(value=mp1)"});
+		verifyAnnotations(typeParam.asType(), new String[]{"@Type(value=mp1)"});
 		typeParam = typeParams.get(1);
-		verifyTypeAnnotations(typeParam, new String[]{"@Type(value=mp2)"});
-		verifyTypeAnnotations(typeParam.asType(), new String[]{"@Type(value=mp2)"});
+		verifyAnnotations(typeParam, new String[]{"@Type(value=mp2)"});
+		verifyAnnotations(typeParam.asType(), new String[]{"@Type(value=mp2)"});
 		//Z<@Type("ta1") String, @Type("ta2") Object> z1 = null;
 		// APIs don't expose the type arguments on a TypeMirror
 		TypeMirror typeMirror = field.asType();
-		verifyTypeAnnotations(typeMirror, new String[]{});
+		verifyAnnotations(typeMirror, new String[]{});
 	}
 
 	public void testTypeAnnotations9() {
@@ -487,10 +504,10 @@ public class Java8ElementProcessor extends BaseProcessor {
 				field3 = (VariableElement) member;
 			}
 		}
-		verifyTypeAnnotations(annotatedType, new String[]{"@Type(value=c)"});
-		verifyTypeAnnotations(annotatedType.asType(), new String[]{});
-		verifyTypeAnnotations(field3, new String[]{});
-		verifyTypeAnnotations(field3.asType(), new String[]{});
+		verifyAnnotations(annotatedType, new String[]{"@Type(value=c)"});
+		verifyAnnotations(annotatedType.asType(), new String[]{});
+		verifyAnnotations(field3, new String[]{});
+		verifyAnnotations(field3.asType(), new String[]{});
 	}
 
 	public void testTypeAnnotations11() {
@@ -502,8 +519,8 @@ public class Java8ElementProcessor extends BaseProcessor {
 				xy = (VariableElement) member;
 			}
 		}
-		verifyTypeAnnotations(xy, new String[]{});
-		verifyTypeAnnotations(xy.asType(), new String[]{"@Type(value=xy)"});
+		verifyAnnotations(xy, new String[]{});
+		verifyAnnotations(xy.asType(), new String[]{"@Type(value=xy)"});
 		
 		Set<String> expectedElementNames = new HashSet<String>(ELEMENT_NAMES.length);
 		for (String name : ELEMENT_NAMES) {
@@ -538,9 +555,9 @@ public class Java8ElementProcessor extends BaseProcessor {
 			}
 		}
 		TypeMirror typeMirror = bar2.getReceiverType();
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=receiver)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=receiver)"});
 		ExecutableType type = (ExecutableType) bar2.asType();
-		verifyTypeAnnotations(type.getReceiverType(), new String[]{"@Type(value=receiver)"});
+		verifyAnnotations(type.getReceiverType(), new String[]{"@Type(value=receiver)"});
 	}
 	
 	public void testTypeAnnotations13() {
@@ -555,7 +572,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 			}
 		}
 		TypeMirror typeMirror = field.asType();
-		verifyTypeAnnotations(typeMirror, new String[]{});
+		verifyAnnotations(typeMirror, new String[]{});
 	}
 
 	public void testTypeAnnotations14() {
@@ -597,11 +614,11 @@ public class Java8ElementProcessor extends BaseProcessor {
 		typeMirror = constr.getReceiverType();
 		assertNotNull("TypeMirror should not be null", typeMirror);
 		assertNotSame("Should not be no type", TypeKind.NONE, typeMirror.getKind());
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=receiver)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=receiver)"});
 		type = (ExecutableType) constr.asType();
 		typeMirror = type.getReceiverType();
 		assertNotNull("TypeMirror should not be null", typeMirror);
-		verifyTypeAnnotations(typeMirror, new String[]{"@Type(value=receiver)"});
+		verifyAnnotations(typeMirror, new String[]{"@Type(value=receiver)"});
 		assertNotSame("Should not be no type", TypeKind.NONE, typeMirror.getKind());
 	}
 
@@ -643,6 +660,146 @@ public class Java8ElementProcessor extends BaseProcessor {
 		assertTrue("Found unexpected extra elements", expectedElementNames.isEmpty());
 	}
 
+	public void testRepeatedAnnotations17() {
+		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Foo.class); // discovery is always in terms of container
+		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
+		assertTrue("Found unexpected elements", actualElments.size() == 0);
+		
+		actualElments = roundEnv.getElementsAnnotatedWith(FooContainer.class);
+		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
+		assertTrue("Found unexpected elements", actualElments.size() == 1);
+		
+		for (Element e : actualElments) {
+			verifyAnnotations(e, new String[]{"@FooContainer(value=@org.eclipse.jdt.compiler.apt.tests.annotations.Foo,@org.eclipse.jdt.compiler.apt.tests.annotations.Foo)"},
+					new String [] {"@FooContainer(value=[@org.eclipse.jdt.compiler.apt.tests.annotations.Foo, @org.eclipse.jdt.compiler.apt.tests.annotations.Foo])"});
+			Annotation annot = e.getAnnotation(Foo.class);
+			assertNull("Repeating annotation should not be seen through old API", annot);
+			annot = e.getAnnotation(FooContainer.class);
+			assertNotNull("Container missing", annot);
+			Annotation [] annots = e.getAnnotationsByType(FooContainer.class);
+			assertTrue("Should not be empty", annots.length == 1);
+			annots = e.getAnnotationsByType(Foo.class);
+			assertTrue("Should be 2", annots.length == 2);
+			assertEquals("@Foo missing", "@org.eclipse.jdt.compiler.apt.tests.annotations.Foo()", "@org.eclipse.jdt.compiler.apt.tests.annotations.Foo",  annots[0].toString());
+			assertEquals("@Foo missing", "@org.eclipse.jdt.compiler.apt.tests.annotations.Foo()", "@org.eclipse.jdt.compiler.apt.tests.annotations.Foo", annots[1].toString());
+		}
+	}
+	
+	public void testRepeatedAnnotations18() {
+		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Foo.class); // discovery is always in terms of container
+		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
+		assertTrue("Found unexpected elements", actualElments.size() == 0);
+		
+		actualElments = roundEnv.getElementsAnnotatedWith(FooContainer.class);
+		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
+		assertTrue("Found unexpected elements", actualElments.size() == 1);
+		
+		for (Element e : actualElments) {
+			verifyAnnotations(e, new String[]{"@FooContainer(value=@org.eclipse.jdt.compiler.apt.tests.annotations.Foo,@org.eclipse.jdt.compiler.apt.tests.annotations.Foo)"},
+					new String [] {"@FooContainer(value=[@org.eclipse.jdt.compiler.apt.tests.annotations.Foo, @org.eclipse.jdt.compiler.apt.tests.annotations.Foo])"});
+			Annotation annot = e.getAnnotation(Foo.class);
+			assertNull("Repeating annotation should not be seen through old API", annot);
+			annot = e.getAnnotation(FooContainer.class);
+			assertNotNull("Container missing", annot);
+			Annotation [] annots = e.getAnnotationsByType(FooContainer.class);
+			assertTrue("Should not be empty", annots.length == 1);
+			annots = e.getAnnotationsByType(Foo.class);
+			assertTrue("Should be 2", annots.length == 2);
+			assertEquals("@Foo missing", "@org.eclipse.jdt.compiler.apt.tests.annotations.Foo()", "@org.eclipse.jdt.compiler.apt.tests.annotations.Foo",  annots[0].toString());
+			assertEquals("@Foo missing", "@org.eclipse.jdt.compiler.apt.tests.annotations.Foo()", "@org.eclipse.jdt.compiler.apt.tests.annotations.Foo", annots[1].toString());
+		}
+	}
+	public void testRepeatedAnnotations19() { // Goo is wrapped by GooNonContainer, but Goo is not repeatable.
+		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Goo.class); // discovery is always in terms of container
+		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
+		assertTrue("Found unexpected elements", actualElments.size() == 0);
+		
+		actualElments = roundEnv.getElementsAnnotatedWith(GooNonContainer.class);
+		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
+		assertTrue("Found unexpected elements", actualElments.size() == 1);
+		
+		for (Element e : actualElments) {
+			verifyAnnotations(e, new String[]{"@GooNonContainer(value=@org.eclipse.jdt.compiler.apt.tests.annotations.Goo,@org.eclipse.jdt.compiler.apt.tests.annotations.Goo)"},
+					new String [] {"@GooNonContainer(value=[@org.eclipse.jdt.compiler.apt.tests.annotations.Goo, @org.eclipse.jdt.compiler.apt.tests.annotations.Goo])"});
+			Annotation annot = e.getAnnotation(Goo.class);
+			assertNull("Repeating annotation should not be seen through old API", annot);
+			annot = e.getAnnotation(GooNonContainer.class);
+			assertNotNull("Container missing", annot);
+			Annotation [] annots = e.getAnnotationsByType(GooNonContainer.class);
+			assertTrue("Should not be empty", annots.length == 1);
+			annots = e.getAnnotationsByType(Goo.class); // Goo should not be unwrapped from the container as Goo is not a repeatable annotation.
+			assertTrue("Should be 0", annots.length == 0);
+		}
+	}
+	public void testRepeatedAnnotations20() { // Both Foo and FooContainer occur.
+		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Foo.class); // discovery is always in terms of container
+		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
+		assertTrue("Found unexpected elements", actualElments.size() == 1);
+		
+		actualElments = roundEnv.getElementsAnnotatedWith(FooContainer.class);
+		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
+		assertTrue("Found unexpected elements", actualElments.size() == 1);
+		
+		for (Element e : actualElments) {
+			verifyAnnotations(e, new String[]{"@FooContainer(value=@org.eclipse.jdt.compiler.apt.tests.annotations.Foo)", "@Foo()"},
+					new String [] {"@FooContainer(value=[@org.eclipse.jdt.compiler.apt.tests.annotations.Foo])","@org.eclipse.jdt.compiler.apt.tests.annotations.Foo"});
+			Annotation annot = e.getAnnotation(Foo.class);
+			assertNotNull("Foo is not wrapped, so should be seen with old API", annot);
+			annot = e.getAnnotation(FooContainer.class);
+			assertNotNull("Container missing", annot);
+			Annotation [] annots = e.getAnnotationsByType(FooContainer.class);
+			assertTrue("Should not be empty", annots.length == 1);
+			annots = e.getAnnotationsByType(Foo.class);
+			assertTrue("Should be 2", annots.length == 2);
+		}
+	}
+	
+	public void testRepeatedAnnotations21() { // Foo is wrapped by a non-declared container
+		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Foo.class); // discovery is always in terms of container
+		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
+		assertTrue("Found unexpected elements", actualElments.size() == 0);
+		
+		actualElments = roundEnv.getElementsAnnotatedWith(FooNonContainer.class);
+		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
+		assertTrue("Found unexpected elements", actualElments.size() == 1);
+		
+		for (Element e : actualElments) {
+			verifyAnnotations(e, new String[]{"@FooNonContainer(value=@org.eclipse.jdt.compiler.apt.tests.annotations.Foo,@org.eclipse.jdt.compiler.apt.tests.annotations.Foo)"},
+					new String [] {"@FooNonContainer(value=[@org.eclipse.jdt.compiler.apt.tests.annotations.Foo, @org.eclipse.jdt.compiler.apt.tests.annotations.Foo])"});
+			Annotation annot = e.getAnnotation(Foo.class);
+			assertNull("Foo should not be seen with old API", annot);
+			annot = e.getAnnotation(FooNonContainer.class);
+			assertNotNull("Container missing", annot);
+			Annotation [] annots = e.getAnnotationsByType(FooNonContainer.class);
+			assertTrue("Should not be empty", annots.length == 1);
+			annots = e.getAnnotationsByType(Foo.class);
+			assertTrue("Should be 0", annots.length == 0);
+		}
+	}
+	
+	public void testRepeatedAnnotations22() { // Repeating type annotations
+		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Foo.class); // discovery is always in terms of container
+		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
+		assertTrue("Found unexpected elements", actualElments.size() == 2);
+		
+		for (Element e : actualElments) {
+			if (e instanceof VariableElement) {
+				VariableElement field = (VariableElement) e;
+				TypeMirror mirror = field.asType();
+				verifyAnnotations(mirror, new String[]{"@TFooContainer(value=@org.eclipse.jdt.compiler.apt.tests.annotations.TFoo,@org.eclipse.jdt.compiler.apt.tests.annotations.TFoo)"},
+					new String [] {"@TFooContainer(value=[@org.eclipse.jdt.compiler.apt.tests.annotations.TFoo, @org.eclipse.jdt.compiler.apt.tests.annotations.TFoo])"});
+				Annotation annot = mirror.getAnnotation(TFoo.class);
+				assertNull("TFoo should not be seen with old API", annot);
+				annot = mirror.getAnnotation(TFooContainer.class);
+				assertNotNull("Container missing", annot);
+				Annotation [] annots = mirror.getAnnotationsByType(TFooContainer.class);
+				assertTrue("Should not be empty", annots.length == 1);
+				annots = mirror.getAnnotationsByType(TFoo.class);
+				assertTrue("Should be 2", annots.length == 2);
+			}
+		}
+	}
+	
 	private String getExceptionStackTrace(Throwable t) {
 		StringBuffer buf = new StringBuffer(t.getMessage());
 		StackTraceElement[] traces = t.getStackTrace();
@@ -655,12 +812,21 @@ public class Java8ElementProcessor extends BaseProcessor {
 		return buf.toString();
 	}
 
-	private void verifyTypeAnnotations(AnnotatedConstruct construct, String[] annots) {
+	private void verifyAnnotations(AnnotatedConstruct construct, String[] annots) {
 		List<? extends AnnotationMirror> annotations = construct.getAnnotationMirrors();
 		assertEquals("Incorrect no of annotations", annots.length, annotations.size());
 		for(int i = 0, length = annots.length; i < length; i++) {
 			AnnotationMirror mirror = annotations.get(i);
 			assertEquals("Invalid annotation value", annots[i], getAnnotationString(mirror));
+		}
+	}
+	
+	private void verifyAnnotations(AnnotatedConstruct construct, String[] annots, String [] alternateAnnots) {
+		List<? extends AnnotationMirror> annotations = construct.getAnnotationMirrors();
+		assertEquals("Incorrect no of annotations", annots.length, annotations.size());
+		for(int i = 0, length = annots.length; i < length; i++) {
+			AnnotationMirror mirror = annotations.get(i);
+			assertEquals("Invalid annotation value", annots[i], alternateAnnots[i], getAnnotationString(mirror));
 		}
 	}
 
@@ -732,6 +898,14 @@ public class Java8ElementProcessor extends BaseProcessor {
         }
     }
 
+    public void assertEquals(String message, Object expected, Object alternateExpected, Object actual) {
+        if (equalsRegardingNull(expected, actual) || equalsRegardingNull(alternateExpected, actual)) {
+            return;
+        } else {
+        	reportError(message + ", expected " + expected.toString() + " but was " + actual.toString());
+        }
+    }
+    
     static boolean equalsRegardingNull(Object expected, Object actual) {
         if (expected == null) {
             return actual == null;
