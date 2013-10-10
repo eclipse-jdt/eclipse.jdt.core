@@ -51,6 +51,7 @@ public class ImplicitNullAnnotationVerifier {
 	private boolean inheritNullAnnotations;
 	protected LookupEnvironment environment;
 
+
 	public ImplicitNullAnnotationVerifier(LookupEnvironment environment, boolean inheritNullAnnotations) {
 		this.buddyImplicitNullAnnotationsVerifier = this;
 		this.inheritNullAnnotations = inheritNullAnnotations;
@@ -191,7 +192,7 @@ public class ImplicitNullAnnotationVerifier {
 			MethodBinding currentMethod = ifcMethods[i];
 			if (currentMethod.isStatic())
 				continue;
-			if (areParametersEqual(original, currentMethod)) {
+			if (MethodVerifier.doesMethodOverride(original, currentMethod, this.environment)) {
 				result.add(currentMethod);
 				return; // at most one method is overridden from any supertype
 			}
