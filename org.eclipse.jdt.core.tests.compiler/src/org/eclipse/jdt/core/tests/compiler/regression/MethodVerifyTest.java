@@ -11,22 +11,15 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
-<<<<<<< BETA_JAVA8
  *     Stephan Herrmann - Contribution for
  *								bug 388800 - [1.8] adjust tests to 1.8 JRE
-=======
- *     Stephan Herrmann - Contributions for
->>>>>>> 97c9363 Bug 406928 - computation of inherited methods seems damaged (affecting @Overrides)
  *								bug 388795 - [compiler] detection of name clash depends on order of super interfaces
-<<<<<<< BETA_JAVA8
  *								bug 388739 - [1.8][compiler] consider default methods when detecting whether a class needs to be declared abstract
  *								bug 402237 - [1.8][compiler] investigate differences between compilers re MethodVerifyTest
-=======
  *								bug 395681 - [compiler] Improve simulation of javac6 behavior from bug 317719 after fixing bug 388795
  *								bug 409473 - [compiler] JDT cannot compile against JRE 1.8
  *	   Andy Clement - Contribution for
  *								bug 406928 - computation of inherited methods seems damaged (affecting @Overrides)
->>>>>>> 97c9363 Bug 406928 - computation of inherited methods seems damaged (affecting @Overrides)
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
