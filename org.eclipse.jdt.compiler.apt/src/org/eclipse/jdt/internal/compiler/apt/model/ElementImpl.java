@@ -66,14 +66,6 @@ public abstract class ElementImpl
 		return Factory.getPackedAnnotationBindings(getAnnotationBindings());
 	}
 	
-	/* Return only the contained annotations. Anything not inside a container is not 
-	   part of result. Since the compiler bindings encode repeating annotations as is,
-	   we need the packaging step first.
-	*/
-	public final AnnotationBinding [] getOnlyUnpackedAnnotationBindings() {
-		return Factory.getOnlyUnpackedAnnotationBindings(getPackedAnnotationBindings());
-	}
-	
 	@Override
 	public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
 		return _env.getFactory().getAnnotation(getPackedAnnotationBindings(), annotationClass);
@@ -86,8 +78,10 @@ public abstract class ElementImpl
 
 	public <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationType) {
 		
-		A [] result1 = _env.getFactory().getAnnotationsByType(getPackedAnnotationBindings(), annotationType);
-		A [] result2 = _env.getFactory().getAnnotationsByType(getOnlyUnpackedAnnotationBindings(), annotationType);
+		AnnotationBinding [] packedAnnotations = getPackedAnnotationBindings();
+		
+		A [] result1 = _env.getFactory().getAnnotationsByType(packedAnnotations, annotationType);
+		A [] result2 = _env.getFactory().getAnnotationsByType(Factory.getOnlyUnpackedAnnotationBindings(packedAnnotations), annotationType);
 		
 		if (result1.length == 0)
 			return result2;
