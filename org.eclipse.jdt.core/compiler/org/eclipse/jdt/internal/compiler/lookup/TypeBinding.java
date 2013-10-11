@@ -639,9 +639,6 @@ public final boolean isParameterizedType() {
 	return kind() == Binding.PARAMETERIZED_TYPE;
 }
 
-public int hashCode() {
-	return this.id != TypeIds.NoId ? this.id : super.hashCode();
-}
 /**
  * Does this type or any of its details (array dimensions, type arguments)
  * have a null type annotation?

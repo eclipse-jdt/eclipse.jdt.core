@@ -129,7 +129,7 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	if (this.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8 && (stillTesting || this.globalOptions.storeAnnotations)) {
 		this.typeSystem = new AnnotatableTypeSystem(this);
 	} else {
-		this.typeSystem = new UnannotatedTypeSystem(this);
+		this.typeSystem = new TypeSystem(this);
 	}
 }
 
