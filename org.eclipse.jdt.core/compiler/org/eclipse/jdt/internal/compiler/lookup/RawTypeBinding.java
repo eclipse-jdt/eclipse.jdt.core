@@ -91,10 +91,6 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		return this.environment.createParameterizedGenericMethod(originalMethod, this);
 	}
 
-	public boolean isAnnotatedTypeWithoutArguments() {
-		return false; // here rawness is the reason for not having arguments.
-	}
-
 	public int kind() {
 		return RAW_TYPE;
 	}

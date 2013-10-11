@@ -435,9 +435,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 */
 	public char[] genericTypeSignature() {
 		if (this.genericTypeSignature == null) {
-			if (isAnnotatedTypeWithoutArguments())
-				return this.genericTypeSignature = this.type.genericTypeSignature();
-
 			if ((this.modifiers & ExtraCompilerModifiers.AccGenericSignature) == 0) {
 		    	this.genericTypeSignature = this.type.signature();
 			} else {
@@ -799,14 +796,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 */
 	public boolean isRawSubstitution() {
 		return isRawType();
-	}
-
-	public boolean isAnnotatedTypeWithoutArguments() {
-		if (this.arguments != null || !hasNullTypeAnnotations())
-			return false;
-		if (this.enclosingType != null && this.enclosingType instanceof ParameterizedTypeBinding)
-			return this.enclosingType.isAnnotatedTypeWithoutArguments();
-		return true;
 	}
 
 	public TypeBinding unannotated() {

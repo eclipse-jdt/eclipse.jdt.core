@@ -638,13 +638,6 @@ public final boolean isNumericType() {
 public final boolean isParameterizedType() {
 	return kind() == Binding.PARAMETERIZED_TYPE;
 }
-/**
- * Returns true for those ParameterizedTypeBindings, which represent an annotated type
- * yet without any type parameters (neither locally nor in any enclosing type).
- */
-public boolean isAnnotatedTypeWithoutArguments() {
-	return false;
-}
 
 public int hashCode() {
 	return this.id != TypeIds.NoId ? this.id : super.hashCode();
