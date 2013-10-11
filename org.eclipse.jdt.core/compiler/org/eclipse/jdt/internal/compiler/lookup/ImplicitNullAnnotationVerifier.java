@@ -256,14 +256,14 @@ public class ImplicitNullAnnotationVerifier {
 									inheritedMethod, Boolean.valueOf(inheritedNullnessBits == TagBits.AnnotationNonNull), inheritedNonNullnessInfos[0]);
 						} else {
 							// no need to defer, record this info now:
-							applyReturnNullBits(currentMethod, inheritedNullnessBits, this.environment);
+							applyReturnNullBits(currentMethod, inheritedNullnessBits);
 						}	
 						break returnType; // compatible by construction, skip complain phase below
 					}
 				}
 				if (hasNonNullDefault) { // conflict with inheritance already checked
 					currentNullnessBits = TagBits.AnnotationNonNull;
-					applyReturnNullBits(currentMethod, currentNullnessBits, this.environment);
+					applyReturnNullBits(currentMethod, currentNullnessBits);
 				}
 			}
 			if (shouldComplain) {
@@ -380,12 +380,12 @@ public class ImplicitNullAnnotationVerifier {
 		}
 	}
 
-	void applyReturnNullBits(MethodBinding method, long nullnessBits, LookupEnvironment environment) {
-		if (environment.globalOptions.sourceLevel < ClassFileConstants.JDK1_8) {
+	void applyReturnNullBits(MethodBinding method, long nullnessBits) {
+		if (this.environment.globalOptions.sourceLevel < ClassFileConstants.JDK1_8) {
 			method.tagBits |= nullnessBits;
 		} else {
 			if (!method.returnType.isBaseType()) {
-				method.returnType = environment.createAnnotatedType(method.returnType, environment.nullAnnotationsFromTagBits(nullnessBits));
+				method.returnType = this.environment.createAnnotatedType(method.returnType, this.environment.nullAnnotationsFromTagBits(nullnessBits));
 			}
 		}
 	}
