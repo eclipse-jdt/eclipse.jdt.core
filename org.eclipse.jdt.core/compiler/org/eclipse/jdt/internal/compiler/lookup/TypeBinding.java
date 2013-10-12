@@ -1217,4 +1217,9 @@ public void swapUnresolved(UnresolvedReferenceBinding unresolvedType,
 public TypeVariableBinding[] typeVariables() {
 	return Binding.NO_TYPE_VARIABLES;
 }
+
+/** Answer an additional bit characterizing this type, like {@link TypeIds#BitAutoCloseable}. */
+public boolean hasTypeBit(int bit) {
+	return false;
+}
 }

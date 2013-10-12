@@ -95,7 +95,12 @@ public interface TypeConstants {
     char[] LANG3 = "lang3".toCharArray(); //$NON-NLS-1$
     char[] COM = "com".toCharArray(); //$NON-NLS-1$
     char[] GOOGLE = "google".toCharArray(); //$NON-NLS-1$
-
+    char[] JDT = "jdt".toCharArray(); //$NON-NLS-1$
+    char[] INTERNAL = "internal".toCharArray(); //$NON-NLS-1$
+    char[] COMPILER = "compiler".toCharArray(); //$NON-NLS-1$
+    char[] LOOKUP = "lookup".toCharArray(); //$NON-NLS-1$
+    char[] TYPEBINDING = "TypeBinding".toCharArray(); //$NON-NLS-1$
+    
 	// Constant compound names
 	char[][] JAVA_LANG = {JAVA, LANG};
 	char[][] JAVA_IO = {JAVA, IO};
@@ -272,6 +277,7 @@ public interface TypeConstants {
 	char[] VALIDATE_CLASS = "Validate".toCharArray(); //$NON-NLS-1$
 	char[][] ORG_APACHE_COMMONS_LANG_VALIDATE = new char[][] { ORG, APACHE, COMMONS, LANG, VALIDATE_CLASS };
 	char[][] ORG_APACHE_COMMONS_LANG3_VALIDATE = new char[][] { ORG, APACHE, COMMONS, LANG3, VALIDATE_CLASS };
+	char[][] ORG_ECLIPSE_JDT_INTERNAL_COMPILER_LOOKUP_TYPEBINDING = new char[][] { ORG, ECLIPSE, JDT, INTERNAL, COMPILER, LOOKUP, TYPEBINDING };
 	// ... methods:
 	char[] IS_TRUE = "isTrue".toCharArray(); //$NON-NLS-1$
 	char[] NOT_NULL = "notNull".toCharArray(); //$NON-NLS-1$
