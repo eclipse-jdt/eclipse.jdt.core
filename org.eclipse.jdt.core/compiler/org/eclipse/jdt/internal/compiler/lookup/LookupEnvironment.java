@@ -75,7 +75,6 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private int stepCompleted;
 	public ITypeRequestor typeRequestor;
 
-	private IntersectionCastTypeBinding[][] uniqueIntersectionCastTypeBindings;
 	private SimpleLookupTable uniqueParameterizedGenericMethodBindings;
 	
 	// key is a string with the method selector value is an array of method bindings
@@ -118,7 +117,6 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.defaultImports = null;
 	this.nameEnvironment = nameEnvironment;
 	this.knownPackages = new HashtableOfPackage();
-	this.uniqueIntersectionCastTypeBindings = new IntersectionCastTypeBinding[0][0];
 	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
 	this.uniquePolymorphicMethodBindings = new SimpleLookupTable(3);
 	this.missingTypes = null;
@@ -674,46 +672,9 @@ public ArrayBinding createArrayType(TypeBinding leafComponentType, int dimension
 }
 
 public TypeBinding createIntersectionCastType(ReferenceBinding[] intersectingTypes) {
-	
-	// this is perhaps an overkill, but since what is worth doing is worth doing well ...
-	
-	int count = intersectingTypes.length;
-	int length = this.uniqueIntersectionCastTypeBindings.length;
-	IntersectionCastTypeBinding[] intersectionCastTypeBindings;
+	return this.typeSystem.getIntersectionCastType(intersectingTypes);
+}	
 
-	if (count < length) {
-		if ((intersectionCastTypeBindings = this.uniqueIntersectionCastTypeBindings[count]) == null)
-			this.uniqueIntersectionCastTypeBindings[count] = intersectionCastTypeBindings = new IntersectionCastTypeBinding[4];
-	} else {
-		System.arraycopy(
-			this.uniqueIntersectionCastTypeBindings, 0,
-			this.uniqueIntersectionCastTypeBindings = new IntersectionCastTypeBinding[count + 1][], 0,
-			length);
-		this.uniqueIntersectionCastTypeBindings[count] = intersectionCastTypeBindings = new IntersectionCastTypeBinding[4];
-	}
-
-	int index = -1;
-	length = intersectionCastTypeBindings.length;
-	next:while (++index < length) {
-		IntersectionCastTypeBinding priorBinding = intersectionCastTypeBindings[index];
-		if (priorBinding == null) // no matching intersection type, but space left
-			return intersectionCastTypeBindings[index] = new IntersectionCastTypeBinding(intersectingTypes, this);
-		ReferenceBinding [] priorIntersectingTypes = priorBinding.intersectingTypes;
-		for (int i = 0; i < count; i++) {
-			if (intersectingTypes[i] != priorIntersectingTypes[i])
-				continue next;
-		}	
-		return priorBinding;
-	}
-
-	// no matching cached binding & no space left
-	System.arraycopy(
-		intersectionCastTypeBindings, 0,
-		(intersectionCastTypeBindings = new IntersectionCastTypeBinding[length * 2]), 0,
-		length);
-	this.uniqueIntersectionCastTypeBindings[count] = intersectionCastTypeBindings;
-	return intersectionCastTypeBindings[length] = new IntersectionCastTypeBinding(intersectingTypes, this);
-}
 public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 	return createBinaryTypeFrom(binaryType, packageBinding, true, accessRestriction);
 }

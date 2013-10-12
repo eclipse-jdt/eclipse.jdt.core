@@ -264,8 +264,8 @@ public class TypeSystem {
 		return this.types[keyType.id];
 	}
 	
-	private void cacheDerivedType(TypeBinding keyType, TypeBinding derivedType) {
-		if (keyType.id == TypeIds.NoId)
+	private TypeBinding cacheDerivedType(TypeBinding keyType, TypeBinding derivedType) {
+		if (keyType == null || derivedType == null || keyType.id == TypeIds.NoId)
 			throw new IllegalStateException();
 		
 		TypeBinding[] derivedTypes = this.types[keyType.id];
@@ -277,7 +277,7 @@ public class TypeSystem {
 			System.arraycopy(derivedTypes, 0, derivedTypes = new TypeBinding[length * 2], 0, length);
 			this.types[keyType.id] = derivedTypes;
 		}
-		derivedTypes[i] = derivedType;
+		return derivedTypes[i] = derivedType;
 	}
 	
 	protected final TypeBinding cacheDerivedType(TypeBinding keyType, TypeBinding nakedType, TypeBinding derivedType) {
@@ -347,5 +347,34 @@ public class TypeSystem {
 				}
 			}
 		}
+	}
+
+	public final TypeBinding getIntersectionCastType(ReferenceBinding[] intersectingTypes) {
+		int intersectingTypesLength = intersectingTypes == null ? 0 : intersectingTypes.length;
+		if (intersectingTypesLength == 0)
+			return null;
+		TypeBinding keyType = intersectingTypes[0];
+		if (keyType == null || intersectingTypesLength == 1)
+			return keyType;
+					
+		TypeBinding[] derivedTypes = getDerivedTypes(keyType);
+		int i, length = derivedTypes.length;
+		next:
+		for (i = 0; i < length; i++) {
+			TypeBinding derivedType = derivedTypes[i];
+			if (derivedType == null) 
+				break;
+			if (!derivedType.isIntersectionCastType())
+				continue;
+			ReferenceBinding [] priorIntersectingTypes = derivedType.getIntersectingTypes();
+			if (priorIntersectingTypes.length != intersectingTypesLength)
+				continue;
+			for (int j = 0; j < intersectingTypesLength; j++) {
+				if (intersectingTypes[j] != priorIntersectingTypes[j])
+					continue next;
+			}	
+			return derivedType;
+		}
+		return cacheDerivedType(keyType, new IntersectionCastTypeBinding(intersectingTypes, this.environment));
 	}
 }
