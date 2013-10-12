@@ -58,6 +58,12 @@ public List collectMissingTypes(List missingTypes) {
 	return missingTypes;
 }
 
+public boolean hasTypeBit(int bit) {
+	if (bit == TypeIds.BitUninternedType)
+		return false;
+	return super.hasTypeBit(bit);
+}
+
 /**
  * Missing binary type will answer <code>false</code> to #isValidBinding()
  * @see org.eclipse.jdt.internal.compiler.lookup.Binding#problemId()
