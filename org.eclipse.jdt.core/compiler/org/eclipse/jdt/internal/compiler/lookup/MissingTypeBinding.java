@@ -41,6 +41,10 @@ public MissingTypeBinding(PackageBinding packageBinding, char[][] compoundName, 
 	this.methods = Binding.NO_METHODS;
 }
 
+public TypeBinding clone(TypeBinding outerType) {
+	throw new IllegalStateException(); // shouldn't get here.
+}
+
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#collectMissingTypes(java.util.List)
  */
@@ -69,6 +73,10 @@ public int problemId() {
  */
 void setMissingSuperclass(ReferenceBinding missingSuperclass) {
 	this.superclass = missingSuperclass;
+}
+
+public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
+	return; // reject misguided attempts.
 }
 
 public String toString() {

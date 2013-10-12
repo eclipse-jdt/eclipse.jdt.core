@@ -151,6 +151,8 @@ public final class BaseTypeBinding extends TypeBinding {
 	}
 
 	public TypeBinding clone(TypeBinding enclosingType) {
+		if (this.id == TypeIds.T_void || this.id == TypeIds.T_null)
+			return this;
 		return new BaseTypeBinding(this.id, this.simpleName, this.constantPoolName);
 	}
 	
@@ -173,6 +175,8 @@ public final class BaseTypeBinding extends TypeBinding {
 	}
 	
 	public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
+		if (this.id == TypeIds.T_void || this.id == TypeIds.T_null) // reject misguided attempt.
+			return;
 		super.setTypeAnnotations(annotations, false); // never set nullTagBits on base types
 	}
 

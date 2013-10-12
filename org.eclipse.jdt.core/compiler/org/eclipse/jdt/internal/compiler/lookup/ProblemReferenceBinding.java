@@ -27,6 +27,9 @@ public ProblemReferenceBinding(char[][] compoundName, ReferenceBinding closestMa
 	this.problemReason = problemReason;
 }
 
+public TypeBinding clone(TypeBinding enclosingType) {
+	throw new IllegalStateException(); // shouldn't get here.
+}
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#closestMatch()
  */
@@ -77,6 +80,9 @@ public static String problemReasonString(int problemReason) {
 	return "unknown"; //$NON-NLS-1$
 }
 
+public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
+	return; // reject misguided attempts.
+}
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#shortReadableName()
  */
