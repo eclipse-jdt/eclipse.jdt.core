@@ -77,8 +77,6 @@ public int depth() {
 	return CharOperation.occurencesOf('$', this.compoundName[last]);
 }
 public boolean hasTypeBit(int bit) {
-	if (bit == TypeIds.BitUninternedType)
-		return (this.typeBits & bit) != 0;
 	// shouldn't happen since we are not called before analyseCode(), but play safe:
 	return false;
 }

@@ -45,8 +45,6 @@ public ReferenceBinding closestReferenceMatch() {
 }
 
 public boolean hasTypeBit(int bit) {
-	if (bit == TypeIds.BitUninternedType)
-		return false;
 	if (this.closestMatch != null)
 		return this.closestMatch.hasTypeBit(bit);
 	return false;
