@@ -1443,4 +1443,8 @@ public boolean isUnresolvedType() {
 	return false;
 }
 
+/** Answer an additional bit characterizing this type, like {@link TypeIds#BitAutoCloseable}. */
+public boolean hasTypeBit(int bit) {
+	return false;
+}
 }

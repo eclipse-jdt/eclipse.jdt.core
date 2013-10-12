@@ -948,6 +948,9 @@ void setSourceStart(int sourceStart);
 
 	/** @since 3.9 BETA_JAVA8 */
 	int IllegalUseOfUnderscoreAsAnIdentifier = Syntax + Internal + 443;
+	 /** @since 3.9 BETA_JAVA8 */
+	int UninternedIdentityComparison = Syntax + Internal + 444;
+
 	// detected task
 	/** @since 2.1 */
 	int Task = Internal + 450;

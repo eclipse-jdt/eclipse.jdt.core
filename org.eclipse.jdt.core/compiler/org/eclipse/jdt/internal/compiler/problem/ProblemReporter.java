@@ -9865,4 +9865,18 @@ public void disallowedTargetForContainerAnnotation(Annotation annotation, TypeBi
 		annotation.sourceStart,
 		annotation.sourceEnd);
 }
+public void uninternedIdentityComparison(EqualExpression expr, TypeBinding lhs, TypeBinding rhs) {
+	this.handle(
+			IProblem.UninternedIdentityComparison,
+			new String[] {
+					new String(lhs.readableName()),
+					new String(rhs.readableName())
+			},
+			new String[] {
+					new String(lhs.shortReadableName()),
+					new String(rhs.shortReadableName())
+			},
+			expr.sourceStart,
+			expr.sourceEnd);
+}
 }

@@ -171,6 +171,7 @@ public class CompilerOptions {
 	public static final String OPTION_NullableAnnotationName = "org.eclipse.jdt.core.compiler.annotation.nullable"; //$NON-NLS-1$
 	public static final String OPTION_NonNullAnnotationName = "org.eclipse.jdt.core.compiler.annotation.nonnull"; //$NON-NLS-1$
 	public static final String OPTION_NonNullByDefaultAnnotationName = "org.eclipse.jdt.core.compiler.annotation.nonnullbydefault"; //$NON-NLS-1$
+	public static final String OPTION_ReportUninternedIdentityComparison = "org.eclipse.jdt.core.compiler.problem.uninternedIdentityComparison"; //$NON-NLS-1$
 	// defaults for the above:
 	static final char[][] DEFAULT_NULLABLE_ANNOTATION_NAME = CharOperation.splitOn('.', "org.eclipse.jdt.annotation.Nullable".toCharArray()); //$NON-NLS-1$
 	static final char[][] DEFAULT_NONNULL_ANNOTATION_NAME = CharOperation.splitOn('.', "org.eclipse.jdt.annotation.NonNull".toCharArray()); //$NON-NLS-1$
@@ -453,6 +454,8 @@ public class CompilerOptions {
 
 	/** Should immediate null-check for fields be considered during null analysis (syntactical match)? */
 	public boolean enableSyntacticNullAnalysisForFields;
+
+	public boolean complainOnUninternedIdentityComparison;
 
 	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant
 	public final static String[] warningTokens = {
@@ -1158,6 +1161,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_SyntacticNullAnalysisForFields, this.enableSyntacticNullAnalysisForFields ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_InheritNullAnnotations, this.inheritNullAnnotations ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportNonnullParameterAnnotationDropped, getSeverityString(NonnullParameterAnnotationDropped));
+		optionsMap.put(OPTION_ReportUninternedIdentityComparison, this.complainOnUninternedIdentityComparison ? ENABLED : DISABLED);
 		return optionsMap;
 	}
 
@@ -1325,6 +1329,8 @@ public class CompilerOptions {
 		this.analyseResourceLeaks = true;
 
 		this.reportMissingEnumCaseDespiteDefault = false;
+
+		this.complainOnUninternedIdentityComparison = false;
 	}
 
 	public void set(Map optionsMap) {
@@ -1793,6 +1799,13 @@ public class CompilerOptions {
 			} else if (DISABLED.equals(optionValue)) {
 				if (!this.isAnnotationBasedNullAnalysisEnabled && !this.processAnnotations)
 					this.storeAnnotations = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_ReportUninternedIdentityComparison)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.complainOnUninternedIdentityComparison = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.complainOnUninternedIdentityComparison = false;
 			}
 		}
 	}

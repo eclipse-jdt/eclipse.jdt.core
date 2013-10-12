@@ -243,8 +243,9 @@ public interface TypeIds {
 	 */
 	final int BitResourceFreeCloseable = 8;
 	
+	final int BitUninternedType = 16;
 	/**
 	 * Set of type bits that should be inherited by any sub types.
 	 */
-	final int InheritableBits = BitAutoCloseable | BitCloseable;
+	final int InheritableBits = BitAutoCloseable | BitCloseable | BitUninternedType;
 }
