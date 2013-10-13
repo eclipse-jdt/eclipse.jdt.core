@@ -16,8 +16,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
+
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.IntConstant;
@@ -939,16 +942,13 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 		
 	}
 	// 412149: [1.8][compiler] Emit repeated annotations into the designated container
-	// Test that repeated annotations can appear at package targets - doesn't work due to VarifyClassLoader not defining packages.
-	public void _test039() {
+	// Test that repeated annotations can appear at package targets
+	public void test039() throws Exception {
 		String[] testFiles = {
 				"repeatable/Main.java",
 				"package repeatable;\n" +
 				"public class Main {\n" +
 				"    public static void main (String[] argv) {\n" + 
-				"          System.out.println(repeatable.Main.class.getClassLoader().getClass().getSimpleName());\n" + 
-				"          System.out.println(\"Pacakage has \" + Main.class.getClassLoader().getClass().getName());\n" +
-				"        System.out.println(\"The pacakage has \" + Main.class.getPackage().getAnnotationsByType(Foo.class).length + \" annotations\");\n" +
 				"    };\n" +
 				"}",
 
@@ -970,7 +970,20 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"package repeatable;\n" +
 			"import repeatable.Foo;",
 		};
-		runConformTest(testFiles, "The package has 2 annotations");
+		runConformTest(testFiles, "");
+		String expectedOutout = 
+				"  RuntimeVisibleAnnotations: \n" + 
+				"    #8 @repeatable.FooContainer(\n" + 
+				"      #9 value=[\n" + 
+				"        annotation value =\n" + 
+				"            #10 @repeatable.Foo(\n" + 
+				"            )\n" + 
+				"        annotation value =\n" + 
+				"            #10 @repeatable.Foo(\n" + 
+				"            )\n" + 
+				"        ]\n" + 
+				"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "repeatable" + File.separator + "package-info.class", "package-info", expectedOutout, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// 412149: [1.8][compiler] Emit repeated annotations into the designated container
 	// Test that repeated annotations show up on fields, methods, and parameters
