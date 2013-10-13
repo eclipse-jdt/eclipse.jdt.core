@@ -76,7 +76,7 @@ public class BinaryTypeBinding extends ReferenceBinding {
 
 	protected SimpleLookupTable storedAnnotations = null; // keys are this ReferenceBinding & its fields and methods, value is an AnnotationHolder
 
-	private ReferenceBinding containingAnnotation;
+	private ReferenceBinding containerAnnotationType;
 
 static Object convertMemberValue(Object binaryValue, LookupEnvironment env, char[][][] missingTypeNames) {
 	if (binaryValue == null) return null;
@@ -1259,9 +1259,9 @@ public boolean isHierarchyConnected() {
 	
 	return (this.tagBits & (TagBits.HasUnresolvedSuperclass | TagBits.HasUnresolvedSuperinterfaces)) == 0;
 }
-public boolean isRepeatableAnnotation() {
+public boolean isRepeatableAnnotationType() {
 	if (!isPrototype()) throw new IllegalStateException();
-	return this.containingAnnotation != null;
+	return this.containerAnnotationType != null;
 }
 public int kind() {
 	
@@ -1331,12 +1331,12 @@ private boolean isPrototype() {
 	return this == this.prototype; //$IDENTITY-COMPARISON$
 }
 
-public ReferenceBinding resolveContainerAnnotation() {
+public ReferenceBinding containerAnnotationType() {
 	if (!isPrototype()) throw new IllegalStateException();
-	if (this.containingAnnotation instanceof UnresolvedReferenceBinding) {
-		this.containingAnnotation = (ReferenceBinding) BinaryTypeBinding.resolveType(this.containingAnnotation, this.environment, false);
+	if (this.containerAnnotationType instanceof UnresolvedReferenceBinding) {
+		this.containerAnnotationType = (ReferenceBinding) BinaryTypeBinding.resolveType(this.containerAnnotationType, this.environment, false);
 	}
-	return this.containingAnnotation;
+	return this.containerAnnotationType;
 }
 
 private FieldBinding resolveTypeFor(FieldBinding field) {
@@ -1397,10 +1397,17 @@ AnnotationBinding[] retrieveAnnotations(Binding binding) {
 	
 	return AnnotationBinding.addStandardAnnotations(super.retrieveAnnotations(binding), binding.getAnnotationTagBits(), this.environment);
 }
-public void setContainingAnnotation(ReferenceBinding value) {
+
+public void setContainerAnnotationType(ReferenceBinding value) {
 	if (!isPrototype()) throw new IllegalStateException();
-	this.containingAnnotation = value;
+	this.containerAnnotationType = value;
 }
+
+public void tagAsHavingDefectiveContainerType() {
+	if (this.containerAnnotationType != null && this.containerAnnotationType.isValidBinding())
+		this.containerAnnotationType = new ProblemReferenceBinding(this.containerAnnotationType.compoundName, this.containerAnnotationType, ProblemReasons.DefectiveContainerAnnotationType);
+}
+
 SimpleLookupTable storedAnnotations(boolean forceInitialize) {
 	
 	if (!isPrototype())
@@ -1621,7 +1628,7 @@ private void scanTypeForContainerAnnotation(IBinaryType binaryType, char[][][] m
 				if (elementValuePairs != null && elementValuePairs.length == 1) {
 					Object value = elementValuePairs[0].getValue();
 					if (value instanceof ClassSignature) {
-						this.containingAnnotation = (ReferenceBinding) this.environment.getTypeFromSignature(((ClassSignature)value).getTypeName(), 0, -1, false, null, missingTypeNames, TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER);
+						this.containerAnnotationType = (ReferenceBinding) this.environment.getTypeFromSignature(((ClassSignature)value).getTypeName(), 0, -1, false, null, missingTypeNames, TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER);
 					}
 				}
 				break;

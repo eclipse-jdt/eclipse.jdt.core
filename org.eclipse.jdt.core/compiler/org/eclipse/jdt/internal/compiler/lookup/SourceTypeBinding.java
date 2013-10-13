@@ -89,7 +89,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	private int defaultNullness;
 	private int nullnessDefaultInitialized = 0; // 0: nothing; 1: type; 2: package
 	private int lambdaOrdinal = 0;
-	private ReferenceBinding containingAnnotation = null;
+	private ReferenceBinding containerAnnotationType = null;
 	
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
 	this.compoundName = compoundName;
@@ -130,7 +130,7 @@ public SourceTypeBinding(SourceTypeBinding prototype) {
 	this.defaultNullness = prototype.defaultNullness;
 	this.nullnessDefaultInitialized= prototype.nullnessDefaultInitialized;
 	this.lambdaOrdinal = prototype.lambdaOrdinal;
-	this.containingAnnotation = prototype.containingAnnotation;
+	this.containerAnnotationType = prototype.containerAnnotationType;
 	this.tagBits |= TagBits.HasUnresolvedMemberTypes; // see memberTypes()
 }
 
@@ -1381,9 +1381,9 @@ public boolean isHierarchyConnected() {
 		return this.prototype.isHierarchyConnected();
 	return (this.tagBits & TagBits.EndHierarchyCheck) != 0;
 }
-public boolean isRepeatableAnnotation() {
+public boolean isRepeatableAnnotationType() {
 	if (!isPrototype()) throw new IllegalStateException();
-	return this.containingAnnotation != null;
+	return this.containerAnnotationType != null;
 }
 public ReferenceBinding[] memberTypes() {
 	if (!isPrototype()) {
@@ -1640,14 +1640,14 @@ public boolean isPrototype() {
 	return this == this.prototype;  //$IDENTITY-COMPARISON$
 }
 
-public ReferenceBinding resolveContainerAnnotation() {
+public ReferenceBinding containerAnnotationType() {
 	
 	if (!isPrototype()) throw new IllegalStateException();
 	
-	if (this.containingAnnotation instanceof UnresolvedReferenceBinding) {
-		this.containingAnnotation = (ReferenceBinding)BinaryTypeBinding.resolveType(this.containingAnnotation, this.scope.environment(), false);
+	if (this.containerAnnotationType instanceof UnresolvedReferenceBinding) {
+		this.containerAnnotationType = (ReferenceBinding)BinaryTypeBinding.resolveType(this.containerAnnotationType, this.scope.environment(), false);
 	}
-	return this.containingAnnotation;
+	return this.containerAnnotationType;
 }
 
 public FieldBinding resolveTypeFor(FieldBinding field) {
@@ -2101,9 +2101,14 @@ public AnnotationHolder retrieveAnnotationHolder(Binding binding, boolean forceI
 	return super.retrieveAnnotationHolder(binding, false);
 }
 
-public void setContainingAnnotation(ReferenceBinding value) {
+public void setContainerAnnotationType(ReferenceBinding value) {
 	if (!isPrototype()) throw new IllegalStateException();
-	this.containingAnnotation  = value;
+	this.containerAnnotationType  = value;
+}
+
+public void tagAsHavingDefectiveContainerType() {
+	if (this.containerAnnotationType != null && this.containerAnnotationType.isValidBinding())
+		this.containerAnnotationType = new ProblemReferenceBinding(this.containerAnnotationType.compoundName, this.containerAnnotationType, ProblemReasons.DefectiveContainerAnnotationType);
 }
 
 // Propagate writes to all annotated variants so the clones evolve along.

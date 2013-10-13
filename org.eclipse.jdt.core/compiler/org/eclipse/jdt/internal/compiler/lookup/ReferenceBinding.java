@@ -1548,7 +1548,10 @@ AnnotationBinding[] retrieveAnnotations(Binding binding) {
 public void setAnnotations(AnnotationBinding[] annotations) {
 	storeAnnotations(this, annotations);
 }
-public void setContainingAnnotation(ReferenceBinding value) {
+public void setContainerAnnotationType(ReferenceBinding value) {
+	// Leave this to subclasses
+}
+public void tagAsHavingDefectiveContainerType() {
 	// Leave this to subclasses
 }
 

@@ -15,6 +15,7 @@
  *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335             
  *							Bug 406982 - [1.8][compiler] Generation of MethodParameters Attribute in classfile
  *							Bug 416885 - [1.8][compiler]IncompatibleClassChange error (edit)
+ *							Bug 412149 - [1.8][compiler] Emit repeated annotations into the designated container
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
@@ -3404,9 +3405,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		final int length = annotations.length;
 		int visibleAnnotationsCounter = 0;
 		int invisibleAnnotationsCounter = 0;
-
+		Annotation annotation;
 		for (int i = 0; i < length; i++) {
-			Annotation annotation = annotations[i];
+			if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 			if (annotation.isRuntimeInvisible() || (includeTypeUseAnnotations && annotation.isRuntimeTypeInvisible())) {
 				invisibleAnnotationsCounter++;
 			} else if (annotation.isRuntimeVisible() || (includeTypeUseAnnotations && annotation.isRuntimeTypeVisible())) {
@@ -3434,7 +3435,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			int counter = 0;
 			loop: for (int i = 0; i < length; i++) {
 				if (invisibleAnnotationsCounter == 0) break loop;
-				Annotation annotation = annotations[i];
+				if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 				if (annotation.isRuntimeInvisible() || 
 						// No need to explicitly check it is type_use and not type_parameter, 
 						// that will already have been checked
@@ -3484,7 +3485,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			int counter = 0;
 			loop: for (int i = 0; i < length; i++) {
 				if (visibleAnnotationsCounter == 0) break loop;
-				Annotation annotation = annotations[i];
+				if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 				if (annotation.isRuntimeVisible() || 
 					// No need to explicitly check it is type_use and not type_parameter, 
 					// that will already have been checked
@@ -3522,12 +3523,13 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int invisibleParametersAnnotationsCounter = 0;
 		int visibleParametersAnnotationsCounter = 0;
 		int[][] annotationsCounters = new int[argumentsLength][2];
+		Annotation annotation;
 		for (int i = 0; i < argumentsLength; i++) {
 			Argument argument = arguments[i];
 			Annotation[] annotations = argument.annotations;
 			if (annotations != null) {
 				for (int j = 0, max2 = annotations.length; j < max2; j++) {
-					Annotation annotation = annotations[j];
+					if ((annotation = annotations[j].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 					if (annotation.isRuntimeInvisible()) {
 						annotationsCounters[i][INVISIBLE_INDEX]++;
 						invisibleParametersAnnotationsCounter++;
@@ -3570,7 +3572,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 						Argument argument = arguments[i];
 						Annotation[] annotations = argument.annotations;
 						for (int j = 0, max = annotations.length; j < max; j++) {
-							Annotation annotation = annotations[j];
+							if ((annotation = annotations[j].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 							if (annotation.isRuntimeInvisible()) {
 								int currentAnnotationOffset = this.contentsOffset;
 								generateAnnotation(annotation, currentAnnotationOffset);
@@ -3628,7 +3630,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 						Argument argument = arguments[i];
 						Annotation[] annotations = argument.annotations;
 						for (int j = 0, max = annotations.length; j < max; j++) {
-							Annotation annotation = annotations[j];
+							if ((annotation = annotations[j].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 							if (annotation.isRuntimeVisible()) {
 								int currentAnnotationOffset = this.contentsOffset;
 								generateAnnotation(annotation, currentAnnotationOffset);
@@ -4483,10 +4485,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 	}
 	
 	private void generateTypeAnnotation(AnnotationContext annotationContext, int currentOffset) {
-		if (annotationContext.wildcard != null) {
-			generateWildcardTypeAnnotation(annotationContext, currentOffset);
+		Annotation annotation = annotationContext.annotation.getPersistibleAnnotation();
+		if (annotation == null || annotation.resolvedType == null)
 			return;
-		}
 		
 		int targetType = annotationContext.targetType;
 
@@ -4500,27 +4501,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[this.contentsOffset++] = (byte) targetType;
 		dumpTargetTypeContents(targetType, annotationContext);
 		dumpLocations(locations);
-		
-		// common part between type annotation and annotation
-		generateAnnotation(annotationContext.annotation, currentOffset);
+		generateAnnotation(annotation, currentOffset);
 	}
 
-	private void generateWildcardTypeAnnotation(AnnotationContext annotationContext, int currentOffset) {
-		int targetType = annotationContext.targetType;
-
-		int[] locations = Annotation.getLocations(
-				annotationContext.typeReference,
-				annotationContext.annotation);
-		// reserve enough space
-		if (this.contentsOffset + 5 >= this.contents.length) {
-			resizeContents(5);
-		}
-		this.contents[this.contentsOffset++] = (byte) targetType;
-		dumpTargetTypeContents(targetType, annotationContext);
-		dumpLocations(locations);
-		generateAnnotation(annotationContext.annotation, currentOffset);
-	}
-	
 	private int generateTypeAnnotationAttributeForTypeDeclaration() {
 		TypeDeclaration typeDeclaration = this.referenceBinding.scope.referenceContext;
 		if ((typeDeclaration.bits & ASTNode.HasTypeAnnotations) == 0) {

@@ -775,9 +775,9 @@ public class Factory {
 			AnnotationBinding annotation = repackagedBindings[i];
 			if (annotation == null) continue;
 			ReferenceBinding annotationType = annotation.getAnnotationType();
-			if (!annotationType.isRepeatableAnnotation())
+			if (!annotationType.isRepeatableAnnotationType())
 				continue;
-			ReferenceBinding containerType = annotationType.resolveContainerAnnotation();
+			ReferenceBinding containerType = annotationType.containerAnnotationType();
 			if (containerType == null)
 				continue; // FUBAR.
 			MethodBinding [] values = containerType.getMethods(TypeConstants.VALUE);
@@ -831,10 +831,10 @@ public class Factory {
 			MethodBinding value = values[0];
 			
 			TypeBinding containeeType = value.returnType.leafComponentType();
-			if (containeeType == null || !containeeType.isAnnotationType() || !containeeType.isRepeatableAnnotation())
+			if (containeeType == null || !containeeType.isAnnotationType() || !containeeType.isRepeatableAnnotationType())
 				continue;
 			
-			if (containeeType.resolveContainerAnnotation() != annotationType)
+			if (containeeType.containerAnnotationType() != annotationType)
 				continue;
 			
 			// We have a kosher container: unwrap the contained annotations.

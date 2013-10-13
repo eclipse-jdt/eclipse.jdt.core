@@ -161,7 +161,7 @@ int rank() {
 	return -1; // overridden in WildcardBinding
 }
 
-public ReferenceBinding resolveContainerAnnotation() {
+public ReferenceBinding containerAnnotationType() {
 	return null;
 }
 
@@ -983,7 +983,7 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 /**
  * Answer true if the receiver is an annotation which may be repeatable. Overridden as appropriate.
  */
-public boolean isRepeatableAnnotation() {
+public boolean isRepeatableAnnotationType() {
 	return false;
 }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Jesper Steen Moller - Contributions for:
+ *          Bug 412149: [1.8][compiler] Emit repeated annotations into the designated container
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -29,6 +31,10 @@ public class SingleMemberAnnotation extends Annotation {
 		this.type = type;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = type.sourceEnd;
+	}
+	
+	public SingleMemberAnnotation() {
+		// for subclasses.
 	}
 
 	public ElementValuePair[] computeElementValuePairs() {
