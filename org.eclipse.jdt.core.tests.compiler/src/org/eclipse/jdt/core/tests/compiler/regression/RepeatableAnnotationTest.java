@@ -1376,5 +1376,80 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"	^^\n" + 
 			"The repeatable annotation @T is disallowed for this location since its container annotation @TC is disallowed at this location\n" + 
 			"----------\n");
+	}
+	public void testDeprecation() {
+		this.runNegativeTest(
+			new String[] {
+				"TC.java",
+				"@Deprecated\n" +
+				"public @interface TC {\n" +
+				"  public T[] value();\n" +
+				"}\n",
+				"T.java",
+				"@java.lang.annotation.Repeatable(TC.class)\n" +
+				"@interface T {\n" +
+				"  public int value() default -1;\n" +  
+				"}\n" +
+				"interface I<@T(1) @T(2) K> {\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in T.java (at line 1)\n" + 
+			"	@java.lang.annotation.Repeatable(TC.class)\n" + 
+			"	                                 ^^\n" + 
+			"The type TC is deprecated\n" + 
+			"----------\n" + 
+			"2. ERROR in T.java (at line 5)\n" + 
+			"	interface I<@T(1) @T(2) K> {\n" + 
+			"	            ^^\n" + 
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
+			"----------\n" + 
+			"3. WARNING in T.java (at line 5)\n" + 
+			"	interface I<@T(1) @T(2) K> {\n" + 
+			"	            ^^\n" + 
+			"The type TC is deprecated\n" + 
+			"----------\n" + 
+			"4. ERROR in T.java (at line 5)\n" + 
+			"	interface I<@T(1) @T(2) K> {\n" + 
+			"	            ^^\n" + 
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
+			"----------\n" + 
+			"5. ERROR in T.java (at line 5)\n" + 
+			"	interface I<@T(1) @T(2) K> {\n" + 
+			"	                  ^^\n" + 
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
+			"----------\n");
+	}
+	public void testDeprecation2() { // verify that deprecation warning does not show up when the deprecated element is used in the same file defining it.
+		this.runNegativeTest(
+			new String[] {
+				"T.java",
+				"@Deprecated\n" +
+				"@interface TC {\n" +
+				"  public T[] value();\n" +
+				"}\n" +
+				"@java.lang.annotation.Repeatable(TC.class)\n" +
+				"@interface T {\n" +
+				"  public int value() default -1;\n" +  
+				"}\n" +
+				"interface I<@T(1) @T(2) K> {\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in T.java (at line 9)\n" + 
+			"	interface I<@T(1) @T(2) K> {\n" + 
+			"	            ^^\n" + 
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
+			"----------\n" + 
+			"2. ERROR in T.java (at line 9)\n" + 
+			"	interface I<@T(1) @T(2) K> {\n" + 
+			"	            ^^\n" + 
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
+			"----------\n" + 
+			"3. ERROR in T.java (at line 9)\n" + 
+			"	interface I<@T(1) @T(2) K> {\n" + 
+			"	                  ^^\n" + 
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
+			"----------\n");
 	}	
 }

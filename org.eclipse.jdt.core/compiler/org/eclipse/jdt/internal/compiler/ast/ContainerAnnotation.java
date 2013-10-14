@@ -67,6 +67,9 @@ public class ContainerAnnotation extends SingleMemberAnnotation {
 			containerAnnotationType = (ReferenceBinding) containerAnnotationType.closestMatch();
 		Annotation repeatingAnnotation = this.containees[0];
 		ReferenceBinding repeatingAnnotationType = (ReferenceBinding) repeatingAnnotation.resolvedType;
+		if (!repeatingAnnotationType.isDeprecated() && isTypeUseDeprecated(containerAnnotationType, scope)) {
+			scope.problemReporter().deprecatedType(containerAnnotationType, repeatingAnnotation);
+		}
 		checkContainerAnnotationType(repeatingAnnotation, scope, containerAnnotationType, repeatingAnnotationType, true); // true => repeated *use* site error reporting requested.
 		this.resolvedType = containerAnnotationType = repeatingAnnotationType.containerAnnotationType();
 		if (!this.resolvedType.isValidBinding())
