@@ -1648,13 +1648,11 @@ void setSourceStart(int sourceStart);
 	/** @since 3.9 BETA_JAVA8 */
 	int ContainingAnnotationHasShorterRetention = TypeRelated + 905;
 	/** @since 3.9 BETA_JAVA8 */
-	int RepeatableAnnotationHasTargets = TypeRelated + 906;
+	int RepeatableAnnotationTargetMismatch = TypeRelated + 906;
 	/** @since 3.9 BETA_JAVA8 */
-	int RepeatableAnnotationTargetMismatch = TypeRelated + 907;
+	int RepeatableAnnotationIsDocumented = TypeRelated + 907;
 	/** @since 3.9 BETA_JAVA8 */
-	int RepeatableAnnotationIsDocumented = TypeRelated + 908;
-	/** @since 3.9 BETA_JAVA8 */
-	int RepeatableAnnotationIsInherited = TypeRelated + 909;
+	int RepeatableAnnotationIsInherited = TypeRelated + 908;
 	
 	/**
 	 * Errors/warnings from annotation based null analysis

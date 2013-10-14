@@ -665,7 +665,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 
 	// 412151: TC's @Targets, if specified, must be a subset or the same as T's @Targets
-	// TC's has no @Targets (=everywhere), but @Foo has, then complain.
+	// TC's has no @Targets (=every SE7 location), but @Foo has, then complain.
 	public void test026() {
 		this.runConformTest(
 			new String[] {
@@ -683,12 +683,12 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"@java.lang.annotation.Target({ElementType.FIELD})\n" +
 				"@interface Foo { }\n"
 			}, 
-		"----------\n" + 
-		"1. ERROR in Foo.java (at line 3)\n" + 
-		"	@java.lang.annotation.Repeatable(FooContainer.class)\n" + 
-		"	                                 ^^^^^^^^^^^^^^^^^^\n" + 
-		"The repeatable annotation @Foo has a @Target annotation, @FooContainer does not\n" + 
-		"----------\n",
+			"----------\n" + 
+			"1. ERROR in Foo.java (at line 3)\n" + 
+			"	@java.lang.annotation.Repeatable(FooContainer.class)\n" + 
+			"	                                 ^^^^^^^^^^^^^^^^^^\n" + 
+			"The containing annotation @FooContainer is allowed at targets where the repeatable annotation @Foo is not: TYPE, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE, ANNOTATION_TYPE, PACKAGE\n" + 
+			"----------\n",
 		null, false /* don't flush*/);
 	}
 
@@ -1310,6 +1310,71 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"	@Repeatable(X.class)\n" + 
 			"	            ^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Class<X> to Class<? extends Annotation>\n" + 
+			"----------\n");
+	}	
+	// Test unspecified target.
+	public void testUnspecifiedTarget() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Repeatable;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface TC {\n" +
+				"	T [] value();\n" +
+				"}\n" +
+				"\n" +
+				"@Repeatable(TC.class)\n" +
+				"@interface T {\n" +
+				"}\n" +
+				"\n" +
+				"@T @T\n" +
+				"public class X { \n" +
+				"	X f;\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	@Repeatable(TC.class)\n" + 
+			"	            ^^^^^^^^\n" + 
+			"The containing annotation @TC is allowed at targets where the repeatable annotation @T is not: TYPE_USE\n" + 
+			"----------\n");
+	}
+	// Test unspecified target.
+	public void testUnspecifiedTarget2() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Repeatable;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"\n" +
+				"@Target(ElementType.TYPE_PARAMETER)\n" +
+				"@interface TC {\n" +
+				"	T [] value();\n" +
+				"}\n" +
+				"\n" +
+				"@Repeatable(TC.class)\n" +
+				"@interface T {\n" +
+				"}\n" +
+				"\n" +
+				"@T @T\n" +
+				"public class X { \n" +
+				"	X f;\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	@Repeatable(TC.class)\n" + 
+			"	            ^^^^^^^^\n" + 
+			"The containing annotation @TC is allowed at targets where the repeatable annotation @T is not: TYPE_PARAMETER\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
+			"	@T @T\n" + 
+			"	^^\n" + 
+			"The repeatable annotation @T is disallowed for this location since its container annotation @TC is disallowed at this location\n" + 
 			"----------\n");
 	}	
 }

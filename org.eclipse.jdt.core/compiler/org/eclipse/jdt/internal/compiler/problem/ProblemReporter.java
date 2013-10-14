@@ -7102,14 +7102,6 @@ public void containingAnnotationHasShorterRetention(ASTNode markerNode, Referenc
 		markerNode.sourceStart,
 		markerNode.sourceEnd);
 }
-public void repeatableAnnotationHasTargets(ASTNode markerNode, ReferenceBinding annotationType, ReferenceBinding containerAnnotationType) {
-	this.handle(
-		IProblem.RepeatableAnnotationHasTargets,
-		new String[] {new String(annotationType.readableName()), new String(containerAnnotationType.readableName())},
-		new String[] {new String(annotationType.shortReadableName()), new String(containerAnnotationType.shortReadableName())},
-		markerNode.sourceStart,
-		markerNode.sourceEnd);
-}
 public void repeatableAnnotationTargetMismatch(ASTNode markerNode, ReferenceBinding annotationType, ReferenceBinding containerAnnotationType, String unmetTargets) {
 	this.handle(
 		IProblem.RepeatableAnnotationTargetMismatch,

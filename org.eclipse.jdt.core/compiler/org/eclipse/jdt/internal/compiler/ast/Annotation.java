@@ -467,68 +467,67 @@ public abstract class Annotation extends Expression {
 		if (useSite)
 			checkContainingAnnotationTargetAtUse((Annotation) culpritNode, scope, containerAnnotationType, repeatableAnnotationType);
 		else 
-			checkContainingAnnotationTarget(culpritNode, scope, containerAnnotationType, repeatableAnnotationType);
+			checkContainerAnnotationTypeTarget(culpritNode, scope, containerAnnotationType, repeatableAnnotationType);
 		
 		checkContaintAnnotationDocumented(culpritNode, scope, containerAnnotationType, repeatableAnnotationType);
 		checkContaintAnnotationInherited(culpritNode, scope, containerAnnotationType, repeatableAnnotationType);
 	}
 	
 	// This is for error reporting for bad targets at annotation type declaration site (as opposed to the repeat site)
-	private static void checkContainingAnnotationTarget(ASTNode markerNode, Scope scope, ReferenceBinding container, ReferenceBinding repeatableAnnotation) {
-		long tagBits = repeatableAnnotation.getAnnotationTagBits();
-		if ((tagBits & TagBits.AnnotationTargetMASK) != 0) { 
-			long containingTagBits = container.getAnnotationTagBits();
-			if ((containingTagBits & TagBits.AnnotationTargetMASK) == 0) {
-				repeatableAnnotation.tagAsHavingDefectiveContainerType();
-				scope.problemReporter().repeatableAnnotationHasTargets(markerNode, repeatableAnnotation, container);
-			} else {
-				final long targets = tagBits & TagBits.AnnotationTargetMASK;
-				final long containingTargets = containingTagBits & TagBits.AnnotationTargetMASK;
-				
-				if ((containingTargets & ~targets) != 0) {
-					class MissingTargetBuilder {
-						StringBuffer targetBuffer = new StringBuffer();
-						void check(long targetMask, char[] targetName) {
-							if ((containingTargets & targetMask & ~targets) != 0) {
-								add(targetName);
-							}
-						}
-						void checkAnnotationType(char[] targetName) {
-							if ((containingTargets & TagBits.AnnotationForAnnotationType) != 0 &&
-									((targets & (TagBits.AnnotationForAnnotationType | TagBits.AnnotationForType))) == 0) {
-								add(targetName);
-							}
-						}
-						private void add(char[] targetName) {
-							if (this.targetBuffer.length() != 0) {
-								this.targetBuffer.append(", "); //$NON-NLS-1$
-							}
-							this.targetBuffer.append(targetName);
-						}
-						public String toString() {
-							return this.targetBuffer.toString();
-						}
-						public boolean hasError() {
-							return this.targetBuffer.length() != 0;
-						}
-					}
-					MissingTargetBuilder builder = new MissingTargetBuilder();
+	private static void checkContainerAnnotationTypeTarget(ASTNode culpritNode, Scope scope, ReferenceBinding containerType, ReferenceBinding repeatableAnnotationType) {
+		long tagBits = repeatableAnnotationType.getAnnotationTagBits();
+		if ((tagBits & TagBits.AnnotationTargetMASK) == 0)
+			tagBits = TagBits.SE7AnnotationTargetMASK; // absence of @Target meta-annotation implies all SE7 targets not all targets.
+		
+		long containerAnnotationTypeTypeTagBits = containerType.getAnnotationTagBits();
+		if ((containerAnnotationTypeTypeTagBits & TagBits.AnnotationTargetMASK) == 0)
+			containerAnnotationTypeTypeTagBits = TagBits.SE7AnnotationTargetMASK;
 
-					builder.check(TagBits.AnnotationForType, TypeConstants.TYPE);
-					builder.check(TagBits.AnnotationForField, TypeConstants.UPPER_FIELD);
-					builder.check(TagBits.AnnotationForMethod, TypeConstants.UPPER_METHOD);
-					builder.check(TagBits.AnnotationForParameter, TypeConstants.UPPER_PARAMETER);
-					builder.check(TagBits.AnnotationForConstructor, TypeConstants.UPPER_CONSTRUCTOR);
-					builder.check(TagBits.AnnotationForLocalVariable, TypeConstants.UPPER_LOCAL_VARIABLE);
-					builder.checkAnnotationType(TypeConstants.UPPER_ANNOTATION_TYPE);
-					builder.check(TagBits.AnnotationForPackage, TypeConstants.UPPER_PACKAGE);
-					builder.check(TagBits.AnnotationForTypeParameter, TypeConstants.TYPE_PARAMETER_TARGET);
-					builder.check(TagBits.AnnotationForTypeUse, TypeConstants.TYPE_USE_TARGET);
-					if (builder.hasError()) {
-						repeatableAnnotation.tagAsHavingDefectiveContainerType();
-						scope.problemReporter().repeatableAnnotationTargetMismatch(markerNode, repeatableAnnotation, container, builder.toString());
+		final long targets = tagBits & TagBits.AnnotationTargetMASK;
+		final long containerAnnotationTypeTargets = containerAnnotationTypeTypeTagBits & TagBits.AnnotationTargetMASK;
+
+		if ((containerAnnotationTypeTargets & ~targets) != 0) {
+			class MissingTargetBuilder {
+				StringBuffer targetBuffer = new StringBuffer();
+				void check(long targetMask, char[] targetName) {
+					if ((containerAnnotationTypeTargets & targetMask & ~targets) != 0) {
+						add(targetName);
 					}
 				}
+				void checkAnnotationType(char[] targetName) {
+					if ((containerAnnotationTypeTargets & TagBits.AnnotationForAnnotationType) != 0 &&
+							((targets & (TagBits.AnnotationForAnnotationType | TagBits.AnnotationForType))) == 0) {
+						add(targetName);
+					}
+				}
+				private void add(char[] targetName) {
+					if (this.targetBuffer.length() != 0) {
+						this.targetBuffer.append(", "); //$NON-NLS-1$
+					}
+					this.targetBuffer.append(targetName);
+				}
+				public String toString() {
+					return this.targetBuffer.toString();
+				}
+				public boolean hasError() {
+					return this.targetBuffer.length() != 0;
+				}
+			}
+			MissingTargetBuilder builder = new MissingTargetBuilder();
+
+			builder.check(TagBits.AnnotationForType, TypeConstants.TYPE);
+			builder.check(TagBits.AnnotationForField, TypeConstants.UPPER_FIELD);
+			builder.check(TagBits.AnnotationForMethod, TypeConstants.UPPER_METHOD);
+			builder.check(TagBits.AnnotationForParameter, TypeConstants.UPPER_PARAMETER);
+			builder.check(TagBits.AnnotationForConstructor, TypeConstants.UPPER_CONSTRUCTOR);
+			builder.check(TagBits.AnnotationForLocalVariable, TypeConstants.UPPER_LOCAL_VARIABLE);
+			builder.checkAnnotationType(TypeConstants.UPPER_ANNOTATION_TYPE);
+			builder.check(TagBits.AnnotationForPackage, TypeConstants.UPPER_PACKAGE);
+			builder.check(TagBits.AnnotationForTypeParameter, TypeConstants.TYPE_PARAMETER_TARGET);
+			builder.check(TagBits.AnnotationForTypeUse, TypeConstants.TYPE_USE_TARGET);
+			if (builder.hasError()) {
+				repeatableAnnotationType.tagAsHavingDefectiveContainerType();
+				scope.problemReporter().repeatableAnnotationTargetMismatch(culpritNode, repeatableAnnotationType, containerType, builder.toString());
 			}
 		}
 	}
