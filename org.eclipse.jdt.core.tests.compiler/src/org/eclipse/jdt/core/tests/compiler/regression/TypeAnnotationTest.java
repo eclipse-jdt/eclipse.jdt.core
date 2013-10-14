@@ -6023,6 +6023,41 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"      )\n" + 
 					"}";
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-	}	
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419331, [1.8][compiler] Weird error on forward reference to type annotations from type parameter declarations
+	// ENCODES WRONG BEHAVIOR - FIX TEST ALONG WITH FIX
+	public void testForwardReference() {
+		this.runNegativeTest(
+			new String[] {
+				"T.java",
+				"import java.lang.annotation.Annotation;\n" +
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"\n" +
+				"@R(TC.class)\n" +
+				"@Target(ElementType.TYPE_PARAMETER)\n" +
+				"@interface T {\n" +
+				"}\n" +
+				"\n" +
+				"interface I<@T K> {\n" +
+				"}\n" +
+				"\n" +
+				"@Deprecated\n" +
+				"@interface TC {\n" +
+				"\n" +
+				"}\n" +
+				"\n" +
+				"@Target(ElementType.ANNOTATION_TYPE)\n" +
+				"@interface R {\n" +
+				"    Class<? extends Annotation> value();\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in T.java (at line 5)\n" + 
+			"	@R(TC.class)\n" + 
+			"	   ^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Class<TC> to Class<? extends Annotation>\n" + 
+			"----------\n");
+	}
 }
 
