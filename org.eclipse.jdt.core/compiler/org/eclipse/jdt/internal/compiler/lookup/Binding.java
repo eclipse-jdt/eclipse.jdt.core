@@ -120,6 +120,9 @@ public abstract class Binding {
 	public boolean isVolatile() {
 		return false;
 	}
+	public boolean isTaggedRepeatable() {
+		return false;
+	}
 	public boolean isParameter() {
 		return false;
 	}

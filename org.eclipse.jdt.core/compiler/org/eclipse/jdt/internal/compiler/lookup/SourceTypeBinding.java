@@ -1385,6 +1385,11 @@ public boolean isRepeatableAnnotationType() {
 	if (!isPrototype()) throw new IllegalStateException();
 	return this.containerAnnotationType != null;
 }
+
+public boolean isTaggedRepeatable() {  // tagged but not necessarily repeatable. see isRepeatableAnnotationType.
+	return (this.tagBits & TagBits.AnnotationRepeatable) != 0;
+}
+
 public ReferenceBinding[] memberTypes() {
 	if (!isPrototype()) {
 		if ((this.tagBits & TagBits.HasUnresolvedMemberTypes) == 0)

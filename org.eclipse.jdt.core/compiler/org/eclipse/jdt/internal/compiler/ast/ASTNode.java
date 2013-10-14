@@ -806,7 +806,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		/* See if the recipient is meta-annotated with @Repeatable and if so validate constraints. We can't do this during resolution of @Repeatable itself as @Target and 
 		   @Retention etc could come later
 		*/   
-		if (annotations != null && length > 0 && recipient != null && recipient.isAnnotationType()) {
+		if (recipient != null && recipient.isTaggedRepeatable()) {
 			for (int i = 0; i < length; i++) {
 				Annotation annotation = sourceAnnotations[i];
 				ReferenceBinding annotationType = annotations[i] != null ? annotations[i].getAnnotationType() : null;
