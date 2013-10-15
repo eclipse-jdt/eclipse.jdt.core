@@ -22,6 +22,9 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class ASTRewriteFlattener extends ASTVisitor {
 
 	/** @deprecated using deprecated code */
+	private static final ChildPropertyDescriptor INTERNAL_ARRAY_COMPONENT_TYPE_PROPERTY = ArrayType.COMPONENT_TYPE_PROPERTY;
+
+	/** @deprecated using deprecated code */
 	private static final SimplePropertyDescriptor INTERNAL_FIELD_MODIFIERS_PROPERTY = FieldDeclaration.MODIFIERS_PROPERTY;
 
 	/** @deprecated using deprecated code */
@@ -238,16 +241,16 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		// get the element type and count dimensions
 		Type elementType;
 		int dimensions;
-		boolean astLevelGTE8 = node.getAST().apiLevel() >= AST.JLS8 ? true : false;
+		boolean astLevelGTE8 = node.getAST().apiLevel() >= AST.JLS8;
 		if (astLevelGTE8) {
 			elementType = (Type) getChildNode(arrayType, ArrayType.ELEMENT_TYPE_PROPERTY);
 			dimensions = getChildList(arrayType, ArrayType.DIMENSIONS_PROPERTY).size();
 		} else {
-			elementType = (Type) getChildNode(arrayType, ArrayType.COMPONENT_TYPE_PROPERTY);
+			elementType = (Type) getChildNode(arrayType, INTERNAL_ARRAY_COMPONENT_TYPE_PROPERTY);
 			dimensions = 1; // always include this array type
 			while (elementType.isArrayType()) {
 				dimensions++;
-				elementType = (Type) getChildNode(elementType, ArrayType.COMPONENT_TYPE_PROPERTY);
+				elementType = (Type) getChildNode(elementType, INTERNAL_ARRAY_COMPONENT_TYPE_PROPERTY);
 			}
 		}
 
@@ -297,7 +300,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 */
 	public boolean visit(ArrayType node) {
 		if (node.getAST().apiLevel() < AST.JLS8) {
-			getChildNode(node, ArrayType.COMPONENT_TYPE_PROPERTY).accept(this);
+			getChildNode(node, INTERNAL_ARRAY_COMPONENT_TYPE_PROPERTY).accept(this);
 			this.result.append("[]"); //$NON-NLS-1$
 		} else {
 			getChildNode(node, ArrayType.ELEMENT_TYPE_PROPERTY).accept(this);

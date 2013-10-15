@@ -21,15 +21,27 @@ import java.util.List;
 /**
  * Type node for an array type.
  * <p>
- * Array types are expressed in a recursive manner, one dimension at a time. From JLS8 onwards,
- * instead of this recursive manner, arrays are represented by a base element type (which cannot
- * be an Array type) and a list of dimensions each of which may have a list of annotations.
+ * In JLS8 and later, array types are represented by a base element type (which cannot
+ * be an array type) and a list of dimensions, each of which may have a list of annotations.
  * </p>
  * <pre>
  * ArrayType: 
- *    Type ExtraDimension { ExtraDimension }
+ *    Type ExtraDimension <b>{</b> ExtraDimension <b>}</b>
  * </pre>
+ * 
+ * In JLS4 and before, array types were expressed in a recursive manner, one dimension at a time:
+ * <pre>
+ * ArrayType:
+ *    Type <b>[</b> <b>]</b></pre>
  *
+ * This structure became untenable with the advent of type-use annotations, because
+ * array dimensions bind from left to right, whereas a recursive structure binds from right to left.
+ * <p>
+ * Example:<br>
+ * <code>int @A[] @B[] @C[]</code><br>
+ * is an <code>@A</code>-array of <code>int @B[] @C[]</code>,
+ * but such a component type is not representable by nested <code>ArrayType</code>s with contiguous source ranges.
+ * 
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
@@ -37,7 +49,7 @@ public class ArrayType extends Type {
 
 	/**
 	 * The "componentType" structural property of this node type (child type: {@link Type}).
-	 * Not supported from JLS8 onwards.
+	 * @deprecated In the JLS8 API, this property is replaced by {@link #ELEMENT_TYPE_PROPERTY} and {@link #DIMENSIONS_PROPERTY}.
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor COMPONENT_TYPE_PROPERTY =
@@ -45,6 +57,7 @@ public class ArrayType extends Type {
 
 	/**
 	 * The "elementType" structural property of this node type (child type: {@link Type}) (added in JLS8 API).
+	 * Cannot be an array type.
 	 * @since 3.9 BETA_JAVA8
 	 */
 	public static final ChildPropertyDescriptor ELEMENT_TYPE_PROPERTY =
@@ -106,13 +119,13 @@ public class ArrayType extends Type {
 	}
 
 	/**
-	 * The component type; lazily initialized; defaults to a simple type with
-	 * an unspecified, but legal, name. reused for element type from JLS8 onwards.
+	 * The element type (before JLS8: component type); lazily initialized; defaults to a simple type with
+	 * an unspecified, but legal, name.
 	 */
-	private Type componentType = null;
+	private Type type = null;
 
 	/**
-	 * List of extra dimensions this node has with optional annotations
+	 * List of dimensions this node has with optional annotations
 	 * (element type: {@link ExtraDimension}).
 	 * Null before JLS8. Added in JLS8; defaults to a list with one element
 	 * (see constructor).
@@ -255,25 +268,27 @@ public class ArrayType extends Type {
 	 * may be another array type.
 	 *
 	 * @return the component type node
-	 * @deprecated from JLS8 and later, the recursive structure is not valid
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than JLS4
+	 * @deprecated In the JLS8 API, the recursive structure is not valid.
 	 */
 	public Type getComponentType() {
 		supportedOnlyIn2_3_4();
-		return internalGetComponentType(COMPONENT_TYPE_PROPERTY);
+		return internalGetType(COMPONENT_TYPE_PROPERTY);
 	}
 
-	private Type internalGetComponentType(ChildPropertyDescriptor property) {
-		if (this.componentType == null) {
+	private Type internalGetType(ChildPropertyDescriptor property) {
+		if (this.type == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
-				if (this.componentType == null) {
+				if (this.type == null) {
 					preLazyInit();
-					this.componentType = new SimpleType(this.ast);
-					postLazyInit(this.componentType, property);
+					this.type = new SimpleType(this.ast);
+					postLazyInit(this.type, property);
 				}
 			}
 		}
-		return this.componentType;
+		return this.type;
 	}
 
 	/**
@@ -287,30 +302,31 @@ public class ArrayType extends Type {
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
-	 * @deprecated from JLS8 and later, the recursive structure is not valid
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than JLS4
+	 * @deprecated In the JLS8 API, the recursive structure is not valid.
 	 */
 	public void setComponentType(Type componentType) {
 		supportedOnlyIn2_3_4();
 		if (componentType == null) {
 			throw new IllegalArgumentException();
 		}
-		internalSetComponentType(componentType, COMPONENT_TYPE_PROPERTY);
+		internalSetType(componentType, COMPONENT_TYPE_PROPERTY);
 	}
 
-	private void internalSetComponentType(Type type, ChildPropertyDescriptor property) {
-		ASTNode oldChild = this.componentType;
-		preReplaceChild(oldChild, type, property);
-		this.componentType = type;
-		postReplaceChild(oldChild, type, property);
+	private void internalSetType(Type componentType, ChildPropertyDescriptor property) {
+		ASTNode oldChild = this.type;
+		preReplaceChild(oldChild, componentType, property);
+		this.type = componentType;
+		postReplaceChild(oldChild, componentType, property);
 	}
 
 	/**
 	 * Returns the element type of this array type. The element type is
 	 * never an array type.
 	 * <p>
-	 * This is a convenience method that descends a chain of nested array types
-	 * until it reaches a non-array type until JLS4. From JLS8 and later, this returns the
-	 * element type directly.
+	 * In JLS4 and earlier, this is a convenience method that descends a chain of nested array types
+	 * until it reaches a non-array type.
 	 * </p>
 	 *
 	 * @return the element type node
@@ -323,7 +339,7 @@ public class ArrayType extends Type {
 			}
 			return t;
 		}
-		return internalGetComponentType(ELEMENT_TYPE_PROPERTY);
+		return internalGetType(ELEMENT_TYPE_PROPERTY);
 	}
 
 	/**
@@ -336,21 +352,22 @@ public class ArrayType extends Type {
 	 * <li>the node already has a parent</li>
 	 * <li>the node is an array type</li>
 	 * </ul>
+	 * @exception UnsupportedOperationException if this operation is used below JLS8
 	 * @since 3.9 BETA_JAVA8
 	 */
 	public void setElementType(Type type) {
+		unsupportedIn2_3_4();
 		if (type == null || type instanceof ArrayType) {
 			throw new IllegalArgumentException();
 		}
-		internalSetComponentType(type, ELEMENT_TYPE_PROPERTY);
+		internalSetType(type, ELEMENT_TYPE_PROPERTY);
 	}
 
 	/**
 	 * Returns the number of dimensions in this array type.
 	 * <p>
-	 * This is a convenience method that descends a chain of nested array types
-	 * until it reaches a non-array type (until JLS4). From JLS8 onwards, 
-	 * this returns the size of the dimensions list.
+	 * In JLS4 and earlier, this is a convenience method that descends a chain of nested array types
+	 * until it reaches a non-array type.
 	 * </p>
 	 *
 	 * @return the number of dimensions (always positive)
@@ -366,26 +383,6 @@ public class ArrayType extends Type {
 			t = ((ArrayType) t).getComponentType();
 		}
 		return dimension;			
-	}
-
-	/**
-	 * Returns the dimension d in this array type.
-	 * <p>
-	 * This is a convenience method that returns the dimension at the given number d.
-	 * </p>
-	 * @param d dimension no
-	 * @return Dimension at number d, null if d out of range
-	 * 
-	 * @since 3.9 BETA_JAVA8
-	 */
-	public ExtraDimension getDimensionAt(int d) {
-		unsupportedIn2_3_4();
-		ExtraDimension extraDimension = null;
-		int n = getDimensions() - 1;
-		if (d >= 0 && d <= n) {
-			extraDimension = (ExtraDimension) dimensions().get(n - d);
-		}
-		return extraDimension;
 	}
 
 	/**
@@ -416,7 +413,7 @@ public class ArrayType extends Type {
 	int treeSize() {
 		return
 			memSize()
-			+ (this.componentType == null ? 0 : (this.ast.apiLevel() < AST.JLS8 ? getComponentType().treeSize() : getElementType().treeSize())
+			+ (this.type == null ? 0 : (this.ast.apiLevel() < AST.JLS8 ? getComponentType().treeSize() : getElementType().treeSize())
 			+ (this.dimensions == null ? 0 : this.dimensions.listSize()));
 	}
 }

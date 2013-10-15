@@ -60,6 +60,7 @@ import org.eclipse.jdt.core.tests.model.ModifyingResourceTests;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.core.dom.SourceRangeVerifier;
 
 public class AbstractASTTests extends ModifyingResourceTests implements DefaultMarkedNodeLabelProviderOptions {
 
@@ -88,6 +89,13 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		super(name);
 	}
 
+	public void setUpSuite() throws Exception {
+		super.setUpSuite();
+		
+		SourceRangeVerifier.DEBUG = true;
+		SourceRangeVerifier.DEBUG_THROW = true;
+	}
+	
 	/*
 	 * Removes the *start* and *end* markers from the given source
 	 * and remembers the positions.

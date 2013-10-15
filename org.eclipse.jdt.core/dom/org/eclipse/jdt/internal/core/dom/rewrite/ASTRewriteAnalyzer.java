@@ -65,6 +65,9 @@ import org.eclipse.text.edits.TextEditGroup;
 public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 	/** @deprecated using deprecated code */
+	private static final ChildPropertyDescriptor INTERNAL_ARRAY_COMPONENT_TYPE_PROPERTY = ArrayType.COMPONENT_TYPE_PROPERTY;
+
+	/** @deprecated using deprecated code */
 	private static final SimplePropertyDescriptor INTERNAL_FIELD_MODIFIERS_PROPERTY = FieldDeclaration.MODIFIERS_PROPERTY;
 
 	/** @deprecated using deprecated code */
@@ -2204,9 +2207,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (parent.getAST().apiLevel() >= AST.JLS8) {
 			return (Type) getOriginalValue(parent, ArrayType.ELEMENT_TYPE_PROPERTY);
 		}
-		Type t = (Type) getOriginalValue(parent, ArrayType.COMPONENT_TYPE_PROPERTY);
+		Type t = (Type) getOriginalValue(parent, INTERNAL_ARRAY_COMPONENT_TYPE_PROPERTY);
 		while (t.isArrayType()) {
-			t = (Type) getOriginalValue(t, ArrayType.COMPONENT_TYPE_PROPERTY);
+			t = (Type) getOriginalValue(t, INTERNAL_ARRAY_COMPONENT_TYPE_PROPERTY);
 		}
 		return t;
 	}
@@ -2215,11 +2218,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (parent.getAST().apiLevel() >= AST.JLS8) {
 			return ((List) getOriginalValue(parent, ArrayType.DIMENSIONS_PROPERTY)).size();
 		}
-		Type t = (Type) getOriginalValue(parent, ArrayType.COMPONENT_TYPE_PROPERTY);
+		Type t = (Type) getOriginalValue(parent, INTERNAL_ARRAY_COMPONENT_TYPE_PROPERTY);
 		int dimensions = 1; // always include this array type
 		while (t.isArrayType()) {
 			dimensions++;
-			t = (Type) getOriginalValue(t, ArrayType.COMPONENT_TYPE_PROPERTY);
+			t = (Type) getOriginalValue(t, INTERNAL_ARRAY_COMPONENT_TYPE_PROPERTY);
 		}
 		return dimensions;
 	}
@@ -2247,7 +2250,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 		if (node.getAST().apiLevel() < AST.JLS8) {
-			rewriteRequiredNode(node, ArrayType.COMPONENT_TYPE_PROPERTY);
+			rewriteRequiredNode(node, INTERNAL_ARRAY_COMPONENT_TYPE_PROPERTY);
 		} else {
 			int pos = rewriteRequiredNode(node, ArrayType.ELEMENT_TYPE_PROPERTY);
 			rewriteNodeList(node, ArrayType.DIMENSIONS_PROPERTY, pos, Util.EMPTY_STRING, " "); //$NON-NLS-1$

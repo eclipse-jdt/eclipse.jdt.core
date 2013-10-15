@@ -30,11 +30,11 @@ package org.eclipse.jdt.core.dom;
  * Type:
  *    AnnotatableType:
  *       PrimitiveType
- *       ArrayType
  *       SimpleType
  *       QualifiedType
  *       PackageQualifiedType
  *       WildcardType
+ *    ArrayType
  *    ParameterizedType
  *    UnionType
  *    IntersectionType
@@ -50,7 +50,7 @@ package org.eclipse.jdt.core.dom;
  *    { Annotation } <b>boolean</b>
  *    { Annotation } <b>void</b>
  * {@link ArrayType}:
- *    Type { Annotation } <b>'['</b> <b>']'</b>
+ *    Type ExtraDimension <b>{</b> ExtraDimension <b>}</b>
  * {@link SimpleType}:
  *    { Annotation } TypeName
  * {@link QualifiedType}:

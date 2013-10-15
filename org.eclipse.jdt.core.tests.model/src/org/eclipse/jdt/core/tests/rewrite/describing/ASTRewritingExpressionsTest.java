@@ -263,7 +263,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 			memberValuePair.setName(ast.newSimpleName("v"));
 			memberValuePair.setValue(ast.newNumberLiteral("99"));
 			annotationC.values().add(memberValuePair);
-			ExtraDimension dim0 = arrayType.getDimensionAt(0);
+			ExtraDimension dim0 = (ExtraDimension) arrayType.dimensions().get(0);
 			dim0.annotations().add(annotationC);
 			
 			SingleMemberAnnotation annotationB= ast.newSingleMemberAnnotation();

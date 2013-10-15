@@ -926,17 +926,20 @@ class ASTConverter {
 		 * See PR http://bugs.eclipse.org/bugs/show_bug.cgi?id=23284
 		 */
 		if (isVarArgs) {
+			ExtraDimension lastDimension = null;
+			if (this.ast.apiLevel() >= AST.JLS8) {
+				if (type.isArrayType()) { // should always be true
+					List dimensions = ((ArrayType) type).dimensions();
+					if (!dimensions.isEmpty()) {
+						lastDimension = (ExtraDimension) dimensions.get(dimensions.size() - 1);
+					}
+				}
+			}
 			setTypeForSingleVariableDeclaration(variableDecl, type, extraDimensions + 1);
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391898
 			if (this.ast.apiLevel() >= AST.JLS8) {
-				List annotations  = null;
-				if (type.isAnnotatable()) {
-					annotations = ((AnnotatableType) type).annotations();
-				} else if (type.isArrayType()) {
-					ArrayType arrayType = (ArrayType) type;
-					annotations = arrayType.dimensions().isEmpty() ? null : ((arrayType.getDimensionAt(0)).annotations());
-				}
-				if (annotations != null) {
+				if (lastDimension != null) { // should always be true
+					List annotations = lastDimension.annotations();
 					Iterator iter = annotations.iterator();
 					while (iter.hasNext()) {
 						Annotation annotation = (Annotation) iter.next();

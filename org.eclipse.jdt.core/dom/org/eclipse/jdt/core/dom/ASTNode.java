@@ -1229,11 +1229,15 @@ public abstract class ASTNode {
 	private StructuralPropertyDescriptor location = null;
 
 	/** Internal convenience constant indicating that there is definite risk of cycles.
+	 * @see ChildPropertyDescriptor#cycleRisk()
+	 * @see ChildListPropertyDescriptor#cycleRisk()
 	 * @since 3.0
 	 */
 	static final boolean CYCLE_RISK = true;
 
 	/** Internal convenience constant indicating that there is no risk of cycles.
+	 * @see ChildPropertyDescriptor#cycleRisk()
+	 * @see ChildListPropertyDescriptor#cycleRisk()
 	 * @since 3.0
 	 */
 	static final boolean NO_CYCLE_RISK = false;
