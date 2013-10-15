@@ -1516,6 +1516,9 @@ void updateMaxFieldCount() {
 	}
 }
 
+public boolean isPackageInfo() {
+	return CharOperation.equals(this.name,  TypeConstants.PACKAGE_INFO_NAME);
+}
 /**
  * Returns whether the type is a secondary one or not.
  */

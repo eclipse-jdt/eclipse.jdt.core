@@ -6059,5 +6059,75 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"Type mismatch: cannot convert from Class<TC> to Class<? extends Annotation>\n" + 
 			"----------\n");
 	}
+	public void testHybridTargets() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"@Target({ElementType.TYPE_USE, ElementType.PACKAGE})\n" +
+				"@interface T {\n" +
+				"}\n" +
+				"@T\n" +
+				"public class X {\n" +
+				"    @T\n" +
+				"    X() {}\n" +
+				"    @T String x;\n" +
+				"    @T \n" +
+				"	int foo(@T int p) { \n" +
+				"      @T int l;\n" +
+				"	   return 0;\n" +
+				"   }\n" +
+				"}\n",
+			},
+			"");
+		String expectedOutput =
+				"  // Field descriptor #6 Ljava/lang/String;\n" + 
+				"  java.lang.String x;\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #8 @T(\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Method descriptor #10 ()V\n" + 
+				"  // Stack: 1, Locals: 1\n" + 
+				"  X();\n" + 
+				"    0  aload_0 [this]\n" + 
+				"    1  invokespecial java.lang.Object() [12]\n" + 
+				"    4  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 9]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #8 @T(\n" + 
+				"        target type = 0x14 METHOD_RETURN\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Method descriptor #19 (I)I\n" + 
+				"  // Stack: 1, Locals: 2\n" + 
+				"  int foo(int p);\n" + 
+				"    0  iconst_0\n" + 
+				"    1  ireturn\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 14]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 2] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 2] local: p index: 1 type: int\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #8 @T(\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"      )\n" + 
+				"      #8 @T(\n" + 
+				"        target type = 0x14 METHOD_RETURN\n" + 
+				"      )\n" + 
+				"\n" + 
+				"  RuntimeInvisibleAnnotations: \n" + 
+				"    #8 @T(\n" + 
+				"    )\n" + 
+				"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}	
 }
 

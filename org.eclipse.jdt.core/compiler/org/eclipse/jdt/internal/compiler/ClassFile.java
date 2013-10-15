@@ -361,7 +361,14 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (typeDeclaration != null) {
 				final Annotation[] annotations = typeDeclaration.annotations;
 				if (annotations != null) {
-					attributesNumber += generateRuntimeAnnotations(annotations, true);
+					long targetMask;
+					if (typeDeclaration.isPackageInfo())
+						targetMask = TagBits.AnnotationForPackage;
+					else if (this.referenceBinding.isAnnotationType())
+						targetMask = TagBits.AnnotationForAnnotationType;
+					else
+						targetMask = TagBits.AnnotationForType | TagBits.AnnotationForTypeUse;
+					attributesNumber += generateRuntimeAnnotations(annotations, targetMask); 
 				}
 			}
 		}
@@ -457,7 +464,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (fieldDeclaration != null) {
 				Annotation[] annotations = fieldDeclaration.annotations;
 				if (annotations != null) {
-					attributesNumber += generateRuntimeAnnotations(annotations, false);
+					attributesNumber += generateRuntimeAnnotations(annotations, TagBits.AnnotationForField);
 				}
 
 				if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
@@ -3193,7 +3200,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (methodDeclaration != null) {
 				Annotation[] annotations = methodDeclaration.annotations;
 				if (annotations != null) {
-					attributesNumber += generateRuntimeAnnotations(annotations, false);
+					attributesNumber += generateRuntimeAnnotations(annotations, methodBinding.isConstructor() ? TagBits.AnnotationForConstructor : TagBits.AnnotationForMethod);
 				}
 				if ((methodBinding.tagBits & TagBits.HasParameterAnnotations) != 0) {
 					Argument[] arguments = methodDeclaration.arguments;
@@ -3397,10 +3404,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 	/**
 	 * @param annotations
-	 * @param includeTypeUseAnnotations Used to support JSR308 Section 2.3 special allowance for TYPE_USE annotation used on a type declaration
+	 * @param targetMask allowed targets
 	 * @return the number of attributes created while dumping the annotations in the .class file
 	 */
-	private int generateRuntimeAnnotations(final Annotation[] annotations, final boolean includeTypeUseAnnotations) {
+	private int generateRuntimeAnnotations(final Annotation[] annotations, final long targetMask) {
 		int attributesNumber = 0;
 		final int length = annotations.length;
 		int visibleAnnotationsCounter = 0;
@@ -3408,9 +3415,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 		for (int i = 0; i < length; i++) {
 			Annotation annotation;
 			if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
-			if (annotation.isRuntimeInvisible() || (includeTypeUseAnnotations && annotation.isRuntimeTypeInvisible())) {
+			long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
+			if (annotationMask != 0 && (annotationMask & targetMask) == 0) continue;
+			if (annotation.isRuntimeInvisible() || annotation.isRuntimeTypeInvisible()) {
 				invisibleAnnotationsCounter++;
-			} else if (annotation.isRuntimeVisible() || (includeTypeUseAnnotations && annotation.isRuntimeTypeVisible())) {
+			} else if (annotation.isRuntimeVisible() || annotation.isRuntimeTypeVisible()) {
 				visibleAnnotationsCounter++;
 			}
 		}
@@ -3437,10 +3446,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 				if (invisibleAnnotationsCounter == 0) break loop;
 				Annotation annotation;
 				if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
-				if (annotation.isRuntimeInvisible() || 
-						// No need to explicitly check it is type_use and not type_parameter, 
-						// that will already have been checked
-						(includeTypeUseAnnotations && annotation.isRuntimeTypeInvisible())) {
+				long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
+				if (annotationMask != 0 && (annotationMask & targetMask) == 0) continue;
+				if (annotation.isRuntimeInvisible() || annotation.isRuntimeTypeInvisible()) {
 					int currentAnnotationOffset = this.contentsOffset;
 					generateAnnotation(annotation, currentAnnotationOffset);
 					invisibleAnnotationsCounter--;
@@ -3488,10 +3496,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 				if (visibleAnnotationsCounter == 0) break loop;
 				Annotation annotation;
 				if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
-				if (annotation.isRuntimeVisible() || 
-					// No need to explicitly check it is type_use and not type_parameter, 
-					// that will already have been checked
-					(includeTypeUseAnnotations && annotation.isRuntimeTypeVisible())) {
+				long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
+				if (annotationMask != 0 && (annotationMask & targetMask) == 0) continue;
+				if (annotation.isRuntimeVisible() || annotation.isRuntimeTypeVisible()) {
 					visibleAnnotationsCounter--;
 					int currentAnnotationOffset = this.contentsOffset;
 					generateAnnotation(annotation, currentAnnotationOffset);
@@ -3532,6 +3539,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				for (int j = 0, max2 = annotations.length; j < max2; j++) {
 					Annotation annotation;
 					if ((annotation = annotations[j].getPersistibleAnnotation()) == null) continue; // already packaged into container.
+					long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
+					if (annotationMask != 0 && (annotationMask & TagBits.AnnotationForParameter) == 0) continue;
 					if (annotation.isRuntimeInvisible()) {
 						annotationsCounters[i][INVISIBLE_INDEX]++;
 						invisibleParametersAnnotationsCounter++;
@@ -3576,6 +3585,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 						for (int j = 0, max = annotations.length; j < max; j++) {
 							Annotation annotation;
 							if ((annotation = annotations[j].getPersistibleAnnotation()) == null) continue; // already packaged into container.
+							long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
+							if (annotationMask != 0 && (annotationMask & TagBits.AnnotationForParameter) == 0) continue;
 							if (annotation.isRuntimeInvisible()) {
 								int currentAnnotationOffset = this.contentsOffset;
 								generateAnnotation(annotation, currentAnnotationOffset);
@@ -3635,6 +3646,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 						for (int j = 0, max = annotations.length; j < max; j++) {
 							Annotation annotation;
 							if ((annotation = annotations[j].getPersistibleAnnotation()) == null) continue; // already packaged into container.
+							long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
+							if (annotationMask != 0 && (annotationMask & TagBits.AnnotationForParameter) == 0) continue;
 							if (annotation.isRuntimeVisible()) {
 								int currentAnnotationOffset = this.contentsOffset;
 								generateAnnotation(annotation, currentAnnotationOffset);
