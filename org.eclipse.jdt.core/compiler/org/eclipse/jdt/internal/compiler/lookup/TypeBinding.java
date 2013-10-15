@@ -79,11 +79,9 @@ abstract public class TypeBinding extends Binding {
 	public final static BaseTypeBinding BOOLEAN = new BaseTypeBinding(
 			TypeIds.T_boolean, TypeConstants.BOOLEAN, new char[] { 'Z' });
 
-	public final static BaseTypeBinding NULL = new BaseTypeBinding(
-			TypeIds.T_null, TypeConstants.NULL, new char[] { 'N' }); //N stands for null even if it is never internally used
+	public final static NullTypeBinding NULL = new NullTypeBinding();
 
-	public final static BaseTypeBinding VOID = new BaseTypeBinding(
-			TypeIds.T_void, TypeConstants.VOID, new char[] { 'V' });
+	public final static VoidTypeBinding VOID = new VoidTypeBinding();
 
 
 public TypeBinding() {

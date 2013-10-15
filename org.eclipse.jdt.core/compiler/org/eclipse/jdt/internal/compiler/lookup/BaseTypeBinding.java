@@ -19,7 +19,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
-public final class BaseTypeBinding extends TypeBinding {
+public class BaseTypeBinding extends TypeBinding {
 
 	public static final int[] CONVERSIONS;
 	public static final int IDENTITY = 1;
@@ -151,8 +151,6 @@ public final class BaseTypeBinding extends TypeBinding {
 	}
 
 	public TypeBinding clone(TypeBinding enclosingType) {
-		if (this.id == TypeIds.T_void || this.id == TypeIds.T_null)
-			return this;
 		return new BaseTypeBinding(this.id, this.simpleName, this.constantPoolName);
 	}
 	
@@ -175,8 +173,6 @@ public final class BaseTypeBinding extends TypeBinding {
 	}
 	
 	public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
-		if (this.id == TypeIds.T_void || this.id == TypeIds.T_null) // reject misguided attempt.
-			return;
 		super.setTypeAnnotations(annotations, false); // never set nullTagBits on base types
 	}
 
