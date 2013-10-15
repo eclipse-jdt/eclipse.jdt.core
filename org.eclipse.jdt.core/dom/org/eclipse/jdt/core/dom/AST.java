@@ -1192,7 +1192,7 @@ public final class AST {
 		result.setElementType(elementType);
 		// index starting from 1 since there is a dimension already available by default.
 		for (int i = 1; i < dimensions; ++i) {
-			result.dimensions().add(new ExtraDimension(this));
+			result.dimensions().add(new Dimension(this));
 		}
 		return result;
 
@@ -1501,10 +1501,10 @@ public final class AST {
 	}
 
 	/**
-	 * Creates and returns a new unparented annotatable extra dimension node
+	 * Creates and returns a new unparented annotatable dimension node
 	 * (Supported only in JLS8 level).
 	 *
-	 * @return a new unparented annotatable extra dimension node
+	 * @return a new unparented annotatable dimension node
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
@@ -1514,8 +1514,8 @@ public final class AST {
 	 *            in a JLS2, JLS3 or JLS4 AST
 	 * @since 3.9 BETA_JAVA8
 	 */
-	public ExtraDimension newExtraDimension() {
-		ExtraDimension result = new ExtraDimension(this);
+	public Dimension newDimension() {
+		Dimension result = new Dimension(this);
 		return result;
 	}
 

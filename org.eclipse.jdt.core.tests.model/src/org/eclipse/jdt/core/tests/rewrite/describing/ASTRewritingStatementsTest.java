@@ -40,7 +40,7 @@ import org.eclipse.jdt.core.dom.ContinueStatement;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.ExtraDimension;
+import org.eclipse.jdt.core.dom.Dimension;
 import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
@@ -103,7 +103,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			node.setExtraDimensions(dimensions);
 		} else {
 			while (dimensions > 0) {
-				node.extraDimensions().add(node.getAST().newExtraDimension());
+				node.extraDimensions().add(node.getAST().newDimension());
 			}
 		}
 	}
@@ -5942,15 +5942,15 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			ArrayCreation creation = (ArrayCreation) fragment.getInitializer();
 
 			ListRewrite listRewrite= rewrite.getListRewrite(fragment, VariableDeclarationFragment.EXTRA_DIMENSIONS2_PROPERTY);
-			ExtraDimension dim= ast.newExtraDimension();
+			Dimension dim= ast.newDimension();
 			MarkerAnnotation markerAnnotation;
 			listRewrite.insertFirst(dim, null);
 
 			ArrayType creationType = creation.getType();
 			ArrayType newArrayType = (ArrayType) ASTNode.copySubtree(ast, creationType);
-			newArrayType.dimensions().add(ast.newExtraDimension());
+			newArrayType.dimensions().add(ast.newDimension());
 			
-			ExtraDimension dim0 = ast.newExtraDimension();
+			Dimension dim0 = ast.newDimension();
 			markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot3"));
 			dim0.annotations().add(markerAnnotation);
@@ -5981,18 +5981,18 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			Expression exp = (Expression) expressions.get(1);
 			listRewrite.remove(exp, null);
 
-			ExtraDimension dim = (ExtraDimension) creationType.dimensions().get(0);
-			listRewrite = rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			Dimension dim = (Dimension) creationType.dimensions().get(0);
+			listRewrite = rewrite.getListRewrite(dim, Dimension.ANNOTATIONS_PROPERTY);
 			MarkerAnnotation annotation = (MarkerAnnotation) dim.annotations().get(0);
 			listRewrite.remove(annotation, null);
 
-			dim = (ExtraDimension) creationType.dimensions().get(1);
-			listRewrite = rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			dim = (Dimension) creationType.dimensions().get(1);
+			listRewrite = rewrite.getListRewrite(dim, Dimension.ANNOTATIONS_PROPERTY);
 			annotation = (MarkerAnnotation) dim.annotations().get(1);
 			listRewrite.remove(annotation, null);
 
-			dim = (ExtraDimension) creationType.dimensions().get(2);
-			listRewrite = rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			dim = (Dimension) creationType.dimensions().get(2);
+			listRewrite = rewrite.getListRewrite(dim, Dimension.ANNOTATIONS_PROPERTY);
 			annotation = (MarkerAnnotation) dim.annotations().get(1);
 			listRewrite.remove(annotation, null);
 
@@ -6000,22 +6000,22 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 			creation = (ArrayCreation) fragment.getInitializer();
 			creationType = creation.getType();
-			dim = (ExtraDimension) creationType.dimensions().get(0);
-			listRewrite = rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			dim = (Dimension) creationType.dimensions().get(0);
+			listRewrite = rewrite.getListRewrite(dim, Dimension.ANNOTATIONS_PROPERTY);
 			annotation = (MarkerAnnotation) dim.annotations().get(1);
 			listRewrite.remove(annotation, null);
 			annotation = (MarkerAnnotation) dim.annotations().get(0);
 			listRewrite.remove(annotation, null);
 
-			dim = (ExtraDimension) creationType.dimensions().get(1);
-			listRewrite = rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			dim = (Dimension) creationType.dimensions().get(1);
+			listRewrite = rewrite.getListRewrite(dim, Dimension.ANNOTATIONS_PROPERTY);
 			annotation = (MarkerAnnotation) dim.annotations().get(1);
 			listRewrite.remove(annotation, null);
 			annotation = (MarkerAnnotation) dim.annotations().get(0);
 			listRewrite.remove(annotation, null);
 
-			dim = (ExtraDimension) creationType.dimensions().get(2);
-			listRewrite = rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			dim = (Dimension) creationType.dimensions().get(2);
+			listRewrite = rewrite.getListRewrite(dim, Dimension.ANNOTATIONS_PROPERTY);
 			annotation = (MarkerAnnotation) dim.annotations().get(1);
 			listRewrite.remove(annotation, null);
 			annotation = (MarkerAnnotation) dim.annotations().get(0);
@@ -6090,8 +6090,8 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			ArrayCreation creation = (ArrayCreation) fragment.getInitializer();
 
 			ArrayType arrayType = creation.getType();
-			ExtraDimension dim = (ExtraDimension) arrayType.dimensions().get(1);
-			ListRewrite listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			Dimension dim = (Dimension) arrayType.dimensions().get(1);
+			ListRewrite listRewrite= rewrite.getListRewrite(dim, Dimension.ANNOTATIONS_PROPERTY);
 			listRewrite.remove((ASTNode)dim.annotations().get(0), null);
 			listRewrite.remove((ASTNode)dim.annotations().get(1), null);
 			rewrite.set(creation, ArrayCreation.TYPE_PROPERTY, arrayType, null);

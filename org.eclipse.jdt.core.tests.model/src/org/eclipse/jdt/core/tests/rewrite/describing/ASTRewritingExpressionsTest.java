@@ -263,19 +263,19 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 			memberValuePair.setName(ast.newSimpleName("v"));
 			memberValuePair.setValue(ast.newNumberLiteral("99"));
 			annotationC.values().add(memberValuePair);
-			ExtraDimension dim0 = (ExtraDimension) arrayType.dimensions().get(0);
+			Dimension dim0 = (Dimension) arrayType.dimensions().get(0);
 			dim0.annotations().add(annotationC);
 			
 			SingleMemberAnnotation annotationB= ast.newSingleMemberAnnotation();
 			annotationB.setTypeName(ast.newSimpleName("B"));
 			annotationB.setValue(ast.newNumberLiteral("0"));
-			ExtraDimension dim1 = ast.newExtraDimension();
+			Dimension dim1 = ast.newDimension();
 			dim1.annotations().add(annotationB);
 			arrayType.dimensions().add(0, dim1);
 			
 			MarkerAnnotation annotationA= ast.newMarkerAnnotation();
 			annotationA.setTypeName(ast.newSimpleName("A"));
-			ExtraDimension dim2 = ast.newExtraDimension();
+			Dimension dim2 = ast.newDimension();
 			dim2.annotations().add(annotationA);
 			arrayType.dimensions().add(0, dim2);
 			

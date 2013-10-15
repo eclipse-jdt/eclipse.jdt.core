@@ -27,7 +27,7 @@ import org.eclipse.jdt.core.dom.AnnotatableType;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.ExtraDimension;
+import org.eclipse.jdt.core.dom.Dimension;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleType;
@@ -141,13 +141,13 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		List dimensions = type.dimensions();
 		assertEquals(2, dimensions.size());
 		
-		ExtraDimension dimension = (ExtraDimension) dimensions.get(0);
+		Dimension dimension = (Dimension) dimensions.get(0);
 		List annotations = dimension.annotations();
 		assertEquals("Wrong number of annotations", 1, annotations.size());
 		Annotation annotation = (Annotation) annotations.get(0);
 		checkSourceRange(annotation, "@B()", contents);
 		
-		dimension = (ExtraDimension) dimensions.get(1);
+		dimension = (Dimension) dimensions.get(1);
 		annotations = dimension.annotations();
 		assertEquals("Wrong number of annotations", 1, annotations.size());
 		annotation = (Annotation) annotations.get(0);
@@ -1190,12 +1190,12 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		Type type = creation.getType();
 		assertEquals("Incorrect type", true, type.isArrayType());
 		checkSourceRange(type, "@Marker2 int @Marker @Marker2 [2] @Marker2 @Marker3 [bar()] @Marker3 @Marker []", contents.toCharArray());
-		ExtraDimension extraDimension = (ExtraDimension) ((ArrayType) type).dimensions().get(2);
-		assertEquals("Incorrect annotations", "@Marker3 @Marker ", convertAnnotationsList(extraDimension.annotations()));
-		extraDimension = (ExtraDimension) ((ArrayType) type).dimensions().get(1);
-		assertEquals("Incorrect annotations", "@Marker2 @Marker3 ", convertAnnotationsList(extraDimension.annotations()));
-		extraDimension = (ExtraDimension) ((ArrayType) type).dimensions().get(0);
-		assertEquals("Incorrect annotations", "@Marker @Marker2 ", convertAnnotationsList(extraDimension.annotations()));
+		Dimension dimension = (Dimension) ((ArrayType) type).dimensions().get(2);
+		assertEquals("Incorrect annotations", "@Marker3 @Marker ", convertAnnotationsList(dimension.annotations()));
+		dimension = (Dimension) ((ArrayType) type).dimensions().get(1);
+		assertEquals("Incorrect annotations", "@Marker2 @Marker3 ", convertAnnotationsList(dimension.annotations()));
+		dimension = (Dimension) ((ArrayType) type).dimensions().get(0);
+		assertEquals("Incorrect annotations", "@Marker @Marker2 ", convertAnnotationsList(dimension.annotations()));
 		List dimensions = creation.dimensions();
 		assertEquals("Incorrect expressions", 2, dimensions.size());
 		assertEquals("Incorrect expressions", "2", dimensions.get(0).toString());
@@ -1209,12 +1209,12 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		
 		type = creation.getType();
 		assertEquals("Incorrect type", true, type.isArrayType());
-		extraDimension = (ExtraDimension) ((ArrayType) type).dimensions().get(2);
-		assertEquals("Incorrect annotations", "@Marker2 @Marker3 ", convertAnnotationsList(extraDimension.annotations()));
-		extraDimension = (ExtraDimension) ((ArrayType) type).dimensions().get(1);
-		assertEquals("Incorrect annotations", "@Marker @Marker2 ", convertAnnotationsList(extraDimension.annotations()));
-		extraDimension = (ExtraDimension) ((ArrayType) type).dimensions().get(0);
-		assertEquals("Incorrect annotations", "@Marker3 @Marker ", convertAnnotationsList(extraDimension.annotations()));
+		dimension = (Dimension) ((ArrayType) type).dimensions().get(2);
+		assertEquals("Incorrect annotations", "@Marker2 @Marker3 ", convertAnnotationsList(dimension.annotations()));
+		dimension = (Dimension) ((ArrayType) type).dimensions().get(1);
+		assertEquals("Incorrect annotations", "@Marker @Marker2 ", convertAnnotationsList(dimension.annotations()));
+		dimension = (Dimension) ((ArrayType) type).dimensions().get(0);
+		assertEquals("Incorrect annotations", "@Marker3 @Marker ", convertAnnotationsList(dimension.annotations()));
 		dimensions = creation.dimensions();
 		assertEquals("Incorrect expressions", 2, dimensions.size());
 		assertEquals("Incorrect expressions", "2", dimensions.get(0).toString());
@@ -2990,20 +2990,20 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		checkSourceRange(arrayType, "@NonEmpty(0) int @NonNull(value1 = 1) [] @NonEmpty(1) [ ]", contents);
 		PrimitiveType primitiveType = (PrimitiveType) arrayType.getElementType();
 		checkSourceRange(primitiveType, "@NonEmpty(0) int", contents);
-		ExtraDimension extraDimension = (ExtraDimension) arrayType.dimensions().get(0);
-		checkSourceRange(extraDimension, "@NonNull(value1 = 1) []", contents);
-		extraDimension = (ExtraDimension) arrayType.dimensions().get(1);
-		checkSourceRange(extraDimension, "@NonEmpty(1) [ ]", contents);
+		Dimension dimension = (Dimension) arrayType.dimensions().get(0);
+		checkSourceRange(dimension, "@NonNull(value1 = 1) []", contents);
+		dimension = (Dimension) arrayType.dimensions().get(1);
+		checkSourceRange(dimension, "@NonEmpty(1) [ ]", contents);
 		
 		field = (FieldDeclaration) type.bodyDeclarations().get(count++);
 		checkSourceRange(field, "@Annot int @Annot1 [] a1 @Annot2 @Annot3 @NonNull (value = int[].class, value1 = 0)[/* [] */ ] @Annot3 @Annot2 [] @Annot4 [];", contents);
 		arrayType = (ArrayType) field.getType();
 		checkSourceRange(arrayType, "int @Annot1 []", contents);
 		fragment = (VariableDeclarationFragment) field.fragments().get(0);
-		extraDimension = (ExtraDimension) fragment.extraDimensions().get(0);
-		checkSourceRange(extraDimension, "@Annot2 @Annot3 @NonNull (value = int[].class, value1 = 0)[/* [] */ ]", contents);
-		extraDimension = (ExtraDimension) fragment.extraDimensions().get(1);
-		checkSourceRange(extraDimension, "@Annot3 @Annot2 []", contents);
+		dimension = (Dimension) fragment.extraDimensions().get(0);
+		checkSourceRange(dimension, "@Annot2 @Annot3 @NonNull (value = int[].class, value1 = 0)[/* [] */ ]", contents);
+		dimension = (Dimension) fragment.extraDimensions().get(1);
+		checkSourceRange(dimension, "@Annot3 @Annot2 []", contents);
 		
 		field = (FieldDeclaration) type.bodyDeclarations().get(count++);
 		checkSourceRange(field, "int[] xxx[];", contents);
@@ -3047,10 +3047,10 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		checkSourceRange(arrayType, "@TakeType(int[][].class) int @TakeType(float.class) [] @TakeType(double.class) []", contents);
 		checkSourceRange(arrayType.getElementType(), "@TakeType(int[][].class) int", contents);
 		assertTrue(arrayType.getElementType().isPrimitiveType());
-		extraDimension = (ExtraDimension) arrayType.dimensions().get(0);
-		checkSourceRange(extraDimension, "@TakeType(float.class) []", contents);
-		extraDimension = (ExtraDimension) arrayType.dimensions().get(1);
-		Annotation annotation = (Annotation) extraDimension.annotations().get(0);
+		dimension = (Dimension) arrayType.dimensions().get(0);
+		checkSourceRange(dimension, "@TakeType(float.class) []", contents);
+		dimension = (Dimension) arrayType.dimensions().get(1);
+		Annotation annotation = (Annotation) dimension.annotations().get(0);
 		assertTrue(annotation.isSingleMemberAnnotation());
 		singleMemberAnnotation = (SingleMemberAnnotation) annotation;
 		typeLiteral = (TypeLiteral) singleMemberAnnotation.getValue();
@@ -3072,9 +3072,9 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertTrue(arrayType.getDimensions() == 1);
 		
 		MethodDeclaration method = (MethodDeclaration) type.bodyDeclarations().get(count++);
-		extraDimension = (ExtraDimension) method.extraDimensions().get(0);
-		checkSourceRange(extraDimension, "@TakeType(int[].class) []", contents);
-		singleMemberAnnotation = (SingleMemberAnnotation) extraDimension.annotations().get(0);
+		dimension = (Dimension) method.extraDimensions().get(0);
+		checkSourceRange(dimension, "@TakeType(int[].class) []", contents);
+		singleMemberAnnotation = (SingleMemberAnnotation) dimension.annotations().get(0);
 		typeLiteral = (TypeLiteral) singleMemberAnnotation.getValue();
 		arrayType = (ArrayType) typeLiteral.getType();
 		assertTrue(arrayType.getElementType().isPrimitiveType());
@@ -3089,13 +3089,13 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		ForStatement forStatement = (ForStatement) method.getBody().statements().get(1);
 		VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) forStatement.initializers().get(0);
 		fragment = (VariableDeclarationFragment) variableDeclarationExpression.fragments().get(0);
-		extraDimension = (ExtraDimension) fragment.extraDimensions().get(0);
-		checkSourceRange(extraDimension, "@TakeType(int[].class) []", contents);
+		dimension = (Dimension) fragment.extraDimensions().get(0);
+		checkSourceRange(dimension, "@TakeType(int[].class) []", contents);
 		forStatement = (ForStatement) method.getBody().statements().get(1);
 		variableDeclarationExpression = (VariableDeclarationExpression) forStatement.initializers().get(0);
 		fragment = (VariableDeclarationFragment) variableDeclarationExpression.fragments().get(0);
-		extraDimension = (ExtraDimension) fragment.extraDimensions().get(0);
-		checkSourceRange(extraDimension, "@TakeType(int[].class) []", contents);
+		dimension = (Dimension) fragment.extraDimensions().get(0);
+		checkSourceRange(dimension, "@TakeType(int[].class) []", contents);
 		
 		method = (MethodDeclaration) type.bodyDeclarations().get(count++);
 		singleVariableDeclaration = (SingleVariableDeclaration) method.parameters().get(0);

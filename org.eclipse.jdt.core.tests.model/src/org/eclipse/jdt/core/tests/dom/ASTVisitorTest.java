@@ -1094,11 +1094,11 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			ASTVisitorTest.this.b.append("MOD)"); //$NON-NLS-1$
 		}
 
-		public boolean visit(ExtraDimension node) {
+		public boolean visit(Dimension node) {
 			ASTVisitorTest.this.b.append("(@ED"); //$NON-NLS-1$
 			return isVisitingChildren();
 		}
-		public void endVisit(ExtraDimension node) {
+		public void endVisit(Dimension node) {
 			ASTVisitorTest.this.b.append("@ED)"); //$NON-NLS-1$
 		}
 		
@@ -1548,7 +1548,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (this.ast.apiLevel() < AST.JLS8) {
 			return;
 		}
-		ExtraDimension x1 = this.ast.newExtraDimension();
+		Dimension x1 = this.ast.newDimension();
 		x1.annotations().add(this.ANO1);
 		x1.annotations().add(this.ANO2);
 		TestVisitor v1 = new TestVisitor();

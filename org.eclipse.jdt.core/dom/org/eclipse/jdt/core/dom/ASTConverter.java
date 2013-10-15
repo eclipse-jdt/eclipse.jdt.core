@@ -926,12 +926,12 @@ class ASTConverter {
 		 * See PR http://bugs.eclipse.org/bugs/show_bug.cgi?id=23284
 		 */
 		if (isVarArgs) {
-			ExtraDimension lastDimension = null;
+			Dimension lastDimension = null;
 			if (this.ast.apiLevel() >= AST.JLS8) {
 				if (type.isArrayType()) { // should always be true
 					List dimensions = ((ArrayType) type).dimensions();
 					if (!dimensions.isEmpty()) {
-						lastDimension = (ExtraDimension) dimensions.get(dimensions.size() - 1);
+						lastDimension = (Dimension) dimensions.get(dimensions.size() - 1);
 					}
 				}
 			}
@@ -3283,9 +3283,9 @@ class ASTConverter {
 		return variableDecl;
 	}
 
-	private ExtraDimension convertToExtraDimensions(int start, int end, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotation) {
+	private Dimension convertToDimensions(int start, int end, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotation) {
 		int length = annotation == null ? 0 : annotation.length;
-		ExtraDimension dimension = this.ast.newExtraDimension();
+		Dimension dimension = this.ast.newDimension();
 		for (int i = 0; i < length; i++) {
 			Annotation annot = convert(annotation[i]);
 			dimension.annotations().add(annot);
@@ -3388,14 +3388,14 @@ class ASTConverter {
 			org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDims = type.getAnnotationsOnDimensions(true);
 			int length = (annotationsOnDims == null) ? 0 : annotationsOnDims.length;
 			for (int i = (length - extraDimension); i < length; i++) {
-				ExtraDimension dim = convertToExtraDimensions(start, end, (annotationsOnDims == null) ? null : annotationsOnDims[i]);
+				Dimension dim = convertToDimensions(start, end, (annotationsOnDims == null) ? null : annotationsOnDims[i]);
 				extraAnnotatedDimensions.add(dim);
 				start = dim.getStartPosition() + dim.getLength();
 			}
 		}
 	}
 
-	private void setTypeAnnotationsOnDimension(ExtraDimension currentDimension, org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDimensions, int dimension) {
+	private void setTypeAnnotationsOnDimension(Dimension currentDimension, org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDimensions, int dimension) {
 		if (annotationsOnDimensions == null) return;
 		org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = annotationsOnDimensions[dimension];
 		if (annotations != null) {
@@ -3417,7 +3417,7 @@ class ASTConverter {
 		
 		start = endElement;
 		for (int i = 0; i < dimensions.size(); i++) {
-			ExtraDimension currentDimension = (ExtraDimension) dimensions.get(i);
+			Dimension currentDimension = (Dimension) dimensions.get(i);
 			setTypeAnnotationsOnDimension(currentDimension, annotationsOnDimensions, i);
 			retrieveDimensionAndSetPositions(start, end, currentDimension);
 			start = currentDimension.getStartPosition() + currentDimension.getLength();
@@ -4758,7 +4758,7 @@ class ASTConverter {
 		return dimensions;
 	}
 
-	protected void retrieveDimensionAndSetPositions(int start, int end, ExtraDimension dim) {
+	protected void retrieveDimensionAndSetPositions(int start, int end, Dimension dim) {
 		this.scanner.resetTo(start, end);
 		int token;
 		int count = 0, lParenCount = 0;
@@ -5689,23 +5689,23 @@ class ASTConverter {
 	/** extracts the subArrayType for a given declaration for AST levels less
 	 * @param arrayType parent type
 	 * @param remainingDimensions 
-	 * @param extraDimensions
+	 * @param dimensionsToRemove
 	 * @return an ArrayType
 	 */
-	private ArrayType extractSubArrayType(ArrayType arrayType, int remainingDimensions, int extraDimensions) {
+	private ArrayType extractSubArrayType(ArrayType arrayType, int remainingDimensions, int dimensionsToRemove) {
 		ArrayType subArrayType = arrayType;
 		int start = subArrayType.getStartPosition();
 		if (this.ast.apiLevel() < AST.JLS8) {
-			while (extraDimensions > 0 ) {
+			while (dimensionsToRemove > 0 ) {
 				subArrayType = (ArrayType) componentType(subArrayType);
-				extraDimensions--;
+				dimensionsToRemove--;
 			}
 			updateInnerPositions(subArrayType, remainingDimensions);
 		} else {
 			List dimensions = subArrayType.dimensions();
-			while (extraDimensions > 0 ) {
+			while (dimensionsToRemove > 0 ) {
 				dimensions.remove(dimensions.size() - 1);
-				extraDimensions--;
+				dimensionsToRemove--;
 			}
 		}
 		int end = retrieveProperRightBracketPosition(remainingDimensions, start);

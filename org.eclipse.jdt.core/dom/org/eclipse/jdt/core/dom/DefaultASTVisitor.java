@@ -95,6 +95,10 @@ class DefaultASTVisitor extends ASTVisitor {
 	public void endVisit(CreationReference node) {
 		endVisitNode(node);
 	}
+	public void endVisit(Dimension node) {
+		endVisitNode(node);
+	}
+
 	public void endVisit(DoStatement node) {
 		endVisitNode(node);
 	}
@@ -114,9 +118,6 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	public void endVisit(ExpressionStatement node) {
-		endVisitNode(node);
-	}
-	public void endVisit(ExtraDimension node) {
 		endVisitNode(node);
 	}
 	public void endVisit(FieldAccess node) {
@@ -377,6 +378,10 @@ class DefaultASTVisitor extends ASTVisitor {
 	public boolean visit(CreationReference node) {
 		return visitNode(node);
 	}
+	public boolean visit(Dimension node) {
+		return visitNode(node);
+	}
+
 	public boolean visit(DoStatement node) {
 		return visitNode(node);
 	}
@@ -396,9 +401,6 @@ class DefaultASTVisitor extends ASTVisitor {
 		return visitNode(node);
 	}
 	public boolean visit(ExpressionStatement node) {
-		return visitNode(node);
-	}
-	public boolean visit(ExtraDimension node) {
 		return visitNode(node);
 	}
 	public boolean visit(FieldAccess node) {

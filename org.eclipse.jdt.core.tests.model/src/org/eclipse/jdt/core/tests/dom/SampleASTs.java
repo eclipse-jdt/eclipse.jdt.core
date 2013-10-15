@@ -93,7 +93,7 @@ public class SampleASTs {
 			md.setReturnType2(pmt);
 		}
 		if (target.apiLevel() >= AST.JLS8) {
-			ExtraDimension ed = target.newExtraDimension();
+			Dimension ed = target.newDimension();
 			md.extraDimensions().add(ed);
 		}
 

@@ -2732,7 +2732,7 @@ public class ASTConverterAST8Test extends ConverterTestSetup {
 		fragment.setName(this.ast.newSimpleName("z"));//$NON-NLS-1$
 		fragment.setInitializer(this.ast.newNullLiteral());
 		fragment.extraDimensions().clear();
-		fragment.extraDimensions().add(this.ast.newExtraDimension());
+		fragment.extraDimensions().add(this.ast.newDimension());
 		statement.fragments().add(fragment);
 		fragment = this.ast.newVariableDeclarationFragment();
 		fragment.setName(this.ast.newSimpleName("i"));//$NON-NLS-1$
@@ -2741,8 +2741,8 @@ public class ASTConverterAST8Test extends ConverterTestSetup {
 		fragment = this.ast.newVariableDeclarationFragment();
 		fragment.setName(this.ast.newSimpleName("j"));//$NON-NLS-1$
 		fragment.extraDimensions().clear();
-		fragment.extraDimensions().add(this.ast.newExtraDimension());
-		fragment.extraDimensions().add(this.ast.newExtraDimension());
+		fragment.extraDimensions().add(this.ast.newDimension());
+		fragment.extraDimensions().add(this.ast.newDimension());
 		statement.fragments().add(fragment);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -2775,7 +2775,7 @@ public class ASTConverterAST8Test extends ConverterTestSetup {
 		fragment.setName(this.ast.newSimpleName("z"));//$NON-NLS-1$
 		fragment.setInitializer(this.ast.newNullLiteral());
 		fragment.extraDimensions().clear();
-		fragment.extraDimensions().add(this.ast.newExtraDimension());
+		fragment.extraDimensions().add(this.ast.newDimension());
 		statement.fragments().add(fragment);
 		fragment = this.ast.newVariableDeclarationFragment();
 		fragment.setName(this.ast.newSimpleName("i"));//$NON-NLS-1$
@@ -2784,8 +2784,8 @@ public class ASTConverterAST8Test extends ConverterTestSetup {
 		fragment = this.ast.newVariableDeclarationFragment();
 		fragment.setName(this.ast.newSimpleName("j"));//$NON-NLS-1$
 		fragment.extraDimensions().clear();
-		fragment.extraDimensions().add(this.ast.newExtraDimension());
-		fragment.extraDimensions().add(this.ast.newExtraDimension());
+		fragment.extraDimensions().add(this.ast.newDimension());
+		fragment.extraDimensions().add(this.ast.newDimension());
 		statement.fragments().add(fragment);
 		statement.setType(this.ast.newArrayType(this.ast.newPrimitiveType(PrimitiveType.INT), 1));
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -2812,7 +2812,7 @@ public class ASTConverterAST8Test extends ConverterTestSetup {
 		variableDeclarationFragment.setName(this.ast.newSimpleName("tab")); //$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(this.ast.newNullLiteral());//$NON-NLS-1$
 		variableDeclarationFragment.extraDimensions().clear();
-		variableDeclarationFragment.extraDimensions().add(this.ast.newExtraDimension());
+		variableDeclarationFragment.extraDimensions().add(this.ast.newDimension());
 		VariableDeclarationExpression variableDeclarationExpression = this.ast.newVariableDeclarationExpression(variableDeclarationFragment);
 		variableDeclarationExpression.setType(this.ast.newArrayType(this.ast.newSimpleType(this.ast.newSimpleName("String")), 1));//$NON-NLS-1$
 		forStatement.initializers().add(variableDeclarationExpression);
@@ -2841,7 +2841,7 @@ public class ASTConverterAST8Test extends ConverterTestSetup {
 		variableDeclarationFragment.setName(this.ast.newSimpleName("tab")); //$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(this.ast.newNullLiteral());//$NON-NLS-1$
 		variableDeclarationFragment.extraDimensions().clear();
-		variableDeclarationFragment.extraDimensions().add(this.ast.newExtraDimension());
+		variableDeclarationFragment.extraDimensions().add(this.ast.newDimension());
 		VariableDeclarationExpression variableDeclarationExpression = this.ast.newVariableDeclarationExpression(variableDeclarationFragment);
 		variableDeclarationExpression.setType(this.ast.newSimpleType(this.ast.newSimpleName("String")));//$NON-NLS-1$
 		forStatement.initializers().add(variableDeclarationExpression);
@@ -2870,7 +2870,7 @@ public class ASTConverterAST8Test extends ConverterTestSetup {
 		variableDeclarationFragment.setName(this.ast.newSimpleName("tab")); //$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(this.ast.newNullLiteral());//$NON-NLS-1$
 		variableDeclarationFragment.extraDimensions().clear();
-		variableDeclarationFragment.extraDimensions().add(this.ast.newExtraDimension());
+		variableDeclarationFragment.extraDimensions().add(this.ast.newDimension());
 		VariableDeclarationExpression variableDeclarationExpression = this.ast.newVariableDeclarationExpression(variableDeclarationFragment);
 		variableDeclarationExpression.setType(this.ast.newSimpleType(this.ast.newSimpleName("String")));//$NON-NLS-1$
 		forStatement.initializers().add(variableDeclarationExpression);
@@ -2928,7 +2928,7 @@ public class ASTConverterAST8Test extends ConverterTestSetup {
 		fragment = this.ast.newVariableDeclarationFragment();
 		fragment.setName(this.ast.newSimpleName("y"));//$NON-NLS-1$
 		fragment.extraDimensions().clear();
-		fragment.extraDimensions().add(this.ast.newExtraDimension());
+		fragment.extraDimensions().add(this.ast.newDimension());
 		fragment.setInitializer(this.ast.newNullLiteral());
 		fieldDeclaration.fragments().add(fragment);
 		fragment = this.ast.newVariableDeclarationFragment();
@@ -2938,8 +2938,8 @@ public class ASTConverterAST8Test extends ConverterTestSetup {
 		fragment = this.ast.newVariableDeclarationFragment();
 		fragment.setName(this.ast.newSimpleName("j"));//$NON-NLS-1$
 		fragment.extraDimensions().clear();
-		fragment.extraDimensions().add(this.ast.newExtraDimension());
-		fragment.extraDimensions().add(this.ast.newExtraDimension());
+		fragment.extraDimensions().add(this.ast.newDimension());
+		fragment.extraDimensions().add(this.ast.newDimension());
 		fieldDeclaration.fragments().add(fragment);
 		assertTrue("Both AST trees should be identical", fieldDeclaration.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "public int x= 10, y[] = null, i, j[][];", source); //$NON-NLS-1$

@@ -259,7 +259,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		// add "<annotations> [ <dimension> ]" for each dimension expression
 		List list= getChildList(node, ArrayCreation.DIMENSIONS_PROPERTY);
 		for (int i= 0; i < list.size(); i++) {
-			internalVisitExtraDimensionAnnotations(arrayType, i, astLevelGTE8);
+			internalVisitDimensionAnnotations(arrayType, i, astLevelGTE8);
 			this.result.append('[');
 			((ASTNode) list.get(i)).accept(this);
 			this.result.append(']');
@@ -267,7 +267,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 		// add "<annotations> []" for each extra array dimension
 		for (int i= list.size(); i < dimensions; i++) {
-			internalVisitExtraDimensionAnnotations(arrayType, i, astLevelGTE8);
+			internalVisitDimensionAnnotations(arrayType, i, astLevelGTE8);
 			this.result.append("[]"); //$NON-NLS-1$
 		}
 
@@ -278,10 +278,10 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		return false;
 	}
 
-	private void internalVisitExtraDimensionAnnotations(ArrayType arrayType, int index, boolean astLevelGTE8) {
+	private void internalVisitDimensionAnnotations(ArrayType arrayType, int index, boolean astLevelGTE8) {
 		if (astLevelGTE8) {
-			ExtraDimension extraDimension = (ExtraDimension) arrayType.dimensions().get(index);
-			visitList(extraDimension, ExtraDimension.ANNOTATIONS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
+			Dimension dimension = (Dimension) arrayType.dimensions().get(index);
+			visitList(dimension, Dimension.ANNOTATIONS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		}
 	}
 
@@ -493,6 +493,12 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		return false;
 	}
 
+	public boolean visit(Dimension node) {
+		visitList(node, Dimension.ANNOTATIONS_PROPERTY, String.valueOf(' '), String.valueOf(' '), String.valueOf(' '));
+		this.result.append("[]"); //$NON-NLS-1$
+		return false;
+	}
+
 	/*
 	 * @see ASTVisitor#visit(DoStatement)
 	 */
@@ -519,12 +525,6 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	public boolean visit(ExpressionStatement node) {
 		getChildNode(node, ExpressionStatement.EXPRESSION_PROPERTY).accept(this);
 		this.result.append(';');
-		return false;
-	}
-
-	public boolean visit(ExtraDimension node) {
-		visitList(node, ExtraDimension.ANNOTATIONS_PROPERTY, String.valueOf(' '), String.valueOf(' '), String.valueOf(' '));
-		this.result.append("[]"); //$NON-NLS-1$
 		return false;
 	}
 

@@ -558,7 +558,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public boolean match(WildcardType node, Object other) {
 			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
 		}
-		public boolean match(ExtraDimension node, Object other) {
+		public boolean match(Dimension node, Object other) {
 			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(InstanceofExpression node, Object other) {
@@ -1615,12 +1615,12 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		}
 		VariableDeclarationFragment x1 = this.ast.newVariableDeclarationFragment();
 		x1.setName(this.N1);
-		ExtraDimension x2 = this.ast.newExtraDimension();
+		Dimension x2 = this.ast.newDimension();
 		Annotation Annot = this.ast.newMarkerAnnotation();
 		Annot.setTypeName(this.ast.newSimpleName("NewAnnot1"));
 		x2.annotations().add(Annot);
 		x1.extraDimensions().add(x2);
-		x2 = this.ast.newExtraDimension();
+		x2 = this.ast.newDimension();
 		Annot = this.ast.newMarkerAnnotation();
 		Annot.setTypeName(this.ast.newSimpleName("NewAnnot2"));
 		x2.annotations().add(Annot);

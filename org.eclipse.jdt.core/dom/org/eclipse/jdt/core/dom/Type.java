@@ -50,7 +50,7 @@ package org.eclipse.jdt.core.dom;
  *    { Annotation } <b>boolean</b>
  *    { Annotation } <b>void</b>
  * {@link ArrayType}:
- *    Type ExtraDimension <b>{</b> ExtraDimension <b>}</b>
+ *    Type Dimension <b>{</b> Dimension <b>}</b>
  * {@link SimpleType}:
  *    { Annotation } TypeName
  * {@link QualifiedType}:

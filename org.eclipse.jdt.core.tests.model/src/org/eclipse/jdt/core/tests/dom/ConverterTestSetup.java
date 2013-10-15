@@ -164,7 +164,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		StringBuffer buffer = new StringBuffer();
 		Iterator iter = dimensions.iterator();
 		while(iter.hasNext()) {
-			ExtraDimension dim = (ExtraDimension) iter.next();
+			Dimension dim = (Dimension) iter.next();
 			buffer.append(convertAnnotationsList(dim.annotations()));
 			if (iter.hasNext()) {
 				buffer.append("[] ");

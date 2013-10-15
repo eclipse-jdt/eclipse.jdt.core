@@ -26,7 +26,7 @@ import java.util.List;
  * </p>
  * <pre>
  * ArrayType: 
- *    Type ExtraDimension <b>{</b> ExtraDimension <b>}</b>
+ *    Type Dimension <b>{</b> Dimension <b>}</b>
  * </pre>
  * 
  * In JLS4 and before, array types were expressed in a recursive manner, one dimension at a time:
@@ -64,11 +64,11 @@ public class ArrayType extends Type {
 			new ChildPropertyDescriptor(ArrayType.class, "elementType", Type.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$	
 	
 	/**
-	 * The "dimensions" structural property of this node type (element type: {@link ExtraDimension}) (added in JLS8 API).
+	 * The "dimensions" structural property of this node type (element type: {@link Dimension}) (added in JLS8 API).
 	 * @since 3.9 BETA_JAVA8
 	 */
 	public static final ChildListPropertyDescriptor DIMENSIONS_PROPERTY =
-			new ChildListPropertyDescriptor(ArrayType.class, "dimensions", ExtraDimension.class, CYCLE_RISK); //$NON-NLS-1$	
+			new ChildListPropertyDescriptor(ArrayType.class, "dimensions", Dimension.class, CYCLE_RISK); //$NON-NLS-1$	
 	/**
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
@@ -126,7 +126,7 @@ public class ArrayType extends Type {
 
 	/**
 	 * List of dimensions this node has with optional annotations
-	 * (element type: {@link ExtraDimension}).
+	 * (element type: {@link Dimension}).
 	 * Null before JLS8. Added in JLS8; defaults to a list with one element
 	 * (see constructor).
 	 * 
@@ -148,7 +148,7 @@ public class ArrayType extends Type {
 		if (ast.apiLevel >= AST.JLS8) {
 			this.dimensions = new ASTNode.NodeList(DIMENSIONS_PROPERTY);
 			// single dimension array is the default
-			this.dimensions().add(this.ast.newExtraDimension());
+			this.dimensions().add(this.ast.newDimension());
 		}
 	}
 
@@ -168,7 +168,7 @@ public class ArrayType extends Type {
 		unsupportedIn2_3_4();
 		this.dimensions = new ASTNode.NodeList(DIMENSIONS_PROPERTY);
 		for (int i = 0; i < dimensions; ++i) {
-			this.dimensions().add(this.ast.newExtraDimension());
+			this.dimensions().add(this.ast.newDimension());
 		}
 	}
 
@@ -388,7 +388,7 @@ public class ArrayType extends Type {
 	/**
 	 * Returns the live ordered list of dimensions with optional annotations (added in JLS8 API).
 	 * 
-	 * @return the live list of dimensions with optional annotations (element type: {@link ExtraDimension})
+	 * @return the live list of dimensions with optional annotations (element type: {@link Dimension})
 	 * @exception UnsupportedOperationException if this operation is used below JLS8
 	 * @since 3.9 BETA_JAVA8
 	 */

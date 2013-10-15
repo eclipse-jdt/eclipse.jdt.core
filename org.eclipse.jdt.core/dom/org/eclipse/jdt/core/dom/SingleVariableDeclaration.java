@@ -26,7 +26,7 @@ import java.util.List;
  * and regular variable declaration statements.
  * <pre>
  * SingleVariableDeclaration:
- *    { ExtendedModifier } Type {Annotation} [ <b>...</b> ] Identifier { ExtraDimension } [ <b>=</b> Expression ]
+ *    { ExtendedModifier } Type {Annotation} [ <b>...</b> ] Identifier { Dimension } [ <b>=</b> Expression ]
  * </pre>
  * <p>
  * Note: There's currently no construct in the Java language that allows an initializer on a SingleVariableDeclaration.
@@ -92,7 +92,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 			internalExtraDimensionsPropertyFactory(SingleVariableDeclaration.class);
 
 	/**
-	 * The "extraDimensions2" structural property of this node type (element type: {@link ExtraDimension}) (added in JLS8 API).
+	 * The "extraDimensions2" structural property of this node type (element type: {@link Dimension}) (added in JLS8 API).
 	 * @since 3.9 BETA_JAVA8
 	 */
 	public static final ChildListPropertyDescriptor EXTRA_DIMENSIONS2_PROPERTY =

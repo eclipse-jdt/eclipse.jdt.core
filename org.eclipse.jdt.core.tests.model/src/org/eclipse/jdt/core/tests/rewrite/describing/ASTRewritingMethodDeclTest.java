@@ -111,7 +111,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 				listRewrite.remove(extraDimension, null);
 			}
 			for (int i= 0; i < extraDimensions; i++) {
-				listRewrite.insertFirst(methodDecl.getAST().newExtraDimension(), null);
+				listRewrite.insertFirst(methodDecl.getAST().newDimension(), null);
 			}
 		}
 	}
@@ -3152,13 +3152,13 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo1");
 
 			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
-			ExtraDimension dim= ast.newExtraDimension();
+			Dimension dim= ast.newDimension();
 			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
 			dim.annotations().add(markerAnnotation);
 			listRewrite.insertAt(dim, 1, null);
 
-			dim= ast.newExtraDimension();
+			dim= ast.newDimension();
 			markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot2"));
 			dim.annotations().add(markerAnnotation);
@@ -3171,7 +3171,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo2");
 			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
 
-			ExtraDimension dim= ast.newExtraDimension();
+			Dimension dim= ast.newDimension();
 			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
 			dim.annotations().add(markerAnnotation);
@@ -3185,7 +3185,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo3");
 			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
 
-			ExtraDimension dim= ast.newExtraDimension();
+			Dimension dim= ast.newDimension();
 			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
 			dim.annotations().add(markerAnnotation);
@@ -3197,15 +3197,15 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		}
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo4");
-			ExtraDimension dim= (ExtraDimension) methodDecl.extraDimensions().get(0);
-			ListRewrite listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			Dimension dim= (Dimension) methodDecl.extraDimensions().get(0);
+			ListRewrite listRewrite= rewrite.getListRewrite(dim, Dimension.ANNOTATIONS_PROPERTY);
 
 			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot2"));
 			listRewrite.insertAt(markerAnnotation, 0, null);
 
-			dim= (ExtraDimension) methodDecl.extraDimensions().get(1);
-			listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			dim= (Dimension) methodDecl.extraDimensions().get(1);
+			listRewrite= rewrite.getListRewrite(dim, Dimension.ANNOTATIONS_PROPERTY);
 
 			markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
@@ -3213,33 +3213,33 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		}
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo5");
-			ExtraDimension dim= (ExtraDimension) methodDecl.extraDimensions().get(0);
+			Dimension dim= (Dimension) methodDecl.extraDimensions().get(0);
 			Annotation annot= (Annotation) dim.annotations().get(0);
-			ListRewrite listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			ListRewrite listRewrite= rewrite.getListRewrite(dim, Dimension.ANNOTATIONS_PROPERTY);
 			listRewrite.remove(annot, null);
 
-			dim= (ExtraDimension) methodDecl.extraDimensions().get(1);
-			listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			dim= (Dimension) methodDecl.extraDimensions().get(1);
+			listRewrite= rewrite.getListRewrite(dim, Dimension.ANNOTATIONS_PROPERTY);
 			listRewrite.insertAt(annot, 1, null);
 		}
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo6");
-			ExtraDimension dim= (ExtraDimension) methodDecl.extraDimensions().get(0);
+			Dimension dim= (Dimension) methodDecl.extraDimensions().get(0);
 			Annotation annot= (Annotation) dim.annotations().get(0);
-			ListRewrite listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			ListRewrite listRewrite= rewrite.getListRewrite(dim, Dimension.ANNOTATIONS_PROPERTY);
 			listRewrite.remove(annot, null);
 
-			dim= (ExtraDimension) methodDecl.extraDimensions().get(1);
+			dim= (Dimension) methodDecl.extraDimensions().get(1);
 			annot= (Annotation) dim.annotations().get(0);
-			listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			listRewrite= rewrite.getListRewrite(dim, Dimension.ANNOTATIONS_PROPERTY);
 			listRewrite.remove(annot, null);
 		}
 		{
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo7");
 			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
-			ExtraDimension dim= (ExtraDimension) methodDecl.extraDimensions().get(0);
+			Dimension dim= (Dimension) methodDecl.extraDimensions().get(0);
 			listRewrite.remove(dim, null);
-			dim= (ExtraDimension) methodDecl.extraDimensions().get(1);
+			dim= (Dimension) methodDecl.extraDimensions().get(1);
 			listRewrite.remove(dim, null);
 		}
 

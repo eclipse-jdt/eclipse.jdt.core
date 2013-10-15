@@ -27,14 +27,14 @@ import java.util.List;
  *    [ Javadoc ] { ExtendedModifier } [ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ] ( Type | <b>void</b> )
  *        Identifier <b>(</b>
  *            [ ReceiverParameter <b>,</b> ] [ FormalParameter { <b>,</b> FormalParameter } ]
- *        <b>)</b> { ExtraDimension }
+ *        <b>)</b> { Dimension }
  *        [ <b>throws</b> Type { <b>,</b> Type } ]
  *        ( Block | <b>;</b> )
  * ConstructorDeclaration:
  *    [ Javadoc ] { ExtendedModifier } [ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
  *        Identifier <b>(</b>
  *            [ ReceiverParameter <b>,</b> ] [ FormalParameter { <b>,</b> FormalParameter } ]
- *        <b>)</b> { ExtraDimension }
+ *        <b>)</b> { Dimension }
  *        [ <b>throws</b> Type { <b>,</b> Type } ]
  *        ( Block | <b>;</b> )
  * </pre>
@@ -120,11 +120,11 @@ public class MethodDeclaration extends BodyDeclaration {
 		new SimplePropertyDescriptor(MethodDeclaration.class, "extraDimensions", int.class, MANDATORY); //$NON-NLS-1$
 	
 	/**
-	 * The "extraDimensions2" structural property of this node type (element type: {@link ExtraDimension}) (added in JLS8 API).
+	 * The "extraDimensions2" structural property of this node type (element type: {@link Dimension}) (added in JLS8 API).
 	 * @since 3.9 BETA_JAVA8
 	 */
 	public static final ChildListPropertyDescriptor EXTRA_DIMENSIONS2_PROPERTY =
-			new ChildListPropertyDescriptor(MethodDeclaration.class, "extraDimensions2", ExtraDimension.class, NO_CYCLE_RISK); //$NON-NLS-1$
+			new ChildListPropertyDescriptor(MethodDeclaration.class, "extraDimensions2", Dimension.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "typeParameters" structural property of this node type (element type: {@link TypeParameter}) (added in JLS3 API).
@@ -331,7 +331,7 @@ public class MethodDeclaration extends BodyDeclaration {
 
 	/**
 	 * List of extra dimensions this node has with optional annotations
-	 * (element type: {@link ExtraDimension}).
+	 * (element type: {@link Dimension}).
 	 * Null before JLS8. Added in JLS8; defaults to an empty list
 	 * (see constructor).
 	 * 
@@ -1065,7 +1065,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * a JLS8 or later AST 
 	 * @since 2.1
 	 * @deprecated In the JLS8 API, this method is replaced by
-	 * {@link #extraDimensions()} which contains a list of {@link ExtraDimension} nodes.
+	 * {@link #extraDimensions()} which contains a list of {@link Dimension} nodes.
 	 */
 	public void setExtraDimensions(int dimensions) {
 		// more efficient than just calling supportedOnlyIn2_3_4() to check
@@ -1083,7 +1083,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	/**
 	 * Returns the live ordered list of extra dimensions with optional annotations (added in JLS8 API).
 	 * 
-	 * @return the live list of extra dimensions with optional annotations (element type: {@link ExtraDimension})
+	 * @return the live list of extra dimensions with optional annotations (element type: {@link Dimension})
 	 * @exception UnsupportedOperationException if this operation is used below JLS8
 	 * @since 3.9 BETA_JAVA8
 	 */

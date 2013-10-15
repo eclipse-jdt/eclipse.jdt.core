@@ -47,7 +47,7 @@ public abstract class VariableDeclaration extends ASTNode {
 
 	/**
 	 * List of extra dimensions this node has with optional annotations
-	 * (element type: {@link ExtraDimension}).
+	 * (element type: {@link Dimension}).
 	 * Null before JLS8. Added in JLS8; defaults to an empty list
 	 * (see constructor).
 	 * 
@@ -84,12 +84,12 @@ public abstract class VariableDeclaration extends ASTNode {
 	
 	/**
 	 * Creates and returns a structural property descriptor for the
-	 * "extraDimensions2" property declared on the given concrete node type (element type: {@link ExtraDimension}).
+	 * "extraDimensions2" property declared on the given concrete node type (element type: {@link Dimension}).
 	 *
 	 * @return the property descriptor
 	 */
 	static final ChildListPropertyDescriptor internalExtraDimensions2PropertyFactory(Class nodeClass) {
-		return 	new ChildListPropertyDescriptor(nodeClass, "extraDimensions2", ExtraDimension.class, CYCLE_RISK); //$NON-NLS-1$
+		return 	new ChildListPropertyDescriptor(nodeClass, "extraDimensions2", Dimension.class, CYCLE_RISK); //$NON-NLS-1$
 	}
 	
 	/**
@@ -147,7 +147,7 @@ public abstract class VariableDeclaration extends ASTNode {
 
 	/**
 	 * Returns the structural property descriptor for the "extraDimensions" property
-	 * of this node (element type: {@link ExtraDimension}) (added in JLS8 API).
+	 * of this node (element type: {@link Dimension}) (added in JLS8 API).
 	 *
 	 * @return the property descriptor
 	 * @since 3.9 BETA_JAVA8
@@ -156,7 +156,7 @@ public abstract class VariableDeclaration extends ASTNode {
 	
 	/**
 	 * Returns the structural property descriptor for the "extraDimensions" property
-	 * of this node (element type: {@link ExtraDimension}) (added in JLS8 API).
+	 * of this node (element type: {@link Dimension}) (added in JLS8 API).
 	 *
 	 * @return the property descriptor
 	 * @since 3.9 BETA_JAVA8
@@ -288,7 +288,7 @@ public abstract class VariableDeclaration extends ASTNode {
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS8 or later AST 
 	 * @deprecated In the JLS8 API, this method is replaced by
-	 * {@link #extraDimensions()} which contains a list of {@link ExtraDimension} nodes.
+	 * {@link #extraDimensions()} which contains a list of {@link Dimension} nodes.
 	 * @since 2.1
 	 */
 	public void setExtraDimensions(int dimensions) {
@@ -317,7 +317,7 @@ public abstract class VariableDeclaration extends ASTNode {
 	/**
 	 * Returns the live ordered list of extra dimensions with optional annotations (added in JLS8 API).
 	 *
-	 * @return the live list of extra dimensions with optional annotations (element type: {@link ExtraDimension})
+	 * @return the live list of extra dimensions with optional annotations (element type: {@link Dimension})
 	 * @exception UnsupportedOperationException if this operation is used below JLS8
 	 * @since 3.9 BETA_JAVA8
 	 */

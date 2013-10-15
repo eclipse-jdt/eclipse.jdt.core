@@ -69,7 +69,7 @@ public boolean visit(ArrayType node) {
 	} else {
 		node.getElementType().accept(this);
 		for (int i = 0;  i < node.getDimensions(); ++i) {
-			((ExtraDimension) node.dimensions().get(i)).accept(this);
+			((Dimension) node.dimensions().get(i)).accept(this);
 		}
 	}
 	return false;

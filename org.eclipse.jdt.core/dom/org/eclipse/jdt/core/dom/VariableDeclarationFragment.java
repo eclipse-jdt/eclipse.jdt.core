@@ -23,7 +23,7 @@ import java.util.List;
  *
  * <pre>
  * VariableDeclarationFragment:
- *    Identifier { ExtraDimension } [ <b>=</b> Expression ]
+ *    Identifier { Dimension } [ <b>=</b> Expression ]
  * </pre>
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
@@ -47,7 +47,7 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 			internalExtraDimensionsPropertyFactory(VariableDeclarationFragment.class);
 
 	/**
-	 * The "extraDimensions2" structural property of this node type (element type: {@link ExtraDimension}) (added in JLS8 API).
+	 * The "extraDimensions2" structural property of this node type (element type: {@link Dimension}) (added in JLS8 API).
 	 * @since 3.9 BETA_JAVA8
 	 */
 	public static final ChildListPropertyDescriptor EXTRA_DIMENSIONS2_PROPERTY =
