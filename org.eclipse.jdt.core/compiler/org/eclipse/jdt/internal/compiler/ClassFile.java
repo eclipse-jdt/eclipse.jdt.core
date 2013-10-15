@@ -3405,8 +3405,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 		final int length = annotations.length;
 		int visibleAnnotationsCounter = 0;
 		int invisibleAnnotationsCounter = 0;
-		Annotation annotation;
 		for (int i = 0; i < length; i++) {
+			Annotation annotation;
 			if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 			if (annotation.isRuntimeInvisible() || (includeTypeUseAnnotations && annotation.isRuntimeTypeInvisible())) {
 				invisibleAnnotationsCounter++;
@@ -3435,6 +3435,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			int counter = 0;
 			loop: for (int i = 0; i < length; i++) {
 				if (invisibleAnnotationsCounter == 0) break loop;
+				Annotation annotation;
 				if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 				if (annotation.isRuntimeInvisible() || 
 						// No need to explicitly check it is type_use and not type_parameter, 
@@ -3485,6 +3486,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			int counter = 0;
 			loop: for (int i = 0; i < length; i++) {
 				if (visibleAnnotationsCounter == 0) break loop;
+				Annotation annotation;
 				if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 				if (annotation.isRuntimeVisible() || 
 					// No need to explicitly check it is type_use and not type_parameter, 
@@ -3523,12 +3525,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int invisibleParametersAnnotationsCounter = 0;
 		int visibleParametersAnnotationsCounter = 0;
 		int[][] annotationsCounters = new int[argumentsLength][2];
-		Annotation annotation;
 		for (int i = 0; i < argumentsLength; i++) {
 			Argument argument = arguments[i];
 			Annotation[] annotations = argument.annotations;
 			if (annotations != null) {
 				for (int j = 0, max2 = annotations.length; j < max2; j++) {
+					Annotation annotation;
 					if ((annotation = annotations[j].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 					if (annotation.isRuntimeInvisible()) {
 						annotationsCounters[i][INVISIBLE_INDEX]++;
@@ -3572,6 +3574,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 						Argument argument = arguments[i];
 						Annotation[] annotations = argument.annotations;
 						for (int j = 0, max = annotations.length; j < max; j++) {
+							Annotation annotation;
 							if ((annotation = annotations[j].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 							if (annotation.isRuntimeInvisible()) {
 								int currentAnnotationOffset = this.contentsOffset;
@@ -3630,6 +3633,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 						Argument argument = arguments[i];
 						Annotation[] annotations = argument.annotations;
 						for (int j = 0, max = annotations.length; j < max; j++) {
+							Annotation annotation;
 							if ((annotation = annotations[j].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 							if (annotation.isRuntimeVisible()) {
 								int currentAnnotationOffset = this.contentsOffset;
