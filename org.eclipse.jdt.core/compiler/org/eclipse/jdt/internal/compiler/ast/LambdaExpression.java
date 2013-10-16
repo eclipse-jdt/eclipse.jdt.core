@@ -529,7 +529,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			if (tSam.parameters.length != sSam.parameters.length)
 				return false;
 			for (int i = 0, length = tSam.parameters.length; i < length; i++) {
-				if (tSam.parameters[i] != sSam.parameters[i])
+				if (TypeBinding.notEquals(tSam.parameters[i], sSam.parameters[i]))
 					return false;
 			}
 		}

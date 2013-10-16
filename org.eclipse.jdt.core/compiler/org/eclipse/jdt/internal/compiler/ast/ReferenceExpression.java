@@ -170,7 +170,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		
 		if (this.isConstructorReference()) {
 			ReferenceBinding allocatedType = codegenBinding.declaringClass;
-			if (codegenBinding.isPrivate() && enclosingSourceType != (allocatedType = codegenBinding.declaringClass)) {
+			if (codegenBinding.isPrivate() && TypeBinding.notEquals(enclosingSourceType, (allocatedType = codegenBinding.declaringClass))) {
 				if ((allocatedType.tagBits & TagBits.IsLocalType) != 0) {
 					codegenBinding.tagBits |= TagBits.ClearPrivateModifier;
 				} else {
@@ -183,7 +183,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	
 		// -----------------------------------   Only method references from now on -----------
 		if (this.binding.isPrivate()) {
-			if (enclosingSourceType != codegenBinding.declaringClass){
+			if (TypeBinding.notEquals(enclosingSourceType, codegenBinding.declaringClass)){
 				this.syntheticAccessor = ((SourceTypeBinding)codegenBinding.declaringClass).addSyntheticMethod(codegenBinding, false /* not super access */);
 				currentScope.problemReporter().needToEmulateMethodAccess(codegenBinding, this);
 			}
@@ -414,7 +414,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         	scope.problemReporter().cannotDireclyInvokeAbstractMethod(this, this.binding);
         
         if (this.binding.isStatic()) {
-        	if (this.binding.declaringClass != this.receiverType)
+        	if (TypeBinding.notEquals(this.binding.declaringClass, this.receiverType))
         		scope.problemReporter().indirectAccessToStaticMethod(this, this.binding);
         } else {
         	AbstractMethodDeclaration srcMethod = this.binding.sourceMethod();
@@ -621,7 +621,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		if (tSam.parameters.length != sSam.parameters.length)
 			return false;
 		for (int i = 0, length = tSam.parameters.length; i < length; i++) {
-			if (tSam.parameters[i] != sSam.parameters[i])
+			if (TypeBinding.notEquals(tSam.parameters[i], sSam.parameters[i]))
 				return false;
 		}
 		

@@ -332,7 +332,7 @@ public final boolean canBeSeenBy(Scope scope) {
 	if (isPublic()) return true;
 
 	SourceTypeBinding invocationType = scope.enclosingSourceType();
-	if (invocationType == this) return true;
+	if (TypeBinding.equalsEquals(invocationType, this)) return true;
 
 	if (invocationType == null) // static import call
 		return !isPrivate() && scope.getCurrentPackage() == this.fPackage;
@@ -351,7 +351,7 @@ public final boolean canBeSeenBy(Scope scope) {
 		TypeBinding currentType = invocationType.erasure();
 		// int depth = 0;
 		do {
-			if (declaringClass == invocationType) return true;
+			if (TypeBinding.equalsEquals(declaringClass, invocationType)) return true;
 			if (currentType.findSuperTypeOriginatingFrom(declaringClass) != null) return true;
 			// depth++;
 			currentType = currentType.enclosingType();
@@ -374,7 +374,7 @@ public final boolean canBeSeenBy(Scope scope) {
 			outerDeclaringClass = temp;
 			temp = temp.enclosingType();
 		}
-		return outerInvocationType == outerDeclaringClass;
+		return TypeBinding.equalsEquals(outerInvocationType, outerDeclaringClass);
 	}
 
 	// isDefault()
@@ -881,7 +881,7 @@ public boolean detectAnnotationCycle() {
 	boolean inCycle = false; // check each method before failing
 	for (int i = 0, l = currentMethods.length; i < l; i++) {
 		TypeBinding returnType = currentMethods[i].returnType.leafComponentType().erasure();
-		if (this == returnType) {
+		if (TypeBinding.equalsEquals(this, returnType)) {
 			if (this instanceof SourceTypeBinding) {
 				MethodDeclaration decl = (MethodDeclaration) currentMethods[i].sourceMethod();
 				((SourceTypeBinding) this).scope.problemReporter().annotationCircularity(this, this, decl != null ? decl.returnType : null);
@@ -1018,7 +1018,7 @@ public int hashCode() {
  */
 public boolean hasIncompatibleSuperType(ReferenceBinding otherType) {
 
-    if (this == otherType) return false;
+    if (TypeBinding.equalsEquals(this, otherType)) return false;
 
 	ReferenceBinding[] interfacesToVisit = null;
 	int nextPosition = 0;
@@ -1041,7 +1041,7 @@ public boolean hasIncompatibleSuperType(ReferenceBinding otherType) {
 				nextInterface : for (int a = 0; a < itsLength; a++) {
 					ReferenceBinding next = itsInterfaces[a];
 					for (int b = 0; b < nextPosition; b++)
-						if (next == interfacesToVisit[b]) continue nextInterface;
+						if (TypeBinding.equalsEquals(next, interfacesToVisit[b])) continue nextInterface;
 					interfacesToVisit[nextPosition++] = next;
 				}
 			}
@@ -1050,7 +1050,7 @@ public boolean hasIncompatibleSuperType(ReferenceBinding otherType) {
 
 	for (int i = 0; i < nextPosition; i++) {
 		currentType = interfacesToVisit[i];
-		if (currentType == otherType) return false;
+		if (TypeBinding.equalsEquals(currentType, otherType)) return false;
 		match = otherType.findSuperTypeOriginatingFrom(currentType);
 		if (match != null && match.isProvablyDistinct(currentType))
 			return true;
@@ -1063,7 +1063,7 @@ public boolean hasIncompatibleSuperType(ReferenceBinding otherType) {
 			nextInterface : for (int a = 0; a < itsLength; a++) {
 				ReferenceBinding next = itsInterfaces[a];
 				for (int b = 0; b < nextPosition; b++)
-					if (next == interfacesToVisit[b]) continue nextInterface;
+					if (TypeBinding.equalsEquals(next, interfacesToVisit[b])) continue nextInterface;
 				interfacesToVisit[nextPosition++] = next;
 			}
 		}
@@ -1104,7 +1104,7 @@ abstract public boolean hasTypeBit(int bit);
 * NOTE: Assume that anInterface is an interface.
 */
 public boolean implementsInterface(ReferenceBinding anInterface, boolean searchHierarchy) {
-	if (this == anInterface)
+	if (TypeBinding.equalsEquals(this, anInterface))
 		return true;
 
 	ReferenceBinding[] interfacesToVisit = null;
@@ -1123,7 +1123,7 @@ public boolean implementsInterface(ReferenceBinding anInterface, boolean searchH
 				nextInterface : for (int a = 0; a < itsLength; a++) {
 					ReferenceBinding next = itsInterfaces[a];
 					for (int b = 0; b < nextPosition; b++)
-						if (next == interfacesToVisit[b]) continue nextInterface;
+						if (TypeBinding.equalsEquals(next, interfacesToVisit[b])) continue nextInterface;
 					interfacesToVisit[nextPosition++] = next;
 				}
 			}
@@ -1143,7 +1143,7 @@ public boolean implementsInterface(ReferenceBinding anInterface, boolean searchH
 			nextInterface : for (int a = 0; a < itsLength; a++) {
 				ReferenceBinding next = itsInterfaces[a];
 				for (int b = 0; b < nextPosition; b++)
-					if (next == interfacesToVisit[b]) continue nextInterface;
+					if (TypeBinding.equalsEquals(next, interfacesToVisit[b])) continue nextInterface;
 				interfacesToVisit[nextPosition++] = next;
 			}
 		}

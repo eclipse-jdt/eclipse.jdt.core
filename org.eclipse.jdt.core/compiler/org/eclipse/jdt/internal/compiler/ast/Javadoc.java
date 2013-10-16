@@ -286,7 +286,7 @@ public class Javadoc extends ASTNode {
 						if (messageSend.binding != null && messageSend.binding.isValidBinding() && messageSend.actualReceiverType instanceof ReferenceBinding) {
 							ReferenceBinding methodReceiverType = (ReferenceBinding) messageSend.actualReceiverType;
 							TypeBinding superType = methDecl.binding.declaringClass.findSuperTypeOriginatingFrom(methodReceiverType);
-							if (superType != null && superType.original() != methDecl.binding.declaringClass && CharOperation.equals(messageSend.selector, methDecl.selector)) {
+							if (superType != null && TypeBinding.notEquals(superType.original(), methDecl.binding.declaringClass) && CharOperation.equals(messageSend.selector, methDecl.selector)) {
 								if (methScope.environment().methodVerifier().doesMethodOverride(methDecl.binding, messageSend.binding.original())) {
 									superRef = true;
 								}
@@ -299,7 +299,7 @@ public class Javadoc extends ASTNode {
 					if (allocationExpr.binding != null && allocationExpr.binding.isValidBinding()) {
 						ReferenceBinding allocType = (ReferenceBinding) allocationExpr.resolvedType.original();
 						ReferenceBinding superType = (ReferenceBinding) methDecl.binding.declaringClass.findSuperTypeOriginatingFrom(allocType);
-						if (superType != null && superType.original() != methDecl.binding.declaringClass) {
+						if (superType != null && TypeBinding.notEquals(superType.original(), methDecl.binding.declaringClass)) {
 							MethodBinding superConstructor = methScope.getConstructor(superType, methDecl.binding.parameters, allocationExpr);
 							if (superConstructor.isValidBinding() && superConstructor.original() == allocationExpr.binding.original()) {
 								if (superConstructor.areParametersEqual(methDecl.binding)) {
@@ -612,7 +612,7 @@ public class Javadoc extends ASTNode {
 							// Verify duplicated tags
 							boolean duplicate = false;
 							for (int j = 0; j < i && !duplicate; j++) {
-								if (bindings[j] == param.resolvedType) {
+								if (TypeBinding.equalsEquals(bindings[j], param.resolvedType)) {
 									scope.problemReporter().javadocDuplicatedParamTag(param.token, param.sourceStart, param.sourceEnd, modifiers);
 									duplicate = true;
 								}
@@ -631,7 +631,7 @@ public class Javadoc extends ASTNode {
 					TypeParameter parameter = parameters[i];
 					boolean found = false;
 					for (int j = 0; j < paramTypeParamLength && !found; j++) {
-						if (parameter.binding == bindings[j]) {
+						if (TypeBinding.equalsEquals(parameter.binding, bindings[j])) {
 							found = true;
 							bindings[j] = null;
 						}
@@ -686,7 +686,7 @@ public class Javadoc extends ASTNode {
 					ReferenceBinding exceptionBinding = md.binding.thrownExceptions[i];
 					if (exceptionBinding != null && exceptionBinding.isValidBinding()) { // flag only valid class name
 						int j=i;
-						while (j<thrownExceptionLength && exceptionBinding != md.thrownExceptions[j].resolvedType) j++;
+						while (j<thrownExceptionLength && TypeBinding.notEquals(exceptionBinding, md.thrownExceptions[j].resolvedType)) j++;
 						if (j<thrownExceptionLength) {
 							methScope.problemReporter().javadocMissingThrowsTag(md.thrownExceptions[j], md.binding.modifiers);
 						}
@@ -717,7 +717,7 @@ public class Javadoc extends ASTNode {
 				for (int j = 0; j < maxRef && !found; j++) {
 					if (typeReferences[j] != null) {
 						TypeBinding typeBinding = typeReferences[j].resolvedType;
-						if (exceptionBinding == typeBinding) {
+						if (TypeBinding.equalsEquals(exceptionBinding, typeBinding)) {
 							found = true;
 							typeReferences[j] = null;
 						}
@@ -726,7 +726,7 @@ public class Javadoc extends ASTNode {
 				if (!found && reportMissing) {
 					if (exceptionBinding != null && exceptionBinding.isValidBinding()) { // flag only valid class name
 						int k=i;
-						while (k<thrownExceptionLength && exceptionBinding != md.thrownExceptions[k].resolvedType) k++;
+						while (k<thrownExceptionLength && TypeBinding.notEquals(exceptionBinding, md.thrownExceptions[k].resolvedType)) k++;
 						if (k<thrownExceptionLength) {
 							methScope.problemReporter().javadocMissingThrowsTag(md.thrownExceptions[k], md.binding.modifiers);
 						}
@@ -800,7 +800,7 @@ public class Javadoc extends ASTNode {
 					topLevelScope = topLevelScope.outerMostClassScope();
 					if (typeReference instanceof JavadocSingleTypeReference) {
 						// inner class single reference can only be done in same unit
-						if ((!source15 && depth == 1) || topLevelType != topLevelScope.referenceContext.binding) {
+						if ((!source15 && depth == 1) || TypeBinding.notEquals(topLevelType, topLevelScope.referenceContext.binding)) {
 							// search for corresponding import
 							boolean hasValidImport = false;
 							if (source15) {

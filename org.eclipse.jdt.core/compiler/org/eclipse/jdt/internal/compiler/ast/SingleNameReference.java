@@ -127,7 +127,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 					currentScope.problemReporter().cannotAssignToFinalField(fieldBinding, this);
 				}
 			} else if (!isCompound && fieldBinding.isNonNull()
-						&& fieldBinding.declaringClass == currentScope.enclosingReceiverType()) { // inherited fields are not tracked here
+						&& TypeBinding.equalsEquals(fieldBinding.declaringClass, currentScope.enclosingReceiverType())) { // inherited fields are not tracked here
 				// record assignment for detecting uninitialized non-null fields:
 				flowInfo.markAsDefinitelyAssigned(fieldBinding);
 			}
@@ -223,7 +223,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 			SourceTypeBinding sourceType = scope.enclosingSourceType();
 			if (this.constant == Constant.NotAConstant
 					&& !methodScope.isStatic
-					&& (sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
+					&& (TypeBinding.equalsEquals(sourceType, declaringClass) || TypeBinding.equalsEquals(sourceType.superclass, declaringClass)) // enum constant body
 					&& methodScope.isInsideInitializerOrConstructor()) {
 				scope.problemReporter().enumStaticFieldUsedDuringInitialization(fieldBinding, this);
 			}
@@ -245,7 +245,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 		scope.problemReporter().deprecatedField(fieldBinding, this);
 
 	if ((this.bits & ASTNode.IsStrictlyAssigned) == 0
-			&& methodScope.enclosingSourceType() == fieldBinding.original().declaringClass
+			&& TypeBinding.equalsEquals(methodScope.enclosingSourceType(), fieldBinding.original().declaringClass)
 			&& methodScope.lastVisibleFieldID >= 0
 			&& fieldBinding.id >= methodScope.lastVisibleFieldID
 			&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
@@ -424,7 +424,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				if (codegenField.isStatic()) {
 					if (!valueRequired
 							// if no valueRequired, still need possible side-effects of <clinit> invocation, if field belongs to different class
-							&& ((FieldBinding)this.binding).original().declaringClass == this.actualReceiverType.erasure()
+							&& TypeBinding.equalsEquals(((FieldBinding)this.binding).original().declaringClass, this.actualReceiverType.erasure())
 							&& ((this.implicitConversion & TypeIds.UNBOXING) == 0)
 							&& this.genericCast == null) {
 						// if no valueRequired, optimize out entire gen
@@ -782,7 +782,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 			}
 
 			// using incr bytecode if possible
-			if (localBinding.type == TypeBinding.INT) {
+			if (TypeBinding.equalsEquals(localBinding.type, TypeBinding.INT)) {
 				if (valueRequired) {
 					codeStream.load(localBinding);
 				}

@@ -174,7 +174,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 				}
 				assignment.expression.generateCode(currentScope, codeStream, true);
 				if (valueRequired) {
-					if ((codegenField.type == TypeBinding.LONG) || (codegenField.type == TypeBinding.DOUBLE)) {
+					if ((TypeBinding.equalsEquals(codegenField.type, TypeBinding.LONG)) || (TypeBinding.equalsEquals(codegenField.type, TypeBinding.DOUBLE))) {
 						codeStream.dup2_x2();
 					} else {
 						codeStream.dup_x2();
@@ -203,7 +203,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 					if (valueRequired) {
 						codeStream.generateImplicitConversion(assignment.implicitConversion); // implicit conversion
 					} else {
-						if ((localBinding.type == TypeBinding.LONG) || (localBinding.type == TypeBinding.DOUBLE)) {
+						if ((TypeBinding.equalsEquals(localBinding.type, TypeBinding.LONG)) || (TypeBinding.equalsEquals(localBinding.type, TypeBinding.DOUBLE))) {
 							codeStream.pop2();
 						} else {
 							codeStream.pop();

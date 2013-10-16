@@ -107,7 +107,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 						if (method.parameters.length == paramCount) {
 							TypeBinding[] toMatch = method.parameters;
 							for (int i = 0; i < paramCount; i++) {
-								if (toMatch[i] != this.parameters[i]) {
+								if (TypeBinding.notEquals(toMatch[i], this.parameters[i])) {
 									continue nextMethod;
 								}
 							}
@@ -196,7 +196,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 						if (method.parameters.length == paramCount) {
 							TypeBinding[] toMatch = method.parameters;
 							for (int i = 0; i < paramCount; i++) {
-								if (toMatch[i] != this.parameters[i]) {
+								if (TypeBinding.notEquals(toMatch[i], this.parameters[i])) {
 									continue nextMethod;
 								}
 							}

@@ -926,7 +926,7 @@ private MethodBinding findMethod(char[] methodDescriptor, char[][][] missingType
 		int currentMethodParameterLength = parameters2.length;
 		if (parameterLength == currentMethodParameterLength) {
 			for (int j = 0; j < currentMethodParameterLength; j++) {
-				if (parameters[j] != parameters2[j] && parameters[j].erasure() != parameters2[j].erasure()) {
+				if (TypeBinding.notEquals(parameters[j], parameters2[j]) && TypeBinding.notEquals(parameters[j].erasure(), parameters2[j].erasure())) {
 					continue loop;
 				}
 			}
@@ -967,7 +967,7 @@ public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 				resolveTypesFor(method);
 				TypeBinding[] toMatch = method.parameters;
 				for (int iarg = 0; iarg < argCount; iarg++)
-					if (toMatch[iarg] != argumentTypes[iarg])
+					if (TypeBinding.notEquals(toMatch[iarg], argumentTypes[iarg]))
 						continue nextMethod;
 				return method;
 			}
@@ -1004,7 +1004,7 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 				resolveTypesFor(method);
 				TypeBinding[] toMatch = method.parameters;
 				for (int iarg = 0; iarg < argCount; iarg++)
-					if (toMatch[iarg] != argumentTypes[iarg])
+					if (TypeBinding.notEquals(toMatch[iarg], argumentTypes[iarg]))
 						continue nextMethod;
 				return method;
 			}

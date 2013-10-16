@@ -303,7 +303,7 @@ public void computeLocalVariablePositions(int initOffset, CodeStream codeStream)
 		// assign variable position
 		local.resolvedPosition = this.offset;
 
-		if ((local.type == TypeBinding.LONG) || (local.type == TypeBinding.DOUBLE)) {
+		if ((TypeBinding.equalsEquals(local.type, TypeBinding.LONG)) || (TypeBinding.equalsEquals(local.type, TypeBinding.DOUBLE))) {
 			this.offset += 2;
 		} else {
 			this.offset++;
@@ -320,7 +320,7 @@ public void computeLocalVariablePositions(int initOffset, CodeStream codeStream)
 		for (int iarg = 0, maxArguments = this.extraSyntheticArguments.length; iarg < maxArguments; iarg++){
 			SyntheticArgumentBinding argument = this.extraSyntheticArguments[iarg];
 			argument.resolvedPosition = this.offset;
-			if ((argument.type == TypeBinding.LONG) || (argument.type == TypeBinding.DOUBLE)){
+			if ((TypeBinding.equalsEquals(argument.type, TypeBinding.LONG)) || (TypeBinding.equalsEquals(argument.type, TypeBinding.DOUBLE))){
 				this.offset += 2;
 			} else {
 				this.offset++;
@@ -423,7 +423,7 @@ public FieldBinding findField(TypeBinding receiverType, char[] fieldName, Invoca
 	if (field.isStatic())
 		return field; // static fields are always accessible
 
-	if (!this.isConstructorCall || receiverType != enclosingSourceType())
+	if (!this.isConstructorCall || TypeBinding.notEquals(receiverType, enclosingSourceType()))
 		return field;
 
 	if (invocationSite instanceof SingleNameReference)

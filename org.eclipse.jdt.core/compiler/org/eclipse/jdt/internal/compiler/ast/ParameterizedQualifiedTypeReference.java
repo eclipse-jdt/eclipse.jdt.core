@@ -246,7 +246,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					typeIsConsistent = false;
 				}
 				ReferenceBinding enclosingType = currentType.enclosingType();
-				if (enclosingType != null && enclosingType.erasure() != qualifyingType.erasure()) { // qualifier != declaring/enclosing
+				if (enclosingType != null && TypeBinding.notEquals(enclosingType.erasure(), qualifyingType.erasure())) { // qualifier != declaring/enclosing
 					qualifyingType = enclosingType; // inherited member type, leave it associated with its enclosing rather than subtype
 				}
 			}

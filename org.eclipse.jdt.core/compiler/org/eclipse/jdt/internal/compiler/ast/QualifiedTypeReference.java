@@ -132,7 +132,7 @@ public class QualifiedTypeReference extends TypeReference {
 					rejectAnnotationsOnStaticMemberQualififer(scope, currentType, this.annotations[i-1]);
 				}
 				ReferenceBinding enclosingType = currentType.enclosingType();
-				if (enclosingType != null && enclosingType.erasure() != qualifiedType.erasure()) {
+				if (enclosingType != null && TypeBinding.notEquals(enclosingType.erasure(), qualifiedType.erasure())) {
 					qualifiedType = enclosingType; // inherited member type, leave it associated with its enclosing rather than subtype
 				}
 				boolean rawQualified;
@@ -140,7 +140,7 @@ public class QualifiedTypeReference extends TypeReference {
 					qualifiedType = scope.environment().createRawType(currentType, qualifiedType);
 				} else if ((rawQualified = qualifiedType.isRawType()) && !currentType.isStatic()) {
 					qualifiedType = scope.environment().createRawType((ReferenceBinding)currentType.erasure(), qualifiedType);
-				} else if ((rawQualified || qualifiedType.isParameterizedType()) && qualifiedType.erasure() == currentType.enclosingType().erasure()) {
+				} else if ((rawQualified || qualifiedType.isParameterizedType()) && TypeBinding.equalsEquals(qualifiedType.erasure(), currentType.enclosingType().erasure())) {
 					qualifiedType = scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType);
 				} else {
 					qualifiedType = currentType;

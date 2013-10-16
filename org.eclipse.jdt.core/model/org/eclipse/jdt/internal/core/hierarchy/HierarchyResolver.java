@@ -213,7 +213,7 @@ private IType findSuperClass(IGenericType type, ReferenceBinding typeBinding) {
 			}
 		}
 		for (int t = this.typeIndex; t >= 0; t--) {
-			if (this.typeBindings[t] == superBinding) {
+			if (TypeBinding.equalsEquals(this.typeBindings[t], superBinding)) {
 				return this.builder.getHandle(this.typeModels[t], superBinding);
 			}
 		}
@@ -292,7 +292,7 @@ private IType[] findSuperInterfaces(IGenericType type, ReferenceBinding typeBind
 			if (CharOperation.equals(simpleName, interfaceBinding.sourceName)) {
 				bindingIndex++;
 				for (int t = this.typeIndex; t >= 0; t--) {
-					if (this.typeBindings[t] == interfaceBinding) {
+					if (TypeBinding.equalsEquals(this.typeBindings[t], interfaceBinding)) {
 						IType handle = this.builder.getHandle(this.typeModels[t], interfaceBinding);
 						if (handle != null) {
 							superinterfaces[index++] = handle;
@@ -871,7 +871,7 @@ public boolean subOrSuperOfFocus(ReferenceBinding typeBinding) {
 }
 private boolean subTypeOfType(ReferenceBinding subType, ReferenceBinding typeBinding) {
 	if (typeBinding == null || subType == null) return false;
-	if (subType == typeBinding) return true;
+	if (TypeBinding.equalsEquals(subType, typeBinding)) return true;
 	ReferenceBinding superclass = subType.superclass();
 	if (superclass != null) superclass = (ReferenceBinding) superclass.erasure();
 //	if (superclass != null && superclass.id == TypeIds.T_JavaLangObject && subType.isHierarchyInconsistent()) return false;

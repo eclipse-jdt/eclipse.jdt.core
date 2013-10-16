@@ -122,7 +122,7 @@ public class CaptureBinding extends TypeVariableBinding {
 					} else {
 						// the wildcard bound should be a subtype of variable superclass
 						// it may occur that the bound is less specific, then consider glb (202404)
-						if (capturedWildcardBound.isArrayType() || capturedWildcardBound == this) {
+						if (capturedWildcardBound.isArrayType() || TypeBinding.equalsEquals(capturedWildcardBound, this)) {
 							this.setSuperClass(scope.getJavaLangObject());
 						} else {
 							this.setSuperClass((ReferenceBinding) capturedWildcardBound);
@@ -151,14 +151,14 @@ public class CaptureBinding extends TypeVariableBinding {
 		ReferenceBinding originalVariableSuperclass = wildcardVariable.superclass;
 		ReferenceBinding substitutedVariableSuperclass = (ReferenceBinding) Scope.substitute(capturedParameterizedType, originalVariableSuperclass);
 		// prevent cyclic capture: given X<T>, capture(X<? extends T> could yield a circular type
-		if (substitutedVariableSuperclass == this) substitutedVariableSuperclass = originalVariableSuperclass;
+		if (TypeBinding.equalsEquals(substitutedVariableSuperclass, this)) substitutedVariableSuperclass = originalVariableSuperclass;
 
 		ReferenceBinding[] originalVariableInterfaces = wildcardVariable.superInterfaces();
 		ReferenceBinding[] substitutedVariableInterfaces = Scope.substitute(capturedParameterizedType, originalVariableInterfaces);
 		if (substitutedVariableInterfaces != originalVariableInterfaces) {
 			// prevent cyclic capture: given X<T>, capture(X<? extends T> could yield a circular type
 			for (int i = 0, length = substitutedVariableInterfaces.length; i < length; i++) {
-				if (substitutedVariableInterfaces[i] == this) substitutedVariableInterfaces[i] = originalVariableInterfaces[i];
+				if (TypeBinding.equalsEquals(substitutedVariableInterfaces[i], this)) substitutedVariableInterfaces[i] = originalVariableInterfaces[i];
 			}
 		}
 		// no substitution for wildcard bound (only formal bounds from type variables are to be substituted: 104082)
@@ -182,7 +182,7 @@ public class CaptureBinding extends TypeVariableBinding {
 				} else {
 					// the wildcard bound should be a subtype of variable superclass
 					// it may occur that the bound is less specific, then consider glb (202404)
-					if (capturedWildcardBound.isArrayType() || capturedWildcardBound == this) {
+					if (capturedWildcardBound.isArrayType() || TypeBinding.equalsEquals(capturedWildcardBound, this)) {
 						this.setSuperClass(substitutedVariableSuperclass);
 					} else {
 						this.setSuperClass((ReferenceBinding) capturedWildcardBound);
@@ -203,7 +203,7 @@ public class CaptureBinding extends TypeVariableBinding {
 				break;
 			case Wildcard.SUPER :
 				this.setSuperClass(substitutedVariableSuperclass);
-				if (wildcardVariable.firstBound == substitutedVariableSuperclass || originalWildcardBound == substitutedVariableSuperclass) {
+				if (TypeBinding.equalsEquals(wildcardVariable.firstBound, substitutedVariableSuperclass) || TypeBinding.equalsEquals(originalWildcardBound, substitutedVariableSuperclass)) {
 					this.setFirstBound(substitutedVariableSuperclass);
 				}
 				this.setSuperInterfaces(substitutedVariableInterfaces);

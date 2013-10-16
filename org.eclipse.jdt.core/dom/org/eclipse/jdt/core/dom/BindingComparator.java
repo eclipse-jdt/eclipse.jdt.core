@@ -172,7 +172,7 @@ class BindingComparator {
 		return true;
 	}
 	static boolean isEqual(org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding2, HashSet visitedTypes) {
-		if (typeBinding == typeBinding2)
+		if (org.eclipse.jdt.internal.compiler.lookup.TypeBinding.equalsEquals(typeBinding, typeBinding2))
 			return true;
 		if (typeBinding == null || typeBinding2 == null)
 			return false;

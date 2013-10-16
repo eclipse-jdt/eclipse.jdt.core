@@ -118,12 +118,12 @@ public final boolean areParametersCompatibleWith(TypeBinding[] arguments) {
 		if (paramLength == argLength) { // accept X[] but not X or X[][]
 			TypeBinding varArgType = this.parameters[lastIndex]; // is an ArrayBinding by definition
 			TypeBinding lastArgument = arguments[lastIndex];
-			if (varArgType != lastArgument && !lastArgument.isCompatibleWith(varArgType))
+			if (TypeBinding.notEquals(varArgType, lastArgument) && !lastArgument.isCompatibleWith(varArgType))
 				return false;
 		} else if (paramLength < argLength) { // all remainig argument types must be compatible with the elementsType of varArgType
 			TypeBinding varArgType = ((ArrayBinding) this.parameters[lastIndex]).elementsType();
 			for (int i = lastIndex; i < argLength; i++)
-				if (varArgType != arguments[i] && !arguments[i].isCompatibleWith(varArgType))
+				if (TypeBinding.notEquals(varArgType, arguments[i]) && !arguments[i].isCompatibleWith(varArgType))
 					return false;
 		} else if (lastIndex != argLength) { // can call foo(int i, X ... x) with foo(1) but NOT foo();
 			return false;
@@ -131,7 +131,7 @@ public final boolean areParametersCompatibleWith(TypeBinding[] arguments) {
 		// now compare standard arguments from 0 to lastIndex
 	}
 	for (int i = 0; i < lastIndex; i++)
-		if (this.parameters[i] != arguments[i] && !arguments[i].isCompatibleWith(this.parameters[i]))
+		if (TypeBinding.notEquals(this.parameters[i], arguments[i]) && !arguments[i].isCompatibleWith(this.parameters[i]))
 			return false;
 	return true;
 }
@@ -168,7 +168,7 @@ public final boolean areTypeVariableErasuresEqual(MethodBinding method) {
 		return false;
 
 	for (int i = 0; i < length; i++)
-		if (this.typeVariables[i] != vars[i] && this.typeVariables[i].erasure() != vars[i].erasure())
+		if (TypeBinding.notEquals(this.typeVariables[i], vars[i]) && TypeBinding.notEquals(this.typeVariables[i].erasure(), vars[i].erasure()))
 			return false;
 	return true;
 }
@@ -217,7 +217,7 @@ public final boolean canBeSeenBy(InvocationSite invocationSite, Scope scope) {
 	if (isPublic()) return true;
 
 	SourceTypeBinding invocationType = scope.enclosingSourceType();
-	if (invocationType == this.declaringClass) return true;
+	if (TypeBinding.equalsEquals(invocationType, this.declaringClass)) return true;
 
 	if (isProtected()) {
 		// answer true if the receiver is in the same package as the invocationType
@@ -241,7 +241,7 @@ public final boolean canBeSeenBy(InvocationSite invocationSite, Scope scope) {
 			outerDeclaringClass = temp;
 			temp = temp.enclosingType();
 		}
-		return outerInvocationType == outerDeclaringClass;
+		return TypeBinding.equalsEquals(outerInvocationType, outerDeclaringClass);
 	}
 
 	// isDefault()
@@ -544,7 +544,7 @@ public MethodBinding findOriginalInheritedMethod(MethodBinding inheritedMethod) 
 	TypeBinding superType = this.declaringClass.findSuperTypeOriginatingFrom(inheritedOriginal.declaringClass);
 	if (superType == null || !(superType instanceof ReferenceBinding)) return null;
 
-	if (inheritedOriginal.declaringClass != superType) {
+	if (TypeBinding.notEquals(inheritedOriginal.declaringClass, superType)) {
 		// must find inherited method with the same substituted variables
 		MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(inheritedOriginal.selector, inheritedOriginal.parameters.length);
 		for (int m = 0, l = superMethods.length; m < l; m++)

@@ -321,7 +321,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			}
 		}
 		TypeBinding checkedParameterType = parameterType; // originalParameterType == null ? parameterType : originalParameterType;
-		if (argumentType != checkedParameterType && argumentType.needsUncheckedConversion(checkedParameterType)) {
+		if (TypeBinding.notEquals(argumentType, checkedParameterType) && argumentType.needsUncheckedConversion(checkedParameterType)) {
 			scope.problemReporter().unsafeTypeConversion(argument, argumentType, checkedParameterType);
 			return INVOCATION_ARGUMENT_UNCHECKED;
 		}
@@ -398,8 +398,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						if (varargsType.dimensions < dimensions) {
 							scope.problemReporter().varargsArgumentNeedCast(method, lastArgType, invocationSite);
 						} else if (varargsType.dimensions == dimensions
-										&& lastArgType != varargsType
-										&& lastArgType.leafComponentType().erasure() != varargsType.leafComponentType.erasure()
+										&& TypeBinding.notEquals(lastArgType, varargsType)
+										&& TypeBinding.notEquals(lastArgType.leafComponentType().erasure(), varargsType.leafComponentType.erasure())
 										&& lastArgType.isCompatibleWith(varargsType.elementsType())
 										&& lastArgType.isCompatibleWith(varargsType)) {
 							scope.problemReporter().varargsArgumentNeedCast(method, lastArgType, invocationSite);
@@ -828,7 +828,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				for (int j = i+1; j < length; j++) {
 					AnnotationBinding otherAnnotation = distinctAnnotations[j];
 					if (otherAnnotation == null) continue;
-					if (otherAnnotation.getAnnotationType() == annotationType) {
+					if (TypeBinding.equalsEquals(otherAnnotation.getAnnotationType(), annotationType)) {
 						if (distinctAnnotations == annotations) {
 							System.arraycopy(distinctAnnotations, 0, distinctAnnotations = new AnnotationBinding[length], 0, length);
 						}

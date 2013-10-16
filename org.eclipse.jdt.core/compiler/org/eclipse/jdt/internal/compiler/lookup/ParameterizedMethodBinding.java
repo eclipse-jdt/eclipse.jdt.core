@@ -96,7 +96,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 				ReferenceBinding[] substitutedInterfaces = Scope.substitute(substitution, originalVariable.superInterfaces);
 				if (originalVariable.firstBound != null) {
 					TypeBinding firstBound;
-					firstBound = originalVariable.firstBound == originalVariable.superclass
+					firstBound = TypeBinding.equalsEquals(originalVariable.firstBound, originalVariable.superclass)
 						? substitutedSuperclass // could be array type or interface
 						: substitutedInterfaces[0];
 					substitutedVariable.setFirstBound(firstBound);
@@ -233,7 +233,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 				ReferenceBinding[] substitutedInterfaces = Scope.substitute(substitution, originalVariable.superInterfaces);
 				if (originalVariable.firstBound != null) {
 					TypeBinding firstBound;
-					firstBound = originalVariable.firstBound == originalVariable.superclass
+					firstBound = TypeBinding.equalsEquals(originalVariable.firstBound, originalVariable.superclass)
 						? substitutedSuperclass // could be array type or interface
 						: substitutedInterfaces[0];
 					substitutedVariable.setFirstBound(firstBound);

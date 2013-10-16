@@ -144,7 +144,7 @@ public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
 		if (use15specifics) {
 			if (!lhsType.isBaseType() && expressionType.id != T_JavaLangString && expressionType.id != T_null) {
 				TypeBinding unboxedType = env.computeBoxingType(lhsType);
-				if (unboxedType != lhsType) {
+				if (TypeBinding.notEquals(unboxedType, lhsType)) {
 					lhsType = unboxedType;
 					unboxedLhs = true;
 				}

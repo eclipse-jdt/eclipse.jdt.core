@@ -477,7 +477,7 @@ public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode locat
 		if ((exception = raisedExceptions[i]) != null) {
 			// only one complaint if same exception declared to be thrown more than once
 			for (int j = 0; j < i; j++) {
-				if (raisedExceptions[j] == exception) continue nextReport; // already reported
+				if (TypeBinding.equalsEquals(raisedExceptions[j], exception)) continue nextReport; // already reported
 			}
 			scope.problemReporter().unhandledException(exception, location);
 		}
@@ -494,7 +494,7 @@ public FlowInfo getInitsForFinalBlankInitializationCheck(TypeBinding declaringTy
 	do {
 		if (current instanceof InitializationFlowContext) {
 			InitializationFlowContext initializationContext = (InitializationFlowContext) current;
-			if (((TypeDeclaration)initializationContext.associatedNode).binding == declaringType) {
+			if (TypeBinding.equalsEquals(((TypeDeclaration)initializationContext.associatedNode).binding, declaringType)) {
 				return inits;
 			}
 			inits = initializationContext.initsBeforeContext;

@@ -256,7 +256,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	MethodBinding codegenBinding = this.binding.original();
 
 	ReferenceBinding declaringClass;
-	if (codegenBinding.isPrivate() && currentScope.enclosingSourceType() != (declaringClass = codegenBinding.declaringClass)) {
+	if (codegenBinding.isPrivate() && TypeBinding.notEquals(currentScope.enclosingSourceType(), (declaringClass = codegenBinding.declaringClass))) {
 
 		// from 1.4 on, local type constructor can lose their private flag to ease emulation
 		if ((declaringClass.tagBits & TagBits.IsLocalType) != 0 && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
@@ -508,7 +508,7 @@ public void checkTypeArgumentRedundancy(ParameterizedTypeBinding allocationType,
 			// eg. X<String> x = new X<String>()
 			int i;
 			for (i = 0; i < allocationType.arguments.length; i++) {
-				if (allocationType.arguments[i] != expected.arguments[i])
+				if (TypeBinding.notEquals(allocationType.arguments[i], expected.arguments[i]))
 					break;
 			}
 			if (i == allocationType.arguments.length) {
@@ -522,7 +522,7 @@ public void checkTypeArgumentRedundancy(ParameterizedTypeBinding allocationType,
 		return;
 	}
 	for (int i = 0; i < inferredTypes.length; i++) {
-		if (inferredTypes[i] != allocationType.arguments[i])
+		if (TypeBinding.notEquals(inferredTypes[i], allocationType.arguments[i]))
 			return;
 	}
 	reporter.redundantSpecificationOfTypeArguments(this.type, allocationType.arguments);

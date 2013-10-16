@@ -123,7 +123,7 @@ public class QualifiedThisReference extends ThisReference {
 	int findCompatibleEnclosing(ReferenceBinding enclosingType, TypeBinding type) {
 		int depth = 0;
 		this.currentCompatibleType = enclosingType;
-		while (this.currentCompatibleType != null && this.currentCompatibleType != type) {
+		while (this.currentCompatibleType != null && TypeBinding.notEquals(this.currentCompatibleType, type)) {
 			depth++;
 			this.currentCompatibleType = this.currentCompatibleType.isStatic() ? null : this.currentCompatibleType.enclosingType();
 		}

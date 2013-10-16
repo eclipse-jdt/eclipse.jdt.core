@@ -464,7 +464,7 @@ public TypeDeclaration declarationOf(MemberTypeBinding memberTypeBinding) {
 	if (memberTypeBinding != null && this.memberTypes != null) {
 		for (int i = 0, max = this.memberTypes.length; i < max; i++) {
 			TypeDeclaration memberTypeDecl;
-			if ((memberTypeDecl = this.memberTypes[i]).binding == memberTypeBinding)
+			if (TypeBinding.equalsEquals((memberTypeDecl = this.memberTypes[i]).binding, memberTypeBinding))
 				return memberTypeDecl;
 		}
 	}
@@ -1131,7 +1131,7 @@ public void resolve() {
 						if (needSerialVersion
 								&& ((fieldBinding.modifiers & (ClassFileConstants.AccStatic | ClassFileConstants.AccFinal)) == (ClassFileConstants.AccStatic | ClassFileConstants.AccFinal))
 								&& CharOperation.equals(TypeConstants.SERIALVERSIONUID, fieldBinding.name)
-								&& TypeBinding.LONG == fieldBinding.type) {
+								&& TypeBinding.equalsEquals(TypeBinding.LONG, fieldBinding.type)) {
 							needSerialVersion = false;
 						}
 						localMaxFieldCount++;
@@ -1154,7 +1154,7 @@ public void resolve() {
 			if (javaxRmiCorbaStub.isValidBinding()) {
 				ReferenceBinding superclassBinding = this.binding.superclass;
 				loop: while (superclassBinding != null) {
-					if (superclassBinding == javaxRmiCorbaStub) {
+					if (TypeBinding.equalsEquals(superclassBinding, javaxRmiCorbaStub)) {
 						needSerialVersion = false;
 						break loop;
 					}

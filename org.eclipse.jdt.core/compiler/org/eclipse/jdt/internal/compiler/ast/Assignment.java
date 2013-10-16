@@ -212,7 +212,7 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	// Compile-time conversion of base-types : implicit narrowing integer into byte/short/character
 	// may require to widen the rhs expression at runtime
-	if (lhsType != rhsType) { // must call before computeConversion() and typeMismatchError()
+	if (TypeBinding.notEquals(lhsType, rhsType)) { // must call before computeConversion() and typeMismatchError()
 		scope.compilationUnitScope().recordTypeConversion(lhsType, rhsType);
 	}
 	if (this.expression.isConstantValueOfTypeAssignableToType(rhsType, lhsType)
@@ -246,8 +246,8 @@ public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedTy
 	TypeBinding lhsType = this.resolvedType;
 	TypeBinding rhsType = this.expression.resolvedType;
 	// signal possible accidental boolean assignment (instead of using '==' operator)
-	if (expectedType == TypeBinding.BOOLEAN
-			&& lhsType == TypeBinding.BOOLEAN
+	if (TypeBinding.equalsEquals(expectedType, TypeBinding.BOOLEAN)
+			&& TypeBinding.equalsEquals(lhsType, TypeBinding.BOOLEAN)
 			&& (this.lhs.bits & IsStrictlyAssigned) != 0) {
 		scope.problemReporter().possibleAccidentalBooleanAssignment(this);
 	}

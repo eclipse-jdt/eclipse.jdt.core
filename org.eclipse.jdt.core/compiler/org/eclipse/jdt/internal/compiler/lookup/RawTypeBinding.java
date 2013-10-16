@@ -157,13 +157,13 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	    	case Binding.GENERIC_TYPE :
 	    	case Binding.PARAMETERIZED_TYPE :
 	    	case Binding.RAW_TYPE :
-	            return erasure() == otherType.erasure();
+	            return TypeBinding.equalsEquals(erasure(), otherType.erasure());
 	    }
         return false;
 	}
 
     public boolean isProvablyDistinct(TypeBinding otherType) {
-		if (this == otherType || erasure() == otherType) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=329588
+		if (TypeBinding.equalsEquals(this, otherType) || TypeBinding.equalsEquals(erasure(), otherType)) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=329588
 		    return false;
 	    if (otherType == null)
 	        return true;
@@ -172,7 +172,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	    	case Binding.GENERIC_TYPE :
 	    	case Binding.PARAMETERIZED_TYPE :
 	    	case Binding.RAW_TYPE :
-	            return erasure() != otherType.erasure();
+	            return TypeBinding.notEquals(erasure(), otherType.erasure());
 	    }
         return true;
 	}

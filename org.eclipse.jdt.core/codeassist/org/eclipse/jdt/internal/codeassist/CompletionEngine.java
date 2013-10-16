@@ -1452,7 +1452,7 @@ public final class CompletionEngine
 
 		// do not add twice the same type
 		for (int i = 0; i <= this.expectedTypesPtr; i++) {
-			if (this.expectedTypes[i] == type) return;
+			if (TypeBinding.equalsEquals(this.expectedTypes[i], type)) return;
 		}
 
 		int length = this.expectedTypes.length;
@@ -1460,7 +1460,7 @@ public final class CompletionEngine
 			System.arraycopy(this.expectedTypes, 0, this.expectedTypes = new TypeBinding[length * 2], 0, length);
 		this.expectedTypes[this.expectedTypesPtr] = type;
 
-		if(type == scope.getJavaLangObject()) {
+		if(TypeBinding.equalsEquals(type, scope.getJavaLangObject())) {
 			this.hasJavaLangObjectAsExpectedType = true;
 		}
 	}
@@ -1493,12 +1493,12 @@ public final class CompletionEngine
 			if (paramLength == argLength) { // accept X[] but not X or X[][]
 				TypeBinding varArgType = parameters[lastIndex]; // is an ArrayBinding by definition
 				TypeBinding lastArgument = arguments[lastIndex];
-				if (varArgType != lastArgument && !lastArgument.isCompatibleWith(varArgType))
+				if (TypeBinding.notEquals(varArgType, lastArgument) && !lastArgument.isCompatibleWith(varArgType))
 					return false;
 			} else if (paramLength < argLength) { // all remainig argument types must be compatible with the elementsType of varArgType
 				TypeBinding varArgType = ((ArrayBinding) parameters[lastIndex]).elementsType();
 				for (int i = lastIndex; i < argLength; i++)
-					if (varArgType != arguments[i] && !arguments[i].isCompatibleWith(varArgType))
+					if (TypeBinding.notEquals(varArgType, arguments[i]) && !arguments[i].isCompatibleWith(varArgType))
 						return false;
 			} else if (lastIndex != argLength) { // can call foo(int i, X ... x) with foo(1) but NOT foo();
 				return false;
@@ -1509,7 +1509,7 @@ public final class CompletionEngine
 				return false;
 		}
 		for (int i = 0; i < lastIndex; i++)
-			if (parameters[i] != arguments[i] && !arguments[i].isCompatibleWith(parameters[i]))
+			if (TypeBinding.notEquals(parameters[i], arguments[i]) && !arguments[i].isCompatibleWith(parameters[i]))
 				return false;
 		return true;
 	}
@@ -3409,7 +3409,7 @@ public final class CompletionEngine
 					nextInterface : for (int a = 0; a < itsLength; a++) {
 						ReferenceBinding next = itsInterfaces[a];
 						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
+							if (TypeBinding.equalsEquals(next, interfacesToVisit[b])) continue nextInterface;
 						interfacesToVisit[nextPosition++] = next;
 					}
 				}
@@ -3450,7 +3450,7 @@ public final class CompletionEngine
 					nextInterface : for (int a = 0; a < itsLength; a++) {
 						ReferenceBinding next = itsInterfaces[a];
 						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
+							if (TypeBinding.equalsEquals(next, interfacesToVisit[b])) continue nextInterface;
 						interfacesToVisit[nextPosition++] = next;
 					}
 				}
@@ -3918,7 +3918,7 @@ public final class CompletionEngine
 					nextInterface : for (int a = 0; a < itsLength; a++) {
 						ReferenceBinding next = itsInterfaces[a];
 						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
+							if (TypeBinding.equalsEquals(next, interfacesToVisit[b])) continue nextInterface;
 						interfacesToVisit[nextPosition++] = next;
 					}
 				}
@@ -3979,7 +3979,7 @@ public final class CompletionEngine
 		if (isStatic) {
 			completion.append(declarationType.sourceName());
 
-		} else if (declarationType == invocationType) {
+		} else if (TypeBinding.equalsEquals(declarationType, invocationType)) {
 			completion.append(THIS);
 
 		} else {
@@ -4069,7 +4069,7 @@ public final class CompletionEngine
 				this.expectedTypes != null) {
 			for (int i = 0; i <= this.expectedTypesPtr; i++) {
 				if (proposalType.isEnum() &&
-						proposalType == this.expectedTypes[i]) {
+						TypeBinding.equalsEquals(proposalType, this.expectedTypes[i])) {
 					return R_ENUM + R_ENUM_CONSTANT;
 				}
 
@@ -4151,7 +4151,7 @@ public final class CompletionEngine
 	}
 
 	private int computeRelevanceForInheritance(ReferenceBinding receiverType, ReferenceBinding declaringClass) {
-		if (receiverType == declaringClass) return R_NON_INHERITED;
+		if (TypeBinding.equalsEquals(receiverType, declaringClass)) return R_NON_INHERITED;
 		return 0;
 	}
 
@@ -4724,20 +4724,20 @@ public final class CompletionEngine
 	private void createTypeVariable(TypeVariableBinding typeVariable, Scope scope, StringBuffer completion) {
 		completion.append(typeVariable.sourceName);
 
-		if (typeVariable.superclass != null && typeVariable.firstBound == typeVariable.superclass) {
+		if (typeVariable.superclass != null && TypeBinding.equalsEquals(typeVariable.firstBound, typeVariable.superclass)) {
 		    completion.append(' ');
 		    completion.append(EXTENDS);
 		    completion.append(' ');
 		    createType(typeVariable.superclass, scope, completion);
 		}
 		if (typeVariable.superInterfaces != null && typeVariable.superInterfaces != Binding.NO_SUPERINTERFACES) {
-		   if (typeVariable.firstBound != typeVariable.superclass) {
+		   if (TypeBinding.notEquals(typeVariable.firstBound, typeVariable.superclass)) {
 			   completion.append(' ');
 			   completion.append(EXTENDS);
 			   completion.append(' ');
 		   }
 		   for (int i = 0, length = typeVariable.superInterfaces.length; i < length; i++) {
-			   if (i > 0 || typeVariable.firstBound == typeVariable.superclass) {
+			   if (i > 0 || TypeBinding.equalsEquals(typeVariable.firstBound, typeVariable.superclass)) {
 				   completion.append(' ');
 				   completion.append(EXTENDS);
 				   completion.append(' ');
@@ -5863,9 +5863,9 @@ public final class CompletionEngine
 
 		if (searchSuperClasses) {
 			ReferenceBinding javaLangThrowable = scope.getJavaLangThrowable();
-			if (exceptionType != javaLangThrowable) {
+			if (TypeBinding.notEquals(exceptionType, javaLangThrowable)) {
 				ReferenceBinding superClass = exceptionType.superclass();
-				while(superClass != null && superClass != javaLangThrowable) {
+				while(superClass != null && TypeBinding.notEquals(superClass, javaLangThrowable)) {
 					findExceptionFromTryStatement(typeName, superClass, receiverType, invocationType, scope, typesFound, false);
 					superClass = superClass.superclass();
 				}
@@ -5901,7 +5901,7 @@ public final class CompletionEngine
 		for (int j = typesFound.size; --j >= 0;) {
 			ReferenceBinding otherType = (ReferenceBinding) typesFound.elementAt(j);
 
-			if (exceptionType == otherType)
+			if (TypeBinding.equalsEquals(exceptionType, otherType))
 				return;
 
 			if (CharOperation.equals(exceptionType.sourceName, otherType.sourceName, true)) {
@@ -5954,7 +5954,7 @@ public final class CompletionEngine
 								SourceTypeBinding localType =
 									((ClassScope) blockScope.subscopes[j]).referenceContext.binding;
 
-								if (localType == exceptionType) {
+								if (TypeBinding.equalsEquals(localType, exceptionType)) {
 									isQualified = false;
 									break done;
 								}
@@ -5967,7 +5967,7 @@ public final class CompletionEngine
 						ReferenceBinding[] memberTypes = type.memberTypes();
 						if (memberTypes != null) {
 							for (int j = 0; j < memberTypes.length; j++) {
-								if (memberTypes[j] == exceptionType) {
+								if (TypeBinding.equalsEquals(memberTypes[j], exceptionType)) {
 									isQualified = false;
 									break done;
 								}
@@ -5981,7 +5981,7 @@ public final class CompletionEngine
 						SourceTypeBinding[] types = ((CompilationUnitScope)currentScope).topLevelTypes;
 						if (types != null) {
 							for (int j = 0; j < types.length; j++) {
-								if (types[j] == exceptionType) {
+								if (TypeBinding.equalsEquals(types[j], exceptionType)) {
 									isQualified = false;
 									break done;
 								}
@@ -6244,13 +6244,13 @@ public final class CompletionEngine
 				Object[] other = (Object[])fieldsFound.elementAt(i);
 				FieldBinding otherField = (FieldBinding) other[0];
 				ReferenceBinding otherReceiverType = (ReferenceBinding) other[1];
-				if (field == otherField && receiverType == otherReceiverType)
+				if (field == otherField && TypeBinding.equalsEquals(receiverType, otherReceiverType))
 					continue next;
 				if (CharOperation.equals(field.name, otherField.name, true)) {
 					if (field.declaringClass.isSuperclassOf(otherField.declaringClass))
 						continue next;
 					if (otherField.declaringClass.isInterface()) {
-						if (field.declaringClass == scope.getJavaLangObject())
+						if (TypeBinding.equalsEquals(field.declaringClass, scope.getJavaLangObject()))
 							continue next;
 						if (field.declaringClass.implementsInterface(otherField.declaringClass, true))
 							continue next;
@@ -6271,7 +6271,7 @@ public final class CompletionEngine
 
 				if (CharOperation.equals(field.name, local.name, true)) {
 					SourceTypeBinding declarationType = scope.enclosingSourceType();
-					if (declarationType.isAnonymousType() && declarationType != invocationScope.enclosingSourceType()) {
+					if (declarationType.isAnonymousType() && TypeBinding.notEquals(declarationType, invocationScope.enclosingSourceType())) {
 						continue next;
 					}
 					if(canBePrefixed) {
@@ -6490,7 +6490,7 @@ public final class CompletionEngine
 					nextInterface : for (int a = 0; a < itsLength; a++) {
 						ReferenceBinding next = itsInterfaces[a];
 						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
+							if (TypeBinding.equalsEquals(next, interfacesToVisit[b])) continue nextInterface;
 						interfacesToVisit[nextPosition++] = next;
 					}
 				}
@@ -6555,7 +6555,7 @@ public final class CompletionEngine
 					nextInterface : for (int a = 0; a < itsLength; a++) {
 						ReferenceBinding next = itsInterfaces[a];
 						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
+							if (TypeBinding.equalsEquals(next, interfacesToVisit[b])) continue nextInterface;
 						interfacesToVisit[nextPosition++] = next;
 					}
 				}
@@ -7900,7 +7900,7 @@ public final class CompletionEngine
 					nextInterface : for (int a = 0; a < itsLength; a++) {
 						ReferenceBinding next = itsInterfaces[a];
 						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
+							if (TypeBinding.equalsEquals(next, interfacesToVisit[b])) continue nextInterface;
 						interfacesToVisit[nextPosition++] = next;
 					}
 				}
@@ -7974,7 +7974,7 @@ public final class CompletionEngine
 					nextInterface : for (int a = 0; a < itsLength; a++) {
 						ReferenceBinding next = itsInterfaces[a];
 						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
+							if (TypeBinding.equalsEquals(next, interfacesToVisit[b])) continue nextInterface;
 						interfacesToVisit[nextPosition++] = next;
 					}
 				}
@@ -8489,11 +8489,11 @@ public final class CompletionEngine
 				Object[] other = (Object[]) methodsFound.elementAt(i);
 				MethodBinding otherMethod = (MethodBinding) other[0];
 				ReferenceBinding otherReceiverType = (ReferenceBinding) other[1];
-				if (method == otherMethod && receiverType == otherReceiverType)
+				if (method == otherMethod && TypeBinding.equalsEquals(receiverType, otherReceiverType))
 					continue next;
 
 				if (CharOperation.equals(method.selector, otherMethod.selector, true)) {
-					if (receiverType == otherReceiverType) {
+					if (TypeBinding.equalsEquals(receiverType, otherReceiverType)) {
 						if (this.lookupEnvironment.methodVerifier().isMethodSubsignature(otherMethod, method)) {
 							if (!superCall || !otherMethod.declaringClass.isInterface()) {
 								continue next;
@@ -8516,7 +8516,7 @@ public final class CompletionEngine
 			newMethodsFound.add(new Object[]{method, receiverType});
 
 			ReferenceBinding superTypeWithSameErasure = (ReferenceBinding)receiverType.findSuperTypeOriginatingFrom(method.declaringClass);
-			if (method.declaringClass != superTypeWithSameErasure) {
+			if (TypeBinding.notEquals(method.declaringClass, superTypeWithSameErasure)) {
 				MethodBinding[] otherMethods = superTypeWithSameErasure.getMethods(method.selector);
 				for (int i = 0; i < otherMethods.length; i++) {
 					if(otherMethods[i].original() == method.original()) {
@@ -8801,7 +8801,7 @@ public final class CompletionEngine
 					if (method == otherMethod) continue next;
 
 					if (CharOperation.equals(method.selector, otherMethod.selector, true)) {
-						if (otherMethod.declaringClass == method.declaringClass &&
+						if (TypeBinding.equalsEquals(otherMethod.declaringClass, method.declaringClass) &&
 								this.lookupEnvironment.methodVerifier().isMethodSubsignature(otherMethod, method)) {
 							continue next;
 						}
@@ -8844,7 +8844,7 @@ public final class CompletionEngine
 				methodsFoundFromFavorites.add(new Object[]{method, receiverType});
 
 				ReferenceBinding superTypeWithSameErasure = (ReferenceBinding)receiverType.findSuperTypeOriginatingFrom(method.declaringClass);
-				if (method.declaringClass != superTypeWithSameErasure) {
+				if (TypeBinding.notEquals(method.declaringClass, superTypeWithSameErasure)) {
 					MethodBinding[] otherMethods = superTypeWithSameErasure.getMethods(method.selector);
 					for (int i = 0; i < otherMethods.length; i++) {
 						if(otherMethods[i].original() == method.original()) {
@@ -9073,7 +9073,7 @@ public final class CompletionEngine
 				Object[] other = (Object[]) methodsFound.elementAt(i);
 				MethodBinding otherMethod = (MethodBinding) other[0];
 				ReferenceBinding otherReceiverType = (ReferenceBinding) other[1];
-				if (method == otherMethod && receiverType == otherReceiverType)
+				if (method == otherMethod && TypeBinding.equalsEquals(receiverType, otherReceiverType))
 					continue next;
 
 				if (CharOperation.equals(method.selector, otherMethod.selector, true)) {
@@ -9385,7 +9385,7 @@ public final class CompletionEngine
 					nextInterface : for (int a = 0; a < itsLength; a++) {
 						ReferenceBinding next = itsInterfaces[a];
 						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
+							if (TypeBinding.equalsEquals(next, interfacesToVisit[b])) continue nextInterface;
 						interfacesToVisit[nextPosition++] = next;
 					}
 				}
@@ -9413,7 +9413,7 @@ public final class CompletionEngine
 		if(proposeAllMemberTypes) {
 			ReferenceBinding[] memberTypes = receiverType.memberTypes();
 			for (int i = 0; i < memberTypes.length; i++) {
-				if(memberTypes[i] != typeToIgnore) {
+				if(TypeBinding.notEquals(memberTypes[i], typeToIgnore)) {
 					findSubMemberTypes(
 						typeName,
 						memberTypes[i],
@@ -9454,7 +9454,7 @@ public final class CompletionEngine
 					nextInterface : for (int a = 0; a < itsLength; a++) {
 						ReferenceBinding next = itsInterfaces[a];
 						for (int b = 0; b < nextPosition; b++)
-							if (next == interfacesToVisit[b]) continue nextInterface;
+							if (TypeBinding.equalsEquals(next, interfacesToVisit[b])) continue nextInterface;
 						interfacesToVisit[nextPosition++] = next;
 					}
 				}
@@ -9549,7 +9549,7 @@ public final class CompletionEngine
 			for (int i = typesFound.size; --i >= 0;) {
 				ReferenceBinding otherType = (ReferenceBinding) typesFound.elementAt(i);
 
-				if (memberType == otherType)
+				if (TypeBinding.equalsEquals(memberType, otherType))
 					continue next;
 
 				if (CharOperation.equals(memberType.sourceName, otherType.sourceName, true)) {
@@ -10062,7 +10062,7 @@ public final class CompletionEngine
 								for (int j = typesFound.size; --j >= 0;) {
 									ReferenceBinding otherType = (ReferenceBinding) typesFound.elementAt(j);
 
-									if (localType == otherType)
+									if (TypeBinding.equalsEquals(localType, otherType))
 										continue next;
 								}
 
@@ -10267,7 +10267,7 @@ public final class CompletionEngine
 	private void findTrueOrFalseKeywords(char[][] choices) {
 		if(choices == null || choices.length == 0) return;
 
-		if(this.expectedTypesPtr != 0 || this.expectedTypes[0] != TypeBinding.BOOLEAN) return;
+		if(this.expectedTypesPtr != 0 || TypeBinding.notEquals(this.expectedTypes[0], TypeBinding.BOOLEAN)) return;
 
 		for (int i = 0; i < choices.length; i++) {
 			if (CharOperation.equals(choices[i], Keywords.TRUE) ||
@@ -10416,7 +10416,7 @@ public final class CompletionEngine
 				if(isForbidden(sourceType)) continue next;
 
 				if(proposeAllMemberTypes &&
-					sourceType != outerInvocationType) {
+					TypeBinding.notEquals(sourceType, outerInvocationType)) {
 					findSubMemberTypes(
 							token,
 							sourceType,
@@ -10443,7 +10443,7 @@ public final class CompletionEngine
 				for (int j = typesFound.size; --j >= 0;) {
 					ReferenceBinding otherType = (ReferenceBinding) typesFound.elementAt(j);
 
-					if (sourceType == otherType) continue next;
+					if (TypeBinding.equalsEquals(sourceType, otherType)) continue next;
 				}
 				
 				typesFound.add(sourceType);
@@ -10850,7 +10850,7 @@ public final class CompletionEngine
 
 					for (int j = 0; j < typesFound.size(); j++) {
 						ReferenceBinding typeFound = (ReferenceBinding)typesFound.elementAt(j);
-						if (typeFound == refBinding.erasure()) {
+						if (TypeBinding.equalsEquals(typeFound, refBinding.erasure())) {
 							continue next;
 						}
 					}
@@ -11538,7 +11538,7 @@ public final class CompletionEngine
 			TypeBinding tb = type.resolvedType;
 
 			if (tb.problemId() == ProblemReasons.NoError &&
-					tb != Scope.getBaseType(VOID)) {
+					TypeBinding.notEquals(tb, Scope.getBaseType(VOID))) {
 				findVariableName(
 					name,
 					tb.leafComponentType().qualifiedPackageName(),
@@ -12150,7 +12150,7 @@ public final class CompletionEngine
 					for (int i = 0; i < memberTypes.length; i++) {
 						if (CharOperation.equals(memberTypes[i].sourceName, type.sourceName()) &&
 								memberTypes[i].canBeSeenBy(scope)) {
-							return memberTypes[i] != type;
+							return TypeBinding.notEquals(memberTypes[i], type);
 						}
 					}
 				}

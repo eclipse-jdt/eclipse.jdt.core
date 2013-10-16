@@ -243,7 +243,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				this.initialization.setExpectedType(variableType);
 				TypeBinding initializationType = this.initialization.resolveType(scope);
 				if (initializationType != null) {
-					if (variableType != initializationType) // must call before computeConversion() and typeMismatchError()
+					if (TypeBinding.notEquals(variableType, initializationType)) // must call before computeConversion() and typeMismatchError()
 						scope.compilationUnitScope().recordTypeConversion(variableType, initializationType);
 					if (this.initialization.isConstantValueOfTypeAssignableToType(initializationType, variableType)
 						|| initializationType.isCompatibleWith(variableType, scope)) {

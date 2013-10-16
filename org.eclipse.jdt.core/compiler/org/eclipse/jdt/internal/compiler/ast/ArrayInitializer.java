@@ -190,7 +190,7 @@ public class ArrayInitializer extends Expression {
 					continue;
 
 				// Compile-time conversion required?
-				if (elementType != expressionType) // must call before computeConversion() and typeMismatchError()
+				if (TypeBinding.notEquals(elementType, expressionType)) // must call before computeConversion() and typeMismatchError()
 					scope.compilationUnitScope().recordTypeConversion(elementType, expressionType);
 
 				if (expression.isConstantValueOfTypeAssignableToType(expressionType, elementType) 

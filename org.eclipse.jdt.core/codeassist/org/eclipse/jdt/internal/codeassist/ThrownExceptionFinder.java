@@ -211,7 +211,7 @@ public class ThrownExceptionFinder extends ASTVisitor {
 		for (int i = 0; i < exceptions.length; i++) {
 			ReferenceBinding exception = (ReferenceBinding)exceptions[i];
 			if (exception != null) {
-				if (exception == caughtException) {
+				if (TypeBinding.equalsEquals(exception, caughtException)) {
 					this.thrownExceptions.remove(exception);
 				} else if (caughtException.isSuperclassOf(exception)) {
 					// catching the sub-exception when super has been caught already will give an error

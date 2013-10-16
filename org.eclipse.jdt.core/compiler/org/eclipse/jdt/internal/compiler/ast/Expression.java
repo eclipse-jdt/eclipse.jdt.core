@@ -326,7 +326,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 					TypeBinding castElementType = ((ArrayBinding) castType).elementsType();
 					TypeBinding exprElementType = ((ArrayBinding) expressionType).elementsType();
 					if (exprElementType.isBaseType() || castElementType.isBaseType()) {
-						if (castElementType == exprElementType) {
+						if (TypeBinding.equalsEquals(castElementType, exprElementType)) {
 							tagAsNeedCheckCast();
 							return true;
 						}
@@ -438,7 +438,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 								int exprMethodsLength = expressionTypeMethods.length;
 								for (int i = 0, castMethodsLength = castTypeMethods.length; i < castMethodsLength; i++) {
 									for (int j = 0; j < exprMethodsLength; j++) {
-										if ((castTypeMethods[i].returnType != expressionTypeMethods[j].returnType)
+										if ((TypeBinding.notEquals(castTypeMethods[i].returnType, expressionTypeMethods[j].returnType))
 												&& (CharOperation.equals(castTypeMethods[i].selector, expressionTypeMethods[j].selector))
 												&& castTypeMethods[i].areParametersEqual(expressionTypeMethods[j])) {
 											return false;
@@ -607,7 +607,7 @@ protected void checkNPEbyUnboxing(BlockScope scope, FlowContext flowContext, Flo
 }
 
 public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
-	if (match == castType) {
+	if (TypeBinding.equalsEquals(match, castType)) {
 		if (!isNarrowing) tagAsUnnecessaryCast(scope, castType);
 		return true;
 	}
@@ -643,7 +643,7 @@ public void computeConversion(Scope scope, TypeBinding runtimeType, TypeBinding 
 		}
 	} else if (compileTimeType != TypeBinding.NULL && compileTimeType.isBaseType()) {
 		TypeBinding boxedType = scope.environment().computeBoxingType(runtimeType);
-		if (boxedType == runtimeType) // Object o = 12;
+		if (TypeBinding.equalsEquals(boxedType, runtimeType)) // Object o = 12;
 			boxedType = compileTimeType;
 		this.implicitConversion = TypeIds.BOXING | (boxedType.id << 4) + compileTimeType.id;
 		scope.problemReporter().autoboxing(this, compileTimeType, scope.environment().computeBoxingType(boxedType));
@@ -893,7 +893,7 @@ public boolean isConstantValueOfTypeAssignableToType(TypeBinding constantType, T
 
 	if (this.constant == Constant.NotAConstant)
 		return false;
-	if (constantType == targetType)
+	if (TypeBinding.equalsEquals(constantType, targetType))
 		return true;
 	//No free assignment conversion from anything but to integral ones.
 	if (BaseTypeBinding.isWidening(TypeIds.T_int, constantType.id)
@@ -1036,7 +1036,7 @@ public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedTy
 	setExpectedType(expectedType); // needed in case of generic method invocation
 	TypeBinding expressionType = this.resolveType(scope);
 	if (expressionType == null) return null;
-	if (expressionType == expectedType) return expressionType;
+	if (TypeBinding.equalsEquals(expressionType, expectedType)) return expressionType;
 
 	if (!expressionType.isCompatibleWith(expectedType)) {
 		if (scope.isBoxingCompatibleWith(expressionType, expectedType)) {
@@ -1063,12 +1063,12 @@ public boolean forcedToBeRaw(ReferenceContext referenceContext) {
 			if (field.type.isRawType()) {
 				if (referenceContext instanceof AbstractMethodDeclaration) {
 					AbstractMethodDeclaration methodDecl = (AbstractMethodDeclaration) referenceContext;
-					if (field.declaringClass != methodDecl.binding.declaringClass) { // inherited raw field, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=337962
+					if (TypeBinding.notEquals(field.declaringClass, methodDecl.binding.declaringClass)) { // inherited raw field, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=337962
 						return true;
 					}
 				} else if (referenceContext instanceof TypeDeclaration) {
 					TypeDeclaration type = (TypeDeclaration) referenceContext;
-					if (field.declaringClass != type.binding) { // inherited raw field, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=337962
+					if (TypeBinding.notEquals(field.declaringClass, type.binding)) { // inherited raw field, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=337962
 						return true;
 					}
 				}
@@ -1088,12 +1088,12 @@ public boolean forcedToBeRaw(ReferenceContext referenceContext) {
 		if (field.type.isRawType()) {
 			if (referenceContext instanceof AbstractMethodDeclaration) {
 				AbstractMethodDeclaration methodDecl = (AbstractMethodDeclaration) referenceContext;
-				if (field.declaringClass != methodDecl.binding.declaringClass) { // inherited raw field, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=337962
+				if (TypeBinding.notEquals(field.declaringClass, methodDecl.binding.declaringClass)) { // inherited raw field, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=337962
 					return true;
 				}
 			} else if (referenceContext instanceof TypeDeclaration) {
 				TypeDeclaration type = (TypeDeclaration) referenceContext;
-				if (field.declaringClass != type.binding) { // inherited raw field, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=337962
+				if (TypeBinding.notEquals(field.declaringClass, type.binding)) { // inherited raw field, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=337962
 					return true;
 				}
 			}
@@ -1144,7 +1144,7 @@ public boolean tIsMoreSpecific(TypeBinding t, TypeBinding s) {
 	if (expressionType == null || !expressionType.isValidBinding()) // Shouldn't get here, just to play it safe
 		return false; // trigger ambiguity.
 	
-	if (t.findSuperTypeOriginatingFrom(s) == s)
+	if (TypeBinding.equalsEquals(t.findSuperTypeOriginatingFrom(s), s))
 		return true;
 	
 	final boolean tIsBaseType = t.isBaseType();

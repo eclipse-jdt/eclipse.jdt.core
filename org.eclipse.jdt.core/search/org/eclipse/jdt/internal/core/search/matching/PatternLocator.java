@@ -481,7 +481,7 @@ protected void updateMatch(ParameterizedTypeBinding parameterizedBinding, char[]
 			int length = argumentsBindings.length;
 			if (length == typeVariables.length) {
 				for (int i=0; i<length; i++) {
-					if (argumentsBindings[i] != typeVariables[i]) {
+					if (TypeBinding.notEquals(argumentsBindings[i], typeVariables[i])) {
 						needUpdate = true;
 						break;
 					}
@@ -612,7 +612,7 @@ protected void updateMatch(TypeBinding[] argumentsBinding, MatchLocator locator,
 					if (argumentBinding.isWildcard()) { // argument is a wildcard
 						WildcardBinding wildcardBinding = (WildcardBinding) argumentBinding;
 						// It's ok if wildcards are identical
-						if (wildcardBinding.boundKind == patternWildcardKind && wildcardBinding.bound == patternBinding) {
+						if (wildcardBinding.boundKind == patternWildcardKind && TypeBinding.equalsEquals(wildcardBinding.bound, patternBinding)) {
 							continue;
 						}
 						// Look for wildcard compatibility
@@ -640,7 +640,7 @@ protected void updateMatch(TypeBinding[] argumentsBinding, MatchLocator locator,
 					if (argumentBinding.isWildcard()) { // argument is a wildcard
 						WildcardBinding wildcardBinding = (WildcardBinding) argumentBinding;
 						// It's ok if wildcards are identical
-						if (wildcardBinding.boundKind == patternWildcardKind && wildcardBinding.bound == patternBinding) {
+						if (wildcardBinding.boundKind == patternWildcardKind && TypeBinding.equalsEquals(wildcardBinding.bound, patternBinding)) {
 							continue;
 						}
 						// Look for wildcard compatibility
@@ -686,7 +686,7 @@ protected void updateMatch(TypeBinding[] argumentsBinding, MatchLocator locator,
 								matchRule &= ~SearchPattern.R_FULL_MATCH;
 								continue;
 						}
-					} else if (argumentBinding == patternBinding)
+					} else if (TypeBinding.equalsEquals(argumentBinding, patternBinding))
 						// valid only when arg is equals to pattern
 						continue;
 					break;

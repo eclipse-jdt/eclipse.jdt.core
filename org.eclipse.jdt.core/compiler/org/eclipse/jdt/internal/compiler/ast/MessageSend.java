@@ -466,7 +466,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	if (this.binding.isPrivate()){
 
 		// depth is set for both implicit and explicit access (see MethodBinding#canBeSeenBy)
-		if (currentScope.enclosingSourceType() != codegenBinding.declaringClass){
+		if (TypeBinding.notEquals(currentScope.enclosingSourceType(), codegenBinding.declaringClass)){
 			this.syntheticAccessor = ((SourceTypeBinding)codegenBinding.declaringClass).addSyntheticMethod(codegenBinding, false /* not super access there */);
 			currentScope.problemReporter().needToEmulateMethodAccess(codegenBinding, this);
 			return;
@@ -583,7 +583,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	boolean receiverIsType = this.receiver instanceof NameReference && (((NameReference) this.receiver).bits & Binding.TYPE) != 0;
 	if (receiverCast && this.actualReceiverType != null) {
 		 // due to change of declaring class with receiver type, only identity cast should be notified
-		if (((CastExpression)this.receiver).expression.resolvedType == this.actualReceiverType) {
+		if (TypeBinding.equalsEquals(((CastExpression)this.receiver).expression.resolvedType, this.actualReceiverType)) {
 			scope.problemReporter().unnecessaryCast((CastExpression)this.receiver);
 		}
 	}
@@ -764,7 +764,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			TypeBinding oldReceiverType = this.actualReceiverType;
 			this.actualReceiverType = this.actualReceiverType.getErasureCompatibleType(this.binding.declaringClass);
 			this.receiver.computeConversion(scope, this.actualReceiverType, this.actualReceiverType);
-			if (this.actualReceiverType != oldReceiverType && this.receiver.postConversionType(scope) != this.actualReceiverType) { // record need for explicit cast at codegen since receiver could not handle it
+			if (TypeBinding.notEquals(this.actualReceiverType, oldReceiverType) && TypeBinding.notEquals(this.receiver.postConversionType(scope), this.actualReceiverType)) { // record need for explicit cast at codegen since receiver could not handle it
 				this.bits |= NeedReceiverGenericCast;
 			}
 		}
@@ -773,7 +773,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (!(this.receiver.isImplicitThis() || this.receiver.isSuper() || receiverIsType)) {
 			scope.problemReporter().nonStaticAccessToStaticMethod(this, this.binding);
 		}
-		if (!this.receiver.isImplicitThis() && this.binding.declaringClass != this.actualReceiverType) {
+		if (!this.receiver.isImplicitThis() && TypeBinding.notEquals(this.binding.declaringClass, this.actualReceiverType)) {
 			scope.problemReporter().indirectAccessToStaticMethod(this, this.binding);
 		}
 	}

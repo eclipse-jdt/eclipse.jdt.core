@@ -24,10 +24,10 @@ public MemberTypeBinding(MemberTypeBinding prototype) {
 }
 
 void checkSyntheticArgsAndFields() {
-	if (this != this.prototype) throw new IllegalStateException();
+	if (!isPrototype()) throw new IllegalStateException();
 	if (isStatic()) return;
 	if (isInterface()) return;
-	if (this != this.prototype) {
+	if (!isPrototype()) {
 		((MemberTypeBinding) this.prototype).checkSyntheticArgsAndFields();
 		return;
 	}
@@ -43,7 +43,7 @@ public char[] constantPoolName() /* java/lang/Object */ {
 	if (this.constantPoolName != null)
 		return this.constantPoolName;
 	
-	if (this != this.prototype) {
+	if (!isPrototype()) {
 		return this.prototype.constantPoolName();
 	}
 
@@ -60,7 +60,7 @@ public TypeBinding clone(TypeBinding outerType) {
  * @see org.eclipse.jdt.internal.compiler.lookup.Binding#initializeDeprecatedAnnotationTagBits()
  */
 public void initializeDeprecatedAnnotationTagBits() {
-	if (this != this.prototype) {
+	if (!isPrototype()) {
 		this.prototype.initializeDeprecatedAnnotationTagBits();
 		return;
 	}

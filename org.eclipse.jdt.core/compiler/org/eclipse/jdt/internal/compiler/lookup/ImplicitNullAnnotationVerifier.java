@@ -502,7 +502,7 @@ public class ImplicitNullAnnotationVerifier {
 				switch (two.kind()) {
 					case Binding.PARAMETERIZED_TYPE:
 					case Binding.RAW_TYPE:
-						if (one == two.erasure())
+						if (TypeBinding.equalsEquals(one, two.erasure()))
 							return true;
 				}
 				break;
@@ -510,7 +510,7 @@ public class ImplicitNullAnnotationVerifier {
 			case Binding.PARAMETERIZED_TYPE:
 				switch(two.kind()) {
 					case Binding.TYPE:
-						if (one.erasure() == two)
+						if (TypeBinding.equalsEquals(one.erasure(), two))
 							return true;
 				}
 		}

@@ -199,7 +199,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 		// current stack is:
 		// field receiver value
 		if (valueRequired) {
-			if ((codegenBinding.type == TypeBinding.LONG) || (codegenBinding.type == TypeBinding.DOUBLE)) {
+			if ((TypeBinding.equalsEquals(codegenBinding.type, TypeBinding.LONG)) || (TypeBinding.equalsEquals(codegenBinding.type, TypeBinding.DOUBLE))) {
 				codeStream.dup2_x2();
 			} else {
 				codeStream.dup_x2();

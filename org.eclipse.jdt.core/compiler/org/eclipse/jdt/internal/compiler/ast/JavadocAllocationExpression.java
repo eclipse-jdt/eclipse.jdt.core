@@ -116,8 +116,8 @@ public class JavadocAllocationExpression extends AllocationExpression {
 			if (paramMethodBinding.hasSubstitutedParameters()) {
 				int length = argumentTypes.length;
 				for (int i=0; i<length; i++) {
-					if (paramMethodBinding.parameters[i] != argumentTypes[i] &&
-							paramMethodBinding.parameters[i].erasure() != argumentTypes[i].erasure()) {
+					if (TypeBinding.notEquals(paramMethodBinding.parameters[i], argumentTypes[i]) &&
+							TypeBinding.notEquals(paramMethodBinding.parameters[i].erasure(), argumentTypes[i].erasure())) {
 						MethodBinding problem = new ProblemMethodBinding(this.binding, this.binding.selector, argumentTypes, ProblemReasons.NotFound);
 						scope.problemReporter().javadocInvalidConstructor(this, problem, scope.getDeclarationModifiers());
 						break;

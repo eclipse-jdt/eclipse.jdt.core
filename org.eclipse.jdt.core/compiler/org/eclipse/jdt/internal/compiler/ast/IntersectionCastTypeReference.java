@@ -91,7 +91,7 @@ public class IntersectionCastTypeReference extends TypeReference {
 				continue;
 			}
 			for (int j = 0; j < i; j++) {
-				if (intersectingTypes[j] == type) {
+				if (TypeBinding.equalsEquals(intersectingTypes[j], type)) {
 					scope.problemReporter().duplicateBoundInIntersectionCast(typeReference);
 					hasError = true;
 					continue;

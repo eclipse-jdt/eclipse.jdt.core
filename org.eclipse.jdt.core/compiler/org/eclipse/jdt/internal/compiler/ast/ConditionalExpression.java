@@ -520,7 +520,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		if (TypeBinding.equalsEquals(valueIfTrueType, valueIfFalseType)) { // harmed the implicit conversion
 			this.valueIfTrue.computeConversion(scope, valueIfTrueType, this.originalValueIfTrueType);
 			this.valueIfFalse.computeConversion(scope, valueIfFalseType, this.originalValueIfFalseType);
-			if (valueIfTrueType == TypeBinding.BOOLEAN) {
+			if (TypeBinding.equalsEquals(valueIfTrueType, TypeBinding.BOOLEAN)) {
 				this.optimizedIfTrueConstant = this.valueIfTrue.optimizedBooleanConstant();
 				this.optimizedIfFalseConstant = this.valueIfFalse.optimizedBooleanConstant();
 				if (this.optimizedIfTrueConstant != Constant.NotAConstant
@@ -540,24 +540,24 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		// Numeric types
 		if (valueIfTrueType.isNumericType() && valueIfFalseType.isNumericType()) {
 			// (Short x Byte) or (Byte x Short)"
-			if ((valueIfTrueType == TypeBinding.BYTE && valueIfFalseType == TypeBinding.SHORT)
-				|| (valueIfTrueType == TypeBinding.SHORT && valueIfFalseType == TypeBinding.BYTE)) {
+			if ((TypeBinding.equalsEquals(valueIfTrueType, TypeBinding.BYTE) && TypeBinding.equalsEquals(valueIfFalseType, TypeBinding.SHORT))
+				|| (TypeBinding.equalsEquals(valueIfTrueType, TypeBinding.SHORT) && TypeBinding.equalsEquals(valueIfFalseType, TypeBinding.BYTE))) {
 				this.valueIfTrue.computeConversion(scope, TypeBinding.SHORT, this.originalValueIfTrueType);
 				this.valueIfFalse.computeConversion(scope, TypeBinding.SHORT, this.originalValueIfFalseType);
 				return this.resolvedType = TypeBinding.SHORT;
 			}
 			// <Byte|Short|Char> x constant(Int)  ---> <Byte|Short|Char>   and reciprocally
-			if ((valueIfTrueType == TypeBinding.BYTE || valueIfTrueType == TypeBinding.SHORT || valueIfTrueType == TypeBinding.CHAR)
-					&& (valueIfFalseType == TypeBinding.INT
+			if ((TypeBinding.equalsEquals(valueIfTrueType, TypeBinding.BYTE) || TypeBinding.equalsEquals(valueIfTrueType, TypeBinding.SHORT) || TypeBinding.equalsEquals(valueIfTrueType, TypeBinding.CHAR))
+					&& (TypeBinding.equalsEquals(valueIfFalseType, TypeBinding.INT)
 						&& this.valueIfFalse.isConstantValueOfTypeAssignableToType(valueIfFalseType, valueIfTrueType))) {
 				this.valueIfTrue.computeConversion(scope, valueIfTrueType, this.originalValueIfTrueType);
 				this.valueIfFalse.computeConversion(scope, valueIfTrueType, this.originalValueIfFalseType);
 				return this.resolvedType = valueIfTrueType;
 			}
-			if ((valueIfFalseType == TypeBinding.BYTE
-					|| valueIfFalseType == TypeBinding.SHORT
-					|| valueIfFalseType == TypeBinding.CHAR)
-					&& (valueIfTrueType == TypeBinding.INT
+			if ((TypeBinding.equalsEquals(valueIfFalseType, TypeBinding.BYTE)
+					|| TypeBinding.equalsEquals(valueIfFalseType, TypeBinding.SHORT)
+					|| TypeBinding.equalsEquals(valueIfFalseType, TypeBinding.CHAR))
+					&& (TypeBinding.equalsEquals(valueIfTrueType, TypeBinding.INT)
 						&& this.valueIfTrue.isConstantValueOfTypeAssignableToType(valueIfTrueType, valueIfFalseType))) {
 				this.valueIfTrue.computeConversion(scope, valueIfFalseType, this.originalValueIfTrueType);
 				this.valueIfFalse.computeConversion(scope, valueIfFalseType, this.originalValueIfFalseType);

@@ -196,7 +196,7 @@ public TypeBinding elementsType() {
  */
 public TypeBinding erasure() {
     TypeBinding erasedType = this.leafComponentType.erasure();
-    if (this.leafComponentType != erasedType)
+    if (TypeBinding.notEquals(this.leafComponentType, erasedType))
         return this.environment.createArrayType(erasedType, this.dimensions);
     return this;
 }

@@ -478,7 +478,7 @@ public ReferenceBinding convertToParameterizedType(ReferenceBinding originalType
 			convertedEnclosingType = originalType.isStatic()
 				? (ReferenceBinding) convertToRawType(originalEnclosingType, false /*do not force conversion of enclosing types*/)
 				: convertToParameterizedType(originalEnclosingType);
-			needToConvert |= originalEnclosingType != convertedEnclosingType;
+			needToConvert |= TypeBinding.notEquals(originalEnclosingType, convertedEnclosingType);
 		}
 		if (needToConvert) {
 			return createParameterizedType(originalType, isGeneric ? originalType.typeVariables() : null, convertedEnclosingType);
@@ -539,7 +539,7 @@ public TypeBinding convertToRawType(TypeBinding type, boolean forceRawEnclosingT
 			convertedEnclosing = originalEnclosing;
 		} else if (forceRawEnclosingType && !needToConvert/*stop recursion when conversion occurs*/) {
 			convertedEnclosing = (ReferenceBinding) convertToRawType(originalEnclosing, forceRawEnclosingType);
-			needToConvert = originalEnclosing != convertedEnclosing; // only convert generic or parameterized types
+			needToConvert = TypeBinding.notEquals(originalEnclosing, convertedEnclosing); // only convert generic or parameterized types
 		} else if (needToConvert || ((ReferenceBinding)originalType).isStatic()) {
 			convertedEnclosing = (ReferenceBinding) convertToRawType(originalEnclosing, false);
 		} else {
@@ -547,13 +547,13 @@ public TypeBinding convertToRawType(TypeBinding type, boolean forceRawEnclosingT
 		}
 		if (needToConvert) {
 			convertedType = createRawType((ReferenceBinding) originalType.erasure(), convertedEnclosing);
-		} else if (originalEnclosing != convertedEnclosing) {
+		} else if (TypeBinding.notEquals(originalEnclosing, convertedEnclosing)) {
 			convertedType = createParameterizedType((ReferenceBinding) originalType.erasure(), null, convertedEnclosing);
 		} else {
 			convertedType = originalType;
 		}
 	}
-	if (originalType != convertedType) {
+	if (TypeBinding.notEquals(originalType, convertedType)) {
 		return dimension > 0 ? (TypeBinding)createArrayType(convertedType, dimension) : convertedType;
 	}
 	return type;
@@ -569,7 +569,7 @@ public ReferenceBinding[] convertToRawTypes(ReferenceBinding[] originalTypes, bo
     for (int i = 0, length = originalTypes.length; i < length; i++) {
         ReferenceBinding originalType = originalTypes[i];
         ReferenceBinding convertedType = (ReferenceBinding) convertToRawType(forceErasure ? originalType.erasure() : originalType, forceRawEnclosingType);
-        if (convertedType != originalType) {        
+        if (TypeBinding.notEquals(convertedType, originalType)) {        
             if (convertedTypes == originalTypes) {
                 System.arraycopy(originalTypes, 0, convertedTypes = new ReferenceBinding[length], 0, i);
             }
@@ -623,18 +623,18 @@ public TypeBinding convertUnresolvedBinaryToRawType(TypeBinding type) {
 		convertedType = needToConvert ? createRawType((ReferenceBinding)originalType.erasure(), null) : originalType;
 	} else {
 		ReferenceBinding convertedEnclosing = (ReferenceBinding) convertUnresolvedBinaryToRawType(originalEnclosing);
-		if (convertedEnclosing != originalEnclosing) {
+		if (TypeBinding.notEquals(convertedEnclosing, originalEnclosing)) {
 			needToConvert |= !((ReferenceBinding)originalType).isStatic();
 		}
 		if (needToConvert) {
 			convertedType = createRawType((ReferenceBinding) originalType.erasure(), convertedEnclosing);
-		} else if (originalEnclosing != convertedEnclosing) {
+		} else if (TypeBinding.notEquals(originalEnclosing, convertedEnclosing)) {
 			convertedType = createParameterizedType((ReferenceBinding) originalType.erasure(), null, convertedEnclosing);
 		} else {
 			convertedType = originalType;
 		}
 	}
-	if (originalType != convertedType) {
+	if (TypeBinding.notEquals(originalType, convertedType)) {
 		return dimension > 0 ? (TypeBinding)createArrayType(convertedType, dimension) : convertedType;
 	}
 	return type;

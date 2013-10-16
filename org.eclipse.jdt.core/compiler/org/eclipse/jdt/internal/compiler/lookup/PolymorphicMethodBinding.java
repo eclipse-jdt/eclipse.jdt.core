@@ -56,7 +56,7 @@ public class PolymorphicMethodBinding extends MethodBinding {
 			return false;
 		}
 		for (int j = 0; j < cachedParametersLength; j++){
-			if (this.parameters[j] != matchingParameters[j]) {
+			if (TypeBinding.notEquals(this.parameters[j], matchingParameters[j])) {
 				return false;
 			}
 		}
@@ -67,7 +67,7 @@ public class PolymorphicMethodBinding extends MethodBinding {
 			}
 		} else if (cachedReturnType == null) {
 			return false;
-		} else if (matchingReturnType != cachedReturnType) {
+		} else if (TypeBinding.notEquals(matchingReturnType, cachedReturnType)) {
 			return false;
 		}
 		// all arguments match

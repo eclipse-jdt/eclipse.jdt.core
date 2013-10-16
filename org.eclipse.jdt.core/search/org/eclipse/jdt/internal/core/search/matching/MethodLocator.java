@@ -92,7 +92,7 @@ private MethodBinding getMethodBinding(ReferenceBinding type, char[] methodName,
 		TypeBinding[] parameters = method.parameters;
 		if (argumentTypes.length == parameters.length) {
 			for (int j=0,l=parameters.length; j<l; j++) {
-				if (parameters[j].erasure() != argumentTypes[j].erasure()) {
+				if (TypeBinding.notEquals(parameters[j].erasure(), argumentTypes[j].erasure())) {
 					continue methodsLoop;
 				}
 			}
@@ -810,7 +810,7 @@ private boolean resolveLevelAsSuperInvocation(ReferenceBinding type, TypeBinding
 				if (argumentTypes.length == parameters.length) {
 					boolean found = true;
 					for (int k=0,l=parameters.length; k<l; k++) {
-						if (parameters[k].erasure() != argumentTypes[k].erasure()) {
+						if (TypeBinding.notEquals(parameters[k].erasure(), argumentTypes[k].erasure())) {
 							found = false;
 							break;
 						}

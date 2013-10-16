@@ -361,7 +361,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				}
 			} else {
 				boolean isFirst = lastFieldBinding == this.binding
-												&& (this.indexOfFirstFieldBinding == 1 || lastFieldBinding.declaringClass == currentScope.enclosingReceiverType())
+												&& (this.indexOfFirstFieldBinding == 1 || TypeBinding.equalsEquals(lastFieldBinding.declaringClass, currentScope.enclosingReceiverType()))
 												&& this.otherBindings == null; // could be dup: next.next.next
 				TypeBinding requiredGenericCast = getGenericCast(this.otherBindings == null ? 0 : this.otherBindings.length);
 				if (valueRequired
@@ -427,7 +427,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 	// check if compound assignment is the only usage of a private field
 	reportOnlyUselesslyReadPrivateField(currentScope, lastFieldBinding, valueRequired);
 	boolean isFirst = lastFieldBinding == this.binding
-		&& (this.indexOfFirstFieldBinding == 1 || lastFieldBinding.declaringClass == currentScope.enclosingReceiverType())
+		&& (this.indexOfFirstFieldBinding == 1 || TypeBinding.equalsEquals(lastFieldBinding.declaringClass, currentScope.enclosingReceiverType()))
 		&& this.otherBindings == null; // could be dup: next.next.next
 	TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, lastFieldBinding, getFinalReceiverType(), isFirst);			
 	SyntheticMethodBinding accessor = this.syntheticReadAccessors == null ? null : this.syntheticReadAccessors[this.syntheticReadAccessors.length - 1];
@@ -480,7 +480,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 	// check if this post increment is the only usage of a private field
 	reportOnlyUselesslyReadPrivateField(currentScope, lastFieldBinding, valueRequired);
 	boolean isFirst = lastFieldBinding == this.binding
-		&& (this.indexOfFirstFieldBinding == 1 || lastFieldBinding.declaringClass == currentScope.enclosingReceiverType())
+		&& (this.indexOfFirstFieldBinding == 1 || TypeBinding.equalsEquals(lastFieldBinding.declaringClass, currentScope.enclosingReceiverType()))
 		&& this.otherBindings == null; // could be dup: next.next.next
 	TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, lastFieldBinding, getFinalReceiverType(), isFirst);			
 	SyntheticMethodBinding accessor = this.syntheticReadAccessors == null
@@ -647,7 +647,7 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 						if (lastFieldBinding == initialFieldBinding) {
 							if (lastFieldBinding.isStatic()){
 								// if no valueRequired, still need possible side-effects of <clinit> invocation, if field belongs to different class
-								if (initialFieldBinding.declaringClass != this.actualReceiverType.erasure()) {
+								if (TypeBinding.notEquals(initialFieldBinding.declaringClass, this.actualReceiverType.erasure())) {
 									MethodBinding accessor = this.syntheticReadAccessors == null ? null : this.syntheticReadAccessors[i];
 									if (accessor == null) {
 										TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, lastFieldBinding, lastReceiverType, i == 0 && this.indexOfFirstFieldBinding == 1);
@@ -763,7 +763,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 				TypeBinding oldReceiverType = fieldReceiverType;
 				fieldReceiverType = fieldReceiverType.getErasureCompatibleType(field.declaringClass);// handle indirect inheritance thru variable secondary bound
 				FieldBinding originalBinding = previousField.original();
-				if (fieldReceiverType != oldReceiverType || originalBinding.type.leafComponentType().isTypeVariable()) { // record need for explicit cast at codegen
+				if (TypeBinding.notEquals(fieldReceiverType, oldReceiverType) || originalBinding.type.leafComponentType().isTypeVariable()) { // record need for explicit cast at codegen
 			    	setGenericCast(index-1,originalBinding.type.genericCast(fieldReceiverType)); // type cannot be base-type even in boxing case
 				}				
 		    }
@@ -782,14 +782,14 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 					MethodScope methodScope = scope.methodScope();
 					SourceTypeBinding sourceType = methodScope.enclosingSourceType();
 					if ((this.bits & ASTNode.IsStrictlyAssigned) == 0
-							&& sourceType == declaringClass
+							&& TypeBinding.equalsEquals(sourceType, declaringClass)
 							&& methodScope.lastVisibleFieldID >= 0
 							&& field.id >= methodScope.lastVisibleFieldID
 							&& (!field.isStatic() || methodScope.isStatic)) {
 						scope.problemReporter().forwardReference(this, index, field);
 					}					
 					// check if accessing enum static field in initializer
-					if ((sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
+					if ((TypeBinding.equalsEquals(sourceType, declaringClass) || TypeBinding.equalsEquals(sourceType.superclass, declaringClass)) // enum constant body
 							&& field.constant() == Constant.NotAConstant
 							&& !methodScope.isStatic
 							&& methodScope.isInsideInitializerOrConstructor()) {
@@ -799,7 +799,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 				// static field accessed through receiver? legal but unoptimal (optional warning)
 				scope.problemReporter().nonStaticAccessToStaticField(this, field, index);
 				// indirect static reference ?
-				if (field.declaringClass != type) {
+				if (TypeBinding.notEquals(field.declaringClass, type)) {
 					scope.problemReporter().indirectAccessToStaticField(this, field);
 				}
 			}
@@ -891,7 +891,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FieldBindi
 	if (fieldBinding.isPrivate()) { // private access
 	    FieldBinding codegenField = getCodegenBinding(index < 0 ? (this.otherBindings == null ? 0 : this.otherBindings.length) : index);
 	    ReferenceBinding declaringClass = codegenField.declaringClass;
-		if (declaringClass != currentScope.enclosingSourceType()) {
+		if (TypeBinding.notEquals(declaringClass, currentScope.enclosingSourceType())) {
 		    setSyntheticAccessor(fieldBinding, index, ((SourceTypeBinding) declaringClass).addSyntheticMethod(codegenField, index >= 0 /*read-access?*/, false /*not super access*/));
 			currentScope.problemReporter().needToEmulateFieldAccess(codegenField, this, index >= 0 /*read-access?*/);
 			return;
@@ -1032,7 +1032,7 @@ public TypeBinding resolveType(BlockScope scope) {
 					SourceTypeBinding sourceType = methodScope.enclosingSourceType();
 					// check for forward references
 					if ((this.indexOfFirstFieldBinding == 1 || (fieldBinding.modifiers & ClassFileConstants.AccEnum) != 0 || (!fieldBinding.isFinal() && declaringClass.isEnum())) // enum constants are checked even when qualified
-							&& sourceType == declaringClass
+							&& TypeBinding.equalsEquals(sourceType, declaringClass)
 							&& methodScope.lastVisibleFieldID >= 0
 							&& fieldBinding.id >= methodScope.lastVisibleFieldID
 							&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
@@ -1049,7 +1049,7 @@ public TypeBinding resolveType(BlockScope scope) {
 						// only last field is actually a write access if any
 						// check if accessing enum static field in initializer
 						if (declaringClass.isEnum()) {
-							if ((sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
+							if ((TypeBinding.equalsEquals(sourceType, declaringClass) || TypeBinding.equalsEquals(sourceType.superclass, declaringClass)) // enum constant body
 									&& fieldBinding.constant() == Constant.NotAConstant
 									&& !methodScope.isStatic
 									&& methodScope.isInsideInitializerOrConstructor()) {
@@ -1057,7 +1057,7 @@ public TypeBinding resolveType(BlockScope scope) {
 							}
 						}
 						if (this.indexOfFirstFieldBinding > 1
-								&& fieldBinding.declaringClass != this.actualReceiverType
+								&& TypeBinding.notEquals(fieldBinding.declaringClass, this.actualReceiverType)
 								&& fieldBinding.declaringClass.canBeSeenBy(scope)) {
 							scope.problemReporter().indirectAccessToStaticField(this, fieldBinding);
 						}						

@@ -149,7 +149,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 	} else {
 		this.saveValueVariable = null;
-		if (((this.bits & ASTNode.IsSynchronized) == 0) && this.expression != null && this.expression.resolvedType == TypeBinding.BOOLEAN) {
+		if (((this.bits & ASTNode.IsSynchronized) == 0) && this.expression != null && TypeBinding.equalsEquals(this.expression.resolvedType, TypeBinding.BOOLEAN)) {
 			if (noAutoCloseables) { // can't abruptly return in the presence of autocloseables. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=367566
 				this.expression.bits |= ASTNode.IsReturnedValue;
 			}
@@ -330,7 +330,7 @@ public void resolve(BlockScope scope) {
 	if (methodType == null)
 		return;
 
-	if (methodType != expressionType) // must call before computeConversion() and typeMismatchError()
+	if (TypeBinding.notEquals(methodType, expressionType)) // must call before computeConversion() and typeMismatchError()
 		scope.compilationUnitScope().recordTypeConversion(methodType, expressionType);
 	if (this.expression.isConstantValueOfTypeAssignableToType(expressionType, methodType)
 			|| expressionType.isCompatibleWith(methodType)) {

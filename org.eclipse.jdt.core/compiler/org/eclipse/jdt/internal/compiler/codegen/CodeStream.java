@@ -2634,7 +2634,7 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMe
 	    if (arguments != null) { // for bridge methods
 		    TypeBinding argument = arguments[i];
 			load(argument, resolvedPosition);
-			if (argument != parameter)
+			if (TypeBinding.notEquals(argument, parameter))
 			    checkcast(parameter);
 	    } else {
 			load(parameter, resolvedPosition);
@@ -2812,7 +2812,7 @@ public void generateSyntheticEnclosingInstanceValues(BlockScope currentScope, Re
 		boolean complyTo14 = compliance >= ClassFileConstants.JDK1_4;
 		for (int i = 0, max = syntheticArgumentTypes.length; i < max; i++) {
 			ReferenceBinding syntheticArgType = syntheticArgumentTypes[i];
-			if (hasExtraEnclosingInstance && syntheticArgType == targetEnclosingType) {
+			if (hasExtraEnclosingInstance && TypeBinding.equalsEquals(syntheticArgType, targetEnclosingType)) {
 				hasExtraEnclosingInstance = false;
 				enclosingInstance.generateCode(currentScope, this, true);
 				if (complyTo14){
@@ -3059,7 +3059,7 @@ public static TypeBinding getConstantPoolDeclaringClass(Scope currentScope, Fiel
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
 	// and not from Object or implicit static field access.
-	if (constantPoolDeclaringClass != actualReceiverType.erasure()
+	if (TypeBinding.notEquals(constantPoolDeclaringClass, actualReceiverType.erasure())
 			&& !actualReceiverType.isArrayType()
 			&& constantPoolDeclaringClass != null // array.length
 			&& codegenBinding.constant() == Constant.NotAConstant) {
@@ -3097,7 +3097,7 @@ public static TypeBinding getConstantPoolDeclaringClass(Scope currentScope, Meth
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 		// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
 		// and not from Object or implicit static method call.
-		if (constantPoolDeclaringClass != actualReceiverType.erasure() && !actualReceiverType.isArrayType()) {
+		if (TypeBinding.notEquals(constantPoolDeclaringClass, actualReceiverType.erasure()) && !actualReceiverType.isArrayType()) {
 			CompilerOptions options = currentScope.compilerOptions();
 			if ((options.targetJDK >= ClassFileConstants.JDK1_2
 						&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(isImplicitThisReceiver && codegenBinding.isStatic()))

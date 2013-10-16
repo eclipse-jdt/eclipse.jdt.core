@@ -287,7 +287,7 @@ public ReferenceBinding findSuperTypeOriginatingFrom(int wellKnownOriginalID, bo
 				nextInterface : for (int a = 0; a < itsLength; a++) {
 					ReferenceBinding next = itsInterfaces[a];
 					for (int b = 0; b < nextPosition; b++)
-						if (next == interfacesToVisit[b]) continue nextInterface;
+						if (TypeBinding.equalsEquals(next, interfacesToVisit[b])) continue nextInterface;
 					interfacesToVisit[nextPosition++] = next;
 				}
 			}
@@ -308,7 +308,7 @@ public ReferenceBinding findSuperTypeOriginatingFrom(int wellKnownOriginalID, bo
 			nextInterface : for (int a = 0; a < itsLength; a++) {
 				ReferenceBinding next = itsInterfaces[a];
 				for (int b = 0; b < nextPosition; b++)
-					if (next == interfacesToVisit[b]) continue nextInterface;
+					if (TypeBinding.equalsEquals(next, interfacesToVisit[b])) continue nextInterface;
 				interfacesToVisit[nextPosition++] = next;
 			}
 		}
@@ -424,7 +424,7 @@ public TypeBinding findSuperTypeOriginatingFrom(TypeBinding otherType) {
  * Returns the type to use for generic cast, or null if none required
  */
 public TypeBinding genericCast(TypeBinding targetType) {
-	if (this == targetType) 
+	if (TypeBinding.equalsEquals(this, targetType)) 
 		return null;
 	TypeBinding targetErasure = targetType.erasure();
 	// type var get replaced by upper bound
@@ -671,7 +671,7 @@ public boolean isParameterizedWithOwnVariables() {
 		return false;
 	TypeVariableBinding[] variables = erasure().typeVariables();
 	for (int i = 0, length = variables.length; i < length; i++) {
-		if (variables[i] != paramType.arguments[i])
+		if (TypeBinding.notEquals(variables[i], paramType.arguments[i]))
 			return false;
 	}
 	ReferenceBinding enclosing = paramType.enclosingType();
@@ -827,7 +827,7 @@ public boolean isProvablyDistinct(TypeBinding otherType) {
  * List<? extends String> & List<? extends Runnable> --> false
  */
 private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final ParameterizedTypeBinding paramType, final int rank) {
-	if (this == otherArgument)
+	if (TypeBinding.equalsEquals(this, otherArgument))
 		return false;
 
 	TypeBinding upperBound1 = null;
@@ -1118,19 +1118,19 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 						return false;
 					TypeBinding match = upperBound.findSuperTypeOriginatingFrom(otherBound);
 					if (match != null && (match = match.leafComponentType()).isRawType()) {
-						return match == otherBound.leafComponentType(); // forbide: Collection <=  ? extends Collection<?>
+						return TypeBinding.equalsEquals(match, otherBound.leafComponentType()); // forbide: Collection <=  ? extends Collection<?>
 																												// forbide: Collection[] <=  ? extends Collection<?>[]
 					}
 					return upperBound.isCompatibleWith(otherBound);
 
 				case Wildcard.SUPER:
-					if (otherBound == this)
+					if (TypeBinding.equalsEquals(otherBound, this))
 						return true; // ? super T  <=  ? super ? super T
 					if (lowerBound == null)
 						return false;
 					match = otherBound.findSuperTypeOriginatingFrom(lowerBound);
 					if (match != null && (match = match.leafComponentType()).isRawType()) {
-						return match == lowerBound.leafComponentType(); // forbide: Collection <=  ? super Collection<?>
+						return TypeBinding.equalsEquals(match, lowerBound.leafComponentType()); // forbide: Collection <=  ? super Collection<?>
 																												// forbide: Collection[] <=  ? super Collection<?>[]
 					}
 					return otherBound.isCompatibleWith(lowerBound);
@@ -1145,7 +1145,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 				return false;
 			ParameterizedTypeBinding paramType = (ParameterizedTypeBinding) this;
 			ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
-			if (paramType.actualType() != otherParamType.actualType())
+			if (TypeBinding.notEquals(paramType.actualType(), otherParamType.actualType()))
 				return false;
 			if (!paramType.isStatic()) { // static member types do not compare their enclosing
 				ReferenceBinding enclosing = enclosingType();
@@ -1154,7 +1154,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 					if (otherEnclosing == null)
 						return false;
 					if ((otherEnclosing.tagBits & TagBits.HasDirectWildcard) == 0) {
-						if (enclosing != otherEnclosing)
+						if (TypeBinding.notEquals(enclosing, otherEnclosing))
 							return false;
 					} else {
 						if (!enclosing.isEquivalentTo(otherParamType.enclosingType()))
@@ -1170,7 +1170,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 			nextArgument: for (int i = 0; i < length; i++) {
 				TypeBinding argument = paramType.arguments[i];
 				TypeBinding otherArgument = otherArguments[i];
-				if (argument == otherArgument)
+				if (TypeBinding.equalsEquals(argument, otherArgument))
 					continue nextArgument;
 				int kind = argument.kind();
 				if (otherArgument.kind() != kind)
@@ -1188,7 +1188,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 						case Wildcard.EXTENDS:
 							// match "? extends <upperBound>" with "?"
 							if (otherWildcard.boundKind == Wildcard.UNBOUND
-									&& wildcard.bound == wildcard.typeVariable().upperBound())
+									&& TypeBinding.equalsEquals(wildcard.bound, wildcard.typeVariable().upperBound()))
 								continue nextArgument;
 							break;
 						case Wildcard.SUPER:
@@ -1196,7 +1196,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 						case Wildcard.UNBOUND:
 							// match "?" with "? extends <upperBound>"
 							if (otherWildcard.boundKind == Wildcard.EXTENDS
-									&& otherWildcard.bound == otherWildcard.typeVariable().upperBound())
+									&& TypeBinding.equalsEquals(otherWildcard.bound, otherWildcard.typeVariable().upperBound()))
 								continue nextArgument;
 							break;
 						}
@@ -1264,7 +1264,7 @@ public TypeBinding leafComponentType() {
  */
 public boolean needsUncheckedConversion(TypeBinding targetType) {
 
-	if (this == targetType)
+	if (TypeBinding.equalsEquals(this, targetType))
 		return false;
 	targetType = targetType.leafComponentType();
 	if (!(targetType instanceof ReferenceBinding))

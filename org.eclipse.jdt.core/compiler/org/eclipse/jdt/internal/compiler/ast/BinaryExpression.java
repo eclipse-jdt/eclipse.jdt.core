@@ -1668,13 +1668,13 @@ void nonRecursiveResolveTypeUpwards(BlockScope scope) {
 	if (((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) == OperatorIds.PLUS) {
 		if (leftTypeID == TypeIds.T_JavaLangString) {
 			this.left.computeConversion(scope, leftType, leftType);
-			if (rightType.isArrayType() && ((ArrayBinding) rightType).elementsType() == TypeBinding.CHAR) {
+			if (rightType.isArrayType() && TypeBinding.equalsEquals(((ArrayBinding) rightType).elementsType(), TypeBinding.CHAR)) {
 				scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(this.right);
 			}
 		}
 		if (rightTypeID == TypeIds.T_JavaLangString) {
 			this.right.computeConversion(scope, rightType, rightType);
-			if (leftType.isArrayType() && ((ArrayBinding) leftType).elementsType() == TypeBinding.CHAR) {
+			if (leftType.isArrayType() && TypeBinding.equalsEquals(((ArrayBinding) leftType).elementsType(), TypeBinding.CHAR)) {
 				scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(this.left);
 			}
 		}
@@ -1835,13 +1835,13 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) == OperatorIds.PLUS) {
 		if (leftTypeID == TypeIds.T_JavaLangString) {
 			this.left.computeConversion(scope, leftType, leftType);
-			if (rightType.isArrayType() && ((ArrayBinding) rightType).elementsType() == TypeBinding.CHAR) {
+			if (rightType.isArrayType() && TypeBinding.equalsEquals(((ArrayBinding) rightType).elementsType(), TypeBinding.CHAR)) {
 				scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(this.right);
 			}
 		}
 		if (rightTypeID == TypeIds.T_JavaLangString) {
 			this.right.computeConversion(scope, rightType, rightType);
-			if (leftType.isArrayType() && ((ArrayBinding) leftType).elementsType() == TypeBinding.CHAR) {
+			if (leftType.isArrayType() && TypeBinding.equalsEquals(((ArrayBinding) leftType).elementsType(), TypeBinding.CHAR)) {
 				scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(this.left);
 			}
 		}

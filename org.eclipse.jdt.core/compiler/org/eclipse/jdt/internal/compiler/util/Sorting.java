@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.compiler.util;
 
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 /**
@@ -72,7 +73,7 @@ public class Sorting {
 			// search superclass within input:
 			int j = 0;
 			for(j=0; j<input.length; j++)
-				if (input[j] == superclass)
+				if (TypeBinding.equalsEquals(input[j], superclass))
 					break;
 			if (j < input.length)
 				// depth first traversal:

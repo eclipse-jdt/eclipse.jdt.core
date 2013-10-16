@@ -507,7 +507,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		 	}
 			// The enclosing instance must be compatible with the innermost enclosing type
 			ReferenceBinding expectedType = this.binding.declaringClass.enclosingType();
-			if (expectedType != enclosingInstanceType) // must call before computeConversion() and typeMismatchError()
+			if (TypeBinding.notEquals(expectedType, enclosingInstanceType)) // must call before computeConversion() and typeMismatchError()
 				scope.compilationUnitScope().recordTypeConversion(expectedType, enclosingInstanceType);
 			if (enclosingInstanceType.isCompatibleWith(expectedType) || scope.isBoxingCompatibleWith(enclosingInstanceType, expectedType)) {
 				this.enclosingInstance.computeConversion(scope, expectedType, enclosingInstanceType);

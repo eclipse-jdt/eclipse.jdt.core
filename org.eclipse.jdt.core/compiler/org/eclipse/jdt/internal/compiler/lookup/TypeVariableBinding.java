@@ -210,7 +210,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public int boundsCount() {
 		if (this.firstBound == null) {
 			return 0;
-		} else if (this.firstBound == this.superclass) {
+		} else if (TypeBinding.equalsEquals(this.firstBound, this.superclass)) {
 			return this.superInterfaces.length + 1;
 		} else {
 			return this.superInterfaces.length;
@@ -311,15 +311,15 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public String annotatedDebugName() {
 		StringBuffer buffer = new StringBuffer(10);
 		buffer.append(super.annotatedDebugName());
-		if (this.superclass != null && this.firstBound == this.superclass) {
+		if (this.superclass != null && TypeBinding.equalsEquals(this.firstBound, this.superclass)) {
 		    buffer.append(" extends ").append(this.superclass.annotatedDebugName()); //$NON-NLS-1$
 		}
 		if (this.superInterfaces != null && this.superInterfaces != Binding.NO_SUPERINTERFACES) {
-		   if (this.firstBound != this.superclass) {
+		   if (TypeBinding.notEquals(this.firstBound, this.superclass)) {
 		        buffer.append(" extends "); //$NON-NLS-1$
 	        }
 		    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-		        if (i > 0 || this.firstBound == this.superclass) {
+		        if (i > 0 || TypeBinding.equalsEquals(this.firstBound, this.superclass)) {
 		            buffer.append(" & "); //$NON-NLS-1$
 		        }
 				buffer.append(this.superInterfaces[i].annotatedDebugName());
@@ -349,7 +349,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    StringBuffer sig = new StringBuffer(10);
 	    sig.append(this.sourceName).append(':');
 	   	int interfaceLength = this.superInterfaces == null ? 0 : this.superInterfaces.length;
-	    if (interfaceLength == 0 || this.firstBound == this.superclass) {
+	    if (interfaceLength == 0 || TypeBinding.equalsEquals(this.firstBound, this.superclass)) {
 	    	if (this.superclass != null)
 		        sig.append(this.superclass.genericTypeSignature());
 	    }
@@ -371,7 +371,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	}
 
 	boolean hasOnlyRawBounds() {
-		if (this.superclass != null && this.firstBound == this.superclass)
+		if (this.superclass != null && TypeBinding.equalsEquals(this.firstBound, this.superclass))
 			if (!this.superclass.isRawType())
 				return false;
 
@@ -401,10 +401,10 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * Returns true if the type variable is directly bound to a given type
 	 */
 	public boolean isErasureBoundTo(TypeBinding type) {
-		if (this.superclass.erasure() == type)
+		if (TypeBinding.equalsEquals(this.superclass.erasure(), type))
 			return true;
 		for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-			if (this.superInterfaces[i].erasure() == type)
+			if (TypeBinding.equalsEquals(this.superInterfaces[i].erasure(), type))
 				return true;
 		}
 		return false;
@@ -420,19 +420,19 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * List<T1>> is interchangeable with <T2 extends List<T2>>.
 	 */
 	public boolean isInterchangeableWith(TypeVariableBinding otherVariable, Substitution substitute) {
-		if (this == otherVariable)
+		if (TypeBinding.equalsEquals(this, otherVariable))
 			return true;
 		int length = this.superInterfaces.length;
 		if (length != otherVariable.superInterfaces.length)
 			return false;
 
-		if (this.superclass != Scope.substitute(substitute, otherVariable.superclass))
+		if (TypeBinding.notEquals(this.superclass, Scope.substitute(substitute, otherVariable.superclass)))
 			return false;
 
 		next : for (int i = 0; i < length; i++) {
 			TypeBinding superType = Scope.substitute(substitute, otherVariable.superInterfaces[i]);
 			for (int j = 0; j < length; j++)
-				if (superType == this.superInterfaces[j])
+				if (TypeBinding.equalsEquals(superType, this.superInterfaces[j]))
 					continue next;
 			return false; // not a match
 		}
@@ -474,7 +474,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public TypeBinding[] otherUpperBounds() {
 		if (this.firstBound == null)
 			return Binding.NO_TYPES;
-		if (this.firstBound == this.superclass)
+		if (TypeBinding.equalsEquals(this.firstBound, this.superclass))
 			return this.superInterfaces;
 		int otherLength = this.superInterfaces.length - 1;
 		if (otherLength > 0) {
@@ -531,9 +531,9 @@ public class TypeVariableBinding extends ReferenceBinding {
 		}
 		// refresh the firstBound in case it changed
 		if (this.firstBound != null) {
-			if (this.firstBound == oldSuperclass) {
+			if (TypeBinding.equalsEquals(this.firstBound, oldSuperclass)) {
 				this.setFirstBound(this.superclass);
-			} else if (this.firstBound == oldFirstInterface) {
+			} else if (TypeBinding.equalsEquals(this.firstBound, oldFirstInterface)) {
 				this.setFirstBound(interfaces[0]);
 			}
 		}
@@ -580,15 +580,15 @@ public class TypeVariableBinding extends ReferenceBinding {
 			return annotatedDebugName();
 		StringBuffer buffer = new StringBuffer(10);
 		buffer.append('<').append(this.sourceName);//.append('[').append(this.rank).append(']');
-		if (this.superclass != null && this.firstBound == this.superclass) {
+		if (this.superclass != null && TypeBinding.equalsEquals(this.firstBound, this.superclass)) {
 		    buffer.append(" extends ").append(this.superclass.debugName()); //$NON-NLS-1$
 		}
 		if (this.superInterfaces != null && this.superInterfaces != Binding.NO_SUPERINTERFACES) {
-		   if (this.firstBound != this.superclass) {
+		   if (TypeBinding.notEquals(this.firstBound, this.superclass)) {
 		        buffer.append(" extends "); //$NON-NLS-1$
 	        }
 		    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-		        if (i > 0 || this.firstBound == this.superclass) {
+		        if (i > 0 || TypeBinding.equalsEquals(this.firstBound, this.superclass)) {
 		            buffer.append(" & "); //$NON-NLS-1$
 		        }
 				buffer.append(this.superInterfaces[i].debugName());
@@ -652,12 +652,12 @@ public class TypeVariableBinding extends ReferenceBinding {
 			this.tagBits |= nullTagBits | TagBits.HasNullTypeAnnotation;
 	}
 	private TypeReference findBound(TypeBinding bound, TypeParameter parameter) {
-		if (parameter.type != null && parameter.type.resolvedType == bound)
+		if (parameter.type != null && TypeBinding.equalsEquals(parameter.type.resolvedType, bound))
 			return parameter.type;
 		TypeReference[] bounds = parameter.bounds;
 		if (bounds != null) {
 			for (int i = 0; i < bounds.length; i++) {
-				if (bounds[i].resolvedType == bound)
+				if (TypeBinding.equalsEquals(bounds[i].resolvedType, bound))
 					return bounds[i];
 			}
 		}

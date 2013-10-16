@@ -70,7 +70,7 @@ int findCompatibleEnclosing(ReferenceBinding enclosingType, TypeBinding type) {
 		char[][] compoundName = null;
 		ReferenceBinding closestMatch = null;
 		for (int i = 0; i < length; i++) {
-			if (supers[i].erasure() == type) {
+			if (TypeBinding.equalsEquals(supers[i].erasure(), type)) {
 				this.currentCompatibleType = closestMatch = supers[i];
 			} else if (supers[i].erasure().isCompatibleWith(type)) {
 				isLegal = false;

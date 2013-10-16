@@ -211,11 +211,11 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 						for (int j = 0, equalLength = equalSubstitutes.length; j < equalLength; j++) {
 							TypeBinding equalSubstitute = equalSubstitutes[j];
 							if (equalSubstitute == null) continue nextConstraint;
-							if (equalSubstitute == current) {
+							if (TypeBinding.equalsEquals(equalSubstitute, current)) {
 								// try to find a better different match if any in subsequent equal candidates
 								for (int k = j+1; k < equalLength; k++) {
 									equalSubstitute = equalSubstitutes[k];
-									if (equalSubstitute != current && equalSubstitute != null) {
+									if (TypeBinding.notEquals(equalSubstitute, current) && equalSubstitute != null) {
 										substitutes[i] = equalSubstitute;
 										continue nextTypeParameter;
 									}
@@ -425,8 +425,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		for (int i = 0; i < varLength; i++) {
 			TypeVariableBinding originalVariable = originalVariables[i];
 			TypeBinding argument = this.typeArguments[i];
-			boolean argAlreadyInferred = argument != originalVariable;
-			if (originalVariable.firstBound == originalVariable.superclass) {
+			boolean argAlreadyInferred = TypeBinding.notEquals(argument, originalVariable);
+			if (TypeBinding.equalsEquals(originalVariable.firstBound, originalVariable.superclass)) {
 				TypeBinding substitutedBound = Scope.substitute(this, originalVariable.superclass);
 				argument.collectSubstitutes(scope, substitutedBound, inferenceContext, TypeConstants.CONSTRAINT_SUPER);
 				if (inferenceContext.status == InferenceContext.FAILED) return null; // impossible substitution
@@ -474,7 +474,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
     	// adjust method types to reflect latest inference
 		TypeBinding oldReturnType = this.returnType;
 		this.returnType = Scope.substitute(this, this.returnType);
-		this.inferredReturnType = inferenceContext.hasExplicitExpectedType && this.returnType != oldReturnType;
+		this.inferredReturnType = inferenceContext.hasExplicitExpectedType && TypeBinding.notEquals(this.returnType, oldReturnType);
 	    this.parameters = Scope.substitute(this, this.parameters);
 	    this.thrownExceptions = Scope.substitute(this, this.thrownExceptions);
 	    // error case where exception type variable would have been substituted by a non-reference type (207573)

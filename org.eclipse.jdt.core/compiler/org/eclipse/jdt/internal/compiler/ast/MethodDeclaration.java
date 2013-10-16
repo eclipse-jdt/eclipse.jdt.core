@@ -214,7 +214,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				TypeParameter typeParameter = this.typeParameters[i];
 				this.bits |= (typeParameter.bits & ASTNode.HasTypeAnnotations);
 				// typeParameter is already resolved from Scope#connectTypeVariables()
-				if (returnsUndeclTypeVar && this.typeParameters[i].binding == this.returnType.resolvedType) {
+				if (returnsUndeclTypeVar && TypeBinding.equalsEquals(this.typeParameters[i].binding, this.returnType.resolvedType)) {
 					returnsUndeclTypeVar = false;
 				}
 			}

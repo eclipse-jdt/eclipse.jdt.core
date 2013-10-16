@@ -163,7 +163,7 @@ public class JavadocMessageSend extends MessageSend {
 		} else {
 			int length = argumentTypes.length;
 			for (int i=0; i<length; i++) {
-				if (this.binding.parameters[i].erasure() != argumentTypes[i].erasure()) {
+				if (TypeBinding.notEquals(this.binding.parameters[i].erasure(), argumentTypes[i].erasure())) {
 					MethodBinding problem = new ProblemMethodBinding(this.binding, this.selector, argumentTypes, ProblemReasons.NotFound);
 					scope.problemReporter().javadocInvalidMethod(this, problem, scope.getDeclarationModifiers());
 					break;

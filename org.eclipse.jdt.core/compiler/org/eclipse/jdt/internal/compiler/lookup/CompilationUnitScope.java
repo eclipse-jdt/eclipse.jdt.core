@@ -869,14 +869,14 @@ private int checkAndRecordImportBinding(
 		ReferenceBinding existingType = typesBySimpleNames.get(compoundName[compoundName.length - 1]);
 		if (existingType != null) {
 			// duplicate test above should have caught this case, but make sure
-			if (existingType == referenceBinding) {
+			if (TypeBinding.equalsEquals(existingType, referenceBinding)) {
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=302865
 				// Check all resolved imports to see if this import qualifies as a duplicate
 				for (int j = 0; j < this.importPtr; j++) {
 					ImportBinding resolved = this.tempImports[j];
 					if (resolved instanceof ImportConflictBinding) {
 						ImportConflictBinding importConflictBinding = (ImportConflictBinding) resolved;
-						if (importConflictBinding.conflictingTypeBinding == referenceBinding) {
+						if (TypeBinding.equalsEquals(importConflictBinding.conflictingTypeBinding, referenceBinding)) {
 							if (!importReference.isStatic()) {
 								// resolved is implicitly static
 								problemReporter().duplicateImport(importReference);

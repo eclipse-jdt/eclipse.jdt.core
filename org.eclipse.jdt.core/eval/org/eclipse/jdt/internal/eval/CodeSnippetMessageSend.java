@@ -182,7 +182,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 		    // extra cast needed if method return type was type variable
 		    if (codegenBinding.returnType.isTypeVariable()) {
 		        TypeVariableBinding variableReturnType = (TypeVariableBinding) codegenBinding.returnType;
-		        if (variableReturnType.firstBound != this.binding.returnType) { // no need for extra cast if same as first bound anyway
+		        if (TypeBinding.notEquals(variableReturnType.firstBound, this.binding.returnType)) { // no need for extra cast if same as first bound anyway
 				    this.valueCast = this.binding.returnType;
 		        }
 		    }
@@ -202,7 +202,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	this.actualReceiverType = this.receiver.resolveType(scope);
 	if (receiverCast && this.actualReceiverType != null) {
 		 // due to change of declaring class with receiver type, only identity cast should be notified
-		if (((CastExpression)this.receiver).expression.resolvedType == this.actualReceiverType) {
+		if (TypeBinding.equalsEquals(((CastExpression)this.receiver).expression.resolvedType, this.actualReceiverType)) {
 			scope.problemReporter().unnecessaryCast((CastExpression)this.receiver);
 		}
 	}
@@ -323,7 +323,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			TypeBinding oldReceiverType = this.actualReceiverType;
 			this.actualReceiverType = this.actualReceiverType.getErasureCompatibleType(this.binding.declaringClass);
 			this.receiver.computeConversion(scope, this.actualReceiverType, this.actualReceiverType);
-			if (this.actualReceiverType != oldReceiverType && this.receiver.postConversionType(scope) != this.actualReceiverType) { // record need for explicit cast at codegen since receiver could not handle it
+			if (TypeBinding.notEquals(this.actualReceiverType, oldReceiverType) && TypeBinding.notEquals(this.receiver.postConversionType(scope), this.actualReceiverType)) { // record need for explicit cast at codegen since receiver could not handle it
 				this.bits |= NeedReceiverGenericCast;
 			}			
 		}
