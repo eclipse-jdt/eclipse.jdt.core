@@ -775,7 +775,7 @@ public ParameterizedGenericMethodBinding createParameterizedGenericMethod(Method
 				ParameterizedGenericMethodBinding cachedMethod = cachedInfo[index];
 				if (cachedMethod == null) break nextCachedMethod;
 				if (!cachedMethod.isRaw) continue nextCachedMethod;
-				if (cachedMethod.declaringClass != (rawType == null ? genericMethod.declaringClass : rawType)) continue nextCachedMethod;
+				if (cachedMethod.declaringClass != (rawType == null ? genericMethod.declaringClass : rawType)) continue nextCachedMethod; //$IDENTITY-COMPARISON$
 				return cachedMethod;
 		}
 		needToGrow = true;
@@ -812,7 +812,7 @@ public ParameterizedGenericMethodBinding createParameterizedGenericMethod(Method
 				int cachedArgLength = cachedArguments == null ? 0 : cachedArguments.length;
 				if (argLength != cachedArgLength) continue nextCachedMethod;
 				for (int j = 0; j < cachedArgLength; j++){
-					if (typeArguments[j] != cachedArguments[j]) continue nextCachedMethod;
+					if (typeArguments[j] != cachedArguments[j]) continue nextCachedMethod; //$IDENTITY-COMPARISON$
 				}
 				// all arguments match, reuse current
 				return cachedMethod;

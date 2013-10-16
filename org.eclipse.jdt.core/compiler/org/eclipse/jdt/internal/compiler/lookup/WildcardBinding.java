@@ -728,17 +728,17 @@ public class WildcardBinding extends ReferenceBinding {
 
 	public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment env) {
 		boolean affected = false;
-		if (this.genericType == unresolvedType) {
+		if (this.genericType == unresolvedType) { //$IDENTITY-COMPARISON$
 			this.genericType = resolvedType; // no raw conversion
 			affected = true;
 		}
-		if (this.bound == unresolvedType) {
+		if (this.bound == unresolvedType) { //$IDENTITY-COMPARISON$
 			this.bound = env.convertUnresolvedBinaryToRawType(resolvedType);
 			affected = true;
 		}
 		if (this.otherBounds != null) {
 			for (int i = 0, length = this.otherBounds.length; i < length; i++) {
-				if (this.otherBounds[i] == unresolvedType) {
+				if (this.otherBounds[i] == unresolvedType) { //$IDENTITY-COMPARISON$
 					this.otherBounds[i] = env.convertUnresolvedBinaryToRawType(resolvedType);
 					affected = true;
 				}

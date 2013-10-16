@@ -241,7 +241,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 			case Binding.BASE_TYPE :
 				if (actualType == TypeBinding.NULL) return;
 				TypeBinding boxedType = scope.environment().computeBoxingType(actualType);
-				if (boxedType == actualType) return;
+				if (boxedType == actualType) return; //$IDENTITY-COMPARISON$
 				actualType = boxedType;
 				break;
 			case Binding.POLY_TYPE: // cannot steer inference, only learn from it.
@@ -547,7 +547,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	*/
 	public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
 		TypeVariableBinding prototype = (TypeVariableBinding) this.environment.getUnannotatedType(this); // also exposes original TVB/capture to type system for id stamping purposes.
-		if (prototype != this && !this.isCapture()) {
+		if (prototype != this && !this.isCapture()) { //$IDENTITY-COMPARISON$
 			AnnotationBinding [] declarationAnnotations = prototype.getTypeAnnotations();
 			final int declarationAnnotationsLength = declarationAnnotations == null ? 0 : declarationAnnotations.length;
 			if (declarationAnnotationsLength > 0) {

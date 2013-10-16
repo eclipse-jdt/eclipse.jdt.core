@@ -109,7 +109,7 @@ public class TypeSystem {
 				break;
 			if (!derivedType.isArrayType() || derivedType.hasTypeAnnotations())
 				continue;
-			if (derivedType.leafComponentType() == unannotatedLeafType && derivedType.dimensions() == dimensions)
+			if (derivedType.leafComponentType() == unannotatedLeafType && derivedType.dimensions() == dimensions) //$IDENTITY-COMPARISON$
 				return (ArrayBinding) derivedType;
 		}
 		if (i == length) {
@@ -150,9 +150,9 @@ public class TypeSystem {
 			TypeBinding derivedType = derivedTypes[i];
 			if (derivedType == null) 
 				break;
-			if (!derivedType.isParameterizedType() || derivedType.actualType() != unannotatedGenericType || derivedType.hasTypeAnnotations())
+			if (!derivedType.isParameterizedType() || derivedType.actualType() != unannotatedGenericType || derivedType.hasTypeAnnotations()) //$IDENTITY-COMPARISON$
 				continue;
-			if (derivedType.enclosingType() == unannotatedEnclosingType && Util.effectivelyEqual(derivedType.typeArguments(), unannotatedTypeArguments))
+			if (derivedType.enclosingType() == unannotatedEnclosingType && Util.effectivelyEqual(derivedType.typeArguments(), unannotatedTypeArguments)) //$IDENTITY-COMPARISON$
 				return (ParameterizedTypeBinding) derivedType;
 		}
 
@@ -186,9 +186,9 @@ public class TypeSystem {
 			TypeBinding derivedType = derivedTypes[i];
 			if (derivedType == null) 
 				break;
-			if (!derivedType.isRawType() || derivedType.actualType() != unannotatedGenericType || derivedType.hasTypeAnnotations())
+			if (!derivedType.isRawType() || derivedType.actualType() != unannotatedGenericType || derivedType.hasTypeAnnotations()) //$IDENTITY-COMPARISON$
 				continue;
-			if (derivedType.enclosingType() == unannotatedEnclosingType)
+			if (derivedType.enclosingType() == unannotatedEnclosingType) //$IDENTITY-COMPARISON$
 				return (RawTypeBinding) derivedType;
 		}
 
@@ -230,9 +230,9 @@ public class TypeSystem {
 			TypeBinding derivedType = derivedTypes[i];
 			if (derivedType == null) 
 				break;
-			if (!derivedType.isWildcard() || derivedType.actualType() != unannotatedGenericType || derivedType.hasTypeAnnotations())
+			if (!derivedType.isWildcard() || derivedType.actualType() != unannotatedGenericType || derivedType.hasTypeAnnotations()) //$IDENTITY-COMPARISON$
 				continue;
-			if (derivedType.rank() != rank || derivedType.boundKind() != boundKind || derivedType.bound() != unannotatedBound)
+			if (derivedType.rank() != rank || derivedType.boundKind() != boundKind || derivedType.bound() != unannotatedBound) //$IDENTITY-COMPARISON$
 				continue;
 			if (Util.effectivelyEqual(derivedType.additionalBounds(), unannotatedOtherBounds))
 				return (WildcardBinding) derivedType;
@@ -333,7 +333,7 @@ public class TypeSystem {
 	public void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
 		final int unresolvedTypeId = unresolvedType.id;
 		if (unresolvedTypeId != TypeIds.NoId) {
-			if (this.types[unresolvedTypeId] != null && this.types[unresolvedTypeId][0] == unresolvedType) {
+			if (this.types[unresolvedTypeId] != null && this.types[unresolvedTypeId][0] == unresolvedType) { //$IDENTITY-COMPARISON$
 				resolvedType.id = unresolvedTypeId;
 				this.types[unresolvedTypeId][0] = resolvedType;
 			}
@@ -370,7 +370,7 @@ public class TypeSystem {
 			if (priorIntersectingTypes.length != intersectingTypesLength)
 				continue;
 			for (int j = 0; j < intersectingTypesLength; j++) {
-				if (intersectingTypes[j] != priorIntersectingTypes[j])
+				if (intersectingTypes[j] != priorIntersectingTypes[j]) //$IDENTITY-COMPARISON$
 					continue next;
 			}	
 			return derivedType;

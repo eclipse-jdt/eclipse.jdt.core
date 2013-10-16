@@ -75,7 +75,7 @@ class TypeBinding implements ITypeBinding {
 		this.binding = binding;
 		this.resolver = resolver;
 		org.eclipse.jdt.internal.compiler.lookup.TypeBinding compilerPrototype = binding.prototype();
-		this.prototype = (TypeBinding) (compilerPrototype == null || compilerPrototype == binding ? null : resolver.getTypeBinding(compilerPrototype));
+		this.prototype = (TypeBinding) (compilerPrototype == null || compilerPrototype == binding ? null : resolver.getTypeBinding(compilerPrototype)); //$IDENTITY-COMPARISON$
 	}
 
 	public ITypeBinding createArrayType(int dimension) {

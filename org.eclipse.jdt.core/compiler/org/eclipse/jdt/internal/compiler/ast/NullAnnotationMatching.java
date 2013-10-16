@@ -130,7 +130,7 @@ public class NullAnnotationMatching {
 			}
 			if (severity < 2) {
 				TypeBinding providedSuper = providedType.findSuperTypeOriginatingFrom(requiredType);
-				if (providedSuper != providedType)
+				if (providedSuper != providedType) //$IDENTITY-COMPARISON$
 					superTypeHint = providedSuper;
 				if (requiredType.isParameterizedType()  && providedSuper instanceof ParameterizedTypeBinding) { // TODO(stephan): handle providedType.isRaw()
 					TypeBinding[] requiredArguments = ((ParameterizedTypeBinding) requiredType).arguments;
@@ -183,7 +183,7 @@ public class NullAnnotationMatching {
 			if (oneNullBits == 0)
 				return one;			// unknown is more dangerous than nonnull
 			return two;				// unknown is more dangerous than nonnull
-		} else if (one != two) {
+		} else if (one != two) { //$IDENTITY-COMPARISON$
 			if (analyse(one, two, -1).isAnyMismatch())
 				return two;			// two doesn't snugly fit into one, so it must be more dangerous
 		}

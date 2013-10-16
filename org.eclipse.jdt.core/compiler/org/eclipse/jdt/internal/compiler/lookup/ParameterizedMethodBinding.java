@@ -327,7 +327,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	 * Returns true if the return type got substituted.
 	 */
 	public boolean hasSubstitutedReturnType() {
-		return this.returnType != this.originalMethod.returnType;
+		return this.returnType != this.originalMethod.returnType; //$IDENTITY-COMPARISON$
 	}
 
 	/**

@@ -387,7 +387,7 @@ public abstract class Scope {
 	        if (!(substitutedType instanceof ReferenceBinding)) {
 	        	return null; // impossible substitution
 	        }
-	        if (substitutedType != originalType) {
+	        if (substitutedType != originalType) { //$IDENTITY-COMPARISON$
 	            if (substitutedTypes == originalTypes) {
 	                System.arraycopy(originalTypes, 0, substitutedTypes = new ReferenceBinding[length], 0, i);
 	            }
@@ -434,7 +434,7 @@ public abstract class Scope {
 					}
 					substitutedArguments = substitute(substitution, originalArguments);
 				}
-				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
+				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) { //$IDENTITY-COMPARISON$
 					return originalParameterizedType.environment.createParameterizedType(
 							originalParameterizedType.genericType(), substitutedArguments, substitutedEnclosing, originalType.getTypeAnnotations());
 				}
@@ -444,7 +444,7 @@ public abstract class Scope {
 				ArrayBinding originalArrayType = (ArrayBinding) originalType;
 				TypeBinding originalLeafComponentType = originalArrayType.leafComponentType;
 				TypeBinding substitute = substitute(substitution, originalLeafComponentType); // substitute could itself be array type, TODO(Srikanth): need a test case.
-				if (substitute != originalLeafComponentType) {
+				if (substitute != originalLeafComponentType) { //$IDENTITY-COMPARISON$
 					return originalArrayType.environment.createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalType.dimensions(), originalType.getTypeAnnotations());
 				}
 				break;
@@ -457,7 +457,7 @@ public abstract class Scope {
 			        TypeBinding substitutedBound = substitute(substitution, originalBound);
 			        TypeBinding[] originalOtherBounds = wildcard.otherBounds;
 			        TypeBinding[] substitutedOtherBounds = substitute(substitution, originalOtherBounds);
-			        if (substitutedBound != originalBound || originalOtherBounds != substitutedOtherBounds) {
+			        if (substitutedBound != originalBound || originalOtherBounds != substitutedOtherBounds) { //$IDENTITY-COMPARISON$
 			        	if (originalOtherBounds != null) {
 			        		/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=347145: the constituent intersecting types have changed
 			        		   in the last round of substitution. Reevaluate the composite intersection type, as there is a possibility
@@ -493,7 +493,7 @@ public abstract class Scope {
 				}
 
 			    // treat as if parameterized with its type variables (non generic type gets 'null' arguments)
-				if (substitutedEnclosing != originalEnclosing) {
+				if (substitutedEnclosing != originalEnclosing) { //$IDENTITY-COMPARISON$
 					return substitution.isRawSubstitution()
 						? substitution.environment().createRawType(originalReferenceType, substitutedEnclosing, originalType.getTypeAnnotations())
 						:  substitution.environment().createParameterizedType(originalReferenceType, null, substitutedEnclosing, originalType.getTypeAnnotations());
@@ -543,7 +543,7 @@ public abstract class Scope {
 	    for (int i = 0, length = originalTypes.length; i < length; i++) {
 	        TypeBinding originalType = originalTypes[i];
 	        TypeBinding substitutedParameter = substitute(substitution, originalType);
-	        if (substitutedParameter != originalType) {
+	        if (substitutedParameter != originalType) { //$IDENTITY-COMPARISON$
 	            if (substitutedTypes == originalTypes) {
 	                System.arraycopy(originalTypes, 0, substitutedTypes = new TypeBinding[length], 0, i);
 	            }
