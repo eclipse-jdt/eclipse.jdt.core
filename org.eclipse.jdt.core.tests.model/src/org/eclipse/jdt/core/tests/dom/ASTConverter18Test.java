@@ -305,7 +305,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 * 
 	 * @throws JavaModelException
 	 */
-	public void test0004() throws JavaModelException {
+	public void _test0004() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0004/X.java",
 				true/* resolve */);
 		String contents = "package test0004;"
@@ -456,7 +456,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 * 
 	 * @throws JavaModelException
 	 */
-	public void test0006() throws JavaModelException {
+	public void _test0006() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0006/X.java",
 				true);
 		String contents = "package test0006;"

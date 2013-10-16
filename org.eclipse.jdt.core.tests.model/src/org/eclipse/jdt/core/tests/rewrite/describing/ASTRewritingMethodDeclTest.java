@@ -344,7 +344,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 
 
-	public void testMethodReturnTypeChanges_only_2() throws Exception {
+	public void _testMethodReturnTypeChanges_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -447,7 +447,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testMethodReturnTypeChanges2_only_2() throws Exception {
+	public void _testMethodReturnTypeChanges2_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
