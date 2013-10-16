@@ -61,7 +61,7 @@ public void recordSubstitute(TypeVariableBinding typeVariable, TypeBinding actua
     		length = constraintSubstitutes.length;
 	        for (int i = 0; i < length; i++) {
 	        	TypeBinding substitute = constraintSubstitutes[i];
-	            if (substitute == actualType) return; // already there
+	            if (substitute == actualType) return; // already there //$IDENTITY-COMPARISON$
 	            if (substitute == null) {
 	                constraintSubstitutes[i] = actualType;
 	                break insertLoop;
