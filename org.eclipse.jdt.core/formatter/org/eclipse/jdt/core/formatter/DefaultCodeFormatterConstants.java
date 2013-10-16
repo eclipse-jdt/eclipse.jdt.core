@@ -3937,7 +3937,7 @@ public class DefaultCodeFormatterConstants {
 	 * @param wrapStyle the given wrapping style
 	 * @param indentStyle the given indent style
 	 *
-	 * @return the new alignement value
+	 * @return the new alignment value
 	 */
 	public static String createAlignmentValue(boolean forceSplit, int wrapStyle, int indentStyle) {
 		int alignmentValue = 0;
