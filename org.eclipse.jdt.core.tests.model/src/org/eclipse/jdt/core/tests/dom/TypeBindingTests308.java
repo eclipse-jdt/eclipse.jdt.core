@@ -641,7 +641,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		type = wildcard.getBound();
 		verifyAnnotationOnType(type, new String[]{"@Marker()"});
 	}
-	public void test016() throws Exception {
+	public void _test016() throws Exception {
 		String contents = 
 				"public class X<E> {\n" +
 				"  class Y {\n" +
@@ -698,7 +698,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		InstanceofExpression expression = (InstanceofExpression) operand.getExpression();
 		verifyAnnotationOnType(expression.getRightOperand(), new String[]{"@Marker()"});
 	}
-	public void test018() throws Exception {
+	public void _test018() throws Exception {
 		String contents = 
 				"interface I {\n" +
 				"    void foo(Y<String>.Z z, int x);\n" +
@@ -782,7 +782,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		binding = binding.getComponentType();
 		verifyAnnotationsOnBinding(binding, new String[]{"@Marker2()"});
 	}
-	public void test020() throws Exception {
+	public void _test020() throws Exception {
 		String contents = 
 				"public class X  {\n" +
 				"    public static void main(String [] args) {\n" +
