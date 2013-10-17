@@ -89,7 +89,7 @@ public abstract class ElementImpl
 			return result1;
 		
 		@SuppressWarnings("unchecked")
-		A [] result = (A[]) Array.newInstance(result1[0].getClass(), result1.length + result2.length);
+		A [] result = (A[]) Array.newInstance(annotationType, result1.length + result2.length);
 		
 		System.arraycopy(result1, 0, result, 0, result1.length);
 		System.arraycopy(result2, 0, result, result1.length, result2.length);

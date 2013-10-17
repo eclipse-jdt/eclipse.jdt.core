@@ -143,7 +143,7 @@ public class TypeMirrorImpl implements TypeMirror {
 	public <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationType) {
 		
 		if (_env == null)
-			return (A[]) Factory.EMPTY_ANNOTATIONS;
+			return (A[]) Array.newInstance(annotationType, 0);
 		
 		AnnotationBinding [] packedAnnotations = getPackedAnnotationBindings();
 		A [] result1 = _env.getFactory().getAnnotationsByType(packedAnnotations, annotationType);
@@ -154,7 +154,7 @@ public class TypeMirrorImpl implements TypeMirror {
 		if (result2.length == 0)
 			return result1;
 		
-		A [] result = (A[]) Array.newInstance(result1[0].getClass(), result1.length + result2.length);
+		A [] result = (A[]) Array.newInstance(annotationType, result1.length + result2.length);
 		
 		System.arraycopy(result1, 0, result, 0, result1.length);
 		System.arraycopy(result2, 0, result, result1.length, result2.length);

@@ -17,6 +17,7 @@
 package org.eclipse.jdt.internal.compiler.apt.model;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.util.List;
 
 import javax.lang.model.element.AnnotationMirror;
@@ -85,7 +86,7 @@ public class NoTypeImpl implements NoType, NullType
 
 	@SuppressWarnings("unchecked")
 	public <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationType) {
-		return (A[]) Factory.EMPTY_ANNOTATIONS;
+		return (A[]) Array.newInstance(annotationType, 0);
 	}
 
 }

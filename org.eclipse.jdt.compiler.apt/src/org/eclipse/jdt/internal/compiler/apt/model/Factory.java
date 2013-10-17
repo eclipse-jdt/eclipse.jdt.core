@@ -74,7 +74,6 @@ public class Factory {
 	public static final Short DUMMY_SHORT = 0;
 
 	private final BaseProcessingEnvImpl _env;
-	public static Annotation[] EMPTY_ANNOTATIONS = new Annotation[0];
 	public static List<? extends AnnotationMirror> EMPTY_ANNOTATION_MIRRORS = Collections.emptyList();
 	
 	/**
@@ -103,7 +102,7 @@ public class Factory {
 	@SuppressWarnings("unchecked") // for the cast to A
 	public <A extends Annotation> A[] getAnnotationsByType(AnnotationBinding[] annoInstances, Class<A> annotationClass) {
 		A[] result = getAnnotations(annoInstances, annotationClass, false);
-		return result == null ? (A[]) EMPTY_ANNOTATIONS : result;
+		return result == null ? (A[]) Array.newInstance(annotationClass, 0) : result;
 	}
 	
 	
@@ -131,7 +130,8 @@ public class Factory {
 				if (justTheFirst) break;
 			}
 		}
-		return list.size() > 0 ? (A[]) list.toArray(new Annotation[list.size()]) :  null;
+		A [] result = (A[]) Array.newInstance(annotationClass, list.size());
+		return list.size() > 0 ? (A[]) list.toArray(result) :  null;
 	}
 
 	private AnnotationMirrorImpl createAnnotationMirror(String annoTypeName, AnnotationBinding annoInstance) {

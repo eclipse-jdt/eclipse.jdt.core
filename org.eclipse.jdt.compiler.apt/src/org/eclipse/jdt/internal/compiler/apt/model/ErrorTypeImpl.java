@@ -15,6 +15,7 @@
 package org.eclipse.jdt.internal.compiler.apt.model;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -101,7 +102,7 @@ public class ErrorTypeImpl extends DeclaredTypeImpl implements ErrorType {
 
 	@SuppressWarnings("unchecked")
 	public <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationType) {
-		return (A[]) Factory.EMPTY_ANNOTATIONS;
+		return (A[]) Array.newInstance(annotationType, 0);
 	}
 
 	/* (non-Javadoc)

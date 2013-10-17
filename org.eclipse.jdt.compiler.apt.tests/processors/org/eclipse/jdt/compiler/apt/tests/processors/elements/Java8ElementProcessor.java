@@ -250,7 +250,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		assertNotNull("Java8ElementProcessor#examineSE8Specifics: Element for method noAnnotationHere should not be null", typeMirror);
 		Type annot = typeMirror.getAnnotation(Type.class);
 		assertNull("Annotation should not be present", annot);
-		Annotation[] annots = typeMirror.getAnnotationsByType(Type.class);
+		Type[] annots = typeMirror.getAnnotationsByType(Type.class);
 		assertEquals("Annotation is not empty list", 0, annots.length);
 	}
 	
@@ -600,6 +600,10 @@ public class Java8ElementProcessor extends BaseProcessor {
 		typeMirror = constr.getReceiverType();
 		assertNotNull("TypeMirror should not be null", typeMirror);
 		assertSame("Should be no type", TypeKind.NONE, typeMirror.getKind());
+
+		Type[] annotations = typeMirror.getAnnotationsByType(Type.class);
+		assertEquals("Annotations arrays should be empty", 0, annotations.length);
+
 		type = (ExecutableType) constr.asType();
 		typeMirror = type.getReceiverType();
 		assertNotNull("TypeMirror should not be null", typeMirror);
@@ -853,7 +857,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		assertSame(msg + "Invalid annotation type" , Type.class, annot.annotationType());
 		assertEquals(msg + "Invalid annotation value", value, annot.value());
 		
-		Annotation[] annots = construct.getAnnotationsByType(Type.class);
+		Type[] annots = construct.getAnnotationsByType(Type.class);
 		assertEquals(msg + "Incorrect no of annotations", 1, annots.length);
 		annot = (Type) annots[0];
 		assertSame(msg + "Invalid annotation type" , Type.class, annots[0].annotationType());
