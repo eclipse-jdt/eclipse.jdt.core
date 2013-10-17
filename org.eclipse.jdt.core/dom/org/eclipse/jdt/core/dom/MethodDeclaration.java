@@ -281,7 +281,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Defaults to none.
 	 * @since 3.9 BETA_JAVA8
 	 */
-	private AnnotatableType optionalReceiverType = null;
+	private Type optionalReceiverType = null;
 	
 	/**
 	 * Qualifying name of the explicit </code>this</code> parameter, or <code>null</code> if none.
@@ -734,7 +734,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @exception UnsupportedOperationException if this operation is used below JLS8
 	 * @since 3.9 BETA_JAVA8
 	 */
-	public AnnotatableType getReceiverType() {
+	public Type getReceiverType() {
 		unsupportedIn2_3_4();
 		return this.optionalReceiverType;
 	}
@@ -749,7 +749,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @exception UnsupportedOperationException if this operation is used below JLS8
 	 * @since 3.9 BETA_JAVA8
 	 */
-	public void setReceiverType(AnnotatableType receiverType) {
+	public void setReceiverType(Type receiverType) {
 		unsupportedIn2_3_4();
 		ASTNode oldChild = this.optionalReceiverType;
 		preReplaceChild(oldChild, receiverType, RECEIVER_TYPE_PROPERTY);

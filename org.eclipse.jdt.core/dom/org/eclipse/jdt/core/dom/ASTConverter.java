@@ -885,7 +885,7 @@ class ASTConverter {
 				recordNodes(name, receiver);
 			}
 		}
-		AnnotatableType type = (AnnotatableType) convertType(receiver.type);
+		Type type = convertType(receiver.type);
 		methodDecl.setReceiverType(type);
 		if (receiver.modifiers != 0) {
 			methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);

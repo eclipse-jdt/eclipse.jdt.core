@@ -3275,7 +3275,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ASTRewrite rewrite = ASTRewrite.create(astRoot.getAST());
 		AST ast = astRoot.getAST();
 		MethodDeclaration method = (MethodDeclaration) findTypeDeclaration(astRoot, "X").bodyDeclarations().get(0);
-		AnnotatableType receiverType = method.getReceiverType();
+		Type receiverType = method.getReceiverType();
 		assertEquals("Invalid receiver type", ASTNode.SIMPLE_TYPE, receiverType.getNodeType());
 		MarkerAnnotation annot = ast.newMarkerAnnotation();
 		annot.setTypeName(ast.newSimpleName("Marker"));
@@ -3461,7 +3461,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 		rewrite.set(method4, MethodDeclaration.RECEIVER_QUALIFIER_PROPERTY, null, null);
 		ListRewrite listRewrite = rewrite.getListRewrite(method4.getReceiverType(), SimpleType.ANNOTATIONS_PROPERTY);
-		listRewrite.remove((ASTNode) method4.getReceiverType().annotations().get(0), null);
+		listRewrite.remove((ASTNode) ((AnnotatableType) method4.getReceiverType()).annotations().get(0), null);
 
 		rewrite.set(method5, MethodDeclaration.RECEIVER_TYPE_PROPERTY, null, null);
 		List params = method5.parameters();

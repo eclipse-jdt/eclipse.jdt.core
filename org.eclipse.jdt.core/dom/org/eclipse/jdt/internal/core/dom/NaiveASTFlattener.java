@@ -1049,7 +1049,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 		node.getName().accept(this);
 		this.buffer.append("(");//$NON-NLS-1$
 		if (node.getAST().apiLevel() >= AST.JLS8) {
-			AnnotatableType receiverType = node.getReceiverType();
+			Type receiverType = node.getReceiverType();
 			if (receiverType != null) {
 				receiverType.accept(this);
 				this.buffer.append(' ');

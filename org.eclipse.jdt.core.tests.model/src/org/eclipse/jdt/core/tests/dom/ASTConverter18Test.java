@@ -1039,8 +1039,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		node = getASTNode(unit, 0, 0);
 		assertEquals("Not a method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration method = (MethodDeclaration) node;
-		AnnotatableType receiver = method.getReceiverType();
-		assertEquals("Not an annotatable type", ASTNode.SIMPLE_TYPE, receiver.getNodeType());
+		Type receiver = method.getReceiverType();
+		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, receiver.getNodeType());
 		assertEquals("Incorrect receiver signature", "@Marker @Marker2 X", ((SimpleType) receiver).toString());
 		assertEquals("Incorrect annotations on receiver", 2, ((SimpleType) receiver).annotations().size());
 		assertNull("Incorrect receiver qualfier", method.getReceiverQualifier());
@@ -1067,8 +1067,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		TypeDeclaration innerType = (TypeDeclaration) node;
 		assertEquals("Incorrect no of methods", 1, innerType.getMethods().length);
 		MethodDeclaration method = innerType.getMethods()[0];
-		AnnotatableType receiver = method.getReceiverType();
-		assertEquals("Not an annotatable type", ASTNode.SIMPLE_TYPE, receiver.getNodeType());
+		Type receiver = method.getReceiverType();
+		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, receiver.getNodeType());
 		assertEquals("Incorrect receiver signature", "@Marker @Marker2 X", ((SimpleType) receiver).toString());
 		assertEquals("Incorrect annotations on receiver", 2, ((SimpleType) receiver).annotations().size());
 		assertNotNull("Incorrect receiver qualfier", method.getReceiverQualifier());
@@ -1365,7 +1365,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
 				+ "@interface Marker2 {}\n";
 		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
-		// simple tye for generic type arguments in a generic method or constructor invocation
+		// simple type for generic type arguments in a generic method or constructor invocation
 		MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(cu, 0, 0);
 		List statements = methodDeclaration.getBody().statements();
 		Statement statement = (Statement)statements.get(0);
@@ -2053,8 +2053,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		node = (ASTNode) type.bodyDeclarations().get(0);
 		assertEquals("Not a method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration method = (MethodDeclaration) node;
-		AnnotatableType receiver = method.getReceiverType();
-		assertEquals("Not an annotatable type", ASTNode.QUALIFIED_TYPE, receiver.getNodeType());
+		Type receiver = method.getReceiverType();
+		assertEquals("Not a qualified type", ASTNode.QUALIFIED_TYPE, receiver.getNodeType());
 		assertEquals("Incorrect receiver", "@A X.@B Y", ((QualifiedType) receiver).toString());
 		assertEquals("Incorrect method signature", "public Z(@A X.@B Y Y.this,String str){\n}\n", method.toString());
 
@@ -2062,6 +2062,52 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		receiver = method.getReceiverType();
 		assertEquals("Incorrect receiver", "@A X.@B Y.@C Z", ((QualifiedType) receiver).toString());
 		assertEquals("Incorrect method signature", "public void foo(@A X.@B Y.@C Z this,String str){\n}\n", method.toString());
+	}
+	public void testParameterizedReceiverType() throws JavaModelException {
+		String contents =
+				"import java.lang.annotation.*;\n" +
+						"public class X<T extends Exception> {\n" +
+						"	class Y<K, V> {\n" +
+						"		class Z {\n" +
+//TODO: bad AST node structure:
+//						"			public Z(@A X<T>.@B Y<K, V> Y.this){\n}" +
+//						"			public void foo(@B Y<K, V>.@C Z this){\n}\n" +
+						"			public Z(X<T>.@B Y<K, V> Y.this){\n}" +
+						"			public void foo(Y<K, V>.@C Z this){\n}\n" +
+						"		}\n" +
+						"	}\n" +
+						"}\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface A {}\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface B {}\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface C {}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		node = getASTNode(unit, 0, 0);
+		TypeDeclaration type = (TypeDeclaration)node;
+		node = (ASTNode) type.bodyDeclarations().get(0);
+		type = (TypeDeclaration) node;
+		node = (ASTNode) type.bodyDeclarations().get(0);
+		assertEquals("Not a method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration method = (MethodDeclaration) node;
+		Type receiver = method.getReceiverType();
+//TODO: bad AST node structure:
+//		assertEquals("Incorrect receiver", "@A X<T>.@B Y<K,V>", ((QualifiedType) receiver).toString());
+//		assertEquals("Incorrect method signature", "public Z(@A X<T>.@B Y<K,V> Y.this){\n}\n", method.toString());
+		assertEquals("Incorrect receiver", "X<T>.@B Y<K,V>", ((ParameterizedType) receiver).toString());
+		assertEquals("Incorrect method signature", "public Z(X<T>.@B Y<K,V> Y.this){\n}\n", method.toString());
+		
+		method = (MethodDeclaration) type.bodyDeclarations().get(1);
+		receiver = method.getReceiverType();
+//TODO: bad AST node structure:
+//		assertEquals("Incorrect receiver", "@B Y<K,V>.@C Z", ((QualifiedType) receiver).toString());
+//		assertEquals("Incorrect method signature", "public void foo(@B Y<K,V>.@C Z this){\n}\n", method.toString());
+		assertEquals("Incorrect receiver", "Y<K,V>.@C Z", ((QualifiedType) receiver).toString());
+		assertEquals("Incorrect method signature", "public void foo(Y<K,V>.@C Z this){\n}\n", method.toString());
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403410
 	public void testBug403410() throws JavaModelException {
@@ -2229,7 +2275,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("Not a method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration method = (MethodDeclaration) node;
 		assertEquals("Method should not be malformed", 0, (method.getFlags() & ASTNode.MALFORMED));
-		AnnotatableType annotatableType = method.getReceiverType();
+		Type annotatableType = method.getReceiverType();
 		assertTrue(annotatableType.isQualifiedType());
 		QualifiedType qualifiedType = (QualifiedType) annotatableType;
 		assertEquals("wrong qualified type", "@A X.@B Y", qualifiedType.toString());
