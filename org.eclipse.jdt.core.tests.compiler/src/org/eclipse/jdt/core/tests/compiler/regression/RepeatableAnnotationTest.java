@@ -13,6 +13,7 @@
  *     Jesper S Moller - initial API and implementation
  *     					Bug 412151 - [1.8][compiler] Check repeating annotation's collection type
  *     					Bug 412149 - [1.8][compiler] Emit repeated annotations into the designated container
+ *     					Bug 419209 - [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1450,6 +1451,82 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"	interface I<@T(1) @T(2) K> {\n" + 
 			"	                  ^^\n" + 
 			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
+			"----------\n");
+	}	
+	
+	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
+	public void testRepeatableWithContaining1() {
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"@interface FooContainerContainer {\n" +
+				"  public FooContainer[] value();\n" +
+				"}\n" +
+				"@java.lang.annotation.Repeatable(FooContainerContainer.class)\n" +
+				"@interface FooContainer {\n" +
+				"  public Foo[] value();\n" +
+				"}\n" +
+				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"@interface Foo {\n" +
+				"  public int value() default -1;\n" +  
+				"}\n" +
+				"@FooContainer({@Foo(1)}) @FooContainer({@Foo(2)}) @Foo(3) class A {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in A.java (at line 12)\n" + 
+			"	@FooContainer({@Foo(1)}) @FooContainer({@Foo(2)}) @Foo(3) class A {}\n" + 
+			"	                                                  ^^^^\n" + 
+			"The repeatable annotation @Foo may not be present where its container annotation type @FooContainer is repeated\n" + 
+			"----------\n");
+	}
+	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
+	public void testRepeatableWithContaining2() {
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"@interface FooContainerContainer {\n" +
+				"  public FooContainer[] value();\n" +
+				"}\n" +
+				"@java.lang.annotation.Repeatable(FooContainerContainer.class)\n" +
+				"@interface FooContainer {\n" +
+				"  public Foo[] value();\n" +
+				"}\n" +
+				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"@interface Foo {\n" +
+				"  public int value() default -1;\n" +  
+				"}\n" +
+				"@Foo(1) @FooContainer({@Foo(2)}) @FooContainer({@Foo(3)}) class A {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in A.java (at line 12)\n" + 
+			"	@Foo(1) @FooContainer({@Foo(2)}) @FooContainer({@Foo(3)}) class A {}\n" + 
+			"	^^^^\n" + 
+			"The repeatable annotation @Foo may not be present where its container annotation type @FooContainer is repeated\n" + 
+			"----------\n");
+	}
+	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
+	public void testRepeatableWithContaining3() {
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"@interface FooContainerContainer {\n" +
+				"  public FooContainer[] value();\n" +
+				"}\n" +
+				"@java.lang.annotation.Repeatable(FooContainerContainer.class)\n" +
+				"@interface FooContainer {\n" +
+				"  public Foo[] value();\n" +
+				"}\n" +
+				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
+				"@interface Foo {\n" +
+				"  public int value() default -1;\n" +  
+				"}\n" +
+				"@FooContainer({@Foo(2)}) @Foo(1) @FooContainer({@Foo(3)}) class A {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in A.java (at line 12)\n" + 
+			"	@FooContainer({@Foo(2)}) @Foo(1) @FooContainer({@Foo(3)}) class A {}\n" + 
+			"	                         ^^^^\n" + 
+			"The repeatable annotation @Foo may not be present where its container annotation type @FooContainer is repeated\n" + 
 			"----------\n");
 	}	
 }

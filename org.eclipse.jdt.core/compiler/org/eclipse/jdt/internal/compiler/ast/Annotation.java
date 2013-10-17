@@ -29,6 +29,7 @@
  *                          Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *                          Bug 412151 - [1.8][compiler] Check repeating annotation's collection type
  *                          Bug 412149 - [1.8][compiler] Emit repeated annotations into the designated container
+ *                          Bug 419209 - [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -976,6 +977,34 @@ public abstract class Annotation extends Expression {
 		}
 	}
 
+	/**
+	 * Check to see if a repeating annotation is in fact of a container annotation type for an annotation which is also present at the same target.
+	 * @param scope The scope (for error reporting)
+	 * @param repeatedAnnotationType Type of annotation which has been repeated (to check for possibly being a container for a repeatable annotation)
+	 * @param sourceAnnotations The annotations to check
+	 */
+	public static void checkForInstancesOfRepeatableWithRepeatingContainerAnnotation(BlockScope scope, ReferenceBinding repeatedAnnotationType, Annotation[] sourceAnnotations) {
+		// Fail fast if the repeating annotation type can't be a container, anyway
+		MethodBinding[] valueMethods = repeatedAnnotationType.getMethods(TypeConstants.VALUE);
+		if (valueMethods.length != 1) return; // No violations possible
+		
+		TypeBinding methodReturnType = valueMethods[0].returnType;
+		// value must be an array 
+		if (! methodReturnType.isArrayType() || methodReturnType.dimensions() != 1) return;
+		
+		ArrayBinding array = (ArrayBinding) methodReturnType;
+		TypeBinding elementsType = array.elementsType();
+		if (! elementsType.isRepeatableAnnotationType()) return; // Can't be a problem, then
+		
+		for (int i= 0; i < sourceAnnotations.length; ++i) {
+			Annotation annotation = sourceAnnotations[i];
+			if (TypeBinding.equalsEquals(elementsType, annotation.resolvedType)) {
+				scope.problemReporter().repeatableAnnotationWithRepeatingContainer(annotation, repeatedAnnotationType);
+				return; // One is enough for this annotation type
+			}
+		}
+	}
+
 	// Check and answer if an attempt to annotate a package is being made. Error should be reported by caller.
 	public static boolean isTypeUseCompatible(TypeReference reference, Scope scope) {
 		if (reference != null && !(reference instanceof SingleTypeReference)) {
@@ -1027,5 +1056,4 @@ public abstract class Annotation extends Expression {
 	public void setPersistibleAnnotation(ContainerAnnotation container) {
 		this.persistibleAnnotation = container; // will be a legitimate container for the first of the repeating ones and null for the followers.
 	}
-	
 }

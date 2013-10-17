@@ -51,6 +51,7 @@
  *								bug 384567 - [1.5][compiler] Compiler accepts illegal modifiers on package declaration
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *								bug 412151 - [1.8][compiler] Check repeating annotation's collection type
+ *								bug 419209 - [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
  ********************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -7127,6 +7128,15 @@ public void repeatableAnnotationTypeIsInherited(ASTNode markerNode, ReferenceBin
 		new String[] {new String(annotationType.shortReadableName()), new String(containerAnnotationType.shortReadableName())},
 		markerNode.sourceStart,
 		markerNode.sourceEnd);
+}
+
+public void repeatableAnnotationWithRepeatingContainer(Annotation annotation, ReferenceBinding containerType) {
+	this.handle(
+		IProblem.RepeatableAnnotationWithRepeatingContainerAnnotation,
+		new String[] {new String(annotation.resolvedType.readableName()), new String(containerType.readableName())},
+		new String[] {new String(annotation.resolvedType.shortReadableName()), new String(containerType.shortReadableName())},
+		annotation.sourceStart,
+		annotation.sourceEnd);
 }
 
 public void reset() {

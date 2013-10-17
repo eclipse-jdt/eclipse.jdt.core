@@ -207,6 +207,7 @@
  *									RepeatableAnnotationTargetMismatch
  *									RepeatableAnnotationIsDocumented
  *									RepeatableAnnotationIsInherited
+ *									RepeatableAnnotationWithRepeatingContainerAnnotation
 *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
@@ -1653,6 +1654,8 @@ void setSourceStart(int sourceStart);
 	int RepeatableAnnotationTypeIsDocumented = TypeRelated + 907;
 	/** @since 3.9 BETA_JAVA8 */
 	int RepeatableAnnotationTypeIsInherited = TypeRelated + 908;
+	/** @since 3.9 BETA_JAVA8 */
+	int RepeatableAnnotationWithRepeatingContainerAnnotation = TypeRelated + 909;
 	
 	/**
 	 * Errors/warnings from annotation based null analysis

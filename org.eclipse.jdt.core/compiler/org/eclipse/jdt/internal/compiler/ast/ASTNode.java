@@ -27,6 +27,7 @@
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *								bug 412149 - [1.8][compiler] Emit repeated annotations into the designated container
+ *								bug 419209 - [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -841,6 +842,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 								container = new ContainerAnnotation(sourceAnnotations[i], containerAnnotationType, scope);
 								if (implicitContainerAnnotations == null) implicitContainerAnnotations = new HashMap(3);
 								implicitContainerAnnotations.put(containerAnnotationType, sourceAnnotations[i]);
+								Annotation.checkForInstancesOfRepeatableWithRepeatingContainerAnnotation(scope, annotationType, sourceAnnotations);
 							}
 							container.addContainee(sourceAnnotations[j]);
 						} else {
