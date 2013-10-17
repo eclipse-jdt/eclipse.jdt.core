@@ -133,7 +133,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"2. ERROR in X.java (at line 2)\n" + 
 				"	@Marker <T> @Marker int x() { return 10; };\n" + 
 				"	            ^^^^^^^\n" + 
-				"Syntax error, type annotations are illegal here\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 3)\n" + 
 				"	Zork z;\n" + 

@@ -610,7 +610,8 @@ protected void consumeMethodHeaderNameWithTypeParameters(boolean isAnnotationMet
 	this.identifierLengthPtr--;
 	//type
 	md.returnType = getTypeReference(this.intStack[this.intPtr--]);
-	rejectIllegalLeadingTypeAnnotations(md.returnType);
+	if (isAnnotationMethod)
+		rejectIllegalLeadingTypeAnnotations(md.returnType);
 	md.bits |= (md.returnType.bits & ASTNode.HasTypeAnnotations);
 	// consume type parameters
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];

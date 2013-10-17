@@ -5063,7 +5063,8 @@ protected void consumeMethodHeaderNameWithTypeParameters(boolean isAnnotationMet
 	this.identifierLengthPtr--;
 	//type
 	TypeReference returnType = getTypeReference(this.intStack[this.intPtr--]);
-	rejectIllegalLeadingTypeAnnotations(returnType);
+	if (isAnnotationMethod)
+		rejectIllegalLeadingTypeAnnotations(returnType);
 	md.returnType = returnType;
 	md.bits |= (returnType.bits & ASTNode.HasTypeAnnotations);
 

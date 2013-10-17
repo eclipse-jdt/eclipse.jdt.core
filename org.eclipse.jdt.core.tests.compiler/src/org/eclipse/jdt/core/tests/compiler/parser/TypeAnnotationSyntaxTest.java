@@ -697,13 +697,7 @@ public void test0026() throws IOException {
 					"    return 0;\n" +
 					"}\n" +
 					"}\n";
-	String expectedError = 
-			"----------\n" +
-			"1. ERROR in test0026 (at line 2)\n" +
-			"	public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker int foo() {\n" +
-			"	                                                                ^^^^^^^\n" +
-			"Syntax error, type annotations are illegal here\n" +
-			"----------\n";
+	String expectedError = "";
 	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0026", null);
 }
 // Type
@@ -716,13 +710,7 @@ public void test0027() throws IOException {
 					"    return null;\n" +
 					"}\n" +
 					"}\n";
-	String expectedError = 
-			"----------\n" +
-			"1. ERROR in test0027 (at line 2)\n" +
-			"	public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker String foo() {\n" +
-			"	                                                                ^^^^^^^\n" +
-			"Syntax error, type annotations are illegal here\n" +
-			"----------\n";
+	String expectedError = "";
 	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0027", null);
 }
 //Type
@@ -735,13 +723,7 @@ public void test0028() throws IOException {
 					"    return null;\n" +
 					"}\n" +
 					"}\n";
-	String expectedError = 
-			"----------\n" +
-			"1. ERROR in test0028 (at line 2)\n" +
-			"	public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object> foo() {\n" +
-			"	                                                                ^^^^^^^\n" +
-			"Syntax error, type annotations are illegal here\n" +
-			"----------\n";
+	String expectedError = "";
 	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0028", null);
 }
 // Type
@@ -754,13 +736,7 @@ public void test0029() throws IOException {
 					"    return null;\n" +
 					"}\n" +
 					"}\n";
-	String expectedError = 
-			"----------\n" +
-			"1. ERROR in test0029 (at line 2)\n" +
-			"	public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>.Iterator foo() {\n" +
-			"	                                                                ^^^^^^^\n" +
-			"Syntax error, type annotations are illegal here\n" +
-			"----------\n";
+	String expectedError = "";
 	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0029", null);
 }
 //Type
@@ -773,13 +749,7 @@ public void test0030() throws IOException {
 					"    return null;\n" +
 					"}\n" +
 					"}\n";
-	String expectedError = 
-			"----------\n" +
-			"1. ERROR in test0030 (at line 2)\n" +
-			"	public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>.Iterator[] @NonEmpty[][] foo() {\n" +
-			"	                                                                ^^^^^^^\n" +
-			"Syntax error, type annotations are illegal here\n" +
-			"----------\n";
+	String expectedError = "";
 	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0030", null);
 }
 //Type
@@ -792,13 +762,7 @@ public void test0031() throws IOException {
 					"    return 0;\n" +
 					"}\n" +
 					"}\n";
-	String expectedError = 
-			"----------\n" +
-			"1. ERROR in test0031 (at line 2)\n" +
-			"	public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker int[] @NonEmpty[][] foo() {\n" +
-			"	                                                                ^^^^^^^\n" +
-			"Syntax error, type annotations are illegal here\n" +
-			"----------\n";
+	String expectedError = "";
 	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0031", null);
 }
 // Type
@@ -811,13 +775,7 @@ public void test0032() throws IOException {
 					"    return null;\n" +
 					"}\n" +
 					"}\n";
-	String expectedError = 
-			"----------\n" +
-			"1. ERROR in test0032 (at line 2)\n" +
-			"	public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker String[]@NonEmpty[][] foo() {\n" +
-			"	                                                                ^^^^^^^\n" +
-			"Syntax error, type annotations are illegal here\n" +
-			"----------\n";
+	String expectedError = "";
 	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0032", null);
 }
 //Type
@@ -830,13 +788,7 @@ public void test0033() throws IOException {
 					"    return null;\n" +
 					"}\n" +
 					"}\n";
-	String expectedError = 
-			"----------\n" +
-			"1. ERROR in test0033 (at line 2)\n" +
-			"	public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>[] @NonEmpty[][] foo() {\n" +
-			"	                                                                ^^^^^^^\n" +
-			"Syntax error, type annotations are illegal here\n" +
-			"----------\n";
+	String expectedError = "";
 	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0033", null);
 }
 // Type0 field declaration.

@@ -2125,7 +2125,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 2)\n" + 
 				"	public <T> @Marker Object foo() {\n" + 
 				"	           ^^^^^^^\n" + 
-				"Syntax error, type annotations are illegal here\n" + 
+				"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
 				"----------\n");
 	}
 	public void test063() throws Exception {
@@ -4100,6 +4100,31 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"	@interface NonNull { int[].class value() default 0;}\n" + 
 			"	                          ^^^^^^\n" + 
 			"Syntax error on tokens, delete these tokens\n" + 
+			"----------\n");		
+	}	
+	public void testGenericConstructor() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Annotation;\n" +
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"} \n" +
+				"public class X { \n" +
+				"\n" +
+				"	<P> @T X() {\n" +
+				"	}\n" +
+				"   @T <P> X(X x) {\n" +
+				"   }\n" +
+				"}\n"
+			}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	<P> @T X() {\n" + 
+			"	    ^\n" + 
+			"Syntax error on token \"@\", delete this token\n" + 
 			"----------\n");		
 	}	
 }

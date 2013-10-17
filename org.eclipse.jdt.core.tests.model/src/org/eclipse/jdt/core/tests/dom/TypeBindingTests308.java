@@ -1810,5 +1810,34 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		verifyAnnotationsOnBinding(parameterBinding, new String [] { "@A()", "@AUseParameter()", "@AParameter()" });
 		ITypeBinding type = parameterBinding.getType();
 		verifyAnnotationsOnBinding(type, new String [] { "@AUse()", "@AUseParameter()", "@AUseLocal()" });
+	}
+	public void testGenericMethod() throws CoreException, IOException {
+		String contents = 
+				"import java.lang.annotation.Annotation;\n" +
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"}\n" +
+				"public class X { \n" +
+				"	<N extends Annotation> @T String f(N a) {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}\n";
+		
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		List types = compilationUnit.types();
+		assertEquals("Incorrect no of types", 2, types.size());
+		TypeDeclaration typeDecl = (TypeDeclaration) types.get(1);
+		MethodDeclaration[] methods = typeDecl.getMethods();
+		assertEquals("Incorrect no of methods", 1, methods.length);
+		MethodDeclaration method = methods[0];
+		Type returnType = method.getReturnType2();
+		ITypeBinding type = returnType.resolveBinding();
+		verifyAnnotationsOnBinding(type, new String [] { "@T()" });
 	}	
 }
