@@ -95,6 +95,16 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			assertEquals("Incorrect annotation", annots[i], (annotations[i] == null) ? null : annotations[i].toString());
 		}
 	}
+
+	private void verifyAnnotationsOnBinding(IVariableBinding binding, String[] annots) {
+		IAnnotationBinding[] annotations = binding.getAnnotations();
+		assertNotNull("Should not be null", annotations);
+		int length = annots.length;
+		assertEquals("Incorrect annotations", length, annotations.length);
+		for (int i = 0; i < length; i++) {
+			assertEquals("Incorrect annotation", annots[i], (annotations[i] == null) ? null : annotations[i].toString());
+		}
+	}
 	
 	public void test000() throws Exception {
 		String contents = 
@@ -1760,5 +1770,45 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		} finally {
 			removeLibrary(javaProject, jarName, srcName);
 		}
+	}
+	public void testHybridAnnotations() throws CoreException, IOException {
+		String contents = 
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"@interface A {\n" +
+				"}\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface AUse {\n" +
+				"}\n" +
+				"@Target({ElementType.TYPE_USE, ElementType.PARAMETER})\n" +
+				"@interface AUseParameter {\n" +
+				"}\n" +
+				"@Target({ElementType.TYPE_USE, ElementType.LOCAL_VARIABLE})\n" +
+				"@interface AUseLocal {\n" +
+				"}\n" +
+				"@Target({ElementType.PARAMETER})\n" +
+				"@interface AParameter {\n" +
+				"}\n" +
+				"public class X {    \n" +
+				"	void foo(@A @AUse @AUseParameter @AUseLocal @AParameter X x) {\n" +
+				"	}\n" +
+				"}\n";
+		
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		List types = compilationUnit.types();
+		assertEquals("Incorrect no of types", 6, types.size());
+		TypeDeclaration typeDecl = (TypeDeclaration) types.get(5);
+		MethodDeclaration[] methods = typeDecl.getMethods();
+		assertEquals("Incorrect no of methods", 1, methods.length);
+		MethodDeclaration method = methods[0];
+		SingleVariableDeclaration parameter = (SingleVariableDeclaration) method.parameters().get(0);
+		IVariableBinding parameterBinding = parameter.resolveBinding();
+		verifyAnnotationsOnBinding(parameterBinding, new String [] { "@A()", "@AUseParameter()", "@AParameter()" });
+		ITypeBinding type = parameterBinding.getType();
+		verifyAnnotationsOnBinding(type, new String [] { "@AUse()", "@AUseParameter()", "@AUseLocal()" });
 	}	
 }

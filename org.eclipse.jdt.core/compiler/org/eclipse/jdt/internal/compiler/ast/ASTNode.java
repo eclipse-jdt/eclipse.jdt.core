@@ -656,7 +656,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return polyExpressionsHaveErrors;
 	}
 
-	// Method retained with original signature to satisfy reference from APT.
 	public static void resolveAnnotations(BlockScope scope, Annotation[] sourceAnnotations, Binding recipient) {
 		resolveAnnotations(scope, sourceAnnotations, recipient, false);
 	}
@@ -893,71 +892,98 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return scope.environment().createAnnotatedType(type, annotationBindings);
 	}
 
-	/** When SE8 annotations feature in SE7 locations, they get attributed to the declared entity. Copy these to the type of the declared entity (field, local, argument etc.)
-	    We leave in the annotation in the declared entity's binding as of now, i.e we do a copy not a transfer.
-	*/
+	// When SE8 annotations feature in SE7 locations, they get attributed to the declared entity. Copy/move these to the type of the declared entity (field, local, argument etc.)
 	public static void copySE8AnnotationsToType(BlockScope scope, Binding recipient, Annotation[] annotations) {
-		if (annotations != null && recipient.kind() != Binding.TYPE_USE) {
-			AnnotationBinding [] se8Annotations = null;
-			int se8count = 0;
-			long se8nullBits = 0;
-			Annotation se8NullAnnotation = null;
-			for (int i = 0, length = annotations.length; i < length; i++) {
-				AnnotationBinding annotation = annotations[i].getCompilerAnnotation();
-				if (annotation == null) continue;
-				final ReferenceBinding annotationType = annotation.getAnnotationType();
-				long metaTagBits = annotationType.getAnnotationTagBits();
-				if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-					if (se8Annotations == null) {
-						se8Annotations = new AnnotationBinding[] { annotation };
-						se8count = 1;
-					} else {
-						System.arraycopy(se8Annotations, 0, se8Annotations = new AnnotationBinding[se8count + 1], 0, se8count);
-						se8Annotations[se8count++] = annotation;
-					}
-					if (annotationType.id == TypeIds.T_ConfiguredAnnotationNonNull) {
-						se8nullBits = TagBits.AnnotationNonNull;
-						se8NullAnnotation = annotations[i];
-					} else if (annotationType.id == TypeIds.T_ConfiguredAnnotationNullable) {
-						se8nullBits = TagBits.AnnotationNullable;
-						se8NullAnnotation = annotations[i];
-					}
+		
+		if (annotations == null || annotations.length == 0 || recipient == null)
+			return;
+		
+		long recipientTargetMask = 0;
+		switch (recipient.kind()) {
+			case Binding.LOCAL:
+				recipientTargetMask = recipient.isParameter() ? TagBits.AnnotationForParameter : TagBits.AnnotationForLocalVariable;
+				break;
+			case Binding.FIELD:
+				recipientTargetMask = TagBits.AnnotationForField;
+				break;
+			case Binding.METHOD:
+				recipientTargetMask = TagBits.AnnotationForMethod;
+				break;
+			default:
+				return;
+		}
+		
+		AnnotationBinding [] se8Annotations = null;
+		int se8count = 0;
+		long se8nullBits = 0;
+		Annotation se8NullAnnotation = null;
+		for (int i = 0, length = annotations.length; i < length; i++) {
+			AnnotationBinding annotation = annotations[i].getCompilerAnnotation();
+			if (annotation == null) continue;
+			final ReferenceBinding annotationType = annotation.getAnnotationType();
+			long metaTagBits = annotationType.getAnnotationTagBits();
+			if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
+				if (se8Annotations == null) {
+					se8Annotations = new AnnotationBinding[] { annotation };
+					se8count = 1;
+				} else {
+					System.arraycopy(se8Annotations, 0, se8Annotations = new AnnotationBinding[se8count + 1], 0, se8count);
+					se8Annotations[se8count++] = annotation;
+				}
+				if (annotationType.id == TypeIds.T_ConfiguredAnnotationNonNull) {
+					se8nullBits = TagBits.AnnotationNonNull;
+					se8NullAnnotation = annotations[i];
+				} else if (annotationType.id == TypeIds.T_ConfiguredAnnotationNullable) {
+					se8nullBits = TagBits.AnnotationNullable;
+					se8NullAnnotation = annotations[i];
 				}
 			}
-			if (se8Annotations != null) {
-				switch (recipient.kind()) {
-					case Binding.LOCAL:
-						LocalVariableBinding local = (LocalVariableBinding) recipient;
-						TypeReference typeRef = local.declaration.type;
-						if (Annotation.isTypeUseCompatible(typeRef, scope)) { // discard hybrid annotations on package qualified types.
-							local.declaration.bits |= HasTypeAnnotations;
-							typeRef.bits |= HasTypeAnnotations;
-							local.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, typeRef, local.type);
+		}
+		if (se8Annotations != null) {
+			switch (recipient.kind()) {
+				case Binding.LOCAL:
+					LocalVariableBinding local = (LocalVariableBinding) recipient;
+					TypeReference typeRef = local.declaration.type;
+					if (Annotation.isTypeUseCompatible(typeRef, scope)) { // discard hybrid annotations on package qualified types.
+						local.declaration.bits |= HasTypeAnnotations;
+						typeRef.bits |= HasTypeAnnotations;
+						local.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, typeRef, local.type);
+					}
+					break;
+				case Binding.FIELD:
+					FieldBinding field = (FieldBinding) recipient;
+					SourceTypeBinding sourceType = (SourceTypeBinding) field.declaringClass;
+					FieldDeclaration fieldDeclaration = sourceType.scope.referenceContext.declarationOf(field);
+					if (Annotation.isTypeUseCompatible(fieldDeclaration.type, scope)) { // discard hybrid annotations on package qualified types.
+						fieldDeclaration.bits |= HasTypeAnnotations;
+						fieldDeclaration.type.bits |= HasTypeAnnotations;
+						field.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, fieldDeclaration.type, field.type);
+					}
+					break;
+				case Binding.METHOD:
+					MethodBinding method = (MethodBinding) recipient;
+					if (!method.isConstructor()) {
+						sourceType = (SourceTypeBinding) method.declaringClass;
+						MethodDeclaration methodDecl = (MethodDeclaration) sourceType.scope.referenceContext.declarationOf(method);
+						if (Annotation.isTypeUseCompatible(methodDecl.returnType, scope)) {
+							methodDecl.bits |= HasTypeAnnotations;
+							methodDecl.returnType.bits |= HasTypeAnnotations;
+							method.returnType = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, methodDecl.returnType, method.returnType);
 						}
-						break;
-					case Binding.FIELD:
-						FieldBinding field = (FieldBinding) recipient;
-						SourceTypeBinding sourceType = (SourceTypeBinding) field.declaringClass;
-						FieldDeclaration fieldDeclaration = sourceType.scope.referenceContext.declarationOf(field);
-						if (Annotation.isTypeUseCompatible(fieldDeclaration.type, scope)) { // discard hybrid annotations on package qualified types.
-							fieldDeclaration.bits |= HasTypeAnnotations;
-							fieldDeclaration.type.bits |= HasTypeAnnotations;
-							field.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, fieldDeclaration.type, field.type);
-						}
-						break;
-					case Binding.METHOD:
-						MethodBinding method = (MethodBinding) recipient;
-						if (!method.isConstructor()) {
-							sourceType = (SourceTypeBinding) method.declaringClass;
-							MethodDeclaration methodDecl = (MethodDeclaration) sourceType.scope.referenceContext.declarationOf(method);
-							if (Annotation.isTypeUseCompatible(methodDecl.returnType, scope)) {
-								methodDecl.bits |= HasTypeAnnotations;
-								methodDecl.returnType.bits |= HasTypeAnnotations;
-								method.returnType = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, methodDecl.returnType, method.returnType);
-							}
-						}
-						break;
-				}
+					}
+					break;
+			}
+			AnnotationBinding [] recipientAnnotations = recipient.getAnnotations();
+			int length = recipientAnnotations == null ? 0 : recipientAnnotations.length;
+			int newLength = 0;
+			for (int i = 0; i < length; i++) {
+				long annotationTargetMask = recipientAnnotations[i].getAnnotationType().getAnnotationTagBits() & TagBits.AnnotationTargetMASK;
+				if (annotationTargetMask == 0 || (annotationTargetMask & recipientTargetMask) != 0)
+					recipientAnnotations[newLength++] = recipientAnnotations[i];
+			}
+			if (newLength != length) {
+				System.arraycopy(recipientAnnotations, 0, recipientAnnotations = new AnnotationBinding[newLength],  0, newLength);
+				recipient.setAnnotations(recipientAnnotations, scope);
 			}
 		}
 	}

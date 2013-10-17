@@ -143,4 +143,13 @@ public abstract class Binding {
 	public char[] shortReadableName(){
 		return readableName();
 	}
+	public AnnotationBinding[] getAnnotations() {
+		return Binding.NO_ANNOTATIONS;
+	}
+	public void setAnnotations(AnnotationBinding[] annotations, Scope scope) {
+		setAnnotations(annotations);
+	}
+	public void setAnnotations(AnnotationBinding[] annotations) {
+		// Left to subtypes.
+	}
 }
