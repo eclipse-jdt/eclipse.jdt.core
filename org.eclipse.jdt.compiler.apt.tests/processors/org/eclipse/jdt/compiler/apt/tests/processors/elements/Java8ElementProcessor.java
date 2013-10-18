@@ -804,6 +804,15 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 	}
 	
+	public void testTypeAnnotations23() {
+		Set<? extends Element> allElements = roundEnv.getRootElements();
+		for (Element element : allElements) {
+			List<? extends AnnotationMirror> list = _elementUtils.getAllAnnotationMirrors(element);
+			List<? extends AnnotationMirror> list1 = element.getAnnotationMirrors();
+			assertTrue("Annotations mirrors returned by getAllAnnotationMirrors() must contain directly declared annotation mirrors", list.containsAll(list1));
+		}
+	}
+	
 	private String getExceptionStackTrace(Throwable t) {
 		StringBuffer buf = new StringBuffer(t.getMessage());
 		StackTraceElement[] traces = t.getStackTrace();

@@ -247,6 +247,17 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testRepeatedAnnotations22", "JEP120_5.java");
 	}
+	
+	public void testTypeAnnotations23() throws Exception {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations23");
+	}
+
+	public void testTypeAnnotations23WithJavac() throws Exception {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations23");
+	}
+
 
 	private void internalTest(JavaCompiler compiler, String processor, String testMethod) throws IOException {
 		internalTest(compiler, processor, testMethod, null);

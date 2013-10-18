@@ -16,6 +16,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -79,8 +80,12 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 						}
 						return false;
 					} else {
-						if (pair2.value == null
-								|| !pair2.value.equals(pair.value)) {
+						if (pair2.value == null) return false;
+						if (pair2.value instanceof Object[] && pair.value instanceof Object[]) {
+							if (!Arrays.equals((Object[]) pair.value, (Object[]) pair2.value)) {
+								return false;
+							}
+						} else if (!pair2.value.equals(pair.value)){
 							return false;
 						}
 					}

@@ -69,7 +69,7 @@ public class RoundEnvImpl implements RoundEnvironment
 			if (referenceBinding instanceof ParameterizedTypeBinding) {
 				referenceBinding = ((ParameterizedTypeBinding) referenceBinding).genericType();
 			}
-			AnnotationBinding[] annotationBindings = referenceBinding.getAnnotations();
+			AnnotationBinding[] annotationBindings = Factory.getPackedAnnotationBindings(referenceBinding.getAnnotations());
 			for (AnnotationBinding annotationBinding : annotationBindings) {
 				TypeElement anno = (TypeElement)_factory.newElement(annotationBinding.getAnnotationType()); 
 				Element element = _factory.newElement(referenceBinding);
@@ -77,7 +77,7 @@ public class RoundEnvImpl implements RoundEnvironment
 			}
 			FieldBinding[] fieldBindings = referenceBinding.fields();
 			for (FieldBinding fieldBinding : fieldBindings) {
-				annotationBindings = fieldBinding.getAnnotations();
+				annotationBindings = Factory.getPackedAnnotationBindings(fieldBinding.getAnnotations());
 				for (AnnotationBinding annotationBinding : annotationBindings) {
 					TypeElement anno = (TypeElement)_factory.newElement(annotationBinding.getAnnotationType()); 
 					Element element = _factory.newElement(fieldBinding);
@@ -86,7 +86,7 @@ public class RoundEnvImpl implements RoundEnvironment
 			}
 			MethodBinding[] methodBindings = referenceBinding.methods();
 			for (MethodBinding methodBinding : methodBindings) {
-				annotationBindings = methodBinding.getAnnotations();
+				annotationBindings = Factory.getPackedAnnotationBindings(methodBinding.getAnnotations());
 				for (AnnotationBinding annotationBinding : annotationBindings) {
 					TypeElement anno = (TypeElement)_factory.newElement(annotationBinding.getAnnotationType()); 
 					Element element = _factory.newElement(methodBinding);
@@ -172,7 +172,7 @@ public class RoundEnvImpl implements RoundEnvironment
 			if (searchedElement instanceof ParameterizedTypeBinding) {
 				searchedElement = ((ParameterizedTypeBinding) searchedElement).genericType();
 			}
-			AnnotationBinding[] annos = searchedElement.getAnnotations();
+			AnnotationBinding[] annos = Factory.getPackedAnnotationBindings(searchedElement.getAnnotations());
 			for (AnnotationBinding annoBinding : annos) {
 				if (annoBinding.getAnnotationType() == anno) {
 					// element is annotated with anno

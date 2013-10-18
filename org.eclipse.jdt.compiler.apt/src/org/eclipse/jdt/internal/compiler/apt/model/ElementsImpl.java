@@ -94,19 +94,23 @@ public class ElementsImpl implements Elements {
 			// A class can only have one annotation of a particular annotation type.
 			Set<ReferenceBinding> annotationTypes = new HashSet<ReferenceBinding>();
 			ReferenceBinding binding = (ReferenceBinding)((TypeElementImpl)e)._binding;
+			boolean checkIfInherited = false;
 			while (null != binding) {
 				if (binding instanceof ParameterizedTypeBinding) {
 					binding = ((ParameterizedTypeBinding) binding).genericType();
 				}
-				for (AnnotationBinding annotation : binding.getAnnotations()) {
+				for (AnnotationBinding annotation : Factory.getPackedAnnotationBindings(binding.getAnnotations())) {
 					if (annotation == null) continue;
 					ReferenceBinding annotationType = annotation.getAnnotationType();
+					if (checkIfInherited && (annotationType.getAnnotationTagBits() & TagBits.AnnotationInherited) == 0)
+						continue;
 					if (!annotationTypes.contains(annotationType)) {
 						annotationTypes.add(annotationType);
 						annotations.add(annotation);
 					}
 				}
 				binding = binding.superclass();
+				checkIfInherited = true;
 			}
 			List<AnnotationMirror> list = new ArrayList<AnnotationMirror>(annotations.size());
 			for (AnnotationBinding annotation : annotations) {
