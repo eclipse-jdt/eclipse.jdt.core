@@ -105,6 +105,10 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 	this.methods = Binding.UNINITIALIZED_METHODS;
 	this.prototype = this;
 	computeId();
+	if (this.isAnnotationType()) { // for forward references, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=419331
+		this.superclass = scope.getJavaLangObject();
+		this.superInterfaces = new ReferenceBinding [] { scope.getJavaLangAnnotationAnnotation() };
+	}
 }
 
 public SourceTypeBinding(SourceTypeBinding prototype) {

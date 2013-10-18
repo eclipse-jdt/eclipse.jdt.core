@@ -6052,12 +6052,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"    Class<? extends Annotation> value();\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in T.java (at line 5)\n" + 
-			"	@R(TC.class)\n" + 
-			"	   ^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Class<TC> to Class<? extends Annotation>\n" + 
-			"----------\n");
+			"");
 	}
 	public void testHybridTargets() throws Exception {
 		this.runConformTest(
