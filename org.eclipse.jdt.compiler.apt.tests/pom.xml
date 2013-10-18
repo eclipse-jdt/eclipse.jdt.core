@@ -26,6 +26,16 @@
   <build>
     <plugins>
       <plugin>
+	    <artifactId>maven-clean-plugin</artifactId>
+	    <configuration>
+	      <filesets>
+	        <fileset>
+	          <directory>lib/</directory>
+	        </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>target-platform-configuration</artifactId>
         <configuration>
