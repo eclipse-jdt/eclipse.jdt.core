@@ -114,7 +114,7 @@ public class TypeMirrorImpl implements TypeMirror {
 		if (!(obj instanceof TypeMirrorImpl))
 			return false;
 		final TypeMirrorImpl other = (TypeMirrorImpl) obj;
-		return TypeBinding.equalsEquals((TypeBinding) _binding, (TypeBinding)other._binding);
+		return _binding == other._binding;
 	}
 
 	/* Package any repeating annotations into containers, return others as is.
