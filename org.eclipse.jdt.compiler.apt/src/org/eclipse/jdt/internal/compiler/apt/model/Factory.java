@@ -784,7 +784,7 @@ public class Factory {
 			if (values == null || values.length != 1)
 				continue; // FUBAR.
 			MethodBinding value = values[0];
-			if (value.returnType == null || value.returnType.leafComponentType() != annotationType)
+			if (value.returnType == null || value.returnType.dimensions() != 1 || value.returnType.leafComponentType() != annotationType)
 				continue; // FUBAR
 			
 			// We have a kosher repeatable annotation with a kosher containing type. See if actually repeats.
@@ -811,9 +811,9 @@ public class Factory {
 		return repackagedBindings;
 	}
 	
-	/* Unwrap container annotations into the repeated annotations, return an array of bindings. non-contained annotations are not returned.
+	/* Unwrap container annotations into the repeated annotations, return an array of bindings that includes the container and the containees.
 	*/
-	public static AnnotationBinding [] getOnlyUnpackedAnnotationBindings(AnnotationBinding [] annotations) {
+	public static AnnotationBinding [] getUnpackedAnnotationBindings(AnnotationBinding [] annotations) {
 		
 		int length = annotations == null ? 0 : annotations.length;
 		if (length == 0)
@@ -823,12 +823,16 @@ public class Factory {
 		for (int i = 0; i < length; i++) {
 			AnnotationBinding annotation = annotations[i];
 			if (annotation == null) continue;
+			unpackedAnnotations.add(annotation);
 			ReferenceBinding annotationType = annotation.getAnnotationType();
 			
 			MethodBinding [] values = annotationType.getMethods(TypeConstants.VALUE);
 			if (values == null || values.length != 1)
 				continue;
 			MethodBinding value = values[0];
+			
+			if (value.returnType.dimensions() != 1)
+				continue;
 			
 			TypeBinding containeeType = value.returnType.leafComponentType();
 			if (containeeType == null || !containeeType.isAnnotationType() || !containeeType.isRepeatableAnnotationType())

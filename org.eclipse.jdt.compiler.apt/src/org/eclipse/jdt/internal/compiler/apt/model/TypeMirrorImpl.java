@@ -141,24 +141,8 @@ public class TypeMirrorImpl implements TypeMirror {
 
 	@SuppressWarnings("unchecked")
 	public <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationType) {
-		
 		if (_env == null)
 			return (A[]) Array.newInstance(annotationType, 0);
-		
-		AnnotationBinding [] packedAnnotations = getPackedAnnotationBindings();
-		A [] result1 = _env.getFactory().getAnnotationsByType(packedAnnotations, annotationType);
-		A [] result2 = _env.getFactory().getAnnotationsByType(Factory.getOnlyUnpackedAnnotationBindings(packedAnnotations), annotationType);
-		
-		if (result1.length == 0)
-			return result2;
-		if (result2.length == 0)
-			return result1;
-		
-		A [] result = (A[]) Array.newInstance(annotationType, result1.length + result2.length);
-		
-		System.arraycopy(result1, 0, result, 0, result1.length);
-		System.arraycopy(result2, 0, result, result1.length, result2.length);
-		
-		return result;
+		return _env.getFactory().getAnnotationsByType(Factory.getUnpackedAnnotationBindings(getPackedAnnotationBindings()), annotationType);
 	}
 }
