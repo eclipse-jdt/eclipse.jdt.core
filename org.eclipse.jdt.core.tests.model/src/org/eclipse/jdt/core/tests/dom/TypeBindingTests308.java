@@ -44,6 +44,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
@@ -1839,5 +1840,96 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		Type returnType = method.getReturnType2();
 		ITypeBinding type = returnType.resolveBinding();
 		verifyAnnotationsOnBinding(type, new String [] { "@T()" });
-	}	
+	}
+	public void testHybridAnnotations2() throws CoreException, IOException {
+		String contents = 
+				"import java.lang.annotation.Target;\n" +
+				"import java.lang.annotation.ElementType;\n" +
+				"@Target({ ElementType.TYPE_USE, ElementType.METHOD })\n" +
+				"@interface SillyAnnotation {  }\n" +
+				"public class X {\n" +
+				"    @SillyAnnotation\n" +
+				"    X(@SillyAnnotation int x) {\n" +
+				"    }\n" +
+				"    @SillyAnnotation\n" +
+				"    void foo(@SillyAnnotation int x) {\n" +
+				"    }\n" +
+				"    @SillyAnnotation\n" +
+				"    String goo(@SillyAnnotation int x) {\n" +
+				"	return null;\n" +
+				"    }\n" +
+				"    @SillyAnnotation\n" +
+				"    X field;\n" +
+				"}\n";
+		
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		List types = compilationUnit.types();
+		assertEquals("Incorrect no of types", 2, types.size());
+		
+		TypeDeclaration typeDecl = (TypeDeclaration) types.get(1);
+		MethodDeclaration[] methods = typeDecl.getMethods();
+		assertEquals("Incorrect no of methods", 3, methods.length);
+		
+		MethodDeclaration method = methods[0];
+		List modifiers = method.modifiers();
+		int size = modifiers.size();
+		assertTrue("Should be just 1", size == 1);
+		MarkerAnnotation annotation = (MarkerAnnotation) modifiers.get(0);
+		assertEquals("Incorrect annotation", "@SillyAnnotation", annotation.toString());
+		SingleVariableDeclaration parameter = (SingleVariableDeclaration) method.parameters().get(0);
+	    IAnnotationBinding [] annotations = parameter.resolveBinding().getAnnotations();
+		assertTrue("should be 0", annotations == null || annotations.length == 0);
+		IAnnotationBinding [] typeAnnotations = parameter.getType().resolveBinding().getTypeAnnotations();
+		assertEquals("Incorrect annotation", "@SillyAnnotation()", typeAnnotations[0].toString());
+		
+		method = methods[1];
+		modifiers = method.modifiers();
+		size = modifiers.size();
+		assertTrue("Should be just 1", size == 1);
+		annotation = (MarkerAnnotation) modifiers.get(0);
+		assertEquals("Incorrect annotation", "@SillyAnnotation", annotation.toString());
+		typeAnnotations = method.getReturnType2().resolveBinding().getTypeAnnotations();
+		assertTrue("Should be just 0", typeAnnotations.length == 0);
+		parameter = (SingleVariableDeclaration) method.parameters().get(0);
+	    annotations = parameter.resolveBinding().getAnnotations();
+		assertTrue("should be 0", annotations == null || annotations.length == 0);
+		typeAnnotations = parameter.getType().resolveBinding().getTypeAnnotations();
+		assertEquals("Incorrect annotation", "@SillyAnnotation()", typeAnnotations[0].toString());
+		
+		method = methods[2];
+		modifiers = method.modifiers();
+		size = modifiers.size();
+		assertTrue("Should be just 1", size == 1);
+		annotation = (MarkerAnnotation) modifiers.get(0);
+		assertEquals("Incorrect annotation", "@SillyAnnotation", annotation.toString());
+		typeAnnotations = method.getReturnType2().resolveBinding().getTypeAnnotations();
+		assertTrue("Should be just 1", typeAnnotations.length == 1);
+		assertEquals("Incorrect annotation", "@SillyAnnotation()", typeAnnotations[0].toString());
+		parameter = (SingleVariableDeclaration) method.parameters().get(0);
+	    annotations = parameter.resolveBinding().getAnnotations();
+		assertTrue("should be 0", annotations == null || annotations.length == 0);
+		typeAnnotations = parameter.getType().resolveBinding().getTypeAnnotations();
+		assertEquals("Incorrect annotation", "@SillyAnnotation()", typeAnnotations[0].toString());
+		
+		FieldDeclaration[] fields = typeDecl.getFields();
+		assertEquals("Incorrect no of fields", 1, fields.length);
+		
+		FieldDeclaration field = fields[0];
+		modifiers = field.modifiers();
+		size = modifiers.size();
+		assertTrue("Should be just 1", size == 1);
+		annotation = (MarkerAnnotation) modifiers.get(0);
+		assertEquals("Incorrect annotation", "@SillyAnnotation", annotation.toString());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) field.fragments().get(0);
+		annotations = fragment.resolveBinding().getAnnotations();
+		assertTrue("Incorrect annotation", annotations == null || annotations.length == 0);
+		
+		typeAnnotations = field.getType().resolveBinding().getTypeAnnotations();
+		assertTrue("Should be just 1", typeAnnotations.length == 1);
+		assertEquals("Incorrect annotation", "@SillyAnnotation()", typeAnnotations[0].toString());
+	}
 }

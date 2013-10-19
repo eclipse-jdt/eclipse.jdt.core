@@ -4143,9 +4143,9 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"}\n"
 			}, 
 			"----------\n" + 
-			"1. ERROR in X.java (at line 9)\n" + 
-			"	<P> @T X() {\n" + 
-			"	    ^\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	public class X extends @T S implements @T  {\n" + 
+			"	                                       ^\n" + 
 			"Syntax error on token \"@\", delete this token\n" + 
 			"----------\n");		
 	}	

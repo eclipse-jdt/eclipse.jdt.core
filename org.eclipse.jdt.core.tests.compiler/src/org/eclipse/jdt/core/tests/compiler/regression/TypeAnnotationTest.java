@@ -6123,6 +6123,101 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"    )\n" + 
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testHybridTargets2() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Target;\n" +
+				"import java.lang.annotation.ElementType;\n" +
+				"@Target({ ElementType.TYPE_USE, ElementType.METHOD })\n" +
+				"@interface SillyAnnotation {  }\n" +
+				"public class X {\n" +
+				"   @SillyAnnotation\n" +
+				"   X(@SillyAnnotation int x) {\n" +
+				"   }\n" +
+				"	@SillyAnnotation\n" +
+				"	void foo(@SillyAnnotation int x) {\n" +
+				"	}\n" +
+				"	@SillyAnnotation\n" +
+				"	String goo(@SillyAnnotation int x) {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"	@SillyAnnotation\n" +
+				"	X field;\n" +
+				"}\n"
+			},
+			"");
+		String expectedOutput =
+				"  // Field descriptor #6 LX;\n" + 
+				"  X field;\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #8 @SillyAnnotation(\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Method descriptor #10 (I)V\n" + 
+				"  // Stack: 1, Locals: 2\n" + 
+				"  X(int x);\n" + 
+				"    0  aload_0 [this]\n" + 
+				"    1  invokespecial java.lang.Object() [12]\n" + 
+				"    4  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 7]\n" + 
+				"        [pc: 4, line: 8]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 5] local: x index: 1 type: int\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #8 @SillyAnnotation(\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"      )\n" + 
+				"      #8 @SillyAnnotation(\n" + 
+				"        target type = 0x14 METHOD_RETURN\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Method descriptor #10 (I)V\n" + 
+				"  // Stack: 0, Locals: 2\n" + 
+				"  void foo(int x);\n" + 
+				"    0  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 11]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 1] local: x index: 1 type: int\n" + 
+				"    RuntimeInvisibleAnnotations: \n" + 
+				"      #8 @SillyAnnotation(\n" + 
+				"      )\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #8 @SillyAnnotation(\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Method descriptor #23 (I)Ljava/lang/String;\n" + 
+				"  // Stack: 1, Locals: 2\n" + 
+				"  java.lang.String goo(int x);\n" + 
+				"    0  aconst_null\n" + 
+				"    1  areturn\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 14]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 2] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 2] local: x index: 1 type: int\n" + 
+				"    RuntimeInvisibleAnnotations: \n" + 
+				"      #8 @SillyAnnotation(\n" + 
+				"      )\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #8 @SillyAnnotation(\n" + 
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"      )\n" + 
+				"      #8 @SillyAnnotation(\n" + 
+				"        target type = 0x14 METHOD_RETURN\n" + 
+				"      )\n" + 
+				"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}	
 }
 

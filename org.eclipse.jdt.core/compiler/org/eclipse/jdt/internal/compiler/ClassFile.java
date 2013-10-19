@@ -2105,7 +2105,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					}
 				}
 				Annotation[] annotations = methodDeclaration.annotations;
-				if (annotations != null) {
+				if (annotations != null && !methodDeclaration.isClinit() && (methodDeclaration.isConstructor() || binding.returnType.id != T_void)) {
 					methodDeclaration.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN, allTypeAnnotationContexts);
 				}
 				if (!methodDeclaration.isConstructor() && !methodDeclaration.isClinit() && binding.returnType.id != T_void) {

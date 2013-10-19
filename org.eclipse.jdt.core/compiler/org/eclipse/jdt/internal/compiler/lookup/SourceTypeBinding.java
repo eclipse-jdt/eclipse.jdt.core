@@ -1718,8 +1718,8 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 			}
 
 			if (sourceLevel >= ClassFileConstants.JDK1_8) {
-				AnnotationBinding [] annotations = field.getAnnotations();
-				if (annotations != null && annotations != Binding.NO_ANNOTATIONS) {
+				Annotation [] annotations = fieldDecl.annotations;
+				if (annotations != null && annotations.length != 0) {
 					ASTNode.copySE8AnnotationsToType(initializationScope, field, fieldDecl.annotations);
 				}
 				Annotation.isTypeUseCompatible(fieldDecl.type, this.scope, fieldDecl.annotations);
@@ -1901,13 +1901,13 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 					method.tagBits |= TagBits.HasMissingType;
 				}
 				method.returnType = methodType;
-				if (sourceLevel >= ClassFileConstants.JDK1_8) {
-					AnnotationBinding [] annotations = method.getAnnotations();
-					if (annotations != null && annotations != Binding.NO_ANNOTATIONS) {
+				if (sourceLevel >= ClassFileConstants.JDK1_8 && !method.isVoidMethod()) {
+					Annotation [] annotations = methodDecl.annotations;
+					if (annotations != null && annotations.length != 0) {
 						ASTNode.copySE8AnnotationsToType(methodDecl.scope, method, methodDecl.annotations);
 					}
+					Annotation.isTypeUseCompatible(returnType, this.scope, methodDecl.annotations);
 				}
-				Annotation.isTypeUseCompatible(returnType, this.scope, methodDecl.annotations);
 				TypeBinding leafType = methodType.leafComponentType();
 				if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
 					method.modifiers |= ExtraCompilerModifiers.AccGenericSignature;

@@ -1255,4 +1255,7 @@ public boolean redeclaresPublicObjectMethod(Scope scope) {
 	}
 	return false;
 }
+public boolean isVoidMethod() {
+	return this.returnType == TypeBinding.VOID;
+}
 }
