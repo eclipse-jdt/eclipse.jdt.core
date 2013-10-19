@@ -979,9 +979,12 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			int length = recipientAnnotations == null ? 0 : recipientAnnotations.length;
 			int newLength = 0;
 			for (int i = 0; i < length; i++) {
-				long annotationTargetMask = recipientAnnotations[i].getAnnotationType().getAnnotationTagBits() & TagBits.AnnotationTargetMASK;
+				final AnnotationBinding recipientAnnotation = recipientAnnotations[i];
+				if (recipientAnnotation == null)
+					continue;
+				long annotationTargetMask = recipientAnnotation.getAnnotationType().getAnnotationTagBits() & TagBits.AnnotationTargetMASK;
 				if (annotationTargetMask == 0 || (annotationTargetMask & recipientTargetMask) != 0)
-					recipientAnnotations[newLength++] = recipientAnnotations[i];
+					recipientAnnotations[newLength++] = recipientAnnotation;
 			}
 			if (newLength != length) {
 				System.arraycopy(recipientAnnotations, 0, recipientAnnotations = new AnnotationBinding[newLength],  0, newLength);

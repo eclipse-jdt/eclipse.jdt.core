@@ -4121,5 +4121,32 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"	    ^\n" + 
 			"Syntax error on token \"@\", delete this token\n" + 
 			"----------\n");		
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419833, [1.8] NPE in CompilationUnitProblemFinder and ASTNode
+	public void test419833() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Target;\n" +
+				"import java.lang.annotation.ElementType;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"}\n" +
+				"class S {\n" +
+				"}\n" +
+				"interface I {\n" +
+				"}\n" +
+				"public class X extends @T S implements @T  {\n" +
+				"	public int foo() {\n" +
+				"       return 0;\n" +
+				"	}	\n" +
+				"}\n"
+			}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	<P> @T X() {\n" + 
+			"	    ^\n" + 
+			"Syntax error on token \"@\", delete this token\n" + 
+			"----------\n");		
 	}	
 }
