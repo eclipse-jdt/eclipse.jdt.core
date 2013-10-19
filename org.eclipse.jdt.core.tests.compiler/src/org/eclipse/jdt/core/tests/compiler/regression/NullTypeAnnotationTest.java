@@ -3218,5 +3218,41 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"}\n"
 				}, 
 				"Done");
+	}
+	public void testRawType() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" +
+				"public class X<T> {\n" +
+				"	class Y <P> {}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		@NonNull X x = null;\n" +
+				"		X.@NonNull Y xy = null;\n" +
+				"	}\n" +
+				"}\n"
+			}, 
+			getCompilerOptions(), 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	@NonNull X x = null;\n" + 
+			"	         ^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	@NonNull X x = null;\n" + 
+			"	               ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull X\' but the provided value is null\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
+			"	X.@NonNull Y xy = null;\n" + 
+			"	^^^^^^^^^^^^\n" + 
+			"X.Y is a raw type. References to generic type X<T>.Y<P> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 6)\n" + 
+			"	X.@NonNull Y xy = null;\n" + 
+			"	                  ^^^^\n" + 
+			"Null type mismatch: required \'X.@NonNull Y\' but the provided value is null\n" + 
+			"----------\n");		
 	}	
 }
