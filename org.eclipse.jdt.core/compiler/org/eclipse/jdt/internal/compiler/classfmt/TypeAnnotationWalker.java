@@ -100,7 +100,8 @@ public class TypeAnnotationWalker {
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
 		int length = this.typeAnnotations.length;
-		for (int i = 0, mask = 1; i < length; i++, mask = mask << 1) {
+		long mask = 1;
+		for (int i = 0; i < length; i++, mask = mask << 1) {
 			if (this.typeAnnotations[i].getTargetType() != targetType)
 				newMatches &= ~mask;
 		}
@@ -118,7 +119,8 @@ public class TypeAnnotationWalker {
 			return EMPTY_ANNOTATION_WALKER;
 		int targetType = isClassTypeParameter ? AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER : AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER;
 		int length = this.typeAnnotations.length;
-		for (int i = 0, mask = 1; i < length; i++, mask = mask << 1) {
+		long mask = 1;
+		for (int i = 0; i < length; i++, mask = mask << 1) {
 			IBinaryTypeAnnotation candidate = this.typeAnnotations[i];
 			if (candidate.getTargetType() != targetType || candidate.getTypeParameterIndex() != rank) {
 				newMatches &= ~mask;
@@ -140,7 +142,8 @@ public class TypeAnnotationWalker {
 		int length = this.typeAnnotations.length;
 		int targetType = isClassTypeParameter ?
 				AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND : AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND;
-		for (int i = 0, mask = 1; i < length; i++, mask = mask << 1) {
+		long mask = 1;
+		for (int i = 0; i < length; i++, mask = mask << 1) {
 			IBinaryTypeAnnotation candidate = this.typeAnnotations[i];
 			if (candidate.getTargetType() != targetType || (short)candidate.getTypeParameterIndex() != parameterRank) {
 				newMatches &= ~mask;
@@ -158,7 +161,8 @@ public class TypeAnnotationWalker {
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
 		int length = this.typeAnnotations.length;
-		for (int i = 0, mask = 1; i < length; i++, mask = mask << 1) {
+		long mask = 1;
+		for (int i = 0; i < length; i++, mask = mask << 1) {
 			IBinaryTypeAnnotation candidate = this.typeAnnotations[i];
 			if ((short)candidate.getBoundIndex() != boundIndex) {
 				newMatches &= ~mask;
@@ -174,7 +178,8 @@ public class TypeAnnotationWalker {
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
 		int length = this.typeAnnotations.length;
-		for (int i = 0, mask = 1; i < length; i++, mask = mask << 1) {
+		long mask = 1;
+		for (int i = 0; i < length; i++, mask = mask << 1) {
 			IBinaryTypeAnnotation candidate = this.typeAnnotations[i];
 			if (candidate.getTargetType() != AnnotationTargetTypeConstants.CLASS_EXTENDS || (short)candidate.getSupertypeIndex() != index) {
 				newMatches &= ~mask;
@@ -189,7 +194,8 @@ public class TypeAnnotationWalker {
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
 		int length = this.typeAnnotations.length;
-		for (int i = 0, mask = 1; i < length; i++, mask = mask << 1) {
+		long mask = 1;
+		for (int i = 0; i < length; i++, mask = mask << 1) {
 			IBinaryTypeAnnotation candidate = this.typeAnnotations[i];
 			if (candidate.getTargetType() != AnnotationTargetTypeConstants.METHOD_FORMAL_PARAMETER || (short)candidate.getMethodFormalParameterIndex() != index) {
 				newMatches &= ~mask;
@@ -200,16 +206,16 @@ public class TypeAnnotationWalker {
 
 	/**
 	 * Walk to the throws type at the given index.
-	 * Note: Type annotations on throws are not currently used by the compiler.
 	 */
 	public TypeAnnotationWalker toThrows(int index) {
 		long newMatches = this.matches;
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
 		int length = this.typeAnnotations.length;
-		for (int i = 0, mask = 1; i < length; i++, mask = mask << 1) {
+		long mask = 1;
+		for (int i = 0; i < length; i++, mask = mask << 1) {
 			IBinaryTypeAnnotation candidate = this.typeAnnotations[i];
-			if (candidate.getTargetType() != AnnotationTargetTypeConstants.EXCEPTION_PARAMETER || candidate.getThrowsTypeIndex() != index) {
+			if (candidate.getTargetType() != AnnotationTargetTypeConstants.THROWS || candidate.getThrowsTypeIndex() != index) {
 				newMatches &= ~mask;
 			}
 		}
@@ -225,7 +231,8 @@ public class TypeAnnotationWalker {
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
 		int length = this.typeAnnotations.length;
-		for (int i = 0, mask = 1; i < length; i++, mask = mask << 1) {
+		long mask = 1;
+		for (int i = 0; i < length; i++, mask = mask << 1) {
 			IBinaryTypeAnnotation candidate = this.typeAnnotations[i];
 			int[] path = candidate.getTypePath();
 			if (this.pathPtr >= path.length 
@@ -243,7 +250,8 @@ public class TypeAnnotationWalker {
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
 		int length = this.typeAnnotations.length;
-		for (int i = 0, mask = 1; i < length; i++, mask = mask << 1) {
+		long mask = 1;
+		for (int i = 0; i < length; i++, mask = mask << 1) {
 			IBinaryTypeAnnotation candidate = this.typeAnnotations[i];
 			int[] path = candidate.getTypePath();
 			if (this.pathPtr >= path.length 
@@ -277,7 +285,8 @@ public class TypeAnnotationWalker {
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
 		int length = this.typeAnnotations.length;
-		for (int i = 0, mask = 1; i < length; i++, mask = mask << 1) {
+		long mask = 1;
+		for (int i = 0; i < length; i++, mask = mask << 1) {
 			IBinaryTypeAnnotation candidate = this.typeAnnotations[i];
 			int[] path = candidate.getTypePath();
 			if (this.pathPtr >= path.length || path[this.pathPtr] != detailKind) {
@@ -296,7 +305,7 @@ public class TypeAnnotationWalker {
 	public IBinaryAnnotation[] getAnnotationsAtCursor() {
 		int length = this.typeAnnotations.length;
 		IBinaryAnnotation[] filtered = new IBinaryAnnotation[length];
-		int ptr = 1;
+		long ptr = 1;
 		int count = 0;
 		for (int i = 0; i < length; i++, ptr<<=1) {
 			if ((this.matches & ptr) == 0)

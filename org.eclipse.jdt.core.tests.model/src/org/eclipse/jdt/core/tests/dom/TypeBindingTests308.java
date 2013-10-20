@@ -1932,4 +1932,145 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		assertTrue("Should be just 1", typeAnnotations.length == 1);
 		assertEquals("Incorrect annotation", "@SillyAnnotation()", typeAnnotations[0].toString());
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419918, [1.8][compiler] Annotations are not restored from class files in a few situations.
+	public void testBinaryWithoutGenericSignature() throws CoreException, IOException {
+		String jarName = "TypeBindingTests308.jar";
+		String srcName = "TypeBindingTests308_src.zip";
+		final IJavaProject javaProject = getJavaProject("Converter18");
+		try {
+			String[] pathAndContents = new String[] {
+				"Superclass.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"	int value() default 0;\n" +
+				"}\n" +
+				"@T(1)\n" +
+				"public abstract class Superclass extends @T(2) Object implements @T(3) Runnable {\n" +
+				"	Object @T(4) [] field;\n" +
+				"	@T(5)\n" +
+				"	public String run(@T(6) Superclass this, Object @T(7) [] that) throws @T(8) NullPointerException {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"   @T(9)\n" +
+				"   Superclass () {}\n" +
+				"   @T(10)\n" +
+				"   class Inner {}\n" +
+				"}\n"
+			};
+			
+			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
+			libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
+			
+			String contents = 
+					"@T(21)\n" +
+					"public abstract class X extends @T(22) Superclass implements @T(23) Runnable {\n" +
+					"	Object @T(24) [] field;\n" +
+					"	@T(25)\n" +
+					"	public String run(@T(26) X this, Object @T(27) [] that) throws @T(28) NullPointerException {\n" +
+					"		return null;\n" +
+					"	}\n" +
+					"   @T(29)\n" +
+					"   X() {\n" +
+		            "   }" +
+					"   @T(30)\n" +
+					"   class Inner {\n" +
+					"   }\n" +
+					"}\n";
+			
+			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+			ASTNode node = buildAST(contents, this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			List types = compilationUnit.types();
+			assertEquals("Incorrect no of types", 1, types.size());
+			TypeDeclaration typeDecl = (TypeDeclaration) types.get(0);
+			ITypeBinding typeBinding = typeDecl.resolveBinding();
+			IAnnotationBinding[] annotations = typeBinding.getAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 21)", annotations[0].toString());
+			annotations = typeBinding.getSuperclass().getTypeAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 22)", annotations[0].toString());
+			annotations = typeBinding.getInterfaces()[0].getTypeAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 23)", annotations[0].toString());
+			
+			annotations = typeDecl.getFields()[0].getType().resolveBinding().getTypeAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 24)", annotations[0].toString());
+			
+			annotations = typeDecl.getMethods()[0].getReturnType2().resolveBinding().getTypeAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 25)", annotations[0].toString());
+			
+			annotations = typeDecl.getMethods()[0].getReceiverType().resolveBinding().getTypeAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 26)", annotations[0].toString());
+			
+			annotations = ((SingleVariableDeclaration) (typeDecl.getMethods()[0].parameters().get(0))).getType().resolveBinding().getTypeAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 27)", annotations[0].toString());
+			
+			annotations = ((Type) typeDecl.getMethods()[0].thrownExceptionTypes().get(0)).resolveBinding().getTypeAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 28)", annotations[0].toString());
+			
+			annotations = typeDecl.getMethods()[1].resolveBinding().getAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 29)", annotations[0].toString());
+			
+			annotations = typeDecl.getTypes()[0].resolveBinding().getAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 30)", annotations[0].toString());
+			
+			
+			// Check the same set of things for the binary type.
+			annotations = typeBinding.getSuperclass().getAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 1)", annotations[0].toString());
+			
+			annotations = typeBinding.getSuperclass().getSuperclass().getTypeAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 2)", annotations[0].toString());
+			
+			annotations = typeBinding.getSuperclass().getInterfaces()[0].getTypeAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 3)", annotations[0].toString());
+			
+			annotations = typeBinding.getSuperclass().getDeclaredFields()[0].getType().getTypeAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 4)", annotations[0].toString());
+			
+			// Skip past the constructor at [0]
+			annotations = typeBinding.getSuperclass().getDeclaredMethods()[1].getReturnType().getTypeAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 5)", annotations[0].toString());
+			
+			annotations = typeBinding.getSuperclass().getDeclaredMethods()[1].getDeclaredReceiverType().getTypeAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 6)", annotations[0].toString());
+			
+			annotations = typeBinding.getSuperclass().getDeclaredMethods()[1].getParameterTypes()[0].getTypeAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 7)", annotations[0].toString());
+			
+			annotations = typeBinding.getSuperclass().getDeclaredMethods()[1].getExceptionTypes()[0].getTypeAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 8)", annotations[0].toString());
+			
+			annotations = typeBinding.getSuperclass().getDeclaredMethods()[0].getAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 9)", annotations[0].toString());
+			
+			annotations = typeBinding.getSuperclass().getDeclaredTypes()[0].getAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 10)", annotations[0].toString());
+		} finally {
+			removeLibrary(javaProject, jarName, srcName);
+		}
+	}
 }

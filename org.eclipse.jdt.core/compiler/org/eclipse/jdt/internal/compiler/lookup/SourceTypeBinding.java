@@ -2115,6 +2115,7 @@ public void setContainerAnnotationType(ReferenceBinding value) {
 }
 
 public void tagAsHavingDefectiveContainerType() {
+	if (!isPrototype()) throw new IllegalStateException();
 	if (this.containerAnnotationType != null && this.containerAnnotationType.isValidBinding())
 		this.containerAnnotationType = new ProblemReferenceBinding(this.containerAnnotationType.compoundName, this.containerAnnotationType, ProblemReasons.DefectiveContainerAnnotationType);
 }

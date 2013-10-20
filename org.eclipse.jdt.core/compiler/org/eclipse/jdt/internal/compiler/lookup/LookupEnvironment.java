@@ -962,10 +962,7 @@ public TypeBinding createAnnotatedType(TypeBinding type, AnnotationBinding[] new
 		System.arraycopy(newbies, 0, newbies = new AnnotationBinding[newLength + oldLength], 0, newLength);
 		System.arraycopy(oldies, 0, newbies, newLength, oldLength);
 	}
-	
-	TypeBinding annotatedType = this.typeSystem.getAnnotatedType(type, new AnnotationBinding [][] { newbies });
-	annotatedType.tagBits |= type.tagBits & TagBits.AnnotationNullMASK; // carry over any synthesized null bits e.g new Object() unless the annotation binding themselves are synthesized.
-	return annotatedType;
+	return this.typeSystem.getAnnotatedType(type, new AnnotationBinding [][] { newbies });
 }
 
 public RawTypeBinding createRawType(ReferenceBinding genericType, ReferenceBinding enclosingType) {
@@ -1194,7 +1191,7 @@ private ReferenceBinding getTypeFromCompoundName(char[][] compoundName, boolean 
 *
 * NOTE: Does NOT answer base types nor array types!
 */
-ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int end, boolean isParameterized, char[][][] missingTypeNames) {
+ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int end, boolean isParameterized, char[][][] missingTypeNames, TypeAnnotationWalker walker) {
 	if (end == -1)
 		end = signature.length;
 	char[][] compoundName = CharOperation.splitOn('/', signature, start, end);
@@ -1207,7 +1204,27 @@ ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int en
 			}
 		}
 	}
-	return getTypeFromCompoundName(compoundName, isParameterized, wasMissingType);
+	ReferenceBinding binding = getTypeFromCompoundName(compoundName, isParameterized, wasMissingType);
+	if (walker != TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER) {
+		final int depth = binding.depth();
+		AnnotationBinding [][] annotations = null;
+		for (int i = 0; i <= depth; i++) {
+			AnnotationBinding[] annots = BinaryTypeBinding.createAnnotations(walker.getAnnotationsAtCursor(), this, missingTypeNames);
+			if (annots != null && annots.length > 0) {
+				if (annotations == null)
+					annotations = new AnnotationBinding[depth + 1][];
+				annotations[i] = annots;
+			}
+			walker = walker.toNextNestedType();
+		}
+		if (annotations != null)
+			binding = (ReferenceBinding) createAnnotatedType(binding, annotations);
+	}
+	return binding;
+}
+
+ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int end, boolean isParameterized, char[][][] missingTypeNames) {
+	return getTypeFromConstantPoolName(signature, start, end, isParameterized, missingTypeNames, TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER);
 }
 
 /* Answer the type corresponding to the signature from the binary file.

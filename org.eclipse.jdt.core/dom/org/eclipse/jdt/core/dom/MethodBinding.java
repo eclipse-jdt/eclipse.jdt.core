@@ -198,6 +198,12 @@ class MethodBinding implements IMethodBinding {
 	}
 
 	/**
+	 * @see IMethodBinding#getDeclaredReceiverType()
+	 */
+	public ITypeBinding getDeclaredReceiverType() {
+		return this.resolver.getTypeBinding(this.binding.receiver);
+	}
+	/**
 	 * @see IMethodBinding#getReturnType()
 	 */
 	public ITypeBinding getReturnType() {

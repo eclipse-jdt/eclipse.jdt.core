@@ -137,7 +137,7 @@ public interface IMethodBinding extends IBinding {
 	 * </p>
 	 * <p>
 	 * Note: The result does not include synthetic parameters introduced by
-	 * inner class emulation.
+	 * inner class emulation. Explicit receiver parameters are also not included.
 	 * </p>
 	 *
 	 * @return a (possibly empty) list of type bindings for the formal
@@ -145,6 +145,17 @@ public interface IMethodBinding extends IBinding {
 	 */
 	public ITypeBinding[] getParameterTypes();
 
+	/**
+	 * Returns the type of this method's receiver or <code>null</code> 
+	 * if there is no receiver declared explicitly.
+	 * 
+	 * @return the type of this method's receiver or <code>null</code> 
+	 * if there is no receiver declared explicitly.
+	 * 
+	 * @since 3.9 BETA_JAVA8
+	 */
+	public ITypeBinding getDeclaredReceiverType();
+	
 	/**
 	 * Returns the binding for the return type of this method. Returns the
 	 * special primitive <code>void</code> return type for constructors.
