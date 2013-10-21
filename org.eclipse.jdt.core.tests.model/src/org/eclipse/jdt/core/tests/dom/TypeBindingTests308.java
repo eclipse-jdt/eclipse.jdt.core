@@ -2073,4 +2073,45 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			removeLibrary(javaProject, jarName, srcName);
 		}
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419918, [1.8][compiler] Annotations are not restored from class files in a few situations.
+	public void testBinaryAnnotationType() throws CoreException, IOException {
+		String jarName = "TypeBindingTests308.jar";
+		String srcName = "TypeBindingTests308_src.zip";
+		final IJavaProject javaProject = getJavaProject("Converter18");
+		try {
+			String[] pathAndContents = new String[] {
+				"T.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"	int value() default 0;\n" +
+				"}\n"
+			};
+			
+			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
+			libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
+			
+			String contents = 
+					"@T\n" +
+					"public class X {\n" +
+					"}\n";
+			
+			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+			ASTNode node = buildAST(contents, this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			List types = compilationUnit.types();
+			assertEquals("Incorrect no of types", 1, types.size());
+			TypeDeclaration typeDecl = (TypeDeclaration) types.get(0);
+			ITypeBinding typeBinding = typeDecl.resolveBinding();
+			IAnnotationBinding[] annotations = typeBinding.getAnnotations()[0].getAnnotationType().getAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@Target(value = {public static final java.lang.annotation.ElementType TYPE_USE})", annotations[0].toString());
+		} finally {
+			removeLibrary(javaProject, jarName, srcName);
+		}
+	}	
 }
