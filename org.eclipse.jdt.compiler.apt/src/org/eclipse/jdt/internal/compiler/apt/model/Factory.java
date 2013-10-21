@@ -328,6 +328,8 @@ public class Factory {
 	 * Create a new element that knows what kind it is even if the binding is unresolved.
 	 */
 	public Element newElement(Binding binding, ElementKind kindHint) {
+		if (binding == null)
+			return null;
 		switch (binding.kind()) {
 		case Binding.FIELD:
 		case Binding.LOCAL:
@@ -761,8 +763,7 @@ public class Factory {
 	}
 
 	/* Wrap repeating annotations into their container, return an array of bindings.
-	   Second and subsequent repeating annotations are replaced with nulls. Caller
-	   must be prepared to handle with nulls. Incoming array is not modified.
+	   Incoming array is not modified.
 	*/
 	public static AnnotationBinding [] getPackedAnnotationBindings(AnnotationBinding [] annotations) {
 		
@@ -808,7 +809,20 @@ public class Factory {
 				repackagedBindings[i] = new AnnotationBinding(containerType, elementValuePairs);
 			}
 		}
-		return repackagedBindings;
+		if (repackagedBindings == annotations)
+			return annotations;
+		
+		int finalTally = 0;
+		for (int i = 0; i < length; i++) {
+			if (repackagedBindings[i] != null)
+				finalTally++;
+		}
+		annotations = new AnnotationBinding [finalTally];
+		for (int i = 0, j = 0; i < length; i++) {
+			if (repackagedBindings[i] != null)
+				annotations[j++] = repackagedBindings[i];
+		}
+		return annotations;
 	}
 	
 	/* Unwrap container annotations into the repeated annotations, return an array of bindings that includes the container and the containees.

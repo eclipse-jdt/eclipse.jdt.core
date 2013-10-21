@@ -47,6 +47,8 @@ import org.eclipse.jdt.compiler.apt.tests.annotations.FooContainer;
 import org.eclipse.jdt.compiler.apt.tests.annotations.FooNonContainer;
 import org.eclipse.jdt.compiler.apt.tests.annotations.Goo;
 import org.eclipse.jdt.compiler.apt.tests.annotations.GooNonContainer;
+import org.eclipse.jdt.compiler.apt.tests.annotations.IFoo;
+import org.eclipse.jdt.compiler.apt.tests.annotations.IFooContainer;
 import org.eclipse.jdt.compiler.apt.tests.annotations.TFoo;
 import org.eclipse.jdt.compiler.apt.tests.annotations.TFooContainer;
 import org.eclipse.jdt.compiler.apt.tests.annotations.Type;
@@ -61,6 +63,7 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
  */
 @SupportedAnnotationTypes({"org.eclipse.jdt.compiler.apt.tests.annotations.Type", "org.eclipse.jdt.compiler.apt.tests.annotations.Type$1", 
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.Foo", "org.eclipse.jdt.compiler.apt.tests.annotations.FooContainer",
+	                       "org.eclipse.jdt.compiler.apt.tests.annotations.IFoo", "org.eclipse.jdt.compiler.apt.tests.annotations.IFooContainer",
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.Goo", "org.eclipse.jdt.compiler.apt.tests.annotations.GooNonContainer",
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.FooNonContainer"})
 
@@ -149,6 +152,8 @@ public class Java8ElementProcessor extends BaseProcessor {
 		testRepeatedAnnotations20();
 		testRepeatedAnnotations21();
 		testRepeatedAnnotations22();
+		testTypeAnnotations23();
+		testRepeatedAnnotations24();
 	}
 	
 	public void testLambdaSpecifics() {
@@ -810,6 +815,54 @@ public class Java8ElementProcessor extends BaseProcessor {
 			List<? extends AnnotationMirror> list = _elementUtils.getAllAnnotationMirrors(element);
 			List<? extends AnnotationMirror> list1 = element.getAnnotationMirrors();
 			assertTrue("Annotations mirrors returned by getAllAnnotationMirrors() must contain directly declared annotation mirrors", list.containsAll(list1));
+		}
+	}
+	
+	public void testRepeatedAnnotations24() {
+		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(IFoo.class); // discovery is always in terms of container
+		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
+		assertTrue("Found unexpected elements", actualElments.size() == 3);		
+		for (Element e : actualElments) {
+			if ("SubClass2".equals(e.getSimpleName().toString())) {
+				IFoo annotation = e.getAnnotation(IFoo.class);
+				assertTrue("Wrong annotation", annotation.value() == 5);
+				IFooContainer container = e.getAnnotation(IFooContainer.class);
+				assertTrue("Wrong annotation", container.value()[0].value() == 2);
+				IFoo [] annotations = e.getAnnotationsByType(IFoo.class);
+				assertTrue("Wrong count", annotations.length == 1);
+				assertTrue("Wrong annotation", annotations[0].value() == 5);
+				IFooContainer [] containers = e.getAnnotationsByType(IFooContainer.class);
+				assertTrue("Wrong count", containers.length == 1);
+				assertTrue("Wrong annotation", containers[0].value()[0].value() == 2);
+			} else if ("SubClass".equals(e.getSimpleName().toString())) {
+				IFoo annotation = e.getAnnotation(IFoo.class);
+				assertTrue("Wrong annotation", annotation.value() == 1);
+				IFooContainer container = e.getAnnotation(IFooContainer.class);
+				assertTrue("Messed up", container.value().length == 2);
+				assertTrue("Wrong annotation", container.value()[0].value() == 3);
+				assertTrue("Wrong annotation", container.value()[1].value() == 4);
+				IFoo [] annotations = e.getAnnotationsByType(IFoo.class);
+				assertTrue("Wrong count", annotations.length == 2);
+				assertTrue("Wrong annotation", annotations[0].value() == 3);
+				assertTrue("Wrong annotation", annotations[1].value() == 4);
+				IFooContainer [] containers = e.getAnnotationsByType(IFooContainer.class);
+				assertTrue("Wrong count", containers.length == 1);
+				assertTrue("Wrong annotation", containers[0].value()[0].value() == 3);
+				assertTrue("Wrong annotation", containers[0].value()[1].value() == 4);
+			} else if ("JEP120_6".equals(e.getSimpleName().toString())) {
+				IFoo annotation = e.getAnnotation(IFoo.class);
+				assertTrue("Wrong annotation", annotation.value() == 1);
+				IFooContainer container = e.getAnnotation(IFooContainer.class);
+				assertTrue("Messed up", container.value().length == 1);
+				assertTrue("Wrong annotation", container.value()[0].value() == 2);
+				IFoo [] annotations = e.getAnnotationsByType(IFoo.class);
+				assertTrue("Wrong count", annotations.length == 2);
+				assertTrue("Wrong annotation", annotations[0].value() == 1);
+				assertTrue("Wrong annotation", annotations[1].value() == 2);
+				IFooContainer [] containers = e.getAnnotationsByType(IFooContainer.class);
+				assertTrue("Wrong count", containers.length == 1);
+				assertTrue("Wrong annotation", containers[0].value()[0].value() == 2);
+			}
 		}
 	}
 	
