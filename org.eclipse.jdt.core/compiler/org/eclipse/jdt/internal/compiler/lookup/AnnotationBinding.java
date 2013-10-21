@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.Arrays;
+
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 
 /**
@@ -230,5 +232,51 @@ public String toString() {
 		buffer.append('}');
 	}
 	return buffer.toString();
+}
+
+public int hashCode() {
+	return this.type.hashCode();
+}
+public boolean equals(Object object) {
+	if (this == object)
+		return true;
+	if (!(object instanceof AnnotationBinding))
+		return false;
+
+	AnnotationBinding that = (AnnotationBinding) object;
+	if (this.getAnnotationType() != that.getAnnotationType()) 
+		return false;
+
+	final ElementValuePair[] thisElementValuePairs = this.getElementValuePairs();
+	final ElementValuePair[] thatElementValuePairs = that.getElementValuePairs();
+	final int length = thisElementValuePairs.length;
+	if (length != thatElementValuePairs.length) 
+		return false;
+	loop: for (int i = 0; i < length; i++) {
+		ElementValuePair thisPair = thisElementValuePairs[i];
+		for (int j = 0; j < length; j++) {
+			ElementValuePair thatPair = thatElementValuePairs[j];
+			if (thisPair.binding == thatPair.binding) {
+				if (thisPair.value == null) {
+					if (thatPair.value == null) {
+						continue loop;
+					}
+					return false;
+				} else {
+					if (thatPair.value == null) return false;
+					if (thatPair.value instanceof Object[] && thisPair.value instanceof Object[]) {
+						if (!Arrays.equals((Object[]) thisPair.value, (Object[]) thatPair.value)) {
+							return false;
+						}
+					} else if (!thatPair.value.equals(thisPair.value)) {
+						return false;
+					}
+				}
+				continue loop;
+			}
+		}
+		return false;
+	}
+	return true;
 }
 }

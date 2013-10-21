@@ -268,6 +268,15 @@ public class Java8ElementsTests extends TestCase {
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testRepeatedAnnotations24", "JEP120_6.java");
 	}
 	
+	public void testRepeatedAnnotations25() throws Exception {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testRepeatedAnnotations25", "JEP120_7.java");
+	}
+
+	public void testRepeatedAnnotations25WithJavac() throws Exception { // Disabled for now, javac 8b108 does not seem to expose any annotations on a type mirror when there are repeated annotations.
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testRepeatedAnnotations25", "JEP120_7.java");
+	}
 
 	private void internalTest(JavaCompiler compiler, String processor, String testMethod) throws IOException {
 		internalTest(compiler, processor, testMethod, null);

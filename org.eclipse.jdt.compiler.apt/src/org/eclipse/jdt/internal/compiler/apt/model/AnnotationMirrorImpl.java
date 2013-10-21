@@ -59,7 +59,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 			}
 			return equals(this._binding, ((AnnotationMirrorImpl) obj)._binding);
 		}
-		return false;
+		return obj.equals(this); // obj could be wrapped by a proxy.
 	}
 
 	private static boolean equals(AnnotationBinding annotationBinding, AnnotationBinding annotationBinding2) {

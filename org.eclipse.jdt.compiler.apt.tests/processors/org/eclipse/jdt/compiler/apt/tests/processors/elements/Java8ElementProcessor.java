@@ -154,6 +154,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		testRepeatedAnnotations22();
 		testTypeAnnotations23();
 		testRepeatedAnnotations24();
+		testRepeatedAnnotations25();
 	}
 	
 	public void testLambdaSpecifics() {
@@ -864,6 +865,20 @@ public class Java8ElementProcessor extends BaseProcessor {
 				assertTrue("Wrong annotation", containers[0].value()[0].value() == 2);
 			}
 		}
+	}
+	public void testRepeatedAnnotations25() {
+		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(IFooContainer.class); // discovery is always in terms of container
+		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
+		assertTrue("Found unexpected elements", actualElments.size() == 2);
+		IFooContainer annotationOnSubclass = null, annotationOnJep7 = null;
+		for (Element e : actualElments) {
+			if ("SubClass3".equals(e.getSimpleName().toString())) {
+				annotationOnSubclass = e.getAnnotation(IFooContainer.class);
+			} else if ("JEP120_7".equals(e.getSimpleName().toString())) {
+				annotationOnJep7 = e.getAnnotation(IFooContainer.class);
+			}
+		}
+		assertTrue("Should be equals", annotationOnJep7.equals(annotationOnSubclass));
 	}
 	
 	private String getExceptionStackTrace(Throwable t) {
