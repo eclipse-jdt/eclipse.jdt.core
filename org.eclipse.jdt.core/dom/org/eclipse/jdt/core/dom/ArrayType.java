@@ -34,12 +34,14 @@ import java.util.List;
  * ArrayType:
  *    Type <b>[</b> <b>]</b></pre>
  *
- * This structure became untenable with the advent of type-use annotations, because
- * array dimensions bind from left to right, whereas a recursive structure binds from right to left.
+ * This structure became untenable with the advent of type-use annotations,
+ * because in the language model, the base type binds with array dimensions from right to left,
+ * whereas a recursive structure binds from left to right (inside out).
  * <p>
  * Example:<br>
- * <code>int @A[] @B[] @C[]</code><br>
- * is an <code>@A</code>-array of <code>int @B[] @C[]</code>,
+ * <code><u>int @A[] @B[] @C[]</u></code>
+ * is an <u><code>@A</code></u>-array of<br>
+ * <code><u>int </u>&nbsp;&nbsp;&nbsp;&nbsp;<u> @B[] @C[]</u></code>,
  * but such a component type is not representable by nested <code>ArrayType</code>s with contiguous source ranges.
  * 
  * @since 2.0
@@ -366,6 +368,9 @@ public class ArrayType extends Type {
 	/**
 	 * Returns the number of dimensions in this array type.
 	 * <p>
+	 * In JLS8 and later, this is a convenience method that returns <code>dimensions().size()</code>.
+	 * </p>
+	 * <p>
 	 * In JLS4 and earlier, this is a convenience method that descends a chain of nested array types
 	 * until it reaches a non-array type.
 	 * </p>
@@ -387,6 +392,9 @@ public class ArrayType extends Type {
 
 	/**
 	 * Returns the live ordered list of dimensions with optional annotations (added in JLS8 API).
+	 * <p>
+	 * For the array type to be plausible, the list should contain at least one element.
+	 * </p>
 	 * 
 	 * @return the live list of dimensions with optional annotations (element type: {@link Dimension})
 	 * @exception UnsupportedOperationException if this operation is used below JLS8
