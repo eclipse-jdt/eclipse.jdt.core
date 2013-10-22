@@ -615,16 +615,6 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"	Object o2 = @Marker int @Marker[] [] @Marker[].class;\n" + 
 				"	            ^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 4)\n" + 
-				"	Object o2 = @Marker int @Marker[] [] @Marker[].class;\n" + 
-				"	                        ^^^^^^^\n" + 
-				"Syntax error, type annotations are illegal here\n" + 
-				"----------\n" + 
-				"4. ERROR in X.java (at line 4)\n" + 
-				"	Object o2 = @Marker int @Marker[] [] @Marker[].class;\n" + 
-				"	                                     ^^^^^^^\n" + 
-				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n");
 	}
 	// ReferenceExpression ::= PrimitiveType Dims '::' NonWildTypeArgumentsopt IdentifierOrNew

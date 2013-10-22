@@ -850,32 +850,17 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
-		"	                       ^^^^^^^^^\n" + 
-		"Syntax error, type annotations are illegal here\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
-		"	                                       ^^^^^^^^^^^^^^^^\n" + 
-		"Syntax error, type annotations are illegal here\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 3)\n" + 
-		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
-		"	                                                              ^^^^^^^^^\n" + 
-		"Syntax error, type annotations are illegal here\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 4)\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
 		"	System.out.println(X @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
 		"	                     ^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 4)\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
 		"	System.out.println(X @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
 		"	                                     ^^^^^^^^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
 		"----------\n" + 
-		"6. ERROR in X.java (at line 4)\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
 		"	System.out.println(X @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
 		"	                                                            ^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
@@ -4148,5 +4133,23 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"	                                       ^\n" + 
 			"Syntax error on token \"@\", delete this token\n" + 
 			"----------\n");		
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=420038,  [1.8][compiler] Tolerate type annotations on array dimensions of class literals for now for compatibility. 
+	public void test420038() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		Class<?> c = int @T [].class; \n" +
+				"	}\n" +
+				"}\n"
+			}, 
+			"");		
 	}	
 }
