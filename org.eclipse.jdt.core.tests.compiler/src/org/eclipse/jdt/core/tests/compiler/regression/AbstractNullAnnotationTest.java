@@ -19,7 +19,6 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.tests.compiler.Activator;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.osgi.framework.Bundle;
 
@@ -77,7 +76,7 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 			this.LIBS = new String[len+1];
 			System.arraycopy(defaultLibs, 0, this.LIBS, 0, len);
 			String version = this.complianceLevel >= ClassFileConstants.JDK1_8 ? "[2.0.0,3.0.0)" : "[1.1.0,2.0.0)";
-			Bundle[] bundles = Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", version);
+			Bundle[] bundles = org.eclipse.jdt.core.tests.compiler.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", version);
 			File bundleFile = FileLocator.getBundleFile(bundles[0]);
 			if (bundleFile.isDirectory())
 				this.LIBS[len] = bundleFile.getPath()+"/bin";
