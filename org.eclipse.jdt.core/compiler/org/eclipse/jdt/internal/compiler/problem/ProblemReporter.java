@@ -1540,6 +1540,11 @@ public int computeSeverity(int problemID){
 				return ProblemSeverities.Ignore;
 			}
 			break;
+		// For compatibility with javac 8b111 for now.	
+		case IProblem.RepeatableAnnotationWithRepeatingContainerAnnotation:
+		case IProblem.IllegalUseOfUnderscoreAsAnIdentifier:
+		case IProblem.ToleratedMisplacedTypeAnnotations:	
+			return ProblemSeverities.Warning;
 	}
 	int irritant = getIrritant(problemID);
 	if (irritant != 0) {
@@ -4518,7 +4523,14 @@ public void invalidUsageOfTypeAnnotations(Annotation annotation) {
 			annotation.sourceStart,
 			annotation.sourceEnd);
 }
-
+public void toleratedMisplacedTypeAnnotations(Annotation first, Annotation last) {
+	this.handle(
+			IProblem.ToleratedMisplacedTypeAnnotations,
+			NoArgument,
+			NoArgument,
+			first.sourceStart,
+			last.sourceEnd);	
+}
 public void misplacedTypeAnnotations(Annotation first, Annotation last) {
 	this.handle(
 			IProblem.MisplacedTypeAnnotations,

@@ -5644,11 +5644,14 @@ private void rejectIllegalTypeAnnotations(TypeReference typeReference, boolean t
 			problemReporter().misplacedTypeAnnotations(misplacedAnnotations[0], misplacedAnnotations[misplacedAnnotations.length - 1]);
 		}
 	}
-	annotations = tolerateAnnotationsOnDimensions ? null : typeReference.getAnnotationsOnDimensions(true);
+	annotations = typeReference.getAnnotationsOnDimensions(true);
 	for (int i = 0, length = annotations == null ? 0 : annotations.length; i < length; i++) {
 		misplacedAnnotations = annotations[i];
 		if (misplacedAnnotations != null) {
-			problemReporter().misplacedTypeAnnotations(misplacedAnnotations[0], misplacedAnnotations[misplacedAnnotations.length - 1]);
+			if (tolerateAnnotationsOnDimensions)
+				problemReporter().toleratedMisplacedTypeAnnotations(misplacedAnnotations[0], misplacedAnnotations[misplacedAnnotations.length - 1]);
+			else 
+				problemReporter().misplacedTypeAnnotations(misplacedAnnotations[0], misplacedAnnotations[misplacedAnnotations.length - 1]);
 		}
 	}
 	typeReference.annotations = null;

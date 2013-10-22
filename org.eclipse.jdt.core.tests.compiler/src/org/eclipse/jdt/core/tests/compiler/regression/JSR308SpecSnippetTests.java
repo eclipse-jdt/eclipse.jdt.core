@@ -988,12 +988,17 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"	           ^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 21)\n" + 
+		"5. WARNING in X.java (at line 20)\n" + 
+		"	o = int @NonEmpty [].class; // illegal!\n" + 
+		"	        ^^^^^^^^^\n" + 
+		"Syntax error, type annotations are illegal here\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 21)\n" + 
 		"	int x = @IllegalSyntax X.staticField;\n" + 
 		"	        ^^^^^^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
 		"----------\n" + 
-		"6. ERROR in X.java (at line 22)\n" + 
+		"7. ERROR in X.java (at line 22)\n" + 
 		"	StaticNestedClass snc = (@IllegalSyntax X.StaticNestedClass) null;\n" + 
 		"	                         ^^^^^^^^^^^^^^\n" + 
 		"Type annotations are not allowed on type names used to access static members\n" + 
@@ -1059,22 +1064,27 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"	           ^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 28)\n" + 
+		"5. WARNING in X.java (at line 27)\n" + 
+		"	o = int @NonEmpty [].class; // illegal!\n" + 
+		"	        ^^^^^^^^^\n" + 
+		"Syntax error, type annotations are illegal here\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 28)\n" + 
 		"	int x = @IllegalSyntax X.staticField;\n" + 
 		"	        ^^^^^^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
 		"----------\n" + 
-		"6. ERROR in X.java (at line 29)\n" + 
+		"7. ERROR in X.java (at line 29)\n" + 
 		"	StaticNestedClass snc = (@IllegalSyntax X.StaticNestedClass) null;\n" + 
 		"	                         ^^^^^^^^^^^^^^\n" + 
 		"Type annotations are not allowed on type names used to access static members\n" + 
 		"----------\n" + 
-		"7. ERROR in X.java (at line 31)\n" + 
+		"8. ERROR in X.java (at line 31)\n" + 
 		"	int x2 = @IllegalSyntax X.super.f;\n" + 
 		"	         ^^^^^^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
 		"----------\n" + 
-		"8. ERROR in X.java (at line 32)\n" + 
+		"9. ERROR in X.java (at line 32)\n" + 
 		"	I i = @IllegalSyntax X.super::x;\n" + 
 		"	      ^^^^^^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 

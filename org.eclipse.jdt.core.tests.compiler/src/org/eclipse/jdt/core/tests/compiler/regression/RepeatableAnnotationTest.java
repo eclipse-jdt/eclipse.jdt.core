@@ -1473,7 +1473,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"@FooContainer({@Foo(1)}) @FooContainer({@Foo(2)}) @Foo(3) class A {}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in A.java (at line 12)\n" + 
+			"1. WARNING in A.java (at line 12)\n" + 
 			"	@FooContainer({@Foo(1)}) @FooContainer({@Foo(2)}) @Foo(3) class A {}\n" + 
 			"	                                                  ^^^^\n" + 
 			"The repeatable annotation @Foo may not be present where its container annotation type @FooContainer is repeated\n" + 
@@ -1498,7 +1498,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"@Foo(1) @FooContainer({@Foo(2)}) @FooContainer({@Foo(3)}) class A {}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in A.java (at line 12)\n" + 
+			"1. WARNING in A.java (at line 12)\n" + 
 			"	@Foo(1) @FooContainer({@Foo(2)}) @FooContainer({@Foo(3)}) class A {}\n" + 
 			"	^^^^\n" + 
 			"The repeatable annotation @Foo may not be present where its container annotation type @FooContainer is repeated\n" + 
@@ -1523,7 +1523,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"@FooContainer({@Foo(2)}) @Foo(1) @FooContainer({@Foo(3)}) class A {}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in A.java (at line 12)\n" + 
+			"1. WARNING in A.java (at line 12)\n" + 
 			"	@FooContainer({@Foo(2)}) @Foo(1) @FooContainer({@Foo(3)}) class A {}\n" + 
 			"	                         ^^^^\n" + 
 			"The repeatable annotation @Foo may not be present where its container annotation type @FooContainer is repeated\n" + 

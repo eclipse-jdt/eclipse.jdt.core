@@ -3187,12 +3187,12 @@ public void testBug399781() {
 
 	String expectedProblemLog =
 			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
 			"	int _;\n" + 
 			"	    ^\n" + 
 			"\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
 			"	int _   = 3;\n" + 
 			"	    ^\n" + 
 			"\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" + 
@@ -3202,7 +3202,7 @@ public void testBug399781() {
 			"	    ^\n" + 
 			"The local variable _ is hiding a field from type X\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 8)\n" + 
+			"4. WARNING in X.java (at line 8)\n" + 
 			"	void goo(int _) {}\n" + 
 			"	             ^\n" + 
 			"\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" + 
@@ -3212,7 +3212,7 @@ public void testBug399781() {
 			"	             ^\n" + 
 			"The parameter _ is hiding a field from type X\n" + 
 			"----------\n" + 
-			"6. ERROR in X.java (at line 11)\n" + 
+			"6. WARNING in X.java (at line 11)\n" + 
 			"	} catch (Exception _) {\n" + 
 			"	                   ^\n" + 
 			"\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" + 
