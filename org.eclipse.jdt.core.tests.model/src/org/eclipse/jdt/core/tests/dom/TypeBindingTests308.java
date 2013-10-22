@@ -2083,6 +2083,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 				"T.java",
 				"import java.lang.annotation.ElementType;\n" +
 				"import java.lang.annotation.Target;\n" +
+				"@Deprecated\n" +		
 				"@Target(ElementType.TYPE_USE)\n" +
 				"@interface T {\n" +
 				"	int value() default 0;\n" +
@@ -2099,17 +2100,18 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 					"}\n";
 			
 			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
-			ASTNode node = buildAST(contents, this.workingCopy);
+			ASTNode node = buildAST(contents, this.workingCopy, false);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit compilationUnit = (CompilationUnit) node;
-			assertProblemsSize(compilationUnit, 0);
+			assertProblemsSize(compilationUnit, 1, "The type T is deprecated");
 			List types = compilationUnit.types();
 			assertEquals("Incorrect no of types", 1, types.size());
 			TypeDeclaration typeDecl = (TypeDeclaration) types.get(0);
 			ITypeBinding typeBinding = typeDecl.resolveBinding();
 			IAnnotationBinding[] annotations = typeBinding.getAnnotations()[0].getAnnotationType().getAnnotations();
-			assertTrue("Should be 1", annotations.length == 1);
+			assertTrue("Should be 2", annotations.length == 2);
 			assertEquals("Annotation mismatch", "@Target(value = {public static final java.lang.annotation.ElementType TYPE_USE})", annotations[0].toString());
+			assertEquals("Annotation mismatch", "@Deprecated()", annotations[1].toString());
 		} finally {
 			removeLibrary(javaProject, jarName, srcName);
 		}
