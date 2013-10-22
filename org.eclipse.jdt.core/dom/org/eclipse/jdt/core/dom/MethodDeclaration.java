@@ -39,7 +39,7 @@ import java.util.List;
  *        ( Block | <b>;</b> )
  * </pre>
  * <p>
- * The ReceiverParameter is represented as: <code>AnnotatableType [ SimpleName <b>.</b> ] <b>this</b></code><br>
+ * The ReceiverParameter is represented as: <code>Type [ SimpleName <b>.</b> ] <b>this</b></code><br>
  * The FormalParameter is represented by a {@link SingleVariableDeclaration}.
  * </p>
  * <p>
@@ -141,11 +141,11 @@ public class MethodDeclaration extends BodyDeclaration {
 		new ChildListPropertyDescriptor(MethodDeclaration.class, "parameters", SingleVariableDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "receiverType" structural property of this node type (child type: {@link AnnotatableType}) (added in JLS8 API).
+	 * The "receiverType" structural property of this node type (child type: {@link Type}) (added in JLS8 API).
 	 * @since 3.9 BETA_JAVA8
 	 */
 	public static final ChildPropertyDescriptor RECEIVER_TYPE_PROPERTY =
-			new ChildPropertyDescriptor(MethodDeclaration.class, "receiverType", AnnotatableType.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+			new ChildPropertyDescriptor(MethodDeclaration.class, "receiverType", Type.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 	
 	/**
 	 * The "receiverQualifier" structural property of this node type (child type: {@link SimpleName}) (added in JLS8 API).
@@ -478,7 +478,7 @@ public class MethodDeclaration extends BodyDeclaration {
 			if (get) {
 				return getReceiverType();
 			} else {
-				setReceiverType((AnnotatableType) child);
+				setReceiverType((Type) child);
 				return null;
 			}
 		}
@@ -579,7 +579,7 @@ public class MethodDeclaration extends BodyDeclaration {
 		result.setConstructor(isConstructor());
 		result.setName((SimpleName) getName().clone(target));
 		if (this.ast.apiLevel >= AST.JLS8) {
-			result.setReceiverType((AnnotatableType) ASTNode.copySubtree(target, getReceiverType()));
+			result.setReceiverType((Type) ASTNode.copySubtree(target, getReceiverType()));
 			result.setReceiverQualifier((SimpleName) ASTNode.copySubtree(target, getReceiverQualifier()));
 		}
 		result.parameters().addAll(
