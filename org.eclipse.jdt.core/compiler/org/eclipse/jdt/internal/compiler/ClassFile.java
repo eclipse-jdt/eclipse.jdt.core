@@ -365,7 +365,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					if (typeDeclaration.isPackageInfo())
 						targetMask = TagBits.AnnotationForPackage;
 					else if (this.referenceBinding.isAnnotationType())
-						targetMask = TagBits.AnnotationForAnnotationType;
+						targetMask = TagBits.AnnotationForType | TagBits.AnnotationForAnnotationType;
 					else
 						targetMask = TagBits.AnnotationForType | TagBits.AnnotationForTypeUse;
 					attributesNumber += generateRuntimeAnnotations(annotations, targetMask); 
