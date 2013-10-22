@@ -9404,7 +9404,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=192774
 	//Test ability to distinguish AST nodes of multiple similar annotations.
-	public void test0276() throws JavaModelException {
+	public void _test0276() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
 			"@interface Annot {\n" +
