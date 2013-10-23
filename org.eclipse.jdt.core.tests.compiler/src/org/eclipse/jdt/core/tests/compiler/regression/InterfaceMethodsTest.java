@@ -2081,5 +2081,24 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"Illegal modifier for the interface method bar; only public, abstract, default, static and strictfp are permitted\n" +
 			"----------\n");
 	}
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=420084,  [1.8] static interface method cannot be resolved without receiver when imported statically
+	public void testBug420084() {
+		runNegativeTest(
+			new String[] {
+				"p/J.java",
+				"package p;\n" +
+				"public interface J {\n" +
+				"	static int foo(){return 0;}\n" +
+				"}\n",
+				"I.java",
+				"import static p.J.foo;\n" +
+				"public interface I {\n" +
+				"	static int call() {\n" +
+				"		return foo();\n" +
+				"	}\n" +
+				"}\n"
+			}, 
+			"");
+	}	
 
 }
