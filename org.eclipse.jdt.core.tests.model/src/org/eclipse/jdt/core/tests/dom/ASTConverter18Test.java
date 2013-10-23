@@ -2069,11 +2069,11 @@ public class ASTConverter18Test extends ConverterTestSetup {
 						"public class X<T extends Exception> {\n" +
 						"	class Y<K, V> {\n" +
 						"		class Z {\n" +
-//TODO: bad AST node structure:
-//						"			public Z(@A X<T>.@B Y<K, V> Y.this){\n}" +
-//						"			public void foo(@B Y<K, V>.@C Z this){\n}\n" +
-						"			public Z(X<T>.@B Y<K, V> Y.this){\n}" +
-						"			public void foo(Y<K, V>.@C Z this){\n}\n" +
+//TODO: bad AST node structure, see https://bugs.eclipse.org/419974#c2 :
+//						"			public Z(@A X<T>.@B Y<K, V> Y.this){ }\n" +
+//						"			public void foo(@B Y<K, V>.@C Z this){ }\n" +
+						"			public Z(X<T>.@B Y<K, V> Y.this){ }\n" +
+						"			public void foo(Y<K, V>.@C Z this){ }\n" +
 						"		}\n" +
 						"	}\n" +
 						"}\n" +
@@ -2095,7 +2095,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("Not a method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration method = (MethodDeclaration) node;
 		Type receiver = method.getReceiverType();
-//TODO: bad AST node structure:
+//TODO: bad AST node structure, see https://bugs.eclipse.org/419974#c2 :
 //		assertEquals("Incorrect receiver", "@A X<T>.@B Y<K,V>", ((QualifiedType) receiver).toString());
 //		assertEquals("Incorrect method signature", "public Z(@A X<T>.@B Y<K,V> Y.this){\n}\n", method.toString());
 		assertEquals("Incorrect receiver", "X<T>.@B Y<K,V>", ((ParameterizedType) receiver).toString());
@@ -2103,7 +2103,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		
 		method = (MethodDeclaration) type.bodyDeclarations().get(1);
 		receiver = method.getReceiverType();
-//TODO: bad AST node structure:
+//TODO: bad AST node structure, see https://bugs.eclipse.org/419974#c2 :
 //		assertEquals("Incorrect receiver", "@B Y<K,V>.@C Z", ((QualifiedType) receiver).toString());
 //		assertEquals("Incorrect method signature", "public void foo(@B Y<K,V>.@C Z this){\n}\n", method.toString());
 		assertEquals("Incorrect receiver", "Y<K,V>.@C Z", ((QualifiedType) receiver).toString());
