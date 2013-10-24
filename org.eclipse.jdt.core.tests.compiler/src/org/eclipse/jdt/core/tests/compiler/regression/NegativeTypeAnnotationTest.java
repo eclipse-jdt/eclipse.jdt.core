@@ -4171,5 +4171,26 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"	                 ^^\n" + 
 			"Syntax error, type annotations are illegal here\n" + 
 			"----------\n");		
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=420284, [1.8][compiler] IllegalStateException from TypeSystem.cacheDerivedType 
+	public void test420284() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" +
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"    void foo(Object o) {\n" +
+				"        Integer i = (Integer & Serializable) o;\n" +
+				"        List<@NonNull Integer> l;\n" +
+				"    }\n" +
+				"}\n"
+			}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	List<@NonNull Integer> l;\n" + 
+			"	      ^^^^^^^\n" + 
+			"NonNull cannot be resolved to a type\n" + 
+			"----------\n");		
 	}	
 }

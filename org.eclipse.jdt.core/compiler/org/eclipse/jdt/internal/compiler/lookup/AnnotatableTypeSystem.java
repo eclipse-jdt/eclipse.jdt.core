@@ -313,6 +313,8 @@ public class AnnotatableTypeSystem extends TypeSystem {
 						case Binding.PARAMETERIZED_TYPE:
 						case Binding.RAW_TYPE:
 						case Binding.WILDCARD_TYPE:
+						case Binding.INTERSECTION_CAST_TYPE:
+						case Binding.INTERSECTION_TYPE:
 							continue;
 					}
 					break;
