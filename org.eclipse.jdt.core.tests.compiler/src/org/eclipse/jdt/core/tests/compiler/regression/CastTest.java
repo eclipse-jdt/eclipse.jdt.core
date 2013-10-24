@@ -2422,6 +2422,55 @@ public void test061b() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=420283, [1.8] Wrong error "Type is not visible" for cast to intersection type
+public void test420283() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.io.Serializable;\n" +
+					"import java.util.List;\n" +
+					"public class X {\n" +
+					"    void foo(List<Integer> l) {\n" +
+					"        Integer i = (Integer & Serializable) l.get(0);\n" +
+					"    }\n" +
+					"    public static void main(String [] args) {\n" +
+					"        System.out.println(\"SUCCESS\");\n" +
+					"    }\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 5)\n" + 
+				"	Integer i = (Integer & Serializable) l.get(0);\n" + 
+				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Unnecessary cast from Integer to Integer & Serializable\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	Integer i = (Integer & Serializable) l.get(0);\n" + 
+				"	             ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Additional bounds are not allowed in cast operator at source levels below 1.8\n" + 
+				"----------\n");
+		return;
+	}
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" +
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"    void foo(List<Integer> l) {\n" +
+				"        Integer i = (Integer & Serializable) l.get(0);\n" +
+				"    }\n" +
+				"    public static void main(String [] args) {\n" +
+				"        System.out.println(\"SUCCESS\");\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"SUCCESS"
+		);
+}
 public static Class testClass() {
 	return CastTest.class;
 }

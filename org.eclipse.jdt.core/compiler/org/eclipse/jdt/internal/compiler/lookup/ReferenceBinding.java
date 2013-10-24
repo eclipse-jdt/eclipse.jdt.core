@@ -235,7 +235,7 @@ public boolean canBeInstantiated() {
 /**
  * Answer true if the receiver is visible to the invocationPackage.
  */
-public final boolean canBeSeenBy(PackageBinding invocationPackage) {
+public boolean canBeSeenBy(PackageBinding invocationPackage) {
 	if (isPublic()) return true;
 	if (isPrivate()) return false;
 
@@ -246,7 +246,7 @@ public final boolean canBeSeenBy(PackageBinding invocationPackage) {
 /**
  * Answer true if the receiver is visible to the receiverType and the invocationType.
  */
-public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding invocationType) {
+public boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding invocationType) {
 	if (isPublic()) return true;
 
 	if (TypeBinding.equalsEquals(invocationType, this) && TypeBinding.equalsEquals(invocationType, receiverType)) return true;
@@ -328,7 +328,7 @@ public final boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding
 /**
  * Answer true if the receiver is visible to the type provided by the scope.
  */
-public final boolean canBeSeenBy(Scope scope) {
+public boolean canBeSeenBy(Scope scope) {
 	if (isPublic()) return true;
 
 	SourceTypeBinding invocationType = scope.enclosingSourceType();

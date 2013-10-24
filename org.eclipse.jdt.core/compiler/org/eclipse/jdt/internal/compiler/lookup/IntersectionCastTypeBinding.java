@@ -58,6 +58,35 @@ public class IntersectionCastTypeBinding extends ReferenceBinding {
 		return false;
 	}
 
+	public boolean canBeInstantiated() {
+		return false;
+	}
+	
+	public boolean canBeSeenBy(PackageBinding invocationPackage) {
+		for (int i = 0; i < this.length; i++) {
+			if (!this.intersectingTypes[i].canBeSeenBy(invocationPackage))
+				return false;
+		}
+		return true;
+	}
+	
+	public boolean canBeSeenBy(Scope scope) {
+		for (int i = 0; i < this.length; i++) {
+			if (!this.intersectingTypes[i].canBeSeenBy(scope))
+				return false;
+		}
+		return true;
+	}
+	
+	public boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding invocationType) {
+		for (int i = 0; i < this.length; i++) {
+			if (!this.intersectingTypes[i].canBeSeenBy(receiverType, invocationType))
+				return false;
+		}
+		return true;
+	}
+	
+	
 	public char[] constantPoolName() {
 		return this.intersectingTypes[0].constantPoolName();
 	}
