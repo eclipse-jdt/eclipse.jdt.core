@@ -1118,6 +1118,7 @@ public final class AST {
 	/**
 	 * Creates and returns a new unparented array type node with the given
 	 * element type, which cannot be an array type for API levels JLS8 and later.
+	 * By default, the array type has one non-annotated dimension.
 	 * <p>
 	 * For JLS4 and before, the given component type may be another array type.
 	 *
@@ -1148,21 +1149,22 @@ public final class AST {
 
 	/**
 	 * Creates and returns a new unparented array type node with the given
-	 * element type and number of (additional) dimensions.
+	 * element type and number of dimensions.
 	 * <p>
 	 * For JLS4 and before, the element type passed in can be an array type, but in that case, the
 	 * element type of the result will not be the same as what was passed in.
+	 * For JLS4 and before, the dimensions cannot be 0.
 	 * </p>
 	 *
 	 * @param elementType the element type (cannot be an array type for JLS8 and later)
-	 * @param dimensions the number of dimensions, a positive number
+	 * @param dimensions the number of dimensions, a non-negative number
 	 * @return a new unparented array type node
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * <li>the element type is null</li>
-	 * <li>the number of dimensions is lower than 1</li>
+	 * <li>the number of dimensions is lower than 0 (for JLS4 and before: lower than 1)</li>
 	 * <li>the number of dimensions is greater than 1000</li>
 	 * <li>for levels from JLS8 and later, if the element type is an array type </li>
 	 * </ul>
@@ -1171,12 +1173,15 @@ public final class AST {
 		if (elementType == null) {
 			throw new IllegalArgumentException();
 		}
-		if (dimensions < 1 || dimensions > 1000) {
+		if (dimensions < 0 || dimensions > 1000) {
 			// we would blow our stacks anyway with a 1000-D array
 			throw new IllegalArgumentException();
 		}
 		ArrayType result;
 		if (this.apiLevel < AST.JLS8) {
+			if (dimensions < 1) {
+				throw new IllegalArgumentException();
+			}
 			result = new ArrayType(this);
 			setArrayComponentType(result, elementType);
 			for (int i = 2; i <= dimensions; i++) {
@@ -1188,10 +1193,9 @@ public final class AST {
 		if (elementType.isArrayType()) {
 			throw new IllegalArgumentException();
 		}
-		result = new ArrayType(this);
+		result = new ArrayType(this, 0);
 		result.setElementType(elementType);
-		// index starting from 1 since there is a dimension already available by default.
-		for (int i = 1; i < dimensions; ++i) {
+		for (int i = 0; i < dimensions; ++i) {
 			result.dimensions().add(new Dimension(this));
 		}
 		return result;

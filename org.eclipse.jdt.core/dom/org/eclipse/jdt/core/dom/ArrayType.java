@@ -157,7 +157,7 @@ public class ArrayType extends Type {
 	/**
 	* Creates a new unparented node for an array type owned by the given AST.
 	* <p>
-	* N.B. This constructor is private.
+	* N.B. This constructor is package-private.
 	* </p>
 	*
 	* @param ast the AST that is to own this node
@@ -165,7 +165,7 @@ public class ArrayType extends Type {
 	*
 	* @since 3.9 BETA_JAVA8
 	*/
-	private ArrayType(AST ast, int dimensions) {
+	ArrayType(AST ast, int dimensions) {
 		super(ast);
 		unsupportedIn2_3_4();
 		this.dimensions = new ASTNode.NodeList(DIMENSIONS_PROPERTY);
