@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2012 IBM Corporation and others.
+ * Copyright (c) 2004, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -118,22 +118,32 @@ class DocCommentParser extends AbstractCommentParser {
 			Type argType = null;
 			if (node.getNodeType() == ASTNode.PRIMITIVE_TYPE) {
 				argType = (PrimitiveType) node;
-//				if (dim > 0) {
-//					argType = this.ast.newArrayType(argType, dim);
-//					argType.setSourceRange(argStart, ((int) dimPositions[dim-1])-argStart+1);
-//				}
 			} else {
 				Name argTypeName = (Name) node;
 				argType = this.ast.newSimpleType(argTypeName);
 				argType.setSourceRange(argStart, node.getLength());
 			}
 			if (dim > 0 && !isVarargs) {
-				for (int i=0; i<dim; i++) {
-					argType = this.ast.newArrayType(argType);
-					argType.setSourceRange(argStart, ((int) dimPositions[i])-argStart+1);
+				if (this.ast.apiLevel <= AST.JLS4_INTERNAL) {
+					for (int i=0; i<dim; i++) {
+						argType = this.ast.newArrayType(argType);
+						argType.setSourceRange(argStart, ((int) dimPositions[i])-argStart+1);
+					}
+				} else {
+					ArrayType argArrayType = this.ast.newArrayType(argType, 0);
+					argType = argArrayType;
+					argType.setSourceRange(argStart, ((int) dimPositions[dim-1])-argStart+1);
+					for (int i=0; i<dim; i++) {
+						Dimension dimension = this.ast.newDimension();
+						int dimStart = (int) (dimPositions[i] >>> 32);
+						int dimEnd = (int) dimPositions[i];
+						dimension.setSourceRange(dimStart, dimEnd-dimStart+1);
+						argArrayType.dimensions().add(dimension);
+					}
 				}
 			}
 			argument.setType(argType);
+			argument.setVarargs(isVarargs);
 			argument.setSourceRange(argStart, argEnd - argStart + 1);
 			return argument;
 		}
