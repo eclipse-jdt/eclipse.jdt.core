@@ -258,7 +258,8 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 		// add "<annotations> [ <dimension> ]" for each dimension expression
 		List list= getChildList(node, ArrayCreation.DIMENSIONS_PROPERTY);
-		for (int i= 0; i < list.size(); i++) {
+		int size = list.size();
+		for (int i= 0; i < size; i++) {
 			internalVisitDimensionAnnotations(arrayType, i, astLevelGTE8);
 			this.result.append('[');
 			((ASTNode) list.get(i)).accept(this);

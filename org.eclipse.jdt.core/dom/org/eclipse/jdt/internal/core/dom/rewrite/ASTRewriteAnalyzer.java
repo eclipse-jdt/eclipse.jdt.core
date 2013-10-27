@@ -2080,7 +2080,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			RewriteEvent dimEvent= getEvent(node, ArrayCreation.DIMENSIONS_PROPERTY);
 			boolean hasDimensionChanges= (dimEvent != null && dimEvent.getChangeKind() != RewriteEvent.UNCHANGED);
 			RewriteEvent[] events= hasDimensionChanges ? dimEvent.getChildren() : null;
-			boolean astLevelGTE8 = node.getAST().apiLevel() >= AST.JLS8 ? true : false;
+			boolean astLevelGTE8 = node.getAST().apiLevel() >= AST.JLS8;
 			ArrayType currentLevel = astLevelGTE8 ? null : (ArrayType) replacingType.getElementType().getParent();
 			int replacingTypeDimensions = replacingType.getDimensions();
 			int i=0, dimSize= (events == null) ? 0 : events.length;
@@ -2088,7 +2088,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			int offset= elementType.getStartPosition() + elementType.getLength();
 			while(currentLevel != null || astLevelGTE8) {
 				if (i < dimSize) {
-					if (astLevelGTE8) internalDimensionRewrite(replacingType, i, offset);
+					if (astLevelGTE8) rewriteAnnotationsOnDimension(replacingType, i, offset);
 					 offset= getScanner().getTokenEndOffset(TerminalTokens.TokenNameLBRACKET, offset);
 					if (hasDimensionChanges) {
 						RewriteEvent event= events[i];
@@ -2123,10 +2123,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						offset= retrieveRightBracketEndPosition(offset, 1, true);
 					}
 				} else if (i < nOldBrackets) {
-					if (astLevelGTE8) internalDimensionRewrite(replacingType, i, offset);
+					if (astLevelGTE8) rewriteAnnotationsOnDimension(replacingType, i, offset);
 					offset= retrieveRightBracketEndPosition(offset, 1, false);
 				} else {
-					internalDimensionAddition(replacingType, i, offset, editGroup, astLevelGTE8);
+					insertAnnotationsOnDimension(replacingType, i, offset, editGroup, astLevelGTE8);
 					doTextInsert(offset, "[]", editGroup); //$NON-NLS-1$
 				}
 				i++;
@@ -2155,13 +2155,14 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return false;
 	}
 
-	private void internalDimensionAddition(ArrayType replacingType, int index, int pos, TextEditGroup editGroup,
+	private void insertAnnotationsOnDimension(ArrayType replacingType, int index, int pos, TextEditGroup editGroup,
 			boolean astLevelGTE8) {
 		if (astLevelGTE8) {
 			Dimension dim = (Dimension) replacingType.dimensions().get(index);
 			List annotations = dim.annotations();
 			if (annotations != null) {
-				for (int j = 0; j < annotations.size(); j++) {
+				int size = annotations.size();
+				for (int j = 0; j < size; j++) {
 					Annotation annotation = (Annotation) annotations.get(j);
 					doTextInsert(pos, annotation.toString() + " ", editGroup); //$NON-NLS-1$
 				}
@@ -2170,7 +2171,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 	}
 
-	private void internalDimensionRewrite(ArrayType replacingType, int index, int pos) {
+	private void rewriteAnnotationsOnDimension(ArrayType replacingType, int index, int pos) {
 		Dimension dim = (Dimension) replacingType.dimensions().get(index);
 		rewriteTypeAnnotations(dim, Dimension.ANNOTATIONS_PROPERTY, pos);
 	}

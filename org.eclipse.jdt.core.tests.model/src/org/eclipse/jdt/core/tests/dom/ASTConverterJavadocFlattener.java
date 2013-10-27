@@ -15,6 +15,7 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.jdt.core.dom.*;
 
@@ -68,8 +69,10 @@ public boolean visit(ArrayType node) {
 		this.buffer.append("[]");//$NON-NLS-1$
 	} else {
 		node.getElementType().accept(this);
-		for (int i = 0;  i < node.getDimensions(); ++i) {
-			((Dimension) node.dimensions().get(i)).accept(this);
+		int noOfDimensions = node.getDimensions();
+		List dimensions = node.dimensions();
+		for (int i = 0;  i < noOfDimensions; ++i) {
+			((Dimension) dimensions.get(i)).accept(this);
 		}
 	}
 	return false;

@@ -3200,6 +3200,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		ITypeBinding tBinding1 = mBinding.getReturnType();
 		assertNotNull("Should not be null", tBinding1);
 		
+		/* public @Marker("1") String foo(int @Marker @Marker2 [] args) */
 		List params = methodDeclaration.parameters();
 		assertEquals("Incorrect params", 1, params.size());
 		SingleVariableDeclaration param = (SingleVariableDeclaration) params.get(0);
@@ -3211,6 +3212,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("Incorrect annotation", "@Marker()", annots[0].toString());
 		assertEquals("Incorrect annotation", "@Marker2()", annots[1].toString());
 		
+		/* public @Marker("3") String bar()*/
 		node = getASTNode(compilationUnit, 2, 1);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
 		methodDeclaration = (MethodDeclaration) node;
@@ -3228,6 +3230,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		annot = annots[0];
 		assertEquals("Incorrect annotation", "@Marker(value = 3)", annot.toString());
 
+		/* public String @Marker("i0") @Marker2 [] [] @Marker("i1") [] str = null; */
 		node = getASTNode(compilationUnit, 2, 2);
 		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
 		FieldDeclaration field = (FieldDeclaration) node;
@@ -3251,6 +3254,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("Incorrect type annotations", 1, annots.length);
 		assertEquals("Incorrect annotation", "@Marker(value = i1)", annots[0].toString());
 		
+		/* public @Marker String str2 = null; */
 		node = getASTNode(compilationUnit, 2, 3);
 		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
 		field = (FieldDeclaration) node;
@@ -3261,6 +3265,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertNotNull("Should not be null", variable);
 		tBinding1 = variable.getType();
 		
+		/* public @Marker String str3 = null; */
 		node = getASTNode(compilationUnit, 2, 4);
 		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
 		field = (FieldDeclaration) node;
@@ -3273,6 +3278,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertSame("Type bindings should be same", tBinding1, tBinding2);
 		assertTrue("Unannotated bindings should be same", tBinding1.isEqualTo(tBinding2));
 		
+		/* public String str4 = null; */
 		node = getASTNode(compilationUnit, 2, 5);
 		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
 		field = (FieldDeclaration) node;

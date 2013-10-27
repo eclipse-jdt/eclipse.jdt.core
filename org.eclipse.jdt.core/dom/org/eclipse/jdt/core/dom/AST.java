@@ -1165,7 +1165,7 @@ public final class AST {
 	 * <li>the node already has a parent</li>
 	 * <li>the element type is null</li>
 	 * <li>the number of dimensions is lower than 0 (for JLS4 and before: lower than 1)</li>
-	 * <li>the number of dimensions is greater than 1000</li>
+	 * <li>the number of dimensions is greater than 255</li>
 	 * <li>for levels from JLS8 and later, if the element type is an array type </li>
 	 * </ul>
 	 */
@@ -1173,8 +1173,8 @@ public final class AST {
 		if (elementType == null) {
 			throw new IllegalArgumentException();
 		}
-		if (dimensions < 0 || dimensions > 1000) {
-			// we would blow our stacks anyway with a 1000-D array
+		if (dimensions < 0 || dimensions > 255) {
+			// max as per Java VM spec
 			throw new IllegalArgumentException();
 		}
 		ArrayType result;

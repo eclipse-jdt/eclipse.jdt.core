@@ -376,7 +376,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		} else {
 			node.getElementType().accept(this);
 			List dimensions = node.dimensions();
-			for (int i = 0; i < dimensions.size() ; i++) {
+			int size = dimensions.size();
+			for (int i = 0; i < size; i++) {
 				Dimension aDimension = (Dimension) dimensions.get(i);
 				aDimension.accept(this);
 			}
