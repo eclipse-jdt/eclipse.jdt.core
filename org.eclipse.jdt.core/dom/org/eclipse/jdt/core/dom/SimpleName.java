@@ -191,14 +191,16 @@ public class SimpleName extends Name {
 			try {
 				int tokenType = scanner.scanIdentifier();
 				if (tokenType != TerminalTokens.TokenNameIdentifier) {
-					throw new IllegalArgumentException();
+					throw new IllegalArgumentException("Invalid identifier : >" + identifier + "<");  //$NON-NLS-1$//$NON-NLS-2$
 				}
 				if (scanner.currentPosition != length) {
 					// this is the case when there is only one identifier see 87849
-					throw new IllegalArgumentException();
+					throw new IllegalArgumentException("Invalid identifier : >" + identifier + "<");  //$NON-NLS-1$//$NON-NLS-2$
 				}
-			} catch(InvalidInputException e) {
-				throw new IllegalArgumentException();
+			} catch (InvalidInputException e) {
+				IllegalArgumentException iae = new IllegalArgumentException("Invalid identifier : >" + identifier + "<"); //$NON-NLS-1$//$NON-NLS-2$
+				iae.initCause(e);
+				throw iae; 
 			}
 		} finally {
 			this.ast.scanner.sourceLevel = sourceLevel;
