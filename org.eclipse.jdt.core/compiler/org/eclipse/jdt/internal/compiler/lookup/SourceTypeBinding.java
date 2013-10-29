@@ -1944,8 +1944,9 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 				}
 			}
 		}
-		createArgumentBindings(method, compilerOptions); // need annotations resolved already at this point
 	}
+	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled || compilerOptions.processAnnotations)
+		createArgumentBindings(method, compilerOptions); // need annotations resolved already at this point
 	if (foundReturnTypeProblem)
 		return method; // but its still unresolved with a null return type & is still connected to its method declaration
 
@@ -1969,8 +1970,8 @@ private static void rejectTypeAnnotatedVoidMethod(AbstractMethodDeclaration meth
 private void createArgumentBindings(MethodBinding method, CompilerOptions compilerOptions) {
 	
 	if (!isPrototype()) throw new IllegalStateException();
-	
-	getNullDefault(); // ensure initialized
+	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled)
+		getNullDefault(); // ensure initialized
 	AbstractMethodDeclaration methodDecl = method.sourceMethod();
 	if (methodDecl != null) {
 		// while creating argument bindings we also collect explicit null annotations:

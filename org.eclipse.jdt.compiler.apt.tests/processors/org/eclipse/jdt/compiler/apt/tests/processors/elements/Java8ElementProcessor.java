@@ -453,6 +453,20 @@ public class Java8ElementProcessor extends BaseProcessor {
 		typeMirror = typeParam.asType();
 		verifyAnnotations(typeParam, new String[]{"@Type(value=tp2)"});
 		verifyAnnotations(typeMirror, new String[]{"@Type(value=tp2)"});
+
+		// public <T> Z(@Type T t){}
+		List<? extends Element> members = _elementUtils.getAllMembers(typeZ);
+		for (ExecutableElement method : ElementFilter.constructorsIn(members)) {
+			ExecutableType executabletype = (ExecutableType) method.asType();
+			List<? extends TypeMirror> list = executabletype.getParameterTypes();
+			List<? extends VariableElement> list1 = method.getParameters();
+			for(int i = 0; i < list1.size(); i++) {
+				VariableElement variableelement = list1.get(i);
+				if (method.getSimpleName().toString().equals("<init>")) {
+					assertEquals("Trouble!", list.get(i), variableelement.asType());
+				}
+			}
+		}
 	}
 	
 	public void testTypeAnnotations8() {

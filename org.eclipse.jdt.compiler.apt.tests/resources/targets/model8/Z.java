@@ -18,5 +18,6 @@ import org.eclipse.jdt.compiler.apt.tests.annotations.Type;
 
 public class Z <@Type("tp1") K, @Type("tp2") V> {
 	Z<@Type("ta1") String, @Type("ta2") Object> z1 = null;
+	public <T> Z(@Type("parameter") T t){}
 	public <@Type("mp1") T, @Type("mp2") U> void foo() {}
 }

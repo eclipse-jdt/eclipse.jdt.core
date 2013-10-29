@@ -70,9 +70,10 @@ public class Argument extends LocalDeclaration {
 		}
 		if ((this.binding.tagBits & TagBits.AnnotationResolved) == 0) {
 			resolveAnnotations(scope, this.annotations, this.binding, true);
-			Annotation.isTypeUseCompatible(this.type, scope, this.annotations);
-			if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8)
+			if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8) {
+				Annotation.isTypeUseCompatible(this.type, scope, this.annotations);
 				scope.validateNullAnnotation(this.binding.tagBits, this.type, this.annotations);
+			}
 		}
 		this.binding.declaration = this;
 		return this.binding.type; // might have been updated during resolveAnnotations (for typeAnnotations)

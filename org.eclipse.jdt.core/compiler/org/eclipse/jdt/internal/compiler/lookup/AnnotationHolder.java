@@ -43,10 +43,9 @@ AnnotationBinding[] getParameterAnnotations(int paramIndex) {
 	return Binding.NO_ANNOTATIONS;
 }
 AnnotationHolder setAnnotations(AnnotationBinding[] annotations) {
+	this.annotations = annotations;
 	if (annotations == null || annotations.length == 0)
 		return null; // no longer needed
-
-	this.annotations = annotations;
 	return this;
 }
 
