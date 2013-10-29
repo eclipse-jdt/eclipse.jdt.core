@@ -515,7 +515,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	}
 	
 	public TypeBinding[] genericTypeArguments() {
-		return null;
+		return this.resolvedTypeArguments;
 	}
 
 	public boolean isSuperAccess() {

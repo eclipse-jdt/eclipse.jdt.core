@@ -7064,6 +7064,32 @@ public void test404657_loop() {
 			"----------\n"
 		);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=420580, [1.8][compiler] ReferenceExpression drops explicit type arguments
+public void testExplicitTypeArgument() {
+		this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"interface I {\n" +
+					"	void sam(X t, Integer s);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	<T> void function(T t) {}\n" +
+					"	public static void main(String [] args) {\n" +
+					"		I i = X::<String>function;\n" +
+					"		i = X::function;\n" +
+					"		i = X::<Integer>function;\n" +
+					"	}\n" +
+					"}\n" + 
+					""
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	I i = X::<String>function;\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type X does not define function(X, Integer) that is applicable here\n" + 
+			"----------\n"
+		);
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
