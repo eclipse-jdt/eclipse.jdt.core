@@ -4605,20 +4605,21 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		Iterator packages = secondaryTypes.values().iterator();
 		while (packages.hasNext()) {
 			HashMap types = (HashMap) packages.next();
+			HashMap tempTypes = new HashMap(types.size());
 			Iterator names = types.entrySet().iterator();
 			while (names.hasNext()) {
 				Map.Entry entry = (Map.Entry) names.next();
 				String typeName = (String) entry.getKey();
 				String path = (String) entry.getValue();
+				names.remove();
 				if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(path)) {
 					IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(path));
 					ICompilationUnit unit = JavaModelManager.createCompilationUnitFrom(file, null);
 					IType type = unit.getType(typeName);
-					types.put(typeName, type); // replace stored path with type itself
-				} else {
-					names.remove();
+					tempTypes.put(typeName, type);
 				}
 			}
+			types.putAll(tempTypes);
 		}
 
 		// Store result in per project info cache if still null or there's still an indexing cache (may have been set by another thread...)
