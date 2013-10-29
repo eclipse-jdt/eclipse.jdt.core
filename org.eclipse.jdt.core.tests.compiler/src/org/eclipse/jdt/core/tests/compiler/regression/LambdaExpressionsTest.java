@@ -1681,7 +1681,25 @@ public void test058() {
 			"Hello, World"
 			);
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=420582,  [1.8][compiler] Compiler should allow creation of generic array creation with unbounded wildcard type arguments
+public void testGenericArrayCreation() {
+		this.runConformTest(
+			new String[] {
+					"X.java", 
+					"interface I {\n" +
+					"	X<?, ?, ?>[] makeArray(int i);\n" +
+					"}\n" +
+					"public class X<T, U, V> {\n" +
+					"	public static void main(String [] args) {\n" +
+					"		I i = X<?, ?, ?>[]::new; // OK.\n" +
+					"		System.out.println(i.makeArray(1024).length);\n" +
+					"	}\n" +
+					"}\n" + 
+					""
+			},
+			"1024"
+		);
+}
 
 public static Class testClass() {
 	return LambdaExpressionsTest.class;

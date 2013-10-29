@@ -7090,6 +7090,38 @@ public void testExplicitTypeArgument() {
 			"----------\n"
 		);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=420582,  [1.8][compiler] Compiler should allow creation of generic array creation with unbounded wildcard type arguments
+public void testGenericArrayCreation() {
+		this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"interface I {\n" +
+					"	X<?, ?, ?>[] makeArray(int i);\n" +
+					"}\n" +
+					"public class X<T, U, V> {\n" +
+					"	public static void main(String [] args) {\n" +
+					"		I i = X<?, ?, ?>[]::new; // OK.\n" +
+					"		i = X<String, Integer, ?>[]::new; // ! OK\n" +
+					"		X<?, ?, ?> [] a = new X<?, ?, ?>[10]; // OK\n" +
+					"		a = new X<String, Integer, ?>[10]; // ! OK\n" +
+					"		System.out.println(i.makeArray(1024).length);\n" +
+					"	}\n" +
+					"}\n" + 
+					""
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	i = X<String, Integer, ?>[]::new; // ! OK\n" + 
+			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot create a generic array of X<String,Integer,?>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	a = new X<String, Integer, ?>[10]; // ! OK\n" + 
+			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot create a generic array of X<String,Integer,?>\n" + 
+			"----------\n"
+		);
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

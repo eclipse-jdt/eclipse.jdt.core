@@ -293,7 +293,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		final int parametersLength = descriptorParameters.length;
         if (isConstructorReference() && lhsType.isArrayType()) {
         	final TypeBinding leafComponentType = lhsType.leafComponentType();
-			if (leafComponentType.isParameterizedType()) {
+			if (!leafComponentType.isReifiable()) {
         		scope.problemReporter().illegalGenericArray(leafComponentType, this);
         		return this.resolvedType = null;
         	}
