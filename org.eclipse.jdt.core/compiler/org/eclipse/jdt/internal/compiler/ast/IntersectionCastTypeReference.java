@@ -67,6 +67,8 @@ public class IntersectionCastTypeReference extends TypeReference {
 		ReferenceBinding[] intersectingTypes = new ReferenceBinding[length];
 		boolean hasError = false;
 		
+		int typeCount = 0;
+		nextType:
 		for (int i = 0; i < length; i++) {
 			final TypeReference typeReference = this.typeReferences[i];
 			TypeBinding type = typeReference.resolveType(scope, checkBounds);
@@ -85,22 +87,37 @@ public class IntersectionCastTypeReference extends TypeReference {
 					hasError = true;
 					continue;
 				}
-			} else if (!type.isInterface()) {  // TODO: understand how annotations play here ...
+			} else if (!type.isInterface()) {
 				scope.problemReporter().boundMustBeAnInterface(typeReference, type);
 				hasError = true;
 				continue;
 			}
-			for (int j = 0; j < i; j++) {
-				if (TypeBinding.equalsEquals(intersectingTypes[j], type)) {
+			for (int j = 0; j < typeCount; j++) {
+				final ReferenceBinding priorType = intersectingTypes[j];
+				if (TypeBinding.equalsEquals(priorType, type)) {
 					scope.problemReporter().duplicateBoundInIntersectionCast(typeReference);
 					hasError = true;
 					continue;
 				}
+				if (!priorType.isInterface())
+					continue;
+				if (type.findSuperTypeOriginatingFrom(priorType) != null) {
+					intersectingTypes[j] = (ReferenceBinding) type;
+					continue nextType;
+				}
+				if (priorType.findSuperTypeOriginatingFrom(type) != null)
+					continue nextType;
 			}
-			intersectingTypes[i] = (ReferenceBinding) type;
+			intersectingTypes[typeCount++] = (ReferenceBinding) type;
 		}
 		if (hasError) {
 			return null;
+		}
+		if (typeCount != length) {
+			if (typeCount == 1) {
+				return this.resolvedType = intersectingTypes[0];
+			}
+			System.arraycopy(intersectingTypes, 0, intersectingTypes = new ReferenceBinding[typeCount], 0, typeCount);
 		}
 		return (this.resolvedType = scope.environment().createIntersectionCastType(intersectingTypes));
 	}

@@ -7122,6 +7122,42 @@ public void testGenericArrayCreation() {
 			"----------\n"
 		);
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=420598, [1.8][compiler] Incorrect error about intersection cast type not being a functional interface. 
+public void testIntersectionCast() {
+		this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"import java.io.Serializable;\n" +
+					"interface I {\n" +
+					"	void foo();\n" +
+					"}\n" +
+					"interface J extends I {\n" +
+					"	void foo();\n" +
+					"}\n" +
+					"interface K {\n" +
+					"}\n" +
+					"interface L {\n" +
+					"	void foo();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		I i = (I & Serializable) () -> {};\n" +
+					"		i = (I & J & K) () -> {};\n" +
+					"		i = (J & I & K) () -> {};  \n" +
+					"		i = (J & I & K & L) () -> {};  \n" +
+					"	}\n" +
+					"}\n" + 
+					""
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 18)\n" + 
+			"	i = (J & I & K & L) () -> {};  \n" + 
+			"	                    ^^^^^^^^\n" + 
+			"The target type of this expression is not a functional interface: more than one of the intersecting interfaces are functional\n" + 
+			"----------\n"
+		);
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
