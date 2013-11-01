@@ -402,7 +402,11 @@ public class TypesImpl implements Types {
         if (!(b1 instanceof TypeBinding) || !(b2 instanceof TypeBinding)) {
             return false;
         }
-        return ((TypeBinding) b1).unannotated() == ((TypeBinding) b2).unannotated(); 
+        TypeBinding type1 = ((TypeBinding) b1);
+        TypeBinding type2 = ((TypeBinding) b2);
+        if (TypeBinding.equalsEquals(type1,  type2))
+        	return true;
+        return CharOperation.equals(type1.computeUniqueKey(), type2.computeUniqueKey());
     }
 
     /* (non-Javadoc)
