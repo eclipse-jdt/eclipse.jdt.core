@@ -25,9 +25,12 @@
  *								bug 391376 - [1.8] check interaction of default methods with bridge methods and generics
  *								bug 395681 - [compiler] Improve simulation of javac6 behavior from bug 317719 after fixing bug 388795
  *								bug 409473 - [compiler] JDT cannot compile against JRE 1.8
+ *								Bug 420080 - [1.8] Overridden Default method is reported as duplicated
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+
+import java.util.Arrays;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
@@ -260,7 +263,7 @@ void checkInheritedMethods(MethodBinding inheritedMethod, MethodBinding otherInh
 	detectInheritedNameClash(inheritedMethod.original(), otherInheritedMethod.original());
 }
 // 8.4.8.4
-void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOverridden) {
+void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOverridden, boolean[] isInherited) {
 	boolean continueInvestigation = true;
 	MethodBinding concreteMethod = null;
 	MethodBinding abstractSuperClassMethod = null;
@@ -275,7 +278,9 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 		}
 	}
 	for (int i = 0; i < length; i++) {
-		if (!methods[i].isAbstract()) {
+		// methods not inherited as of 8.4.8 cannot create a name clash,
+		// but could still cause errors against return types etc. (below)
+		if (isInherited[i] && !methods[i].isAbstract()) {
 			// 8.4.8.4 defines an exception for default methods if
 			// (a) there exists an abstract method declared in a superclass of C and inherited by C
 			// (b) that is override-equivalent with the two methods.
@@ -315,7 +320,7 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 				}
 			}
 		}
-		super.checkInheritedMethods(methods, length, isOverridden);
+		super.checkInheritedMethods(methods, length, isOverridden, isInherited);
 	}
 }
 boolean checkInheritedDefaultMethods(MethodBinding[] methods, int length) {
@@ -529,6 +534,8 @@ void checkMethods() {
 		// - methods that are overridden by a current method
 		boolean[] skip = new boolean[inheritedLength];
 		boolean[] isOverridden = new boolean[inheritedLength];
+		boolean[] isInherited = new boolean[inheritedLength];
+		Arrays.fill(isInherited, true);
 		if (current != null) {
 			for (int i = 0, length1 = current.length; i < length1; i++) {
 				MethodBinding currentMethod = current[i];
@@ -589,9 +596,9 @@ void checkMethods() {
 				// itself earlier. (https://bugs.eclipse.org/bugs/show_bug.cgi?id=302358)
 				if (TypeBinding.notEquals(inheritedMethod.declaringClass, otherInheritedMethod.declaringClass)) {
 					// these method calls produce their effect as side-effects into skip and isOverridden:
-					if (isSkippableOrOverridden(inheritedMethod, otherInheritedMethod, skip, isOverridden, j))
+					if (isSkippableOrOverridden(inheritedMethod, otherInheritedMethod, skip, isOverridden, isInherited, j))
 						continue;
-					if (isSkippableOrOverridden(otherInheritedMethod, inheritedMethod, skip, isOverridden, i))
+					if (isSkippableOrOverridden(otherInheritedMethod, inheritedMethod, skip, isOverridden, isInherited, i))
 						continue;
 				}
 			}
@@ -627,7 +634,7 @@ void checkMethods() {
 			if (index == -1) continue;
 
 			if (index > 0)
-				checkInheritedMethods(matchingInherited, index + 1, isOverridden); // pass in the length of matching
+				checkInheritedMethods(matchingInherited, index + 1, isOverridden, isInherited); // pass in the length of matching
 			else if (mustImplementAbstractMethods && matchingInherited[0].isAbstract() && matchMethod == null)
 				checkAbstractMethod(matchingInherited[0]);
 			while (index >= 0) matchingInherited[index--] = null; // clear the previous contents of the matching methods
@@ -641,11 +648,15 @@ void checkMethods() {
  * - any skippable method as defined above iff it is actually overridden by the specific method (disregarding visibility etc.)
  * Note, that 'idx' corresponds to the position of 'general' in the arrays 'skip' and 'isOverridden'
  */
-boolean isSkippableOrOverridden(MethodBinding specific, MethodBinding general, boolean[] skip, boolean[] isOverridden, int idx) {
+boolean isSkippableOrOverridden(MethodBinding specific, MethodBinding general, boolean[] skip, boolean[] isOverridden, boolean[] isInherited, int idx) {
 	boolean specificIsInterface = specific.declaringClass.isInterface();
 	boolean generalIsInterface = general.declaringClass.isInterface();
 	if (!specificIsInterface && generalIsInterface) {
-		if (isInterfaceMethodImplemented(general, specific, general.declaringClass)) {
+		if (!specific.isAbstract() && isParameterSubsignature(specific, general)) {
+			// 8.4.8: abstract and default methods are not inherited if a concrete method with a subsignature is defined or inherited in C
+			isInherited[idx] = false;
+			return true;
+		} else if (isInterfaceMethodImplemented(general, specific, general.declaringClass)) {
 			skip[idx] = true;
 			isOverridden[idx] = true;
 			return true;
