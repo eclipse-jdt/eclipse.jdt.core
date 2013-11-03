@@ -14,6 +14,8 @@
  *     					Bug 412151 - [1.8][compiler] Check repeating annotation's collection type
  *     					Bug 412149 - [1.8][compiler] Emit repeated annotations into the designated container
  *     					Bug 419209 - [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
+ *		Stephan Herrmann - Contribution for
+ *						Bug 419209 - [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -339,7 +341,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
-	// 412151: Any methods declared by TC other than value() have a default value (§9.6.2).
+	// 412151: Any methods declared by TC other than value() have a default value (JLS 9.6.2).
 	public void test013() {
 		this.runNegativeTest(
 			new String[] {
@@ -1106,7 +1108,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"java.lang.Comparable<?>.getAnnotationByType(TC.class): @TC(value=[@T(value=5), @T(value=6)])",
 			null,
 			true,
-			new String [] { "" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
+			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
 	// Test that repeated annotations show up at various sites, both type use and declaration.
 	public void testVariousSites() {
@@ -1290,7 +1292,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"Constructor: .getAnnotationByType(TC.class): @TC(value=[@T(value=35), @T(value=36)])",
 			null,
 			true,
-			new String [] { "" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
+			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
 
 	// Test that bad container specifications are handled properly.
