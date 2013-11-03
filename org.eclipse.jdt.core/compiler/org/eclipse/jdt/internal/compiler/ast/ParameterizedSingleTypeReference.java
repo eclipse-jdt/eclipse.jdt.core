@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
  *								bug 342671 - ClassCastException: org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding cannot be cast to org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+ *								Bug 420894 - ClassCastException in DefaultBindingResolver.resolveType(Type)
  *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *        Andy Clement - Contributions for
@@ -153,7 +154,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			return null;							// no useful type, but still captured dimensions into this.resolvedType
 		} else {
 			type = createArrayType(scope, type);
-			if (!this.resolvedType.isValidBinding()) {
+			if (!this.resolvedType.isValidBinding() && this.resolvedType.dimensions() == type.dimensions()) {
 				resolveAnnotations(scope);
 				checkNullConstraints(scope, this.typeArguments);
 				return type;						// found some error, but could recover useful type (like closestMatch)
@@ -163,7 +164,6 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 				checkNullConstraints(scope, this.typeArguments);
 				return this.resolvedType; // pick up any annotated type.
 			}
-
 		}
 	}
 	private TypeBinding internalResolveLeafType(Scope scope, ReferenceBinding enclosingType, boolean checkBounds) {
