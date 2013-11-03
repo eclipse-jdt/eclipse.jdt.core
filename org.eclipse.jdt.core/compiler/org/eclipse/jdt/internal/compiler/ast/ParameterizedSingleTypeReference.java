@@ -7,7 +7,9 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for Bug 342671 - ClassCastException: org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding cannot be cast to org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+ *     Stephan Herrmann - Contributions for
+ *								Bug 342671 - ClassCastException: org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding cannot be cast to org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+ *								Bug 420894 - ClassCastException in DefaultBindingResolver.resolveType(Type)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -114,10 +116,11 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			return null;							// no useful type, but still captured dimensions into this.resolvedType
 		} else {
 			type = createArrayType(scope, type);
-			if (!this.resolvedType.isValidBinding())
+			if (!this.resolvedType.isValidBinding() && this.resolvedType.dimensions() == type.dimensions())
 				return type;						// found some error, but could recover useful type (like closestMatch)
 			else 
-				return this.resolvedType = type; 	// no complaint, keep fully resolved type (incl. dimensions)
+				return this.resolvedType = type; 	// no complaint, or problem type is useless due to missing dimensions"
+													// keep and return fully resolved type (incl. dimensions)
 		}
 	}
 	private TypeBinding internalResolveLeafType(Scope scope, ReferenceBinding enclosingType, boolean checkBounds) {
