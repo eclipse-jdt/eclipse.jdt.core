@@ -149,14 +149,14 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		// This is done to improve the compatibility to ant 1.5
 		Method getSourcepathMethod = null;
 		try {
-			getSourcepathMethod = javacClass.getMethod("getSourcepath", null); //$NON-NLS-1$
+			getSourcepathMethod = javacClass.getMethod("getSourcepath", (Class[]) null); //$NON-NLS-1$
 		} catch(NoSuchMethodException e) {
 			// if not found, then we cannot use this method (ant 1.5)
 		}
 		Path compileSourcePath = null;
 		if (getSourcepathMethod != null) {
 			try {
-				compileSourcePath = (Path) getSourcepathMethod.invoke(this.attributes, null);
+				compileSourcePath = (Path) getSourcepathMethod.invoke(this.attributes, (Object[]) null);
 			} catch (IllegalAccessException e) {
 				// should never happen
 			} catch (InvocationTargetException e) {
@@ -196,7 +196,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			// This is done to improve the compatibility to ant 1.5
 			Method getDebugLevelMethod = null;
 			try {
-				getDebugLevelMethod = javacClass.getMethod("getDebugLevel", null); //$NON-NLS-1$
+				getDebugLevelMethod = javacClass.getMethod("getDebugLevel", (Class[]) null); //$NON-NLS-1$
 			} catch(NoSuchMethodException e) {
 				// if not found, then we cannot use this method (ant 1.5)
 				// debug level is only available with ant 1.5.x
@@ -204,7 +204,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			String debugLevel = null;
 			if (getDebugLevelMethod != null) {
 				try {
-					debugLevel = (String) getDebugLevelMethod.invoke(this.attributes, null);
+					debugLevel = (String) getDebugLevelMethod.invoke(this.attributes, (Object[]) null);
 				} catch (IllegalAccessException e) {
 					// should never happen
 				} catch (InvocationTargetException e) {
@@ -349,7 +349,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		// This is done to improve the compatibility to ant 1.5
 		Method getCurrentCompilerArgsMethod = null;
 		try {
-			getCurrentCompilerArgsMethod = javacClass.getMethod("getCurrentCompilerArgs", null); //$NON-NLS-1$
+			getCurrentCompilerArgsMethod = javacClass.getMethod("getCurrentCompilerArgs", (Class[]) null); //$NON-NLS-1$
 		} catch (NoSuchMethodException e) {
 			// if not found, then we cannot use this method (ant 1.5)
 			// debug level is only available with ant 1.5.x
@@ -357,7 +357,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		String[] compilerArgs = null;
 		if (getCurrentCompilerArgsMethod != null) {
 			try {
-				compilerArgs = (String[]) getCurrentCompilerArgsMethod.invoke(this.attributes, null);
+				compilerArgs = (String[]) getCurrentCompilerArgsMethod.invoke(this.attributes, (Object[]) null);
 			} catch (IllegalAccessException e) {
 				// should never happen
 			} catch (InvocationTargetException e) {

@@ -38,7 +38,7 @@ public ReadManager(ICompilationUnit[] files, int length) {
 		Class runtime = Class.forName("java.lang.Runtime"); //$NON-NLS-1$
 		java.lang.reflect.Method m = runtime.getDeclaredMethod("availableProcessors", new Class[0]); //$NON-NLS-1$
 		if (m != null) {
-			Integer result = (Integer) m.invoke(Runtime.getRuntime(), null);
+			Integer result = (Integer) m.invoke(Runtime.getRuntime(), (Object[]) null);
 			threadCount = result.intValue() + 1;
 			if (threadCount < 2)
 				threadCount = 0;

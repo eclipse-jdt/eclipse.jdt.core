@@ -1200,7 +1200,7 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 		//  0000   0000       0000   0000      0000
 		//  <<16   <<12       <<8    <<4
 
-		int[] table = (int[]) get_PLUS().clone();
+		int[] table = get_PLUS().clone();
 
 		// customization
 		table[(T_JavaLangString<<4)+T_byte] 		= T_undefined;

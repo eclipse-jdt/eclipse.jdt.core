@@ -1607,7 +1607,7 @@ public String bind(String id, String[] arguments) {
 		// the id we were looking for.  In most cases this is semi-informative so is not too bad.
 		return "Missing message: " + id + " in: " + Main.bundleName; //$NON-NLS-2$ //$NON-NLS-1$
 	}
-	return MessageFormat.format(message, arguments);
+	return MessageFormat.format(message, (Object[]) arguments);
 }
 /**
  * Return true if and only if the running VM supports the given minimal version.
