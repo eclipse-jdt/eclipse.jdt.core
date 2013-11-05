@@ -6100,4 +6100,39 @@ public void testBug392581() throws CoreException {
 		deleteProject("P");
 	}
 }
+// Bug 418011 - [1.8][code assist] NPE in code assist
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418011
+public void testBug418011() throws CoreException {
+	try {
+		// Create project and jar
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+		createFolder("/P/src/p");
+		refresh(p);
+		// Create working copy
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/p/X.java",
+				"class X {\n" +
+				"	X max1 = null;\n" +
+				"	X max1 = Math.ma\n" +
+				"}");
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.setComputeVisibleElements(true);
+		requestor.setRequireExtendedContext(true);
+		requestor.setComputeVisibleElements(true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+
+	    String str = this.workingCopies[0].getSource();
+	    String completeBehind = "= Math.ma";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+	    requestor.getContext();
+	    
+	} finally {
+		deleteProject("P");
+	}
+}
 }
