@@ -195,7 +195,7 @@ public class InternalExtendedCompletionContext {
 							}
 						} else {
 							FieldDeclaration fieldDeclaration = fields[i];							
-							if (fieldDeclaration.initialization != null) {
+							if (fieldDeclaration.initialization != null && fieldDeclaration.binding != null) {
 								boolean isInsideInitializer = false;
 								if (fieldDeclaration.initialization.sourceEnd > 0) {
 									if (fieldDeclaration.initialization.sourceStart <= astNode.sourceStart &&
