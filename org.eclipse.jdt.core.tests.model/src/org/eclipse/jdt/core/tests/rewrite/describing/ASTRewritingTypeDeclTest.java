@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
@@ -1679,6 +1680,38 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	}
 
-
+	// Bug 419057 - ITypeBinding#getModifiers() misses implicit "static" for class member interface 
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419057
+	public void testBug419057a() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class C {\n");
+		buf.append("    interface IC {}\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		CompilationUnit astRoot= createAST(AST.JLS4, cu, true, false);
+		List types = astRoot.types();
+		TypeDeclaration typeDeclaration = (((TypeDeclaration) types.get(0)).getTypes())[0];
+		ITypeBinding iTypeBinding = typeDeclaration.resolveBinding();
+		assertTrue((iTypeBinding.getModifiers() & Modifier.STATIC) != 0);
+	}
+	public void testBug419057b() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public interface C {\n");
+		buf.append("    interface IC {}\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		CompilationUnit astRoot= createAST(AST.JLS4, cu, true, false);
+		List types = astRoot.types();
+		TypeDeclaration outerTypeDeclaration = (TypeDeclaration) types.get(0);
+		TypeDeclaration memberTypeDeclaration = (outerTypeDeclaration.getTypes())[0];
+		ITypeBinding outerTypeBinding = outerTypeDeclaration.resolveBinding();
+		assertTrue((outerTypeBinding.getModifiers() & Modifier.STATIC) == 0);
+		ITypeBinding memberTypeBinding = memberTypeDeclaration.resolveBinding();
+		assertTrue((memberTypeBinding.getModifiers() & Modifier.STATIC) != 0);
+	}
 
 }

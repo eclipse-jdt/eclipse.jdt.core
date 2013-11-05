@@ -441,6 +441,8 @@ public class ClassScope extends Scope {
 					problemReporter().nonStaticContextForEnumMemberType(sourceType);
 				else
 					modifiers |= ClassFileConstants.AccStatic;
+			} else if (sourceType.isInterface()) {
+				modifiers |= ClassFileConstants.AccStatic; // 8.5.1
 			}
 		} else if (sourceType.isLocalType()) {
 			if (sourceType.isEnum()) {
