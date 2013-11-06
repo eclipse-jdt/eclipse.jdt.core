@@ -642,7 +642,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		type = wildcard.getBound();
 		verifyAnnotationOnType(type, new String[]{"@Marker()"});
 	}
-	public void _test016() throws Exception {
+	public void test016() throws Exception {
 		String contents = 
 				"public class X<E> {\n" +
 				"  class Y {\n" +

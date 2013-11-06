@@ -3565,6 +3565,9 @@ class ASTConverter {
 						if (typeReference.annotations != null && (annotations = typeReference.annotations[0]) != null) {
 							annotateType(simpleType, annotations);
 						}
+						int newSourceStart = simpleType.getStartPosition();
+						if (newSourceStart > 0 && newSourceStart < sourceStart) 
+							sourceStart = newSourceStart;
 						final ParameterizedType parameterizedType = new ParameterizedType(this.ast);
 						parameterizedType.setType(simpleType);
 						type = parameterizedType;
@@ -3676,9 +3679,9 @@ class ASTConverter {
 						
 						SimpleType simpleType = new SimpleType(this.ast);
 						simpleType.setName(name);
-						int start = (int)(positions[0] >>> 32);
-						int end = (int)positions[firstTypeIndex];
 						setSourceRangeAnnotationsAndRecordNodes(typeReference, simpleType, positions, typeAnnotations, firstTypeIndex, 0, firstTypeIndex);
+						int start = simpleType.getStartPosition();
+						int end = (int)positions[firstTypeIndex];
 						Type currentType = simpleType;						
 						int indexOfEnclosingType = 1;
 						if (typeArguments != null && (arguments = typeArguments[firstTypeIndex]) != null) {
@@ -3711,6 +3714,9 @@ class ASTConverter {
 							QualifiedType qualifiedType = new QualifiedType(this.ast);
 							qualifiedType.setQualifier(currentType);
 							qualifiedType.setName(simpleName);
+							start = currentType.getStartPosition();
+							end = simpleName.getStartPosition() + simpleName.getLength() - 1;
+							qualifiedType.setSourceRange(start, end - start + 1);
 							if (typeAnnotations != null &&  (annotations = typeAnnotations[i]) != null) {
 								annotateType(qualifiedType, annotations);
 							}
@@ -3718,9 +3724,6 @@ class ASTConverter {
 								recordNodes(simpleName, typeReference);
 								recordNodes(qualifiedType, typeReference);
 							}
-							start = currentType.getStartPosition();
-							end = simpleName.getStartPosition() + simpleName.getLength() - 1;
-							qualifiedType.setSourceRange(start, end - start + 1);
 							currentType = qualifiedType;
 							indexOfEnclosingType++;
 							
