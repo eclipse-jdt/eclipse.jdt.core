@@ -6271,5 +6271,26 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421148, [1.8][compiler] Verify error with annotated casts and unused locals. 
+	public void test421148() {
+		
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"@Target(ElementType.TYPE_USE) @interface T {}\n" +
+				"public class X {\n" +
+				"	public static void main(String argv[]) {\n" +
+				"		Object o = (@T Object) new Object();    \n" +
+				"       System.out.println(\"OK\");\n" +
+				"	}\n" +
+				"}\n"
+			}, 
+			"OK",
+			customOptions);		
+	}		
 }
 

@@ -447,7 +447,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 		return;
 	}
-	this.expression.generateCode(currentScope, codeStream, valueRequired || needRuntimeCheckcast);
+	this.expression.generateCode(currentScope, codeStream, annotatedCast || valueRequired || needRuntimeCheckcast);
 	if (annotatedCast || (needRuntimeCheckcast && TypeBinding.notEquals(this.expression.postConversionType(currentScope), this.resolvedType.erasure()))) { // no need to issue a checkcast if already done as genericCast
 		codeStream.checkcast(this.type, this.resolvedType);
 	}

@@ -1417,6 +1417,28 @@ protected static class JavacTestOptions {
 			// javac options
 			JavacTestOptions.DEFAULT /* default javac test options */);
 	}
+	protected void runConformTest(String[] testFiles, String expectedOutput, Map customOptions) {
+		runTest(
+			// test directory preparation
+			true /* flush output directory */,
+			testFiles /* test files */,
+			// compiler options
+			null /* no class libraries */,
+			customOptions /* no custom options */,
+			false /* do not perform statements recovery */,
+			null /* no custom requestor */,
+			// compiler results
+			false /* expecting no compiler errors */,
+			null /* do not check compiler log */,
+			// runtime options
+			false /* do not force execution */,
+			null /* no vm arguments */,
+			// runtime results
+			expectedOutput /* expected output string */,
+			null /* do not check error string */,
+			// javac options
+			JavacTestOptions.DEFAULT /* default javac test options */);
+	}
 	protected void runConformTest(
 			String[] testFiles,
 			String[] dependantFiles,
