@@ -233,14 +233,14 @@ public class LambdaExpression extends Expression {
 	}
 
 	/**
-	 * Sets whether this lambda expression should have parentheses around its parameters or not.
+	 * Sets whether this lambda expression has parentheses around its parameters or not.
 	 * <p>
 	 * Note that parentheses are required unless {@link #parameters()} contains
 	 * just a single {@link VariableDeclarationFragment}.
 	 * ASTRewrite may ignore this property if necessary.
 	 * </p>
 	 *
-	 * @param hasParentheses <code>true</code> if this lambda expression should have parentheses around its parameters
+	 * @param hasParentheses <code>true</code> if this lambda expression has parentheses around its parameters
 	 *  and <code>false</code> otherwise
 	 */
 	public void setParentheses(boolean hasParentheses) {
@@ -251,12 +251,14 @@ public class LambdaExpression extends Expression {
 
 	/**
 	 * Returns the live ordered list of formal parameters of this lambda expression.
-	 * <p>
-	 * Note that all elements must be of the same type, either all {@link SingleVariableDeclaration} or all {@link VariableDeclarationFragment}.
-	 * </p>
+	 * Note that all elements must be of the same type, either
+	 * <ul>
+	 * <li>all {@link SingleVariableDeclaration} (explicit type), or</li>
+	 * <li>all {@link VariableDeclarationFragment} (inferred type).</li>
+	 * </ul>
 	 *
 	 * @return the live list of formal parameters of this lambda expression
-	 *    (element type: {@link VariableDeclaration} 
+	 *    (element type: {@link VariableDeclaration})
 	 */
 	public List parameters() {
 		return this.parameters;

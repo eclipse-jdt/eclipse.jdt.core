@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 
 /**
- * For a given range, finds the covered node and the covering node.
+ * For a given selection range, finds the covered node and the covering node.
  *
  * @since 3.5
  */
@@ -79,22 +79,21 @@ public final class NodeFinder {
 		}
 	}
 	/**
-	 * Maps a selection to a given ASTNode, where the selection is defined using a start and a length.
+	 * Maps a selection to an ASTNode, where the selection is defined using a start and a length.
 	 * The result node is determined as follows:
 	 * <ul>
-	 *   <li>first the visitor tries to find a node with the exact <code>start</code> and <code>length</code></li>
-	 *   <li>if no such node exists then the node that encloses the range defined by
-	 *       <code>start</code> and <code>length</code> is returned.</li>
-	 *   <li>if the length is zero then also nodes are considered where the node's
-	 *       start or end position matches <code>start</code>.</li>
-	 *   <li>otherwise <code>null</code> is returned.</li>
+	 *   <li>First, tries to find a node whose range is the exactly the given selection.
+	 *       If multiple matching nodes are found, the innermost is returned.</li>
+	 *   <li>If no such node exists, then the last node in a preorder traversal of the AST is returned, where
+	 *       the node range fully contains the selection.
+	 *       If the length is zero, then ties between adjacent nodes are broken by choosing the right side.</li>
 	 * </ul>
 	 *
 	 * @param root the root node from which the search starts
-	 * @param start the given start
-	 * @param length the given length
+	 * @param start the start of the selection
+	 * @param length the length of the selection
 	 *
-	 * @return the found node
+	 * @return the innermost node that exactly matches the selection, or the first node that contains the selection
 	 */
 	public static ASTNode perform(ASTNode root, int start, int length) {
 		NodeFinder finder = new NodeFinder(root, start, length);
@@ -106,10 +105,12 @@ public final class NodeFinder {
 	}
 
 	/**
-	 * Maps a selection to a given ASTNode, where the selection is defined using a source range.
-	 * It calls <code>perform(root, range.getOffset(), range.getLength())</code>.
+	 * Maps a selection to an ASTNode, where the selection is defined using a source range.
+	 * Calls <code>perform(root, range.getOffset(), range.getLength())</code>.
 	 * 
-	 * @return the result node
+	 * @param root the root node from which the search starts
+	 * @param range the selection range
+	 * @return the innermost node that exactly matches the selection, or the first node that contains the selection
 	 * @see #perform(ASTNode, int, int)
 	 */
 	public static ASTNode perform(ASTNode root, ISourceRange range) {
@@ -117,23 +118,18 @@ public final class NodeFinder {
 	}
 
 	/**
-	 * Maps a selection to a given ASTNode, where the selection is given by a start and a length.
+	 * Maps a selection to an ASTNode, where the selection is given by a start and a length.
 	 * The result node is determined as follows:
 	 * <ul>
-	 *   <li>first the visitor tries to find a node that is covered by <code>start</code> and
-	 *       <code>length</code> where either <code>start</code> and <code>length</code> exactly
-	 *       matches the node or where the text covered before and after the node only consists
-	 *       of white spaces or comments.</li>
-	 *   <li>if no such node exists then the node that encloses the range defined by
-	 *       <code>start</code> and <code>length</code> is returned.</li>
-	 *   <li>if the length is zero then also nodes are considered where the node's
-	 *       start or end position matches <code>start</code>.</li>
-	 *   <li>otherwise <code>null</code> is returned.</li>
+	 *   <li>If {@link #getCoveredNode()} doesn't find a node, returns <code>null</code>.</li>
+	 *   <li>Otherwise, iff the selection only contains the covered node and optionally some whitespace or comments
+	 *       on either side of the node, returns the node.</li>
+	 *   <li>Otherwise, returns the {@link #getCoveringNode() covering} node.</li>
 	 * </ul>
 	 *
 	 * @param root the root node from which the search starts
-	 * @param start the given start
-	 * @param length the given length
+	 * @param start the start of the selection
+	 * @param length the length of the selection
 	 * @param source the source of the compilation unit
 	 *
 	 * @return the result node
@@ -188,18 +184,27 @@ public final class NodeFinder {
 		this.fCoveringNode = nodeFinderVisitor.getCoveringNode();
 	}
 	/**
-	 * Returns the covered node. If more than one nodes are covered by the selection, the
-	 * returned node is first covered node found in a top-down traversal of the AST.
+	 * If the AST contains nodes whose range is equal to the selection, returns the innermost of those nodes.
+	 * Otherwise, returns the first node in a preorder traversal of the AST, where the complete node range is covered by the selection.
+	 * <p>
+	 * Example: For a {@link SimpleType} whose name is a {@link SimpleName} and a selection that equals both nodes' range,
+	 * the covered node is the <code>SimpleName</code>.
+	 * But if the selection is expanded to include a whitespace before or after the <code>SimpleType</code>,
+	 * then the covered node is the <code>SimpleType</code>.
+	 * </p>
 	 *
-	 * @return the covered node
+	 * @return the covered node, or <code>null</code> if the selection is empty or too short to cover an entire node
 	 */
 	public ASTNode getCoveredNode() {
 		return this.fCoveredNode;
 	}
 
 	/**
-	 * Returns the covering node. If more than one nodes are covering the selection, the
-	 * returned node is last covering node found in a top-down traversal of the AST.
+	 * Returns the innermost node that fully contains the selection. A node also contains the zero-length selection on either end.
+	 * <p>
+	 * If more than one node covers the selection, the returned node is the last covering node found in a preorder traversal of the AST.
+	 * This implies that for a zero-length selection between two adjacent sibling nodes, the node on the right is returned.
+	 * </p>
 	 *
 	 * @return the covering node
 	 */

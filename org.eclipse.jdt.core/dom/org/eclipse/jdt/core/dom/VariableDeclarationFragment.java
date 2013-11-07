@@ -16,10 +16,11 @@ import java.util.List;
 
 /**
  * Variable declaration fragment AST node type, used in field declarations,
- * local variable declarations, and <code>ForStatement</code> initializers.
+ * local variable declarations, <code>ForStatement</code> initializers,
+ * and <code>LambdaExpression</code> parameters.
  * In contrast to <code>SingleVariableDeclaration</code>, fragments are
- * missing the modifiers and the type; these are located in the fragment's
- * parent node.
+ * missing the modifiers and the type; these are either located in the fragment's
+ * parent node, or inferred (for lambda parameters).
  *
  * <pre>
  * VariableDeclarationFragment:
