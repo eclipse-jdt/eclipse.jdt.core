@@ -110,7 +110,7 @@ public class TypeAnnotationsConverterTest extends ConverterTestSetup {
 		assertASTNodeEquals(expectedOutput, node);
 	}
 	// Test ParameterizedQualifiedReference
-	public void _test0003() throws JavaModelException {
+	public void test0003() throws JavaModelException {
 		String contents =
 			"public class X<T> {\n" +
 		    "    class Y<R> {\n" +
@@ -139,7 +139,7 @@ public class TypeAnnotationsConverterTest extends ConverterTestSetup {
 		assertASTNodeEquals(expectedOutput, node);
 	}
 	// Test ParameterizedQualifiedReference with arrays.
-	public void _test0004() throws JavaModelException {
+	public void test0004() throws JavaModelException {
 		String contents =
 			"public class X<T> {\n" +
 		    "    class Y<R> {\n" +
@@ -168,7 +168,7 @@ public class TypeAnnotationsConverterTest extends ConverterTestSetup {
 		assertASTNodeEquals(expectedOutput, node);
 	}
 	// Test ParameterizedQualifiedReference with arrays.
-	public void _test0005() throws JavaModelException {
+	public void test0005() throws JavaModelException {
 		String contents =
 			"public class X<T> {\n" +
 		    "    class Y<R> {\n" +

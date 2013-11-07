@@ -699,7 +699,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		InstanceofExpression expression = (InstanceofExpression) operand.getExpression();
 		verifyAnnotationOnType(expression.getRightOperand(), new String[]{"@Marker()"});
 	}
-	public void _test018() throws Exception {
+	public void test018() throws Exception {
 		String contents = 
 				"interface I {\n" +
 				"    void foo(Y<String>.Z z, int x);\n" +
@@ -732,6 +732,9 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) statement.fragments().get(0);
 		TypeMethodReference initializer = (TypeMethodReference) fragment.getInitializer();
 		Type type = initializer.getType();
+		assertTrue(type.isQualifiedType());
+		QualifiedType qualifiedType = (QualifiedType) type;
+		checkSourceRange(qualifiedType.getName(), "Z", contents);
 		verifyAnnotationOnType(type, new String[]{"@Marker()"});
 		assertEquals("Should be a qualified type", ASTNode.QUALIFIED_TYPE, type.getNodeType());
 		verifyAnnotationOnType(((QualifiedType) type).getQualifier() , new String[]{});

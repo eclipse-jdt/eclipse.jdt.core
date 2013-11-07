@@ -3440,7 +3440,8 @@ class ASTConverter {
 		return variableDeclarationStatement;
 	}
 
-	private void annotateType(AnnotatableType type, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations) {
+	private int annotateType(AnnotatableType type, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations) {
+		int annotationsEnd = 0;
 		switch(this.ast.apiLevel) {
 			case AST.JLS2_INTERNAL :
 			case AST.JLS3_INTERNAL :
@@ -3457,6 +3458,7 @@ class ASTConverter {
 					if (typeAnnotation != null) {
 						Annotation annotation = convert(typeAnnotation);
 						type.annotations().add(annotation);
+						annotationsEnd = annotation.getStartPosition() + annotation.getLength();
 					}
 				}
 				int annotationsStart;
@@ -3466,6 +3468,7 @@ class ASTConverter {
 				}
 				type.setSourceRange(start, length);
 		}
+		return annotationsEnd;
 	}
 	private void annotateTypeParameter(TypeParameter typeParameter, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations) {
 		switch(this.ast.apiLevel) {
@@ -3718,7 +3721,11 @@ class ASTConverter {
 							end = simpleName.getStartPosition() + simpleName.getLength() - 1;
 							qualifiedType.setSourceRange(start, end - start + 1);
 							if (typeAnnotations != null &&  (annotations = typeAnnotations[i]) != null) {
-								annotateType(qualifiedType, annotations);
+								int nextPosition = annotateType(qualifiedType, annotations);
+								if (simpleName.getStartPosition() < nextPosition && nextPosition <= end) {
+									simpleName.setSourceRange(nextPosition, end - nextPosition + 1);
+									trimWhiteSpacesAndComments(simpleName);
+								}
 							}
 							if (this.resolveBindings) {
 								recordNodes(simpleName, typeReference);
@@ -4442,11 +4449,23 @@ class ASTConverter {
 	 * Remove whitespaces and comments before and after the expression.
 	 */
 	private void trimWhiteSpacesAndComments(org.eclipse.jdt.internal.compiler.ast.Expression expression) {
-		int start = expression.sourceStart;
-		int end = expression.sourceEnd;
+		int[] positions = trimWhiteSpacesAndComments(expression.sourceStart, expression.sourceEnd);
+		expression.sourceStart = positions[0];
+		expression.sourceEnd = positions[1];
+	}
+	private void trimWhiteSpacesAndComments(ASTNode node) {
+		int start = node.getStartPosition();
+		int end = start + node.getLength() - 1;
+		int[] positions = trimWhiteSpacesAndComments(start, end);
+		start = positions[0];
+		end = positions[1];
+		node.setSourceRange(start, end - start + 1);
+	}
+	private int [] trimWhiteSpacesAndComments(int start, int end) {
+		int [] positions = new int[]{start, end};
 		int token;
-		int trimLeftPosition = expression.sourceStart;
-		int trimRightPosition = expression.sourceEnd;
+		int trimLeftPosition = start;
+		int trimRightPosition = end;
 		boolean first = true;
 		Scanner removeBlankScanner = this.ast.scanner;
 		try {
@@ -4468,9 +4487,9 @@ class ASTConverter {
 						}
 						break;
 					case TerminalTokens.TokenNameEOF :
-						expression.sourceStart = trimLeftPosition;
-						expression.sourceEnd = trimRightPosition;
-						return;
+						positions[0] = trimLeftPosition;
+						positions[1] = trimRightPosition;
+						return positions;
 					default :
 						/*
 						 * if we find something else than a whitespace or a comment,
@@ -4484,6 +4503,7 @@ class ASTConverter {
 		} catch (InvalidInputException e){
 			// ignore
 		}
+		return positions;
 	}
 
 	/**
