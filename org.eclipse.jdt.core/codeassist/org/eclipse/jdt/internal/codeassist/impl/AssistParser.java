@@ -1174,8 +1174,8 @@ public void initialize() {
 	this.previousIdentifierPtr = -1;
 	this.bracketDepth = 0;
 }
-public void initialize(boolean initializeNLS) {
-	super.initialize(initializeNLS);
+public void initialize(boolean parsingCompilationUnit) {
+	super.initialize(parsingCompilationUnit);
 	flushAssistState();
 	flushElementStack();
 	this.previousIdentifierPtr = -1;

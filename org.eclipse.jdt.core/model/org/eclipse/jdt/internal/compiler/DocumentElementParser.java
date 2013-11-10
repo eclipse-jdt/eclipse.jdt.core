@@ -1282,10 +1282,10 @@ public CompilationUnitDeclaration endParse(int act) {
 	}
 	return super.endParse(act);
 }
-public void initialize(boolean initializeNLS) {
+public void initialize(boolean parsingCompilationUnit) {
 	//positionning the parser for a new compilation unit
 	//avoiding stack reallocation and all that....
-	super.initialize(initializeNLS);
+	super.initialize(parsingCompilationUnit);
 	this.intArrayPtr = -1;
 }
 public void initialize() {

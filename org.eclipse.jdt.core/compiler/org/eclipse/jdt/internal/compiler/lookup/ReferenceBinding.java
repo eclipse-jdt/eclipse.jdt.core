@@ -839,6 +839,12 @@ public void computeId() {
 					return;
 			}
 			break;
+		case 6:
+			if (!CharOperation.equals(TypeConstants.JDT, this.compoundName[2]) || !CharOperation.equals(TypeConstants.ITYPEBINDING, this.compoundName[5]))
+				return;
+			if (CharOperation.equals(TypeConstants.ORG_ECLIPSE_JDT_CORE_DOM_ITYPEBINDING, this.compoundName))
+				this.typeBits |= TypeIds.BitUninternedType;
+			break;
 		case 7 :
 			if (!CharOperation.equals(TypeConstants.JDT, this.compoundName[2]) || !CharOperation.equals(TypeConstants.TYPEBINDING, this.compoundName[6]))
 				return;

@@ -78,6 +78,8 @@ public class CompilationUnitDeclaration extends ASTNode implements ProblemSeveri
 	private int stringLiteralsPtr;
 	private HashSetOfInt stringLiteralsStart;
 
+	public boolean[] validIdentityComparisonLines;
+
 	IrritantSet[] suppressWarningIrritants;  // irritant for suppressed warnings
 	Annotation[] suppressWarningAnnotations;
 	long[] suppressWarningScopePositions; // (start << 32) + end

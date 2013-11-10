@@ -167,6 +167,7 @@ import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.Messages;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ProblemReporter extends ProblemHandler {
 
@@ -9865,7 +9866,7 @@ public void disallowedTargetForContainerAnnotation(Annotation annotation, TypeBi
 		annotation.sourceStart,
 		annotation.sourceEnd);
 }
-public void uninternedIdentityComparison(EqualExpression expr, TypeBinding lhs, TypeBinding rhs) {
+public void uninternedIdentityComparison(EqualExpression expr, TypeBinding lhs, TypeBinding rhs, CompilationUnitDeclaration unit) {
 	
 	char [] lhsName = lhs.sourceName();
 	char [] rhsName = rhs.sourceName();
@@ -9879,6 +9880,17 @@ public void uninternedIdentityComparison(EqualExpression expr, TypeBinding lhs, 
 			|| CharOperation.equals(rhsName, "NullTypeBinding".toCharArray())  //$NON-NLS-1$
 			|| CharOperation.equals(rhsName, "ProblemReferenceBinding".toCharArray())) //$NON-NLS-1$
 		return;
+	
+	boolean[] validIdentityComparisonLines = unit.validIdentityComparisonLines;
+	if (validIdentityComparisonLines != null) {
+		int problemStartPosition = expr.left.sourceStart;
+		int[] lineEnds;
+		int lineNumber = problemStartPosition >= 0
+				? Util.getLineNumber(problemStartPosition, lineEnds = unit.compilationResult().getLineSeparatorPositions(), 0, lineEnds.length-1)
+						: 0;
+		if (lineNumber <= validIdentityComparisonLines.length && validIdentityComparisonLines[lineNumber - 1])
+			return;
+	}
 	
 	this.handle(
 			IProblem.UninternedIdentityComparison,

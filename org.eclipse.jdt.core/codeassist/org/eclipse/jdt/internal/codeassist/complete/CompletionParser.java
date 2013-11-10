@@ -4604,8 +4604,8 @@ public void initialize() {
 	this.labelPtr = -1;
 	initializeForBlockStatements();
 }
-public void initialize(boolean initializeNLS) {
-	super.initialize(initializeNLS);
+public void initialize(boolean parsingCompilationUnit) {
+	super.initialize(parsingCompilationUnit);
 	this.labelPtr = -1;
 	initializeForBlockStatements();
 }
