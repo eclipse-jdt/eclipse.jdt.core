@@ -203,8 +203,8 @@ public class CommentRecorderParser extends Parser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#initialize()
 	 */
-	public void initialize(boolean initializeNLS) {
-		super.initialize(initializeNLS);
+	public void initialize(boolean parsingCompilationUnit) {
+		super.initialize(parsingCompilationUnit);
 		this.commentPtr = -1;
 	}
 	/* (non-Javadoc)

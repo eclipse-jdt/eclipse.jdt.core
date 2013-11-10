@@ -100,6 +100,8 @@ public interface TypeConstants {
     char[] COMPILER = "compiler".toCharArray(); //$NON-NLS-1$
     char[] LOOKUP = "lookup".toCharArray(); //$NON-NLS-1$
     char[] TYPEBINDING = "TypeBinding".toCharArray(); //$NON-NLS-1$
+    char[] DOM = "dom".toCharArray(); //$NON-NLS-1$
+    char[] ITYPEBINDING = "ITypeBinding".toCharArray(); //$NON-NLS-1$
     
 	// Constant compound names
 	char[][] JAVA_LANG = {JAVA, LANG};
@@ -278,6 +280,8 @@ public interface TypeConstants {
 	char[][] ORG_APACHE_COMMONS_LANG_VALIDATE = new char[][] { ORG, APACHE, COMMONS, LANG, VALIDATE_CLASS };
 	char[][] ORG_APACHE_COMMONS_LANG3_VALIDATE = new char[][] { ORG, APACHE, COMMONS, LANG3, VALIDATE_CLASS };
 	char[][] ORG_ECLIPSE_JDT_INTERNAL_COMPILER_LOOKUP_TYPEBINDING = new char[][] { ORG, ECLIPSE, JDT, INTERNAL, COMPILER, LOOKUP, TYPEBINDING };
+	char[][] ORG_ECLIPSE_JDT_CORE_DOM_ITYPEBINDING = new char[][] { ORG, ECLIPSE, JDT, CORE, DOM, ITYPEBINDING };
+
 	// ... methods:
 	char[] IS_TRUE = "isTrue".toCharArray(); //$NON-NLS-1$
 	char[] NOT_NULL = "notNull".toCharArray(); //$NON-NLS-1$

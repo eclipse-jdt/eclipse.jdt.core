@@ -161,6 +161,12 @@ public class Scanner implements TerminalTokens {
 	public static final int TAG_PREFIX_LENGTH= TAG_PREFIX.length;
 	public static final char TAG_POSTFIX= '$';
 	public static final int TAG_POSTFIX_LENGTH= 1;
+
+	// support for complaining on uninterned type comparisons.
+	public static final char[] IDENTITY_COMPARISON_TAG = "//$IDENTITY-COMPARISON$".toCharArray(); //$NON-NLS-1$
+	public boolean [] validIdentityComparisonLines;
+	public boolean checkUninternedIdentityComparison;
+
 	private NLSTag[] nlsTags = null;
 	protected int nlsTagsPtr;
 	public boolean checkNonExternalizedStringLiterals;
@@ -1588,7 +1594,7 @@ public int getNextToken() throws InvalidInputException {
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
-									if (this.checkNonExternalizedStringLiterals &&
+									if ((this.checkNonExternalizedStringLiterals || this.checkUninternedIdentityComparison) &&
 											this.lastPosition < this.currentPosition) {
 										parseTags();
 									}
@@ -1607,7 +1613,7 @@ public int getNextToken() throws InvalidInputException {
 								this.currentPosition--;
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
-								if (this.checkNonExternalizedStringLiterals &&
+								if ((this.checkNonExternalizedStringLiterals || this.checkUninternedIdentityComparison) &&
 										this.lastPosition < this.currentPosition) {
 									parseTags();
 								}
@@ -1850,6 +1856,11 @@ public NLSTag[] getNLSTags() {
 	}
 	return null;
 }
+public boolean[] getIdentityComparisonLines() {
+	boolean [] retVal = this.validIdentityComparisonLines;
+	this.validIdentityComparisonLines = null;
+	return retVal;
+}
 public char[] getSource(){
 	return this.source;
 }
@@ -2049,7 +2060,7 @@ public final void jumpOverMethodBody() {
 								recordComment(TokenNameCOMMENT_LINE);
 								if (this.recordLineSeparator
 									&& ((this.currentCharacter == '\r') || (this.currentCharacter == '\n'))) {
-										if (this.checkNonExternalizedStringLiterals &&
+										if ((this.checkNonExternalizedStringLiterals || this.checkUninternedIdentityComparison) &&
 												this.lastPosition < this.currentPosition) {
 											parseTags();
 										}
@@ -2065,7 +2076,7 @@ public final void jumpOverMethodBody() {
 								 //an eof will then be generated
 								this.currentPosition--;
 								recordComment(TokenNameCOMMENT_LINE);
-								if (this.checkNonExternalizedStringLiterals &&
+								if ((this.checkNonExternalizedStringLiterals || this.checkUninternedIdentityComparison) &&
 										this.lastPosition < this.currentPosition) {
 									parseTags();
 								}
@@ -2510,8 +2521,9 @@ private void parseTags() {
 	} else {
 		s = this.source;
 	}
-	int pos = CharOperation.indexOf(TAG_PREFIX, s, true, sourceStart, sourceEnd);
-	if (pos != -1) {
+	int pos;
+	if (this.checkNonExternalizedStringLiterals &&
+			(pos = CharOperation.indexOf(TAG_PREFIX, s, true, sourceStart, sourceEnd)) != -1) {
 		if (this.nlsTags == null) {
 			this.nlsTags = new NLSTag[10];
 			this.nlsTagsPtr = 0;
@@ -2537,6 +2549,17 @@ private void parseTags() {
 			}
 			pos = CharOperation.indexOf(TAG_PREFIX, s, true, end, sourceEnd);
 		}
+	} 
+	
+	if (this.checkUninternedIdentityComparison &&
+			(pos = CharOperation.indexOf(IDENTITY_COMPARISON_TAG, s, true, sourceStart, sourceEnd)) != -1) {
+		if (this.validIdentityComparisonLines == null) {
+			this.validIdentityComparisonLines = new boolean[0];
+		}
+		int currentLine = currentLinePtr + 1;
+		int length = this.validIdentityComparisonLines.length;
+		System.arraycopy(this.validIdentityComparisonLines, 0, this.validIdentityComparisonLines = new boolean[currentLine + 1], 0, length);
+		this.validIdentityComparisonLines[currentLine] = true;
 	}
 }
 private int extractInt(char[] array, int start, int end) {

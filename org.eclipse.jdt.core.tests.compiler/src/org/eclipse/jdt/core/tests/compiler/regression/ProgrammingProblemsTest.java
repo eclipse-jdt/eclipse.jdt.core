@@ -2422,4 +2422,283 @@ public void test0059() throws Exception {
 		true/*shouldFlushOutputDirectory*/,
 		customOptions);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417803,  [internal] Build a build environment compiler to warn on TypeBinding comparisons
+public void test0060() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUninternedIdentityComparison, CompilerOptions.ENABLED);
+	this.runNegativeTest(
+		new String[] {
+			"org/eclipse/jdt/internal/compiler/lookup/X.java",
+			"package org.eclipse.jdt.internal.compiler.lookup;\n" +
+			"class TypeBinding {\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		TypeBinding t1 = null, t2 = null;\n" +
+			"		if (t1 == t2) { \n" +
+			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
+			"				if (t1 == t2) {\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void gain(String[] args) {\n" +
+			"		TypeBinding t1 = null, t2 = null;\n" +
+			"		if (t1 == t2) { \n" +
+			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
+			"				if (t1 == t2) {\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void vain(String[] args) {\n" +
+			"		TypeBinding t1 = null, t2 = null;\n" +
+			"		//$IDENTITY-COMPARISON$\n" +
+			"		//$IDENTITY-COMPARISON$\n" +
+			"		//$IDENTITY-COMPARISON$\n" +
+			"		if (t1 == t2) { \n" +
+			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
+			"				if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void cain(String[] args) {\n" +
+			"		TypeBinding t1 = null, t2 = null;\n" +
+			"		if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
+			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
+			"				if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in org\\eclipse\\jdt\\internal\\compiler\\lookup\\X.java (at line 7)\n" + 
+		"	if (t1 == t2) { \n" + 
+		"	    ^^^^^^^^\n" + 
+		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" + 
+		"----------\n" + 
+		"2. ERROR in org\\eclipse\\jdt\\internal\\compiler\\lookup\\X.java (at line 9)\n" + 
+		"	if (t1 == t2) {\n" + 
+		"	    ^^^^^^^^\n" + 
+		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" + 
+		"----------\n" + 
+		"3. ERROR in org\\eclipse\\jdt\\internal\\compiler\\lookup\\X.java (at line 16)\n" + 
+		"	if (t1 == t2) { \n" + 
+		"	    ^^^^^^^^\n" + 
+		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" + 
+		"----------\n" + 
+		"4. ERROR in org\\eclipse\\jdt\\internal\\compiler\\lookup\\X.java (at line 18)\n" + 
+		"	if (t1 == t2) {\n" + 
+		"	    ^^^^^^^^\n" + 
+		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" + 
+		"----------\n" + 
+		"5. ERROR in org\\eclipse\\jdt\\internal\\compiler\\lookup\\X.java (at line 28)\n" + 
+		"	if (t1 == t2) { \n" + 
+		"	    ^^^^^^^^\n" + 
+		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" + 
+		"----------\n",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417803,  [internal] Build a build environment compiler to warn on TypeBinding comparisons
+public void test0061() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUninternedIdentityComparison, CompilerOptions.ENABLED);
+	this.runNegativeTest(
+		new String[] {
+			"org/eclipse/nonjdt/internal/compiler/lookup/X.java",
+			"package org.eclipse.nonjdt.internal.compiler.lookup;\n" +
+			"class TypeBinding {\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		TypeBinding t1 = null, t2 = null;\n" +
+			"		if (t1 == t2) { \n" +
+			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
+			"				if (t1 == t2) {\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void gain(String[] args) {\n" +
+			"		TypeBinding t1 = null, t2 = null;\n" +
+			"		if (t1 == t2) { \n" +
+			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
+			"				if (t1 == t2) {\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void vain(String[] args) {\n" +
+			"		TypeBinding t1 = null, t2 = null;\n" +
+			"		//$IDENTITY-COMPARISON$\n" +
+			"		//$IDENTITY-COMPARISON$\n" +
+			"		//$IDENTITY-COMPARISON$\n" +
+			"		if (t1 == t2) { \n" +
+			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
+			"				if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void cain(String[] args) {\n" +
+			"		TypeBinding t1 = null, t2 = null;\n" +
+			"		if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
+			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
+			"				if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417803,  [internal] Build a build environment compiler to warn on TypeBinding comparisons
+public void test0062() throws Exception {
+	Map customOptions = getCompilerOptions();
+	this.runNegativeTest(
+		new String[] {
+			"org/eclipse/jdt/internal/compiler/lookup/X.java",
+			"package org.eclipse.jdt.internal.compiler.lookup;\n" +
+			"class TypeBinding {\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		TypeBinding t1 = null, t2 = null;\n" +
+			"		if (t1 == t2) { \n" +
+			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
+			"				if (t1 == t2) {\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void gain(String[] args) {\n" +
+			"		TypeBinding t1 = null, t2 = null;\n" +
+			"		if (t1 == t2) { \n" +
+			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
+			"				if (t1 == t2) {\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void vain(String[] args) {\n" +
+			"		TypeBinding t1 = null, t2 = null;\n" +
+			"		//$IDENTITY-COMPARISON$\n" +
+			"		//$IDENTITY-COMPARISON$\n" +
+			"		//$IDENTITY-COMPARISON$\n" +
+			"		if (t1 == t2) { \n" +
+			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
+			"				if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void cain(String[] args) {\n" +
+			"		TypeBinding t1 = null, t2 = null;\n" +
+			"		if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
+			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
+			"				if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417803,  [internal] Build a build environment compiler to warn on TypeBinding comparisons
+public void test0063() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUninternedIdentityComparison, CompilerOptions.ENABLED);
+	this.runNegativeTest(
+		new String[] {
+			"org/eclipse/jdt/core/dom/X.java",
+			"package org.eclipse.jdt.core.dom;\n" +
+			"interface ITypeBinding {\n" +
+			"}\n" +
+			"class TypeBinding implements ITypeBinding {\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		TypeBinding t1 = null, t2 = null;\n" +
+			"		if (t1 == t2) { \n" +
+			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
+			"				if (t1 == t2) {\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void gain(String[] args) {\n" +
+			"		TypeBinding t1 = null, t2 = null;\n" +
+			"		if (t1 == t2) { \n" +
+			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
+			"				if (t1 == t2) {\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void vain(String[] args) {\n" +
+			"		TypeBinding t1 = null, t2 = null;\n" +
+			"		//$IDENTITY-COMPARISON$\n" +
+			"		//$IDENTITY-COMPARISON$\n" +
+			"		//$IDENTITY-COMPARISON$\n" +
+			"		if (t1 == t2) { \n" +
+			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
+			"				if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void cain(String[] args) {\n" +
+			"		TypeBinding t1 = null, t2 = null;\n" +
+			"		if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
+			"			if (t2 == t1) {  //$IDENTITY-COMPARISON$\n" +
+			"				if (t1 == t2) { //$IDENTITY-COMPARISON$\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in org\\eclipse\\jdt\\core\\dom\\X.java (at line 9)\n" + 
+		"	if (t1 == t2) { \n" + 
+		"	    ^^^^^^^^\n" + 
+		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" + 
+		"----------\n" + 
+		"2. ERROR in org\\eclipse\\jdt\\core\\dom\\X.java (at line 11)\n" + 
+		"	if (t1 == t2) {\n" + 
+		"	    ^^^^^^^^\n" + 
+		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" + 
+		"----------\n" + 
+		"3. ERROR in org\\eclipse\\jdt\\core\\dom\\X.java (at line 18)\n" + 
+		"	if (t1 == t2) { \n" + 
+		"	    ^^^^^^^^\n" + 
+		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" + 
+		"----------\n" + 
+		"4. ERROR in org\\eclipse\\jdt\\core\\dom\\X.java (at line 20)\n" + 
+		"	if (t1 == t2) {\n" + 
+		"	    ^^^^^^^^\n" + 
+		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" + 
+		"----------\n" + 
+		"5. ERROR in org\\eclipse\\jdt\\core\\dom\\X.java (at line 30)\n" + 
+		"	if (t1 == t2) { \n" + 
+		"	    ^^^^^^^^\n" + 
+		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" + 
+		"----------\n",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		customOptions);
+}
 }

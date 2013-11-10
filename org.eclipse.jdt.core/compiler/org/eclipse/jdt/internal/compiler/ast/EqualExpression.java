@@ -835,7 +835,7 @@ public class EqualExpression extends BinaryExpression {
 
 		final CompilerOptions compilerOptions = scope.compilerOptions();
 		if (compilerOptions.complainOnUninternedIdentityComparison && originalRightType.hasTypeBit(TypeIds.BitUninternedType) && originalLeftType.hasTypeBit(TypeIds.BitUninternedType))
-			scope.problemReporter().uninternedIdentityComparison(this, originalLeftType, originalRightType);
+			scope.problemReporter().uninternedIdentityComparison(this, originalLeftType, originalRightType, scope.referenceCompilationUnit());
 
 		// autoboxing support
 		boolean use15specifics = compilerOptions.sourceLevel >= ClassFileConstants.JDK1_5;
