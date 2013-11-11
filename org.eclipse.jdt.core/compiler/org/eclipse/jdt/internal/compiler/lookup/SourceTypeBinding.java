@@ -1846,7 +1846,7 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 				if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
 					method.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 				newParameters[i] = parameterType;
-				arg.binding = new LocalVariableBinding(arg, parameterType, arg.modifiers, true /*isArgument*/);
+				arg.binding = new LocalVariableBinding(arg, parameterType, arg.modifiers, methodDecl.scope);
 			}
 		}
 		// only assign parameters if no problems are found

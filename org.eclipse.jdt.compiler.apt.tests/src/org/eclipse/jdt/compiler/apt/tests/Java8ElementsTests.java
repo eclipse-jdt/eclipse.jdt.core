@@ -48,7 +48,7 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testSE8Specifics");
 	}
-	public void testSE8SpecificsWithJavac() throws Exception {
+	public void _testSE8SpecificsWithJavac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testSE8Specifics");
 	}
@@ -64,7 +64,7 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations");
 	}
-	public void testTypeAnnotationsWithJavac() throws Exception {
+	public void _testTypeAnnotationsWithJavac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations");
 	}
@@ -80,7 +80,7 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations2");
 	}
-	public void testTypeAnnotations2WithJavac() throws Exception {
+	public void _testTypeAnnotations2WithJavac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations2");
 	}
@@ -88,7 +88,7 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations3");
 	}
-	public void testTypeAnnotations3WithJavac() throws Exception {
+	public void _testTypeAnnotations3WithJavac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations3");
 	}
@@ -96,7 +96,7 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations4");
 	}
-	public void testTypeAnnotations4WithJavac() throws Exception {
+	public void _testTypeAnnotations4WithJavac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations4");
 	}
@@ -104,7 +104,7 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations5");
 	}
-	public void testTypeAnnotations5WithJavac() throws Exception {
+	public void _testTypeAnnotations5WithJavac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations5");
 	}
@@ -136,7 +136,7 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations9");
 	}
-	public void testTypeAnnotations9WithJavac() throws Exception {
+	public void _testTypeAnnotations9WithJavac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations9");
 	}
@@ -152,7 +152,7 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations11");
 	}
-	public void testTypeAnnotations11WithJavac() throws Exception {
+	public void _testTypeAnnotations11WithJavac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations11");
 	}
@@ -278,6 +278,26 @@ public class Java8ElementsTests extends TestCase {
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testRepeatedAnnotations25", "JEP120_7.java");
 	}
 
+	public void testTypeAnnotations26() throws Exception {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations26");
+	}
+
+	public void testTypeAnnotations26WithJavac() throws Exception {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations26");
+	}
+	
+	public void testTypeAnnotations27() throws Exception {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations27");
+	}
+	
+	public void _testTypeAnnotations27WithJavac() throws Exception {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations27");
+	}
+	
 	private void internalTest(JavaCompiler compiler, String processor, String testMethod) throws IOException {
 		internalTest(compiler, processor, testMethod, null);
 	}

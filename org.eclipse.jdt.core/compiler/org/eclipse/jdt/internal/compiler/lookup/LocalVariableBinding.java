@@ -63,6 +63,13 @@ public class LocalVariableBinding extends VariableBinding {
 		this.declaration = declaration;
 		this.tagBits |= TagBits.IsEffectivelyFinal;
 	}
+	
+	// argument
+	public LocalVariableBinding(LocalDeclaration declaration, TypeBinding type, int modifiers, MethodScope declaringScope) {
+
+		this(declaration, type, modifiers, true);
+		this.declaringScope = declaringScope;
+	}
 
 	/* API
 	* Answer the receiver's binding type from Binding.BindingID.

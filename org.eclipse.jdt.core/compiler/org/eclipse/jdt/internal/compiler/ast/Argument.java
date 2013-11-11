@@ -58,7 +58,7 @@ public class Argument extends LocalDeclaration {
 	public TypeBinding createBinding(MethodScope scope, TypeBinding typeBinding) {
 		if (this.binding == null) {
 			// for default constructors and fake implementation of abstract methods 
-			this.binding = new LocalVariableBinding(this, typeBinding, this.modifiers, true /*isArgument*/);
+			this.binding = new LocalVariableBinding(this, typeBinding, this.modifiers, scope);
 		} else if (!this.binding.type.isValidBinding()) {
 			AbstractMethodDeclaration methodDecl = scope.referenceMethod();
 			if (methodDecl != null) {

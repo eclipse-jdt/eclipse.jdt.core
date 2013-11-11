@@ -14,6 +14,7 @@ public class AptSourceLocalVariableBinding extends LocalVariableBinding {
 
 	// enclosing element
 	public MethodBinding methodBinding;
+	private LocalVariableBinding local;
 	
 	public AptSourceLocalVariableBinding(LocalVariableBinding localVariableBinding, MethodBinding methodBinding) {
 		super(localVariableBinding.name, localVariableBinding.type, localVariableBinding.modifiers, true);
@@ -27,5 +28,11 @@ public class AptSourceLocalVariableBinding extends LocalVariableBinding {
 		this.initializationCount = localVariableBinding.initializationCount;
 		this.initializationPCs = localVariableBinding.initializationPCs;
 		this.methodBinding = methodBinding;
+		this.local = localVariableBinding;
+	}
+	
+	@Override
+	public AnnotationBinding[] getAnnotations() {
+		return this.local.getAnnotations();
 	}
 }

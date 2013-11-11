@@ -800,9 +800,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			}
 		}
 
-		if (copySE8AnnotationsToType)
-			copySE8AnnotationsToType(scope, recipient, sourceAnnotations);
-
 		/* See if the recipient is meta-annotated with @Repeatable and if so validate constraints. We can't do this during resolution of @Repeatable itself as @Target and 
 		   @Retention etc could come later
 		*/   
@@ -870,6 +867,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				}
 			}
 		}
+		if (copySE8AnnotationsToType)
+			copySE8AnnotationsToType(scope, recipient, sourceAnnotations);
 		return annotations;
 	}
 	
