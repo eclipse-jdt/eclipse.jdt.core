@@ -193,30 +193,28 @@ public static void createProblemType(TypeDeclaration typeDeclaration, Compilatio
 	CategorizedProblem[] problemsCopy = new CategorizedProblem[problemsLength = problems.length];
 	System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 	AbstractMethodDeclaration[] methodDecls = typeDeclaration.methods;
+	boolean abstractMethodsOnly = false;
 	if (methodDecls != null) {
 		if (typeBinding.isInterface()) {
-			// we cannot create problem methods for an interface. So we have to generate a clinit
-			// which should contain all the problem
+			if (typeBinding.scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8)
+				abstractMethodsOnly = true;
+			// We generate a clinit which contains all the problems, since we may not be able to generate problem methods (< 1.8) and problem constructors (all levels).
 			classFile.addProblemClinit(problemsCopy);
-			for (int i = 0, length = methodDecls.length; i < length; i++) {
-				AbstractMethodDeclaration methodDecl = methodDecls[i];
-				MethodBinding method = methodDecl.binding;
-				if (method == null || method.isConstructor()) continue;
+		}
+		for (int i = 0, length = methodDecls.length; i < length; i++) {
+			AbstractMethodDeclaration methodDecl = methodDecls[i];
+			MethodBinding method = methodDecl.binding;
+			if (method == null) continue;
+			if (abstractMethodsOnly) {
 				method.modifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract;
-				classFile.addAbstractMethod(methodDecl, method);
 			}
-		} else {
-			for (int i = 0, length = methodDecls.length; i < length; i++) {
-				AbstractMethodDeclaration methodDecl = methodDecls[i];
-				MethodBinding method = methodDecl.binding;
-				if (method == null) continue;
-				if (method.isConstructor()) {
-					classFile.addProblemConstructor(methodDecl, method, problemsCopy);
-				} else if (method.isAbstract()) {
-					classFile.addAbstractMethod(methodDecl, method);
-				} else {
-					classFile.addProblemMethod(methodDecl, method, problemsCopy);
-				}
+			if (method.isConstructor()) {
+				if (typeBinding.isInterface()) continue;
+				classFile.addProblemConstructor(methodDecl, method, problemsCopy);
+			} else if (method.isAbstract()) {
+				classFile.addAbstractMethod(methodDecl, method);
+			} else {
+				classFile.addProblemMethod(methodDecl, method, problemsCopy);
 			}
 		}
 		// add abstract methods

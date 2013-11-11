@@ -600,7 +600,7 @@ public char[] genericSignature() {
 }
 
 public final int getAccessFlags() {
-	return this.modifiers & ExtraCompilerModifiers.AccJustFlag;
+	return this.modifiers & (ExtraCompilerModifiers.AccJustFlag | ExtraCompilerModifiers.AccDefaultMethod);
 }
 
 public AnnotationBinding[] getAnnotations() {

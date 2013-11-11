@@ -3375,4 +3375,26 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		checkSourceRange(castType, "@Marker W<String>", contents);
 		checkSourceRange(type, "@Marker W", contents);
 	}
+
+	// Bug 414113 - [1.8] Method Binding for default method has abstract modifier instead of default
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=414113
+	public void testBug414113() throws JavaModelException {
+		String contents =
+			"public interface X {\n" +
+			"	int i = foo();\n" +
+			"	default int foo_default() { return 1;}\n" +
+			"	static int foo_static() { return 1;}\n" +
+			"}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		TypeDeclaration type =  (TypeDeclaration) unit.types().get(0);
+		MethodDeclaration method = (MethodDeclaration) type.bodyDeclarations().get(1);
+		IMethodBinding binding =  method.resolveBinding();
+		assertTrue("binding is default", (binding.getModifiers() & Modifier.DEFAULT) != 0);
+		method = (MethodDeclaration) type.bodyDeclarations().get(2);
+		binding =  method.resolveBinding();
+		assertTrue("binding is static", (binding.getModifiers() & Modifier.STATIC) != 0);
+	}
 }
