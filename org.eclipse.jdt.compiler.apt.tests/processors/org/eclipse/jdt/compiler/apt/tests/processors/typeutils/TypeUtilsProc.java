@@ -273,25 +273,25 @@ public class TypeUtilsProc extends BaseProcessor
 	private boolean examineGetDeclaredTypeNested() {
 		TypeElement stringDecl = _elementUtils.getTypeElement(String.class.getName());
 		TypeElement numberDecl = _elementUtils.getTypeElement(Number.class.getName());
-		TypeElement mapDecl = _elementUtils.getTypeElement("java.util.HashMap");
-		TypeElement iterDecl = _elementUtils.getTypeElement("java.util.HashMap.HashIterator");
+		TypeElement elementOuter = _elementUtils.getTypeElement("targets.model.pd.Outer");
+		TypeElement elementInner = _elementUtils.getTypeElement("targets.model.pd.Outer.Inner");
 		DeclaredType stringType = _typeUtils.getDeclaredType(stringDecl);
 		DeclaredType numberType = _typeUtils.getDeclaredType(numberDecl);
 		ArrayType numberArrayType = _typeUtils.getArrayType(numberType);
 
-		// HashMap<String, Number[]>
-		DeclaredType outerType = _typeUtils.getDeclaredType(mapDecl, stringType, numberArrayType);
-		
-		// HashMap<String, Number[]>.HashIterator<Number[]>
-		DeclaredType decl = _typeUtils.getDeclaredType(outerType, iterDecl, new TypeMirror[] { numberArrayType });
-		
+		// Outer<T1, T2> ---> Outer<String, Number[]>
+		DeclaredType outerType = _typeUtils.getDeclaredType(elementOuter, stringType, numberArrayType);
+
+		// Outer<T1, T2>.Inner<T2> ---> Outer<String, Number[]>.Inner<Number[]>
+		DeclaredType decl = _typeUtils.getDeclaredType(outerType, elementInner, new TypeMirror[] { numberArrayType });
+
 		List<? extends TypeMirror> args = decl.getTypeArguments();
 		if (args.size() != 1) {
-			reportError("Map<String, Number[]>.EntryIterator<Number[]> should have one argument but decl.getTypeArguments() returned " + args.size());
+			reportError("Outer<String, Number[]>.Inner<Number[]> should have one argument but decl.getTypeArguments() returned " + args.size());
 			return false;
 		}
 		if (!_typeUtils.isSameType(numberArrayType, args.get(0))) {
-			reportError("First arg of Map<String, Number[]>.EntryIterator<Number[]> was expected to be Number[], but was: " + args.get(0));
+			reportError("First arg of Outer<String, Number[]>.Inner<Number[]> was expected to be Number[], but was: " + args.get(0));
 			return false;
 		}
 		return true;

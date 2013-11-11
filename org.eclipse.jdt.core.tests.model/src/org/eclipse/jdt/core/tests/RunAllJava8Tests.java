@@ -23,7 +23,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.eclipse.jdt.compiler.apt.tests.Java8ElementsTests;
 import org.eclipse.jdt.core.tests.compiler.parser.ComplianceDiagnoseTest;
 import org.eclipse.jdt.core.tests.dom.ASTConverter15JLS8Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverter18Test;
@@ -50,6 +49,7 @@ public class RunAllJava8Tests extends TestCase {
 			FormatterJSR335Tests.class,
 			FormatterJSR308Tests.class,
 			JavaSearchBugs8Tests.class,
+			org.eclipse.jdt.compiler.apt.tests.AllTests.class,
 		};
 	}
 	
@@ -63,7 +63,6 @@ public class RunAllJava8Tests extends TestCase {
 				ASTConverter18Test.class,
 				ASTRewritingTest.class,
 				TypeBindingTests308.class,
-				Java8ElementsTests.class,
 		};
 	}
 

@@ -456,17 +456,6 @@ public class ElementsImpl implements Elements {
 			for (int i = 0, max = chars.length; i < max; i++) {
 				char c = chars[i];
 				switch(c) {
-					case '\t' :
-						if (starsIndex == -1) {
-							if (recordLeadingWhitespaces) {
-								leadingWhitespaces += 8;
-							} else {
-								sb.append(c);
-							}
-						} else if (i >= starsIndex) {
-							sb.append(c);
-						}
-						break;
 					case ' ' :
 						if (starsIndex == -1) {
 							if (recordLeadingWhitespaces) {
@@ -498,6 +487,10 @@ public class ElementsImpl implements Elements {
 							}
 							leadingWhitespaces = 0;
 							sb.append(c);
+						} else if (c == '\t') {
+							if (i >= starsIndex) {
+								sb.append(c);
+							}
 						} else if (c != '*' || i > starsIndex) {
 							sb.append(c);
 						}

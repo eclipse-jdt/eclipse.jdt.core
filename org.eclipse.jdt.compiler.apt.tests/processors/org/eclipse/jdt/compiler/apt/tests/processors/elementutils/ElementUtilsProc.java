@@ -471,8 +471,8 @@ public class ElementUtilsProc extends BaseProcessor
 				"\n" +
 				" Javadoc on _fieldT1_private\n" +
 				"  this line starts with two spaces, no asterisk\n" +
-				"        This line starts, contains\tand ends with a tab\t\n" +
-				"                 This line starts with a space, tab, space, tab, space\n");
+				"\tThis line starts, contains\tand ends with a tab\t\n" +
+				" \t \t This line starts with a space, tab, space, tab, space\n");
 		nameToDoc.put("fieldInt", null);
 		nameToDoc.put("method_T1", " Javadoc on F.method_T1\n");
 		nameToDoc.put("method_String", null);
@@ -481,7 +481,7 @@ public class ElementUtilsProc extends BaseProcessor
 		nameToDoc.put("foo", "\n Creates a new instance of AllChecks \n");
 		nameToDoc.put("bar", " @bar\t(int)\n");
 		nameToDoc.put("bar2", "\t@bar2(int)\n");
-		nameToDoc.put("m", "                Method\tm\n");
+		nameToDoc.put("m", "\t\tMethod\tm\n");
 		nameToDoc.put("m1", "This is a comment for the method m1,\n" + 
 				"  it is on two lines\n");
 		nameToDoc.put("m2", "Another comment - starts on first line and\n" + 
