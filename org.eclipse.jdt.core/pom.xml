@@ -51,6 +51,7 @@
       <plugin>
         <groupId>org.eclipse.tycho.extras</groupId>
         <artifactId>tycho-custom-bundle-plugin</artifactId>
+        <version>${tycho.version}</version>
         <executions>
           <execution>
             <id>antadapter</id>
