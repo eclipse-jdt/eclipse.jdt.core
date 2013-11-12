@@ -14,6 +14,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Map;
+
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
 import junit.framework.Test;
 public class LambdaExpressionsTest extends AbstractRegressionTest {
 
@@ -1699,6 +1703,53 @@ public void testGenericArrayCreation() {
 			},
 			"1024"
 		);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421536, [1.8][compiler] Verify error with small program when preserved unused variables is off. 
+public void test421536() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	I foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
+			"			I i = () -> null;\n" +
+			"		} catch (NullPointerException npe) {}\n" +
+			"       System.out.println(\"OK\");\n" +
+			"	}\n" +
+			"}\n"
+		}, 
+		"OK",
+		customOptions);		
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421536, [1.8][compiler] Verify error with small program when preserved unused variables is off. 
+public void test421536a() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"   public static void foo() {}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
+			"			I i = X::foo;\n" +
+			"		} catch (NullPointerException npe) {}\n" +
+			"       System.out.println(\"OK\");\n" +
+			"	}\n" +
+			"}\n"
+		}, 
+		"OK",
+		customOptions);		
 }
 
 public static Class testClass() {

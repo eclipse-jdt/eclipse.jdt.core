@@ -119,6 +119,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		signature.append(this.expectedType.signature());
 		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
 		codeStream.invokeDynamic(invokeDynamicNumber, (this.shouldCaptureInstance ? 1 : 0) + this.outerLocalVariablesSlotSize, 1, this.descriptor.selector, signature.toString().toCharArray());
+		if (!valueRequired)
+			codeStream.pop();
 		codeStream.recordPositionsFrom(pc, this.sourceStart);		
 	}
 
