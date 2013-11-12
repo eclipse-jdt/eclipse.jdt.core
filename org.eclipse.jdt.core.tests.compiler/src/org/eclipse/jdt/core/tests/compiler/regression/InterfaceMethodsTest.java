@@ -29,7 +29,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testSuperCall6" };
+//			TESTS_NAMES = new String[] { "testBug421543" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -2121,6 +2121,58 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"}\n"
 			}, 
 			"");
+	}
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421543, [1.8][compiler] Compiler fails to recognize default method being turned into abstract by subtytpe
+	public void testBug421543() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I  {\n" +
+				"	default void foo() {}\n" +
+				"}\n" +
+				"interface J extends I {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"public class X implements J {\n" +
+				"}\n"
+			}, 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	void foo();\n" + 
+			"	     ^^^^^\n" + 
+			"The method foo() of type J should be tagged with @Override since it actually overrides a superinterface method\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	public class X implements J {\n" + 
+			"	             ^\n" + 
+			"The type X must implement the inherited abstract method J.foo()\n" + 
+			"----------\n");
+	}
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421543, [1.8][compiler] Compiler fails to recognize default method being turned into abstract by subtytpe
+	public void _testBug421543a() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I<T>  {\n" +
+				"	default void foo(T t) {}\n" +
+				"}\n" +
+				"interface J extends I<J> {\n" +
+				"	void foo(J t);\n" +
+				"}\n" +
+				"public class X implements J {\n" +
+				"}\n"
+			}, 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	void foo();\n" + 
+			"	     ^^^^^\n" + 
+			"The method foo() of type J should be tagged with @Override since it actually overrides a superinterface method\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	public class X implements J {\n" + 
+			"	             ^\n" + 
+			"The type X must implement the inherited abstract method J.foo(J)\n" + 
+			"----------\n");
 	}	
 
 }
