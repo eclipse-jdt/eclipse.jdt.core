@@ -49,9 +49,11 @@ public abstract class VariableBinding extends Binding {
 	public final boolean isBlankFinal(){
 		return (this.modifiers & ExtraCompilerModifiers.AccBlankFinal) != 0;
 	}
-	/* Answer true if the receiver is final and cannot be changed
-	*/
 
+	/* Answer true if the receiver is explicitly or implicitly final
+	 * and cannot be changed. Resources on try and multi catch variables are
+	 * marked as implicitly final.
+	*/
 	public final boolean isFinal() {
 		return (this.modifiers & ClassFileConstants.AccFinal) != 0;
 	}

@@ -197,7 +197,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		this.resolvedType = lhsType.capture(scope, this.sourceEnd);
 	}
 	LocalVariableBinding localVariableBinding = this.lhs.localVariableBinding();
-	if (localVariableBinding != null && localVariableBinding.isCatchParameter()) { 
+	if (localVariableBinding != null && (localVariableBinding.isCatchParameter() || localVariableBinding.isParameter())) { 
 		localVariableBinding.tagBits &= ~TagBits.IsEffectivelyFinal;  // as it is already definitely assigned, we can conclude already. Also note: catch parameter cannot be compound assigned.
 	}
 	TypeBinding rhsType = this.expression.resolveType(scope);

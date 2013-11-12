@@ -3397,4 +3397,118 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		binding =  method.resolveBinding();
 		assertTrue("binding is static", (binding.getModifiers() & Modifier.STATIC) != 0);
 	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=420660
+	 */
+	public void testBug420660() throws JavaModelException {
+		String contents =
+			"package java.lang;\n" +
+			"public class X {\n" +
+			"		public void foo(int p, int q) {\n" +
+			"			final int finalVar = 1; // not effectively final! \n" +
+			"			int effectivelyFinalVar = 2;\n" +
+			"			int nonFinalVar = 3;\n" +
+			"			nonFinalVar = 4; \n" +
+			"			q = 0;\n" + 
+			"			try (FIS fis = new FIS()) {\n" + 
+			"				if (q == 0) { throw new IOError();	} else { throw new IllegalStateException(); }\n" +
+	        "			} catch (IOError | IllegalStateException implicitlyFinalExc) {\n" + 
+	        "    			// implicitlyFinalExc is not effectively final!	\n" + 
+	        "			} catch (Exception effectivelyFinalExc) {	\n" + 
+	        "			}\n" + 
+			"		}\n" +
+			"}\n" +
+			"class IOError extends Exception {private static final long serialVersionUID = 1L;}\n" +
+			"class IllegalStateException extends Exception {private static final long serialVersionUID = 1L;}\n" +
+			"class FIS implements AutoCloseable {\n	public void close() throws Exception {} \n }\n" +
+			"interface AutoCloseable { \n void close() throws Exception; \n}";
+		this.workingCopy = getWorkingCopy("/Converter18/src/java/lang/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		MethodDeclaration[] methods = ((TypeDeclaration) node).getMethods();
+		assertEquals("Incorrect no of methods", 1, methods.length);
+		MethodDeclaration method = methods[0];
+		List params = method.parameters();
+		assertEquals("Incorrect no of parameters", 2, params.size());
+		SingleVariableDeclaration variable = (SingleVariableDeclaration) params.get(0);
+		IVariableBinding binding = variable.resolveBinding();
+		assertTrue("Should be effectively final", binding.isEffectivelyFinal());
+		variable = (SingleVariableDeclaration) params.get(1);
+		binding = variable.resolveBinding();
+		assertFalse("Should not be effectively final", binding.isEffectivelyFinal());
+		
+		List statements = method.getBody().statements();
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) statements.get(0);
+		List fragments = statement.fragments();
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		binding = fragment.resolveBinding();
+		assertFalse("Should not be effectively final", binding.isEffectivelyFinal());
+		statement = (VariableDeclarationStatement) statements.get(1);
+		fragments = statement.fragments();
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		binding = fragment.resolveBinding();
+		assertTrue("Should be effectively final", binding.isEffectivelyFinal());
+
+		statement = (VariableDeclarationStatement) statements.get(2);
+		fragments = statement.fragments();
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		binding = fragment.resolveBinding();
+		assertFalse("Should not be effectively final", binding.isEffectivelyFinal());
+		
+		TryStatement tryStmt = (TryStatement) statements.get(5);
+		List resources = tryStmt.resources();
+		VariableDeclarationExpression resourceExp = (VariableDeclarationExpression) resources.get(0);
+		fragment = (VariableDeclarationFragment) resourceExp.fragments().get(0);
+		binding = fragment.resolveBinding();
+		assertFalse("Should not be effectively final", binding.isEffectivelyFinal());
+
+		List catches = tryStmt.catchClauses();
+		CatchClause catchCl = (CatchClause) catches.get(1);
+		variable = catchCl.getException();
+		binding = variable.resolveBinding();
+		assertTrue("Should be effectively final", binding.isEffectivelyFinal());
+		catchCl = (CatchClause) catches.get(0);
+		variable = catchCl.getException();
+		binding = variable.resolveBinding();
+		assertFalse("Should not be effectively final", binding.isEffectivelyFinal());
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=420660
+	 */
+	public void testBug420660a() throws JavaModelException {
+		String contents =
+			"interface I {\nvoid foo();\n}\n" +
+			"interface J {}\n" +
+			"public class X {\n" +
+			"		void foo(int [] p) {\n" +
+			"			for (int is : p) {\n" +
+			"				I j = new I () {\n" +
+			"					public void foo() {\n" +
+			"						System.out.println(is);\n" +
+			"					}\n" + 
+			"				};\n" + 
+	        "			}\n" + 
+			"		}\n" +
+			"}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 2);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		MethodDeclaration[] methods = ((TypeDeclaration) node).getMethods();
+		assertEquals("Incorrect no of methods", 1, methods.length);
+		MethodDeclaration method = methods[0];
+		List statements = method.getBody().statements();
+		EnhancedForStatement stmt = (EnhancedForStatement) statements.get(0);
+		SingleVariableDeclaration variable = stmt.getParameter();
+		IVariableBinding binding = variable.resolveBinding();
+		assertTrue("Should be effectively final", binding.isEffectivelyFinal());
+	}
 }

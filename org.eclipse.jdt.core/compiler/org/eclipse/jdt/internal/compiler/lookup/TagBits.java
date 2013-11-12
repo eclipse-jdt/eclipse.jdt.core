@@ -64,7 +64,7 @@ public interface TagBits {
 	long IsArgument = ASTNode.Bit11; // local
 	long ClearPrivateModifier = ASTNode.Bit10; // constructor binding
 	
-	// for java 7
+	// for java 7 - this bit is also set if the variable is explicitly or implicitly final
 	long IsEffectivelyFinal = ASTNode.Bit12; // local
 	long MultiCatchParameter = ASTNode.Bit13; // local
 	long IsResource = ASTNode.Bit14; // local
