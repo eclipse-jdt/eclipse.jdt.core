@@ -123,12 +123,7 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.accessRestrictions = new HashMap(3);
 	this.classFilePool = ClassFilePool.newInstance();
 	this.typesBeingConnected = new HashSet();
-	boolean stillTesting = true;
-	if (this.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8 && (stillTesting || this.globalOptions.storeAnnotations)) {
-		this.typeSystem = new AnnotatableTypeSystem(this);
-	} else {
-		this.typeSystem = new TypeSystem(this);
-	}
+	this.typeSystem = this.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8 && this.globalOptions.storeAnnotations ? new AnnotatableTypeSystem(this) : new TypeSystem(this);
 }
 
 /**
