@@ -16,7 +16,7 @@
 package targets.model8;
 
 public class LambdaTest {
-	public String foo() {
+	String foo() {
 		return null;
 	}
 }     
@@ -24,6 +24,9 @@ public class LambdaTest {
 interface DefaultInterface {
 	public default String defaultMethod () {
 		return null;
+	}
+	default int anotherDefault() {
+		return 0;
 	}
 	public static String staticMethod () {
 		return null;

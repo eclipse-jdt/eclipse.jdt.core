@@ -46,6 +46,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
@@ -174,6 +175,13 @@ public class Factory {
 				case ClassFileConstants.AccAbstract :
 					appendModifier(result, modifiers, checkBits[i], Modifier.ABSTRACT);
 					break;
+				case ExtraCompilerModifiers.AccDefaultMethod :
+					try {
+						appendModifier(result, modifiers, checkBits[i], Modifier.valueOf("DEFAULT")); //$NON-NLS-1$
+					} catch(IllegalArgumentException iae) {
+						// Don't have JDK 1.8, just ignore and proceed.
+					}
+					break;
 				case ClassFileConstants.AccStatic :
 					appendModifier(result, modifiers, checkBits[i], Modifier.STATIC);
 					break;
@@ -260,7 +268,8 @@ public class Factory {
 					ClassFileConstants.AccFinal,
 					ClassFileConstants.AccSynchronized,
 					ClassFileConstants.AccNative,
-					ClassFileConstants.AccStrictfp
+					ClassFileConstants.AccStrictfp,
+					ExtraCompilerModifiers.AccDefaultMethod
 				});
 				break;
 			case FIELD :

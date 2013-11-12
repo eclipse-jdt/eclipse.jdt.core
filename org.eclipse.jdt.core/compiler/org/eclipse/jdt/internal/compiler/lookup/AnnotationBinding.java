@@ -160,21 +160,20 @@ private static AnnotationBinding buildTargetAnnotation(long bits, LookupEnvironm
 			value[index++] = elementType.getField(TypeConstants.UPPER_CONSTRUCTOR, true);
 		if ((bits & TagBits.AnnotationForField) != 0)
 			value[index++] = elementType.getField(TypeConstants.UPPER_FIELD, true);
-		if ((bits & TagBits.AnnotationForLocalVariable) != 0)
-			value[index++] = elementType.getField(TypeConstants.UPPER_LOCAL_VARIABLE, true);
 		if ((bits & TagBits.AnnotationForMethod) != 0)
 			value[index++] = elementType.getField(TypeConstants.UPPER_METHOD, true);
 		if ((bits & TagBits.AnnotationForPackage) != 0)
 			value[index++] = elementType.getField(TypeConstants.UPPER_PACKAGE, true);
 		if ((bits & TagBits.AnnotationForParameter) != 0)
 			value[index++] = elementType.getField(TypeConstants.UPPER_PARAMETER, true);
-		if ((bits & TagBits.AnnotationForType) != 0)
-			value[index++] = elementType.getField(TypeConstants.TYPE, true);
 		if ((bits & TagBits.AnnotationForTypeUse) != 0)
 			value[index++] = elementType.getField(TypeConstants.TYPE_USE_TARGET, true);
 		if ((bits & TagBits.AnnotationForTypeParameter) != 0)
 			value[index++] = elementType.getField(TypeConstants.TYPE_PARAMETER_TARGET, true);
-		
+		if ((bits & TagBits.AnnotationForType) != 0)
+			value[index++] = elementType.getField(TypeConstants.TYPE, true);
+		if ((bits & TagBits.AnnotationForLocalVariable) != 0)
+			value[index++] = elementType.getField(TypeConstants.UPPER_LOCAL_VARIABLE, true);
 	}
 	return env.createAnnotation(
 			target,

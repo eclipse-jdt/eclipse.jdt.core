@@ -554,10 +554,13 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 		methodModifiers &= ~ClassFileConstants.AccVarargs; // vararg methods are not recognized until 1.5
 	if (isInterface() && (methodModifiers & ClassFileConstants.AccAbstract) == 0) {
 		// see https://bugs.eclipse.org/388954
-		if (sourceLevel >= ClassFileConstants.JDK1_8)
-			methodModifiers |= ExtraCompilerModifiers.AccDefaultMethod;
-		else
+		if (sourceLevel >= ClassFileConstants.JDK1_8) {
+			if ((methodModifiers & ClassFileConstants.AccStatic) == 0) {
+				methodModifiers |= ExtraCompilerModifiers.AccDefaultMethod;
+			}
+		} else {
 			methodModifiers |= ClassFileConstants.AccAbstract;
+		}
 	}
 	ReferenceBinding[] exceptions = Binding.NO_EXCEPTIONS;
 	TypeBinding[] parameters = Binding.NO_PARAMETERS;

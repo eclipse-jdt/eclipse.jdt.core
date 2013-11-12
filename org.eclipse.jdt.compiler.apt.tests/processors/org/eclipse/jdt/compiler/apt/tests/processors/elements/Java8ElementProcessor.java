@@ -32,6 +32,7 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
@@ -174,6 +175,8 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		assertNotNull("Java8ElementProcessor#examineLambdaSpecifics: Element for method foo should not be null", method);
 		assertFalse("Java8ElementProcessor#examineLambdaSpecifics: Method foo is not a default method", method.isDefault());
+		Set<Modifier> modifiers = method.getModifiers();
+		assertModifiers(modifiers, new String[]{});
 
 		annotatedType = _elementUtils.getTypeElement("targets.model8.DefaultInterface");
 		assertNotNull("Java8ElementProcessor#examineLambdaSpecifics: Type element for DefaultInterface should not be null", annotatedType);
@@ -189,7 +192,23 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		assertNotNull("Java8ElementProcessor#examineLambdaSpecifics: Element for method defaultMethod() should not be null", method);
 		assertTrue("Java8ElementProcessor#examineLambdaSpecifics: Method defaultMethod() should be a default method", method.isDefault());
+		modifiers = method.getModifiers();
+		assertModifiers(modifiers, new String[]{"public", "default"});
 
+		method = null;
+		members = _elementUtils.getAllMembers(annotatedType);
+		for (ExecutableElement member : ElementFilter.methodsIn(members)) {
+			if ("anotherDefault".equals(member.getSimpleName().toString())) {
+				method = member;
+				break;
+			}
+		}
+		assertNotNull("Java8ElementProcessor#examineLambdaSpecifics: Element for method anotherDefault() should not be null", method);
+		assertTrue("Java8ElementProcessor#examineLambdaSpecifics: Method anotherDefault() should be a default method", method.isDefault());
+		modifiers = method.getModifiers();
+		assertModifiers(modifiers, new String[]{"public", "default"});
+		
+		
 		method = null;
 		for (ExecutableElement member : ElementFilter.methodsIn(members)) {
 			if ("staticMethod".equals(member.getSimpleName().toString())) {
@@ -199,6 +218,8 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		assertNotNull("Java8ElementProcessor#examineLambdaSpecifics: Element for method staticMethod() should not be null", method);
 		assertFalse("Java8ElementProcessor#examineLambdaSpecifics: Method staticMethod() shoule not be a default method", method.isDefault());
+		modifiers = method.getModifiers();
+		assertModifiers(modifiers, new String[]{"public", "static"});
 
 		annotatedType = _elementUtils.getTypeElement("targets.model8.FunctionalInterface");
 		assertNotNull("Java8ElementProcessor#examineLambdaSpecifics: Type element for FunctionalInterface should not be null", annotatedType);
@@ -993,6 +1014,20 @@ public class Java8ElementProcessor extends BaseProcessor {
 		throw new AssertionFailedError(msg);
 	}
 	
+	public void assertModifiers(Set<Modifier> modifiers, String[] expected) {
+		assertEquals("Incorrect no of modifiers", modifiers.size(), expected.length);
+		Set<String> actual = new HashSet<String>(expected.length);
+		for (Modifier modifier : modifiers) {
+			actual.add(modifier.toString());
+		}
+		for(int i = 0, length = expected.length; i < length; i++) {
+			boolean result = actual.remove(expected[i]);
+			if (!result) reportError("Modifier not present :" + expected[i]);
+		}
+		if (!actual.isEmpty()) {
+			reportError("Unexpected modifiers present:" + actual.toString());
+		}
+	}
 	public void assertTrue(String msg, boolean value) {
 		if (!value) reportError(msg);
 	}
