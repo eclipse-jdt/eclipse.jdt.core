@@ -63,7 +63,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 	}
 
 	private static boolean equals(AnnotationBinding annotationBinding, AnnotationBinding annotationBinding2) {
-		if (annotationBinding.getAnnotationType() != annotationBinding2.getAnnotationType()) return false;
+		if (annotationBinding.getAnnotationType() != annotationBinding2.getAnnotationType()) return false; //$IDENTITY-COMPARISON$
 		final ElementValuePair[] elementValuePairs = annotationBinding.getElementValuePairs();
 		final ElementValuePair[] elementValuePairs2 = annotationBinding2.getElementValuePairs();
 		final int length = elementValuePairs.length;

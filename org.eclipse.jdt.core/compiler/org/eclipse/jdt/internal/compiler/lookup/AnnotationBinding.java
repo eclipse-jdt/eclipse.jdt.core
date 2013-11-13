@@ -253,7 +253,7 @@ public boolean equals(Object object) {
 		return false;
 
 	AnnotationBinding that = (AnnotationBinding) object;
-	if (this.getAnnotationType() != that.getAnnotationType()) 
+	if (this.getAnnotationType() != that.getAnnotationType()) //$IDENTITY-COMPARISON$
 		return false;
 
 	final ElementValuePair[] thisElementValuePairs = this.getElementValuePairs();

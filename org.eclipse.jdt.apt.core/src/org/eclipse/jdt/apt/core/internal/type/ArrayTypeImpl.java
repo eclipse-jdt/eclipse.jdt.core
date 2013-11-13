@@ -73,7 +73,7 @@ public class ArrayTypeImpl implements ArrayType, EclipseMirrorType
     public boolean equals(Object obj)
     {
         if( obj instanceof ArrayTypeImpl )
-            return _arrayBinding == ((ArrayTypeImpl)obj)._arrayBinding;
+            return _arrayBinding == ((ArrayTypeImpl)obj)._arrayBinding; //$IDENTITY-COMPARISON$
         return false;
     }
 

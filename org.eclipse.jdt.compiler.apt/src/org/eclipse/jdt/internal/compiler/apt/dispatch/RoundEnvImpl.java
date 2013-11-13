@@ -174,7 +174,7 @@ public class RoundEnvImpl implements RoundEnvironment
 			}
 			AnnotationBinding[] annos = Factory.getPackedAnnotationBindings(searchedElement.getAnnotations());
 			for (AnnotationBinding annoBinding : annos) {
-				if (annoBinding.getAnnotationType() == anno) {
+				if (annoBinding.getAnnotationType() == anno) { //$IDENTITY-COMPARISON$
 					// element is annotated with anno
 					return true;
 				}

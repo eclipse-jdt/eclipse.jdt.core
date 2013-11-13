@@ -794,7 +794,7 @@ public class Factory {
 			if (values == null || values.length != 1)
 				continue; // FUBAR.
 			MethodBinding value = values[0];
-			if (value.returnType == null || value.returnType.dimensions() != 1 || value.returnType.leafComponentType() != annotationType)
+			if (value.returnType == null || value.returnType.dimensions() != 1 || TypeBinding.notEquals(value.returnType.leafComponentType(), annotationType))
 				continue; // FUBAR
 			
 			// We have a kosher repeatable annotation with a kosher containing type. See if actually repeats.
@@ -802,7 +802,7 @@ public class Factory {
 			for (int j = i + 1; j < length; j++) {
 				AnnotationBinding otherAnnotation = repackagedBindings[j];
 				if (otherAnnotation == null) continue;
-				if (otherAnnotation.getAnnotationType() == annotationType) {
+				if (otherAnnotation.getAnnotationType() == annotationType) { //$IDENTITY-COMPARISON$
 					if (repackagedBindings == annotations)
 						System.arraycopy(repackagedBindings, 0, repackagedBindings = new AnnotationBinding[length], 0, length);
 					repackagedBindings[j] = null; // so it is not double packed.
@@ -861,7 +861,7 @@ public class Factory {
 			if (containeeType == null || !containeeType.isAnnotationType() || !containeeType.isRepeatableAnnotationType())
 				continue;
 			
-			if (containeeType.containerAnnotationType() != annotationType)
+			if (containeeType.containerAnnotationType() != annotationType) //$IDENTITY-COMPARISON$
 				continue;
 			
 			// We have a kosher container: unwrap the contained annotations.

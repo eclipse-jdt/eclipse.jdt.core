@@ -76,7 +76,7 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 			if (firstClassOrArrayBound.isTypeVariable()) {
 				isFirstBoundATypeVariable = true;
 			}
-			if (firstClassOrArrayBound == varSuperclass) {
+			if (TypeBinding.equalsEquals(firstClassOrArrayBound, varSuperclass)) {
 				boundsLength++;
 				if (firstClassOrArrayBound.isTypeVariable()) {
 					isFirstBoundATypeVariable = true;

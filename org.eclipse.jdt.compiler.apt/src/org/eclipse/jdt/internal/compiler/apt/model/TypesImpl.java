@@ -85,7 +85,7 @@ public class TypesImpl implements Types {
     		case CONSTRUCTOR :
     		case METHOD :
     			MethodBinding methodBinding = (MethodBinding) elementImpl._binding;
-    			if (methodBinding.declaringClass != referenceBinding) {
+    			if (TypeBinding.notEquals(methodBinding.declaringClass, referenceBinding)) {
     				throw new IllegalArgumentException("element is not valid for the containing declared type"); //$NON-NLS-1$
     			}
     			for (MethodBinding method : referenceBinding.methods()) {
@@ -98,7 +98,7 @@ public class TypesImpl implements Types {
     		case FIELD :
     		case ENUM_CONSTANT:
     			FieldBinding fieldBinding = (FieldBinding) elementImpl._binding;
-    			if (fieldBinding.declaringClass != referenceBinding) {
+    			if (TypeBinding.notEquals(fieldBinding.declaringClass, referenceBinding)) {
     				throw new IllegalArgumentException("element is not valid for the containing declared type"); //$NON-NLS-1$
     			}
     			for (FieldBinding field : referenceBinding.fields()) {
@@ -112,7 +112,7 @@ public class TypesImpl implements Types {
     		case INTERFACE :
     		case CLASS :
     			ReferenceBinding referenceBinding2 = (ReferenceBinding) elementImpl._binding;
-    			if (referenceBinding2.enclosingType() != referenceBinding) {
+    			if (TypeBinding.notEquals(referenceBinding2.enclosingType(), referenceBinding)) {
     				throw new IllegalArgumentException("element is not valid for the containing declared type"); //$NON-NLS-1$
     			}
     			for (ReferenceBinding referenceBinding3 : referenceBinding.memberTypes()) {

@@ -1022,7 +1022,7 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public boolean isAssignmentCompatible(ITypeBinding type) {
 		try {
-			if (this == type) return true;
+			if (this == type) return true; //$IDENTITY-COMPARISON$
 			if (!(type instanceof TypeBinding)) return false;
 			TypeBinding other = (TypeBinding) type;
 			Scope scope = this.resolver.scope();
@@ -1260,7 +1260,7 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public boolean isSubTypeCompatible(ITypeBinding type) {
 		try {
-			if (this == type) return true;
+			if (this == type) return true; //$IDENTITY-COMPARISON$
 			if (this.binding.isBaseType()) return false;
 			if (!(type instanceof TypeBinding)) return false;
 			TypeBinding other = (TypeBinding) type;

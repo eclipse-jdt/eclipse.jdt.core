@@ -186,7 +186,7 @@ public class TypesUtil implements Types
                     binding = impl.getTypeBinding();
             }
             final ITypeBinding erasure = binding.getErasure();
-            if( erasure == binding ) return t;
+            if (erasure == binding) return t; //$IDENTITY-COMPARISON$
             TypeMirror m_erasure = Factory.createTypeMirror(erasure, impl.getEnvironment() );
             if( m_erasure == null )
                 return Factory.createErrorClassType(erasure);

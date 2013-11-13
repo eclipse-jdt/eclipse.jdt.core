@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class TypeElementImpl extends ElementImpl implements TypeElement {
@@ -247,7 +248,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 			return false;
 		}
 		ReferenceBinding hiderBinding = (ReferenceBinding)_binding;
-		if (hiddenBinding == hiderBinding) {
+		if (TypeBinding.equalsEquals(hiddenBinding, hiderBinding)) {
 			return false;
 		}
 		if (!hiddenBinding.isMemberType() || !hiderBinding.isMemberType()) {
