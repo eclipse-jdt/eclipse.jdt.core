@@ -1943,7 +1943,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("    interface IC {}\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
-		CompilationUnit astRoot= createAST(AST.JLS4, cu, true, false);
+		CompilationUnit astRoot= createAST(AST.JLS8, cu, true, false);
 		List types = astRoot.types();
 		TypeDeclaration typeDeclaration = (((TypeDeclaration) types.get(0)).getTypes())[0];
 		ITypeBinding iTypeBinding = typeDeclaration.resolveBinding();
@@ -1957,7 +1957,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("    interface IC {}\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
-		CompilationUnit astRoot= createAST(AST.JLS4, cu, true, false);
+		CompilationUnit astRoot= createAST(AST.JLS8, cu, true, false);
 		List types = astRoot.types();
 		TypeDeclaration outerTypeDeclaration = (TypeDeclaration) types.get(0);
 		TypeDeclaration memberTypeDeclaration = (outerTypeDeclaration.getTypes())[0];
