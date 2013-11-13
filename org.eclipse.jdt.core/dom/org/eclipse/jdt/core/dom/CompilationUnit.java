@@ -868,16 +868,20 @@ public class CompilationUnit extends ASTNode {
 	 * representing the corresponding edits to the original
 	 * source code string.
 	 * <p>
-	 * Note that this way of manipulating an AST only allows a single line of modifications.
-	 * To modify an AST in a non-destructive way, use an external {@link ASTRewrite}.
-	 * As an added benefit, you can then also use
-	 * {@link ASTRewrite#createStringPlaceholder(String, int) string placeholders} and
-	 * {@link ASTRewrite#createCopyTarget(ASTNode) copy} nodes including comments and formatting.
+	 * Note that this way of manipulating an AST only allows a single line of modifications,
+	 * and it lacks important functionality like
+	 * {@link ASTRewrite#createStringPlaceholder(String, int) string placeholders} and support for
+	 * {@link ASTRewrite#createCopyTarget(ASTNode) copying} nodes including comments and formatting.
+	 * </p>
+	 * <p>
+	 * To future-proof your code, <em>consider using an external {@link ASTRewrite} instead</em>,
+	 * which doesn't suffer from these limitations and allows to modify an AST in a non-destructive way.
 	 * </p>
 	 *
 	 * @exception IllegalArgumentException if this compilation unit is
 	 * marked as unmodifiable, or if this compilation unit has already
 	 * been tampered with, or recording has already been enabled
+	 * @see ASTRewrite
 	 * @since 3.0
 	 */
 	public void recordModifications() {
