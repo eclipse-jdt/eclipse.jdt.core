@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contribution for
  *								bug 400710 - [1.8][compiler] synthetic access to default method generates wrong code
  *								bug 391376 - [1.8] check interaction of default methods with bridge methods and generics
+ *								bug 421543 - [1.8][compiler] Compiler fails to recognize default method being turned into abstract by subtytpe
  *     Jesper S Moller - Contributions for
  *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335        
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -3944,6 +3945,14 @@ public void instance_of(TypeReference typeReference, TypeBinding typeBinding) {
 }
 
 protected void invoke(byte opcode, int receiverAndArgsSize, int returnTypeSize, char[] declaringClass, char[] selector, char[] signature) {
+	invoke18(opcode, receiverAndArgsSize, returnTypeSize, declaringClass, opcode == Opcodes.OPC_invokeinterface, selector, signature);
+}
+
+// Starting with 1.8 we can no longer deduce isInterface from opcode, invokespecial can be used for default methods, too.
+// Hence adding explicit parameter 'isInterface', which is needed only for non-ctor invokespecial invocations
+// (i.e., other clients may still call the shorter overload).
+private void invoke18(byte opcode, int receiverAndArgsSize, int returnTypeSize, char[] declaringClass,
+		boolean isInterface, char[] selector, char[] signature) {	
 	this.countLabels = 0;
 	if (opcode == Opcodes.OPC_invokeinterface) {
 		// invokeinterface
@@ -3964,7 +3973,7 @@ protected void invoke(byte opcode, int receiverAndArgsSize, int returnTypeSize, 
 		}
 		this.position++;
 		this.bCodeStream[this.classFileOffset++] = opcode;
-		writeUnsignedShort(this.constantPool.literalIndexForMethod(declaringClass, selector, signature, false));
+		writeUnsignedShort(this.constantPool.literalIndexForMethod(declaringClass, selector, signature, isInterface));
 	}
 	this.stackDepth += returnTypeSize - receiverAndArgsSize;
 	if (this.stackDepth > this.stackMax) {
@@ -4069,11 +4078,12 @@ public void invoke(byte opcode, MethodBinding methodBinding, TypeBinding declari
 			returnTypeSize = 1;
 			break;
 	}
-	invoke(
+	invoke18(
 			opcode, 
 			receiverAndArgsSize, 
 			returnTypeSize, 
-			declaringClass.constantPoolName(), 
+			declaringClass.constantPoolName(),
+			declaringClass.isInterface(),
 			methodBinding.selector, 
 			methodBinding.signature(this.classFile));
 }
