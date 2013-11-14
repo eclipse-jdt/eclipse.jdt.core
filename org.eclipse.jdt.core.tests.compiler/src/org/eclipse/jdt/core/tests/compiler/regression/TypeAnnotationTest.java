@@ -6291,6 +6291,51 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			}, 
 			"OK",
 			customOptions);		
-	}		
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421620,  [1.8][compiler] wrong compile error with TYPE_USE annotation on exception  
+	public void test421620() {
+		
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Documented;\n" +
+				"import java.lang.annotation.Retention;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.RetentionPolicy;\n" +
+				"class E1 extends Exception {\n" +
+				"    private static final long serialVersionUID = 1L;\n" +
+				"}\n" +
+				"\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@Documented\n" +
+				"@interface NonCritical { }\n" +
+				"public class X {\n" +
+				"    @NonCritical E1 e1; // looks like this field's type binding is reused\n" +
+				"//wrong error:\n" +
+				"//Cannot use the parameterized type E1 either in catch block or throws clause\n" +
+				"    void f1 (int a) throws /*@NonCritical*/ E1 {\n" +
+				"        throw new E1();\n" +
+				"    }\n" +
+				"    void foo() {\n" +
+				"        try {\n" +
+				"            f1(0);\n" +
+				"//wrong error: Unreachable catch block for E1.\n" +
+				"//             This exception is never thrown from the try statement body\n" +
+				"        } catch (@NonCritical final RuntimeException | @NonCritical E1 ex) {\n" +
+				"            System.out.println(ex);\n" +
+				"        }\n" +
+				"    }\n" +
+				"    public static void main(String[] args) {\n" +
+				"		System.out.println(\"OK\");\n" +
+				"	}\n" +
+				"}\n"
+			}, 
+			"OK",
+			customOptions);		
+	}	
 }
 

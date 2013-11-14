@@ -731,6 +731,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	void initializeForStaticImports() {
 		this.type.initializeForStaticImports();
 	}
+	
+	/**
+	 *  Returns true if parameterized type AND not of the form List<?>
+	 */
+	public boolean isBoundParameterizedType() {
+		return (this.tagBits & TagBits.IsBoundParameterizedType) != 0;
+	}
 
 	public boolean isEquivalentTo(TypeBinding otherType) {
 		if (equalsEquals(this, otherType))
