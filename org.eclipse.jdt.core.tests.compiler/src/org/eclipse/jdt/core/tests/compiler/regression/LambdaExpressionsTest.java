@@ -1774,6 +1774,31 @@ public void test421607() {
 		"You will get here");		
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421712, [1.8][compiler] java.lang.NoSuchMethodError with lambda expression in interface default method.
+public void test421712() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface F {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"interface I {\n" +
+			"	default void foo() {\n" +
+			"		F f = () -> {\n" +
+			"		};\n" +
+			"   System.out.println(\"Lambda instantiated\");\n" +
+			"	}\n" +
+			"}\n" +
+			"public class X implements I {\n" +
+			"	public static void main(String argv[]) {\n" +
+			"		X x = new X();\n" +
+			"		x.foo();\n" +
+			"	}\n" +
+			"}\n"
+		}, 
+		"Lambda instantiated");		
+}
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
