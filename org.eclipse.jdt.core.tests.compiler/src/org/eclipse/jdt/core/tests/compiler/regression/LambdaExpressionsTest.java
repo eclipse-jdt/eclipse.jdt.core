@@ -1752,6 +1752,28 @@ public void test421536a() {
 		customOptions);		
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421607, [1.8][compiler] Verify Error with intersection casts 
+public void test421607() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	public void foo();\n" +
+			"}\n" +
+			"class C implements I {\n" +
+			"	public void foo() {\n" +
+			"		System.out.println(\"You will get here\");\n" +
+			"	}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		((C & I) (I) new C()).foo();\n" +
+			"	}\n" +
+			"}\n"
+		}, 
+		"You will get here");		
+}
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

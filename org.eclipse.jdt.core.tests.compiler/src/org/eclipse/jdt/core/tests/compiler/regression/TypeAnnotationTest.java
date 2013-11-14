@@ -3533,12 +3533,12 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"  // Stack: 1, Locals: 4\n" + 
 				"  public void foo(java.lang.Object o);\n" + 
 				"     0  aload_1 [o]\n" + 
-				"     1  checkcast I [16]\n" + 
-				"     4  checkcast J [18]\n" + 
+				"     1  checkcast J [16]\n" + 
+				"     4  checkcast I [18]\n" + 
 				"     7  astore_2 [i]\n" + 
 				"     8  aload_1 [o]\n" + 
-				"     9  checkcast I [16]\n" + 
-				"    12  checkcast J [18]\n" +
+				"     9  checkcast J [16]\n" + 
+				"    12  checkcast I [18]\n" + 
 				"    15  astore_3 [j]\n" + 
 				"    16  return\n" + 
 				"      Line numbers:\n" + 
@@ -3554,7 +3554,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"      #27 @B(\n" + 
 				"        #28 value=(int) 1 (constant type)\n" + 
 				"        target type = 0x47 CAST\n" + 
-				"        offset = 1\n" + 
+				"        offset = 4\n" + 
 				"        type argument index = 0\n" + 
 				"      )\n" + 
 				"      #27 @B(\n" + 
@@ -3595,8 +3595,8 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"     3  bipush 123\n" + 
 				"     5  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 				"     8  aload_1 [o]\n" + 
-				"     9  checkcast I [28]\n" + 
-				"    12  checkcast J [30]\n" + 
+				"     9  checkcast J [28]\n" + 
+				"    12  checkcast I [30]\n" + 
 				"    15  astore_2 [i]\n" + 
 				"    16  return\n" + 
 				"      Line numbers:\n" + 
@@ -3611,17 +3611,17 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        [pc: 16, pc: 17] local: i index: 2 type: I<java.lang.String>\n" + 
 				"    RuntimeVisibleTypeAnnotations: \n" + 
 				"      #39 @B(\n" + 
-				"        #40 value=(int) 1 (constant type)\n" + 
-				"        target type = 0x47 CAST\n" + 
-				"        offset = 9\n" + 
-				"        type argument index = 0\n" + 
-				"        location = [TYPE_ARGUMENT(0)]\n" + 
-				"      )\n" + 
-				"      #39 @B(\n" + 
 				"        #40 value=(int) 2 (constant type)\n" + 
 				"        target type = 0x47 CAST\n" + 
 				"        offset = 9\n" + 
 				"        type argument index = 1\n" + 
+				"      )\n" + 
+				"      #39 @B(\n" + 
+				"        #40 value=(int) 1 (constant type)\n" + 
+				"        target type = 0x47 CAST\n" + 
+				"        offset = 12\n" + 
+				"        type argument index = 0\n" + 
+				"        location = [TYPE_ARGUMENT(0)]\n" + 
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
@@ -3713,10 +3713,10 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"     3  bipush 123\n" + 
 				"     5  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
 				"     8  aload_1 [o]\n" + 
-				"     9  checkcast K [28]\n" + 
-				"    12  checkcast L [30]\n" + 
-				"    15  checkcast I [32]\n" + 
-				"    18  checkcast J [34]\n" + 
+				"     9  checkcast L [28]\n" + 
+				"    12  checkcast K [30]\n" + 
+				"    15  checkcast J [32]\n" + 
+				"    18  checkcast I [34]\n" + 
 				"    21  astore_2 [i]\n" + 
 				"    22  return\n" + 
 				"      Line numbers:\n" + 
@@ -3737,7 +3737,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"      #41 @B(\n" + 
 				"        #42 value=(int) 1 (constant type)\n" + 
 				"        target type = 0x47 CAST\n" + 
-				"        offset = 15\n" + 
+				"        offset = 18\n" + 
 				"        type argument index = 0\n" + 
 				"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);

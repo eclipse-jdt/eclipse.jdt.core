@@ -205,14 +205,6 @@ static class AnnotationCollector extends ASTVisitor {
 		this.currentWildcard = wildcard;
 		return true;
 	}
-	public boolean visit(IntersectionCastTypeReference intersectionCastTypeReference, BlockScope scope) {
-		int length = intersectionCastTypeReference.typeReferences == null ? 0 : intersectionCastTypeReference.typeReferences.length;
-		for (int i = 0; i < length; i++) {
-			this.info2 = i;
-			intersectionCastTypeReference.typeReferences[i].traverse(this, scope);
-		}
-		return false; // iteration was done here, do not repeat in the caller
-	}
 	public boolean visit(Argument argument, BlockScope scope) {
 		if ((argument.bits & ASTNode.IsUnionType) == 0) {
 			return true;
@@ -637,5 +629,8 @@ public Annotation findAnnotation(long nullTagBits) {
 		}
 	}
 	return null;
+}
+public TypeReference[] getTypeReferences() {
+	return new TypeReference [] { this };
 }
 }

@@ -85,10 +85,23 @@ public class TypeAnnotationCodeStream extends StackMapFrameCodeStream {
 	}
 	
 	public void checkcast(TypeReference typeReference, TypeBinding typeBinding) {
-		if (typeReference != null && (typeReference.bits & ASTNode.HasTypeAnnotations) != 0) {
-			addAnnotationContext(typeReference, this.position, AnnotationTargetTypeConstants.CAST);
+		/* We use a slightly sub-optimal generation for intersection casts by resorting to a runtime cast for every intersecting type, but in
+		   reality this should not matter. In its intended use form such as (I & Serializable) () -> {}, no cast is emitted at all. Also note
+		   intersection cast type references cannot nest i.e ((X & I) & J) is not valid syntax.
+		*/
+		if (typeReference != null) {
+			TypeReference [] typeReferences = typeReference.getTypeReferences();
+			for (int i = typeReferences.length - 1; i >= 0; i--) {  // need to emit right to left.
+				typeReference = typeReferences[i];
+				if (typeReference != null) {
+					if ((typeReference.bits & ASTNode.HasTypeAnnotations) != 0)
+						addAnnotationContext(typeReference, this.position, i, AnnotationTargetTypeConstants.CAST);
+					super.checkcast(typeReference, typeReference.resolvedType);
+				}
+			}
+		} else {
+			super.checkcast(null, typeBinding);
 		}
-		super.checkcast(typeReference, typeBinding);
 	}
 	
 	public void invoke(byte opcode, MethodBinding methodBinding, TypeBinding declaringClass, TypeReference[] typeArguments) {

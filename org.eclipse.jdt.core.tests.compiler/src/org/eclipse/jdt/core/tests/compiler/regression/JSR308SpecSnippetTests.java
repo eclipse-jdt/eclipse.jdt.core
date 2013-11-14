@@ -341,15 +341,15 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        offset = 1\n" + 
 				"        type argument index = 0\n" + 
 				"      )\n" + 
-				"      #30 @A(\n" + 
-				"        target type = 0x47 CAST\n" + 
-				"        offset = 6\n" + 
-				"        type argument index = 0\n" + 
-				"      )\n" + 
-				"      #31 @B(\n" + 
+				"      #30 @B(\n" + 
 				"        target type = 0x47 CAST\n" + 
 				"        offset = 6\n" + 
 				"        type argument index = 1\n" + 
+				"      )\n" + 
+				"      #31 @A(\n" + 
+				"        target type = 0x47 CAST\n" + 
+				"        offset = 9\n" + 
+				"        type argument index = 0\n" + 
 				"      )\n" + 
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);

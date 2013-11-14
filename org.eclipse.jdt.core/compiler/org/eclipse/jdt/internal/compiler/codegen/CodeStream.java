@@ -655,19 +655,13 @@ public void checkcast(TypeBinding typeBinding) {
 }
 
 public void checkcast(TypeReference typeReference, TypeBinding typeBinding) {
-	/* We use a slightly sub-optimal generation for intersection casts by resorting to a runtime cast for every intersecting type, but in
-	   reality this should not matter. In its intended use form such as (I & Serializable) () -> {}, no cast is emitted at all
-	*/
-	TypeBinding [] types = typeBinding instanceof IntersectionCastTypeBinding ? typeBinding.getIntersectingTypes() : new TypeBinding [] { typeBinding };
-	for (int i = 0, max = types.length; i < max; i++) {
-		this.countLabels = 0;
-		if (this.classFileOffset + 2 >= this.bCodeStream.length) {
-			resizeByteArray();
-		}
-		this.position++;
-		this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_checkcast;
-		writeUnsignedShort(this.constantPool.literalIndexForType(types[i]));
+	this.countLabels = 0;
+	if (this.classFileOffset + 2 >= this.bCodeStream.length) {
+		resizeByteArray();
 	}
+	this.position++;
+	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_checkcast;
+	writeUnsignedShort(this.constantPool.literalIndexForType(typeBinding));
 }
 
 public void d2f() {

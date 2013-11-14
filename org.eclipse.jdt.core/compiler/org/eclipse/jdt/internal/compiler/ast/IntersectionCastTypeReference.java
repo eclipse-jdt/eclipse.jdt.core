@@ -58,6 +58,10 @@ public class IntersectionCastTypeReference extends TypeReference {
 		return null; // not supported here - combined with resolveType(...)
 	}
 
+	public TypeReference[] getTypeReferences() {
+		return this.typeReferences;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
 	 */
