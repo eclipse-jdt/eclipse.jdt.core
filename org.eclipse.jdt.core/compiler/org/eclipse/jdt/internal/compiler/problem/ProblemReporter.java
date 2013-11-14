@@ -173,6 +173,7 @@ public class ProblemReporter extends ProblemHandler {
 
 	public ReferenceContext referenceContext;
 	private Scanner positionScanner;
+	private boolean underScoreIsLambdaParameter;
 	private final static byte
 	  // TYPE_ACCESS = 0x0,
 	  FIELD_ACCESS = 0x4,
@@ -1543,9 +1544,11 @@ public int computeSeverity(int problemID){
 			break;
 		// For compatibility with javac 8b111 for now.	
 		case IProblem.RepeatableAnnotationWithRepeatingContainerAnnotation:
-		case IProblem.IllegalUseOfUnderscoreAsAnIdentifier:
 		case IProblem.ToleratedMisplacedTypeAnnotations:	
 			return ProblemSeverities.Warning;
+		case IProblem.IllegalUseOfUnderscoreAsAnIdentifier:
+			return this.underScoreIsLambdaParameter ? ProblemSeverities.Error : ProblemSeverities.Warning;
+		
 	}
 	int irritant = getIrritant(problemID);
 	if (irritant != 0) {
@@ -8652,13 +8655,18 @@ public void useEnumAsAnIdentifier(int sourceStart, int sourceEnd) {
 		sourceStart,
 		sourceEnd);
 }
-public void illegalUseOfUnderscoreAsAnIdentifier(int sourceStart, int sourceEnd) {
-	this.handle(
-		IProblem.IllegalUseOfUnderscoreAsAnIdentifier,
-		NoArgument,
-		NoArgument,
-		sourceStart,
-		sourceEnd);
+public void illegalUseOfUnderscoreAsAnIdentifier(int sourceStart, int sourceEnd, boolean lambdaParameter) {
+	this.underScoreIsLambdaParameter = lambdaParameter;
+	try {
+		this.handle(
+			IProblem.IllegalUseOfUnderscoreAsAnIdentifier,
+			NoArgument,
+			NoArgument,
+			sourceStart,
+			sourceEnd);
+	} finally {
+		this.underScoreIsLambdaParameter = false;	
+	}
 }
 public void varargsArgumentNeedCast(MethodBinding method, TypeBinding argumentType, InvocationSite location) {
 	int severity = this.options.getSeverity(CompilerOptions.VarargsArgumentNeedCast);

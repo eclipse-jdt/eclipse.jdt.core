@@ -7158,6 +7158,40 @@ public void testIntersectionCast() {
 			"----------\n"
 		);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421711, [1.8][compiler] '_' as identifier for a lambda parameter should be rejected.
+public void testUnderScoreParameter() {
+		this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"interface F {\n" +
+					"	void foo(int x);\n" +
+					"}\n" +
+					"interface I {\n" +
+					"	default void foo() {\n" +
+					"		F f = (int _) -> {\n" +
+					"		};\n" +
+					"		F f2 = _ -> {};\n" +
+					"	}\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	F f = (int _) -> {\n" + 
+			"	           ^\n" + 
+			"\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	F f2 = _ -> {};\n" + 
+			"	       ^\n" + 
+			"\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	F f2 = _ -> {};\n" + 
+			"	       ^\n" + 
+			"\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" + 
+			"----------\n"
+		);
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
