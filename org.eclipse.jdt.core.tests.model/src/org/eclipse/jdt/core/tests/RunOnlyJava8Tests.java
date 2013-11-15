@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.LambdaExpressionsTest;
 import org.eclipse.jdt.core.tests.compiler.regression.NegativeLambdaExpressionsTest;
 import org.eclipse.jdt.core.tests.compiler.regression.NegativeTypeAnnotationTest;
 import org.eclipse.jdt.core.tests.compiler.regression.NullTypeAnnotationTest;
+import org.eclipse.jdt.core.tests.compiler.regression.OverloadResolutionTest8;
 import org.eclipse.jdt.core.tests.dom.ASTConverter15JLS8Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverter18Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverterAST8Test;
@@ -59,6 +60,7 @@ public class RunOnlyJava8Tests extends TestCase {
 			LambdaExpressionSyntaxTest.class,
 			NegativeLambdaExpressionsTest.class,
 			LambdaExpressionsTest.class,
+			OverloadResolutionTest8.class,
 			Jsr335ClassFileTest.class,
 			NegativeTypeAnnotationTest.class,
 			TypeAnnotationSyntaxTest.class,
