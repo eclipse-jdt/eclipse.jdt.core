@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -173,6 +173,10 @@ public interface ITypeBinding extends IBinding {
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see #getModifiers()
 	 * @see Modifier
+	 * @deprecated  Use {@link #getModifiers()} instead.
+	 * This method was never implemented properly and historically has simply
+	 * delegated to the method <code>getModifiers</code>. Clients should call
+	 * <code>getModifiers</code> method directly.
 	 */
 	public int getDeclaredModifiers();
 
@@ -328,15 +332,13 @@ public interface ITypeBinding extends IBinding {
 	 * or annotation type binding.
 	 * The result may not correspond to the modifiers as declared in the
 	 * original source, since the compiler may change them (in particular,
-	 * for inner class emulation). The <code>getDeclaredModifiers</code> method
-	 * should be used if the original modifiers are needed.
+	 * for inner class emulation).
 	 * Returns 0 if this type does not represent a class, an interface, an enum, an annotation
 	 * type or a recovered type.
 	 *
 	 * @return the compiled modifiers for this type binding or 0
 	 * if this type does not represent a class, an interface, an enum, an annotation
 	 * type or a recovered type.
-	 * @see #getDeclaredModifiers()
 	 */
 	public int getModifiers();
 

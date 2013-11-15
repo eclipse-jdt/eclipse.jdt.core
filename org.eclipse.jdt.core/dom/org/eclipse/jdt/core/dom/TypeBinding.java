@@ -301,6 +301,7 @@ class TypeBinding implements ITypeBinding {
 
 	/*
 	 * @see ITypeBinding#getDeclaredModifiers()
+	 * @deprecated Use ITypeBinding#getModifiers() instead
 	 */
 	public int getDeclaredModifiers() {
 		return getModifiers();
