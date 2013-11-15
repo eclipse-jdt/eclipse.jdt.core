@@ -54,6 +54,9 @@ import org.eclipse.jdt.core.tests.util.Util;
 public class TestUtil
 {
 	
+	private static final String BIN_EXT = "/bin-ext"; //$NON-NLS-1$
+	private static final String BIN_ANNOTATIONS = "/bin-annotations"; //$NON-NLS-1$
+
 	private static File ANNO_JAR = null;
 
 	/**
@@ -70,12 +73,12 @@ public class TestUtil
 			ANNO_JAR = new File(jarPath.toOSString());
 			String classesJarPath = ANNO_JAR.getAbsolutePath();
 			
-			if (null != getFileInPlugin( AptTestsPlugin.getDefault(), new Path("/bin") )) {
+			if (null != getFileInPlugin( AptTestsPlugin.getDefault(), new Path(BIN_ANNOTATIONS) )) {
 				// We're in a dev environment, where we jar up the classes from the plugin project
 				FileFilter filter = new PackageFileFilter(
-						ANNOTATIONS_PKG, getPluginClassesDir());
+						ANNOTATIONS_PKG, getAnnotationsClassesDir());
 				Map<File, FileFilter> files = Collections.singletonMap(
-						new File(getPluginClassesDir()), filter);
+						new File(getAnnotationsClassesDir()), filter);
 				zip( classesJarPath, files );
 			}
 			else {
@@ -119,7 +122,7 @@ public class TestUtil
 		File jarFile = File.createTempFile("org.eclipse.jdt.apt.tests.TestUtil", ".jar");  //$NON-NLS-1$//$NON-NLS-2$
 		String classesJarPath = jarFile.getAbsolutePath();
 		
-		File extBinDir = getFileInPlugin( AptTestsPlugin.getDefault(), new Path("/binext")); 
+		File extBinDir = getFileInPlugin( AptTestsPlugin.getDefault(), new Path(BIN_EXT)); 
 		if(null != extBinDir) {
 			
 			//create zip file in temp file location
@@ -204,21 +207,21 @@ public class TestUtil
 		return project.getResource().getLocation();
 	}
 	
-	public static String getPluginClassesDir()
+	public static String getAnnotationsClassesDir()
 	{
-		return getFileInPlugin( AptTestsPlugin.getDefault(), new Path( "/bin" ) ) //$NON-NLS-1$
+		return getFileInPlugin( AptTestsPlugin.getDefault(), new Path( BIN_ANNOTATIONS ) ) //$NON-NLS-1$
 			.getAbsolutePath();
 	}
 
 	public static String getPluginExtClassesDir()
 	{
-		return getFileInPlugin( AptTestsPlugin.getDefault(), new Path( "/binext" ) ) //$NON-NLS-1$
+		return getFileInPlugin( AptTestsPlugin.getDefault(), new Path( BIN_EXT ) ) //$NON-NLS-1$
 			.getAbsolutePath();
 	}
 
 	public static String getPluginExtSrcDir()
 	{
-		return getFileInPlugin( AptTestsPlugin.getDefault(), new Path( "/srcext" ) ) //$NON-NLS-1$
+		return getFileInPlugin( AptTestsPlugin.getDefault(), new Path( "/src-ext" ) ) //$NON-NLS-1$
 			.getAbsolutePath();
 	}
 
