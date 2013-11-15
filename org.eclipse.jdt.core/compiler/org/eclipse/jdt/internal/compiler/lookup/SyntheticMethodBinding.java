@@ -462,7 +462,10 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public void initializeMethodAccessor(MethodBinding accessedMethod, boolean isSuperAccess, ReferenceBinding receiverType) {
 
 		this.targetMethod = accessedMethod;
-		this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
+		if (isSuperAccess && receiverType.isInterface() && !accessedMethod.isStatic())
+			this.modifiers = ClassFileConstants.AccPrivate | ClassFileConstants.AccSynthetic;
+		else
+			this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
 		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) receiverType;
 		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();
@@ -473,7 +476,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.returnType = accessedMethod.returnType;
 		this.purpose = isSuperAccess ? SyntheticMethodBinding.SuperMethodAccess : SyntheticMethodBinding.MethodAccess;
 
-		if (accessedMethod.isStatic()) {
+		if (accessedMethod.isStatic() || (isSuperAccess && receiverType.isInterface())) {
 			this.parameters = accessedMethod.parameters;
 		} else {
 			this.parameters = new TypeBinding[accessedMethod.parameters.length + 1];

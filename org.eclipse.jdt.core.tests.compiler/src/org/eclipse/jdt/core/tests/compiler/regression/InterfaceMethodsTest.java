@@ -2194,6 +2194,32 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"	             ^^^^^^^^\n" + 
 			"The method foo(J) of type J should be tagged with @Override since it actually overrides a superinterface method\n" + 
 			"----------\n");
+	}
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421797, [1.8][compiler] ClassFormatError with default methods & I.super.foo() syntax
+	public void testBug421797() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	int m(String s, int val);\n" +
+				"	public default int foo(String s, int val) {\n" +
+				"		System.out.print(s + \" from I.foo:\");\n" +
+				"		return val * val; \n" +
+				"	}\n" +
+				"}\n" +
+				"interface T extends I {\n" +
+				"	public default int m(String s, int value) { \n" +
+				"		I i = I.super::foo; \n" +
+				"		return i.foo(s, value);\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String argv[]) {  \n" +
+				"		System.out.println(new T(){}.m(\"Hello\", 1234));\n" +
+				"	}\n" +
+				"}\n"
+			}, 
+			"Hello from I.foo:1522756");
 	}	
 
 }
