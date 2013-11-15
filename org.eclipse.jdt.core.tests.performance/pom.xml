@@ -24,6 +24,6 @@
   <packaging>eclipse-test-plugin</packaging>
   <properties>
   	<testSuite>${project.artifactId}</testSuite>
-  	<testClass>org.eclipse.jdt.core.tests.performance.AllPerformanceTests</testClass>
+  	<testClass>org.eclipse.jdt.core.tests.performance.OneTest</testClass>
   </properties>
 </project>
