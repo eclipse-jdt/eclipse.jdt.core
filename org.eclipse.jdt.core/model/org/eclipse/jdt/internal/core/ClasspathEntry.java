@@ -1325,7 +1325,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	}
 
 	/*
-	 * Backward compatibility: only accessible and non-accessible files are suported.
+	 * Backward compatibility: only accessible and non-accessible files are supported.
 	 */
 	public static IAccessRule[] getAccessRules(IPath[] accessibleFiles, IPath[] nonAccessibleFiles) {
 		int accessibleFilesLength = accessibleFiles == null ? 0 : accessibleFiles.length;
@@ -2108,9 +2108,9 @@ public class ClasspathEntry implements IClasspathEntry {
 	// more fully.
 	private static IJavaModelStatus validateLibraryEntry(IPath path, IJavaProject project, String container, IPath sourceAttachment, String entryPathMsg, boolean isOptionalLibrary) {
 		if (path.isAbsolute() && !path.isEmpty()) {
-			boolean validateJdkLevelCompatibilty = !JavaCore.IGNORE.equals(project.getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true));
+			boolean validateJdkLevelCompatibility = !JavaCore.IGNORE.equals(project.getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true));
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=412882, avoid validating optional entries
-			if (!validateJdkLevelCompatibilty && isOptionalLibrary) {
+			if (!validateJdkLevelCompatibility && isOptionalLibrary) {
 				return JavaModelStatus.VERIFIED_OK;
 			}
 			Object target = JavaModel.getTarget(path, true);
@@ -2120,7 +2120,7 @@ public class ClasspathEntry implements IClasspathEntry {
 					target = JavaModel.getTarget(path.makeRelativeTo(workspaceLocation).makeAbsolute(), true);
 				}
 			}
-			if (target != null && validateJdkLevelCompatibilty) {
+			if (target != null && validateJdkLevelCompatibility) {
 				long projectTargetJDK = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true));
 				long libraryJDK = Util.getJdkLevel(target);
 				if (libraryJDK != 0 && libraryJDK > projectTargetJDK) {
