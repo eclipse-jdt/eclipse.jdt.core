@@ -1415,11 +1415,6 @@ public abstract class Scope {
 	}
 
 	// Internal use only - use findMethod()
-	public MethodBinding findMethod(ReferenceBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
-		return findMethod(receiverType, selector, argumentTypes, invocationSite, false);
-	}
-
-	// Internal use only - use findMethod()
 	public MethodBinding findMethod(ReferenceBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite, boolean inStaticContext) {
 		ReferenceBinding currentType = receiverType;
 		boolean receiverTypeIsInterface = receiverType.isInterface();
@@ -1698,7 +1693,7 @@ public abstract class Scope {
 			if (methodBinding.canBeSeenBy(receiverType, invocationSite, this))
 				return methodBinding;
 		}
-		methodBinding = findMethod(object, selector, argumentTypes, invocationSite);
+		methodBinding = findMethod(object, selector, argumentTypes, invocationSite, false);
 		if (methodBinding == null)
 			return new ProblemMethodBinding(selector, argumentTypes, ProblemReasons.NotFound);
 		return methodBinding;
@@ -2205,7 +2200,7 @@ public abstract class Scope {
 						// compilationUnitScope().recordTypeReference(receiverType);   not needed since receiver is the source type
 						MethodBinding methodBinding = classScope.findExactMethod(receiverType, selector, argumentTypes, invocationSite);
 						if (methodBinding == null)
-							methodBinding = classScope.findMethod(receiverType, selector, argumentTypes, invocationSite);
+							methodBinding = classScope.findMethod(receiverType, selector, argumentTypes, invocationSite, false);
 						if (methodBinding != null) { // skip it if we did not find anything
 							if (foundMethod == null) {
 								if (methodBinding.isValidBinding()) {
@@ -2503,7 +2498,7 @@ public abstract class Scope {
 			MethodBinding methodBinding = findExactMethod(currentType, selector, argumentTypes, invocationSite);
 			if (methodBinding != null) return methodBinding;
 
-			methodBinding = findMethod(currentType, selector, argumentTypes, invocationSite);
+			methodBinding = findMethod(currentType, selector, argumentTypes, invocationSite, false);
 			if (methodBinding == null)
 				return new ProblemMethodBinding(selector, argumentTypes, ProblemReasons.NotFound);
 			if (!methodBinding.isValidBinding())

@@ -640,7 +640,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				this.binding =
 					this.receiver.isImplicitThis()
 						? scope.getImplicitMethod(this.selector, pseudoArgs, this)
-						: scope.findMethod((ReferenceBinding) this.actualReceiverType, this.selector, pseudoArgs, this);
+						: scope.findMethod((ReferenceBinding) this.actualReceiverType, this.selector, pseudoArgs, this, false);
 				if (this.binding != null && !this.binding.isValidBinding()) {
 					MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;
 					// record the closest match, for clients who may still need hint about possible method match

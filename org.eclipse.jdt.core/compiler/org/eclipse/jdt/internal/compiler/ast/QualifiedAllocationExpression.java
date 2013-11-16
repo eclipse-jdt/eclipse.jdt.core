@@ -433,7 +433,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					for (int i = length; --i >= 0;) {
 						pseudoArgs[i] = argumentTypes[i] == null ? TypeBinding.NULL : argumentTypes[i]; // replace args with errors with null type
 					}
-					this.binding = scope.findMethod(referenceReceiver, TypeConstants.INIT, pseudoArgs, this);
+					this.binding = scope.findMethod(referenceReceiver, TypeConstants.INIT, pseudoArgs, this, false);
 					if (this.binding != null && !this.binding.isValidBinding()) {
 						MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;
 						// record the closest match, for clients who may still need hint about possible method match

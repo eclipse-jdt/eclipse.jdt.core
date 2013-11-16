@@ -4,6 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -369,8 +373,8 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 	return null;
 }
 // Internal use only
-public MethodBinding findMethod(ReferenceBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
-	MethodBinding methodBinding = super.findMethod(receiverType, selector, argumentTypes, invocationSite);
+public MethodBinding findMethod(ReferenceBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite, boolean inStaticContext) {
+	MethodBinding methodBinding = super.findMethod(receiverType, selector, argumentTypes, invocationSite, inStaticContext);
 	if (methodBinding != null && methodBinding.isValidBinding())
 		if (!canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this))
 			return new ProblemMethodBinding(methodBinding, selector, argumentTypes, ProblemReasons.NotVisible);
@@ -390,7 +394,7 @@ public MethodBinding findMethodForArray(ArrayBinding receiverType, char[] select
 	}
 
 	// answers closest approximation, may not check argumentTypes or visibility
-	methodBinding = findMethod(object, selector, argumentTypes, invocationSite);
+	methodBinding = findMethod(object, selector, argumentTypes, invocationSite, false);
 	if (methodBinding == null)
 		return new ProblemMethodBinding(selector, argumentTypes, ProblemReasons.NotFound);
 	if (methodBinding.isValidBinding()) {
@@ -600,7 +604,7 @@ public MethodBinding getImplicitMethod(ReferenceBinding receiverType, char[] sel
 	// retrieve an exact visible match (if possible)
 	MethodBinding methodBinding = findExactMethod(receiverType, selector, argumentTypes, invocationSite);
 	if (methodBinding == null)
-		methodBinding = findMethod(receiverType, selector, argumentTypes, invocationSite);
+		methodBinding = findMethod(receiverType, selector, argumentTypes, invocationSite, false);
 	if (methodBinding != null) { // skip it if we did not find anything
 		if (methodBinding.isValidBinding())
 		    if (!canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this))

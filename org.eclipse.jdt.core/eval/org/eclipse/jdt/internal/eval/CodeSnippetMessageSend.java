@@ -243,7 +243,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (argHasError) {
 			if(this.actualReceiverType instanceof ReferenceBinding) {
 				// record any selector match, for clients who may still need hint about possible method match
-				this.binding = scope.findMethod((ReferenceBinding)this.actualReceiverType, this.selector, new TypeBinding[]{}, this);
+				this.binding = scope.findMethod((ReferenceBinding)this.actualReceiverType, this.selector, new TypeBinding[]{}, this, false);
 			}
 			return null;
 		}
