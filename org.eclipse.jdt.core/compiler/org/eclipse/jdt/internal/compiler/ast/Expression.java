@@ -949,6 +949,10 @@ public Constant optimizedBooleanConstant() {
 	return this.constant;
 }
 
+public boolean isPertinentToApplicability() {
+	return true;
+}
+
 /**
  * Returns the type of the expression after required implicit conversions. When expression type gets promoted
  * or inserted a generic cast, the converted type will differ from the resolved type (surface side-effects from

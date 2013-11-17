@@ -408,6 +408,18 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		}
 	}
 
+	public boolean isPertinentToApplicability() {
+		if (argumentsTypeElided())
+			return false;
+		
+		Expression [] returnExpressions = this.resultExpressions;
+		for (int i = 0, length = returnExpressions.length; i < length; i++) {
+			if (!returnExpressions[i].isPertinentToApplicability())
+				return false;
+		}
+		return true;
+	}
+	
 	public StringBuffer printExpression(int tab, StringBuffer output) {
 		int parenthesesCount = (this.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		String suffix = ""; //$NON-NLS-1$
@@ -488,49 +500,76 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			}
 		}
 
-		return !squarePegInRoundHole(sam);
+		if (sam.returnType.id == TypeIds.T_void) {
+			if (!this.voidCompatible)
+				return false;
+		} else {
+			if (!this.valueCompatible)
+				return false;
+		}
+		
+		if (!isPertinentToApplicability())
+			return true;
+	
+		Expression [] returnExpressions = this.resultExpressions;
+		for (int i = 0, length = returnExpressions.length; i < length; i++) {
+			if (!returnExpressions[i].resolvedType.isCompatibleWith(sam.returnType))
+				if (sam.returnType.id != TypeIds.T_void || this.body instanceof Block)
+					return false;
+		}
+	
+		TypeBinding [] samPararameterTypes = sam.parameters;
+		for (int i = 0, length = samPararameterTypes.length; i < length; i++) { // lengths known to be equal.
+			if (TypeBinding.notEquals(samPararameterTypes[i], this.argumentTypes[i]))
+				return false;
+		}
+
+		return true;
 	}
 	
 	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
-		/* 15.12.2.5 s is more specific than t iff ... Some of the checks here are redundant by the very fact of control reaching here, 
-		   but have been left in for completeness/documentation sakes. These should be cheap anyways. 
-		*/
 		
-		// Both t and s are functional interface types ... 
+		// 15.12.2.5 
+		
+		if (TypeBinding.equalsEquals(s,  t))
+			return true;
+		
+		if (argumentsTypeElided() || t.findSuperTypeOriginatingFrom(s) != null)
+			return false;
+		
+		s = s.capture(this.enclosingScope, this.sourceEnd);
 		MethodBinding sSam = s.getSingleAbstractMethod(this.enclosingScope);
 		if (sSam == null || !sSam.isValidBinding())
 			return false;
+		TypeBinding r1 = sSam.returnType;
 		MethodBinding tSam = t.getSingleAbstractMethod(this.enclosingScope);
 		if (tSam == null || !tSam.isValidBinding())
 			return false;
+		TypeBinding r2 = tSam.returnType;
 		
-		// t should neither be a subinterface nor a superinterface of s
-		if (s.findSuperTypeOriginatingFrom(t) != null || t.findSuperTypeOriginatingFrom(s) != null)
-			return false;
-
-		// If the lambda expression's parameters have inferred types, then the descriptor parameter types of t are the same as the descriptor parameter types of s.
-		if (argumentsTypeElided()) {
-			if (sSam.parameters.length != tSam.parameters.length)
-				return false;
-			for (int i = 0, length = sSam.parameters.length; i < length; i++) {
-				if (TypeBinding.notEquals(sSam.parameters[i], tSam.parameters[i]))
-					return false;
-			}
-		}
-		
-		// either the descriptor return type of s is void or ...
-		if (tSam.returnType.id == TypeIds.T_void)
+		if (r2.id == TypeIds.T_void)
 			return true;
 		
-		/* ... or for all result expressions in the lambda body (or for the body itself if the body is an expression), 
-           the descriptor return type of the capture of T is more specific than the descriptor return type of S.
-		*/
+		if (r1.id == TypeIds.T_void)
+			return false;
+		
+		if (r1.findSuperTypeOriginatingFrom(r2) != null)
+			return true;
+		
 		Expression [] returnExpressions = this.resultExpressions;
 		int returnExpressionsLength = returnExpressions == null ? 0 : returnExpressions.length;
-		if (returnExpressionsLength == 0)
-			return true; // as good as or as bad as false.
 		
-		s = s.capture(this.enclosingScope, this.sourceEnd);
+		// r1 is a primitive type, r2 is a reference type, and each result expression is a standalone expression (15.2) of a primitive type
+		if (r1.isBaseType() && !r2.isBaseType()) {
+			for (int i = 0; i < returnExpressionsLength; i++) {
+				if (returnExpressions[i].isPolyExpression() || !returnExpressions[i].resolvedType.isBaseType())
+					break;
+			}
+			return true;
+		}
+		if (returnExpressionsLength == 0)
+			return false;
+		
 		sSam = s.getSingleAbstractMethod(this.enclosingScope);
 		for (int i = 0; i < returnExpressionsLength; i++) {
 			Expression resultExpression = returnExpressions[i];
@@ -538,24 +577,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				return false;
 		}
 		return true;
-	}
-
-	private boolean squarePegInRoundHole(final MethodBinding sam) {
-		if (sam.returnType.id == TypeIds.T_void) {
-			if (!this.voidCompatible)
-				return true;
-		} else {
-			if (!this.valueCompatible)
-				return true;
-		}
-		if (!argumentsTypeElided()) {
-			TypeBinding [] samPararameterTypes = sam.parameters;
-			for (int i = 0, length = samPararameterTypes.length; i < length; i++) { // lengths known to be equal.
-				if (TypeBinding.notEquals(samPararameterTypes[i], this.argumentTypes[i]))
-					return true;
-			}
-		}
-		return false;
 	}
 
 	LambdaExpression copy() {
@@ -575,6 +596,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			return;
 		if (this.body instanceof Expression) {
 			this.original.valueCompatible = resultType != null && resultType.id != TypeIds.T_void;
+			this.original.resultExpressions = new Expression[1];
+			this.original.resultExpressions[0] = expression;
 			return; // void compatibility determined via statementExpression()
 		}
 		if (expression != null) {

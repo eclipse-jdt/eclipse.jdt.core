@@ -5211,8 +5211,8 @@ this.runNegativeTest(
 				"----------\n" + 
 				"1. ERROR in X.java (at line 11)\n" + 
 				"	new X().foo(()->{ return 10; });\n" + 
-				"	                         ^^\n" + 
-				"Type mismatch: cannot convert from int to String\n" + 
+				"	                  ^^^^^^^^^^\n" + 
+				"Void methods cannot return a value\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts

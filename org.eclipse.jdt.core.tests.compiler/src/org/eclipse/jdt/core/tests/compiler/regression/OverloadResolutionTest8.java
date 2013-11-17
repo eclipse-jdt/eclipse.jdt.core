@@ -254,4 +254,148 @@ public void test007() {
 			"Void methods cannot return a value\n" + 
 			"----------\n");
 }
+public void test008() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Object foo();\n" +
+				"}\n" +
+				"interface J  {\n" +
+				"	String foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(foo(()->null));\n" +
+				"	}\n" +
+				"	static String foo(I i) {\n" +
+				"		return(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static String foo(J j) {\n" +
+				"		return(\"foo(J)\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+public void test009() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Object foo();\n" +
+				"}\n" +
+				"interface J  {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(foo(()-> {}));\n" +
+				"	}\n" +
+				"	static String foo(I i) {\n" +
+				"		return(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static String foo(J j) {\n" +
+				"		return(\"foo(J)\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+public void test010() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Object foo();\n" +
+				"}\n" +
+				"interface J  {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(foo(()-> foo(()->null)));\n" +
+				"	}\n" +
+				"	static String foo(I i) {\n" +
+				"		return(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static String foo(J j) {\n" +
+				"		return(\"foo(J)\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
+public void test011() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"interface J  {\n" +
+				"	String foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(foo(()-> \"Hello\" ));\n" +
+				"	}\n" +
+				"	static String foo(I i) {\n" +
+				"		return(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static String foo(J j) {\n" +
+				"		return(\"foo(J)\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+public void test012() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"interface J  {\n" +
+				"	String foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(foo(()-> 1234 ));\n" +
+				"	}\n" +
+				"	static String foo(I i) {\n" +
+				"		return(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static String foo(J j) {\n" +
+				"		return(\"foo(J)\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
+public void test013() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"interface J  {\n" +
+				"	Integer foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(foo(()-> 1234 ));\n" +
+				"	}\n" +
+				"	static String foo(I i) {\n" +
+				"		return(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static String foo(J j) {\n" +
+				"		return(\"foo(J)\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
 }

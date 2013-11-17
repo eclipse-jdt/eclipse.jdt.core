@@ -1004,7 +1004,11 @@ public abstract class Scope {
 		return ((CompilationUnitScope) unitScope).environment;
 	}
 
-	// abstract method lookup lookup (since maybe missing default abstract methods)
+	/* Abstract method lookup (since maybe missing default abstract methods). "Default abstract methods" are methods that used to be emitted into 
+	   abstract classes for unimplemented interface methods at JDK 1.1 time frame. See SourceTypeBinding.addDefaultAbstractMethods()
+	   See also https://bugs.eclipse.org/bugs/show_bug.cgi?id=174588 for details of problem addressed here. Problem was in the method call in the 
+	   *abstract* class. Unless the interface methods are looked up, we will emit code that results in infinite recursion.
+	*/
 	protected MethodBinding findDefaultAbstractMethod(
 		ReferenceBinding receiverType,
 		char[] selector,
@@ -3934,6 +3938,43 @@ public abstract class Scope {
 
 	// caveat: this is not a direct implementation of JLS
 	protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize, TypeBinding[] argumentTypes, final InvocationSite invocationSite, ReferenceBinding receiverType) {
+		// Apply one level of filtering per poly expression more specific rules.
+		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8) {
+			MethodBinding[] moreSpecific = new MethodBinding[visibleSize];
+			int count = 0;
+			for (int i = 0, length = argumentTypes.length; i < length; i++) {
+				TypeBinding argumentType = argumentTypes[i];
+				if (argumentType.kind() != Binding.POLY_TYPE)
+					continue;
+				next:
+					for (int j = 0; j < visibleSize; j++) {
+						final TypeBinding[] mbjParameters = visible[j].parameters;
+						final int mbjParametersLength = mbjParameters.length;
+						TypeBinding t = i < mbjParametersLength ? mbjParameters[i] : mbjParameters[mbjParametersLength - 1];
+						boolean tIsMoreSpecific = false;
+						for (int k = 0; k < visibleSize; k++) {
+							if (j == k) continue;
+							final TypeBinding[] mbkParameters = visible[k].parameters;
+							final int mbkParametersLength = mbkParameters.length;
+							TypeBinding s = i < mbkParametersLength ? mbkParameters[i] : mbkParameters[mbkParametersLength - 1];
+							if (TypeBinding.equalsEquals(t, s))
+								continue;
+							if (!argumentType.sIsMoreSpecific(t,s)) 
+								continue next;
+							tIsMoreSpecific = true;
+						}
+						if (tIsMoreSpecific)
+							moreSpecific[count++] = visible[j];
+					}
+			}
+			if (count != 0) {
+				visible = moreSpecific;
+				visibleSize = count;
+			}
+		}
+	
+		// JLS7 implementation  
+		
 		int[] compatibilityLevels = new int[visibleSize];
 		for (int i = 0; i < visibleSize; i++)
 			compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argumentTypes);
