@@ -23,7 +23,6 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -450,10 +449,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		return this.scope;
 	}
 		
-	protected boolean errorEqualsIncompatibility() {
-		return this.original.shapeAnalysisComplete; // so as not to abort shape analysis.
-	}
-	
 	public boolean isCompatibleWith(final TypeBinding left, final Scope someScope) {
 		
 		final MethodBinding sam = left.getSingleAbstractMethod(this.enclosingScope);
@@ -476,7 +471,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		} 
 
 		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
-		this.hasIgnoredMandatoryErrors = false;
 		try {
 			final LambdaExpression copy = copy();
 			if (copy == null)
@@ -488,7 +482,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			this.resultExpressions.put(left, new Expression[0]);
 			copy.resolveType(this.enclosingScope);
 			if (!this.shapeAnalysisComplete) {
-				boolean lambdaIsFubar = this.hasIgnoredMandatoryErrors; // capture now, before doesNotCompleteNormally which runs analyzeCode on lambda body *without* the enclosing context being analyzed 
 				if (!this.returnsVoid && !this.returnsValue && this.throwsException) {  // () -> { throw new Exception(); } is value compatible.
 					Block block = (Block) this.body;
 					final Statement[] statements = block.statements;
@@ -497,14 +490,11 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 					this.valueCompatible = ultimateStatement instanceof ThrowStatement ? true: copy.doesNotCompleteNormally(); 
 				}
 				this.shapeAnalysisComplete = true;
-				if (squarePegInRoundHole(sam) || lambdaIsFubar)
+				if (squarePegInRoundHole(sam))
 					return false;
 			}
-		} catch (IncongruentLambdaException e) {
-			return false;
 		} finally {
 			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
-			this.hasIgnoredMandatoryErrors = false;
 		}
 		return true;
 	}
@@ -649,21 +639,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		}
 	}
 	
-	public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
-		// 15.27.3 requires exception throw related errors to not influence congruence. Other errors should. Also don't abort shape analysis.
-		switch (problemId) {
-			case IProblem.UnhandledExceptionOnAutoClose:
-			case IProblem.UnhandledExceptionInDefaultConstructor:
-			case IProblem.UnhandledException:
-				return;
-			default: 
-				if (errorEqualsIncompatibility())
-					throw new IncongruentLambdaException();
-				this.original().hasIgnoredMandatoryErrors = true;
-				return;
-		}
-	}
-
 	public void generateCode(ClassScope classScope, ClassFile classFile) {
 		int problemResetPC = 0;
 		classFile.codeStream.wideMode = false;
@@ -797,7 +772,4 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		}
 		return this.actualMethodBinding;
 	}
-}
-class IncongruentLambdaException extends RuntimeException {
-	private static final long serialVersionUID = 4145723509219836114L;
 }

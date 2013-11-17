@@ -118,16 +118,8 @@ public void handle(
 	ReferenceContext referenceContext,
 	CompilationResult unitResult) {
 
-	if (severity == ProblemSeverities.Ignore)
+	if (severity == ProblemSeverities.Ignore || this.policy.ignoreAllErrors())
 		return;
-
-	 boolean mandatory = (severity & (ProblemSeverities.Error | ProblemSeverities.Optional)) == ProblemSeverities.Error;
-	 if (this.policy.ignoreAllErrors()) { 
-		 // Error is not to be exposed, but clients may need still notification as to whether there are silently-ignored-errors.
-		 if (mandatory)
-			 referenceContext.tagAsHavingIgnoredMandatoryErrors(problemId);
-		 return;
-	 }
 
 	if ((severity & ProblemSeverities.Optional) != 0 && problemId != IProblem.Task  && !this.options.ignoreSourceFolderWarningOption) {
 		ICompilationUnit cu = unitResult.getCompilationUnit();
@@ -174,6 +166,7 @@ public void handle(
 
 	switch (severity & ProblemSeverities.Error) {
 		case ProblemSeverities.Error :
+			boolean mandatory = ((severity & ProblemSeverities.Optional) == 0);
 			record(problem, unitResult, referenceContext, mandatory);
 			if ((severity & ProblemSeverities.Fatal) != 0) {
 				// don't abort or tag as error if the error is suppressed

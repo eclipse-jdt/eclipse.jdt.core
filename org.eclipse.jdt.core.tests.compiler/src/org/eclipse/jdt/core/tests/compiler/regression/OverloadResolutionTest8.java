@@ -33,5 +33,33 @@ public static Class testClass() {
 }
 
 public void test001() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	int foo(int [] a);\n" +
+				"}\n" +
+				"interface J  {\n" +
+				"	int foo(int a);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(foo((a)->a.length));\n" +
+				"	}\n" +
+				"	static String foo(I i) {\n" +
+				"		return(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static String foo(J j) {\n" +
+				"		return(\"foo(J)\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	System.out.println(foo((a)->a.length));\n" + 
+			"	                   ^^^\n" + 
+			"The method foo(I) is ambiguous for the type X\n" + 
+			"----------\n"
+			);
 }
 }

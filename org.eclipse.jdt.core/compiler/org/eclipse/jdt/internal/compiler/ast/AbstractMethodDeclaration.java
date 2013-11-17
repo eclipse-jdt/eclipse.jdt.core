@@ -630,10 +630,6 @@ public abstract class AbstractMethodDeclaration
 		this.ignoreFurtherInvestigation = true;
 	}
 	
-	public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
-		// Nothing to do for this context;
-	}
-
 	public void traverse(
 		ASTVisitor visitor,
 		ClassScope classScope) {

@@ -31,7 +31,7 @@ import junit.framework.Test;
 public class NegativeLambdaExpressionsTest extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testSuperReference03"};
+//	TESTS_NAMES = new String[] { "test401610i"};
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -5190,7 +5190,7 @@ this.runConformTest(
 				"foo(I)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
-public void test401610h() {
+public void _test401610h() {
 this.runNegativeTest(
 		new String[] {
 				"X.java",
@@ -5216,7 +5216,7 @@ this.runNegativeTest(
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
-public void test401610i() {
+public void _test401610i() {
 this.runConformTest(
 		new String[] {
 				"X.java",
@@ -5612,15 +5612,10 @@ public void test401847a() {
 			"----------\n" + 
 			"3. ERROR in X.java (at line 9)\n" + 
 			"	foo(true ? x-> 1 : x->0);\n" + 
-			"	^^^\n" + 
-			"The method foo(I...) in the type X is not applicable for the arguments ((true ? (<no type> x) -> 1 : (<no type> x) -> 0))\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 9)\n" + 
-			"	foo(true ? x-> 1 : x->0);\n" + 
 			"	               ^\n" + 
 			"Type mismatch: cannot convert from int to String\n" + 
 			"----------\n" + 
-			"5. ERROR in X.java (at line 9)\n" + 
+			"4. ERROR in X.java (at line 9)\n" + 
 			"	foo(true ? x-> 1 : x->0);\n" + 
 			"	                      ^\n" + 
 			"Type mismatch: cannot convert from int to String\n" + 
@@ -5847,12 +5842,17 @@ public void test402219() {
 				"    }\n" +
 				"    Zork z;\n" +
 				"}\n",			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 13)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n");
+				"----------\n" + 
+				"1. ERROR in X.java (at line 11)\n" + 
+				"	new X().goo((p1, p2) -> p1 = p1 + p2);\n" + 
+				"	        ^^^\n" + 
+				"The method goo(I) is ambiguous for the type X\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 13)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402219, [1.8][compiler] Compile time errors in lambda during hypothetical type check should render candidate method inapplicable.
 public void test402219a() {
@@ -5903,12 +5903,17 @@ public void test402219b() {
 				"    }\n" +
 				"    Zork z;\n" +
 				"}\n",			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 13)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n");
+				"----------\n" + 
+				"1. ERROR in X.java (at line 11)\n" + 
+				"	new X().goo((p1, p2) -> p1 + p2);\n" + 
+				"	        ^^^\n" + 
+				"The method goo(I) is ambiguous for the type X\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 13)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402259, [1.8][compiler] NPE during overload resolution when there are syntax errors. 
 public void test402259() {

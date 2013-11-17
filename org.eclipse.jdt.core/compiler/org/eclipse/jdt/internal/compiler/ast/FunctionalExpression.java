@@ -43,7 +43,6 @@ public abstract class FunctionalExpression extends Expression {
 	boolean ignoreFurtherInvestigation;
 	protected ExpressionContext expressionContext = VANILLA_CONTEXT;
 	protected SimpleLookupTable resultExpressions;
-	protected boolean hasIgnoredMandatoryErrors = false;
 	protected CompilationResult compilationResult;
 	protected BlockScope enclosingScope;
 	protected boolean ellipsisArgument;
