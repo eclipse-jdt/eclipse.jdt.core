@@ -60,10 +60,10 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 public class LambdaExpression extends FunctionalExpression implements ReferenceContext, ProblemSeverities {
 	public Argument [] arguments;
+	private TypeBinding [] argumentTypes = Binding.NO_PARAMETERS;
 	public Statement body;
 	public boolean hasParentheses;
 	public MethodScope scope;
@@ -72,7 +72,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	private boolean shapeAnalysisComplete = false;
 	private boolean returnsValue;
 	private boolean returnsVoid;
-	private boolean throwsException;
 	private LambdaExpression original = this;
 	private SyntheticArgumentBinding[] outerLocalVariables = NO_SYNTHETIC_ARGUMENTS;
 	private int outerLocalVariablesSlotSize = 0;
@@ -185,6 +184,9 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		TypeBinding[] newParameters = new TypeBinding[length];
 
 		AnnotationBinding [][] parameterAnnotations = null;
+		if (!argumentsTypeElided) {
+			this.argumentTypes = new TypeBinding[length];
+		}
 		for (int i = 0; i < length; i++) {
 			Argument argument = this.arguments[i];
 			if (argument.isVarArgs()) {
@@ -198,7 +200,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			
 			TypeBinding parameterType;
 			final TypeBinding expectedParameterType = haveDescriptor && i < this.descriptor.parameters.length ? this.descriptor.parameters[i] : null;
-			parameterType = argumentsTypeElided ? expectedParameterType : argument.type.resolveType(this.scope, true /* check bounds*/);
+			parameterType = argumentsTypeElided ? expectedParameterType : (this.argumentTypes[i] = argument.type.resolveType(this.scope, true /* check bounds*/));
 			if (parameterType == null) {
 				buggyArguments = true;
 			} else if (parameterType == TypeBinding.VOID) {
@@ -458,45 +460,35 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if (sam.parameters.length != this.arguments.length)
 			return false;
 		
-		if (!this.shapeAnalysisComplete && this.body instanceof Expression) {
-			Expression expression = (Expression) this.body;
-			this.voidCompatible = expression.statementExpression();
-			this.valueCompatible = true;
-			this.shapeAnalysisComplete = true;
-		}
-
-		if (this.shapeAnalysisComplete) {
-			if (squarePegInRoundHole(sam))
-				return false;
-		} 
-
-		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
-		try {
-			final LambdaExpression copy = copy();
-			if (copy == null)
-				return false;
-			copy.setExpressionContext(this.expressionContext);
-			copy.setExpectedType(left);
-			if (this.resultExpressions == null)
-				this.resultExpressions = new SimpleLookupTable(); // gather result expressions for most specific method analysis.
-			this.resultExpressions.put(left, new Expression[0]);
-			copy.resolveType(this.enclosingScope);
-			if (!this.shapeAnalysisComplete) {
-				if (!this.returnsVoid && !this.returnsValue && this.throwsException) {  // () -> { throw new Exception(); } is value compatible.
-					Block block = (Block) this.body;
-					final Statement[] statements = block.statements;
-					final int statementsLength = statements == null ? 0 : statements.length;
-					Statement ultimateStatement = statementsLength == 0 ? null : statements[statementsLength - 1];
-					this.valueCompatible = ultimateStatement instanceof ThrowStatement ? true: copy.doesNotCompleteNormally(); 
-				}
-				this.shapeAnalysisComplete = true;
-				if (squarePegInRoundHole(sam))
+		if (!this.shapeAnalysisComplete) {
+			IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
+			try {
+				final LambdaExpression copy = copy();
+				if (copy == null)
 					return false;
+				copy.setExpressionContext(this.expressionContext);
+				copy.setExpectedType(left);
+				copy.resolveType(this.enclosingScope);
+
+				if (!argumentsTypeElided()) {
+					this.argumentTypes = copy.argumentTypes;
+				}
+			
+				if (this.body instanceof Block) {
+					if (!this.returnsVoid) {
+						this.valueCompatible = copy.doesNotCompleteNormally();
+					}
+				} else {
+					this.voidCompatible = ((Expression) this.body).statementExpression();
+				}
+			
+			} finally {
+				this.shapeAnalysisComplete = true;
+				this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 			}
-		} finally {
-			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 		}
-		return true;
+
+		return !squarePegInRoundHole(sam);
 	}
 	
 	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
@@ -533,7 +525,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		/* ... or for all result expressions in the lambda body (or for the body itself if the body is an expression), 
            the descriptor return type of the capture of T is more specific than the descriptor return type of S.
 		*/
-		Expression [] returnExpressions = (Expression[]) this.resultExpressions.get(s); // should be same as for s
+		Expression [] returnExpressions = this.resultExpressions;
 		int returnExpressionsLength = returnExpressions == null ? 0 : returnExpressions.length;
 		if (returnExpressionsLength == 0)
 			return true; // as good as or as bad as false.
@@ -556,6 +548,13 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			if (!this.valueCompatible)
 				return true;
 		}
+		if (!argumentsTypeElided()) {
+			TypeBinding [] samPararameterTypes = sam.parameters;
+			for (int i = 0, length = samPararameterTypes.length; i < length; i++) { // lengths known to be equal.
+				if (TypeBinding.notEquals(samPararameterTypes[i], this.argumentTypes[i]))
+					return true;
+			}
+		}
 		return false;
 	}
 
@@ -574,27 +573,26 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	public void returnsExpression(Expression expression, TypeBinding resultType) {
 		if (this.original == this) // not in overload resolution context.
 			return;
+		if (this.body instanceof Expression) {
+			this.original.valueCompatible = resultType != null && resultType.id != TypeIds.T_void;
+			return; // void compatibility determined via statementExpression()
+		}
 		if (expression != null) {
 			this.original.returnsValue = true;
 			this.original.voidCompatible = false;
 			this.original.valueCompatible = !this.original.returnsVoid;
 			if (resultType != null) {
-				Expression [] results = (Expression[]) this.original.resultExpressions.get(this.expectedType);
-				int resultsLength = results.length;
-				System.arraycopy(results, 0, results = new Expression[resultsLength + 1], 0, resultsLength);
-				results[resultsLength] = expression;
+				Expression [] returnExpressions = this.original.resultExpressions;
+				int resultsLength = returnExpressions.length;
+				System.arraycopy(returnExpressions, 0, returnExpressions = new Expression[resultsLength + 1], 0, resultsLength);
+				returnExpressions[resultsLength] = expression;
+				this.original.resultExpressions = returnExpressions;
 			}
 		} else {
 			this.original.returnsVoid = true;
 			this.original.valueCompatible = false;
 			this.original.voidCompatible = !this.original.returnsValue;
 		}
-	}
-
-	public void throwsException(TypeBinding exceptionType) {
-		if (this.expressionContext != INVOCATION_CONTEXT)
-			return;
-		this.original.throwsException = true;
 	}
 	
 	public CompilationResult compilationResult() {

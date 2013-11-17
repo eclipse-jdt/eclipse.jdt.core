@@ -32,7 +32,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 public abstract class FunctionalExpression extends Expression {
 	
@@ -42,7 +41,8 @@ public abstract class FunctionalExpression extends Expression {
 	protected MethodBinding actualMethodBinding;  // void of synthetics.
 	boolean ignoreFurtherInvestigation;
 	protected ExpressionContext expressionContext = VANILLA_CONTEXT;
-	protected SimpleLookupTable resultExpressions;
+	static Expression [] NO_EXPRESSIONS = new Expression[0];
+	protected Expression [] resultExpressions = NO_EXPRESSIONS;
 	protected CompilationResult compilationResult;
 	protected BlockScope enclosingScope;
 	protected boolean ellipsisArgument;

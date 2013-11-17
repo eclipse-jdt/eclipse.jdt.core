@@ -55,7 +55,6 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 public class ReferenceExpression extends FunctionalExpression implements InvocationSite {
 	
@@ -591,9 +590,8 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 			isCompatible = this.binding != null && this.binding.isValidBinding();
 			if (isCompatible) {
-				if (this.resultExpressions == null)
-					this.resultExpressions = new SimpleLookupTable(); // gather for more specific analysis later.
-				this.resultExpressions.put(left, this.binding.returnType);
+				this.resultExpressions = new Expression[1];
+				// this.resultExpressions[0] = this.binding.returnType;
 			}
 			this.binding = null;
 			setExpectedType(null);
@@ -629,14 +627,16 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		if (tSam.returnType.id == TypeIds.T_void)
 			return true;
 		
+		return true;
+		
 		/* ... or the descriptor return type of the capture of T is more specific than the descriptor return type of S for 
 		   an invocation expression of the same form as the method reference..
 		*/
-		Expression resultExpression = (Expression) this.resultExpressions.get(s); // should be same as for s
+	//	Expression resultExpression = (Expression) this.resultExpressions.get(s); // should be same as for s
 		
-		s = s.capture(this.enclosingScope, this.sourceEnd);
-		sSam = s.getSingleAbstractMethod(this.enclosingScope);
-		return resultExpression.sIsMoreSpecific(sSam.returnType, tSam.returnType);
+//		s = s.capture(this.enclosingScope, this.sourceEnd);
+//		sSam = s.getSingleAbstractMethod(this.enclosingScope);
+//		return resultExpression.sIsMoreSpecific(sSam.returnType, tSam.returnType);
 	}
 
 	public org.eclipse.jdt.internal.compiler.lookup.MethodBinding getMethodBinding() {

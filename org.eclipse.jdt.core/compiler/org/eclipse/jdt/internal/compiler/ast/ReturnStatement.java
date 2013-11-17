@@ -303,7 +303,7 @@ public void resolve(BlockScope scope) {
 			return;
 		}
 		expressionType = this.expression.resolveType(scope);
-		if (lambda != null && !this.implicitReturn)
+		if (lambda != null)
 			lambda.returnsExpression(this.expression, expressionType);
 		if (this.implicitReturn && (expressionType == TypeBinding.VOID || this.expression.statementExpression()))
 			return;

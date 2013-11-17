@@ -5190,7 +5190,7 @@ this.runConformTest(
 				"foo(I)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
-public void _test401610h() {
+public void test401610h() {
 this.runNegativeTest(
 		new String[] {
 				"X.java",
@@ -5211,12 +5211,12 @@ this.runNegativeTest(
 				"----------\n" + 
 				"1. ERROR in X.java (at line 11)\n" + 
 				"	new X().foo(()->{ return 10; });\n" + 
-				"	                  ^^^^^^^^^^\n" + 
-				"Void methods cannot return a value\n" + 
+				"	                         ^^\n" + 
+				"Type mismatch: cannot convert from int to String\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
-public void _test401610i() {
+public void test401610i() {
 this.runConformTest(
 		new String[] {
 				"X.java",
@@ -5780,8 +5780,11 @@ public void test401939d() {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 8)\n" + 
 				"	goo((x) -> { if (x) return null; });\n" + 
-				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"This method must return a result of type String\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {\n" + 
+				"  if (x)\n" + 
+				"      return null;\n" + 
+				"})\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
