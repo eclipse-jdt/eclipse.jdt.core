@@ -573,8 +573,8 @@ public boolean isPolyExpression() {
 			this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0;
 }
 
-public boolean tIsMoreSpecific(TypeBinding t, TypeBinding s) {
-	return isPolyExpression() ? !t.isBaseType() && s.isBaseType() : super.tIsMoreSpecific(t, s);
+public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
+	return isPolyExpression() ? !s.isBaseType() && t.isBaseType() : super.sIsMoreSpecific(s, t);
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#expectedType()

@@ -660,10 +660,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		return this.valueIfTrue.isCompatibleWith(left, scope) && this.valueIfFalse.isCompatibleWith(left, scope);
 	}
 	
-	public boolean tIsMoreSpecific(TypeBinding t, TypeBinding s) {
+	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
 		return isPolyExpression() ?
-				this.valueIfTrue.tIsMoreSpecific(t, s) && this.valueIfFalse.tIsMoreSpecific(t, s):
-				super.tIsMoreSpecific(t, s);
+				this.valueIfTrue.sIsMoreSpecific(s, t) && this.valueIfFalse.sIsMoreSpecific(s, t):
+				super.sIsMoreSpecific(s, t);
 	}
 	
 	public void tagAsEllipsisArgument() {

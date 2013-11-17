@@ -1447,4 +1447,8 @@ public boolean isUnresolvedType() {
 public boolean hasTypeBit(int bit) {
 	return false;
 }
+
+public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
+	throw new UnsupportedOperationException("abstract virtual method called"); //$NON-NLS-1$
+}
 }

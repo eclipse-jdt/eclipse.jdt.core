@@ -509,50 +509,50 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		return true;
 	}
 	
-	public boolean tIsMoreSpecific(TypeBinding t, TypeBinding s) {
-		/* 15.12.2.5 t is more specific than s iff ... Some of the checks here are redundant by the very fact of control reaching here, 
+	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
+		/* 15.12.2.5 s is more specific than t iff ... Some of the checks here are redundant by the very fact of control reaching here, 
 		   but have been left in for completeness/documentation sakes. These should be cheap anyways. 
 		*/
 		
 		// Both t and s are functional interface types ... 
-		MethodBinding tSam = t.getSingleAbstractMethod(this.enclosingScope);
-		if (tSam == null || !tSam.isValidBinding())
-			return false;
 		MethodBinding sSam = s.getSingleAbstractMethod(this.enclosingScope);
 		if (sSam == null || !sSam.isValidBinding())
 			return false;
+		MethodBinding tSam = t.getSingleAbstractMethod(this.enclosingScope);
+		if (tSam == null || !tSam.isValidBinding())
+			return false;
 		
 		// t should neither be a subinterface nor a superinterface of s
-		if (t.findSuperTypeOriginatingFrom(s) != null || s.findSuperTypeOriginatingFrom(t) != null)
+		if (s.findSuperTypeOriginatingFrom(t) != null || t.findSuperTypeOriginatingFrom(s) != null)
 			return false;
 
 		// If the lambda expression's parameters have inferred types, then the descriptor parameter types of t are the same as the descriptor parameter types of s.
 		if (argumentsTypeElided()) {
-			if (tSam.parameters.length != sSam.parameters.length)
+			if (sSam.parameters.length != tSam.parameters.length)
 				return false;
-			for (int i = 0, length = tSam.parameters.length; i < length; i++) {
-				if (TypeBinding.notEquals(tSam.parameters[i], sSam.parameters[i]))
+			for (int i = 0, length = sSam.parameters.length; i < length; i++) {
+				if (TypeBinding.notEquals(sSam.parameters[i], tSam.parameters[i]))
 					return false;
 			}
 		}
 		
 		// either the descriptor return type of s is void or ...
-		if (sSam.returnType.id == TypeIds.T_void)
+		if (tSam.returnType.id == TypeIds.T_void)
 			return true;
 		
 		/* ... or for all result expressions in the lambda body (or for the body itself if the body is an expression), 
            the descriptor return type of the capture of T is more specific than the descriptor return type of S.
 		*/
-		Expression [] returnExpressions = (Expression[]) this.resultExpressions.get(t); // should be same as for s
+		Expression [] returnExpressions = (Expression[]) this.resultExpressions.get(s); // should be same as for s
 		int returnExpressionsLength = returnExpressions == null ? 0 : returnExpressions.length;
 		if (returnExpressionsLength == 0)
 			return true; // as good as or as bad as false.
 		
-		t = t.capture(this.enclosingScope, this.sourceEnd);
-		tSam = t.getSingleAbstractMethod(this.enclosingScope);
+		s = s.capture(this.enclosingScope, this.sourceEnd);
+		sSam = s.getSingleAbstractMethod(this.enclosingScope);
 		for (int i = 0; i < returnExpressionsLength; i++) {
 			Expression resultExpression = returnExpressions[i];
-			if (!resultExpression.tIsMoreSpecific(tSam.returnType, sSam.returnType))
+			if (!resultExpression.sIsMoreSpecific(sSam.returnType, tSam.returnType))
 				return false;
 		}
 		return true;

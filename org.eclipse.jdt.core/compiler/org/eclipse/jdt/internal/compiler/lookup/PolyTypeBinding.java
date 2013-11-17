@@ -49,6 +49,10 @@ public class PolyTypeBinding extends TypeBinding {
 		return this.expression.printExpression(0,  new StringBuffer()).toString().toCharArray();
 	}
 	
+	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
+		return this.expression.sIsMoreSpecific(s, t);
+	}
+	
 	public String toString() {
 		StringBuffer buffer = new StringBuffer("PolyTypeBinding for: "); //$NON-NLS-1$
 		return this.expression.printExpression(0,  buffer).toString();

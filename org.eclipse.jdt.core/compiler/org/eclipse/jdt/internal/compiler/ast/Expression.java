@@ -1139,18 +1139,18 @@ public boolean isCompatibleWith(TypeBinding left, Scope scope) {
 	throw new UnsupportedOperationException("Unexpected control flow, should not have reached Expression.isCompatibleWith"); //$NON-NLS-1$
 }
 
-public boolean tIsMoreSpecific(TypeBinding t, TypeBinding s) {
+public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
 	TypeBinding expressionType = this.resolvedType;
 	if (expressionType == null || !expressionType.isValidBinding()) // Shouldn't get here, just to play it safe
 		return false; // trigger ambiguity.
 	
-	if (TypeBinding.equalsEquals(t.findSuperTypeOriginatingFrom(s), s))
+	if (s.findSuperTypeOriginatingFrom(t) != null)
 		return true;
 	
-	final boolean tIsBaseType = t.isBaseType();
 	final boolean sIsBaseType = s.isBaseType();
+	final boolean tIsBaseType = t.isBaseType();
 	
-	return expressionType.isBaseType() ? tIsBaseType && !sIsBaseType : !tIsBaseType && sIsBaseType;
+	return expressionType.isBaseType() ? sIsBaseType && !tIsBaseType : !sIsBaseType && tIsBaseType;
 }
 
 public void tagAsEllipsisArgument() {
