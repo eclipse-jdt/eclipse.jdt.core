@@ -51,6 +51,7 @@ import org.eclipse.jdt.core.tests.dom.ASTConverterBugsTestJLS8;
 import org.eclipse.jdt.core.tests.dom.ASTConverterTestAST8_2;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.dom.TypeAnnotationsConverterTest;
+import org.eclipse.jdt.core.tests.dom.TypeBindingTests308;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR308Tests;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR335Tests;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs8Tests;
@@ -99,6 +100,7 @@ public class RunOnlyJava8Tests extends TestCase {
 				ASTConverter15JLS8Test.class,
 				ASTConverter18Test.class,
 				ASTRewritingTest.class,
+				TypeBindingTests308.class,
 		};
 	}
 	public static Test suite() {
