@@ -1451,4 +1451,8 @@ public boolean hasTypeBit(int bit) {
 public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
 	throw new UnsupportedOperationException("abstract virtual method called"); //$NON-NLS-1$
 }
+
+public MethodBinding[] getMethods(char[] selector) {
+	return Binding.NO_METHODS;
+}
 }

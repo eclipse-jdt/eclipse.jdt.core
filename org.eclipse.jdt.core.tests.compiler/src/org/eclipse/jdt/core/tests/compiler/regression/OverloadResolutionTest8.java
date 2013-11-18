@@ -500,5 +500,377 @@ public void test017() {
 			},
 			"foo(J)");
 }
+public void test018() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	X [] foo(int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void foo(I x) {\n" +
+				"            System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	I i = X[]::new;\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(X[]::new);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
+public void test019() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void foo(I x) {\n" +
+				"            System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	I i = X[]::new;\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(X[]::new);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
 
+public void test020() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Y foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	Y foo();\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	Y() {\n" +
+				"	}\n" +
+				"	\n" +
+				"	Y(int x) {\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void foo(I i) {\n" +
+				"	}\n" +
+				"	static void foo(J j) {\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(Y::new);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 20)\n" + 
+			"	foo(Y::new);\n" + 
+			"	^^^\n" + 
+			"The method foo(I) is ambiguous for the type X\n" + 
+			"----------\n");
+}
+public void test021() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Y foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	Y foo();\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private Y() {\n" +
+				"	}\n" +
+				"	\n" +
+				"	Y(int x) {\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void foo(I i) {\n" +
+				"       System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void foo(J j) {\n" +
+				"       System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(Y::new);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
+public void test022() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Y foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	Y foo();\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	Y(float f) {\n" +
+				"       System.out.println(\"Y(float)\");\n" +
+				"	}\n" +
+				"	\n" +
+				"	Y(int x) {\n" +
+				"       System.out.println(\"Y(int)\");\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void foo(I i) {\n" +
+				"       i.foo(10);\n" +
+				"	}\n" +
+				"	static void foo(J j) {\n" +
+				"       j.foo();\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(Y::new);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"Y(int)");
+}
+public void test023() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Y foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	Y foo();\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	Y(int ... x) {\n" +
+				"	}\n" +
+				"	\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void foo(I i) {\n" +
+				"	}\n" +
+				"	static void foo(J j) {\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(Y::new);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 18)\n" + 
+			"	foo(Y::new);\n" + 
+			"	^^^\n" + 
+			"The method foo(I) is ambiguous for the type X\n" + 
+			"----------\n");
+}
+public void test024() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Y foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	Y foo(int x);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	Y(int x) {\n" +
+				"	}\n" +
+				"	\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void foo(I i) {\n" +
+				"	}\n" +
+				"	static void foo(J j) {\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(Y::new);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 18)\n" + 
+			"	foo(Y::new);\n" + 
+			"	^^^\n" + 
+			"The method foo(I) is ambiguous for the type X\n" + 
+			"----------\n");
+}
+public void test025() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Y foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	X foo(int x);\n" +
+				"}\n" +
+				"class Y extends X {\n" +
+				"    Y(int x) {\n" +
+				"    }\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void foo(I i) {\n" +
+				"            System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void foo(J j) {\n" +
+				"            System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(Y::new);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
+public void test026() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Y foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	X foo(int x);\n" +
+				"}\n" +
+				"class Y extends X {\n" +
+				"    <T> Y(int x) {\n" +
+				"    }\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void foo(I i) {\n" +
+				"            System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void foo(J j) {\n" +
+				"            System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(Y::new);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 19)\n" + 
+			"	foo(Y::new);\n" + 
+			"	^^^\n" + 
+			"The method foo(I) is ambiguous for the type X\n" + 
+			"----------\n");
+}
+public void test027() { // javac 8b115 complains of ambiguity here.
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Y foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	X foo(int x);\n" +
+				"}\n" +
+				"class Y extends X {\n" +
+				"    <T> Y(int x) {\n" +
+				"    }\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void foo(I i) {\n" +
+				"            System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void foo(J j) {\n" +
+				"            System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(Y::<String>new);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
+public void test028() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Y [] foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	X [] foo();\n" +
+				"}\n" +
+				"class Y extends X {\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void foo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void foo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(Y []::new);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
+public void test029() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Y [] foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	X [] foo();\n" +
+				"}\n" +
+				"class Y extends X {\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void foo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void foo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(X []::new);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 17)\n" + 
+			"	foo(X []::new);\n" + 
+			"	    ^^^^^^^^^\n" + 
+			"Constructed array X[] cannot be assigned to Y[] as required in the interface descriptor  \n" + 
+			"----------\n");
+}
+public void test030() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Y [] foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	X [] foo(int x);\n" +
+				"}\n" +
+				"class Y extends X {\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void foo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void foo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(X []::new);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
 }

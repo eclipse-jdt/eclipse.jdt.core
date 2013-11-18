@@ -2037,6 +2037,41 @@ public abstract class Scope {
 		}
 	}
 
+	// For exact constructor references. 15.28.1
+	public MethodBinding getExactConstructor(TypeBinding receiverType, InvocationSite invocationSite) {
+		if (receiverType == null || !receiverType.canBeInstantiated())
+			return null;
+		if (receiverType.isArrayType()) {
+			if (!receiverType.leafComponentType().isReifiable())
+				return null;
+			return new MethodBinding(ClassFileConstants.AccPublic, TypeConstants.INIT,
+								receiverType,
+								new TypeBinding[] { TypeBinding.INT },
+								Binding.NO_EXCEPTIONS,
+								getJavaLangObject()); // just lie.
+		}
+
+		CompilationUnitScope unitScope = compilationUnitScope();
+		MethodBinding exactConstructor = null;
+		unitScope.recordTypeReference(receiverType);
+		MethodBinding[] methods = receiverType.getMethods(TypeConstants.INIT);
+		for (int i = 0, length = methods.length; i < length; i++) {
+			MethodBinding constructor = methods[i];
+			if (!constructor.canBeSeenBy(invocationSite, this))
+				continue;
+			if (constructor.isVarargs())
+				return null;
+			if (constructor.typeVariables() != Binding.NO_TYPE_VARIABLES && invocationSite.genericTypeArguments() == null)
+				return null;
+			if (exactConstructor == null) {
+				exactConstructor = constructor;
+			} else {
+				return null;
+			}
+		}
+		return exactConstructor;
+	}
+	
 	public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		LookupEnvironment env = unitScope.environment;
