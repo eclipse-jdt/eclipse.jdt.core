@@ -1147,14 +1147,7 @@ public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
 	TypeBinding expressionType = this.resolvedType;
 	if (expressionType == null || !expressionType.isValidBinding()) // Shouldn't get here, just to play it safe
 		return false; // trigger ambiguity.
-	
-	if (s.findSuperTypeOriginatingFrom(t) != null)
-		return true;
-	
-	final boolean sIsBaseType = s.isBaseType();
-	final boolean tIsBaseType = t.isBaseType();
-	
-	return expressionType.isBaseType() ? sIsBaseType && !tIsBaseType : !sIsBaseType && tIsBaseType;
+	return s.findSuperTypeOriginatingFrom(t) != null;
 }
 
 public void tagAsEllipsisArgument() {

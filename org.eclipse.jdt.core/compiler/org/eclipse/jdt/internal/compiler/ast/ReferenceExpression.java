@@ -257,7 +257,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     	}
 
     	if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
-			return new PolyTypeBinding(this);
+			return this.resolvedType = new PolyTypeBinding(this);
 		}
 		super.resolveType(scope);
 		

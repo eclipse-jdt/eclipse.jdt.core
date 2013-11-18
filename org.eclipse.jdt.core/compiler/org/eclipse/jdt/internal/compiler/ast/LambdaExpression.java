@@ -143,7 +143,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		this.enclosingScope = blockScope;
 		
 		if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
-			return new PolyTypeBinding(this);
+			return this.resolvedType = new PolyTypeBinding(this);
 		} 
 		
 		MethodScope methodScope = blockScope.methodScope();
@@ -513,9 +513,15 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	
 		Expression [] returnExpressions = this.resultExpressions;
 		for (int i = 0, length = returnExpressions.length; i < length; i++) {
-			if (!returnExpressions[i].resolvedType.isCompatibleWith(sam.returnType))
-				if (sam.returnType.id != TypeIds.T_void || this.body instanceof Block)
+			if (returnExpressions[i] instanceof FunctionalExpression) { // don't want to use the resolvedType - polluted from some other overload resolution candidate
+				if (!returnExpressions[i].isCompatibleWith(sam.returnType, this.enclosingScope))
 					return false;
+			} else {
+				if (this.enclosingScope.parameterCompatibilityLevel(returnExpressions[i].resolvedType, sam.returnType) == Scope.NOT_COMPATIBLE) {
+					if (sam.returnType.id != TypeIds.T_void || this.body instanceof Block)
+						return false;
+				}
+			}
 		}
 	
 		TypeBinding [] samPararameterTypes = sam.parameters;
@@ -549,34 +555,45 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		
 		if (r2.id == TypeIds.T_void)
 			return true;
-		
 		if (r1.id == TypeIds.T_void)
 			return false;
 		
 		if (r1.findSuperTypeOriginatingFrom(r2) != null)
 			return true;
+		if (r2.findSuperTypeOriginatingFrom(r1) != null)
+			return false;
 		
 		Expression [] returnExpressions = this.resultExpressions;
 		int returnExpressionsLength = returnExpressions == null ? 0 : returnExpressions.length;
 		
+		int i;
 		// r1 is a primitive type, r2 is a reference type, and each result expression is a standalone expression (15.2) of a primitive type
 		if (r1.isBaseType() && !r2.isBaseType()) {
-			for (int i = 0; i < returnExpressionsLength; i++) {
+			for (i = 0; i < returnExpressionsLength; i++) {
 				if (returnExpressions[i].isPolyExpression() || !returnExpressions[i].resolvedType.isBaseType())
 					break;
 			}
-			return true;
+			if (i == returnExpressionsLength)
+				return true;
 		}
-		if (returnExpressionsLength == 0)
-			return false;
-		
-		sSam = s.getSingleAbstractMethod(this.enclosingScope);
-		for (int i = 0; i < returnExpressionsLength; i++) {
-			Expression resultExpression = returnExpressions[i];
-			if (!resultExpression.sIsMoreSpecific(sSam.returnType, tSam.returnType))
-				return false;
+		if (!r1.isBaseType() && r2.isBaseType()) {
+			for (i = 0; i < returnExpressionsLength; i++) {
+				if (returnExpressions[i].resolvedType.isBaseType())
+					break;
+			}
+			if (i == returnExpressionsLength)
+				return true;
 		}
-		return true;
+		if (r1.isFunctionalInterface(this.enclosingScope) && r2.isFunctionalInterface(this.enclosingScope)) {
+			for (i = 0; i < returnExpressionsLength; i++) {
+				Expression resultExpression = returnExpressions[i];
+				if (!resultExpression.sIsMoreSpecific(r1, r2))
+					break;
+			}
+			if (i != 0 && i == returnExpressionsLength)
+				return true;
+		}
+		return false;
 	}
 
 	LambdaExpression copy() {

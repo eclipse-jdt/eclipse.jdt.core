@@ -5147,6 +5147,12 @@ this.runNegativeTest(
 				"----------\n" + 
 				"3. ERROR in X.java (at line 7)\n" + 
 				"	new X().foo(()->{});\n" + 
+				"	        ^^^\n" + 
+				"The method foo(I<T>) in the type X is not applicable for the arguments (() -> {\n" + 
+				"})\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 7)\n" + 
+				"	new X().foo(()->{});\n" + 
 				"	            ^^^^^^\n" + 
 				"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" + 
 				"----------\n");

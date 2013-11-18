@@ -590,7 +590,7 @@ public boolean isInterface() {
 	return false;
 }
 
-public boolean isFunctionalInterface() {
+public boolean isFunctionalInterface(Scope scope) {
 	return false;
 }
 

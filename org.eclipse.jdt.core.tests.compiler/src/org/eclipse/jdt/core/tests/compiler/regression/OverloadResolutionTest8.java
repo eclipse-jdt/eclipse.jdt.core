@@ -398,4 +398,107 @@ public void test013() {
 			},
 			"foo(I)");
 }
+public void test014() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Integer foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				" \n" +
+				"	static void foo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	\n" +
+				"	static void foo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(()-> new Integer(10));\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
+public void test015() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface J {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"interface I {\n" +
+				"	Integer foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				" \n" +
+				"	static void foo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	\n" +
+				"	static void foo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(()-> new Integer(10));\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
+public void test016() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface O {\n" +
+				"	Object foo();\n" +
+				"}\n" +
+				"interface S {\n" +
+				"	String foo();\n" +
+				"}\n" +
+				"interface I {\n" +
+				"	O foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	S foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void foo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void foo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(()-> ()-> \"String\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+public void test017() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface J {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void foo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(()-> new Integer(10));\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+
 }
