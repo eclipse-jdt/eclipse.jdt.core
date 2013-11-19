@@ -555,13 +555,13 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		
 		if (r2.id == TypeIds.T_void)
 			return true;
+		
 		if (r1.id == TypeIds.T_void)
 			return false;
 		
-		if (r1.findSuperTypeOriginatingFrom(r2) != null)
+		// r1 <: r2
+		if (r1.isCompatibleWith(r2))
 			return true;
-		if (r2.findSuperTypeOriginatingFrom(r1) != null)
-			return false;
 		
 		Expression [] returnExpressions = this.resultExpressions;
 		int returnExpressionsLength = returnExpressions == null ? 0 : returnExpressions.length;
@@ -590,7 +590,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				if (!resultExpression.sIsMoreSpecific(r1, r2))
 					break;
 			}
-			if (i != 0 && i == returnExpressionsLength)
+			if (i == returnExpressionsLength)
 				return true;
 		}
 		return false;

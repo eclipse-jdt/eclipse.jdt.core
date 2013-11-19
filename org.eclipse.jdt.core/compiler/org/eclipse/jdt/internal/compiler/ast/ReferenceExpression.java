@@ -621,13 +621,13 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		
 		if (r2.id == TypeIds.T_void)
 			return true;
+		
 		if (r1.id == TypeIds.T_void)
 			return false;
 		
-		if (r1.findSuperTypeOriginatingFrom(r2) != null)
+		// r1 <: r2
+		if (r1.isCompatibleWith(r2))
 			return true;
-		if (r2.findSuperTypeOriginatingFrom(r1) != null)
-			return false;
 		
 		return r1.isBaseType() != r2.isBaseType() && r1.isBaseType() == this.exactMethodBinding.returnType.isBaseType();
 	}

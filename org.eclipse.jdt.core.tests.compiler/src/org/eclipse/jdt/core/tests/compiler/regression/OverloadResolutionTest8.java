@@ -938,4 +938,54 @@ public void test033() {
 			},
 			"foo(X<String>)");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422050, [1.8][compiler] Overloaded method call with poly-conditional expression rejected by the compiler
+public void test422050() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I { \n" +
+				"	int foo(); \n" +
+				"}\n" +
+				"interface J { \n" +
+				"	double foo(); \n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static int foo(I i) {\n" +
+				"		return 0;\n" +
+				"	}\n" +
+				"	static int foo(J j) {\n" +
+				"		return 1;\n" +
+				"	}\n" +
+				"	public static void main(String argv[]) {\n" +
+				"		System.out.println(foo (() -> true ? 0 : 1));\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"0");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422050, [1.8][compiler] Overloaded method call with poly-conditional expression rejected by the compiler
+public void test422050a() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I { \n" +
+				"	Integer foo(); \n" +
+				"}\n" +
+				"interface J { \n" +
+				"	void foo(); \n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static int foo(I i) {\n" +
+				"		return 0;\n" +
+				"	}\n" +
+				"	static int foo(J j) {\n" +
+				"		return 1;\n" +
+				"	}\n" +
+				"	public static void main(String argv[]) {\n" +
+				"		System.out.println(foo (() -> foo((I) null)));\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"0");
+}
 }
