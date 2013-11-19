@@ -123,7 +123,7 @@ public static final TypeBinding wellKnownType(Scope scope, int id) {
 	}
 }
 
-protected ReferenceBinding actualType() {
+public ReferenceBinding actualType() {
 	return null; // overridden in ParameterizedTypeBinding & WildcardBinding
 }
 

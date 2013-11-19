@@ -579,7 +579,7 @@ public void setExpressionContext(ExpressionContext context) {
 }
 
 public boolean isCompatibleWith(TypeBinding left, Scope scope) {
-	return this.type.resolvedType != null && this.type.resolvedType.isCompatibleWith(left);
+	return this.type.resolvedType != null && this.type.resolvedType.actualType().isCompatibleWith(left.actualType());
 }
 
 public boolean isPolyExpression() {

@@ -229,7 +229,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	    }
 	    final boolean isDiamond = (this.bits & ASTNode.IsDiamond) != 0;
 		int argLength = this.typeArguments.length;
-		TypeBinding[] argTypes = isDiamond ? Binding.INFERRED_TYPES : new TypeBinding[argLength];
+		TypeBinding[] argTypes = new TypeBinding[argLength];
 		boolean argHasError = false;
 		ReferenceBinding currentOriginal = (ReferenceBinding)currentType.original();
 		for (int i = 0; i < argLength; i++) {

@@ -261,7 +261,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			    }
 				int argLength = args.length;
 				boolean isDiamond = argLength == 0 && (i == (max -1)) && ((this.bits & ASTNode.IsDiamond) != 0);
-				TypeBinding[] argTypes = isDiamond ? Binding.INFERRED_TYPES : new TypeBinding[argLength];
+				TypeBinding[] argTypes = new TypeBinding[argLength];
 				boolean argHasError = false;
 				ReferenceBinding currentOriginal = (ReferenceBinding)currentType.original();
 				for (int j = 0; j < argLength; j++) {

@@ -75,7 +75,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * May return an UnresolvedReferenceBinding.
 	 * @see ParameterizedTypeBinding#genericType()
 	 */
-	protected ReferenceBinding actualType() {
+	public ReferenceBinding actualType() {
 		return this.type;
 	}
 
@@ -771,7 +771,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	            }
 	            int length = this.arguments.length;
 	            TypeBinding[] otherArguments = otherParamType.arguments;
-	            if (otherArguments == null || (otherArguments.length != length && this.arguments != Binding.INFERRED_TYPES)) return false;
+	            if (otherArguments == null || otherArguments.length != length) return false;
 	            for (int i = 0; i < length; i++) {
 	            	if (!this.arguments[i].isTypeArgumentContainedBy(otherArguments[i]))
 	            		return false;

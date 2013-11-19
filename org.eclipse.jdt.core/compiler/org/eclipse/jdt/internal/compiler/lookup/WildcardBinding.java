@@ -69,7 +69,7 @@ public class WildcardBinding extends ReferenceBinding {
 		return this.boundKind;
 	}
 	
-	protected ReferenceBinding actualType() {
+	public ReferenceBinding actualType() {
 		return this.genericType;
 	}
 	
