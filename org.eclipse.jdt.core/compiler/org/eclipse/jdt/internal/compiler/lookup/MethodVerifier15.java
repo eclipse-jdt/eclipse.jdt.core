@@ -27,6 +27,7 @@
  *								bug 409473 - [compiler] JDT cannot compile against JRE 1.8
  *								Bug 420080 - [1.8] Overridden Default method is reported as duplicated
  *								Bug 404690 - [1.8][compiler] revisit bridge generation after VM bug is fixed
+ *								Bug 410325 - [1.7][compiler] Generified method override different between javac and eclipse compiler
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -297,10 +298,26 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 					// re-checking compatibility is needed for https://bugs.eclipse.org/346029
 					if (isOverridden[i] && areMethodsCompatible(concreteMethod, methods[i])) {
 						continue;
-					} else {
-						problemReporter().duplicateInheritedMethods(this.type, concreteMethod, methods[i]);
-						continueInvestigation = false;
 					}
+					// https://bugs.eclipse.org/195802 with https://bugs.eclipse.org/410325
+					// If a replace method (from findReplacedMethod()) is the rawified version of another
+					// don't count this as duplicates:
+					//   (Not asking ParameterizedGenericMethodBinding.isRawMethod(),
+					//    because that is true only for methods of a RawTypeBinding,
+					//    but here we look for rawness regarding the method's type variables).
+					if (concreteMethod.declaringClass == methods[i].declaringClass 
+							&& concreteMethod.typeVariables.length != methods[i].typeVariables.length) 
+					{
+						if (concreteMethod.typeVariables == Binding.NO_TYPE_VARIABLES
+								&& concreteMethod.original() == methods[i])
+							continue;
+						if (methods[i].typeVariables == Binding.NO_TYPE_VARIABLES
+								&& methods[i].original() == concreteMethod)
+							continue;
+					}
+
+					problemReporter().duplicateInheritedMethods(this.type, concreteMethod, methods[i]);
+					continueInvestigation = false;
 				}
 				concreteMethod = methods[i];
 			}
@@ -648,6 +665,8 @@ void checkMethods() {
  * mark as isOverridden
  * - any skippable method as defined above iff it is actually overridden by the specific method (disregarding visibility etc.)
  * Note, that 'idx' corresponds to the position of 'general' in the arrays 'skip' and 'isOverridden'
+ * TODO(stephan) currently (as of Bug 410325), the boarder between skip and isOverridden is blurred,
+ *                should reassess after more experience with this patch.
  */
 boolean isSkippableOrOverridden(MethodBinding specific, MethodBinding general, boolean[] skip, boolean[] isOverridden, boolean[] isInherited, int idx) {
 	boolean specificIsInterface = specific.declaringClass.isInterface();
@@ -663,9 +682,9 @@ boolean isSkippableOrOverridden(MethodBinding specific, MethodBinding general, b
 			return true;
 		}
 	} else if (specificIsInterface == generalIsInterface) { 
-		if (isParameterSubsignature(specific, general)) {
+		if (specific.declaringClass.isCompatibleWith(general.declaringClass) && isMethodSubsignature(specific, general)) {
 			skip[idx] = true;
-			isOverridden[idx] |= specific.declaringClass.isCompatibleWith(general.declaringClass);
+			isOverridden[idx] = true;
 			return true;
 		}
 	}
