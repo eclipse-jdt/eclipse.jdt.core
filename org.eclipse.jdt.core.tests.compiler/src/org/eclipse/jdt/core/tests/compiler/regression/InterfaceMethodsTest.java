@@ -1093,22 +1093,18 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// an annotation type cannot have default methods
 	public void testAnnotation1() {
 		runNegativeTest(
-			false,
 			new String[] {
 				"I.java",
 				"public @interface I {\n" +
 				"    default String id() { return \"1\"; }\n" +
 				"}\n"
 			},
-			null,
-			null,
 			"----------\n" + 
 			"1. ERROR in I.java (at line 2)\n" + 
 			"	default String id() { return \"1\"; }\n" + 
 			"	^^^^^^^\n" + 
 			"Syntax error on token \"default\", @ expected\n" + 
-			"----------\n",
-			JavacTestOptions.JavacHasABug.Javac8AcceptsDefaultMethodInAnnotationType);
+			"----------\n");
 	}
 	
 	// basic situation similar to AmbiguousMethodTest.test009()
@@ -1824,7 +1820,6 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// - intermediate public interface
 	public void testSuperAccess02() {
 		runConformTest(
-			false,
 			new String[] {
 				"p1/C.java",
 				"package p1;\n" +
@@ -1843,10 +1838,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"}\n" +
 				"public interface J extends I {}\n"
 			},
-			"",
-			"default",
-			"",
-			JavacTestOptions.JavacHasABug.Javac8ProducesIllegalAccessError);
+			"default");
 	}
 
 	// Variant of test MethodVerifyTest.test144() from https://bugs.eclipse.org/bugs/show_bug.cgi?id=194034
@@ -2176,24 +2168,20 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421543, [1.8][compiler] Compiler fails to recognize default method being turned into abstract by subtytpe
 	public void testBug421543b() {
-		runNegativeTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"interface I<T>  {\n" +
 				"	void foo(T t);\n" +
 				"}\n" +
+				"@SuppressWarnings(\"override\")\n" +
 				"interface J extends I<J> {\n" +
 				"	default void foo(J t) {}\n" +
 				"}\n" +
 				"public class X implements J {\n" +
 				"}\n"
 			}, 
-			"----------\n" + 
-			"1. WARNING in X.java (at line 5)\n" + 
-			"	default void foo(J t) {}\n" + 
-			"	             ^^^^^^^^\n" + 
-			"The method foo(J) of type J should be tagged with @Override since it actually overrides a superinterface method\n" + 
-			"----------\n");
+			"");
 	}
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421797, [1.8][compiler] ClassFormatError with default methods & I.super.foo() syntax
 	public void testBug421797() {
