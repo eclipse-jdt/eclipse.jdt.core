@@ -721,6 +721,7 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=288658. Generate a bridge method if a public method is inherited
  * from a non-public class into a public class (only in 1.6 or greater)
+ * https://bugs.eclipse.org/404690 : this doesn't apply to inherited interface methods (i.e., default methods)
  */
 public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge) {
 	if (!isPrototype()) throw new IllegalStateException();
