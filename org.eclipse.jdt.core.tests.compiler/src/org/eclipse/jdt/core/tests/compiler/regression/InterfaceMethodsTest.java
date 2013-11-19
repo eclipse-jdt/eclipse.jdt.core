@@ -2166,7 +2166,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421543, [1.8][compiler] Compiler fails to recognize default method being turned into abstract by subtytpe
-	public void _testBug421543a() {
+	public void testBug421543a() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
