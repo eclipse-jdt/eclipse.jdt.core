@@ -305,7 +305,7 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 					//   (Not asking ParameterizedGenericMethodBinding.isRawMethod(),
 					//    because that is true only for methods of a RawTypeBinding,
 					//    but here we look for rawness regarding the method's type variables).
-					if (concreteMethod.declaringClass == methods[i].declaringClass 
+					if (TypeBinding.equalsEquals(concreteMethod.declaringClass, methods[i].declaringClass) 
 							&& concreteMethod.typeVariables.length != methods[i].typeVariables.length) 
 					{
 						if (concreteMethod.typeVariables == Binding.NO_TYPE_VARIABLES
