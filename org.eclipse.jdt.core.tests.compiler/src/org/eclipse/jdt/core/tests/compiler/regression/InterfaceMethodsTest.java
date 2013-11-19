@@ -1793,8 +1793,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// class implements interface with default method. 
-	// - synth. access needed for visibility reasons
-	// - witness for NoSuchMethodError in synthetic method (SuperMethodAccess)
+	// - witness for NoSuchMethodError in synthetic method (SuperMethodAccess) - turned out to be a JVM bug
 	public void testSuperAccess01() {
 		runConformTest(
 			new String[] {
@@ -1816,7 +1815,6 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 
 	// class implements interface with default method. 
-	// - synth. access needed for visibility reasons
 	// - intermediate public interface
 	public void testSuperAccess02() {
 		runConformTest(
@@ -1839,6 +1837,33 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"public interface J extends I {}\n"
 			},
 			"default");
+	}
+	
+	// https://bugs.eclipse.org/421796 - Bug 421796 - [1.8][compiler] java.lang.AbstractMethodError executing default method code.
+	public void testSuperAccess03() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"interface I  {\n" + 
+				"    void foo(); \n" + 
+				"}\n" + 
+				"\n" + 
+				"interface J extends I {\n" + 
+				"    default void foo() {\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface K extends J {\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X implements K {\n" + 
+				"	public static void main(String argv[]) {\n" + 
+				"		X test = new X();\n" + 
+				"		((J)test).foo();\n" + 
+				"		test.foo();\n" + 
+				"	}\n" + 
+				"}\n"
+			});
 	}
 
 	// Variant of test MethodVerifyTest.test144() from https://bugs.eclipse.org/bugs/show_bug.cgi?id=194034
