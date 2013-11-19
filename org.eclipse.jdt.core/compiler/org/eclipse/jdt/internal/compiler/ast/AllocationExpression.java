@@ -298,12 +298,24 @@ public StringBuffer printExpression(int indent, StringBuffer output) {
 
 public TypeBinding resolveType(BlockScope scope) {
 	// Propagate the type checking to the arguments, and check if the constructor is defined.
-	this.constant = Constant.NotAConstant;
-	if (this.type == null) {
-		// initialization of an enum constant
-		this.resolvedType = scope.enclosingReceiverType();
+	final boolean isDiamond = this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0;
+	final CompilerOptions compilerOptions = scope.compilerOptions();
+	if (this.constant != Constant.NotAConstant) {
+		this.constant = Constant.NotAConstant;
+		if (this.type == null) {
+			// initialization of an enum constant
+			this.resolvedType = scope.enclosingReceiverType();
+		} else {
+			this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);
+			if (isDiamond && this.typeExpected == null && this.expressionContext == INVOCATION_CONTEXT && compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
+				return this.resolvedType = new PolyTypeBinding(this);
+			}
+		}
 	} else {
-		this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);
+		this.resolvedType = this.type.resolvedType;
+	}
+
+	if (this.type != null) {
 		checkIllegalNullAnnotation(scope, this.resolvedType);
 		checkParameterizedAllocation: {
 			if (this.type instanceof ParameterizedQualifiedTypeReference) { // disallow new X<String>.Y<Integer>()
@@ -326,11 +338,10 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	// will check for null after args are resolved
 
-	final boolean isDiamond = this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0;
 	// resolve type arguments (for generic constructor call)
 	if (this.typeArguments != null) {
 		int length = this.typeArguments.length;
-		boolean argHasError = scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5;
+		boolean argHasError = compilerOptions.sourceLevel < ClassFileConstants.JDK1_5;
 		this.genericTypeArguments = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
 			TypeReference typeReference = this.typeArguments[i];
@@ -459,7 +470,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (!isDiamond && this.resolvedType.isParameterizedTypeWithActualArguments()) {
  		checkTypeArgumentRedundancy((ParameterizedTypeBinding) this.resolvedType, null, argumentTypes, scope);
  	}
-	final CompilerOptions compilerOptions = scope.compilerOptions();
 	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled && (this.binding.tagBits & TagBits.IsNullnessKnown) == 0) {
 		new ImplicitNullAnnotationVerifier(scope.environment(), compilerOptions.inheritNullAnnotations)
 				.checkImplicitNullAnnotations(this.binding, null/*srcMethod*/, false, scope);
@@ -568,13 +578,13 @@ public void setExpressionContext(ExpressionContext context) {
 	this.expressionContext = context;
 }
 
+public boolean isCompatibleWith(TypeBinding left, Scope scope) {
+	return this.type.resolvedType != null && this.type.resolvedType.isCompatibleWith(left);
+}
+
 public boolean isPolyExpression() {
 	return (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) &&
 			this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0;
-}
-
-public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
-	return isPolyExpression() ? !s.isBaseType() && t.isBaseType() : super.sIsMoreSpecific(s, t);
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#expectedType()

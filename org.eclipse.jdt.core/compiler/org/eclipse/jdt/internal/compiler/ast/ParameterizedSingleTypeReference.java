@@ -227,8 +227,9 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	    	keep = ((ClassScope) scope).superTypeReference;
 	    	((ClassScope) scope).superTypeReference = null;
 	    }
+	    final boolean isDiamond = (this.bits & ASTNode.IsDiamond) != 0;
 		int argLength = this.typeArguments.length;
-		TypeBinding[] argTypes = new TypeBinding[argLength];
+		TypeBinding[] argTypes = isDiamond ? Binding.INFERRED_TYPES : new TypeBinding[argLength];
 		boolean argHasError = false;
 		ReferenceBinding currentOriginal = (ReferenceBinding)currentType.original();
 		for (int i = 0; i < argLength; i++) {
@@ -252,7 +253,6 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 				return null;
 		}
 
-		final boolean isDiamond = (this.bits & ASTNode.IsDiamond) != 0;
 		TypeVariableBinding[] typeVariables = currentOriginal.typeVariables();
 		if (typeVariables == Binding.NO_TYPE_VARIABLES) { // non generic invoked with arguments
 			boolean isCompliant15 = scope.compilerOptions().originalSourceLevel >= ClassFileConstants.JDK1_5;

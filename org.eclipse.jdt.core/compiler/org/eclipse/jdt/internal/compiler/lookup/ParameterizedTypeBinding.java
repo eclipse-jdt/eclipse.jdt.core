@@ -771,7 +771,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	            }
 	            int length = this.arguments.length;
 	            TypeBinding[] otherArguments = otherParamType.arguments;
-	            if (otherArguments == null || otherArguments.length != length) return false;
+	            if (otherArguments == null || (otherArguments.length != length && this.arguments != Binding.INFERRED_TYPES)) return false;
 	            for (int i = 0; i < length; i++) {
 	            	if (!this.arguments[i].isTypeArgumentContainedBy(otherArguments[i]))
 	            		return false;

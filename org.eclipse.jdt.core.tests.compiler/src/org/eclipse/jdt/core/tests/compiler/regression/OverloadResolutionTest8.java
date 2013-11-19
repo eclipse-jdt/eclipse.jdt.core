@@ -873,4 +873,69 @@ public void test030() {
 			},
 			"foo(J)");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401850, [1.8][compiler] Compiler fails to type poly allocation expressions in method invocation contexts
+public void test031() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" +
+				"	void foo(X<String> s) {\n" +
+				"       System.out.println(\"foo(X<String>)\");\n" +
+				"   }\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X<String>().foo(new X<>());\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(X<String>)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401850, [1.8][compiler] Compiler fails to type poly allocation expressions in method invocation contexts
+public void test032() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" +
+				"    void foo(X<String> s, Object o) {\n" +
+				"        System.out.println(\"foo(X<String>)\");\n" +
+				"    }\n" +
+				"    void foo(X xs, String s) {\n" +
+				"        System.out.println(\"foo(X<String>)\");\n" +
+				"    }\n" +
+				"    public static void main(String[] args) {\n" +
+				"        new X<String>().foo(new X<>(), \"Hello\");\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	void foo(X xs, String s) {\n" + 
+			"	         ^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	new X<String>().foo(new X<>(), \"Hello\");\n" + 
+			"	                ^^^\n" + 
+			"The method foo(X<String>, Object) is ambiguous for the type X<String>\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401850, [1.8][compiler] Compiler fails to type poly allocation expressions in method invocation contexts
+public void test033() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"class Y<T> {}\n" +
+				"public class X<T> extends Y<T> {\n" +
+				"    void foo(X<String> s) {\n" +
+				"        System.out.println(\"foo(X<String>)\");\n" +
+				"    }\n" +
+				"    void foo(Y<String> y) {\n" +
+				"        System.out.println(\"foo(Y<String>)\");\n" +
+				"    }\n" +
+				"    public static void main(String[] args) {\n" +
+				"        new X<String>().foo(new X<>());\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"foo(X<String>)");
+}
 }

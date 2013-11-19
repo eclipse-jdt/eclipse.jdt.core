@@ -138,7 +138,7 @@ public class TypeSystem {
 	public ParameterizedTypeBinding getParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType) {
 		ReferenceBinding unannotatedGenericType = (ReferenceBinding) getUnannotatedType(genericType);
 		int typeArgumentsLength = typeArguments == null ? 0: typeArguments.length;
-		TypeBinding [] unannotatedTypeArguments = typeArguments == null ? null : new TypeBinding[typeArgumentsLength];
+		TypeBinding [] unannotatedTypeArguments = typeArguments == null || typeArguments.length == 0 ? typeArguments : new TypeBinding[typeArgumentsLength];
 		for (int i = 0; i < typeArgumentsLength; i++) {
 			unannotatedTypeArguments[i] = getUnannotatedType(typeArguments[i]);
 		}
