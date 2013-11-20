@@ -762,7 +762,7 @@ public void test026() {
 			"The method foo(I) is ambiguous for the type X\n" + 
 			"----------\n");
 }
-public void test027() { // javac 8b115 complains of ambiguity here.
+public void test027() { // javac bug: 8b115 complains of ambiguity here.
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -963,29 +963,848 @@ public void test422050() {
 			},
 			"0");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422050, [1.8][compiler] Overloaded method call with poly-conditional expression rejected by the compiler
-public void test422050a() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400871, [1.8][compiler] Overhaul overload resolution to reconcile with JLS8 15.12.2
+public void test400871() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"interface I { \n" +
-				"	Integer foo(); \n" +
+				"interface I {\n" +
+				"	void foo();\n" +
 				"}\n" +
-				"interface J { \n" +
-				"	void foo(); \n" +
+				"interface J {\n" +
+				"	int foo();\n" +
 				"}\n" +
 				"public class X {\n" +
-				"	static int foo(I i) {\n" +
-				"		return 0;\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
 				"	}\n" +
-				"	static int foo(J j) {\n" +
-				"		return 1;\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
 				"	}\n" +
-				"	public static void main(String argv[]) {\n" +
-				"		System.out.println(foo (() -> foo((I) null)));\n" +
+				"	static int foo() {\n" +
+				"		 return 0;\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(X::foo);\n" +
 				"	}\n" +
 				"}\n",
 			},
-			"0");
+			"foo(J)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400871, [1.8][compiler] Overhaul overload resolution to reconcile with JLS8 15.12.2
+public void test400871a() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo(int x);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	int foo(int y) {\n" +
+				"		 return 0;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	int foo(int x) {\n" +
+				"		 return 0;\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400871, [1.8][compiler] Overhaul overload resolution to reconcile with JLS8 15.12.2
+public void test400871b() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo(int x);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	<T> int foo(int y) {\n" +
+				"		 return 0;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	int foo(int x) {\n" +
+				"		 return 0;\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400871, [1.8][compiler] Overhaul overload resolution to reconcile with JLS8 15.12.2
+public void test400871c() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo(int x);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	<T> int foo(String y) {\n" +
+				"		 return 0;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	int foo(int x) {\n" +
+				"		 return 0;\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 23)\n" + 
+			"	goo(new X()::foo);\n" + 
+			"	^^^\n" + 
+			"The method goo(I) is ambiguous for the type X\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400871, [1.8][compiler] Overhaul overload resolution to reconcile with JLS8 15.12.2
+public void test400871d() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo(int x);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	int foo(String y) {\n" +
+				"		 return 0;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	<T> int foo(int x) {\n" +
+				"		 return 0;\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 23)\n" + 
+			"	goo(new X()::foo);\n" + 
+			"	^^^\n" + 
+			"The method goo(I) is ambiguous for the type X\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400871, [1.8][compiler] Overhaul overload resolution to reconcile with JLS8 15.12.2
+public void test4008712() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo(int x);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	int foo(String y) {\n" +
+				"		 return 0;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	<T> int foo(int x) {\n" +
+				"		 return 0;\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 23)\n" + 
+			"	goo(new X()::foo);\n" + 
+			"	^^^\n" + 
+			"The method goo(I) is ambiguous for the type X\n" + 
+			"----------\n");
+}
+public void test4008712e() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo(int x);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	int foo(int y) {\n" +
+				"		 return 0;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+public void test4008712f() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo(int x);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	int foo(int ... x) {\n" +
+				"		 return 0;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 20)\n" + 
+			"	goo(new X()::foo);\n" + 
+			"	^^^\n" + 
+			"The method goo(I) is ambiguous for the type X\n" + 
+			"----------\n");
+}
+public void test4008712g() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo(int x);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	private int foo(int x) {\n" +
+				"		 return 0;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	private int foo(int x) {\n" + 
+			"	            ^^^^^^^^^^\n" + 
+			"The method foo(int) from the type Y is never used locally\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 20)\n" + 
+			"	goo(new X()::foo);\n" + 
+			"	    ^^^^^^^^^^^^\n" + 
+			"The type X does not define foo(int) that is applicable here\n" + 
+			"----------\n");
+}
+public void test4008712h() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo(int x);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	public <T> int foo(int x) {\n" +
+				"		 return 0;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 20)\n" + 
+			"	goo(new X()::foo);\n" + 
+			"	^^^\n" + 
+			"The method goo(I) is ambiguous for the type X\n" + 
+			"----------\n");
+}
+public void test4008712i() { // javac bug: 8b115 complains of ambiguity here.
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo(int x);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	public <T> int foo(int x) {\n" +
+				"		 return 0;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::<String>foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+public void test4008712j() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(String x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo(String x);\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"	public T foo(T x) {\n" +
+				"		 return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X<T> extends Y<T> {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X<String>()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
+public void test4008712k() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(String x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	String foo(String x);\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"	public T foo(T x) {\n" +
+				"		 return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X<T> extends Y<T> {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X<String>()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+public void test4008712l() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(String x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	String foo(String x);\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"	public T foo(T x) {\n" +
+				"		 return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X<T> extends Y<String> {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X<String>()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+public void test4008712m() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(String x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	String foo(String x);\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"	public T foo(T x) {\n" +
+				"		 return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X<T> extends Y<String> {\n" +
+				"   public void foo() {}\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X<String>()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 21)\n" + 
+			"	goo(new X<String>()::foo);\n" + 
+			"	^^^\n" + 
+			"The method goo(I) is ambiguous for the type X<T>\n" + 
+			"----------\n");
+}
+public void test4008712n() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(String x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	String foo(String x);\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"	public T foo(T x) {\n" +
+				"		 return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X<T> extends Y<String> {\n" +
+				"   public String foo(String s) { return null; }\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X<String>()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+public void test4008712o() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(String x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	String foo(String x);\n" +
+				"}\n" +
+				"interface K<T> {\n" +
+				"	public T foo(T x);\n" +
+				"}\n" +
+				"class Y<T> implements K {\n" +
+				"	public Object foo(Object x) {\n" +
+				"		 return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X<T> extends Y<String> {\n" +
+				"   public Object foo(Object s) { return null; }\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X<String>()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
+public void test4008712p() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(String x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	String foo(String x);\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"	public T foo(T x) {\n" +
+				"		 return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X<T> extends Y<String> {\n" +
+				"   public String foo(String s) { return null; }\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 21)\n" + 
+			"	goo(new X()::foo);\n" + 
+			"	^^^\n" + 
+			"The method goo(I) is ambiguous for the type X<T>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 21)\n" + 
+			"	goo(new X()::foo);\n" + 
+			"	        ^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n");
+}
+public void test4008712q() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(String x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	String foo(String x);\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"	public T foo(T x) {\n" +
+				"		 return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X<T> extends Y<String> {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
+public void test4008712r() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	String foo();\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"	public T foo(T x) {\n" +
+				"		 return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X<T> extends Y<String> {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X[0]::clone);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
+public void test4008712s() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	String foo();\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"	public T foo(T x) {\n" +
+				"		 return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X<T> extends Y<String> {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X[0]::toString);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+public void test4008712t() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Class foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	Object foo();\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"	public T foo(T x) {\n" +
+				"		 return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X<T> extends Y<String> {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X[0]::getClass);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
+public void test4008712u() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"	public T foo(T x) {\n" +
+				"		 return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X<T> extends Y<String> {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(I::clone);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 20)\n" + 
+			"	goo(I::clone);\n" + 
+			"	    ^^^^^^^^\n" + 
+			"The type I does not define clone() that is applicable here\n" + 
+			"----------\n");
+}
+public void test4008712v() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"	public T foo(T x) {\n" +
+				"		 return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X<T> extends Y<String> {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"       I i = () -> {};\n" +
+				"		goo(i::hashCode);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+public void test4008712w() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"	public T foo(T x) {\n" +
+				"		 return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X<T> extends Y<String> {\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"       I i = () -> {};\n" +
+				"		goo(i::clone);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 21)\n" + 
+			"	goo(i::clone);\n" + 
+			"	    ^^^^^^^^\n" + 
+			"The type I does not define clone() that is applicable here\n" + 
+			"----------\n");
+}
+public void test4008712x() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(String x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	String foo(String x);\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"	public T foo(T x) {\n" +
+				"		 return null;\n" +
+				"	}\n" +
+				"   private void foo() {}\n" +
+				"}\n" +
+				"public class X<T> extends Y<String> {\n" +
+				"   public String foo(String s) { return null; }\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X<String>()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
 }
 }

@@ -258,10 +258,8 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     	}
 
     	if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
-    		if (isConstructorReference()) {
-    			this.exactMethodBinding = scope.getExactConstructor(lhsType, this);
-    		}
-			return this.resolvedType = new PolyTypeBinding(this);
+    		this.exactMethodBinding = isMethodReference() ? scope.getExactMethod(lhsType, this.selector, this) : scope.getExactConstructor(lhsType, this);
+    		return this.resolvedType = new PolyTypeBinding(this);
 		}
 		super.resolveType(scope);
 		

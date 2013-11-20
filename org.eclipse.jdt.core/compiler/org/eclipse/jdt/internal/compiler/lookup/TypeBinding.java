@@ -1455,4 +1455,16 @@ public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
 public MethodBinding[] getMethods(char[] selector) {
 	return Binding.NO_METHODS;
 }
+
+public boolean canBeSeenBy(Scope scope) {
+	return true;
+}
+
+public ReferenceBinding superclass() {
+	return null;
+}
+
+public ReferenceBinding[] superInterfaces() {
+	return Binding.NO_SUPERINTERFACES;
+}
 }
