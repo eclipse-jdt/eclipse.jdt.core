@@ -18,6 +18,6 @@
   </parent>
   <groupId>org.eclipse.jdt</groupId>
   <artifactId>org.eclipse.jdt.compiler.tool.tests</artifactId>
-  <version>1.0.101-SNAPSHOT</version>
+  <version>1.0.200-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
 </project>
