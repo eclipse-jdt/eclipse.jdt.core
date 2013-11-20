@@ -308,7 +308,8 @@ public TypeBinding resolveType(BlockScope scope) {
 		} else {
 			this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);
 			if (isDiamond && this.typeExpected == null && this.expressionContext == INVOCATION_CONTEXT && compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
-				return this.resolvedType = new PolyTypeBinding(this);
+				if (this.resolvedType != null && this.resolvedType.isValidBinding())
+					return this.resolvedType = new PolyTypeBinding(this);
 			}
 		}
 	} else {
@@ -579,7 +580,7 @@ public void setExpressionContext(ExpressionContext context) {
 }
 
 public boolean isCompatibleWith(TypeBinding left, Scope scope) {
-	return this.type.resolvedType != null && this.type.resolvedType.actualType().isCompatibleWith(left.actualType());
+	return this.type.resolvedType != null && left.actualType() != null && this.type.resolvedType.actualType().isCompatibleWith(left.actualType());
 }
 
 public boolean isPolyExpression() {

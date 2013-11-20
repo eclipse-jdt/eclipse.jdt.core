@@ -3344,4 +3344,26 @@ public void test406846() {
 			expectedProblemLog
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401850: [1.8][compiler] Compiler fails to type poly allocation expressions in method invocation contexts
+public void test401850() {
+	
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" +
+				"   static void foo(Object o) {\n" +
+				"	   System.out.println(\"foo(Object)\");\n" +
+				"   }\n" +
+				"   static void foo(X<String> o) {\n" +
+				"	   System.out.println(\"foo(X<String>)\");\n" +
+				"   }\n" +
+				"   public static void main(String[] args) { \n" +
+				"      foo(new X<>()); \n" +
+				"   } \n" +
+				"}\n",
+			},
+			this.complianceLevel == ClassFileConstants.JDK1_7 ? "foo(Object)" : "foo(X<String>)");
+}
 }
