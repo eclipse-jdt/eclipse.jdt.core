@@ -514,6 +514,10 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		return CharOperation.equals(this.selector,  ConstantPool.Init);
 	}
 	
+	public boolean isExactMethodReference() {
+		return this.exactMethodBinding != null;
+	}
+	
 	public final boolean isMethodReference() {
 		return !CharOperation.equals(this.selector,  ConstantPool.Init);
 	}
