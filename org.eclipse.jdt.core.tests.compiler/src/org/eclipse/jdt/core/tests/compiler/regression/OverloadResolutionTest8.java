@@ -1807,4 +1807,264 @@ public void test4008712x() {
 			},
 			"foo(J)");
 }
+public void test4008712y() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"   public int foo() { return 0; }\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+public void test4008712z() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	long foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"   public int foo() { return 0; }\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+public void test4008712za() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	long foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"   public long foo() { return 0; }\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
+public void test4008712zb() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"   public long foo() { return 0; }\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 16)\n" + 
+			"	goo(new X()::foo);\n" + 
+			"	^^^\n" + 
+			"The method goo(I) is ambiguous for the type X\n" + 
+			"----------\n");
+}
+public void test4008712zc() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	Integer foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"   public long foo() { return 0; }\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 16)\n" + 
+			"	goo(new X()::foo);\n" + 
+			"	    ^^^^^^^^^^^^\n" + 
+			"The type of foo() from the type X is long, this is incompatible with the descriptor\'s return type: int\n" + 
+			"----------\n");
+}
+public void test4008712zd() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	Long foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"   public long foo() { return 0; }\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+public void test4008712ze() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	Integer foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"   public int foo() { return 0; }\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
+public void test4008712zf() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	int foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	Integer foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"   public Integer foo() { return 0; }\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
+public void test4008712zg() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Integer foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	Long foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"   public Integer foo() { return 0; }\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(I)");
+}
+public void test4008712zh() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Integer foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	Long foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"   public Long foo() { return 0L; }\n" +
+				"	static void goo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	static void goo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) { \n" +
+				"		goo(new X()::foo);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(J)");
+}
 }
