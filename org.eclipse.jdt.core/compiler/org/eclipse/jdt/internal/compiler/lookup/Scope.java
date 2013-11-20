@@ -4053,26 +4053,27 @@ public abstract class Scope {
 				TypeBinding argumentType = argumentTypes[i];
 				if (argumentType.kind() != Binding.POLY_TYPE)
 					continue;
-				next:
-					for (int j = 0; j < visibleSize; j++) {
-						final TypeBinding[] mbjParameters = visible[j].parameters;
-						final int mbjParametersLength = mbjParameters.length;
-						TypeBinding t = i < mbjParametersLength ? mbjParameters[i] : mbjParameters[mbjParametersLength - 1];
-						boolean tIsMoreSpecific = false;
-						for (int k = 0; k < visibleSize; k++) {
-							if (j == k) continue;
-							final TypeBinding[] mbkParameters = visible[k].parameters;
-							final int mbkParametersLength = mbkParameters.length;
-							TypeBinding s = i < mbkParametersLength ? mbkParameters[i] : mbkParameters[mbkParametersLength - 1];
-							if (TypeBinding.equalsEquals(t, s))
-								continue;
-							if (!argumentType.sIsMoreSpecific(t,s)) 
-								continue next;
-							tIsMoreSpecific = true;
+				
+				for (int j = 0; j < visibleSize; j++) {
+					final TypeBinding[] mbjParameters = visible[j].parameters;
+					final int mbjParametersLength = mbjParameters.length;
+					TypeBinding s = i < mbjParametersLength ? mbjParameters[i] : mbjParameters[mbjParametersLength - 1];
+					boolean sIsMoreSpecific = true;
+					for (int k = 0; k < visibleSize; k++) {
+						if (j == k) continue;
+						final TypeBinding[] mbkParameters = visible[k].parameters;
+						final int mbkParametersLength = mbkParameters.length;
+						TypeBinding t = i < mbkParametersLength ? mbkParameters[i] : mbkParameters[mbkParametersLength - 1];
+						if (TypeBinding.equalsEquals(s, t))
+							continue;
+						if (!argumentType.sIsMoreSpecific(s,t)) { 
+							sIsMoreSpecific = false;
+							break;
 						}
-						if (tIsMoreSpecific)
-							moreSpecific[count++] = visible[j];
 					}
+					if (sIsMoreSpecific)
+						moreSpecific[count++] = visible[j];
+				}
 			}
 			if (count != 0) {
 				visible = moreSpecific;
