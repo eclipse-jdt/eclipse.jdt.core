@@ -4387,11 +4387,24 @@ public void invalidType(ASTNode location, TypeBinding type) {
 		if (isRecoveredName(arrayTypeReference.token)) return;
 		end = arrayTypeReference.originalSourceEnd;
 	}
+
+	int start = location.sourceStart;
+	if (location instanceof org.eclipse.jdt.internal.compiler.ast.SingleTypeReference) {
+		org.eclipse.jdt.internal.compiler.ast.SingleTypeReference ref =
+				(org.eclipse.jdt.internal.compiler.ast.SingleTypeReference) location;
+		if (ref.annotations != null)
+			start = end - ref.token.length + 1;
+	} else if (location instanceof QualifiedTypeReference) {
+		QualifiedTypeReference ref = (QualifiedTypeReference) location;
+		if (ref.annotations != null)
+			start = (int) (ref.sourcePositions[0] & 0x00000000FFFFFFFFL ) - ref.tokens[0].length + 1;
+	}
+
 	this.handle(
 		id,
 		new String[] {new String(type.leafComponentType().readableName()) },
 		new String[] {new String(type.leafComponentType().shortReadableName())},
-		location.sourceStart,
+		start,
 		end);
 }
 public void invalidTypeForCollection(Expression expression) {
@@ -7707,6 +7720,7 @@ public void typeMismatchError(TypeBinding actualType, TypeBinding expectedType, 
 				expectingLocation.sourceEnd);
 			return;
 	}
+
 	char[] actualShortReadableName = actualType.shortReadableName();
 	char[] expectedShortReadableName = expectedType.shortReadableName();
 	char[] actualReadableName = actualType.readableName();
