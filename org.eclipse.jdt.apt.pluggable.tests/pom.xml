@@ -19,6 +19,6 @@
   </parent>
   <groupId>org.eclipse.jdt</groupId>
   <artifactId>org.eclipse.jdt.apt.pluggable.tests</artifactId>
-  <version>3.3.300-SNAPSHOT</version>
+  <version>3.3.500-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
 </project>
