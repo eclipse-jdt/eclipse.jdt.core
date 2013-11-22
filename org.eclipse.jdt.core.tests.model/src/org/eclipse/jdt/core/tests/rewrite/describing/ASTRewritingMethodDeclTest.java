@@ -3248,9 +3248,9 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("package test1;\n");
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("public abstract class E {\n");
-		buf.append("    public Object foo1()[] @Annot1 [] @Annot2 [] { return null; }\n");
-		buf.append("    public Object foo2()[] @Annot1 [] throws ArrayStoreException { return null; }\n");
-		buf.append("    public Object foo3() @Annot1 [] @Annot1 @Annot2 [] @Annot2 [] { return null; }\n");
+		buf.append("    public Object foo1()[]@Annot1 []@Annot2 [] { return null; }\n");
+		buf.append("    public Object foo2()[]@Annot1 [] throws ArrayStoreException { return null; }\n");
+		buf.append("    public Object foo3() @Annot1 [] @Annot1 @Annot2 []@Annot2 [] { return null; }\n");
 		buf.append("    public Object foo4()@Annot2 @Annot1 [] @Annot2 @Annot1 [] throws IllegalArgumentException { return null; }\n");
 		buf.append("    public Object foo5()  []   @Annot2 @Annot1 [] { return null; }\n");
 		buf.append("    public Object foo6(int i)   []  [] throws IllegalArgumentException { return null; }\n");

@@ -1738,7 +1738,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
-		buf.append("        int i, j, k = 0, x, y [] [] [], z @Annot1 [], zz @Annot2 @Annot2[] = {0, 1};\n");
+		buf.append("        int i, j, k = 0, x, y[][][], z @Annot1 [], zz @Annot2 @Annot2[] = {0, 1};\n");
 		buf.append("    }\n");
 		buf.append("}\n");
 		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
@@ -1849,7 +1849,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
-		buf.append("        int a @Annot1 @Annot2 [], j = 1, k @Annot1 @Annot2 [], x @Annot1 @Annot2 [] = null, y @Annot1[] @Annot2[], zz @Annot2 @Annot2[] = {0, 1};\n");
+		buf.append("        int a @Annot1 @Annot2 [], j = 1, k @Annot1 @Annot2 [], x @Annot1 @Annot2 [] = null, y @Annot1 [] @Annot2 [], zz @Annot2 @Annot2[] = {0, 1};\n");
 		buf.append("    }\n");
 		buf.append("}\n");
 		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");

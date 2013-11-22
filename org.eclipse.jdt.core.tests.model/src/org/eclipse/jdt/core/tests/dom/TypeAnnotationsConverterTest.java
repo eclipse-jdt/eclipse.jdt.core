@@ -162,7 +162,7 @@ public class TypeAnnotationsConverterTest extends ConverterTestSetup {
 				"class Z<Q> {\n" + 
 				"    }\n" + 
 				"  }\n" + 
-				"  Object o=(@Marker X<@Marker String>.@Marker Y<@Marker Integer>.@Marker Z<@Marker Object> @Marker [] [] @Marker [] [])null;\n" + 
+				"  Object o=(@Marker X<@Marker String>.@Marker Y<@Marker Integer>.@Marker Z<@Marker Object> @Marker [][] @Marker [][])null;\n" + 
 				"  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}\n" + 
 				"}\n";
 		assertASTNodeEquals(expectedOutput, node);
@@ -191,7 +191,7 @@ public class TypeAnnotationsConverterTest extends ConverterTestSetup {
 				"class Z<Q> {\n" + 
 				"    }\n" + 
 				"  }\n" + 
-				"  Object o=(@Marker X<@Marker String>.@Marker Y<@Marker Integer>.@Marker Z<@Marker Object> [] @Marker [] [] @Marker [])null;\n" + 
+				"  Object o=(@Marker X<@Marker String>.@Marker Y<@Marker Integer>.@Marker Z<@Marker Object>[] @Marker [][] @Marker [])null;\n" + 
 				"  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}\n" + 
 				"}\n";
 		assertASTNodeEquals(expectedOutput, node);
@@ -204,7 +204,7 @@ public class TypeAnnotationsConverterTest extends ConverterTestSetup {
 			"        class Z<Q> {\n" +
 		    "        }\n" +
 			"    }\n" +
-			"    int [] [] [] [] o = (@One int [] @Two [] [] @Three []) null;\n" +
+			"    int[][][][] o = (@One int[] @Two [][] @Three []) null;\n" +
 			
 			"    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
 			"    @interface Marker {\n" +
@@ -220,7 +220,7 @@ public class TypeAnnotationsConverterTest extends ConverterTestSetup {
 				"class Z<Q> {\n" + 
 				"    }\n" + 
 				"  }\n" + 
-				"  int [] [] [] [] o=(@One int [] @Two [] [] @Three [])null;\n" + 
+				"  int[][][][] o=(@One int[] @Two [][] @Three [])null;\n" + 
 				"  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}\n" + 
 				"}\n";
 		assertASTNodeEquals(expectedOutput, node);
@@ -233,7 +233,7 @@ public class TypeAnnotationsConverterTest extends ConverterTestSetup {
 			"        class Z<Q> {\n" +
 		    "        }\n" +
 			"    }\n" +
-			"    String [] [] [] [] o = (@One String [] @Two [] [] @Three []) null;\n" +
+			"    String [][][][] o = (@One String[]@Two [][]@Three []) null;\n" +
 			
 			"    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
 			"    @interface Marker {\n" +
@@ -249,7 +249,7 @@ public class TypeAnnotationsConverterTest extends ConverterTestSetup {
 				"class Z<Q> {\n" + 
 				"    }\n" + 
 				"  }\n" + 
-				"  String [] [] [] [] o=(@One String [] @Two [] [] @Three [])null;\n" + 
+				"  String[][][][] o=(@One String[] @Two [][] @Three [])null;\n" + 
 				"  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}\n" + 
 				"}\n";
 		assertASTNodeEquals(expectedOutput, node);
@@ -262,7 +262,7 @@ public class TypeAnnotationsConverterTest extends ConverterTestSetup {
 			"        class Z<Q> {\n" +
 		    "        }\n" +
 			"    }\n" +
-			"    Object o = (@One X<String> [] @Two [] [] @Three []) null;\n" +
+			"    Object o = (@One X<String> [] @Two [][]@Three []) null;\n" +
 			
 			"    @java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
 			"    @interface Marker {\n" +
@@ -278,7 +278,7 @@ public class TypeAnnotationsConverterTest extends ConverterTestSetup {
 				"class Z<Q> {\n" + 
 				"    }\n" + 
 				"  }\n" + 
-				"  Object o=(@One X<String> [] @Two [] [] @Three [])null;\n" + 
+				"  Object o=(@One X<String>[] @Two [][] @Three [])null;\n" + 
 				"  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {}\n" + 
 				"}\n";
 		assertASTNodeEquals(expectedOutput, node);

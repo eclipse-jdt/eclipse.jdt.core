@@ -620,8 +620,10 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	public boolean visit(Dimension node) {
-		this.buffer.append(" ");//$NON-NLS-1$
-		visitAnnotationsList(node.annotations());
+		List annotations = node.annotations();
+		if (annotations.size() > 0)
+			this.buffer.append(' ');
+		visitAnnotationsList(annotations);
 		this.buffer.append("[]"); //$NON-NLS-1$
 		return false;
 	}

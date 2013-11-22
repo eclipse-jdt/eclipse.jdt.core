@@ -305,7 +305,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			this.result.append("[]"); //$NON-NLS-1$
 		} else {
 			getChildNode(node, ArrayType.ELEMENT_TYPE_PROPERTY).accept(this);
-			visitList(node, ArrayType.DIMENSIONS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
+			visitList(node, ArrayType.DIMENSIONS_PROPERTY, Util.EMPTY_STRING, Util.EMPTY_STRING, Util.EMPTY_STRING);
 		}
 		return false;
 	}
