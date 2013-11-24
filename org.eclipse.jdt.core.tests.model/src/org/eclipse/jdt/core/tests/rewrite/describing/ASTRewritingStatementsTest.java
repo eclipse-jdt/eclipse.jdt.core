@@ -46,10 +46,12 @@ import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.LabeledStatement;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
+import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
@@ -6967,6 +6969,173 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("    	int[] @Annot2(float[].class) [] k;\n");
 		buf.append("    }\n");
 		buf.append("}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Annot1 {\n");
+		buf.append("	int value1() default 1;\n");
+		buf.append("	int value2();\n");
+		buf.append("}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Annot2 {\n");
+		buf.append("	@SuppressWarnings(\"rawtypes\")\n");
+		buf.append("	Class value() default int[].class;\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+
+	public void testBugASTFormatter_since_8() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("import java.lang.annotation.ElementType;\n");
+		buf.append("public class X {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Marker {}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Annot1 {\n");
+		buf.append("	int value1() default 1;\n");
+		buf.append("	int value2();\n");
+		buf.append("}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Annot2 {\n");
+		buf.append("	@SuppressWarnings(\"rawtypes\")\n");
+		buf.append("	Class value() default int[].class;\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		AST ast = astRoot.getAST();
+		ASTRewrite rewrite= ASTRewrite.create(ast);
+
+		TypeDeclaration typeDecl = (TypeDeclaration) astRoot.types().get(0);
+		MethodDeclaration methodDecl= typeDecl.getMethods()[0];
+		Block block= methodDecl.getBody();
+
+		{
+			ArrayType arrayType = ast.newArrayType(ast.newPrimitiveType(PrimitiveType.INT), 2);
+			Dimension dim = (Dimension) arrayType.dimensions().get(1);
+			MarkerAnnotation markerAnnotation = ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Marker"));
+			dim.annotations().add(markerAnnotation);
+			VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
+			fragment.setName(ast.newSimpleName("i"));
+			VariableDeclarationStatement statement = ast.newVariableDeclarationStatement(fragment);
+			statement.setType(arrayType);
+			
+			ListRewrite listRewrite= rewrite.getListRewrite(block, Block.STATEMENTS_PROPERTY);
+			listRewrite.insertFirst(statement, null);
+			
+		}
+		{
+			ArrayType arrayType = ast.newArrayType(ast.newPrimitiveType(PrimitiveType.INT), 2);
+			Dimension dim = (Dimension) arrayType.dimensions().get(1);
+			MarkerAnnotation markerAnnotation = ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Marker"));
+			dim.annotations().add(markerAnnotation);
+			ArrayCreation creation = ast.newArrayCreation();
+			creation.setType(arrayType);
+			creation.dimensions().add(ast.newNumberLiteral("1"));
+			creation.dimensions().add(ast.newNumberLiteral("2"));
+			VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
+			fragment.setName(ast.newSimpleName("j"));
+			fragment.setInitializer(creation);
+			
+			arrayType = ast.newArrayType(ast.newPrimitiveType(PrimitiveType.INT), 2);
+			dim = (Dimension) arrayType.dimensions().get(1);
+			markerAnnotation = ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newName("Marker"));
+			dim.annotations().add(markerAnnotation);
+			
+			VariableDeclarationStatement statement = ast.newVariableDeclarationStatement(fragment);
+			statement.setType(arrayType);
+			
+			ListRewrite listRewrite= rewrite.getListRewrite(block, Block.STATEMENTS_PROPERTY);
+			listRewrite.insertLast(statement, null);
+			
+		}
+		{
+			ArrayType arrayType = ast.newArrayType(ast.newPrimitiveType(PrimitiveType.INT), 2);
+			Dimension dim = (Dimension) arrayType.dimensions().get(0);
+			MarkerAnnotation markerAnnotation = ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Marker"));
+			dim.annotations().add(markerAnnotation);
+			
+			NormalAnnotation normalAnnotation = ast.newNormalAnnotation();
+			normalAnnotation.setTypeName(ast.newSimpleName("Annot1"));
+			MemberValuePair memberValuePair= ast.newMemberValuePair();
+			memberValuePair.setName(ast.newSimpleName("value1"));
+			memberValuePair.setValue(ast.newNumberLiteral("1"));
+			normalAnnotation.values().add(memberValuePair);
+			memberValuePair= ast.newMemberValuePair();
+			memberValuePair.setName(ast.newSimpleName("value2"));
+			memberValuePair.setValue(ast.newNumberLiteral("2"));
+			normalAnnotation.values().add(memberValuePair);
+			dim.annotations().add(normalAnnotation);
+
+			SingleMemberAnnotation singleMemberAnnotation = ast.newSingleMemberAnnotation();
+			singleMemberAnnotation.setTypeName(ast.newSimpleName("Annot2"));
+			ArrayType type = ast.newArrayType(ast.newPrimitiveType(PrimitiveType.FLOAT), 1);
+			TypeLiteral literal = ast.newTypeLiteral();
+			literal.setType(type);
+			singleMemberAnnotation.setValue(literal);
+			dim.annotations().add(singleMemberAnnotation);
+			
+			ArrayCreation creation = ast.newArrayCreation();
+			creation.setType(arrayType);
+			creation.dimensions().add(ast.newNumberLiteral("1"));
+			creation.dimensions().add(ast.newNumberLiteral("2"));
+			VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
+			fragment.setName(ast.newSimpleName("k"));
+			fragment.setInitializer(creation);
+			
+			arrayType = ast.newArrayType(ast.newPrimitiveType(PrimitiveType.INT), 2);
+			dim = (Dimension) arrayType.dimensions().get(0);
+			markerAnnotation = ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newName("Marker"));
+			dim.annotations().add(markerAnnotation);
+			
+			normalAnnotation = ast.newNormalAnnotation();
+			normalAnnotation.setTypeName(ast.newSimpleName("Annot1"));
+			memberValuePair= ast.newMemberValuePair();
+			memberValuePair.setName(ast.newSimpleName("value1"));
+			memberValuePair.setValue(ast.newNumberLiteral("1"));
+			normalAnnotation.values().add(memberValuePair);
+			memberValuePair= ast.newMemberValuePair();
+			memberValuePair.setName(ast.newSimpleName("value2"));
+			memberValuePair.setValue(ast.newNumberLiteral("2"));
+			normalAnnotation.values().add(memberValuePair);
+			dim.annotations().add(normalAnnotation);
+			
+			singleMemberAnnotation = ast.newSingleMemberAnnotation();
+			singleMemberAnnotation.setTypeName(ast.newSimpleName("Annot2"));
+			type = ast.newArrayType(ast.newPrimitiveType(PrimitiveType.FLOAT), 1);
+			literal = ast.newTypeLiteral();
+			literal.setType(type);
+			singleMemberAnnotation.setValue(literal);
+			dim.annotations().add(singleMemberAnnotation);
+			VariableDeclarationStatement statement = ast.newVariableDeclarationStatement(fragment);
+			statement.setType(arrayType);
+			
+			ListRewrite listRewrite= rewrite.getListRewrite(block, Block.STATEMENTS_PROPERTY);
+			listRewrite.insertLast(statement, null);
+			
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("import java.lang.annotation.ElementType;\n");
+		buf.append("public class X {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        int[] @Marker [] i;\n");
+		buf.append("        int[] @Marker [] j = new int[1] @Marker [2];\n");
+		buf.append("        int @Marker @Annot1(value1 = 1, value2 = 2) @Annot2(float[].class) [][] k = new int @Marker @Annot1(value1 = 1, value2 = 2) @Annot2(float[].class) [1][2];\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Marker {}\n");
 		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
 		buf.append("@interface Annot1 {\n");
 		buf.append("	int value1() default 1;\n");

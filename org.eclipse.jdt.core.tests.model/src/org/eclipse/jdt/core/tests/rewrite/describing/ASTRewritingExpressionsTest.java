@@ -297,7 +297,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
-		buf.append("        goo(new java.lang.String @A[1]@B(0)[2]@C(v = 99)[]);\n");
+		buf.append("        goo(new java.lang.String @A [1] @B(0) [2] @C(v = 99) []);\n");
 		buf.append("    }\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());

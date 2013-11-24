@@ -4,7 +4,7 @@ interface I {
 
 public class X {
 	public static void main(String[] args) {
-		I i = @Marker int @Marker[]::<String> clone;
+		I i = @Marker int @Marker []::<String> clone;
 		Zork z;
 	}
 }
