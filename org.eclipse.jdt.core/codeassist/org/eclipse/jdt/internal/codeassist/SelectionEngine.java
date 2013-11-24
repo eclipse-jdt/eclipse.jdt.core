@@ -578,6 +578,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				switch (token) {
 					case TerminalTokens.TokenNamethis:
 					case TerminalTokens.TokenNamesuper:
+					case TerminalTokens.TokenNamenew:
 					case TerminalTokens.TokenNameIdentifier:
 						if (scanner.startPosition <= selectionStart && selectionStart <= scanner.currentPosition) {
 							if (scanner.currentPosition == scanner.eofPosition) {
@@ -607,6 +608,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				switch (token) {
 					case TerminalTokens.TokenNamethis :
 					case TerminalTokens.TokenNamesuper :
+					case TerminalTokens.TokenNamenew :
 					case TerminalTokens.TokenNameIdentifier :
 						if (!expectingIdentifier)
 							return false;
@@ -619,6 +621,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						}
 						expectingIdentifier = false;
 						break;
+					case TerminalTokens.TokenNameCOLON_COLON:	
 					case TerminalTokens.TokenNameDOT :
 						if (expectingIdentifier)
 							return false;

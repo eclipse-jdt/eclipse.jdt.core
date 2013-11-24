@@ -55,6 +55,7 @@ import org.eclipse.jdt.core.tests.dom.TypeBindingTests308;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR308Tests;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR335Tests;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs8Tests;
+import org.eclipse.jdt.core.tests.model.ResolveTests18;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest;
 
 public class RunOnlyJava8Tests extends TestCase {
@@ -88,6 +89,7 @@ public class RunOnlyJava8Tests extends TestCase {
 			MethodParametersAttributeTest.class,
 			ClassFileReaderTest_1_8.class,
 			RepeatableAnnotationTest.class,
+			ResolveTests18.class,
 		};
 	}
 	

@@ -2724,7 +2724,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		String jclLibString;
 		String newJclLibString;
 		String newJclSrcString;
-		if (compliance.charAt(2) > '4') {
+		if (compliance.charAt(2) > '7') {
+			jclLibString = "JCL_LIB";
+			newJclLibString = "JCL18_LIB";
+			newJclSrcString = "JCL18_SRC";
+		} else if (compliance.charAt(2) > '4') {
 			jclLibString = "JCL_LIB";
 			newJclLibString = "JCL15_LIB";
 			newJclSrcString = "JCL15_SRC";
@@ -2733,6 +2737,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			newJclLibString = "JCL_LIB";
 			newJclSrcString = "JCL_SRC";
 		}
+		
 
 		// ensure variables are set
 		setUpJCLClasspathVariables(compliance);

@@ -7970,12 +7970,17 @@ protected void consumeEmptyTypeArguments() {
 	// NonWildTypeArgumentsopt ::= $empty
 	pushOnGenericsLengthStack(0); // signal absence of type arguments.
 }
+
+public ReferenceExpression newReferenceExpression() {
+	return new ReferenceExpression();
+}
+
 protected void consumeReferenceExpressionTypeForm(boolean isPrimitive) { // actually Name or Type form.
 	
 	// ReferenceExpression ::= PrimitiveType Dims '::' NonWildTypeArgumentsopt IdentifierOrNew
 	// ReferenceExpression ::= Name Dimsopt '::' NonWildTypeArgumentsopt IdentifierOrNew
 
-	ReferenceExpression referenceExpression;
+	ReferenceExpression referenceExpression = newReferenceExpression();
 	TypeReference [] typeArguments = null;
 	char [] selector;
 	int sourceEnd;
@@ -8006,9 +8011,9 @@ protected void consumeReferenceExpressionTypeForm(boolean isPrimitive) { // actu
 			pushOnGenericsLengthStack(0);
 			pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
 		}
-		referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, getTypeReference(dimension), typeArguments, selector, sourceEnd);
+		referenceExpression.initialize(this.compilationUnit.compilationResult, getTypeReference(dimension), typeArguments, selector, sourceEnd);
 	} else {
-		referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, getUnspecifiedReference(), typeArguments, selector, sourceEnd);
+		referenceExpression.initialize(this.compilationUnit.compilationResult, getUnspecifiedReference(), typeArguments, selector, sourceEnd);
 	}
 	pushOnExpressionStack(referenceExpression);
 
@@ -8019,7 +8024,7 @@ protected void consumeReferenceExpressionTypeForm(boolean isPrimitive) { // actu
 protected void consumeReferenceExpressionPrimaryForm() {
 	// ReferenceExpression ::= Primary '::' NonWildTypeArgumentsopt Identifier
 
-	ReferenceExpression referenceExpression;
+	ReferenceExpression referenceExpression = newReferenceExpression();
 	TypeReference [] typeArguments = null;
 	char [] selector;
 	int sourceEnd;
@@ -8037,7 +8042,7 @@ protected void consumeReferenceExpressionPrimaryForm() {
 	
 	Expression primary = this.expressionStack[this.expressionPtr--];
 	this.expressionLengthPtr--;
-	referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, primary, typeArguments, selector, sourceEnd);
+	referenceExpression.initialize(this.compilationUnit.compilationResult, primary, typeArguments, selector, sourceEnd);
 	pushOnExpressionStack(referenceExpression);
 	if (!this.parsingJava8Plus) {
 		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
@@ -8046,7 +8051,7 @@ protected void consumeReferenceExpressionPrimaryForm() {
 protected void consumeReferenceExpressionSuperForm() {
 	// ReferenceExpression ::= 'super' '::' NonWildTypeArgumentsopt Identifier
 
-	ReferenceExpression referenceExpression;
+	ReferenceExpression referenceExpression = newReferenceExpression();
 	TypeReference [] typeArguments = null;
 	char [] selector;
 	int sourceEnd;
@@ -8063,7 +8068,7 @@ protected void consumeReferenceExpressionSuperForm() {
 	}
 	
 	SuperReference superReference = new SuperReference(this.intStack[this.intPtr--], this.endPosition);
-	referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, superReference, typeArguments, selector, sourceEnd);
+	referenceExpression.initialize(this.compilationUnit.compilationResult, superReference, typeArguments, selector, sourceEnd);
 	pushOnExpressionStack(referenceExpression);
 	if (!this.parsingJava8Plus) {
 		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
@@ -8079,7 +8084,7 @@ protected void consumeReferenceExpressionGenericTypeForm() {
 
 	// ReferenceExpression ::= Name BeginTypeArguments ReferenceExpressionTypeArgumentsAndTrunk '::' NonWildTypeArgumentsopt IdentifierOrNew
 	
-	ReferenceExpression referenceExpression;
+	ReferenceExpression referenceExpression = newReferenceExpression();
 	TypeReference type;
 	TypeReference [] typeArguments = null;
 	char [] selector;
@@ -8110,7 +8115,7 @@ protected void consumeReferenceExpressionGenericTypeForm() {
 	this.intPtr--; // pop '<' position
 	type.sourceEnd = typeSourceEnd;
 	
-	referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, type, typeArguments, selector, sourceEnd);
+	referenceExpression.initialize(this.compilationUnit.compilationResult, type, typeArguments, selector, sourceEnd);
 
 	pushOnExpressionStack(referenceExpression);
 	if (!this.parsingJava8Plus) {

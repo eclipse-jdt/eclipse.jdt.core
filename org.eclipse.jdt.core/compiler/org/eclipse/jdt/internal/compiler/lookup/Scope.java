@@ -2116,7 +2116,7 @@ public abstract class Scope {
 			TypeBinding leafType = receiverType.leafComponentType();
 			if (!leafType.canBeSeenBy(this) || !leafType.isReifiable())
 				return null;
-			return new MethodBinding(ClassFileConstants.AccPublic, TypeConstants.INIT,
+			return new MethodBinding(ClassFileConstants.AccPublic | ClassFileConstants.AccSynthetic, TypeConstants.INIT,
 								receiverType,
 								new TypeBinding[] { TypeBinding.INT },
 								Binding.NO_EXCEPTIONS,

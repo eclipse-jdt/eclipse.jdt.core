@@ -71,13 +71,17 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	private int depth;
 	private MethodBinding exactMethodBinding; // != null ==> exact method reference.
 	
-	public ReferenceExpression(CompilationResult compilationResult, Expression lhs, TypeReference [] typeArguments, char [] selector, int sourceEnd) {
-		super(compilationResult);
-		this.lhs = lhs;
-		this.typeArguments = typeArguments;
-		this.selector = selector;
-		this.sourceStart = lhs.sourceStart;
-		this.sourceEnd = sourceEnd;
+	public ReferenceExpression() {
+		super();
+	}
+	
+	public void initialize(CompilationResult result, Expression expression, TypeReference [] optionalTypeArguments, char [] identifierOrNew, int sourceEndPosition) {
+		super.setCompilationResult(result);
+		this.lhs = expression;
+		this.typeArguments = optionalTypeArguments;
+		this.selector = identifierOrNew;
+		this.sourceStart = expression.sourceStart;
+		this.sourceEnd = sourceEndPosition;
 	}
  
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
@@ -510,7 +514,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     	return this.resolvedType; // Phew !
 	}
 
-	public final boolean isConstructorReference() {
+	public boolean isConstructorReference() {
 		return CharOperation.equals(this.selector,  ConstantPool.Init);
 	}
 	
@@ -518,7 +522,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		return this.exactMethodBinding != null;
 	}
 	
-	public final boolean isMethodReference() {
+	public boolean isMethodReference() {
 		return !CharOperation.equals(this.selector,  ConstantPool.Init);
 	}
 	

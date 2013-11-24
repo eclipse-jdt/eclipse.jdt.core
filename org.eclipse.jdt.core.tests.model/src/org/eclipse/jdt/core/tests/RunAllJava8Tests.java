@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.tests.dom.TypeBindingTests308;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR308Tests;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR335Tests;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs8Tests;
+import org.eclipse.jdt.core.tests.model.ResolveTests18;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
@@ -49,6 +50,7 @@ public class RunAllJava8Tests extends TestCase {
 			FormatterJSR335Tests.class,
 			FormatterJSR308Tests.class,
 			JavaSearchBugs8Tests.class,
+			ResolveTests18.class,
 			org.eclipse.jdt.compiler.apt.tests.AllTests.class,
 		};
 	}

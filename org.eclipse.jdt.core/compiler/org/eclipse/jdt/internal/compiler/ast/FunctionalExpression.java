@@ -51,6 +51,15 @@ public abstract class FunctionalExpression extends Expression {
 	public FunctionalExpression(CompilationResult compilationResult) {
 		this.compilationResult = compilationResult;
 	}
+	
+	public FunctionalExpression() {
+		super();
+	}
+	
+	public void setCompilationResult(CompilationResult compilationResult) {
+		this.compilationResult = compilationResult;
+	}
+	
 	// Return the actual (non-code generation) method binding that is void of synthetics.
 	public MethodBinding getMethodBinding() {
 		return null;

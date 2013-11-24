@@ -24,17 +24,46 @@ package org.eclipse.jdt.internal.codeassist.select;
  *  n  means completion behind the n-th character
  */
 
-import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.env.*;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.codeassist.impl.*;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
+import org.eclipse.jdt.internal.compiler.ast.CastExpression;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.FieldReference;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
+import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.ast.NameReference;
+import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.Reference;
+import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
+import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
+import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
+import org.eclipse.jdt.internal.compiler.ast.Statement;
+import org.eclipse.jdt.internal.compiler.ast.SuperReference;
+import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.parser.*;
-import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
+import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class SelectionParser extends AssistParser {
@@ -1308,6 +1337,15 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 }
 public void initializeScanner(){
 	this.scanner = new SelectionScanner(this.options.sourceLevel);
+}
+public ReferenceExpression newReferenceExpression() {
+	char[] selector = this.identifierStack[this.identifierPtr];
+	if (selector != assistIdentifier()){
+		return super.newReferenceExpression();
+	}
+	ReferenceExpression referenceExpression = new SelectionOnReferenceExpressionName();
+	this.assistNode = referenceExpression;
+	return referenceExpression;
 }
 protected MessageSend newMessageSend() {
 	// '(' ArgumentListopt ')'
