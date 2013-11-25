@@ -3254,5 +3254,23 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	                  ^^^^\n" + 
 			"Null type mismatch: required \'X.@NonNull Y\' but the provided value is null\n" + 
 			"----------\n");		
-	}	
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=420456, [1.8][null] AIOOB in null analysis code.
+	public void test420456() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Arrays;\n" +
+				"public class X {\n" +
+				"	public static void main(String [] args) {\n" +
+				"		Integer [] array = new Integer[] { 1234, 5678, 789 };\n" +
+				"		Arrays.sort(array, Integer::compare);\n" +
+				"       System.out.println(\"\" + array[0] + array[1] + array[2]);\n" +
+				"\n" +
+				"	}\n" +
+				"}\n"
+			}, 
+			getCompilerOptions(), 
+			"78912345678");		
+	}
 }

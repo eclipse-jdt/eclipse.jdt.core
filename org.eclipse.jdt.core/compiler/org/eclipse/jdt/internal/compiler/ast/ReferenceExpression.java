@@ -380,7 +380,6 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         		anotherMethod = scope.getMethod(typeToSearch, this.selector, parameters, this);
         		anotherMethodDepth = this.depth;
         		this.depth = 0;
-        		paramOffset = 1; // 0 is receiver, real parameters start at 1
         	}
         	if (anotherMethod != null && anotherMethod.isValidBinding() && anotherMethod.isStatic()) {
         		scope.problemReporter().methodMustBeAccessedStatically(this, anotherMethod);
@@ -401,6 +400,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         	}
         } else if (anotherMethod != null && anotherMethod.isValidBinding()) {
         	this.binding = anotherMethod;
+        	paramOffset = 1; // 0 is receiver, real parameters start at 1
         	this.bits &= ~ASTNode.DepthMASK;
         	if (anotherMethodDepth > 0) {
         		this.bits |= (anotherMethodDepth & 0xFF) << ASTNode.DepthSHIFT;
