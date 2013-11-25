@@ -392,7 +392,7 @@ protected void consumeInterfaceHeader() {
 }
 
 protected void consumeLambdaExpression() {
-	// LambdaExpression ::= LambdaHeader LambdaBody // Synthetic/fake production with a synthetic non-terminal for code assist.
+	// LambdaExpression ::= LambdaHeader LambdaBody // Synthetic/fake production with a synthetic non-terminal.
 	this.astLengthPtr--; 	// pop length for LambdaBody (always 1)
 	Statement body = (Statement) this.astStack[this.astPtr--];
 	if (body instanceof Block) {
@@ -418,40 +418,9 @@ protected void consumeLambdaExpression() {
 		}
 		this.restartRecovery = true;
 	}
-}
-protected void consumeLambdaHeader() {
-	// LambdaHeader ::= LambdaParameters '->'|  Synthetic/fake production with a synthetic non-terminal for code assist. Body not seen yet.
-
-	Argument [] arguments = null;
-	int length = this.astLengthStack[this.astLengthPtr--];
-	this.astPtr -= length;
-	//arguments
-	if (length != 0) {
-		System.arraycopy(
-			this.astStack,
-			this.astPtr + 1,
-			arguments = new Argument[length],
-			0,
-			length);
-	}
-	for (int i = 0; i < length; i++) {
-		final Argument argument = arguments[i];
-		if (argument.isReceiver()) {
-			problemReporter().illegalThis(argument);
-		}
-		if (argument.name.length == 1 && argument.name[0] == '_')
-			problemReporter().illegalUseOfUnderscoreAsAnIdentifier(argument.sourceStart, argument.sourceEnd, true); // true == lambdaParameter
-	}
-	LambdaExpression lexp = new LambdaExpression(this.compilationUnit.compilationResult, arguments, null, true /* synthesize elided types as needed */);
-	lexp.sourceEnd = this.intStack[this.intPtr--];   // ')' position or identifier position.
-	lexp.sourceStart = this.intStack[this.intPtr--]; // '(' position or identifier position.
-	lexp.hasParentheses = (this.scanner.getSource()[lexp.sourceStart] == '(');
-	pushOnAstStack(lexp);
-	pushOnExpressionStack(lexp);
 	if (!this.parsingJava8Plus) {
 		problemReporter().lambdaExpressionsNotBelow18(lexp);
 	}
-	this.listLength = 0; // reset this.listLength after having read all parameters
 }
 protected void consumeMethodBody() {
 	super.consumeMethodBody();

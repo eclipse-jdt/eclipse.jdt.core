@@ -45,6 +45,7 @@ import java.util.Properties;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression;
@@ -7840,19 +7841,9 @@ protected void consumeExplicitThisParameter(boolean isQualified) {
 	pushOnIntStack(0);  // extended dimensions ...
 	pushOnIntStack(0);  // signal explicit this
 }
-protected void consumeLambdaExpression() {
-	
-	// LambdaExpression ::= LambdaParameters '->' LambdaBody
+protected void consumeLambdaHeader() {
+	// LambdaHeader ::= LambdaParameters '->'  Synthetic/fake production with a synthetic non-terminal. Body not seen yet.
 
-	this.astLengthPtr--; 	// pop length for LambdaBody (always 1)
-	Statement body = (Statement) this.astStack[this.astPtr--];
-	if (body instanceof Block) {
-		this.nestedType--; 	// matching NestedType in "LambdaBody ::= NestedType NestedMethod  '{' BlockStatementsopt '}'"
-		this.intPtr--; 		// position after '{' pushed during consumeNestedMethod()
-		if (this.options.ignoreMethodBodies) {
-			body = new Block(0);
-		}
-	}
 	Argument [] arguments = null;
 	int length = this.astLengthStack[this.astLengthPtr--];
 	this.astPtr -= length;
@@ -7873,20 +7864,40 @@ protected void consumeLambdaExpression() {
 		if (argument.name.length == 1 && argument.name[0] == '_')
 			problemReporter().illegalUseOfUnderscoreAsAnIdentifier(argument.sourceStart, argument.sourceEnd, true); // true == lambdaParameter
 	}
-	LambdaExpression lexp = new LambdaExpression(this.compilationUnit.compilationResult, arguments, body, false);
-	this.intPtr--;  // ')' position, discard for now.
+	LambdaExpression lexp = new LambdaExpression(this.compilationUnit.compilationResult, arguments, null, this instanceof AssistParser /* synthesize elided types as needed */);
+	lexp.sourceEnd = this.intStack[this.intPtr--];   // ')' position or identifier position.
 	lexp.sourceStart = this.intStack[this.intPtr--]; // '(' position or identifier position.
-	lexp.sourceEnd = body.sourceEnd;
 	lexp.hasParentheses = (this.scanner.getSource()[lexp.sourceStart] == '(');
+	pushOnAstStack(lexp);
+	pushOnExpressionStack(lexp);
+	this.listLength = 0; // reset this.listLength after having read all parameters
+}
+protected void consumeLambdaExpression() {
+	
+	// LambdaExpression ::= LambdaHeader LambdaBody
+
+	this.astLengthPtr--; 	// pop length for LambdaBody (always 1)
+	Statement body = (Statement) this.astStack[this.astPtr--];
+	if (body instanceof Block) {
+		this.nestedType--; 	// matching NestedType in "LambdaBody ::= NestedType NestedMethod  '{' BlockStatementsopt '}'"
+		this.intPtr--; 		// position after '{' pushed during consumeNestedMethod()
+		if (this.options.ignoreMethodBodies) {
+			body = new Block(0);
+		}
+	}
+
+	LambdaExpression lexp = (LambdaExpression) this.astStack[this.astPtr--];
+	this.astLengthPtr--;
+	lexp.body = body;
+	lexp.sourceEnd = body.sourceEnd;
+	
 	if (body instanceof Expression) {
 		Expression expression = (Expression) body;
 		expression.statementEnd = body.sourceEnd;
 	}
-	pushOnExpressionStack(lexp);
 	if (!this.parsingJava8Plus) {
 		problemReporter().lambdaExpressionsNotBelow18(lexp);
 	}
-	this.listLength = 0; // reset this.listLength after having read all parameters
 }
 
 protected void consumeTypeElidedLambdaParameter(boolean parenthesized) {
@@ -9033,9 +9044,6 @@ protected void consumeToken(int type) {
 			//  case TokenNameDIVIDE :
 			//  case TokenNameGREATER  :
 	}
-}
-protected void consumeLambdaHeader() {
-	// Overridden in assist parser.
 }
 protected void consumeTypeArgument() {
 	pushOnGenericsStack(getTypeReference(this.intStack[this.intPtr--]));

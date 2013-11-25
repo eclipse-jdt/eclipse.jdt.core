@@ -7206,6 +7206,38 @@ public void testUnderScoreParameter() {
 			"----------\n"
 		);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383096, [1.8][compiler]NullPointerException with a wrong lambda code snippet.
+public void test383096() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"interface I {}\n" +
+					"class XI {\n" +
+					"	void foo() {\n" +
+					"        	I t1 = f -> {{};\n" +
+					"        	I t2 = () -> 42;\n" +
+					"        } \n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	I t2 = () -> 42;\n" + 
+			"	       ^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	} \n" + 
+			"	^\n" + 
+			"Syntax error, insert \";\" to complete BlockStatements\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	}\n" + 
+			"	^\n" + 
+			"Syntax error, insert \"}\" to complete ClassBody\n" + 
+			"----------\n",
+			true // statement recovery.
+		);
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
