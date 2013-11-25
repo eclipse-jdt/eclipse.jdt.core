@@ -26578,4 +26578,88 @@ public void testBug405250d() throws JavaModelException {
 		COMPLETION_PROJECT.setOptions(options);	
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421469, [1.8][code assist] NPE in LocalDeclaration.resolve with anonymous class in lambda body
+public void testBug421469() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/X.java",
+				"import java.util.function.IntFunction;\n" +
+				"public class Snippet {\n" +
+				"    void foo() {\n" +
+				"        int pqrqwerty = 10;\n" +
+				"        IntFunction<String> toString = i -> {\n" +
+				"            pqr\n" +
+				"            new Runnable() {\n" +
+				"                @Override\n" +
+				"                public void run() {\n" +
+				"                }\n" +
+				"            }.run();\n" +
+				"            return Integer.toString(i);\n" +
+				"        };\n" +
+				"    }\n" +
+				"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "pqr";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"pqrqwerty[LOCAL_VARIABLE_REF]{pqrqwerty, null, I, pqrqwerty, null, 27}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		options.put(CompilerOptions.OPTION_Source, savedOptionSource);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421469, [1.8][code assist] NPE in LocalDeclaration.resolve with anonymous class in lambda body
+public void testBug421469a() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/X.java",
+				"import java.util.function.IntFunction;\n" +
+				"public class Snippet {\n" +
+				"    void foo() {\n" +
+				"        int pqrqwerty = 10;\n" +
+				"        IntFunction<String> toString = i -> {\n" +
+				"            new Runnable() {\n" +
+				"                @Override\n" +
+				"                public void run() {\n" +
+				"                     pqr\n" +
+				"                }\n" +
+				"            }.run();\n" +
+				"            return Integer.toString(i);\n" +
+				"        };\n" +
+				"    }\n" +
+				"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "pqr";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"pqrqwerty[LOCAL_VARIABLE_REF]{pqrqwerty, null, I, pqrqwerty, null, 27}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		options.put(CompilerOptions.OPTION_Source, savedOptionSource);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
 }
