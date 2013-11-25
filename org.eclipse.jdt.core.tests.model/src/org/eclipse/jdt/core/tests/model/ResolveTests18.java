@@ -1348,4 +1348,67 @@ public void testBug408230n() throws CoreException {
 		deleteProject("P");
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417935, [1.8][code select] ICU#codeSelect doesn't work on reference to lambda parameter
+public void test417935() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.Arrays;\n" +
+			"import java.util.Collections;\n" +
+			"import java.util.Comparator;\n" +
+			"public class X {\n" +
+			"   int compareTo(X x) { return 0; }\n" +
+			"	void foo() {\n" +
+			"		Collections.sort(new ArrayList<X>(Arrays.asList(new X(), new X(), new X())),\n" +
+			"				(X o1, X o2) -> o1.compareTo(o2)); //[2]\n" +
+			"	}\n" +
+			"\n" +
+			"	}\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "compareTo";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"compareTo(X) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=417935, [1.8][code select] ICU#codeSelect doesn't work on reference to lambda parameter
+public void test417935a() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.Arrays;\n" +
+			"import java.util.Collections;\n" +
+			"import java.util.Comparator;\n" +
+			"public class X {\n" +
+			"   int compareTo(X x) { return 0; }\n" +
+			"	void foo() {\n" +
+			"		Collections.sort(new ArrayList<X>(Arrays.asList(new X(), new X(), new X()),\n" +
+			"				new Comparator<X>() {\n" +
+			"					@Override\n" +
+			"					public int compare(X o1, X o2) {\n" +
+			"						return o1.compareTo(o2);\n" +
+			"					}\n" +
+			"				});\n" +
+			"	}\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "compareTo";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"compareTo(X) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
 }

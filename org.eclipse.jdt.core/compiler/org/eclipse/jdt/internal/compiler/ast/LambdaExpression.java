@@ -161,13 +161,15 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			return null;
 		
 		if (!haveDescriptor) {
-			if (argumentsTypeElided && !this.shouldUnelideTypes)
-				return null; // FUBAR, bail out...
-			// for code assist ONLY, keep the sluice gate shut on bogus errors otherwise.
-			argumentsTypeElided = false;
-			int length = this.arguments != null ? this.arguments.length : 0;
-			for (int i = 0; i < length; i++) {
-				this.arguments[i].type = new SingleTypeReference(TypeConstants.OBJECT, 0);
+			if (argumentsTypeElided) {
+				if (!this.shouldUnelideTypes)
+					return null; // FUBAR, bail out...
+				// for code assist ONLY, keep the sluice gate shut on bogus errors otherwise.
+				argumentsTypeElided = false;
+				int length = this.arguments != null ? this.arguments.length : 0;
+				for (int i = 0; i < length; i++) {
+					this.arguments[i].type = new SingleTypeReference(TypeConstants.OBJECT, 0);
+				}
 			}
 		}
 		
