@@ -2118,5 +2118,41 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		} finally {
 			removeLibrary(javaProject, jarName, srcName);
 		}
-	}	
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=420320, [1.8] Bad AST recovery with type annotation and a syntax error in secondary type
+	public void testAnnotationRecovery() throws CoreException, IOException {
+		String contents = 
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import java.util.List;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface NonNull {\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	List<@NonNull String> list2;\n" +
+				"}\n" +
+				"class Y {\n" +
+				"    void bar()\n" +
+				"    void foo() { }\n" +
+				"}\n";
+		
+		String expected =
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import java.util.List;\n" +
+				"@Target(ElementType.TYPE_USE) @interface NonNull {}\n" +
+				"public class X {\n" +
+				"  List<@NonNull String> list2;\n" +
+				"}\n" +
+				"class Y {\n" +
+				"  void bar(){\n" +
+				"  }\n" +
+				"  void foo(){\n" +
+				"  }\n" +
+				"}\n";
+		
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy, false, true);
+		assertEquals("AST mismatch", expected, node.toString());
+	}
 }

@@ -1012,6 +1012,7 @@ protected int unstackedAct = ERROR_ACTION;
 private boolean haltOnSyntaxError = false;
 private boolean tolerateDefaultClassMethods = false;
 private boolean processingLambdaParameterList = false;
+private boolean expectTypeAnnotation = false;
 
 protected Parser () {
 	// Caveat Emptor: For inheritance purposes and then only in very special needs. Only minimal state is initialized !
@@ -1546,7 +1547,7 @@ protected void consumeAnnotationAsModifier() {
 	}
 }
 protected void consumeAnnotationName() {
-	if(this.currentElement != null) {
+	if(this.currentElement != null && !this.expectTypeAnnotation) {
 		int start = this.intStack[this.intPtr];
 		int end = (int) (this.identifierPositionStack[this.identifierPtr] & 0x00000000FFFFFFFFL);
 		annotationRecoveryCheckPoint(start, end);
@@ -1556,6 +1557,7 @@ protected void consumeAnnotationName() {
 		}
 	}
 	this.recordStringLiterals = false;
+	this.expectTypeAnnotation = false;
 }
 protected void consumeAnnotationTypeDeclaration() {
 	int length;
@@ -8974,6 +8976,7 @@ protected void consumeToken(int type) {
 			this.lParenPos = this.scanner.startPosition;
 			break;
 		case TokenNameAT308:
+			this.expectTypeAnnotation = true;
 			pushOnIntStack(this.dimensions); // https://bugs.eclipse.org/bugs/show_bug.cgi?id=417660: Stack the dimensions, they get unstacked in consumeTypeAnnotation.
 			this.dimensions = 0;
 			//$FALL-THROUGH$
