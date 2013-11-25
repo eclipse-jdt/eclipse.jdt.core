@@ -76,12 +76,14 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	private SyntheticArgumentBinding[] outerLocalVariables = NO_SYNTHETIC_ARGUMENTS;
 	private int outerLocalVariablesSlotSize = 0;
 	public boolean shouldCaptureInstance = false;
+	private boolean shouldUnelideTypes = false;
 	private static final SyntheticArgumentBinding [] NO_SYNTHETIC_ARGUMENTS = new SyntheticArgumentBinding[0];
 	
-	public LambdaExpression(CompilationResult compilationResult, Argument [] arguments, Statement body) {
+	public LambdaExpression(CompilationResult compilationResult, Argument [] arguments, Statement body, boolean shouldUnelideTypes) {
 		super(compilationResult);
 		this.arguments = arguments != null ? arguments : ASTNode.NO_ARGUMENTS;
 		this.body = body;
+		this.shouldUnelideTypes = shouldUnelideTypes;
 	}
 	
 	protected FunctionalExpression original() {
@@ -152,15 +154,23 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 
 		super.resolveType(blockScope); // compute & capture interface function descriptor in singleAbstractMethod.
 		
-		final boolean argumentsTypeElided = argumentsTypeElided();
+		boolean argumentsTypeElided = argumentsTypeElided();
 		final boolean haveDescriptor = this.descriptor != null;
 		
 		if (haveDescriptor && this.descriptor.typeVariables != Binding.NO_TYPE_VARIABLES) // already complained in kosher*
 			return null;
 		
-		if (!haveDescriptor && argumentsTypeElided) 
-			return null; // FUBAR, bail out...
-
+		if (!haveDescriptor) {
+			if (argumentsTypeElided && !this.shouldUnelideTypes)
+				return null; // FUBAR, bail out...
+			// for code assist ONLY, keep the sluice gate shut on bogus errors otherwise.
+			argumentsTypeElided = false;
+			int length = this.arguments != null ? this.arguments.length : 0;
+			for (int i = 0; i < length; i++) {
+				this.arguments[i].type = new SingleTypeReference(TypeConstants.OBJECT, 0);
+			}
+		}
+		
 		this.binding = new MethodBinding(ClassFileConstants.AccPrivate | ClassFileConstants.AccSynthetic | ExtraCompilerModifiers.AccUnresolved,
 							TypeConstants.ANONYMOUS_METHOD, // will be fixed up later.
 							haveDescriptor ? this.descriptor.returnType : null, 
@@ -435,7 +445,10 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			}
 		}
 		output.append(") -> " ); //$NON-NLS-1$
-		this.body.print(this.body instanceof Block ? tab : 0, output);
+		if (this.body != null)
+			this.body.print(this.body instanceof Block ? tab : 0, output);
+		else 
+			output.append("<@incubator>"); //$NON-NLS-1$
 		return output.append(suffix);
 	}
 

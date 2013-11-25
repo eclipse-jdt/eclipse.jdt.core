@@ -17,6 +17,8 @@ package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.ICodeAssist;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
@@ -692,5 +694,658 @@ public void test0023() throws JavaModelException {
 		"",
 		elements
 	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=408230, [1.8][hovering] NPE on hovering over a type inferred parameter in lambda expression
+public void test0024() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"	int foo(int a);\n" +
+			"}\n" +
+			"public class X {	\n" +
+			"	void foo() {\n" +
+			"		I i = (xyz) -> {\n" +
+			"			return xyz;\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "xyz";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"xyz [in foo() [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=408230, [1.8][hovering] NPE on hovering over a type inferred parameter in lambda expression
+public void test0025() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"	int foo(int a);\n" +
+			"}\n" +
+			"public class X {	\n" +
+			"	void foo() {\n" +
+			"		I i = (abc) -> abc++; \n" +
+			"	}\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "abc";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"abc [in foo() [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=408230, [1.8][hovering] NPE on hovering over a type inferred parameter in lambda expression
+public void test0026() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"	int foo(int a);\n" +
+			"}\n" +
+			"public class X {	\n" +
+			"	I i = (abc) -> abc++; \n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "abc";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"abc [in i [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=408230, [1.8][hovering] NPE on hovering over a type inferred parameter in lambda expression
+public void test0027() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"    I doit(I xyz);\n" +
+			"}\n" +
+			"public class X { \n" +
+			"	public static void main(String[] args) {\n" +
+			"		I i = (pqr) -> {\n" +
+			"			return (xyz) -> {\n" +
+			"				return (abc) -> abc; \n" +
+			"			};\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n");
+	String str = this.wc.getSource();
+	String selection = "abc";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"abc [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=408230, [1.8][hovering] NPE on hovering over a type inferred parameter in lambda expression
+public void test0028() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"    I doit(I xyz);\n" +
+			"}\n" +
+			"public class X { \n" +
+			"	public static void main(String[] args) {\n" +
+			"		I i = (pqr) -> {\n" +
+			"			return (xyz) -> {\n" +
+			"				return (abc) -> xyz; \n" +
+			"			};\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n");
+	String str = this.wc.getSource();
+	String selection = "xyz";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"xyz [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=408230, [1.8][hovering] NPE on hovering over a type inferred parameter in lambda expression
+public void test0029() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"    I doit(I xyz);\n" +
+			"}\n" +
+			"public class X { \n" +
+			"	public static void main(String[] args) {\n" +
+			"		I i = (pqr) -> {\n" +
+			"			return (xyz) -> {\n" +
+			"				return (abc) -> args; \n" +
+			"			};\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n");
+	String str = this.wc.getSource();
+	String selection = "args";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"args [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=408230, [1.8][hovering] NPE on hovering over a type inferred parameter in lambda expression
+public void test0030() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"    I doit(I xyz);\n" +
+			"}\n" +
+			"public class X { \n" +
+			"	X fx = new X((pqr) -> {\n" +
+			"		return (zyx) -> {\n" +
+			"			return (abc) -> zyx; \n" +
+			"		};\n" +
+			"	});\n" +
+			"	X(I i) {\n" +
+			"	}\n" +
+			"	void foo(X x) {}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		X x = null;\n" +
+			"		x = new X((pqr) -> {\n" +
+			"			return (xyz) -> {\n" +
+			"				return (abc) -> xyz; \n" +
+			"			};\n" +
+			"		});\n" +
+			"		System.out.println(x);\n" +
+			"	}\n" +
+			"}\n");
+	String str = this.wc.getSource();
+	String selection = "zyx";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"zyx [in fx [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=408230, [1.8][hovering] NPE on hovering over a type inferred parameter in lambda expression
+public void test0031() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"    I doit(I xyz);\n" +
+			"}\n" +
+			"public class X { \n" +
+			"	X(I i) {\n" +
+			"	}\n" +
+			"	void foo(X x) {}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		X x = null;\n" +
+			"		x = new X((pqr) -> {\n" +
+			"			return (xyz) -> {\n" +
+			"				return (abc) -> xyz; \n" +
+			"			};\n" +
+			"		});\n" +
+			"		System.out.println(x);\n" +
+			"	}\n" +
+			"}\n");
+	String str = this.wc.getSource();
+	String selection = "xyz";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"xyz [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=408230, [1.8][hovering] NPE on hovering over a type inferred parameter in lambda expression
+public void test0032() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"    I doit(I xyz);\n" +
+			"}\n" +
+			"public class X { \n" +
+			"	X fx = new X((pqr) -> {\n" +
+			"		return (xyz) -> {\n" +
+			"			return (abc) -> xyz; \n" +
+			"		};\n" +
+			"	});\n" +
+			"	X(I i) {\n" +
+			"	}\n" +
+			"	void foo(X x) {}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		X x = null;\n" +
+			"		I i = args != null ? (mno) -> mno : (def) -> (hij) -> {\n" +
+			"			return hij;\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n");
+	String str = this.wc.getSource();
+	String selection = "hij";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"hij [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=408230, [1.8][hovering] NPE on hovering over a type inferred parameter in lambda expression
+public void test0033() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"    I doit(I xyz);\n" +
+			"}\n" +
+			"public class X { \n" +
+			"	X fx = new X((pqr) -> {\n" +
+			"		return (xyz) -> {\n" +
+			"			return (abc) -> xyz; \n" +
+			"		};\n" +
+			"	});\n" +
+			"	X(I i) {\n" +
+			"	}\n" +
+			"	void foo(X x) {}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		X x = null;\n" +
+			"		I i;\n" +
+			"       i = args != null ? (mno) -> mno : (def) -> (hij) -> {\n" +
+			"			return hij;\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n");
+	String str = this.wc.getSource();
+	String selection = "hij";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"hij [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+//Bug 408230 - [1.8][hovering] NPE on hovering over a type inferred parameter in lambda expression
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=408230
+public void testBug408230a() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		String source = "package p;\n" +
+				"public class X {\n" +
+				"  FI i1 = (a, barg) -> a+barg;\n" +
+				"}\n" +
+				"interface FI { int f1(int a, int b); }\n";
+		createFolder("/P/src/p");
+		createFile(
+			"/P/src/p/X.java",
+			source
+		);
+		waitForAutoBuild();
+		
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+		String selectString = "barg";
+		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		assertEquals(1, variable.length);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug408230b() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		String source = "package p;\n" +
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"	FI i2 = (a, barg) -> { return a+barg; };\n" +
+				"  }\n" +
+				"}\n" +
+				"interface FI { int f1(int a, int b); }\n";
+		createFolder("/P/src/p");
+		createFile(
+			"/P/src/p/X.java",
+			source
+		);
+		waitForAutoBuild();
+		
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+		String selectString = "barg";
+		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		assertEquals(1, variable.length);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug408230c() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		String source = "package p;\n" +
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"	FI i2 = (a, barg) -> { int x = 2; while (x < 2) { x++; } return a+barg; };\n" +
+				"  }\n" +
+				"}\n" +
+				"interface FI { int f1(int a, int b); }\n";
+		createFolder("/P/src/p");
+		createFile(
+			"/P/src/p/X.java",
+			source
+		);
+		waitForAutoBuild();
+		
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+		String selectString = "barg";
+		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		assertEquals(1, variable.length);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug408230d() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		String source = "package p;\n" +
+				"public class X {\n" +
+				"  FI i1 = (barg) -> ++barg;\n" +
+				"}\n" +
+				"interface FI { int f1(int b); }\n";
+		createFolder("/P/src/p");
+		createFile(
+			"/P/src/p/X.java",
+			source
+		);
+		waitForAutoBuild();
+		
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+		String selectString = "barg";
+		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		assertEquals(1, variable.length);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug408230e() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		String source = "package p;\n" +
+				"public class X {\n" +
+				"  FI i1 = (aarg) -> { return aarg++;};\n" +
+				"}\n" +
+				"interface FI { int f1(int a); }\n";
+		createFolder("/P/src/p");
+		createFile(
+			"/P/src/p/X.java",
+			source
+		);
+		waitForAutoBuild();
+		
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+		String selectString = "aarg";
+		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		assertEquals(1, variable.length);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug408230f() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		String source = "package p;\n" +
+				"public class X {\n" +
+				"  FI i1 = (aarg) -> {  int x = aarg; return aarg++;};\n" +
+				"}\n" +
+				"interface FI { int f1(int a); }\n";
+		createFolder("/P/src/p");
+		createFile(
+			"/P/src/p/X.java",
+			source
+		);
+		waitForAutoBuild();
+		
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+		String selectString = "aarg";
+		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		assertEquals(1, variable.length);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug408230g() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		String source = "package p;\n" +
+				"public class X {\n" +
+				" public void boo(FI fi) {}\n" +
+				"  void foo() {\n" +
+				"	boo((aarg) -> aarg++);\n" +
+				"  }\n" +
+				"}\n" +
+				"interface FI { int f1(int a); }\n";
+		createFolder("/P/src/p");
+		createFile(
+			"/P/src/p/X.java",
+			source
+		);
+		waitForAutoBuild();
+		
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+		String selectString = "aarg";
+		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		assertEquals(1, variable.length);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug408230h() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		String source = "package p;\n" +
+				"public class X {\n" +
+				" public void boo(FI fi) {}\n" +
+				"  void foo() {\n" +
+				"	boo((aarg) -> {int b = 10; return aarg++;});\n" +
+				"  }\n" +
+				"}\n" +
+				"interface FI { int f1(int a); }\n";
+		createFolder("/P/src/p");
+		createFile(
+			"/P/src/p/X.java",
+			source
+		);
+		waitForAutoBuild();
+		
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+		String selectString = "aarg";
+		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		assertEquals(1, variable.length);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug408230i() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		String source = "package p;\n" +
+				"public class X {\n" +
+				" public void boo(FI fi) {}\n" +
+				"  void foo() {\n" +
+				"	boo((aarg, x) -> x + aarg++);\n" +
+				"  }\n" +
+				"}\n" +
+				"interface FI { int f1(int a, int b); }\n";
+		createFolder("/P/src/p");
+		createFile(
+			"/P/src/p/X.java",
+			source
+		);
+		waitForAutoBuild();
+		
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+		String selectString = "aarg";
+		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		assertEquals(1, variable.length);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug408230j() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		String source = "package p;\n" +
+				"public class X {\n" +
+				" public void boo(FI fi) {}\n" +
+				"  void foo() {\n" +
+				"	boo((aarg, x) -> {int b = 10; return x + aarg++;});\n" +
+				"  }\n" +
+				"}\n" +
+				"interface FI { int f1(int a, int b); }\n";
+		createFolder("/P/src/p");
+		createFile(
+			"/P/src/p/X.java",
+			source
+		);
+		waitForAutoBuild();
+		
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+		String selectString = "aarg";
+		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		assertEquals(1, variable.length);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug408230k() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		String source = "package p;\n" +
+				"public class X {\n" +
+				" public void boo(int x, int y, FI fi) {}\n" +
+				"  void foo() {\n" +
+				"	boo(2, 4, (aarg) -> aarg++);\n" +
+				"  }\n" +
+				"}\n" +
+				"interface FI { int f1(int a); }\n";
+		createFolder("/P/src/p");
+		createFile(
+			"/P/src/p/X.java",
+			source
+		);
+		waitForAutoBuild();
+		
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+		String selectString = "aarg";
+		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		assertEquals(1, variable.length);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug408230l() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		String source = "package p;\n" +
+				"public class X {\n" +
+				" public void boo(int x, FI fi) {}\n" +
+				"  void foo() {\n" +
+				"	boo(2, (aarg) -> {int b = 10; return aarg++;});\n" +
+				"  }\n" +
+				"}\n" +
+				"interface FI { int f1(int a); }\n";
+		createFolder("/P/src/p");
+		createFile(
+			"/P/src/p/X.java",
+			source
+		);
+		waitForAutoBuild();
+		
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+		String selectString = "aarg";
+		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		assertEquals(1, variable.length);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug408230m() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		String source = "package p;\n" +
+				"public class X {\n" +
+				" public void boo(int x, int y, FI fi) {}\n" +
+				"  void foo() {\n" +
+				"	boo(2, 5+6, (aarg, x) -> x + aarg++);\n" +
+				"  }\n" +
+				"}\n" +
+				"interface FI { int f1(int a, int b); }\n";
+		createFolder("/P/src/p");
+		createFile(
+			"/P/src/p/X.java",
+			source
+		);
+		waitForAutoBuild();
+		
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+		String selectString = "aarg";
+		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		assertEquals(1, variable.length);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug408230n() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		String source = "package p;\n" +
+				"public class X {\n" +
+				" public void boo(int x, FI fi) {}\n" +
+				"  void foo() {\n" +
+				"	boo(2, (aarg, x) -> {int b = 10; return x + aarg++;});\n" +
+				"  }\n" +
+				"}\n" +
+				"interface FI { int f1(int a, int b); }\n";
+		createFolder("/P/src/p");
+		createFile(
+			"/P/src/p/X.java",
+			source
+		);
+		waitForAutoBuild();
+		
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+		String selectString = "aarg";
+		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		assertEquals(1, variable.length);
+	} finally {
+		deleteProject("P");
+	}
 }
 }

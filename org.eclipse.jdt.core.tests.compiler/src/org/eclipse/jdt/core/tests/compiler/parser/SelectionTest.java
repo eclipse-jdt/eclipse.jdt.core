@@ -2449,7 +2449,7 @@ public void test55() {
 		testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=291040
-public void test56() {
+public void _test56() {
 
 	String str =
 			"class X {\n" +

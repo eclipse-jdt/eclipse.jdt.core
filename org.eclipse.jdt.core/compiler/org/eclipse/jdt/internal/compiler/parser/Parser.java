@@ -1006,7 +1006,7 @@ public org.eclipse.jdt.internal.compiler.ReadManager readManager;
 private boolean shouldDeferRecovery = false; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=291040
 private int valueLambdaNestDepth = -1;
 private int stateStackLengthStack[] = new int[0];
-private boolean parsingJava8Plus;
+protected boolean parsingJava8Plus;
 protected int unstackedAct = ERROR_ACTION;
 private boolean haltOnSyntaxError = false;
 private boolean tolerateDefaultClassMethods = false;
@@ -7873,7 +7873,7 @@ protected void consumeLambdaExpression() {
 		if (argument.name.length == 1 && argument.name[0] == '_')
 			problemReporter().illegalUseOfUnderscoreAsAnIdentifier(argument.sourceStart, argument.sourceEnd, true); // true == lambdaParameter
 	}
-	LambdaExpression lexp = new LambdaExpression(this.compilationUnit.compilationResult, arguments, body);
+	LambdaExpression lexp = new LambdaExpression(this.compilationUnit.compilationResult, arguments, body, false);
 	this.intPtr--;  // ')' position, discard for now.
 	lexp.sourceStart = this.intStack[this.intPtr--]; // '(' position or identifier position.
 	lexp.sourceEnd = body.sourceEnd;
@@ -8123,7 +8123,7 @@ protected void consumeReferenceExpressionGenericTypeForm() {
 	}
 }
 protected void consumeEnterInstanceCreationArgumentList() {
-	this.shouldDeferRecovery = true;
+	this.shouldDeferRecovery = false; // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=417935#c2
 }
 protected void consumeSimpleAssertStatement() {
 	// AssertStatement ::= 'assert' Expression ';'
@@ -8707,6 +8707,7 @@ protected void consumeToken(int type) {
 			this.processingLambdaParameterList = true;
 			break;
 		case TokenNameARROW:
+			consumeLambdaHeader();
 			this.processingLambdaParameterList = false;
 			break;
 		case TokenNameIdentifier :
@@ -9032,6 +9033,9 @@ protected void consumeToken(int type) {
 			//  case TokenNameDIVIDE :
 			//  case TokenNameGREATER  :
 	}
+}
+protected void consumeLambdaHeader() {
+	// Overridden in assist parser.
 }
 protected void consumeTypeArgument() {
 	pushOnGenericsStack(getTypeReference(this.intStack[this.intPtr--]));

@@ -164,11 +164,9 @@ public RecoveredElement buildInitialRecoveryState(){
 
 	for(int i = 0; i <= this.astPtr; i++){
 		ASTNode node = this.astStack[i];
-
 		if(node instanceof ForeachStatement && ((ForeachStatement)node).action == null) {
 			node = ((ForeachStatement)node).elementVariable;
 		}
-
 		/* check for intermediate block creation, so recovery can properly close them afterwards */
 		int nodeStart = node.sourceStart;
 		for (int j = blockIndex; j <= this.realBlockPtr; j++){
@@ -193,6 +191,7 @@ public RecoveredElement buildInitialRecoveryState(){
 			}
 			blockIndex = j+1; // shift the index to the new block
 		}
+		
 		if (node instanceof LocalDeclaration){
 			LocalDeclaration local = (LocalDeclaration) node;
 			if (local.declarationSourceEnd == 0){
@@ -254,6 +253,12 @@ public RecoveredElement buildInitialRecoveryState(){
 				element = element.add(type, 0);
 				this.lastCheckPoint = type.declarationSourceEnd + 1;
 			}
+			continue;
+		}
+		if (node instanceof LambdaExpression) {
+			LambdaExpression lambda = (LambdaExpression) node;
+			element = element.add(lambda, 0);
+			this.lastCheckPoint = lambda.sourceEnd + 1;
 			continue;
 		}
 		if (node instanceof ImportReference){
@@ -384,6 +389,69 @@ protected void consumeForceNoDiet() {
 protected void consumeInterfaceHeader() {
 	super.consumeInterfaceHeader();
 	pushOnElementStack(K_TYPE_DELIMITER);
+}
+
+protected void consumeLambdaExpression() {
+	// LambdaExpression ::= LambdaHeader LambdaBody // Synthetic/fake production with a synthetic non-terminal for code assist.
+	this.astLengthPtr--; 	// pop length for LambdaBody (always 1)
+	Statement body = (Statement) this.astStack[this.astPtr--];
+	if (body instanceof Block) {
+		this.nestedType--; 	// matching NestedType in "LambdaBody ::= NestedType NestedMethod  '{' BlockStatementsopt '}'"
+		this.intPtr--; 		// position after '{' pushed during consumeNestedMethod()
+		if (this.options.ignoreMethodBodies) {
+			body = new Block(0);
+		}
+	}
+	
+	LambdaExpression lexp = (LambdaExpression) this.astStack[this.astPtr--];
+	this.astLengthPtr--;
+	lexp.body = body;
+	lexp.sourceEnd = body.sourceEnd;
+	
+	if (body instanceof Expression) {
+		Expression expression = (Expression) body;
+		expression.statementEnd = body.sourceEnd;
+	}
+	if (this.currentElement != null) {
+		if (this.currentElement.parseTree() == lexp && this.currentElement.parent != null) {
+			this.currentElement = this.currentElement.parent;
+		}
+		this.restartRecovery = true;
+	}
+}
+protected void consumeLambdaHeader() {
+	// LambdaHeader ::= LambdaParameters '->'|  Synthetic/fake production with a synthetic non-terminal for code assist. Body not seen yet.
+
+	Argument [] arguments = null;
+	int length = this.astLengthStack[this.astLengthPtr--];
+	this.astPtr -= length;
+	//arguments
+	if (length != 0) {
+		System.arraycopy(
+			this.astStack,
+			this.astPtr + 1,
+			arguments = new Argument[length],
+			0,
+			length);
+	}
+	for (int i = 0; i < length; i++) {
+		final Argument argument = arguments[i];
+		if (argument.isReceiver()) {
+			problemReporter().illegalThis(argument);
+		}
+		if (argument.name.length == 1 && argument.name[0] == '_')
+			problemReporter().illegalUseOfUnderscoreAsAnIdentifier(argument.sourceStart, argument.sourceEnd, true); // true == lambdaParameter
+	}
+	LambdaExpression lexp = new LambdaExpression(this.compilationUnit.compilationResult, arguments, null, true /* synthesize elided types as needed */);
+	lexp.sourceEnd = this.intStack[this.intPtr--];   // ')' position or identifier position.
+	lexp.sourceStart = this.intStack[this.intPtr--]; // '(' position or identifier position.
+	lexp.hasParentheses = (this.scanner.getSource()[lexp.sourceStart] == '(');
+	pushOnAstStack(lexp);
+	pushOnExpressionStack(lexp);
+	if (!this.parsingJava8Plus) {
+		problemReporter().lambdaExpressionsNotBelow18(lexp);
+	}
+	this.listLength = 0; // reset this.listLength after having read all parameters
 }
 protected void consumeMethodBody() {
 	super.consumeMethodBody();
@@ -1401,6 +1469,7 @@ public void parseBlockStatements(
 		initializer.bits |= ASTNode.HasLocalType;
 	}
 }
+
 /**
  * Parse the block statements inside the given method declaration and try to complete at the
  * cursor location.

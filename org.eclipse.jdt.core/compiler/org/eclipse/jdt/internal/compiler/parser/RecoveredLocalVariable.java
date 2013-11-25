@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 
@@ -28,7 +29,7 @@ public class RecoveredLocalVariable extends RecoveredStatement {
 
 	public RecoveredAnnotation[] annotations;
 	public int annotationCount;
-
+	private RecoveredLambdaExpression initializer;
 	public int modifiers;
 	public int modifiersStart;
 
@@ -52,6 +53,21 @@ public RecoveredElement add(Statement stmt, int bracketBalanceValue) {
 		this.localDeclaration.declarationSourceEnd = stmt.sourceEnd;
 		this.localDeclaration.declarationEnd = stmt.sourceEnd;
 		return this;
+	}
+}
+/*
+ * Record an expression statement if local variable is expecting an initialization expression.
+ */
+public RecoveredElement add(LambdaExpression expression, int bracketBalanceValue) {
+
+	if (this.alreadyCompletedLocalInitialization) {
+		return this;
+	} else {
+		this.alreadyCompletedLocalInitialization = true;
+		this.localDeclaration.initialization = expression;
+		this.localDeclaration.declarationSourceEnd = expression.sourceEnd;
+		this.localDeclaration.declarationEnd = expression.sourceEnd;
+		return this.initializer = new RecoveredLambdaExpression(expression, this, bracketBalanceValue);
 	}
 }
 public void attach(RecoveredAnnotation[] annots, int annotCount, int mods, int modsSourceStart) {
@@ -117,6 +133,8 @@ public Statement updatedStatement(int depth, Set knownTypes){
 			this.localDeclaration.declarationSourceStart = start;
 		}
 	}
+	if (this.initializer != null)
+		this.initializer.updateParseTree();
 	return this.localDeclaration;
 }
 /*
