@@ -3266,11 +3266,40 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"		Integer [] array = new Integer[] { 1234, 5678, 789 };\n" +
 				"		Arrays.sort(array, Integer::compare);\n" +
 				"       System.out.println(\"\" + array[0] + array[1] + array[2]);\n" +
-				"\n" +
 				"	}\n" +
 				"}\n"
 			}, 
 			getCompilerOptions(), 
 			"78912345678");		
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422134, [1.8] NPE in NullAnnotationMatching with inlined lambda expression used with a raw type
+	public void test422134() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" +
+				"import java.util.Collections;\n" +
+				"public class X {\n" +
+				"	public static void main(String args[]) {\n" +
+				"		Collections.sort(new ArrayList(), (o1, o2) -> {\n" +
+				"			return o1.compareToIgnoreCase(o1);\n" +
+				"		});\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	Collections.sort(new ArrayList(), (o1, o2) -> {\n" + 
+			"	                     ^^^^^^^^^\n" + 
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	return o1.compareToIgnoreCase(o1);\n" + 
+			"	          ^^^^^^^^^^^^^^^^^^^\n" + 
+			"The method compareToIgnoreCase(Object) is undefined for the type Object\n" + 
+			"----------\n",
+			null,
+			true,
+			getCompilerOptions());		
 	}
 }
