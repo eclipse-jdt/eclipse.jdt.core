@@ -59,7 +59,7 @@ public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flow
 
 protected boolean checkNullableFieldDereference(Scope scope, FieldBinding field, long sourcePosition) {
 	// preference to type annotations if we have any
-	if ((field.type.tagBits & TagBits.AnnotationNullable) != 0) {
+	if (field.type != null && (field.type.tagBits & TagBits.AnnotationNullable) != 0) {
 		scope.problemReporter().dereferencingNullableExpression(sourcePosition, scope.environment());
 		return true;
 	}

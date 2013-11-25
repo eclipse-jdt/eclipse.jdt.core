@@ -7238,6 +7238,59 @@ public void test383096() {
 			true // statement recovery.
 		);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422516,  [1.8][compiler] NPE in ArrayReference.analyseAssignment.
+public void test422516() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"public class X {\n" +
+					"    public static void main(String[] args) throws InterruptedException {\n" +
+					"        final int[] result= { 0 };\n" +
+					"        Thread t = new Thread(() -> {\n" +
+					"            sysoresult[0]= 42;\n" +
+					"        });\n" +
+					"        t.start();\n" +
+					"        t.join();\n" +
+					"        System.out.println(result[0]);\n" +
+					"    }\n" +
+					"}\n"
+
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	sysoresult[0]= 42;\n" + 
+			"	^^^^^^^^^^\n" + 
+			"sysoresult cannot be resolved to a variable\n" + 
+			"----------\n",
+			true // statement recovery.
+		);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422516,  [1.8][compiler] NPE in ArrayReference.analyseAssignment.
+public void test422516a() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"public class X {\n" +
+					"    public static void main(String[] args) throws InterruptedException {\n" +
+					"        final int[] result= { 0 };\n" +
+					"        Thread t = new Thread(() -> {\n" +
+			        "            System.out.printlnresult[0]= 42;\n" +
+			        "        });\n" +
+					"        t.start();\n" +
+					"        t.join();\n" +
+					"        System.out.println(result[0]);\n" +
+					"    }\n" +
+					"}\n"
+
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	System.out.printlnresult[0]= 42;\n" + 
+			"	           ^^^^^^^^^^^^^\n" + 
+			"printlnresult cannot be resolved or is not a field\n" + 
+			"----------\n"
+		);
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
