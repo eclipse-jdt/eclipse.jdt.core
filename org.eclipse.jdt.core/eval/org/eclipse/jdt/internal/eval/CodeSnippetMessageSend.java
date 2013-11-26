@@ -262,9 +262,9 @@ public TypeBinding resolveType(BlockScope scope) {
 			? scope.getImplicitMethod(this.selector, argumentTypes, this)
 			: scope.getMethod(this.actualReceiverType, this.selector, argumentTypes, this);
 	
-	if (polyExpressionSeen && polyExpressionsHaveErrors(scope, this.binding, this.arguments, argumentTypes))
-		return null;
-	
+	if (polyExpressionSeen)
+		resolvePolyExpressionArguments(scope, this.binding, this.arguments, argumentTypes);
+		
 	if (!this.binding.isValidBinding()) {
 		if (this.binding instanceof ProblemMethodBinding
 			&& ((ProblemMethodBinding) this.binding).problemId() == ProblemReasons.NotVisible) {

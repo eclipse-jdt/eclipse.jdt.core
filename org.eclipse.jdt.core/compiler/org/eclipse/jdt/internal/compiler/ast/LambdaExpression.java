@@ -23,6 +23,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -63,7 +64,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class LambdaExpression extends FunctionalExpression implements ReferenceContext, ProblemSeverities {
 	public Argument [] arguments;
-	private TypeBinding [] argumentTypes = Binding.NO_PARAMETERS;
+	private TypeBinding [] argumentTypes;
 	public Statement body;
 	public boolean hasParentheses;
 	public MethodScope scope;
@@ -77,6 +78,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	private int outerLocalVariablesSlotSize = 0;
 	public boolean shouldCaptureInstance = false;
 	private boolean shouldUnelideTypes = false;
+	private boolean hasIgnoredMandatoryErrors = false;
 	private static final SyntheticArgumentBinding [] NO_SYNTHETIC_ARGUMENTS = new SyntheticArgumentBinding[0];
 	
 	public LambdaExpression(CompilationResult compilationResult, Argument [] arguments, Statement body, boolean shouldUnelideTypes) {
@@ -84,6 +86,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		this.arguments = arguments != null ? arguments : ASTNode.NO_ARGUMENTS;
 		this.body = body;
 		this.shouldUnelideTypes = shouldUnelideTypes;
+		this.argumentTypes = new TypeBinding[arguments != null ? arguments.length : 0]; 
 	}
 	
 	protected FunctionalExpression original() {
@@ -196,9 +199,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		TypeBinding[] newParameters = new TypeBinding[length];
 
 		AnnotationBinding [][] parameterAnnotations = null;
-		if (!argumentsTypeElided) {
-			this.argumentTypes = new TypeBinding[length];
-		}
 		for (int i = 0; i < length; i++) {
 			Argument argument = this.arguments[i];
 			if (argument.isVarArgs()) {
@@ -420,15 +420,27 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		}
 	}
 
-	public boolean isPertinentToApplicability() {
+	public boolean isPertinentToApplicability(TypeBinding targetType) {
+		
+		// Add the rule about type variable of the generic method.
+		
+		final MethodBinding sam = targetType.getSingleAbstractMethod(this.enclosingScope); // cached/cheap call.
+		
+		if (sam == null || !sam.isValidBinding())
+			return true;
+		
+		if (sam.parameters.length != this.argumentTypes.length)
+			return true;
+		
 		if (argumentsTypeElided())
 			return false;
 		
 		Expression [] returnExpressions = this.resultExpressions;
 		for (int i = 0, length = returnExpressions.length; i < length; i++) {
-			if (!returnExpressions[i].isPertinentToApplicability())
+			if (!returnExpressions[i].isPertinentToApplicability(targetType))
 				return false;
 		}
+		
 		return true;
 	}
 	
@@ -495,26 +507,40 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 					return false;
 				copy.setExpressionContext(this.expressionContext);
 				copy.setExpectedType(left);
-				copy.resolveType(this.enclosingScope);
-
+				this.hasIgnoredMandatoryErrors = false;
+				TypeBinding type = copy.resolveType(this.enclosingScope);
 				if (!argumentsTypeElided()) {
 					this.argumentTypes = copy.argumentTypes;
 				}
-			
 				if (this.body instanceof Block) {
-					if (!this.returnsVoid) {
-						this.valueCompatible = copy.doesNotCompleteNormally();
+					if (this.returnsVoid) {
+						this.shapeAnalysisComplete = true;
 					}
 				} else {
 					this.voidCompatible = ((Expression) this.body).statementExpression();
+					this.shapeAnalysisComplete = true;
 				}
-			
-			} finally {
+				// Do not proceed with data/control flow analysis if resolve encountered errors.
+				if (type == null || !type.isValidBinding() || this.hasIgnoredMandatoryErrors) {
+					if (!isPertinentToApplicability(left))
+						return true;
+					return this.arguments.length == 0; // error not because of the target type imposition, but is inherent. Just say compatible since errors in body aren't to influence applicability.
+				}
+				
+				// value compatibility of block lambda's is the only open question.
+				if (!this.shapeAnalysisComplete)
+					this.valueCompatible = copy.doesNotCompleteNormally();
+				
 				this.shapeAnalysisComplete = true;
+			} finally {
+				this.hasIgnoredMandatoryErrors = false;
 				this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 			}
 		}
 
+		if (!isPertinentToApplicability(left))
+			return true;
+	
 		if (sam.returnType.id == TypeIds.T_void) {
 			if (!this.voidCompatible)
 				return false;
@@ -523,9 +549,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				return false;
 		}
 		
-		if (!isPertinentToApplicability())
-			return true;
-	
 		Expression [] returnExpressions = this.resultExpressions;
 		for (int i = 0, length = returnExpressions.length; i < length; i++) {
 			if (returnExpressions[i] instanceof FunctionalExpression) { // don't want to use the resolvedType - polluted from some other overload resolution candidate
@@ -689,6 +712,35 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 					parent = parent.parent;
 					break;
 			}
+		}
+	}
+	
+	public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
+		switch (problemId) {
+			// 15.27.3 requires exception throw related errors to not influence congruence. Other errors should. Also don't abort shape analysis.
+			case IProblem.UnhandledExceptionOnAutoClose:
+			case IProblem.UnhandledExceptionInDefaultConstructor:
+			case IProblem.UnhandledException:
+				return;
+			/* The following structural problems can occur only because of target type imposition. Filter, so we can distinguish inherent errors 
+			   in explicit lambdas. This is to help decide whether to proceed with data/control flow analysis to discover shape. In case of inherent
+			   errors, we will not call analyze code as it is not prepared to analyze broken programs.
+			*/
+			case IProblem.VoidMethodReturnsValue:
+			case IProblem.ShouldReturnValueHintMissingDefault:
+			case IProblem.ShouldReturnValue:
+			case IProblem.ReturnTypeMismatch:
+			case IProblem.IncompatibleLambdaParameterType:
+			case IProblem.lambdaParameterTypeMismatched:
+			case IProblem.lambdaSignatureMismatched:
+			case IProblem.LambdaDescriptorMentionsUnmentionable:
+			case IProblem.TargetTypeNotAFunctionalInterface:
+			case IProblem.illFormedParameterizationOfFunctionalInterface:
+			case IProblem.MultipleFunctionalInterfaces:
+				return;
+			default: 
+				this.original.hasIgnoredMandatoryErrors = true;
+				return;
 		}
 	}
 	

@@ -376,6 +376,9 @@ void setSourceStart(int sourceStart);
 	int TypeMismatch = TypeRelated + 17;
 	/** @since 3.0 */
 	int IndirectAccessToStaticType = Internal + TypeRelated + 18;
+	
+	/** @since 3.9 BETA_JAVA8 */
+	int ReturnTypeMismatch = TypeRelated + 19;
 
 	/**
 	 * Inner types related problems

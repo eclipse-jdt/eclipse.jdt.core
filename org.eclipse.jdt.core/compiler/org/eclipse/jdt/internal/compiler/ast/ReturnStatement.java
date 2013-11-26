@@ -353,7 +353,7 @@ public void resolve(BlockScope scope) {
 	}
 	if ((methodType.tagBits & TagBits.HasMissingType) == 0) {
 		// no need to complain if return type was missing (avoid secondary error : 220967)
-		scope.problemReporter().typeMismatchError(expressionType, methodType, this.expression, null);
+		scope.problemReporter().typeMismatchError(expressionType, methodType, this.expression, this);
 	}
 }
 

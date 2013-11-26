@@ -1324,6 +1324,10 @@ public void tagAsHavingErrors() {
 	this.ignoreFurtherInvestigation = true;
 }
 
+public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
+	// Nothing to do for this context;
+}
+
 /**
  *	Iteration for a package member type
  *

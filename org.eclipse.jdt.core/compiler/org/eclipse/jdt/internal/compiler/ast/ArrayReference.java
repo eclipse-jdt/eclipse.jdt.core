@@ -54,7 +54,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			currentScope,
 			flowContext,
 			analyseCode(currentScope, flowContext, flowInfo).unconditionalInits());
-	if (this.resolvedType != null && (this.resolvedType.tagBits & TagBits.AnnotationNonNull) != 0) {
+	if ((this.resolvedType.tagBits & TagBits.AnnotationNonNull) != 0) {
 		int nullStatus = assignment.expression.nullStatus(flowInfo, flowContext);
 		if (nullStatus != FlowInfo.NON_NULL) {
 			currentScope.problemReporter().nullityMismatch(this, assignment.expression.resolvedType, this.resolvedType, nullStatus, currentScope.environment().getNonNullAnnotationName());

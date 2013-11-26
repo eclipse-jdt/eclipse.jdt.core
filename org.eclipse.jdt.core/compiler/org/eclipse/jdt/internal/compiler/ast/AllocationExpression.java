@@ -444,8 +444,8 @@ public TypeBinding resolveType(BlockScope scope) {
 	
 	ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
 	this.binding = scope.getConstructor(allocationType, argumentTypes, this);
-	if (polyExpressionSeen && polyExpressionsHaveErrors(scope, this.binding, this.arguments, argumentTypes))
-		return null;
+	if (polyExpressionSeen) 
+		resolvePolyExpressionArguments(scope, this.binding, this.arguments, argumentTypes);
 	
 	if (!this.binding.isValidBinding()) {
 		if (this.binding.declaringClass == null) {

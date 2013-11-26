@@ -250,6 +250,11 @@ public void test007() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 9)\n" + 
 			"	goo(()-> 10); \n" + 
+			"	^^^\n" + 
+			"The method goo(J) in the type X is not applicable for the arguments (() -> 10)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	goo(()-> 10); \n" + 
 			"	         ^^\n" + 
 			"Void methods cannot return a value\n" + 
 			"----------\n");
@@ -843,6 +848,11 @@ public void test029() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 17)\n" + 
 			"	foo(X []::new);\n" + 
+			"	^^^\n" + 
+			"The method foo(I) in the type X is not applicable for the arguments (X[]::new)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 17)\n" + 
+			"	foo(X []::new);\n" + 
 			"	    ^^^^^^^^^\n" + 
 			"Constructed array X[] cannot be assigned to Y[] as required in the interface descriptor  \n" + 
 			"----------\n");
@@ -1268,6 +1278,11 @@ public void test4008712g() {
 			"The method foo(int) from the type Y is never used locally\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 20)\n" + 
+			"	goo(new X()::foo);\n" + 
+			"	^^^\n" + 
+			"The method goo(I) in the type X is not applicable for the arguments (new X()::foo)\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 20)\n" + 
 			"	goo(new X()::foo);\n" + 
 			"	    ^^^^^^^^^^^^\n" + 
 			"The type X does not define foo(int) that is applicable here\n" + 
@@ -1707,6 +1722,11 @@ public void test4008712u() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 20)\n" + 
 			"	goo(I::clone);\n" + 
+			"	^^^\n" + 
+			"The method goo(I) in the type X<T> is not applicable for the arguments (I::clone)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 20)\n" + 
+			"	goo(I::clone);\n" + 
 			"	    ^^^^^^^^\n" + 
 			"The type I does not define clone() that is applicable here\n" + 
 			"----------\n");
@@ -1771,6 +1791,11 @@ public void test4008712w() {
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 21)\n" + 
+			"	goo(i::clone);\n" + 
+			"	^^^\n" + 
+			"The method goo(I) in the type X<T> is not applicable for the arguments (i::clone)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 21)\n" + 
 			"	goo(i::clone);\n" + 
 			"	    ^^^^^^^^\n" + 
 			"The type I does not define clone() that is applicable here\n" + 
@@ -1937,6 +1962,11 @@ public void test4008712zc() {
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 16)\n" + 
+			"	goo(new X()::foo);\n" + 
+			"	^^^\n" + 
+			"The method goo(I) in the type X is not applicable for the arguments (new X()::foo)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 16)\n" + 
 			"	goo(new X()::foo);\n" + 
 			"	    ^^^^^^^^^^^^\n" + 
 			"The type of foo() from the type X is long, this is incompatible with the descriptor\'s return type: int\n" + 

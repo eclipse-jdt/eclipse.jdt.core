@@ -624,7 +624,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return output;
 	}
 
-	public static boolean polyExpressionsHaveErrors(BlockScope scope, MethodBinding methodBinding, Expression [] arguments, TypeBinding[] argumentTypes) {
+	public static boolean resolvePolyExpressionArguments(BlockScope scope, MethodBinding methodBinding, Expression [] arguments, TypeBinding[] argumentTypes) {
 		boolean polyExpressionsHaveErrors = false;
 		MethodBinding candidateMethod;
 		if (methodBinding.isValidBinding()) {

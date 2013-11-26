@@ -526,6 +526,15 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		return !CharOperation.equals(this.selector,  ConstantPool.Init);
 	}
 	
+	public boolean isPertinentToApplicability(TypeBinding targetType) {
+		final MethodBinding sam = targetType.getSingleAbstractMethod(this.enclosingScope); // cached/cheap call.
+		
+		if (sam == null || !sam.isValidBinding())
+			return true;
+		
+		return this.isExactMethodReference();
+	}
+	
 	public TypeBinding[] genericTypeArguments() {
 		return this.resolvedTypeArguments;
 	}

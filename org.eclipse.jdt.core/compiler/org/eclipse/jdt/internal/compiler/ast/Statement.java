@@ -146,9 +146,7 @@ void analyseOneArgument18(BlockScope currentScope, FlowContext flowContext, Flow
 	}
 }
 
-protected void checkAgainstNullTypeAnnotation(BlockScope scope, TypeBinding requiredType, Expression expression, FlowContext flowContext, FlowInfo flowInfo) { 
-	if (requiredType == null || !requiredType.isValidBinding() || expression.resolvedType == null || !expression.resolvedType.isValidBinding())
-		return;
+protected void checkAgainstNullTypeAnnotation(BlockScope scope, TypeBinding requiredType, Expression expression, FlowContext flowContext, FlowInfo flowInfo) {
 	int nullStatus = expression.nullStatus(flowInfo, flowContext);
 	NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(requiredType, expression.resolvedType, nullStatus);
 	if (annotationStatus.isDefiniteMismatch()) {

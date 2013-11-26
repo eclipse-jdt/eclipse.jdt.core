@@ -3290,10 +3290,24 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n" + 
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	Collections.sort(new ArrayList(), (o1, o2) -> {\n" + 
+			"			return o1.compareToIgnoreCase(o1);\n" + 
+			"		});\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation sort(ArrayList, (<no type> o1, <no type> o2) -> {\n" + 
+			"  return o1.compareToIgnoreCase(o1);\n" + 
+			"}) of the generic method sort(List<T>, Comparator<? super T>) of type Collections\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	Collections.sort(new ArrayList(), (o1, o2) -> {\n" + 
+			"	                 ^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type ArrayList needs unchecked conversion to conform to List<Object>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
+			"	Collections.sort(new ArrayList(), (o1, o2) -> {\n" + 
 			"	                     ^^^^^^^^^\n" + 
 			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
+			"4. ERROR in X.java (at line 6)\n" + 
 			"	return o1.compareToIgnoreCase(o1);\n" + 
 			"	          ^^^^^^^^^^^^^^^^^^^\n" + 
 			"The method compareToIgnoreCase(Object) is undefined for the type Object\n" + 

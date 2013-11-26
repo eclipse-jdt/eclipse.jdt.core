@@ -7738,7 +7738,7 @@ public void typeMismatchError(TypeBinding actualType, TypeBinding expectedType, 
 		}
 	}
 	this.handle(
-		IProblem.TypeMismatch,
+		expectingLocation instanceof ReturnStatement ? IProblem.ReturnTypeMismatch : IProblem.TypeMismatch,
 		new String[] {new String(actualReadableName), new String(expectedReadableName)},
 		new String[] {new String(actualShortReadableName), new String(expectedShortReadableName)},
 		location.sourceStart,
