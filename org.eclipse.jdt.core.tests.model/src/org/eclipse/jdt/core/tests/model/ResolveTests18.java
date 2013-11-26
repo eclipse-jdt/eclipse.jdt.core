@@ -1378,7 +1378,7 @@ public void test417935() throws JavaModelException {
 		elements
 	);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=417935, [1.8][code select] ICU#codeSelect doesn't work on reference to lambda parameter
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417935, [1.8][code select] ICU#codeSelect doesn't work on reference to lambda parameter
 public void test417935a() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
@@ -1408,6 +1408,28 @@ public void test417935a() throws JavaModelException {
 	assertElementsEqual(
 		"Unexpected elements",
 		"compareTo(X) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
+public void testFieldInit() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"	void foo(int x, int y);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	I i = (first, second) -> { System.out.println(first); };\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "first";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"first [in i [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
 		elements
 	);
 }
