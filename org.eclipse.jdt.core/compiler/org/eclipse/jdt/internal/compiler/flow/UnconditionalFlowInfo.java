@@ -94,6 +94,22 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	// Constants
 	public static final int BitCacheSize = 64; // 64 bits in a long.
 
+/* fakeInitializedFlowInfo: For Lambda expressions tentative analysis during overload resolution. 
+   We presume that any and all outer locals touched by the lambda are definitely assigned and 
+   effectively final. Whether they are or not is immaterial for overload analysis (errors encountered
+   in the body are not supposed to influence the resolution. It is pertinent only for the eventual 
+   resolution/analysis post overload resolution. For lambda's the problem is that we start the control/data
+   flow analysis abruptly at the start of the lambda, so we need to present a cogent world view and hence 
+   all this charade.
+*/
+public static UnconditionalFlowInfo fakeInitializedFlowInfo(int localsCount, int maxFieldCount) {
+		UnconditionalFlowInfo flowInfo = new UnconditionalFlowInfo();
+		flowInfo.maxFieldCount = maxFieldCount;
+		for (int i = 0; i < localsCount; i++)
+			flowInfo.markAsDefinitelyAssigned(i);
+		return flowInfo;
+}
+
 public FlowInfo addInitializationsFrom(FlowInfo inits) {
 	return addInfoFrom(inits, true);
 }

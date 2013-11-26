@@ -1799,6 +1799,48 @@ public void test421712() {
 		"Lambda instantiated");		
 }
 
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=422515, [1.8][compiler] "Missing code implementation in the compiler" when lambda body accesses array variable
+public void test422515() {
+	this.runConformTest(
+			new String[] {
+					"X.java", 
+					"public class X {\n" +
+					"    public static void main(String[] args) throws InterruptedException {\n" +
+					"        final int[] result = { 0 };\n" +
+					"        Thread t = new Thread(() -> result[0] = 42);\n" +
+					"        t.start();\n" +
+					"        t.join();\n" +
+					"        System.out.println(result[0]);\n" +
+					"    }\n" +
+					"}\n"
+			},
+			"42"
+		);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=422515, [1.8][compiler] "Missing code implementation in the compiler" when lambda body accesses array variable
+public void test422515a() {
+	this.runConformTest(
+			new String[] {
+					"X.java", 
+					"public class X {\n" +
+					"    public static void main(String[] args) throws InterruptedException {\n" +
+					"        final int[] result= { 0 };\n" +
+					"        final int x = args.length + 42;\n" +
+					"        Thread t = new Thread(() -> {\n" +
+					"            result[0]= x;\n" +
+					"        });\n" +
+					"        t.start();\n" +
+					"        t.join();\n" +
+					"        System.out.println(result[0]);\n" +
+					"    }\n" +
+					"}\n"
+			},
+			"42"
+		);
+}
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

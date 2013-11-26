@@ -33,6 +33,8 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
@@ -308,7 +310,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	private boolean doesNotCompleteNormally() {
 		return this.body.analyseCode(this.scope, 
 									 new ExceptionHandlingFlowContext(null, this, Binding.NO_EXCEPTIONS, null, this.scope, FlowInfo.DEAD_END), 
-									 FlowInfo.initial(this.scope.referenceType().maxFieldCount)) == FlowInfo.DEAD_END; 
+									 UnconditionalFlowInfo.fakeInitializedFlowInfo(this.scope.outerMostMethodScope().analysisIndex, this.scope.referenceType().maxFieldCount)) == FlowInfo.DEAD_END; 
 	}
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, final FlowInfo flowInfo) {
 		
@@ -501,6 +503,9 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		
 		if (!this.shapeAnalysisComplete) {
 			IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
+			final CompilerOptions compilerOptions = this.enclosingScope.compilerOptions();
+			boolean analyzeNPE = compilerOptions.isAnnotationBasedNullAnalysisEnabled;
+			compilerOptions.isAnnotationBasedNullAnalysisEnabled = false;
 			try {
 				final LambdaExpression copy = copy();
 				if (copy == null)
@@ -533,6 +538,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				
 				this.shapeAnalysisComplete = true;
 			} finally {
+				compilerOptions.isAnnotationBasedNullAnalysisEnabled = analyzeNPE;
 				this.hasIgnoredMandatoryErrors = false;
 				this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 			}
