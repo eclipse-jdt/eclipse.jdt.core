@@ -305,7 +305,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 * 
 	 * @throws JavaModelException
 	 */
-	public void _test0004() throws JavaModelException {
+	public void test0004() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0004/X.java",
 				true/* resolve */);
 		String contents = "package test0004;"
@@ -317,9 +317,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 				+ "@interface Marker1 {}\n"
 				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
 				+ "@interface Marker2 {}\n";
-		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
-		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
-		ArrayType type = (ArrayType) ((ParameterizedType) typedeclaration.superInterfaceTypes().get(0)).typeArguments().get(0);
+		ArrayType type = (ArrayType) buildAST(contents, this.workingCopy);
 		assertNotNull("No annotation", type);
 		ITypeBinding binding = type.resolveBinding();
 		assertNotNull("No binding", binding);

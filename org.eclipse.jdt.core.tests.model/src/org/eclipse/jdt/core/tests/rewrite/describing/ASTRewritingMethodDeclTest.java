@@ -344,7 +344,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 
 
-	public void _testMethodReturnTypeChanges_only_2() throws Exception {
+	public void testMethodReturnTypeChanges_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -400,31 +400,28 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 		}
 
-		{ // remove return type, add second modifier
+		{ // add second modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(3);
 			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC | Modifier.FINAL), null);
 
 			// from method to constructor
-			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, null, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
 
 		}
-		{ // remove return type, add (first) modifier
+		{ // add (first) modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(4);
 			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
 
 			// from method to constructor
-			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, null, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
 		}
 
-		{ // remove return type, add second modifier with comments
+		{ // add second modifier with comments
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(5);
 
 			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
 
 			// from method to constructor
-			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, null, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
 		}
 
@@ -447,7 +444,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void _testMethodReturnTypeChanges2_only_2() throws Exception {
+	public void testMethodReturnTypeChanges2_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -503,21 +500,19 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 		}
 
-		{ // remove return type, remove second modifier
+		{ // remove second modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(3);
 			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC), null);
 
 			// from method to constructor
-			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, null, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
 
 		}
-		{ // remove return type, remove (only) modifier
+		{ // remove (only) modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(4);
 			setModifiers(rewrite, methodDecl, 0);
 
 			// from method to constructor
-			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, null, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
 		}
 
@@ -527,7 +522,6 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			setModifiers(rewrite, methodDecl, 0);
 
 			// from method to constructor
-			rewrite.set(methodDecl, INTERNAL_METHOD_RETURN_TYPE_PROPERTY, null, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
 		}
 
