@@ -27,6 +27,27 @@
 
   <build>
     <plugins>
+    <plugin>
+		<artifactId>maven-antrun-plugin</artifactId>
+		<executions>
+			<execution>
+				<phase>prepare-package</phase>
+				<configuration>
+					<tasks>
+						<replace token="bundle_qualifier," value="${buildQualifier}," dir="${project.build.directory}/classes">
+							<include name="org/eclipse/jdt/internal/compiler/batch/messages.properties"/>
+						</replace>
+						<replace token="bundle_version" value="${unqualifiedVersion}" dir="${project.build.directory}/classes">
+							<include name="org/eclipse/jdt/internal/compiler/batch/messages.properties" />
+						</replace>
+					</tasks>
+				</configuration>
+				<goals>
+					<goal>run</goal>
+				</goals>
+			</execution>
+		</executions>
+	  </plugin>
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <version>2.6</version>
@@ -42,22 +63,6 @@
               <resources>
                 <resource>
                   <directory>${project.basedir}/scripts/source</directory>
-                  <filtering>true</filtering>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-          <execution>
-            <id>copy-batch</id>
-            <phase>package</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}/classes</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>${project.basedir}/batch</directory>
                   <filtering>true</filtering>
                 </resource>
               </resources>
