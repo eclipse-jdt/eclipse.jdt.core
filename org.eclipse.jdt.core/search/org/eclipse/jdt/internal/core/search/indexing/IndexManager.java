@@ -1002,6 +1002,7 @@ private void readIndexMap() {
 			if (savedSignature.equals(new String(names[0]))) {
 				for (int i = 1, l = names.length-1 ; i < l ; i+=2) {
 					IndexLocation indexPath = IndexLocation.createIndexLocation(new URL(new String(names[i])));
+					if (indexPath == null) continue;
 					this.indexLocations.put(new Path(new String(names[i+1])), indexPath );
 					this.indexStates.put(indexPath, REUSE_STATE);
 				}
