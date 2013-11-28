@@ -790,9 +790,9 @@ protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
  * A syntax error was detected. If a method is being parsed, records the number of errors and
  * attempts to restart from the last statement by going for an expression.
  */
-protected boolean resumeOnSyntaxError() {
+protected int resumeOnSyntaxError() {
 	if (this.diet || this.hasRecoveredOnExpression) { // no reentering inside expression recovery
-		return false;
+		return HALT;
 	}
 
 	// record previous error, in case more accurate than potential one in expression recovery
@@ -821,6 +821,6 @@ protected boolean resumeOnSyntaxError() {
 	this.hasRecoveredOnExpression = true;
 	this.hasReportedError = false;
 	this.hasError = false;
-	return true;
+	return RESTART;
 }
 }

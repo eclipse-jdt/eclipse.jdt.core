@@ -1511,8 +1511,8 @@ protected void resetModifiers() {
  * Syntax error was detected. Will attempt to perform some recovery action in order
  * to resume to the regular parse loop.
  */
-protected boolean resumeOnSyntaxError() {
-	return false;
+protected int resumeOnSyntaxError() {
+	return HALT;
 }
 /*
  * Answer a char array representation of the type name formatted like:

@@ -83,12 +83,18 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	private boolean hasIgnoredMandatoryErrors = false;
 	private static final SyntheticArgumentBinding [] NO_SYNTHETIC_ARGUMENTS = new SyntheticArgumentBinding[0];
 	
-	public LambdaExpression(CompilationResult compilationResult, Argument [] arguments, Statement body, boolean shouldUnelideTypes) {
+	public LambdaExpression(CompilationResult compilationResult, boolean shouldUnelideTypes) {
 		super(compilationResult);
+		this.shouldUnelideTypes = shouldUnelideTypes; 
+	}
+	
+	public void setArguments(Argument [] arguments) {
 		this.arguments = arguments != null ? arguments : ASTNode.NO_ARGUMENTS;
+		this.argumentTypes = new TypeBinding[arguments != null ? arguments.length : 0];
+	}
+	
+	public void setBody(Statement body) {
 		this.body = body;
-		this.shouldUnelideTypes = shouldUnelideTypes;
-		this.argumentTypes = new TypeBinding[arguments != null ? arguments.length : 0]; 
 	}
 	
 	protected FunctionalExpression original() {
@@ -303,7 +309,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		return this.resolvedType;
 	}
 	
-	private boolean argumentsTypeElided() {
+	public boolean argumentsTypeElided() {
 		return this.arguments.length > 0 && this.arguments[0].hasElidedType();
 	}
 

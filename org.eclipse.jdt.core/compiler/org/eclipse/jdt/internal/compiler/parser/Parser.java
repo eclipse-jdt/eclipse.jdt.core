@@ -1004,7 +1004,6 @@ public JavadocParser javadocParser;
 // used for recovery
 protected int lastJavadocEnd;
 public org.eclipse.jdt.internal.compiler.ReadManager readManager;
-private boolean shouldDeferRecovery = false; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=291040
 private int valueLambdaNestDepth = -1;
 private int stateStackLengthStack[] = new int[0];
 protected boolean parsingJava8Plus;
@@ -1013,6 +1012,13 @@ private boolean haltOnSyntaxError = false;
 private boolean tolerateDefaultClassMethods = false;
 private boolean processingLambdaParameterList = false;
 private boolean expectTypeAnnotation = false;
+
+// resumeOnSyntaxError codes:
+
+protected static final int HALT = 0;     // halt and throw up hands.
+protected static final int RESTART = 1;  // stacks reset, alternate goal from check point.
+protected static final int RESUME = 2;   // stacks untouched, just continue from where left off.
+
 
 protected Parser () {
 	// Caveat Emptor: For inheritance purposes and then only in very special needs. Only minimal state is initialized !
@@ -2553,7 +2559,6 @@ protected void consumeClassBodyopt() {
 	// ClassBodyopt ::= $empty
 	pushOnAstStack(null);
 	this.endPosition = this.rParenPos;
-	this.shouldDeferRecovery = false;
 }
 protected void consumeClassDeclaration() {
 	// ClassDeclaration ::= ClassHeader ClassBody
@@ -3413,7 +3418,6 @@ protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
 	iteratorForStatement.sourceEnd = localDeclaration.declarationSourceEnd;
 }
 protected void consumeEnterAnonymousClassBody(boolean qualified) {
-	this.shouldDeferRecovery = false;
 	// EnterAnonymousClassBody ::= $empty
 	TypeReference typeReference = getTypeReference(0);
 
@@ -7866,11 +7870,11 @@ protected void consumeLambdaHeader() {
 		if (argument.name.length == 1 && argument.name[0] == '_')
 			problemReporter().illegalUseOfUnderscoreAsAnIdentifier(argument.sourceStart, argument.sourceEnd, true); // true == lambdaParameter
 	}
-	LambdaExpression lexp = new LambdaExpression(this.compilationUnit.compilationResult, arguments, null, this instanceof AssistParser /* synthesize elided types as needed */);
+	LambdaExpression lexp = (LambdaExpression) this.astStack[this.astPtr];
+	lexp.setArguments(arguments);
 	lexp.sourceEnd = this.intStack[this.intPtr--];   // ')' position or identifier position.
 	lexp.sourceStart = this.intStack[this.intPtr--]; // '(' position or identifier position.
 	lexp.hasParentheses = (this.scanner.getSource()[lexp.sourceStart] == '(');
-	pushOnAstStack(lexp);
 	pushOnExpressionStack(lexp);
 	this.listLength = 0; // reset this.listLength after having read all parameters
 }
@@ -7890,7 +7894,7 @@ protected void consumeLambdaExpression() {
 
 	LambdaExpression lexp = (LambdaExpression) this.astStack[this.astPtr--];
 	this.astLengthPtr--;
-	lexp.body = body;
+	lexp.setBody(body);
 	lexp.sourceEnd = body.sourceEnd;
 	
 	if (body instanceof Expression) {
@@ -7900,6 +7904,22 @@ protected void consumeLambdaExpression() {
 	if (!this.parsingJava8Plus) {
 		problemReporter().lambdaExpressionsNotBelow18(lexp);
 	}
+}
+
+protected Argument typeElidedArgument() {
+	this.identifierLengthPtr--;
+	char[] identifierName = this.identifierStack[this.identifierPtr];
+	long namePositions = this.identifierPositionStack[this.identifierPtr--];
+
+	Argument arg =
+		new Argument(
+			identifierName,
+			namePositions,
+			null, // elided type
+			ClassFileConstants.AccDefault,
+			true);
+	arg.declarationSourceStart = (int) (namePositions >>> 32);
+	return arg; 
 }
 
 protected void consumeTypeElidedLambdaParameter(boolean parenthesized) {
@@ -7917,28 +7937,20 @@ protected void consumeTypeElidedLambdaParameter(boolean parenthesized) {
 		annotationLength = this.expressionLengthStack[this.expressionLengthPtr--];
 		this.expressionPtr -= annotationLength;
 	}
-	
-	this.identifierLengthPtr--;
-	char[] identifierName = this.identifierStack[this.identifierPtr];
-	long namePositions = this.identifierPositionStack[this.identifierPtr--];
 
-	Argument arg =
-		new Argument(
-			identifierName,
-			namePositions,
-			null, // elided type
-			ClassFileConstants.AccDefault,
-			true);
-	arg.declarationSourceStart = (int) (namePositions >>> 32);
+	Argument arg = typeElidedArgument();
 	if (modifier != ClassFileConstants.AccDefault || annotationLength != 0) {
 		problemReporter().illegalModifiersForElidedType(arg);
 		arg.declarationSourceStart = modifiersStart;
 	} 
-	pushOnAstStack(arg);
 	if (!parenthesized) { // in the absence of '(' and ')', record positions.
+		LambdaExpression lambda;
+		pushOnAstStack(lambda = new LambdaExpression(this.compilationUnit.compilationResult, this instanceof AssistParser));
 		pushOnIntStack(arg.declarationSourceStart);
 		pushOnIntStack(arg.declarationSourceEnd);
+		lambda.sourceStart = arg.declarationSourceStart;
 	}
+	pushOnAstStack(arg);
 	/* if incomplete method header, this.listLength counter will not have been reset,
 		indicating that some arguments are available on the stack */
 	this.listLength++;
@@ -8136,7 +8148,7 @@ protected void consumeReferenceExpressionGenericTypeForm() {
 	}
 }
 protected void consumeEnterInstanceCreationArgumentList() {
-	this.shouldDeferRecovery = false; // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=417935#c2
+	return;
 }
 protected void consumeSimpleAssertStatement() {
 	// AssertStatement ::= 'assert' Expression ';'
@@ -8717,6 +8729,7 @@ protected void consumeToken(int type) {
 	//System.out.println(this.scanner.toStringAction(type));
 	switch (type) {
 		case TokenNameBeginLambda:
+			pushOnAstStack(new LambdaExpression(this.compilationUnit.compilationResult, this instanceof AssistParser));
 			this.processingLambdaParameterList = true;
 			break;
 		case TokenNameARROW:
@@ -10827,8 +10840,7 @@ try {
 		this.stack[this.stateStackTop] = act;
 
 		act = tAction(act, this.currentToken);
-		if (act == ERROR_ACTION || (this.restartRecovery && !this.shouldDeferRecovery)) {
-			this.shouldDeferRecovery = false;
+		if (act == ERROR_ACTION || this.restartRecovery) {
 			if (DEBUG_AUTOMATON) {
 				if (this.restartRecovery) {
 					System.out.println("Restart      - "); //$NON-NLS-1$
@@ -10839,18 +10851,24 @@ try {
 
 			int errorPos = this.scanner.currentPosition - 1;
 			if (!this.hasReportedError) {
-				this.hasError = true;
+				this.hasError = true;  // looks incorrect for recovery case ?
 			}
 			int previousToken = this.currentToken;
-			if (resumeOnSyntaxError()) {
-				if (act == ERROR_ACTION && previousToken != 0) this.lastErrorEndPosition = errorPos;
-				act = START_STATE;
-				this.stateStackTop = -1;
-				this.currentToken = getFirstToken();
-				continue ProcessTerminals;
+			switch (resumeOnSyntaxError()) {
+				case HALT:
+					act = ERROR_ACTION;
+					break ProcessTerminals;
+				case RESTART:
+					if (act == ERROR_ACTION && previousToken != 0) this.lastErrorEndPosition = errorPos;
+					act = START_STATE;
+					this.stateStackTop = -1;
+					this.currentToken = getFirstToken();
+					continue ProcessTerminals;
+				case RESUME:
+					break; // We presume the world is virgin so we can continue exactly from where we left off.
+				default:
+					throw new IllegalStateException();
 			}
-			act = ERROR_ACTION;
-			break ProcessTerminals;
 		}
 		if (act <= NUM_RULES) {
 			this.stateStackTop--;
@@ -12177,22 +12195,22 @@ protected boolean resumeAfterRecovery() {
 		return false;
 	}
 }
-protected boolean resumeOnSyntaxError() {
+protected int resumeOnSyntaxError() {
 	if (this.haltOnSyntaxError)
-		return false;
+		return HALT;
 	/* request recovery initialization */
 	if (this.currentElement == null){
 		// Reset javadoc before restart parsing after recovery
 		this.javadoc = null;
 
 		// do not investigate deeper in statement recovery
-		if (this.statementRecoveryActivated) return false;
+		if (this.statementRecoveryActivated) return HALT;
 
 		// build some recovered elements
 		this.currentElement = buildInitialRecoveryState();
 	}
 	/* do not investigate deeper in recovery when no recovered element */
-	if (this.currentElement == null) return false;
+	if (this.currentElement == null) return HALT;
 
 	/* manual forced recovery restart - after headers */
 	if (this.restartRecovery){
@@ -12214,7 +12232,7 @@ protected boolean resumeOnSyntaxError() {
 	}
 
 	/* attempt to reset state in order to resume to parse loop */
-	return resumeAfterRecovery();
+	return resumeAfterRecovery() ? RESTART : HALT;
 }
 public void setMethodsFullRecovery(boolean enabled) {
 	this.options.performMethodsFullRecovery = enabled;

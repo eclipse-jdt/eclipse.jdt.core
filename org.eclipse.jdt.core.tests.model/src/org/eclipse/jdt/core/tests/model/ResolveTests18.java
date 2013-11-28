@@ -1433,4 +1433,102 @@ public void testFieldInit() throws JavaModelException {
 		elements
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422468, [1.8][assist] Code assist issues with type elided lambda parameters
+public void test422468() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"	void foo(X x, Object y);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	I i = (first, second) -> { System.out.println(); };\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "first";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"first [in i [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422468, [1.8][assist] Code assist issues with type elided lambda parameters
+public void test422468a() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"	void foo(X x, Object y);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	I i = (first, second) -> { System.out.println(); };\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "second";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"second [in i [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422468, [1.8][assist] Code assist issues with type elided lambda parameters
+public void test422468b() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"	I foo (I x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo((x) -> (y) -> (z) -> z.foo((p) -> p));\n" +
+			"	}\n" +
+			"} \n");
+
+	String str = this.wc.getSource();
+	String selection = "y";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"y [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422468, [1.8][assist] Code assist issues with type elided lambda parameters
+public void test422468c() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"	I foo (I x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo( x -> y -> z -> z.foo(p -> p));\n" +
+			"	}\n" +
+			"} \n");
+
+	String str = this.wc.getSource();
+	String selection = "y";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"y [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
 }

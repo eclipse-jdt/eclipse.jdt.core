@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
@@ -82,7 +83,6 @@ public class SelectionParser extends AssistParser {
 	/* public fields */
 
 	public int selectionStart, selectionEnd;
-
 	public static final char[] SUPER = "super".toCharArray(); //$NON-NLS-1$
 	public static final char[] THIS = "this".toCharArray(); //$NON-NLS-1$
 
@@ -586,7 +586,7 @@ protected void consumeExitVariableWithInitialization() {
 	int end =  variable.initialization.sourceEnd;
 	if ((this.selectionStart < start) &&  (this.selectionEnd < start) ||
 			(this.selectionStart > end) && (this.selectionEnd > end)) {
-		variable.initialization = null;
+			variable.initialization = null;
 	}
 
 }
@@ -1412,6 +1412,29 @@ public CompilationUnitDeclaration parse(ICompilationUnit sourceUnit, Compilation
 	selectionScanner.selectionEnd = end;
 	return super.parse(sourceUnit, compilationResult, -1, -1/*parse without reseting the scanner*/);
 }
+
+protected int resumeOnSyntaxError() {
+	
+	if (this.referenceContext instanceof CompilationUnitDeclaration)
+		return super.resumeOnSyntaxError();
+	
+	// Defer initial *triggered* recovery if we see a type elided lambda expression on the stack. 
+	if (this.assistNode != null && this.restartRecovery) {
+		this.lambdaNeedsClosure = false;
+		for (int i = this.astPtr; i >= 0; i--) {
+			if (this.astStack[i] instanceof LambdaExpression) {
+				LambdaExpression expression = (LambdaExpression) this.astStack[i];
+				if (expression.argumentsTypeElided()) {
+					this.restartRecovery = false; // will be restarted in when the containing expression statement or explicit constructor call is reduced.
+					this.lambdaNeedsClosure = true;
+					return RESUME;
+				}
+			}
+		}
+	}
+	return super.resumeOnSyntaxError();
+}
+
 /*
  * Reset context so as to resume to regular parse loop
  * If unable to reset for resuming, answers false.
@@ -1430,7 +1453,7 @@ protected boolean resumeAfterRecovery() {
 			if(!(this.currentElement instanceof RecoveredType)) {
 				resetStacks();
 				return false;
-			}
+	}
 
 			RecoveredType recoveredType = (RecoveredType)this.currentElement;
 			if(recoveredType.typeDeclaration != null && recoveredType.typeDeclaration.allocation == this.assistNode){
@@ -1472,7 +1495,25 @@ protected void updateRecoveryState() {
 	*/
 	recoveryTokenCheck();
 }
+protected Argument typeElidedArgument() {
+	char[] selector = this.identifierStack[this.identifierPtr];
+	if (selector != assistIdentifier()){
+		return super.typeElidedArgument();
+	}	
+	this.identifierLengthPtr--;
+	char[] identifierName = this.identifierStack[this.identifierPtr];
+	long namePositions = this.identifierPositionStack[this.identifierPtr--];
 
+	Argument arg =
+		new SelectionOnArgumentName(
+			identifierName,
+			namePositions,
+			null, // elided type
+			ClassFileConstants.AccDefault,
+			true);
+	arg.declarationSourceStart = (int) (namePositions >>> 32);
+	return arg;
+}
 public  String toString() {
 	String s = Util.EMPTY_STRING;
 	s = s + "elementKindStack : int[] = {"; //$NON-NLS-1$
