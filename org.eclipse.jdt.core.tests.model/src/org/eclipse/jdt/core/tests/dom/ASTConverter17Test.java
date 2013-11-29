@@ -896,12 +896,14 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		
-		String error = "Lambda expressions are allowed only at source level 1.8 or above\n"
-				+ "Lambda expressions are allowed only at source level 1.8 or above\n"
-				+ "Lambda expressions are allowed only at source level 1.8 or above\n"
-				+ "Lambda expressions are allowed only at source level 1.8 or above\n"
-				+ "Lambda expressions are allowed only at source level 1.8 or above";
-		assertProblemsSize(unit, 5, error);
+		String error = "Lambda expressions are allowed only at source level 1.8 or above\n" + 
+				"Lambda expressions are allowed only at source level 1.8 or above\n" + 
+				"The method foo(X.StringToInt) in the type X is not applicable for the arguments ((String s) -> s.length())\n" + 
+				"Lambda expressions are allowed only at source level 1.8 or above\n" + 
+				"Lambda expressions are allowed only at source level 1.8 or above\n" + 
+				"The method bar(X.ReduceInt) in the type X is not applicable for the arguments ((int x, int y) -> (x + y))\n" + 
+				"Lambda expressions are allowed only at source level 1.8 or above";
+		assertProblemsSize(unit, 7, error);
 
 		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(unit, 0);
 		MethodDeclaration methoddecl = (MethodDeclaration)typedeclaration.bodyDeclarations().get(4);
