@@ -23,6 +23,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.eclipse.jdt.core.tests.compiler.parser.CompletionParserTest18;
 import org.eclipse.jdt.core.tests.compiler.parser.ComplianceDiagnoseTest;
 import org.eclipse.jdt.core.tests.compiler.parser.LambdaExpressionSyntaxTest;
 import org.eclipse.jdt.core.tests.compiler.parser.ReferenceExpressionSyntaxTest;
@@ -90,6 +91,7 @@ public class RunOnlyJava8Tests extends TestCase {
 			ClassFileReaderTest_1_8.class,
 			RepeatableAnnotationTest.class,
 			ResolveTests18.class,
+			CompletionParserTest18.class,
 		};
 	}
 	
