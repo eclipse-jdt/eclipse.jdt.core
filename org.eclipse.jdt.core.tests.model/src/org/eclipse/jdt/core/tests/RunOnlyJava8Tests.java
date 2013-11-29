@@ -55,6 +55,7 @@ import org.eclipse.jdt.core.tests.dom.TypeAnnotationsConverterTest;
 import org.eclipse.jdt.core.tests.dom.TypeBindingTests308;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR308Tests;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR335Tests;
+import org.eclipse.jdt.core.tests.model.CompletionTests18;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs8Tests;
 import org.eclipse.jdt.core.tests.model.ResolveTests18;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest;
@@ -92,6 +93,7 @@ public class RunOnlyJava8Tests extends TestCase {
 			RepeatableAnnotationTest.class,
 			ResolveTests18.class,
 			CompletionParserTest18.class,
+			CompletionTests18.class,
 		};
 	}
 	

@@ -93,7 +93,10 @@ public class RecoveredLambdaExpression extends RecoveredBlock {
 	}
 
 	public LambdaExpression updatedLambdaExpression(int depth, Set knownTypes) {
-		this.expression.body = this.haveBlockBody ? super.updatedStatement(depth, knownTypes) : this.bodyExpression.updatedStatement(depth, knownTypes);
+		if (this.haveBlockBody)
+			this.expression.body = super.updatedStatement(depth, knownTypes);
+		else if (this.bodyExpression != null)
+			this.expression.body = this.bodyExpression.updatedStatement(depth, knownTypes);
 		return this.expression;
 	}
 	/*

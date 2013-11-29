@@ -25,6 +25,7 @@ import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.tests.compiler.parser.ComplianceDiagnoseTest;
 import org.eclipse.jdt.core.tests.dom.ASTConverter15JLS8Test;
+import org.eclipse.jdt.core.tests.dom.ASTConverter17Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverter18Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverterAST8Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverterBugsTestJLS8;
@@ -34,6 +35,7 @@ import org.eclipse.jdt.core.tests.dom.TypeAnnotationsConverterTest;
 import org.eclipse.jdt.core.tests.dom.TypeBindingTests308;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR308Tests;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR335Tests;
+import org.eclipse.jdt.core.tests.model.CompletionTests18;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs8Tests;
 import org.eclipse.jdt.core.tests.model.ResolveTests18;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest;
@@ -51,6 +53,7 @@ public class RunAllJava8Tests extends TestCase {
 			FormatterJSR308Tests.class,
 			JavaSearchBugs8Tests.class,
 			ResolveTests18.class,
+			CompletionTests18.class,
 			org.eclipse.jdt.compiler.apt.tests.AllTests.class,
 		};
 	}
@@ -63,6 +66,7 @@ public class RunAllJava8Tests extends TestCase {
 				ASTConverterBugsTestJLS8.class,
 				ASTConverter15JLS8Test.class,
 				ASTConverter18Test.class,
+				ASTConverter17Test.class,
 				ASTRewritingTest.class,
 				TypeBindingTests308.class,
 		};

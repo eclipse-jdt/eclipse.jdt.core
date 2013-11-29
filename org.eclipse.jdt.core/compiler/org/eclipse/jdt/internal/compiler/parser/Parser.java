@@ -7905,6 +7905,13 @@ protected void consumeLambdaExpression() {
 	if (!this.parsingJava8Plus) {
 		problemReporter().lambdaExpressionsNotBelow18(lexp);
 	}
+	
+	if (this.currentElement != null) {
+		if (this.currentElement.parseTree() == lexp && this.currentElement.parent != null) {
+			this.currentElement = this.currentElement.parent;
+		}
+		this.restartRecovery = true;
+	}
 }
 
 protected Argument typeElidedArgument() {
@@ -7950,6 +7957,11 @@ protected void consumeTypeElidedLambdaParameter(boolean parenthesized) {
 		pushOnIntStack(arg.declarationSourceStart);
 		pushOnIntStack(arg.declarationSourceEnd);
 		lambda.sourceStart = arg.declarationSourceStart;
+		if (this.currentElement != null) {
+			this.lastCheckPoint = lambda.sourceEnd + 1;
+			this.currentElement = this.currentElement.add(lambda, 0);
+			this.lastIgnoredToken = -1;
+		}
 	}
 	pushOnAstStack(arg);
 	/* if incomplete method header, this.listLength counter will not have been reset,
@@ -8730,7 +8742,13 @@ protected void consumeToken(int type) {
 	//System.out.println(this.scanner.toStringAction(type));
 	switch (type) {
 		case TokenNameBeginLambda:
-			pushOnAstStack(new LambdaExpression(this.compilationUnit.compilationResult, this instanceof AssistParser));
+			LambdaExpression lambda;
+			pushOnAstStack(lambda = new LambdaExpression(this.compilationUnit.compilationResult, this instanceof AssistParser));
+			if (this.currentElement != null) {
+				this.lastCheckPoint = this.scanner.currentPosition;
+				this.currentElement = this.currentElement.add(lambda, 0);
+				this.lastIgnoredToken = -1;
+			}
 			this.processingLambdaParameterList = true;
 			break;
 		case TokenNameARROW:

@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 
@@ -35,6 +36,8 @@ public class RecoveredField extends RecoveredElement {
 	public RecoveredAnnotation[] annotations;
 	public int annotationCount;
 
+	public RecoveredLambdaExpression initializer;
+	
 	public int modifiers;
 	public int modifiersStart;
 
@@ -84,6 +87,24 @@ public RecoveredElement add(Statement statement, int bracketBalanceValue) {
 		this.fieldDeclaration.declarationSourceEnd = statement.sourceEnd;
 		this.fieldDeclaration.declarationEnd = statement.sourceEnd;
 		return this;
+	}
+}
+/*
+ * Record a lambda expression if field is expecting an initialization expression,
+ * used for completion inside field initializers.
+ */
+public RecoveredElement add(LambdaExpression expression, int bracketBalanceValue) {
+
+	if (this.alreadyCompletedFieldInitialization) {
+		return super.add(expression, bracketBalanceValue);
+	} else {
+		if (expression.sourceEnd > 0)
+				this.alreadyCompletedFieldInitialization = true;
+		// else we may still be inside the initialization, having parsed only a part of it yet
+		this.fieldDeclaration.initialization = expression;
+		this.fieldDeclaration.declarationSourceEnd = expression.sourceEnd;
+		this.fieldDeclaration.declarationEnd = expression.sourceEnd;
+		return this.initializer = new RecoveredLambdaExpression(expression, this, bracketBalanceValue);
 	}
 }
 /*
@@ -248,6 +269,9 @@ public FieldDeclaration updatedFieldDeclaration(int depth, Set knownTypes){
 			}
 		}
 	}
+	if (this.initializer != null)
+		this.initializer.updateParseTree();
+	
 	return this.fieldDeclaration;
 }
 /*
