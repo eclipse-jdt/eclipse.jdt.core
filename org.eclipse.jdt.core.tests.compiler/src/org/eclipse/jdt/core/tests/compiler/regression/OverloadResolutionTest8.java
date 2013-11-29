@@ -156,21 +156,7 @@ public void test004() {
 			"The method goo(J) in the type X is not applicable for the arguments (() -> {\n" + 
 			"  boolean y = true;\n" + 
 			"  while (y)    ;\n" + 
-			"})\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 15)\n" + 
-			"	goo(()-> { \n" + 
-			"	^^^\n" + 
-			"The method goo(J) in the type X is not applicable for the arguments (() -> {\n" + 
-			"  while (x)    ;\n" + 
-			"})\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 18)\n" + 
-			"	goo(()-> { \n" + 
-			"	^^^\n" + 
-			"The method goo(J) in the type X is not applicable for the arguments (() -> {\n" + 
-			"  while (f)    ;\n" + 
-			"})\n" + 
+			"})\n" +  
 			"----------\n");
 }
 public void test005() {

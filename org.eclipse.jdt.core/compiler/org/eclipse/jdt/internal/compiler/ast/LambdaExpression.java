@@ -497,6 +497,17 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	public MethodScope getScope() {
 		return this.scope;
 	}
+	
+	private boolean enclosingScopesHaveErrors() {
+		Scope skope = this.enclosingScope;
+		while (skope != null) {
+			ReferenceContext context = skope.referenceContext();
+			if (context != null && context.hasErrors())
+				return true;
+			skope = skope.parent;
+		}
+		return false;
+	}
 		
 	public boolean isCompatibleWith(final TypeBinding left, final Scope someScope) {
 		
@@ -532,7 +543,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 					this.shapeAnalysisComplete = true;
 				}
 				// Do not proceed with data/control flow analysis if resolve encountered errors.
-				if (type == null || !type.isValidBinding() || this.hasIgnoredMandatoryErrors) {
+				if (type == null || !type.isValidBinding() || this.hasIgnoredMandatoryErrors || enclosingScopesHaveErrors()) {
 					if (!isPertinentToApplicability(left))
 						return true;
 					return this.arguments.length == 0; // error not because of the target type imposition, but is inherent. Just say compatible since errors in body aren't to influence applicability.

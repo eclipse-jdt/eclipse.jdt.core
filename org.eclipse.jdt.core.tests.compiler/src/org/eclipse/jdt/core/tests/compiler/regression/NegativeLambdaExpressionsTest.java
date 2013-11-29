@@ -5106,15 +5106,10 @@ this.runNegativeTest(
 				"----------\n" + 
 				"3. ERROR in X.java (at line 16)\n" + 
 				"	new X().foo(()-> 10);\n" + 
-				"	        ^^^\n" + 
-				"The method foo(I) in the type X is not applicable for the arguments (() -> 10)\n" + 
-				"----------\n" + 
-				"4. ERROR in X.java (at line 16)\n" + 
-				"	new X().foo(()-> 10);\n" + 
 				"	                 ^^\n" + 
 				"Void methods cannot return a value\n" + 
 				"----------\n" + 
-				"5. ERROR in X.java (at line 18)\n" + 
+				"4. ERROR in X.java (at line 18)\n" + 
 				"	new X().foo((s)->{ return;});\n" + 
 				"	                   ^^^^^^^\n" + 
 				"This method must return a result of type String\n" + 
@@ -7580,6 +7575,56 @@ public void test422489d() { // interfaces and methods order changed, triggers NP
 			"----------\n"
 		);
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422801, [1.8][compiler] NPE in MessageSend.analyseCode in lambda body with missing import
+public void test422801() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"public class X {\n" +
+					"    public void foo(Random arg) {\n" +
+					"        new Thread(() -> {\n" +
+					"            arg.intValue();\n" +
+					"        });\n" +
+					"    }\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	public void foo(Random arg) {\n" + 
+			"	                ^^^^^^\n" + 
+			"Random cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422801, [1.8][compiler] NPE in MessageSend.analyseCode in lambda body with missing import
+public void test422801a() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"public class X {\n" +
+					"    Random arg;\n" +
+					"    public void foo() {\n" +
+					"        new Thread(() -> {\n" +
+					"            arg.intValue();\n" +
+					"        });\n" +
+					"    }\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	Random arg;\n" + 
+			"	^^^^^^\n" + 
+			"Random cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	arg.intValue();\n" + 
+			"	^^^\n" + 
+			"Random cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+}
+
 
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
