@@ -2855,7 +2855,7 @@ public void test0062() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	I i = p -> 10 + 20 + 30;\n" + 
-			"	      ^^^^^^^^^^^^^^^^^\n" + 
+			"	      ^^^^^^^^^^^^^^^^^\n" +
 			"Lambda expressions are allowed only at source level 1.8 or above\n" + 
 			"----------\n";
 
@@ -2901,7 +2901,7 @@ public void test0063() {
 			"----------\n" + 
 			"3. ERROR in X.java (at line 6)\n" + 
 			"	I i2 = (p) -> 10;\n" + 
-			"	       ^^^^^^^^^\n" + 
+			"	       ^^^^^^^^^\n" +
 			"Lambda expressions are allowed only at source level 1.8 or above\n" + 
 			"----------\n";
 
@@ -3039,12 +3039,12 @@ public void testBug399773() {
 			"----------\n" + 
 			"4. ERROR in X.java (at line 10)\n" + 
 			"	Object p = (I & J) () -> {};\n" + 
-			"	                   ^^^^^^^^\n" + 
+			"	                   ^^^^^\n" +
 			"Lambda expressions are allowed only at source level 1.8 or above\n" + 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 10)\n" + 
 			"	Object p = (I & J) () -> {};\n" + 
-			"	                   ^^^^^^^^\n" + 
+			"	                   ^^^^^\n" +
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n";
 

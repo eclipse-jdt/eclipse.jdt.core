@@ -63,9 +63,7 @@ public void test001() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	I i = () -> {\n" + 
-			"      int z = 10;\n" + 
-			"    };\n" + 
-			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	      ^^^^^\n" + 
 			"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 10)\n" + 
@@ -529,12 +527,12 @@ public void test015() {
 				"----------\n" + 
 				"2. ERROR in X.java (at line 10)\n" + 
 				"	I i4 = (int x, String y) -> {};\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 12)\n" + 
 				"	J j1 = () -> {};\n" + 
-				"	       ^^^^^^^^\n" + 
+				"	       ^^^^^\n" + 
 				"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
 				"----------\n" + 
 				"4. ERROR in X.java (at line 14)\n" + 
@@ -549,7 +547,7 @@ public void test015() {
 				"----------\n" + 
 				"6. ERROR in X.java (at line 16)\n" + 
 				"	J j5 = x ->  {};\n" + 
-				"	       ^^^^^^^^\n" + 
+				"	       ^^^^\n" + 
 				"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
 				"----------\n" + 
 				"7. WARNING in X.java (at line 17)\n" + 
@@ -718,7 +716,7 @@ public void test020() {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 5)\n" + 
 				"	I i5 = (x) -> { if (x == 0) throw new NullPointerException(); };\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"	       ^^^^^^\n" + 
 				"This method must return a result of type int\n" + 
 				"----------\n");
 }
@@ -900,16 +898,12 @@ public void test027() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	I i1 = () -> {\n" + 
-			"      System.out.println(\"No return\");\n" + 
-			"    }; // Error: Lambda block should return value\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	       ^^^^^\n" + 
 			"This method must return a result of type int\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	I i2 = () -> {\n" + 
-			"      if (Math.random() < 0.5) return 42;\n" + 
-			"    }; // Error: Lambda block doesn\'t always return a value\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	       ^^^^^\n" + 
 			"This method must return a result of type int\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 14)\n" + 
@@ -1417,9 +1411,7 @@ public void test040() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 10)\n" + 
 			"	G g1 = () -> {\n" + 
-			"	    throw new Exception(); \n" + 
-			"	};\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	       ^^^^^\n" + 
 			"Illegal lambda expression: Method m of type J is generic \n" + 
 			"----------\n");
 }
@@ -1458,9 +1450,7 @@ public void test041() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 11)\n" + 
 			"	G g = (x) -> { // Elided type is inferred from descriptor to be F\n" + 
-			"	    throw x;    // ~== throw new F()\n" + 
-			"	};\n" + 
-			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	      ^^^^^^\n" + 
 			"Illegal lambda expression: Method m of type G2 is generic \n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 20)\n" + 
@@ -1500,16 +1490,12 @@ public void test042() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 11)\n" + 
 			"	G g1 = (F x) -> {\n" + 
-			"	    throw x;\n" + 
-			"	};\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	       ^^^^^^^^\n" + 
 			"Illegal lambda expression: Method m of type G2 is generic \n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 14)\n" + 
 			"	G g2 = (IOException x) -> {\n" + 
-			"	    throw x;\n" + 
-			"	};\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^\n" + 
 			"Illegal lambda expression: Method m of type G2 is generic \n" + 
 			"----------\n");
 }
@@ -1597,42 +1583,42 @@ public void test043() {
 			"----------\n" + 
 			"4. ERROR in X.java (at line 29)\n" + 
 			"	B b              =    () -> {};\n" + 
-			"	                      ^^^^^^^^\n" + 
+			"	                      ^^^^^\n" + 
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 32)\n" + 
 			"	E e              =    () -> {};\n" + 
-			"	                      ^^^^^^^^\n" + 
+			"	                      ^^^^^\n" + 
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 40)\n" + 
 			"	M m              =    (p0) -> {};\n" + 
-			"	                      ^^^^^^^^^^\n" + 
+			"	                      ^^^^^^^\n" + 
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n" + 
 			"7. ERROR in X.java (at line 43)\n" + 
 			"	P p              =    (p0, q0) -> {};\n" + 
-			"	                      ^^^^^^^^^^^^^^\n" + 
+			"	                      ^^^^^^^^^^^\n" + 
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n" + 
 			"8. ERROR in X.java (at line 46)\n" + 
 			"	S s              =    () -> {};\n" + 
-			"	                      ^^^^^^^^\n" + 
+			"	                      ^^^^^\n" + 
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n" + 
 			"9. ERROR in X.java (at line 49)\n" + 
 			"	V<?,?> v         =    (p0) -> {};\n" + 
-			"	                      ^^^^^^^^^^\n" + 
+			"	                      ^^^^^^^\n" + 
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n" + 
 			"10. ERROR in X.java (at line 50)\n" + 
 			"	W<?,?> w         =    (p0) -> {};\n" + 
-			"	                      ^^^^^^^^^^\n" + 
+			"	                      ^^^^^^^\n" + 
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n" + 
 			"11. ERROR in X.java (at line 51)\n" + 
 			"	X x              =    (p0) -> {};\n" + 
-			"	                      ^^^^^^^^^^\n" + 
+			"	                      ^^^^^^^\n" + 
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n",
 			null,
@@ -1673,27 +1659,27 @@ public void test044() {
 			"----------\n" + 
 			"2. ERROR in X.java (at line 8)\n" + 
 			"	A a              =    (p) -> { return null;};\n" + 
-			"	                      ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	                      ^^^^^^\n" + 
 			"Illegal lambda expression: Method foo of type A is generic \n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 9)\n" + 
 			"	B b              =    (p) -> { return null;};\n" + 
-			"	                      ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	                      ^^^^^^\n" + 
 			"Illegal lambda expression: Method foo of type B is generic \n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 10)\n" + 
 			"	C c              =    (p) -> { return null;};\n" + 
-			"	                      ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	                      ^^^^^^\n" + 
 			"Illegal lambda expression: Method foo of type C is generic \n" + 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 11)\n" + 
 			"	D d              =    (p) -> { return null;};\n" + 
-			"	                      ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	                      ^^^^^^\n" + 
 			"Illegal lambda expression: Method foo of type A is generic \n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 12)\n" + 
 			"	E e              =    (p) -> { return null;};\n" + 
-			"	                      ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	                      ^^^^^^\n" + 
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n",
 			null,
@@ -1721,7 +1707,7 @@ public void test045() {
 			"----------\n" + 
 			"2. ERROR in X.java (at line 6)\n" + 
 			"	Functional<String,Integer> f = () -> { };\n" + 
-			"	                               ^^^^^^^^^\n" + 
+			"	                               ^^^^^\n" + 
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n");
 }
@@ -3429,17 +3415,17 @@ public void test400556() {
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
 			"	I i = (p) -> { return null; };\n" + 
-			"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	      ^^^^^^\n" + 
 			"The type ReturnType from the descriptor computed for the target context is not visible here.  \n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 3)\n" + 
 			"	I i = (p) -> { return null; };\n" + 
-			"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	      ^^^^^^\n" + 
 			"The type ParameterType from the descriptor computed for the target context is not visible here.  \n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 3)\n" + 
 			"	I i = (p) -> { return null; };\n" + 
-			"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	      ^^^^^^\n" + 
 			"The type ExceptionType from the descriptor computed for the target context is not visible here.  \n" + 
 			"----------\n");
 }
@@ -3484,7 +3470,7 @@ public void test400556a() {
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
 			"	I i = (p) -> { return null; };\n" + 
-			"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	      ^^^^^^\n" + 
 			"The type ParameterType from the descriptor computed for the target context is not visible here.  \n" + 
 			"----------\n");
 }
@@ -3527,12 +3513,12 @@ public void test400556b() {
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
 			"	I i = (p) -> { return null; };\n" + 
-			"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	      ^^^^^^\n" + 
 			"The type ReturnType from the descriptor computed for the target context is not visible here.  \n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 3)\n" + 
 			"	I i = (p) -> { return null; };\n" + 
-			"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	      ^^^^^^\n" + 
 			"The type ExceptionType from the descriptor computed for the target context is not visible here.  \n" + 
 			"----------\n");
 }
@@ -3567,17 +3553,17 @@ public void test400556c() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	I<?, ?, ?> i = (p) -> { return null; };\n" + 
-			"	               ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	               ^^^^^^\n" + 
 			"The type ReturnType from the descriptor computed for the target context is not visible here.  \n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
 			"	I<?, ?, ?> i = (p) -> { return null; };\n" + 
-			"	               ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	               ^^^^^^\n" + 
 			"The type ParameterType from the descriptor computed for the target context is not visible here.  \n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 3)\n" + 
 			"	I<?, ?, ?> i = (p) -> { return null; };\n" + 
-			"	               ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	               ^^^^^^\n" + 
 			"The type ExceptionType from the descriptor computed for the target context is not visible here.  \n" + 
 			"----------\n");
 }
@@ -3807,7 +3793,7 @@ public void test400556h() {
 			"----------\n" + 
 			"5. ERROR in X.java (at line 6)\n" + 
 			"	I<T, R, P> i = (String p) -> { return null; };\n" + 
-			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	               ^^^^^^^^^^^^^\n" + 
 			"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" + 
 			"----------\n");
 }
@@ -3911,7 +3897,7 @@ public void test400556j() {
 			"----------\n" + 
 			"2. ERROR in X.java (at line 6)\n" + 
 			"	I<?, ?, ?> i = (String p) -> { return null; };\n" + 
-			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	               ^^^^^^^^^^^^^\n" + 
 			"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" + 
 			"----------\n");
 }
@@ -5057,7 +5043,7 @@ this.runNegativeTest(
 				"----------\n" + 
 				"2. ERROR in X.java (at line 20)\n" + 
 				"	new X().foo((s)->{});\n" + 
-				"	            ^^^^^^^\n" + 
+				"	            ^^^^^\n" + 
 				"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
 				"----------\n");
 }
@@ -5161,7 +5147,7 @@ this.runNegativeTest(
 				"----------\n" + 
 				"4. ERROR in X.java (at line 7)\n" + 
 				"	new X().foo(()->{});\n" + 
-				"	            ^^^^^^\n" + 
+				"	            ^^^^\n" + 
 				"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" + 
 				"----------\n");
 }
@@ -5504,7 +5490,7 @@ public void test401845a() {
 			"----------\n" + 
 			"4. ERROR in X.java (at line 9)\n" + 
 			"	foo((x)-> {return 10;});\n" + 
-			"	    ^^^^^^^^^^^^^^^^^^\n" + 
+			"	    ^^^^^\n" + 
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n");
 }
@@ -5769,7 +5755,7 @@ public void test401939b() {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 14)\n" + 
 				"	goo((x) -> { while (FALSE) throw new Exception(); });\n" + 
-				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"	    ^^^^^^\n" + 
 				"This method must return a result of type String\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 14)\n" + 
@@ -5779,7 +5765,7 @@ public void test401939b() {
 				"----------\n" + 
 				"3. ERROR in X.java (at line 17)\n" + 
 				"	goo((x) -> { while (POI) throw new Exception(); });\n" + 
-				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"	    ^^^^^^\n" + 
 				"This method must return a result of type String\n" + 
 				"----------\n" + 
 				"4. ERROR in X.java (at line 17)\n" + 
@@ -5794,7 +5780,7 @@ public void test401939b() {
 				"----------\n" + 
 				"6. ERROR in X.java (at line 19)\n" + 
 				"	goo((x) -> { if (TRUE) throw new Exception(); });\n" + 
-				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"	    ^^^^^^\n" + 
 				"This method must return a result of type String\n" + 
 				"----------\n" + 
 				"7. WARNING in X.java (at line 20)\n" + 
@@ -5819,7 +5805,7 @@ public void test401939b() {
 				"----------\n" + 
 				"11. ERROR in X.java (at line 22)\n" + 
 				"	goo((x) -> { while (BLANK) throw new Exception(); });\n" + 
-				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"	    ^^^^^^\n" + 
 				"This method must return a result of type String\n" + 
 				"----------\n");
 }
@@ -5864,7 +5850,7 @@ public void test401939ca() {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 8)\n" + 
 				"	goo((x) -> {});\n" + 
-				"	    ^^^^^^^^^\n" + 
+				"	    ^^^^^^\n" + 
 				"This method must return a result of type String\n" + 
 				"----------\n");
 }
@@ -5886,7 +5872,7 @@ public void test401939d() {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 8)\n" + 
 				"	goo((x) -> { if (x) return null; });\n" + 
-				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"	    ^^^^^^\n" + 
 				"This method must return a result of type String\n" + 
 				"----------\n");
 }
@@ -7284,7 +7270,7 @@ public void testIntersectionCast() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 18)\n" + 
 			"	i = (J & I & K & L) () -> {};  \n" + 
-			"	                    ^^^^^^^^\n" + 
+			"	                    ^^^^^\n" + 
 			"The target type of this expression is not a functional interface: more than one of the intersecting interfaces are functional\n" + 
 			"----------\n"
 		);

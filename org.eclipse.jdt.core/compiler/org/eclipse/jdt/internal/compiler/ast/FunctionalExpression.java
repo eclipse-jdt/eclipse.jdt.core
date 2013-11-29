@@ -181,4 +181,8 @@ public abstract class FunctionalExpression extends Expression {
 	public int nullStatus(FlowInfo flowInfo) {
 		return FlowInfo.NON_NULL;
 	}
+
+	public int diagnosticsSourceEnd() {
+		return this.sourceEnd;
+	}
 }

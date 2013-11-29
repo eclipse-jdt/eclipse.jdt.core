@@ -232,10 +232,7 @@ public void testLambda_05a() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 3)\n" +
 		"	ISAM printer = () -> {\n" +
-		"			System.out.print(13);\n" +
-		"			return null;\n" +
-		"		};\n" +
-		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"	               ^^^^^\n" +
 		"The target type of this expression must be a functional interface\n" +
 		"----------\n");
 }

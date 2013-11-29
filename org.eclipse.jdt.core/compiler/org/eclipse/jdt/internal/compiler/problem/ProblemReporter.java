@@ -1123,7 +1123,7 @@ public void bytecodeExceeds64KLimit(LambdaExpression location) {
 			new String[] {new String(method.selector), typesAsString(method, true)},
 			ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
 			location.sourceStart,
-			location.sourceEnd);
+			location.diagnosticsSourceEnd());
 }
 public void bytecodeExceeds64KLimit(TypeDeclaration location) {
 	this.handle(
@@ -1358,7 +1358,7 @@ public void targetTypeIsNotAFunctionalInterface(FunctionalExpression target) {
 		NoArgument,
 		NoArgument,
 		target.sourceStart,
-		target.sourceEnd);
+		target.diagnosticsSourceEnd());
 }
 public void illFormedParameterizationOfFunctionalInterface(FunctionalExpression target) {
 	this.handle(
@@ -1366,7 +1366,7 @@ public void illFormedParameterizationOfFunctionalInterface(FunctionalExpression 
 		NoArgument,
 		NoArgument,
 		target.sourceStart,
-		target.sourceEnd);
+		target.diagnosticsSourceEnd());
 }
 public void lambdaSignatureMismatched(LambdaExpression target) {
 	this.handle(
@@ -1374,7 +1374,7 @@ public void lambdaSignatureMismatched(LambdaExpression target) {
 		NoArgument,
 		NoArgument,
 		target.sourceStart,
-		target.sourceEnd);
+		target.diagnosticsSourceEnd());
 }
 
 public void lambdaParameterTypeMismatched(Argument argument, TypeReference type, TypeBinding expectedParameterType) {
@@ -1395,7 +1395,7 @@ public void lambdaExpressionCannotImplementGenericMethod(LambdaExpression lambda
 			new String[] { selector, new String(sam.declaringClass.readableName())},
 			new String[] { selector, new String(sam.declaringClass.shortReadableName())},
 			lambda.sourceStart,
-			lambda.sourceEnd);
+			lambda.diagnosticsSourceEnd());
 }
 public void caseExpressionMustBeConstant(Expression expression) {
 	this.handle(
@@ -2967,7 +2967,7 @@ public void lambdaExpressionsNotBelow18(LambdaExpression lexp) {
 			NoArgument,
 			NoArgument,
 			lexp.sourceStart,
-			lexp.sourceEnd);
+			lexp.diagnosticsSourceEnd());
 }
 public void illegalVisibilityModifierCombinationForField(ReferenceBinding type, FieldDeclaration fieldDecl) {
 	String[] arguments = new String[] {new String(fieldDecl.name)};
@@ -7364,12 +7364,19 @@ public void shouldImplementHashcode(SourceTypeBinding type) {
 		type.sourceEnd());
 }
 public void shouldReturn(TypeBinding returnType, ASTNode location) {
+	int sourceStart = location.sourceStart;
+	int sourceEnd = location.sourceEnd;
+	if (location instanceof LambdaExpression) {
+		LambdaExpression exp = (LambdaExpression) location;
+		sourceStart = exp.sourceStart;
+		sourceEnd = exp.diagnosticsSourceEnd();
+	}
 	this.handle(
 		methodHasMissingSwitchDefault() ? IProblem.ShouldReturnValueHintMissingDefault : IProblem.ShouldReturnValue,
 		new String[] { new String (returnType.readableName())},
 		new String[] { new String (returnType.shortReadableName())},
-		location.sourceStart,
-		location.sourceEnd);
+		sourceStart,
+		sourceEnd);
 }
 
 public void signalNoImplicitStringConversionForCharArrayExpression(Expression expression) {
@@ -9662,7 +9669,7 @@ public void multipleFunctionalInterfaces(FunctionalExpression functionalExpressi
 			NoArgument,
 			NoArgument,
 			functionalExpression.sourceStart,
-			functionalExpression.sourceEnd);
+			functionalExpression.diagnosticsSourceEnd());
 }
 public void lambdaRedeclaresArgument(Argument argument) {
 	String[] arguments = new String[] {new String(argument.name)};
@@ -9689,7 +9696,7 @@ public void descriptorHasInvisibleType(FunctionalExpression expression, Referenc
 		new String[] { new String(referenceBinding.readableName()) },
 		new String[] { new String(referenceBinding.shortReadableName()) },
 		expression.sourceStart,
-		expression.sourceEnd);
+		expression.diagnosticsSourceEnd());
 }
 
 public void methodReferenceSwingsBothWays(ReferenceExpression expression, MethodBinding instanceMethod, MethodBinding nonInstanceMethod) {

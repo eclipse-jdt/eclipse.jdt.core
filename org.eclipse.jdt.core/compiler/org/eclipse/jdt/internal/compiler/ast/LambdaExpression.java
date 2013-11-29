@@ -67,6 +67,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 public class LambdaExpression extends FunctionalExpression implements ReferenceContext, ProblemSeverities {
 	public Argument [] arguments;
 	private TypeBinding [] argumentTypes;
+	private int arrowPosition;
 	public Statement body;
 	public boolean hasParentheses;
 	public MethodScope scope;
@@ -95,6 +96,10 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	
 	public void setBody(Statement body) {
 		this.body = body;
+	}
+
+	public void setArrowPosition(int arrowPosition) {
+		this.arrowPosition = arrowPosition;
 	}
 	
 	protected FunctionalExpression original() {
@@ -899,5 +904,9 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			this.actualMethodBinding.tagBits = this.binding.tagBits;
 		}
 		return this.actualMethodBinding;
+	}
+
+	public int diagnosticsSourceEnd() {
+		return this.body instanceof Block ? this.arrowPosition : this.sourceEnd;
 	}
 }

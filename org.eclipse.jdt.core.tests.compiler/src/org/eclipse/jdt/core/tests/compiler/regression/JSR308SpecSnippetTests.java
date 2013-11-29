@@ -765,7 +765,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"----------\n" + 
 		"3. ERROR in X.java (at line 14)\n" + 
 		"	I i = (X this) -> {};\n" + 
-		"	      ^^^^^^^^^^^^^^\n" + 
+		"	      ^^^^^^^^^^^\n" +
 		"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 14)\n" + 

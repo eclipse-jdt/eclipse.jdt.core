@@ -62,7 +62,7 @@ public void test001() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	Object o = () -> {};\n" + 
-			"	           ^^^^^^^^\n" + 
+			"	           ^^^^^\n" +
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n");
 }
@@ -86,7 +86,7 @@ public void test002() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 10)\n" + 
 			"	Object p = (I & J) () -> {};\n" + 
-			"	                   ^^^^^^^^\n" + 
+			"	                   ^^^^^\n" +
 			"The target type of this expression is not a functional interface: more than one of the intersecting interfaces are functional\n" + 
 			"----------\n");
 }
@@ -115,7 +115,7 @@ public void test003() {
 			"----------\n" + 
 			"2. ERROR in X.java (at line 10)\n" + 
 			"	Object p = (int & I & J) () -> {};\n" + 
-			"	                         ^^^^^^^^\n" + 
+			"	                         ^^^^^\n" +
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n");
 }
@@ -173,7 +173,7 @@ public void test005() {
 			"----------\n" + 
 			"2. ERROR in X.java (at line 10)\n" + 
 			"	Object p = (I & X) () -> {};\n" + 
-			"	                   ^^^^^^^^\n" + 
+			"	                   ^^^^^\n" +
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n");
 }
@@ -202,7 +202,7 @@ public void test006() {
 			"----------\n" + 
 			"2. ERROR in X.java (at line 10)\n" + 
 			"	Object p = (I & J & I) () -> {};\n" + 
-			"	                       ^^^^^^^^\n" + 
+			"	                       ^^^^^\n" +
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n");
 }
@@ -259,7 +259,7 @@ public void test008() {
 			"----------\n" + 
 			"3. ERROR in X.java (at line 10)\n" + 
 			"	Object p = (@Marker java.lang. @Readonly String & I & J) () -> {};\n" + 
-			"	                                                         ^^^^^^^^\n" + 
+			"	                                                         ^^^^^\n" +
 			"The target type of this expression is not a functional interface: more than one of the intersecting interfaces are functional\n" + 
 			"----------\n");
 }
@@ -606,7 +606,7 @@ public void test021() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	return \"Hello\" + () -> {};\n" + 
-			"	                 ^^^^^^^^\n" + 
+			"	                 ^^^^^\n" +
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
@@ -621,7 +621,7 @@ public void test021() {
 			"----------\n" + 
 			"4. ERROR in X.java (at line 12)\n" + 
 			"	return 10 + (() -> {});\n" + 
-			"	            ^^^^^^^^^^\n" + 
+			"	            ^^^^^^\n" +
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 15)\n" + 

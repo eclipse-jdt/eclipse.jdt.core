@@ -7872,6 +7872,7 @@ protected void consumeLambdaHeader() {
 	}
 	LambdaExpression lexp = (LambdaExpression) this.astStack[this.astPtr];
 	lexp.setArguments(arguments);
+	lexp.setArrowPosition(this.intStack[this.intPtr--]); // '->' position
 	lexp.sourceEnd = this.intStack[this.intPtr--];   // ')' position or identifier position.
 	lexp.sourceStart = this.intStack[this.intPtr--]; // '(' position or identifier position.
 	lexp.hasParentheses = (this.scanner.getSource()[lexp.sourceStart] == '(');
@@ -8733,6 +8734,7 @@ protected void consumeToken(int type) {
 			this.processingLambdaParameterList = true;
 			break;
 		case TokenNameARROW:
+			pushOnIntStack(this.scanner.currentPosition - 1);
 			consumeLambdaHeader();
 			this.processingLambdaParameterList = false;
 			break;
