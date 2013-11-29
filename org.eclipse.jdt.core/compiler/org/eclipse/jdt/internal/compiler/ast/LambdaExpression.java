@@ -765,6 +765,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			case IProblem.TargetTypeNotAFunctionalInterface:
 			case IProblem.illFormedParameterizationOfFunctionalInterface:
 			case IProblem.MultipleFunctionalInterfaces:
+			case IProblem.NoGenericLambda:
 				return;
 			default: 
 				this.original.hasIgnoredMandatoryErrors = true;
