@@ -1819,7 +1819,7 @@ public void test422515() {
 		);
 }
 
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=422515, [1.8][compiler] "Missing code implementation in the compiler" when lambda body accesses array variable
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422515, [1.8][compiler] "Missing code implementation in the compiler" when lambda body accesses array variable
 public void test422515a() {
 	this.runConformTest(
 			new String[] {
@@ -1838,6 +1838,27 @@ public void test422515a() {
 					"}\n"
 			},
 			"42"
+		);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422800, [1.8][compiler] "Missing code implementation in the compiler" 2
+public void test422800() {
+	this.runConformTest(
+			new String[] {
+					"X.java", 
+					"public class X {\n" +
+					"    private String fField; // must be here; can be used or unused\n" +
+					"    public void foo(Integer arg) {\n" +
+					"        new Thread(() -> {\n" +
+					"            arg.intValue();\n" +
+					"        });\n" +
+					"    }\n" +
+					"    public static void main(String [] args) {\n" +
+					"	     System.out.println(\"OK\");\n" +
+					"    }\n" +
+					"}\n"
+			},
+			"OK"
 		);
 }
 

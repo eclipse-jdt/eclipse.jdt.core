@@ -106,7 +106,7 @@ public static UnconditionalFlowInfo fakeInitializedFlowInfo(int localsCount, int
 		UnconditionalFlowInfo flowInfo = new UnconditionalFlowInfo();
 		flowInfo.maxFieldCount = maxFieldCount;
 		for (int i = 0; i < localsCount; i++)
-			flowInfo.markAsDefinitelyAssigned(i);
+			flowInfo.markAsDefinitelyAssigned(i + maxFieldCount);
 		return flowInfo;
 }
 
