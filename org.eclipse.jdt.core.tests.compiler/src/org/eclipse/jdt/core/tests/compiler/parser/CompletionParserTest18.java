@@ -295,4 +295,54 @@ public void test0006() {
 		expectedReplacedSource,
 		"diet ast");
 }
+public void test0007() {
+	String string =
+			"public interface Foo { \n" +
+			"	int run(int s1, int s2); \n" +
+			"}\n" +
+			"interface X {\n" +
+			"    static Foo f = (int x5, int x11) -> x;\n" +
+			"    static int x1 = 2;\n" +
+			"}\n" +
+			"class C {\n" +
+			"	void method1(){\n" +
+			"		int p = X.\n" +
+			"	}\n" +
+			"}\n";
+
+	String completeBehind = "X.";
+	int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:X.>";
+	String expectedParentNodeToString = "int p = <CompleteOnName:X.>;";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "X.";
+	String expectedUnitDisplayString =
+			"public interface Foo {\n" + 
+			"  int run(int s1, int s2);\n" + 
+			"}\n" + 
+			"interface X {\n" + 
+			"  static Foo f;\n" +
+			"  static int x1;\n" + 
+			"  <clinit>() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class C {\n" + 
+			"  C() {\n" + 
+			"  }\n" + 
+			"  void method1() {\n" + 
+			"    int p = <CompleteOnName:X.>;\n" + 
+			"  }\n" + 
+			"}\n";
+
+	checkMethodParse(
+		string.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"diet ast");
+}
 }

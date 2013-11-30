@@ -204,4 +204,35 @@ public void test006() throws JavaModelException {
 			"argument[LOCAL_VARIABLE_REF]{argument, null, I, argument, null, 27}",
 			requestor.getResults());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=405126, [1.8][code assist] Lambda parameters incorrectly recovered as fields. 
+public void test007() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public interface Foo { \n" +
+			"	int run(int s1, int s2); \n" +
+			"}\n" +
+			"interface X {\n" +
+			"    static Foo f = (int x5, int x11) -> x\n" +
+			"    static int x1 = 2;\n" +
+			"}\n" +
+			"class C {\n" +
+			"	void method1(){\n" +
+			"		int p = X.\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "X.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"class[FIELD_REF]{class, null, Ljava.lang.Class<LX;>;, class, null, 26}\n" +
+			"f[FIELD_REF]{f, LX;, LFoo;, f, null, 26}\n" +
+			"this[KEYWORD]{this, null, null, this, null, 26}\n" +
+			"x1[FIELD_REF]{x1, LX;, I, x1, null, 56}",
+			requestor.getResults());
+}
 }

@@ -5366,10 +5366,6 @@ protected void consumeNameArrayType() {
 	pushOnGenericsLengthStack(0); // handle type arguments
 	pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
 }
-protected void consumeNestedLambda() {
-	// NestedLambda ::= $empty
-	this.nestedMethod[this.nestedType] ++;
-}
 protected void consumeNestedMethod() {
 	// NestedMethod ::= $empty
 	jumpOverMethodBody();
@@ -7851,9 +7847,26 @@ protected void consumeExplicitThisParameter(boolean isQualified) {
 	pushOnIntStack(0);  // extended dimensions ...
 	pushOnIntStack(0);  // signal explicit this
 }
+
+protected void consumeNestedLambda() {
+	// NestedLambda ::= $empty - we get here just after the type+parenthesis elided singleton parameter or just before the '(' of the parameter list. 
+	consumeNestedType();
+	this.nestedMethod[this.nestedType] ++;
+	LambdaExpression lambda = new LambdaExpression(this.compilationUnit.compilationResult, this instanceof AssistParser);
+	pushOnAstStack(lambda);
+	if (this.currentElement != null) {
+		this.currentElement = this.currentElement.add(lambda, 0);
+		this.lastCheckPoint = this.scanner.currentPosition;
+		this.lastIgnoredToken = -1;
+	}
+	this.processingLambdaParameterList = true;	
+}
+
 protected void consumeLambdaHeader() {
 	// LambdaHeader ::= LambdaParameters '->'  Synthetic/fake production with a synthetic non-terminal. Body not seen yet.
-
+	
+	int arrowPosition = this.scanner.currentPosition - 1;
+	
 	Argument [] arguments = null;
 	int length = this.astLengthStack[this.astLengthPtr--];
 	this.astPtr -= length;
@@ -7876,18 +7889,22 @@ protected void consumeLambdaHeader() {
 	}
 	LambdaExpression lexp = (LambdaExpression) this.astStack[this.astPtr];
 	lexp.setArguments(arguments);
-	lexp.setArrowPosition(this.intStack[this.intPtr--]); // '->' position
+	lexp.setArrowPosition(arrowPosition); // '->' position
 	lexp.sourceEnd = this.intStack[this.intPtr--];   // ')' position or identifier position.
 	lexp.sourceStart = this.intStack[this.intPtr--]; // '(' position or identifier position.
 	lexp.hasParentheses = (this.scanner.getSource()[lexp.sourceStart] == '(');
-	pushOnExpressionStack(lexp);
 	this.listLength = 0; // reset this.listLength after having read all parameters
+	if (this.currentElement != null) {
+		this.lastCheckPoint = lexp.sourceEnd + 1;
+		this.lastIgnoredToken = -1;
+	}
+	this.processingLambdaParameterList = false;
 }
 protected void consumeLambdaExpression() {
 	
 	// LambdaExpression ::= LambdaHeader LambdaBody
 
-	this.nestedMethod[this.nestedType]--;
+	this.nestedType--;
 	
 	this.astLengthPtr--; 	// pop length for LambdaBody (always 1)
 	Statement body = (Statement) this.astStack[this.astPtr--];
@@ -7909,12 +7926,12 @@ protected void consumeLambdaExpression() {
 	if (!this.parsingJava8Plus) {
 		problemReporter().lambdaExpressionsNotBelow18(lexp);
 	}
-	
+	pushOnExpressionStack(lexp);
 	if (this.currentElement != null) {
 		if (this.currentElement.parseTree() == lexp && this.currentElement.parent != null) {
 			this.currentElement = this.currentElement.parent;
 		}
-		this.restartRecovery = true;
+		this.lastCheckPoint = lexp.sourceEnd + 1;
 	}
 }
 
@@ -7956,16 +7973,8 @@ protected void consumeTypeElidedLambdaParameter(boolean parenthesized) {
 		arg.declarationSourceStart = modifiersStart;
 	} 
 	if (!parenthesized) { // in the absence of '(' and ')', record positions.
-		LambdaExpression lambda;
-		pushOnAstStack(lambda = new LambdaExpression(this.compilationUnit.compilationResult, this instanceof AssistParser));
 		pushOnIntStack(arg.declarationSourceStart);
 		pushOnIntStack(arg.declarationSourceEnd);
-		lambda.sourceStart = arg.declarationSourceStart;
-		if (this.currentElement != null) {
-			this.lastCheckPoint = lambda.sourceEnd + 1;
-			this.currentElement = this.currentElement.add(lambda, 0);
-			this.lastIgnoredToken = -1;
-		}
 	}
 	pushOnAstStack(arg);
 	/* if incomplete method header, this.listLength counter will not have been reset,
@@ -8745,20 +8754,8 @@ protected void consumeToken(int type) {
 //	}
 	//System.out.println(this.scanner.toStringAction(type));
 	switch (type) {
-		case TokenNameBeginLambda:
-			LambdaExpression lambda;
-			pushOnAstStack(lambda = new LambdaExpression(this.compilationUnit.compilationResult, this instanceof AssistParser));
-			if (this.currentElement != null) {
-				this.lastCheckPoint = this.scanner.currentPosition;
-				this.currentElement = this.currentElement.add(lambda, 0);
-				this.lastIgnoredToken = -1;
-			}
-			this.processingLambdaParameterList = true;
-			break;
 		case TokenNameARROW:
-			pushOnIntStack(this.scanner.currentPosition - 1);
 			consumeLambdaHeader();
-			this.processingLambdaParameterList = false;
 			break;
 		case TokenNameIdentifier :
 			pushIdentifier();
