@@ -614,17 +614,12 @@ public void test021() {
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from String to I\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 9)\n" + 
-			"	return \"Hello\" + (I)(() -> {});\n" + 
-			"	                 ^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from I to I\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 12)\n" + 
+			"3. ERROR in X.java (at line 12)\n" + 
 			"	return 10 + (() -> {});\n" + 
 			"	            ^^^^^^\n" +
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n" + 
-			"5. ERROR in X.java (at line 15)\n" + 
+			"4. ERROR in X.java (at line 15)\n" + 
 			"	return 10 + (I) (() -> {});\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^\n" + 
 			"The operator + is undefined for the argument type(s) int, I\n" + 

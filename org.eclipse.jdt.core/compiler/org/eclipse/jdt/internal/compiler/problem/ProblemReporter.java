@@ -7996,6 +7996,8 @@ public void unmatchedBracket(int position, ReferenceContext context, Compilation
 		compilationResult);
 }
 public void unnecessaryCast(CastExpression castExpression) {
+	if (castExpression.expression instanceof FunctionalExpression)
+		return;
 	int severity = computeSeverity(IProblem.UnnecessaryCast);
 	if (severity == ProblemSeverities.Ignore) return;
 	TypeBinding castedExpressionType = castExpression.expression.resolvedType;

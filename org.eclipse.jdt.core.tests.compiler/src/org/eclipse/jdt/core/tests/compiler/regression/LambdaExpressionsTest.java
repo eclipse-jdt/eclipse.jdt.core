@@ -1862,6 +1862,25 @@ public void test422800() {
 		);
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421927, [1.8][compiler] Bad diagnostic: Unnecessary cast from I to I for lambdas.
+public void test421927() {
+	this.runConformTest(
+			new String[] {
+					"X.java", 
+					"interface I { \n" +
+					"	int foo();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"    static I i  = (I & java.io.Serializable) () -> 42;\n" +
+					"    public static void main(String args[]) {\n" +
+					"        System.out.println(i.foo());\n" +
+					"    }\n" +
+					"}\n"
+			},
+			"42");
+}
+
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

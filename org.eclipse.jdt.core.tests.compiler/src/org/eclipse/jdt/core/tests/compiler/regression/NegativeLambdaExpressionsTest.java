@@ -42,6 +42,12 @@ public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 }
 
+protected Map getCompilerOptions() {
+	Map defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);
+	return defaultOptions;
+}
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382818, ArrayStoreException while compiling lambda
 public void test001() {
 	this.runNegativeTest(
@@ -7646,7 +7652,49 @@ public void test405134a() {
 			"----------\n",
 			true);
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421927, [1.8][compiler] Bad diagnostic: Unnecessary cast from I to I for lambdas.
+public void test421927() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"interface I { \n" +
+					"	int foo();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"    I i  = (I & java.io.Serializable) () -> 42;\n" +
+					"}\n"
+			},
+			"",
+			true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421927, [1.8][compiler] Bad diagnostic: Unnecessary cast from I to I for lambdas.
+public void test421927a() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"interface I { \n" +
+					"	int foo();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"    I i;\n" +
+					"    { i = (I & java.io.Serializable) () -> 42;\n" +
+					"       I j = (I & java.io.Serializable) () -> 42;\n" +
+					"       j = (I & java.io.Serializable) j == null ? () -> 42 : () -> 42;\n" +
+					"       j = goo((I & java.io.Serializable) () -> 42);\n" +
+					"    }\n" +
+					"    I goo(I i) {\n" +
+					"        return (I & java.io.Serializable) () -> 42;\n" +
+					"    }\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 11)\n" + 
+			"	I goo(I i) {\n" + 
+			"	        ^\n" + 
+			"The parameter i is hiding a field from type X\n" + 
+			"----------\n",
+			true);
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
