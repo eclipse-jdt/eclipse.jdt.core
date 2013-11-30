@@ -3214,7 +3214,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				LambdaExpression lambda = methodBinding.sourceLambda();
 				if (lambda != null) {
 					if ((methodBinding.tagBits & TagBits.HasParameterAnnotations) != 0) {
-						Argument[] arguments = lambda.arguments;
+						Argument[] arguments = lambda.arguments();
 						if (arguments != null) {
 							int parameterCount = methodBinding.parameters.length;
 							int argumentCount = arguments.length;

@@ -36,7 +36,7 @@ public class RecoveredField extends RecoveredElement {
 	public RecoveredAnnotation[] annotations;
 	public int annotationCount;
 
-	public RecoveredLambdaExpression initializer;
+	public RecoveredLambdaExpression initializerLambda;
 	
 	public int modifiers;
 	public int modifiersStart;
@@ -104,7 +104,7 @@ public RecoveredElement add(LambdaExpression expression, int bracketBalanceValue
 		this.fieldDeclaration.initialization = expression;
 		this.fieldDeclaration.declarationSourceEnd = expression.sourceEnd;
 		this.fieldDeclaration.declarationEnd = expression.sourceEnd;
-		return this.initializer = new RecoveredLambdaExpression(expression, this, bracketBalanceValue);
+		return this.initializerLambda = new RecoveredLambdaExpression(expression, this, bracketBalanceValue);
 	}
 }
 /*
@@ -269,8 +269,8 @@ public FieldDeclaration updatedFieldDeclaration(int depth, Set knownTypes){
 			}
 		}
 	}
-	if (this.initializer != null)
-		this.initializer.updateParseTree();
+	if (this.initializerLambda != null)
+		this.initializerLambda.updateParseTree();
 	
 	return this.fieldDeclaration;
 }

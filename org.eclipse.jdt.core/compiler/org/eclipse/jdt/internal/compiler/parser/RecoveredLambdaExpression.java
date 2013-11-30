@@ -33,7 +33,7 @@ public class RecoveredLambdaExpression extends RecoveredBlock {
 	public RecoveredLambdaExpression(LambdaExpression expression, RecoveredElement parent, int bracketBalance){
 		super(new Block(0), parent, bracketBalance); // don't have a block yet. May never have, in that event will course correct.
 		this.expression = expression;
-		this.expression.body = this.blockDeclaration;
+		this.expression.setBody(this.blockDeclaration);
 	}
 	
 	/*
@@ -43,8 +43,7 @@ public class RecoveredLambdaExpression extends RecoveredBlock {
 		if (!this.haveBlockBody && !this.haveExpressionBody) {
 			this.haveBlockBody = true;
 			this.haveExpressionBody = false;
-			this.blockDeclaration.sourceStart = block.sourceStart;
-			this.blockDeclaration.sourceEnd = block.sourceEnd;
+			this.blockDeclaration = block;
 			return this; 
 		}
 		return super.add(block, bracketBalanceValue);
@@ -58,7 +57,7 @@ public class RecoveredLambdaExpression extends RecoveredBlock {
 			this.haveBlockBody = false;
 			this.haveExpressionBody = true;
 			this.bodyExpression = new RecoveredLambdaExpression(lambda, this, bracketBalanceValue);
-			this.expression.body = lambda;
+			this.expression.setBody(lambda);
 			return this.bodyExpression;
 		}
 		return super.add(lambda, bracketBalanceValue);
@@ -79,7 +78,7 @@ public class RecoveredLambdaExpression extends RecoveredBlock {
 			this.haveBlockBody = false;
 			this.haveExpressionBody = true;
 			this.bodyExpression = new RecoveredStatement(stmt, this, bracketBalanceValue);
-			this.expression.body = stmt;
+			this.expression.setBody(stmt);
 			return this.bodyExpression;
 		}
 		return super.add(stmt, bracketBalanceValue, delegatedByParent);
@@ -94,9 +93,9 @@ public class RecoveredLambdaExpression extends RecoveredBlock {
 
 	public LambdaExpression updatedLambdaExpression(int depth, Set knownTypes) {
 		if (this.haveBlockBody)
-			this.expression.body = super.updatedStatement(depth, knownTypes);
+			this.expression.setBody(super.updatedStatement(depth, knownTypes));
 		else if (this.bodyExpression != null)
-			this.expression.body = this.bodyExpression.updatedStatement(depth, knownTypes);
+			this.expression.setBody(this.bodyExpression.updatedStatement(depth, knownTypes));
 		return this.expression;
 	}
 	/*

@@ -65,10 +65,10 @@ import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class LambdaExpression extends FunctionalExpression implements ReferenceContext, ProblemSeverities {
-	public Argument [] arguments;
+	private Argument [] arguments;
 	private TypeBinding [] argumentTypes;
 	private int arrowPosition;
-	public Statement body;
+	private Statement body;
 	public boolean hasParentheses;
 	public MethodScope scope;
 	private boolean voidCompatible = true;
@@ -86,7 +86,9 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	
 	public LambdaExpression(CompilationResult compilationResult, boolean shouldUnelideTypes) {
 		super(compilationResult);
-		this.shouldUnelideTypes = shouldUnelideTypes; 
+		this.shouldUnelideTypes = shouldUnelideTypes;
+		setArguments(NO_ARGUMENTS);
+		setBody(new Block(0));
 	}
 	
 	public void setArguments(Argument [] arguments) {
@@ -94,8 +96,16 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		this.argumentTypes = new TypeBinding[arguments != null ? arguments.length : 0];
 	}
 	
+	public Argument [] arguments() {
+		return this.arguments;
+	}
+
 	public void setBody(Statement body) {
-		this.body = body;
+		this.body = body == null ? new Block(0) : body;
+	}
+	
+	public Statement body() {
+		return this.body;
 	}
 
 	public void setArrowPosition(int arrowPosition) {

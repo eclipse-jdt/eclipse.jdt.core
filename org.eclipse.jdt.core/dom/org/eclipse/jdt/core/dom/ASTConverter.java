@@ -2216,7 +2216,7 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			recordNodes(lambdaExpression, lambda);
 		}
-		org.eclipse.jdt.internal.compiler.ast.Argument[] arguments = lambda.arguments;
+		org.eclipse.jdt.internal.compiler.ast.Argument[] arguments = lambda.arguments();
 		if (arguments != null) {
 			int argumentsLength = arguments.length;
 			for (int i = 0; i < argumentsLength; i++) {
@@ -2241,10 +2241,11 @@ class ASTConverter {
 				}
 			}
 		}
-		if (lambda.body instanceof org.eclipse.jdt.internal.compiler.ast.Expression) {
-			lambdaExpression.setBody(convert((org.eclipse.jdt.internal.compiler.ast.Expression) lambda.body));
+		final org.eclipse.jdt.internal.compiler.ast.Statement body = lambda.body();
+		if (body instanceof org.eclipse.jdt.internal.compiler.ast.Expression) {
+			lambdaExpression.setBody(convert((org.eclipse.jdt.internal.compiler.ast.Expression) body));
 		} else {
-			lambdaExpression.setBody(convert((org.eclipse.jdt.internal.compiler.ast.Block) lambda.body));
+			lambdaExpression.setBody(convert((org.eclipse.jdt.internal.compiler.ast.Block) body));
 		}
 		int sourceStart = lambda.sourceStart;
 		lambdaExpression.setSourceRange(sourceStart, lambda.sourceEnd - sourceStart + 1);

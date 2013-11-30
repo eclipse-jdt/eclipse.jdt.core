@@ -6409,12 +6409,12 @@ public void reset(LambdaExpression lambda, ClassFile targetClassFile) {
 	if (lineSeparatorPositions2 != null) {
 		int length = lineSeparatorPositions2.length;
 		int lineSeparatorPositionsEnd = length - 1;
-		int start = Util.getLineNumber(lambda.body.sourceStart, lineSeparatorPositions2, 0, lineSeparatorPositionsEnd);
+		int start = Util.getLineNumber(lambda.body().sourceStart, lineSeparatorPositions2, 0, lineSeparatorPositionsEnd);
 		this.lineNumberStart = start;
 		if (start > lineSeparatorPositionsEnd) {
 			this.lineNumberEnd = start;
 		} else {
-			int end = Util.getLineNumber(lambda.body.sourceEnd, lineSeparatorPositions2, start - 1, lineSeparatorPositionsEnd);
+			int end = Util.getLineNumber(lambda.body().sourceEnd, lineSeparatorPositions2, start - 1, lineSeparatorPositionsEnd);
 			if (end >= lineSeparatorPositionsEnd) {
 				end = length;
 			}

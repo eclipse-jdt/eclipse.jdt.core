@@ -7610,7 +7610,42 @@ public void test422801a() {
 			"----------\n"
 		);
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=405134, [1.8][code assist + compiler] compiler and code assist problem in multilevel lambda with curly bracketed body
+public void test405134a() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"interface Foo { \n" +
+					"	int run1(int s1, int s2);\n" +
+					"	static int x2 = 0;\n" +
+					"}\n" +
+					"interface Foo1 {\n" +
+					"	Foo run2(int argFoo1);\n" +
+					"}\n" +
+					"interface X extends Foo{\n" +
+					"    static int x1 = 2;\n" +
+					"    static Foo f = (x5, x6) -> x5;\n" +
+					"    static Foo1 f1 = af1 -> (a1,b1) -> {int uniqueName = 4; return uniqueName};\n" + // missing semicolon triggers an NPE
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	static Foo1 f1 = af1 -> (a1,b1) -> {int uniqueName = 4; return uniqueName};\n" + 
+			"	                                                                         ^\n" + 
+			"Syntax error on token \"}\", delete this token\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	}\n" + 
+			"	^\n" + 
+			"Syntax error, insert \";\" to complete FieldDeclaration\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 12)\n" + 
+			"	}\n" + 
+			"	^\n" + 
+			"Syntax error, insert \"}\" to complete InterfaceBody\n" + 
+			"----------\n",
+			true);
+}
 
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;

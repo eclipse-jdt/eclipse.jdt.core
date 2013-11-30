@@ -4372,7 +4372,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			// Format arguments
 			formatMethodArguments(
 				null,
-				lambdaExpression.arguments,
+				lambdaExpression.arguments(),
 				lambdaExpression.getScope(),
 				this.preferences.insert_space_before_opening_paren_in_method_declaration,
 				this.preferences.insert_space_between_empty_parens_in_method_declaration,
@@ -4388,10 +4388,11 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (this.preferences.insert_space_before_lambda_arrow) this.scribe.space();
 		this.scribe.printNextToken(TerminalTokens.TokenNameARROW);
 		if (this.preferences.insert_space_after_lambda_arrow) this.scribe.space();
-		if (lambdaExpression.body instanceof Block) {
-			formatBlock((Block) lambdaExpression.body, scope, this.preferences.brace_position_for_lambda_body, this.preferences.insert_space_before_opening_brace_in_block);
+		final Statement body = lambdaExpression.body();
+		if (body instanceof Block) {
+			formatBlock((Block) body, scope, this.preferences.brace_position_for_lambda_body, this.preferences.insert_space_before_opening_brace_in_block);
 		} else {
-			lambdaExpression.body.traverse(this, scope);
+			body.traverse(this, scope);
 		}
 
 		if (numberOfParens > 0) {
