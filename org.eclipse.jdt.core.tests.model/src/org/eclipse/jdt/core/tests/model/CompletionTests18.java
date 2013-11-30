@@ -235,4 +235,100 @@ public void test007() throws JavaModelException {
 			"x1[FIELD_REF]{x1, LX;, I, x1, null, 56}",
 			requestor.getResults());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422107, [1.8][code assist] Invoking code assist just before and after a variable initialized using lambda gives different result
+public void test008() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"    void doit();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"}\n" +
+			"public class X { \n" +
+			"	/* BEFORE */\n" +
+			"	Object o = (I & J) () -> {};\n" +
+			"	/* AFTER */\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/* BEFORE */";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"[POTENTIAL_METHOD_DECLARATION]{, LX;, ()V, , null, 14}\n" +
+			"abstract[KEYWORD]{abstract, null, null, abstract, null, 24}\n" +
+			"class[KEYWORD]{class, null, null, class, null, 24}\n" +
+			"enum[KEYWORD]{enum, null, null, enum, null, 24}\n" +
+			"final[KEYWORD]{final, null, null, final, null, 24}\n" +
+			"interface[KEYWORD]{interface, null, null, interface, null, 24}\n" +
+			"native[KEYWORD]{native, null, null, native, null, 24}\n" +
+			"private[KEYWORD]{private, null, null, private, null, 24}\n" +
+			"protected[KEYWORD]{protected, null, null, protected, null, 24}\n" +
+			"public[KEYWORD]{public, null, null, public, null, 24}\n" +
+			"static[KEYWORD]{static, null, null, static, null, 24}\n" +
+			"strictfp[KEYWORD]{strictfp, null, null, strictfp, null, 24}\n" +
+			"synchronized[KEYWORD]{synchronized, null, null, synchronized, null, 24}\n" +
+			"transient[KEYWORD]{transient, null, null, transient, null, 24}\n" +
+			"volatile[KEYWORD]{volatile, null, null, volatile, null, 24}\n" +
+			"I[TYPE_REF]{I, , LI;, null, null, 27}\n" +
+			"J[TYPE_REF]{J, , LJ;, null, null, 27}\n" +
+			"X[TYPE_REF]{X, , LX;, null, null, 27}\n" +
+			"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 27}\n" +
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 27}\n" +
+			"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, 27}\n" +
+			"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 27}\n" +
+			"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 27}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422107, [1.8][code assist] Invoking code assist just before and after a variable initialized using lambda gives different result
+public void test009() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"    void doit();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"}\n" +
+			"public class X { \n" +
+			"	/* BEFORE */\n" +
+			"	Object o = (I & J) () -> {};\n" +
+			"	/* AFTER */\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/* AFTER */";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"[POTENTIAL_METHOD_DECLARATION]{, LX;, ()V, , null, 14}\n" +
+			"abstract[KEYWORD]{abstract, null, null, abstract, null, 24}\n" +
+			"class[KEYWORD]{class, null, null, class, null, 24}\n" +
+			"enum[KEYWORD]{enum, null, null, enum, null, 24}\n" +
+			"final[KEYWORD]{final, null, null, final, null, 24}\n" +
+			"interface[KEYWORD]{interface, null, null, interface, null, 24}\n" +
+			"native[KEYWORD]{native, null, null, native, null, 24}\n" +
+			"private[KEYWORD]{private, null, null, private, null, 24}\n" +
+			"protected[KEYWORD]{protected, null, null, protected, null, 24}\n" +
+			"public[KEYWORD]{public, null, null, public, null, 24}\n" +
+			"static[KEYWORD]{static, null, null, static, null, 24}\n" +
+			"strictfp[KEYWORD]{strictfp, null, null, strictfp, null, 24}\n" +
+			"synchronized[KEYWORD]{synchronized, null, null, synchronized, null, 24}\n" +
+			"transient[KEYWORD]{transient, null, null, transient, null, 24}\n" +
+			"volatile[KEYWORD]{volatile, null, null, volatile, null, 24}\n" +
+			"I[TYPE_REF]{I, , LI;, null, null, 27}\n" +
+			"J[TYPE_REF]{J, , LJ;, null, null, 27}\n" +
+			"X[TYPE_REF]{X, , LX;, null, null, 27}\n" +
+			"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 27}\n" +
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 27}\n" +
+			"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, 27}\n" +
+			"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 27}\n" +
+			"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 27}",
+			requestor.getResults());
+}
 }
