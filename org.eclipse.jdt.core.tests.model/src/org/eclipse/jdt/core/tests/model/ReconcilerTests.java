@@ -5452,4 +5452,41 @@ public void testBug374176b() throws CoreException, IOException, InterruptedExcep
 			deleteProject(project15);
 	}
 }
+public void testSecondaryTypeDeletion() throws CoreException, IOException {
+	
+	// Set working copy content with no error
+	setUpWorkingCopy("/Reconciler/src/X.java",
+			"interface I {\n" +
+					"	void foo();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	static void goo(I i) {\n" +
+					"	}\n" +
+					"}\n"
+			);
+	assertProblems(
+			"Unexpected problems",
+			"----------\n" +
+			"----------\n"
+			);
+
+	String contents = 
+					"public class X {\n" +
+					"	static void goo(I i) {\n" +
+					"	}\n" +
+					"}\n";
+	
+	setWorkingCopyContents(contents);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
+	assertProblems(
+			"Wrong expected problems",
+			"----------\n" + 
+			"1. ERROR in /Reconciler/src/X.java (at line 2)\n" + 
+			"	static void goo(I i) {\n" + 
+			"	                ^\n" + 
+			"I cannot be resolved to a type\n" + 
+			"----------\n"
+			);
+	
+}
 }

@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -700,6 +704,25 @@ public class NameLookup implements SuffixConstants {
 				while (type == null && allProjects.hasNext()) {
 					type = findSecondaryType(packageName, typeName, (IJavaProject) allProjects.next(), waitForIndexes, monitor);
 				}
+			}
+		}
+		if (type != null) {
+			ICompilationUnit unit = type.getCompilationUnit();
+			if (unit != null && unit.isWorkingCopy()) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421902
+				IType[] types = null;
+				try {
+					types = unit.getTypes();
+				} catch (JavaModelException e) {
+					return null;
+				}
+				boolean typeFound = false;
+				for (int i = 0, typesLength = types == null ? 0 : types.length; i < typesLength; i++) {
+					if (types[i].getElementName().equals(typeName)) {
+						typeFound = true;
+						break;
+					}
+				}
+				if (!typeFound) type = null;
 			}
 		}
 		return type == null ? null : new Answer(type, null);
