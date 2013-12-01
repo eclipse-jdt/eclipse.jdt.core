@@ -176,7 +176,7 @@ public void test005() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"argument[LOCAL_VARIABLE_REF]{argument, null, I, argument, null, 27}",
+			"argument[LOCAL_VARIABLE_REF]{argument, null, I, argument, null, 57}",
 			requestor.getResults());
 }
 public void test006() throws JavaModelException {
@@ -330,5 +330,271 @@ public void test009() throws JavaModelException {
 			"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 27}\n" +
 			"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 27}",
 			requestor.getResults());
+}
+public void _test010() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"  String foo(String x, Integer i); \n" +
+			"} \n" +
+			"public class X  {\n" +
+			"	static void goo(I i) {\n" +
+			"	}\n" +
+			"	static void goo(String s) {\n" +
+			"	}\n" +
+			"	public static void main(String[] args) { \n" +
+			"		goo((x, y) -> {\n" +
+			"			x.\n" +
+			"			return x + y;\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "x.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"[POTENTIAL_METHOD_DECLARATION]{, LX;, ()V, , null, 14}\n" +
+			"abstract[KEYWORD]{abstract, null, null, abstract, null, 24}\n" +
+			"class[KEYWORD]{class, null, null, class, null, 24}\n" +
+			"enum[KEYWORD]{enum, null, null, enum, null, 24}\n" +
+			"final[KEYWORD]{final, null, null, final, null, 24}\n" +
+			"interface[KEYWORD]{interface, null, null, interface, null, 24}\n" +
+			"native[KEYWORD]{native, null, null, native, null, 24}\n" +
+			"private[KEYWORD]{private, null, null, private, null, 24}\n" +
+			"protected[KEYWORD]{protected, null, null, protected, null, 24}\n" +
+			"public[KEYWORD]{public, null, null, public, null, 24}\n" +
+			"static[KEYWORD]{static, null, null, static, null, 24}\n" +
+			"strictfp[KEYWORD]{strictfp, null, null, strictfp, null, 24}\n" +
+			"synchronized[KEYWORD]{synchronized, null, null, synchronized, null, 24}\n" +
+			"transient[KEYWORD]{transient, null, null, transient, null, 24}\n" +
+			"volatile[KEYWORD]{volatile, null, null, volatile, null, 24}\n" +
+			"I[TYPE_REF]{I, , LI;, null, null, 27}\n" +
+			"J[TYPE_REF]{J, , LJ;, null, null, 27}\n" +
+			"X[TYPE_REF]{X, , LX;, null, null, 27}\n" +
+			"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 27}\n" +
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 27}\n" +
+			"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, 27}\n" +
+			"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 27}\n" +
+			"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 27}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
+public void test011() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		syso\n" +
+			"		I i = () -> {\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "syso";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("", requestor.getResults());
+	assertEquals("completion offset=94\n" +
+			"completion range=[90, 93]\n" +
+			"completion token=\"syso\"\n" +
+			"completion token kind=TOKEN_KIND_NAME\n" +
+			"expectedTypesSignatures=null\n" +
+			"expectedTypesKeys=null\n" +
+			"completion token location={STATEMENT_START}", requestor.getContext());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
+public void test012() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		I i = () -> {\n" +
+			"		    syso\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "syso";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("", requestor.getResults());
+	assertEquals("completion offset=114\n" +
+			"completion range=[110, 113]\n" +
+			"completion token=\"syso\"\n" +
+			"completion token kind=TOKEN_KIND_NAME\n" +
+			"expectedTypesSignatures=null\n" +
+			"expectedTypesKeys=null\n" +
+			"completion token location={STATEMENT_START}", requestor.getContext());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
+public void test013() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		I i = () -> {\n" +
+			"		};\n" +
+			"		syso\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "syso";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("", requestor.getResults());
+	assertEquals("completion offset=115\n" +
+			"completion range=[111, 114]\n" +
+			"completion token=\"syso\"\n" +
+			"completion token kind=TOKEN_KIND_NAME\n" +
+			"expectedTypesSignatures=null\n" +
+			"expectedTypesKeys=null\n" +
+			"completion token location={STATEMENT_START}", requestor.getContext());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
+public void test014() throws JavaModelException { // ensure higher relevance for matching return type.
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"	int [] foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] arrayOfStrings) {\n" +
+			"       int [] arrayOfInts = null;\n" +
+			"		I i = () -> {\n" +
+			"           return array\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "array";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("arrayOfStrings[LOCAL_VARIABLE_REF]{arrayOfStrings, null, [Ljava.lang.String;, null, null, arrayOfStrings, null, [168, 173], 27}\n" +
+					"arrayOfInts[LOCAL_VARIABLE_REF]{arrayOfInts, null, [I, null, null, arrayOfInts, null, [168, 173], 57}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
+public void test015() throws JavaModelException { // ensure higher relevance for matching return type.
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		class Y {\n" +
+			"			I i = () -> {\n" +
+			"               xyz\n" +
+			"               xyzAfter = 10;\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "xyz";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("xyzAfter[LOCAL_VARIABLE_REF]{xyzAfter, null, Ljava.lang.Object;, null, null, xyzAfter, null, [132, 135], 26}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
+public void test016() throws JavaModelException { // ensure higher relevance for matching return type.
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		class Y {\n" +
+			"			I i = () -> {\n" +
+			"               xyzBefore = 10;\n" +
+			"               xyz\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "xyz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("xyzBefore[LOCAL_VARIABLE_REF]{xyzBefore, null, Ljava.lang.Object;, null, null, xyzBefore, null, [163, 166], 26}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
+public void test017() throws JavaModelException { // ensure higher relevance for matching return type.
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"   public static X xField;\n" +
+			"   public static X goo() { return null; }\n" +
+			"	public static void main(String[] args) {\n" +
+			"			I i = () -> {\n" +
+			"               xyz\n" +
+			"			}\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	requestor.setRequireExtendedContext(true);
+	requestor.setComputeEnclosingElement(false);
+	requestor.setComputeVisibleElements(true);
+	requestor.setAssignableType("LX;");
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "xyz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertEquals("completion offset=192\n" +
+			"completion range=[189, 191]\n" +
+			"completion token=\"xyz\"\n" +
+			"completion token kind=TOKEN_KIND_NAME\n" +
+			"expectedTypesSignatures=null\n" +
+			"expectedTypesKeys=null\n" +
+			"completion token location={STATEMENT_START}\n" +
+			"visibleElements={\n" +
+			"	xField {key=LX;.xField)LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],\n" +
+			"	goo() {key=LX;.goo()LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],\n" +
+			"}" , requestor.getContext());
 }
 }

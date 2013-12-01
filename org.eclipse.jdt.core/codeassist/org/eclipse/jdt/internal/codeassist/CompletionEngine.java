@@ -1630,6 +1630,17 @@ public final class CompletionEngine
 						context.setTokenLocation(CompletionContext.TL_STATEMENT_START);
 					}
 				}
+			} else if (referenceContext instanceof LambdaExpression) {
+				LambdaExpression expression = (LambdaExpression)referenceContext;
+				if (expression.body().sourceStart <= astNode.sourceStart &&
+						astNode.sourceEnd <= expression.body().sourceEnd) {
+					// completion is inside a method body
+					if (astNodeParent == null &&
+							astNode instanceof CompletionOnSingleNameReference &&
+							!((CompletionOnSingleNameReference)astNode).isPrecededByModifiers) {
+						context.setTokenLocation(CompletionContext.TL_STATEMENT_START);
+					}
+				}
 			} else if (referenceContext instanceof TypeDeclaration) {
 				TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
 				FieldDeclaration[] fields = typeDeclaration.fields;
@@ -3494,6 +3505,12 @@ public final class CompletionEngine
 				if(binding != null) {
 					addExpectedType(binding, scope);
 				}
+			} else if (scope.methodScope().referenceContext instanceof LambdaExpression) {
+				MethodBinding methodBinding = ((LambdaExpression) scope.methodScope().referenceContext).getMethodBinding();
+				TypeBinding binding = methodBinding  == null ? null : methodBinding.returnType;
+				if (binding != null) {
+					addExpectedType(binding, scope);
+				}
 			}
 		} else if(parent instanceof CastExpression) {
 			TypeReference e = ((CastExpression)parent).type;
@@ -4261,7 +4278,7 @@ public final class CompletionEngine
 			CompletionOnMemberAccess access = (CompletionOnMemberAccess) site;
 			if (access.isSuperAccess() && this.parser.assistNodeParent == null) {
 				ReferenceContext referenceContext = scope.referenceContext();
-				if (referenceContext instanceof AbstractMethodDeclaration) {
+				if (referenceContext instanceof AbstractMethodDeclaration) {  // LE is anonymous.
 					MethodBinding binding = ((AbstractMethodDeclaration) referenceContext).binding;
 					if (binding != null) {
 						if (CharOperation.equals(binding.selector, method.selector)) {
@@ -11196,6 +11213,17 @@ public final class CompletionEngine
 					md.scope.classScope(),
 					from,
 					md.bodyEnd,
+					discouragedNames,
+					nameRequestor);
+		} else if (referenceContext instanceof LambdaExpression) {
+			LambdaExpression expression = (LambdaExpression) referenceContext;
+			UnresolvedReferenceNameFinder nameFinder = new UnresolvedReferenceNameFinder(this);
+			nameFinder.findAfter(
+					this.completionToken,
+					expression.scope,
+					expression.scope.classScope(),
+					from,
+					expression.body().sourceEnd,
 					discouragedNames,
 					nameRequestor);
 		} else if (referenceContext instanceof TypeDeclaration) {

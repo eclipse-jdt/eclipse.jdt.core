@@ -34,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
@@ -184,7 +185,7 @@ public class InternalExtendedCompletionContext {
 			this.visibleMethods = new ObjectVector();
 	
 			ReferenceContext referenceContext = scope.referenceContext();
-			if (referenceContext instanceof AbstractMethodDeclaration) {
+			if (referenceContext instanceof AbstractMethodDeclaration || referenceContext instanceof LambdaExpression) {
 				// completion is inside a method body
 				searchVisibleVariablesAndMethods(scope, this.visibleLocalVariables, this.visibleFields, this.visibleMethods, notInJavadoc);
 			} else if (referenceContext instanceof TypeDeclaration) {
