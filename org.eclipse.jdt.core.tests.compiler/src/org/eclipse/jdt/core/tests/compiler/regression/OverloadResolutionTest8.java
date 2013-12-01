@@ -2083,4 +2083,22 @@ public void test4008712zh() {
 			},
 			"foo(J)");
 }
+public void testVarargs() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void goo(I ... i) {\n" +
+				"		i[0].foo();\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		goo(()->{ System.out.println(\"Lambda\");});\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"Lambda");
+}
 }
