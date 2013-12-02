@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.IType;
  * @see IJavaElementRequestor
  */
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class JavaElementRequestor implements IJavaElementRequestor {
 	/**
 	 * True if this requestor no longer wants to receive

@@ -15,6 +15,7 @@ import java.util.List;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+@SuppressWarnings("rawtypes")
 public class ASTRewriteFlattener extends ASTVisitor {
 
 	/**

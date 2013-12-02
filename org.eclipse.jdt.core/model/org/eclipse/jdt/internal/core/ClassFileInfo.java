@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
  * Element info for <code>ClassFile</code> handles.
  */
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 /* package */ class ClassFileInfo extends OpenableElementInfo implements SuffixConstants {
 	/**
 	 * The children of the <code>BinaryType</code> corresponding to our

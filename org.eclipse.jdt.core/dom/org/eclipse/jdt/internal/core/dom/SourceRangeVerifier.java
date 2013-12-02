@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 
+@SuppressWarnings("rawtypes")
 public class SourceRangeVerifier extends ASTVisitor {
 
 	public static boolean DEBUG = false;

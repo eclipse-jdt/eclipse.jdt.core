@@ -41,6 +41,7 @@ Non-public fields have accessors which should be used everywhere you expect the 
 null is NOT a valid value for a non-public field... it just means the field is not initialized.
 */
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class BinaryTypeBinding extends ReferenceBinding {
 
 	// all of these fields are ONLY guaranteed to be initialized if accessed using their public accessor method

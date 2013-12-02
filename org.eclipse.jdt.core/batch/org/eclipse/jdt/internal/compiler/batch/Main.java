@@ -89,7 +89,9 @@ import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class Main implements ProblemSeverities, SuffixConstants {
+
 	public static class Logger {
 		private PrintWriter err;
 		private PrintWriter log;

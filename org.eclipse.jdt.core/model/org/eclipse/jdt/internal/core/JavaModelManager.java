@@ -85,6 +85,7 @@ import org.xml.sax.SAXException;
  * The single instance of <code>JavaModelManager</code> is available from
  * the static method <code>JavaModelManager.getJavaModelManager()</code>.
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class JavaModelManager implements ISaveParticipant, IContentTypeChangeListener {
 
 	private static final String NON_CHAINING_JARS_CACHE = "nonChainingJarsCache"; //$NON-NLS-1$

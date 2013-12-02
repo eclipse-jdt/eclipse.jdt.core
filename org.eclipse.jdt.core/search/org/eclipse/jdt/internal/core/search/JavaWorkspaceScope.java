@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * The scope can be configured to not search binaries. By default, binaries
  * are included.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaWorkspaceScope extends AbstractJavaSearchScope {
 
 	private IPath[] enclosingPaths = null;

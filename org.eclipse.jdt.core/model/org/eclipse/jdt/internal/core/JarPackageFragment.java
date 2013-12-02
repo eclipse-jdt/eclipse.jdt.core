@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  *
  * @see org.eclipse.jdt.core.IPackageFragment
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 class JarPackageFragment extends PackageFragment {
 /**
  * Constructs a package fragment that is contained within a jar or a zip.

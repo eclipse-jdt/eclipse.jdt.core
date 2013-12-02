@@ -44,6 +44,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class ExternalFoldersManager {
 	private static final String EXTERNAL_PROJECT_NAME = ".org.eclipse.jdt.core.external.folders"; //$NON-NLS-1$
 	private static final String LINKED_FOLDER_NAME = ".link"; //$NON-NLS-1$

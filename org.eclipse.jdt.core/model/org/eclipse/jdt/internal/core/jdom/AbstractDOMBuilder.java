@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
  * powerful, fine-grained DOM/AST API found in the
  * org.eclipse.jdt.core.dom package.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class AbstractDOMBuilder extends ReferenceInfoAdapter implements ILineStartFinder {
 	/**
 	 * Set to true when an error is encounterd while

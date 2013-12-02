@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2008 IBM Corporation and others.
+ * Copyright (c) 2006, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToIntArray;
 /**
  * Internal AST visitor for propagating syntax errors.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 class ASTRecoveryPropagator extends DefaultASTVisitor {
 	private static final int NOTHING = -1;
 	HashtableOfObjectToIntArray endingTokens = new HashtableOfObjectToIntArray();

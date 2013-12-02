@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
  * Next, also default nullness is filled into remaining empty slots.
  * After all implicit annotations have been filled in compatibility is checked and problems are complained.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class ImplicitNullAnnotationVerifier {
 
 	/**

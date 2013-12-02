@@ -33,7 +33,6 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
-
 import org.eclipse.jdt.internal.codeassist.complete.*;
 import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
 import org.eclipse.jdt.internal.codeassist.impl.Engine;
@@ -75,6 +74,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
  * It contains two public APIs used to call CodeAssist on a given source with
  * a given environment, assisting position and storage (and possibly options).
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public final class CompletionEngine
 	extends Engine
 	implements ISearchRequestor, TypeConstants , TerminalTokens , RelevanceConstants, SuffixConstants {

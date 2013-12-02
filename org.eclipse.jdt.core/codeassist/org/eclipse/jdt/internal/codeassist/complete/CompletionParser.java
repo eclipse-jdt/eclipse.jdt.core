@@ -25,7 +25,6 @@ import java.util.HashSet;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
-
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
@@ -34,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.codeassist.impl.*;
 
+@SuppressWarnings("rawtypes")
 public class CompletionParser extends AssistParser {
 	// OWNER
 	protected static final int COMPLETION_PARSER = 1024;

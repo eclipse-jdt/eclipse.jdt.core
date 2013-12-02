@@ -105,6 +105,7 @@ import org.xml.sax.SAXException;
  *
  * @see IJavaProject
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class JavaProject
 	extends Openable
 	implements IJavaProject, IProjectNature, SuffixConstants {

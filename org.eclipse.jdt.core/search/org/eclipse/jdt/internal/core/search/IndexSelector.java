@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
  * Selects the indexes that correspond to projects in a given search scope
  * and that are dependent on a given focus element.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class IndexSelector {
 	IJavaSearchScope searchScope;
 	SearchPattern pattern;

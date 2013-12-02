@@ -130,6 +130,7 @@ import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
  *
  * @since 2.0
  */
+@SuppressWarnings("rawtypes")
 public class NaiveASTFlattener extends ASTVisitor {
 	/**
 	 * Internal synonym for {@link AST#JLS2}. Use to alleviate

@@ -54,6 +54,7 @@ import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.TypeParameter;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class CompletionUnitStructureRequestor extends CompilationUnitStructureRequestor {
 	private ASTNode assistNode;
 

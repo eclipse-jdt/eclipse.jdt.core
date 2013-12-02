@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -53,6 +53,7 @@ import org.eclipse.text.edits.TextEdit;
  * This class is responsible for dumping formatted source
  * @since 2.1
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class Scribe implements IJavaDocTagConstants {
 
 	private static final int INITIAL_SIZE = 100;
@@ -2328,6 +2329,7 @@ public class Scribe implements IJavaDocTagConstants {
 		try {
 			int read= reader.read(buf);
 			convertedSnippet = new String(buf, 0, read);
+			reader.close();
 		} catch (IOException e) {
 			// should not happen
 			CommentFormatterUtil.log(e);
@@ -2362,6 +2364,7 @@ public class Scribe implements IJavaDocTagConstants {
 						this.codeSnippetBuffer.append(buf, 0, l);
 				} while (l > 0);
 				formattedSnippet = this.codeSnippetBuffer.toString();
+				javaReader.close();
 			} catch (IOException e) {
 				// should not happen
 				CommentFormatterUtil.log(e);

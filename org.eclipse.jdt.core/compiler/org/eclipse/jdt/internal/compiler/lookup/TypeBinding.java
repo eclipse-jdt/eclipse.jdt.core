@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  *
  * null is NOT a valid value for a non-public field... it just means the field is not initialized.
  */
+@SuppressWarnings("rawtypes")
 abstract public class TypeBinding extends Binding {
 
 	public int id = TypeIds.NoId;

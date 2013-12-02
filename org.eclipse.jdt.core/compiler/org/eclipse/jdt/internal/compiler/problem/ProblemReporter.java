@@ -137,6 +137,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+@SuppressWarnings("rawtypes")
 public class ProblemReporter extends ProblemHandler {
 
 	public ReferenceContext referenceContext;

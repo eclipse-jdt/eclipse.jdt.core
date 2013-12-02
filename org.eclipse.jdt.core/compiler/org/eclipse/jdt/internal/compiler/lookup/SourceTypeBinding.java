@@ -48,6 +48,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class SourceTypeBinding extends ReferenceBinding {
 	public ReferenceBinding superclass;
 	public ReferenceBinding[] superInterfaces;

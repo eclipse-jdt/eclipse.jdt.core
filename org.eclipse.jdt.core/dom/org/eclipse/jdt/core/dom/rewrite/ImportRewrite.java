@@ -58,6 +58,7 @@ import org.eclipse.text.edits.TextEdit;
  * </p>
  * @since 3.2
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public final class ImportRewrite {
 
 	/**

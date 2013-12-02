@@ -48,6 +48,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class Parser implements  ParserBasicInformation, TerminalTokens, OperatorIds, TypeIds {
 	
 	protected static final int THIS_CALL = ExplicitConstructorCall.This;

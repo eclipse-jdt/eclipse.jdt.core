@@ -169,6 +169,7 @@ import org.osgi.framework.BundleContext;
  * </p>
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public final class JavaCore extends Plugin {
 
 	private static final IResource[] NO_GENERATED_RESOURCES = new IResource[0];

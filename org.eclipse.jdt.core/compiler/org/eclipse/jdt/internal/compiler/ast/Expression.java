@@ -48,6 +48,7 @@ import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class Expression extends Statement {
 
 	public Constant constant;

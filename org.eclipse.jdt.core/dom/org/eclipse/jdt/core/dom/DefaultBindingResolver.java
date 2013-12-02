@@ -76,6 +76,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * threads, the methods are synchronized on the DefaultBindingResolver instance.
  * </p>
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 class DefaultBindingResolver extends BindingResolver {
 
 	/*

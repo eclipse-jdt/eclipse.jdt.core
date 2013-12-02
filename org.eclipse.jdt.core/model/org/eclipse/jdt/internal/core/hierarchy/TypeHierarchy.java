@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 /**
  * @see ITypeHierarchy
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
 
 	public static boolean DEBUG = false;
