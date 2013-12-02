@@ -7534,8 +7534,8 @@ public class ASTConverterAST4Test extends ConverterTestSetup {
 		assertNotNull("No result", result); //$NON-NLS-1$
 		assertTrue("Not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("Wrong size", 1, compilationUnit.getMessages().length); //$NON-NLS-1$
-		assertEquals("Wrong size", 1, compilationUnit.getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong size", 2, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("Wrong size", 2, compilationUnit.getProblems().length); //$NON-NLS-1$
 	}
 
 	/**

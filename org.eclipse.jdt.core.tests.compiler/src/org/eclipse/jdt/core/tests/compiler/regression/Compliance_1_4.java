@@ -2616,14 +2616,24 @@ public void test079() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. ERROR in Hello.java (at line 7)\n" +
-		"	public void run() {\n" +
-		"		}\n" +
-		"	};\n" +
-		"}\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error on tokens, delete these tokens\n" +
+		"----------\n" + 
+		"1. ERROR in Hello.java (at line 1)\n" + 
+		"	void ___eval() {\n" + 
+		"	^^^^^^^^^^^^^^\n" + 
+		"Syntax error on tokens, delete these tokens\n" + 
+		"----------\n" + 
+		"2. ERROR in Hello.java (at line 2)\n" + 
+		"	new Runnable() {\n" + 
+		"		int ___run() throws Throwable {\n" + 
+		"			return blah;\n" + 
+		"		}\n" + 
+		"		private String blarg;\n" + 
+		"		public void run() {\n" + 
+		"		}\n" + 
+		"	};\n" + 
+		"}\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Syntax error on tokens, delete these tokens\n" + 
 		"----------\n"
 	);
 }

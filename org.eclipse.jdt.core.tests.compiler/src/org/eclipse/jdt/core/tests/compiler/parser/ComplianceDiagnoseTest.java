@@ -1956,60 +1956,71 @@ public void test0042() {
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	public void run() {\n" +
-		"		}\n" +
-		"	};\n" +
-		"}\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error on tokens, delete these tokens\n" +
-		"----------\n";
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	void ___eval() {\n" + 
+			"	^^^^^^^^^^^^^^\n" + 
+			"Syntax error on tokens, delete these tokens\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
+			"	new Runnable() {\n" + 
+			"		int ___run() throws Throwable {\n" + 
+			"			return blah;\n" + 
+			"		}\n" + 
+			"		private String blarg;\n" + 
+			"		public void run() {\n" + 
+			"		}\n" + 
+			"	};\n" + 
+			"}\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error on tokens, delete these tokens\n" + 
+			"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	void ___eval() {\n" +
-		"	^^^^\n" +
-		"Syntax error on token \"void\", @ expected\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	void ___eval() {\n" +
-		"	             ^\n" +
-		"Syntax error on token \")\", delete this token\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 9)\n" +
-		"	};\n" +
-		"	^\n" +
-		"Syntax error on token \"}\", { expected\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 23)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error, insert \"}\" to complete ClassBody\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 23)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error, insert \"}\" to complete MemberValue\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 23)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error, insert \")\" to complete Modifiers\n" +
-		"----------\n" +
-		"7. ERROR in X.java (at line 23)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" +
-		"----------\n" +
-		"8. ERROR in X.java (at line 23)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error, insert \"EnumBody\" to complete CompilationUnit\n" +
-		"----------\n";
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	void ___eval() {\n" + 
+			"	^^^^\n" + 
+			"Syntax error on token \"void\", @ expected\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 1)\n" + 
+			"	void ___eval() {\n" + 
+			"	             ^\n" + 
+			"Syntax error on token \")\", delete this token\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
+			"	};\n" + 
+			"}\n" + 
+			"	^^^^\n" + 
+			"Syntax error on tokens, delete these tokens\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 23)\n" + 
+			"	}\n" + 
+			"	^\n" + 
+			"Syntax error, insert \"}\" to complete ClassBody\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 23)\n" + 
+			"	}\n" + 
+			"	^\n" + 
+			"Syntax error, insert \"}\" to complete MemberValue\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 23)\n" + 
+			"	}\n" + 
+			"	^\n" + 
+			"Syntax error, insert \")\" to complete Modifiers\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 23)\n" + 
+			"	}\n" + 
+			"	^\n" + 
+			"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 23)\n" + 
+			"	}\n" + 
+			"	^\n" + 
+			"Syntax error, insert \"EnumBody\" to complete CompilationUnit\n" + 
+			"----------\n";
 
 	runComplianceParserTest(
 		testFiles,

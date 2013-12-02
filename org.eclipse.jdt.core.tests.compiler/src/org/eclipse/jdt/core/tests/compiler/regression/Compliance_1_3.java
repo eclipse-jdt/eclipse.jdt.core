@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -2589,14 +2593,24 @@ public void test079() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. ERROR in Hello.java (at line 7)\n" +
-		"	public void run() {\n" +
-		"		}\n" +
-		"	};\n" +
-		"}\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error on tokens, delete these tokens\n" +
+		"----------\n" + 
+		"1. ERROR in Hello.java (at line 1)\n" + 
+		"	void ___eval() {\n" + 
+		"	^^^^^^^^^^^^^^\n" + 
+		"Syntax error on tokens, delete these tokens\n" + 
+		"----------\n" + 
+		"2. ERROR in Hello.java (at line 2)\n" + 
+		"	new Runnable() {\n" + 
+		"		int ___run() throws Throwable {\n" + 
+		"			return blah;\n" + 
+		"		}\n" + 
+		"		private String blarg;\n" + 
+		"		public void run() {\n" + 
+		"		}\n" + 
+		"	};\n" + 
+		"}\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Syntax error on tokens, delete these tokens\n" + 
 		"----------\n"
 	);
 }
