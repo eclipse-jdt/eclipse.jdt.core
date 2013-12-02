@@ -204,6 +204,7 @@ Goal ::= '%' Expression
 Goal ::= '%' ArrayInitializer
 -- completion parser
 Goal ::= '~' BlockStatementsopt
+Goal ::= '{' BlockStatementopt
 -- source type converter
 Goal ::= '||' MemberValue
 -- syntax diagnosis
@@ -993,10 +994,19 @@ OpenBlock ::= $empty
 /.$putCase consumeOpenBlock() ; $break ./
 /:$readableName OpenBlock:/
 
-BlockStatements -> BlockStatement
+BlockStatements ::= BlockStatement
+/.$putCase consumeBlockStatement() ; $break ./
+/:$readableName BlockStatements:/
 BlockStatements ::= BlockStatements BlockStatement
 /.$putCase consumeBlockStatements() ; $break ./
 /:$readableName BlockStatements:/
+
+-- Production name hardcoded in parser. Must be ::= and not -> 
+BlockStatementopt ::= BlockStatementopt0
+/:$readableName BlockStatementopt:/
+BlockStatementopt0 -> $empty
+BlockStatementopt0 -> BlockStatement
+/:$readableName BlockStatementopt0:/
 
 BlockStatement -> LocalVariableDeclarationStatement
 BlockStatement -> Statement

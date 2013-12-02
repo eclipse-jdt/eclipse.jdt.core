@@ -2250,6 +2250,9 @@ protected void consumeBlock() {
 	}
 	pushOnAstStack(block);
 }
+protected void consumeBlockStatement() {
+	// todo.
+}
 protected void consumeBlockStatements() {
 	// BlockStatements ::= BlockStatements BlockStatement
 	concatNodeLists();
