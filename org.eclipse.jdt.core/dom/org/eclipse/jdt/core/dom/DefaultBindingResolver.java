@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -100,8 +101,8 @@ class DefaultBindingResolver extends BindingResolver {
 		Map compilerBindingsToASTBindings;
 
 		BindingTables() {
-			this.compilerBindingsToASTBindings = new HashMap();
-			this.bindingKeysToBindings = new HashMap();
+			this.compilerBindingsToASTBindings = new ConcurrentHashMap();
+			this.bindingKeysToBindings = new ConcurrentHashMap();
 		}
 
 	}
