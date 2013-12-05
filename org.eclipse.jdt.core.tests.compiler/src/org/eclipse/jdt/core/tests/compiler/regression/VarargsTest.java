@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 IBM Corporation and others.
+ * Copyright (c) 2005, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -400,7 +400,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 3)\n" +
 			"	Y.byte2(null);\n" +
 			"	^^^^^^^^^^^^^\n" +
-			"The argument of type null should explicitly be cast to byte[][] for the invocation of the varargs method byte2(byte[]...) from type Y. It could alternatively be cast to byte[] for a varargs invocation\n" +
+			"Type null of the last argument to method byte2(byte[]...) doesn't exactly match the vararg parameter type. Cast to byte[][] to confirm the non-varargs invocation, or pass individual arguments of type byte[] for a varargs invocation.\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 4)\n" +
 			"	Y.byte2((byte) 1);\n" +
@@ -415,32 +415,32 @@ public class VarargsTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 9)\n" +
 			"	Y.object(null);\n" +
 			"	^^^^^^^^^^^^^^\n" +
-			"The argument of type null should explicitly be cast to Object[] for the invocation of the varargs method object(Object...) from type Y. It could alternatively be cast to Object for a varargs invocation\n" +
+			"Type null of the last argument to method object(Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" +
 			"----------\n" +
 			"5. WARNING in X.java (at line 12)\n" +
 			"	Y.object(new byte[][] {});\n" +
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The argument of type byte[][] should explicitly be cast to Object[] for the invocation of the varargs method object(Object...) from type Y. It could alternatively be cast to Object for a varargs invocation\n" +
+			"Type byte[][] of the last argument to method object(Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" +
 			"----------\n" +
 			"6. WARNING in X.java (at line 13)\n" +
 			"	Y.object(new byte[][][] {});\n" +
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The argument of type byte[][][] should explicitly be cast to Object[] for the invocation of the varargs method object(Object...) from type Y. It could alternatively be cast to Object for a varargs invocation\n" +
+			"Type byte[][][] of the last argument to method object(Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" +
 			"----------\n" +
 			"7. WARNING in X.java (at line 16)\n" +
 			"	Y.object(new String[] {});\n" +
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The argument of type String[] should explicitly be cast to Object[] for the invocation of the varargs method object(Object...) from type Y. It could alternatively be cast to Object for a varargs invocation\n" +
+			"Type String[] of the last argument to method object(Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" +
 			"----------\n" +
 			"8. WARNING in X.java (at line 17)\n" +
 			"	Y.object(new String[][] {});\n" +
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The argument of type String[][] should explicitly be cast to Object[] for the invocation of the varargs method object(Object...) from type Y. It could alternatively be cast to Object for a varargs invocation\n" +
+			"Type String[][] of the last argument to method object(Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" +
 			"----------\n" +
 			"9. WARNING in X.java (at line 19)\n" +
 			"	Y.object2(null);\n" +
 			"	^^^^^^^^^^^^^^^\n" +
-			"The argument of type null should explicitly be cast to Object[][] for the invocation of the varargs method object2(Object[]...) from type Y. It could alternatively be cast to Object[] for a varargs invocation\n" +
+			"Type null of the last argument to method object2(Object[]...) doesn't exactly match the vararg parameter type. Cast to Object[][] to confirm the non-varargs invocation, or pass individual arguments of type Object[] for a varargs invocation.\n" +
 			"----------\n" +
 			"10. ERROR in X.java (at line 20)\n" +
 			"	Y.object2((byte) 1);\n" +
@@ -455,7 +455,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"12. WARNING in X.java (at line 23)\n" +
 			"	Y.object2(new byte[][][] {});\n" +
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The argument of type byte[][][] should explicitly be cast to Object[][] for the invocation of the varargs method object2(Object[]...) from type Y. It could alternatively be cast to Object[] for a varargs invocation\n" +
+			"Type byte[][][] of the last argument to method object2(Object[]...) doesn't exactly match the vararg parameter type. Cast to Object[][] to confirm the non-varargs invocation, or pass individual arguments of type Object[] for a varargs invocation.\n" +
 			"----------\n" +
 			"13. ERROR in X.java (at line 25)\n" +
 			"	Y.object2(new String());\n" +
@@ -465,12 +465,12 @@ public class VarargsTest extends AbstractComparableTest {
 			"14. WARNING in X.java (at line 27)\n" +
 			"	Y.object2(new String[][] {});\n" +
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The argument of type String[][] should explicitly be cast to Object[][] for the invocation of the varargs method object2(Object[]...) from type Y. It could alternatively be cast to Object[] for a varargs invocation\n" +
+			"Type String[][] of the last argument to method object2(Object[]...) doesn't exactly match the vararg parameter type. Cast to Object[][] to confirm the non-varargs invocation, or pass individual arguments of type Object[] for a varargs invocation.\n" +
 			"----------\n" +
 			"15. WARNING in X.java (at line 29)\n" +
 			"	Y.string(null);\n" +
 			"	^^^^^^^^^^^^^^\n" +
-			"The argument of type null should explicitly be cast to String[] for the invocation of the varargs method string(String...) from type Y. It could alternatively be cast to String for a varargs invocation\n" +
+			"Type null of the last argument to method string(String...) doesn't exactly match the vararg parameter type. Cast to String[] to confirm the non-varargs invocation, or pass individual arguments of type String for a varargs invocation.\n" +
 			"----------\n" +
 			"16. ERROR in X.java (at line 32)\n" +
 			"	Y.string(new String[][] {});\n" +
@@ -515,12 +515,12 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 4)\n" +
 			"	y = new Y(true, null);\n" +
 			"	    ^^^^^^^^^^^^^^^^^\n" +
-			"The argument of type null should explicitly be cast to Object[] for the invocation of the varargs constructor Y(boolean, Object...). It could alternatively be cast to Object for a varargs invocation\n" +
+			"Type null of the last argument to constructor Y(boolean, Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 5)\n" +
 			"	y = new Y(\'i\', null);\n" +
 			"	    ^^^^^^^^^^^^^^^^\n" +
-			"The argument of type null should explicitly be cast to int[][] for the invocation of the varargs constructor Y(char, int[]...). It could alternatively be cast to int[] for a varargs invocation\n" +
+			"Type null of the last argument to constructor Y(char, int[]...) doesn't exactly match the vararg parameter type. Cast to int[][] to confirm the non-varargs invocation, or pass individual arguments of type int[] for a varargs invocation.\n" +
 			"----------\n");
 		this.runNegativeTest(
 			new String[] {
@@ -547,12 +547,12 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 4)\n" +
 			"	y = new Y(true, null);\n" +
 			"	    ^^^^^^^^^^^^^^^^^\n" +
-			"The argument of type null should explicitly be cast to Object[] for the invocation of the varargs constructor Y(boolean, Object...). It could alternatively be cast to Object for a varargs invocation\n" +
+			"Type null of the last argument to constructor Y(boolean, Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 5)\n" +
 			"	y = new Y(\'i\', null);\n" +
 			"	    ^^^^^^^^^^^^^^^^\n" +
-			"The argument of type null should explicitly be cast to int[][] for the invocation of the varargs constructor Y(char, int[]...). It could alternatively be cast to int[] for a varargs invocation\n" +
+			"Type null of the last argument to constructor Y(char, int[]...) doesn't exactly match the vararg parameter type. Cast to int[][] to confirm the non-varargs invocation, or pass individual arguments of type int[] for a varargs invocation.\n" +
 			"----------\n");
 	}
 
@@ -1157,7 +1157,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 7)\n" +
 			"	method.invoke(this, new Class[0]);\n" +
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The argument of type Class[] should explicitly be cast to Object[] for the invocation of the varargs method invoke(Object, Object...) from type Method. It could alternatively be cast to Object for a varargs invocation\n" +
+			"Type Class[] of the last argument to method invoke(Object, Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 12)\n" +
 			"	Zork z;\n" +
@@ -1195,7 +1195,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 15)\n" +
 			"	System.out.printf(\"\", s);\n" +
 			"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The argument of type String[] should explicitly be cast to Object[] for the invocation of the varargs method printf(String, Object...) from type PrintStream. It could alternatively be cast to Object for a varargs invocation\n" +
+			"Type String[] of the last argument to method printf(String, Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 19)\n" +
 			"	Zork z;\n" +
@@ -1626,12 +1626,12 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 11)\n" +
 			"	array(new Integer[] {5, 6}); //warns (as javac does)\n" +
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The argument of type Integer[] should explicitly be cast to Serializable[] for the invocation of the varargs method array(Serializable...) from type X. It could alternatively be cast to Serializable for a varargs invocation\n" +
+			"Type Integer[] of the last argument to method array(Serializable...) doesn't exactly match the vararg parameter type. Cast to Serializable[] to confirm the non-varargs invocation, or pass individual arguments of type Serializable for a varargs invocation.\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 12)\n" +
 			"	array(null); //warns (as javac does)\n" +
 			"	^^^^^^^^^^^\n" +
-			"The argument of type null should explicitly be cast to Serializable[] for the invocation of the varargs method array(Serializable...) from type X. It could alternatively be cast to Serializable for a varargs invocation\n" +
+			"Type null of the last argument to method array(Serializable...) doesn't exactly match the vararg parameter type. Cast to Serializable[] to confirm the non-varargs invocation, or pass individual arguments of type Serializable for a varargs invocation.\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 13)\n" +
 			"	Zork z;\n" +
@@ -2045,12 +2045,12 @@ public class VarargsTest extends AbstractComparableTest {
 				"2. WARNING in X.java (at line 19)\n" +
 				"	varargs(i);\n" +
 				"	^^^^^^^^^^\n" +
-				"The argument of type Integer[] should explicitly be cast to Object[] for the invocation of the varargs method varargs(Object...) from type X. It could alternatively be cast to Object for a varargs invocation\n" +
+				"Type Integer[] of the last argument to method varargs(Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" +
 				"----------\n" +
 				"3. WARNING in X.java (at line 22)\n" +
 				"	varargs(i.clone());\n" +
 				"	^^^^^^^^^^^^^^^^^^\n" +
-				"The argument of type Integer[] should explicitly be cast to Object[] for the invocation of the varargs method varargs(Object...) from type X. It could alternatively be cast to Object for a varargs invocation\n" +
+				"Type Integer[] of the last argument to method varargs(Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" +
 				"----------\n");
 	}
 	public void test055() {
@@ -2097,7 +2097,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"2. WARNING in X.java (at line 7)\n" +
 				"	System.out.print(\"null length array: \" + elementCount(null));\n" +
 				"	                                         ^^^^^^^^^^^^^^^^^^\n" +
-				"The argument of type null should explicitly be cast to Object[] for the invocation of the varargs method elementCount(Object...) from type X. It could alternatively be cast to Object for a varargs invocation\n" +
+				"Type null of the last argument to method elementCount(Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" +
 				"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=163889

@@ -31195,7 +31195,7 @@ public void test0952() {
 		"2. WARNING in X.java (at line 8)\n" +
 		"	m3(m(null));\n" +
 		"	   ^^^^^^^\n" +
-		"The argument of type null should explicitly be cast to Object[] for the invocation of the varargs method m(Object...) from type X. It could alternatively be cast to Object for a varargs invocation\n" +
+		"Type null of the last argument to method m(Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 9)\n" +
 		"	Zork z;\n" +
@@ -31221,7 +31221,7 @@ public void test0952() {
 			"4. WARNING in X.java (at line 8)\n" + 
 			"	m3(m(null));\n" + 
 			"	   ^^^^^^^\n" + 
-			"The argument of type null should explicitly be cast to Object[] for the invocation of the varargs method m(Object...) from type X. It could alternatively be cast to Object for a varargs invocation\n" + 
+			"Type null of the last argument to method m(Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" + 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 9)\n" + 
 			"	Zork z;\n" + 
