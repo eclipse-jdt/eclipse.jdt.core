@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Robin Stocker - Bug 49619 - [formatting] comment formatter leaves whitespace in comments
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
@@ -3499,7 +3500,7 @@ public void testBug239941() throws JavaModelException {
 		"\n" + 
 		"	/**\n" + 
 		"	 * Gets the signers of this class.\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * @return the signers of this class, or null if there are no signers. In\n" + 
 		"	 *         particular, this method returns null if this object represents a\n" + 
 		"	 *         primitive type or void.\n" + 
@@ -4896,7 +4897,7 @@ public void testBug260381_wksp1_01() throws JavaModelException {
 		"	 * viewer\'s functionalities must be specified. This implementation always\n" +
 		"	 * returns <code>\n" +
 		"	 * new String[] { IDocument.DEFAULT_CONTENT_TYPE }</code>.\n" +
-		"	 * \n" +
+		"	 *\n" +
 		"	 * @param source\n" +
 		"	 *            the source viewer to be configured by this configuration\n" +
 		"	 * @return the configured content types for the given viewer\n" +
@@ -4931,10 +4932,10 @@ public void testBug260381_wksp2_01() throws JavaModelException {
 		"	 * Returns the composition of two functions. For {@code f: A->B} and\n" + 
 		"	 * {@code g: B->C}, composition is defined as the function h such that\n" + 
 		"	 * {@code h(a) == g(f(a))} for each {@code a}.\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * @see <a href=\"//en.wikipedia.org/wiki/Function_composition\"> function\n" + 
 		"	 *      composition</a>\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * @param g\n" + 
 		"	 *            the second function to apply\n" + 
 		"	 * @param f\n" + 
@@ -4971,10 +4972,10 @@ public void testBug260381_wksp2_01b() throws JavaModelException {
 		"	 * Returns the composition of two functions. For <code> f: A->B</code> and\n" + 
 		"	 * <code> g: B->C</code>, composition is defined as the function h such that\n" + 
 		"	 * <code> h(a) == g(f(a))</code> for each <code> a</code>.\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * @see <a href=\"//en.wikipedia.org/wiki/Function_composition\"> function\n" + 
 		"	 *      composition</a>\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * @param g\n" + 
 		"	 *            the second function to apply\n" + 
 		"	 * @param f\n" + 
@@ -5025,10 +5026,10 @@ public void testBug260381_wksp2_01c() throws JavaModelException {
 		"	 *  </code> for each <code>\n" + 
 		"	 *  a\n" + 
 		"	 *  </code>.\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * @see <a href=\"//en.wikipedia.org/wiki/Function_composition\"> function\n" + 
 		"	 *      composition</a>\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * @param g\n" + 
 		"	 *            the second function to apply\n" + 
 		"	 * @param f\n" + 
@@ -5062,7 +5063,7 @@ public void testBug260381_wksp2_02() throws JavaModelException {
 		"	/**\n" + 
 		"	 * Implementations of {@code computeNext} <b>must</b> invoke this method\n" + 
 		"	 * when there are no elements left in the iteration.\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * @return {@code null}; a convenience so your {@link #computeNext}\n" + 
 		"	 *         implementation can use the simple statement\n" + 
 		"	 *         {@code return endOfData();}\n" + 
@@ -5112,10 +5113,10 @@ public void testBug260381_wksp2_03() throws JavaModelException {
 		"	 * 			.put(&quot;one&quot;, 1).put(&quot;two&quot;, 2).put(&quot;three&quot;, 3).build();\n" + 
 		"	 * }\n" + 
 		"	 * </pre>\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * For <i>small</i> immutable bimaps, the {@code ImmutableBiMap.of()}\n" + 
 		"	 * methods are even more convenient.\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * <p>\n" + 
 		"	 * Builder instances can be reused - it is safe to call {@link #build}\n" + 
 		"	 * multiple times to build multiple bimaps in series. Each bimap is a\n" + 
@@ -5188,7 +5189,7 @@ public void testBug260381_wksp2_04() throws JavaModelException {
 		"	 * The multiset is ordered by the first occurrence of each element. For\n" + 
 		"	 * example, {@code ImmutableMultiset.copyOf(Arrays.asList(2, 3, 1, 3))}\n" + 
 		"	 * yields a multiset with elements in the order {@code 2, 3, 3, 1}.\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * <p>\n" + 
 		"	 * Note that if {@code c} is a {@code Collection<String>}, then\n" + 
 		"	 * {@code ImmutableMultiset.copyOf(c)} returns an\n" + 
@@ -5196,12 +5197,12 @@ public void testBug260381_wksp2_04() throws JavaModelException {
 		"	 * {@code c}, while {@code ImmutableMultiset.of(c)} returns an\n" + 
 		"	 * {@code ImmutableMultiset<Collection<String>>} containing one element (the\n" + 
 		"	 * given collection itself).\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * <p>\n" + 
 		"	 * <b>Note:</b> Despite what the method name suggests, if {@code elements}\n" + 
 		"	 * is an {@code ImmutableMultiset}, no copy will actually be performed, and\n" + 
 		"	 * the given multiset itself will be returned.\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * @throws NullPointerException\n" + 
 		"	 *             if any of {@code elements} is null\n" + 
 		"	 */\n" + 
@@ -5259,10 +5260,10 @@ public void testBug260381_wksp2_05() throws JavaModelException {
 		"	 * to store that value in the multimap will be the result of calling the\n" + 
 		"	 * function on that value. Depending on the multimap implementation,\n" + 
 		"	 * duplicate entries (equal keys and equal values) may be collapsed.\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * <p>\n" + 
 		"	 * For example,\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * <pre class=\"code\">\n" + 
 		"	 * List&lt;String> badGuys =\n" + 
 		"	 *   Arrays.asList(\"Inky\", \"Blinky\", \"Pinky\", \"Pinky\", \"Clyde\");\n" + 
@@ -5271,16 +5272,16 @@ public void testBug260381_wksp2_05() throws JavaModelException {
 		"	 * Multimaps.index(badGuys, stringLengthFunction, index);\n" + 
 		"	 * System.out.println(index);\n" + 
 		"	 * </pre>\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * prints\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * <pre class=\"code\">\n" + 
 		"	 * {4=[Inky], 5=[Pinky, Clyde], 6=[Blinky]}\n" + 
 		"	 * </pre>\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * The {@link HashMultimap} collapses the duplicate occurrence of\n" + 
 		"	 * {@code (5, \"Pinky\")}.\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * @param values\n" + 
 		"	 *            the values to add to the multimap\n" + 
 		"	 * @param keyFunction\n" + 
@@ -5332,7 +5333,7 @@ public void testBug260381_wksp2_06() throws JavaModelException {
 		"	 * the case of overflow) to the call\n" + 
 		"	 * {@code addAll(Collections.nCopies(element,\n" + 
 		"	 * occurrences))}, which would presumably perform much more poorly.\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * @param element\n" + 
 		"	 *            the element to add occurrences of; may be {@code null} only if\n" + 
 		"	 *            explicitly allowed by the implementation\n" + 
@@ -5388,7 +5389,7 @@ public void testBug260381_wksp2_07() throws JavaModelException {
 		"	 * {@code e1} and {@code e2} in the multiset. If the user attempts to add an\n" + 
 		"	 * element to the multiset that violates this constraint, the\n" + 
 		"	 * {@code add(Object)} call will throw a {@code ClassCastException}.\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * @param comparator\n" + 
 		"	 *            the comparator that will be used to sort this multiset. A null\n" + 
 		"	 *            value indicates that the elements\' <i>natural ordering</i>\n" + 
@@ -5421,7 +5422,7 @@ public void testBug260381_wksp2_08() throws JavaModelException {
 		"	 * Returns the composition of a function and a predicate. For every\n" +
 		"	 * {@code x}, the generated predicate returns {@code predicate(function(x))}\n" +
 		"	 * .\n" +
-		"	 * \n" +
+		"	 *\n" +
 		"	 * @return the composition of the provided function and predicate\n" +
 		"	 */\n" +
 		"	void foo();\n" +
@@ -6712,7 +6713,7 @@ public void testBug309835_wksp1_02() {
 		"	/**\n" + 
 		"	 * INTERNAL USE-ONLY Generate the byte for a problem method info that\n" + 
 		"	 * correspond to a boggus method.\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * @param method\n" + 
 		"	 *            org.eclipse.jdt.internal.compiler.ast.\n" + 
 		"	 *            AbstractMethodDeclaration\n" + 
@@ -6783,7 +6784,7 @@ public void testBug311864() throws JavaModelException {
 		"	/**\n" + 
 		"	 * Compares two property values. For font or color the <i>description</i> of\n" + 
 		"	 * the resource, {@link FontData} or {@link RGB}, is used for comparison.\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * @param value1\n" + 
 		"	 *            first property value\n" + 
 		"	 * @param value2\n" + 

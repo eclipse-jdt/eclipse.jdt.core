@@ -6,7 +6,7 @@ public class X21 {
 	 * Returns a search pattern based on a given string pattern. The string
 	 * patterns support '*' wild-cards. The remaining parameters are used to
 	 * narrow down the type of expected results.
-	 * 
+	 *
 	 * <br>
 	 * Examples:
 	 * <ul>
@@ -48,19 +48,19 @@ public class X21 {
 	 *            In case the element is a method, declarations of matching
 	 *            methods in subtypes will also be found, allowing to find
 	 *            declarations of abstract methods, etc.</li>
-	 * 
+	 *
 	 *            <li><code>IJavaSearchConstants.REFERENCES</code>: will search
 	 *            references to the given element.</li>
-	 * 
+	 *
 	 *            <li><code>IJavaSearchConstants.ALL_OCCURRENCES</code>: will
 	 *            search for either declarations or references as specified
 	 *            above.</li>
-	 * 
+	 *
 	 *            <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for
 	 *            interface, will find all types which implements a given
 	 *            interface.</li>
 	 *            </ul>
-	 * 
+	 *
 	 * @param isCaseSensitive
 	 *            indicates whether the search is case sensitive or not.
 	 * @return a search pattern on the given string pattern, or

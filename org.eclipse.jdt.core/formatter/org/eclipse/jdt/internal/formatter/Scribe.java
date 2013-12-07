@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ray V. (voidstar@gmail.com) - Contribution for bug 282988
+ *     Robin Stocker - Bug 49619 - [formatting] comment formatter leaves whitespace in comments
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -3715,8 +3716,10 @@ public class Scribe implements IJavaDocTagConstants {
 						if (linesGap > 0) {
 							this.javadocGapLinesBuffer.setLength(0);
 							if (lineCount > 0) {
-								// TODO https://bugs.eclipse.org/bugs/show_bug.cgi?id=49619
-								this.javadocGapLinesBuffer.append( ' ');
+								// only add trailing space if one was there before (bug 49619)
+								if (this.scanner.source[start] == ' ') {
+									this.javadocGapLinesBuffer.append(' ');
+								}
 							}
 							for (int i = 0; i < linesGap ; i++) {
 								if (clearBlankLines && lineCount >= newLines) {
@@ -3724,9 +3727,9 @@ public class Scribe implements IJavaDocTagConstants {
 									// so remove any remaining blanks and leave
 									if (textEndPosition >= start) {
 										if (output == null) {
-											addReplaceEdit(start, textEndPosition, this.javadocGapLinesBuffer.toString());
+											addReplaceEdit(start, textEndPosition, " "); //$NON-NLS-1$
 										} else {
-											output.append(this.javadocGapLinesBuffer);
+											output.append(' ');
 										}
 									}
 									return;
@@ -3777,8 +3780,10 @@ public class Scribe implements IJavaDocTagConstants {
 				// Insert new lines as not enough was encountered while scanning the whitespaces
 				this.javadocGapLinesBuffer.setLength(0);
 				if (lineCount > 0) {
-					// TODO https://bugs.eclipse.org/bugs/show_bug.cgi?id=49619
-					this.javadocGapLinesBuffer.append( ' ');
+					// only add trailing space if one was there before (bug 49619)
+					if (this.scanner.source[start] == ' ') {
+						this.javadocGapLinesBuffer.append(' ');
+					}
 				}
 				for (int i = lineCount; i < newLines-1; i++) {
 					printJavadocNewLine(this.javadocGapLinesBuffer);
@@ -3808,8 +3813,10 @@ public class Scribe implements IJavaDocTagConstants {
 					this.javadocGapLinesBuffer.setLength(0);
 					if (this.scanner.linePtr > linePtr) {
 						if (lineCount > 0) {
-							// TODO https://bugs.eclipse.org/bugs/show_bug.cgi?id=49619
-							this.javadocGapLinesBuffer.append(' ');
+							// only add trailing space if one was there before (bug 49619)
+							if (this.scanner.source[start] == ' ') {
+								this.javadocGapLinesBuffer.append(' ');
+							}
 						}
 						this.javadocGapLinesBuffer.append(this.lineSeparator);
 						this.column = 1;

@@ -69,7 +69,7 @@ public class X23 {
 	 * requesting additional information like source positions, full ASTs,
 	 * non-recursive sorting, etc.)
 	 * </p>
-	 * 
+	 *
 	 * @param compilationUnit
 	 *            the given compilation unit, which must be a working copy
 	 * @param positions

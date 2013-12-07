@@ -9,7 +9,7 @@ package test.prefs.example;
 interface Example {
 
 	/**
-	 * 
+	 *
 	 * These possibilities include:
 	 * <ul>
 	 * <li>Formatting of header comments.</li>
