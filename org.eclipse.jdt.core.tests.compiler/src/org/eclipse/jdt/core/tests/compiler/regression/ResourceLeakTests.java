@@ -4481,6 +4481,7 @@ public void testBug376053() {
 		options);
 }
 
+// https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
 public void testBug411098_test1() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
@@ -4500,6 +4501,8 @@ public void testBug411098_test1() {
 		options
 		);
 }
+
+// https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
 public void testBug411098_test2() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
@@ -4529,6 +4532,8 @@ public void testBug411098_test2() {
 		options
 		);
 }
+
+// https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
 public void testBug411098_test3() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
@@ -4559,6 +4564,8 @@ public void testBug411098_test3() {
 		options
 		);
 }
+
+// https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
 public void testBug411098_test4() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
@@ -4583,6 +4590,7 @@ public void testBug411098_test4() {
 		);
 }
 
+// https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
 public void testBug411098_test5() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
@@ -4603,6 +4611,7 @@ public void testBug411098_test5() {
 		);
 }
 
+// https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
 public void testBug411098_test6() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
@@ -4615,6 +4624,28 @@ public void testBug411098_test6() {
 			"class A {\n" + 
 			"  void testA(boolean b) throws Exception {\n" + 
 			"    FileInputStream in = b ? new FileInputStream(\"a\") : new FileInputStream(\"b\");\n" + 
+			"    in.close();\n" + 
+			"  }\n" + 
+			"}"
+		},
+		options
+		);
+}
+
+// https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
+// challenge nested resource allocations
+public void testBug411098_test7() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"A.java",
+			"import java.io.*;\n" + 
+			"class A {\n" + 
+			"  void testA(boolean b) throws Exception {\n" + 
+			"    BufferedReader in = b ? new BufferedReader(new FileReader(\"a\")) : new BufferedReader(new FileReader(\"b\"));\n" + 
 			"    in.close();\n" + 
 			"  }\n" + 
 			"}"

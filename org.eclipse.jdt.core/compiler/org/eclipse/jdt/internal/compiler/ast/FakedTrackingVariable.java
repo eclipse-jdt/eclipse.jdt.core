@@ -223,25 +223,13 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			}
 			if (closeTracker != null) {
 				closeTracker.currentAssignment = location;
-				if (rhs instanceof ConditionalExpression) {
-					ConditionalExpression conditional = (ConditionalExpression)rhs;
-					preConnectTrackerAcrossAssignment(location, local, flowInfo, conditional, closeTracker);
-				}
-				else if (rhs instanceof AllocationExpression) {
-					AllocationExpression allocation = (AllocationExpression)rhs;
-					preConnectTrackerAcrossAssignment(location, local, flowInfo, allocation, closeTracker);
-				}
+				preConnectTrackerAcrossAssignment(location, local, flowInfo, closeTracker, rhs);
 			}
 		}
 	}
 
-	private static void preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local, FlowInfo flowInfo, ConditionalExpression conditional,
-			FakedTrackingVariable closeTracker) {
-		preConnectTrackerAcrossAssignment(location, local, flowInfo, closeTracker, conditional.valueIfFalse);
-		preConnectTrackerAcrossAssignment(location, local, flowInfo, closeTracker, conditional.valueIfTrue);
-	}
-
-	private static void preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local, FlowInfo flowInfo, FakedTrackingVariable closeTracker, Expression expression) {
+	private static void preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local, FlowInfo flowInfo,
+			FakedTrackingVariable closeTracker, Expression expression) {
 		if (expression instanceof AllocationExpression) {
 			preConnectTrackerAcrossAssignment(location, local, flowInfo, (AllocationExpression) expression, closeTracker);
 		} else if (expression instanceof ConditionalExpression) {
@@ -249,8 +237,14 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		}
 	}
 
-	private static void preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local,
-			FlowInfo flowInfo, AllocationExpression allocationExpression, FakedTrackingVariable closeTracker) {
+	private static void preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local, FlowInfo flowInfo,
+			ConditionalExpression conditional, FakedTrackingVariable closeTracker) {
+		preConnectTrackerAcrossAssignment(location, local, flowInfo, closeTracker, conditional.valueIfFalse);
+		preConnectTrackerAcrossAssignment(location, local, flowInfo, closeTracker, conditional.valueIfTrue);
+	}
+
+	private static void preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local, FlowInfo flowInfo,
+			AllocationExpression allocationExpression, FakedTrackingVariable closeTracker) {
 		allocationExpression.closeTracker = closeTracker;
 		if (allocationExpression.arguments != null && allocationExpression.arguments.length > 0) {
 			// also push into nested allocations, see https://bugs.eclipse.org/368709
@@ -294,6 +288,9 @@ public class FakedTrackingVariable extends LocalDeclaration {
 								newStatus = finallyStatus;
 						}
 					}
+					if (allocation.closeTracker.innerTracker != null) {
+						innerTracker = pickMoreUnsafe(allocation.closeTracker.innerTracker, innerTracker, scope, flowInfo);
+					}
 					allocation.closeTracker.innerTracker = innerTracker;
 					innerTracker.outerTracker = allocation.closeTracker;
 					flowInfo.markNullStatus(allocation.closeTracker.binding, newStatus);
@@ -329,6 +326,23 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		} else { // regular resource
 			handleRegularResource(scope, flowInfo, allocation);
 		}
+	}
+
+	private static FakedTrackingVariable pickMoreUnsafe(FakedTrackingVariable tracker1, FakedTrackingVariable tracker2, BlockScope scope, FlowInfo info) {
+		// whichever of the two trackers has stronger indication to be leaking will be returned,
+		// the other one will be removed from the scope (considered to be merged into the former).
+		int status1 = info.nullStatus(tracker1.binding);
+		int status2 = info.nullStatus(tracker2.binding);
+		if (status1 == FlowInfo.NULL || status2 == FlowInfo.NON_NULL) return pick(tracker1, tracker2, scope);
+		if (status1 == FlowInfo.NON_NULL || status2 == FlowInfo.NULL) return pick(tracker2, tracker1, scope);
+		if ((status1 & FlowInfo.POTENTIALLY_NULL) != 0) return pick(tracker1, tracker2, scope);
+		if ((status2 & FlowInfo.POTENTIALLY_NULL) != 0) return pick(tracker2, tracker1, scope);
+		return pick(tracker1, tracker2, scope);
+	}
+
+	private static FakedTrackingVariable pick(FakedTrackingVariable tracker1, FakedTrackingVariable tracker2, BlockScope scope) {
+		scope.removeTrackingVar(tracker2);
+		return tracker1;
 	}
 
 	private static void handleRegularResource(BlockScope scope, FlowInfo flowInfo, AllocationExpression allocation) {
