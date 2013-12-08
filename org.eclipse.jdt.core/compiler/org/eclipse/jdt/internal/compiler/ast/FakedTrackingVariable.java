@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
+ *     Nikolay Metchev (nikolaymetchev@gmail.com) - Contributions for
+ *								bug 411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -160,6 +162,13 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				expression = ((CastExpression) expression).expression;
 			else if (expression instanceof Assignment)
 				expression = ((Assignment) expression).expression;
+			else if (expression instanceof ConditionalExpression) {
+				FakedTrackingVariable falseTrackingVariable = getCloseTrackingVariable(((ConditionalExpression)expression).valueIfFalse, flowInfo, flowContext);
+				if (falseTrackingVariable != null) {
+					return falseTrackingVariable;
+				}
+				return getCloseTrackingVariable(((ConditionalExpression)expression).valueIfTrue, flowInfo, flowContext);
+			}
 			else
 				break;
 		}
@@ -202,7 +211,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	 */
 	public static void preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local, Expression rhs, FlowInfo flowInfo) {
 		FakedTrackingVariable closeTracker = null;
-		if (rhs instanceof AllocationExpression) {
+		if (rhs instanceof AllocationExpression || rhs instanceof ConditionalExpression) {
 			closeTracker = local.closeTracker;
 			if (closeTracker == null) {
 				if (rhs.resolvedType != TypeBinding.NULL) { // not NULL means valid closeable as per method precondition
@@ -214,13 +223,38 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			}
 			if (closeTracker != null) {
 				closeTracker.currentAssignment = location;
-				AllocationExpression allocation = (AllocationExpression)rhs;
-				allocation.closeTracker = closeTracker;
-				if (allocation.arguments != null && allocation.arguments.length > 0) {
-					// also push into nested allocations, see https://bugs.eclipse.org/368709
-					preConnectTrackerAcrossAssignment(location, local, allocation.arguments[0], flowInfo);
+				if (rhs instanceof ConditionalExpression) {
+					ConditionalExpression conditional = (ConditionalExpression)rhs;
+					preConnectTrackerAcrossAssignment(location, local, flowInfo, conditional, closeTracker);
+				}
+				else if (rhs instanceof AllocationExpression) {
+					AllocationExpression allocation = (AllocationExpression)rhs;
+					preConnectTrackerAcrossAssignment(location, local, flowInfo, allocation, closeTracker);
 				}
 			}
+		}
+	}
+
+	private static void preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local, FlowInfo flowInfo, ConditionalExpression conditional,
+			FakedTrackingVariable closeTracker) {
+		preConnectTrackerAcrossAssignment(location, local, flowInfo, closeTracker, conditional.valueIfFalse);
+		preConnectTrackerAcrossAssignment(location, local, flowInfo, closeTracker, conditional.valueIfTrue);
+	}
+
+	private static void preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local, FlowInfo flowInfo, FakedTrackingVariable closeTracker, Expression expression) {
+		if (expression instanceof AllocationExpression) {
+			preConnectTrackerAcrossAssignment(location, local, flowInfo, (AllocationExpression) expression, closeTracker);
+		} else if (expression instanceof ConditionalExpression) {
+			preConnectTrackerAcrossAssignment(location, local, flowInfo, (ConditionalExpression) expression, closeTracker);
+		}
+	}
+
+	private static void preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local,
+			FlowInfo flowInfo, AllocationExpression allocationExpression, FakedTrackingVariable closeTracker) {
+		allocationExpression.closeTracker = closeTracker;
+		if (allocationExpression.arguments != null && allocationExpression.arguments.length > 0) {
+			// also push into nested allocations, see https://bugs.eclipse.org/368709
+			preConnectTrackerAcrossAssignment(location, local, allocationExpression.arguments[0], flowInfo);
 		}
 	}
 
@@ -380,7 +414,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 						rhsTrackVar.globalClosingState &= ~(SHARED_WITH_OUTSIDE|OWNED_BY_OUTSIDE);
 					}
 				} else {
-					if (rhs instanceof AllocationExpression) {
+					if (rhs instanceof AllocationExpression || rhs instanceof ConditionalExpression) {
 						if (rhsTrackVar == disconnectedTracker)
 							return;									// 		b.: self wrapper: res = new Wrap(res); -> done!
 						if (local.closeTracker == rhsTrackVar 
