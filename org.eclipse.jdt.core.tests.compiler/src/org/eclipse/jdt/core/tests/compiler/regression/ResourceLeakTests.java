@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
+ *     Nikolay Metchev (nikolaymetchev@gmail.com) - Contributions for
+ *								bug 411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -4477,5 +4479,147 @@ public void testBug376053() {
 		null,
 		true,
 		options);
+}
+
+public void testBug411098_test1() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"A.java",
+			"import java.io.*;\n" + 
+			"\n" + 
+			"class A {\n" + 
+			"  void a(boolean b) throws Exception {\n" + 
+			"    try(FileInputStream in = b ? new FileInputStream(\"a\") : null){}\n" + 
+			"  }\n" + 
+			"}"
+		},
+		options
+		);
+}
+public void testBug411098_test2() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"A.java",
+			"import java.io.*;\n"+
+			"class A {\n" + 
+			"  void a(boolean b) throws Exception {\n" + 
+			"    try(FileInputStream in = create(new FileInputStream(\"a\"))){}\n" + 
+			"  }\n" + 
+			"  FileInputStream create(FileInputStream ignored) throws IOException {\n" + 
+			"    return new FileInputStream(\"b\"); \n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 4)\n" + 
+		"	try(FileInputStream in = create(new FileInputStream(\"a\"))){}\n" + 
+		"	                                ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: '<unassigned Closeable value>' may not be closed\n" + 
+		"----------\n",
+		null,
+		true,
+		options
+		);
+}
+public void testBug411098_test3() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"A.java",
+			"import java.io.*;\n" + 
+			"class A {\n" + 
+			"	void m() throws IOException {\n" + 
+			"		try (FileInputStream a = new FileInputStream(\"A\") {{\n" + 
+			"				FileInputStream b = new FileInputStream(\"B\");\n" + 
+			"				b.hashCode();\n" + 
+			"			}}){\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 5)\n" + 
+		"	FileInputStream b = new FileInputStream(\"B\");\n" + 
+		"	                ^\n" + 
+		"Resource leak: 'b' is never closed\n" + 
+		"----------\n",
+		null,
+		true,
+		options
+		);
+}
+public void testBug411098_test4() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"A.java",
+			"import java.io.FileInputStream;\n" + 
+			"class A {\n" + 
+			"	void testB(boolean b) throws Exception {\n" + 
+			"		FileInputStream in = null;\n" + 
+			"		try {\n" + 
+			"			in = b ? new FileInputStream(\"a\") : null;\n" + 
+			"		} finally {\n" + 
+			"		in.close();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}"
+		},
+		options
+		);
+}
+
+public void testBug411098_test5() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"A.java",
+			"import java.io.FileInputStream;\n" + 
+			"class A {\n" + 
+			"  void testA(boolean b) throws Exception {\n" + 
+			"    FileInputStream in = b ? new FileInputStream(\"a\") : null;\n" + 
+			"    in.close();\n" + 
+			"  }\n" + 
+			"}"
+		},
+		options
+		);
+}
+
+public void testBug411098_test6() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"A.java",
+			"import java.io.FileInputStream;\n" + 
+			"class A {\n" + 
+			"  void testA(boolean b) throws Exception {\n" + 
+			"    FileInputStream in = b ? new FileInputStream(\"a\") : new FileInputStream(\"b\");\n" + 
+			"    in.close();\n" + 
+			"  }\n" + 
+			"}"
+		},
+		options
+		);
 }
 }
