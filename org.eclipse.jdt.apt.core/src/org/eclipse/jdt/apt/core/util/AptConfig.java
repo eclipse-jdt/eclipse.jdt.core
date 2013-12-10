@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2011 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2014 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    jgarms@bea.com, wharley@bea.com - initial API and implementation
- *    
+ *    het@google.com - Bug 423254 - There is no way to tell if a project's factory path is different from the workspace default
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.util;
 
@@ -827,16 +827,18 @@ public class AptConfig {
 	}
 	
 	/**
-	 * Has an explicit factory path been set for the specified project, or
-	 * is it just defaulting to the workspace settings? 
+	 * Does this project have a factory path that is different from the
+	 * workspace default?
+	 * 
 	 * @return true if there is a project-specific factory path.
 	 */
 	public static boolean hasProjectSpecificFactoryPath(IJavaProject jproj) {
 		if (null == jproj) {
-			// say no, even if workspace-level factory path does exist. 
+			// say no, even if workspace-level factory path does exist.
 			return false;
 		}
-		return FactoryPathUtil.doesFactoryPathFileExist(jproj);
+		return FactoryPathUtil.doesFactoryPathFileExist(jproj)
+				&& !getFactoryPath(jproj).equals(getDefaultFactoryPath(jproj));
 	}
 
 	/**

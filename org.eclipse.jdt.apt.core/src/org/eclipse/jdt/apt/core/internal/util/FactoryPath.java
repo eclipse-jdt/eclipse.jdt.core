@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2014 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *   wharley@bea.com - initial API and implementation
+ *   het@google.com - Bug 423254 - There is no way to tell if a project's factory path is different from the workspace default
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.core.internal.util;
@@ -244,5 +245,22 @@ public class FactoryPath implements IFactoryPath {
 		}
 		return map;
 	}
-
+	
+	/**
+	 * A word of warning: this equals() method does not canonicalize factory
+	 * paths before comparing factory path entries. It's possible that two
+	 * factory paths actually refer to the same jar files and this method would
+	 * return that the paths are not equal.
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof FactoryPath)) {
+			return false;
+		}
+		FactoryPath other = (FactoryPath) o;
+		return _path.equals(other._path);
+	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc.
+ * Copyright (c) 2005, 2014 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *   wharley@bea.com - initial API and implementation
+ *   het@google.com - Bug 423254 - There is no way to tell if a project's factory path is different from the workspace default
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.tests;
@@ -19,7 +20,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.core.util.IFactoryPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -285,5 +288,36 @@ public class RegressionTests extends APTTestBase {
 				}
 		);
     }
-	
+
+	/**
+	 * Tests that a
+	 * {@link AptConfig#hasProjectSpecificFactoryPath(IJavaProject)} checks if
+	 * the project's factory path is equivalent to the default factory path, not
+	 * just that it has created a factory path.
+	 *
+	 * @throws Exception
+	 */
+	public void testBugzilla423254() throws Exception {
+		final String projName = RegressionTests.class.getName()
+				+ "423254.Project"; //$NON-NLS-1$
+		IPath projectPath = env.addProject(projName, "1.5"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		IJavaProject jproj = env.getJavaProject(projName);
+		assertFalse(AptConfig.hasProjectSpecificFactoryPath(jproj));
+
+		IFactoryPath fp = AptConfig.getFactoryPath(jproj);
+		fp.addVarJar(Path.fromOSString("/some_phony.jar"));
+		AptConfig.setFactoryPath(jproj, fp);
+		assertTrue(AptConfig.hasProjectSpecificFactoryPath(jproj));
+
+		fp = AptConfig.getFactoryPath(jproj);
+		fp.removeVarJar(Path.fromOSString("/some_phony.jar"));
+		AptConfig.setFactoryPath(jproj, fp);
+		assertFalse(AptConfig.hasProjectSpecificFactoryPath(jproj));
+	}
 }
