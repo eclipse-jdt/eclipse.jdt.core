@@ -4291,4 +4291,20 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"----------\n",
 			true);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421791,  [1.8][compiler] TYPE_USE annotations should be allowed on annotation type declarations
+	public void test421791() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.ElementType;\n" +
+						"import java.lang.annotation.Target;\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface T {}\n" +
+						"@T\n" +
+						"@interface T2 {}\n" +
+						"public class X {}\n"
+				},
+				"",
+				true);
+	}
 }
