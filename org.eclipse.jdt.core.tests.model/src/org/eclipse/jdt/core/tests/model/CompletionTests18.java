@@ -819,4 +819,62 @@ public void testExpressionBody2() throws JavaModelException {
 			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, null, null, wait, (millis), [173, 173], 35}\n" +
 			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, null, null, wait, (millis, nanos), [173, 173], 35}", requestor.getResults());
 }
+// Bug 405125 - [1.8][code assist] static members of an interface appearing after the declaration of a static member lambda expression are not being suggested.
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=405125
+public void testBug405125a() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Foo.java",
+				"public interface Foo {\n" +
+				"	int run(int s1, int s2);\n" +
+				"}\n" +
+				"interface B {\n" +
+				"	static Foo f = (int x5, int x2) -> tw\n" +
+				"	static int x4 = 3;\n" +
+				"  	static int two () { return 2; }\n" +
+				"}");
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.setRequireExtendedContext(true);
+		requestor.setComputeVisibleElements(true);
+		requestor.allowAllRequiredProposals();
+	
+	    String str = this.workingCopies[0].getSource();
+	    String completeBehind = "(int x5, int x2) -> tw";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	    
+	    assertResults(
+	    	"two[METHOD_REF]{two(), LB;, ()I, two, null, 27}",
+	    	requestor.getResults());
+}
+public void testBug405125b() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Foo.java",
+				"public interface Foo {\n" +
+				"	int run(int s1, int s2);\n" +
+				"}\n" +
+				"interface B {\n" +
+				"	static Foo f = (int x5, int x2) -> anot\n" +
+				"	static int another = 3;\n" +
+				"  	static int two () { return 2; }\n" +
+				"}");
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.setRequireExtendedContext(true);
+		requestor.setComputeVisibleElements(true);
+		requestor.allowAllRequiredProposals();
+
+	    String str = this.workingCopies[0].getSource();
+	    String completeBehind = "(int x5, int x2) -> anot";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	    
+	    assertResults(
+	    	"another[FIELD_REF]{another, LB;, I, another, null, 27}",
+	    	requestor.getResults());
+	} 
 }
