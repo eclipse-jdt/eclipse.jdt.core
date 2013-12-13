@@ -1349,20 +1349,22 @@ public void testBug408230n() throws CoreException {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=417935, [1.8][code select] ICU#codeSelect doesn't work on reference to lambda parameter
-public void test417935() throws JavaModelException {
+public void test417935() throws JavaModelException {  // JCL_MIN does not have the relevant classes - these are needed to handle lambda. Use local versions.
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
-			"import java.util.ArrayList;\n" +
-			"import java.util.Arrays;\n" +
-			"import java.util.Collections;\n" +
-			"import java.util.Comparator;\n" +
-			"public class X {\n" +
-			"   int compareTo(X x) { return 0; }\n" +
-			"	void foo() {\n" +
-			"		Collections.sort(new ArrayList<X>(Arrays.asList(new X(), new X(), new X())),\n" +
-			"				(X o1, X o2) -> o1.compareTo(o2)); //[2]\n" +
+			"class Collections {\n" +
+			"	public static void sort(ArrayList list, Comparator c) {\n" +
 			"	}\n" +
-			"\n" +
+			"}\n" +
+			"interface Comparator {\n" +
+			"	int compareTo(X t, X s);\n" +
+			"}\n" +
+			"class ArrayList {\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	int compareTo(X x) { return 0; }\n" +
+			"	void foo() {\n" +
+			"		Collections.sort(new ArrayList(), (X o1, X o2) -> o1.compareTo(o2));\n" +
 			"	}\n" +
 			"}\n");
 
@@ -1528,6 +1530,105 @@ public void test422468c() throws JavaModelException {
 	assertElementsEqual(
 		"Unexpected elements",
 		"y [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422468, [1.8][assist] Code assist issues with type elided lambda parameters
+public void test422468d() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"	J foo(String x, String y);\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	K foo(String x, String y);\n" +
+			"}\n" +
+			"interface K {\n" +
+			"	int foo(String x, int y);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(K i) {}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		I i = (x, y) -> { return (a, b) -> (p, q) -> a.length(); };\n" +
+			"	}\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "a.length";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin1.8.jar]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422468, [1.8][assist] Code assist issues with type elided lambda parameters
+public void test422468e() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"	J foo(String x, String y);\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	K foo(String x, String y);\n" +
+			"}\n" +
+			"interface K {\n" +
+			"	int foo(String x, int y);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(K i) {}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		I i = (x, y) -> { return (a, b) -> (p, q) -> a.length(); };\n" +
+			"	}\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "q";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"q [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422468, [1.8][assist] Code assist issues with type elided lambda parameters
+public void testParser() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface I {\n" +
+			"	int foo(String x, Integer y);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		I i = (x, y) -> {\n" +
+			"			x = \"Hello\"\n" +
+			"			y = 10;		\n" +
+			"			if (x.length() > y) {\n" +
+			"				System.out.println(\"if\");\n" +
+			"			} else {\n" +
+			"				System.out.println(\"else\");\n" +
+			"			}\n" +
+			"			return x.length();\n" +
+			"		};\n" +
+			"		// System.out.println((I) (p, q) -> { return q.\n" +
+			"	}\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "x";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"x [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
 		elements
 	);
 }

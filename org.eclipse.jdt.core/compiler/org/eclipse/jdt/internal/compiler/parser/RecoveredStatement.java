@@ -17,28 +17,21 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 
 public class RecoveredStatement extends RecoveredElement {
 
 	public Statement statement;
-	public RecoveredLambdaExpression subExpression;
 	
 public RecoveredStatement(Statement statement, RecoveredElement parent, int bracketBalance){
 	super(parent, bracketBalance);
 	this.statement = statement;
 }
 
-public RecoveredElement add(LambdaExpression expression, int bracketBalanceValue) {
-	return this.subExpression = new RecoveredLambdaExpression(expression, this, bracketBalanceValue);
-}
 /*
  * Answer the associated parsed structure
  */
 public ASTNode parseTree() {
-	if (this.subExpression != null)
-		this.subExpression.updateParseTree();
 	return this.statement;
 }
 /*

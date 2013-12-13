@@ -45,7 +45,6 @@ import java.util.Properties;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
-import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression;
@@ -159,7 +158,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-public class Parser implements ConflictedParser, ParserBasicInformation, TerminalTokens, OperatorIds, TypeIds {
+public class Parser extends CommitRollbackParser implements ConflictedParser, OperatorIds, TypeIds {
 	
 	protected static final int THIS_CALL = ExplicitConstructorCall.This;
 	protected static final int SUPER_CALL = ExplicitConstructorCall.Super;
@@ -896,7 +895,7 @@ public class Parser implements ConflictedParser, ParserBasicInformation, Termina
 	public CompilationUnitDeclaration compilationUnit; /*the result from parse()*/
 
 	protected RecoveredElement currentElement;
-	public int currentToken;
+	
 	protected boolean diet = false; //tells the scanner to jump over some parts of the code/expressions like method bodies
 	protected int dietInt = 0; // if > 0 force the none-diet-parsing mode (even if diet if requested) [field parsing with anonymous inner classes...]
 	protected int endPosition; //accurate only when used ! (the start position is pushed into intStack while the end the current one)
@@ -987,8 +986,7 @@ protected int recoveredTypePtr;
 protected int nextTypeStart;
 protected TypeDeclaration pendingRecoveredType;
 public RecoveryScanner recoveryScanner;
-//scanner token
-public Scanner scanner;
+
 protected int[] stack = new int[StackIncrement];
 protected int stateStackTop;
 protected int synchronizedBlockSourceStart;
@@ -1004,7 +1002,7 @@ public JavadocParser javadocParser;
 // used for recovery
 protected int lastJavadocEnd;
 public org.eclipse.jdt.internal.compiler.ReadManager readManager;
-private int valueLambdaNestDepth = -1;
+protected int valueLambdaNestDepth = -1;
 private int stateStackLengthStack[] = new int[0];
 protected boolean parsingJava8Plus;
 protected int unstackedAct = ERROR_ACTION;
@@ -1013,14 +1011,7 @@ private boolean tolerateDefaultClassMethods = false;
 private boolean processingLambdaParameterList = false;
 private boolean expectTypeAnnotation = false;
 
-// resumeOnSyntaxError codes:
-
-protected static final int HALT = 0;     // halt and throw up hands.
-protected static final int RESTART = 1;  // stacks reset, alternate goal from check point.
-protected static final int RESUME = 2;   // stacks untouched, just continue from where left off.
-
-
-protected Parser () {
+public Parser () {
 	// Caveat Emptor: For inheritance purposes and then only in very special needs. Only minimal state is initialized !
 }
 public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
@@ -2251,7 +2242,7 @@ protected void consumeBlock() {
 	pushOnAstStack(block);
 }
 protected void consumeBlockStatement() {
-	// todo.
+	// for assist parsers.
 }
 protected void consumeBlockStatements() {
 	// BlockStatements ::= BlockStatements BlockStatement
@@ -2729,6 +2720,7 @@ protected void consumeClassHeaderName1() {
 protected void consumeClassInstanceCreationExpression() {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
 	classInstanceCreation(false);
+	consumeInvocationExpression();
 }
 protected void consumeClassInstanceCreationExpressionName() {
 	// ClassInstanceCreationExpressionName ::= Name '.'
@@ -2749,6 +2741,7 @@ protected void consumeClassInstanceCreationExpressionQualified() {
 		this.expressionStack[this.expressionPtr] = qae;
 	}
 	qae.sourceStart = qae.enclosingInstance.sourceStart;
+	consumeInvocationExpression();
 }
 protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() {
 	// ClassInstanceCreationExpression ::= Primary '.' 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt
@@ -2815,6 +2808,7 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 		this.expressionStack[this.expressionPtr] = qae;
 	}
 	qae.sourceStart = qae.enclosingInstance.sourceStart;
+	consumeInvocationExpression();
 }
 protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 	// ClassInstanceCreationExpression ::= 'new' TypeArguments ClassType '(' ArgumentListopt ')' ClassBodyopt
@@ -2870,6 +2864,7 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 			checkForDiamond(allocationExpression.type);
 		}
 	}
+	consumeInvocationExpression();
 }
 protected void consumeClassOrInterface() {
 	this.genericsIdentifiersLengthStack[this.genericsIdentifiersLengthPtr] += this.identifierLengthStack[this.identifierLengthPtr];
@@ -5212,6 +5207,9 @@ protected void consumeMethodHeaderThrowsClause() {
 		this.lastCheckPoint = md.bodyStart;
 	}
 }
+protected void consumeInvocationExpression() {
+	// Trap all forms of invocation expressions. Note: Explicit constructor calls are not expressions. Top of expression stack has the MessageSend or AllocationExpression.
+}
 protected void consumeMethodInvocationName() {
 	// MethodInvocation ::= Name '(' ArgumentListopt ')'
 
@@ -5242,6 +5240,7 @@ protected void consumeMethodInvocationName() {
 		problemReporter().misplacedTypeAnnotations(typeAnnotations[0], typeAnnotations[typeAnnotations.length - 1]);
 	}
 	pushOnExpressionStack(m);
+	consumeInvocationExpression();
 }
 protected void consumeMethodInvocationNameWithTypeArguments() {
 	// MethodInvocation ::= Name '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
@@ -5264,6 +5263,7 @@ protected void consumeMethodInvocationNameWithTypeArguments() {
 	m.receiver = getUnspecifiedReference();
 	m.sourceStart = m.receiver.sourceStart;
 	pushOnExpressionStack(m);
+	consumeInvocationExpression();
 }
 protected void consumeMethodInvocationPrimary() {
 	//optimize the push/pop
@@ -5278,6 +5278,7 @@ protected void consumeMethodInvocationPrimary() {
 	m.sourceStart = m.receiver.sourceStart;
 	m.sourceEnd = this.rParenPos;
 	this.expressionStack[this.expressionPtr] = m;
+	consumeInvocationExpression();
 }
 protected void consumeMethodInvocationPrimaryWithTypeArguments() {
 	//optimize the push/pop
@@ -5299,6 +5300,7 @@ protected void consumeMethodInvocationPrimaryWithTypeArguments() {
 	m.sourceStart = m.receiver.sourceStart;
 	m.sourceEnd = this.rParenPos;
 	this.expressionStack[this.expressionPtr] = m;
+	consumeInvocationExpression();
 }
 protected void consumeMethodInvocationSuper() {
 	// MethodInvocation ::= 'super' '.' 'Identifier' '(' ArgumentListopt ')'
@@ -5311,6 +5313,7 @@ protected void consumeMethodInvocationSuper() {
 	this.identifierLengthPtr--;
 	m.receiver = new SuperReference(m.sourceStart, this.endPosition);
 	pushOnExpressionStack(m);
+	consumeInvocationExpression();
 }
 protected void consumeMethodInvocationSuperWithTypeArguments() {
 	// MethodInvocation ::= 'super' '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
@@ -5330,6 +5333,7 @@ protected void consumeMethodInvocationSuperWithTypeArguments() {
 
 	m.receiver = new SuperReference(m.sourceStart, this.endPosition);
 	pushOnExpressionStack(m);
+	consumeInvocationExpression();
 }
 protected void consumeModifiers() {
 	int savedModifiersSourceStart = this.modifiersSourceStart;
@@ -7855,17 +7859,15 @@ protected void consumeExplicitThisParameter(boolean isQualified) {
 	pushOnIntStack(0);  // signal explicit this
 }
 
+protected boolean isAssistParser() {
+	return false;
+}
 protected void consumeNestedLambda() {
 	// NestedLambda ::= $empty - we get here just after the type+parenthesis elided singleton parameter or just before the '(' of the parameter list. 
 	consumeNestedType();
 	this.nestedMethod[this.nestedType] ++;
-	LambdaExpression lambda = new LambdaExpression(this.compilationUnit.compilationResult, this instanceof AssistParser);
+	LambdaExpression lambda = new LambdaExpression(this.compilationUnit.compilationResult, isAssistParser());
 	pushOnAstStack(lambda);
-	if (this.currentElement != null) {
-		this.currentElement = this.currentElement.add(lambda, 0);
-		this.lastCheckPoint = this.scanner.currentPosition;
-		this.lastIgnoredToken = -1;
-	}
 	this.processingLambdaParameterList = true;	
 }
 
@@ -7896,16 +7898,15 @@ protected void consumeLambdaHeader() {
 	}
 	LambdaExpression lexp = (LambdaExpression) this.astStack[this.astPtr];
 	lexp.setArguments(arguments);
-	lexp.setArrowPosition(arrowPosition); // '->' position
+	lexp.setArrowPosition(arrowPosition);
 	lexp.sourceEnd = this.intStack[this.intPtr--];   // ')' position or identifier position.
 	lexp.sourceStart = this.intStack[this.intPtr--]; // '(' position or identifier position.
 	lexp.hasParentheses = (this.scanner.getSource()[lexp.sourceStart] == '(');
-	this.listLength = 0; // reset this.listLength after having read all parameters
-	if (this.currentElement != null) {
-		this.lastCheckPoint = lexp.sourceEnd + 1;
-		this.lastIgnoredToken = -1;
-	}
+	this.listLength -= arguments == null ? 0 : arguments.length;  // not necessary really.
 	this.processingLambdaParameterList = false;
+	if (this.currentElement != null) {
+		this.lastCheckPoint = arrowPosition + 1; // we don't want the typed formal parameters to be processed by recovery.
+	}
 }
 protected void consumeLambdaExpression() {
 	
@@ -7919,6 +7920,7 @@ protected void consumeLambdaExpression() {
 		if (this.options.ignoreMethodBodies) {
 			body = new Block(0);
 		}
+		((Block) body).lambdaBody = true; // for consistency's sakes.
 	}
 
 	LambdaExpression lexp = (LambdaExpression) this.astStack[this.astPtr--];
@@ -7935,10 +7937,7 @@ protected void consumeLambdaExpression() {
 	}
 	pushOnExpressionStack(lexp);
 	if (this.currentElement != null) {
-		if (this.currentElement.parseTree() == lexp && this.currentElement.parent != null) {
-			this.currentElement = this.currentElement.parent;
-		}
-		this.lastCheckPoint = lexp.sourceEnd + 1;
+		this.lastCheckPoint = body.sourceEnd + 1;
 	}
 }
 
@@ -7984,9 +7983,7 @@ protected void consumeTypeElidedLambdaParameter(boolean parenthesized) {
 		pushOnIntStack(arg.declarationSourceEnd);
 	}
 	pushOnAstStack(arg);
-	/* if incomplete method header, this.listLength counter will not have been reset,
-		indicating that some arguments are available on the stack */
-	this.listLength++;
+	this.listLength++;  // not relevant really.
 }
 protected void consumeElidedLeftBraceAndReturn() {
 	/* ElidedLeftBraceAndReturn ::= $empty
@@ -10464,7 +10461,7 @@ public void initialize(boolean parsingCompilationUnit) {
 	this.referenceContext = null;
 	this.endStatementPosition = 0;
 	this.valueLambdaNestDepth = -1;
-
+	
 	//remove objects from stack too, while the same parser/compiler couple is
 	//re-used between two compilations ....
 
@@ -10797,41 +10794,14 @@ public boolean atConflictScenario(int token) {
 	         
 	    Though this code looks complex, we should exit early in most situations.     
 	 */
-	int lastAction = this.unstackedAct;
-	if (lastAction == ERROR_ACTION) { // automaton is not running.
+	if (this.unstackedAct == ERROR_ACTION) { // automaton is not running.
 		return false;
 	}
-	int stackTop = this.stateStackTop;        // local copy of stack pointer
-	int stackTopState = this.stack[stackTop]; // single cell non write through "alternate stack" - the automaton's stack pointer either stays fixed during this manoeuvre or monotonically decreases.
-	int highWaterMark = stackTop;
-	
 	if (token != TokenNameAT) {
 		token = token == TokenNameLPAREN ? TokenNameBeginLambda : TokenNameBeginTypeArguments;
 	}
 	
-	// A rotated version of the automaton - cf. parse()'s for(;;)
-	for (;;) {  
-		if (lastAction > ERROR_ACTION) {  
-			lastAction -= ERROR_ACTION;    /* shift-reduce on loop entry from above, reduce on loop back */
-			do { /* reduce */
-				stackTop -= rhs[lastAction] - 1;
-				if (stackTop < highWaterMark) {
-					stackTopState = this.stack[highWaterMark = stackTop];
-				} // else stackTopState is upto date already.
-				lastAction = ntAction(stackTopState, lhs[lastAction]);
-			} while (lastAction <= NUM_RULES);
-		}
-		highWaterMark = ++stackTop;
-		stackTopState = lastAction; // "push"
-		lastAction = tAction(lastAction, token); // can be looked up from a precomputed cache.
-		if (lastAction <= NUM_RULES) {
-			stackTop --; 
-		    lastAction += ERROR_ACTION;
-			continue;
-		}
-		// Error => false, Shift, Shift/Reduce => true, Accept => impossible. 
-		return lastAction != ERROR_ACTION;
-	}
+	return automatonWillShift(token, this.unstackedAct);
 }
 /*main loop of the automat
 When a rule is reduced, the method consumeRule(int) is called with the number
@@ -10852,6 +10822,7 @@ protected void parse() {
 
 	this.hasReportedError = false;
 	int act = START_STATE;
+	this.unstackedAct = ERROR_ACTION;
 	this.stateStackTop = -1;
 	this.currentToken = getFirstToken();
 	
@@ -10866,8 +10837,7 @@ try {
 				stackLength);
 		}
 		this.stack[this.stateStackTop] = act;
-
-		act = tAction(act, this.currentToken);
+		this.unstackedAct = act = tAction(act, this.currentToken);
 		if (act == ERROR_ACTION || this.restartRecovery) {
 			if (DEBUG_AUTOMATON) {
 				if (this.restartRecovery) {
@@ -10879,23 +10849,27 @@ try {
 
 			int errorPos = this.scanner.currentPosition - 1;
 			if (!this.hasReportedError) {
-				this.hasError = true;  // looks incorrect for recovery case ?
+				this.hasError = true;
 			}
-			int previousToken = this.currentToken;
+			this.kurrentToken = this.currentToken;
 			switch (resumeOnSyntaxError()) {
 				case HALT:
 					act = ERROR_ACTION;
 					break ProcessTerminals;
 				case RESTART:
-					if (act == ERROR_ACTION && previousToken != 0) this.lastErrorEndPosition = errorPos;
+					if (act == ERROR_ACTION && this.kurrentToken != 0) this.lastErrorEndPosition = errorPos;
 					act = START_STATE;
 					this.stateStackTop = -1;
 					this.currentToken = getFirstToken();
 					continue ProcessTerminals;
 				case RESUME:
-					break; // We presume the world is virgin so we can continue exactly from where we left off.
-				default:
-					throw new IllegalStateException();
+					if (act == ERROR_ACTION) {
+						act = this.stack[this.stateStackTop--];
+						continue ProcessTerminals;
+					} else {
+						this.currentToken = this.kurrentToken; // Gets trashed all over the place.
+					}
+					// FALL THROUGH.
 			}
 		}
 		if (act <= NUM_RULES) {
@@ -10914,7 +10888,6 @@ try {
 				this.recordStringLiterals = oldValue;
 			}
 			try {
-				this.unstackedAct = act;
 				this.currentToken = this.scanner.getNextToken();
 			} catch(InvalidInputException e){
 				if (!this.hasReportedError){
@@ -10924,13 +10897,11 @@ try {
 				this.lastCheckPoint = this.scanner.currentPosition;
 				this.currentToken = 0;
 				this.restartRecovery = true;
-			} finally {
-				this.unstackedAct = ERROR_ACTION;
-			}
+			} 
 			if(this.statementRecoveryActivated) {
 				jumpOverType();
 			}
-			act -= ERROR_ACTION;
+			this.unstackedAct = act -= ERROR_ACTION;
 
 			if (DEBUG_AUTOMATON) {
 				System.out.print("Shift/Reduce - (" + name[terminal_index[this.currentToken]]+") ");  //$NON-NLS-1$  //$NON-NLS-2$
@@ -10946,7 +10917,6 @@ try {
 					this.recordStringLiterals = oldValue;
 				}
 				try{
-					this.unstackedAct = act;
 					this.currentToken = this.scanner.getNextToken();
 				} catch(InvalidInputException e){
 					if (!this.hasReportedError){
@@ -10956,8 +10926,6 @@ try {
 					this.lastCheckPoint = this.scanner.currentPosition;
 					this.currentToken = 0;
 					this.restartRecovery = true;
-				} finally {
-					this.unstackedAct = ERROR_ACTION;
 				}
 				if(this.statementRecoveryActivated) {
 					jumpOverType();
@@ -10978,8 +10946,9 @@ try {
 			}
 
 			this.stateStackTop -= (rhs[act] - 1);
+			this.unstackedAct = ntAction(this.stack[this.stateStackTop], lhs[act]);
 			consumeRule(act);
-			act = ntAction(this.stack[this.stateStackTop], lhs[act]);
+			act = this.unstackedAct;
 
 			if (DEBUG_AUTOMATON) {
 				if (act <= NUM_RULES) {
@@ -10994,6 +10963,7 @@ try {
 		}
 	}
 } finally {
+	this.unstackedAct = ERROR_ACTION;
 	this.scanner.setActiveParser(null);
 }
 
@@ -12164,8 +12134,10 @@ protected void resetStacks() {
 	this.identifierPtr = -1;
 	this.identifierLengthPtr	= -1;
 	this.intPtr = -1;
+	
 	this.nestedMethod[this.nestedType = 0] = 0; // need to reset for further reuse
 	this.variablesCounter[this.nestedType] = 0;
+	
 	this.dimensions = 0 ;
 	this.realBlockStack[this.realBlockPtr = 0] = 0;
 	this.recoveredStaticInitializerStart = 0;
@@ -12184,7 +12156,7 @@ protected void resetStacks() {
  * Move checkpoint location, reset internal stacks and
  * decide which grammar goal is activated.
  */
-protected boolean resumeAfterRecovery() {
+protected int resumeAfterRecovery() {
 	if(!this.methodRecoveryActivated && !this.statementRecoveryActivated) {
 
 		// reset internal stacks
@@ -12193,18 +12165,18 @@ protected boolean resumeAfterRecovery() {
 
 		/* attempt to move checkpoint location */
 		if (!moveRecoveryCheckpoint()) {
-			return false;
+			return HALT;
 		}
 
 		// only look for headers
 		if (this.referenceContext instanceof CompilationUnitDeclaration){
 			goForHeaders();
 			this.diet = true; // passed this point, will not consider method bodies
-			return true;
+			return RESTART;
 		}
 
 		// does not know how to restart
-		return false;
+		return HALT;
 	} else if(!this.statementRecoveryActivated) {
 
 		// reset internal stacks
@@ -12213,14 +12185,14 @@ protected boolean resumeAfterRecovery() {
 
 		/* attempt to move checkpoint location */
 		if (!moveRecoveryCheckpoint()) {
-			return false;
+			return HALT;
 		}
 
 		// only look for headers
 		goForHeaders();
-		return true;
+		return RESTART;
 	} else {
-		return false;
+		return HALT;
 	}
 }
 protected int resumeOnSyntaxError() {
@@ -12260,7 +12232,7 @@ protected int resumeOnSyntaxError() {
 	}
 
 	/* attempt to reset state in order to resume to parse loop */
-	return resumeAfterRecovery() ? RESTART : HALT;
+	return resumeAfterRecovery();
 }
 public void setMethodsFullRecovery(boolean enabled) {
 	this.options.performMethodsFullRecovery = enabled;
@@ -12367,5 +12339,97 @@ protected void updateSourcePosition(Expression exp) {
 
 	exp.sourceEnd = this.intStack[this.intPtr--];
 	exp.sourceStart = this.intStack[this.intPtr--];
+}
+public void copyState(CommitRollbackParser from) {
+	
+	Parser parser = (Parser) from;
+
+	// Stack pointers.
+	
+	this.stateStackTop = parser.stateStackTop;
+	this.unstackedAct = parser.unstackedAct;
+	this.identifierPtr = parser.identifierPtr;
+	this.identifierLengthPtr = parser.identifierLengthPtr;
+	this.astPtr = parser.astPtr;
+	this.astLengthPtr = parser.astLengthPtr;
+	this.expressionPtr = parser.expressionPtr;
+	this.expressionLengthPtr = parser.expressionLengthPtr;
+	this.genericsPtr = parser.genericsPtr;
+	this.genericsLengthPtr = parser.genericsLengthPtr;
+	this.genericsIdentifiersLengthPtr = parser.genericsIdentifiersLengthPtr;
+	this.typeAnnotationPtr = parser.typeAnnotationPtr;
+	this.typeAnnotationLengthPtr = parser.typeAnnotationLengthPtr;
+	this.intPtr = parser.intPtr;
+	this.nestedType = parser.nestedType;
+	this.realBlockPtr = parser.realBlockPtr;
+	this.valueLambdaNestDepth = parser.valueLambdaNestDepth;
+	
+	// Stacks.
+	
+	int length;
+	System.arraycopy(parser.stack, 0, this.stack = new int [length = parser.stack.length], 0, length);
+	System.arraycopy(parser.identifierStack, 0, this.identifierStack = new char [length = parser.identifierStack.length][], 0, length);
+	System.arraycopy(parser.identifierLengthStack, 0, this.identifierLengthStack = new int [length = parser.identifierLengthStack.length], 0, length);
+	System.arraycopy(parser.identifierPositionStack, 0, this.identifierPositionStack = new long[length = parser.identifierPositionStack.length], 0, length);
+	System.arraycopy(parser.astStack, 0, this.astStack = new ASTNode [length = parser.astStack.length], 0, length);
+	System.arraycopy(parser.astLengthStack, 0, this.astLengthStack = new int [length = parser.astLengthStack.length], 0, length);
+	System.arraycopy(parser.expressionStack, 0, this.expressionStack = new Expression [length = parser.expressionStack.length], 0, length);
+	System.arraycopy(parser.expressionLengthStack, 0, this.expressionLengthStack = new int [length = parser.expressionLengthStack.length], 0, length);
+	System.arraycopy(parser.genericsStack, 0, this.genericsStack = new ASTNode [length = parser.genericsStack.length], 0, length);
+	System.arraycopy(parser.genericsLengthStack, 0, this.genericsLengthStack = new int [length = parser.genericsLengthStack.length], 0, length);
+	System.arraycopy(parser.genericsIdentifiersLengthStack, 0, this.genericsIdentifiersLengthStack = new int [length = parser.genericsIdentifiersLengthStack.length], 0, length);
+	System.arraycopy(parser.typeAnnotationStack, 0, this.typeAnnotationStack = new Annotation [length = parser.typeAnnotationStack.length], 0, length);
+	System.arraycopy(parser.typeAnnotationLengthStack, 0, this.typeAnnotationLengthStack = new int [length = parser.typeAnnotationLengthStack.length], 0, length);
+	System.arraycopy(parser.intStack, 0, this.intStack = new int [length = parser.intStack.length], 0, length);
+	System.arraycopy(parser.nestedMethod, 0, this.nestedMethod = new int [length = parser.nestedMethod.length], 0, length);
+	System.arraycopy(parser.realBlockStack, 0, this.realBlockStack = new int [length = parser.realBlockStack.length], 0, length);
+	System.arraycopy(parser.stateStackLengthStack, 0, this.stateStackLengthStack = new int [length = parser.stateStackLengthStack.length], 0, length);
+	System.arraycopy(parser.variablesCounter, 0, this.variablesCounter = new int [length = parser.variablesCounter.length], 0, length);
+	System.arraycopy(parser.stack, 0, this.stack = new int [length = parser.stack.length], 0, length);
+	System.arraycopy(parser.stack, 0, this.stack = new int [length = parser.stack.length], 0, length);
+	System.arraycopy(parser.stack, 0, this.stack = new int [length = parser.stack.length], 0, length);
+
+	// Loose variables.
+	
+	this.listLength = parser.listLength;
+	this.listTypeParameterLength = parser.listTypeParameterLength;
+	this.dimensions = parser.dimensions;
+	this.recoveredStaticInitializerStart = parser.recoveredStaticInitializerStart;
+
+	// Parser.resetStacks is not clearing the modifiers, but AssistParser.resumeAfterRecovery is - why ? (the former doesn't)
+	// this.modifiers = parser.modifiers;
+	// this.modifiersSourceStart = parser.modifiersSourceStart;
+}
+
+public int automatonState() {
+	return this.stack[this.stateStackTop];
+}
+public boolean automatonWillShift(int token, int lastAction) {
+	int stackTop = this.stateStackTop;        // local copy of stack pointer
+	int stackTopState = this.stack[stackTop]; // single cell non write through "alternate stack" - the automaton's stack pointer either stays fixed during this manoeuvre or monotonically decreases.
+	int highWaterMark = stackTop;
+	// A rotated version of the automaton - cf. parse()'s for(;;)
+	for (;;) {  
+		if (lastAction > ERROR_ACTION) {  
+			lastAction -= ERROR_ACTION;    /* shift-reduce on loop entry from above, reduce on loop back */
+			do { /* reduce */
+				stackTop -= rhs[lastAction] - 1;
+				if (stackTop < highWaterMark) {
+					stackTopState = this.stack[highWaterMark = stackTop];
+				} // else stackTopState is upto date already.
+				lastAction = ntAction(stackTopState, lhs[lastAction]);
+			} while (lastAction <= NUM_RULES);
+		}
+		highWaterMark = ++stackTop;
+		stackTopState = lastAction; // "push"
+		lastAction = tAction(lastAction, token); // can be looked up from a precomputed cache.
+		if (lastAction <= NUM_RULES) {
+			stackTop --; 
+		    lastAction += ERROR_ACTION;
+			continue;
+		}
+		// Error => false, Shift, Shift/Reduce => true, Accept => impossible. 
+		return lastAction != ERROR_ACTION;
+	}
 }
 }

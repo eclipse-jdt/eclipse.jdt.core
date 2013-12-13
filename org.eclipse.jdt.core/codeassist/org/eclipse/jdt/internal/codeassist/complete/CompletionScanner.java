@@ -56,6 +56,15 @@ public CompletionScanner(long sourceLevel) {
 		null/*taskPriorities*/,
 		true/*taskCaseSensitive*/);
 }
+protected boolean isAtAssistIdentifier() {
+	if (this.cursorLocation < this.startPosition && this.currentPosition == this.startPosition) { // fake empty identifier got issued
+		return true;
+	}
+	if (this.cursorLocation+1 >= this.startPosition && this.cursorLocation < this.currentPosition) {
+		return true;
+	}
+	return false;
+}
 /*
  * Truncate the current identifier if it is containing the cursor location. Since completion is performed
  * on an identifier prefix.
@@ -199,6 +208,7 @@ protected int getNextToken0() throws InvalidInputException {
 					this.currentPosition = this.startPosition; // for being detected as empty free identifier
 					return TokenNameIdentifier;
 				}
+				this.currentPosition = this.startPosition; // fake EOF should not drown the real next token.
 				return TokenNameEOF;
 			}
 

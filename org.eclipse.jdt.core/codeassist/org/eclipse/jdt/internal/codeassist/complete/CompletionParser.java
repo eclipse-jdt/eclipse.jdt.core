@@ -31,7 +31,6 @@ import java.util.HashSet;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
-
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
@@ -156,6 +155,7 @@ public class CompletionParser extends AssistParser {
 	int labelPtr = -1;
 
 	boolean isAlreadyAttached;
+	boolean shouldStackAssistNode;
 
 	public boolean record = false;
 	public boolean skipRecord = false;
@@ -2407,6 +2407,16 @@ protected void consumeDimWithOrWithOutExpr() {
 	// DimWithOrWithOutExpr ::= '[' ']'
 	pushOnExpressionStack(null);
 }
+protected void consumeEmptyStatement() {
+	super.consumeEmptyStatement();
+	/* Sneak in the assist node. The reason we can't do that when we see the assist node is that 
+	   we don't know whether it is the first or subsequent statement in a block to be able to
+	   decide whether to call contactNodeLists. See Parser.consumeBlockStatement(s) 
+	*/
+	if (this.shouldStackAssistNode && this.assistNode != null)
+		this.astStack[this.astPtr] = this.assistNode;
+	this.shouldStackAssistNode = false;
+}
 protected void consumeEnhancedForStatement() {
 	super.consumeEnhancedForStatement();
 
@@ -2580,7 +2590,7 @@ protected void consumeExitVariableWithInitialization() {
 		this.cursorLocation > variable.initialization.sourceEnd) {
 		variable.initialization = null;
 	} else if (this.assistNode != null && this.assistNode == variable.initialization) {
-		this.assistNodeParent = variable;
+			this.assistNodeParent = variable;
 	}
 }
 protected void consumeExitVariableWithoutInitialization() {
@@ -3470,6 +3480,8 @@ protected void consumeToken(int token) {
 					case K_MEMBER_VALUE_ARRAY_INITIALIZER:
 						popElement(K_MEMBER_VALUE_ARRAY_INITIALIZER);
 						break;
+					case K_LAMBDA_EXPRESSION_DELIMITER:
+						break; // will be popped when the containing block statement is reduced.
 					default:
 						popElement(K_ARRAY_INITIALIZER);
 						break;
@@ -3675,6 +3687,8 @@ protected void consumeToken(int token) {
 								break;
 							case TokenNamedo:
 								pushOnElementStack(K_BLOCK_DELIMITER, DO);
+								break;
+							case TokenNameARROW:
 								break;
 							default :
 								pushOnElementStack(K_BLOCK_DELIMITER);
@@ -4609,6 +4623,18 @@ public void initialize(boolean parsingCompilationUnit) {
 	this.labelPtr = -1;
 	initializeForBlockStatements();
 }
+public void copyState(CommitRollbackParser from) {
+
+	super.copyState(from);
+	
+	CompletionParser parser = (CompletionParser) from;
+	
+	this.invocationType = parser.invocationType;
+	this.qualifier = parser.qualifier;
+	this.inReferenceExpression = parser.inReferenceExpression;
+	this.hasUnusedModifiers = parser.hasUnusedModifiers;
+	this.canBeExplicitConstructor = parser.canBeExplicitConstructor;
+}
 /*
  * Initializes the state of the parser that is about to go for BlockStatements.
  */
@@ -4954,6 +4980,10 @@ public void recoveryTokenCheck() {
 			break;
 	}
 }
+
+protected CommitRollbackParser createSnapShotParser() {
+	return new CompletionParser(this.problemReporter, this.storeSourceEnds);
+}
 /*
  * Reset internal state after completion is over
  */
@@ -4988,13 +5018,21 @@ public void restoreAssistParser(Object parserState) {
  * Move checkpoint location, reset internal stacks and
  * decide which grammar goal is activated.
  */
-protected boolean resumeAfterRecovery() {
+protected int resumeAfterRecovery() {
 	this.hasUnusedModifiers = false;
 	if (this.assistNode != null) {
+		
+		if (requireExtendedRecovery()) {
+			if (this.unstackedAct != ERROR_ACTION) {
+				return RESUME;
+			}
+			return super.resumeAfterRecovery();
+		}
+		
 		/* if reached [eof] inside method body, but still inside nested type,
 			or inside a field initializer, should continue in diet mode until
 			the end of the method body or compilation unit */
-		if ((this.scanner.eofPosition == this.cursorLocation+1)
+		if ((this.scanner.eofPosition >= this.cursorLocation+1)
 			&& (!(this.referenceContext instanceof CompilationUnitDeclaration)
 			|| isIndirectlyInsideFieldInitialization()
 			|| this.assistNodeParent instanceof FieldDeclaration && !(this.assistNodeParent instanceof Initializer))) {
@@ -5022,6 +5060,7 @@ protected boolean resumeAfterRecovery() {
 				}
 			}
 			*/
+
 			/* restart in diet mode for finding sibling constructs */
 			if (this.currentElement instanceof RecoveredType
 				|| this.currentElement.enclosingType() != null){
@@ -5035,7 +5074,7 @@ protected boolean resumeAfterRecovery() {
 				this.scanner.eofPosition = end < Integer.MAX_VALUE ? end + 1 : end;
 			} else {
 				resetStacks();
-				return false;
+				return HALT;
 			}
 		}
 	}
@@ -5044,6 +5083,11 @@ protected boolean resumeAfterRecovery() {
 public void setAssistIdentifier(char[] assistIdent){
 	((CompletionScanner)this.scanner).completionIdentifier = assistIdent;
 }
+
+protected void shouldStackAssistNode() {
+	this.shouldStackAssistNode = true;
+}
+
 public  String toString() {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append("elementKindStack : int[] = {"); //$NON-NLS-1$
@@ -5070,7 +5114,15 @@ protected void updateRecoveryState() {
 
 	/* may be able to retrieve completionNode as an orphan, and then attach it */
 	completionIdentifierCheck();
+	// attachOrphanCompletionNode pops various stacks to construct astNodeParent and enclosingNode. This does not gel well with extended recovery.
+	CommitRollbackParser parser = null;
+	if (lastIndexOfElement(K_LAMBDA_EXPRESSION_DELIMITER) >= 0) {
+		parser = createSnapShotParser();
+		parser.copyState(this);
+	}
 	attachOrphanCompletionNode();
+	if (parser != null)
+		this.copyState(parser);
 
 	// if an assist node has been found and a recovered element exists,
 	// mark enclosing blocks as to be preserved

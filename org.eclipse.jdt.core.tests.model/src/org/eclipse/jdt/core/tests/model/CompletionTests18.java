@@ -115,12 +115,12 @@ public void test003() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			// INTERIM RESULTS, WILL FAIL ONCE ELIDED TYPE IS CORRECTLY INFERRED.
 			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 35}\n" +
 			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 35}\n" +
 			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 35}\n" +
 			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 35}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 35}\n" +
+			"length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, 35}\n" +
 			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 35}\n" +
 			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 35}\n" +
 			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 35}\n" +
@@ -331,12 +331,12 @@ public void test009() throws JavaModelException {
 			"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 27}",
 			requestor.getResults());
 }
-public void _test010() throws JavaModelException {
+public void test010() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
 			"interface I {\n" +
-			"  String foo(String x, Integer i); \n" +
+			"  String foo(X x, X i); \n" +
 			"} \n" +
 			"public class X  {\n" +
 			"	static void goo(I i) {\n" +
@@ -358,29 +358,20 @@ public void _test010() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"[POTENTIAL_METHOD_DECLARATION]{, LX;, ()V, , null, 14}\n" +
-			"abstract[KEYWORD]{abstract, null, null, abstract, null, 24}\n" +
-			"class[KEYWORD]{class, null, null, class, null, 24}\n" +
-			"enum[KEYWORD]{enum, null, null, enum, null, 24}\n" +
-			"final[KEYWORD]{final, null, null, final, null, 24}\n" +
-			"interface[KEYWORD]{interface, null, null, interface, null, 24}\n" +
-			"native[KEYWORD]{native, null, null, native, null, 24}\n" +
-			"private[KEYWORD]{private, null, null, private, null, 24}\n" +
-			"protected[KEYWORD]{protected, null, null, protected, null, 24}\n" +
-			"public[KEYWORD]{public, null, null, public, null, 24}\n" +
-			"static[KEYWORD]{static, null, null, static, null, 24}\n" +
-			"strictfp[KEYWORD]{strictfp, null, null, strictfp, null, 24}\n" +
-			"synchronized[KEYWORD]{synchronized, null, null, synchronized, null, 24}\n" +
-			"transient[KEYWORD]{transient, null, null, transient, null, 24}\n" +
-			"volatile[KEYWORD]{volatile, null, null, volatile, null, 24}\n" +
-			"I[TYPE_REF]{I, , LI;, null, null, 27}\n" +
-			"J[TYPE_REF]{J, , LJ;, null, null, 27}\n" +
-			"X[TYPE_REF]{X, , LX;, null, null, 27}\n" +
-			"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 27}\n" +
-			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 27}\n" +
-			"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, 27}\n" +
-			"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 27}\n" +
-			"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 27}",
+			"goo[METHOD_REF]{goo(), LX;, (LI;)V, goo, (i), 24}\n" +
+			"goo[METHOD_REF]{goo(), LX;, (Ljava.lang.String;)V, goo, (s), 24}\n" +
+			"main[METHOD_REF]{main(), LX;, ([Ljava.lang.String;)V, main, (args), 24}\n" +
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 35}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 35}\n" +
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 35}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 35}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 35}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 35}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 35}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 35}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 35}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 35}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 35}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
@@ -570,7 +561,7 @@ public void test017() throws JavaModelException { // ensure higher relevance for
 			"	public static void main(String[] args) {\n" +
 			"			I i = () -> {\n" +
 			"               xyz\n" +
-			"			}\n" +
+			"	}\n" +
 			"	}\n" +
 			"}\n");
 
@@ -596,5 +587,236 @@ public void test017() throws JavaModelException { // ensure higher relevance for
 			"	xField {key=LX;.xField)LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],\n" +
 			"	goo() {key=LX;.goo()LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],\n" +
 			"}" , requestor.getContext());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422468, [1.8][assist] Code assist issues with type elided lambda parameters
+public void test018() throws JavaModelException { // computing visible elements in lambda scope.
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"	void foo(String x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static X xField;\n" +
+			"	static X goo(String s) {\n" +
+			"       return null;\n" +
+			"	}\n" +
+			"	static void goo(I i) {\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo((xyz) -> {\n" +
+			"			System.out.println(xyz.);\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	requestor.setRequireExtendedContext(true);
+	requestor.setComputeEnclosingElement(false);
+	requestor.setComputeVisibleElements(true);
+	requestor.setAssignableType("LX;");
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "xyz.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertEquals("completion offset=233\n" +
+			"completion range=[233, 232]\n" +
+			"completion token=\"\"\n" +
+			"completion token kind=TOKEN_KIND_NAME\n" +
+			"expectedTypesSignatures=null\n" +
+			"expectedTypesKeys=null\n" +
+			"completion token location=UNKNOWN\n" +
+			"visibleElements={\n" +
+			"	xField {key=LX;.xField)LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],\n" +
+			"	goo(String) {key=LX;.goo(Ljava/lang/String;)LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],\n" +
+			"}" , requestor.getContext());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422468, [1.8][assist] Code assist issues with type elided lambda parameters
+public void test018a() throws JavaModelException { // computing visible elements in lambda scope.
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"	void foo(X x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static X xField;\n" +
+			"	static X goo(String s) {\n" +
+			"       return null;\n" +
+			"	}\n" +
+			"	static void goo(I i) {\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"       X xLocal = null;\n" +
+			"       args = null;\n" +
+			"       if (args != null) {\n" +
+			"           xField = null;\n" +
+			"       else \n" +
+			"           xField = null;\n" +
+			"       while (true);\n" +
+			"		goo((xyz) -> {\n" +
+			"           X xLambdaLocal = null;\n" +
+			"			System.out.println(xyz.)\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	requestor.setRequireExtendedContext(true);
+	requestor.setComputeEnclosingElement(false);
+	requestor.setComputeVisibleElements(true);
+	requestor.setAssignableType("LX;");
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "xyz.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertEquals(
+			"completion offset=419\n" +
+			"completion range=[419, 418]\n" +
+			"completion token=\"\"\n" +
+			"completion token kind=TOKEN_KIND_NAME\n" +
+			"expectedTypesSignatures=null\n" +
+			"expectedTypesKeys=null\n" +
+			"completion token location=UNKNOWN\n" +
+			"visibleElements={\n" +
+			"	xLocal [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]]],\n" +
+	        "	xLambdaLocal [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]]],\n" +
+			"	xField {key=LX;.xField)LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],\n" +
+			"	goo(String) {key=LX;.goo(Ljava/lang/String;)LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],\n" +
+			"}" , requestor.getContext());
+}
+public void testUnspecifiedReference() throws JavaModelException { // ensure completion on ambiguous reference works and shows both types and names.
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"    void doit(X x);\n" +
+			"}\n" +
+			"public class X { \n" +
+			"	static void goo(I i) {\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo((StringParameter) -> {\n" +
+			"			Str\n" +
+			"		});\n" +
+			"	} \n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Str";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, null, null, [155, 158], 27}\n" +
+                  "StringParameter[LOCAL_VARIABLE_REF]{StringParameter, null, LX;, null, null, StringParameter, null, [155, 158], 27}", requestor.getResults());
+}
+public void testBrokenMethodCall() throws JavaModelException { // ensure completion works when the containing call is not terminated properly.
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"    void doit(X x);\n" +
+			"}\n" +
+			"public class X { \n" +
+			"	static void goo(I i) {\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo((StringParameter) -> {\n" +
+			"			Str\n" +
+			"		})\n" +
+			"	} \n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Str";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, null, null, [155, 158], 27}\n" +
+                  "StringParameter[LOCAL_VARIABLE_REF]{StringParameter, null, LX;, null, null, StringParameter, null, [155, 158], 27}", requestor.getResults());
+}
+public void testExpressionBody() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"    void doit(X x);\n" +
+			"}\n" +
+			"public class X { \n" +
+			"   void foo() {}\n" +
+			"   int field;\n" +
+			"	static void goo(I i) {\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo((xyz) -> xyz.)\n" +
+			"	} \n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "xyz.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("goo[METHOD_REF]{goo(), LX;, (LI;)V, null, null, goo, (i), [173, 173], 24}\n" +
+			"main[METHOD_REF]{main(), LX;, ([Ljava.lang.String;)V, null, null, main, (args), [173, 173], 24}\n" +
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, null, null, clone, null, [173, 173], 35}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, null, null, equals, (obj), [173, 173], 35}\n" +
+			"field[FIELD_REF]{field, LX;, I, null, null, field, null, [173, 173], 35}\n" +
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, null, null, finalize, null, [173, 173], 35}\n" +
+			"foo[METHOD_REF]{foo(), LX;, ()V, null, null, foo, null, [173, 173], 35}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, null, null, getClass, null, [173, 173], 35}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, null, null, hashCode, null, [173, 173], 35}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, null, null, notify, null, [173, 173], 35}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, null, null, notifyAll, null, [173, 173], 35}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [173, 173], 35}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, null, null, wait, null, [173, 173], 35}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, null, null, wait, (millis), [173, 173], 35}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, null, null, wait, (millis, nanos), [173, 173], 35}", requestor.getResults());
+}
+public void testExpressionBody2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"    void doit(X x);\n" +
+			"}\n" +
+			"public class X { \n" +
+			"   void foo() {}\n" +
+			"   int field;\n" +
+			"	static void goo(I i) {\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		  goo(xyz -> xyz.)\n" +
+			"	} \n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "xyz.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("goo[METHOD_REF]{goo(), LX;, (LI;)V, null, null, goo, (i), [173, 173], 24}\n" +
+			"main[METHOD_REF]{main(), LX;, ([Ljava.lang.String;)V, null, null, main, (args), [173, 173], 24}\n" +
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, null, null, clone, null, [173, 173], 35}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, null, null, equals, (obj), [173, 173], 35}\n" +
+			"field[FIELD_REF]{field, LX;, I, null, null, field, null, [173, 173], 35}\n" +
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, null, null, finalize, null, [173, 173], 35}\n" +
+			"foo[METHOD_REF]{foo(), LX;, ()V, null, null, foo, null, [173, 173], 35}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, null, null, getClass, null, [173, 173], 35}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, null, null, hashCode, null, [173, 173], 35}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, null, null, notify, null, [173, 173], 35}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, null, null, notifyAll, null, [173, 173], 35}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [173, 173], 35}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, null, null, wait, null, [173, 173], 35}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, null, null, wait, (millis), [173, 173], 35}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, null, null, wait, (millis, nanos), [173, 173], 35}", requestor.getResults());
 }
 }

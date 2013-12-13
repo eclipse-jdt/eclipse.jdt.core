@@ -61,14 +61,6 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 	return super.add(methodDeclaration, bracketBalanceValue);
 }
 /*
- * Record a Lambda declaration
- */
-public RecoveredElement add(LambdaExpression expression, int bracketBalanceValue) {
-	RecoveredLambdaExpression element = new RecoveredLambdaExpression(expression, this, bracketBalanceValue);
-	attach(element);
-	return element;
-}
-/*
  * Record a nested block declaration
  */
 public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValue) {
@@ -162,6 +154,10 @@ public RecoveredElement add(Statement stmt, int bracketBalanceValue) {
  * Record a statement declaration
  */
 public RecoveredElement add(Statement stmt, int bracketBalanceValue, boolean delegatedByParent) {
+	
+	if (stmt instanceof LambdaExpression) // lambdas are recovered up to the containing statement anyways.
+		return this;
+	
 	resetPendingModifiers();
 
 	/* do not consider a nested block starting passed the block end (if set)
@@ -295,6 +291,11 @@ public Block updatedBlock(int depth, Set knownTypes){
 
 	// if block was not marked to be preserved or empty, then ignore it
 	if (!this.preserveContent || this.statementCount == 0) return null;
+	
+	/* If this block stands for the lambda body, trash the contents. Lambda expressions are recovered as part of the enclosing statement.
+	   We still have left in a block here to make sure that contained elements can be trapped and tossed out.
+	*/
+	if (this.blockDeclaration.lambdaBody) return null; 
 
 	Statement[] updatedStatements = new Statement[this.statementCount];
 	int updatedCount = 0;
@@ -340,7 +341,7 @@ public Block updatedBlock(int depth, Set knownTypes){
 		Statement updatedStatement = this.statements[i].updatedStatement(depth, knownTypes);
 		if (updatedStatement != null){
 			updatedStatements[updatedCount++] = updatedStatement;
-
+			
 			if (updatedStatement instanceof LocalDeclaration) {
 				LocalDeclaration localDeclaration = (LocalDeclaration) updatedStatement;
 				if(localDeclaration.declarationSourceEnd > lastEnd) {
@@ -431,6 +432,11 @@ public Statement updateStatement(int depth, Set knownTypes){
 
 	// if block was closed or empty, then ignore it
 	if (this.blockDeclaration.sourceEnd != 0 || this.statementCount == 0) return null;
+	
+	/* If this block stands for the lambda body, trash the contents. Lambda expressions are recovered as part of the enclosing statement.
+	   We still have left in a block here to make sure that contained elements can be trapped and tossed out.
+	*/
+	if (this.blockDeclaration.lambdaBody) return null; 
 
 	Statement[] updatedStatements = new Statement[this.statementCount];
 	int updatedCount = 0;

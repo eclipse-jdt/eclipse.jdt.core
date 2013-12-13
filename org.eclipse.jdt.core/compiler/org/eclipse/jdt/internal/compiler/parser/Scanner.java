@@ -19,6 +19,7 @@ package org.eclipse.jdt.internal.compiler.parser;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -4241,11 +4242,13 @@ private static final class Goal {
 	static int IntersectionCastRule = 0;
 	static int ReferenceExpressionRule = 0;
 	static int VarargTypeAnnotationsRule  = 0;
+	static int BlockStatementoptRule = 0;
 	
 	static Goal LambdaParameterListGoal;
 	static Goal IntersectionCastGoal;
 	static Goal VarargTypeAnnotationGoal;
 	static Goal ReferenceExpressionGoal;
+	static Goal BlockStatementoptGoal;
 	
 	static {
 		
@@ -4261,12 +4264,17 @@ private static final class Goal {
 			else 
 			if ("TypeAnnotations".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				VarargTypeAnnotationsRule = i;
+			else
+			if ("BlockStatementopt".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+				BlockStatementoptRule = i;
+					
 		}
 		
 		LambdaParameterListGoal =  new Goal(TokenNameARROW, new int[] { TokenNameARROW }, LambdaParameterListRule);
 		IntersectionCastGoal =     new Goal(TokenNameLPAREN, followSetOfCast(), IntersectionCastRule);
 		VarargTypeAnnotationGoal = new Goal(TokenNameAT, new int[] { TokenNameELLIPSIS }, VarargTypeAnnotationsRule);
 		ReferenceExpressionGoal =  new Goal(TokenNameLESS, new int[] { TokenNameCOLON_COLON }, ReferenceExpressionRule);
+		BlockStatementoptGoal =    new Goal(TokenNameLBRACE, new int [0], BlockStatementoptRule);
 	}
 
 
@@ -4279,10 +4287,13 @@ private static final class Goal {
 	boolean hasBeenReached(int act, int token) {
 		/*
 		System.out.println("[Goal = " + Parser.name[Parser.non_terminal_index[Parser.lhs[this.rule]]] + "]  " + "Saw: " + Parser.name[Parser.non_terminal_index[Parser.lhs[act]]] + "::" +  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				Parser.name[Parser.terminal_index[token]]);
+					Parser.name[Parser.terminal_index[token]]);
 		*/
 		if (act == this.rule) {
-			for (int i = 0, length = this.follow.length; i < length; i++)
+			final int length = this.follow.length;
+			if (length == 0)
+				return true;
+			for (int i = 0; i < length; i++)
 				if (this.follow[i] == token)
 					return true;
 		}
@@ -4332,7 +4343,7 @@ private static final class VanguardParser extends Parser {
 				} else if (act > ERROR_ACTION) { /* shift-reduce */
 					this.unstackedAct = act;
 					try {
-						this.currentToken = this.scanner.getNextToken();
+					this.currentToken = this.scanner.getNextToken();
 					} finally {
 						this.unstackedAct = ERROR_ACTION;
 					}
@@ -4341,7 +4352,7 @@ private static final class VanguardParser extends Parser {
 				    if (act < ACCEPT_ACTION) { /* shift */
 				    	this.unstackedAct = act;
 						try {
-							this.currentToken = this.scanner.getNextToken();
+				    	this.currentToken = this.scanner.getNextToken();
 						} finally {
 							this.unstackedAct = ERROR_ACTION;
 						}
@@ -4492,5 +4503,99 @@ private int disambiguatedToken(int token) {
 		}
 	}
 	return token;
+}
+
+protected boolean isAtAssistIdentifier() {
+	return false;
+}
+
+// Position the scanner at the next block statement and return the start token. We recognize empty statements.
+public int fastForward(Statement unused) {
+	
+	int token;
+
+	while (true) {
+		try {
+			token = getNextToken();
+		} catch (InvalidInputException e) {
+			return TokenNameEOF;
+		}
+		/* FOLLOW map of BlockStatement, since the non-terminal is recursive is a super set of its own FIRST set. 
+	   	   We use FOLLOW rather than FIRST since we want to recognize empty statements. i.e if (x > 10) {  x = 0 }
+		*/
+		switch(token) {
+			case TokenNameIdentifier:
+				if (isAtAssistIdentifier()) // do not fast forward past the assist identifier ! We don't handle collections as of now.
+					return token;
+				//$FALL-THROUGH$
+			case TokenNameabstract:
+			case TokenNameassert:
+			case TokenNameboolean:
+			case TokenNamebreak:
+			case TokenNamebyte:
+			case TokenNamecase:
+			case TokenNamechar:
+			case TokenNameclass:
+			case TokenNamecontinue:
+			case TokenNamedefault:
+			case TokenNamedo:
+			case TokenNamedouble:
+			case TokenNameenum:
+			case TokenNamefalse:
+			case TokenNamefinal:
+			case TokenNamefloat:
+			case TokenNamefor:
+			case TokenNameif:
+			case TokenNameint:
+			case TokenNameinterface:
+			case TokenNamelong:
+			case TokenNamenative:
+			case TokenNamenew:
+			case TokenNamenull:
+			case TokenNameprivate:
+			case TokenNameprotected:
+			case TokenNamepublic:
+			case TokenNamereturn:
+			case TokenNameshort:
+			case TokenNamestatic:
+			case TokenNamestrictfp:
+			case TokenNamesuper:
+			case TokenNameswitch:
+			case TokenNamesynchronized:
+			case TokenNamethis:
+			case TokenNamethrow:
+			case TokenNametransient:
+			case TokenNametrue:
+			case TokenNametry:
+			case TokenNamevoid:
+			case TokenNamevolatile:
+			case TokenNamewhile:
+			case TokenNameIntegerLiteral: // ??!
+			case TokenNameLongLiteral:
+			case TokenNameFloatingPointLiteral:
+			case TokenNameDoubleLiteral:
+			case TokenNameCharacterLiteral:
+			case TokenNameStringLiteral:
+			case TokenNamePLUS_PLUS:
+			case TokenNameMINUS_MINUS:
+			case TokenNameLESS:
+			case TokenNameLPAREN:
+			case TokenNameLBRACE:
+			case TokenNameAT:
+			case TokenNameBeginLambda:
+			case TokenNameAT308:
+				if(getVanguardParser().parse(Goal.BlockStatementoptGoal) == VanguardParser.SUCCESS)
+					return token;
+				break;
+			case TokenNameSEMICOLON:
+			case TokenNameEOF:
+				return token;
+			case TokenNameRBRACE: // simulate empty statement.
+				ungetToken(token);
+				return TokenNameSEMICOLON;
+			default:
+				break;
+		}
+	}
 }
 }

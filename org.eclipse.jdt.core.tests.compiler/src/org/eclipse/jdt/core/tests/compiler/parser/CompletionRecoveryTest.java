@@ -1071,8 +1071,6 @@ public void test26() {
 		"        e.gc.setLineCap(<CompleteOnName:SWT.CAP_>);\n" + 
 		"      }\n" + 
 		"    };\n" + 
-		"    new ControlAdapter() {\n" + 
-		"    };\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:

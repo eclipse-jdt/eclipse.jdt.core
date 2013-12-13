@@ -40,7 +40,6 @@ import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
-import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
@@ -62,6 +61,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.parser.CommitRollbackParser;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -115,8 +115,10 @@ protected void attachOrphanCompletionNode(){
 		if (orphan instanceof Expression) {
 			buildMoreCompletionContext((Expression)orphan);
 		} else {
-			Statement statement = (Statement) orphan;
-			this.currentElement = this.currentElement.add(statement, 0);
+			if (lastIndexOfElement(K_LAMBDA_EXPRESSION_DELIMITER) < 0) { // lambdas are recovered up to the containing expression statement and will carry along the assist node anyways.
+				Statement statement = (Statement) orphan;
+				this.currentElement = this.currentElement.add(statement, 0);
+			}
 		}
 		this.currentToken = 0; // given we are not on an eof, we do not want side effects caused by looked-ahead token
 	}
@@ -176,12 +178,15 @@ private void buildMoreCompletionContext(Expression expression) {
 				break nextElement;
 		}
 	}
-	if(parentNode != null) {
-		this.currentElement = this.currentElement.add((Statement)parentNode, 0);
-	} else {
-		this.currentElement = this.currentElement.add((Statement)wrapWithExplicitConstructorCallIfNeeded(expression), 0);
-		if(this.lastCheckPoint < expression.sourceEnd) {
-			this.lastCheckPoint = expression.sourceEnd + 1;
+	// Do not add assist node/parent into the recovery system if we are inside a lambda. The lambda will be fully recovered including the containing statement and added.
+	if (lastIndexOfElement(K_LAMBDA_EXPRESSION_DELIMITER) < 0) {
+		if(parentNode != null) {
+			this.currentElement = this.currentElement.add((Statement)parentNode, 0);
+		} else {
+			this.currentElement = this.currentElement.add((Statement)wrapWithExplicitConstructorCallIfNeeded(expression), 0);
+			if(this.lastCheckPoint < expression.sourceEnd) {
+				this.lastCheckPoint = expression.sourceEnd + 1;
+			}
 		}
 	}
 }
@@ -1184,6 +1189,9 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
+protected CommitRollbackParser createSnapShotParser() {
+	return new SelectionParser(this.problemReporter);
+}
 public ImportReference createAssistImportReference(char[][] tokens, long[] positions, int mod){
 	return new SelectionOnImportReference(tokens, positions, mod);
 }
@@ -1413,28 +1421,6 @@ public CompilationUnitDeclaration parse(ICompilationUnit sourceUnit, Compilation
 	return super.parse(sourceUnit, compilationResult, -1, -1/*parse without reseting the scanner*/);
 }
 
-protected int resumeOnSyntaxError() {
-	
-	if (this.referenceContext instanceof CompilationUnitDeclaration)
-		return super.resumeOnSyntaxError();
-	
-	// Defer initial *triggered* recovery if we see a type elided lambda expression on the stack. 
-	if (this.assistNode != null && this.restartRecovery) {
-		this.lambdaNeedsClosure = false;
-		for (int i = this.astPtr; i >= 0; i--) {
-			if (this.astStack[i] instanceof LambdaExpression) {
-				LambdaExpression expression = (LambdaExpression) this.astStack[i];
-				if (expression.argumentsTypeElided()) {
-					this.restartRecovery = false; // will be restarted in when the containing expression statement or explicit constructor call is reduced.
-					this.lambdaNeedsClosure = true;
-					return RESUME;
-				}
-			}
-		}
-	}
-	return super.resumeOnSyntaxError();
-}
-
 /*
  * Reset context so as to resume to regular parse loop
  * If unable to reset for resuming, answers false.
@@ -1442,23 +1428,29 @@ protected int resumeOnSyntaxError() {
  * Move checkpoint location, reset internal stacks and
  * decide which grammar goal is activated.
  */
-protected boolean resumeAfterRecovery() {
+protected int resumeAfterRecovery() {
 
 	/* if reached assist node inside method body, but still inside nested type,
 		should continue in diet mode until the end of the method body */
 	if (this.assistNode != null
 		&& !(this.referenceContext instanceof CompilationUnitDeclaration)){
 		this.currentElement.preserveEnclosingBlocks();
+		if (requireExtendedRecovery()) {
+			if (this.unstackedAct != ERROR_ACTION) {
+				return RESUME;
+			}
+			return super.resumeAfterRecovery();
+		}
 		if (this.currentElement.enclosingType() == null) {
-			if(!(this.currentElement instanceof RecoveredType)) {
+			if (!(this.currentElement instanceof RecoveredType)) {
 				resetStacks();
-				return false;
-	}
+				return HALT;
+			}
 
-			RecoveredType recoveredType = (RecoveredType)this.currentElement;
-			if(recoveredType.typeDeclaration != null && recoveredType.typeDeclaration.allocation == this.assistNode){
+			RecoveredType recoveredType = (RecoveredType) this.currentElement;
+			if (recoveredType.typeDeclaration != null && recoveredType.typeDeclaration.allocation == this.assistNode) {
 				resetStacks();
-				return false;
+				return HALT;
 			}
 		}
 	}
@@ -1504,15 +1496,16 @@ protected Argument typeElidedArgument() {
 	char[] identifierName = this.identifierStack[this.identifierPtr];
 	long namePositions = this.identifierPositionStack[this.identifierPtr--];
 
-	Argument arg =
+	Argument argument =
 		new SelectionOnArgumentName(
 			identifierName,
 			namePositions,
 			null, // elided type
 			ClassFileConstants.AccDefault,
 			true);
-	arg.declarationSourceStart = (int) (namePositions >>> 32);
-	return arg;
+	argument.declarationSourceStart = (int) (namePositions >>> 32);
+	this.assistNode = argument;
+	return argument;
 }
 public  String toString() {
 	String s = Util.EMPTY_STRING;

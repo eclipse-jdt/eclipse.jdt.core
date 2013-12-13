@@ -32,6 +32,10 @@ public SelectionScanner(long sourceLevel) {
 	super(false /*comment*/, false /*whitespace*/, false /*nls*/, sourceLevel, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 }
 
+protected boolean isAtAssistIdentifier() {
+	return this.selectionStart == this.startPosition && this.selectionEnd == this.currentPosition - 1;
+}
+
 public char[] getCurrentIdentifierSource() {
 
 	if (this.selectionIdentifier == null){
