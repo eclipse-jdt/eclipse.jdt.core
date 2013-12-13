@@ -461,7 +461,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			
 			if (this.originalValueIfTrueType.kind() == Binding.POLY_TYPE || this.originalValueIfFalseType.kind() == Binding.POLY_TYPE) {
 				this.isPolyExpression = true;
-				return this.resolvedType = new PolyTypeBinding(this);
+				return new PolyTypeBinding(this);
 			}
 		} else {
 			if (this.originalValueIfTrueType.kind() == Binding.POLY_TYPE)

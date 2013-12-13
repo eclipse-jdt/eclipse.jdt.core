@@ -309,7 +309,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);
 			if (isDiamond && this.typeExpected == null && this.expressionContext == INVOCATION_CONTEXT && compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
 				if (this.resolvedType != null && this.resolvedType.isValidBinding())
-					return this.resolvedType = new PolyTypeBinding(this);
+					return new PolyTypeBinding(this);
 			}
 		}
 	} else {
