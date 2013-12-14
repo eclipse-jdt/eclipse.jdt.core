@@ -33569,7 +33569,6 @@ public void test1009() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061 - variation
-// FAIL FIXME: javac rejects (correctly? how?), see http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000443.html
 public void test1010() {
 	this.runNegativeTest(
 		new String[] {
@@ -33925,7 +33924,6 @@ public void test1016() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061 - variation
-// FAIL FIXME: javac rejects (correctly? how?), see http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000443.html
 public void test1017() {
 	this.runNegativeTest(
 		new String[] {
@@ -40101,7 +40099,6 @@ public void test1156() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=202624
-// FAIL FIXME: javac rejects (correctly? how?), see http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000443.html
 public void test1157() {
 	this.runNegativeTest(
 		new String[] {

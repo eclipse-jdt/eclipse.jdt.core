@@ -484,7 +484,7 @@ class BoundSet {
 		
 		// α = S and α = T imply ⟨S = T⟩
 		if (boundS.left == boundT.left) //$IDENTITY-COMPARISON$ InferenceVariable
-			return new ConstraintTypeFormula(boundS.right, boundT.right, ReductionResult.SAME);
+			return new ConstraintTypeFormula(boundS.right, boundT.right, ReductionResult.SAME, boundS.isSoft||boundT.isSoft);
 
 		// match against more shapes:
 		ConstraintFormula newConstraint;
@@ -505,7 +505,7 @@ class BoundSet {
 			InferenceVariable alpha = boundLeft.left;
 			TypeBinding left = boundRight.left; // no substitution since S inference variable and (S != α) per precondition
 			TypeBinding right = boundRight.right.substituteInferenceVariable(alpha, u);
-			return new ConstraintTypeFormula(left, right, ReductionResult.SAME);
+			return new ConstraintTypeFormula(left, right, ReductionResult.SAME, boundLeft.isSoft||boundRight.isSoft);
 		}
 		return null;
 	}
@@ -516,18 +516,18 @@ class BoundSet {
 		InferenceVariable alpha = boundS.left;
 		TypeBinding s = boundS.right;
 		if (alpha == boundT.left) //$IDENTITY-COMPARISON$ InferenceVariable
-			return new ConstraintTypeFormula(s, boundT.right, boundT.relation);
+			return new ConstraintTypeFormula(s, boundT.right, boundT.relation, boundT.isSoft||boundS.isSoft);
 		if (alpha == boundT.right) //$IDENTITY-COMPARISON$ InferenceVariable
-			return new ConstraintTypeFormula(boundT.right, s, boundT.relation);
+			return new ConstraintTypeFormula(boundT.right, s, boundT.relation, boundT.isSoft||boundS.isSoft);
 
 		if (boundS.right instanceof InferenceVariable) {
 			// reverse:
 			alpha = (InferenceVariable) boundS.right;
 			s = boundS.left;
 			if (alpha == boundT.left) //$IDENTITY-COMPARISON$ InferenceVariable
-				return new ConstraintTypeFormula(s, boundT.right, boundT.relation);
+				return new ConstraintTypeFormula(s, boundT.right, boundT.relation, boundT.isSoft||boundS.isSoft);
 			if (alpha == boundT.right) //$IDENTITY-COMPARISON$ InferenceVariable
-				return new ConstraintTypeFormula(boundT.right, s, boundT.relation);			
+				return new ConstraintTypeFormula(boundT.right, s, boundT.relation, boundT.isSoft||boundS.isSoft);			
 		}
 		
 		//  α = U and S <: T imply ⟨S[α:=U] <: T[α:=U]⟩ 
@@ -535,7 +535,7 @@ class BoundSet {
 		if (u.isProperType(true)) {
 			TypeBinding left = (alpha == boundT.left) ? u : boundT.left; //$IDENTITY-COMPARISON$ InferenceVariable
 			TypeBinding right = boundT.right.substituteInferenceVariable(alpha, u);
-			return new ConstraintTypeFormula(left, right, boundT.relation);
+			return new ConstraintTypeFormula(left, right, boundT.relation, boundT.isSoft||boundS.isSoft);
 		}
 		return null;
 	}
@@ -545,13 +545,13 @@ class BoundSet {
 		InferenceVariable alpha = boundS.left;
 		if (alpha == boundT.left) //$IDENTITY-COMPARISON$ InferenceVariable
 			//  α >: S and α <: T imply ⟨S <: T⟩
-			return new ConstraintTypeFormula(boundS.right, boundT.right, ReductionResult.SUBTYPE);
+			return new ConstraintTypeFormula(boundS.right, boundT.right, ReductionResult.SUBTYPE, boundT.isSoft||boundS.isSoft);
 		if (boundS.right instanceof InferenceVariable) {
 			// try reverse:
 			alpha = (InferenceVariable) boundS.right;
 			if (alpha == boundT.right) //$IDENTITY-COMPARISON$ InferenceVariable
 				// S :> α and T <: α  imply ⟨S :> T⟩
-				return new ConstraintTypeFormula(boundS.left, boundT.left, ReductionResult.SUPERTYPE);
+				return new ConstraintTypeFormula(boundS.left, boundT.left, ReductionResult.SUPERTYPE, boundT.isSoft||boundS.isSoft);
 		}
 		return null;
 	}
@@ -560,10 +560,10 @@ class BoundSet {
 		//  more permutations of: S <: α and α <: T imply ⟨S <: T⟩
 		if (boundS.left == boundT.right) //$IDENTITY-COMPARISON$ InferenceVariable
 			// came in as: α REL S and T REL α imply ⟨T REL S⟩ 
-			return new ConstraintTypeFormula(boundT.left, boundS.right, boundS.relation);
+			return new ConstraintTypeFormula(boundT.left, boundS.right, boundS.relation, boundT.isSoft||boundS.isSoft);
 		if (boundS.right == boundT.left) //$IDENTITY-COMPARISON$ InferenceVariable
 			// came in as: S REL α and α REL T imply ⟨S REL T⟩ 
-			return new ConstraintTypeFormula(boundS.left, boundT.right, boundS.relation);		
+			return new ConstraintTypeFormula(boundS.left, boundT.right, boundS.relation, boundT.isSoft||boundS.isSoft);		
 		return null;
 	}
 

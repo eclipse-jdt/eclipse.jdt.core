@@ -43,12 +43,20 @@ import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18.InvocationRec
 class ConstraintExpressionFormula extends ConstraintFormula {
 	Expression left;
 
+	// this flag contributes to the workaround controlled by InferenceContext18.ARGUMENT_CONSTRAINTS_ARE_SOFT:
+	boolean isSoft;
+
 	ConstraintExpressionFormula(Expression expression, TypeBinding type, int relation) {
 		this.left = expression;
 		this.right = type;
 		this.relation = relation;
 	}
 	
+	ConstraintExpressionFormula(Expression expression, TypeBinding type, int relation, boolean isSoft) {
+		this(expression, type, relation);
+		this.isSoft = isSoft;
+	}
+
 	public Object reduce(InferenceContext18 inferenceContext) throws InferenceFailureException {
 		// JLS 18.2.1
 		if (this.right.isProperType(true)) {
@@ -68,7 +76,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			TypeBinding exprType = this.left.resolvedType;
 			if (exprType == null || !exprType.isValidBinding())
 				return FALSE;
-			return new ConstraintTypeFormula(exprType, this.right, COMPATIBLE);
+			return new ConstraintTypeFormula(exprType, this.right, COMPATIBLE, this.isSoft);
 		} else {
 			// shapes of poly expressions (18.2.1)
 			// - parenthesized expression : these are transparent in our AST
@@ -97,8 +105,8 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			} else if (this.left instanceof ConditionalExpression) {
 				ConditionalExpression conditional = (ConditionalExpression) this.left;
 				return new ConstraintFormula[] {
-					new ConstraintExpressionFormula(conditional.valueIfTrue, this.right, this.relation),
-					new ConstraintExpressionFormula(conditional.valueIfFalse, this.right, this.relation)
+					new ConstraintExpressionFormula(conditional.valueIfTrue, this.right, this.relation, this.isSoft),
+					new ConstraintExpressionFormula(conditional.valueIfFalse, this.right, this.relation, this.isSoft)
 				};
 			} else if (this.left instanceof LambdaExpression) {
 				LambdaExpression lambda = (LambdaExpression) this.left;

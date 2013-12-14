@@ -34,6 +34,13 @@ public class InferenceContext18 {
 
 	/** to conform with javac regarding https://bugs.openjdk.java.net/browse/JDK-8026527 */
 	static final boolean SIMULATE_BUG_JDK_8026527 = true;
+	/**
+	 * Detail flag to control the extent of {@link #SIMULATE_BUG_JDK_8026527}.
+	 * A setting of 'false' implements the advice from http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000447.html
+	 * i.e., raw types are not considered as compatible in constraints/bounds derived from invocation arguments,
+	 * but only for constraints derived from type variable bounds.
+	 */
+	static final boolean ARGUMENT_CONSTRAINTS_ARE_SOFT = false;
 
 	InferenceVariable[] inferenceVariables;
 	BoundSet currentBounds;
@@ -124,14 +131,14 @@ public class InferenceContext18 {
 		for (int i = 0; i < len; i++) {
 			if (this.invocationArguments[i].isPertinentToApplicability(parameters[i], method)) {
 				TypeBinding thetaF = substitute(parameters[i]);
-				this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.COMPATIBLE);
+				this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT);
 			}
 		}
 		if (checkVararg && varArgsType instanceof ArrayBinding) {
 			TypeBinding thetaF = substitute(((ArrayBinding) varArgsType).elementsType());
 			for (int i = len; i < this.invocationArguments.length; i++) {
 				if (this.invocationArguments[i].isPertinentToApplicability(varArgsType, method)) {
-					this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.COMPATIBLE);
+					this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT);
 				}
 			}
 		}
@@ -246,7 +253,7 @@ public class InferenceContext18 {
 					TypeBinding substF = substitute(fsi);
 					// For all i (1 ≤ i ≤ k), if ei is not pertinent to applicability, the set contains ⟨ei → θ Fi⟩.
 					if (!arguments[i].isPertinentToApplicability(fsi, method)) {
-						c.add(new ConstraintExpressionFormula(arguments[i], substF, ReductionResult.COMPATIBLE));
+						c.add(new ConstraintExpressionFormula(arguments[i], substF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT));
 					}
 					c.add(new ConstraintExceptionFormula(arguments[i], substF));
 				}

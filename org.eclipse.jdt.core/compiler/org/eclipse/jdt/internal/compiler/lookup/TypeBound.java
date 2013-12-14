@@ -21,9 +21,12 @@ public class TypeBound extends ReductionResult {
 	
 	InferenceVariable left;
 	
+	// this flag contributes to the workaround controlled by InferenceContext18.ARGUMENT_CONSTRAINTS_ARE_SOFT:
+	boolean isSoft;
+	
 	static TypeBound createBoundOrDependency(InferenceContext18 context, TypeBinding type, InferenceVariable variable) {
         // Part of JLS8 sect 18.1.3:
-		return new TypeBound(variable, context.substitute(type), SUBTYPE);
+		return new TypeBound(variable, context.substitute(type), SUBTYPE, true);
 	}
 
 	/** Create a true type bound or a dependency. */
@@ -31,6 +34,13 @@ public class TypeBound extends ReductionResult {
 		this.left = inferenceVariable;
 		this.right = typeBinding;
 		this.relation = relation;
+	}
+	
+	TypeBound(InferenceVariable inferenceVariable, TypeBinding typeBinding, int relation, boolean isSoft) {
+		this.left = inferenceVariable;
+		this.right = typeBinding;
+		this.relation = relation;
+		this.isSoft = isSoft;
 	}
 
 
