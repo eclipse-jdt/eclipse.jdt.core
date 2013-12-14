@@ -559,16 +559,20 @@ public class InferenceContext18 {
 			if (glbs == null)
 				return false;
 			// for deterministic results sort this array by id:
-			Arrays.sort(glbs, new Comparator() {
-				public int compare(Object o1, Object o2) {
-					int i1 = ((TypeBinding)o1).id, i2 = ((TypeBinding)o2).id; 
-					return (i1>i2 ? -1 : (i1==i2 ? 0 : 1));
-				}
-			});
+			sortTypes(glbs);
 			if (!typeVariable.setUpperBounds(glbs, this.object))
 				return false;
 		}
 		return true;
+	}
+
+	static void sortTypes(TypeBinding[] types) {
+		Arrays.sort(types, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				int i1 = ((TypeBinding)o1).id, i2 = ((TypeBinding)o2).id; 
+				return (i1<i2 ? -1 : (i1==i2 ? 0 : 1));
+			}
+		});
 	}
 
 	/** 

@@ -45,7 +45,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test1031" };
-//		TESTS_NUMBERS = new int[] { 593, 701, 746, 848, 953, 985, 1029, 1136, 1227, 1295, 1341 };
+//		TESTS_NUMBERS = new int[] { 470, 627 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -14381,7 +14381,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83225
-	// FAIL ERRMSG: random order (intermittent)
 	public void test0470() {
 		this.runNegativeTest(
 			new String[] {
@@ -19664,7 +19663,7 @@ public void test0617() {
     		"Incompatible conditional operand types X.B<X.A> and X.C\n" +
     		"----------\n");
 	}
-	// FAIL ERRMSG (random order) (intermittent)
+
 	public void test0627() {
 	    this.runNegativeTest(
             new String[] {
@@ -28580,7 +28579,6 @@ public void test0880() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369 - variation
-// FAIL ERRMSG (type display?)
 public void test0881() {
 	this.runNegativeTest(
 		new String[] {

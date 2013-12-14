@@ -79,6 +79,7 @@ class BoundSet {
 				return Binding.NO_TYPES;
 			if (i < boundTypes.length)
 				System.arraycopy(boundTypes, 0, boundTypes=new TypeBinding[i], 0, i);
+			InferenceContext18.sortTypes(boundTypes);
 			return boundTypes;
 		}
 		// pre: this.subBounds != null
@@ -105,6 +106,7 @@ class BoundSet {
 				return new TypeBinding[] { simpleUpper };
 			if (i < rights.length)
 				System.arraycopy(rights, 0, rights=new ReferenceBinding[i], 0, i);
+			InferenceContext18.sortTypes(rights);
 			return rights;
 		}
 		public boolean hasDependency(InferenceVariable beta) {

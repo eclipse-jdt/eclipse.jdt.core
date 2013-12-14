@@ -2723,7 +2723,11 @@ public void test366131b() {
 		"4. WARNING in X.java (at line 13)\n" + 
 		"	return castTo((Class) null).containsNC((Comparable) null);\n" + 
 		"	              ^^^^^^^^^^^^\n" + 
-		"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Number&Comparable<? super Number&Comparable<? super N>>>\n" + 
+		(this.complianceLevel < ClassFileConstants.JDK1_8 ?
+		"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Number&Comparable<? super Number&Comparable<? super N>>>\n"
+		:
+		"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Comparable<? super Comparable<? super N>&Number>&Number>\n"
+		) +
 		"----------\n" + 
 		"5. WARNING in X.java (at line 13)\n" + 
 		"	return castTo((Class) null).containsNC((Comparable) null);\n" + 
