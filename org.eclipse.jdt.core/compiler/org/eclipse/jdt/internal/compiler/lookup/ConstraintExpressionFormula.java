@@ -307,7 +307,6 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			}
 
 			ConstraintTypeFormula newConstraint = new ConstraintTypeFormula(inferenceContext.substitute(returnType), targetType, COMPATIBLE);
-System.out.println("INC: "+newConstraint);
 			if (!inferenceContext.reduceAndIncorporate(newConstraint))
 				return false;
 		}
