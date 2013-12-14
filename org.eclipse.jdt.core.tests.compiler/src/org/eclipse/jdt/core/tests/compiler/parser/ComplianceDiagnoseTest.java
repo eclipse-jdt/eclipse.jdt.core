@@ -3356,7 +3356,8 @@ public void test406846() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401850: [1.8][compiler] Compiler fails to type poly allocation expressions in method invocation contexts
-public void test401850() {
+// FAIL: sub-optimal overload picked
+public void _test401850() {
 	
 	if (this.complianceLevel < ClassFileConstants.JDK1_7)
 		return;

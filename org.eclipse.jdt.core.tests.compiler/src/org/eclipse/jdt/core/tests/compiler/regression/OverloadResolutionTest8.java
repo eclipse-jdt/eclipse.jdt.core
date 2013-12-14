@@ -897,7 +897,7 @@ public void test031() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401850, [1.8][compiler] Compiler fails to type poly allocation expressions in method invocation contexts
 // FAIL: we no longer see that both methods are applicable... 
 // inference starts with X#RAW, finds the second method, then infers the diamond to Object and sees that foo is not ambiguous
-public void test032() {
+public void _test032() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",

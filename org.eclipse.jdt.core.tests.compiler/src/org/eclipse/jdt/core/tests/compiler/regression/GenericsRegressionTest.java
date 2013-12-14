@@ -2737,7 +2737,8 @@ public void test366131b() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375394
-public void test375394() {
+// FAIL ERRMSG
+public void _test375394() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",

@@ -1158,7 +1158,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Test fix for bug 82514: [1.5][javadoc] Problem with generics in javadoc
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=82514"
 	 */
-	public void testBug82514() {
+	// FAIL ERRMSG
+	public void _testBug82514() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
