@@ -20,9 +20,11 @@ package org.eclipse.jdt.internal.compiler.lookup;
 public class CaptureBinding18 extends CaptureBinding {
 	
 	TypeBinding[] upperBounds;
+	private char[] originalName;
 
-	public CaptureBinding18(ReferenceBinding contextType, char[] sourceName, int captureID, LookupEnvironment environment) {
+	public CaptureBinding18(ReferenceBinding contextType, char[] sourceName, char[] originalName, int captureID, LookupEnvironment environment) {
 		super(contextType, sourceName, 0, captureID, environment);
+		this.originalName = originalName;
 	}
 	
 	public boolean setUpperBounds(TypeBinding[] upperBounds, ReferenceBinding javaLangObject) {
@@ -64,7 +66,7 @@ public class CaptureBinding18 extends CaptureBinding {
 	}
 
 	public TypeBinding clone(TypeBinding enclosingType) {
-		return new CaptureBinding18(this.sourceType, this.sourceName, this.captureID, this.environment);
+		return new CaptureBinding18(this.sourceType, this.sourceName, this.originalName, this.captureID, this.environment);
 	}
 
 	public MethodBinding[] getMethods(char[] selector) {
@@ -201,34 +203,56 @@ public class CaptureBinding18 extends CaptureBinding {
 	public boolean isProperType(boolean admitCapture18) {
 		return admitCapture18;
 	}
+
+	int recursionLevel = 0; // used to give a hint at recursive types without going into infinity
 	
 	public char[] readableName() {
 		if (this.lowerBound == null && this.firstBound != null) {
-			if (!this.inRecursiveFunction) {
+			if (this.recursionLevel < 2) {
 				try {
-					this.inRecursiveFunction = true;
+					this.recursionLevel ++;
+					if (this.upperBounds != null && this.upperBounds.length > 1) {
+						StringBuffer sb = new StringBuffer();
+						sb.append(this.upperBounds[0].readableName());
+						for (int i = 1; i < this.upperBounds.length; i++)
+							sb.append('&').append(this.upperBounds[i].readableName());
+						int len = sb.length();
+						char[] name = new char[len];
+						sb.getChars(0, len, name, 0);
+						return name;
+					}
 					return this.firstBound.readableName();
 				} finally {
-					this.inRecursiveFunction = false;
+					this.recursionLevel--;
 				}
-			} else {				
-				return this.firstBound.erasure().readableName();
+			} else {
+				return this.originalName;
 			}
 		}
 		return super.readableName();
 	}
-	
+
 	public char[] shortReadableName() {
 		if (this.lowerBound == null && this.firstBound != null) {
-			if (!this.inRecursiveFunction) {
+			if (this.recursionLevel < 2) {
 				try {
-					this.inRecursiveFunction = true;
+					this.recursionLevel++;
+					if (this.upperBounds != null && this.upperBounds.length > 1) {
+						StringBuffer sb = new StringBuffer();
+						sb.append(this.upperBounds[0].shortReadableName());
+						for (int i = 1; i < this.upperBounds.length; i++)
+							sb.append('&').append(this.upperBounds[i].shortReadableName());
+						int len = sb.length();
+						char[] name = new char[len];
+						sb.getChars(0, len, name, 0);
+						return name;
+					}
 					return this.firstBound.shortReadableName();
 				} finally {
-					this.inRecursiveFunction = false;
+					this.recursionLevel--;
 				}
 			} else {
-				return this.firstBound.erasure().shortReadableName();
+				return this.originalName;
 			}
 		}
 		return super.shortReadableName();

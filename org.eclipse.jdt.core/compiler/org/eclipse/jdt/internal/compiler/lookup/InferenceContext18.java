@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -545,7 +546,7 @@ public class InferenceContext18 {
 	/** For 18.4: "Let Z1, ..., Zn be fresh type variables" use capture bindings. */
 	private CaptureBinding18 freshCapture(InferenceVariable variable) {
 		char[] sourceName = CharOperation.concat("Z-".toCharArray(), variable.sourceName);
-		return new CaptureBinding18(this.scope.enclosingSourceType(), sourceName, this.captureId++, this.environment);
+		return new CaptureBinding18(this.scope.enclosingSourceType(), sourceName, variable.typeParameter.shortReadableName(), this.captureId++, this.environment);
 	}
 	// === ===
 	
@@ -557,6 +558,13 @@ public class InferenceContext18 {
 			TypeBinding[] glbs = Scope.greaterLowerBound(substitutedUpperBounds, this.scope, this.environment);
 			if (glbs == null)
 				return false;
+			// for deterministic results sort this array by id:
+			Arrays.sort(glbs, new Comparator() {
+				public int compare(Object o1, Object o2) {
+					int i1 = ((TypeBinding)o1).id, i2 = ((TypeBinding)o2).id; 
+					return (i1>i2 ? -1 : (i1==i2 ? 0 : 1));
+				}
+			});
 			if (!typeVariable.setUpperBounds(glbs, this.object))
 				return false;
 		}
