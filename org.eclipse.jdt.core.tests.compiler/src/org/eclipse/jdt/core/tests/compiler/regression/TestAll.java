@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contributions for
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 358903 - Filter practically unimportant resource leak warnings
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *								Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *								bug 407191 - [1.8] Binary access support for type annotations
@@ -146,6 +147,7 @@ public static Test suite() {
 	since_1_8.add(MethodParametersAttributeTest.class);
 	since_1_8.add(ClassFileReaderTest_1_8.class);
 	since_1_8.add(RepeatableAnnotationTest.class);
+	since_1_8.add(GenericsRegressionTest_1_8.class);
 
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());

@@ -18,6 +18,7 @@
  *								bug 391376 - [1.8] check interaction of default methods with bridge methods and generics
  *								Bug 412203 - [compiler] Internal compiler error: java.lang.IllegalArgumentException: info cannot be null
  *								Bug 422051 - [1.8][compiler][tests] cleanup excuses (JavacHasABug) in InterfaceMethodTests
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *     Jesper S Moller - Contributions for bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
@@ -332,6 +333,9 @@ static class JavacCompiler {
 			if ("1.7.0_10".equals(rawVersion)) {
 				return 1000;
 			}
+			if ("1.7.0_25".equals(rawVersion)) {
+				return 2500;
+			}
 		}
 		if (version == JavaCore.VERSION_1_8) {
 			if ("1.8.0-ea".equals(rawVersion)) {
@@ -503,7 +507,11 @@ protected static class JavacTestOptions {
 		}
 		public static EclipseHasABug
 			EclipseBug159851 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159851
-				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
+				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) {
+					Excuse excuseFor(JavacCompiler compiler) {
+						return compiler.compliance < ClassFileConstants.JDK1_7 ? this : null;
+					}
+				} : null,
 			EclipseBug177715 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=177715
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug207935 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=207935
@@ -515,7 +523,11 @@ protected static class JavacTestOptions {
 			EclipseBug235809 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235809
 				new EclipseHasABug(MismatchType.StandardOutputMismatch) : null,
 			EclipseBug236217 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236217
-				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
+				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) {
+					Excuse excuseFor(JavacCompiler compiler) {
+						return compiler.compliance < ClassFileConstants.JDK1_8 ? this : null; // in 1.8 accepted by both compilers
+					}
+				} : null,
 			EclipseBug236236 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236236
 				new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) {
 					Excuse excuseFor(JavacCompiler compiler) {
@@ -525,7 +537,7 @@ protected static class JavacTestOptions {
 			EclipseBug236242 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236242
 				new EclipseHasABug(MismatchType.EclipseErrorsJavacWarnings) {
 					Excuse excuseFor(JavacCompiler compiler) {
-						return compiler.compliance > ClassFileConstants.JDK1_6 ? this : null;
+						return compiler.compliance == ClassFileConstants.JDK1_7 ? this : null;
 					}
 				}: null,
 			EclipseBug236243 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236243
@@ -574,7 +586,7 @@ protected static class JavacTestOptions {
 			EclipseBug95021 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) {
 					Excuse excuseFor(JavacCompiler compiler) {
-						return compiler.compliance > ClassFileConstants.JDK1_6 ? this : null;
+						return compiler.compliance == ClassFileConstants.JDK1_7 ? this : null;
 					}
 					// WORK consider adding reversed pivots
 				} : null,
@@ -589,14 +601,16 @@ protected static class JavacTestOptions {
 				} : null,
 			EclipseBug126744 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126744
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
-			EclipseBug148061 = 	RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061
-				new EclipseJustification(MismatchType.EclipseErrorsJavacWarnings) : null,
 			EclipseBug151275 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=151275
-				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
+				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) {
+					Excuse excuseFor(JavacCompiler compiler) { 
+						return compiler.compliance < ClassFileConstants.JDK1_7 ? this : null;
+					}
+				} : null,
 			EclipseBug159214 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159214
 				new EclipseJustification(MismatchType.EclipseErrorsJavacNone) {
 					Excuse excuseFor(JavacCompiler compiler) {
-						return compiler.compliance > ClassFileConstants.JDK1_5 ? this : null;
+						return compiler.compliance == ClassFileConstants.JDK1_6 ? this : null;
 					}
 					// WORK consider adding reversed pivots
 				} : null,
@@ -627,7 +641,11 @@ protected static class JavacTestOptions {
 					// WORK consider adding reversed pivots
 				} : null,
 			EclipseBug234815 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=234815
-				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
+				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) {
+					Excuse excuseFor(JavacCompiler compiler) {
+						return compiler.compliance < ClassFileConstants.JDK1_7 ? this : null;
+					}
+				}: null,
 			EclipseBug235543 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235543
 				new EclipseJustification(MismatchType.EclipseErrorsJavacNone) : null,
 			EclipseBug235546 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235546
@@ -723,18 +741,27 @@ protected static class JavacTestOptions {
 					ClassFileConstants.JDK1_7, 0 /* 1.7.0 b03 */) : null,
 			JavacBug6400189 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6400189 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=167952
 				new JavacHasABug(
-					MismatchType.EclipseErrorsJavacNone) : null,
+					MismatchType.EclipseErrorsJavacNone) {
+						Excuse excuseFor(JavacCompiler compiler) {
+							return compiler.compliance == ClassFileConstants.JDK1_6 ? this : null;
+						}
+					} : null,
 			JavacBug6500701 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6500701 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=209779
 				new JavacHasABug(
-					MismatchType.StandardOutputMismatch) : null,
+					MismatchType.StandardOutputMismatch,
+					ClassFileConstants.JDK1_7, 0) : null,
 			JavacBug6531075 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6531075
 				new JavacHasABug(
 					MismatchType.StandardOutputMismatch,
 					ClassFileConstants.JDK1_7, 0) : null, // fixed in jdk7 b27; unfortunately, we do not have a distinct minor for this, hence former jdk7s will report an unused excuse
 			JavacBug6569404 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6569404
 				new JavacHasABug(
-					MismatchType.JavacErrorsEclipseNone,
-					-ClassFileConstants.JDK1_6, 10 /* 1.6.0_10_b08 or later */) : null,
+					MismatchType.JavacErrorsEclipseNone) {
+						Excuse excuseFor(JavacCompiler compiler) {
+							// present only in javac6 between 1.6.0_10_b08 and EOL
+							return (compiler.compliance == ClassFileConstants.JDK1_6 && compiler.minor >= 10) ? this : null;
+						}
+					} : null,
 			JavacBug6557661 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6557661 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261
 				new JavacHasABug(
 					MismatchType.EclipseErrorsJavacNone) : null,
@@ -1943,7 +1970,8 @@ protected void runJavac(
 						err = stderr.toString().trim();
 						if (!expectedErrorString.equals(err) && // special case: command-line java does not like missing main methods
 								!(expectedErrorString.length() == 0 &&
-									err.indexOf("java.lang.NoSuchMethodError: main") != -1)) {
+									(err.indexOf("java.lang.NoSuchMethodError: main") != -1)
+									|| err.indexOf("Error: Main method not found in class") != -1)) {
 							mismatch = JavacTestOptions.MismatchType.ErrorOutputMismatch;
 						}
 					}

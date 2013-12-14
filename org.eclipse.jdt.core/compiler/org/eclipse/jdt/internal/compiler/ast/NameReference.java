@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								bug 331649 - [compiler][null] consider null annotations for fields
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *     Jesper S Moller - Contributions for
  *							bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *******************************************************************************/
@@ -52,6 +53,10 @@ public FieldBinding fieldBinding() {
 public FieldBinding lastFieldBinding() {
 	if ((this.bits & ASTNode.RestrictiveFlagMASK) == Binding.FIELD)
 		return fieldBinding(); // most subclasses only refer to one field anyway
+	return null;
+}
+
+public InferenceContext18 freshInferenceContext(Scope scope) {
 	return null;
 }
 
@@ -99,5 +104,11 @@ protected void checkEffectiveFinality(LocalVariableBinding localBinding, Scope s
 			throw new AbortMethod(scope.referenceCompilationUnit().compilationResult, null);
 		}
 	}
+}
+void unresolve() {
+	this.resolvedType = null;
+	this.actualReceiverType = null;
+	this.bits &= ~RestrictiveFlagMASK;
+	this.bits |= Binding.TYPE | Binding.VARIABLE;
 }
 }

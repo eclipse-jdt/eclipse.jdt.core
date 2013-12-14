@@ -20,6 +20,7 @@
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *     Jesper Steen Moller - Contributions for
  *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *******************************************************************************/
@@ -172,7 +173,7 @@ public final boolean areTypeVariableErasuresEqual(MethodBinding method) {
 			return false;
 	return true;
 }
-MethodBinding asRawMethod(LookupEnvironment env) {
+public MethodBinding asRawMethod(LookupEnvironment env) {
 	if (this.typeVariables == Binding.NO_TYPE_VARIABLES) return this;
 
 	// substitute type arguments with raw types

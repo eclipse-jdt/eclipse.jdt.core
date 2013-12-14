@@ -28,6 +28,7 @@
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *								Bug 416307 - [1.8][compiler][null] subclass with type parameter substitution confuses null checking
  *								Bug 417758 - [1.8][null] Null safety compromise during array creation.
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *        Andy Clement - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
@@ -91,12 +92,13 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 				&& compilerOptions.isAnnotationBasedNullAnalysisEnabled;
 		boolean hasJDK15NullAnnotations = methodBinding.parameterNonNullness != null;
 		int numParamsToCheck = methodBinding.parameters.length;
+		int varArgPos = -1;
 		TypeBinding varArgsType = null;
 		boolean passThrough = false;
 		if (considerTypeAnnotations || hasJDK15NullAnnotations) {
 			// check if varargs need special treatment:
 			if (methodBinding.isVarargs()) {
-				int varArgPos = numParamsToCheck-1;
+				varArgPos = numParamsToCheck-1;
 				// this if-block essentially copied from generateArguments(..):
 				if (numParamsToCheck == arguments.length) {
 					varArgsType = methodBinding.parameters[varArgPos];
@@ -113,12 +115,16 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 		if (considerTypeAnnotations) {
 			for (int i=0; i<numParamsToCheck; i++) {
 				TypeBinding expectedType = methodBinding.parameters[i];
-				analyseOneArgument18(currentScope, flowContext, flowInfo, expectedType, arguments[i]);
+				Boolean specialCaseNonNullness = hasJDK15NullAnnotations ? methodBinding.parameterNonNullness[i] : null;
+				analyseOneArgument18(currentScope, flowContext, flowInfo, expectedType, arguments[i],
+						specialCaseNonNullness, methodBinding.original().parameters[i]);
 			}
 			if (!passThrough && varArgsType instanceof ArrayBinding) {
 				TypeBinding expectedType = ((ArrayBinding) varArgsType).elementsType();
+				Boolean specialCaseNonNullness = hasJDK15NullAnnotations ? methodBinding.parameterNonNullness[varArgPos] : null;
 				for (int i = numParamsToCheck; i < arguments.length; i++) {
-					analyseOneArgument18(currentScope, flowContext, flowInfo, expectedType, arguments[i]);
+					analyseOneArgument18(currentScope, flowContext, flowInfo, expectedType, arguments[i],
+							specialCaseNonNullness, methodBinding.original().parameters[varArgPos]);
 				}
 			}
 		} else if (hasJDK15NullAnnotations) {
@@ -135,13 +141,21 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 	}
 }
 void analyseOneArgument18(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo,
-		TypeBinding expectedType, Expression argument) {
+		TypeBinding expectedType, Expression argument, Boolean expectedNonNullness, TypeBinding originalExpected) {
 	int nullStatus = argument.nullStatus(flowInfo, flowContext);
+	
+	// here we consume special case information generated in the ctor of ParameterizedGenericMethodBinding (see there):
+	int statusFromAnnotatedNull = expectedNonNullness == Boolean.TRUE ? nullStatus : 0;  
+	
 	NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(expectedType, argument.resolvedType, nullStatus);
-	if (annotationStatus.isDefiniteMismatch()) {
+	
+	if (!annotationStatus.isAnyMismatch() && statusFromAnnotatedNull != 0)
+		expectedType = originalExpected; // to avoid reports mentioning '@NonNull null'!
+	
+	if (annotationStatus.isDefiniteMismatch() || statusFromAnnotatedNull == FlowInfo.NULL) {
 		// immediate reporting:
 		currentScope.problemReporter().nullityMismatchingTypeAnnotation(argument, argument.resolvedType, expectedType, annotationStatus);
-	} else if (annotationStatus.isUnchecked()) {
+	} else if (annotationStatus.isUnchecked() || (statusFromAnnotatedNull & FlowInfo.POTENTIALLY_NULL) != 0) {
 		flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, nullStatus);
 	}
 }
@@ -299,11 +313,33 @@ public Constant resolveCase(BlockScope scope, TypeBinding testType, SwitchStatem
 	return Constant.NotAConstant;
 }
 /** 
- * Implementation of {@link org.eclipse.jdt.internal.compiler.lookup.InvocationSite#expectedType}
+ * Implementation of {@link org.eclipse.jdt.internal.compiler.lookup.InvocationSite#invocationTargetType}
  * suitable at this level. Subclasses should override as necessary.
- * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#expectedType()
+ * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#invocationTargetType()
  */
-public TypeBinding expectedType() {
+public TypeBinding invocationTargetType() {
 	return null;
+}
+/** Simpler notion of expected type, suitable for code assist purposes. */
+public TypeBinding expectedType() {
+	// for all but FunctionalExpressions, this is the same as invocationTargetType.
+	return invocationTargetType();
+}
+public ExpressionContext getExpressionContext() {
+	return ExpressionContext.VANILLA_CONTEXT;
+}
+/**
+ * For all constructor invocations: find the constructor binding; 
+ * if polyExpressionSeen allow for two attempts where the first round may stop
+ * after applicability checking (18.5.1) to include more information into the final
+ * invocation type inference (18.5.2).
+ */
+protected MethodBinding findConstructorBinding(BlockScope scope, Invocation site, ReferenceBinding receiverType, TypeBinding[] argumentTypes, boolean polyExpressionSeen) {
+	MethodBinding ctorBinding = scope.getConstructor(receiverType, argumentTypes, site);
+	if (polyExpressionSeen) {
+		if (resolvePolyExpressionArguments(site, scope, ctorBinding, argumentTypes))
+			return scope.getConstructor(receiverType, argumentTypes, site);
+	}
+	return ctorBinding;
 }
 }

@@ -19,12 +19,14 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
@@ -680,6 +682,26 @@ public boolean isParameterizedWithOwnVariables() {
 		return false;
 	}
 	return true;
+}
+
+/**
+ * JLS8 Sect 18.1.1
+ * @param admitCapture18 request if {@link CaptureBinding18} shuld be considered as a proper type.
+ * If unsure say 'true', only in {@link Scope#greaterLowerBound(TypeBinding[], Scope, LookupEnvironment)}
+ * CaptureBinding18 has to be excluded to prevent an NPE on a branch that heuristically tries to avoid
+ * inconsistent intersections.
+ */
+public boolean isProperType(boolean admitCapture18) {
+	return true;
+}
+/**
+ * Substitute all occurrences of 'var' within the current type by 'substituteType.
+ * @param var an inference variable (JLS8 18.1.1)
+ * @param substituteType its substitution
+ * @return the current type after a substitution (either 'this' unmodified or a new type with the substitution molded in).
+ */
+TypeBinding substituteInferenceVariable(InferenceVariable var, TypeBinding substituteType) {
+	return this; // default: not substituting anything
 }
 
 private boolean isProvableDistinctSubType(TypeBinding otherType) {
@@ -1443,6 +1465,19 @@ public boolean isUnresolvedType() {
 	return false;
 }
 
+/** Does this type mention any of the given type parameters, except the one at position 'idx'? */
+public boolean mentionsAny(TypeBinding[] parameters, int idx) {
+	for (int i = 0; i < parameters.length; i++)
+		if (i != idx)
+			if (TypeBinding.equalsEquals(parameters[i], this))
+				return true;
+	return false;
+}
+
+/** Collect all inference variables mentioned in this type into the set 'variables'. */
+void collectInferenceVariables(Set variables) {
+	// nop
+}
 /** Answer an additional bit characterizing this type, like {@link TypeIds#BitAutoCloseable}. */
 public boolean hasTypeBit(int bit) {
 	return false;

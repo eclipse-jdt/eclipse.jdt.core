@@ -11,6 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -306,7 +308,14 @@ public class Javadoc extends ASTNode {
 						if (superType != null && TypeBinding.notEquals(superType.original(), methDecl.binding.declaringClass)) {
 							MethodBinding superConstructor = methScope.getConstructor(superType, methDecl.binding.parameters, allocationExpr);
 							if (superConstructor.isValidBinding() && superConstructor.original() == allocationExpr.binding.original()) {
-								if (superConstructor.areParametersEqual(methDecl.binding)) {
+								MethodBinding current = methDecl.binding;
+								// work 'against' better inference in 1.8 (otherwise comparing (G<T> with G<Object>) would fail):
+								if (methScope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8
+									&& current.typeVariables != Binding.NO_TYPE_VARIABLES) 
+								{
+									current = current.asRawMethod(methScope.environment());
+								}
+								if (superConstructor.areParametersEqual(current)) {
 									superRef = true;
 								}
 							}

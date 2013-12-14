@@ -15,6 +15,7 @@
  *								bug 388739 - [1.8][compiler] consider default methods when detecting whether a class needs to be declared abstract
  *								bug 399567 - [1.8] Different error message from the reference compiler
  *								bug 401796 - [1.8][compiler] don't treat default methods as overriding an independent inherited abstract method
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -3827,8 +3828,12 @@ public void test078() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 12)\n" + 
 		"	x.b(null);\n" + 
-		"	  ^\n" + 
-		"The method b(Number) is ambiguous for the type X\n" + 
+		"	  ^\n" +
+		(this.complianceLevel < ClassFileConstants.JDK1_8 ?
+		"The method b(Number) is ambiguous for the type X\n" 
+		:
+		"The method b(null) is ambiguous for the type X\n"
+		) +
 		"----------\n" + 
 		"2. ERROR in X.java (at line 13)\n" + 
 		"	x.<Integer>b(null);\n" + 

@@ -11,6 +11,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
@@ -621,8 +623,10 @@ public final class CompletionEngine
 		public void setFieldIndex(int depth){/* empty */}
 		public int sourceEnd() { return 0; 	}
 		public int sourceStart() { return 0; 	}
-		public TypeBinding expectedType() { return null; }
-		public boolean receiverIsImplicitThis() { return false;}
+		public TypeBinding invocationTargetType() { return null; }
+		public boolean receiverIsImplicitThis() { return false; }
+		public InferenceContext18 freshInferenceContext(Scope scope) { return null; }
+		public ExpressionContext getExpressionContext() { return ExpressionContext.VANILLA_CONTEXT; }
 	};
 
 	private int foundTypesCount;

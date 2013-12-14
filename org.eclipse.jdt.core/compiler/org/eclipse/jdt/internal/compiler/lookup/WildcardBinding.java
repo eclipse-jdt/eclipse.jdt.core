@@ -16,6 +16,7 @@
  *     							bug 359362 - FUP of bug 349326: Resource leak on non-Closeable resource
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -524,7 +525,67 @@ public class WildcardBinding extends ReferenceBinding {
 		return this.superclass != null && this.superInterfaces != null;
 	}
 
-    /**
+	// to prevent infinite recursion when inspecting recursive generics:
+	boolean inRecursiveFunction = false;
+
+	public boolean isProperType(boolean admitCapture18) {
+		if (this.inRecursiveFunction)
+			return true;
+		this.inRecursiveFunction = true;
+		try {
+			if (this.bound != null && !this.bound.isProperType(admitCapture18))
+				return false;
+			if (this.superclass != null && !this.superclass.isProperType(admitCapture18))
+				return false;
+			if (this.superInterfaces != null)
+				for (int i = 0, l = this.superInterfaces.length; i < l; i++)
+					if (!this.superInterfaces[i].isProperType(admitCapture18))
+						return false;
+			return true;
+		} finally {
+			this.inRecursiveFunction = false;
+		}
+	}
+
+	TypeBinding substituteInferenceVariable(InferenceVariable var, TypeBinding substituteType) {
+		boolean haveSubstitution = false;
+		TypeBinding currentBound = this.bound;
+		if (currentBound != null) {
+			currentBound = currentBound.substituteInferenceVariable(var, substituteType);
+			haveSubstitution |= TypeBinding.notEquals(currentBound, this.bound);
+		}
+		TypeBinding[] currentOtherBounds = null;
+		if (this.otherBounds != null) {
+			int length = this.otherBounds.length;
+			if (haveSubstitution)
+				System.arraycopy(this.otherBounds, 0, currentOtherBounds=new ReferenceBinding[length], 0, length);
+			for (int i = 0; i < length; i++) {
+				TypeBinding currentOtherBound = this.otherBounds[i];
+				if (currentOtherBound != null) {
+					currentOtherBound = currentOtherBound.substituteInferenceVariable(var, substituteType);
+					if (TypeBinding.notEquals(currentOtherBound, this.otherBounds[i])) {
+						if (currentOtherBounds == null)
+							System.arraycopy(this.otherBounds, 0, currentOtherBounds=new ReferenceBinding[length], 0, length);
+						currentOtherBounds[i] = currentOtherBound;
+					}
+				}
+			}
+		}
+		haveSubstitution |= currentOtherBounds != null;
+		if (haveSubstitution) {
+			WildcardBinding newWild = new WildcardBinding(this.genericType, 
+					this.rank,
+					currentBound,
+					currentOtherBounds,
+					this.boundKind,
+					this.environment);
+			newWild.tagBits = this.tagBits;
+			return newWild;
+		}
+		return this;
+	}
+
+	/**
 	 * Returns true if the type is a wildcard
 	 */
 	public boolean isUnboundWildcard() {

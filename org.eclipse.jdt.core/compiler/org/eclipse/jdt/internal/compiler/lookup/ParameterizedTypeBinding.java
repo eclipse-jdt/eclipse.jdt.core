@@ -26,10 +26,12 @@
  *								Bug 416175 - [1.8][compiler][null] NPE with a code snippet that used null annotations on wildcards
  *								Bug 416174 - [1.8][compiler][null] Bogus name clash error with null annotations
  *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -798,6 +800,34 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return this.superclass != null && this.superInterfaces != null;
 	}
 
+	public boolean isProperType(boolean admitCapture18) {
+		if (this.arguments != null) {
+			for (int i = 0; i < this.arguments.length; i++)
+				if (!this.arguments[i].isProperType(admitCapture18))
+					return false;
+		}
+		return super.isProperType(admitCapture18);
+	}
+
+	TypeBinding substituteInferenceVariable(InferenceVariable var, TypeBinding substituteType) {
+		if (this.arguments != null) {
+			TypeBinding[] newArgs = null;
+			int length = this.arguments.length;
+			for (int i = 0; i < length; i++) {
+				TypeBinding oldArg = this.arguments[i];
+				TypeBinding newArg = oldArg.substituteInferenceVariable(var, substituteType);
+				if (TypeBinding.notEquals(newArg, oldArg)) {
+					if (newArgs == null)
+						System.arraycopy(this.arguments, 0, newArgs = new TypeBinding[length], 0, length); 
+					newArgs[i] = newArg;
+				}
+			}
+			if (newArgs != null)
+				return this.environment.createParameterizedType(this.type, newArgs, this.enclosingType);
+		}
+		return this;
+	}
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Substitution#isRawSubstitution()
 	 */
@@ -836,6 +866,29 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			}
 		}
 		return this.memberTypes;
+	}
+
+	public boolean mentionsAny(TypeBinding[] parameters, int idx) {
+		if (super.mentionsAny(parameters, idx))
+			return true;
+		if (this.arguments != null) {
+			int len = this.arguments.length;
+			for (int i = 0; i < len; i++) {
+				if (TypeBinding.notEquals(this.arguments[i], this) && this.arguments[i].mentionsAny(parameters, idx))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	void collectInferenceVariables(Set variables) {
+		if (this.arguments != null) {
+			int len = this.arguments.length;
+			for (int i = 0; i < len; i++) {
+				if (TypeBinding.notEquals(this.arguments[i], this))
+					this.arguments[i].collectInferenceVariables(variables);
+			}
+		}
 	}
 
 	/**
@@ -1314,7 +1367,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return this.singleAbstractMethod;
 	}
 
-	private boolean typeParametersMentioned(TypeBinding upperBound) {
+	static boolean typeParametersMentioned(TypeBinding upperBound) {
 		class MentionListener extends TypeBindingVisitor {
 			private boolean typeParametersMentioned = false;
 			public boolean visit(TypeVariableBinding typeVariable) {

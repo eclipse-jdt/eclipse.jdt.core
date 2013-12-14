@@ -38,6 +38,7 @@
  *								Bug 405569 - Resource leak check false positive when using DbUtils.closeQuietly
  *								Bug 411964 - [1.8][null] leverage null type annotation in foreach statement
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -60,9 +61,9 @@ import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
-import org.eclipse.jdt.internal.compiler.lookup.ImplicitNullAnnotationVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
+import org.eclipse.jdt.internal.compiler.lookup.ImplicitNullAnnotationVerifier;
+import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
@@ -82,7 +83,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
-public class MessageSend extends Expression implements InvocationSite {
+public class MessageSend extends Expression implements Invocation {
 
 	public Expression receiver;
 	public char[] selector;
@@ -98,6 +99,8 @@ public class MessageSend extends Expression implements InvocationSite {
 	public TypeReference[] typeArguments;
 	public TypeBinding[] genericTypeArguments;
 	private ExpressionContext expressionContext = VANILLA_CONTEXT;
+	private int inferenceKind = 0;
+	private InferenceContext18 inferenceContext;
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	boolean nonStatic = !this.binding.isStatic();
@@ -574,11 +577,14 @@ public TypeBinding resolveType(BlockScope scope) {
 	// Base type promotion
 
 	this.constant = Constant.NotAConstant;
+	long sourceLevel = scope.compilerOptions().sourceLevel;
 	boolean receiverCast = false, argsContainCast = false;
 	if (this.receiver instanceof CastExpression) {
 		this.receiver.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
 		receiverCast = true;
 	}
+	if (this.receiver.resolvedType != null)
+		this.receiver.unresolve(); // some cleanup before second attempt
 	this.actualReceiverType = this.receiver.resolveType(scope);
 	boolean receiverIsType = this.receiver instanceof NameReference && (((NameReference) this.receiver).bits & Binding.TYPE) != 0;
 	if (receiverCast && this.actualReceiverType != null) {
@@ -590,7 +596,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// resolve type arguments (for generic constructor call)
 	if (this.typeArguments != null) {
 		int length = this.typeArguments.length;
-		boolean argHasError = scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5; // typeChecks all arguments
+		boolean argHasError = sourceLevel < ClassFileConstants.JDK1_5; // typeChecks all arguments
 		this.genericTypeArguments = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
 			TypeReference typeReference = this.typeArguments[i];
@@ -617,18 +623,19 @@ public TypeBinding resolveType(BlockScope scope) {
 		boolean argHasError = false; // typeChecks all arguments
 		int length = this.arguments.length;
 		argumentTypes = new TypeBinding[length];
-		TypeBinding argumentType;
 		for (int i = 0; i < length; i++){
 			Expression argument = this.arguments[i];
+			if (this.arguments[i].resolvedType != null) 
+				this.arguments[i].unresolve(); // some cleanup before second attempt
 			if (argument instanceof CastExpression) {
 				argument.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
 				argsContainCast = true;
 			}
 			argument.setExpressionContext(INVOCATION_CONTEXT);
-			if ((argumentType = argumentTypes[i] = argument.resolveType(scope)) == null){
+			if ((argumentTypes[i] = argument.resolveType(scope)) == null){
 				argHasError = true;
 			}
-			if (argumentType != null && argumentType.kind() == Binding.POLY_TYPE)
+			if (sourceLevel >= ClassFileConstants.JDK1_8 && argument.isPolyExpression())
 				polyExpressionSeen = true;
 		}
 		if (argHasError) {
@@ -669,12 +676,8 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().errorNoMethodFor(this, this.actualReceiverType, argumentTypes);
 		return null;
 	}
-	this.binding = this.receiver.isImplicitThis()
-			? scope.getImplicitMethod(this.selector, argumentTypes, this)
-			: scope.getMethod(this.actualReceiverType, this.selector, argumentTypes, this);
-	
-	if (polyExpressionSeen)
-		resolvePolyExpressionArguments(scope, this.binding, this.arguments, argumentTypes);
+
+	findMethodBinding(scope, argumentTypes, polyExpressionSeen);
 
 	if (!this.binding.isValidBinding()) {
 		if (this.binding.declaringClass == null) {
@@ -833,6 +836,24 @@ public TypeBinding resolveType(BlockScope scope) {
 				? this.resolvedType
 				: null;
 }
+/**
+ * Find the method binding; 
+ * if polyExpressionSeen allow for two attempts where the first round may stop
+ * after applicability checking (18.5.1) to include more information into the final
+ * invocation type inference (18.5.2).
+ */
+protected void findMethodBinding(BlockScope scope, TypeBinding[] argumentTypes, boolean polyExpressionSeen) {
+	this.binding = this.receiver.isImplicitThis()
+			? scope.getImplicitMethod(this.selector, argumentTypes, this)
+			: scope.getMethod(this.actualReceiverType, this.selector, argumentTypes, this);
+	
+	if (polyExpressionSeen)
+		if (resolvePolyExpressionArguments(this, scope, this.binding, argumentTypes)) {
+			this.binding = this.receiver.isImplicitThis()
+					? scope.getImplicitMethod(this.selector, argumentTypes, this)
+					: scope.getMethod(this.actualReceiverType, this.selector, argumentTypes, this);
+		}
+}
 
 public void setActualReceiverType(ReferenceBinding receiverType) {
 	if (receiverType == null) return; // error scenario only
@@ -864,7 +885,11 @@ public boolean isPolyExpression() {
 
        We are in no position to ascertain the last two until after resolution has happened. So no client should
        depend on asking this question before resolution.
-	*/
+	 */
+	return isPolyExpression(this.binding);
+}
+/** Variant of isPolyExpression() to be used during type inference, when a resolution candidate exists. */
+public boolean isPolyExpression(MethodBinding resolutionCandidate) {
 	if (this.expressionContext != ASSIGNMENT_CONTEXT && this.expressionContext != INVOCATION_CONTEXT)
 		return false;
 	
@@ -874,9 +899,17 @@ public boolean isPolyExpression() {
 	if (this.constant != Constant.NotAConstant)
 		throw new UnsupportedOperationException("Unresolved MessageSend can't be queried if it is a polyexpression"); //$NON-NLS-1$
 	
-	if (this.binding != null && this.binding instanceof ParameterizedGenericMethodBinding) {
-		ParameterizedGenericMethodBinding pgmb = (ParameterizedGenericMethodBinding) this.binding;
-		return pgmb.inferredReturnType;
+	if (resolutionCandidate != null) {
+		if (resolutionCandidate instanceof ParameterizedGenericMethodBinding) {
+			ParameterizedGenericMethodBinding pgmb = (ParameterizedGenericMethodBinding) resolutionCandidate;
+			if (pgmb.inferredReturnType)
+				return true; // if already determined
+		} 
+		if (resolutionCandidate.returnType != null) {
+			// resolution may have prematurely instantiated the generic method, we need the original, though:
+			MethodBinding candidateOriginal = resolutionCandidate.original();
+			return candidateOriginal.returnType.mentionsAny(candidateOriginal.typeVariables(), -1);
+		}
 	}
 	
 	return false;
@@ -889,7 +922,7 @@ public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
 public void setFieldIndex(int depth) {
 	// ignore for here
 }
-public TypeBinding expectedType() {
+public TypeBinding invocationTargetType() {
 	return this.expectedType;
 }
 
@@ -914,5 +947,49 @@ public boolean statementExpression() {
 }
 public boolean receiverIsImplicitThis() {
 	return this.receiver.isImplicitThis();
+}
+// -- interface Invocation: --
+public MethodBinding binding() {
+	return this.binding;
+}
+public Expression[] arguments() {
+	return this.arguments;
+}
+public InferenceContext18 freshInferenceContext(Scope scope) {
+	InferenceContext18 outer = this.inferenceContext != null ? this.inferenceContext.outerContext : null;
+	this.inferenceContext = new InferenceContext18(scope, this.arguments, this);
+	this.inferenceContext.outerContext = outer;
+	return this.inferenceContext;
+}
+/**
+ * Here inference signals if it has established applicability.
+ * If so, it sets the corresponding checkKind (see {@link InferenceContext18#CHECK_STRICT} etc.).
+ * When later the message send is touched again as an element in an outer expression,
+ * we re-use this bit to perform only one kind of check.
+ * TODO(stephan): check if this is sanctioned by the spec.
+ * TODO(stephan): cf. {@link Expression#tagAsEllipsisArgument} (not implemented in this class)
+ */
+public void setInferenceKind(int checkKind) {
+	this.inferenceKind = checkKind;
+}
+public int inferenceKind() {
+	return (this.inferenceKind & InferenceContext18.INFERENCE_KIND_MASK);
+}
+public void markInferenceFinished() {
+	this.inferenceKind |= InferenceContext18.CHECK_FINISHED;
+}
+public boolean hasInferenceFinished() {
+	return this.inferenceKind == 0 // only relevant if inference has been started
+			|| (this.inferenceKind & InferenceContext18.CHECK_FINISHED) != 0;
+}
+public TypeBinding updateBindings(MethodBinding updatedBinding) {
+	this.binding = updatedBinding;
+	return this.resolvedType = updatedBinding.returnType;
+}
+public ExpressionContext getExpressionContext() {
+	return this.expressionContext;
+}
+public InferenceContext18 inferenceContext() {
+	return this.inferenceContext;
 }
 }

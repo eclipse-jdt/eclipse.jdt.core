@@ -45,6 +45,7 @@
  *								Bug 414380 - [compiler][internal] QualifiedNameReference#indexOfFirstFieldBinding does not point to the first field
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *								Bug 416307 - [1.8][compiler][null] subclass with type parameter substitution confuses null checking
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -140,6 +141,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -3666,6 +3668,21 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 				sourceStart,
 				sourceEnd);
 			return;
+		case ProblemReasons.ParameterizedMethodExpectedTypeProblem:
+			// FIXME(stephan): construct suitable message (https://bugs.eclipse.org/404675)
+			problemConstructor = (ProblemMethodBinding) targetConstructor;
+			shownConstructor = problemConstructor.closestMatch;
+			this.handle(
+				IProblem.TypeMismatch,
+				new String[] {
+				        String.valueOf(shownConstructor.returnType.readableName()),
+				        (problemConstructor.returnType != null ? String.valueOf(problemConstructor.returnType.readableName()) : "<unknown>")},
+				new String[] {
+				        String.valueOf(shownConstructor.returnType.shortReadableName()),
+				        (problemConstructor.returnType != null ? String.valueOf(problemConstructor.returnType.shortReadableName()) : "<unknown>")},
+				statement.sourceStart,
+				statement.sourceEnd);
+			return;
 		case ProblemReasons.NoError : // 0
 		default :
 			needImplementation(statement); // want to fail to see why we were here...
@@ -4176,6 +4193,27 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 				        typesAsString(method, true) },
 				(int) (messageSend.nameSourcePosition >>> 32),
 				(int) messageSend.nameSourcePosition);
+			return;
+		case ProblemReasons.ParameterizedMethodExpectedTypeProblem:
+			// FIXME(stephan): construct suitable message (https://bugs.eclipse.org/404675)
+			problemMethod = (ProblemMethodBinding) method;
+			InferenceContext18 inferenceContext = problemMethod.inferenceContext;
+			if (inferenceContext != null && inferenceContext.outerContext != null) {
+				// problem relates to a nested inference context, let the outer handle it:
+				inferenceContext.outerContext.addProblemMethod(problemMethod);
+				return;
+			}
+			shownMethod = problemMethod.closestMatch;
+			this.handle(
+				IProblem.TypeMismatch,
+				new String[] {
+				        String.valueOf(shownMethod.returnType.readableName()),
+				        (problemMethod.returnType != null ? String.valueOf(problemMethod.returnType.readableName()) : "<unknown>")},
+				new String[] {
+				        String.valueOf(shownMethod.returnType.shortReadableName()),
+				        (problemMethod.returnType != null ? String.valueOf(problemMethod.returnType.shortReadableName()) : "<unknown>")},
+				messageSend.sourceStart,
+				messageSend.sourceEnd);
 			return;
 		case ProblemReasons.VarargsElementTypeNotVisible: // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346042
 			problemMethod = (ProblemMethodBinding) method;
@@ -9896,6 +9934,10 @@ public void disallowedTargetForContainerAnnotation(Annotation annotation, TypeBi
 		new String[] {new String(annotation.resolvedType.shortReadableName()), new String(containerAnnotationType.shortReadableName())},
 		annotation.sourceStart,
 		annotation.sourceEnd);
+}
+public void genericInferenceError(String message, InvocationSite invocationSite) {
+	String[] args = new String[]{message};
+	this.handle( IProblem.GenericInferenceError, args, args, invocationSite.sourceStart(), invocationSite.sourceEnd());	
 }
 public void uninternedIdentityComparison(EqualExpression expr, TypeBinding lhs, TypeBinding rhs, CompilationUnitDeclaration unit) {
 	

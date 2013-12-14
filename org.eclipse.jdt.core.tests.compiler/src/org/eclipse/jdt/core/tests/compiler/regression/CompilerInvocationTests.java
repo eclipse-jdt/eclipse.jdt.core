@@ -517,6 +517,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("FinallyMustCompleteNormally", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ForbiddenReference", new ProblemAttributes(CategorizedProblem.CAT_RESTRICTION));
 		expectedProblemAttributes.put("GenericConstructorTypeArgumentMismatch", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("GenericInferenceError", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL)); // TODO should be removed via https://bugs.eclipse.org/404675
 		expectedProblemAttributes.put("GenericMethodTypeArgumentMismatch", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("GenericTypeCannotExtendThrowable", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("HidingEnclosingType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1326,6 +1327,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("FinallyMustCompleteNormally", new ProblemAttributes(JavaCore.COMPILER_PB_FINALLY_BLOCK_NOT_COMPLETING));
 		expectedProblemAttributes.put("ForbiddenReference", new ProblemAttributes(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
 		expectedProblemAttributes.put("GenericConstructorTypeArgumentMismatch", SKIP);
+		expectedProblemAttributes.put("GenericInferenceError", SKIP); // TODO should be removed via https://bugs.eclipse.org/404675
 		expectedProblemAttributes.put("GenericMethodTypeArgumentMismatch", SKIP);
 		expectedProblemAttributes.put("GenericTypeCannotExtendThrowable", SKIP);
 		expectedProblemAttributes.put("HidingEnclosingType", SKIP);

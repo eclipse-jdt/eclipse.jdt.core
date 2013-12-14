@@ -11,6 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -152,11 +154,18 @@ public void test004() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 11)\n" + 
 			"	goo(()-> { \n" + 
-			"	^^^\n" + 
-			"The method goo(J) in the type X is not applicable for the arguments (() -> {\n" + 
-			"  boolean y = true;\n" + 
-			"  while (y)    ;\n" + 
-			"})\n" +  
+			"	    ^^^^\n" + 
+			"This method must return a result of type int\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 15)\n" + 
+			"	goo(()-> { \n" + 
+			"	    ^^^^\n" + 
+			"This method must return a result of type int\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 18)\n" + 
+			"	goo(()-> { \n" + 
+			"	    ^^^^\n" + 
+			"This method must return a result of type int\n" + 
 			"----------\n");
 }
 public void test005() {
@@ -886,6 +895,8 @@ public void test031() {
 			"foo(X<String>)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401850, [1.8][compiler] Compiler fails to type poly allocation expressions in method invocation contexts
+// FAIL: we no longer see that both methods are applicable... 
+// inference starts with X#RAW, finds the second method, then infers the diamond to Object and sees that foo is not ambiguous
 public void test032() {
 	this.runNegativeTest(
 			new String[] {

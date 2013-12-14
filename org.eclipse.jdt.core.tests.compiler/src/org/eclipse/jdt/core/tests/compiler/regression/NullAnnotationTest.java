@@ -472,6 +472,9 @@ public void test_nonnull_parameter_011() {
 		"----------\n"  /* compiler output */);
 }
 // null is passed to a non-null parameter in a qualified allocation expression, generic constructor, target class read from .class
+// Note: in new type inference we infer the parameter of the Inner ctor to NullTypeBinding.
+// This needs special treatment in ctor of ParameterizedGenericMethodBinding and in Statement.analyseOneArgument18
+// as to propagate nonnull info, although the NullTypeBinding cannot transport this info.
 public void test_nonnull_parameter_012() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -509,8 +512,8 @@ public void test_nonnull_parameter_012() {
 		"2. ERROR in X.java (at line 4)\n" + 
 		"	ContainingInner2.Inner inner = container.new Inner(null);\n" + 
 		"	                                                   ^^^^\n" + 
-		mismatch_NonNull_Null("Object", "Object") +
-		"----------\n"  /* compiler output */);
+		mismatch_NonNull_Null("Object", "T") +
+		"----------\n");
 }
 // a method of a local class has a non-null parameter, client passes null
 public void test_nonnull_parameter_013() {

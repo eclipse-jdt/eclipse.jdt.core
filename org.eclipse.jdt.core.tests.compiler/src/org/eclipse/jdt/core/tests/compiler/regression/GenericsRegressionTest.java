@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -15,6 +19,7 @@
  *								Bug 408441 - Type mismatch using Arrays.asList with 3 or more implementations of an interface with the interface type as the last parameter
  *								Bug 413958 - Function override returning inherited Generic Type
  *								Bug 415734 - Eclipse gives compilation error calling method with an inferred generic return type
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -35,7 +40,7 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "testBug405706" };
+//		TESTS_NAMES = new String[] { "testBug415734" };
 //		TESTS_NAMES = new String[] { "testBug413958" };
 //		TESTS_NUMBERS = new int[] { 1465 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
@@ -3267,10 +3272,9 @@ public void testBug413958_2() {
 		"Type mismatch: cannot convert from ReadOnlyWrapper<TestA,TestB> to WritableWrapper<TestA2,TestB>\n" +
 		"----------\n");
 }
-public void testBug415734() {
-	runNegativeTest(
-		new String[] {
-			"Compile.java",
+// Disabled due to spec bug, see https://bugs.eclipse.org/423496
+public void _testBug415734() {
+	String compileSrc =
 			"import java.util.ArrayList;\n" +
 			"import java.util.List;\n" +
 			"\n" +
@@ -3283,13 +3287,25 @@ public void testBug415734() {
 			"    public void call() {\n" +
 			"        ArrayList<String> list = typedNull();\n" +
 			"    }\n" +
-			"}\n"
-		},
-		"----------\n" +
-		"1. ERROR in Compile.java (at line 11)\n" +
-		"	ArrayList<String> list = typedNull();\n" +
-		"	                         ^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from List<Object> to ArrayList<String>\n" +
-		"----------\n");
+			"}\n";
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		runNegativeTest(
+			new String[] {
+				"Compile.java",
+				compileSrc
+			},
+			"----------\n" +
+			"1. ERROR in Compile.java (at line 11)\n" +
+			"	ArrayList<String> list = typedNull();\n" +
+			"	                         ^^^^^^^^^^^\n" +
+			"Type mismatch: cannot convert from List<Object> to ArrayList<String>\n" +
+			"----------\n");
+	} else {
+		runConformTest(
+			new String[] {
+				"Compile.java",
+				compileSrc
+			});
+	}
 }
 }

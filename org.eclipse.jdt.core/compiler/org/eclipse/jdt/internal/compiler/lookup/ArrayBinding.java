@@ -20,6 +20,7 @@
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -266,6 +267,10 @@ public boolean isCompatibleWith(TypeBinding otherType, Scope captureScope) {
 	        return true;
 	}
 	return false;
+}
+
+public boolean isProperType(boolean admitCapture18) {
+	return this.leafComponentType.isProperType(admitCapture18);
 }
 
 public int kind() {

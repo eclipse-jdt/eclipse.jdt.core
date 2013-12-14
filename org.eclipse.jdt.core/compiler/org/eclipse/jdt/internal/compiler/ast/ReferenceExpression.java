@@ -20,6 +20,7 @@
  *							bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super via I.super.m() syntax
  *							Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *							Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
+ *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contribution for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -40,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.NestedTypeBinding;
@@ -62,7 +64,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	public TypeReference [] typeArguments;
 	public char [] selector;
 	
-	private TypeBinding receiverType;
+	public TypeBinding receiverType;
 	private boolean haveReceiver;
 	public TypeBinding[] resolvedTypeArguments;
 	private boolean typeArgumentsHaveErrors;
@@ -504,7 +506,10 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     				}
     			}
     		}
-    		if (!returnType.isCompatibleWith(this.descriptor.returnType, scope) && !isBoxingCompatible(returnType, this.descriptor.returnType, this, scope)) {
+    		if (this.descriptor.returnType.isProperType(true) // otherwise we cannot yet check compatibility
+    				&& !returnType.isCompatibleWith(this.descriptor.returnType, scope)
+    				&& !isBoxingCompatible(returnType, this.descriptor.returnType, this, scope))
+    		{
     			scope.problemReporter().incompatibleReturnType(this, this.binding, this.descriptor.returnType);
     			this.binding = null;
     			this.resolvedType = null;
@@ -512,6 +517,17 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     	}
 
     	return this.resolvedType; // Phew !
+	}
+
+	public MethodBinding findCompileTimeMethodTargeting(TypeBinding targetType, Scope scope) {
+		if (this.exactMethodBinding != null) {
+			// TODO: shouldn't extactMethodBinding already be parameterized?
+			if (this.exactMethodBinding.typeVariables != Binding.NO_TYPE_VARIABLES && this.resolvedTypeArguments != null) {
+				return scope.environment().createParameterizedGenericMethod(this.exactMethodBinding, this.resolvedTypeArguments);
+			}
+			return this.exactMethodBinding;
+		}
+		return super.findCompileTimeMethodTargeting(targetType, scope);
 	}
 
 	public boolean isConstructorReference() {
@@ -526,7 +542,10 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		return !CharOperation.equals(this.selector,  ConstantPool.Init);
 	}
 	
-	public boolean isPertinentToApplicability(TypeBinding targetType) {
+	public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding candidateMethod) {
+		if (targetType == null) // assumed to signal another primary error
+			return true;
+
 		final MethodBinding sam = targetType.getSingleAbstractMethod(this.enclosingScope); // cached/cheap call.
 		
 		if (sam == null || !sam.isValidBinding())
@@ -539,6 +558,12 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		return this.resolvedTypeArguments;
 	}
 
+	public InferenceContext18 freshInferenceContext(Scope scope) {
+		// no need to store the context for later use, since ReferenceExpression 
+		// is not subject to Invocation Type Inference (is not an invocation).
+		return new InferenceContext18(scope, null/*no arguments*/, this);
+	}
+ 
 	public boolean isSuperAccess() {
 		return false;
 	}
@@ -596,6 +621,8 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	}
 
 	public boolean isCompatibleWith(TypeBinding left, Scope scope) {
+		if (this.hasInferenceFinished)
+			return this.resolvedType != null ? this.resolvedType.isCompatibleWith(left, scope) : false;
 		// 15.28.2
 		final MethodBinding sam = left.getSingleAbstractMethod(this.enclosingScope);
 		if (sam == null || !sam.isValidBinding())
@@ -610,6 +637,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 			isCompatible = this.binding != null && this.binding.isValidBinding();
 			this.binding = null;
+			this.hasInferenceFinished = false;
 			setExpectedType(null);
 		}
 		return isCompatible;

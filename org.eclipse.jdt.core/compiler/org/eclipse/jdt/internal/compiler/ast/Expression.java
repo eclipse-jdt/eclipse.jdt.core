@@ -22,6 +22,7 @@
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -949,10 +950,13 @@ public Constant optimizedBooleanConstant() {
 	return this.constant;
 }
 
-public boolean isPertinentToApplicability(TypeBinding targetType) {
+public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
 	return true;
 }
-
+// call this before resolving an expression for the second time. TODO: implement in more subclasses, or find a different strategy.
+void unresolve() {
+	this.resolvedType = null;
+}
 /**
  * Returns the type of the expression after required implicit conversions. When expression type gets promoted
  * or inserted a generic cast, the converted type will differ from the resolved type (surface side-effects from
@@ -1052,6 +1056,25 @@ public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedTy
 	}
 	return expressionType;
 }
+
+/**
+ * If we might still be in the context of an unfinished outer inference, use this method to
+ * tentatively resolve this expression without leaving any undesired traces, in case we will
+ * come back with a better target type later.
+ */
+public TypeBinding resolveTentatively(BlockScope scope, TypeBinding targetType) {
+	return resolveType(scope); // default is to do full resolution in just this one step
+}
+
+/**
+ * Once outer contexts have finalized the target type for this expression,
+ * perform any checks that might have been delayed previously.
+ * @param targetType the final target type (aka expectedType) for this expression.
+ */
+public void checkAgainstFinalTargetType(TypeBinding targetType) {
+	// nop, subclasses may choose to do real stuff here
+}
+
 /**
  * Returns true if the receiver is forced to be of raw type either to satisfy the contract imposed
  * by a super type or because it *is* raw and the current type has no control over it (i.e the rawness
@@ -1166,6 +1189,11 @@ public boolean isExactMethodReference() {
 public boolean isPolyExpression() throws UnsupportedOperationException {
 	return false;
 }
+/** Variant of isPolyExpression() to be used during type inference, when a resolution candidate exists. */
+public boolean isPolyExpression(MethodBinding method) {
+	return false;
+}
+
 
 public void tagAsNeedCheckCast() {
     // do nothing by default

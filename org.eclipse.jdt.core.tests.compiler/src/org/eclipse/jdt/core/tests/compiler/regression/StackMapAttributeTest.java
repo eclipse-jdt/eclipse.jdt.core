@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contribution for
  *								bug 388800 - [1.8] adjust tests to 1.8 JRE
  *								Bug 412203 - [compiler] Internal compiler error: java.lang.IllegalArgumentException: info cannot be null
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -879,7 +880,11 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"        [pc: 2, pc: 18] local: bar index: 2 type: T\n" +
 					"      Stack map table: number of frames 2\n" +
 					"        [pc: 13, full, stack: {java.io.PrintStream}, locals: {X, java.lang.Comparable, java.lang.Comparable}]\n" +
-					"        [pc: 14, full, stack: {java.io.PrintStream, java.lang.Comparable}, locals: {X, java.lang.Comparable, java.lang.Comparable}]\n";
+					(this.complianceLevel < ClassFileConstants.JDK1_8 ?
+					"        [pc: 14, full, stack: {java.io.PrintStream, java.lang.Comparable}, locals: {X, java.lang.Comparable, java.lang.Comparable}]\n"
+					: // in 1.8 the ternary is resolved to its target type j.l.Object
+					"        [pc: 14, full, stack: {java.io.PrintStream, java.lang.Object}, locals: {X, java.lang.Comparable, java.lang.Comparable}]\n"
+					);
 
 			int index = actualOutput.indexOf(expectedOutput);
 			if (index == -1 || expectedOutput.length() == 0) {

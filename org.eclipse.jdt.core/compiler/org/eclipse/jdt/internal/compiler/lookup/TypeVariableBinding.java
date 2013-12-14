@@ -20,8 +20,11 @@
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
+
+import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
@@ -370,6 +373,21 @@ public class TypeVariableBinding extends ReferenceBinding {
 		return this.genericTypeSignature = CharOperation.concat('T', this.sourceName, ';');
 	}
 
+	/**
+	 * Compute the initial type bounds for one inference variable as per JLS8 sect 18.1.3.
+	 */
+	TypeBound[] getTypeBounds(InferenceVariable variable, InferenceContext18 context) {
+		int n = boundsCount();
+        if (n == 0)
+        	return NO_TYPE_BOUNDS;
+        TypeBound[] bounds = new TypeBound[n];
+        bounds[0] = TypeBound.createBoundOrDependency(context, this.firstBound, variable);
+        int ifcOffset = TypeBinding.equalsEquals(this.firstBound, this.superclass) ? -1 : 0;
+        for (int i = 1; i < n; i++)
+			bounds[i] = TypeBound.createBoundOrDependency(context, this.superInterfaces[i+ifcOffset], variable);
+        return bounds;
+	}
+
 	boolean hasOnlyRawBounds() {
 		if (this.superclass != null && TypeBinding.equalsEquals(this.firstBound, this.superclass))
 			if (!this.superclass.isRawType())
@@ -439,6 +457,71 @@ public class TypeVariableBinding extends ReferenceBinding {
 		return true;
 	}
 
+	// to prevent infinite recursion when inspecting recursive generics:
+	boolean inRecursiveFunction = false;
+	
+	public boolean isProperType(boolean admitCapture18) {
+		// handle recursive calls:
+		if (this.inRecursiveFunction) // be optimistic, since this node is not an inference variable
+			return true;
+		
+		this.inRecursiveFunction = true;
+		try {
+			if (this.superclass != null && !this.superclass.isProperType(admitCapture18)) {
+				return false;
+			}
+			if (this.superInterfaces != null)
+				for (int i = 0, l = this.superInterfaces.length; i < l; i++)
+			   		if (!this.superInterfaces[i].isProperType(admitCapture18)) {
+						return false;
+					}
+			return true;
+		} finally {
+			this.inRecursiveFunction = false;
+		}
+	}
+
+	TypeBinding substituteInferenceVariable(InferenceVariable var, TypeBinding substituteType) {
+		if (this.inRecursiveFunction) return this;
+		this.inRecursiveFunction = true;
+		try {
+			boolean haveSubstitution = false;
+			ReferenceBinding currentSuperclass = this.superclass;
+			if (currentSuperclass != null) {
+				currentSuperclass = (ReferenceBinding) currentSuperclass.substituteInferenceVariable(var, substituteType);
+				haveSubstitution |= TypeBinding.notEquals(currentSuperclass, this.superclass);
+			}
+			ReferenceBinding[] currentSuperInterfaces = null;
+			if (this.superInterfaces != null) {
+				int length = this.superInterfaces.length;
+				if (haveSubstitution)
+					System.arraycopy(this.superInterfaces, 0, currentSuperInterfaces=new ReferenceBinding[length], 0, length);
+				for (int i = 0; i < length; i++) {
+					ReferenceBinding currentSuperInterface = this.superInterfaces[i];
+					if (currentSuperInterface != null) {
+						currentSuperInterface = (ReferenceBinding) currentSuperInterface.substituteInferenceVariable(var, substituteType);
+						if (TypeBinding.notEquals(currentSuperInterface, this.superInterfaces[i])) {
+							if (currentSuperInterfaces == null)
+								System.arraycopy(this.superInterfaces, 0, currentSuperInterfaces=new ReferenceBinding[length], 0, length);
+							currentSuperInterfaces[i] = currentSuperInterface;
+							haveSubstitution = true;
+						}
+					}
+				}
+			}
+			if (haveSubstitution) {
+				TypeVariableBinding newVar = new TypeVariableBinding(this.sourceName, this.declaringElement, this.rank, this.environment);
+				newVar.superclass = currentSuperclass;
+				newVar.superInterfaces = currentSuperInterfaces;
+				newVar.tagBits = this.tagBits;
+				return newVar;
+			}
+			return this;
+		} finally {
+			this.inRecursiveFunction = false;
+		}
+	}
+
 	/**
 	 * Returns true if the type was declared as a type variable
 	 */
@@ -469,6 +552,42 @@ public class TypeVariableBinding extends ReferenceBinding {
 
 	public int kind() {
 		return Binding.TYPE_PARAMETER;
+	}
+	
+	public boolean mentionsAny(TypeBinding[] parameters, int idx) {
+		if (this.inRecursiveFunction)
+			return false; // nothing seen
+		this.inRecursiveFunction = true;
+		try {
+			if (super.mentionsAny(parameters, idx))
+				return true;
+			if (this.superclass != null && this.superclass.mentionsAny(parameters, idx))
+				return true;
+			if (this.superInterfaces != null)
+				for (int j = 0; j < this.superInterfaces.length; j++) {
+					if (this.superInterfaces[j].mentionsAny(parameters, idx))
+						return true;
+			}
+			return false;
+		} finally {
+			this.inRecursiveFunction = false;
+		}
+	}
+
+	void collectInferenceVariables(Set variables) {
+		if (this.inRecursiveFunction)
+			return; // nothing seen
+		this.inRecursiveFunction = true;
+		try {
+			if (this.superclass != null)
+				this.superclass.collectInferenceVariables(variables);
+			if (this.superInterfaces != null)
+				for (int j = 0; j < this.superInterfaces.length; j++) {
+					this.superInterfaces[j].collectInferenceVariables(variables);
+			}
+		} finally {
+			this.inRecursiveFunction = false;
+		}
 	}
 
 	public TypeBinding[] otherUpperBounds() {

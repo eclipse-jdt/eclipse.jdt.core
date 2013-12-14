@@ -11,6 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -22,7 +24,7 @@ import junit.framework.Test;
 public class LambdaExpressionsTest extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testSuperReference03"};
+//	TESTS_NAMES = new String[] { "testReferenceExpressionInference3a"};
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -1880,7 +1882,214 @@ public void test421927() {
 			"42");
 }
 
+public void testReferenceExpressionInference1() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<E> {\n" +
+			"	E foo(E e);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	<T> T print(I<T> i) { return null; }\n" +
+			"	void test() {\n" +
+			"		String s = print(this::bar);" +
+			"	}\n" +
+			"	<S> S bar(S s) { return s; }\n" +
+			"}\n"
+		});
+}
 
+public void testReferenceExpressionInference2() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<E,F> {\n" +
+			"	F foo(E e);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	<S,T,U> I<S,U> compose(I<S,T> i1, I<T,U> i2) { return null; }\n" +
+			"	void test() {\n" +
+			"		I<X,String> x2s = compose(this::bar, this::i2s);" +
+			"	}\n" +
+			"	String i2s (Integer i) { return i.toString(); }\n" +
+			"	<V,W extends Number> W bar(V v) { return null; }\n" +
+			"}\n"
+		});
+}
+
+public void testReferenceExpressionInference3a() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<E,F> {\n" +
+			"	F foo(E e);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	<S,T,U> I<S,U> compose(I<S,T> i1, I<T,U> i2) { return null; }\n" +
+			"	void test() {\n" +
+			"		I<X,String> x2s = compose(this::bar, this::<String>i2s);" + // help inference with an explicit type argument
+			"	}\n" +
+			"	<Z> Z i2s (Integer i) { return null; }\n" +
+			"	<V,W extends Number> W bar(V v) { return null; }\n" +
+			"}\n"
+		});
+}
+
+// previous test demonstrates that a solution exists, just inference doesn't find it.
+public void testReferenceExpressionInference3b() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I<E,F> {\n" +
+			"	F foo(E e);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	<S,T,U> I<S,U> compose(I<S,T> i1, I<T,U> i2) { return null; }\n" +
+			"	void test() {\n" +
+			"		I<X,String> x2s = compose(this::bar, this::i2s);\n" +
+			"	}\n" +
+			"	<Z> Z i2s (Integer i) { return null; }\n" +
+			"	<V,W extends Number> W bar(V v) { return null; }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	I<X,String> x2s = compose(this::bar, this::i2s);\n" + 
+		"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from I<Object,Object> to I<X,String>\n" +
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	I<X,String> x2s = compose(this::bar, this::i2s);\n" + 
+		"	                                     ^^^^^^^^^\n" + 
+		"The type X does not define i2s(Object) that is applicable here\n" + 
+		"----------\n");
+}
+public void testLambdaInference1() {
+	  this.runConformTest(
+	    new String[] {
+	      "X.java",
+	      "import java.util.*;\n" +
+	      "public class X {\n" +
+	      "  public static void main(String[] argv) {\n" +
+	      "    List<String> list = null;\n" +
+	      "    eachWithIndex(list, s -> print(s));\n" +
+	      "  }\n" +
+	      "  static void print(String s) {}\n" +
+	      "  interface ItemWithIndexVisitor<E> {\n" +
+	      "    public void visit(E item);\n" +
+	      "  }\n" +
+	      "  public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {}\n" +
+	      "}\n"
+	    },
+	    "");
+}
+
+public void testLambdaInference2() {
+	  this.runConformTest(
+	    new String[] {
+	      "X.java",
+	      "import java.util.*;\n" +
+	      "class A {}\n" +
+	      "class B extends A {\n" +
+	      "	void bar() {}\n" +
+	      "}\n" +
+	      "public class X {\n" +
+	      "  public static void main(String[] argv) {\n" +
+	      "    someWithIndex(getList(), (B b) -> b.bar());\n" +
+	      "  }\n" +
+	      "  interface ItemWithIndexVisitor<E> {\n" +
+	      "    public void visit(E item);\n" +
+	      "  }\n" +
+	      "  public static <G> void someWithIndex(List<G> list, ItemWithIndexVisitor<G> visitor) {}\n" +
+	      "  static <I extends A> List<I> getList() { return null; }\n" +
+	      "}\n"
+	    },
+	    "");
+}
+
+public void testBug419048_1() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"import java.util.stream.*;\n" +
+			"public class X {\n" +
+			"	public void test() {\n" +
+			"		 List<Person> roster = new ArrayList<>();\n" + 
+			"        \n" + 
+			"        Map<String, Person> map = \n" + 
+			"            roster\n" + 
+			"                .stream()\n" + 
+			"                .collect(\n" + 
+			"                    Collectors.toMap(\n" + 
+			"                        p -> p.getLast(),\n" + 
+			"                        p -> p\n" + 
+			"                    ));\n" +
+			"	}\n" +
+			"}\n" +
+			"class Person {\n" + 
+			"  public String getLast() { return null; }\n" + 
+			"}\n"
+		});
+}
+
+public void testBug419048_2() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"import java.util.function.*;\n" +
+			"import java.util.stream.*;\n" +
+			"public class X {\n" +
+			"	public void test() {\n" +
+			"		 List<Person> roster = new ArrayList<>();\n" + 
+			"        \n" + 
+			"        Map<String, Person> map = \n" + 
+			"            roster\n" + 
+			"                .stream()\n" + 
+			"                .collect(\n" + 
+			"                    Collectors.toMap(\n" + 
+			"                        Person::getLast,\n" + 
+			"                        Function.identity()\n" + 
+			"                    ));\n" +
+			"	}\n" +
+			"}\n" +
+			"class Person {\n" + 
+			"  public String getLast() { return null; }\n" + 
+			"}\n"
+		});
+}
+
+public void testBug419048_3() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"import java.util.function.*;\n" +
+			"import java.util.stream.*;\n" +
+			"public class X {\n" +
+			"	public void test() {\n" +
+			"		 List<Person> roster = new ArrayList<>();\n" + 
+			"        \n" + 
+			"        Map<String, Person> map = \n" + 
+			"            roster\n" + 
+			"                .stream()\n" + 
+			"                .collect(\n" + 
+			"                    Collectors.toMap(\n" + 
+			"                        new Function<Person, String>() {\n" + 
+			"                            public String apply(Person p) { \n" + 
+			"                                return p.getLast(); \n" + 
+			"                            } \n" + 
+			"                        },\n" + 
+			"                        Function.identity()\n" + 
+			"                    ));\n" +
+			"	}\n" +
+			"}\n" +
+			"class Person {\n" + 
+			"  public String getLast() { return null; }\n" + 
+			"}\n"
+		});
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

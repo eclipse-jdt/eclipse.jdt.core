@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.Deprecated18Test;
 import org.eclipse.jdt.core.tests.compiler.regression.ExpressionContextTests;
 import org.eclipse.jdt.core.tests.compiler.regression.CompilerInvocationTests;
 import org.eclipse.jdt.core.tests.compiler.regression.FlowAnalysisTest8;
+import org.eclipse.jdt.core.tests.compiler.regression.GenericsRegressionTest_1_8;
 import org.eclipse.jdt.core.tests.compiler.regression.GrammarCoverageTests308;
 import org.eclipse.jdt.core.tests.compiler.regression.InterfaceMethodsTest;
 import org.eclipse.jdt.core.tests.compiler.regression.JSR308SpecSnippetTests;
@@ -94,6 +95,7 @@ public class RunOnlyJava8Tests extends TestCase {
 			ResolveTests18.class,
 			CompletionParserTest18.class,
 			CompletionTests18.class,
+			GenericsRegressionTest_1_8.class,
 		};
 	}
 	

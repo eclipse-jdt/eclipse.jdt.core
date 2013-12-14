@@ -23,6 +23,7 @@
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *								Bug 416183 - [1.8][compiler][null] Overload resolution fails with null annotations
  *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
+ *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -342,6 +343,11 @@ public abstract class Scope {
 						}
 						if (wideType.arguments == null)
 							continue; // assume we already have an error here
+						// Skip the following check if inference variables or CaptureBinding18 are involved,
+						// hopefully during inference a contradictory glb will simply not produce a solution
+						// (should essentially be detected beforehand in CaptureBinding18.setUpperBounds()): 
+						if (!narrowType.isProperType(false) || !wideType.isProperType(false))
+							continue;
 						int numTypeArgs = wideType.arguments.length;
 						TypeBinding[] bounds = new TypeBinding[numTypeArgs];
 						for (int k = 0; k < numTypeArgs; k++) {
@@ -379,24 +385,7 @@ public abstract class Scope {
 	 * Only allocate an array if anything is different.
 	 */
 	public static ReferenceBinding[] substitute(Substitution substitution, ReferenceBinding[] originalTypes) {
-		if (originalTypes == null) return null;
-	    ReferenceBinding[] substitutedTypes = originalTypes;
-	    for (int i = 0, length = originalTypes.length; i < length; i++) {
-	        ReferenceBinding originalType = originalTypes[i];
-	        TypeBinding substitutedType = substitute(substitution, originalType);
-	        if (!(substitutedType instanceof ReferenceBinding)) {
-	        	return null; // impossible substitution
-	        }
-	        if (substitutedType != originalType) { //$IDENTITY-COMPARISON$
-	            if (substitutedTypes == originalTypes) {
-	                System.arraycopy(originalTypes, 0, substitutedTypes = new ReferenceBinding[length], 0, i);
-	            }
-	            substitutedTypes[i] = (ReferenceBinding)substitutedType;
-	        } else if (substitutedTypes != originalTypes) {
-	            substitutedTypes[i] = originalType;
-	        }
-	    }
-	    return substitutedTypes;
+		return defaultSubstitutor.substitute(substitution, originalTypes);
 	}
 
 	/**
@@ -410,127 +399,7 @@ public abstract class Scope {
 	 *  of its type in the generic declaration corresponding to C." 
 	 */
 	public static TypeBinding substitute(Substitution substitution, TypeBinding originalType) {
-		if (originalType == null) return null;
-		switch (originalType.kind()) {
-
-			case Binding.TYPE_PARAMETER:
-				return substitution.substitute((TypeVariableBinding) originalType);
-
-			case Binding.PARAMETERIZED_TYPE:
-				ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
-				ReferenceBinding originalEnclosing = originalType.enclosingType();
-				ReferenceBinding substitutedEnclosing = originalEnclosing;
-				if (originalEnclosing != null) {
-					substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
-					if (isMemberTypeOfRaw(originalType, substitutedEnclosing))
-						return originalParameterizedType.environment.createRawType(
-								originalParameterizedType.genericType(), substitutedEnclosing, originalType.getTypeAnnotations());
-				}
-				TypeBinding[] originalArguments = originalParameterizedType.arguments;
-				TypeBinding[] substitutedArguments = originalArguments;
-				if (originalArguments != null) {
-					if (substitution.isRawSubstitution()) {
-						return originalParameterizedType.environment.createRawType(originalParameterizedType.genericType(), substitutedEnclosing, originalType.getTypeAnnotations());
-					}
-					substitutedArguments = substitute(substitution, originalArguments);
-				}
-				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) { //$IDENTITY-COMPARISON$
-					return originalParameterizedType.environment.createParameterizedType(
-							originalParameterizedType.genericType(), substitutedArguments, substitutedEnclosing, originalType.getTypeAnnotations());
-				}
-				break;
-
-			case Binding.ARRAY_TYPE:
-				ArrayBinding originalArrayType = (ArrayBinding) originalType;
-				TypeBinding originalLeafComponentType = originalArrayType.leafComponentType;
-				TypeBinding substitute = substitute(substitution, originalLeafComponentType); // substitute could itself be array type, TODO(Srikanth): need a test case.
-				if (substitute != originalLeafComponentType) { //$IDENTITY-COMPARISON$
-					return originalArrayType.environment.createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalType.dimensions(), originalType.getTypeAnnotations());
-				}
-				break;
-
-			case Binding.WILDCARD_TYPE:
-			case Binding.INTERSECTION_TYPE:
-		        WildcardBinding wildcard = (WildcardBinding) originalType;
-		        if (wildcard.boundKind != Wildcard.UNBOUND) {
-			        TypeBinding originalBound = wildcard.bound;
-			        TypeBinding substitutedBound = substitute(substitution, originalBound);
-			        TypeBinding[] originalOtherBounds = wildcard.otherBounds;
-			        TypeBinding[] substitutedOtherBounds = substitute(substitution, originalOtherBounds);
-			        if (substitutedBound != originalBound || originalOtherBounds != substitutedOtherBounds) { //$IDENTITY-COMPARISON$
-			        	if (originalOtherBounds != null) {
-			        		/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=347145: the constituent intersecting types have changed
-			        		   in the last round of substitution. Reevaluate the composite intersection type, as there is a possibility
-			        		   of the intersection collapsing into one of the constituents, the other being fully subsumed.
-			        		*/
-			    			TypeBinding [] bounds = new TypeBinding[1 + substitutedOtherBounds.length];
-			    			bounds[0] = substitutedBound;
-			    			System.arraycopy(substitutedOtherBounds, 0, bounds, 1, substitutedOtherBounds.length);
-			    			TypeBinding[] glb = Scope.greaterLowerBound(bounds, null, substitution.environment()); // re-evaluate
-			    			if (glb != null && glb != bounds) {
-			    				substitutedBound = glb[0];
-		    					if (glb.length == 1) {
-			    					substitutedOtherBounds = null;
-			    				} else {
-			    					System.arraycopy(glb, 1, substitutedOtherBounds = new TypeBinding[glb.length - 1], 0, glb.length - 1);
-			    				}
-			    			}
-			        	}
-		        		return wildcard.environment.createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, substitutedOtherBounds, wildcard.boundKind, wildcard.getTypeAnnotations());
-			        }
-		        }
-				break;
-
-			case Binding.TYPE:
-				if (!originalType.isMemberType()) break;
-				ReferenceBinding originalReferenceType = (ReferenceBinding) originalType;
-				originalEnclosing = originalType.enclosingType();
-				substitutedEnclosing = originalEnclosing;
-				if (originalEnclosing != null) {
-					substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
-					if (isMemberTypeOfRaw(originalType, substitutedEnclosing))
-						return substitution.environment().createRawType(originalReferenceType, substitutedEnclosing, originalType.getTypeAnnotations());
-				}
-
-			    // treat as if parameterized with its type variables (non generic type gets 'null' arguments)
-				if (substitutedEnclosing != originalEnclosing) { //$IDENTITY-COMPARISON$
-					return substitution.isRawSubstitution()
-						? substitution.environment().createRawType(originalReferenceType, substitutedEnclosing, originalType.getTypeAnnotations())
-						:  substitution.environment().createParameterizedType(originalReferenceType, null, substitutedEnclosing, originalType.getTypeAnnotations());
-				}
-				break;
-			case Binding.GENERIC_TYPE:
-				originalReferenceType = (ReferenceBinding) originalType;
-				originalEnclosing = originalType.enclosingType();
-				substitutedEnclosing = originalEnclosing;
-				if (originalEnclosing != null) {
-					substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
-					if (isMemberTypeOfRaw(originalType, substitutedEnclosing))
-						return substitution.environment().createRawType(originalReferenceType, substitutedEnclosing, originalType.getTypeAnnotations());
-				}
-
-				if (substitution.isRawSubstitution()) {
-					return substitution.environment().createRawType(originalReferenceType, substitutedEnclosing, originalType.getTypeAnnotations());
-				}
-			    // treat as if parameterized with its type variables (non generic type gets 'null' arguments)
-				originalArguments = originalReferenceType.typeVariables();
-				substitutedArguments = substitute(substitution, originalArguments);
-				return substitution.environment().createParameterizedType(originalReferenceType, substitutedArguments, substitutedEnclosing, originalType.getTypeAnnotations());
-		}
-		return originalType;
-	}
-
-	private static boolean isMemberTypeOfRaw(TypeBinding originalType, ReferenceBinding substitutedEnclosing) {
-		// 4.8:
-		// "a raw type is defined to be one of:
-		// ...
-	    // * A non-static member type of a raw type R that is not 
-		//   inherited from a superclass or superinterface of R."
-
-		// Due to staticness, e.g., Map.Entry<String,Object> is *not* considered as a raw type
-
-		return (substitutedEnclosing != null && substitutedEnclosing.isRawType()) 
-				&& ((originalType instanceof ReferenceBinding) && !((ReferenceBinding)originalType).isStatic());
+		return defaultSubstitutor.substitute(substitution, originalType);
 	}
 
 	/**
@@ -538,21 +407,193 @@ public abstract class Scope {
 	 * Only allocate an array if anything is different.
 	 */
 	public static TypeBinding[] substitute(Substitution substitution, TypeBinding[] originalTypes) {
-		if (originalTypes == null) return null;
-	    TypeBinding[] substitutedTypes = originalTypes;
-	    for (int i = 0, length = originalTypes.length; i < length; i++) {
-	        TypeBinding originalType = originalTypes[i];
-	        TypeBinding substitutedParameter = substitute(substitution, originalType);
-	        if (substitutedParameter != originalType) { //$IDENTITY-COMPARISON$
-	            if (substitutedTypes == originalTypes) {
-	                System.arraycopy(originalTypes, 0, substitutedTypes = new TypeBinding[length], 0, i);
-	            }
-	            substitutedTypes[i] = substitutedParameter;
-	        } else if (substitutedTypes != originalTypes) {
-	            substitutedTypes[i] = originalType;
-	        }
-	    }
-	    return substitutedTypes;
+		return defaultSubstitutor.substitute(substitution, originalTypes);
+	}
+
+	/** Bridge to non-static implementation in {@link Substitutor}, to make methods overridable. */ 
+	private static Substitutor defaultSubstitutor = new Substitutor();
+	public static class Substitutor {
+		/**
+		 * Returns an array of types, where original types got substituted given a substitution.
+		 * Only allocate an array if anything is different.
+		 */
+		public ReferenceBinding[] substitute(Substitution substitution, ReferenceBinding[] originalTypes) {
+			if (originalTypes == null) return null;
+		    ReferenceBinding[] substitutedTypes = originalTypes;
+		    for (int i = 0, length = originalTypes.length; i < length; i++) {
+		        ReferenceBinding originalType = originalTypes[i];
+		        TypeBinding substitutedType = substitute(substitution, originalType);
+		        if (!(substitutedType instanceof ReferenceBinding)) {
+		        	return null; // impossible substitution
+		        }
+		        if (substitutedType != originalType) { //$IDENTITY-COMPARISON$
+		            if (substitutedTypes == originalTypes) {
+		                System.arraycopy(originalTypes, 0, substitutedTypes = new ReferenceBinding[length], 0, i);
+		            }
+		            substitutedTypes[i] = (ReferenceBinding)substitutedType;
+		        } else if (substitutedTypes != originalTypes) {
+		            substitutedTypes[i] = originalType;
+		        }
+		    }
+		    return substitutedTypes;
+		}
+
+		/**
+		 * Returns a type, where original type was substituted using the receiver
+		 * parameterized type.
+		 * In raw mode (see {@link Substitution#isRawSubstitution()}),
+		 * all parameterized types are converted to raw types.
+		 * Cf. 4.8: "The type of a constructor (8.8), instance method (8.4, 9.4),
+		 *  or non-static field (8.3) M of a raw type C that is not inherited from its 
+		 *  superclasses or superinterfaces is the raw type that corresponds to the erasure
+		 *  of its type in the generic declaration corresponding to C." 
+		 */
+		public TypeBinding substitute(Substitution substitution, TypeBinding originalType) {
+			if (originalType == null) return null;
+	
+			switch (originalType.kind()) {
+	
+				case Binding.TYPE_PARAMETER:
+					return substitution.substitute((TypeVariableBinding) originalType);
+	
+				case Binding.PARAMETERIZED_TYPE:
+					ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
+					ReferenceBinding originalEnclosing = originalType.enclosingType();
+					ReferenceBinding substitutedEnclosing = originalEnclosing;
+					if (originalEnclosing != null) {
+						substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
+						if (isMemberTypeOfRaw(originalType, substitutedEnclosing))
+							return originalParameterizedType.environment.createRawType(
+									originalParameterizedType.genericType(), substitutedEnclosing, originalType.getTypeAnnotations());
+					}
+					TypeBinding[] originalArguments = originalParameterizedType.arguments;
+					TypeBinding[] substitutedArguments = originalArguments;
+					if (originalArguments != null) {
+						if (substitution.isRawSubstitution()) {
+							return originalParameterizedType.environment.createRawType(originalParameterizedType.genericType(), substitutedEnclosing, originalType.getTypeAnnotations());
+						}
+						substitutedArguments = substitute(substitution, originalArguments);
+					}
+					if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) { //$IDENTITY-COMPARISON$
+						return originalParameterizedType.environment.createParameterizedType(
+								originalParameterizedType.genericType(), substitutedArguments, substitutedEnclosing, originalType.getTypeAnnotations());
+					}
+					break;
+	
+				case Binding.ARRAY_TYPE:
+					ArrayBinding originalArrayType = (ArrayBinding) originalType;
+					TypeBinding originalLeafComponentType = originalArrayType.leafComponentType;
+					TypeBinding substitute = substitute(substitution, originalLeafComponentType); // substitute could itself be array type, TODO(Srikanth): need a test case.
+					if (substitute != originalLeafComponentType) { //$IDENTITY-COMPARISON$
+						return originalArrayType.environment.createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalType.dimensions(), originalType.getTypeAnnotations());
+					}
+					break;
+	
+				case Binding.WILDCARD_TYPE:
+				case Binding.INTERSECTION_TYPE:
+			        WildcardBinding wildcard = (WildcardBinding) originalType;
+			        if (wildcard.boundKind != Wildcard.UNBOUND) {
+				        TypeBinding originalBound = wildcard.bound;
+				        TypeBinding substitutedBound = substitute(substitution, originalBound);
+				        TypeBinding[] originalOtherBounds = wildcard.otherBounds;
+				        TypeBinding[] substitutedOtherBounds = substitute(substitution, originalOtherBounds);
+				        if (substitutedBound != originalBound || originalOtherBounds != substitutedOtherBounds) { //$IDENTITY-COMPARISON$
+				        	if (originalOtherBounds != null) {
+				        		/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=347145: the constituent intersecting types have changed
+				        		   in the last round of substitution. Reevaluate the composite intersection type, as there is a possibility
+				        		   of the intersection collapsing into one of the constituents, the other being fully subsumed.
+				        		*/
+				    			TypeBinding [] bounds = new TypeBinding[1 + substitutedOtherBounds.length];
+				    			bounds[0] = substitutedBound;
+				    			System.arraycopy(substitutedOtherBounds, 0, bounds, 1, substitutedOtherBounds.length);
+				    			TypeBinding[] glb = Scope.greaterLowerBound(bounds, null, substitution.environment()); // re-evaluate
+				    			if (glb != null && glb != bounds) {
+				    				substitutedBound = glb[0];
+			    					if (glb.length == 1) {
+				    					substitutedOtherBounds = null;
+				    				} else {
+				    					System.arraycopy(glb, 1, substitutedOtherBounds = new TypeBinding[glb.length - 1], 0, glb.length - 1);
+				    				}
+				    			}
+				        	}
+			        		return wildcard.environment.createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, substitutedOtherBounds, wildcard.boundKind, wildcard.getTypeAnnotations());
+				        }
+			        } 
+					break;
+	
+				case Binding.TYPE:
+					if (!originalType.isMemberType()) break;
+					ReferenceBinding originalReferenceType = (ReferenceBinding) originalType;
+					originalEnclosing = originalType.enclosingType();
+					substitutedEnclosing = originalEnclosing;
+					if (originalEnclosing != null) {
+						substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
+						if (isMemberTypeOfRaw(originalType, substitutedEnclosing))
+							return substitution.environment().createRawType(originalReferenceType, substitutedEnclosing, originalType.getTypeAnnotations());
+					}
+	
+				    // treat as if parameterized with its type variables (non generic type gets 'null' arguments)
+					if (substitutedEnclosing != originalEnclosing) { //$IDENTITY-COMPARISON$
+						return substitution.isRawSubstitution()
+							? substitution.environment().createRawType(originalReferenceType, substitutedEnclosing, originalType.getTypeAnnotations())
+							:  substitution.environment().createParameterizedType(originalReferenceType, null, substitutedEnclosing, originalType.getTypeAnnotations());
+					}
+					break;
+				case Binding.GENERIC_TYPE:
+					originalReferenceType = (ReferenceBinding) originalType;
+					originalEnclosing = originalType.enclosingType();
+					substitutedEnclosing = originalEnclosing;
+					if (originalEnclosing != null) {
+						substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
+						if (isMemberTypeOfRaw(originalType, substitutedEnclosing))
+							return substitution.environment().createRawType(originalReferenceType, substitutedEnclosing, originalType.getTypeAnnotations());
+					}
+	
+					if (substitution.isRawSubstitution()) {
+						return substitution.environment().createRawType(originalReferenceType, substitutedEnclosing, originalType.getTypeAnnotations());
+					}
+				    // treat as if parameterized with its type variables (non generic type gets 'null' arguments)
+					originalArguments = originalReferenceType.typeVariables();
+					substitutedArguments = substitute(substitution, originalArguments);
+					return substitution.environment().createParameterizedType(originalReferenceType, substitutedArguments, substitutedEnclosing, originalType.getTypeAnnotations());
+			}
+			return originalType;
+		}
+		
+		private static boolean isMemberTypeOfRaw(TypeBinding originalType, ReferenceBinding substitutedEnclosing) {
+			// 4.8:
+			// "a raw type is defined to be one of:
+			// ...
+			// * A non-static member type of a raw type R that is not 
+			//   inherited from a superclass or superinterface of R."
+			
+			// Due to staticness, e.g., Map.Entry<String,Object> is *not* considered as a raw type
+			
+			return (substitutedEnclosing != null && substitutedEnclosing.isRawType()) 
+					&& ((originalType instanceof ReferenceBinding) && !((ReferenceBinding)originalType).isStatic());
+		}
+		
+		/**
+		 * Returns an array of types, where original types got substituted given a substitution.
+		 * Only allocate an array if anything is different.
+		 */
+		public TypeBinding[] substitute(Substitution substitution, TypeBinding[] originalTypes) {
+			if (originalTypes == null) return null;
+			TypeBinding[] substitutedTypes = originalTypes;
+			for (int i = 0, length = originalTypes.length; i < length; i++) {
+				TypeBinding originalType = originalTypes[i];
+				TypeBinding substitutedParameter = substitute(substitution, originalType);
+				if (substitutedParameter != originalType) { //$IDENTITY-COMPARISON$
+					if (substitutedTypes == originalTypes) {
+						System.arraycopy(originalTypes, 0, substitutedTypes = new TypeBinding[length], 0, i);
+					}
+					substitutedTypes[i] = substitutedParameter;
+				} else if (substitutedTypes != originalTypes) {
+					substitutedTypes[i] = originalType;
+				}
+			}
+			return substitutedTypes;
+		}
 	}
 
 	/*
@@ -657,6 +698,8 @@ public abstract class Scope {
 			}
 			if (newArgs != null)
 				arguments = newArgs;
+			else  // ensure that computeCompatibleMethod() below can update arguments without harming our caller: (TODO: always copy before the loop? only in 1.8?)
+				System.arraycopy(arguments, 0, arguments=new TypeBinding[argLength], 0, argLength);
 			method = ParameterizedGenericMethodBinding.computeCompatibleMethod(method, arguments, this, invocationSite);
 			if (method == null) return null; // incompatible
 			if (!method.isValidBinding()) return method; // bound check issue is taking precedence
@@ -675,7 +718,7 @@ public abstract class Scope {
 			if (CompilerOptions.tolerateIllegalAmbiguousVarargsInvocation && compilerOptions.complianceLevel < ClassFileConstants.JDK1_7)
 				tiebreakingVarargsMethods = false;
 		}
-		if ((compatibilityLevel = parameterCompatibilityLevel(method, arguments, tiebreakingVarargsMethods)) > NOT_COMPATIBLE) {
+		if ((compatibilityLevel = myParameterCompatibilityLevel(method, arguments, tiebreakingVarargsMethods, invocationSite)) > NOT_COMPATIBLE) {
 			if (compatibilityLevel == VARARGS_COMPATIBLE) {
 				TypeBinding varargsElementType = method.parameters[method.parameters.length - 1].leafComponentType();
 				if (varargsElementType instanceof ReferenceBinding) {
@@ -698,6 +741,14 @@ public abstract class Scope {
 		return null; // incompatible
 	}
 
+	// FIXME(stephan): final integration into the code
+	private int myParameterCompatibilityLevel(MethodBinding method, TypeBinding[] arguments, boolean tiebreakingVarargsMethods, InvocationSite site) {
+		if (site instanceof Invocation) {
+			if (((Invocation) site).inferenceKind() > 0)
+				return COMPATIBLE; // inference is responsible, no need to recheck
+		}
+		return parameterCompatibilityLevel(method, arguments, tiebreakingVarargsMethods);
+	}
 	/**
 	 * Connect type variable supertypes, and returns true if no problem was detected
 	 * @param typeParameters
@@ -3724,6 +3775,8 @@ public abstract class Scope {
 		int indexOfFirst = -1, actualLength = 0;
 		for (int i = 0; i < length; i++) {
 			TypeBinding type = types[i];
+			if (type == TypeBinding.NULL)
+				types[i] = type = null; // completely ignore null-type now and further down
 			if (type == null) continue;
 			if (type.isBaseType()) return null;
 			if (indexOfFirst < 0) indexOfFirst = i;
@@ -4096,8 +4149,10 @@ public abstract class Scope {
 			public void setFieldIndex(int depth) { /* ignore */}
 			public int sourceStart() { return invocationSite.sourceStart(); }
 			public int sourceEnd() { return invocationSite.sourceStart(); }
-			public TypeBinding expectedType() { return invocationSite.expectedType(); }
+			public TypeBinding invocationTargetType() { return invocationSite.invocationTargetType(); }
 			public boolean receiverIsImplicitThis() { return invocationSite.receiverIsImplicitThis();}
+			public InferenceContext18 freshInferenceContext(Scope scope) { return null; /* no inference when ignoring genericTypeArgs */ }
+			public ExpressionContext getExpressionContext() { return ExpressionContext.VANILLA_CONTEXT; }
 		};
 		MethodBinding[] moreSpecific = new MethodBinding[visibleSize];
 		int count = 0;
@@ -4596,7 +4651,9 @@ public abstract class Scope {
 			for (int j = 0; j < classTypeVariablesArity; j++) {
 				returnTypeParameters[j] = (TypeVariableBinding) map.get(classTypeVariables[j]);
 			}
-			staticFactory.returnType = environment.createParameterizedType(allocationType, returnTypeParameters, allocationType.enclosingType());
+			// make sure to use the original enclosing, so we don't loose the outer type information, which we already have
+			// (I saw unbound type variables from enclosing enter type inference, which cannot handle such 'alien' type variables).
+			staticFactory.returnType = environment.createParameterizedType(allocationType, returnTypeParameters, originalEnclosingType);
 			staticFactory.parameters = Scope.substitute(substitution, method.parameters);
 			staticFactory.thrownExceptions = Scope.substitute(substitution, method.thrownExceptions);
 			if (staticFactory.thrownExceptions == null) { 
