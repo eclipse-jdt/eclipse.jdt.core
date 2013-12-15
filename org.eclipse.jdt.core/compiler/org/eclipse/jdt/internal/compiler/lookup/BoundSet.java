@@ -62,7 +62,7 @@ class BoundSet {
 					this.subBounds.add(bound);
 					break;
 				default:
-					throw new IllegalArgumentException("Unexpected bound relation in : "+bound);
+					throw new IllegalArgumentException("Unexpected bound relation in : " + bound); //$NON-NLS-1$
 			}
 		}
 		// pre: this.superBounds != null

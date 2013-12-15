@@ -200,7 +200,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 	private Object reduceReferenceExpressionCompatibility(ReferenceExpression reference, InferenceContext18 inferenceContext) {
 		TypeBinding t = this.right;
 		if (t.isProperType(true))
-			throw new IllegalStateException("Should not reach here with T being a proper type");
+			throw new IllegalStateException("Should not reach here with T being a proper type"); //$NON-NLS-1$
 		if (!t.isFunctionalInterface(inferenceContext.scope))
 			return FALSE;
 		MethodBinding functionType = t.getSingleAbstractMethod(inferenceContext.scope);
@@ -237,7 +237,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			for (int i = 0; i < n; i++)
 				if (!functionType.parameters[i].isProperType(true))
 					return FALSE;
-			InferenceContext18.missingImplementation("NYI: inexact method reference");
+			InferenceContext18.missingImplementation("NYI: inexact method reference"); //$NON-NLS-1$
 			// FIXME: Otherwise, a search for a compile-time declaration is performed, as defined in 15.28.1 .....
 		}
 		return FALSE;
@@ -280,7 +280,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			// invocation type inference (18.5.2):
 			TypeBinding returnType = method.isConstructor() ? method.declaringClass : method.returnType;
 			if (returnType == TypeBinding.VOID)
-				throw new InferenceFailureException("expression has no value");
+				throw new InferenceFailureException("expression has no value"); //$NON-NLS-1$
 
 			ParameterizedTypeBinding parameterizedType = parameterizedWithWildcard(returnType);
 			if (parameterizedType != null) {

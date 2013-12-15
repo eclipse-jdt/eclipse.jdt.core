@@ -3676,10 +3676,10 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 				IProblem.TypeMismatch,
 				new String[] {
 				        String.valueOf(shownConstructor.returnType.readableName()),
-				        (problemConstructor.returnType != null ? String.valueOf(problemConstructor.returnType.readableName()) : "<unknown>")},
+				        (problemConstructor.returnType != null ? String.valueOf(problemConstructor.returnType.readableName()) : "<unknown>")}, //$NON-NLS-1$
 				new String[] {
 				        String.valueOf(shownConstructor.returnType.shortReadableName()),
-				        (problemConstructor.returnType != null ? String.valueOf(problemConstructor.returnType.shortReadableName()) : "<unknown>")},
+				        (problemConstructor.returnType != null ? String.valueOf(problemConstructor.returnType.shortReadableName()) : "<unknown>")}, //$NON-NLS-1$
 				statement.sourceStart,
 				statement.sourceEnd);
 			return;
@@ -4208,10 +4208,10 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 				IProblem.TypeMismatch,
 				new String[] {
 				        String.valueOf(shownMethod.returnType.readableName()),
-				        (problemMethod.returnType != null ? String.valueOf(problemMethod.returnType.readableName()) : "<unknown>")},
+				        (problemMethod.returnType != null ? String.valueOf(problemMethod.returnType.readableName()) : "<unknown>")}, //$NON-NLS-1$
 				new String[] {
 				        String.valueOf(shownMethod.returnType.shortReadableName()),
-				        (problemMethod.returnType != null ? String.valueOf(problemMethod.returnType.shortReadableName()) : "<unknown>")},
+				        (problemMethod.returnType != null ? String.valueOf(problemMethod.returnType.shortReadableName()) : "<unknown>")}, //$NON-NLS-1$
 				messageSend.sourceStart,
 				messageSend.sourceEnd);
 			return;

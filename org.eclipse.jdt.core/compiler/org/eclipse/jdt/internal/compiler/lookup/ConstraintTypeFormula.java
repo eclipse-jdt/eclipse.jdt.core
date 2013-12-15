@@ -174,7 +174,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 					return new ConstraintTypeFormula(this.left.leafComponentType(), this.right.leafComponentType(), SAME, this.isSoft);
 				}
 				if (this.left.kind() == Binding.INTERSECTION_TYPE && this.right.kind() == Binding.INTERSECTION_TYPE) {
-					InferenceContext18.missingImplementation("Intersection type equality NYI");
+					InferenceContext18.missingImplementation("Intersection type equality NYI"); //$NON-NLS-1$
 				}
 			}
 		}
@@ -248,7 +248,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 						}
 						if (numArrayBounds == 0)
 							return FALSE;
-						InferenceContext18.missingImplementation("Cannot filter most specific array type");
+						InferenceContext18.missingImplementation("Cannot filter most specific array type"); //$NON-NLS-1$
 						// FIXME assign sPrime
 						break;
 					}
@@ -268,7 +268,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			case Binding.WILDCARD_TYPE:
 				// TODO If S is an intersection type of which T is an element, the constraint reduces to true. 
 				if (subCandidate.kind() == Binding.INTERSECTION_TYPE)
-					InferenceContext18.missingImplementation("NYI");
+					InferenceContext18.missingImplementation("NYI"); //$NON-NLS-1$
 				WildcardBinding variable = (WildcardBinding) superCandidate;
 				if (variable.boundKind == Wildcard.SUPER)
 					return new ConstraintTypeFormula(subCandidate, variable.bound, SUBTYPE, this.isSoft);
@@ -277,10 +277,10 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				// same as wildcard (but we don't have a lower bound any way)
 				// TODO If S is an intersection type of which T is an element, the constraint reduces to true.
 				if (subCandidate.kind() == Binding.INTERSECTION_TYPE)
-					InferenceContext18.missingImplementation("NYI");
+					InferenceContext18.missingImplementation("NYI"); //$NON-NLS-1$
 				return FALSE;
 			case Binding.INTERSECTION_TYPE:
-				InferenceContext18.missingImplementation("NYI");
+				InferenceContext18.missingImplementation("NYI"); //$NON-NLS-1$
 		}
 		if (superCandidate.id == TypeIds.T_null)
 			return FALSE;

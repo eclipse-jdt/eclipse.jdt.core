@@ -323,7 +323,7 @@ public class InferenceContext18 {
 	}
 
 	private Object pickFromCycle(Set c) {
-		missingImplementation("Breaking a dependency cycle NYI");
+		missingImplementation("Breaking a dependency cycle NYI"); //$NON-NLS-1$
 		return null; // never
 	}
 
@@ -481,7 +481,7 @@ public class InferenceContext18 {
 										} else {
 											ReferenceBinding[] glbs = Scope.greaterLowerBound((ReferenceBinding[])upperBounds);
 											if (glbs == null)
-												throw new UnsupportedOperationException("no glb for "+Arrays.asList(upperBounds));
+												throw new UnsupportedOperationException("no glb for "+Arrays.asList(upperBounds)); //$NON-NLS-1$
 											else if (glbs.length == 1)
 												glb = glbs[0];
 											else
@@ -552,7 +552,7 @@ public class InferenceContext18 {
 	
 	/** For 18.4: "Let Z1, ..., Zn be fresh type variables" use capture bindings. */
 	private CaptureBinding18 freshCapture(InferenceVariable variable) {
-		char[] sourceName = CharOperation.concat("Z-".toCharArray(), variable.sourceName);
+		char[] sourceName = CharOperation.concat("Z-".toCharArray(), variable.sourceName); //$NON-NLS-1$
 		return new CaptureBinding18(this.scope.enclosingSourceType(), sourceName, variable.typeParameter.shortReadableName(), this.captureId++, this.environment);
 	}
 	// === ===

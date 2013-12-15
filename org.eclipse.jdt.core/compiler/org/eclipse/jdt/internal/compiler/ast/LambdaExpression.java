@@ -508,13 +508,13 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	
 	public boolean isVoidCompatible() {
 		if (!this.shapeAnalysisComplete)
-			throw new IllegalStateException("asking isVoidCompatible before shape analysis is complete");
+			throw new IllegalStateException("asking isVoidCompatible before shape analysis is complete"); //$NON-NLS-1$
 		return this.voidCompatible;
 	}
 
 	public boolean isValueCompatible() {
 		if (!this.shapeAnalysisComplete)
-			throw new IllegalStateException("asking isValueCompatible before shape analysis is complete");
+			throw new IllegalStateException("asking isValueCompatible before shape analysis is complete"); //$NON-NLS-1$
 		return this.valueCompatible;
 	}
 	
