@@ -476,10 +476,6 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 protected boolean isAssistParser() {
 	return true;
 }
-protected void consumeInvocationExpression() { // on error, a message send's error reductions will take the expression path rather than the statement path since that is a dead end.
-	super.consumeInvocationExpression();
-	triggerRecoveryUponLambdaClosure(this.expressionStack[this.expressionPtr], false);
-}
 protected void consumeBlockStatement() {
 	super.consumeBlockStatement();
 	triggerRecoveryUponLambdaClosure((Statement) this.astStack[this.astPtr], true);

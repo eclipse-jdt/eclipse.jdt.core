@@ -455,7 +455,7 @@ public void acceptLocalVariable(LocalVariableBinding binding) {
 				local.declarationSourceEnd,
 				local.sourceStart,
 				local.sourceEnd,
-				local.type == null ? Signature.createTypeSignature(local.binding.type.readableName(), false) : Util.typeSignature(local.type),
+				local.type == null ? Signature.createTypeSignature(binding.type.readableName(), false) : Util.typeSignature(local.type),
 				local.annotations,
 				local.modifiers,
 				local.getKind() == AbstractVariableDeclaration.PARAMETER);
