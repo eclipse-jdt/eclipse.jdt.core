@@ -48,7 +48,7 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 			Scope scope = inferenceContext.scope;
 			if (!this.right.isFunctionalInterface(scope))
 				return FALSE;
-			MethodBinding sam = this.right.getSingleAbstractMethod(scope);
+			MethodBinding sam = this.right.getSingleAbstractMethod(scope, true);
 			if (sam == null)
 				return FALSE;
 			// TODO: this condition is awaiting confirmation, see http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000455.html 
@@ -123,7 +123,7 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 			}
 			if (this.right.isFunctionalInterface(context.scope)) {
 				LambdaExpression lambda = (LambdaExpression) this.left;
-				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope); // TODO derive with target type?
+				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope, true); // TODO derive with target type?
 				final Set variables = new HashSet();
 				if (lambda.argumentsTypeElided()) {
 					// i)
@@ -143,7 +143,7 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 				return Collections.singletonList(this.right);
 			}
 			if (this.right.isFunctionalInterface(context.scope)) { // TODO: && this.left is inexact
-				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope); // TODO derive with target type?
+				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope, true); // TODO derive with target type?
 				final Set variables = new HashSet();
 				int len = sam.parameters.length;
 				for (int i = 0; i < len; i++) {

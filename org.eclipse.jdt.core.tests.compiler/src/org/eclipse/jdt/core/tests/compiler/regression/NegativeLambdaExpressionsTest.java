@@ -20,6 +20,7 @@
  *							bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super via I.super.m() syntax
  *							bug 404728 - [1.8]NPE on QualifiedSuperReference error
  *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -3647,7 +3648,7 @@ public void test400556e() {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	I<?, ?, ?> i = (String p) -> { return null; };\n" + 
 			"	                ^^^^^^\n" + 
-			"Lambda expression\'s parameter p is expected to be of type List<? extends List<ParameterType>>[]\n" + 
+			"Lambda expression\'s parameter p is expected to be of type List<? extends List<?>>[]\n" + 
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
@@ -3688,7 +3689,7 @@ public void test400556f() {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	I<? extends p.ParameterType, ? extends p.ExceptionType, ? extends p.ReturnType> i = (String p) -> { return null; };\n" + 
 			"	                                                                                     ^^^^^^\n" + 
-			"Lambda expression\'s parameter p is expected to be of type List<? extends List<ParameterType>>[]\n" + 
+			"Lambda expression\'s parameter p is expected to be of type List<? extends List<? extends ParameterType>>[]\n" + 
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
@@ -3850,7 +3851,7 @@ public void test400556i() {
 			"2. ERROR in X.java (at line 6)\n" + 
 			"	I<? super P, ? super T, ? super R> i = (String p) -> { return null; };\n" + 
 			"	                                        ^^^^^^\n" + 
-			"Lambda expression\'s parameter p is expected to be of type List<? extends List<P>>[]\n" + 
+			"Lambda expression\'s parameter p is expected to be of type List<? extends List<? super P>>[]\n" + 
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
@@ -3904,8 +3905,8 @@ public void test400556j() {
 			"----------\n" + 
 			"2. ERROR in X.java (at line 6)\n" + 
 			"	I<?, ?, ?> i = (String p) -> { return null; };\n" + 
-			"	               ^^^^^^^^^^^^^\n" + 
-			"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" + 
+			"	                ^^^^^^\n" + 
+			"Lambda expression\'s parameter p is expected to be of type List<? extends List<?>>[]\n" + 
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions

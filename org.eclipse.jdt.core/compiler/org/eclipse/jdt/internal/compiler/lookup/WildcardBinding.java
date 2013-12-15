@@ -17,6 +17,7 @@
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -70,6 +71,21 @@ public class WildcardBinding extends ReferenceBinding {
 		return this.boundKind;
 	}
 	
+	public TypeBinding allBounds() {
+		if (this.otherBounds == null || this.otherBounds.length == 0)
+			return this.bound;
+		ReferenceBinding[] allBounds = new ReferenceBinding[this.otherBounds.length+1];
+		try {
+			allBounds[0] = (ReferenceBinding) this.bound;
+			System.arraycopy(this.otherBounds, 0, allBounds, 1, this.otherBounds.length);
+		} catch (ClassCastException cce) {
+			return this.bound;
+		} catch (ArrayStoreException ase) {
+			return this.bound;
+		}
+		return new IntersectionCastTypeBinding(allBounds, this.environment);
+	}
+
 	public ReferenceBinding actualType() {
 		return this.genericType;
 	}

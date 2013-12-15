@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1957,11 +1958,6 @@ public void testReferenceExpressionInference3b() {
 		"	I<X,String> x2s = compose(this::bar, this::i2s);\n" + 
 		"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from I<Object,Object> to I<X,String>\n" +
-		"----------\n" + 
-		"2. ERROR in X.java (at line 7)\n" + 
-		"	I<X,String> x2s = compose(this::bar, this::i2s);\n" + 
-		"	                                     ^^^^^^^^^\n" + 
-		"The type X does not define i2s(Object) that is applicable here\n" + 
 		"----------\n");
 }
 public void testLambdaInference1() {

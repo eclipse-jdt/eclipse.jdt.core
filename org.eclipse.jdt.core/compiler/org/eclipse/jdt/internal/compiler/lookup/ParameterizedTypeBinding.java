@@ -27,6 +27,7 @@
  *								Bug 416174 - [1.8][compiler][null] Bogus name clash error with null annotations
  *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1315,12 +1316,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public FieldBinding[] unResolvedFields() {
 		return this.fields;
 	}
-	public MethodBinding getSingleAbstractMethod(final Scope scope) {
+	public MethodBinding getSingleAbstractMethod(final Scope scope, boolean replaceWildcards) {
 		if (this.singleAbstractMethod != null) {
 			return this.singleAbstractMethod;
 		}
 		final ReferenceBinding genericType = genericType();
-		MethodBinding theAbstractMethod = genericType.getSingleAbstractMethod(scope);
+		MethodBinding theAbstractMethod = genericType.getSingleAbstractMethod(scope, true);
 		if (theAbstractMethod == null || !theAbstractMethod.isValidBinding())
 			return this.singleAbstractMethod = theAbstractMethod;
 		
@@ -1329,28 +1330,55 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		TypeBinding [] types = new TypeBinding[typeArguments.length];  // T1 ... Tn
 		for (int i = 0, length = typeArguments.length; i < length; i++) {
 			TypeBinding typeArgument = typeArguments[i];
-			switch (typeArgument.kind()) {
-				case Binding.WILDCARD_TYPE :
-					WildcardBinding wildcard = (WildcardBinding) typeArgument;
-					switch(wildcard.boundKind) {
-	    				case Wildcard.EXTENDS :
-	    				case Wildcard.SUPER :
-	    					types[i] = wildcard.bound;
-	    					break;
-	    				case Wildcard.UNBOUND :
-	    					// if Pi has upper bound Bi that mentions none of P1...Pn, then Ti = Bi; otherwise, Ti = Object
-	    					final TypeBinding upperBound = typeParameters[i].firstBound;
-							if (upperBound == null || typeParametersMentioned(upperBound)) {
-	    						types[i] = scope.getJavaLangObject();
-	    					} else {
-	    						types[i] = upperBound;
-	    					}
-	    					break;
-					}
-					break;
-				default :
-					types[i] = typeArgument;
-					break;
+			if (replaceWildcards && typeArgument.kind() == Binding.WILDCARD_TYPE) {
+				if (typeParameters[i].mentionsAny(typeParameters, i))
+					return this.singleAbstractMethod = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NotAWellFormedParameterizedType);
+				WildcardBinding wildcard = (WildcardBinding) typeArgument;
+				switch(wildcard.boundKind) {
+    				case Wildcard.EXTENDS :
+    					// If Ai is a upper-bounded wildcard ? extends Ui, then Ti = glb(Ui, Bi).
+    					// Note: neither Ui nor Bi is necessarily scalar -> need to collect all bounds
+    					TypeBinding[] otherUBounds = wildcard.otherBounds;
+    					TypeBinding[] otherBBounds = typeParameters[i].otherUpperBounds();
+    					int len = 2 + (otherUBounds != null ? otherUBounds.length : 0) + otherBBounds.length;
+    					ReferenceBinding[] allBounds = new ReferenceBinding[len];
+    					try {
+    						int idx = 0;
+    						// Ui
+	    					allBounds[idx++] = (ReferenceBinding) wildcard.bound;
+	    					if (otherUBounds != null)
+	    						for (int j = 0; j < otherUBounds.length; j++)
+	    							allBounds[idx++] = (ReferenceBinding) otherUBounds[j];
+	    					// Bi
+	    					allBounds[idx++] = (ReferenceBinding) typeParameters[i].firstBound;
+	    					for (int j = 0; j < otherBBounds.length; j++)
+	    						allBounds[idx++] = (ReferenceBinding) otherBBounds[j];
+    					} catch (ClassCastException cce) {
+    						return this.singleAbstractMethod = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NotAWellFormedParameterizedType);		    						
+    					}
+    					ReferenceBinding[] glb = Scope.greaterLowerBound(allBounds);
+    					if (glb == null || glb.length == 0) {
+							return this.singleAbstractMethod = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NotAWellFormedParameterizedType);
+						} else if (glb.length == 1) {
+							types[i] = glb[0];
+						} else {
+							types[i] = new IntersectionCastTypeBinding(glb, this.environment);
+						}
+    					break;
+    				case Wildcard.SUPER :
+    					// If Ai is a lower-bounded wildcard ? super Li, then Ti = Li.
+    					types[i] = wildcard.bound;
+    					break;
+    				case Wildcard.UNBOUND :
+    					// If Ai is an unbound wildcard ?, then Ti = Bi.
+    					types[i] = typeParameters[i].firstBound;
+    					if (types[i] == null)
+    						types[i] = typeParameters[i].superclass; // assumably j.l.Object?
+    					break;
+				}
+			} else {
+				// If Ai is a type, then Ti = Ai.
+				types[i] = typeArgument;
 			}
 			if (typeParameters[i].boundCheck(null, types[i], scope) != TypeConstants.OK)
 				return this.singleAbstractMethod = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NotAWellFormedParameterizedType);

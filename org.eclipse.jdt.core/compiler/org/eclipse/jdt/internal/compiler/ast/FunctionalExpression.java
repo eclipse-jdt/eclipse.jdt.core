@@ -15,7 +15,8 @@
  *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
  *     Stephan Herrmann - Contribution for
- *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec) 
+ *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -102,7 +103,7 @@ public abstract class FunctionalExpression extends Expression implements PolyExp
 		// when during inference this expression mimics as an invocationSite,
 		// we simulate an *invocation* of this functional expression,
 		// where the expected type of the expression is the return type of the sam:
-		MethodBinding sam = this.expectedType.getSingleAbstractMethod(this.enclosingScope);
+		MethodBinding sam = this.expectedType.getSingleAbstractMethod(this.enclosingScope, true);
 		if (sam != null) {
 			if (sam.isConstructor())
 				return sam.declaringClass;
@@ -116,9 +117,11 @@ public abstract class FunctionalExpression extends Expression implements PolyExp
 		return this.expectedType;
 	}
 	
+	public boolean argumentsTypeElided() { return true; /* only exception: lambda with explicit argument types. */ }
+
 	public TypeBinding resolveType(BlockScope blockScope) {
 		this.constant = Constant.NotAConstant;
-		MethodBinding sam = this.expectedType == null ? null : this.expectedType.getSingleAbstractMethod(blockScope);
+		MethodBinding sam = this.expectedType == null ? null : this.expectedType.getSingleAbstractMethod(blockScope, argumentsTypeElided());
 		if (sam == null) {
 			blockScope.problemReporter().targetTypeIsNotAFunctionalInterface(this);
 			return null;

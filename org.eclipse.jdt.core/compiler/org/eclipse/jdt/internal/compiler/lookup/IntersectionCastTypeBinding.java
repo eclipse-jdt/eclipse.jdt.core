@@ -11,6 +11,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.lookup;
@@ -32,12 +34,12 @@ public class IntersectionCastTypeBinding extends ReferenceBinding {
 		}
 	}
 	
-	public MethodBinding getSingleAbstractMethod(Scope scope) {
+	public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcards) {
 		if (this.singleAbstractMethod != null)
 			return this.singleAbstractMethod;
 		MethodBinding sam = samProblemBinding;  // guilty unless proven innocent !
 		for (int i = 0; i < this.length; i++) {
-			MethodBinding method = this.intersectingTypes[i].getSingleAbstractMethod(scope);
+			MethodBinding method = this.intersectingTypes[i].getSingleAbstractMethod(scope, replaceWildcards);
 			if (method != null) {
 				if (method.isValidBinding()) {
 					if (sam.isValidBinding())

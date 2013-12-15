@@ -15,6 +15,7 @@
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 416174 - [1.8][compiler][null] Bogus name clash error with null annotations
  *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
+ *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -188,12 +189,12 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		this.arguments = typeArguments;
 	}
 	
-	public MethodBinding getSingleAbstractMethod(Scope scope) {
+	public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcards) {
 		if (this.singleAbstractMethod != null) {
 			return this.singleAbstractMethod;
 		}
 		final ReferenceBinding genericType = genericType();
-		MethodBinding theAbstractMethod = genericType.getSingleAbstractMethod(scope);
+		MethodBinding theAbstractMethod = genericType.getSingleAbstractMethod(scope, replaceWildcards);
 		if (theAbstractMethod == null || !theAbstractMethod.isValidBinding())
 			return this.singleAbstractMethod = theAbstractMethod;
 		

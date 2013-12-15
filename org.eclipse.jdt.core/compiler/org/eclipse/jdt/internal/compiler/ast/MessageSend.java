@@ -39,6 +39,7 @@
  *								Bug 411964 - [1.8][null] leverage null type annotation in foreach statement
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -979,7 +980,7 @@ public void markInferenceFinished() {
 	this.inferenceKind |= InferenceContext18.CHECK_FINISHED;
 }
 public boolean hasInferenceFinished() {
-	return this.inferenceKind == 0 // only relevant if inference has been started
+	return (this.inferenceContext == null && this.inferenceKind == 0) // only relevant if inference has been started
 			|| (this.inferenceKind & InferenceContext18.CHECK_FINISHED) != 0;
 }
 public TypeBinding updateBindings(MethodBinding updatedBinding) {

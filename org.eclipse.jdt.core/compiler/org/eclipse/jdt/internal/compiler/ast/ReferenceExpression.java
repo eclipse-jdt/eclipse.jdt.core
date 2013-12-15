@@ -21,6 +21,7 @@
  *							Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *							Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contribution for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -546,7 +547,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		if (targetType == null) // assumed to signal another primary error
 			return true;
 
-		final MethodBinding sam = targetType.getSingleAbstractMethod(this.enclosingScope); // cached/cheap call.
+		final MethodBinding sam = targetType.getSingleAbstractMethod(this.enclosingScope, true); // cached/cheap call.
 		
 		if (sam == null || !sam.isValidBinding())
 			return true;
@@ -624,7 +625,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		if (this.hasInferenceFinished)
 			return this.resolvedType != null ? this.resolvedType.isCompatibleWith(left, scope) : false;
 		// 15.28.2
-		final MethodBinding sam = left.getSingleAbstractMethod(this.enclosingScope);
+		final MethodBinding sam = left.getSingleAbstractMethod(this.enclosingScope, true);
 		if (sam == null || !sam.isValidBinding())
 			return false;
 		boolean isCompatible;
@@ -652,12 +653,12 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			return false;
 		
 		s = s.capture(this.enclosingScope, this.sourceEnd);
-		MethodBinding sSam = s.getSingleAbstractMethod(this.enclosingScope);
+		MethodBinding sSam = s.getSingleAbstractMethod(this.enclosingScope, true);
 		if (sSam == null || !sSam.isValidBinding())
 			return false;
 		TypeBinding r1 = sSam.returnType;
 		
-		MethodBinding tSam = t.getSingleAbstractMethod(this.enclosingScope);
+		MethodBinding tSam = t.getSingleAbstractMethod(this.enclosingScope, true);
 		if (tSam == null || !tSam.isValidBinding())
 			return false;
 		TypeBinding r2 = tSam.returnType;

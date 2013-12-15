@@ -212,4 +212,22 @@ public void testBug424038() {
 		"Type mismatch: cannot convert from List<Foo<E>.Stuff<E>> to List<Consumer<E>>\n" + 
 		"----------\n");
 }
+
+// https://bugs.eclipse.org/423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference" 
+public void testBug423504() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"public class X  {\n" + 
+			"  public static void main(String argv[]) {\n" + 
+			"    I<? extends Collection<String>> sorter = (List<String> m) -> { /* sort */ };\n" + 
+			"  }\n" + 
+			"} \n" + 
+			"\n" + 
+			"interface I<T> { \n" + 
+			"  public void sort(T col);\n" + 
+			"}\n"
+		});
+}
 }

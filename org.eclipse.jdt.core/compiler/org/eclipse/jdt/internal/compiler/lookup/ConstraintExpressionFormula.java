@@ -114,7 +114,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				TypeBinding t = this.right;
 				if (!t.isFunctionalInterface(scope))
 					return FALSE;
-				MethodBinding functionType = t.getSingleAbstractMethod(scope);
+				MethodBinding functionType = t.getSingleAbstractMethod(scope, true);
 				if (functionType == null)
 					return FALSE;
 				TypeBinding[] parameters = functionType.parameters;
@@ -203,7 +203,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			throw new IllegalStateException("Should not reach here with T being a proper type"); //$NON-NLS-1$
 		if (!t.isFunctionalInterface(inferenceContext.scope))
 			return FALSE;
-		MethodBinding functionType = t.getSingleAbstractMethod(inferenceContext.scope);
+		MethodBinding functionType = t.getSingleAbstractMethod(inferenceContext.scope, true);
 		if (functionType == null)
 			return FALSE;
 		// potentially-applicable method for the method reference when targeting T (15.28.1),
@@ -282,7 +282,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			if (returnType == TypeBinding.VOID)
 				throw new InferenceFailureException("expression has no value"); //$NON-NLS-1$
 
-			ParameterizedTypeBinding parameterizedType = parameterizedWithWildcard(returnType);
+			ParameterizedTypeBinding parameterizedType = InferenceContext18.parameterizedWithWildcard(returnType);
 			if (parameterizedType != null) {
 				TypeBinding[] arguments = parameterizedType.arguments;
 				InferenceVariable[] betas = inferenceContext.addTypeVariableSubstitutions(arguments);
@@ -313,18 +313,6 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 		return true;
 	}
 
-	private static ParameterizedTypeBinding parameterizedWithWildcard(TypeBinding returnType) {
-		if (returnType.kind() != Binding.PARAMETERIZED_TYPE)
-			return null;
-		ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) returnType;
-		TypeBinding[] arguments = parameterizedType.arguments;
-		for (int i = 0; i < arguments.length; i++) {
-			if (arguments[i].isWildcard())
-				return parameterizedType;
-		}
-		return null;
-	}
-
 	Collection inputVariables(final InferenceContext18 context) {
 		// from 18.5.2.
 		if (this.left instanceof LambdaExpression) {
@@ -333,7 +321,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			}
 			if (this.right.isFunctionalInterface(context.scope)) {
 				LambdaExpression lambda = (LambdaExpression) this.left;
-				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope); // TODO derive with target type?
+				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope, true); // TODO derive with target type?
 				final Set variables = new HashSet();
 				if (lambda.argumentsTypeElided()) {
 					// i)
@@ -365,7 +353,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				return Collections.singletonList(this.right);
 			}
 			if (this.right.isFunctionalInterface(context.scope) && !this.left.isExactMethodReference()) {
-				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope);
+				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope, true);
 				final Set variables = new HashSet();
 				int len = sam.parameters.length;
 				for (int i = 0; i < len; i++) {

@@ -20,6 +20,7 @@
  *								Bug 415291 - [1.8][null] differentiate type incompatibilities due to null annotations
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -1423,10 +1424,11 @@ public TypeVariableBinding[] typeVariables() {
 /**
  * Return the single abstract method of a functional interface, or null, if the receiver is not a functional interface as defined in JLS 9.8.
  * @param scope scope
+ * @param replaceWildcards Should wildcards be replaced following JLS 9.8? Say false for lambdas with explicit argument types which should apply 18.5.3
  *  
  * @return The single abstract method of a functional interface, or null, if the receiver is not a functional interface. 
  */
-public MethodBinding getSingleAbstractMethod(Scope scope) {
+public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcards) {
 	return null;
 }
 

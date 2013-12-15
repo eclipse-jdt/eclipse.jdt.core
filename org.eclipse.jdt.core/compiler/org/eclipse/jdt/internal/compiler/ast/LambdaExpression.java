@@ -20,6 +20,7 @@
  *							Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *							Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -43,10 +44,12 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -259,6 +262,34 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				if ((parameterType.tagBits & TagBits.HasMissingType) != 0) {
 					this.binding.tagBits |= TagBits.HasMissingType;
 				}
+			}
+		}
+		if (!argumentsTypeElided && !buggyArguments) {
+			ParameterizedTypeBinding withWildCards = InferenceContext18.parameterizedWithWildcard(this.expectedType);
+			if (withWildCards != null) {
+				// invoke 18.5.3 Functional Interface Parameterization Inference
+				InferenceContext18 ctx = new InferenceContext18(methodScope);
+				TypeBinding[] q = ctx.createBoundsForFunctionalInterfaceParameterizationInference(withWildCards);
+				if (q.length != this.arguments.length) {
+					// fail  TODO: can this still happen here?
+				} else {
+					if (ctx.reduceWithEqualityConstraints(this.argumentTypes, q)) {
+						TypeBinding[] a = withWildCards.arguments;
+						TypeBinding[] aprime = ctx.getFunctionInterfaceArgumentSolutions(a);
+						// TODO If F<A'1, ..., A'm> is a well-formed type, ...
+						ReferenceBinding genericType = withWildCards.genericType();
+						this.resolvedType = blockScope.environment().createParameterizedType(genericType, aprime, genericType.enclosingType());
+						this.descriptor = this.resolvedType.getSingleAbstractMethod(blockScope, false);
+					}
+				}
+			}
+		}
+		for (int i = 0; i < length; i++) {
+			Argument argument = this.arguments[i];
+			TypeBinding parameterType;
+			final TypeBinding expectedParameterType = haveDescriptor && i < this.descriptor.parameters.length ? this.descriptor.parameters[i] : null;
+			parameterType = argumentsTypeElided ? expectedParameterType : this.argumentTypes[i];
+			if (parameterType != null && parameterType != TypeBinding.VOID) {
 				if (haveDescriptor && expectedParameterType != null && parameterType.isValidBinding() && TypeBinding.notEquals(parameterType, expectedParameterType)) {
 					this.scope.problemReporter().lambdaParameterTypeMismatched(argument, argument.type, expectedParameterType);
 				}
@@ -611,7 +642,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	
 	public boolean isCompatibleWith(final TypeBinding left, final Scope someScope) {
 		
-		final MethodBinding sam = left.getSingleAbstractMethod(this.enclosingScope);
+		final MethodBinding sam = left.getSingleAbstractMethod(this.enclosingScope, true);
 		
 		if (sam == null || !sam.isValidBinding())
 			return false;
@@ -774,11 +805,11 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			return false;
 		
 		s = s.capture(this.enclosingScope, this.sourceEnd);
-		MethodBinding sSam = s.getSingleAbstractMethod(this.enclosingScope);
+		MethodBinding sSam = s.getSingleAbstractMethod(this.enclosingScope, true);
 		if (sSam == null || !sSam.isValidBinding())
 			return false;
 		TypeBinding r1 = sSam.returnType;
-		MethodBinding tSam = t.getSingleAbstractMethod(this.enclosingScope);
+		MethodBinding tSam = t.getSingleAbstractMethod(this.enclosingScope, true);
 		if (tSam == null || !tSam.isValidBinding())
 			return false;
 		TypeBinding r2 = tSam.returnType;

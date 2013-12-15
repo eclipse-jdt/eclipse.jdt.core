@@ -25,6 +25,7 @@ import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.Invocation;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /**
  * Main class for new type inference as per JLS8 sect 18.
@@ -85,6 +86,12 @@ public class InferenceContext18 {
 		this.object = scope.getJavaLangObject();
 		this.invocationArguments = arguments;
 		this.currentInvocation = site;
+	}
+
+	public InferenceContext18(Scope scope) {
+		this.scope = scope;
+		this.environment = scope.environment();
+		this.object = scope.getJavaLangObject();
 	}
 
 	/**
@@ -721,6 +728,80 @@ public class InferenceContext18 {
 		if (this.problemMethods == null)
 			this.problemMethods = new ArrayList();
 		this.problemMethods.add(problemMethod);
+	}
+
+	public static ParameterizedTypeBinding parameterizedWithWildcard(TypeBinding returnType) {
+		if (returnType == null || returnType.kind() != Binding.PARAMETERIZED_TYPE)
+			return null;
+		ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) returnType;
+		TypeBinding[] arguments = parameterizedType.arguments;
+		for (int i = 0; i < arguments.length; i++) {
+			if (arguments[i].isWildcard())
+				return parameterizedType;
+		}
+		return null;
+	}
+
+	/**
+	 * Create initial bound set for 18.5.3 Functional Interface Parameterization Inference
+	 * @param functionalInterface the functional interface F<A1,..Am>
+	 * @return the parameter types Q1..Qk of the function type of the type F<α1, ..., αm> 
+	 */
+	public TypeBinding[] createBoundsForFunctionalInterfaceParameterizationInference(ParameterizedTypeBinding functionalInterface) {
+		this.currentBounds = new BoundSet();
+		TypeBinding[] a = functionalInterface.arguments;
+		InferenceVariable[] alpha = addInitialTypeVariableSubstitutions(a);
+
+		for (int i = 0; i < a.length; i++) {
+			TypeBound bound;
+			if (a[i].kind() == Binding.WILDCARD_TYPE) {
+				WildcardBinding wildcard = (WildcardBinding) a[i];
+				switch(wildcard.boundKind) {
+    				case Wildcard.EXTENDS :
+    					bound = new TypeBound(alpha[i], wildcard.allBounds(), ReductionResult.SUBTYPE);
+    					break;
+    				case Wildcard.SUPER :
+    					bound = new TypeBound(alpha[i], wildcard.bound, ReductionResult.SUPERTYPE);
+    					break;
+    				case Wildcard.UNBOUND :
+    					bound = new TypeBound(alpha[i], this.object, ReductionResult.SUBTYPE);
+    					break;
+    				default:
+    					continue; // cannot
+				}
+			} else {
+				bound = new TypeBound(alpha[i], a[i], ReductionResult.SAME);
+			}
+			this.currentBounds.addBound(bound);
+		}
+		TypeBinding falpha = substitute(functionalInterface);
+		return falpha.getSingleAbstractMethod(this.scope, true).parameters;
+	}
+
+	public boolean reduceWithEqualityConstraints(TypeBinding[] p, TypeBinding[] q) {
+		for (int i = 0; i < p.length; i++) {
+			try {
+				if (!this.reduceAndIncorporate(new ConstraintTypeFormula(p[i], q[i], ReductionResult.SAME)))
+					return false;
+			} catch (InferenceFailureException e) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public TypeBinding[] getFunctionInterfaceArgumentSolutions(TypeBinding[] a) {
+		int m = a.length;
+		TypeBinding[] aprime = new TypeBinding[m];
+		for (int i = 0; i < this.inferenceVariables.length; i++) {
+			InferenceVariable alphai = this.inferenceVariables[i];
+			TypeBinding t = this.currentBounds.getInstantiation(alphai);
+			if (t != null)
+				aprime[i] = t;
+			else
+				aprime[i] = a[i];
+		}
+		return aprime;
 	}
 
 	// INTERIM: infrastructure for detecting failures caused by specific known incompleteness:
