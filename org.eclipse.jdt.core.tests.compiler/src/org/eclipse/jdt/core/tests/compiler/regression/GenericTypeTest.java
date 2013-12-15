@@ -39473,7 +39473,6 @@ public void test1145() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945 - variation
-// FIXME: javac rejects (correctly? how?) (intermittent FAIL ?), see http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000443.html
 public void test1146() {
 	this.runNegativeTest(
 		new String[] {
@@ -39525,19 +39524,14 @@ public void test1146() {
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	int i = asList(a, b, rest);\n" + 
 			"	        ^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from List<Comparator<?>> to int\n" + 
+			"Type mismatch: cannot convert from List<Comparator<? super T>> to int\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 8)\n" + 
 			"	int j = asList2(a, b);\n" + 
 			"	        ^^^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from List<Comparator<? extends Object>> to int\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 9)\n" + 
-			"	return compound(asList(a, b, rest));\n" + 
-			"	       ^^^^^^^^\n" + 
-			"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" + 
-			"----------\n" + 
-			"5. WARNING in X.java (at line 14)\n" + 
+			"4. WARNING in X.java (at line 14)\n" + 
 			"	public static <E> List<E> asList(E a, E b, E... rest) {\n" + 
 			"	                                                ^^^^\n" + 
 			"Type safety: Potential heap pollution via varargs parameter rest\n" + 
@@ -39584,6 +39578,7 @@ public void test1147() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945 - variation
+// FAIL ERRMSG
 public void test1148() {
 	this.runNegativeTest(
 		new String[] {
