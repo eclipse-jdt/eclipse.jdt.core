@@ -120,7 +120,8 @@ protected void attachOrphanCompletionNode(){
 				this.currentElement = this.currentElement.add(statement, 0);
 			}
 		}
-		this.currentToken = 0; // given we are not on an eof, we do not want side effects caused by looked-ahead token
+		if (!isIndirectlyInsideLambdaExpression())
+			this.currentToken = 0; // given we are not on an eof, we do not want side effects caused by looked-ahead token
 	}
 }
 private void buildMoreCompletionContext(Expression expression) {
@@ -552,7 +553,8 @@ protected void consumeEnterAnonymousClassBody(boolean qualified) {
 	if (!this.diet){
 		this.restartRecovery	= true;	// force to restart in recovery mode
 		this.lastIgnoredToken = -1;
-		this.currentToken = 0; // opening brace already taken into account
+		if (!isIndirectlyInsideLambdaExpression())
+			this.currentToken = 0; // opening brace already taken into account
 		this.hasReportedError = true;
 	}
 
@@ -562,7 +564,8 @@ protected void consumeEnterAnonymousClassBody(boolean qualified) {
 	if (this.currentElement != null){
 		this.lastCheckPoint = anonymousType.bodyStart;
 		this.currentElement = this.currentElement.add(anonymousType, 0);
-		this.currentToken = 0; // opening brace already taken into account
+		if (!isIndirectlyInsideLambdaExpression())
+			this.currentToken = 0; // opening brace already taken into account
 		this.lastIgnoredToken = -1;
 	}
 }

@@ -817,4 +817,48 @@ public void testBrokenMethodCall() {  // verify that completion works when the c
 				expectedReplacedSource,
 				"diet ast");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424080, [1.8][completion] Workbench hanging on code completion with lambda expression containing anonymous class
+public void test424080() {
+	String string = 
+			"interface FI {\n" +
+			"	public static int val = 5;\n" +
+			"	default int run (String x) { return 1;};\n" +
+			"	public int run (int x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	FI fi = x -> (new FI() { public int run (int x) {return 2;}}).run(\"\")val;\n" +
+			"}\n";
+
+			String completeBehind = "val";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:val>";
+			String expectedParentNodeToString = "<NONE>";
+			String completionIdentifier = "val";
+			String expectedReplacedSource = "val";
+			String expectedUnitDisplayString =
+					"interface FI {\n" + 
+					"  public static int val;\n" + 
+					"  <clinit>() {\n" + 
+					"  }\n" + 
+					"  default int run(String x) {\n" + 
+					"  }\n" + 
+					"  public int run(int x);\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  FI fi = <CompleteOnName:val>;\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
 }

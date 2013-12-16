@@ -329,7 +329,7 @@ public RecoveredElement buildInitialRecoveryState(){
 			this.lastCheckPoint = importRef.declarationSourceEnd + 1;
 		}
 	}
-	if (this.currentToken == TokenNameRBRACE) {
+	if (this.currentToken == TokenNameRBRACE && !isIndirectlyInsideLambdaExpression()) {
 		this.currentToken = 0; // closing brace has already been taken care of
 	}
 

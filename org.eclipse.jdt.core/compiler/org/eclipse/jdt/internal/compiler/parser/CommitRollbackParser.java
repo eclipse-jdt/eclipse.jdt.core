@@ -26,7 +26,6 @@ public abstract class CommitRollbackParser implements TerminalTokens, ParserBasi
 
 	public Scanner scanner;
 	public int currentToken;
-	protected int kurrentToken; // copy of currentToken as it is trampled over all over the place :-(
 	
 	public CommitRollbackParser snapShot;
 	private static final int[] RECOVERY_TOKENS = new int [] { TokenNameSEMICOLON, TokenNameRPAREN,};
@@ -65,20 +64,20 @@ public abstract class CommitRollbackParser implements TerminalTokens, ParserBasi
 		int automatonState = automatonState();
 				
 		// If triggered fake EOF at completion site, see if the real next token would have passed muster.
-		if (this.kurrentToken == TokenNameEOF) {
+		if (this.currentToken == TokenNameEOF) {
 			if (this.scanner.eofPosition < this.scanner.source.length) {
 				atCompletionSite = true;
 				this.scanner.eofPosition = this.scanner.source.length;
 				nextToken = getNextToken();
 				if (automatonWillShift(nextToken, automatonState)) {
-					this.currentToken = this.kurrentToken = nextToken;
+					this.currentToken = nextToken;
 					return RESUME;
 				}
 			} else {
 				nextToken = TokenNameEOF;
 			}
 		} else {
-			nextToken = this.kurrentToken;
+			nextToken = this.currentToken;
 		}
 		if (nextToken == TokenNameEOF)
 			return HALT; // don't know how to proceed.
@@ -86,7 +85,7 @@ public abstract class CommitRollbackParser implements TerminalTokens, ParserBasi
 		// OK, next token is no good to resume "in place", attempt some local repair. FIXME: need to make sure we don't get stuck keep reducing empty statements !!
 		for (int i = 0, length = RECOVERY_TOKENS.length; i < length; i++) {
 			if (automatonWillShift(RECOVERY_TOKENS[i], automatonState)) {
-				this.currentToken = this.kurrentToken = RECOVERY_TOKENS[i];
+				this.currentToken = RECOVERY_TOKENS[i];
 				return RESUME;
 			}
 		}
