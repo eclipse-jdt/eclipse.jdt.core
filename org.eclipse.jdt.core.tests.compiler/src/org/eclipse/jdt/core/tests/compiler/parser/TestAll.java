@@ -141,6 +141,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		tests_1_8.add(ReferenceExpressionSyntaxTest.class);
 		tests_1_8.add(TypeAnnotationSyntaxTest.class);
 		tests_1_8.add(CompletionParserTest18.class);
+		tests_1_8.add(SelectionParserTest18.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;

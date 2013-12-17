@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class SelectionOnReferenceExpressionName extends ReferenceExpression {
@@ -43,7 +44,9 @@ public class SelectionOnReferenceExpressionName extends ReferenceExpression {
 	}
 
 	public TypeBinding resolveType(BlockScope scope) {
-		super.resolveType(scope);
+		TypeBinding type = super.resolveType(scope);
+		if (type instanceof PolyTypeBinding)
+			return type;
 		MethodBinding method = getMethodBinding();
 		if (method != null && method.isValidBinding() && !method.isSynthetic())
 			throw new SelectionNodeFound(this.actualMethodBinding);

@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.tests.compiler.parser.CompletionParserTest18;
 import org.eclipse.jdt.core.tests.compiler.parser.ComplianceDiagnoseTest;
 import org.eclipse.jdt.core.tests.compiler.parser.LambdaExpressionSyntaxTest;
 import org.eclipse.jdt.core.tests.compiler.parser.ReferenceExpressionSyntaxTest;
+import org.eclipse.jdt.core.tests.compiler.parser.SelectionParserTest18;
 import org.eclipse.jdt.core.tests.compiler.parser.TypeAnnotationSyntaxTest;
 import org.eclipse.jdt.core.tests.compiler.regression.ClassFileReaderTest_1_8;
 import org.eclipse.jdt.core.tests.compiler.regression.Deprecated18Test;
@@ -94,6 +95,7 @@ public class RunOnlyJava8Tests extends TestCase {
 			RepeatableAnnotationTest.class,
 			ResolveTests18.class,
 			CompletionParserTest18.class,
+			SelectionParserTest18.class,
 			CompletionTests18.class,
 			GenericsRegressionTest_1_8.class,
 		};

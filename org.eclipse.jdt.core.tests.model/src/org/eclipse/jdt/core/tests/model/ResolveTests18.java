@@ -1632,4 +1632,63 @@ public void testParser() throws JavaModelException {
 		elements
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424110, [1.8][hovering] Hover, F3 does not work for method reference in method invocation
+public void test424110() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"public class X {\n" +
+			"	static F f = X::m; // [1] Works\n" +
+			"	int i = fun(X::m); // [2] Does not work\n" +
+			"	public static int m(int x) {\n" +
+			"		return x;\n" +
+			"	}\n" +
+			"	private int fun(F f) {\n" +
+			"		return f.foo(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"interface F {\n" +
+			"	int foo(int x);\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "m";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"m(int) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424110, [1.8][hovering] Hover, F3 does not work for method reference in method invocation
+public void test424110a() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"public class X {\n" +
+			"	int i = fun(X::m); // [2] Does not work\n" +
+			"	public static int m(int x) {\n" +
+			"		return x;\n" +
+			"	}\n" +
+			"	private int fun(F f) {\n" +
+			"		return f.foo(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"interface F {\n" +
+			"	int foo(int x);\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "m";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"m(int) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
 }
