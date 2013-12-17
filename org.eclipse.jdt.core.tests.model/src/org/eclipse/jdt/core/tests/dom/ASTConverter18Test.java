@@ -28,7 +28,10 @@ import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Dimension;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -3508,5 +3511,36 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		SingleVariableDeclaration variable = stmt.getParameter();
 		IVariableBinding binding = variable.resolveBinding();
 		assertTrue("Should be effectively final", binding.isEffectivelyFinal());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=423584, [1.8][dom ast] NPE in LambdaExpression#getMethodBinding() for lambda with unresolved type
+	 */
+	public void test423584() throws JavaModelException {
+		String contents =
+				"interface I { }\n" +
+				"public class X {\n" +
+				"    static void goo(I i) {\n" +
+				"        System.out.println(\"goo(I)\");\n" +
+				"    }\n" +
+				"    public static void main(String[] args) {\n" +
+				"        goo(s -> 0);\n" +
+				"    }\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 2, "The method goo(I) in the type X is not applicable for the arguments ((<no type> s) -> 0)\n" + 
+												"The target type of this expression must be a functional interface");
+		node = getASTNode(compilationUnit, 1);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		MethodDeclaration[] methods = ((TypeDeclaration) node).getMethods();
+		assertEquals("Incorrect no of methods", 2, methods.length);
+		MethodDeclaration method = methods[1];
+		List statements = method.getBody().statements();
+		LambdaExpression lambda = (LambdaExpression) ((MethodInvocation) ((ExpressionStatement) statements.get(0)).getExpression()).arguments().get(0);
+		IMethodBinding resolveMethodBinding = lambda.resolveMethodBinding();
+		assertTrue("Should be null", resolveMethodBinding == null); // no NPE, just a null method binding.
 	}
 }

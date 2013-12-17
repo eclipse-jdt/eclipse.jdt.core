@@ -25,6 +25,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
@@ -51,6 +52,8 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
@@ -1094,13 +1097,14 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	// Return the actual method binding devoid of synthetics. 
 	public MethodBinding getMethodBinding() {
 		if (this.actualMethodBinding == null) {
-			if (this.binding == null) {
-				this.resolveType((BlockScope)this.scope.parent);
+			if (this.binding != null) {
+				this.actualMethodBinding = new MethodBinding(this.binding.modifiers, this.binding.selector, this.binding.returnType, 
+						this.binding instanceof SyntheticMethodBinding ? this.descriptor.parameters : this.binding.parameters,  // retain any faults in parameter list.
+								this.binding.thrownExceptions, this.binding.declaringClass);
+				this.actualMethodBinding.tagBits = this.binding.tagBits;
+			} else {
+				this.actualMethodBinding = new ProblemMethodBinding(CharOperation.NO_CHAR, null, ProblemReasons.NoSuchSingleAbstractMethod);
 			}
-			this.actualMethodBinding = new MethodBinding(this.binding.modifiers, this.binding.selector, this.binding.returnType, 
-					this.binding instanceof SyntheticMethodBinding ? this.descriptor.parameters : this.binding.parameters,  // retain any faults in parameter list.
-							this.binding.thrownExceptions, this.binding.declaringClass);
-			this.actualMethodBinding.tagBits = this.binding.tagBits;
 		}
 		return this.actualMethodBinding;
 	}
