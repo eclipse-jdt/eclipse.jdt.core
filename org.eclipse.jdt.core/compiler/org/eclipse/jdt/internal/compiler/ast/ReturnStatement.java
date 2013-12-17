@@ -67,6 +67,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	// to each of the traversed try statements, so that execution will terminate properly.
 
 	// lookup the label, this should answer the returnContext
+	
+	if (this.expression instanceof FunctionalExpression) {
+		if (this.expression.resolvedType == null || !this.expression.resolvedType.isValidBinding()) {
+			/* Don't descend without proper target types. For lambda shape analysis, what is pertinent is value vs void return and the fact that
+			   this constitutes an abrupt exit. The former is already gathered, the latter is handled here.
+			*/ 
+			flowContext.recordAbruptExit();
+			return FlowInfo.DEAD_END;
+		}
+	}
 
 	MethodScope methodScope = currentScope.methodScope();
 	if (this.expression != null) {

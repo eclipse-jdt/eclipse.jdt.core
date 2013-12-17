@@ -7716,6 +7716,36 @@ public void test421927a() {
 			"----------\n",
 			true);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423429, [1.8][compiler] NPE in LambdaExpression.analyzeCode
+public void test423429() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"interface I {\n" + 
+					"	J foo(String x, String y);\n" +
+					"}\n" +
+					"interface J {\n" +
+					"	K foo(String x, String y);\n" +
+					"}\n" +
+					"interface K {\n" +
+					"	int foo(String x, int y);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	static void goo(K i) {}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		goo ((first, second) -> {\n" +
+					"			return (xyz, pqr) -> first.length();\n" +
+					"		});\n" +
+					"	}\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 14)\n" + 
+			"	return (xyz, pqr) -> first.length();\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
