@@ -570,7 +570,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	}
 
 	public boolean isTypeAccess() {
-		return false;
+		return !this.haveReceiver;
 	}
 
 	public void setActualReceiverType(ReferenceBinding receiverType) {

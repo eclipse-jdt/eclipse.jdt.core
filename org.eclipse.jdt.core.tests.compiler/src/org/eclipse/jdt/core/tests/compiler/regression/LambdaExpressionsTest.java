@@ -2086,6 +2086,30 @@ public void testBug419048_3() {
 			"}\n"
 		});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424226,  [1.8] Cannot use static method from an interface in static method reference
+public void test424226() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void fun1() {\n" +
+			"		FI fi = I::staticMethod; \n" +
+			"	}\n" +
+			"   public static void main(String [] args) {\n" +
+			"       System.out.println(\"OK\");\n" +
+			"   }\n" +
+			"}\n" +
+			"@FunctionalInterface\n" +
+			"interface FI {\n" +
+			"	void foo();	\n" +
+			"}\n" +
+			"interface I {\n" +
+			"	static FI staticMethod() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n"
+		}, "OK");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
