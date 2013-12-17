@@ -1735,6 +1735,8 @@ public final class CompletionEngine
 			completionOnMemberValueName(astNode, astNodeParent, scope, insideTypeAnnotation);
 		} else if(astNode instanceof CompletionOnBranchStatementLabel) {
 			completionOnBranchStatementLabel(astNode);
+		} else if (astNode instanceof CompletionOnReferenceExpressionName) {
+			completionOnReferenceExpressionName(astNode, scope);
 		} else if(astNode instanceof CompletionOnMessageSendName) {
 			completionOnMessageSendName(astNode, qualifiedBinding, scope);
 		// Completion on Javadoc nodes
@@ -2732,6 +2734,37 @@ public final class CompletionEngine
 				null,
 				-1,
 				-1);
+		}
+	}
+	
+	private void completionOnReferenceExpressionName(ASTNode astNode, Scope scope) {
+		if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
+			CompletionOnReferenceExpressionName referenceExpression = (CompletionOnReferenceExpressionName) astNode;
+
+			this.insideQualifiedReference = true;
+			this.completionToken = referenceExpression.selector;
+
+			findMethods(
+					this.completionToken,
+					null,
+					null,
+					(ReferenceBinding)referenceExpression.lhs.resolvedType.capture(scope, referenceExpression.sourceEnd),
+					scope,
+					new ObjectVector(),
+					false,
+					false,
+					referenceExpression,
+					scope,
+					false,
+					false,
+					false,
+					null,
+					null,
+					null,
+					false,
+					null,
+					-1,
+					-1);
 		}
 	}
 	

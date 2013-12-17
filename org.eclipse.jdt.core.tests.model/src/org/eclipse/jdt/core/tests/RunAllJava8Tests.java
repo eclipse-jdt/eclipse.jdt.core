@@ -23,6 +23,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.eclipse.jdt.core.tests.builder.IncrementalTests18;
 import org.eclipse.jdt.core.tests.compiler.parser.ComplianceDiagnoseTest;
 import org.eclipse.jdt.core.tests.dom.ASTConverter15JLS8Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverter17Test;
@@ -54,6 +55,7 @@ public class RunAllJava8Tests extends TestCase {
 			JavaSearchBugs8Tests.class,
 			ResolveTests18.class,
 			CompletionTests18.class,
+			IncrementalTests18.class,
 			org.eclipse.jdt.compiler.apt.tests.AllTests.class,
 		};
 	}

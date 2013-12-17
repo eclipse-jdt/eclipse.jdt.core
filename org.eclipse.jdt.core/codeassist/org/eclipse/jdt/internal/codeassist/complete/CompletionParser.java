@@ -4770,6 +4770,15 @@ protected boolean isInsideReturn(){
 	}
 	return false;
 }
+public ReferenceExpression newReferenceExpression() {
+	char[] selector = this.identifierStack[this.identifierPtr];
+	if (selector != assistIdentifier()){
+		return super.newReferenceExpression();
+	}
+	ReferenceExpression referenceExpression = new CompletionOnReferenceExpressionName();
+	this.assistNode = referenceExpression;
+	return referenceExpression;
+}
 public CompilationUnitDeclaration parse(ICompilationUnit sourceUnit, CompilationResult compilationResult, int cursorLoc) {
 
 	this.cursorLocation = cursorLoc;

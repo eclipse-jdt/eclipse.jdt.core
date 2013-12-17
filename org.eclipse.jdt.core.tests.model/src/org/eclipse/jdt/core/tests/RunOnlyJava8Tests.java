@@ -23,6 +23,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.eclipse.jdt.core.tests.builder.IncrementalTests18;
 import org.eclipse.jdt.core.tests.compiler.parser.CompletionParserTest18;
 import org.eclipse.jdt.core.tests.compiler.parser.ComplianceDiagnoseTest;
 import org.eclipse.jdt.core.tests.compiler.parser.LambdaExpressionSyntaxTest;
@@ -98,6 +99,7 @@ public class RunOnlyJava8Tests extends TestCase {
 			SelectionParserTest18.class,
 			CompletionTests18.class,
 			GenericsRegressionTest_1_8.class,
+			IncrementalTests18.class,
 		};
 	}
 	
