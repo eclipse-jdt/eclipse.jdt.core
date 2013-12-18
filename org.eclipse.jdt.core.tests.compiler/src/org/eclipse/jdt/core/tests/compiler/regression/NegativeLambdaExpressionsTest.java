@@ -7746,6 +7746,76 @@ public void test423429() {
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423129,  [1.8][compiler] Hook up lambda expressions into statement recovery 
+public void test423129() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"interface I {\n" +
+					"	String foo(Integer x);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	static void goo(String s) {\n" +
+					"	}\n" +
+					"	static void goo(I i) {\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		goo((xyz) -> {\n" +
+					"			System.out.println(xyz);\n" +
+					"			return xyz.\n" +
+					"		});\n" +
+					"	}\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	System.out.println(xyz);\n" + 
+			"	                   ^^^\n" + 
+			"xyz cannot be resolved to a variable\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	return xyz.\n" + 
+			"	          ^\n" + 
+			"Syntax error, insert \"new ClassType ( )\" to complete ClassInstanceCreationExpression\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 12)\n" + 
+			"	return xyz.\n" + 
+			"	          ^\n" + 
+			"Syntax error, insert \";\" to complete ReturnStatement\n" + 
+			"----------\n",
+			true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423129,  [1.8][compiler] Hook up lambda expressions into statement recovery 
+public void test423129b() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"import java.util.ArrayList;\n" +
+					"import java.util.Arrays;\n" +
+					"import java.util.Collections;\n" +
+					"import java.util.Comparator;\n" +
+					"public class X {\n" +
+					"   int compareTo(X x) { return 0; }\n" +
+					"	void foo() {\n" +
+					"		Collections.sort(new ArrayList<X>(Arrays.asList(new X(), new X(), new X())),\n" +
+					"				(X o1, X o2) -> o1.compareTo(o2)); //[2]\n" +
+					"	}\n" +
+					"	}\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	Collections.sort(new ArrayList<X>(Arrays.asList(new X(), new X(), new X())),\n" + 
+			"	            ^^^^\n" + 
+			"The method sort(List<T>, Comparator<? super T>) in the type Collections is not applicable for the arguments (ArrayList<X>, Comparator<X>)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	}\n" + 
+			"	^\n" + 
+			"Syntax error on token \"}\", delete this token\n" + 
+			"----------\n",
+			true);
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
