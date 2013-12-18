@@ -291,7 +291,7 @@ private void setUp15WorkingCopy(String path, WorkingCopyOwner owner) throws Java
 	String contents = this.workingCopy.getSource();
 	setUpWorkingCopy(path, contents, owner);
 }
-private void setUpWorkingCopy(String path, String contents) throws JavaModelException {
+protected void setUpWorkingCopy(String path, String contents) throws JavaModelException {
 	setUpWorkingCopy(path, contents, this.wcOwner);
 }
 private void setUpWorkingCopy(String path, String contents, WorkingCopyOwner owner) throws JavaModelException {

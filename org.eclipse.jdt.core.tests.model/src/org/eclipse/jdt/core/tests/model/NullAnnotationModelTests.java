@@ -64,7 +64,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 
 	public void setUp() throws Exception {
 		super.setUp();
-		Bundle[] bundles = Platform.getBundles("org.eclipse.jdt.annotation", "[1.1.0,2.0.0)");
+		Bundle[] bundles = Platform.getBundles("org.eclipse.jdt.annotation", "[2.0.0,3.0.0)");
 		File bundleFile = FileLocator.getBundleFile(bundles[0]);
 		this.ANNOTATION_LIB = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
 	}
@@ -568,6 +568,83 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 		} finally {
 			if (project15 != null)
 				deleteProject(project15);
+		}
+	}
+	/*
+	 * Bug 405843 - [1.8] Support type annotations in Java Model(https://bugs.eclipse.org/bugs/show_bug.cgi?id=405843)
+	 */
+	public void testBug405843() throws CoreException, IOException, InterruptedException {
+		IJavaProject project = null;
+		try {
+			project = createJavaProject("Bug405843", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB}, "bin", "1.8");
+			createFolder("/Bug405843/src/p1");
+			createFile("/Bug405843/src/p1/Function.java",
+					"package p1;\n" +
+					"public interface Function <I, O> {\n" +
+					"}\n;");
+
+			createFile("/Bug405843/src/p1/FunctionImpl.java",
+					"package p1;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
+					"public class FunctionImpl implements Function<@NonNull String, @Nullable Object> {\n" +
+					"}\n");
+
+			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+
+			setUpWorkingCopy("/Bug405843/src/p1/X.java",
+					"package p1;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
+					"public class X {\n" +
+					"	public Object foo() {\n" +
+					"		Function<@NonNull String, @Nullable Object> impl = new FunctionImpl();\n" +
+					"		return impl;\n" +
+					"	}\n" +
+					"}\n");
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" +
+					"----------\n"
+					);
+
+		} finally {
+			if (project != null)
+				deleteProject(project);
+		}
+	}
+	public void testBug405843a() throws CoreException, IOException, InterruptedException {
+		IJavaProject project = null;
+		try {
+			project = createJavaProject("Bug405843", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB}, "bin", "1.8");
+			createFolder("/Bug405843/src/p1");
+			createFile("/Bug405843/src/p1/Y.java",
+					"package p1;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
+					"public class Y {\n" +
+					"    void foo(@NonNull String @NonNull [] array) {}\n" +
+					"}\n;");
+
+			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+
+			setUpWorkingCopy("/Bug405843/src/p1/X.java",
+					"package p1;\n" +
+					"public class X {\n" +
+					"	public void foo(Y y) {\n" +
+					"		y.foo(null);\n" +
+					"	}\n" +
+					"}\n");
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"1. ERROR in /Bug405843/src/p1/X.java (at line 4)\n" + 
+					"	y.foo(null);\n" + 
+					"	      ^^^^\n" + 
+					"Null type mismatch: required \'@NonNull String @NonNull[]\' but the provided value is null\n" + 
+					"----------\n"
+					);
+
+		} finally {
+			if (project != null)
+				deleteProject(project);
 		}
 	}
 }
