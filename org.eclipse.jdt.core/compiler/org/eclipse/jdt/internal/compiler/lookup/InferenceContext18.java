@@ -680,7 +680,8 @@ public class InferenceContext18 {
 				// finalize resolving of arguments of the inner invocation:
 				TypeBinding[] innerParameters = innerBinding.parameters;
 				int inferenceKind = innerMessage.inferenceKind();
-				TypeBinding varArgsType = inferenceKind == CHECK_VARARG ? ((ArrayBinding)innerParameters[innerParameters.length-1]).elementsType() : null; 
+				boolean isVarargs = (inferenceKind == CHECK_VARARG) && innerBinding.isVarargs();
+				TypeBinding varArgsType = isVarargs ? ((ArrayBinding)innerParameters[innerParameters.length-1]).elementsType() : null; 
 				Expression[] arguments = innerMessage.arguments();
 				if (arguments != null) {
 					for (int j = 0; j < arguments.length; j++) {
