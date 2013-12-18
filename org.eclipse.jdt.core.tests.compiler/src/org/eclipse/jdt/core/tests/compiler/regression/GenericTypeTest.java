@@ -4307,6 +4307,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// FAIL ERRMSG
 	public void test0142() {
+		if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+			return;
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4523,6 +4525,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// FAIL ERRMSG
 	public void test0150() {
+		if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+			return;
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4546,6 +4550,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// FAIL ERRMSG
 	public void test0151() {
+		if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+			return;
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4974,6 +4980,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// FAIL ERRMSG (type display)
 	public void test0168() {
+		if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+			return;
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -16918,6 +16926,8 @@ public void test0500(){
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
 	// FAIL ERRMSG (type display)
 	public void test0538() {
+		if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+			return;
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -19076,6 +19086,8 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
 	}
 	// FAIL ERRMSG: Type mismatch: cannot convert from void to <unknown>
 	public void test0607() {
+		if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+			return;
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -19785,6 +19797,8 @@ public void test0617() {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93044
 	// FAIL ERRMSG
 	public void test0631() {
+		if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+			return;
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -21970,6 +21984,8 @@ public void test0683() {
 }
 // FAIL ERRMSG (type display)
 public void test0684() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21991,6 +22007,8 @@ public void test0684() {
 }
 // FAIL ERRMSG (type display)
 public void test0685() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -23754,6 +23772,8 @@ public void test0741() {
 // **
 // FAIL ERRMSG
 public void test0742() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25163,6 +25183,8 @@ public void test0784() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103528
 // FAIL ERRMSG
 public void test0785() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25205,6 +25227,8 @@ public void test0786() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103528 - variation
 // FAIL ERRMSG
 public void test0787() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25277,6 +25301,8 @@ public void test0789() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103485
 // FAIL ERRMSG
 public void test0790() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25504,6 +25530,8 @@ public void test0797() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106284
 // FAIL ERRMSG
 public void test0798() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -26730,6 +26758,8 @@ public void test0826() {
 // for raw generic method invocation
 // FAIL ERRMSG
 public void test0827() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -28626,6 +28656,8 @@ public void test0882() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369 - variation
 // FAIL ERRMSG
 public void test0883() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -33503,6 +33535,8 @@ public void test1007() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061
 // FAIL ERRMSG (type display)
 public void test1008() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	runNegativeTest(
 		new String[] {
 			"X.java",
@@ -33846,6 +33880,8 @@ public void test1014() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061 - variation
 // FAIL SHOULD RAISE MORE WARNINGS?
 public void test1015() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -34578,6 +34614,8 @@ public void test1033() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=158519
 // FAIL ERRMSG
 public void test1034() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"ChainedClosure.java",
@@ -36855,6 +36893,8 @@ public void test1075() {
 
 // FAIL ERRMSG
 public void test1076() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -39580,6 +39620,8 @@ public void test1147() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945 - variation
 // FAIL ERRMSG
 public void test1148() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -41949,6 +41991,8 @@ public void test1206() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=207573 - variation
 // FAIL ERRMSG
 public void test1207() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -41989,6 +42033,8 @@ public void test1208() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=207573 - variation
 // FAIL ERRMSG
 public void test1209() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -42011,6 +42057,8 @@ public void test1209() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=207573 - variation
 // FAIL ERRMSG
 public void test1210() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -44344,6 +44392,8 @@ public void test1280() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation
 // FAIL EXTRA ERR, see http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000444.html
 public void test1281() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runConformTest(
 			new String[] {
 					"X.java",
@@ -44724,6 +44774,8 @@ public void test1290() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=218677
 // FAIL ERRMSG
 public void test1291() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
@@ -44756,6 +44808,8 @@ public void test1291() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=218677 - variation
 // FAIL ERRMSG
 public void test1292() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
@@ -45733,6 +45787,8 @@ public void test1321() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=231094
 // FAIL ERRMSG
 public void test1322() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 			new String[] {
 					"X.java", // =================
@@ -45790,6 +45846,8 @@ public void test1322() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=231094 - variation
 // FAIL ERRMSG and MISSING WARNINGS(?)
 public void test1323() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 			new String[] {
 					"X.java", // =================
@@ -45920,6 +45978,8 @@ public void test1325() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=231094 - variation
 // FAIL ERRMSG
 public void test1326() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 			new String[] {
 					"X.java", // =================
@@ -47168,6 +47228,8 @@ public void test1362() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239118 - variation
 // FAIL ERRMSG (type display)
 public void test1363() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 			new String[] {
 				"X.java", // =================
@@ -49507,6 +49569,8 @@ public void test1428() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=258798
 // FAIL ERRMSG (type display) and MISSING WARNINGS(?)
 public void test1429() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runNegativeTest(
 			new String[] {
 				"X.java", //-----------------------------------------------------------------------
