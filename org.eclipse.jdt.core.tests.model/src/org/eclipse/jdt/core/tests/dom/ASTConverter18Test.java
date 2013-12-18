@@ -3512,6 +3512,39 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		IVariableBinding binding = variable.resolveBinding();
 		assertTrue("Should be effectively final", binding.isEffectivelyFinal());
 	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=423872
+	 */
+	public void testBug423872() throws JavaModelException {
+		String contents =
+			"public interface X {\n" +
+			"	void foo(Y.Z<?>... events);\n" +
+			"}\n" +
+			"interface Y<T> {\n" +
+			"	public static interface Z<T> {}\n" +
+			"}\n";
+		try {
+			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(contents, this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			node = getASTNode(compilationUnit, 0);
+			assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+			MethodDeclaration[] methods = ((TypeDeclaration) node).getMethods();
+			assertEquals("Incorrect no of methods", 1, methods.length);
+			MethodDeclaration method = methods[0];
+			List parameters = method.parameters();
+			assertTrue(parameters.size() == 1);
+			SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+			checkSourceRange(singleVariableDeclaration, "Y.Z<?>... events", contents);
+			assertTrue(singleVariableDeclaration.isVarargs());
+			Type type = singleVariableDeclaration.getType();
+			assertTrue(type.isParameterizedType());
+		} catch (IllegalArgumentException e) {
+			assertTrue(false);
+		}
+	}
 	
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=423584, [1.8][dom ast] NPE in LambdaExpression#getMethodBinding() for lambda with unresolved type

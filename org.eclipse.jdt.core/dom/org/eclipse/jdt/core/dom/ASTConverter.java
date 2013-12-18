@@ -3412,8 +3412,7 @@ class ASTConverter {
 		Type elementType = arrayType.getElementType();
 		int start = elementType.getStartPosition();
 		int endElement = start + elementType.getLength();
-		int length = arrayType.getLength();
-		int end = (length <= 0) ? retrieveProperRightBracketPosition(dimensions.size(), endElement) : start + length - 1;
+		int end = retrieveProperRightBracketPosition(dimensions.size(), endElement);
 		arrayType.setSourceRange(start, end - start + 1);
 		
 		start = endElement;
@@ -3514,13 +3513,12 @@ class ASTConverter {
 			return wildcardType;
 		}
 		Type type = null;
-		int sourceStart = -1;
+		int sourceStart = typeReference.sourceStart;
 		int length = 0;
 		int dimensions = typeReference.dimensions();
 		if (typeReference instanceof org.eclipse.jdt.internal.compiler.ast.SingleTypeReference) {
 			// this is either an ArrayTypeReference or a SingleTypeReference
 			char[] name = ((org.eclipse.jdt.internal.compiler.ast.SingleTypeReference) typeReference).getTypeName()[0];
-			sourceStart = typeReference.sourceStart;
 			length = typeReference.sourceEnd - typeReference.sourceStart + 1;
 			// need to find out if this is an array type of primitive types or not
 			if (isPrimitiveType(name)) {
@@ -3637,7 +3635,6 @@ class ASTConverter {
 				int lenth = tokens.length;
 				int firstTypeIndex = lenth - 1;
 				long[] positions = parameterizedQualifiedTypeReference.sourcePositions;
-				sourceStart = (int)(positions[0]>>>32);
 				switch(this.ast.apiLevel) {
 					case AST.JLS2_INTERNAL : {
 						char[][] name = ((org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference) typeReference).getTypeName();
@@ -3775,7 +3772,6 @@ class ASTConverter {
 						}
 					}
 				}  
-				sourceStart = (int)(positions[0]>>>32);
 				Name name = null;
 				Type currentType = null;
 				if (firstTypeIndex == lenth) {//Just a QualifiedName
@@ -3877,7 +3873,7 @@ class ASTConverter {
 
 			length = typeReference.sourceEnd - sourceStart + 1;
 			if (dimensions != 0) {
-				type = convertToArray(type, sourceStart, -1, dimensions, typeReference.getAnnotationsOnDimensions(true));
+				type = convertToArray(type, sourceStart, length, dimensions, typeReference.getAnnotationsOnDimensions(true));
 				if (this.resolveBindings) {
 					completeRecord((ArrayType) type, typeReference);
 				}
@@ -4949,6 +4945,9 @@ class ASTConverter {
 					case TerminalTokens.TokenNameLBRACKET:
 						++balance;
 						break;
+					case TerminalTokens.TokenNameELLIPSIS:
+						++balance; // special case for varargs - simulate lbracket found
+						//$FALL-THROUGH$
 					case TerminalTokens.TokenNameRBRACKET:
 						--balance;
 						if (lParentCount > 0) break;
