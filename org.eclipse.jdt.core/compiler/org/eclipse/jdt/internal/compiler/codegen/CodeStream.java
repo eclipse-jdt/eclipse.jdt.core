@@ -2448,7 +2448,7 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding acc
 public void generateSyntheticBodyForArrayConstructor(SyntheticMethodBinding methodBinding) {
 	initializeMaxLocals(methodBinding);
 	iload_0();
-	anewarray(((ArrayBinding) methodBinding.returnType).elementsType());
+	newArray(null, null, (ArrayBinding) methodBinding.returnType);
 	areturn();
 }
 public void generateSyntheticBodyForArrayClone(SyntheticMethodBinding methodBinding) {

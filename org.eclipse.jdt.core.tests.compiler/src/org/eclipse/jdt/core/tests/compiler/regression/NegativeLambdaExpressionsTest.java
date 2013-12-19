@@ -7882,6 +7882,32 @@ public void _test424400() {
 			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424444, [1.8] VerifyError when constructor reference used with array
+public void test424444() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"interface Functional<T> {\n" +
+				"    T foo(int size);\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"    public static void main(String argv[]) {\n" +
+				"    	int [] a = goo(10);\n" +
+				"    	Functional<Integer []> contr = int[]::new;\n" +
+				"        System.out.println(\"Done\");\n" +
+				"    }\n" +
+				"    static int [] goo(int x) {\n" +
+				"    	return new int [x];\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	Functional<Integer []> contr = int[]::new;\n" + 
+		"	                               ^^^^^^^^^^\n" + 
+		"Constructed array int[] cannot be assigned to Integer[] as required in the interface descriptor  \n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

@@ -25,9 +25,9 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 
-public class Jsr335ClassFileTest extends AbstractComparableTest {
+public class JSR335ClassFileTest extends AbstractComparableTest {
 
-public Jsr335ClassFileTest(String name) {
+public JSR335ClassFileTest(String name) {
 	super(name);
 }
 
@@ -2446,7 +2446,177 @@ public void test017() throws Exception {
 
 	verifyClassFile(expectedOutput, "X$1Y.class", ClassFileBytesDisassembler.SYSTEM);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424444, [1.8] VerifyError when constructor reference used with array
+public void test424444() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"interface Functional<T> {\n" +
+				"    T foo(int size);\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"    public static void main(String argv[]) {\n" +
+				"    	int [] a = goo(10);\n" +
+				"    	Functional<int[]> contr = int[]::new;\n" +
+				"        System.out.println(\"Done\");\n" +
+				"    }\n" +
+				"    static int [] goo(int x) {\n" +
+				"    	return new int [x];\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"Done");
+
+	String expectedOutput =
+			"  // Method descriptor #19 (I)[I\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  private static synthetic int[] lambda$0(int arg0);\n" + 
+			"    0  iload_0 [arg0]\n" + 
+			"    1  newarray int [10]\n" + 
+			"    3  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n" + 
+			"\n";
+
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424444, [1.8] VerifyError when constructor reference used with array
+public void test424444a() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"interface Functional<T> {\n" +
+				"    T foo(int size);\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"    public static void main(String argv[]) {\n" +
+				"    	int [] a = goo(10);\n" +
+				"    	Functional<int[][]> contr = int[][]::new;\n" +
+				"        System.out.println(\"Done\");\n" +
+				"    }\n" +
+				"    static int [] goo(int x) {\n" +
+				"    	return new int [x];\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"Done");
+
+	String expectedOutput =
+			"  // Method descriptor #49 (I)[[I\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  private static synthetic int[][] lambda$0(int arg0);\n" + 
+			"    0  iload_0 [arg0]\n" + 
+			"    1  anewarray int[] [50]\n" + 
+			"    4  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n" + 
+			"\n";
+
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424444, [1.8] VerifyError when constructor reference used with array
+public void test424444b() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"interface Functional<T> {\n" +
+				"    T foo(int size);\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"    public static void main(String argv[]) {\n" +
+				"    	int [] a = goo(10);\n" +
+				"    	Functional<String []> contr = String[]::new;\n" +
+				"        System.out.println(\"Done\");\n" +
+				"    }\n" +
+				"    static int [] goo(int x) {\n" +
+				"    	return new int [x];\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"Done");
+
+	String expectedOutput =
+			"  // Method descriptor #49 (I)[Ljava/lang/String;\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  private static synthetic java.lang.String[] lambda$0(int arg0);\n" + 
+			"    0  iload_0 [arg0]\n" + 
+			"    1  anewarray java.lang.String [50]\n" + 
+			"    4  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n" + 
+			"\n";
+
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424444, [1.8] VerifyError when constructor reference used with array
+public void test424444c() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"interface Functional<T> {\n" +
+				"    T foo(int size);\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"    public static void main(String argv[]) {\n" +
+				"    	int [] a = goo(10);\n" +
+				"    	Functional<String [][]> contr = String[][]::new;\n" +
+				"        System.out.println(\"Done\");\n" +
+				"    }\n" +
+				"    static int [] goo(int x) {\n" +
+				"    	return new int [x];\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"Done");
+
+	String expectedOutput =
+			"  // Method descriptor #49 (I)[[Ljava/lang/String;\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  private static synthetic java.lang.String[][] lambda$0(int arg0);\n" + 
+			"    0  iload_0 [arg0]\n" + 
+			"    1  anewarray java.lang.String[] [50]\n" + 
+			"    4  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n" + 
+			"\n";
+
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424444, [1.8] VerifyError when constructor reference used with array
+public void test424444d() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"interface Functional<T> {\n" +
+				"    T foo(int size);\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"    public static void main(String argv[]) {\n" +
+				"    	int [] a = goo(10);\n" +
+				"    	Functional<Object []> contr = String[][]::new;\n" +
+				"        System.out.println(\"Done\");\n" +
+				"    }\n" +
+				"    static int [] goo(int x) {\n" +
+				"    	return new int [x];\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"Done");
+
+	String expectedOutput =
+			"  // Method descriptor #49 (I)[[Ljava/lang/String;\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  private static synthetic java.lang.String[][] lambda$0(int arg0);\n" + 
+			"    0  iload_0 [arg0]\n" + 
+			"    1  anewarray java.lang.String[] [50]\n" + 
+			"    4  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n" + 
+			"\n";
+
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+}
 public static Class testClass() {
-	return Jsr335ClassFileTest.class;
+	return JSR335ClassFileTest.class;
 }
 }
