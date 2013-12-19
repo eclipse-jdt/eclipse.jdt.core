@@ -100,9 +100,11 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			if (this.lhs.isSuper() || isMethodReference())
 				this.binding = this.syntheticAccessor;
 		} else { // cf. MessageSend.generateCode()
-			TypeBinding declaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, this.binding, this.lhs.resolvedType, false);
-			if (declaringClass instanceof ReferenceBinding)
-				this.binding.declaringClass = (ReferenceBinding) declaringClass;
+			if (this.binding != null && isMethodReference()) {
+				TypeBinding declaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, this.binding, this.lhs.resolvedType, false);
+				if (declaringClass instanceof ReferenceBinding)
+					this.binding.declaringClass = (ReferenceBinding) declaringClass;
+			}
 		}
 		
 		int pc = codeStream.position;
