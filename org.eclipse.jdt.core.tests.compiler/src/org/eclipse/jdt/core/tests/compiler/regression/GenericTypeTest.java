@@ -39555,6 +39555,34 @@ public void test1146() {
 		"	       ^^^^^^^^\n" +
 		"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" +
 		"----------\n":
+		(this.complianceLevel == ClassFileConstants.JDK1_7 ?
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	Comparator<? super T>... rest) {\n" + 
+			"	                         ^^^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter rest\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	int i = asList(a, b, rest);\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from List<Comparator<?>> to int\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	int j = asList2(a, b);\n" + 
+			"	        ^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from List<Comparator<? extends Object>> to int\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 9)\n" + 
+			"	return compound(asList(a, b, rest));\n" + 
+			"	       ^^^^^^^^\n" + 
+			"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 14)\n" + 
+			"	public static <E> List<E> asList(E a, E b, E... rest) {\n" + 
+			"	                                                ^^^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter rest\n" + 
+			"----------\n"
+			: // 1.8 : one fewer error due to better type inference:
 			"----------\n" + 
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	Comparator<? super T>... rest) {\n" + 
@@ -39575,7 +39603,7 @@ public void test1146() {
 			"	public static <E> List<E> asList(E a, E b, E... rest) {\n" + 
 			"	                                                ^^^^\n" + 
 			"Type safety: Potential heap pollution via varargs parameter rest\n" + 
-			"----------\n");
+			"----------\n"));
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945 - variation
 public void test1147() {
