@@ -7816,6 +7816,72 @@ public void test423129b() {
 			"----------\n",
 			true);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424400, [1.8] Interfaces in the same hierarchy are allowed in an intersection cast with different type argument
+public void test424400() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"public class X<T> implements MyComparable<T>{\n" +
+					"    public static void main(String argv[]) {\n" +
+					"    	int result = ((Comparable<Integer> & MyComparable) new X()).compareTo(1);\n" +
+					"    }\n" +
+					"    public int compareTo(T o) {\n" +
+					"		return 0;\n" +
+					"	}\n" +
+					"}\n" +
+					"interface MyComparable<T> extends Comparable<T> {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	int result = ((Comparable<Integer> & MyComparable) new X()).compareTo(1);\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The interface Comparable cannot be implemented more than once with different arguments: Comparable and Comparable<Integer>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 3)\n" + 
+			"	int result = ((Comparable<Integer> & MyComparable) new X()).compareTo(1);\n" + 
+			"	                                     ^^^^^^^^^^^^\n" + 
+			"MyComparable is a raw type. References to generic type MyComparable<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 3)\n" + 
+			"	int result = ((Comparable<Integer> & MyComparable) new X()).compareTo(1);\n" + 
+			"	                                                       ^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424400, [1.8] Interfaces in the same hierarchy are allowed in an intersection cast with different type argument
+public void _test424400() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java", 
+					"public class X<T> implements MyComparable<T> {\n" +
+					"    public static void main(String argv[]) {\n" +
+					"    	int result = ((Comparable<Integer> & MyComparable) new X()).compareTo(1);\n" +
+					"    }\n" +
+					"    public int compareTo(T o) {\n" +
+					"	return 0;\n" +
+					"    }\n" +
+					"}\n" +
+					"interface MyComparable<T> {\n" +
+					"     public int compareTo(T value);\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	int result = ((Comparable<Integer> & MyComparable) new X()).compareTo(1);\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The interface Comparable cannot be implemented more than once with different arguments: Comparable and Comparable<Integer>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 3)\n" + 
+			"	int result = ((Comparable<Integer> & MyComparable) new X()).compareTo(1);\n" + 
+			"	                                     ^^^^^^^^^^^^\n" + 
+			"MyComparable is a raw type. References to generic type MyComparable<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 3)\n" + 
+			"	int result = ((Comparable<Integer> & MyComparable) new X()).compareTo(1);\n" + 
+			"	                                                       ^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

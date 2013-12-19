@@ -16,9 +16,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.IntersectionCastTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -105,15 +109,16 @@ public class IntersectionCastTypeReference extends TypeReference {
 				}
 				if (!priorType.isInterface())
 					continue;
-				if (type.findSuperTypeOriginatingFrom(priorType) != null) {
+				if (TypeBinding.equalsEquals(type.findSuperTypeOriginatingFrom(priorType), priorType)) {
 					intersectingTypes[j] = (ReferenceBinding) type;
 					continue nextType;
 				}
-				if (priorType.findSuperTypeOriginatingFrom(type) != null)
+				if (TypeBinding.equalsEquals(priorType.findSuperTypeOriginatingFrom(type), type))
 					continue nextType;
 			}
 			intersectingTypes[typeCount++] = (ReferenceBinding) type;
 		}
+
 		if (hasError) {
 			return null;
 		}
@@ -123,7 +128,33 @@ public class IntersectionCastTypeReference extends TypeReference {
 			}
 			System.arraycopy(intersectingTypes, 0, intersectingTypes = new ReferenceBinding[typeCount], 0, typeCount);
 		}
-		return (this.resolvedType = scope.environment().createIntersectionCastType(intersectingTypes));
+		IntersectionCastTypeBinding intersectionType = (IntersectionCastTypeBinding) scope.environment().createIntersectionCastType(intersectingTypes);
+		// check for parameterized interface collisions (when different parameterizations occur)
+		ReferenceBinding itsSuperclass = null;
+		ReferenceBinding[] interfaces = intersectingTypes;
+		ReferenceBinding firstType = intersectingTypes[0];
+		if (firstType.isClass()) {
+			itsSuperclass = firstType.superclass();
+			System.arraycopy(intersectingTypes, 1, interfaces = new ReferenceBinding[typeCount - 1], 0, typeCount - 1);
+		}
+		
+		Map invocations = new HashMap(2);
+		nextInterface: for (int i = 0, interfaceCount = interfaces.length; i < interfaceCount; i++) {
+			ReferenceBinding one = interfaces[i];
+			if (one == null) continue nextInterface;
+			if (itsSuperclass != null && scope.hasErasedCandidatesCollisions(itsSuperclass, one, invocations, intersectionType, this))
+				continue nextInterface;
+			nextOtherInterface: for (int j = 0; j < i; j++) {
+				ReferenceBinding two = interfaces[j];
+				if (two == null) continue nextOtherInterface;
+				if (scope.hasErasedCandidatesCollisions(one, two, invocations, intersectionType, this))
+					continue nextInterface;
+			}
+		}
+		if ((intersectionType.tagBits & TagBits.HierarchyHasProblems) != 0)
+			return null;
+
+		return (this.resolvedType = intersectionType);
 	}
 
 	/* (non-Javadoc)
