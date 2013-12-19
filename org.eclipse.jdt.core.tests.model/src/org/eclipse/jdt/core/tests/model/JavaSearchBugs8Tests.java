@@ -33,6 +33,8 @@ import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 /**
  * Non-regression tests for bugs fixed in Java Search engine.
@@ -92,6 +94,9 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g37"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g38"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400902"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug424119_001"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug424119_002"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug424119_003"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -1585,6 +1590,129 @@ public void testBug400902() throws CoreException {
 			"src/b400902/X.java b400902.X.x [Marker] EXACT_MATCH\n" +
 			"src/b400902/X.java b400902.X$Y [Marker] EXACT_MATCH" 
 	);	
+}
+
+/**
+ * @bug 424119:  [1.8][search] CCE in search for references to TYPE_USE annotation on array dimension
+ * @test Ensures that the search for type use annotation finds matches 
+ * in local variable declaration dimensions.
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=424119"
+ */
+public void testBug424119_001() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b424119/X.java",
+		"import java.lang.annotation.ElementType;\n" +
+		"import java.lang.annotation.Target;\n" +
+		"import java.io.Serializable;\n" +
+		"public class X{\n" +
+		"{\n" +
+		"	String tab @Annot() [] = null;\n" +
+		"}\n" +
+		"public void foo() {\n" +
+		"	String t @Annot() [] @Annot()[] = null, s @Annot() [];\n" +
+		"}\n" +
+		"String tab @Annot() [] = null;\n" +
+		"@Target(ElementType.TYPE_USE)\n" +	
+		"@interface Annot {}\n"
+	);
+	SearchPattern pattern = SearchPattern.createPattern(
+		"Annot",
+		ANNOTATION_TYPE,
+		REFERENCES,
+		EXACT_RULE);
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(
+		"src/b424119/X.java b424119.X.{} [Annot] EXACT_MATCH\n" +
+		"src/b424119/X.java b424119.X.tab [Annot] EXACT_MATCH\n" +
+		"src/b424119/X.java void b424119.X.foo() [Annot] EXACT_MATCH\n" +
+		"src/b424119/X.java void b424119.X.foo() [Annot] EXACT_MATCH\n" +
+		"src/b424119/X.java void b424119.X.foo() [Annot] EXACT_MATCH"
+	);		
+}
+
+/**
+ * @bug 424119:  [1.8][search] CCE in search for references to TYPE_USE annotation on array dimension
+ * @test Ensures that the search for type use single variable annotation finds matches 
+ * in local variable declaration inside initializer - ref bug 424119 comment 1 
+ * - checks for non-existence of CCE. 
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=424119"
+ */
+public void testBug424119_002() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b424119/X.java",
+		"import java.lang.annotation.ElementType;\n" +
+		"import java.lang.annotation.Target;\n" +
+		"import java.io.Serializable;\n" +
+		"public class X{\n" +
+		"{\n" +
+		"	String tab @Annot(int[].class) [] = null;\n" +
+		"}\n" +
+		"@Target(ElementType.TYPE_USE)\n" +	
+		"@interface Annot {\n" +
+		"	Class<int[]> value();\n" +
+		"}\n"
+	);
+	SearchPattern pattern = SearchPattern.createPattern(
+		"Annot",
+		ANNOTATION_TYPE,
+		REFERENCES,
+		EXACT_RULE);
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(
+		"src/b424119/X.java b424119.X.{} [Annot] EXACT_MATCH");
+}
+/**
+ * @bug 424119:  [1.8][search] CCE in search for references to TYPE_USE annotation on array dimension
+ * @test Ensures that the search for type use single variable annotation finds matches 
+ * in local variable declaration inside initializer - ref bug 424119 comment 1 - checks
+ * for indexing issue (ie not finding the references as mentioned in comment 1) 
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=424119"
+ */
+
+public void testBug424119_003() throws CoreException {
+	try {
+		// Create project and files
+		IJavaProject project = createJavaProject("P1", new String[] {"src"}, new String[] {"bin"}, "bin");
+		createFile(
+			"/P1/src/X.java",
+			"public class X {\n" +
+			"	String tab @Annot(int[].class) [] = null;\n" +
+			"}\n");
+		createFile(
+			"P1/src/Annot.java",
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface Annot {\n" +
+			"	Class<int[]> value();\n" +
+			"}"
+		);
+		waitUntilIndexesReady();
+
+		IndexManager indexManager = JavaModelManager.getIndexManager();
+		indexManager.indexAll(project.getProject());
+		waitUntilIndexesReady();
+
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project });
+		JavaSearchResultCollector collector = new JavaSearchResultCollector();
+		collector.showProject();
+		search("Annot", TYPE, REFERENCES, scope, collector);
+		assertSearchResults(
+			"src/X.java [in P1] X.tab [Annot]",
+			collector);
+	}
+	finally {
+		deleteProject("P1");
+	}
 }
 // Add new tests in JavaSearchBugs8Tests
 }

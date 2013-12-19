@@ -597,22 +597,11 @@ protected IJavaElement createHandle(FieldDeclaration fieldDeclaration, TypeDecla
  * Create an handle for a local variable declaration (may be a local variable or type parameter).
  */
 protected IJavaElement createHandle(AbstractVariableDeclaration variableDeclaration, IJavaElement parent) {
+	boolean isParameter = true;
 	switch (variableDeclaration.getKind()) {
 		case AbstractVariableDeclaration.LOCAL_VARIABLE:
-			if (variableDeclaration.type.resolvedType != null) {
-				return new LocalVariable((JavaElement)parent,
-					new String(variableDeclaration.name),
-					variableDeclaration.declarationSourceStart,
-					variableDeclaration.declarationSourceEnd,
-					variableDeclaration.sourceStart,
-					variableDeclaration.sourceEnd,
-					new String(variableDeclaration.type.resolvedType.signature()),
-					variableDeclaration.annotations,
-					variableDeclaration.modifiers,
-					false
-				);
-			}
-			break;
+			isParameter = false;
+			//$FALL-THROUGH$
 		case AbstractVariableDeclaration.PARAMETER:
 			if (variableDeclaration.type.resolvedType != null) {
 				return new LocalVariable((JavaElement)parent,
@@ -624,7 +613,8 @@ protected IJavaElement createHandle(AbstractVariableDeclaration variableDeclarat
 					new String(variableDeclaration.type.resolvedType.signature()),
 					variableDeclaration.annotations,
 					variableDeclaration.modifiers,
-					true
+					isParameter,
+					variableDeclaration.type.getAnnotationsOnDimensions()
 				);
 			}
 			break;
@@ -647,6 +637,19 @@ protected IJavaElement createHandle(Annotation annotation, IAnnotatable parent) 
 		for (int i=0; i<length; i++) {
 			if (annotations[i].getElementName().equals(name)) {
 				return annotations[i];
+			}
+		}
+		if (parent instanceof LocalVariable) {
+			LocalVariable localVariable = (LocalVariable) parent;
+			IAnnotation[][] annotationsOnDimensions = localVariable.annotationsOnDimensions;
+			int noOfDimensions = annotationsOnDimensions == null ? 0 : annotationsOnDimensions.length;
+			for (int i = 0; i < noOfDimensions; ++i) {
+				IAnnotation[] dimAnnotations = annotationsOnDimensions[i];
+				int noOfAnnotations = dimAnnotations.length;
+				for (int j = 0; j < noOfAnnotations; ++j) {
+					if (dimAnnotations[j].getElementName().equals(name))
+						return dimAnnotations[j];
+				}
 			}
 		}
 	}

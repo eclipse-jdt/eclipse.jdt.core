@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -44,6 +48,7 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	public IAnnotation[] annotations;
 	private int flags;
 	private boolean isParameter;
+	public IAnnotation[][] annotationsOnDimensions;
 
 	public LocalVariable(
 			JavaElement parent,
@@ -67,6 +72,30 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 		this.annotations = getAnnotations(astAnnotations);
 		this.flags = flags;
 		this.isParameter = isParameter;
+	}
+	public LocalVariable(
+			JavaElement parent,
+			String name,
+			int declarationSourceStart,
+			int declarationSourceEnd,
+			int nameStart,
+			int nameEnd,
+			String typeSignature,
+			org.eclipse.jdt.internal.compiler.ast.Annotation[] astAnnotations,
+			int flags,
+			boolean isParameter,
+		org.eclipse.jdt.internal.compiler.ast.Annotation[][] astAnnotationsOnDimensions) {
+		
+		this(parent, name, declarationSourceStart, declarationSourceEnd, nameStart,
+				nameEnd, typeSignature, astAnnotations, flags, isParameter);
+
+		int noOfDimensions = astAnnotationsOnDimensions == null ? 0 : astAnnotationsOnDimensions.length;
+		if (noOfDimensions > 0) {
+			this.annotationsOnDimensions = new IAnnotation[noOfDimensions][];
+			for (int i = 0; i < noOfDimensions; ++i) {
+				this.annotationsOnDimensions[i] = getAnnotations(astAnnotationsOnDimensions[i]);
+			}
+		}
 	}
 
 	protected void closing(Object info) {
