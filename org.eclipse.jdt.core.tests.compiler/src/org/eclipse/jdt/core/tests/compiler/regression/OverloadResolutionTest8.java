@@ -2112,4 +2112,23 @@ public void testVarargs() {
 			},
 			"Lambda");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401850,  [1.8][compiler] Compiler fails to type poly allocation expressions in method invocation contexts
+public void test401850() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" +
+				"	void foo(X<String> s) {\n" +
+				"		System.out.println(\"foo(X<String>)\");\n" +
+				"	}\n" +
+				"	void foo(int x) {\n" +
+				"		System.out.println(\"foo(int)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X<String>().foo(new X<>());\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo(X<String>)");
+}
 }
