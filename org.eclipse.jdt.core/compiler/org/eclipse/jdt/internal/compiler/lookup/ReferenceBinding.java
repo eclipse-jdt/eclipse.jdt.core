@@ -1858,7 +1858,8 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 		return this.singleAbstractMethod;
 	}
 
-	scope.compilationUnitScope().recordQualifiedReference(this.compoundName);
+	if (this.compoundName != null)
+		scope.compilationUnitScope().recordQualifiedReference(this.compoundName);
 	MethodBinding[] methods = null;
 	try {
 		methods = getInterfaceAbstractContracts(scope);
