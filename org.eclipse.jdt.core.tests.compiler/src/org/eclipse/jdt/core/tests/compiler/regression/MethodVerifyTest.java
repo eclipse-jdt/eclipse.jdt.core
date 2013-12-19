@@ -14034,4 +14034,27 @@ public void testBug415600() {
 			"class C extends B<StringReader> { }\n"
 		});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423849,  [1.8][compiler] cannot implement java.nio.file.Path because of compiler name clash
+public void test423849() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"import java.nio.file.Path;\n" +
+			"import java.nio.file.WatchEvent.Kind;\n" +
+			"import java.nio.file.WatchEvent.Modifier;\n" +
+			"import java.nio.file.WatchKey;\n" +
+			"import java.nio.file.WatchService;\n" +
+			"abstract class Y implements Path {\n" +
+			"    public WatchKey register(WatchService watcher, Kind<?>[] events, Modifier... modifiers) throws IOException {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    public static void main(String [] args) {\n" +
+			"        System.out.println(\"OK\");\n" +
+			"    }\n" +
+			"}\n"
+		});
+}
 }
