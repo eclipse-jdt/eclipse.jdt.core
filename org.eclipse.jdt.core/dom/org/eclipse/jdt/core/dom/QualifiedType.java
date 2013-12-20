@@ -28,35 +28,28 @@ import java.util.List;
  * <p>
  * Not all node arrangements will represent legal Java constructs. In particular,
  * it is nonsense if the type is an array type or primitive type. The normal use
- * is when the type is a simple or parameterized type.
+ * is when the type is a ParameterizedType, an annotated QualifiedType, or a
+ * PackageQualifiedType.
  * </p>
  * <p>
- * A type like "A.B" can be represented either of two ways:
- * <ol>
- * <li>
- * <code>QualifiedType(SimpleType(SimpleName("A")),SimpleName("B"))</code>
- * </li>
- * <li>
- * <code>SimpleType(QualifiedName(SimpleName("A"),SimpleName("B")))</code>
- * </li>
- * </ol>
- * The first form is preferred when "A" is known to be a type. However, a
- * parser cannot always determine this. Clients should be prepared to handle
- * either rather than make assumptions. (Note also that the first form
- * became possible as of JLS3; only the second form existed in JLS2 API;
- * the ASTParser currently prefers the second form).
+ * A "."-separated type like "A.B" can be represented in three ways:
+ * <pre>
+ * 1.    SimpleType       | 2.   QualifiedType     | 3. PackageQualifiedType
+ *     QualifiedName      | SimpleType  SimpleName |   SimpleName  SimpleName
+ * SimpleName  SimpleName | SimpleName     "B"     |       "A"        "B"
+ *     "A"        "B"     |     "A"                |
+ * </pre>
+ * <p>
+ * The ASTParser creates the SimpleType form (wrapping a name) if possible. The
+ * SimpleType form doesn't support any embedded Annotations nor ParameterizedTypes.
+ * The QualifiedType form is only available since JLS3 and the
+ * PackageQualifiedType form only since JLS8.
  * </p>
  * <p>
- * Since JLS8, it's also possible to annotate qualified type names.
- * A type like "a.@X B" cannot be represented in either of
- * the old ways, because "a" is not a type, but a package.
- * Such types are represented as:
+ * The QualifiedType form cannot be used if the qualifier resolves to a package
+ * name, e.g. for "pack.@A C". In that case, the PackageQualifiedType form is used.
+ * If bindings are not resolved, then only the QualifiedType form is used.
  * </p>
- * <ol start="3">
- * <li>
- * <code>PackageQualifiedType(SimpleName("a"),MarkerAnnotation("X"),SimpleName("B"))</code>
- * </li>
- * </ol>
  * 
  * @see SimpleType
  * @see PackageQualifiedType
