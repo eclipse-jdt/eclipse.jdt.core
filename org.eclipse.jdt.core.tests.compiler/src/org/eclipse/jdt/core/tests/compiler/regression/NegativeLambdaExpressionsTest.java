@@ -5746,13 +5746,11 @@ public void test401939a() {
 				"----------\n" + 
 				"2. ERROR in X.java (at line 8)\n" + 
 				"	foo(()->{ if (1 == 2) throw new RuntimeException(); });\n" + 
-				"	    ^^^^\n" + 
-				"This method must return a result of type int\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 8)\n" + 
-				"	foo(()->{ if (1 == 2) throw new RuntimeException(); });\n" + 
-				"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Dead code\n" + 
+				"	^^^\n" + 
+				"The method foo(I) in the type X is not applicable for the arguments (() -> {\n" + 
+				"  if ((1 == 2))\n" + 
+				"      throw new RuntimeException();\n" + 
+				"})\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
@@ -7804,12 +7802,7 @@ public void test423129b() {
 					"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
-			"	Collections.sort(new ArrayList<X>(Arrays.asList(new X(), new X(), new X())),\n" + 
-			"	            ^^^^\n" + 
-			"The method sort(List<T>, Comparator<? super T>) in the type Collections is not applicable for the arguments (ArrayList<X>, Comparator<X>)\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 12)\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
 			"	}\n" + 
 			"	^\n" + 
 			"Syntax error on token \"}\", delete this token\n" + 

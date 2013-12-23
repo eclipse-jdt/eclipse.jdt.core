@@ -630,18 +630,16 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	}
 
 	/**
-	 * After a first round of method lookup has produces 'methodBinding' but when poly expressions have been seen as arguments,
+	 * After method lookup has produced 'methodBinding' but when poly expressions have been seen as arguments,
 	 * inspect the arguments to trigger another round of resolving with improved target types from the methods parameters.
-	 * If this resolving produces better types for any arguments, update the 'argumentTypes' array in-place and 
-	 * signal by returning null that the outer should perform another round of method lookup.
+	 * If this resolving produces better types for any arguments, update the 'argumentTypes' array in-place as an
+	 * intended side effect that will feed better type information in checkInvocationArguments() and others.
 	 * @param invocation the outer invocation which is being resolved
-	 * @param scope scope
-	 * @param methodBinding the candidate method produced by the first round of lookup
+	 * @param methodBinding the method produced by lookup (possibly involving type inference).
 	 * @param argumentTypes the argument types as collected from first resolving the invocation arguments and as used for
-	 * 	the first round of method lookup.
-	 * @return true signals that the caller should try another round of method lookup
+	 * 	the method lookup.
 	 */
-	public static boolean resolvePolyExpressionArguments(Invocation invocation, BlockScope scope, MethodBinding methodBinding, TypeBinding[] argumentTypes) {
+	public static void resolvePolyExpressionArguments(Invocation invocation, MethodBinding methodBinding, TypeBinding[] argumentTypes) {
 		int problemReason = 0;
 		MethodBinding candidateMethod;
 		if (methodBinding.isValidBinding()) {
@@ -652,112 +650,65 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		} else {
 			candidateMethod = null;
 		}
-		boolean hasUpdatedInner = false;
 		if (candidateMethod != null) {
 			boolean variableArity = candidateMethod.isVarargs();
+			InferenceContext18 infCtx = null;
+			if (candidateMethod instanceof ParameterizedGenericMethodBinding) {
+				infCtx = invocation.getInferenceContext((ParameterizedGenericMethodBinding) candidateMethod);
+				if (infCtx != null) {
+					if (!infCtx.hasFinished)
+						return; // not yet ready for pushing type information down to arguments
+					variableArity &= infCtx.isVarArgs(); // TODO: if no infCtx is available, do we have to re-check if this is a varargs invocation?
+				}
+			}
+			
 			final TypeBinding[] parameters = candidateMethod.parameters;
-			final int parametersLength = parameters.length;
-			Expression [] arguments = invocation.arguments();
+			Expression[] innerArguments = invocation.arguments();
+			Expression [] arguments = innerArguments;
 			for (int i = 0, length = arguments == null ? 0 : arguments.length; i < length; i++) {
 				Expression argument = arguments[i];
-				TypeBinding parameterType = i < parametersLength ? parameters[i] : variableArity ? parameters[parametersLength - 1] : null;
 				TypeBinding updatedArgumentType = null;
+				TypeBinding parameterType = InferenceContext18.getParameter(parameters, i, variableArity); 
 
-				if (variableArity && i >= parametersLength - 1)
-					argument.tagAsEllipsisArgument();
-				updatedArgumentType = updateExpression(scope, argument, argumentTypes[i], parameterType, invocation.hasInferenceFinished());
-				if (updatedArgumentType == POLY_ERROR) //$IDENTITY-COMPARISON$
+				if (argument instanceof LambdaExpression && ((LambdaExpression) argument).hasErrors())
 					continue; // don't update if inner poly has errors
-				if (problemReason != ProblemReasons.Ambiguous 	// preserve this error
-						&& updatedArgumentType != null					// do we have a relevant update? ...
-						&& !(updatedArgumentType instanceof PolyTypeBinding)
-						&& TypeBinding.notEquals(updatedArgumentType, argumentTypes[i]))
-				{
-					// update the argumentTypes array (supposed to be owned by the calling method)
-					// in order to give better information into a second round of method lookup:
-					argumentTypes[i] = updatedArgumentType;
-					hasUpdatedInner = true;
+
+				if (argument instanceof Invocation) {
+					Invocation innerInvocation = (Invocation)argument;
+					MethodBinding binding = innerInvocation.binding();
+					if (binding instanceof ParameterizedGenericMethodBinding) {
+						ParameterizedGenericMethodBinding parameterizedMethod = (ParameterizedGenericMethodBinding) binding;
+						InferenceContext18 innerContext = innerInvocation.getInferenceContext(parameterizedMethod);
+						if (innerContext != null && !innerContext.hasFinished) {							
+							argument.setExpectedType(parameterType);
+							TypeBinding[] innerArgumentTypes = null;
+							if (innerArguments != null) {
+								innerArgumentTypes = new TypeBinding[innerArguments.length];
+								for (int j = 0; j < innerArguments.length; j++)
+									innerArgumentTypes[i] = innerArguments[i].resolvedType;
+							}
+							MethodBinding improvedBinding = innerContext.inferInvocationType(innerInvocation, innerArgumentTypes, parameterizedMethod);
+							innerInvocation.updateBindings(improvedBinding);
+						}
+						continue; // otherwise these have been dealt with during inner method lookup
+					}
+				}
+
+				if (argument.isPolyExpression()) {
+					// poly expressions in an invocation context need to be resolved now:
+					updatedArgumentType = argument.checkAgainstFinalTargetType(parameterType);
+
+					if (problemReason == ProblemReasons.NoError // preserve errors
+							&& updatedArgumentType != null					// do we have a relevant update? ...
+							&& !(updatedArgumentType instanceof PolyTypeBinding))
+					{
+						// update the argumentTypes array (supposed to be owned by the calling method)
+						// in order to give better information for subsequent checks
+						argumentTypes[i] = updatedArgumentType;
+					}
 				}
 			}
 		}
-		return hasUpdatedInner;
-	}
-
-	// special instance used to signal that an inner poly expression had errors, to cancel another method lookup of the outer based on bogus type information
-	static final TypeBinding POLY_ERROR = new PolyTypeBinding(null);
-
-	private static TypeBinding updateExpression(BlockScope scope, Expression expression, TypeBinding argumentType, TypeBinding parameterType, boolean inferenceFinished) {
-		TypeBinding updatedArgumentType = null;
-		boolean isPolyAlloc = false;
-		if (expression instanceof Invocation) {
-			Invocation invocation = (Invocation)expression;
-			updatedArgumentType = updateInvocation(invocation, parameterType);
-			if (updatedArgumentType == null && invocation.inferenceKind() != 0 && !invocation.hasInferenceFinished())
-				isPolyAlloc = true;
-		} else if (expression instanceof ConditionalExpression) {
-			updatedArgumentType = updateConditionExpresion(scope, ((ConditionalExpression) expression), argumentType, parameterType, inferenceFinished);
-		}
-
-		if (updatedArgumentType == null && (isPolyAlloc || argumentType instanceof PolyTypeBinding)) {
-			updatedArgumentType = updateOtherPolyExpression(scope, expression, parameterType, inferenceFinished);
-		}
-		return updatedArgumentType;
-	}
-
-	private static TypeBinding updateConditionExpresion(BlockScope scope, ConditionalExpression expression, TypeBinding currentType, TypeBinding targetType, boolean inferenceFinished) {
-		TypeBinding type = updateExpression(scope, expression.valueIfTrue, currentType, targetType, inferenceFinished);
-		boolean errorSeen = (type == POLY_ERROR); //$IDENTITY-COMPARISON$
-		boolean incompatibilitySeen = !errorSeen && type != null && !type.isCompatibleWith(targetType);
-		type = updateExpression(scope, expression.valueIfFalse, currentType, targetType, inferenceFinished);
-		if (errorSeen || type == POLY_ERROR) //$IDENTITY-COMPARISON$
-			return POLY_ERROR;
-		if (incompatibilitySeen || type != null && !type.isCompatibleWith(targetType))
-			return null;
-		return expression.resolvedType = targetType;
-	}
-
-	private static TypeBinding updateInvocation(Invocation innerInvocation, TypeBinding targetType) {
-		boolean invocationFinished = false;
-		MethodBinding updatedMethod = innerInvocation.binding();
-		if (innerInvocation.hasInferenceFinished() && updatedMethod != null) {
-			// outer invocation already included invocation type inference for this inner
-			invocationFinished = true;
-		} else {
-			// Inner Inference?
-			InferenceContext18 infCtx18 = innerInvocation.inferenceContext();
-			if (infCtx18 != null) {
-				// Previous time around we only performed Invocation Applicability Inference, do the rest now:
-				updatedMethod = infCtx18.getInvocationTypeInferenceSolution(innerInvocation, targetType);
-				if (updatedMethod != null) {
-					innerInvocation.updateBindings(updatedMethod);
-					invocationFinished = true;
-				}
-			}
-		}
-		if (invocationFinished) {
-			if (updatedMethod.isConstructor())
-				return updatedMethod.declaringClass;
-			else
-				return updatedMethod.returnType;
-		}
-		return null;
-	}
-
-	protected static TypeBinding updateOtherPolyExpression(BlockScope scope, Expression expression, TypeBinding parameterType, boolean inferenceFinished) {
-		TypeBinding updatedArgumentType;
-		expression.setExpressionContext(parameterType != null ? ExpressionContext.INVOCATION_CONTEXT: ExpressionContext.ASSIGNMENT_CONTEXT); // force the errors to surface.
-		// perform the level of resolving suitable for the state of affairs at the enclosing context:
-		if (inferenceFinished) {
-			expression.setExpectedType(parameterType);
-			updatedArgumentType = expression.resolveType(scope);
-		} else {
-			updatedArgumentType = expression.resolveTentatively(scope, parameterType);
-		}
-		if (updatedArgumentType == null || !updatedArgumentType.isValidBinding())
-			return POLY_ERROR;
-		if (expression instanceof LambdaExpression && ((LambdaExpression) expression).hasErrors())
-			return POLY_ERROR;
-		return updatedArgumentType;
 	}
 
 	public static void resolveAnnotations(BlockScope scope, Annotation[] sourceAnnotations, Binding recipient) {

@@ -36,10 +36,9 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
 
-public abstract class FunctionalExpression extends Expression implements PolyExpression {
+public abstract class FunctionalExpression extends Expression {
 	
 	TypeBinding expectedType;
-	boolean expectedIsFinalTargetType = false; // flip to true once the expression context has determined the final target type for this expression
 	public MethodBinding descriptor;
 	public MethodBinding binding;                 // Code generation binding. May include synthetics. See getMethodBinding()
 	protected MethodBinding actualMethodBinding;  // void of synthetics.
@@ -51,7 +50,6 @@ public abstract class FunctionalExpression extends Expression implements PolyExp
 	public BlockScope enclosingScope;
 	protected boolean ellipsisArgument;
 	protected static IErrorHandlingPolicy silentErrorHandlingPolicy = DefaultErrorHandlingPolicies.ignoreAllProblems();
-	protected boolean hasInferenceFinished = false;
 
 	public FunctionalExpression(CompilationResult compilationResult) {
 		this.compilationResult = compilationResult;
@@ -70,10 +68,7 @@ public abstract class FunctionalExpression extends Expression implements PolyExp
 		return null;
 	}
 	public void setExpectedType(TypeBinding expectedType) {
-		if (expectedType == null)
-			this.expectedType = null; // for reset
-		else
-			this.expectedType = this.ellipsisArgument ? ((ArrayBinding) expectedType).elementsType() : expectedType;
+		this.expectedType = this.ellipsisArgument ? ((ArrayBinding) expectedType).elementsType() : expectedType;
 	}
 	
 	public void setExpressionContext(ExpressionContext context) {
@@ -88,14 +83,6 @@ public abstract class FunctionalExpression extends Expression implements PolyExp
 	}
 	public boolean isPolyExpression() {
 		return true; // always as per introduction of part D, JSR 335
-	}
-	
-	public void markInferenceFinished() {
-		this.hasInferenceFinished = true;
-	}
-	
-	public boolean hasInferenceFinished() {
-		return this.hasInferenceFinished;
 	}
 
 	public TypeBinding invocationTargetType() {
@@ -149,53 +136,8 @@ public abstract class FunctionalExpression extends Expression implements PolyExp
 		return this.resolvedType = null;
 	}
 
-	/** During inference: Try to find an applicable method binding without causing undesired side-effects. */
-	public MethodBinding findCompileTimeMethodTargeting(TypeBinding targetType, Scope scope) {
-		if (this.hasInferenceFinished)
-			return this.binding;
-		return (MethodBinding)internalResolveTentatively(targetType, scope)[0];
-	}
-
-	/** During inference: Try to resolve the type of this expression without causing undesired side-effects. */
-	public TypeBinding resolveTentatively(BlockScope scope, TypeBinding targetType) {
-		if (this.hasInferenceFinished)
-			return this.resolvedType;
-		return (TypeBinding)internalResolveTentatively(targetType, scope)[1];
-	}
-
-	private Object[] internalResolveTentatively(TypeBinding targetType, Scope scope) { // TODO: convert return to Pair<MethodBinding,TypeBinding>
-		// FIXME: could enclosingScope still be null here??
-		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
-		ExpressionContext previousContext = this.expressionContext;
-		MethodBinding previousBinding = this.binding;
-		MethodBinding previousDescriptor = this.descriptor;
-		try {
-			setExpressionContext(INVOCATION_CONTEXT);
-			setExpectedType(targetType);
-			this.binding = null;
-			TypeBinding type = resolveType(this.enclosingScope);
-			return new Object[] { this.binding, type };
-		} finally {
-			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
-			// remove *any relevant* traces of this 'inofficial' resolving:
-			this.binding = previousBinding;
-			this.descriptor = previousDescriptor;
-			this.hasInferenceFinished = false;
-			setExpressionContext(previousContext);
-			this.expectedType = null; // don't call setExpectedType(null), would NPE
-			cleanUpAfterTentativeResolve();
-		}
-	}
-
-	void cleanUpAfterTentativeResolve() {
-		// nop. Subclasses: do your homework!
-	}
-
-	public void checkAgainstFinalTargetType(TypeBinding targetType) {
-		if (this.expectedIsFinalTargetType)
-			return; // already checked
-		this.expectedIsFinalTargetType = true;
-		resolveTypeExpecting(this.enclosingScope, targetType);
+	public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType) {
+		return resolveTypeExpecting(this.enclosingScope, targetType);
 	}
 
 	class VisibilityInspector extends TypeBindingVisitor {

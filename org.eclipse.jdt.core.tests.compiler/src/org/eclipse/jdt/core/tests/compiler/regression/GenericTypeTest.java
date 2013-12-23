@@ -50006,7 +50006,7 @@ public void test1439() {
 			"	       ^^^^\n" + 
 			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n"
-			: // Line 7: in 1.8 <T> is infered to <null> => not a checked exception 
+			: // 1.8 infers T in this((List) null, null) to RuntimeException, hence no error here (2. above)
 			"----------\n" + 
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	this((List) null, null);\n" + 
@@ -50249,7 +50249,6 @@ public void test1444() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=263215 - variation
-// FIXME javac8 doesn't find the error
 public void test1445() {
 	this.runNegativeTest(
 			new String[] {
@@ -50276,8 +50275,9 @@ public void test1445() {
 				"		new <IOException> X(l){}. <IOException> foo(l);\n" + 
 				"	}\n" + 
 				"\n" + 
-				"}\n",//-----------------------------------------------------------------------
+				"}\n",
 			},
+			(this.complianceLevel < ClassFileConstants.JDK1_8 ?
 			"----------\n" + 
 			"1. WARNING in X.java (at line 8)\n" + 
 			"	static void bar(List l) {\n" + 
@@ -50378,7 +50378,100 @@ public void test1445() {
 			"	new <IOException> X(l){}. <IOException> foo(l);\n" + 
 			"	                                            ^\n" + 
 			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
-			"----------\n");
+			"----------\n"
+			: // 1.8 infers type parameters in throws clauses to RuntimeException, hence no errors
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	static void bar(List l) {\n" + 
+			"	                ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	new X(l).foo(l);\n" + 
+			"	^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation X(List) of the generic constructor X(List<T>) of type X\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 9)\n" + 
+			"	new X(l).foo(l);\n" + 
+			"	^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>) of type X\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 9)\n" + 
+			"	new X(l).foo(l);\n" + 
+			"	      ^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<RuntimeException>\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 9)\n" + 
+			"	new X(l).foo(l);\n" + 
+			"	             ^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<RuntimeException>\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 11)\n" + 
+			"	static void baz(List l) throws IOException {\n" + 
+			"	                ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 12)\n" + 
+			"	new <IOException> X(l). <IOException> foo(l);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation X(List) of the generic constructor X(List<T>) of type X\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 12)\n" + 
+			"	new <IOException> X(l). <IOException> foo(l);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>) of type X\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 12)\n" + 
+			"	new <IOException> X(l). <IOException> foo(l);\n" + 
+			"	                    ^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
+			"----------\n" + 
+			"10. WARNING in X.java (at line 12)\n" + 
+			"	new <IOException> X(l). <IOException> foo(l);\n" + 
+			"	                                          ^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
+			"----------\n" + 
+			"11. WARNING in X.java (at line 15)\n" + 
+			"	X(List l, long l2) throws IOException {\n" + 
+			"	  ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"12. WARNING in X.java (at line 16)\n" + 
+			"	<IOException> this(l);\n" + 
+			"	              ^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation X(List) of the generic constructor X(List<T>) of type X\n" + 
+			"----------\n" + 
+			"13. WARNING in X.java (at line 16)\n" + 
+			"	<IOException> this(l);\n" + 
+			"	                   ^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
+			"----------\n" + 
+			"14. WARNING in X.java (at line 19)\n" + 
+			"	static void baz2(List l) throws IOException {\n" + 
+			"	                 ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"15. WARNING in X.java (at line 20)\n" + 
+			"	new <IOException> X(l){}. <IOException> foo(l);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation X(List) of the generic constructor X(List<T>) of type X\n" + 
+			"----------\n" + 
+			"16. WARNING in X.java (at line 20)\n" + 
+			"	new <IOException> X(l){}. <IOException> foo(l);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>) of type X\n" + 
+			"----------\n" + 
+			"17. WARNING in X.java (at line 20)\n" + 
+			"	new <IOException> X(l){}. <IOException> foo(l);\n" + 
+			"	                    ^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
+			"----------\n" + 
+			"18. WARNING in X.java (at line 20)\n" + 
+			"	new <IOException> X(l){}. <IOException> foo(l);\n" + 
+			"	                                            ^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
+			"----------\n"
+			));
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=202393
 public void test1446() {

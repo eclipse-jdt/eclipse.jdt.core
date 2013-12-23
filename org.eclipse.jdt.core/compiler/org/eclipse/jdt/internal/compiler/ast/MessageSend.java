@@ -83,6 +83,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 public class MessageSend extends Expression implements Invocation {
 
@@ -100,8 +101,9 @@ public class MessageSend extends Expression implements Invocation {
 	public TypeReference[] typeArguments;
 	public TypeBinding[] genericTypeArguments;
 	private ExpressionContext expressionContext = VANILLA_CONTEXT;
-	private int inferenceKind = 0;
-	private InferenceContext18 inferenceContext;
+
+	 // hold on to this context from invocation applicability inference until invocation type inference (per method candidate):
+	private SimpleLookupTable/*<PGMB,InferenceContext18>*/ inferenceContexts;
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	boolean nonStatic = !this.binding.isStatic();
@@ -849,11 +851,7 @@ protected void findMethodBinding(BlockScope scope, TypeBinding[] argumentTypes, 
 			: scope.getMethod(this.actualReceiverType, this.selector, argumentTypes, this);
 	
 	if (polyExpressionSeen)
-		if (resolvePolyExpressionArguments(this, scope, this.binding, argumentTypes)) {
-			this.binding = this.receiver.isImplicitThis()
-					? scope.getImplicitMethod(this.selector, argumentTypes, this)
-					: scope.getMethod(this.actualReceiverType, this.selector, argumentTypes, this);
-		}
+		resolvePolyExpressionArguments(this, this.binding, argumentTypes);
 }
 
 public void setActualReceiverType(ReferenceBinding receiverType) {
@@ -956,41 +954,35 @@ public MethodBinding binding() {
 public Expression[] arguments() {
 	return this.arguments;
 }
-public InferenceContext18 freshInferenceContext(Scope scope) {
-	InferenceContext18 outer = this.inferenceContext != null ? this.inferenceContext.outerContext : null;
-	this.inferenceContext = new InferenceContext18(scope, this.arguments, this);
-	this.inferenceContext.outerContext = outer;
-	return this.inferenceContext;
-}
-/**
- * Here inference signals if it has established applicability.
- * If so, it sets the corresponding checkKind (see {@link InferenceContext18#CHECK_STRICT} etc.).
- * When later the message send is touched again as an element in an outer expression,
- * we re-use this bit to perform only one kind of check.
- * TODO(stephan): check if this is sanctioned by the spec.
- * TODO(stephan): cf. {@link Expression#tagAsEllipsisArgument} (not implemented in this class)
- */
-public void setInferenceKind(int checkKind) {
-	this.inferenceKind = checkKind;
-}
-public int inferenceKind() {
-	return (this.inferenceKind & InferenceContext18.INFERENCE_KIND_MASK);
-}
-public void markInferenceFinished() {
-	this.inferenceKind |= InferenceContext18.CHECK_FINISHED;
-}
-public boolean hasInferenceFinished() {
-	return (this.inferenceContext == null && this.inferenceKind == 0) // only relevant if inference has been started
-			|| (this.inferenceKind & InferenceContext18.CHECK_FINISHED) != 0;
-}
-public TypeBinding updateBindings(MethodBinding updatedBinding) {
-	this.binding = updatedBinding;
-	return this.resolvedType = updatedBinding.returnType;
-}
 public ExpressionContext getExpressionContext() {
 	return this.expressionContext;
 }
-public InferenceContext18 inferenceContext() {
-	return this.inferenceContext;
+public void registerInferenceContext(ParameterizedGenericMethodBinding method, InferenceContext18 infCtx18) {
+	if (this.inferenceContexts == null)
+		this.inferenceContexts = new SimpleLookupTable();
+	this.inferenceContexts.put(method, infCtx18);
+}
+public InferenceContext18 getInferenceContext(ParameterizedGenericMethodBinding method) {
+	if (this.inferenceContexts == null)
+		return null;
+	return (InferenceContext18) this.inferenceContexts.get(method);
+}
+public boolean updateBindings(MethodBinding updatedBinding) {
+	if (this.binding == updatedBinding)
+		return false;
+	if (this.inferenceContexts != null) {
+		InferenceContext18 ctx = (InferenceContext18)this.inferenceContexts.removeKey(this.binding);
+		if (ctx != null && updatedBinding instanceof ParameterizedGenericMethodBinding) {
+			this.inferenceContexts.put(updatedBinding, ctx);
+			ctx.hasFinished=true;
+		}
+	}
+	this.binding = updatedBinding;
+	this.resolvedType = updatedBinding.returnType;
+	return true;
+}
+// -- Interface InvocationSite: --
+public InferenceContext18 freshInferenceContext(Scope scope) {
+	return new InferenceContext18(scope, this.arguments, this);
 }
 }

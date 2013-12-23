@@ -62,8 +62,14 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 		if (this.right.isProperType(true)) {
 			TypeBinding exprType = this.left.resolvedType;
 			if (exprType == null) {
-				if (this.left instanceof FunctionalExpression)
+				if (this.left instanceof FunctionalExpression) {
+					if (this.left instanceof LambdaExpression) {
+						// cf. NegativeLambdaExpressionTest.test412453()
+						LambdaExpression copy = ((LambdaExpression) this.left).getResolvedCopyForInferenceTargeting(this.right);
+						return (copy.resolvedType != null && copy.resolvedType.isValidBinding()) ? TRUE : FALSE;
+					}
 					return this.left.isCompatibleWith(this.right, inferenceContext.scope) ? TRUE : FALSE;
+				}
 				return FALSE;
 			} else if (!exprType.isValidBinding()) {
 				return FALSE;
@@ -83,19 +89,26 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			if (this.left instanceof Invocation) {
 				Invocation invocation = (Invocation) this.left;
 				// ignore previous (inner) inference result and do a fresh start:
-				MethodBinding method = invocation.binding().original();
+				MethodBinding previousMethod = invocation.binding();
+				MethodBinding method = previousMethod.original();
 				InvocationRecord prevInvocation = inferenceContext.enterPolyInvocation(invocation, invocation.arguments());
 
-				// Invocation Applicability Inference: 18.5.1
+				// Invocation Applicability Inference: 18.5.1 & Invocation Type Inference: 18.5.2
 				try {
 					Expression[] arguments = invocation.arguments();
 					TypeBinding[] argumentTypes = arguments == null ? Binding.NO_PARAMETERS : new TypeBinding[arguments.length];
 					for (int i = 0; i < argumentTypes.length; i++)
 						argumentTypes[i] = arguments[i].resolvedType;
-					int checkType = (invocation.inferenceKind() != 0) ? invocation.inferenceKind() : InferenceContext18.CHECK_LOOSE;
+					if (previousMethod instanceof ParameterizedGenericMethodBinding) {
+						// find the previous inner inference context to see what inference kind this invocation needs:
+						InferenceContext18 innerCtx = invocation.getInferenceContext((ParameterizedGenericMethodBinding) previousMethod);
+						if (innerCtx == null)
+							InferenceContext18.missingImplementation("Missing context for inner inference for "+invocation.toString());
+						inferenceContext.inferenceKind = innerCtx.inferenceKind;
+						innerCtx.outerContext = inferenceContext;
+					}
 					boolean isDiamond = method.isConstructor() && this.left.isPolyExpression(method);
-					inferInvocationApplicability(inferenceContext, method, argumentTypes, isDiamond, checkType); // FIXME 3 phases?
-					
+					inferInvocationApplicability(inferenceContext, method, argumentTypes, isDiamond, inferenceContext.inferenceKind);
 					if (!inferPolyInvocationType(inferenceContext, invocation, this.right, method))
 						return FALSE;
 					return null; // already incorporated
@@ -144,14 +157,10 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					TypeBinding r = functionType.returnType;
 					if (lambda.body() instanceof Expression) {
 						Expression body = (Expression)lambda.body();
-						// before introducing the body into inference, we must ensure it's resolved, hm...
-						ensureResolved(lambda.enclosingScope, body, r);
 						result.add(new ConstraintExpressionFormula(body, r, COMPATIBLE));
 					} else {
 						Expression[] exprs = lambda.resultExpressions();
 						for (int i = 0; i < exprs.length; i++) {
-							// before introducing result expressions into inference, we must ensure they're resolved, hm...
-							ensureResolved(lambda.enclosingScope, exprs[i], r);
 							result.add(new ConstraintExpressionFormula(exprs[i], r, COMPATIBLE));
 						}
 					}
@@ -176,24 +185,6 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			return expr.isPolyExpression();
 		} finally {
 			expr.setExpressionContext(previousExpressionContext);
-		}
-	}
-
-	private void ensureResolved(BlockScope scope, Expression expr, TypeBinding targetType) {
-		// TODO this method might be obsoleted by the use of LE.getResolvedCopyForInferenceTargeting()
-		if (expr.resolvedType == null) {
-			if (targetType.isProperType(true))
-				expr.setExpectedType(targetType);
-			else
-				expr.setExpectedType(null);
-			ExpressionContext previousExpressionContext = expr.getExpressionContext();
-			if (previousExpressionContext == ExpressionContext.VANILLA_CONTEXT)
-				expr.setExpressionContext(ExpressionContext.ASSIGNMENT_CONTEXT);
-			try {
-				expr.resolveType(scope);
-			} finally {
-				expr.setExpressionContext(previousExpressionContext);
-			}
 		}
 	}
 
@@ -243,7 +234,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 		return FALSE;
 	}
 
-	static void inferInvocationApplicability(InferenceContext18 inferenceContext, MethodBinding method, TypeBinding[] arguments, boolean isDiamond, int checkType) 
+	static void inferInvocationApplicability(InferenceContext18 inferenceContext, MethodBinding method, TypeBinding[] arguments, boolean isDiamond, int checkType)
 	{
 		// 18.5.1
 		TypeVariableBinding[] typeVariables = method.typeVariables;

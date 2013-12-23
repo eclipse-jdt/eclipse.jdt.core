@@ -953,7 +953,8 @@ public Constant optimizedBooleanConstant() {
 public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
 	return true;
 }
-// call this before resolving an expression for the second time. TODO: implement in more subclasses, or find a different strategy.
+// call this before resolving an expression for the second time.
+// FIXME: we should find a better strategy, see LambdaExpressionsTest.testLambdaInference1() f. for tests that currently need this.
 void unresolve() {
 	this.resolvedType = null;
 }
@@ -1058,21 +1059,12 @@ public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedTy
 }
 
 /**
- * If we might still be in the context of an unfinished outer inference, use this method to
- * tentatively resolve this expression without leaving any undesired traces, in case we will
- * come back with a better target type later.
- */
-public TypeBinding resolveTentatively(BlockScope scope, TypeBinding targetType) {
-	return resolveType(scope); // default is to do full resolution in just this one step
-}
-
-/**
  * Once outer contexts have finalized the target type for this expression,
  * perform any checks that might have been delayed previously.
  * @param targetType the final target type (aka expectedType) for this expression.
  */
-public void checkAgainstFinalTargetType(TypeBinding targetType) {
-	// nop, subclasses may choose to do real stuff here
+public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType) {
+	return targetType; // subclasses may choose to do real stuff here
 }
 
 /**

@@ -17,37 +17,42 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 
 /**
- * Abstraction for AST nodes that can trigger 
+ * Abstraction for invocation AST nodes that can trigger 
  * <ul>
  * <li>Invocation Applicability Inferences (18.5.1), and</li> 
  * <li>Invocation Type Inference (18.5.2).</li>
  * </ul>
  */
-public interface Invocation extends InvocationSite, PolyExpression {
+public interface Invocation extends InvocationSite {
 
 	Expression[] arguments();
 
 	MethodBinding binding();
 
-	InferenceContext18 inferenceContext();
-
-	/** See {@link #inferenceContext()}. */
-	void setInferenceKind(int checkKind);
-
 	/**
-	 * Answer one of {@link InferenceContext18#CHECK_STRICT}, {@link InferenceContext18#CHECK_LOOSE} 
-	 * or {@link InferenceContext18#CHECK_VARARG}, to signal what kind of inference has been used.
+	 * Register the given inference context, which produced the given method as its intermediate result.
+	 * Later when the same method is selected as the most specific method, the inference context
+	 * for this pair (Invocation x MethodBinding) can be looked up using {@link #getExpressionContext()}
+	 * to continue the type inference.
 	 */
-	int inferenceKind();
+	void registerInferenceContext(ParameterizedGenericMethodBinding method, InferenceContext18 infCtx18);
+	
+	/**
+	 * Retrieve an inference context for the given method which must have been registered
+	 * using {@link #registerInferenceContext(ParameterizedGenericMethodBinding, InferenceContext18)}.
+	 * @param method an intermediate resolved candidate for this invocation
+	 * return a suspended inference context or null if none was registered for this method.
+	 */
+	InferenceContext18 getInferenceContext(ParameterizedGenericMethodBinding method);
 
 	/**
 	 * Where the AST node may hold references to the results of Invocation Applicability Inference,
 	 * this method allows to update those references to the result of Invocation Type Inference.
 	 * Note that potentially more than just the method binding is updated.
+	 * @return true if an update has happened
 	 */
-	TypeBinding updateBindings(MethodBinding updatedBinding);
-
+	boolean updateBindings(MethodBinding updatedBinding);
 }

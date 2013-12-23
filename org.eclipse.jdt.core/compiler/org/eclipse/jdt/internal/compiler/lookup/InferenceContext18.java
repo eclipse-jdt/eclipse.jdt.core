@@ -23,13 +23,113 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.dom.LambdaExpression;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.ExpressionContext;
 import org.eclipse.jdt.internal.compiler.ast.Invocation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /**
  * Main class for new type inference as per JLS8 sect 18.
  * Keeps contextual state and drives the algorithm.
+ * 
+ * <h2>Inference Basics</h2>
+ * <ul>
+ * <li>18.1.1 Inference variables: {@link InferenceVariable}</li>
+ * <li>18.1.2 Constraint Formulas: subclasses of {@link ConstraintFormula}</li>
+ * <li>18.1.3 Bounds: {@link TypeBound}<br/>
+ * 	Capture bounds are directly captured in {@link BoundSet#captures}, throws-bounds in {@link BoundSet#inThrows}.<br/>
+ * 	Also: {@link BoundSet}: main state during inference.</li>
+ * </ul>
+ * Each instance of {@link InferenceContext18} manages instances of the above and coordinates the inference process.
+ * <h3>Queries and utilities</h3>
+ * <ul>
+ * <li>{@link TypeBinding#isProperType(boolean)}:
+ * 	 used to exclude "types" that mention inference variables (18.1.1).</li>
+ * <li>{@link TypeBinding#mentionsAny(TypeBinding[], int)}:
+ * 	 does the receiver type binding mention any of the given types?</li>
+ * <li>{@link TypeBinding#substituteInferenceVariable(InferenceVariable, TypeBinding)}:
+ * 	 replace occurrences of an inference variable with a proper type.</li>
+ * <li>{@link TypeBinding#collectInferenceVariables(Set)}:
+ * 	 collect all inference variables mentioned in the receiver type into the given set.</li>
+ * <li>{@link TypeVariableBinding#getTypeBounds(InferenceVariable, InferenceContext18)}:
+ * 	Compute the initial type bounds for one inference variable as per JLS8 sect 18.1.3.</li>
+ * </ul>
+ * <h2>Phases of Inference</h2>
+ * <ul>
+ * <li>18.2 <b>Reduction</b>: {@link #reduce()} with most work happening in implementations of
+ *  {@link ConstraintFormula#reduce(InferenceContext18)}:
+ *  <ul>
+ *  <li>18.2.1 Expression Compatibility Constraints: {@link ConstraintExpressionFormula#reduce(InferenceContext18)}.</li>
+ *  <li>18.2.2 Type Compatibility Constraints ff. {@link ConstraintTypeFormula#reduce(InferenceContext18)}.</li>
+ *  </ul></li>
+ * <li>18.3 <b>Incorporation</b>: {@link BoundSet#incorporate(InferenceContext18)}; during inference new constraints
+ * 	are accepted via {@link BoundSet#reduceOneConstraint(InferenceContext18, ConstraintFormula)} (combining 18.2 & 18.3)</li>
+ * <li>18.4 <b>Resolution</b>: {@link #resolve()}.
+ * </ul>
+ * Some of the above operations accumulate their results into {@link #currentBounds}, whereas
+ * the last phase <em>returns</em> the resulting bound set while keeping the previous state in {@link #currentBounds}.
+ * <h2>18.5. Uses of Inference</h2>
+ * These are the main entries from the compiler into the inference engine:
+ * <dl>
+ * <dt>18.5.1 Invocation Applicability Inference</dt>
+ * <dd>{@link #inferInvocationApplicability(MethodBinding, TypeBinding[], boolean)}. Prepare the initial state for
+ * 	inference of a generic invocation - no target type used at this point.
+ *  Need to call {@link #solve()} afterwards to produce the intermediate result.<br/>
+ *  Called indirectly from {@link Scope#findMethod(ReferenceBinding, char[], TypeBinding[], InvocationSite, boolean)} et al
+ *  to select applicable methods into overload resolution.</dd>
+ * <dt>18.5.2 Invocation Type Inference</dt>
+ * <dd>{@link InferenceContext18#inferInvocationType(BoundSet, TypeBinding, InvocationSite, MethodBinding)}. After a
+ * 	most specific method has been picked, and given a target type determine the final generic instantiation.
+ *  As long as a target type is still unavailable this phase keeps getting deferred.</br>
+ *  Different wrappers exist for the convenience of different callers.</dd>
+ * <dt>18.5.3 Functional Interface Parameterization Inference</dt>
+ * <dd>Controlled from {@link LambdaExpression#resolveTypeBinding()}.</dd>
+ * <dt>18.5.4 More Specific Method Inference</dt>
+ * <dd><em>Not Yet Implemented</em></dd>
+ * </dl>
+ * For 18.5.1 and 18.5.2 some high-level control is implemented in
+ *  {@link ParameterizedGenericMethodBinding#computeCompatibleMethod(MethodBinding, TypeBinding[], Scope, InvocationSite, int)}.
+ * <h2>Inference Lifecycle</h2>
+ * The separation into 18.5.1 and 18.5.2 causes some complexity:
+ * <ul>
+ * <li>Calling both parts of inference is directly interwoven with overload resolution. See 
+ * {@link ParameterizedGenericMethodBinding#computeCompatibleMethod(MethodBinding, TypeBinding[], Scope, InvocationSite, int)
+ * 		PGMB#computeCompatibleMethod()} for the basic <b>protocol</b>.</li>
+ * <li>Intermediate <b>state</b> regarding inference must be stored between both phases. Inference is performed with different
+ *   inputs for each pair of {@link Invocation} x {@link ParameterizedGenericMethodBinding},
+ *    see {@link Invocation#registerInferenceContext(ParameterizedGenericMethodBinding, InferenceContext18) Invocation.registerInferenceContext()} and
+ *    {@link Invocation#getInferenceContext(ParameterizedGenericMethodBinding) getInferenceContext()}.<br/>
+ *    As part of the lifecycle state, each instance of InferenceContext18 remembers the current {@link #inferenceKind}
+ *    and {@link #hasFinished}.</li>
+ * <li><b>Nested inference/resolving</b>: If an invocation argument is a poly expression itself, final resolving of the argument can only happened
+ *    after Invocation Type Inference regarding the outer invocation. Outer inference must produce the <b>target type</b> that drives
+ *    the inner inference / resolving. Two different protocols are applied:
+ *    <ul>
+ *    <li>If the inner poly expression is an invocation, inner inference is directly incorporated into
+ *      the {@link #currentBounds}, see block inside {@link ConstraintExpressionFormula#reduce(InferenceContext18)}.<br/>
+ *      In this case the results of the combined inference need to be applied to all contained inner invocations,
+ *      which happens in {@link #rebindInnerPolies(BoundSet, TypeBinding[])}, which must be called whenever
+ *      18.5.2 finishes.</li>
+ *    <li>If the inner poly expression is a functional expression or a conditional expression no inference variables
+ *      exist representing the inner. In this case the final target type is pushed into the inner using
+ *      {@link Expression#checkAgainstFinalTargetType(TypeBinding)}, which, too, is called from 
+ *      {@link #rebindInnerPolies(BoundSet, TypeBinding[])}.</li>
+ *    <li>For recursively pushing target types into arguments of an invocation
+ *    	method {@link ASTNode#resolvePolyExpressionArguments(Invocation, MethodBinding, TypeBinding[])} exists,
+ *    	which is called in two situations: (1) for non-generic outer invocations from MessageSend#findMethodBinding() and
+ *    	Statement#findConstructorBinding(); (2) for generic outer invocations from {@link #rebindInnerPolies(BoundSet, TypeBinding[])}.</li>
+ *    <li>In some situations invocation arguments that are poly invocations need to be resolved in the middle of overload resolution
+ *    	to answer {@link Scope#parameterCompatibilityLevel18} (where the outer invocation did not involve any inference).<br/>
+ *    </ul>
+ *    Pushing inference results into an inner invocation happens using {@link Invocation#updateBindings(MethodBinding)}.</li>
+ * <li>Decision whether or not an invocation is a <b>variable-arity</b> invocation is made by first attempting
+ * 		to solve 18.5.1 in mode {@link #CHECK_LOOSE}. Only if that fails, another attempt is made in mode {@link #CHECK_VARARG}.
+ * 		Which of these two attempts was successful is stored in {@link #inferenceKind}.
+ * 		This field must be consulted whenever arguments of an invocation should be further processed.
+ * 		See also {@link #getParameter(TypeBinding[], int, boolean)} and its clients.</li>
+ * </ul>
  */
 public class InferenceContext18 {
 
@@ -43,39 +143,55 @@ public class InferenceContext18 {
 	 */
 	static final boolean ARGUMENT_CONSTRAINTS_ARE_SOFT = false;
 
-	InferenceVariable[] inferenceVariables;
-	BoundSet currentBounds;
-	ConstraintFormula[] initialConstraints;
-	int variableCount = 0;
+	// --- Main State of the Inference: ---
 
+	/** the invocation being inferred (for 18.5.1 and 18.5.2) */
+	InvocationSite currentInvocation;
+	/** arguments of #currentInvocation, if any */
+	Expression[] invocationArguments;
+	
+	/** The inference variables for which as solution is sought. */
+	InferenceVariable[] inferenceVariables;
+	/** Number of inference variables. */
+	int variableCount = 0;
+	/** Constraints that have not yet been reduced and incorporated. */
+	ConstraintFormula[] initialConstraints;
+	/** The accumulated type bounds etc. */
+	BoundSet currentBounds;
+
+	/** solution of applicability inference, stored for use as fallback, if invocation type inference fails. */
+	BoundSet storedSolution;
+	/** One of CHECK_STRICT, CHECK_LOOSE, or CHECK_VARARGS. */
+	int inferenceKind;
+	/** Once an invocation inference has passed 18.5.2 inference, flip this to true to avoid repeated inference of the same task. */
+	public boolean hasFinished = false;
+	
+	// ---
+
+	/** Inner poly invocations which have been included in this inference. */
 	List/*<InvocationSite>*/ innerPolies = new ArrayList();
+	/** Link to an outer inference context, used for bundled error reporting. */
 	public InferenceContext18 outerContext;
 	private ArrayList problemMethods;
 
 	Scope scope;
 	LookupEnvironment environment;
-	ReferenceBinding object;
+	ReferenceBinding object; // java.lang.Object
 	
-	// interim, processed by createInitialConstraintsForParameters()
-	InvocationSite currentInvocation;
-	Expression[] invocationArguments;
-	
-	// Bitmask, lower two bits:
 	public static final int CHECK_STRICT = 1;
 	public static final int CHECK_LOOSE = 2;
 	public static final int CHECK_VARARG = 3;
-	public static final int INFERENCE_KIND_MASK = 3;
-	// bit 3:
-	public static final int CHECK_FINISHED = 4;
 	
 	static class InvocationRecord {
 		InvocationSite site;
 		Expression[] invocationArguments;
 		InferenceVariable[] inferenceVariables;
-		InvocationRecord(InvocationSite site, Expression[] invocationArguments, InferenceVariable[] inferenceVariables) {
+		int inferenceKind;
+		InvocationRecord(InvocationSite site, Expression[] invocationArguments, InferenceVariable[] inferenceVariables, int inferenceKind) {
 			this.site = site;
 			this.invocationArguments = invocationArguments;
 			this.inferenceVariables = inferenceVariables;
+			this.inferenceKind = inferenceKind;
 		}
 	}
 	
@@ -212,18 +328,17 @@ public class InferenceContext18 {
 		}		
 	}
 
-	/** JLS 18.5.1 Invocation Applicability Inference */
-	public void inferInvocationApplicability(MethodBinding method, TypeBinding[] arguments, boolean isDiamond, int checkType) {
-		ConstraintExpressionFormula.inferInvocationApplicability(this, method, arguments, isDiamond, checkType);
+	/** JLS 18.5.1 Invocation Applicability Inference. */
+	public void inferInvocationApplicability(MethodBinding method, TypeBinding[] arguments, boolean isDiamond) {
+		ConstraintExpressionFormula.inferInvocationApplicability(this, method, arguments, isDiamond, this.inferenceKind);
 	}
 
 	/** JLS 18.5.2 Invocation Type Inference 
 	 * @param b1 "the bound set produced by reduction in order to demonstrate that m is applicable in 18.5.1" 
 	 */
-	public BoundSet inferInvocationType(BoundSet b1, TypeBinding expectedType, InvocationSite invocationSite, MethodBinding method, int checkKind)
+	public BoundSet inferInvocationType(BoundSet b1, TypeBinding expectedType, InvocationSite invocationSite, MethodBinding method)
 			throws InferenceFailureException 
 	{
-		BoundSet previous = this.currentBounds;
 		this.currentBounds = b1;
 		try {
 			// bullets 1&2: definitions only.
@@ -244,7 +359,9 @@ public class InferenceContext18 {
 			if (arguments != null) {
 				int k = arguments.length;
 				int p = method.parameters.length;
-				switch (checkKind) {
+				if (k < (method.isVarargs() ? p-1 : p))
+					return null; // insufficient arguments for parameters!
+				switch (this.inferenceKind) {
 					case CHECK_STRICT:
 					case CHECK_LOOSE:
 						fs = method.parameters;
@@ -253,7 +370,7 @@ public class InferenceContext18 {
 						fs = varArgTypes(method.parameters, k);
 						break;
 					default:
-						throw new IllegalStateException("Unexpected checkKind "+checkKind); //$NON-NLS-1$
+						throw new IllegalStateException("Unexpected checkKind "+this.inferenceKind); //$NON-NLS-1$
 				}
 				for (int i = 0; i < k; i++) {
 					TypeBinding fsi = fs[Math.min(i, p-1)];
@@ -298,72 +415,75 @@ public class InferenceContext18 {
 			BoundSet solution = solve();
 			if (solution == null || !isResolved(solution))
 				return null;
-			return solution;
+			return this.currentBounds = solution; // this is final, keep the result:
 		} finally {
-			this.currentBounds = previous;
+			this.hasFinished = true;
 		}
 	}
 
 	/**
 	 * Simplified API to perform Invocation Type Inference (JLS 18.5.2)
-	 * and (if successful) return the solution.
+	 * and perform subsequent steps: bound check, rebinding of inner poly expressions,
+	 * and creating of a problem method binding if needed.
+	 * Should only be called if the inference has not yet finished.
 	 * @param invocation invocation being inferred
+	 * @param argumentTypes arguments being passed into the invocation
+	 * @param method current candidate method binding for this invocation
+	 * @return a valid method binding with updated type parameters,
+	 * 	or a problem method binding signaling either inference failure or a bound mismatch.
+	 */
+	public /*@NonNull*/ MethodBinding inferInvocationType(Invocation invocation, TypeBinding[] argumentTypes, ParameterizedGenericMethodBinding method) {
+		// TODO optimize: if outerContext exists and is resolved, we probably don't need to infer again.
+		TypeBinding targetType = invocation.invocationTargetType();
+		ParameterizedGenericMethodBinding finalMethod = method;
+		ParameterizedGenericMethodBinding methodToCheck = method;
+		
+		boolean haveProperTargetType = targetType != null && targetType.isProperType(true);
+		if (haveProperTargetType) {
+			finalMethod = getInvocationTypeInferenceSolution(method.originalMethod, invocation, targetType);
+			if (finalMethod != null)
+				methodToCheck = finalMethod;
+		}
+		
+		MethodBinding problemMethod = methodToCheck.boundCheck18(this.scope, argumentTypes);
+		if (problemMethod != null)
+			return problemMethod;
+
+		if (!haveProperTargetType && invocation.getExpressionContext() != ExpressionContext.VANILLA_CONTEXT)
+			return method; // still not ready!
+
+		if (finalMethod != null) {
+			if (rebindInnerPolies(finalMethod, invocation))
+				return finalMethod;
+		}
+		return getReturnProblemMethodIfNeeded(targetType, method);
+	}
+
+	/**
+	 * Simplified API to perform Invocation Type Inference (JLS 18.5.2)
+	 * and (if successful) return the solution.
+	 * @param site invocation being inferred
 	 * @param targetType target type for this invocation
 	 * @return a method binding with updated type parameters, or null if no solution was found
 	 */
-	public MethodBinding getInvocationTypeInferenceSolution(Invocation invocation, TypeBinding targetType) {
+	public ParameterizedGenericMethodBinding getInvocationTypeInferenceSolution(MethodBinding method, Invocation site, TypeBinding targetType) {
 		// start over from a previous candidate but discard its type variable instantiations
 		// TODO: should we retain any instantiations of type variables not owned by the method? 
-		MethodBinding method = invocation.binding().original();
 		BoundSet result = null;
 		try {
-			result = inferInvocationType(this.currentBounds, targetType, invocation, method, invocation.inferenceKind());
+			result = inferInvocationType(this.currentBounds, targetType, site, method);
 		} catch (InferenceFailureException e) {
 			return null;
 		}
 		if (result != null) {
-			TypeBinding[] solutions = getSolutions(method.typeVariables(), invocation, result);
-			if (solutions != null)
-				return this.environment.createParameterizedGenericMethod(method, solutions);
+			TypeBinding[] solutions = getSolutions(method.typeVariables(), site, result);
+			if (solutions != null) {
+				ParameterizedGenericMethodBinding substituteMethod = this.environment.createParameterizedGenericMethod(method, solutions);
+				site.registerInferenceContext(substituteMethod, this);
+				return substituteMethod;
+			}
 		}
 		return null;
-	}
-
-	private Object pickFromCycle(Set c) {
-		missingImplementation("Breaking a dependency cycle NYI"); //$NON-NLS-1$
-		return null; // never
-	}
-
-	private Set findBottomSet(Set constraints, Set allOutputVariables) {
-		// 18.5.2 bullet 5.1
-		//  A subset of constraints is selected, satisfying the property
-		// that, for each constraint, no input variable depends on an
-		// output variable of another constraint in C ...
-		Set result = new HashSet();
-		Iterator it = constraints.iterator();
-		constraintLoop: while (it.hasNext()) {
-			ConstraintFormula constraint = (ConstraintFormula)it.next();
-			Iterator inputIt = constraint.inputVariables(this).iterator();
-			Iterator outputIt = allOutputVariables.iterator();
-			while (inputIt.hasNext()) {
-				InferenceVariable in = (InferenceVariable) inputIt.next();
-				while (outputIt.hasNext()) {
-					if (this.currentBounds.dependsOnResolutionOf(in, (InferenceVariable) outputIt.next()))
-						continue constraintLoop;
-				}
-			}
-			result.add(constraint);
-		}		
-		return result;
-	}
-
-	Set allOutputVariables(Set constraints) {
-		Set result = new HashSet();
-		Iterator it = constraints.iterator();
-		while (it.hasNext()) {
-			result.addAll(((ConstraintFormula)it.next()).outputVariables(this));
-		}
-		return result;
 	}
 
 	// ========== Below this point: implementation of the generic algorithm: ==========
@@ -609,29 +729,61 @@ public class InferenceContext18 {
 		return numUninstantiated;
 	}
 
+	private Object pickFromCycle(Set c) {
+		missingImplementation("Breaking a dependency cycle NYI"); //$NON-NLS-1$
+		return null; // never
+	}
+
+	private Set findBottomSet(Set constraints, Set allOutputVariables) {
+		// 18.5.2 bullet 5.1
+		//  A subset of constraints is selected, satisfying the property
+		// that, for each constraint, no input variable depends on an
+		// output variable of another constraint in C ...
+		Set result = new HashSet();
+		Iterator it = constraints.iterator();
+		constraintLoop: while (it.hasNext()) {
+			ConstraintFormula constraint = (ConstraintFormula)it.next();
+			Iterator inputIt = constraint.inputVariables(this).iterator();
+			Iterator outputIt = allOutputVariables.iterator();
+			while (inputIt.hasNext()) {
+				InferenceVariable in = (InferenceVariable) inputIt.next();
+				while (outputIt.hasNext()) {
+					if (this.currentBounds.dependsOnResolutionOf(in, (InferenceVariable) outputIt.next()))
+						continue constraintLoop;
+				}
+			}
+			result.add(constraint);
+		}		
+		return result;
+	}
+
+	Set allOutputVariables(Set constraints) {
+		Set result = new HashSet();
+		Iterator it = constraints.iterator();
+		while (it.hasNext()) {
+			result.addAll(((ConstraintFormula)it.next()).outputVariables(this));
+		}
+		return result;
+	}
+
 	private TypeBinding[] varArgTypes(TypeBinding[] parameters, int k) {
 		TypeBinding[] types = new TypeBinding[k];
-		int declaredLength = parameters.length;
+		int declaredLength = parameters.length-1;
 		System.arraycopy(parameters, 0, types, 0, declaredLength);
-		TypeBinding last = parameters[declaredLength-1];
+		TypeBinding last = ((ArrayBinding)parameters[declaredLength]).elementsType();
 		for (int i = declaredLength; i < k; i++)
 			types[i] = last;
 		return types;
 	}
 	
 	public InvocationRecord enterPolyInvocation(InvocationSite invocation, Expression[] innerArguments) {
-		InvocationRecord record = new InvocationRecord(this.currentInvocation, this.invocationArguments, this.inferenceVariables);
+		InvocationRecord record = new InvocationRecord(this.currentInvocation, this.invocationArguments, this.inferenceVariables, this.inferenceKind);
 		this.inferenceVariables = null;
 		this.invocationArguments = innerArguments;
 		this.currentInvocation = invocation;
 		
 		// schedule for re-binding the inner after inference success:
 		this.innerPolies.add(invocation);
-		if (invocation instanceof Invocation) {
-			InferenceContext18 innerContext = ((Invocation) invocation).inferenceContext();
-			if (innerContext != null)
-				innerContext.outerContext = this;
-		}
 		return record;
 	}
 
@@ -646,14 +798,39 @@ public class InferenceContext18 {
 		// replace invocation site & arguments:
 		this.currentInvocation = record.site;
 		this.invocationArguments = record.invocationArguments;
+		this.inferenceKind = record.inferenceKind;
 	}
-	
+
+	public boolean rebindInnerPolies(MethodBinding method, InvocationSite site) {
+		BoundSet bounds = this.currentBounds;
+		TypeBinding targetType = site.invocationTargetType();
+		if ((targetType == null || !targetType.isProperType(true)) && site.getExpressionContext() == ExpressionContext.VANILLA_CONTEXT) {
+			// in this case we don't yet have the solution, compute it now:
+			try {
+				bounds = inferInvocationType(this.currentBounds, null, site, method);
+			} catch (InferenceFailureException e) {
+				return false;
+			}
+			if (bounds == null)
+				return false;
+		}
+		rebindInnerPolies(bounds, method.parameters);
+		return true;
+	}
+
 	/**
-	 * After inference has finished, iterate all inner poly expressions, that have been
-	 * included in the inference. For each of these update some type information
+	 * After inference has finished, iterate all inner poly expressions (Invocations), that
+	 * have been included in the inference. For each of these update some type information
 	 * from the inference result and perhaps trigger follow-up resolving as needed.
+	 * Similar for poly expressions that did not directly participate in the inference
+	 * but are direct arguments of the current invocation (FunctionalExpression, ConditionalExpression).
 	 */
-	public void rebindInnerPolies(BoundSet bounds, TypeBinding[] argumentTypes) {
+	public void rebindInnerPolies(BoundSet bounds, TypeBinding[] parameterTypes) {
+		// This updates all remaining poly expressions that are direct arguments of the current invocation:
+		// (handles FunctionalExpression & ConditionalExpression)
+		acceptPendingPolyArguments(bounds, parameterTypes, this.inferenceKind == CHECK_VARARG);
+		// This loops over all poly expressions for which a sub-inference was triggered:
+		// (handles generic invocations)
 		int len = this.innerPolies.size();
 		for (int i = 0; i < len; i++) {
 			Expression inner = (Expression) this.innerPolies.get(i);
@@ -669,32 +846,83 @@ public class InferenceContext18 {
 					original = ((ParameterizedTypeBinding)declaringClass).createParameterizedMethod(original);
 				}
 				
-				// apply inference results onto the binding of the inner invocation:
+				// apply results of the combined inference onto the binding of the inner invocation:
 				TypeBinding[] solutions = getSolutions(original.typeVariables(), innerMessage, bounds);
 				if (solutions == null) 
 					continue; // play safe, but shouldn't happen in a resolved context
 				ParameterizedGenericMethodBinding innerBinding = this.environment.createParameterizedGenericMethod(original, solutions);
-				innerMessage.updateBindings(innerBinding);
-				innerMessage.markInferenceFinished(); // invocation type inference has already happened on the inner, too.
 				
-				// finalize resolving of arguments of the inner invocation:
-				TypeBinding[] innerParameters = innerBinding.parameters;
-				int inferenceKind = innerMessage.inferenceKind();
-				boolean isVarargs = (inferenceKind == CHECK_VARARG) && innerBinding.isVarargs();
-				TypeBinding varArgsType = isVarargs ? ((ArrayBinding)innerParameters[innerParameters.length-1]).elementsType() : null; 
-				Expression[] arguments = innerMessage.arguments();
-				if (arguments != null) {
-					for (int j = 0; j < arguments.length; j++) {
-						TypeBinding param = (varArgsType == null || (j < innerParameters.length-1))
-												? innerParameters[j]
-												: varArgsType;
-						arguments[j].checkAgainstFinalTargetType(param);
+				if (innerMessage.updateBindings(innerBinding)) { // only if we are actually improving anything
+					TypeBinding[] innerArgumentTypes = null;
+					Expression[] innerArguments = innerMessage.arguments();
+					if (innerArguments != null) {
+						innerArgumentTypes = new TypeBinding[innerArguments.length];
+						for (int j = 0; j < innerArguments.length; j++)
+							innerArgumentTypes[i] = innerArguments[i].resolvedType;
 					}
+					ASTNode.resolvePolyExpressionArguments(innerMessage, innerBinding, innerArgumentTypes);
 				}
 			}
-			// inner FunctionalExpression don't seem to be included in inference.
-			// TODO recheck any inquires on those actually involve inference of which the results are included here. 
 		}
+	}
+
+	private void acceptPendingPolyArguments(final BoundSet acceptedResult, TypeBinding[] parameterTypes, boolean isVarArgs) {
+		if (acceptedResult == null || this.invocationArguments == null) return;
+		Substitution substitution = new Substitution() {
+			public LookupEnvironment environment() { 
+				return InferenceContext18.this.environment;
+			}
+			public boolean isRawSubstitution() {
+				return false;
+			}
+			public TypeBinding substitute(TypeVariableBinding typeVariable) {
+				if (typeVariable instanceof InferenceVariable) {
+					return acceptedResult.getInstantiation((InferenceVariable) typeVariable);
+				}
+				return typeVariable;
+			}
+		};
+		for (int i = 0; i < this.invocationArguments.length; i++) {
+			TypeBinding targetType = getParameter(parameterTypes, i, isVarArgs);
+			if (!targetType.isProperType(true))
+				targetType = Scope.substitute(substitution, targetType);
+			this.invocationArguments[i].checkAgainstFinalTargetType(targetType);
+		}
+	}
+
+	public boolean isVarArgs() {
+		return this.inferenceKind == CHECK_VARARG;
+	}
+
+	/**
+	 * Retrieve the rank'th parameter, possibly respecting varargs invocation, see 15.12.2.4.
+	 * Returns null if out of bounds and CHECK_VARARG was not requested. 
+	 */
+	public static TypeBinding getParameter(TypeBinding[] parameters, int rank, boolean isVarArgs) {
+		if (isVarArgs) {
+			if (rank >= parameters.length-1)
+				return ((ArrayBinding)parameters[parameters.length-1]).elementsType();			
+		} else if (rank >= parameters.length) {
+			return null;
+		}
+		return parameters[rank];
+	}
+
+	/**
+	 * Create a problem method signaling failure of invocation type inference,
+	 * unless the given candidate is tolerable to be compatible with buggy javac.
+	 */
+	public MethodBinding getReturnProblemMethodIfNeeded(TypeBinding expectedType, MethodBinding method) {
+		if (InferenceContext18.SIMULATE_BUG_JDK_8026527 && expectedType != null && method.returnType instanceof ReferenceBinding) {
+			if (method.returnType.erasure().isCompatibleWith(expectedType))
+				return method; // don't count as problem.
+		}
+		if (expectedType == null)
+			return method; // assume inference failure concerned another expression
+		ProblemMethodBinding problemMethod = new ProblemMethodBinding(method, method.selector, method.parameters, ProblemReasons.ParameterizedMethodExpectedTypeProblem);
+		problemMethod.returnType = expectedType;
+		problemMethod.inferenceContext = this;
+		return problemMethod;
 	}
 
 	// debugging:

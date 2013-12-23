@@ -25,7 +25,7 @@ import junit.framework.Test;
 public class LambdaExpressionsTest extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testReferenceExpressionInference3a"};
+//	TESTS_NAMES = new String[] { "testReferenceExpressionInference1"};
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -1958,6 +1958,11 @@ public void testReferenceExpressionInference3b() {
 		"	I<X,String> x2s = compose(this::bar, this::i2s);\n" + 
 		"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from I<Object,Object> to I<X,String>\n" +
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	I<X,String> x2s = compose(this::bar, this::i2s);\n" + 
+		"	                                     ^^^^^^^^^\n" + 
+		"The type X does not define i2s(Object) that is applicable here\n" + 
 		"----------\n");
 }
 public void testLambdaInference1() {

@@ -650,6 +650,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		this.expressionContext = context;
 	}
 	
+	public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType) {
+		// in 1.8 if treated as a poly expression:
+		this.valueIfTrue.checkAgainstFinalTargetType(targetType);
+		this.valueIfFalse.checkAgainstFinalTargetType(targetType);
+		this.resolvedType = targetType;
+		return targetType;
+	}
+	
 	public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
 		return this.valueIfTrue.isPertinentToApplicability(targetType, method) 
 				&& this.valueIfFalse.isPertinentToApplicability(targetType, method);

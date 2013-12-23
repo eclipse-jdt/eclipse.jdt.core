@@ -19,7 +19,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug424038" };
+//	TESTS_NAMES = new String[] { "testBug414631" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -227,6 +227,139 @@ public void testBug423504() {
 			"\n" + 
 			"interface I<T> { \n" + 
 			"  public void sort(T col);\n" + 
+			"}\n"
+		});
+}
+// https://bugs.eclipse.org/420525 - [1.8] [compiler] Incorrect error "The type Integer does not define sum(Object, Object) that is applicable here"
+public void _testBug420525() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.concurrent.CompletableFuture;\n" + 
+			"import java.util.concurrent.ExecutionException;\n" +
+			"public class X {\n" +
+			"	void test(List<CompletableFuture<Integer>> futures) {\n" + 
+			"		CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[]{})).thenApplyAsync( (Void v) -> {\n" + 
+			"			Integer finalResult = futures.stream().map( (CompletableFuture<Integer> f) -> {\n" + 
+			"				try {\n" + 
+			"					return f.get();\n" + 
+			"				} catch (InterruptedException | ExecutionException e) {\n" + 
+			"					return 0;\n" + 
+			"				}\n" + 
+			"			}).reduce(0, Integer::sum);\n" + 
+			"			\n" + 
+			"			log(\"final result is \" + finalResult);\n" + 
+			"			if (finalResult != 50){\n" + 
+			"				throw new RuntimeException(\"FAILED\");\n" + 
+			"			} else{\n" + 
+			"				log(\"SUCCESS\");\n" + 
+			"			}\n" + 
+			"			\n" + 
+			"			return null;\n" + 
+			"		});\n" + 
+			"\n" + 
+			"	}\n" +
+			"	void log(String msg) {}\n" +
+			"}\n"
+		});
+}
+
+public void testBug424415() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"\n" + 
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Collection;\n" + 
+			"\n" + 
+			"interface Functional<T> {\n" + 
+			"   T apply();\n" + 
+			"}\n" + 
+			"\n" + 
+			"class X {\n" + 
+			"    void foo(Object o) { }\n" + 
+			"\n" + 
+			"	<Q extends Collection<?>> Q goo(Functional<Q> s) {\n" + 
+			"		return null;\n" + 
+			"	} \n" + 
+			"\n" + 
+			"    void test() {\n" + 
+			"        foo(goo(ArrayList<String>::new));\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+
+public void _testBug424403() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface Functional { int foo(); }\n" + 
+			"\n" + 
+			"class X {\n" + 
+			"    static int bar() {\n" + 
+			"        return -1;\n" + 
+			"    }\n" + 
+			"    static <T> T consume(T t) { return null; }\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"    	Functional f = consume(X::bar);\n" + 
+			"    }  \n" + 
+			"}\n"
+		});
+}
+public void testBug401850a() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"import java.util.ArrayList;\n" + 
+			"public class X<T> {\n" + 
+			"   X(T t) {}\n" + 
+			"   X(String s) {}\n" + 
+			"   int m(X<String> xs) { return 0; }\n" + 
+			"   int i = m(new X<>(\"\"));\n" + 
+			"}\n"
+		});
+}
+public void testBug401850b() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"import java.util.ArrayList;\n" + 
+			"public class X<T> {\n" + 
+			"   X(T t) {}\n" + 
+			"   X(String s) {}\n" + 
+			"   int m(X<String> xs) { return 0; }\n" + 
+			"   int i = m(new X<String>(\"\"));\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	int i = m(new X<String>(\"\"));\n" + 
+		"	          ^^^^^^^^^^^^^^^^^\n" + 
+		"The constructor X<String>(String) is ambiguous\n" + 
+		"----------\n");
+}
+// rejecting seems to be the spec'd answer (0.7.0), but I'd expect acceptance
+public void _testBug424075() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n"	+
+			"import java.util.function.*;\n"	+
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" + 
+			"        Consumer<Object> c = null;\n" + 
+			"        Arrays.asList(pred(), c);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static <T> Predicate<T> pred() {\n" + 
+			"        return null;\n" + 
+			"    }\n" +
 			"}\n"
 		});
 }

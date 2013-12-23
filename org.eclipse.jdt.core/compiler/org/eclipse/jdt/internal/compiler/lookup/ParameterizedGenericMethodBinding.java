@@ -23,7 +23,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ExpressionContext;
 import org.eclipse.jdt.internal.compiler.ast.Invocation;
-import org.eclipse.jdt.internal.compiler.ast.PolyExpression;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
@@ -44,8 +43,33 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 
 	/**
 	 * Perform inference of generic method type parameters and/or expected type
+	 * <p>
+	 * In 1.8+ the following discipline has to be observed by callers:
+	 * Each invocation must be subjected to two levels of inference:
+	 * </p>
+	 * <ul>
+	 * <li> {@link Scope#APPLICABILITY Invocation Applicability Inference}, which may be applied
+	 *     multiple times for the same invocation</li>
+	 * <li> {@link Scope#INVOCATION_TYPE Invocation Type Inference}, which is finally performed
+	 *     for the selected method and which adds information from the "target type".</li>
+	 * </ul>
+	 * <p>
+	 * Clients can control which parts of the inference should be performed by passing the appropriate
+	 * flags into argument 'inferenceLevel'. On each call path it must be ensured that one or more
+	 * invocation applicability inferences are always followed by exactly one invocation type inference
+	 * (unless errors have been detected).
+	 * </p>
+	 * <p>
+	 * Initial clients are the direct callers of
+	 * {@link Scope#computeCompatibleMethod(MethodBinding,TypeBinding[],InvocationSite,int)},
+	 * which should either invoke both levels of inference <em>or</em> delegate the second part to
+	 * {@link Scope#mostSpecificMethodBinding(MethodBinding[],int,TypeBinding[],InvocationSite,ReferenceBinding)},
+	 * which is intended to ensure completing the inference on all non-error exits.
+	 * </p>  
 	 */
-	public static MethodBinding computeCompatibleMethod(MethodBinding originalMethod, TypeBinding[] arguments, Scope scope, InvocationSite invocationSite) {
+	public static MethodBinding computeCompatibleMethod(MethodBinding originalMethod, TypeBinding[] arguments, Scope scope,
+			InvocationSite invocationSite, int inferenceLevel)
+	{
 		ParameterizedGenericMethodBinding methodSubstitute;
 		TypeVariableBinding[] typeVariables = originalMethod.typeVariables;
 		TypeBinding[] substitutes = invocationSite.genericTypeArguments();
@@ -67,63 +91,78 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 
 // ==== 1.8: The main driver for inference of generic methods: ====
 			InferenceContext18 infCtx18 = null;
-			if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8)
-				infCtx18 = invocationSite.freshInferenceContext(scope);
+			if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8) {
+				if ((inferenceLevel & Scope.APPLICABILITY) != 0)
+					infCtx18 = invocationSite.freshInferenceContext(scope);
+				else if (invocationSite instanceof Invocation && originalMethod instanceof ParameterizedGenericMethodBinding)
+					infCtx18 = ((Invocation) invocationSite).getInferenceContext((ParameterizedGenericMethodBinding) originalMethod);
+			}
 			if (infCtx18 != null) {
-				int checkKind = InferenceContext18.CHECK_LOOSE; // TODO: validate if 2 phase checking (strict/loose + vararg) is sufficient.
-				// 18.5.1 (Applicability):
-				boolean isDiamond = originalMethod.isConstructor()
-						&& invocationSite instanceof Expression
-						&& ((Expression)invocationSite).isPolyExpression(originalMethod);
-				infCtx18.inferInvocationApplicability(originalMethod, arguments, isDiamond, checkKind);
 				try {
-					BoundSet provisionalResult = infCtx18.solve();
-					if (provisionalResult == null && originalMethod.isVarargs()) {
-						// check for variable arity applicability
-						infCtx18 = invocationSite.freshInferenceContext(scope); // start over
-						checkKind = InferenceContext18.CHECK_VARARG;
-						infCtx18.inferInvocationApplicability(originalMethod, arguments, isDiamond, checkKind);
-						provisionalResult = infCtx18.solve();
-					}
-					BoundSet result = infCtx18.currentBounds.copy(); // the result after reduction, without effects of resolve()
-					if (provisionalResult != null && infCtx18.isResolved(provisionalResult)) {
-						// 18.5.2 (Invocation type):
-						TypeBinding expectedType = invocationSite.invocationTargetType();
-						boolean hasReturnProblem = false;
-						boolean invocationTypeInferred = false;
-						if (expectedType != null || invocationSite.getExpressionContext() == ExpressionContext.VANILLA_CONTEXT) {
-							result = infCtx18.inferInvocationType(result, expectedType, invocationSite, originalMethod, checkKind);
-							invocationTypeInferred = true;
-							hasReturnProblem |= result == null;
-							if (hasReturnProblem)
-								result = provisionalResult; // let's prefer a type error regarding the return type over reporting no match at all
-						} else {
-							// we're not yet ready for invocation type inference
-							result = provisionalResult;
+					BoundSet provisionalResult = null;
+					BoundSet result = null;
+					if ((inferenceLevel & Scope.APPLICABILITY) != 0) {
+
+						// ---- 18.5.1 (Applicability): ----
+						boolean isDiamond = originalMethod.isConstructor()
+								&& invocationSite instanceof Expression
+								&& ((Expression)invocationSite).isPolyExpression(originalMethod);
+						if (arguments.length == parameters.length) {
+							infCtx18.inferenceKind = InferenceContext18.CHECK_LOOSE; // TODO: validate if 2 phase checking (strict/loose + vararg) is sufficient.
+							infCtx18.inferInvocationApplicability(originalMethod, arguments, isDiamond);
+							provisionalResult = infCtx18.solve();
 						}
+						if (provisionalResult == null && originalMethod.isVarargs()) {
+							// check for variable-arity applicability
+							infCtx18 = invocationSite.freshInferenceContext(scope); // start over
+							infCtx18.inferenceKind = InferenceContext18.CHECK_VARARG;
+							infCtx18.inferInvocationApplicability(originalMethod, arguments, isDiamond);
+							provisionalResult = infCtx18.solve();
+						}
+						if (provisionalResult != null && infCtx18.isResolved(provisionalResult)) {
+							infCtx18.storedSolution = provisionalResult;
+						}
+					} else {
+						provisionalResult = infCtx18.storedSolution;
+					}
+					result = infCtx18.currentBounds.copy(); // the result after reduction, without effects of resolve()
+
+					TypeBinding expectedType = invocationSite.invocationTargetType();
+					boolean hasReturnProblem = false;
+					boolean invocationTypeInferred = false;
+					if ((inferenceLevel & Scope.INVOCATION_TYPE) != 0 // requested?
+							&& (expectedType != null || invocationSite.getExpressionContext() == ExpressionContext.VANILLA_CONTEXT)) { // possible?
+
+						// ---- 18.5.2 (Invocation type): ----
+						result = infCtx18.inferInvocationType(result, expectedType, invocationSite, originalMethod);
+						invocationTypeInferred = true;
+						hasReturnProblem |= result == null;
+						if (hasReturnProblem)
+							result = provisionalResult; // let's prefer a type error regarding the return type over reporting no match at all
+					} else {
+						// we're not yet ready for invocation type inference
+						result = provisionalResult;
+					}
+
+					if (result != null) {
+						// assemble the solution etc:
 						TypeBinding[] solutions = infCtx18.getSolutions(typeVariables, invocationSite, result);
 						if (solutions != null) {
 							
 							methodSubstitute = scope.environment().createParameterizedGenericMethod(originalMethod, solutions);
-							
-							if (InferenceContext18.SIMULATE_BUG_JDK_8026527 && expectedType != null && methodSubstitute.returnType instanceof ReferenceBinding)
-								hasReturnProblem &= !methodSubstitute.returnType.erasure().isCompatibleWith(expectedType);
-							if (hasReturnProblem) {
-								ProblemMethodBinding problemMethod = new ProblemMethodBinding(methodSubstitute, methodSubstitute.selector, parameters, ProblemReasons.ParameterizedMethodExpectedTypeProblem);
-								problemMethod.returnType = invocationSite.invocationTargetType();
-								problemMethod.inferenceContext = infCtx18;
-								return problemMethod;
-							}
-							if (invocationSite instanceof Invocation) {
-								Invocation invocation = (Invocation)invocationSite;
-								invocation.setInferenceKind(checkKind);
+							if (hasReturnProblem) { // illegally working from the provisional result?
+								MethodBinding problemMethod = infCtx18.getReturnProblemMethodIfNeeded(expectedType, methodSubstitute);
+								if (problemMethod instanceof ProblemMethodBinding)
+									return problemMethod;
 							}
 							if (invocationTypeInferred) {
-								if (invocationSite instanceof PolyExpression)
-									((PolyExpression) invocationSite).markInferenceFinished();									
-								infCtx18.rebindInnerPolies(result, arguments);
+								infCtx18.rebindInnerPolies(result, methodSubstitute.parameters);
+								return methodSubstitute.boundCheck18(scope, arguments);
+							} else {
+								if (invocationSite instanceof Invocation)
+									((Invocation) invocationSite).registerInferenceContext(methodSubstitute, infCtx18); // keep context so we can finish later
+								return methodSubstitute;
 							}
-							break computeSubstitutes;
 						}
 					}
 					return null;
@@ -209,6 +248,43 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		}
 		// check presence of unchecked argument conversion a posteriori (15.12.2.6)
 		return methodSubstitute;
+	}
+
+	MethodBinding boundCheck18(Scope scope, TypeBinding[] arguments) {
+		Substitution substitution = this;
+		ParameterizedGenericMethodBinding methodSubstitute = this;
+		TypeVariableBinding[] originalTypeVariables = this.originalMethod.typeVariables;
+		// mostly original extract from above, TODO: remove stuff that's no longer needed in 1.8+
+		for (int i = 0, length = originalTypeVariables.length; i < length; i++) {
+		    TypeVariableBinding typeVariable = originalTypeVariables[i];
+		    TypeBinding substitute = methodSubstitute.typeArguments[i]; // retain for diagnostics
+		    /* https://bugs.eclipse.org/bugs/show_bug.cgi?id=375394, To avoid spurious bounds check failures due to circularity in formal bounds, 
+		       we should eliminate only the lingering embedded type variable references after substitution, not alien type variable references
+		       that constitute the inference per se.
+		     */ 
+		    TypeBinding substituteForChecks;
+		    if (substitute instanceof TypeVariableBinding) {
+		    	substituteForChecks = substitute;
+		    } else {
+		    	substituteForChecks = Scope.substitute(new LingeringTypeVariableEliminator(originalTypeVariables, null, scope), substitute); // while using this for bounds check
+		    }
+		    
+			switch (typeVariable.boundCheck(substitution, substituteForChecks, scope)) {
+				case TypeConstants.MISMATCH :
+			        // incompatible due to bound check
+					int argLength = arguments.length;
+					TypeBinding[] augmentedArguments = new TypeBinding[argLength + 2]; // append offending substitute and typeVariable
+					System.arraycopy(arguments, 0, augmentedArguments, 0, argLength);
+					augmentedArguments[argLength] = substitute;
+					augmentedArguments[argLength+1] = typeVariable;
+			        return new ProblemMethodBinding(methodSubstitute, this.originalMethod.selector, augmentedArguments, ProblemReasons.ParameterBoundMismatch);
+				case TypeConstants.UNCHECKED :
+					// tolerate unchecked bounds
+					methodSubstitute.tagBits |= TagBits.HasUncheckedTypeArgumentForBoundCheck;
+					break;
+			}
+		}
+		return null;
 	}
 
 	/**

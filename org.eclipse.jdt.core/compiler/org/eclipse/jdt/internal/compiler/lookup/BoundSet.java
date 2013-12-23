@@ -268,6 +268,8 @@ class BoundSet {
 			Map.Entry entry = (Entry) setsIterator.next();
 			copy.boundsPerVariable.put(entry.getKey(), ((ThreeSets)entry.getValue()).copy());
 		}
+		copy.inThrows.addAll(this.inThrows);
+		copy.captures.putAll(this.captures);
 		return copy;
 	}
 

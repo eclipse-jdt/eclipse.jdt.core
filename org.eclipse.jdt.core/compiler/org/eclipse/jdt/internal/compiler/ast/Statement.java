@@ -330,16 +330,13 @@ public ExpressionContext getExpressionContext() {
 }
 /**
  * For all constructor invocations: find the constructor binding; 
- * if polyExpressionSeen allow for two attempts where the first round may stop
- * after applicability checking (18.5.1) to include more information into the final
- * invocation type inference (18.5.2).
+ * if polyExpressionSeen perform some post processing for those and produce
+ * any updates as side-effects into 'argumentTypes'.
  */
 protected MethodBinding findConstructorBinding(BlockScope scope, Invocation site, ReferenceBinding receiverType, TypeBinding[] argumentTypes, boolean polyExpressionSeen) {
 	MethodBinding ctorBinding = scope.getConstructor(receiverType, argumentTypes, site);
-	if (polyExpressionSeen) {
-		if (resolvePolyExpressionArguments(site, scope, ctorBinding, argumentTypes))
-			return scope.getConstructor(receiverType, argumentTypes, site);
-	}
+	if (polyExpressionSeen)
+		resolvePolyExpressionArguments(site, ctorBinding, argumentTypes);
 	return ctorBinding;
 }
 }

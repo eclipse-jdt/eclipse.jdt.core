@@ -1131,7 +1131,6 @@ public void test0025() {
 		"----------\n");
 }
 // Test various scenarios.
-// FIXME(stephan): javac8 does not report the ambiguity, re-check after integrating inference with overload resolution
 public void test0026() {
 	this.runNegativeTest(
 		new String[] {
@@ -1181,11 +1180,6 @@ public void test0026() {
 			"	X<Object> x4 = new X<>(1).idem();\n" + 
 			"	               ^^^^^^^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from X<Integer> to X<Object>\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 15)\n" + 
-			"	int i = m(new X<>(\"\"));\n" + 
-			"	          ^^^^^^^^^^^\n" + 
-			"The constructor X<String>(String) is ambiguous\n" + 
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=344655

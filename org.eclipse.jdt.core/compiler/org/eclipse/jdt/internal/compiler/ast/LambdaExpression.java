@@ -368,26 +368,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		}
 		return this.resolvedType;
 	}
-	
-	void cleanUpAfterTentativeResolve() {
-		// remove traces of attempts to resolve the argument before we have the final target type:
-		if (this.arguments != null)
-			for (int i = 0; i < this.arguments.length; i++)
-				this.arguments[i].binding = null;
-		// also remove traces of references to this argument
-		if (this.body != null)
-			this.body.traverse(new ASTVisitor() {
-				public boolean visit(SingleNameReference singleNameReference, BlockScope blockScope) {
-					if (singleNameReference.binding instanceof LocalVariableBinding) {
-						singleNameReference.bits &= ~ASTNode.RestrictiveFlagMASK;
-						singleNameReference.bits |= Binding.VARIABLE;
-						singleNameReference.actualReceiverType = null;
-						singleNameReference.binding = null;
-					}
-					return true;
-				}
-			}, this.scope);
-	}
 
 	public boolean argumentsTypeElided() {
 		return this.arguments.length > 0 && this.arguments[0].hasElidedType();
@@ -686,7 +666,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				} else {
 					this.voidCompatible = ((Expression) this.body).statementExpression();
 					// TODO: in getResolvedCopyForInferenceTargeting() we need to check if the expression
-					//        *could* also procude a value and set valueCompatible accordingly.
+					//        *could* also produce a value and set valueCompatible accordingly.
 					//        Is that needed also here?
 					this.shapeAnalysisComplete = true;
 				}
@@ -767,7 +747,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			this.hasIgnoredMandatoryErrors = false;
 			TypeBinding type = copy.resolveType(this.enclosingScope);
 			if (this.body instanceof Block) {
-				if (this.returnsVoid) {
+				if (copy.returnsVoid) {
 					copy.shapeAnalysisComplete = true;
 				}
 			} else {
@@ -780,13 +760,14 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				copy.shapeAnalysisComplete = true;
 			}
 			// Do not proceed with data/control flow analysis if resolve encountered errors.
-			if (type == null || !type.isValidBinding() || this.hasIgnoredMandatoryErrors || enclosingScopesHaveErrors()) {
-				return null;
+			if (type != null && type.isValidBinding() && !this.hasIgnoredMandatoryErrors && !enclosingScopesHaveErrors()) {
+				// value compatibility of block lambda's is the only open question.
+				if (!copy.shapeAnalysisComplete)
+					copy.valueCompatible = copy.doesNotCompleteNormally();
+			} else {
+				if (!copy.returnsVoid)
+					copy.valueCompatible = true; // optimistically, TODO: is this OK??
 			}
-			
-			// value compatibility of block lambda's is the only open question.
-			if (!copy.shapeAnalysisComplete)
-				copy.valueCompatible = copy.doesNotCompleteNormally();
 			
 			copy.shapeAnalysisComplete = true;
 		} finally {

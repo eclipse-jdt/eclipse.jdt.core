@@ -13,6 +13,8 @@
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *								bug 378674 - "The method can be declared as static" is wrong
+ *     Stephan Herrmann - Contribution for
+ *								Bug 424167 - [1.8] Fully integrate type inference with overload resolution     
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
@@ -398,7 +400,7 @@ public MethodBinding findMethodForArray(ArrayBinding receiverType, char[] select
 	if (methodBinding == null)
 		return new ProblemMethodBinding(selector, argumentTypes, ProblemReasons.NotFound);
 	if (methodBinding.isValidBinding()) {
-	    MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
+	    MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite, Scope.FULL_INFERENCE);
 	    if (compatibleMethod == null)
 			return new ProblemMethodBinding(methodBinding, selector, argumentTypes, ProblemReasons.NotFound);
 	    methodBinding = compatibleMethod;
@@ -544,7 +546,7 @@ public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[]
 	MethodBinding[] compatible = new MethodBinding[methods.length];
 	int compatibleIndex = 0;
 	for (int i = 0, length = methods.length; i < length; i++) {
-	    MethodBinding compatibleMethod = computeCompatibleMethod(methods[i], argumentTypes, invocationSite);
+	    MethodBinding compatibleMethod = computeCompatibleMethod(methods[i], argumentTypes, invocationSite, Scope.APPLICABILITY);
 		if (compatibleMethod != null)
 			compatible[compatibleIndex++] = compatibleMethod;
 	}
@@ -560,7 +562,8 @@ public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[]
 		}
 	}
 	if (visibleIndex == 1) {
-		return visible[0];
+		// 1.8: Give inference a chance to perform outstanding tasks (18.5.2):
+		return inferInvocationType(invocationSite, visible[0], argumentTypes);
 	}
 	if (visibleIndex == 0) {
 		return new ProblemMethodBinding(compatible[0], TypeConstants.INIT, compatible[0].parameters, ProblemReasons.NotVisible);

@@ -526,6 +526,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     	return this.resolvedType; // Phew !
 	}
 
+	/** During inference: Try to find an applicable method binding without causing undesired side-effects. */
 	public MethodBinding findCompileTimeMethodTargeting(TypeBinding targetType, Scope scope) {
 		if (this.exactMethodBinding != null) {
 			// TODO: shouldn't extactMethodBinding already be parameterized?
@@ -534,7 +535,29 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			}
 			return this.exactMethodBinding;
 		}
-		return super.findCompileTimeMethodTargeting(targetType, scope);
+		return internalResolveTentatively(targetType, scope);
+	}
+
+	MethodBinding internalResolveTentatively(TypeBinding targetType, Scope scope) {
+		// FIXME: could enclosingScope still be null here??
+		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
+		ExpressionContext previousContext = this.expressionContext;
+		MethodBinding previousBinding = this.binding;
+		MethodBinding previousDescriptor = this.descriptor;
+		try {
+			setExpressionContext(INVOCATION_CONTEXT);
+			setExpectedType(targetType);
+			this.binding = null;
+			resolveType(this.enclosingScope);
+			return this.binding;
+		} finally {
+			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
+			// remove *any relevant* traces of this 'inofficial' resolving:
+			this.binding = previousBinding;
+			this.descriptor = previousDescriptor;
+			setExpressionContext(previousContext);
+			this.expectedType = null; // don't call setExpectedType(null), would NPE
+		}
 	}
 
 	public boolean isConstructorReference() {
@@ -558,11 +581,9 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	}
 
 	public InferenceContext18 freshInferenceContext(Scope scope) {
-		// no need to store the context for later use, since ReferenceExpression 
-		// is not subject to Invocation Type Inference (is not an invocation).
-		return new InferenceContext18(scope, null/*no arguments*/, this);
+		return null; // subject to inference only as an argument to an outer invocation
 	}
- 
+
 	public boolean isSuperAccess() {
 		return false;
 	}
@@ -620,8 +641,6 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	}
 
 	public boolean isCompatibleWith(TypeBinding left, Scope scope) {
-		if (this.hasInferenceFinished)
-			return this.resolvedType != null ? this.resolvedType.isCompatibleWith(left, scope) : false;
 		// 15.28.2
 		final MethodBinding sam = left.getSingleAbstractMethod(this.enclosingScope, true);
 		if (sam == null || !sam.isValidBinding())
@@ -636,7 +655,6 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 			isCompatible = this.binding != null && this.binding.isValidBinding();
 			this.binding = null;
-			this.hasInferenceFinished = false;
 			setExpectedType(null);
 		}
 		return isCompatible;
