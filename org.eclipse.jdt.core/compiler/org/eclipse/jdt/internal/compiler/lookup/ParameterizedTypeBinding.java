@@ -1340,7 +1340,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
     					// Note: neither Ui nor Bi is necessarily scalar -> need to collect all bounds
     					TypeBinding[] otherUBounds = wildcard.otherBounds;
     					TypeBinding[] otherBBounds = typeParameters[i].otherUpperBounds();
-    					int len = 2 + (otherUBounds != null ? otherUBounds.length : 0) + otherBBounds.length;
+    					int len = 1 + (otherUBounds != null ? otherUBounds.length : 0) + otherBBounds.length;
+    					if (typeParameters[i].firstBound != null)
+    						len++;
     					ReferenceBinding[] allBounds = new ReferenceBinding[len];
     					try {
     						int idx = 0;
@@ -1350,7 +1352,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	    						for (int j = 0; j < otherUBounds.length; j++)
 	    							allBounds[idx++] = (ReferenceBinding) otherUBounds[j];
 	    					// Bi
-	    					allBounds[idx++] = (ReferenceBinding) typeParameters[i].firstBound;
+	    					if (typeParameters[i].firstBound != null)
+	    						allBounds[idx++] = (ReferenceBinding) typeParameters[i].firstBound;
 	    					for (int j = 0; j < otherBBounds.length; j++)
 	    						allBounds[idx++] = (ReferenceBinding) otherBBounds[j];
     					} catch (ClassCastException cce) {
