@@ -405,7 +405,8 @@ public class InferenceContext18 {
 				while (bottomIt.hasNext()) {
 					ConstraintFormula constraint = ((ConstraintFormula)bottomIt.next());
 					if (solution != null)
-						constraint.applySubstitution(solution, variablesArray);
+						if (!constraint.applySubstitution(solution, variablesArray))
+							return null;
 				// * reduce and incorporate
 					if (!this.currentBounds.reduceOneConstraint(this, constraint))
 						return null;

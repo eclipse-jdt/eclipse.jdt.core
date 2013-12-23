@@ -302,13 +302,16 @@ class ConstraintTypeFormula extends ConstraintFormula {
 		return true;
 	}
 
-	public void applySubstitution(BoundSet solutionSet, InferenceVariable[] variables) {
+	public boolean applySubstitution(BoundSet solutionSet, InferenceVariable[] variables) {
 		super.applySubstitution(solutionSet, variables);
 		for (int i=0; i<variables.length; i++) {
 			InferenceVariable variable = variables[i];
 			TypeBinding instantiation = solutionSet.getInstantiation(variables[i]);
+			if (instantiation == null)
+				return false;
 			this.left = this.left.substituteInferenceVariable(variable, instantiation);
 		}
+		return true;
 	}
 
 	// debugging

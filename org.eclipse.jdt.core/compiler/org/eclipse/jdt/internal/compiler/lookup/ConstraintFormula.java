@@ -63,12 +63,15 @@ abstract class ConstraintFormula extends ReductionResult {
 		return variables;
 	}
 
-	public void applySubstitution(BoundSet solutionSet, InferenceVariable[] variables) {
+	public boolean applySubstitution(BoundSet solutionSet, InferenceVariable[] variables) {
 		for (int i=0; i<variables.length; i++) {
 			InferenceVariable variable = variables[i];
 			TypeBinding instantiation = solutionSet.getInstantiation(variables[i]);
+			if (instantiation == null)
+				return false;
 			this.right = this.right.substituteInferenceVariable(variable, instantiation);
 		}
+		return true;
 	}
 
 	// for debug toString():
