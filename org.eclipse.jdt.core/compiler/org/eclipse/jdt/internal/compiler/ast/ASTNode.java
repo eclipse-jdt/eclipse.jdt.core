@@ -681,13 +681,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						InferenceContext18 innerContext = innerInvocation.getInferenceContext(parameterizedMethod);
 						if (innerContext != null && !innerContext.hasFinished) {							
 							argument.setExpectedType(parameterType);
-							TypeBinding[] innerArgumentTypes = null;
-							if (innerArguments != null) {
-								innerArgumentTypes = new TypeBinding[innerArguments.length];
-								for (int j = 0; j < innerArguments.length; j++)
-									innerArgumentTypes[i] = innerArguments[i].resolvedType;
-							}
-							MethodBinding improvedBinding = innerContext.inferInvocationType(innerInvocation, innerArgumentTypes, parameterizedMethod);
+							MethodBinding improvedBinding = innerContext.inferInvocationType(innerInvocation, parameterizedMethod);
 							innerInvocation.updateBindings(improvedBinding);
 						}
 						continue; // otherwise these have been dealt with during inner method lookup

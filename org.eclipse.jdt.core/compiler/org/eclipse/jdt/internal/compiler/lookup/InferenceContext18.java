@@ -334,7 +334,8 @@ public class InferenceContext18 {
 	}
 
 	/** JLS 18.5.2 Invocation Type Inference 
-	 * @param b1 "the bound set produced by reduction in order to demonstrate that m is applicable in 18.5.1" 
+	 * <p>Callers are responsible for any post-processing (see {@link #rebindInnerPolies(BoundSet, TypeBinding[])}).</p>
+	 * @param b1 "the bound set produced by reduction in order to demonstrate that m is applicable in 18.5.1"
 	 */
 	public BoundSet inferInvocationType(BoundSet b1, TypeBinding expectedType, InvocationSite invocationSite, MethodBinding method)
 			throws InferenceFailureException 
@@ -433,17 +434,34 @@ public class InferenceContext18 {
 	 * @return a valid method binding with updated type parameters,
 	 * 	or a problem method binding signaling either inference failure or a bound mismatch.
 	 */
-	public /*@NonNull*/ MethodBinding inferInvocationType(Invocation invocation, TypeBinding[] argumentTypes, ParameterizedGenericMethodBinding method) {
+	/*@NonNull*/ MethodBinding inferInvocationType(Invocation invocation, TypeBinding[] argumentTypes, ParameterizedGenericMethodBinding method) {
 		// TODO optimize: if outerContext exists and is resolved, we probably don't need to infer again.
 		TypeBinding targetType = invocation.invocationTargetType();
-		ParameterizedGenericMethodBinding finalMethod = method;
+		ParameterizedGenericMethodBinding finalMethod = null;
 		ParameterizedGenericMethodBinding methodToCheck = method;
 		
 		boolean haveProperTargetType = targetType != null && targetType.isProperType(true);
 		if (haveProperTargetType) {
-			finalMethod = getInvocationTypeInferenceSolution(method.originalMethod, invocation, targetType);
+			MethodBinding original = method.originalMethod;
+			// start over from a previous candidate but discard its type variable instantiations
+			// TODO: should we retain any instantiations of type variables not owned by the method? 
+			BoundSet result = null;
+			try {
+				result = inferInvocationType(this.currentBounds, targetType, invocation, original);
+			} catch (InferenceFailureException e) {
+				// no solution, but do more checks below
+			}
+			if (result != null) {
+				TypeBinding[] solutions = getSolutions(original.typeVariables(), invocation, result);
+				if (solutions != null) {
+					finalMethod = this.environment.createParameterizedGenericMethod(original, solutions);
+					invocation.registerInferenceContext(finalMethod, this);
+				}
+			}
 			if (finalMethod != null)
 				methodToCheck = finalMethod;
+		} else {
+			finalMethod = method;
 		}
 		
 		MethodBinding problemMethod = methodToCheck.boundCheck18(this.scope, argumentTypes);
@@ -462,30 +480,27 @@ public class InferenceContext18 {
 
 	/**
 	 * Simplified API to perform Invocation Type Inference (JLS 18.5.2)
-	 * and (if successful) return the solution.
-	 * @param site invocation being inferred
-	 * @param targetType target type for this invocation
-	 * @return a method binding with updated type parameters, or null if no solution was found
+	 * and perform subsequent steps: bound check, rebinding of inner poly expressions,
+	 * and creating of a problem method binding if needed.
+	 * Should only be called if the inference has not yet finished.
+	 * Version used for inner invocations, where argument types need to be extracted
+	 * from actual invocation arguments.
+	 * @param invocation invocation being inferred
+	 * @param method current candidate method binding for this invocation
+	 * @return a valid method binding with updated type parameters,
+	 * 	or a problem method binding signaling either inference failure or a bound mismatch.
 	 */
-	public ParameterizedGenericMethodBinding getInvocationTypeInferenceSolution(MethodBinding method, Invocation site, TypeBinding targetType) {
-		// start over from a previous candidate but discard its type variable instantiations
-		// TODO: should we retain any instantiations of type variables not owned by the method? 
-		BoundSet result = null;
-		try {
-			result = inferInvocationType(this.currentBounds, targetType, site, method);
-		} catch (InferenceFailureException e) {
-			return null;
+	public /*@NonNull*/ MethodBinding inferInvocationType(Invocation invocation, ParameterizedGenericMethodBinding method) {
+		TypeBinding[] argumentTypes = null;
+		Expression[] arguments = invocation.arguments();
+		if (arguments != null) {
+			argumentTypes = new TypeBinding[arguments.length];
+			for (int i = 0; i < arguments.length; i++)
+				argumentTypes[i] = arguments[i].resolvedType;
 		}
-		if (result != null) {
-			TypeBinding[] solutions = getSolutions(method.typeVariables(), site, result);
-			if (solutions != null) {
-				ParameterizedGenericMethodBinding substituteMethod = this.environment.createParameterizedGenericMethod(method, solutions);
-				site.registerInferenceContext(substituteMethod, this);
-				return substituteMethod;
-			}
-		}
-		return null;
+		return inferInvocationType(invocation, argumentTypes, method);
 	}
+
 
 	// ========== Below this point: implementation of the generic algorithm: ==========
 

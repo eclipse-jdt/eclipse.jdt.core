@@ -317,6 +317,31 @@ public void testBug424415() {
 		});
 }
 
+public void testBug424631() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Collection;\n" + 
+			"\n" + 
+			"interface Functional<T> {\n" + 
+			"   T apply();\n" + 
+			"}\n" + 
+			"\n" + 
+			"class X {\n" + 
+			"    void foo(Collection<String> o) { }\n" + 
+			"\n" + 
+			"	<Q extends Collection<?>> Q goo(Functional<Q> s) {\n" + 
+			"		return null;\n" + 
+			"	} \n" + 
+			"\n" + 
+			"    void test() { \n" + 
+			"        foo(goo(ArrayList<String>::new));\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+
 public void _testBug424403() {
 	runConformTest(
 		new String[] {

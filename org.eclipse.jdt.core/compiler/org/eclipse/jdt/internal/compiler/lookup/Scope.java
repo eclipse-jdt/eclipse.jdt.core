@@ -759,8 +759,12 @@ public abstract class Scope {
 			Invocation invocation = (Invocation) site;
 			if (method instanceof ParameterizedGenericMethodBinding) {
 				InferenceContext18 infCtx = invocation.getInferenceContext((ParameterizedGenericMethodBinding) method);
-				if (infCtx != null)
-					return COMPATIBLE; // inference is responsible, no need to recheck
+				if (infCtx != null) {
+					// inference is responsible, no need to recheck
+					if (infCtx.isVarArgs())
+						return VARARGS_COMPATIBLE;
+					return COMPATIBLE;
+				}
 			}
 			// collect inner invocations where the outer did not involve any inference:
 			Expression[] invocationArguments = invocation.arguments();
@@ -779,21 +783,19 @@ public abstract class Scope {
 						TypeBinding resolvedType = invocArg.resolvedType; 
 						if (!resolvedType.isCompatibleWith(targetType, this)) {
 							MethodBinding innerBinding = innerPoly.binding();
-							if (innerBinding instanceof ParameterizedGenericMethodBinding) { // FIXME: does this happen?
-								InferenceContext18 infCtx18 = innerPoly.getInferenceContext((ParameterizedGenericMethodBinding) innerBinding);
-								if (infCtx18 != null) {
+							if (innerBinding instanceof ParameterizedGenericMethodBinding) {
+								ParameterizedGenericMethodBinding innerParameterized = (ParameterizedGenericMethodBinding) innerBinding;
+								InferenceContext18 infCtx18 = innerPoly.getInferenceContext(innerParameterized);
+								if (infCtx18 != null && !infCtx18.hasFinished) {
 									// not detected as compatible, because inference still needs to complete?
-									MethodBinding solution = infCtx18.getInvocationTypeInferenceSolution(
-																		innerPoly.binding().original(), innerPoly, targetType);
-									if (solution != null) {
+									invocArg.setExpectedType(targetType);
+									MethodBinding solution = infCtx18.inferInvocationType(innerPoly, innerParameterized);
+									if (solution != null && solution.isValidBinding()) {
+										innerPoly.updateBindings(solution);
 										if (solution.returnType != null && solution.returnType.isCompatibleWith(targetType, this))
 											return isVarArgs ? VARARGS_COMPATIBLE : COMPATIBLE;
-									} else {
-										MethodBinding problemMethod = infCtx18.getReturnProblemMethodIfNeeded(targetType, innerPoly.binding());
-										if (problemMethod != null && problemMethod.isValidBinding())
-											return COMPATIBLE;
-										return NOT_COMPATIBLE;
 									}
+									return NOT_COMPATIBLE;
 								} else if (innerPoly instanceof AllocationExpression) {
 									// not detected as compatible, because its a diamond whose type hasn't yet been inferred?
 									TypeBinding[] typeArguments = resolvedType.typeArguments();
