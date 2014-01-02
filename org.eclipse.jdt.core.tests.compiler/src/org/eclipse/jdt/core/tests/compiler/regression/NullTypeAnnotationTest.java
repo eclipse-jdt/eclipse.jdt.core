@@ -3316,4 +3316,28 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			true,
 			getCompilerOptions());		
 	}
+
+	// should not try to analyze arguments of a polymorphic method call
+	public void testBug424725() {
+		runConformTest(
+			new String[] {
+				"AnnotatedRecordMapper.java",
+				"import java.lang.invoke.MethodHandle;\n" + 
+				"\n" + 
+				"public final class AnnotatedRecordMapper<T> {\n" + 
+				"  private MethodHandle afterLoadStore;\n" + 
+				"\n" + 
+				"  public void invokeAfterLoadStore(Object object, Object database) {\n" + 
+				"    if(afterLoadStore != null) {\n" + 
+				"      try {\n" + 
+				"        afterLoadStore.invoke(object, database);\n" + 
+				"      }\n" + 
+				"      catch(Throwable e) {\n" + 
+				"        throw new RuntimeException(e);\n" + 
+				"      }\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"}"
+			});
+	}
 }

@@ -88,6 +88,8 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 	// compare actual null-status against parameter annotations of the called method:
 	if (arguments != null) {
 		CompilerOptions compilerOptions = currentScope.compilerOptions();
+		if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_7 && methodBinding.isPolymorphic())
+			return;
 		boolean considerTypeAnnotations = compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8
 				&& compilerOptions.isAnnotationBasedNullAnalysisEnabled;
 		boolean hasJDK15NullAnnotations = methodBinding.parameterNonNullness != null;
