@@ -16,6 +16,7 @@
  *								Bug 388630 - @NonNull diagnostics at line 0
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
+ *								Bug 424727 - [compiler][null] NullPointerException in nullAnnotationUnsupportedLocation(ProblemReporter.java:5708)
  *     Keigo Imai - Contribution for  bug 388903 - Cannot extend inner class as an anonymous class when it extends the outer class
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
@@ -1027,6 +1028,7 @@ public void resolve() {
 						if (annotationType.id == TypeIds.T_ConfiguredAnnotationNonNull
 								|| annotationType.id == TypeIds.T_ConfiguredAnnotationNullable)
 						this.scope.problemReporter().nullAnnotationUnsupportedLocation(this.annotations[i]);
+						sourceType.tagBits &= ~TagBits.AnnotationNullMASK;
 					}
 				}
 			}

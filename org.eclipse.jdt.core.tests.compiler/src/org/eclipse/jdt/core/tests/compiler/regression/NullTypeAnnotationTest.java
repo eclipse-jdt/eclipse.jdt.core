@@ -3340,4 +3340,22 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"}"
 			});
 	}
+
+	public void testBug424727() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"@org.eclipse.jdt.annotation.NonNull public class X {\n" +
+				"	static X singleton = new X();\n" +
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	@org.eclipse.jdt.annotation.NonNull public class X {\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The nullness annotation \'NonNull\' is not applicable at this location\n" + 
+			"----------\n");
+		// note: to be updated with https://bugs.eclipse.org/415918
+	}
 }
