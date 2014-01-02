@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contribution for
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
+ *								Bug 424742 - [1.8] NPE in LambdaExpression.isCompatibleWith
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -2157,6 +2158,33 @@ public void test423684() {
 		"first\n" + 
 		"second\n" + 
 		"third");
+}
+public void testBug424742() {
+	runNegativeTest(
+		new String[] {
+			"TestInlineLambdaArray.java",
+			"package two.test;\n" + 
+			"\n" + 
+			"class TestInlineLambdaArray {\n" + 
+			"	TestInlineLambdaArray h = new TestInlineLambdaArray(x -> x++);	// [9]\n" + 
+			"	public TestInlineLambda(FI fi) {}\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface FI {\n" + 
+			"		void foo();\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in TestInlineLambdaArray.java (at line 4)\n" + 
+		"	TestInlineLambdaArray h = new TestInlineLambdaArray(x -> x++);	// [9]\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The constructor TestInlineLambdaArray((<no type> x) -> x ++) is undefined\n" + 
+		"----------\n" + 
+		"2. ERROR in TestInlineLambdaArray.java (at line 5)\n" + 
+		"	public TestInlineLambda(FI fi) {}\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Return type for the method is missing\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
