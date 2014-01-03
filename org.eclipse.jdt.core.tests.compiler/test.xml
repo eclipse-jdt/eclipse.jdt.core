@@ -33,11 +33,6 @@
 
   <!-- This target defines the tests that need to be run. -->
   <target name="suite">
-	 <condition property="onWin32">
-		<and>
-			<os family="windows" />
-    	</and>
-     </condition>  
     <!-- Parser tests -->
     <property name="jdt-parser-folder" 
               value="${eclipse-home}/jdt_parser_folder"/>
@@ -63,7 +58,7 @@
 	<antcall target="evaluation_tests"/>
   </target>
 
- <target name="evaluation_tests" if="onWin32">
+ <target name="evaluation_tests">
     <!-- Evaluation tests -->
     <property name="jdt-eval-folder" 
               value="${eclipse-home}/jdt_eval_folder"/>
