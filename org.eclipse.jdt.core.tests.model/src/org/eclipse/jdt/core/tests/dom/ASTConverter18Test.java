@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3620,5 +3620,46 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertTrue(type.isNameQualifiedType());
 		nameQualifiedType = (NameQualifiedType) type;
 		checkSourceRange(nameQualifiedType, "Y.@A ZZ", contents);
-}
+	}
+	/*
+	 * [1.8][dom ast] variable binding for LambdaExpression parameter has non-unique key (https://bugs.eclipse.org/bugs/show_bug.cgi?id=416559)
+	 */
+	public void test416559() throws JavaModelException {
+		String contents =
+				"interface I {\n" +
+				"	int f (int x);\n" +
+				"}\n" +
+				"\n" +
+				"class X {\n" +
+				"	I i1 = (x) -> 1;\n" +
+				"   I i2 = (x) -> 1;\n" +
+				"}\n" ;
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 1);
+		FieldDeclaration[] field = ((TypeDeclaration) node).getFields();
+
+		List fragments = field[0].fragments();
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment)fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		LambdaExpression lambdaExpression = (LambdaExpression)expression;
+		VariableDeclaration variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
+		IVariableBinding variableBinding = variableDeclaration.resolveBinding();
+		IMethodBinding methodBinding = lambdaExpression.resolveMethodBinding();
+		String methodKey = ((IBinding) methodBinding).getKey();
+		String variableKey = ((IBinding) variableBinding).getKey();
+		assertTrue(variableKey.regionMatches(0, methodKey, 0, methodKey.length()));
+
+		fragments = field[1].fragments();
+		fragment = (VariableDeclarationFragment)fragments.get(0);
+		expression = fragment.getInitializer();
+		lambdaExpression = (LambdaExpression)expression;
+		variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
+		variableBinding = variableDeclaration.resolveBinding();
+
+		assertNotSame(variableKey.intern(), ((IBinding) variableBinding).getKey().intern());
+	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -100,6 +101,11 @@ public class LocalVariableBinding extends VariableBinding {
 				TypeBinding typeBinding = ((TypeDeclaration) referenceContext).binding;
 				if (typeBinding != null) {
 					buffer.append(typeBinding.computeUniqueKey(false/*not a leaf*/));
+				}
+			} else if (referenceContext instanceof LambdaExpression) {
+				MethodBinding methodBinding = ((LambdaExpression) referenceContext).binding;
+				if (methodBinding != null) {
+					buffer.append(methodBinding.computeUniqueKey(false/*not a leaf*/));
 				}
 			}
 
