@@ -3873,18 +3873,9 @@ class ASTConverter {
 				name = createSimpleName(typeReference, positions, tokens, 0 );
 			} else {
 				name = setQualifiedNameNameAndSourceRanges(tokens, positions, firstTypeIndex - 1, typeReference);
-			}						
-
-/*			org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding = typeReference.resolvedType;
-			boolean createPackageQualifiedType = false;
-			if (typeBinding instanceof ReferenceBinding) {
-				ReferenceBinding referenceBinding = (ReferenceBinding)typeBinding;			
-				PackageBinding packageBinding = referenceBinding.getPackage();
-				if (packageBinding != null && Arrays.equals(name.toString().toCharArray(), packageBinding.readableName())) {
-					createPackageQualifiedType = true;
-				}
 			}
-*/			boolean createNameQualifiedType = typeAnnotations != null && typeAnnotations[firstTypeIndex] != null;
+
+			boolean createNameQualifiedType = typeAnnotations != null && typeAnnotations[firstTypeIndex] != null;
 			if (createNameQualifiedType && this.ast.apiLevel >= AST.JLS8) {
 				NameQualifiedType nameQualifiedType = new NameQualifiedType(this.ast);
 				nameQualifiedType.setQualifier(name);
