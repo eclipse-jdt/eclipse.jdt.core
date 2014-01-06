@@ -294,6 +294,10 @@ public static final TypeReference baseTypeReference(int baseType, int dim, Annot
 	}
 }
 
+public static final TypeReference baseTypeReference(int baseType, int dim) {
+	return baseTypeReference(baseType, dim, null);
+}
+
 // JSR308 type annotations...
 public Annotation[][] annotations = null;
 
