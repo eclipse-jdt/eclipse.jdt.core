@@ -187,6 +187,10 @@ class DefaultASTVisitor extends ASTVisitor {
 	public void endVisit(Modifier node) {
 		endVisitNode(node);
 	}
+	public void endVisit(NameQualifiedType node) {
+		endVisitNode(node);
+	}
+
 	public void endVisit(NormalAnnotation node) {
 		endVisitNode(node);
 	}
@@ -197,9 +201,6 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	public void endVisit(PackageDeclaration node) {
-		endVisitNode(node);
-	}
-	public void endVisit(NameQualifiedType node) {
 		endVisitNode(node);
 	}
 	public void endVisit(ParameterizedType node) {
@@ -474,6 +475,10 @@ class DefaultASTVisitor extends ASTVisitor {
 	public boolean visit(MethodRefParameter node) {
 		return visitNode(node);
 	}
+	public boolean visit(NameQualifiedType node) {
+		return visitNode(node);
+	}
+
 	public boolean visit(NormalAnnotation node) {
 		return visitNode(node);
 	}
@@ -484,9 +489,6 @@ class DefaultASTVisitor extends ASTVisitor {
 		return visitNode(node);
 	}
 	public boolean visit(PackageDeclaration node) {
-		return visitNode(node);
-	}
-	public boolean visit(NameQualifiedType node) {
 		return visitNode(node);
 	}
 	public boolean visit(ParameterizedType node) {

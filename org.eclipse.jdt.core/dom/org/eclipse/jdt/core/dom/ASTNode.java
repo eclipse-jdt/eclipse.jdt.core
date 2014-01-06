@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1013,6 +1013,8 @@ public abstract class ASTNode {
 				return MethodRefParameter.class;
 			case MODIFIER :
 				return Modifier.class;
+			case NAME_QUALIFIED_TYPE :
+				return NameQualifiedType.class;
 			case NORMAL_ANNOTATION :
 				return NormalAnnotation.class;
 			case NULL_LITERAL :
@@ -1021,8 +1023,6 @@ public abstract class ASTNode {
 				return NumberLiteral.class;
 			case PACKAGE_DECLARATION :
 				return PackageDeclaration.class;
-			case NAME_QUALIFIED_TYPE :
-				return NameQualifiedType.class;
 			case PARAMETERIZED_TYPE :
 				return ParameterizedType.class;
 			case PARENTHESIZED_EXPRESSION :
