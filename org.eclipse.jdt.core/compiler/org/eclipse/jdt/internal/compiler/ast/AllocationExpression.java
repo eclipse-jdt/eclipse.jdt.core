@@ -26,6 +26,7 @@
  *							Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *							Bug 424727 - [compiler][null] NullPointerException in nullAnnotationUnsupportedLocation(ProblemReporter.java:5708)
+ *							Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *							bug 378674 - "The method can be declared as static" is wrong
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -644,7 +645,8 @@ public boolean updateBindings(MethodBinding updatedBinding) {
 		InferenceContext18 ctx = (InferenceContext18)this.inferenceContexts.removeKey(this.binding);
 		if (ctx != null && updatedBinding instanceof ParameterizedGenericMethodBinding) {
 			this.inferenceContexts.put(updatedBinding, ctx);
-			ctx.hasFinished = true;
+			// solution may have come from an outer inference, mark now that this (inner) is done (but not deep inners):
+			ctx.stepCompleted = InferenceContext18.TYPE_INFERRED;
 		}
 	}
 	this.binding = updatedBinding;

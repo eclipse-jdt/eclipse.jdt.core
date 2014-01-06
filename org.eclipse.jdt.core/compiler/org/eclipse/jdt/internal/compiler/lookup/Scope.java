@@ -24,6 +24,7 @@
  *								Bug 416183 - [1.8][compiler][null] Overload resolution fails with null annotations
  *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -786,7 +787,7 @@ public abstract class Scope {
 							if (innerBinding instanceof ParameterizedGenericMethodBinding) {
 								ParameterizedGenericMethodBinding innerParameterized = (ParameterizedGenericMethodBinding) innerBinding;
 								InferenceContext18 infCtx18 = innerPoly.getInferenceContext(innerParameterized);
-								if (infCtx18 != null && !infCtx18.hasFinished) {
+								if (infCtx18 != null && infCtx18.stepCompleted < InferenceContext18.TYPE_INFERRED) {
 									// not detected as compatible, because inference still needs to complete?
 									invocArg.setExpectedType(targetType);
 									MethodBinding solution = infCtx18.inferInvocationType(innerPoly, innerParameterized);
@@ -4869,7 +4870,7 @@ public abstract class Scope {
 			Invocation invocation = (Invocation) invocationSite;
 			ParameterizedGenericMethodBinding parameterizedMethod = (ParameterizedGenericMethodBinding) applicable;
 			InferenceContext18 infCtx18 = invocation.getInferenceContext(parameterizedMethod);
-			if (infCtx18 != null && !infCtx18.hasFinished) {
+			if (infCtx18 != null && infCtx18.stepCompleted < InferenceContext18.TYPE_INFERRED) {
 				return infCtx18.inferInvocationType(invocation, argumentTypes, parameterizedMethod);
 			}
 		}

@@ -437,4 +437,35 @@ public void testBug424637() {
 		"Unhandled exception type IOException\n" + 
 		"----------\n");
 }
+public void testBug424710() {
+	runConformTest(
+		new String[] {
+			"MapperTest.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Arrays;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.regex.Matcher;\n" + 
+			"import java.util.regex.Pattern;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"\n" + 
+			"public class MapperTest {\n" + 
+			"\n" + 
+			"    public static void main( String... argv ){\n" + 
+			"        List<String> data = Arrays.asList(\"abc\", \"123\", \"1a\", \"?!?\");\n" + 
+			"        List<Pattern> patterns = Arrays.asList(Pattern.compile(\"[a-z]+\"), Pattern.compile(\"[0-9]+\"));\n" + 
+			"		patterns.stream()\n" + 
+			"				.flatMap(\n" + 
+			"						p -> {\n" + 
+			"							Stream<Matcher> map = data.stream().map(p::matcher);\n" + 
+			"							Stream<Matcher> filter = map.filter(Matcher::find);\n" + 
+			"							Function<? super Matcher, ? extends Object> mapper = Matcher::group;\n" + 
+			"							mapper = matcher -> matcher.group();\n" + 
+			"							return filter.map(mapper);\n" + 
+			"						})\n" + 
+			"				.forEach(System.out::println);\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }

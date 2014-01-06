@@ -163,8 +163,16 @@ public class InferenceContext18 {
 	BoundSet storedSolution;
 	/** One of CHECK_STRICT, CHECK_LOOSE, or CHECK_VARARGS. */
 	int inferenceKind;
-	/** Once an invocation inference has passed 18.5.2 inference, flip this to true to avoid repeated inference of the same task. */
-	public boolean hasFinished = false;
+	/** Marks how much work has been done so far? Used to avoid performing any of these tasks more than once. */
+	public int stepCompleted = NOT_INFERRED;
+
+	public static int NOT_INFERRED = 0;
+	/** Applicability Inference (18.5.1) has been completed. */
+	public static int APPLICABILITY_INFERRED = 1;
+	/** Invocation Type Inference (18.5.2) has been completed. */
+	public static int TYPE_INFERRED = 2;
+	/** All nested elements have been fully resolved. */
+	public static int BINDINGS_UPDATED = 3;
 	
 	// ---
 
@@ -419,7 +427,7 @@ public class InferenceContext18 {
 				return null;
 			return this.currentBounds = solution; // this is final, keep the result:
 		} finally {
-			this.hasFinished = true;
+			this.stepCompleted = TYPE_INFERRED;
 		}
 	}
 
@@ -880,6 +888,7 @@ public class InferenceContext18 {
 				}
 			}
 		}
+		this.stepCompleted = BINDINGS_UPDATED; // we're done-done
 	}
 
 	private void acceptPendingPolyArguments(final BoundSet acceptedResult, TypeBinding[] parameterTypes, boolean isVarArgs) {

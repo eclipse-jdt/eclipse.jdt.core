@@ -19,6 +19,7 @@
  *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 409245 - [1.8][compiler] Type annotations dropped when call is routed through a synthetic bridge method
  *******************************************************************************/
@@ -502,7 +503,8 @@ public class ExplicitConstructorCall extends Statement implements Invocation, Ex
 			InferenceContext18 ctx = (InferenceContext18)this.inferenceContexts.removeKey(this.binding);
 			if (ctx != null && updatedBinding instanceof ParameterizedGenericMethodBinding) {
 				this.inferenceContexts.put(updatedBinding, ctx);
-				ctx.hasFinished = true;
+				// solution may have come from an outer inference, mark now that this (inner) is done (but not deep inners):
+				ctx.stepCompleted = InferenceContext18.TYPE_INFERRED;
 			}
 		}
 		this.binding = updatedBinding;

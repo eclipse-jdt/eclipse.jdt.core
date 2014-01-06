@@ -17,6 +17,7 @@
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								bug 413958 - Function override returning inherited Generic Type
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -121,6 +122,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 						}
 						if (provisionalResult != null && infCtx18.isResolved(provisionalResult)) {
 							infCtx18.storedSolution = provisionalResult;
+							infCtx18.stepCompleted = InferenceContext18.APPLICABILITY_INFERRED;
 						}
 					} else {
 						provisionalResult = infCtx18.storedSolution;

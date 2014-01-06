@@ -24,6 +24,7 @@
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 424742 - [1.8] NPE in LambdaExpression.isCompatibleWith
+ *								Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
  *     Jesper S Moller - Contributions for
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -657,7 +658,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			if (candidateMethod instanceof ParameterizedGenericMethodBinding) {
 				infCtx = invocation.getInferenceContext((ParameterizedGenericMethodBinding) candidateMethod);
 				if (infCtx != null) {
-					if (!infCtx.hasFinished)
+					if (infCtx.stepCompleted < InferenceContext18.TYPE_INFERRED)
 						return; // not yet ready for pushing type information down to arguments
 					variableArity &= infCtx.isVarArgs(); // TODO: if no infCtx is available, do we have to re-check if this is a varargs invocation?
 				}
@@ -682,7 +683,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					if (binding instanceof ParameterizedGenericMethodBinding) {
 						ParameterizedGenericMethodBinding parameterizedMethod = (ParameterizedGenericMethodBinding) binding;
 						InferenceContext18 innerContext = innerInvocation.getInferenceContext(parameterizedMethod);
-						if (innerContext != null && !innerContext.hasFinished) {							
+						if (innerContext != null && innerContext.stepCompleted < InferenceContext18.TYPE_INFERRED) {							
 							argument.setExpectedType(parameterType);
 							MethodBinding improvedBinding = innerContext.inferInvocationType(innerInvocation, parameterizedMethod);
 							innerInvocation.updateBindings(improvedBinding);
@@ -692,8 +693,11 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				}
 
 				if (argument.isPolyExpression()) {
-					// poly expressions in an invocation context need to be resolved now:
-					updatedArgumentType = argument.checkAgainstFinalTargetType(parameterType);
+					// poly expressions in an invocation context may need to be resolved now:
+					if (infCtx != null && infCtx.stepCompleted == InferenceContext18.BINDINGS_UPDATED)
+						updatedArgumentType = argument.resolvedType; // in this case argument was already resolved via InferenceContext18.acceptPendingPolyArguments()
+					else
+						updatedArgumentType = argument.checkAgainstFinalTargetType(parameterType);
 
 					if (problemReason == ProblemReasons.NoError // preserve errors
 							&& updatedArgumentType != null					// do we have a relevant update? ...
