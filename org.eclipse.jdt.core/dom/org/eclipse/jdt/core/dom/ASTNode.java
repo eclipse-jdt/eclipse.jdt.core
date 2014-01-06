@@ -861,11 +861,11 @@ public abstract class ASTNode {
 
 	/**
 	 * Node type constant indicating a node of type
-	 * <code>QualifiedType</code>.
-	 * @see QualifiedType
+	 * <code>NameQualifiedType</code>.
+	 * @see NameQualifiedType
 	 * @since 3.9 BETA_JAV8
 	 */
-	public static final int PACKAGE_QUALIFIED_TYPE = 88;
+	public static final int NAME_QUALIFIED_TYPE = 88;
 
 	/**
 	 * Node type constant indicating a node of type
@@ -1021,8 +1021,8 @@ public abstract class ASTNode {
 				return NumberLiteral.class;
 			case PACKAGE_DECLARATION :
 				return PackageDeclaration.class;
-			case PACKAGE_QUALIFIED_TYPE :
-				return PackageQualifiedType.class;
+			case NAME_QUALIFIED_TYPE :
+				return NameQualifiedType.class;
 			case PARAMETERIZED_TYPE :
 				return ParameterizedType.class;
 			case PARENTHESIZED_EXPRESSION :

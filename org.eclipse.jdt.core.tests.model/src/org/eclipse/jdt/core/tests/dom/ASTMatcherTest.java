@@ -453,7 +453,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public boolean match(PackageDeclaration node, Object other) {
 			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
 		}
-		public boolean match(PackageQualifiedType node, Object other) {
+		public boolean match(NameQualifiedType node, Object other) {
 			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(ParameterizedType node, Object other) {
@@ -723,11 +723,11 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	/** @deprecated using deprecated code */
-	public void testPackageQualifiedType() {
+	public void testNameQualifiedType() {
 		if (this.ast.apiLevel() < AST.JLS8) {
 			return;
 		}
-		Type x1 = this.ast.newPackageQualifiedType(this.ast.newQualifiedName(this.N2, this.N3), this.N1);
+		Type x1 = this.ast.newNameQualifiedType(this.ast.newQualifiedName(this.N2, this.N3), this.N1);
 		basicMatch(x1);
 	}
 

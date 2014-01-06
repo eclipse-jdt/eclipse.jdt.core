@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2013 IBM Corporation and others.
+ * Copyright (c) 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,15 +19,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Node for a package qualified type (added in JLS8 API).
+ * Node for a name qualified type (added in JLS8 API).
  * 
  * <pre>
- * PackageQualifiedType:
+ * NameQualifiedType:
  *    Name <b>.</b> { Annotation } SimpleName
  * </pre>
  * 
  * <p>
- * Note that if no annotation is present, then a package-qualified type can
+ * Note that if no annotation is present, then a name-qualified type can
  * also be represented by a SimpleType or a QualifiedType, see the discussion
  * in {@link QualifiedType}.
  * </p>
@@ -38,25 +38,25 @@ import java.util.List;
  * @since 3.9 BETA_JAVA8
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
-public class PackageQualifiedType extends AnnotatableType {
+public class NameQualifiedType extends AnnotatableType {
 
 	/**
 	 * The "qualifier" structural property of this node type (child type: {@link Name}).
 	 */
 	public static final ChildPropertyDescriptor QUALIFIER_PROPERTY =
-		new ChildPropertyDescriptor(PackageQualifiedType.class, "qualifier", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+		new ChildPropertyDescriptor(NameQualifiedType.class, "qualifier", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "annotations" structural property of this node type (element type: {@link Annotation}).
 	 */
 	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
-			internalAnnotationsPropertyFactory(PackageQualifiedType.class);
+			internalAnnotationsPropertyFactory(NameQualifiedType.class);
 	
 	/**
 	 * The "name" structural property of this node type (child type: {@link SimpleName}).
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
-		new ChildPropertyDescriptor(PackageQualifiedType.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+		new ChildPropertyDescriptor(NameQualifiedType.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 	
 	/**
 	 * A list of property descriptors (element type:
@@ -67,7 +67,7 @@ public class PackageQualifiedType extends AnnotatableType {
 
 	static {
 		List propertyList = new ArrayList(4);
-		createPropertyList(PackageQualifiedType.class, propertyList);
+		createPropertyList(NameQualifiedType.class, propertyList);
 		addProperty(QUALIFIER_PROPERTY, propertyList);
 		addProperty(ANNOTATIONS_PROPERTY, propertyList);
 		addProperty(NAME_PROPERTY, propertyList);
@@ -100,7 +100,7 @@ public class PackageQualifiedType extends AnnotatableType {
 	private SimpleName name = null;
 
 	/**
-	 * Creates a new unparented node for a package qualified type owned by the
+	 * Creates a new unparented node for a name qualified type owned by the
 	 * given AST. By default, an unspecified, but legal, qualifier and name.
 	 * <p>
 	 * N.B. This constructor is package-private.
@@ -108,7 +108,7 @@ public class PackageQualifiedType extends AnnotatableType {
 	 *
 	 * @param ast the AST that is to own this node
 	 */
-	PackageQualifiedType(AST ast) {
+	NameQualifiedType(AST ast) {
 		super(ast);
 	    unsupportedIn2_3_4();
 	}
@@ -163,7 +163,7 @@ public class PackageQualifiedType extends AnnotatableType {
 	}
 
 	final int getNodeType0() {
-		return PACKAGE_QUALIFIED_TYPE;
+		return NAME_QUALIFIED_TYPE;
 	}
 
 	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
@@ -172,7 +172,7 @@ public class PackageQualifiedType extends AnnotatableType {
 	}
 
 	ASTNode clone0(AST target) {
-		PackageQualifiedType result = new PackageQualifiedType(target);
+		NameQualifiedType result = new NameQualifiedType(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setQualifier((Name) ((ASTNode) getQualifier()).clone(target));
 		result.annotations().addAll(ASTNode.copySubtrees(target, annotations()));
@@ -195,9 +195,9 @@ public class PackageQualifiedType extends AnnotatableType {
 	}
 
 	/**
-	 * Returns the qualifier of this package qualified type.
+	 * Returns the qualifier of this name qualified type.
 	 *
-	 * @return the qualifier of this package qualified type
+	 * @return the qualifier of this name qualified type
 	 */
 	public Name getQualifier() {
 		if (this.qualifier == null) {
@@ -214,9 +214,9 @@ public class PackageQualifiedType extends AnnotatableType {
 	}
 
 	/**
-	 * Sets the qualifier of this package qualified type to the given name.
+	 * Sets the qualifier of this name qualified type to the given name.
 	 *
-	 * @param name the new qualifier of this package qualified type
+	 * @param name the new qualifier of this name qualified type
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
@@ -234,7 +234,7 @@ public class PackageQualifiedType extends AnnotatableType {
 	}
 
 	/**
-	 * Returns the name part of this package qualified type.
+	 * Returns the name part of this name qualified type.
 	 *
 	 * @return the name being qualified
 	 */
@@ -253,7 +253,7 @@ public class PackageQualifiedType extends AnnotatableType {
 	}
 
 	/**
-	 * Sets the name part of this package qualified type to the given simple name.
+	 * Sets the name part of this name qualified type to the given simple name.
 	 *
 	 * @param name the identifier of this qualified name
 	 * @exception IllegalArgumentException if:

@@ -786,7 +786,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		binding = binding.getComponentType();
 		verifyAnnotationsOnBinding(binding, new String[]{"@Marker2()"});
 	}
-	public void _test020() throws Exception {
+	public void test020() throws Exception {
 		String contents = 
 				"public class X  {\n" +
 				"    public static void main(String [] args) {\n" +
@@ -1014,7 +1014,6 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		Type type = lambda.getType();
 
 		verifyAnnotationOnType(type, new String[]{"@Marker()"});
-		verifyAnnotationOnType(((QualifiedType)type).getQualifier(), new String[]{});
 	}
 	public void test027() throws Exception {
 		String contents = 

@@ -1259,10 +1259,10 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	/*
-	 * @see ASTVisitor#visit(PackageQualifiedType)
+	 * @see ASTVisitor#visit(NameQualifiedType)
 	 * @since 3.9 BETA_JAVA8
 	 */
-	public boolean visit(PackageQualifiedType node) {
+	public boolean visit(NameQualifiedType node) {
 		node.getQualifier().accept(this);
 		this.buffer.append('.');
 		visitTypeAnnotations(node);

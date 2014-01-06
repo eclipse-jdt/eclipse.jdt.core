@@ -682,9 +682,9 @@ class RecoveredTypeBinding implements ITypeBinding {
 			case ASTNode.QUALIFIED_TYPE :
 				QualifiedType qualifiedType = (QualifiedType) type;
 				return qualifiedType.getName().getIdentifier();
-			case ASTNode.PACKAGE_QUALIFIED_TYPE :
-				PackageQualifiedType packageQualifiedType = (PackageQualifiedType) type;
-				return packageQualifiedType.getName().getIdentifier();
+			case ASTNode.NAME_QUALIFIED_TYPE :
+				NameQualifiedType nameQualifiedType = (NameQualifiedType) type;
+				return nameQualifiedType.getName().getIdentifier();
 			case ASTNode.SIMPLE_TYPE :
 				SimpleType simpleType = (SimpleType) type;
 				Name name = simpleType.getName();

@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -195,7 +199,7 @@ class DefaultASTVisitor extends ASTVisitor {
 	public void endVisit(PackageDeclaration node) {
 		endVisitNode(node);
 	}
-	public void endVisit(PackageQualifiedType node) {
+	public void endVisit(NameQualifiedType node) {
 		endVisitNode(node);
 	}
 	public void endVisit(ParameterizedType node) {
@@ -482,7 +486,7 @@ class DefaultASTVisitor extends ASTVisitor {
 	public boolean visit(PackageDeclaration node) {
 		return visitNode(node);
 	}
-	public boolean visit(PackageQualifiedType node) {
+	public boolean visit(NameQualifiedType node) {
 		return visitNode(node);
 	}
 	public boolean visit(ParameterizedType node) {

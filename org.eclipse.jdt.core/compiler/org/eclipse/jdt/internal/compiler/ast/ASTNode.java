@@ -992,7 +992,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				case Binding.LOCAL:
 					LocalVariableBinding local = (LocalVariableBinding) recipient;
 					TypeReference typeRef = local.declaration.type;
-					if (Annotation.isTypeUseCompatible(typeRef, scope)) { // discard hybrid annotations on package qualified types.
+					if (Annotation.isTypeUseCompatible(typeRef, scope)) { // discard hybrid annotations on name qualified types.
 						local.declaration.bits |= HasTypeAnnotations;
 						typeRef.bits |= HasTypeAnnotations;
 						local.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, typeRef, local.type);
@@ -1002,7 +1002,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					FieldBinding field = (FieldBinding) recipient;
 					SourceTypeBinding sourceType = (SourceTypeBinding) field.declaringClass;
 					FieldDeclaration fieldDeclaration = sourceType.scope.referenceContext.declarationOf(field);
-					if (Annotation.isTypeUseCompatible(fieldDeclaration.type, scope)) { // discard hybrid annotations on package qualified types.
+					if (Annotation.isTypeUseCompatible(fieldDeclaration.type, scope)) { // discard hybrid annotations on name qualified types.
 						fieldDeclaration.bits |= HasTypeAnnotations;
 						fieldDeclaration.type.bits |= HasTypeAnnotations;
 						field.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, fieldDeclaration.type, field.type);

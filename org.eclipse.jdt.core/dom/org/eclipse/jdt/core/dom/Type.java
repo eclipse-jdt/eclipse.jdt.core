@@ -32,7 +32,7 @@ package org.eclipse.jdt.core.dom;
  *       PrimitiveType
  *       SimpleType
  *       QualifiedType
- *       PackageQualifiedType
+ *       NameQualifiedType
  *       WildcardType
  *    ArrayType
  *    ParameterizedType
@@ -55,7 +55,7 @@ package org.eclipse.jdt.core.dom;
  *    { Annotation } TypeName
  * {@link QualifiedType}:
  *    Type <b>.</b> {Annotation} SimpleName
- * {@link PackageQualifiedType}:
+ * {@link NameQualifiedType}:
  *    Name <b>.</b> { Annotation } SimpleName
  * {@link WildcardType}:
  *    { Annotation } <b>?</b> [ ( <b>extends</b> | <b>super</b>) Type ]
@@ -118,15 +118,15 @@ public abstract class Type extends ASTNode {
 	}
 
 	/**
-	 * Returns whether this type is a package qualified type
-	 * ({@link PackageQualifiedType}).
+	 * Returns whether this type is a name qualified type
+	 * ({@link NameQualifiedType}).
 	 *
-	 * @return <code>true</code> if this is a package qualified type, and
+	 * @return <code>true</code> if this is a name qualified type, and
 	 *    <code>false</code> otherwise
 	 * @since 3.9 BETA_JAVA8
 	 */
-	public final boolean isPackageQualifiedType() {
-		return (this instanceof PackageQualifiedType);
+	public final boolean isNameQualifiedType() {
+		return (this instanceof NameQualifiedType);
 	}
 
 	/**

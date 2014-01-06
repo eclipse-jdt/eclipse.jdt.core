@@ -849,12 +849,12 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 	}
 
 	/**
-	 * ASTRewriterTests for PackageQualifiedType
+	 * ASTRewriterTests for NameQualifiedType
 	 * @throws Exception
 	 * 
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=406469
 	 */
-	public void testPackageQualifiedTypeAnnotations() throws Exception {
+	public void testNameQualifiedTypeAnnotations() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test406469.bug", false, null);
 		String contents = "package test406469.bug;\n" +
 				"import java.lang.annotation.*;\n" +
@@ -899,24 +899,24 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 		TypeDeclaration typeDeclaration= findTypeDeclaration(astRoot, "X");
 		MethodDeclaration methodDeclaration= findMethodDeclaration(typeDeclaration, "foo");
 		{   //replace an annotation.
-			PackageQualifiedType packageQualifiedType = (PackageQualifiedType) methodDeclaration.getReturnType2();
+			NameQualifiedType nameQualifiedType = (NameQualifiedType) methodDeclaration.getReturnType2();
 			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Marker"));
-			rewrite.replace((ASTNode) packageQualifiedType.annotations().get(0), markerAnnotation, null);
+			rewrite.replace((ASTNode) nameQualifiedType.annotations().get(0), markerAnnotation, null);
 
 			// remove an annotation
 			SingleVariableDeclaration param = (SingleVariableDeclaration) methodDeclaration.parameters().get(0);
-			packageQualifiedType = (PackageQualifiedType) param.getType();
-			rewrite.remove((ASTNode) packageQualifiedType.annotations().get(0), null);
+			nameQualifiedType = (NameQualifiedType) param.getType();
+			rewrite.remove((ASTNode) nameQualifiedType.annotations().get(0), null);
 			
 			// insert an annotation after an existing annotation
-			packageQualifiedType = (PackageQualifiedType) methodDeclaration.thrownExceptionTypes().get(0);
+			nameQualifiedType = (NameQualifiedType) methodDeclaration.thrownExceptionTypes().get(0);
 			markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Marker"));
-			rewrite.getListRewrite(packageQualifiedType, PackageQualifiedType.ANNOTATIONS_PROPERTY).insertLast(markerAnnotation, null);
+			rewrite.getListRewrite(nameQualifiedType, NameQualifiedType.ANNOTATIONS_PROPERTY).insertLast(markerAnnotation, null);
 			
-			/* insert an annotation in a type not converted as a PackageQualifiedType. This would involve
-			 *  creation of a PackageQualifiedType from fields of the existing type.
+			/* insert an annotation in a type not converted as a NameQualifiedType. This would involve
+			 *  creation of a NameQualifiedType from fields of the existing type.
 			 */
 			TryStatement tryStatement = (TryStatement) methodDeclaration.getBody().statements().get(0);
 			VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) tryStatement.getBody().statements().get(0);
@@ -927,11 +927,11 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 			SimpleName simpleName = ast.newSimpleName(qualifiedName.getName().getIdentifier());
 			qualifiedName = (QualifiedName) qualifiedName.getQualifier();
 			qualifiedName = ast.newQualifiedName(ast.newName(qualifiedName.getQualifier().toString()), ast.newSimpleName(qualifiedName.getName().toString()));
-			packageQualifiedType = ast.newPackageQualifiedType(qualifiedName, simpleName);
+			nameQualifiedType = ast.newNameQualifiedType(qualifiedName, simpleName);
 			markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Marker"));
-			rewrite.getListRewrite(packageQualifiedType, PackageQualifiedType.ANNOTATIONS_PROPERTY).insertLast(markerAnnotation, null);
-			rewrite.replace(classInstanceCreation.getType(), packageQualifiedType, null);
+			rewrite.getListRewrite(nameQualifiedType, NameQualifiedType.ANNOTATIONS_PROPERTY).insertLast(markerAnnotation, null);
+			rewrite.replace(classInstanceCreation.getType(), nameQualifiedType, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 		String contentsmodified = "package test406469.bug;\n" +
@@ -1014,22 +1014,22 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 
 		{   //replace an annotation.
 			VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) statements.get(sCount++);
-			QualifiedType qualifiedType = (QualifiedType) variableDeclarationStatement.getType();
+			NameQualifiedType nameQualifiedType = (NameQualifiedType) variableDeclarationStatement.getType();
 			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("NewMarker"));
-			rewrite.replace((ASTNode) qualifiedType.annotations().get(0), markerAnnotation, null);
+			rewrite.replace((ASTNode) nameQualifiedType.annotations().get(0), markerAnnotation, null);
 			
 			// remove an annotation
 			variableDeclarationStatement = (VariableDeclarationStatement) statements.get(sCount++);
-			qualifiedType = (QualifiedType) variableDeclarationStatement.getType();
-			rewrite.remove((ASTNode) qualifiedType.annotations().get(0), null);
+			nameQualifiedType = (NameQualifiedType) variableDeclarationStatement.getType();
+			rewrite.remove((ASTNode) nameQualifiedType.annotations().get(0), null);
 			
 			// insert an annotation after an existing annotation
 			variableDeclarationStatement = (VariableDeclarationStatement) statements.get(sCount++);
-			qualifiedType = (QualifiedType) variableDeclarationStatement.getType();
+			nameQualifiedType = (NameQualifiedType) variableDeclarationStatement.getType();
 			markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("NewMarker"));
-			rewrite.getListRewrite(qualifiedType, QualifiedType.ANNOTATIONS_PROPERTY).insertLast(markerAnnotation, null);
+			rewrite.getListRewrite(nameQualifiedType, NameQualifiedType.ANNOTATIONS_PROPERTY).insertLast(markerAnnotation, null);
 			
 			/* insert an annotation in a type not converted as QualifiedType. This would involve
 			 *  creation of a QualifiedType from fields of the existing type.
@@ -1040,12 +1040,12 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 			SimpleName simpleName = ast.newSimpleName(qualifiedName.getName().getIdentifier());
 			qualifiedName = (QualifiedName) qualifiedName.getQualifier();
 			qualifiedName = ast.newQualifiedName(ast.newName(qualifiedName.getQualifier().toString()), ast.newSimpleName(qualifiedName.getName().toString()));
-			qualifiedType = ast.newQualifiedType(ast.newSimpleType(qualifiedName), simpleName);
+			nameQualifiedType = ast.newNameQualifiedType(qualifiedName, simpleName);
 			
 			markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("NewMarker"));
-			rewrite.getListRewrite(qualifiedType, QualifiedType.ANNOTATIONS_PROPERTY).insertLast(markerAnnotation, null);
-			rewrite.replace(variableDeclarationStatement.getType(), qualifiedType, null);
+			rewrite.getListRewrite(nameQualifiedType, NameQualifiedType.ANNOTATIONS_PROPERTY).insertLast(markerAnnotation, null);
+			rewrite.replace(variableDeclarationStatement.getType(), nameQualifiedType, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 		String contentsmodified = "package test0002;\n" +
@@ -1056,7 +1056,7 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 				 "		Outer.@NewMarker Inner first = outer.new Inner();\n" +
 				 "		Outer.Inner second = outer.new Inner() ;\n" +
 				 "		Outer.Inner.@Marker1 @NewMarker Deeper deeper = second.new Deeper();\n" +
-				 "		Outer. Inner.@NewMarker Deeper deeper2 =  second.new Deeper();\n" +
+				 "		Outer.Inner.@NewMarker Deeper deeper2 =  second.new Deeper();\n" +
 				 "	}\n" + "}\n" + "class Outer {\n" +
 				 "	public class Inner {\n" + 
 				 "		public class Deeper {\n" +

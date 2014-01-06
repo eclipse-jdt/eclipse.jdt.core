@@ -29,30 +29,43 @@ import java.util.List;
  * Not all node arrangements will represent legal Java constructs. In particular,
  * it is nonsense if the type is an array type or primitive type. The normal use
  * is when the type is a ParameterizedType, an annotated QualifiedType, or a
- * PackageQualifiedType.
+ * NameQualifiedType.
  * </p>
  * <p>
  * A "."-separated type like "A.B" can be represented in three ways:
  * <pre>
- * 1.    SimpleType       | 2.   QualifiedType     | 3. PackageQualifiedType
- *     QualifiedName      | SimpleType  SimpleName |   SimpleName  SimpleName
- * SimpleName  SimpleName | SimpleName     "B"     |       "A"        "B"
- *     "A"        "B"     |     "A"                |
+ * 1.    SimpleType       | 2.   NameQualifiedType | 3. QualifiedType
+ *     QualifiedName      | SimpleName  SimpleName |   SimpleType  SimpleName
+ * SimpleName  SimpleName |     "A"        "B"     |   SimpleName     "B"
+ *     "A"        "B"     |                        |       "A"
  * </pre>
  * <p>
  * The ASTParser creates the SimpleType form (wrapping a name) if possible. The
  * SimpleType form doesn't support any embedded Annotations nor ParameterizedTypes.
- * The QualifiedType form is only available since JLS3 and the
- * PackageQualifiedType form only since JLS8.
+ * The NameQualifiedType form is only available since JLS8 and the
+ * QualifiedType form only since JLS3. The NameQualifiedType form allows
+ * Annotations on the last SimpleName. The QualifiedType form cannot be used if
+ * the qualifier represents a package name.
  * </p>
  * <p>
- * The QualifiedType form cannot be used if the qualifier resolves to a package
- * name, e.g. for "pack.@A C". In that case, the PackageQualifiedType form is used.
- * If bindings are not resolved, then only the QualifiedType form is used.
+ * The part before the last "." is called the <em>qualifier</em> of a type. If
+ * the name after the last "." has annotations or if the qualifier is not a
+ * (possibly qualified) name, then the ASTParser creates either a
+ * NameQualifiedType or a QualifiedType:
  * </p>
+ * <ul>
+ * <li>
+ * If the qualifier is a (possibly qualified) name, then a NameQualifiedType is
+ * created.
+ * </li>
+ * <li>
+ * Otherwise, a QualifiedType is created and its qualifier is built using the
+ * same rules.
+ * </li>
+ * </ul>
  * 
  * @see SimpleType
- * @see PackageQualifiedType
+ * @see NameQualifiedType
  * 
  * @since 3.1
  * @noinstantiate This class is not intended to be instantiated by clients.

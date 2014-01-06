@@ -204,10 +204,10 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertNotNull(assignment);
 		CastExpression castExpression = (CastExpression) assignment.getRightHandSide();
 		assertNotNull(castExpression);
-		PackageQualifiedType packageQualifiedType = (PackageQualifiedType) castExpression.getType();
-		assertNotNull(packageQualifiedType);
-		assertEquals("java.lang.@Marker String", packageQualifiedType.toString());
-		List annotations = packageQualifiedType.annotations();
+		NameQualifiedType nameQualifiedType = (NameQualifiedType) castExpression.getType();
+		assertNotNull(nameQualifiedType);
+		assertEquals("java.lang.@Marker String", nameQualifiedType.toString());
+		List annotations = nameQualifiedType.annotations();
 		assertTrue(annotations.size() == 1);
 		assertEquals("@Marker", annotations.get(0).toString());
 
@@ -224,22 +224,22 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		// annotations.
 		variableDeclarationStatement = (VariableDeclarationStatement) statements.get(sCount++);
 		type = variableDeclarationStatement.getType();
-		assertTrue(type.isQualifiedType());
-		QualifiedType qualifiedType = (QualifiedType) type;
-		assertNotNull(qualifiedType);
-		assertEquals("Outer.@Marker2 Inner", qualifiedType.toString());
-		annotations = qualifiedType.annotations();
+		assertTrue(type.isNameQualifiedType());
+		nameQualifiedType = (NameQualifiedType) type;
+		assertNotNull(nameQualifiedType);
+		assertEquals("Outer.@Marker2 Inner", nameQualifiedType.toString());
+		annotations = nameQualifiedType.annotations();
 		assertTrue(annotations.size() == 1);
 		assertEquals("@Marker2", annotations.get(0).toString());
 
 		// case 4 - Multiple levels with annotations at the last only.
 		variableDeclarationStatement = (VariableDeclarationStatement) statements.get(sCount++);
 		type = variableDeclarationStatement.getType();
-		assertTrue(type.isQualifiedType());
-		qualifiedType = (QualifiedType) type;
-		assertNotNull(qualifiedType);
-		assertEquals("Outer.Inner.@Marker1 Deeper", qualifiedType.toString());
-		annotations = qualifiedType.annotations();
+		assertTrue(type.isNameQualifiedType());
+		nameQualifiedType = (NameQualifiedType) type;
+		assertNotNull(nameQualifiedType);
+		assertEquals("Outer.Inner.@Marker1 Deeper", nameQualifiedType.toString());
+		annotations = nameQualifiedType.annotations();
 		assertTrue(annotations.size() == 1);
 		assertEquals("@Marker1", annotations.get(0).toString());
 
@@ -247,7 +247,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		variableDeclarationStatement = (VariableDeclarationStatement) statements.get(sCount++);
 		type = variableDeclarationStatement.getType();
 		assertTrue(type.isQualifiedType());
-		qualifiedType = (QualifiedType) type;
+		QualifiedType qualifiedType = (QualifiedType) type;
 		assertNotNull(qualifiedType);
 		assertEquals("Outer.@Marker1 Inner.@Marker2 Deeper", qualifiedType.toString());
 		annotations = qualifiedType.annotations();
@@ -256,10 +256,10 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		SimpleName simpleName = qualifiedType.getName();
 		assertEquals("Deeper", simpleName.toString());
 		Type qualifierType = qualifiedType.getQualifier();
-		assertTrue(qualifierType.isQualifiedType());
-		qualifiedType = (QualifiedType) qualifierType;
-		assertEquals("Outer.@Marker1 Inner", qualifiedType.toString());
-		annotations = qualifiedType.annotations();
+		assertTrue(qualifierType.isNameQualifiedType());
+		nameQualifiedType = (NameQualifiedType) qualifierType;
+		assertEquals("Outer.@Marker1 Inner", nameQualifiedType.toString());
+		annotations = nameQualifiedType.annotations();
 		assertTrue(annotations.size() == 1);
 		assertEquals("@Marker1", annotations.get(0).toString());
 	}
@@ -395,10 +395,10 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		typeArguments = parametrizedType.typeArguments();
 		assertEquals(1, typeArguments.size());
 		type = (Type) typeArguments.get(0);
-		assertTrue(type.isQualifiedType());
-		QualifiedType qualifiedType = (QualifiedType) type;
-		assertEquals("Outer.@Marker1 Inner", qualifiedType.toString());
-		List annotations = qualifiedType.annotations();
+		assertTrue(type.isNameQualifiedType());
+		NameQualifiedType nameQualifiedType = (NameQualifiedType) type;
+		assertEquals("Outer.@Marker1 Inner", nameQualifiedType.toString());
+		List annotations = nameQualifiedType.annotations();
 		assertTrue(annotations.size() == 1);
 		Annotation annotation = (Annotation) annotations.get(0);
 		assertEquals("@Marker1", annotation.toString());
@@ -412,7 +412,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		type = (Type) typeArguments.get(0);
 		assertTrue(type.isQualifiedType());
 		assertEquals("@Marker1 Outer.Inner", type.toString());
-		qualifiedType = (QualifiedType) type;
+		QualifiedType qualifiedType = (QualifiedType) type;
 		assertEquals("Inner", qualifiedType.getName().toString());
 		annotations = qualifiedType.annotations();
 		assertTrue(annotations.size() == 0);
@@ -457,7 +457,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	 * 
 	 * @throws JavaModelException
 	 */
-	public void _test0006() throws JavaModelException {
+	public void test0006() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0006/X.java",
 				true);
 		String contents = "package test0006;"
@@ -545,11 +545,9 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("Deeper", name.toString());
 		List annotations = qualifiedType.annotations();
 		assertTrue(annotations.size() == 0);
-		Type qualifierType = qualifiedType.getQualifier();
-		assertTrue(qualifierType.isSimpleType());
-		simpleType = (SimpleType) qualifierType;
-		assertEquals("Outer.@Marker1 Inner", simpleType.toString());
-		annotations = simpleType.annotations();
+		NameQualifiedType nameQualifiedType = (NameQualifiedType) qualifiedType.getQualifier();
+		assertEquals("Outer.@Marker1 Inner", nameQualifiedType.toString());
+		annotations = nameQualifiedType.annotations();
 		assertTrue(annotations.size() == 1);
 		Annotation annotation = (Annotation) annotations.get(0);
 		assertEquals("@Marker1", annotation.toString());
@@ -577,11 +575,11 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertTrue(annotations.size() == 1);
 		annotation = (Annotation) annotations.get(0);
 		assertEquals("@Marker2", annotation.toString());
-		qualifierType = qualifiedType.getQualifier();
-		assertTrue(qualifierType.isSimpleType());
-		simpleType = (SimpleType) qualifierType;
-		assertEquals("Outer.@Marker1 Inner", simpleType.toString());
-		annotations = simpleType.annotations();
+		Type qualifierType = qualifiedType.getQualifier();
+		assertTrue(qualifierType.isNameQualifiedType());
+		nameQualifiedType = (NameQualifiedType) qualifierType;
+		assertEquals("Outer.@Marker1 Inner", nameQualifiedType.toString());
+		annotations = nameQualifiedType.annotations();
 		assertTrue(annotations.size() == 1);
 		annotation = (Annotation) annotations.get(0);
 		assertEquals("@Marker1", annotation.toString());
@@ -742,10 +740,10 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		type = (Type) typeArguments.get(0);
 		assertEquals("Integer", type.toString());
 		type = parametrizedType.getType();
-		assertTrue(type.isSimpleType());
-		simpleType = (SimpleType) type;
-		assertEquals("Outer1.@Marker1 Inner", simpleType.toString());
-		annotations = simpleType.annotations();
+		assertTrue(type.isNameQualifiedType());
+		nameQualifiedType = (NameQualifiedType) type;
+		assertEquals("Outer1.@Marker1 Inner", nameQualifiedType.toString());
+		annotations = nameQualifiedType.annotations();
 		assertTrue(annotations.size() == 1);
 		annotation = (Annotation) annotations.get(0);
 		assertEquals("@Marker1", annotation.toString());
@@ -1807,7 +1805,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		methodBinding = typeMethodReference.resolveMethodBinding();
 		assertNotNull(methodBinding);
 		type = typeMethodReference.getType();
-		assertTrue(type.isQualifiedType());
+		assertTrue(type.isNameQualifiedType());
 		checkSourceRange(type, "Y.@Marker Z", contents);
 		typeArguments = typeMethodReference.typeArguments();
 		assertTrue(typeArguments.size() == 0);
@@ -1828,7 +1826,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		methodBinding = typeMethodReference.resolveMethodBinding();
 		assertNotNull(methodBinding);
 		type = typeMethodReference.getType();
-		assertTrue(type.isQualifiedType());
+		assertTrue(type.isNameQualifiedType());
 		checkSourceRange(type, "Y.@Marker Z", contents);
 		typeArguments = typeMethodReference.typeArguments();
 		assertTrue(typeArguments.size() == 1);
@@ -2329,15 +2327,15 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());		
 		MethodDeclaration methodDecl = (MethodDeclaration) node;
 		Type type = methodDecl.getReturnType2();
-		assertTrue(type.isPackageQualifiedType());
-		PackageQualifiedType packageQualifiedType = (PackageQualifiedType) type;
-		checkSourceRange(packageQualifiedType, "test404489.bug.@NonNull IOException", source);
-		ITypeBinding typeBinding = packageQualifiedType.resolveBinding();
+		assertTrue(type.isNameQualifiedType());
+		NameQualifiedType nameQualifiedType = (NameQualifiedType) type;
+		checkSourceRange(nameQualifiedType, "test404489.bug.@NonNull IOException", source);
+		ITypeBinding typeBinding = nameQualifiedType.resolveBinding();
 		assertNotNull("null binding", typeBinding);
 		assertEquals("not a valid binding", "test404489.bug.IOException", typeBinding.getQualifiedName());
 		
-		// qualifier of the package qualified type
-		Name name = packageQualifiedType.getQualifier();
+		// qualifier of the name qualified type
+		Name name = nameQualifiedType.getQualifier();
 		assertTrue(name.isQualifiedName());
 		QualifiedName qualifiedName = (QualifiedName) name;
 		checkSourceRange(qualifiedName, "test404489.bug", source);
@@ -2363,8 +2361,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertTrue("not a package binding", binding.getKind() == IBinding.PACKAGE);
 		assertEquals("wrong package binding", "package test404489.bug", binding.toString());
 		
-		// annotations of package qualified type
-		List annotations = packageQualifiedType.annotations();
+		// annotations of name qualified type
+		List annotations = nameQualifiedType.annotations();
 		assertTrue(annotations.size() == 1);
 		Annotation annotation = (Annotation) annotations.get(0);
 		typeBinding = annotation.resolveTypeBinding();
@@ -2379,8 +2377,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		checkSourceRange(simpleName, "NonNull", source);
 		assertNotNull(typeBinding);
 		
-		// name of the package qualified type
-		simpleName = packageQualifiedType.getName();
+		// name of the name qualified type
+		simpleName = nameQualifiedType.getName();
 		checkSourceRange(simpleName, "IOException", source);
 		typeBinding = simpleName.resolveTypeBinding();
 		assertNotNull(typeBinding);
@@ -2388,15 +2386,15 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		// parameter
 		SingleVariableDeclaration param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
 		type = param.getType();
-		assertTrue(type.isPackageQualifiedType());
-		packageQualifiedType = (PackageQualifiedType) type;
-		checkSourceRange(packageQualifiedType, "test404489.bug.@NonNull FileNotFoundException", source);
-		typeBinding = packageQualifiedType.resolveBinding();
+		assertTrue(type.isNameQualifiedType());
+		nameQualifiedType = (NameQualifiedType) type;
+		checkSourceRange(nameQualifiedType, "test404489.bug.@NonNull FileNotFoundException", source);
+		typeBinding = nameQualifiedType.resolveBinding();
 		assertNotNull("null binding", typeBinding);
 		assertEquals("not a valid binding", "test404489.bug.FileNotFoundException", typeBinding.getQualifiedName());
 		
-		// qualifier of the package qualified type
-		name = packageQualifiedType.getQualifier();
+		// qualifier of the name qualified type
+		name = nameQualifiedType.getQualifier();
 		assertTrue(name.isQualifiedName());
 		qualifiedName = (QualifiedName) name;
 		checkSourceRange(qualifiedName, "test404489.bug", source);
@@ -2422,8 +2420,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertTrue("not a package binding", binding.getKind() == IBinding.PACKAGE);
 		assertEquals("wrong package binding", "package test404489.bug", binding.toString());
 		
-		// annotations of package qualified type
-		annotations = packageQualifiedType.annotations();
+		// annotations of name qualified type
+		annotations = nameQualifiedType.annotations();
 		assertTrue(annotations.size() == 1);
 		annotation = (Annotation) annotations.get(0);
 		typeBinding = annotation.resolveTypeBinding();
@@ -2438,23 +2436,23 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		checkSourceRange(simpleName, "NonNull", source);
 		assertNotNull(typeBinding);
 		
-		// name of the package qualified type
-		simpleName = packageQualifiedType.getName();
+		// name of the name qualified type
+		simpleName = nameQualifiedType.getName();
 		checkSourceRange(simpleName, "FileNotFoundException", source);
 		typeBinding = simpleName.resolveTypeBinding();
 		assertNotNull(typeBinding);
 		
 		// throws
 		type = (Type) methodDecl.thrownExceptionTypes().get(0);
-		assertTrue(type.isPackageQualifiedType());
-		packageQualifiedType = (PackageQualifiedType) type;
-		checkSourceRange(packageQualifiedType, "test404489.bug.@NonNull EOFException", source);
-		typeBinding = packageQualifiedType.resolveBinding();
+		assertTrue(type.isNameQualifiedType());
+		nameQualifiedType = (NameQualifiedType) type;
+		checkSourceRange(nameQualifiedType, "test404489.bug.@NonNull EOFException", source);
+		typeBinding = nameQualifiedType.resolveBinding();
 		assertNotNull("null binding", typeBinding);
 		assertEquals("not a valid binding", "test404489.bug.EOFException", typeBinding.getQualifiedName());
 		
-		// qualifier of the package qualified type
-		name = packageQualifiedType.getQualifier();
+		// qualifier of the name qualified type
+		name = nameQualifiedType.getQualifier();
 		assertTrue(name.isQualifiedName());
 		qualifiedName = (QualifiedName) name;
 		checkSourceRange(qualifiedName, "test404489.bug", source);
@@ -2480,8 +2478,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertTrue("not a package binding", binding.getKind() == IBinding.PACKAGE);
 		assertEquals("wrong package binding", "package test404489.bug", binding.toString());
 		
-		// annotations of package qualified type
-		annotations = packageQualifiedType.annotations();
+		// annotations of name qualified type
+		annotations = nameQualifiedType.annotations();
 		assertTrue(annotations.size() == 1);
 		annotation = (Annotation) annotations.get(0);
 		typeBinding = annotation.resolveTypeBinding();
@@ -2496,8 +2494,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		checkSourceRange(simpleName, "NonNull", source);
 		assertNotNull(typeBinding);
 		
-		// name of the package qualified type
-		simpleName = packageQualifiedType.getName();
+		// name of the name qualified type
+		simpleName = nameQualifiedType.getName();
 		checkSourceRange(simpleName, "EOFException", source);
 		typeBinding = simpleName.resolveTypeBinding();
 		assertNotNull(typeBinding);
@@ -2508,16 +2506,16 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		type = field.getType();
 		assertTrue(type.isQualifiedType());
 		QualifiedType qualifiedType = (QualifiedType) type;
-		packageQualifiedType = (PackageQualifiedType)qualifiedType.getQualifier();
-		checkSourceRange(packageQualifiedType, "test404489.bug.@NonNull X", source);
-		typeBinding = packageQualifiedType.resolveBinding();
+		nameQualifiedType = (NameQualifiedType)qualifiedType.getQualifier();
+		checkSourceRange(nameQualifiedType, "test404489.bug.@NonNull X", source);
+		typeBinding = nameQualifiedType.resolveBinding();
 		assertNotNull("null binding", typeBinding);
 		assertEquals("not a valid binding", "test404489.bug.X", typeBinding.getQualifiedName());
-		name = packageQualifiedType.getName();
-		assertSame("bindings different for package qualified type and assocated name", typeBinding, name.resolveTypeBinding());
+		name = nameQualifiedType.getName();
+		assertSame("bindings different for name qualified type and assocated name", typeBinding, name.resolveTypeBinding());
 		
-		// qualifier of the package qualified type
-		name = packageQualifiedType.getQualifier();
+		// qualifier of the name qualified type
+		name = nameQualifiedType.getQualifier();
 		assertTrue(name.isQualifiedName());
 		qualifiedName = (QualifiedName) name;
 		checkSourceRange(qualifiedName, "test404489.bug", source);
@@ -2543,8 +2541,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertTrue("not a package binding", binding.getKind() == IBinding.PACKAGE);
 		assertEquals("wrong package binding", "package test404489.bug", binding.toString());
 		
-		// annotations of package qualified type
-		annotations = packageQualifiedType.annotations();
+		// annotations of name qualified type
+		annotations = nameQualifiedType.annotations();
 		assertTrue(annotations.size() == 1);
 		annotation = (Annotation) annotations.get(0);
 		typeBinding = annotation.resolveTypeBinding();
@@ -2559,8 +2557,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		checkSourceRange(simpleName, "NonNull", source);
 		assertNotNull(typeBinding);
 		
-		// name of the package qualified type
-		simpleName = packageQualifiedType.getName();
+		// name of the name qualified type
+		simpleName = nameQualifiedType.getName();
 		checkSourceRange(simpleName, "X", source);
 		typeBinding = simpleName.resolveTypeBinding();
 		assertNotNull(typeBinding);
@@ -3576,4 +3574,51 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		IMethodBinding resolveMethodBinding = lambda.resolveMethodBinding();
 		assertTrue("Should be null", resolveMethodBinding == null); // no NPE, just a null method binding.
 	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=418979
+	 */
+	public void test418979() throws JavaModelException {
+		String contents =
+				"import java.lang.annotation.*;\n" +
+				"public class X {\n" +
+				"    void foo(Y.@A Z<?> events) {}\n" +
+				"    void foo(Y.@A ZZ events) {}\n" +
+				" }\n" +
+				"class Y {\n" +
+				"	class Z<T> {}\n" +
+				"   class ZZ{}\n" +
+				"}\n" +
+				"@Target (ElementType.TYPE_USE)\n" +
+				"@interface A{}";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		MethodDeclaration[] methods = ((TypeDeclaration) node).getMethods();
+		assertEquals("Incorrect no of methods", 2, methods.length);
+		MethodDeclaration method = methods[0];
+		List params = method.parameters();
+		assertEquals("Incorrect no of parameters", 1, params.size());
+		SingleVariableDeclaration variable = (SingleVariableDeclaration) params.get(0);
+		Type type = variable.getType();
+		assertTrue(type.isParameterizedType());
+		ParameterizedType parameterizedType = (ParameterizedType) type;
+		checkSourceRange(parameterizedType, "Y.@A Z<?>", contents);
+		type = parameterizedType.getType();
+		assertTrue(type.isNameQualifiedType());
+		NameQualifiedType nameQualifiedType = (NameQualifiedType) type;
+		checkSourceRange(nameQualifiedType, "Y.@A Z", contents);
+
+		method = methods[1];
+		params = method.parameters();
+		assertEquals("Incorrect no of parameters", 1, params.size());
+		variable = (SingleVariableDeclaration) params.get(0);
+		type = variable.getType();
+		assertTrue(type.isNameQualifiedType());
+		nameQualifiedType = (NameQualifiedType) type;
+		checkSourceRange(nameQualifiedType, "Y.@A ZZ", contents);
+}
 }

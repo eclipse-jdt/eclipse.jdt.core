@@ -4139,20 +4139,20 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return false;
 	}
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.PackageQualifiedType)
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.NameQualifiedType)
 	 */
-	public boolean visit(PackageQualifiedType node) {
+	public boolean visit(NameQualifiedType node) {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		int pos = rewriteRequiredNode(node, PackageQualifiedType.QUALIFIER_PROPERTY);
+		int pos = rewriteRequiredNode(node, NameQualifiedType.QUALIFIER_PROPERTY);
 		try {
 			pos = getScanner().getTokenEndOffset(TerminalTokens.TokenNameDOT, pos);
-			rewriteTypeAnnotations(node, PackageQualifiedType.ANNOTATIONS_PROPERTY, pos);
+			rewriteTypeAnnotations(node, NameQualifiedType.ANNOTATIONS_PROPERTY, pos);
 		} catch (CoreException e) {
 			handleException(e);
 		}
-		rewriteRequiredNode(node, PackageQualifiedType.NAME_PROPERTY);
+		rewriteRequiredNode(node, NameQualifiedType.NAME_PROPERTY);
 		return false;
 	}
 	/* (non-Javadoc)

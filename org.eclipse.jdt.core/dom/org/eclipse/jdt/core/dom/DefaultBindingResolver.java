@@ -1637,8 +1637,8 @@ class DefaultBindingResolver extends BindingResolver {
 					return resolveTypeBindingForName(((SimpleType)type).getName());
 				} else if (type instanceof QualifiedType) {
 					return resolveTypeBindingForName(((QualifiedType)type).getName());
-				} else if (type instanceof PackageQualifiedType){
-					return resolveTypeBindingForName(((PackageQualifiedType)type).getName());
+				} else if (type instanceof NameQualifiedType){
+					return resolveTypeBindingForName(((NameQualifiedType)type).getName());
 				}
 				TypeReference typeReference = (TypeReference) node;
 				binding = typeReference.resolvedType;

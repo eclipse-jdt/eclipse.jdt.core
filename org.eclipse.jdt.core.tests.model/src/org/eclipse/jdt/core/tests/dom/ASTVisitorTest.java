@@ -383,11 +383,11 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			ASTVisitorTest.this.b.append(node.getPrimitiveTypeCode().toString());
 			ASTVisitorTest.this.b.append("tP)"); //$NON-NLS-1$
 		}
-		public boolean visit(PackageQualifiedType node) {
+		public boolean visit(NameQualifiedType node) {
 			ASTVisitorTest.this.b.append("(tPQ"); //$NON-NLS-1$
 			return isVisitingChildren();
 		}
-		public void endVisit(PackageQualifiedType node) {
+		public void endVisit(NameQualifiedType node) {
 			ASTVisitorTest.this.b.append("tPQ)"); //$NON-NLS-1$
 		}
 		public boolean visit(ParameterizedType node) {
@@ -1162,12 +1162,12 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	/** @deprecated using deprecated code */
-	public void testPackageQualifiedType() {
+	public void testNameQualifiedType() {
 		if (this.ast.apiLevel() < AST.JLS8) {
 			return;
 		}
 		QualifiedName q = this.ast.newQualifiedName(this.N2, this.N3);
-		PackageQualifiedType x1 = this.ast.newPackageQualifiedType(q, this.N1);
+		NameQualifiedType x1 = this.ast.newNameQualifiedType(q, this.N1);
 		TestVisitor v1 = new TestVisitor();
 		this.b.setLength(0);
 		x1.accept(v1);

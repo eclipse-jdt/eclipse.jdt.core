@@ -31,10 +31,10 @@ import java.util.List;
  *
  * In JLS8 and later, the SimpleType may have optional annotations.
  * If annotations are present, then the name must be a {@link SimpleName}.
- * Annotated qualified names are represented as {@link QualifiedType} or {@link PackageQualifiedType}.
+ * Annotated qualified names are represented as {@link QualifiedType} or {@link NameQualifiedType}.
  * 
  * @see QualifiedType
- * @see PackageQualifiedType
+ * @see NameQualifiedType
  * 
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
