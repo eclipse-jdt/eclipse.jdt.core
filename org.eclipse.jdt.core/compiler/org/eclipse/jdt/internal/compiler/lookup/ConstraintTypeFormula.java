@@ -167,7 +167,10 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				if (this.right instanceof InferenceVariable) {
 					return new TypeBound((InferenceVariable) this.right, this.left, SAME, this.isSoft);
 				}
-				if (TypeBinding.equalsEquals(this.left.original(), this.right.original())) {
+				if ((this.left.isClass() || this.left.isInterface()) 
+						&& (this.right.isClass() || this.right.isInterface())
+						&& TypeBinding.equalsEquals(this.left.erasure(), this.right.erasure())) 
+				{
 					TypeBinding[] leftParams = this.left.typeArguments();
 					TypeBinding[] rightParams = this.right.typeArguments();
 					if (leftParams == null || rightParams == null)
@@ -209,21 +212,11 @@ class ConstraintTypeFormula extends ConstraintFormula {
 		switch (superCandidate.kind()) {
 			case Binding.GENERIC_TYPE:
 			case Binding.TYPE:
-			case Binding.RAW_TYPE: // TODO: check special handling of raw types?
+			case Binding.RAW_TYPE:
 				{
-					ReferenceBinding c = (ReferenceBinding) superCandidate;
 					if (subCandidate instanceof ReferenceBinding) {
-						ReferenceBinding s = (ReferenceBinding) subCandidate;
-						if (TypeBinding.equalsEquals(s.original(), c))
+						if (hasSuperType((ReferenceBinding) subCandidate, (ReferenceBinding) superCandidate))
 							return TRUE;
-						if (TypeBinding.equalsEquals(s.superclass(), c))
-							return TRUE;
-						ReferenceBinding[] superInterfaces = s.superInterfaces();
-						if (superInterfaces != null) {
-							for (int i=0, l=superInterfaces.length; i<l; i++)
-								if (TypeBinding.equalsEquals(superInterfaces[i], c))
-									return TRUE;
-						}
 					}
 					return FALSE;
 				}
@@ -234,8 +227,6 @@ class ConstraintTypeFormula extends ConstraintFormula {
 						if (!addConstraintsFromTypeParamters(subCandidate, (ParameterizedTypeBinding) superCandidate, constraints))
 							return FALSE;
 						// travel to enclosing types to check if they have type parameters, too:
-						// (Note: this is not explicit in the spec but has been confirmed on the EG list, see:
-						//  http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000449.html ).
 						superCandidate = superCandidate.enclosingType();
 						subCandidate = subCandidate.enclosingType();
 					}
@@ -297,6 +288,22 @@ class ConstraintTypeFormula extends ConstraintFormula {
 		if (superCandidate.id == TypeIds.T_null)
 			return FALSE;
 		throw new IllegalStateException("Unexpected RHS "+superCandidate); //$NON-NLS-1$
+	}
+	
+	private boolean hasSuperType(ReferenceBinding sub, ReferenceBinding superType) {
+		if (TypeBinding.equalsEquals(sub, superType))
+			return true;
+		if (sub.id == TypeIds.T_JavaLangObject)
+			return false;
+		if (hasSuperType(sub.superclass(), superType))
+			return true;
+		ReferenceBinding[] superInterfaces = sub.superInterfaces();
+		if (superInterfaces != null) {
+			for (int i=0, l=superInterfaces.length; i<l; i++)
+				if (hasSuperType(superInterfaces[i], superType))
+					return true;
+		}
+		return false;
 	}
 
 	boolean addConstraintsFromTypeParamters(TypeBinding subCandidate, ParameterizedTypeBinding ca, List constraints) {

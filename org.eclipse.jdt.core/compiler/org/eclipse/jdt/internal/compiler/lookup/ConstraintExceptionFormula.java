@@ -51,15 +51,25 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 			MethodBinding sam = this.right.getSingleAbstractMethod(scope, true);
 			if (sam == null)
 				return FALSE;
-			// TODO: this condition is awaiting confirmation, see http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000455.html 
-			if (!(this.left instanceof LambdaExpression) || ((LambdaExpression)this.left).argumentsTypeElided()) {
-				int nParam = sam.parameters.length;
-				for (int i = 0; i < nParam; i++)
-					if (!sam.parameters[i].isProperType(true))
+			if (this.left instanceof LambdaExpression) {
+				if (((LambdaExpression)this.left).argumentsTypeElided()) {
+					int nParam = sam.parameters.length;
+					for (int i = 0; i < nParam; i++)
+						if (!sam.parameters[i].isProperType(true))
+							return FALSE;
+				}
+				if (sam.returnType != TypeBinding.VOID && !sam.returnType.isProperType(true))
+					return FALSE;
+			} else { // reference expression
+				if (!((ReferenceExpression)this.left).isExactMethodReference()) {					
+					int nParam = sam.parameters.length;
+					for (int i = 0; i < nParam; i++)
+						if (!sam.parameters[i].isProperType(true))
+							return FALSE;
+					if (sam.returnType != TypeBinding.VOID && !sam.returnType.isProperType(true))
 						return FALSE;
+				}
 			}
-			if (sam.returnType != TypeBinding.VOID && !sam.returnType.isProperType(true))
-				return FALSE;
 			TypeBinding[] thrown = sam.thrownExceptions;
 			TypeBinding[] e = new TypeBinding[thrown.length];
 			int n = 0;
