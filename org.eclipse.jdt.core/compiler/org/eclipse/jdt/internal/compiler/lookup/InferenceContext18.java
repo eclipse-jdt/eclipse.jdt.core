@@ -721,6 +721,12 @@ public class InferenceContext18 {
 			TypeBinding[] glbs = Scope.greaterLowerBound(substitutedUpperBounds, this.scope, this.environment);
 			if (glbs == null)
 				return false;
+			if (typeVariable.lowerBound != null) {
+				for (int i = 0; i < glbs.length; i++) {
+					if (!typeVariable.lowerBound.isCompatibleWith(glbs[i]))
+						return false; // not well-formed
+				}
+			}
 			// for deterministic results sort this array by id:
 			sortTypes(glbs);
 			if (!typeVariable.setUpperBounds(glbs, this.object))
