@@ -102,7 +102,7 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  *    see {@link Invocation#registerInferenceContext(ParameterizedGenericMethodBinding, InferenceContext18) Invocation.registerInferenceContext()} and
  *    {@link Invocation#getInferenceContext(ParameterizedGenericMethodBinding) getInferenceContext()}.<br/>
  *    As part of the lifecycle state, each instance of InferenceContext18 remembers the current {@link #inferenceKind}
- *    and {@link #hasFinished}.</li>
+ *    and {@link #stepCompleted}.</li>
  * <li><b>Nested inference/resolving</b>: If an invocation argument is a poly expression itself, final resolving of the argument can only happened
  *    after Invocation Type Inference regarding the outer invocation. Outer inference must produce the <b>target type</b> that drives
  *    the inner inference / resolving. Two different protocols are applied:
@@ -174,6 +174,9 @@ public class InferenceContext18 {
 	/** All nested elements have been fully resolved. */
 	public static int BINDINGS_UPDATED = 3;
 	
+	/** Signals whether any type compatibility makes use of unchecked conversion. */
+	public List constraintsWithUncheckedConversion;
+
 	// ---
 
 	/** Inner poly invocations which have been included in this inference. */
@@ -425,6 +428,8 @@ public class InferenceContext18 {
 			BoundSet solution = solve();
 			if (solution == null || !isResolved(solution))
 				return null;
+			// we're done, start reporting:
+			reportUncheckedConversions(solution);
 			return this.currentBounds = solution; // this is final, keep the result:
 		} finally {
 			this.stepCompleted = TYPE_INFERRED;
@@ -891,9 +896,19 @@ public class InferenceContext18 {
 		this.stepCompleted = BINDINGS_UPDATED; // we're done-done
 	}
 
-	private void acceptPendingPolyArguments(final BoundSet acceptedResult, TypeBinding[] parameterTypes, boolean isVarArgs) {
+	private void acceptPendingPolyArguments(BoundSet acceptedResult, TypeBinding[] parameterTypes, boolean isVarArgs) {
 		if (acceptedResult == null || this.invocationArguments == null) return;
-		Substitution substitution = new Substitution() {
+		Substitution substitution = getResultSubstitution(acceptedResult);
+		for (int i = 0; i < this.invocationArguments.length; i++) {
+			TypeBinding targetType = getParameter(parameterTypes, i, isVarArgs);
+			if (!targetType.isProperType(true))
+				targetType = Scope.substitute(substitution, targetType);
+			this.invocationArguments[i].checkAgainstFinalTargetType(targetType);
+		}
+	}
+
+	private Substitution getResultSubstitution(final BoundSet result) {
+		return new Substitution() {
 			public LookupEnvironment environment() { 
 				return InferenceContext18.this.environment;
 			}
@@ -902,17 +917,11 @@ public class InferenceContext18 {
 			}
 			public TypeBinding substitute(TypeVariableBinding typeVariable) {
 				if (typeVariable instanceof InferenceVariable) {
-					return acceptedResult.getInstantiation((InferenceVariable) typeVariable);
+					return result.getInstantiation((InferenceVariable) typeVariable);
 				}
 				return typeVariable;
 			}
 		};
-		for (int i = 0; i < this.invocationArguments.length; i++) {
-			TypeBinding targetType = getParameter(parameterTypes, i, isVarArgs);
-			if (!targetType.isProperType(true))
-				targetType = Scope.substitute(substitution, targetType);
-			this.invocationArguments[i].checkAgainstFinalTargetType(targetType);
-		}
 	}
 
 	public boolean isVarArgs() {
@@ -1056,6 +1065,42 @@ public class InferenceContext18 {
 				aprime[i] = a[i];
 		}
 		return aprime;
+	}
+
+	/** Record the fact that the given constraint requires unchecked conversion. */
+	public void recordUncheckedConversion(ConstraintTypeFormula constraint) {
+		if (this.constraintsWithUncheckedConversion == null)
+			this.constraintsWithUncheckedConversion = new ArrayList();
+		this.constraintsWithUncheckedConversion.add(constraint);
+	}
+	
+	void reportUncheckedConversions(BoundSet solution) {
+		if (this.constraintsWithUncheckedConversion != null) {
+			int len = this.constraintsWithUncheckedConversion.size();
+			Substitution substitution = getResultSubstitution(solution);
+			for (int i = 0; i < len; i++) {
+				ConstraintTypeFormula constraint = (ConstraintTypeFormula) this.constraintsWithUncheckedConversion.get(i);
+				TypeBinding expectedType = constraint.right;
+				TypeBinding providedType = constraint.left;
+				if (!expectedType.isProperType(true)) {
+					expectedType = Scope.substitute(substitution, expectedType);
+				}
+				if (!providedType.isProperType(true)) {
+					providedType = Scope.substitute(substitution, providedType);
+				}
+/* FIXME(stephan): enable once we solved:
+                    (a) avoid duplication with traditional reporting
+                    (b) improve location to report against
+				if (this.currentInvocation instanceof Expression)
+					this.scope.problemReporter().unsafeTypeConversion((Expression) this.currentInvocation, providedType, expectedType);
+ */
+			}
+		}
+	}
+	
+	/** For use by 15.12.2.6 Method Invocation Type */
+	public boolean usesUncheckedConversion() {
+		return this.constraintsWithUncheckedConversion != null;
 	}
 
 	// INTERIM: infrastructure for detecting failures caused by specific known incompleteness:
