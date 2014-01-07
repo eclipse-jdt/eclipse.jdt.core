@@ -318,7 +318,14 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			if (returnType == TypeBinding.VOID)
 				throw new InferenceFailureException("expression has no value"); //$NON-NLS-1$
 
-			ParameterizedTypeBinding parameterizedType = InferenceContext18.parameterizedWithWildcard(returnType);
+			if (inferenceContext.usesUncheckedConversion()) {
+				// spec says erasure, but we don't really have compatibility rules for erasure, use raw type instead:
+				TypeBinding erasure = inferenceContext.environment.convertToRawType(returnType, false);
+				ConstraintTypeFormula newConstraint = new ConstraintTypeFormula(erasure, targetType, COMPATIBLE);
+				return inferenceContext.reduceAndIncorporate(newConstraint);
+			}
+			TypeBinding rTheta = inferenceContext.substitute(returnType);
+			ParameterizedTypeBinding parameterizedType = InferenceContext18.parameterizedWithWildcard(rTheta);
 			if (parameterizedType != null) {
 				TypeBinding[] arguments = parameterizedType.arguments;
 				InferenceVariable[] betas = inferenceContext.addTypeVariableSubstitutions(arguments);
@@ -326,23 +333,28 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 						parameterizedType.genericType(), betas, parameterizedType.enclosingType(), parameterizedType.getTypeAnnotations());
 				inferenceContext.currentBounds.captures.put(gbeta, parameterizedType);
 				ConstraintTypeFormula newConstraint = new ConstraintTypeFormula(gbeta, targetType, COMPATIBLE);
-				if (!inferenceContext.reduceAndIncorporate(newConstraint))
-					return false;
+				return inferenceContext.reduceAndIncorporate(newConstraint);
 			}
-
-			if (targetType.isBaseType()) {
-				TypeBinding thetaR = inferenceContext.substitute(returnType);
-				if (thetaR instanceof InferenceVariable) {
-					TypeBinding wrapper = inferenceContext.currentBounds.findWrapperTypeBound((InferenceVariable)thetaR);
-					if (wrapper != null) {
-						if (!inferenceContext.reduceAndIncorporate(new ConstraintTypeFormula(thetaR, wrapper, ReductionResult.SAME))
-							|| !inferenceContext.reduceAndIncorporate(new ConstraintTypeFormula(wrapper, targetType, ReductionResult.COMPATIBLE)))
-							return false;
-					}
+			if (rTheta instanceof InferenceVariable) {
+				InferenceVariable alpha = (InferenceVariable) rTheta;
+				boolean toResolve = false;
+				if (inferenceContext.currentBounds.condition18_5_2_bullet_3_3_1(alpha, targetType)) {
+					toResolve = true;
+				} else if (inferenceContext.currentBounds.condition18_5_2_bullet_3_3_2(alpha, targetType, inferenceContext)) {
+					toResolve = true;
+				} else if (targetType.isBaseType()) {
+					TypeBinding wrapper = inferenceContext.currentBounds.findWrapperTypeBound(alpha);
+					if (wrapper != null)
+						toResolve = true;
+				}
+				if (toResolve) {
+					BoundSet solution = inferenceContext.solve(); // TODO: minimal resolving for only α
+					TypeBinding u = solution.getInstantiation(alpha).capture(inferenceContext.scope, invocationSite.sourceStart()); // TODO make position unique?
+					ConstraintTypeFormula newConstraint = new ConstraintTypeFormula(u, targetType, COMPATIBLE);
+					return inferenceContext.reduceAndIncorporate(newConstraint);
 				}
 			}
-
-			ConstraintTypeFormula newConstraint = new ConstraintTypeFormula(inferenceContext.substitute(returnType), targetType, COMPATIBLE);
+			ConstraintTypeFormula newConstraint = new ConstraintTypeFormula(rTheta, targetType, COMPATIBLE);
 			if (!inferenceContext.reduceAndIncorporate(newConstraint))
 				return false;
 		}

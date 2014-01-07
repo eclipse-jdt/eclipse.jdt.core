@@ -311,8 +311,12 @@ public class InferenceContext18 {
 	public InferenceVariable[] addTypeVariableSubstitutions(TypeBinding[] typeVariables) {
 		int len2 = typeVariables.length;
 		InferenceVariable[] newVariables = new InferenceVariable[len2];
-		for (int i = 0; i < typeVariables.length; i++)
-			newVariables[i] = new InferenceVariable(typeVariables[i], this.variableCount++, this.currentInvocation, this.environment);
+		for (int i = 0; i < typeVariables.length; i++) {
+			if (typeVariables[i] instanceof InferenceVariable)
+				newVariables[i] = (InferenceVariable) typeVariables[i]; // prevent double substitution of an already-substituted inferenceVariable
+			else
+				newVariables[i] = new InferenceVariable(typeVariables[i], this.variableCount++, this.currentInvocation, this.environment);
+		}
 
 		int start = 0;
 		if (this.inferenceVariables != null) {

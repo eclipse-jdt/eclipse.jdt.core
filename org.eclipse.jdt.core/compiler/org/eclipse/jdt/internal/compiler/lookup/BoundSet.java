@@ -602,30 +602,9 @@ class BoundSet {
 			return null;
 		if (boundS.left != boundT.left) //$IDENTITY-COMPARISON$ InferenceVariable
 			return null;
-		return deriveTypeArgumentConstraintsRecursive(boundS.right, boundT.right, boundS.isSoft || boundT.isSoft);
-	}
-
-	protected ConstraintFormula[] deriveTypeArgumentConstraintsRecursive(TypeBinding s, TypeBinding t, boolean isSoft) {
-		if (s == null || s.id == TypeIds.T_JavaLangObject || t == null || t.id == TypeIds.T_JavaLangObject)
-			return null;
-		if (TypeBinding.equalsEquals(s.original(), t.original())) {
-			return typeArgumentEqualityConstraints(s, t, isSoft);
-		}
-		TypeBinding tSuper = t.findSuperTypeOriginatingFrom(s);
-		if (tSuper != null) {
-			return typeArgumentEqualityConstraints(s, tSuper, isSoft);
-		}
-		ConstraintFormula[] result = deriveTypeArgumentConstraintsRecursive(s.superclass(), t, isSoft);
-		if (result != null)
-			return result;
-		ReferenceBinding[] superInterfaces = s.superInterfaces();
-		if (superInterfaces != null) {
-			for (int i = 0; i < superInterfaces.length; i++) {
-				result = deriveTypeArgumentConstraintsRecursive(superInterfaces[i], t, isSoft);
-				if (result != null)
-					return result;
-			}
-		}
+		TypeBinding[] supers = superTypesWithCommonGenericType(boundS.right, boundT.right);
+		if (supers != null)
+			return typeArgumentEqualityConstraints(supers[0], supers[1], boundS.isSoft || boundT.isSoft);
 		return null;
 	}
 
@@ -793,5 +772,104 @@ class BoundSet {
 		ThreeSets three = (ThreeSets) this.boundsPerVariable.get(variable);
 		if (three == null) return null;
 		return three.findSingleWrapperType();
+	}
+
+	// this condition is just way too complex to check it in-line:
+	public boolean condition18_5_2_bullet_3_3_1(InferenceVariable alpha, TypeBinding targetType) {
+		// T is a reference type, but is not a wildcard-parameterized type, and either 
+		// i) B2 contains a bound of one of the forms α = S or S <: α, where S is a wildcard-parameterized type, or ...
+		if (targetType.isBaseType()) return false;
+		if (InferenceContext18.parameterizedWithWildcard(targetType) != null) return false;
+		ThreeSets ts = (ThreeSets) this.boundsPerVariable.get(alpha);
+		if (ts.sameBounds != null) {
+			Iterator bounds = ts.sameBounds.iterator();
+			while (bounds.hasNext()) {
+				TypeBound bound = (TypeBound) bounds.next();
+				if (InferenceContext18.parameterizedWithWildcard(bound.right) != null)
+					return true;
+			}
+		}
+		if (ts.superBounds != null) {
+			Iterator bounds = ts.superBounds.iterator();
+			while (bounds.hasNext()) {
+				TypeBound bound = (TypeBound) bounds.next();
+				if (InferenceContext18.parameterizedWithWildcard(bound.right) != null)
+					return true;
+			}
+		}
+		// ii) B2 contains two bounds of the forms S1 <: α and S2 <: α, where
+		//     S1 and S2 have supertypes (4.10) that are two different parameterizations of the same generic class or interface.
+		if (ts.superBounds != null) {
+			List superBounds = new ArrayList(ts.superBounds);
+			int len = superBounds.size();
+			for (int i=0; i<len; i++) {
+				TypeBinding s1 = ((TypeBound)superBounds.get(i)).right;
+				for (int j=i+1; j<len; j++) {
+					TypeBinding s2 = ((TypeBound)superBounds.get(j)).right;
+					TypeBinding[] supers = superTypesWithCommonGenericType(s1, s2);
+					if (supers != null && !TypeBinding.equalsEquals(supers[0], supers[1]))
+						return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public boolean condition18_5_2_bullet_3_3_2(InferenceVariable alpha, TypeBinding targetType, InferenceContext18 ctx18) {
+		// T is a parameterization of a generic class or interface, G, and
+		// B2 contains a bound of one of the forms α = S or S <: α,
+		//   where there exists no type of the form G<...> that is a supertype of S, but the raw type G is a supertype of S.
+		if (!targetType.isParameterizedType()) return false;
+		TypeBinding g = targetType.original();
+		ThreeSets ts = (ThreeSets) this.boundsPerVariable.get(alpha);
+		Iterator boundIterator;
+		if (ts.sameBounds != null) {
+			boundIterator = ts.sameBounds.iterator();
+			while (boundIterator.hasNext()) {
+				TypeBound b = (TypeBound) boundIterator.next();
+				if (superOnlyRaw(g, b.right, ctx18.environment))
+					return true;
+			}
+		}
+		if (ts.superBounds != null) {
+			boundIterator = ts.superBounds.iterator();
+			while (boundIterator.hasNext()) {
+				TypeBound b = (TypeBound) boundIterator.next();
+				if (superOnlyRaw(g, b.right, ctx18.environment))
+					return true;
+			}
+		}
+		return false;
+	}
+	private boolean superOnlyRaw(TypeBinding g, TypeBinding s, LookupEnvironment env) {
+		if (s instanceof InferenceVariable)
+			return false; // inference has no super types
+		if (s.findSuperTypeOriginatingFrom(g) == null)
+			return s.isCompatibleWith(env.convertToRawType(g, false));
+		return false;
+	}
+	
+	protected TypeBinding[] superTypesWithCommonGenericType(TypeBinding s, TypeBinding t) {
+		if (s == null || s.id == TypeIds.T_JavaLangObject || t == null || t.id == TypeIds.T_JavaLangObject)
+			return null;
+		if (TypeBinding.equalsEquals(s.original(), t.original())) {
+			return new TypeBinding[] { s, t };
+		}
+		TypeBinding tSuper = t.findSuperTypeOriginatingFrom(s);
+		if (tSuper != null) {
+			return new TypeBinding[] {s, tSuper};
+		}
+		TypeBinding[] result = superTypesWithCommonGenericType(s.superclass(), t);
+		if (result != null)
+			return result;
+		ReferenceBinding[] superInterfaces = s.superInterfaces();
+		if (superInterfaces != null) {
+			for (int i = 0; i < superInterfaces.length; i++) {
+				result = superTypesWithCommonGenericType(superInterfaces[i], t);
+				if (result != null)
+					return result;
+			}
+		}
+		return null;
 	}
 }

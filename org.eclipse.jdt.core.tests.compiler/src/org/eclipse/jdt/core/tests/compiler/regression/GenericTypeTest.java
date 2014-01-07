@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@
  *								bug 395681 - [compiler] Improve simulation of javac6 behavior from bug 317719 after fixing bug 388795
  *								bug 406928 - computation of inherited methods seems damaged (affecting @Overrides)
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 424286 - [1.8] Update type inference to spec version 0.9.1
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -16790,7 +16791,11 @@ public void test0500(){
 			"6. WARNING in X.java (at line 10)\n" + 
 			"	EnumSet<Enum> eSet = EnumSet.allOf(c);\n" + 
 			"	                                   ^\n" + 
-			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum>\n" + 
+			(this.complianceLevel < ClassFileConstants.JDK1_8 ?
+			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum>\n"
+			:
+			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum<Enum<E>>>\n"
+			) + 
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
@@ -31820,7 +31825,11 @@ public void test0961() {
 		"5. WARNING in X.java (at line 7)\n" +
 		"	Comparable c = newInstance2(x);\n" +
 		"	                            ^\n" +
-		"Type safety: The expression of type X needs unchecked conversion to conform to X<Comparable>\n" +
+		(this.complianceLevel < ClassFileConstants.JDK1_8 ?
+		"Type safety: The expression of type X needs unchecked conversion to conform to X<Comparable>\n"
+		:
+		"Type safety: The expression of type X needs unchecked conversion to conform to X<Comparable<Comparable<B>>>\n"
+		)+
 		"----------\n" +
 		"6. ERROR in X.java (at line 9)\n" +
 		"	Zork z;\n" +
@@ -33180,8 +33189,12 @@ public void test0999() {
 			"----------\n" + 
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
-			"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<Number>[]\n" + 
+			"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			(this.complianceLevel == ClassFileConstants.JDK1_7 ?
+			"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<Number>[]\n"
+			: // with unchecked conversion involved, 1.8 infers a weaker type:
+			"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<Object>[]\n"
+			)+ 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 14)\n" + 
 			"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
@@ -33235,7 +33248,7 @@ public void test1000() {
 		"3. WARNING in X.java (at line 9)\n" + 
 		"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
 		"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<? extends Number>[]\n" + 
+		"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<? extends Number>[]\n" +
 		"----------\n" + 
 		"4. WARNING in X.java (at line 14)\n" + 
 		"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
@@ -33319,7 +33332,7 @@ public void test1000() {
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
 			"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<? extends Number>[]\n" + 
+			"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<? extends Object>[]\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 14)\n" + 
 			"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
@@ -45967,7 +45980,6 @@ public void test1324() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=231094 - variation
-// FIXME javac8 rejects
 public void test1325() {
 	this.runNegativeTest(
 			new String[] {
@@ -45981,6 +45993,8 @@ public void test1325() {
 					"	}\n" +
 					"}\n", // =================
 			},
+			(this.complianceLevel < ClassFileConstants.JDK1_8
+			?
 			"----------\n" + 
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	void bar(X x) {\n" + 
@@ -46001,7 +46015,19 @@ public void test1325() {
 			"	X<String> xs2 = foo(x);\n" + 
 			"	                    ^\n" + 
 			"Type safety: The expression of type X needs unchecked conversion to conform to X<Object>\n" + 
-			"----------\n");
+			"----------\n"
+			: // 1.8 is stricter:
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	void bar(X x) {\n" + 
+			"	         ^\n" + 
+			"X is a raw type. References to generic type X<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	X<String> xs2 = foo(x);\n" + 
+			"	                ^^^^^^\n" + 
+			"Type mismatch: cannot convert from Object to X<String>\n" + 
+			"----------\n"));
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=231094 - variation
 // FAIL ERRMSG
@@ -49775,7 +49801,6 @@ public void test1433() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=258798 - variation
-// FIXME javac8 rejects
 public void test1434() {
 	this.runNegativeTest(
 			new String[] {
@@ -49787,6 +49812,7 @@ public void test1434() {
 				"	}\n" + 
 				"}\n",//-----------------------------------------------------------------------
 			},
+			(this.complianceLevel < ClassFileConstants.JDK1_8 ?
 			"----------\n" + 
 			"1. WARNING in Foo.java (at line 4)\n" + 
 			"	Foo l2 = m2((Class)Foo.class);\n" + 
@@ -49807,7 +49833,19 @@ public void test1434() {
 			"	Foo l2 = m2((Class)Foo.class);\n" + 
 			"	             ^^^^^\n" + 
 			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-			"----------\n");
+			"----------\n"
+			: // 1.8 is stricter:
+			"----------\n" + 
+			"1. ERROR in Foo.java (at line 4)\n" + 
+			"	Foo l2 = m2((Class)Foo.class);\n" + 
+			"	         ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Object to Foo\n" + 
+			"----------\n" + 
+			"2. WARNING in Foo.java (at line 4)\n" + 
+			"	Foo l2 = m2((Class)Foo.class);\n" + 
+			"	             ^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n"));
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=258798 - variation
 public void test1435() {
