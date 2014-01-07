@@ -88,7 +88,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			return reduceSubType(inferenceContext.scope, this.right, this.left);
 		case SAME:
 			// 18.2.4:
-			return reduceTypeEquality();
+			return reduceTypeEquality(inferenceContext.object);
 		case TYPE_ARGUMENT_CONTAINED:
 			// 18.2.3:
 			if (this.right.kind() != Binding.WILDCARD_TYPE) { // "If T is a type" ... all alternatives require "wildcard"
@@ -99,17 +99,22 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				}
 			} else {
 				WildcardBinding t = (WildcardBinding) this.right;
-				if (t.boundKind == Wildcard.UNBOUND || t.bound.id == TypeIds.T_JavaLangObject)
+				if (t.boundKind == Wildcard.UNBOUND)
 					return TRUE;
 				if (t.boundKind == Wildcard.EXTENDS) {
 					if (this.left.kind() != Binding.WILDCARD_TYPE) {
 						return new ConstraintTypeFormula(this.left, t.bound, SUBTYPE, this.isSoft);
 					} else {
 						WildcardBinding s = (WildcardBinding) this.left;
-						if (s.boundKind == Wildcard.EXTENDS) {
-							return new ConstraintTypeFormula(s.bound, t.bound, SUBTYPE, this.isSoft);
-						} else {
-							return FALSE;
+						switch (s.boundKind) {
+							case Wildcard.UNBOUND:
+								return new ConstraintTypeFormula(inferenceContext.object, t.bound, SUBTYPE, this.isSoft);
+							case Wildcard.EXTENDS: 
+								return new ConstraintTypeFormula(s.bound, t.bound, SUBTYPE, this.isSoft);
+							case Wildcard.SUPER: 
+								return new ConstraintTypeFormula(inferenceContext.object, t.bound, SAME, this.isSoft);
+							default:
+								throw new IllegalArgumentException("Unexpected boundKind "+s.boundKind);  //$NON-NLS-1$
 						}
 					}
 				} else { // SUPER 
@@ -129,14 +134,19 @@ class ConstraintTypeFormula extends ConstraintFormula {
 		}
 	}
 
-	private Object reduceTypeEquality() {
+	private Object reduceTypeEquality(TypeBinding object) {
 		// 18.2.4
 		if (this.left.kind() == Binding.WILDCARD_TYPE) {
 			if (this.right.kind() == Binding.WILDCARD_TYPE) {
+				// left and right are wildcards ("type arguments")
 				WildcardBinding leftWC = (WildcardBinding)this.left;
 				WildcardBinding rightWC = (WildcardBinding)this.right;
-				if (leftWC.bound == null && rightWC.bound == null)
+				if (leftWC.boundKind == Wildcard.UNBOUND && rightWC.boundKind == Wildcard.UNBOUND)
 					return TRUE;
+				if (leftWC.boundKind == Wildcard.UNBOUND && rightWC.boundKind == Wildcard.EXTENDS)
+					return new ConstraintTypeFormula(object, rightWC.bound, SAME, this.isSoft);
+				if (leftWC.boundKind == Wildcard.EXTENDS && rightWC.boundKind == Wildcard.UNBOUND)
+					return new ConstraintTypeFormula(leftWC.bound, object, SAME, this.isSoft);
 				if ((leftWC.boundKind == Wildcard.EXTENDS && rightWC.boundKind == Wildcard.EXTENDS)
 					||(leftWC.boundKind == Wildcard.SUPER && rightWC.boundKind == Wildcard.SUPER))
 				{
