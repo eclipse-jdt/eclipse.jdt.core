@@ -414,29 +414,6 @@ public void _testBug424075() {
 		});
 }
 
-public void testBug424637() {
-	runNegativeTest(
-		new String[] {
-			"X.java",
-			"import java.io.IOException;\n" + 
-			"import java.nio.file.Files;\n" + 
-			"import java.nio.file.Path;\n" + 
-			"import java.util.function.Function;\n" + 
-			"import java.util.stream.Stream;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"  public static void method() {\n" + 
-			"    Function<Path, Stream<Path>> method = Files::walk;\n" + 
-			"  }\n" + 
-			"}"
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 9)\n" + 
-		"	Function<Path, Stream<Path>> method = Files::walk;\n" + 
-		"	                                      ^^^^^^^^^^^\n" + 
-		"Unhandled exception type IOException\n" + 
-		"----------\n");
-}
 public void testBug424710() {
 	runConformTest(
 		new String[] {

@@ -22,6 +22,7 @@
  *							Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
+ *							Bug 424637 - [1.8][compiler][null] AIOOB in ReferenceExpression.resolveType with a method reference to Files::walk
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contribution for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -463,22 +464,25 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         	scope.problemReporter().unhandledException(methodExceptions[i], this);
         }
         if (scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
-        	int len = this.binding.parameters.length;
+        	int len;
+        	int expectedlen = this.binding.parameters.length;
+        	int providedLen = this.descriptor.parameters.length;
+        	boolean isVarArgs = false;
+        	if (this.binding.isVarargs()) {
+        		isVarArgs = (providedLen == expectedlen)
+					? !this.descriptor.parameters[expectedlen-1].isCompatibleWith(this.binding.parameters[expectedlen-1])
+					: true;
+        		len = providedLen; // binding parameters will be padded from InferenceContext18.getParameter()
+        	} else {
+        		len = Math.min(expectedlen, providedLen);
+        	}
     		for (int i = 0; i < len; i++) {
-    			long declared = this.descriptor.parameters[i+paramOffset].tagBits & TagBits.AnnotationNullMASK;
-    			long implemented = this.binding.parameters[i].tagBits & TagBits.AnnotationNullMASK;
-    			if (declared == TagBits.AnnotationNullable) { // promise to accept null
-    				if (implemented != TagBits.AnnotationNullable) {
-    					char[][] requiredAnnot = implemented == 0L ? null : scope.environment().getNonNullAnnotationName();
-    					scope.problemReporter().parameterLackingNullableAnnotation(this, this.descriptor, i, paramOffset, 
-    							scope.environment().getNullableAnnotationName(),
-    							requiredAnnot, this.binding.parameters[i]);
-    				}
-    			} else if (declared == 0L) {
-    				if (implemented == TagBits.AnnotationNonNull) {
-    					scope.problemReporter().parameterRequiresNonnull(this, this.descriptor, i+paramOffset,
-    							scope.environment().getNonNullAnnotationName(), this.binding.parameters[i]);
-    				}
+    			TypeBinding descriptorParameter = this.descriptor.parameters[i+paramOffset];
+    			TypeBinding bindingParameter = InferenceContext18.getParameter(this.binding.parameters, i, isVarArgs);
+    			NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(bindingParameter, descriptorParameter, FlowInfo.UNKNOWN);
+    			if (annotationStatus.isAnyMismatch()) {
+    				// immediate reporting:
+    				scope.problemReporter().referenceExpressionArgumentNullityMismatch(this, bindingParameter, descriptorParameter, this.descriptor, i, annotationStatus);
     			}
     		}
         	if ((this.descriptor.returnType.tagBits & TagBits.AnnotationNonNull) != 0) {

@@ -3358,4 +3358,87 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 		// note: to be updated with https://bugs.eclipse.org/415918
 	}
+
+public void testBug424637() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" + 
+			"import java.nio.file.Files;\n" + 
+			"import java.nio.file.Path;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"  public static void method() {\n" + 
+			"    Function<Path, Stream<Path>> method = Files::walk;\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	Function<Path, Stream<Path>> method = Files::walk;\n" + 
+		"	                                      ^^^^^^^^^^^\n" + 
+		"Unhandled exception type IOException\n" + 
+		"----------\n");
+}
+
+public void testBug424637a() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import java.nio.file.FileVisitOption;\n" + 
+			"import java.nio.file.Path;\n" + 
+			"import java.util.function.BiFunction;\n" + 
+			"import java.util.stream.Stream;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" +
+			"interface TriFunc<A,B,C,D> { D apply(A a, B b, C c); }\n" + 
+			"public class X {\n" +
+			"  public static Stream<Path> myWalk(Path p, @NonNull FileVisitOption ... options) { return null; }\n" + 
+			"  public static void method() {\n" + 
+			"    BiFunction<Path, @Nullable FileVisitOption, Stream<Path>> method1 = X::myWalk;\n" + // one element varargs - nullity mismatch
+			"    BiFunction<Path, @Nullable FileVisitOption[], Stream<Path>> method2 = X::myWalk;\n" + // pass-through array varargs - nullity mismatch
+			"    BiFunction<Path, FileVisitOption[], Stream<Path>> method3 = X::myWalk;\n" + // pass-through array varargs - unchecked
+			" 	 TriFunc<Path, @NonNull FileVisitOption, @Nullable FileVisitOption, Stream<Path>> method4 = X::myWalk;\n" + // two-element varargs - nullity mismatch on one of them
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	BiFunction<Path, @Nullable FileVisitOption, Stream<Path>> method1 = X::myWalk;\n" + 
+		"	                                                                    ^^^^^^^^^\n" + 
+		"Null type mismatch at parameter 2: required \'@NonNull FileVisitOption\' but provided \'@Nullable FileVisitOption\' via method descriptor BiFunction<Path,FileVisitOption,Stream<Path>>.apply(Path, FileVisitOption)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 12)\n" + 
+		"	BiFunction<Path, @Nullable FileVisitOption[], Stream<Path>> method2 = X::myWalk;\n" + 
+		"	                                                                      ^^^^^^^^^\n" + 
+		"Null type mismatch at parameter 2: required \'@NonNull FileVisitOption []\' but provided \'@Nullable FileVisitOption []\' via method descriptor BiFunction<Path,FileVisitOption[],Stream<Path>>.apply(Path, FileVisitOption[])\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 13)\n" + 
+		"	BiFunction<Path, FileVisitOption[], Stream<Path>> method3 = X::myWalk;\n" + 
+		"	                                                            ^^^^^^^^^\n" + 
+		"Null type safety: parameter 2 provided via method descriptor BiFunction<Path,FileVisitOption[],Stream<Path>>.apply(Path, FileVisitOption[]) needs unchecked conversion to conform to \'@NonNull FileVisitOption []\'\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 14)\n" + 
+		"	TriFunc<Path, @NonNull FileVisitOption, @Nullable FileVisitOption, Stream<Path>> method4 = X::myWalk;\n" + 
+		"	                                                                                           ^^^^^^^^^\n" + 
+		"Null type mismatch at parameter 3: required \'@NonNull FileVisitOption\' but provided \'@Nullable FileVisitOption\' via method descriptor TriFunc<Path,FileVisitOption,FileVisitOption,Stream<Path>>.apply(Path, FileVisitOption, FileVisitOption)\n" + 
+		"----------\n");
+}
+
+// DISABLED, currently throws java.lang.BootstrapMethodError at runtime:
+public void _testBug424637_comment3() {
+	runConformTest(
+		new String[] {
+			"VarArgsMethodReferenceTest.java",
+			"import java.util.function.Consumer;\n" + 
+			"public class VarArgsMethodReferenceTest {\n" + 
+			"  @SuppressWarnings(\"unused\") public static void main(String[] argv) {\n" + 
+			"    Consumer<String> printffer;\n" + 
+			"    printffer = System.out::printf;\n" + 
+			"  }\n" + 
+			"}"
+		});
+}
 }

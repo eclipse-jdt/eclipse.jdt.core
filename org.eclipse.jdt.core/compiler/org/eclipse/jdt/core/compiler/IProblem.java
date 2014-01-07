@@ -172,8 +172,8 @@
  *									NonNullSpecdFieldComparisonYieldsFalse
  *									NonNullExpressionComparisonYieldsFalse
  *									RedundantNullCheckOnNonNullExpression
- *									ReferenceExpressionParameterMismatchPromisedNullable
- *									ReferenceExpressionParameterRequiredNonnullUnchecked
+ *									ReferenceExpressionParameterNullityMismatch
+ *									ReferenceExpressionParameterNullityUnchecked
  *									ReferenceExpressionReturnNullRedef
  *									ReferenceExpressionReturnNullRedefUnchecked
  *									DuplicateInheritedDefaultMethods
@@ -1748,9 +1748,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.9 BETA_JAVA8 */
 	int NullityUncheckedTypeAnnotationDetailSuperHint = Internal + 956;
 	/** @since 3.9 BETA_JAVA8 */
-	int ReferenceExpressionParameterMismatchPromisedNullable = MethodRelated + 957;
+	int ReferenceExpressionParameterNullityMismatch = MethodRelated + 957;
 	/** @since 3.9 BETA_JAVA8 */
-	int ReferenceExpressionParameterRequiredNonnullUnchecked = MethodRelated + 958;
+	int ReferenceExpressionParameterNullityUnchecked = MethodRelated + 958;
 	/** @since 3.9 BETA_JAVA8 */
 	int ReferenceExpressionReturnNullRedef = MethodRelated + 959;
 	/** @since 3.9 BETA_JAVA8 */

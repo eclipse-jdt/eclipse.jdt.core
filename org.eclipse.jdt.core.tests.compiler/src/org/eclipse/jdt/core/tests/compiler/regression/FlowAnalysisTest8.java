@@ -362,12 +362,7 @@ public void testReferenceExpression_nullAnnotation_2() {
 			 "}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	I i = this::bar;\n" + 
-		"	      ^^^^^^^^^\n" + 
-		"Null type mismatch at parameter 1: required \'Object\' but provided \'@Nullable Object\' via method descriptor I.foo(Object)\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 4)\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
 		"	I i = this::bar;\n" + 
 		"	      ^^^^^^^^^\n" + 
 		"Null type safety at method return type: Method descriptor I.foo(Object) promises \'@NonNull String\' but referenced method provides \'String\'\n" + 
