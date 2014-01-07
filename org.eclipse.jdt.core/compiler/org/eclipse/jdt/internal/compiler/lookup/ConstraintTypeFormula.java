@@ -61,7 +61,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			}
 			if (this.right.isBaseType() && this.right != TypeBinding.NULL) {
 				TypeBinding tPrime = inferenceContext.environment.computeBoxingType(this.right);
-				return new ConstraintTypeFormula(this.left, tPrime, COMPATIBLE, this.isSoft);
+				return new ConstraintTypeFormula(this.left, tPrime, SAME, this.isSoft);
 			}
 			switch (this.right.kind()) {
 			case Binding.ARRAY_TYPE:
