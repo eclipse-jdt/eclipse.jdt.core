@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2013 IBM Corporation and others.
+ * Copyright (c) 2003, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,17 +34,17 @@ import java.util.List;
  * <p>
  * A "."-separated type like "A.B" can be represented in three ways:
  * <pre>
- * 1.    SimpleType       | 2.   NameQualifiedType | 3. QualifiedType
- *     QualifiedName      | SimpleName  SimpleName |   SimpleType  SimpleName
- * SimpleName  SimpleName |     "A"        "B"     |   SimpleName     "B"
- *     "A"        "B"     |                        |       "A"
+ * 1.    SimpleType       | 2. NameQualifiedType   | 3.  QualifiedType
+ *     QualifiedName      | SimpleName  SimpleName | SimpleType  SimpleName
+ * SimpleName  SimpleName |     "A"         "B"    | SimpleName      "B"
+ *     "A"         "B"    |                        |     "A"
  * </pre>
  * <p>
  * The ASTParser creates the SimpleType form (wrapping a name) if possible. The
  * SimpleType form doesn't support any embedded Annotations nor ParameterizedTypes.
  * The NameQualifiedType form is only available since JLS8 and the
- * QualifiedType form only since JLS3. The NameQualifiedType form allows
- * Annotations on the last SimpleName. The QualifiedType form cannot be used if
+ * QualifiedType form only since JLS3. The NameQualifiedType and QualifiedType forms
+ * allow Annotations on the last SimpleName. The QualifiedType form cannot be used if
  * the qualifier represents a package name.
  * </p>
  * <p>

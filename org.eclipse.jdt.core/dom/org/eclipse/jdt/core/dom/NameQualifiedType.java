@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation and others.
+ * Copyright (c) 2013, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,13 +19,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Node for a name qualified type (added in JLS8 API).
+ * Node for a name-qualified type (added in JLS8 API).
  * 
  * <pre>
  * NameQualifiedType:
  *    Name <b>.</b> { Annotation } SimpleName
  * </pre>
  * 
+ * <p>
+ * The qualifier can resolve to a type or to a package.
+ * </p>
  * <p>
  * Note that if no annotation is present, then a name-qualified type can
  * also be represented by a SimpleType or a QualifiedType, see the discussion
@@ -100,7 +103,7 @@ public class NameQualifiedType extends AnnotatableType {
 	private SimpleName name = null;
 
 	/**
-	 * Creates a new unparented node for a name qualified type owned by the
+	 * Creates a new unparented node for a name-qualified type owned by the
 	 * given AST. By default, an unspecified, but legal, qualifier and name.
 	 * <p>
 	 * N.B. This constructor is package-private.
@@ -195,9 +198,9 @@ public class NameQualifiedType extends AnnotatableType {
 	}
 
 	/**
-	 * Returns the qualifier of this name qualified type.
+	 * Returns the qualifier of this name-qualified type.
 	 *
-	 * @return the qualifier of this name qualified type
+	 * @return the qualifier of this name-qualified type
 	 */
 	public Name getQualifier() {
 		if (this.qualifier == null) {
@@ -214,9 +217,9 @@ public class NameQualifiedType extends AnnotatableType {
 	}
 
 	/**
-	 * Sets the qualifier of this name qualified type to the given name.
+	 * Sets the qualifier of this name-qualified type to the given name.
 	 *
-	 * @param name the new qualifier of this name qualified type
+	 * @param name the new qualifier of this name-qualified type
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
@@ -234,7 +237,7 @@ public class NameQualifiedType extends AnnotatableType {
 	}
 
 	/**
-	 * Returns the name part of this name qualified type.
+	 * Returns the name part of this name-qualified type.
 	 *
 	 * @return the name being qualified
 	 */
@@ -253,7 +256,7 @@ public class NameQualifiedType extends AnnotatableType {
 	}
 
 	/**
-	 * Sets the name part of this name qualified type to the given simple name.
+	 * Sets the name part of this name-qualified type to the given simple name.
 	 *
 	 * @param name the identifier of this qualified name
 	 * @exception IllegalArgumentException if:

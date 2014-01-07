@@ -2068,9 +2068,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 						"public class X<T extends Exception> {\n" +
 						"	class Y<K, V> {\n" +
 						"		class Z {\n" +
-//TODO: bad AST node structure, see https://bugs.eclipse.org/419974#c2 :
-//						"			public Z(@A X<T>.@B Y<K, V> Y.this){ }\n" +
-//						"			public void foo(@B Y<K, V>.@C Z this){ }\n" +
+						"			public Z(@A X<T>.@B Y<K, V> Y.this, boolean a){ }\n" +
+						"			public void foo(@B Y<K, V>.@C Z this, boolean a){ }\n" +
 						"			public Z(X<T>.@B Y<K, V> Y.this){ }\n" +
 						"			public void foo(Y<K, V>.@C Z this){ }\n" +
 						"		}\n" +
@@ -2090,22 +2089,29 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		TypeDeclaration type = (TypeDeclaration)node;
 		node = (ASTNode) type.bodyDeclarations().get(0);
 		type = (TypeDeclaration) node;
-		node = (ASTNode) type.bodyDeclarations().get(0);
-		assertEquals("Not a method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
-		MethodDeclaration method = (MethodDeclaration) node;
+		
+		MethodDeclaration method = (MethodDeclaration) type.bodyDeclarations().get(0);
 		Type receiver = method.getReceiverType();
-//TODO: bad AST node structure, see https://bugs.eclipse.org/419974#c2 :
-//		assertEquals("Incorrect receiver", "@A X<T>.@B Y<K,V>", ((QualifiedType) receiver).toString());
-//		assertEquals("Incorrect method signature", "public Z(@A X<T>.@B Y<K,V> Y.this){\n}\n", method.toString());
-		assertEquals("Incorrect receiver", "X<T>.@B Y<K,V>", ((ParameterizedType) receiver).toString());
-		assertEquals("Incorrect method signature", "public Z(X<T>.@B Y<K,V> Y.this){\n}\n", method.toString());
+		assertEquals("Not a ParameterizedType", ASTNode.PARAMETERIZED_TYPE, receiver.getNodeType());
+		checkSourceRange(receiver, "@A X<T>.@B Y<K, V>", contents);
+		assertEquals("Incorrect method signature", "public Z(@A X<T>.@B Y<K,V> Y.this,boolean a){\n}\n", method.toString());
 		
 		method = (MethodDeclaration) type.bodyDeclarations().get(1);
 		receiver = method.getReceiverType();
-//TODO: bad AST node structure, see https://bugs.eclipse.org/419974#c2 :
-//		assertEquals("Incorrect receiver", "@B Y<K,V>.@C Z", ((QualifiedType) receiver).toString());
-//		assertEquals("Incorrect method signature", "public void foo(@B Y<K,V>.@C Z this){\n}\n", method.toString());
-		assertEquals("Incorrect receiver", "Y<K,V>.@C Z", ((QualifiedType) receiver).toString());
+		assertEquals("Not a QualifiedType", ASTNode.QUALIFIED_TYPE, receiver.getNodeType());
+		checkSourceRange(receiver, "@B Y<K, V>.@C Z", contents);
+		assertEquals("Incorrect method signature", "public void foo(@B Y<K,V>.@C Z this,boolean a){\n}\n", method.toString());
+		
+		method = (MethodDeclaration) type.bodyDeclarations().get(2);
+		receiver = method.getReceiverType();
+		assertEquals("Not a ParameterizedType", ASTNode.PARAMETERIZED_TYPE, receiver.getNodeType());
+		checkSourceRange(receiver, "X<T>.@B Y<K, V>", contents);
+		assertEquals("Incorrect method signature", "public Z(X<T>.@B Y<K,V> Y.this){\n}\n", method.toString());
+		
+		method = (MethodDeclaration) type.bodyDeclarations().get(3);
+		receiver = method.getReceiverType();
+		assertEquals("Not a QualifiedType", ASTNode.QUALIFIED_TYPE, receiver.getNodeType());
+		checkSourceRange(receiver, "Y<K, V>.@C Z", contents);
 		assertEquals("Incorrect method signature", "public void foo(Y<K,V>.@C Z this){\n}\n", method.toString());
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403410
@@ -3623,6 +3629,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=418979
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=424977
 	 */
 	public void _testBug418979_002() throws JavaModelException {
 		String contents =
@@ -3665,9 +3672,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 				"        new java.util.@A HashMap<>();\n" +
 				"    }\n" +
 				" }\n" +
-				"class Outer<T> {\n" +
-				"	class Inner<S> {}\n" +
-				"}\n" +
 				"@Target (ElementType.TYPE_USE)\n" +
 				"@interface A{}";
 		this.workingCopy = getWorkingCopy("/Converter18/src/test/X.java", true/*resolve*/);
