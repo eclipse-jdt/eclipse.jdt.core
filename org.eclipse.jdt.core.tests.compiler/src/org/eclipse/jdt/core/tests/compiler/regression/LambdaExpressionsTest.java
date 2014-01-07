@@ -2186,6 +2186,42 @@ public void testBug424742() {
 		"Return type for the method is missing\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424589, [1.8][compiler] NPE in TypeSystem.getUnannotatedType
+public void test424589() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"import java.util.Collection;\n" +
+			"import java.util.function.Supplier;\n" +
+			"import java.util.Set;\n" +
+			"public class X {\n" +
+			"    public static <T, Y extends Collection<T>>\n" +
+			"        Y foo(Supplier<Y> y) {\n" +
+			"            return null;\n" +
+			"    }  \n" +
+			"    public static void main(String[] args) {\n" +
+			"        Set<Z> x = foo(Set::new);\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	Set<Z> x = foo(Set::new);\n" + 
+		"	    ^\n" + 
+		"Z cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	Set<Z> x = foo(Set::new);\n" + 
+		"	           ^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Collection<Object> to Set<Z>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	Set<Z> x = foo(Set::new);\n" + 
+		"	               ^^^\n" + 
+		"Cannot instantiate the type Set\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
