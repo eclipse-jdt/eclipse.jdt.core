@@ -155,13 +155,22 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				}
 				if (functionType.returnType != TypeBinding.VOID) {
 					TypeBinding r = functionType.returnType;
+					Expression[] exprs;
 					if (lambda.body() instanceof Expression) {
-						Expression body = (Expression)lambda.body();
-						result.add(new ConstraintExpressionFormula(body, r, COMPATIBLE));
+						exprs = new Expression[] {(Expression)lambda.body()};
 					} else {
-						Expression[] exprs = lambda.resultExpressions();
-						for (int i = 0; i < exprs.length; i++) {
-							result.add(new ConstraintExpressionFormula(exprs[i], r, COMPATIBLE));
+						exprs = lambda.resultExpressions();
+					}
+					for (int i = 0; i < exprs.length; i++) {
+						Expression expr = exprs[i];
+						if (r.isProperType(true) && expr.resolvedType != null) {
+							TypeBinding exprType = expr.resolvedType;
+							// "not compatible in an assignment context with R"?
+							if (!(expr.isConstantValueOfTypeAssignableToType(exprType, r)
+									|| exprType.isCompatibleWith(r)))
+								return FALSE;
+						} else {
+							result.add(new ConstraintExpressionFormula(expr, r, COMPATIBLE));
 						}
 					}
 				}

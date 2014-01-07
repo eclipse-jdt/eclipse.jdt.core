@@ -7809,6 +7809,25 @@ public void test423129b() {
 			"----------\n",
 			true);
 }
+// modified the previous example to craft a result requiring constant narrowing (13 -> byte)
+public void test423129c() {
+	this.runConformTest(
+			new String[] {
+					"X.java", 
+					"import java.util.ArrayList;\n" +
+					"import java.util.List;\n" +
+					"import java.util.Arrays;\n" +
+					"class MySorter { static <T> void sort(List<T> l, MyComparator<T> comp) { } }\n" + 
+					"interface MyComparator<T> { byte compare(T t1, T t2); }\n" +
+					"public class X {\n" +
+					"   int compareTo(X x) { return 0; }\n" +
+					"	void foo() {\n" +
+					"		MySorter.sort(new ArrayList<X>(Arrays.asList(new X(), new X(), new X())),\n" +
+					"				(X o1, X o2) -> 13);\n" +
+					"	}\n" +
+					"}\n"
+			});
+}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424400, [1.8] Interfaces in the same hierarchy are allowed in an intersection cast with different type argument
 public void test424400() {
 	this.runNegativeTest(
