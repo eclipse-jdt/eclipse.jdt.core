@@ -2526,7 +2526,7 @@ public void test347426c() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=283353
-public void test283353() {
+public void _test283353() {
 	this.runConformTest(
 			new String[] {
 				"X.java",

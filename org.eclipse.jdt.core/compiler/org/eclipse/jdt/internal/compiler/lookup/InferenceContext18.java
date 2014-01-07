@@ -599,15 +599,12 @@ public class InferenceContext18 {
 		// For this reason, resolve works on a temporary bound set, copied before any modification.
 		BoundSet tmpBoundSet = this.currentBounds;
 		if (this.inferenceVariables != null) {
-			for (int i = 0; i < this.inferenceVariables.length; i++) {
-				InferenceVariable currentVariable = this.inferenceVariables[i];
-				if (this.currentBounds.isInstantiated(currentVariable)) continue;
-				// find a minimal set of dependent variables:
-				Set variableSet = new HashSet();
-				int numUninstantiated = addDependencies(tmpBoundSet, variableSet, i);
+			// find a minimal set of dependent variables:
+			Set variableSet;
+			while ((variableSet = getSmallestVariableSet(tmpBoundSet)) != null) {
+				int oldNumUninstantiated = tmpBoundSet.numUninstantiatedVariables(this.inferenceVariables);
 				final int numVars = variableSet.size();
-				
-				if (numUninstantiated > 0 && numVars > 0) {
+				if (numVars > 0) {
 					final InferenceVariable[] variables = (InferenceVariable[]) variableSet.toArray(new InferenceVariable[numVars]);
 					if (!tmpBoundSet.hasCaptureBound(variableSet)) {
 						// try to instantiate this set of variables in a fresh copy of the bound set:
@@ -674,7 +671,7 @@ public class InferenceContext18 {
 						InferenceVariable variable = variables[j];
 						CaptureBinding18 zsj = zs[j];
 						// add lower bounds:
-						TypeBinding[] lowerBounds = tmpBoundSet.lowerBounds(variable, false/*onlyProper*/);
+						TypeBinding[] lowerBounds = tmpBoundSet.lowerBounds(variable, true/*onlyProper*/);
 						if (lowerBounds != Binding.NO_TYPES) {
 							lowerBounds = Scope.substitute(theta, lowerBounds);
 							TypeBinding lub = this.scope.lowerUpperBound(lowerBounds);
@@ -694,8 +691,11 @@ public class InferenceContext18 {
 						// FIXME: remove capture bounds
 						tmpBoundSet.addBound(new TypeBound(variable, zsj, ReductionResult.SAME));
 					}
-					if (tmpBoundSet.incorporate(this))
+					if (tmpBoundSet.incorporate(this)) {
+						if (tmpBoundSet.numUninstantiatedVariables(this.inferenceVariables) == oldNumUninstantiated)
+							return null; // abort because we made no progress
 						continue;
+					}
 					return null;
 				}
 			}
@@ -738,24 +738,44 @@ public class InferenceContext18 {
 		});
 	}
 
-	/** 
-	 * starting with our i'th inference variable collect all variables
-	 * reachable via dependencies (regardless of relation kind).
-	 * @param variableSet collect all variables found into this set
-	 * @param i seed index into {@link #inferenceVariables}.
-	 * @return count of uninstantiated variables added to the set.
+	/**
+	 * Find the smallest set of uninstantiated inference variables not depending
+	 * on any uninstantiated variable outside the set.
 	 */
-	private int addDependencies(BoundSet boundSet, Set variableSet, int i) {
-		InferenceVariable currentVariable = this.inferenceVariables[i];
-		if (boundSet.isInstantiated(currentVariable)) return 0;
-		if (!variableSet.add(currentVariable)) return 1;
-		int numUninstantiated = 1;
-		for (int j = 0; j < this.inferenceVariables.length; j++) {
-			if (i == j) continue;
-			if (boundSet.dependsOnResolutionOf(currentVariable, this.inferenceVariables[j]))
-				numUninstantiated += addDependencies(boundSet, variableSet, j);
+	private Set getSmallestVariableSet(BoundSet bounds) {
+		int min = Integer.MAX_VALUE;
+		Set result = null;
+		for (int i = 0; i < this.inferenceVariables.length; i++) {
+			InferenceVariable currentVariable = this.inferenceVariables[i];
+			if (!bounds.isInstantiated(currentVariable)) {
+				Set set = new HashSet();
+				if (!addDependencies(bounds, set, currentVariable, min))
+					continue;
+				int cur = set.size();
+				if (cur == 1)
+					return set; // won't get smaller
+				if (cur < min) {
+					result = set;
+					min = cur;
+				}
+			}
 		}
-		return numUninstantiated;
+		return result;
+	}
+
+	private boolean addDependencies(BoundSet boundSet, Set variableSet, InferenceVariable currentVariable, int min) {
+		if (variableSet.size() >= min)
+			return false; // no improvement
+		if (boundSet.isInstantiated(currentVariable)) return true; // not added
+		if (!variableSet.add(currentVariable)) return true; // already present
+		for (int j = 0; j < this.inferenceVariables.length; j++) {
+			InferenceVariable nextVariable = this.inferenceVariables[j];
+			if (nextVariable == currentVariable) continue; //$IDENTITY-COMPARISON$ Inference variables
+			if (boundSet.dependsOnResolutionOf(currentVariable, nextVariable))
+				if (!addDependencies(boundSet, variableSet, nextVariable, min))
+					return false; // abort traversal: no improvement
+		}
+		return true;
 	}
 
 	private Object pickFromCycle(Set c) {

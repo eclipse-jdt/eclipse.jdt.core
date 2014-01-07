@@ -307,6 +307,15 @@ class BoundSet {
 		return null;
 	}
 
+	public int numUninstantiatedVariables(InferenceVariable[] variables) {
+		int num = 0;
+		for (int i = 0; i < variables.length; i++) {
+			if (!isInstantiated(variables[i]))
+				num++;
+		}
+		return num;
+	}
+
 	/**
 	 * <b>JLS 18.3:</b> Try to infer new constraints from pairs of existing type bounds.
 	 * Each new constraint is first reduced and checked for TRUE or FALSE, which will
@@ -392,10 +401,10 @@ class BoundSet {
 				ReferenceBinding g = (ReferenceBinding) gA.original();
 				TypeVariableBinding[] parameters = g.typeVariables();
 				for (int i = 0; i < parameters.length; i++) {
-					// Where the bounds of Pi are Bi1, ..., Bim, for all j (1 ≤ j ≤ m), the bound αi <: Bij θ is immediately implied. 
+					// A set of bounds on α1, ..., αn, constructed from the declared bounds of P1, ..., Pn as described in 18.1.3, is immediately implied.
 					TypeVariableBinding pi = parameters[i];
 					InferenceVariable alpha = (InferenceVariable) gAlpha.arguments[i];
-					addBounds(pi.getTypeBounds(alpha, context)); // θ is internally applied when creating each TypeBound
+					addBounds(pi.getTypeBounds(alpha, context));
 
 					TypeBinding ai = gA.arguments[i];
 					if (ai instanceof WildcardBinding) {
@@ -606,31 +615,33 @@ class BoundSet {
 	 */
 	public boolean dependsOnResolutionOf(InferenceVariable alpha, InferenceVariable beta) {
 		Iterator captureIter = this.captures.entrySet().iterator();
+		boolean betaIsInCaptureLhs = false;
 		while (captureIter.hasNext()) { // TODO: optimization: consider separate index structure (by IV)
 			Map.Entry entry = (Entry) captureIter.next();
 			ParameterizedTypeBinding g = (ParameterizedTypeBinding) entry.getKey();
 			for (int i = 0; i < g.arguments.length; i++) {
 				if (g.arguments[i] == alpha) { //$IDENTITY-COMPARISON$ InferenceVariable
-					for (int j = 0; j < g.arguments.length; j++) {
-						TypeBinding aj = g.arguments[j];
-						if (aj == beta) //$IDENTITY-COMPARISON$ InferenceVariable
-							return true;
-					}
+					// An inference variable α appearing on the left-hand side of a bound of the form G<..., α, ...> = capture(G<...>)
+					// depends on the resolution of every other inference variable mentioned in this bound (on both sides of the = sign).
 					ParameterizedTypeBinding captured = (ParameterizedTypeBinding) entry.getValue();
 					if (captured.mentionsAny(new TypeBinding[]{beta}, -1/*don't care about index*/))
 						return true;
-					return false;
+					if (g.mentionsAny(new TypeBinding[]{beta}, i)) // exclude itself 
+						return true;
+				} else if (g.arguments[i] == beta) { //$IDENTITY-COMPARISON$ InferenceVariable
+					betaIsInCaptureLhs = true;
 				}
 			}
 		}
-
-		ThreeSets sets = (ThreeSets) this.boundsPerVariable.get(alpha);
-		if (sets != null && sets.hasDependency(beta))
-			return true;
-		sets = (ThreeSets) this.boundsPerVariable.get(beta);
-		if (sets != null && sets.hasDependency(alpha))
-			return true;
-
+		if (betaIsInCaptureLhs) { // swap α and β in the rule text to cover "then β depends on the resolution of α"
+			ThreeSets sets = (ThreeSets) this.boundsPerVariable.get(beta);
+			if (sets != null && sets.hasDependency(alpha))
+				return true;
+		} else {
+			ThreeSets sets = (ThreeSets) this.boundsPerVariable.get(alpha);
+			if (sets != null && sets.hasDependency(beta))
+				return true;
+		}
 		return false;
 	}
 
