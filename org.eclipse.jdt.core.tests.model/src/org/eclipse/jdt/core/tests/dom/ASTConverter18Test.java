@@ -3843,4 +3843,29 @@ public class ASTConverter18Test extends ConverterTestSetup {
 
 		assertNotSame(variableKey.intern(), ((IBinding) variableBinding).getKey().intern());
 	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=420458
+	 */
+	public void testBug420458() throws JavaModelException {
+		String contents =
+				"/**\n" +
+				" * Hello\n" +
+				" * @see #foo(Object[][][])\n" +
+				" **/\n" +
+				"public class X {}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/test/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		node = getASTNode(compilationUnit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		Javadoc javaDoc = ((TypeDeclaration) node).getJavadoc();
+		TagElement tagElement = (TagElement) javaDoc.tags().get(1);
+		MethodRef methodRef = (MethodRef) tagElement.fragments().get(0);
+		MethodRefParameter parameter = (MethodRefParameter) methodRef.parameters().get(0);
+		ArrayType arrayType = (ArrayType) parameter.getType();
+		checkSourceRange(arrayType, "Object[][][]", contents);
+		checkSourceRange(arrayType.getElementType(), "Object", contents);
+		assertTrue(arrayType.getDimensions() == 3);
+	}
 }

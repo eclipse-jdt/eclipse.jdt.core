@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 IBM Corporation and others.
+ * Copyright (c) 2011, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11316,5 +11316,36 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 		List types = compilationUnit.types();
 		assertEquals("Wrong number of types", 1, types.size());
 		assertEquals("Wrong number of body declarations", 3, ((TypeDeclaration) types.get(0)).bodyDeclarations().size());
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=420458
+	 * @deprecated
+	 */
+	public void testBug420458() throws JavaModelException {
+		String contents =
+				"/**\n" +
+				" * Hello\n" +
+				" * @see #foo(Object[][][])\n" +
+				" **/\n" +
+				"public class X {}\n";
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		CompilationUnit compilationUnit = (CompilationUnit) buildAST(
+			getJLS4(),
+			contents,
+			this.workingCopy,
+			false,
+			true,
+			true);
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		Javadoc javaDoc = ((TypeDeclaration) node).getJavadoc();
+		TagElement tagElement = (TagElement) javaDoc.tags().get(1);
+		MethodRef methodRef = (MethodRef) tagElement.fragments().get(0);
+		MethodRefParameter parameter = (MethodRefParameter) methodRef.parameters().get(0);
+		ArrayType arrayType = (ArrayType) parameter.getType();
+		checkSourceRange(arrayType, "Object[][][]", contents);
+		checkSourceRange(arrayType.getElementType(), "Object", contents);
+		assertTrue(arrayType.getDimensions() == 3);
+		checkSourceRange(arrayType.getComponentType(), "Object[][]", contents);
 	}
 }
