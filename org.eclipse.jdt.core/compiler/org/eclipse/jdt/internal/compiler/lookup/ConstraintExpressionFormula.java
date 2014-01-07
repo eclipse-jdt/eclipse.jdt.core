@@ -103,7 +103,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 						// find the previous inner inference context to see what inference kind this invocation needs:
 						InferenceContext18 innerCtx = invocation.getInferenceContext((ParameterizedGenericMethodBinding) previousMethod);
 						if (innerCtx == null)
-							InferenceContext18.missingImplementation("Missing context for inner inference for "+invocation.toString());
+							InferenceContext18.missingImplementation("Missing context for inner inference for "+invocation.toString()); //$NON-NLS-1$
 						inferenceContext.inferenceKind = innerCtx.inferenceKind;
 						innerCtx.outerContext = inferenceContext;
 					}
