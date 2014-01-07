@@ -3577,7 +3577,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=418979
 	 */
-	public void test418979() throws JavaModelException {
+	public void testBug418979_001() throws JavaModelException {
 		String contents =
 				"import java.lang.annotation.*;\n" +
 				"public class X {\n" +
@@ -3620,6 +3620,72 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertTrue(type.isNameQualifiedType());
 		nameQualifiedType = (NameQualifiedType) type;
 		checkSourceRange(nameQualifiedType, "Y.@A ZZ", contents);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=418979
+	 */
+	public void _testBug418979_002() throws JavaModelException {
+		String contents =
+				"package test;\n" +
+				"import java.lang.annotation.*;\n" +
+				"public class X {\n" +
+				"    test.@A Outer<>.@A Inner<> i;\n" +
+				" }\n" +
+				"class Outer<T> {\n" +
+				"	class Inner<S> {}\n" +
+				"}\n" +
+				"@Target (ElementType.TYPE_USE)\n" +
+				"@interface A{}";
+		this.workingCopy = getWorkingCopy("/Converter18/src/test/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		node = getASTNode(compilationUnit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		FieldDeclaration field = ((TypeDeclaration) node).getFields()[0];
+		checkSourceRange(field, "test.@A Outer<>.@A Inner<> i", contents);
+		ParameterizedType parameterizedType = (ParameterizedType) field.getType();
+		checkSourceRange(parameterizedType, "test.@A Outer<>.@A Inner<>", contents);
+		QualifiedType qualifiedType = (QualifiedType) parameterizedType.getType();
+		checkSourceRange(qualifiedType, "test.@A Outer<>.@A Inner", contents);
+		parameterizedType = (ParameterizedType) qualifiedType.getQualifier();
+		checkSourceRange(parameterizedType, "test.@A Outer<>", contents);
+		NameQualifiedType nameQualifiedType = (NameQualifiedType) parameterizedType.getType();
+		checkSourceRange(nameQualifiedType, "test.@A Outer", contents);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=418979
+	 */
+	public void testBug418979_003() throws JavaModelException {
+		String contents =
+				"package test;\n" +
+				"import java.lang.annotation.*;\n" +
+				"public class X {\n" +
+				"    public void foo() {\n" +
+				"        new java.util.@A HashMap<>();\n" +
+				"    }\n" +
+				" }\n" +
+				"class Outer<T> {\n" +
+				"	class Inner<S> {}\n" +
+				"}\n" +
+				"@Target (ElementType.TYPE_USE)\n" +
+				"@interface A{}";
+		this.workingCopy = getWorkingCopy("/Converter18/src/test/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		node = getASTNode(compilationUnit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		MethodDeclaration method = ((TypeDeclaration) node).getMethods()[0];
+		ExpressionStatement statement = (ExpressionStatement) method.getBody().statements().get(0);
+		ClassInstanceCreation instance = (ClassInstanceCreation) statement.getExpression();
+		ParameterizedType parameterizedType = (ParameterizedType) instance.getType();
+		checkSourceRange(parameterizedType, "java.util.@A HashMap<>", contents);
+		NameQualifiedType nameQualifiedType = (NameQualifiedType) parameterizedType.getType();
+		checkSourceRange(nameQualifiedType, "java.util.@A HashMap", contents);
+		checkSourceRange(nameQualifiedType.getQualifier(), "java.util", contents);
+		checkSourceRange(nameQualifiedType.getName(), "HashMap", contents);
+		checkSourceRange((ASTNode) nameQualifiedType.annotations().get(0), "@A", contents);
 	}
 	/*
 	 * [1.8][dom ast] variable binding for LambdaExpression parameter has non-unique key (https://bugs.eclipse.org/bugs/show_bug.cgi?id=416559)
