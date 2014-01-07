@@ -3551,6 +3551,117 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	}
 	
 	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=424138
+	 */
+	public void testBug424138_001() throws JavaModelException {
+		String contents =
+				"package jsr308.myex;\n" +
+				"\n" +
+				"public class X extends @jsr308.myex.X.Anno Object {\n" +
+				"    void foo(@jsr308.myex.X.Anno X this) {}\n" +
+				"    Y<@jsr308.myex.X.Anno Object> l;\n" +
+				"    int o @jsr308.myex.X.Anno[];\n" +
+				"\n" +
+				"	 @jsr308.myex.X.Anno X f;\n" +
+				"    int @jsr308.myex.X.Anno[] ok;\n" +
+				"    @jsr308.myex.X.Anno X g;\n" +
+				"	 void bar(@jsr308.myex.X.Anno X ok) {\n" +
+				"        @jsr308.myex.X.Anno X l;\n" +
+				"    }\n" +
+				"    @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"    public @interface Anno {}\n" +
+				"}\n" +
+				"class Y<T> {}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/jsr308/myex/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		SimpleType simpleType = (SimpleType) typeDeclaration.getSuperclassType();
+		checkSourceRange(simpleType, "@jsr308.myex.X.Anno Object", contents);
+		Annotation annotation = (Annotation) simpleType.annotations().get(0);
+		checkSourceRange(annotation, "@jsr308.myex.X.Anno", contents);
+		MethodDeclaration[] methods = ((TypeDeclaration) node).getMethods();
+		assertEquals("Incorrect no of methods", 2, methods.length);
+		MethodDeclaration method = methods[0];
+		simpleType = (SimpleType) method.getReceiverType();
+		checkSourceRange(simpleType, "@jsr308.myex.X.Anno X", contents);
+		FieldDeclaration [] fields = typeDeclaration.getFields();
+		FieldDeclaration f = fields[0];
+		checkSourceRange(f, "Y<@jsr308.myex.X.Anno Object> l;", contents);
+		Type type = f.getType();
+		assertTrue(type.isParameterizedType());
+		ParameterizedType parameterizedType = (ParameterizedType) type;
+		checkSourceRange((ASTNode) parameterizedType.typeArguments().get(0), "@jsr308.myex.X.Anno Object", contents);
+		f = fields[1];
+		checkSourceRange(f, "int o @jsr308.myex.X.Anno[];", contents);
+		assertTrue(f.getType().isPrimitiveType());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) f.fragments().get(0);
+		checkSourceRange((ASTNode) fragment.extraDimensions().get(0), "@jsr308.myex.X.Anno[]", contents);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=424138
+	 */
+	public void testBug424138_002() throws JavaModelException {
+		String contents =
+				"package jsr308.myex;\n" +
+				"\n" +
+				"public class X{\n" +
+				"    int o2[];\n" +
+				"    int o1 @jsr308.myex.X.Anno[];\n" +
+				"    int @jsr308.myex.X.Anno[][] o3 @jsr308.myex.X.Anno[][];\n" +
+				"    @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"    public @interface Anno {}\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/jsr308/myex/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		FieldDeclaration [] fields = typeDeclaration.getFields();
+		FieldDeclaration f = fields[0];
+		checkSourceRange(f, "int o2[];", contents);
+		f = fields[1];
+		checkSourceRange(f, "int o1 @jsr308.myex.X.Anno[];", contents);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=424138
+	 */
+	public void testBug424138_003() throws JavaModelException {
+		String contents =
+				"package jsr308.myex;\n" +
+				"\n" +
+				"public class X{\n" +
+				"	public void foo() {\n" +
+				"		for (int i @jsr308.myex.X.Anno[]: new int[10][12]) {\n" +
+				"			System.out.println(\"hello\");\n" +
+				"		}\n" +
+				"	}\n" +
+				"   @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"   public @interface Anno {}\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/jsr308/myex/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		MethodDeclaration [] methods = typeDeclaration.getMethods();
+		EnhancedForStatement statement = (EnhancedForStatement) methods[0].getBody().statements().get(0);
+		SingleVariableDeclaration variable = statement.getParameter();
+		checkSourceRange(variable, "int i @jsr308.myex.X.Anno[]", contents);
+		Dimension dim = (Dimension) variable.extraDimensions().get(0);
+		checkSourceRange(dim, "@jsr308.myex.X.Anno[]", contents);
+	}
+	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=423584, [1.8][dom ast] NPE in LambdaExpression#getMethodBinding() for lambda with unresolved type
 	 */
 	public void test423584() throws JavaModelException {

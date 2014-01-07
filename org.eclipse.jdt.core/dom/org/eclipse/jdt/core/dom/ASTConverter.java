@@ -581,9 +581,9 @@ class ASTConverter {
 				Type returnType = convertType(typeReference);
 				// get the positions of the right parenthesis
 				int rightParenthesisPosition = retrieveEndOfRightParenthesisPosition(end, method.bodyEnd);
-				int extraDimensions = retrieveExtraDimension(rightParenthesisPosition, method.bodyEnd);
+				int extraDimensions = typeReference.extraDimensions();
 				if (this.ast.apiLevel >= AST.JLS8) {
-					setExtraAnnotatedDimensions(rightParenthesisPosition, this.scanner.currentPosition, typeReference,
+					setExtraAnnotatedDimensions(rightParenthesisPosition, method.bodyEnd, typeReference,
 												methodDecl.extraDimensions(), extraDimensions);
 				} else {
 					internalSetExtraDimensions(methodDecl, extraDimensions);
@@ -903,9 +903,10 @@ class ASTConverter {
 		name.setSourceRange(start, nameEnd - start + 1);
 		variableDecl.setName(name);
 		final int typeSourceEnd = argument.type.sourceEnd;
-		final int extraDimensions = retrieveExtraDimension(nameEnd + 1, typeSourceEnd);
+		TypeReference typeReference = argument.type;
+		final int extraDimensions = typeReference.extraDimensions();
 		if (this.ast.apiLevel >= AST.JLS8) {
-			setExtraAnnotatedDimensions(nameEnd + 1, this.scanner.currentPosition, argument.type,
+			setExtraAnnotatedDimensions(nameEnd + 1, typeSourceEnd, typeReference,
 										variableDecl.extraDimensions(), extraDimensions);
 		} else {
 			internalSetExtraDimensions(variableDecl, extraDimensions);
@@ -3155,7 +3156,7 @@ class ASTConverter {
 				subarrayType.setSourceRange(sourceStart, end - sourceStart + 1);
 				index--;
 			}
-			if (length <= 0) arrayType.setSourceRange(sourceStart, arrayEnd - sourceStart + 1);
+			if (length < arrayEnd - sourceStart) arrayType.setSourceRange(sourceStart, arrayEnd - sourceStart + 1);
 			return arrayType;
 		}
 
@@ -3253,9 +3254,10 @@ class ASTConverter {
 		int nameEnd = localDeclaration.sourceEnd;
 		name.setSourceRange(start, nameEnd - start + 1);
 		variableDecl.setName(name);
-		final int extraDimensions = retrieveExtraDimension(nameEnd + 1, localDeclaration.type.sourceEnd);
+		TypeReference typeReference = localDeclaration.type;
+		final int extraDimensions = typeReference.extraDimensions();
 		if (this.ast.apiLevel >= AST.JLS8) {
-			setExtraAnnotatedDimensions(nameEnd + 1, this.scanner.currentPosition, localDeclaration.type,
+			setExtraAnnotatedDimensions(nameEnd + 1, localDeclaration.declarationSourceEnd, typeReference,
 					variableDecl.extraDimensions(), extraDimensions);
 		} else {
 			internalSetExtraDimensions(variableDecl, extraDimensions);
@@ -3300,10 +3302,11 @@ class ASTConverter {
 		variableDeclarationFragment.setName(name);
 		int start = fieldDeclaration.sourceEnd;
 		int end = start;
-		int extraDimensions = retrieveExtraDimension(fieldDeclaration.sourceEnd + 1, fieldDeclaration.declarationSourceEnd );
+		TypeReference typeReference = fieldDeclaration.type;
+		int extraDimensions = typeReference.extraDimensions();
 		if (this.ast.apiLevel >= AST.JLS8) {
-			setExtraAnnotatedDimensions(fieldDeclaration.sourceEnd + 1, this.scanner.currentPosition,
-					fieldDeclaration.type, variableDeclarationFragment.extraDimensions(), extraDimensions);
+			setExtraAnnotatedDimensions(fieldDeclaration.sourceEnd + 1, fieldDeclaration.declarationSourceEnd,
+					typeReference, variableDeclarationFragment.extraDimensions(), extraDimensions);
 		} else {
 			internalSetExtraDimensions(variableDeclarationFragment, extraDimensions);
 		}
@@ -3343,10 +3346,11 @@ class ASTConverter {
 		variableDeclarationFragment.setName(name);
 		int start = localDeclaration.sourceEnd;
 		org.eclipse.jdt.internal.compiler.ast.Expression initialization = localDeclaration.initialization;
-		int extraDimension = retrieveExtraDimension(localDeclaration.sourceEnd + 1, this.compilationUnitSourceLength);
+		TypeReference typeReference = localDeclaration.type;
+		int extraDimension = typeReference.extraDimensions();
 		if (this.ast.apiLevel >= AST.JLS8) {
-			setExtraAnnotatedDimensions(localDeclaration.sourceEnd + 1, this.scanner.currentPosition,
-					localDeclaration.type, variableDeclarationFragment.extraDimensions(), extraDimension);
+			setExtraAnnotatedDimensions(localDeclaration.sourceEnd + 1, this.compilationUnitSourceLength,
+					typeReference, variableDeclarationFragment.extraDimensions(), extraDimension);
 		} else {
 			internalSetExtraDimensions(variableDeclarationFragment, extraDimension);
 		}
@@ -3514,12 +3518,14 @@ class ASTConverter {
 		int length = 0;
 		int dimensions = typeReference.dimensions();
 		if (typeReference instanceof org.eclipse.jdt.internal.compiler.ast.SingleTypeReference) {
+			annotations = typeReference.annotations != null ? typeReference.annotations[0] : null;
+			int annotationsEnd = annotations != null ? annotations[annotations.length - 1].declarationSourceEnd + 1 : -1;
 			// this is either an ArrayTypeReference or a SingleTypeReference
 			char[] name = ((org.eclipse.jdt.internal.compiler.ast.SingleTypeReference) typeReference).getTypeName()[0];
 			length = typeReference.sourceEnd - typeReference.sourceStart + 1;
 			// need to find out if this is an array type of primitive types or not
 			if (isPrimitiveType(name)) {
-				int[] positions = retrieveEndOfElementTypeNamePosition(sourceStart, sourceStart + length);
+				int[] positions = retrieveEndOfElementTypeNamePosition(sourceStart < annotationsEnd ? annotationsEnd : sourceStart, sourceStart + length);
 				int end = positions[1];
 				if (end == -1) {
 					end = sourceStart + length - 1;
@@ -3535,7 +3541,7 @@ class ASTConverter {
 				ParameterizedSingleTypeReference parameterizedSingleTypeReference = (ParameterizedSingleTypeReference) typeReference;
 				final SimpleName simpleName = new SimpleName(this.ast);
 				simpleName.internalSetIdentifier(new String(name));
-				int[] positions = retrieveEndOfElementTypeNamePosition(sourceStart, sourceStart + length);
+				int[] positions = retrieveEndOfElementTypeNamePosition(sourceStart < annotationsEnd ? annotationsEnd : sourceStart, sourceStart + length);
 				int end = positions[1];
 				if (end == -1) {
 					end = sourceStart + length - 1;
@@ -3593,7 +3599,7 @@ class ASTConverter {
 				simpleName.internalSetIdentifier(new String(name));
 				// we need to search for the starting position of the first brace in order to set the proper length
 				// PR http://dev.eclipse.org/bugs/show_bug.cgi?id=10759
-				int[] positions = retrieveEndOfElementTypeNamePosition(sourceStart, sourceStart + length);
+				int[] positions = retrieveEndOfElementTypeNamePosition(sourceStart < annotationsEnd ? annotationsEnd : sourceStart, sourceStart + length);
 				int end = positions[1];
 				if (end == -1) {
 					end = sourceStart + length - 1;
@@ -4643,7 +4649,6 @@ class ASTConverter {
 	 */
 	protected int[] retrieveEndOfElementTypeNamePosition(int start, int end) {
 		this.scanner.resetTo(start, end);
-		boolean isAnnotation = false;
 		try {
 			int token;
 			int count = 0;
@@ -4655,15 +4660,7 @@ class ASTConverter {
 					case TerminalTokens.TokenNameRPAREN:
 						--count;
 						break;
-					case TerminalTokens.TokenNameAT:
-						isAnnotation = true;
-						break;
 					case TerminalTokens.TokenNameIdentifier:
-						if (isAnnotation) {
-							isAnnotation = false;
-							break;
-						}
-						//$FALL-THROUGH$
 					case TerminalTokens.TokenNamebyte:
 					case TerminalTokens.TokenNamechar:
 					case TerminalTokens.TokenNamedouble:
@@ -4708,60 +4705,6 @@ class ASTConverter {
 			// ignore
 		}
 		return -1;
-	}
-
-	/**
-	 * This method is used to retrieve the array dimension declared after the
-	 * name of a local or a field declaration.
-	 * For example:
-	 *    int i, j[] = null, k[][] = {{}};
-	 *    It should return 0 for i, 1 for j and 2 for k.
-	 * @return int the dimension found
-	 */
-	protected int retrieveExtraDimension(int start, int end) {
-		this.scanner.resetTo(start, end);
-		int dimensions = 0;
-		try {
-			int token, lParenCount = 0;
-			boolean isAnnotation = false, foundAnnotation = false;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
-				if (foundAnnotation) {
-					if (token == TerminalTokens.TokenNameLPAREN) ++lParenCount;
-					else if (token == TerminalTokens.TokenNameRPAREN) {
-						--lParenCount;
-						continue;
-					}
-					if (lParenCount > 0) continue;
-				}
-				switch(token) {
-					case TerminalTokens.TokenNameLBRACKET:
-					case TerminalTokens.TokenNameCOMMENT_BLOCK:
-					case TerminalTokens.TokenNameCOMMENT_JAVADOC:
-					case TerminalTokens.TokenNameCOMMENT_LINE:
-						isAnnotation = false;
-						break;
-					case TerminalTokens.TokenNameAT:
-						isAnnotation = true;
-						foundAnnotation = true; /* check for params */
-						break;
-					case TerminalTokens.TokenNameIdentifier:
-						if (!isAnnotation) {
-							return dimensions;
-						}
-						isAnnotation = false;
-						break;
-					case TerminalTokens.TokenNameRBRACKET://166
-						isAnnotation = false;
-						dimensions++;
-						break;
-					default:
-						return dimensions;
-				}
-			}
-		} catch(InvalidInputException e) {
-			// ignore
-		}
-		return dimensions;
 	}
 
 	protected void retrieveDimensionAndSetPositions(int start, int end, Dimension dim) {
