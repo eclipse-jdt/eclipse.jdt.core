@@ -445,4 +445,23 @@ public void testBug424710() {
 			"}\n"
 		});
 }
+
+public void testBug424075() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"public class X {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        Consumer<Object> c = null;\n" + 
+			"        Arrays.asList(pred(), c);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static <T> Predicate<T> pred() {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }
