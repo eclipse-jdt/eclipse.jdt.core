@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 IBM Corporation and others.
+ * Copyright (c) 2011, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,8 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -42,6 +44,13 @@ public NegativeLambdaExpressionsTest(String name) {
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
+}
+
+public static Test setUpTest(Test test) throws Exception {
+	TestCase.setUpTest(test);
+	RegressionTestSetup suite = new RegressionTestSetup(ClassFileConstants.JDK1_8);
+	suite.addTest(test);
+	return suite;
 }
 
 protected Map getCompilerOptions() {
@@ -72,7 +81,7 @@ public void test001() {
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	I i = () -> {\n" + 
 			"	      ^^^^^\n" + 
-			"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
+			"Lambda expression\'s signature does not match the signature of the functional interface method foo(int, int)\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 10)\n" + 
 			"	i++;\n" + 
@@ -536,12 +545,12 @@ public void test015() {
 				"2. ERROR in X.java (at line 10)\n" + 
 				"	I i4 = (int x, String y) -> {};\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
+				"Lambda expression\'s signature does not match the signature of the functional interface method run(int)\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 12)\n" + 
 				"	J j1 = () -> {};\n" + 
 				"	       ^^^^^\n" + 
-				"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
+				"Lambda expression\'s signature does not match the signature of the functional interface method run(int, String)\n" + 
 				"----------\n" + 
 				"4. ERROR in X.java (at line 14)\n" + 
 				"	J j3 = (String x, int s) -> {};\n" + 
@@ -556,7 +565,7 @@ public void test015() {
 				"6. ERROR in X.java (at line 16)\n" + 
 				"	J j5 = x ->  {};\n" + 
 				"	       ^^^^\n" + 
-				"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
+				"Lambda expression\'s signature does not match the signature of the functional interface method run(int, String)\n" + 
 				"----------\n" + 
 				"7. WARNING in X.java (at line 17)\n" + 
 				"	K k1 = (Collection l) -> {};\n" + 
@@ -5052,7 +5061,7 @@ this.runNegativeTest(
 				"2. ERROR in X.java (at line 20)\n" + 
 				"	new X().foo((s)->{});\n" + 
 				"	            ^^^^^\n" + 
-				"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
+				"Lambda expression\'s signature does not match the signature of the functional interface method foo()\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
@@ -6863,7 +6872,7 @@ public void test412453() {
 		"1. ERROR in X.java (at line 13)\n" + 
 		"	final Optional<Integer> min = empty.minBy((a, b) -> a - b);\n" + 
 		"	                                          ^^^^^^^^^^^^^^^\n" + 
-		"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
+		"Lambda expression\'s signature does not match the signature of the functional interface method apply(Integer)\n" + 
 		"----------\n",
 		null /* no extra class libraries */,
 		true /* flush output directory */,

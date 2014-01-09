@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 IBM Corporation and others.
+ * Copyright (c) 2011, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -766,7 +766,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"3. ERROR in X.java (at line 14)\n" + 
 		"	I i = (X this) -> {};\n" + 
 		"	      ^^^^^^^^^^^\n" +
-		"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
+		"Lambda expression\'s signature does not match the signature of the functional interface method foo()\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 14)\n" + 
 		"	I i = (X this) -> {};\n" + 
