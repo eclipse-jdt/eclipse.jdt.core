@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation and others.
+ * Copyright (c) 2013, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@
  *     Stephan Herrmann - Contribution for
  *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
+ *							Bug 425142 - [1.8][compiler] NPE in ConstraintTypeFormula.reduceSubType
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -74,7 +75,9 @@ public abstract class FunctionalExpression extends Expression {
 	public void setExpressionContext(ExpressionContext context) {
 		this.expressionContext = context;
 	}
-	
+	public ExpressionContext getExpressionContext() {
+		return this.expressionContext;
+	}
 	public void tagAsEllipsisArgument() {
 		this.ellipsisArgument = true;
 	}

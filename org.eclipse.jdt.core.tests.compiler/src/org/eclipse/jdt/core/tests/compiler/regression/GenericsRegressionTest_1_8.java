@@ -546,4 +546,146 @@ public void _testBug424712b() {
 			"}\n"
 		});
 }
+public void testBug425142_minimal() {
+	runNegativeTest(
+		new String[] {
+			"SomethingBreaks.java",
+			"import java.io.IOException;\n" + 
+			"import java.nio.file.Files;\n" + 
+			"import java.nio.file.Paths;\n" + 
+			"import java.util.function.Consumer;\n" + 
+			"\n" + 
+			"@FunctionalInterface interface Use<T, E extends Throwable> {   void accept(T t) throws E; }\n" + 
+			"\n" + 
+			"@SuppressWarnings(\"unused\") public class SomethingBreaks<T, E extends Throwable> {\n" + 
+			"  protected static SomethingBreaks<String, IOException> stream() {     return null;  }\n" + 
+			"\n" + 
+			"  public void forEach(Consumer<T> use) throws E {}\n" + 
+			"\n" + 
+			"  public <E2 extends E> void forEach(Use<T, E2> use) throws E, E2 {}\n" + 
+			"\n" + 
+			"  private static void methodReference(String s) throws IOException {\n" + 
+			"    System.out.println(Files.size(Paths.get(s)));\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  public static void useCase9() throws IOException {\n" + 
+			"    stream().forEach((String s) -> System.out.println(Files.size(Paths.get(s))));\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in SomethingBreaks.java (at line 20)\n" + 
+		"	stream().forEach((String s) -> System.out.println(Files.size(Paths.get(s))));\n" + 
+		"	         ^^^^^^^\n" + 
+		"The method forEach(Consumer<String>) is ambiguous for the type SomethingBreaks<String,IOException>\n" + 
+		"----------\n");
+}
+public void testBug425142_full() {
+	runNegativeTest(
+		new String[] {
+			"SomethingBreaks.java",
+			"import java.io.IOException;\n" + 
+			"import java.nio.file.Files;\n" + 
+			"import java.nio.file.Paths;\n" + 
+			"import java.util.function.Consumer;\n" + 
+			"\n" + 
+			"@FunctionalInterface interface Use<T, E extends Throwable> {   void accept(T t) throws E; }\n" + 
+			"\n" + 
+			"@SuppressWarnings(\"unused\") public class SomethingBreaks<T, E extends Throwable> {\n" + 
+			"  protected static SomethingBreaks<String, IOException> stream() {     return null;  }\n" + 
+			"\n" + 
+			"  public void forEach(Consumer<T> use) throws E {}\n" + 
+			"\n" + 
+			"  public <E2 extends E> void forEach(Use<T, E2> use) throws E, E2 {}\n" + 
+			"\n" + 
+			"  private static void methodReference(String s) throws IOException {\n" + 
+			"    System.out.println(Files.size(Paths.get(s)));\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  public static void useCase1() throws IOException {\n" + 
+			"    Use<String, IOException> c =\n" + 
+			"      (String s) -> System.out.println(Files.size(Paths.get(s)));\n" + 
+			"    stream().forEach(c);\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  public static void useCase2() throws IOException {\n" + 
+			"    Use<String, IOException> c = SomethingBreaks::methodReference;\n" + 
+			"    stream().forEach(c);\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  public static void useCase3() throws IOException {\n" + 
+			"    stream().forEach((Use<String, IOException>) (String s) -> System.out.println(Files.size(Paths.get(s))));\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  public static void useCase4() throws IOException {\n" + 
+			"    stream().forEach((Use<String, IOException>) SomethingBreaks::methodReference);\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  public static void useCase5() throws IOException {\n" + 
+			"    stream().<IOException> forEach((String s) -> System.out.println(Files.size(Paths.get(s))));\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  public static void useCase6() throws IOException {\n" + 
+			"    stream().<IOException> forEach(SomethingBreaks::methodReference);\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  public static void useCase7() throws IOException {\n" + 
+			"    stream().<Use<String, IOException>> forEach((String s) -> System.out.println(Files.size(Paths.get(s))));\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  public static void useCase8() throws IOException {\n" + 
+			"    stream().<Use<String, IOException>> forEach(SomethingBreaks::methodReference);\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  public static void useCase9() throws IOException {\n" + 
+			"    stream().forEach((String s) -> System.out.println(Files.size(Paths.get(s))));\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  public static void useCase10() throws IOException {\n" + 
+			"    stream().forEach(SomethingBreaks::methodReference);\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in SomethingBreaks.java (at line 39)\n" + 
+		"	stream().<IOException> forEach((String s) -> System.out.println(Files.size(Paths.get(s))));\n" + 
+		"	                       ^^^^^^^\n" + 
+		"The method forEach(Consumer<String>) is ambiguous for the type SomethingBreaks<String,IOException>\n" + 
+		"----------\n" + 
+		"2. ERROR in SomethingBreaks.java (at line 43)\n" + 
+		"	stream().<IOException> forEach(SomethingBreaks::methodReference);\n" + 
+		"	                       ^^^^^^^\n" + 
+		"The method forEach(Consumer<String>) is ambiguous for the type SomethingBreaks<String,IOException>\n" + 
+		"----------\n" + 
+		"3. ERROR in SomethingBreaks.java (at line 43)\n" + 
+		"	stream().<IOException> forEach(SomethingBreaks::methodReference);\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unhandled exception type IOException\n" + 
+		"----------\n" + 
+		"4. ERROR in SomethingBreaks.java (at line 47)\n" + 
+		"	stream().<Use<String, IOException>> forEach((String s) -> System.out.println(Files.size(Paths.get(s))));\n" + 
+		"	                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unhandled exception type IOException\n" + 
+		"----------\n" + 
+		"5. ERROR in SomethingBreaks.java (at line 51)\n" + 
+		"	stream().<Use<String, IOException>> forEach(SomethingBreaks::methodReference);\n" + 
+		"	                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unhandled exception type IOException\n" + 
+		"----------\n" + 
+		"6. ERROR in SomethingBreaks.java (at line 55)\n" + 
+		"	stream().forEach((String s) -> System.out.println(Files.size(Paths.get(s))));\n" + 
+		"	         ^^^^^^^\n" + 
+		"The method forEach(Consumer<String>) is ambiguous for the type SomethingBreaks<String,IOException>\n" + 
+		"----------\n" + 
+		"7. ERROR in SomethingBreaks.java (at line 59)\n" + 
+		"	stream().forEach(SomethingBreaks::methodReference);\n" + 
+		"	         ^^^^^^^\n" + 
+		"The method forEach(Consumer<String>) is ambiguous for the type SomethingBreaks<String,IOException>\n" + 
+		"----------\n" + 
+		"8. ERROR in SomethingBreaks.java (at line 59)\n" + 
+		"	stream().forEach(SomethingBreaks::methodReference);\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unhandled exception type IOException\n" + 
+		"----------\n");
+}
 }

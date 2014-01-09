@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@
  *							Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
+ *							Bug 425142 - [1.8][compiler] NPE in ConstraintTypeFormula.reduceSubType
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -730,7 +731,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	 */
 	public LambdaExpression getResolvedCopyForInferenceTargeting(TypeBinding targetType) {
 		// note: this is essentially a simplified extract from isCompatibleWith(TypeBinding,Scope).
-		if (this.shapeAnalysisComplete)
+		if (this.shapeAnalysisComplete && this.binding != null)
 			return this;
 		// TODO: caching
 		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
