@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 IBM Corporation and others.
+ * Copyright (c) 2005, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1463,7 +1463,7 @@ public void testDuplicateHashCode() {
 		"public class testDuplicateHashCode {\n" +
 		"	public static void main(String[] argv) {\n" +
 		"		String dispatcher = \"\u0000\";\n" +
-		"		for (int i = 0; i < 100; i++) {\n" +
+		"		outer: for (int i = 0; i < 100; i++) {\n" +
 		"			switch (dispatcher) {\n" +
 		"			case \"\u0000\":\n" +
 		"				System.out.print(\"1 \");\n" +
@@ -1482,7 +1482,7 @@ public void testDuplicateHashCode() {
 		"				break;\n" +
 		"			default:\n" +
 		"				System.out.println(\"Default\");\n" +
-		"				System.exit(0);\n" +
+		"				break outer;\n" +
 		"			case \"\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\":\n" +
 		"				System.out.print(\"8 \");\n" +
 		"				break;\n" +
@@ -1519,7 +1519,7 @@ public void testDuplicateHashCode2() {
 		"public class testDuplicateHashCode {\n" +
 		"	public static void main(String[] argv) {\n" +
 		"		String dispatcher = \"\u0000\";\n" +
-		"		while(true) {\n" +
+		"		outer: while(true) {\n" +
 		"			switch (dispatcher) {\n" +
 		"			case \"\u0000\":\n" +
 		"				System.out.print(\"1 \");\n" +
@@ -1543,7 +1543,7 @@ public void testDuplicateHashCode2() {
 		"				break;\n" +
 		"			default:\n" +
 		"				System.out.println(\"Default\");\n" +
-		"				System.exit(0);\n" +
+		"				break outer;\n" +
 		"			case \"\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\":\n" +
 		"				System.out.print(\"8 \");\n" +
 		"               dispatcher = \"\u0000\u0000\u0000\u0000\u0000\u0000\";\n" +
@@ -1721,7 +1721,7 @@ public void testFallThrough() {
 		"     	return string.substring(index,index + 1);\n" +
 		"    }\n" +
 		"    public static void main(String [] args) {\n" +
-		"    	while (true) {\n" +
+		"    	outer: while (true) {\n" +
 		"    		String s = null;\n" +
 		"    		switch(s = dispatcher()) {\n" +
 		"    		case \"2\":\n" +
@@ -1739,7 +1739,7 @@ public void testFallThrough() {
 		"    				System.out.print(s + \"(odd) \");\n" +
 		"    				break;\n" +
 		"    		default: System.out.print(\"DONE\");\n" +
-		"    				System.exit(0);\n" +
+		"    				break outer;\n" +
 		"    		}\n" +
 		"    	}\n" +
 		"    }\n" +
@@ -1771,7 +1771,7 @@ public void testFallThrough2() {
 		"     	return string.substring(index,index + 1);\n" +
 		"    }\n" +
 		"    public static void main(String [] args) {\n" +
-		"    	while (true) {\n" +
+		"    	outer: while (true) {\n" +
 		"    		String s = null;\n" +
 		"    		switch(s = dispatcher()) {\n" +
 		"    		case \"4\": System.out.print(s);\n" +
@@ -1780,7 +1780,7 @@ public void testFallThrough2() {
 		"    		case \"1\": System.out.print(s + \" \");\n" +
 		"    		case \"0\": break;\n" +
 		"    		default: System.out.print(\"DONE\");\n" +
-		"    				System.exit(0);\n" +
+		"    				break outer;\n" +
 		"    		}\n" +
 		"    	}\n" +
 		"    }\n" +
@@ -1845,11 +1845,9 @@ public void testBreakOut() {
 		"    				System.out.print(s + \"(odd) \");\n" +
 		"    				break;\n" +
 		"    		default: System.out.print(\"DONE\");\n" +
-		"    				System.exit(0);\n" +
 		"    				 break junk;\n" +
 		"    		}\n" +
 		"    	}\n" +
-		"   	System.out.println(\"Broken\");\n" +
 		"    }\n" +
 		"}\n",
 	};
