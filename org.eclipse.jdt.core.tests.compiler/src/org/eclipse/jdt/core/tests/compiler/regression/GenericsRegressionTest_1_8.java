@@ -19,7 +19,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug424205b" };
+//	TESTS_NAMES = new String[] { "testBug424195" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -687,5 +687,91 @@ public void testBug425142_full() {
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unhandled exception type IOException\n" + 
 		"----------\n");
+}
+public void testBug424195a() {
+	runNegativeTest(
+		new String[] {
+			"NPEOnCollector.java",
+			"import java.io.IOException;\n" + 
+			"import java.nio.file.Path;\n" + 
+			"import java.util.ArrayList;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.function.Predicate;\n" + 
+			"import java.util.jar.JarEntry;\n" + 
+			"import java.util.jar.JarFile;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"\n" + 
+			"\n" + 
+			"public class NPEOnCollector {\n" + 
+			"  static void processJar(Path plugin) throws IOException {\n" + 
+			"    \n" + 
+			"    try(JarFile jar = new JarFile(plugin.toFile())) {\n" + 
+			"      try(Stream<JarEntry> entries = jar.stream()) {\n" + 
+			"        Stream<JarEntry> stream = entries\n" + 
+			"          .distinct().collect(Collectors.toCollection(ArrayList::new));\n" + 
+			"        \n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in NPEOnCollector.java (at line 17)\n" + 
+		"	Stream<JarEntry> stream = entries\n" + 
+		"          .distinct().collect(Collectors.toCollection(ArrayList::new));\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Collection<JarEntry> to Stream<JarEntry>\n" + 
+		"----------\n");
+}
+public void testBug424195b() {
+	runConformTest(
+		new String[] {
+			"NPEOnCollector.java",
+			"import java.io.IOException;\n" + 
+			"import java.nio.file.Path;\n" + 
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Collection;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.function.Predicate;\n" + 
+			"import java.util.jar.JarEntry;\n" + 
+			"import java.util.jar.JarFile;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"\n" + 
+			"\n" + 
+			"public class NPEOnCollector {\n" + 
+			"  static void processJar(Path plugin) throws IOException {\n" + 
+			"    \n" + 
+			"    try(JarFile jar = new JarFile(plugin.toFile())) {\n" + 
+			"      try(Stream<JarEntry> entries = jar.stream()) {\n" + 
+			"        Collection<JarEntry> collection = entries\n" + 
+			"          .distinct().collect(Collectors.toCollection(ArrayList::new));\n" + 
+			"        \n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
+public void testBug424195_comment2() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.PrintStream;\n" + 
+			"import java.util.ArrayList;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"import java.util.stream.*;\n" + 
+			"public class X  {\n" + 
+			"\n" + 
+			"    public static void main(String argv[]) {\n" + 
+			"        ArrayList<Integer> al = IntStream\n" + 
+			"        	     .range(0, 10_000_000)\n" + 
+			"        	     .boxed()\n" + 
+			"        	     .collect(Collectors.toCollection(ArrayList::new));\n" + 
+			"\n" + 
+			"    }\n" + 
+			"}\n"
+		});
 }
 }

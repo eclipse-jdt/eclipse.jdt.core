@@ -239,10 +239,39 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			for (int i = 0; i < n; i++)
 				if (!functionType.parameters[i].isProperType(true))
 					return FALSE;
-			InferenceContext18.missingImplementation("NYI: inexact method reference"); //$NON-NLS-1$
-			// FIXME: Otherwise, a search for a compile-time declaration is performed, as defined in 15.28.1 .....
+			// Otherwise, a search for a compile-time declaration is performed, as defined in 15.28.1....
+			reference.resolveTypeExpecting(reference.enclosingScope, t);
+			MethodBinding compileTimeDecl = reference.binding;
+			if (compileTimeDecl == null || !compileTimeDecl.isValidBinding())
+				return FALSE;
+			TypeBinding r = functionType.isConstructor() ? functionType.declaringClass : functionType.returnType;
+			if (r.id == TypeIds.T_void)
+				return TRUE;
+			// ignore parameterization of resolve result and do a fresh start:
+			MethodBinding original = compileTimeDecl.original();
+			if (reference.typeArguments == null
+					&& ((original.typeVariables() != Binding.NO_TYPE_VARIABLES && r.mentionsAny(original.typeVariables(), -1))
+						|| (original.isConstructor() && original.declaringClass.typeVariables() != Binding.NO_TYPE_VARIABLES && r.mentionsAny(original.declaringClass.typeVariables(), -1)))) 
+			{
+				InvocationRecord prevInvocation = inferenceContext.enterPolyInvocation(reference, null/*no invocation arguments available*/);
+
+				// Invocation Applicability Inference: 18.5.1 & Invocation Type Inference: 18.5.2
+				try {
+					inferInvocationApplicability(inferenceContext, original, functionType.parameters, original.isConstructor()/*mimic a diamond?*/, inferenceContext.inferenceKind);
+					if (!inferPolyInvocationType(inferenceContext, reference, r, original))
+						return FALSE;
+					return null; // already incorporated
+				} catch (InferenceFailureException e) {
+					return FALSE;
+				} finally {
+					inferenceContext.leavePolyInvocation(prevInvocation);
+				}
+			}
+			TypeBinding rPrime = compileTimeDecl.isConstructor() ? compileTimeDecl.declaringClass : compileTimeDecl.returnType;
+			if (rPrime.id == TypeIds.T_void)
+				return FALSE;
+			return new ConstraintTypeFormula(rPrime, r, COMPATIBLE, this.isSoft);
 		}
-		return FALSE;
 	}
 
 	static void inferInvocationApplicability(InferenceContext18 inferenceContext, MethodBinding method, TypeBinding[] arguments, boolean isDiamond, int checkType)
