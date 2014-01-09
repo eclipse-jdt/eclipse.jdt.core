@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 GK Software AG.
+ * Copyright (c) 2013, 2014 GK Software AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -500,6 +500,49 @@ public void _testBug424205b() {
 			"		X<I> i = new X<>((String s) -> { }); // 2. Error - Comment out the previous line to see this error go away.\n" + 
 			"		one (i);\n" + 
 			"	}\n" + 
+			"}\n"
+		});
+}
+public void testBug424712a() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collection;\n" + 
+			"import java.util.function.Supplier;\n" + 
+			"import java.util.Set;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    public static <T, SOURCE extends Collection<T>, DEST extends Collection<T>>\n" + 
+			"        DEST foo(SOURCE sourceCollection, DEST collectionFactory) {\n" + 
+			"            return null;\n" + 
+			"    }  \n" + 
+			"    \n" + 
+			"    public static void main(String... args) {\n" + 
+			"        Set<Y> rosterSet = (Set<Y>) foo(null, Set::new);\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	Set<Y> rosterSet = (Set<Y>) foo(null, Set::new);\n" + 
+		"	    ^\n" + 
+		"Y cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 12)\n" + 
+		"	Set<Y> rosterSet = (Set<Y>) foo(null, Set::new);\n" + 
+		"	                        ^\n" + 
+		"Y cannot be resolved to a type\n" + 
+		"----------\n");
+}
+public void _testBug424712b() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Comparator;\n" + 
+			"public class X {\n" +
+			"	<T> void test() {\n" + 
+			"		Comparator<? super T> comparator = (Comparator<? super T>) Comparator.naturalOrder();\n" + 
+			"	}\n" +
 			"}\n"
 		});
 }
