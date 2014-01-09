@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 GK Software AG.
+ * Copyright (c) 2013, 2014 GK Software AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -88,9 +88,14 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			// - parenthesized expression : these are transparent in our AST
 			if (this.left instanceof Invocation) {
 				Invocation invocation = (Invocation) this.left;
-				// ignore previous (inner) inference result and do a fresh start:
 				MethodBinding previousMethod = invocation.binding();
-				MethodBinding method = previousMethod.original();
+				MethodBinding method = previousMethod;
+				// ignore previous (inner) inference result and do a fresh start:
+				if (previousMethod instanceof ParameterizedMethodBinding) {
+					// avoid original(), since we only want to discard one level of instantiation 
+					// (method type variables - not class type variables)!
+					method = ((ParameterizedMethodBinding)previousMethod).originalMethod;
+				}
 				InvocationRecord prevInvocation = inferenceContext.enterPolyInvocation(invocation, invocation.arguments());
 
 				// Invocation Applicability Inference: 18.5.1 & Invocation Type Inference: 18.5.2

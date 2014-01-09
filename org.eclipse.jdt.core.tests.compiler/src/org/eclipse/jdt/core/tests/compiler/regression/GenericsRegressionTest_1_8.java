@@ -19,7 +19,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug425153" };
+//	TESTS_NAMES = new String[] { "testBug424845" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -798,5 +798,45 @@ public void testBug425153() {
 		"	            ^^^^^^^^^^\n" + 
 		"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" + 
 		"----------\n");
+}
+public void testBug424845() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Collections;\n" + 
+			"import java.util.Comparator;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"    \n" + 
+			"\n" + 
+			"    interface Function<K, V>{\n" + 
+			"        public V apply(K orig);\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    \n" + 
+			"    static class Ordering<O> {\n" + 
+			"\n" + 
+			"        public <K> Comparator<K> onResultOf(Function<K, ? extends O> function) {\n" + 
+			"            return null;\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        \n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        List<Object> list = new ArrayList<>();\n" + 
+			"        Function<Object, String> function = new Function<Object, String>() {\n" + 
+			"            public String apply(Object arg0) {\n" + 
+			"                return arg0.toString();\n" + 
+			"            }\n" + 
+			"        };\n" + 
+			"        Ordering<Comparable<String>> natural = new Ordering<>();\n" + 
+			"        Collections.sort(list, natural.onResultOf(function));\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"}\n"
+		});
 }
 }
