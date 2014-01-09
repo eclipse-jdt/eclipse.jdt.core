@@ -861,4 +861,90 @@ public void test424080() {
 				expectedReplacedSource,
 				"diet ast");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425084, [1.8][completion] Eclipse freeze while autocompleting try block in lambda.
+public void test425084() {
+	String string = 
+			"interface I {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	I goo() {\n" +
+			"			try\n" +
+			"	}\n" +
+			"}\n";
+
+			String completeBehind = "try";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:try>";
+			String expectedParentNodeToString = "<NONE>";
+			String completionIdentifier = "try";
+			String expectedReplacedSource = "try";
+			String expectedUnitDisplayString =
+					"interface I {\n" + 
+					"  void foo();\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"  I goo() {\n" + 
+					"    <CompleteOnName:try>;\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425084, [1.8][completion] Eclipse freeze while autocompleting try block in lambda.
+public void test425084b() {
+	String string = 
+			"interface I {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	I goo() {\n" +
+			"		return () -> {\n" +
+			"			try\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n";
+
+			String completeBehind = "try";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:try>";
+			String expectedParentNodeToString = "<NONE>";
+			String completionIdentifier = "try";
+			String expectedReplacedSource = "try";
+			String expectedUnitDisplayString =
+					"interface I {\n" + 
+					"  void foo();\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"  I goo() {\n" + 
+					"    return () -> {\n" + 
+					"  <CompleteOnName:try>;\n" + 
+					"};\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
 }

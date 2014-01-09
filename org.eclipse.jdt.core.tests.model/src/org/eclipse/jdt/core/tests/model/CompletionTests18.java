@@ -876,5 +876,30 @@ public void testBug405125b() throws JavaModelException {
 	    assertResults(
 	    	"another[FIELD_REF]{another, LB;, I, another, null, 27}",
 	    	requestor.getResults());
-	} 
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425084, [1.8][completion] Eclipse freeze while autocompleting try block in lambda.
+public void _test425084() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	I goo() {\n" +
+			"		return () -> {\n" +
+			"			try\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "try";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, null, null, [155, 158], 27}\n" +
+                  "StringParameter[LOCAL_VARIABLE_REF]{StringParameter, null, LX;, null, null, StringParameter, null, [155, 158], 27}", requestor.getResults());
+}
 }
