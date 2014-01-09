@@ -520,6 +520,17 @@ public TypeBinding[] inferElidedTypes(ReferenceBinding allocationType, Reference
 	if (factory instanceof ParameterizedGenericMethodBinding && factory.isValidBinding()) {
 		ParameterizedGenericMethodBinding genericFactory = (ParameterizedGenericMethodBinding) factory;
 		this.inferredReturnType = genericFactory.inferredReturnType;
+		// this is our last chance to inspect the result of the inference that is connected to the throw-away factory binding
+		InferenceContext18 infCtx18 = getInferenceContext(genericFactory);
+		if (infCtx18 != null && infCtx18.stepCompleted == InferenceContext18.BINDINGS_UPDATED) {
+			// refresh argumentTypes from updated bindings in arguments:
+			// (this shouldn't be strictly necessary, as FunctionExpression.isCompatibleWith() should give the same result,
+			//  but it's probably be a good idea to avoid the necessity to call isCompatibleWith() in the first place). 
+			for (int i = 0; i < argumentTypes.length; i++) {
+				if (argumentTypes[i] instanceof PolyTypeBinding)
+					argumentTypes[i] = this.arguments[i].resolvedType;
+			}
+		}
 		return ((ParameterizedTypeBinding)factory.returnType).arguments;
 	}
 	return null;

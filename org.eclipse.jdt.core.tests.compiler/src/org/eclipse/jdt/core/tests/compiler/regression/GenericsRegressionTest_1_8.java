@@ -19,7 +19,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug414631" };
+//	TESTS_NAMES = new String[] { "testBug424205b" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -461,6 +461,45 @@ public void testBug424075() {
 			"    static <T> Predicate<T> pred() {\n" + 
 			"        return null;\n" + 
 			"    }\n" + 
+			"}\n"
+		});
+}
+public void testBug424205a() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"	void bar(String t);\n" + 
+			"}\n" + 
+			"class X<T> implements I {\n" + 
+			"	public void bar(String t) {}\n" + 
+			"	X(String x) {}\n" + 
+			"	X(T x) {}\n" + 
+			"	public void one(X<I> c){}\n" + 
+			"	public void two() {\n" + 
+			"		X<I> i = new X<>((String s) -> { });\n" + 
+			"		one (i);\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
+public void _testBug424205b() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"	void bar(String t);\n" + 
+			"}\n" + 
+			"class X<T> implements I {\n" + 
+			"	public void bar(String t) {}\n" + 
+			"	X(String x) {}\n" + 
+			"	X(T x) {}\n" + 
+			"	public void one(X<I> c){}\n" + 
+			"	public void two() {\n" + 
+			"		one(new X<>((String s) -> { })); // 1. Three errors\n" + 
+			"		X<I> i = new X<>((String s) -> { }); // 2. Error - Comment out the previous line to see this error go away.\n" + 
+			"		one (i);\n" + 
+			"	}\n" + 
 			"}\n"
 		});
 }
