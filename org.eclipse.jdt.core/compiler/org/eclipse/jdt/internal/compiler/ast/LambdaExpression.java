@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2012, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@
  *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *							Bug 425142 - [1.8][compiler] NPE in ConstraintTypeFormula.reduceSubType
+ *							Bug 425153 - [1.8] Having wildcard allows incompatible types in a lambda expression
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -283,7 +284,9 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 						// TODO If F<A'1, ..., A'm> is a well-formed type, ...
 						ReferenceBinding genericType = withWildCards.genericType();
 						this.resolvedType = blockScope.environment().createParameterizedType(genericType, aprime, genericType.enclosingType());
-						this.descriptor = this.resolvedType.getSingleAbstractMethod(blockScope, false);
+						this.descriptor = this.resolvedType.getSingleAbstractMethod(blockScope, true);
+						if (!this.descriptor.isValidBinding())
+							reportSamProblem(blockScope, this.descriptor);
 					}
 				}
 			}

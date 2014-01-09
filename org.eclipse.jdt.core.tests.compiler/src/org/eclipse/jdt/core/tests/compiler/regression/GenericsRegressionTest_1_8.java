@@ -19,7 +19,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug424195" };
+//	TESTS_NAMES = new String[] { "testBug425153" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -773,5 +773,30 @@ public void testBug424195_comment2() {
 			"    }\n" + 
 			"}\n"
 		});
+}
+public void testBug425153() {
+	runNegativeTest(
+		new String[] {
+			"Main.java",
+			"class C1 {}\n" + 
+			"class C2 {}\n" + 
+			"\n" + 
+			"interface I<P1 extends C1, P2 extends P1> {\n" + 
+			"    P2 foo(P1 p1);\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class Main  {\n" + 
+			"	    public static void main(String argv[]) {\n" + 
+			"	    	I<?, ?> i = (C1 c1) -> { return new C2(); };\n" + 
+			"	        Object c2 = i.foo(null);\n" + 
+			"	    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Main.java (at line 10)\n" + 
+		"	I<?, ?> i = (C1 c1) -> { return new C2(); };\n" + 
+		"	            ^^^^^^^^^^\n" + 
+		"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" + 
+		"----------\n");
 }
 }

@@ -18,6 +18,7 @@
  *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *							Bug 425142 - [1.8][compiler] NPE in ConstraintTypeFormula.reduceSubType
+ *							Bug 425153 - [1.8] Having wildcard allows incompatible types in a lambda expression
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -117,18 +118,7 @@ public abstract class FunctionalExpression extends Expression {
 			return null;
 		}
 		if (!sam.isValidBinding()) {
-			switch (sam.problemId()) {
-				case ProblemReasons.NoSuchSingleAbstractMethod:
-					blockScope.problemReporter().targetTypeIsNotAFunctionalInterface(this);
-					break;
-				case ProblemReasons.NotAWellFormedParameterizedType:
-					blockScope.problemReporter().illFormedParameterizationOfFunctionalInterface(this);
-					break;
-				case ProblemReasons.IntersectionHasMultipleFunctionalInterfaces:
-					blockScope.problemReporter().multipleFunctionalInterfaces(this);
-					break;
-			}
-			return null;
+			return reportSamProblem(blockScope, sam);
 		}
 		
 		this.descriptor = sam;
@@ -137,6 +127,21 @@ public abstract class FunctionalExpression extends Expression {
 		}
 		
 		return this.resolvedType = null;
+	}
+
+	protected TypeBinding reportSamProblem(BlockScope blockScope, MethodBinding sam) {
+		switch (sam.problemId()) {
+			case ProblemReasons.NoSuchSingleAbstractMethod:
+				blockScope.problemReporter().targetTypeIsNotAFunctionalInterface(this);
+				break;
+			case ProblemReasons.NotAWellFormedParameterizedType:
+				blockScope.problemReporter().illFormedParameterizationOfFunctionalInterface(this);
+				break;
+			case ProblemReasons.IntersectionHasMultipleFunctionalInterfaces:
+				blockScope.problemReporter().multipleFunctionalInterfaces(this);
+				break;
+		}
+		return null;
 	}
 
 	public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType) {
