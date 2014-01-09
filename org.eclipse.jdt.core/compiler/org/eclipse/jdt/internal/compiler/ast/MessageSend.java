@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,6 +41,7 @@
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *								Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
+ *								Bug 425152 - [1.8] [compiler] Lambda Expression not resolved but flow analyzed leading to NPE.
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -622,7 +623,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	// will check for null after args are resolved
 	TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
-	boolean polyExpressionSeen = false;
+	boolean argumentsNeedUpdate = false;
 	if (this.arguments != null) {
 		boolean argHasError = false; // typeChecks all arguments
 		int length = this.arguments.length;
@@ -639,8 +640,11 @@ public TypeBinding resolveType(BlockScope scope) {
 			if ((argumentTypes[i] = argument.resolveType(scope)) == null){
 				argHasError = true;
 			}
-			if (sourceLevel >= ClassFileConstants.JDK1_8 && argument.isPolyExpression())
-				polyExpressionSeen = true;
+			if (sourceLevel >= ClassFileConstants.JDK1_8) {
+				if (argument.isPolyExpression()
+					|| (argument instanceof Invocation && ((Invocation)argument).usesInference()))
+					argumentsNeedUpdate = true;
+			}
 		}
 		if (argHasError) {
 			if (this.actualReceiverType instanceof ReferenceBinding) {
@@ -681,7 +685,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		return null;
 	}
 
-	findMethodBinding(scope, argumentTypes, polyExpressionSeen);
+	findMethodBinding(scope, argumentTypes, argumentsNeedUpdate);
 
 	if (!this.binding.isValidBinding()) {
 		if (this.binding.declaringClass == null) {
@@ -967,6 +971,10 @@ public InferenceContext18 getInferenceContext(ParameterizedGenericMethodBinding 
 	if (this.inferenceContexts == null)
 		return null;
 	return (InferenceContext18) this.inferenceContexts.get(method);
+}
+public boolean usesInference() {
+	return (this.binding instanceof ParameterizedGenericMethodBinding) 
+			&& getInferenceContext((ParameterizedGenericMethodBinding) this.binding) != null;
 }
 public boolean updateBindings(MethodBinding updatedBinding) {
 	if (this.binding == updatedBinding)

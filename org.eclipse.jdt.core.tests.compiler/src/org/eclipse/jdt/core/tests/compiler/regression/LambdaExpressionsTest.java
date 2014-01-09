@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 IBM Corporation and others.
+ * Copyright (c) 2011, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2223,10 +2223,10 @@ public void test424589() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425152, [1.8] [compiler] NPE in LambdaExpression.analyzeCode
-public void _test425152() {
-	runNegativeTest(
+public void test425152() {
+	runConformTest(
 		new String[] {
-			"X.java",
+			"Main.java",
 			"interface Base { \n" +
 			"	Base get(int x);\n" +
 			"}\n" +
@@ -2239,23 +2239,7 @@ public void _test425152() {
 			"        bar(foo((int p)->null));\n" +
 			"     }\n" +
 			"}\n"
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 11)\n" + 
-		"	Set<Z> x = foo(Set::new);\n" + 
-		"	    ^\n" + 
-		"Z cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
-		"	Set<Z> x = foo(Set::new);\n" + 
-		"	           ^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Collection<Object> to Set<Z>\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 11)\n" + 
-		"	Set<Z> x = foo(Set::new);\n" + 
-		"	               ^^^\n" + 
-		"Cannot instantiate the type Set\n" + 
-		"----------\n");
+		});
 }
 public static Class testClass() {
 	return LambdaExpressionsTest.class;

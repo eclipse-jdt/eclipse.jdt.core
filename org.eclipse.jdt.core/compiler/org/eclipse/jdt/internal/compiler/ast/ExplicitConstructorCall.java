@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
+ *								Bug 425152 - [1.8] [compiler] Lambda Expression not resolved but flow analyzed leading to NPE.
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 409245 - [1.8][compiler] Type annotations dropped when call is routed through a synthetic bridge method
  *******************************************************************************/
@@ -519,6 +520,10 @@ public class ExplicitConstructorCall extends Statement implements Invocation, Ex
 		if (this.inferenceContexts == null)
 			return null;
 		return (InferenceContext18) this.inferenceContexts.get(method);
+	}
+	public boolean usesInference() {
+		return (this.binding instanceof ParameterizedGenericMethodBinding) 
+				&& getInferenceContext((ParameterizedGenericMethodBinding) this.binding) != null;
 	}
 
 	// -- interface InvocationSite: --
