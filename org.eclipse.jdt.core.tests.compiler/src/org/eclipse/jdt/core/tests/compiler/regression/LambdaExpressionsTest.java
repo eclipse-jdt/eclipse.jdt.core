@@ -2222,6 +2222,41 @@ public void test424589() {
 		"Cannot instantiate the type Set\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425152, [1.8] [compiler] NPE in LambdaExpression.analyzeCode
+public void _test425152() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface Base { \n" +
+			"	Base get(int x);\n" +
+			"}\n" +
+			"class Main {\n" +
+			"    <T> Base foo(Base b) { \n" +
+			"        return null; \n" +
+			"     }\n" +
+			"    void bar(Base b) { }\n" +
+			"    void testCase() {\n" +
+			"        bar(foo((int p)->null));\n" +
+			"     }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	Set<Z> x = foo(Set::new);\n" + 
+		"	    ^\n" + 
+		"Z cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	Set<Z> x = foo(Set::new);\n" + 
+		"	           ^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Collection<Object> to Set<Z>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	Set<Z> x = foo(Set::new);\n" + 
+		"	               ^^^\n" + 
+		"Cannot instantiate the type Set\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
