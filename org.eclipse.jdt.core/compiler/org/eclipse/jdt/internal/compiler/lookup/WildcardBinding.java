@@ -151,6 +151,7 @@ public class WildcardBinding extends ReferenceBinding {
 		if (actualType.isCapture()) {
 			CaptureBinding capture = (CaptureBinding) actualType;
 			actualType = capture.wildcard;
+			// this method should only be called in 1.7- inference, hence we don't expect to see CaptureBinding18 here.
 		}
 
 		switch (constraint) {

@@ -534,17 +534,22 @@ public void testBug424712a() {
 		"Y cannot be resolved to a type\n" + 
 		"----------\n");
 }
-public void _testBug424712b() {
+public void testBug424712b() {
 	runConformTest(
 		new String[] {
 			"X.java",
 			"import java.util.Comparator;\n" + 
 			"public class X {\n" +
 			"	<T> void test() {\n" + 
-			"		Comparator<? super T> comparator = (Comparator<? super T>) Comparator.naturalOrder();\n" + 
+			"		Comparator<? super T> comparator = (Comparator<? super T>) Comparator.naturalOrder();\n" +
+			"		System.out.println(\"OK\");\n" + 
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X().test();\n" +
 			"	}\n" +
 			"}\n"
-		});
+		},
+		"OK");
 }
 public void testBug425142_minimal() {
 	runNegativeTest(

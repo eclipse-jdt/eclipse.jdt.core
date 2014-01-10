@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
+ *								Bug 424712 - [1.8][compiler] NPE in TypeBinding.isProvablyDistinctTypeArgument
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -875,16 +876,22 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 		case Binding.TYPE_PARAMETER :
 			final TypeVariableBinding variable = (TypeVariableBinding) this;
 			if (variable.isCapture()) {
-				CaptureBinding capture = (CaptureBinding) variable;
-				switch (capture.wildcard.boundKind) {
-					case Wildcard.EXTENDS:
-						upperBound1 = capture.wildcard.bound;
-						break;
-					case Wildcard.SUPER:
-						lowerBound1 = capture.wildcard.bound;
-						break;
-					case Wildcard.UNBOUND:
-						return false;
+				if (variable instanceof CaptureBinding18) {
+					CaptureBinding18 cb18 = (CaptureBinding18)variable;
+					upperBound1 = cb18.firstBound;
+					lowerBound1 = cb18.lowerBound;
+				} else {
+					CaptureBinding capture = (CaptureBinding) variable;
+					switch (capture.wildcard.boundKind) {
+						case Wildcard.EXTENDS:
+							upperBound1 = capture.wildcard.bound;
+							break;
+						case Wildcard.SUPER:
+							lowerBound1 = capture.wildcard.bound;
+							break;
+						case Wildcard.UNBOUND:
+							return false;
+					}
 				}
 				break;
 			}
@@ -930,16 +937,22 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 		case Binding.TYPE_PARAMETER :
 			TypeVariableBinding otherVariable = (TypeVariableBinding) otherArgument;
 			if (otherVariable.isCapture()) {
-				CaptureBinding otherCapture = (CaptureBinding) otherVariable;
-				switch (otherCapture.wildcard.boundKind) {
-					case Wildcard.EXTENDS:
-						upperBound2 = otherCapture.wildcard.bound;
-						break;
-					case Wildcard.SUPER:
-						lowerBound2 = otherCapture.wildcard.bound;
-						break;
-					case Wildcard.UNBOUND:
-						return false;
+				if (otherVariable instanceof CaptureBinding18) {
+					CaptureBinding18 cb18 = (CaptureBinding18)otherVariable;
+					upperBound2 = cb18.firstBound;
+					lowerBound2 = cb18.lowerBound;
+				} else {
+					CaptureBinding otherCapture = (CaptureBinding) otherVariable;
+					switch (otherCapture.wildcard.boundKind) {
+						case Wildcard.EXTENDS:
+							upperBound2 = otherCapture.wildcard.bound;
+							break;
+						case Wildcard.SUPER:
+							lowerBound2 = otherCapture.wildcard.bound;
+							break;
+						case Wildcard.UNBOUND:
+							return false;
+					}
 				}
 				break;
 			}
@@ -1073,27 +1086,45 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 				return false;
 			}
 			CaptureBinding capture = (CaptureBinding) otherType;
-			WildcardBinding wildcard = capture.wildcard;
-			TypeBinding upperBound = null;
-			TypeBinding [] otherBounds = null;
-			switch (wildcard.boundKind) {
-				case Wildcard.SUPER:
-					return false; // T super syntax isn't allowed, impossible capture.
-				case Wildcard.UNBOUND:
-					TypeVariableBinding variable = wildcard.genericType.typeVariables()[wildcard.rank];
-					upperBound = variable.upperBound();
-					otherBounds = variable.boundsCount() > 1 ? variable.otherUpperBounds() : null;
-					break;
-				case Wildcard.EXTENDS:
-					upperBound = wildcard.bound;
-					otherBounds = wildcard.otherBounds;
-					break;
+			if (capture instanceof CaptureBinding18) {
+				// by analogy to CaptureBinding but accepting the fact that .wildcard is null:
+				CaptureBinding18 cb18 = (CaptureBinding18) capture;
+				if (cb18.firstBound != null) {
+					if (cb18.lowerBound != null)
+						return false; // type containment is not defined for variables with both upper and lower bound
+					TypeBinding[] otherBounds = null; 
+					int len = cb18.upperBounds.length; // by construction non-null if firstBound is set
+					if (len > 1)
+						System.arraycopy(cb18.upperBounds, 1, otherBounds = new TypeBinding[len-1], 0, len-1);
+					otherType = capture.environment.createWildcard(null, 0, cb18.firstBound, otherBounds, Wildcard.EXTENDS);
+				} else if (cb18.lowerBound != null) {
+					otherType = capture.environment.createWildcard(null, 0, cb18.lowerBound, null, Wildcard.SUPER);
+				} else {
+					return false; // not wellformed
+				}
+			} else {
+				TypeBinding upperBound = null;
+				TypeBinding [] otherBounds = null;
+				WildcardBinding wildcard = capture.wildcard;
+				switch (wildcard.boundKind) {
+					case Wildcard.SUPER:
+						return false; // T super syntax isn't allowed, impossible capture.
+					case Wildcard.UNBOUND:
+						TypeVariableBinding variable = wildcard.genericType.typeVariables()[wildcard.rank];
+						upperBound = variable.upperBound();
+						otherBounds = variable.boundsCount() > 1 ? variable.otherUpperBounds() : null;
+						break;
+					case Wildcard.EXTENDS:
+						upperBound = wildcard.bound;
+						otherBounds = wildcard.otherBounds;
+						break;
+				}
+				// Given class A<T extends B<?>>, A<?> cannot be the universe of all parameterizations of A
+				if (upperBound.id == TypeIds.T_JavaLangObject && otherBounds == null) {
+					return false; // but given class A<T>, A<?> stays an unbounded wildcard, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=348956
+				}
+				otherType = capture.environment.createWildcard(null, 0, upperBound, otherBounds, Wildcard.EXTENDS);
 			}
-			// Given class A<T extends B<?>>, A<?> cannot be the universe of all parameterizations of A
-			if (upperBound.id == TypeIds.T_JavaLangObject && otherBounds == null) {
-				return false; // but given class A<T>, A<?> stays an unbounded wildcard, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=348956
-			}
-			otherType = capture.environment.createWildcard(null, 0, upperBound, otherBounds, Wildcard.EXTENDS);
 			return isTypeArgumentContainedBy(otherType);
 		}
 		// allow wildcard containment
