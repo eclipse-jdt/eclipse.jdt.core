@@ -855,4 +855,19 @@ public void testBug424845() {
 			"}\n"
 		});
 }
+public void testBug425278() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<T, S extends X<T>> { \n" + 
+			"    T foo(S p);\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X<T>  {\n" + 
+			"    public void bar() {\n" + 
+			"    I<Object, X<Object>> f = (p) -> p; // Error\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 IBM Corporation and others.
+ * Copyright (c) 2005, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@
  *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
+ *								Bug 425278 - [1.8][compiler] Suspect error: The target type of this expression is not a well formed parameterized type due to bound(s) mismatch
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1383,12 +1384,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				// If Ai is a type, then Ti = Ai.
 				types[i] = typeArgument;
 			}
-			if (typeParameters[i].boundCheck(null, types[i], scope) != TypeConstants.OK)
-				return this.singleAbstractMethod = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NotAWellFormedParameterizedType);
 		}
-		ReferenceBinding declaringType = scope.environment().createParameterizedType(genericType, types, genericType.enclosingType());
-		declaringType = (ReferenceBinding) declaringType.findSuperTypeOriginatingFrom(theAbstractMethod.declaringClass);
-		MethodBinding [] choices = declaringType.getMethods(theAbstractMethod.selector);
+		ParameterizedTypeBinding declaringType = scope.environment().createParameterizedType(genericType, types, genericType.enclosingType());
+		for (int i = 0, length = typeParameters.length; i < length; i++) {
+			if (typeParameters[i].boundCheck(declaringType, types[i], scope) != TypeConstants.OK)
+				return this.singleAbstractMethod = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NotAWellFormedParameterizedType);			
+		}
+		ReferenceBinding substitutedDeclaringType = (ReferenceBinding) declaringType.findSuperTypeOriginatingFrom(theAbstractMethod.declaringClass);
+		MethodBinding [] choices = substitutedDeclaringType.getMethods(theAbstractMethod.selector);
 		for (int i = 0, length = choices.length; i < length; i++) {
 			MethodBinding method = choices[i];
 			if (!method.isAbstract() || method.redeclaresPublicObjectMethod(scope)) continue; // (re)skip statics, defaults, public object methods ...
