@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation.
+ * Copyright (c) 2011, 2014 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1180,6 +1181,11 @@ public void test0026() {
 			"	X<Object> x4 = new X<>(1).idem();\n" + 
 			"	               ^^^^^^^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from X<Integer> to X<Object>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 15)\n" + 
+			"	int i = m(new X<>(\"\"));\n" + 
+			"	          ^^^^^^^^^^^\n" + 
+			"The constructor X<String>(String) is ambiguous\n" + 
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=344655

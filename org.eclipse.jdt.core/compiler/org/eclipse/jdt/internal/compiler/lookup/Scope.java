@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@
  *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
+ *								Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -783,7 +784,7 @@ public abstract class Scope {
 						}
 						TypeBinding resolvedType = invocArg.resolvedType; 
 						if (!resolvedType.isCompatibleWith(targetType, this)) {
-							MethodBinding innerBinding = innerPoly.binding();
+							MethodBinding innerBinding = innerPoly.binding(null); // 1. try without update
 							if (innerBinding instanceof ParameterizedGenericMethodBinding) {
 								ParameterizedGenericMethodBinding innerParameterized = (ParameterizedGenericMethodBinding) innerBinding;
 								InferenceContext18 infCtx18 = innerPoly.getInferenceContext(innerParameterized);
@@ -809,6 +810,13 @@ public abstract class Scope {
 											return NOT_COMPATIBLE;
 										}
 									}
+								}
+							} else if (innerPoly instanceof AllocationExpression) {
+								MethodBinding updatedMethod = innerPoly.binding(targetType); // 2. try with updating
+								if (updatedMethod != innerBinding && updatedMethod != null && updatedMethod.isValidBinding()) {
+									if (updatedMethod.declaringClass.isCompatibleWith(targetType))
+										return COMPATIBLE;
+									return NOT_COMPATIBLE;
 								}
 							}
 						}

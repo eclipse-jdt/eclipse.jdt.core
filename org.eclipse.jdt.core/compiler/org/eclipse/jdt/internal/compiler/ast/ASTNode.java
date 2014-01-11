@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 424742 - [1.8] NPE in LambdaExpression.isCompatibleWith
  *								Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
+ *								Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
  *     Jesper S Moller - Contributions for
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -662,6 +663,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						return; // not yet ready for pushing type information down to arguments
 					variableArity &= infCtx.isVarArgs(); // TODO: if no infCtx is available, do we have to re-check if this is a varargs invocation?
 				}
+			} else if (invocation instanceof AllocationExpression) {
+				if (((AllocationExpression)invocation).suspendedResolutionState != null)
+					return; // not yet ready
 			}
 			
 			final TypeBinding[] parameters = candidateMethod.parameters;
@@ -679,7 +683,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 				if (argument instanceof Invocation) {
 					Invocation innerInvocation = (Invocation)argument;
-					MethodBinding binding = innerInvocation.binding();
+					MethodBinding binding = innerInvocation.binding(parameterType);
 					if (binding instanceof ParameterizedGenericMethodBinding) {
 						ParameterizedGenericMethodBinding parameterizedMethod = (ParameterizedGenericMethodBinding) binding;
 						InferenceContext18 innerContext = innerInvocation.getInferenceContext(parameterizedMethod);

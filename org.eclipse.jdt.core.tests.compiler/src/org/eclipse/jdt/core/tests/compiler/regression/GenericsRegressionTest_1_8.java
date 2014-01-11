@@ -19,7 +19,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug424845" };
+//	TESTS_NAMES = new String[] { "testBug424205b" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -361,7 +361,7 @@ public void _testBug424403() {
 		});
 }
 public void testBug401850a() {
-	runConformTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"import java.util.List;\n" + 
@@ -372,7 +372,13 @@ public void testBug401850a() {
 			"   int m(X<String> xs) { return 0; }\n" + 
 			"   int i = m(new X<>(\"\"));\n" + 
 			"}\n"
-		});
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	int i = m(new X<>(\"\"));\n" + 
+		"	          ^^^^^^^^^^^\n" + 
+		"The constructor X<String>(String) is ambiguous\n" + 
+		"----------\n");
 }
 public void testBug401850b() {
 	runNegativeTest(
@@ -483,14 +489,14 @@ public void testBug424205a() {
 			"}\n"
 		});
 }
-public void _testBug424205b() {
+public void testBug424205b() {
 	runConformTest(
 		new String[] {
 			"X.java",
 			"interface I {\n" + 
 			"	void bar(String t);\n" + 
 			"}\n" + 
-			"class X<T> implements I {\n" + 
+			"public class X<T> implements I {\n" + 
 			"	public void bar(String t) {}\n" + 
 			"	X(String x) {}\n" + 
 			"	X(T x) {}\n" + 
@@ -499,9 +505,14 @@ public void _testBug424205b() {
 			"		one(new X<>((String s) -> { })); // 1. Three errors\n" + 
 			"		X<I> i = new X<>((String s) -> { }); // 2. Error - Comment out the previous line to see this error go away.\n" + 
 			"		one (i);\n" + 
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(\"main\");\n" +
+			"		new X<Integer>(\"one\").two();\n" +
 			"	}\n" + 
 			"}\n"
-		});
+		},
+		"main");
 }
 public void testBug424712a() {
 	runNegativeTest(

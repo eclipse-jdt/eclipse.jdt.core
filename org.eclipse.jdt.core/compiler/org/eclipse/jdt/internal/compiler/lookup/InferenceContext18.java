@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 GK Software AG.
+ * Copyright (c) 2013, 2014 GK Software AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -883,7 +883,8 @@ public class InferenceContext18 {
 	public void rebindInnerPolies(BoundSet bounds, TypeBinding[] parameterTypes) {
 		// This updates all remaining poly expressions that are direct arguments of the current invocation:
 		// (handles FunctionalExpression & ConditionalExpression)
-		acceptPendingPolyArguments(bounds, parameterTypes, this.inferenceKind == CHECK_VARARG);
+		boolean isVarargs = this.inferenceKind == CHECK_VARARG;
+		acceptPendingPolyArguments(bounds, parameterTypes, isVarargs);
 		// This loops over all poly expressions for which a sub-inference was triggered:
 		// (handles generic invocations)
 		int len = this.innerPolies.size();
@@ -891,7 +892,10 @@ public class InferenceContext18 {
 			Expression inner = (Expression) this.innerPolies.get(i);
 			if (inner instanceof Invocation) {
 				Invocation innerMessage = (Invocation) inner;
-				MethodBinding original = innerMessage.binding().original();
+				MethodBinding binding = innerMessage.binding(getParameter(parameterTypes, i, isVarargs));
+				if (binding == null)
+					continue;
+				MethodBinding original = binding.original();
 
 				// apply inference results onto the allocation type of inner diamonds:
 				if (original.isConstructor() && inner.isPolyExpression()) {

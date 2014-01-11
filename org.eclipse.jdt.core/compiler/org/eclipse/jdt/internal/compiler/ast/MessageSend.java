@@ -42,6 +42,7 @@
  *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *								Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
  *								Bug 425152 - [1.8] [compiler] Lambda Expression not resolved but flow analyzed leading to NPE.
+ *								Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -953,7 +954,7 @@ public boolean receiverIsImplicitThis() {
 	return this.receiver.isImplicitThis();
 }
 // -- interface Invocation: --
-public MethodBinding binding() {
+public MethodBinding binding(TypeBinding targetType) {
 	return this.binding;
 }
 public Expression[] arguments() {

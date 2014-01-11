@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 /**
  * Abstraction for invocation AST nodes that can trigger 
@@ -30,7 +31,11 @@ public interface Invocation extends InvocationSite {
 
 	Expression[] arguments();
 
-	MethodBinding binding();
+	/**
+	 * Answer the resolved method binding of this invocation.
+	 * If a target type is given, the invocation gets a chance to do repeated method lookup.
+	 */
+	MethodBinding binding(TypeBinding targetType);
 
 	/**
 	 * Register the given inference context, which produced the given method as its intermediate result.

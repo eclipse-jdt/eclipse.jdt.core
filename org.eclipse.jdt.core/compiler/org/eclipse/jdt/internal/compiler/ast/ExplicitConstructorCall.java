@@ -21,6 +21,7 @@
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
  *								Bug 425152 - [1.8] [compiler] Lambda Expression not resolved but flow analyzed leading to NPE.
+ *								Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 409245 - [1.8][compiler] Type annotations dropped when call is routed through a synthetic bridge method
  *******************************************************************************/
@@ -491,7 +492,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation, Ex
 	}
 
 	// -- interface Invocation: --
-	public MethodBinding binding() {
+	public MethodBinding binding(TypeBinding targetType) {
 		return this.binding;
 	}
 	public Expression[] arguments() {

@@ -23,6 +23,7 @@
  *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *							Bug 425142 - [1.8][compiler] NPE in ConstraintTypeFormula.reduceSubType
  *							Bug 425153 - [1.8] Having wildcard allows incompatible types in a lambda expression
+ *							Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -502,6 +503,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if (targetType instanceof TypeVariableBinding) {
 			if (method != null) { // when called from type inference
 				if (((TypeVariableBinding)targetType).declaringElement == method)
+					return false;
+				if (method.isConstructor() && ((TypeVariableBinding)targetType).declaringElement == method.declaringClass)
 					return false;
 			} else { // for internal calls
 				TypeVariableBinding typeVariable = (TypeVariableBinding) targetType;

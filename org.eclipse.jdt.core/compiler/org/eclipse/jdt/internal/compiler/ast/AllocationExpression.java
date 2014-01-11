@@ -28,6 +28,7 @@
  *							Bug 424727 - [compiler][null] NullPointerException in nullAnnotationUnsupportedLocation(ProblemReporter.java:5708)
  *							Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
  *							Bug 425152 - [1.8] [compiler] Lambda Expression not resolved but flow analyzed leading to NPE.
+ *							Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *							bug 378674 - "The method can be declared as static" is wrong
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -67,6 +68,29 @@ public class AllocationExpression extends Expression implements Invocation {
 
 	 // hold on to this context from invocation applicability inference until invocation type inference (per method candidate):
 	private SimpleLookupTable/*<PGMB,IC18>*/ inferenceContexts;
+
+	/** Record to keep state between different parts of resolution. */
+	ResolutionState suspendedResolutionState;
+	class ResolutionState {
+		BlockScope scope;
+		boolean isDiamond;
+		boolean diamondNeedsDeferring;
+		boolean argsContainCast;
+		boolean polyExpressionSeen;
+		boolean cannotInferDiamond; // request the an error be reported in due time
+		TypeBinding[] argumentTypes;
+
+		ResolutionState(BlockScope scope, boolean isDiamond, boolean diamonNeedsDeferring,
+				boolean argsContainCast, boolean polyExpressionSeen, TypeBinding[] argumentTypes)
+		{
+			this.scope = scope;
+			this.isDiamond = isDiamond;
+			this.diamondNeedsDeferring = diamonNeedsDeferring;
+			this.argsContainCast = argsContainCast;
+			this.polyExpressionSeen = polyExpressionSeen;
+			this.argumentTypes = argumentTypes;
+		}
+	}
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	// check captured variables are initialized in current context (26134)
@@ -442,24 +466,47 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().cannotInstantiate(this.type, this.resolvedType);
 		return this.resolvedType;
 	}
-	if (isDiamond && !diamondNeedsDeferring) {
+	ResolutionState state = new ResolutionState(scope, isDiamond, diamondNeedsDeferring, argsContainCast, polyExpressionSeen, argumentTypes);
+	if (diamondNeedsDeferring) {
+		this.suspendedResolutionState = state; // resolving to be continued later (via binding(TypeBinding targetType)).
+		return new PolyTypeBinding(this);
+	}
+
+	if (!resolvePart2(state))
+		return null;
+	return resolvePart3(state);
+}
+
+/** Second part of resolving that may happen multiple times during overload resolution. */
+boolean resolvePart2(ResolutionState state) {
+	// TODO: all information persisted during this method may need to be stored per targetType?
+	if (state.isDiamond) {
 		ReferenceBinding genericType = ((ParameterizedTypeBinding) this.resolvedType).genericType();
-		TypeBinding [] inferredTypes = inferElidedTypes(genericType, genericType.enclosingType(), argumentTypes, scope);
+		TypeBinding [] inferredTypes = inferElidedTypes(genericType, genericType.enclosingType(), state.argumentTypes, state.scope);
 		if (inferredTypes == null) {
-			scope.problemReporter().cannotInferElidedTypes(this);
-			return this.resolvedType = null;
+			if (!state.diamondNeedsDeferring) {
+				state.scope.problemReporter().cannotInferElidedTypes(this);
+				this.resolvedType = null;
+			} else {
+				state.cannotInferDiamond = true; // defer reporting
+			}
+			return false;
 		}
-		this.resolvedType = this.type.resolvedType = scope.environment().createParameterizedType(genericType, inferredTypes, ((ParameterizedTypeBinding) this.resolvedType).enclosingType());
+		this.resolvedType = this.type.resolvedType = state.scope.environment().createParameterizedType(genericType, inferredTypes, ((ParameterizedTypeBinding) this.resolvedType).enclosingType());
+		state.cannotInferDiamond = false;
  	}
 	ReferenceBinding receiverType = (ReferenceBinding) this.resolvedType;
-	if (diamondNeedsDeferring) {
-		// in this preliminary mode use the raw receiver type for constructor lookup, to avoid spurious type errors
-		receiverType = (ReferenceBinding) receiverType.original();
-		receiverType = scope.environment().createRawType(receiverType, receiverType.enclosingType());
-	}
-	
-	this.binding = findConstructorBinding(scope, this, receiverType, argumentTypes, polyExpressionSeen);
+	this.binding = findConstructorBinding(state.scope, this, receiverType, state.argumentTypes, state.polyExpressionSeen);
+	return true;
+}
 
+/** Final part of resolving (once): check and report various error conditions. */
+TypeBinding resolvePart3(ResolutionState state) {
+	this.suspendedResolutionState = null;
+	if (state.cannotInferDiamond) {
+		state.scope.problemReporter().cannotInferElidedTypes(this);
+		return this.resolvedType = null;
+	}
 	ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
 	if (!this.binding.isValidBinding()) {
 		if (this.binding.declaringClass == null) {
@@ -468,31 +515,29 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (this.type != null && !this.type.resolvedType.isValidBinding()) {
 			return null;
 		}
-		scope.problemReporter().invalidConstructor(this, this.binding);
+		state.scope.problemReporter().invalidConstructor(this, this.binding);
 		return this.resolvedType;
 	}
 	if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
-		scope.problemReporter().missingTypeInConstructor(this, this.binding);
+		state.scope.problemReporter().missingTypeInConstructor(this, this.binding);
 	}
-	if (isMethodUseDeprecated(this.binding, scope, true))
-		scope.problemReporter().deprecatedMethod(this.binding, this);
-	if (!diamondNeedsDeferring) { // don't check diamonds before we have the target type
-		if (checkInvocationArguments(scope, null, allocationType, this.binding, this.arguments, argumentTypes, argsContainCast, this)) {
-			this.bits |= ASTNode.Unchecked;
-		}
+	if (isMethodUseDeprecated(this.binding, state.scope, true)) {
+		state.scope.problemReporter().deprecatedMethod(this.binding, this);
+	}
+	if (checkInvocationArguments(state.scope, null, allocationType, this.binding, this.arguments, state.argumentTypes, state.argsContainCast, this)) {
+		this.bits |= ASTNode.Unchecked;
 	}
 	if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
-		scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.genericTypeArguments, this.typeArguments);
+		state.scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.genericTypeArguments, this.typeArguments);
 	}
-	if (!isDiamond && this.resolvedType.isParameterizedTypeWithActualArguments()) {
- 		checkTypeArgumentRedundancy((ParameterizedTypeBinding) this.resolvedType, this.resolvedType.enclosingType(), argumentTypes, scope);
+	if (!state.isDiamond && this.resolvedType.isParameterizedTypeWithActualArguments()) {
+ 		checkTypeArgumentRedundancy((ParameterizedTypeBinding) this.resolvedType, this.resolvedType.enclosingType(), state.argumentTypes, state.scope);
  	}
+	CompilerOptions compilerOptions = state.scope.compilerOptions();
 	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled && (this.binding.tagBits & TagBits.IsNullnessKnown) == 0) {
-		new ImplicitNullAnnotationVerifier(scope.environment(), compilerOptions.inheritNullAnnotations)
-				.checkImplicitNullAnnotations(this.binding, null/*srcMethod*/, false, scope);
+		new ImplicitNullAnnotationVerifier(state.scope.environment(), compilerOptions.inheritNullAnnotations)
+				.checkImplicitNullAnnotations(this.binding, null/*srcMethod*/, false, state.scope);
 	}
-	if (diamondNeedsDeferring)
-		return new PolyTypeBinding(this);
 	return allocationType;
 }
 
@@ -643,8 +688,20 @@ public boolean statementExpression() {
 }
 
 //-- interface Invocation: --
-public MethodBinding binding() {
+public MethodBinding binding(TypeBinding targetType) {
+	if (this.suspendedResolutionState != null && targetType != null) {
+		setExpectedType(targetType);
+		if (!resolvePart2(this.suspendedResolutionState))
+			return null;
+	}
 	return this.binding;
+}
+public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType) {
+	if (this.suspendedResolutionState != null) {
+		return resolvePart3(this.suspendedResolutionState);
+		// also: should this trigger any propagation to inners, too?
+	}
+	return super.checkAgainstFinalTargetType(targetType);
 }
 public Expression[] arguments() {
 	return this.arguments;
