@@ -11319,7 +11319,6 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=420458
-	 * @deprecated
 	 */
 	public void testBug420458() throws JavaModelException {
 		String contents =
@@ -11346,6 +11345,6 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 		checkSourceRange(arrayType, "Object[][][]", contents);
 		checkSourceRange(arrayType.getElementType(), "Object", contents);
 		assertTrue(arrayType.getDimensions() == 3);
-		checkSourceRange(arrayType.getComponentType(), "Object[][]", contents);
+		checkSourceRange(componentType(arrayType), "Object[][]", contents);
 	}
 }
