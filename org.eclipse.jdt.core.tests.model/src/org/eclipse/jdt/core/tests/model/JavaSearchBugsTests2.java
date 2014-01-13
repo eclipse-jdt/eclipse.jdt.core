@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 IBM Corporation and others.
+ * Copyright (c) 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 
 // The size of JavaSearchBugsTests.java is very big, Hence continuing here.
 public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
@@ -1595,6 +1596,34 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			search("C.a()", METHOD, REFERENCES, scope, this.resultCollector);
 
 			assertSearchResults("pkg/D.java void pkg.D.d() [a()] EXACT_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug395348() throws CoreException {
+		try {
+			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
+			createFile("/P/X.java",
+					"public class X {\n"+
+					"   static void f() {\n" +
+					"	    new Y<C2>() {\n"+
+					"           public int  compare(C2 o1) {\n" +
+					"               return 0;\n" +
+					"           }\n" +
+					"       };\n"+
+					"   }\n" +
+					"}\n" +
+					"interface Y<T> {\n" +
+					"  public abstract int compare(T o1);\n" +
+					"}\n" +
+					"class C2 {}\n"
+			);
+			IMethod method = selectMethod(getCompilationUnit("/P/X.java"), "compare", 0);		
+			MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, EQUIVALENT_RULE|EXACT_RULE);
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
+			search(pattern,  scope, this.resultCollector);
+			assertSearchResults("X.java int void X.f():<anonymous>#1.compare(C2) [compare] EXACT_MATCH\n" +
+								"X.java int Y.compare(T) [compare] EXACT_MATCH"); // an NPE was thrown without the fix
 		} finally {
 			deleteProject("P");
 		}
