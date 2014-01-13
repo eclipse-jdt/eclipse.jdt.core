@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,8 @@
  *							Bug 406982 - [1.8][compiler] Generation of MethodParameters Attribute in classfile
  *							Bug 416885 - [1.8][compiler]IncompatibleClassChange error (edit)
  *							Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
+ *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
@@ -147,6 +149,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] INVOKE_METHOD_METHOD_SIGNATURE = "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 	public static final char[][] JAVA_LANG_REFLECT_ACCESSIBLEOBJECT = new char[][] {TypeConstants.JAVA, TypeConstants.LANG, TypeConstants.REFLECT, "AccessibleObject".toCharArray()}; //$NON-NLS-1$
 	public static final char[][] JAVA_LANG_REFLECT_ARRAY = new char[][] {TypeConstants.JAVA, TypeConstants.LANG, TypeConstants.REFLECT, "Array".toCharArray()}; //$NON-NLS-1$
+	public static final char[] IllegalArgumentExceptionConstructorSignature = "(Ljava/lang/String;)V".toCharArray(); //$NON-NLS-1$
 	// predefined type constant names
 	public static final char[] JavaIoPrintStreamSignature = "Ljava/io/PrintStream;".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangAssertionErrorConstantPoolName = "java/lang/AssertionError".toCharArray(); //$NON-NLS-1$
@@ -180,6 +183,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] JavaLangObjectSignature = "Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangSystemConstantPoolName = "java/lang/System".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangThrowableConstantPoolName = "java/lang/Throwable".toCharArray(); //$NON-NLS-1$
+	public static final char[] JavaLangIllegalArgumentExceptionConstantPoolName = "java/lang/IllegalArgumentException".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangVoidConstantPoolName = "java/lang/Void".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaUtilIteratorConstantPoolName = "java/util/Iterator".toCharArray(); //$NON-NLS-1$
 	public static final char[] LongConstrSignature = "(J)V".toCharArray(); //$NON-NLS-1$
@@ -264,6 +268,27 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	// Java 8 lambda support
 	public static final char[] METAFACTORY = "metafactory".toCharArray(); //$NON-NLS-1$
 	public static final char[] JAVA_LANG_INVOKE_LAMBDAMETAFACTORY_METAFACTORY_SIGNATURE = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;".toCharArray(); //$NON-NLS-1$
+	public static final char[] ALTMETAFACTORY = "altMetafactory".toCharArray(); //$NON-NLS-1$
+	public static final char[] JAVA_LANG_INVOKE_LAMBDAMETAFACTORY_ALTMETAFACTORY_SIGNATURE = 
+			"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;".toCharArray(); //$NON-NLS-1$
+	public static final char[] JavaLangInvokeSerializedLambda = "Ljava/lang/invoke/SerializedLambda;".toCharArray(); //$NON-NLS-1$
+	public static final char[] JavaLangInvokeSerializedLambdaConstantPoolName = "java/lang/invoke/SerializedLambda".toCharArray(); //$NON-NLS-1$
+	public static final char[] GetImplMethodName = "getImplMethodName".toCharArray(); //$NON-NLS-1$
+	public static final char[] GetImplMethodNameSignature = "()Ljava/lang/String;".toCharArray(); //$NON-NLS-1$
+	public static final char[] GetImplMethodKind = "getImplMethodKind".toCharArray(); //$NON-NLS-1$
+	public static final char[] GetImplMethodKindSignature = "()I".toCharArray(); //$NON-NLS-1$
+	public static final char[] GetFunctionalInterfaceClass = "getFunctionalInterfaceClass".toCharArray(); //$NON-NLS-1$
+	public static final char[] GetFunctionalInterfaceClassSignature = "()Ljava/lang/String;".toCharArray(); //$NON-NLS-1$
+	public static final char[] GetFunctionalInterfaceMethodName = "getFunctionalInterfaceMethodName".toCharArray(); //$NON-NLS-1$
+	public static final char[] GetFunctionalInterfaceMethodNameSignature = "()Ljava/lang/String;".toCharArray(); //$NON-NLS-1$
+	public static final char[] GetFunctionalInterfaceMethodSignature = "getFunctionalInterfaceMethodSignature".toCharArray(); //$NON-NLS-1$
+	public static final char[] GetFunctionalInterfaceMethodSignatureSignature = "()Ljava/lang/String;".toCharArray(); //$NON-NLS-1$
+	public static final char[] GetImplClass = "getImplClass".toCharArray(); //$NON-NLS-1$
+	public static final char[] GetImplClassSignature = "()Ljava/lang/String;".toCharArray(); //$NON-NLS-1$
+	public static final char[] GetImplMethodSignature = "getImplMethodSignature".toCharArray(); //$NON-NLS-1$
+	public static final char[] GetImplMethodSignatureSignature = "()Ljava/lang/String;".toCharArray(); //$NON-NLS-1$
+	public static final char[] GetCapturedArg = "getCapturedArg".toCharArray(); //$NON-NLS-1$
+	public static final char[] GetCapturedArgSignature = "(I)Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 	// Java 8 repeatable annotation support
 	public static final char[] JAVA_LANG_ANNOTATION_REPEATABLE = "Ljava/lang/annotation/Repeatable;".toCharArray(); //$NON-NLS-1$
 

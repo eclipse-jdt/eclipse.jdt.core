@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,8 +34,10 @@
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
- *     Till Brychcy - Contributions for
+ *      Till Brychcy - Contributions for
  *     							bug 415269 - NonNullByDefault is not always inherited to nested classes
+ *      Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                          	Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -601,6 +603,17 @@ public SyntheticMethodBinding addSyntheticMethod(LambdaExpression lambda) {
 	} else {
 		lambdaMethod = lambdaMethods[0];
 	}
+	
+	// Create a $deserializeLambda$ method if necessary, one is shared amongst all lambdas
+	if (lambda.isSerializable) {
+		SyntheticMethodBinding[] deserializeLambdaMethods = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(TypeConstants.DESERIALIZE_LAMBDA);
+		if (deserializeLambdaMethods == null) {
+			SyntheticMethodBinding deserializeLambdaMethod = new SyntheticMethodBinding(this);
+			this.synthetics[SourceTypeBinding.METHOD_EMUL].put(TypeConstants.DESERIALIZE_LAMBDA,deserializeLambdaMethods = new SyntheticMethodBinding[1]);
+			deserializeLambdaMethods[0] = deserializeLambdaMethod;
+		}
+	}
+	
 	return lambdaMethod;
 }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,8 @@
  *     Jesper S Moller - Contributions for
  *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335             
  *							Bug 406982 - [1.8][compiler] Generation of MethodParameters Attribute in classfile
+ *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
@@ -155,4 +157,9 @@ public interface ClassFileConstants {
 	int ATTR_STACK_MAP = 0x10; // Stack map attribute: cldc
 	int ATTR_TYPE_ANNOTATION = 0x20; // type annotation attribute (jsr 308)
 	int ATTR_METHOD_PARAMETERS = 0x40; // method parameters attribute (jep 118)
+
+	// See java.lang.invoke.LambdaMetafactory constants - option bitflags when calling altMetaFactory()
+	int FLAG_SERIALIZABLE = 0x01;
+	int FLAG_MARKERS = 0x02;
+	int FLAG_BRIDGES = 0x04;
 }

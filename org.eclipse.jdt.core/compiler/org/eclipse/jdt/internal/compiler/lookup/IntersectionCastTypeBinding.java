@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,8 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
+ *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.lookup;
@@ -178,5 +180,23 @@ public class IntersectionCastTypeBinding extends ReferenceBinding {
 	}
 	public String toString() {
 	    return debugName();
+	}
+
+	public TypeBinding getSAMType(Scope scope) {
+		TypeBinding samType = null;
+		for (int i = 0, max = this.intersectingTypes.length; i < max; i++) {
+			TypeBinding typeBinding = this.intersectingTypes[i];
+			MethodBinding methodBinding = typeBinding.getSingleAbstractMethod(scope, false);
+			// Why doesn't getSingleAbstractMethod do as the javadoc says, and return null
+			// when it is not a SAM type
+			if (methodBinding instanceof ProblemMethodBinding && ((ProblemMethodBinding) methodBinding).problemId()==ProblemReasons.NoSuchSingleAbstractMethod) {
+				continue;
+			}
+			if (samType != null) {
+				return null; // There is more than one (!), so we don't know which
+			}
+			samType = typeBinding;
+		}
+		return samType;
 	}
 }

@@ -24,8 +24,13 @@
  *							Bug 425142 - [1.8][compiler] NPE in ConstraintTypeFormula.reduceSubType
  *							Bug 425153 - [1.8] Having wildcard allows incompatible types in a lambda expression
  *							Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
+ *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -49,6 +54,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
+import org.eclipse.jdt.internal.compiler.lookup.IntersectionCastTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -86,9 +92,10 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	boolean valueCompatible = false;
 	private boolean shapeAnalysisComplete = false;
 	boolean returnsValue;
+	public boolean isSerializable;
 	boolean returnsVoid;
 	private LambdaExpression original = this;
-	private SyntheticArgumentBinding[] outerLocalVariables = NO_SYNTHETIC_ARGUMENTS;
+	public SyntheticArgumentBinding[] outerLocalVariables = NO_SYNTHETIC_ARGUMENTS;
 	private int outerLocalVariablesSlotSize = 0;
 	public boolean shouldCaptureInstance = false;
 	private boolean assistNode = false;
@@ -162,7 +169,11 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			codeStream.generateOuterAccess(path, this, capturedOuterLocal, currentScope);
 		}
 		signature.append(')');
-		signature.append(this.expectedType.signature());
+		if (this.expectedType instanceof IntersectionCastTypeBinding) {
+			signature.append(((IntersectionCastTypeBinding)this.expectedType).getSAMType(currentScope).signature());
+		} else {
+			signature.append(this.expectedType.signature());
+		}
 		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
 		codeStream.invokeDynamic(invokeDynamicNumber, (this.shouldCaptureInstance ? 1 : 0) + this.outerLocalVariablesSlotSize, 1, this.descriptor.selector, signature.toString().toCharArray());
 		if (!valueRequired)
@@ -370,6 +381,18 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			new ReturnStatement(expression, expression.sourceStart, expression.sourceEnd, true).resolve(this.scope); // :-) ;-)
 		} else {
 			this.body.resolve(this.scope);
+		}
+		if (this.expectedType instanceof IntersectionCastTypeBinding) {
+			ReferenceBinding[] intersectingTypes =  ((IntersectionCastTypeBinding)this.expectedType).intersectingTypes;
+			for (int t = 0, max = intersectingTypes.length; t < max; t++) {
+				if (intersectingTypes[t].findSuperTypeOriginatingFrom(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null) {
+					this.isSerializable = true;
+					break;
+				}
+			}
+		} else if (this.expectedType != null && 
+				   this.expectedType.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null) {
+			this.isSerializable = true;
 		}
 		return this.resolvedType;
 	}
@@ -1099,5 +1122,30 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 
 	public int diagnosticsSourceEnd() {
 		return this.body instanceof Block ? this.arrowPosition : this.sourceEnd;
+	}
+
+	public TypeBinding[] getMarkerInterfaces() {
+		if (this.expectedType instanceof IntersectionCastTypeBinding) {
+			Set markerBindings = new LinkedHashSet();
+			TypeBinding[] intersectionTypes = ((IntersectionCastTypeBinding)this.expectedType).intersectingTypes;
+			for (int i = 0,max = intersectionTypes.length; i < max; i++) {
+				TypeBinding typeBinding = intersectionTypes[i];
+				MethodBinding methodBinding = typeBinding.getSingleAbstractMethod(this.scope, false);
+				// Why doesn't getSingleAbstractMethod do as the javadoc says, and return null
+				// when it is not a SAM type
+				if (!(methodBinding instanceof ProblemMethodBinding && ((ProblemMethodBinding)methodBinding).problemId()==ProblemReasons.NoSuchSingleAbstractMethod)) {
+					continue;
+				}
+				if (typeBinding.id == TypeIds.T_JavaIoSerializable) {
+					// Serializable is captured as a bitflag
+					continue;
+				}
+				markerBindings.add(typeBinding);
+			}
+			if (markerBindings.size() > 0) {
+				return (TypeBinding[])markerBindings.toArray(new TypeBinding[markerBindings.size()]);
+			}
+		}
+		return null;
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,8 @@
  *    Jesper S Moller - Contributions for
  *								Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
+ *    Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                              Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -92,6 +94,7 @@ public interface TypeConstants {
     char[] UPPER_ANNOTATION_TYPE = "ANNOTATION_TYPE".toCharArray(); //$NON-NLS-1$
     char[] UPPER_PACKAGE = "PACKAGE".toCharArray(); //$NON-NLS-1$
     char[] ANONYMOUS_METHOD = "lambda$".toCharArray(); //$NON-NLS-1$
+    char[] DESERIALIZE_LAMBDA = "$deserializeLambda$".toCharArray(); //$NON-NLS-1$
     
 	// jsr308
 	char[] TYPE_USE_TARGET  = "TYPE_USE".toCharArray(); //$NON-NLS-1$
@@ -193,6 +196,7 @@ public interface TypeConstants {
 			"MethodHandle$PolymorphicSignature".toCharArray() //$NON-NLS-1$
 	};
 	char[][] JAVA_LANG_INVOKE_LAMBDAMETAFACTORY = {JAVA, LANG, INVOKE, "LambdaMetafactory".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_LANG_INVOKE_SERIALIZEDLAMBDA = {JAVA, LANG, INVOKE, "SerializedLambda".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_INVOKE_METHODHANDLES = {JAVA, LANG, INVOKE, "MethodHandles".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_AUTOCLOSEABLE =  {JAVA, LANG, "AutoCloseable".toCharArray()}; //$NON-NLS-1$
 	char[] CLOSE = "close".toCharArray(); //$NON-NLS-1$

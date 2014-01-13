@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,8 @@
  *		IBM Corporation - initial API and implementation
  *		Stephan Herrmann - Contribution for
  *								bug 400710 - [1.8][compiler] synthetic access to default method generates wrong code
+ *      Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                          	Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -52,6 +54,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public final static int ArrayConstructor = 14; // X[]::new
 	public static final int ArrayClone = 15; // X[]::clone
     public static final int FactoryMethod = 16; // for indy call to private constructor.
+    public static final int DeserializeLambda = 17; // For supporting lambda deserialization.
     
 	public int sourceStart = 0; // start position of the matching declaration
 	public int index; // used for sorting access methods in the class file
@@ -281,6 +284,23 @@ public class SyntheticMethodBinding extends MethodBinding {
 		if (declaringEnum.isStrictfp()) {
 			this.modifiers |= ClassFileConstants.AccStrictfp;
 		}
+	}
+	
+	/**
+	 * Construct $deserializeLambda$ method
+	 */
+	public SyntheticMethodBinding(SourceTypeBinding declaringClass) {
+		this.declaringClass = declaringClass;
+		this.selector = TypeConstants.DESERIALIZE_LAMBDA;
+		this.modifiers = ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
+		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		this.thrownExceptions = Binding.NO_EXCEPTIONS;
+		this.returnType = declaringClass.scope.getJavaLangObject();
+	    this.parameters = new TypeBinding[]{declaringClass.scope.getJavaLangInvokeSerializedLambda()};
+	    this.purpose = SyntheticMethodBinding.DeserializeLambda;
+		SyntheticMethodBinding[] knownAccessMethods = declaringClass.syntheticMethods();
+		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
+		this.index = methodId;
 	}
 	
 	/**

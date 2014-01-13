@@ -135,6 +135,7 @@ public static Test suite() {
 	since_1_8.add(NullTypeAnnotationTest.class);
 	since_1_8.add(NegativeLambdaExpressionsTest.class);
 	since_1_8.add(LambdaExpressionsTest.class);
+	since_1_8.add(SerializableLambdaTest.class);
 	since_1_8.add(OverloadResolutionTest8.class);
 	since_1_8.add(JSR335ClassFileTest.class);
 	since_1_8.add(ExpressionContextTests.class);

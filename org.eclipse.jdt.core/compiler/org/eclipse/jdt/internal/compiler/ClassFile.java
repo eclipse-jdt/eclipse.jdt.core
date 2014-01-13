@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,13 +16,14 @@
  *							Bug 406982 - [1.8][compiler] Generation of MethodParameters Attribute in classfile
  *							Bug 416885 - [1.8][compiler]IncompatibleClassChange error (edit)
  *							Bug 412149 - [1.8][compiler] Emit repeated annotations into the designated container
- *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
  *                          Bug 409246 - [1.8][compiler] Type annotations on catch parameters not handled properly
  *                          Bug 415541 - [1.8][compiler] Type annotations in the body of static initializer get dropped
  *                          Bug 415399 - [1.8][compiler] Type annotations on constructor results dropped by the code generator
  *                          Bug 415470 - [1.8][compiler] Type annotations on class declaration go vanishing
+ *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
@@ -932,6 +933,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 						case SyntheticMethodBinding.FactoryMethod:
 							addSyntheticFactoryMethod(syntheticMethod);
 							break;	
+						case SyntheticMethodBinding.DeserializeLambda:
+							// TODO [andy] do we need to do this after the loop to ensure it is done last?
+							addSyntheticDeserializeLambda(syntheticMethod,this.referenceBinding.syntheticMethods()); 
+							break;
 					}
 				}
 				emittedSyntheticsCount = currentSyntheticsCount;
@@ -2847,52 +2852,131 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (methodHandlesLookup == null) return 0; // skip bootstrap section, class path problem already reported, just avoid NPE.
 		recordInnerClasses(methodHandlesLookup); // Should be done, it's what javac does also
 		ReferenceBinding javaLangInvokeLambdaMetafactory = this.referenceBinding.scope.getJavaLangInvokeLambdaMetafactory(); 
-		int indexForMetaFactory = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, javaLangInvokeLambdaMetafactory, 
-				ConstantPool.METAFACTORY, ConstantPool.JAVA_LANG_INVOKE_LAMBDAMETAFACTORY_METAFACTORY_SIGNATURE, false);
+		
+		// Depending on the complexity of the expression it may be necessary to use the altMetafactory() rather than the metafactory()
+		int indexForMetaFactory = 0;
+		int indexForAltMetaFactory = 0;
 
 		int numberOfBootstraps = functionalExpressionList.size();
 		int localContentsOffset = this.contentsOffset;
 		// Generate the boot strap attribute - since we are only making lambdas and
 		// functional expressions, we know the size ahead of time - this less general
 		// than the full invokedynamic scope, but fine for Java 8
+		
 		int exSize = 10 * numberOfBootstraps + 8;
 		if (exSize + localContentsOffset >= this.contents.length) {
 			resizeContents(exSize);
 		}
-		this.contentsOffset += exSize;
 		
 		int attributeNameIndex =
 			this.constantPool.literalIndex(AttributeNamesConstants.BootstrapMethodsName);
 		this.contents[localContentsOffset++] = (byte) (attributeNameIndex >> 8);
 		this.contents[localContentsOffset++] = (byte) attributeNameIndex;
-		int value = (numberOfBootstraps * 10) + 2;
-		this.contents[localContentsOffset++] = (byte) (value >> 24);
-		this.contents[localContentsOffset++] = (byte) (value >> 16);
-		this.contents[localContentsOffset++] = (byte) (value >> 8);
-		this.contents[localContentsOffset++] = (byte) value;
+		// leave space for attribute_length and remember where to insert it
+		int attributeLengthPosition = localContentsOffset;
+		localContentsOffset += 4;
 		this.contents[localContentsOffset++] = (byte) (numberOfBootstraps >> 8);
 		this.contents[localContentsOffset++] = (byte) numberOfBootstraps;
 		for (int i = 0; i < numberOfBootstraps; i++) {
 			FunctionalExpression functional = (FunctionalExpression) functionalExpressionList.get(i);
-			this.contents[localContentsOffset++] = (byte) (indexForMetaFactory >> 8);
-			this.contents[localContentsOffset++] = (byte) indexForMetaFactory;
 			
-			this.contents[localContentsOffset++] = 0;
-			this.contents[localContentsOffset++] = (byte) 3;
-			
-			int functionalDescriptorIndex = this.constantPool.literalIndexForMethodType(functional.descriptor.original().signature());
-			this.contents[localContentsOffset++] = (byte) (functionalDescriptorIndex >> 8);
-			this.contents[localContentsOffset++] = (byte) functionalDescriptorIndex;
+			TypeBinding[] markerInterfaces = null;
+			if (functional instanceof LambdaExpression && 
+				   (((markerInterfaces=((LambdaExpression)functional).getMarkerInterfaces()) != null) ||
+				   	((LambdaExpression)functional).isSerializable)) {
+				
+				LambdaExpression lambdaEx = (LambdaExpression)functional;
+				// may need even more space
+				int extraSpace = 2; // at least 2 more than when the normal metafactory is used, for the bitflags entry
+				if (markerInterfaces != null) {
+					// 2 for the marker interface list size then 2 per marker interface index
+					extraSpace += (2 + 2 * markerInterfaces.length);
+				}
+				if (extraSpace + localContentsOffset >= this.contents.length) {
+					resizeContents(extraSpace);
+				} 
+				
+				if (indexForAltMetaFactory == 0) {
+					indexForAltMetaFactory = 
+						this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, javaLangInvokeLambdaMetafactory, 
+						ConstantPool.ALTMETAFACTORY, ConstantPool.JAVA_LANG_INVOKE_LAMBDAMETAFACTORY_ALTMETAFACTORY_SIGNATURE, false);
+				}
+				this.contents[localContentsOffset++] = (byte) (indexForAltMetaFactory >> 8);
+				this.contents[localContentsOffset++] = (byte) indexForAltMetaFactory;
+				
+				// u2 num_bootstrap_arguments
+				this.contents[localContentsOffset++] = 0;
+				this.contents[localContentsOffset++] = (byte) (4+(markerInterfaces==null?0:1+markerInterfaces.length));
+				
+				int functionalDescriptorIndex = this.constantPool.literalIndexForMethodType(functional.descriptor.original().signature());
+				this.contents[localContentsOffset++] = (byte) (functionalDescriptorIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) functionalDescriptorIndex;
+	
+				int methodHandleIndex = this.constantPool.literalIndexForMethodHandle(functional.binding.original()); // Speak of " implementation" (erased) version here, adaptations described below.
+				this.contents[localContentsOffset++] = (byte) (methodHandleIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) methodHandleIndex;
+	
+				char [] instantiatedSignature = functional.descriptor.signature();
+				int methodTypeIndex = this.constantPool.literalIndexForMethodType(instantiatedSignature);
+				this.contents[localContentsOffset++] = (byte) (methodTypeIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) methodTypeIndex;
 
-			int methodHandleIndex = this.constantPool.literalIndexForMethodHandle(functional.binding.original()); // Speak of " implementation" (erased) version here, adaptations described below.
-			this.contents[localContentsOffset++] = (byte) (methodHandleIndex >> 8);
-			this.contents[localContentsOffset++] = (byte) methodHandleIndex;
-
-			char [] instantiatedSignature = functional.descriptor.signature();
-			int methodTypeIndex = this.constantPool.literalIndexForMethodType(instantiatedSignature);
-			this.contents[localContentsOffset++] = (byte) (methodTypeIndex >> 8);
-			this.contents[localContentsOffset++] = (byte) methodTypeIndex;
+				// Does this block have to deal with FLAG_BRIDGE? When is it needed?
+				int bitflags = 0;
+				if (lambdaEx.isSerializable) {
+					bitflags |= ClassFileConstants.FLAG_SERIALIZABLE;
+				}
+				if (markerInterfaces!=null) {
+					bitflags |= ClassFileConstants.FLAG_MARKERS;
+				}
+				int indexForBitflags = this.constantPool.literalIndex(bitflags);
+				
+				this.contents[localContentsOffset++] = (byte)(indexForBitflags>>8);
+				this.contents[localContentsOffset++] = (byte)(indexForBitflags);
+				
+				if (markerInterfaces != null) {
+					int markerInterfaceCountIndex =  this.constantPool.literalIndex(markerInterfaces.length);
+					this.contents[localContentsOffset++] = (byte)(markerInterfaceCountIndex>>8);
+					this.contents[localContentsOffset++] = (byte)(markerInterfaceCountIndex);
+					for (int m = 0, maxm = markerInterfaces.length; m < maxm; m++) {
+						int classTypeIndex = this.constantPool.literalIndexForType(markerInterfaces[m]);
+						this.contents[localContentsOffset++] = (byte)(classTypeIndex>>8);
+						this.contents[localContentsOffset++] = (byte)(classTypeIndex);
+					}					
+				}
+			} else {
+				if (indexForMetaFactory == 0) {
+					indexForMetaFactory = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, javaLangInvokeLambdaMetafactory, 
+							ConstantPool.METAFACTORY, ConstantPool.JAVA_LANG_INVOKE_LAMBDAMETAFACTORY_METAFACTORY_SIGNATURE, false);
+				}
+				this.contents[localContentsOffset++] = (byte) (indexForMetaFactory >> 8);
+				this.contents[localContentsOffset++] = (byte) indexForMetaFactory;
+				
+				// u2 num_bootstrap_arguments
+				this.contents[localContentsOffset++] = 0;
+				this.contents[localContentsOffset++] = (byte) 3;
+				
+				int functionalDescriptorIndex = this.constantPool.literalIndexForMethodType(functional.descriptor.original().signature());
+				this.contents[localContentsOffset++] = (byte) (functionalDescriptorIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) functionalDescriptorIndex;
+	
+				int methodHandleIndex = this.constantPool.literalIndexForMethodHandle(functional.binding.original()); // Speak of " implementation" (erased) version here, adaptations described below.
+				this.contents[localContentsOffset++] = (byte) (methodHandleIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) methodHandleIndex;
+	
+				char [] instantiatedSignature = functional.descriptor.signature();
+				int methodTypeIndex = this.constantPool.literalIndexForMethodType(instantiatedSignature);
+				this.contents[localContentsOffset++] = (byte) (methodTypeIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) methodTypeIndex;				
+			}
 		}
+
+		int attributeLength = localContentsOffset - attributeLengthPosition - 4;
+		this.contents[attributeLengthPosition++] = (byte) (attributeLength >> 24);
+		this.contents[attributeLengthPosition++] = (byte) (attributeLength >> 16);
+		this.contents[attributeLengthPosition++] = (byte) (attributeLength >> 8);
+		this.contents[attributeLengthPosition++] = (byte) attributeLength;
+		this.contentsOffset = localContentsOffset;
 		return 1;
 	}
 	private int generateLineNumberAttribute() {
@@ -3293,6 +3377,33 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[this.contentsOffset++] = (byte) (descriptorIndex >> 8);
 		this.contents[this.contentsOffset++] = (byte) descriptorIndex;
 	}
+	
+	public void addSyntheticDeserializeLambda(SyntheticMethodBinding methodBinding, SyntheticMethodBinding[] syntheticMethodBindings ) {
+		generateMethodInfoHeader(methodBinding);
+		int methodAttributeOffset = this.contentsOffset;
+		// this will add exception attribute, synthetic attribute, deprecated attribute,...
+		int attributeNumber = generateMethodInfoAttributes(methodBinding);
+		// Code attribute
+		int codeAttributeOffset = this.contentsOffset;
+		attributeNumber++; // add code attribute
+		generateCodeAttributeHeader();
+		this.codeStream.init(this);
+		this.codeStream.generateSyntheticBodyForDeserializeLambda(methodBinding, syntheticMethodBindings);
+		completeCodeAttributeForSyntheticMethod(
+			methodBinding,
+			codeAttributeOffset,
+			((SourceTypeBinding) methodBinding.declaringClass)
+				.scope
+				.referenceCompilationUnit()
+				.compilationResult
+				.getLineSeparatorPositions());
+		// update the number of attributes
+		if ((this.produceAttributes & ClassFileConstants.ATTR_METHOD_PARAMETERS) != 0) {
+			attributeNumber += generateMethodParameters(methodBinding);
+		}
+		this.contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
+		this.contents[methodAttributeOffset] = (byte) attributeNumber;
+	}	
 
 	/**
 	 * INTERNAL USE-ONLY
@@ -4917,6 +5028,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 				if ((arguments = methodBinding.parameters) != null) {
 					for (int i = 0, max = arguments.length; i < max; i++) {
 						final TypeBinding typeBinding = arguments[i];
+						// For the branching complexities in the generated $deserializeLambda$ we need the local variable
+						LocalVariableBinding localVariableBinding = new LocalVariableBinding((" synthetic"+i).toCharArray(), typeBinding, 0, true); //$NON-NLS-1$
+						localVariableBinding.resolvedPosition = i;
+						this.codeStream.record(localVariableBinding);
+						localVariableBinding.recordInitializationStartPC(0);
+						localVariableBinding.recordInitializationEndPC(codeLength);
 						frame.putLocal(resolvedPosition,
 								new VerificationTypeInfo(typeBinding));
 						switch (typeBinding.id) {
@@ -4999,6 +5116,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.bootstrapMethods = new ArrayList();
 		}
 		this.bootstrapMethods.add(expression);
+		// Record which bootstrap method was assigned to the expression
+		expression.bootstrapMethodNumber = this.bootstrapMethods.size() - 1;
 		return this.bootstrapMethods.size() - 1;
 	}
 

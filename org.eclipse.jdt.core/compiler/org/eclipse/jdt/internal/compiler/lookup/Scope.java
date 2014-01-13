@@ -29,6 +29,8 @@
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
+ *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                          	Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -2690,6 +2692,12 @@ public abstract class Scope {
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_LAMBDAMETAFACTORY);
 		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_INVOKE_LAMBDAMETAFACTORY, this);
 	}
+	
+	public final ReferenceBinding getJavaLangInvokeSerializedLambda() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_SERIALIZEDLAMBDA);
+		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_INVOKE_SERIALIZEDLAMBDA, this);
+	}
 
 	public final ReferenceBinding getJavaLangInvokeMethodHandlesLookup() {
 		CompilationUnitScope unitScope = compilationUnitScope();
@@ -2720,6 +2728,13 @@ public abstract class Scope {
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_THROWABLE);
 		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_THROWABLE, this);
 	}
+	
+	public final ReferenceBinding getJavaLangIllegalArgumentException() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_ILLEGALARGUMENTEXCEPTION);
+		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_ILLEGALARGUMENTEXCEPTION, this);
+	}
+	
 	public final ReferenceBinding getJavaUtilIterator() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_UTIL_ITERATOR);

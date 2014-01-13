@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation and others.
+ * Copyright (c) 2013, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                       Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
 package org.eclipse.jdt.core.tests;
 
@@ -47,6 +49,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.NegativeTypeAnnotationTest
 import org.eclipse.jdt.core.tests.compiler.regression.NullTypeAnnotationTest;
 import org.eclipse.jdt.core.tests.compiler.regression.OverloadResolutionTest8;
 import org.eclipse.jdt.core.tests.compiler.regression.RepeatableAnnotationTest;
+import org.eclipse.jdt.core.tests.compiler.regression.SerializableLambdaTest;
 import org.eclipse.jdt.core.tests.compiler.regression.TypeAnnotationTest;
 import org.eclipse.jdt.core.tests.dom.ASTConverter15JLS8Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverter18Test;
@@ -73,6 +76,7 @@ public class RunOnlyJava8Tests extends TestCase {
 			LambdaExpressionSyntaxTest.class,
 			NegativeLambdaExpressionsTest.class,
 			LambdaExpressionsTest.class,
+			SerializableLambdaTest.class,
 			OverloadResolutionTest8.class,
 			JSR335ClassFileTest.class,
 			NegativeTypeAnnotationTest.class,

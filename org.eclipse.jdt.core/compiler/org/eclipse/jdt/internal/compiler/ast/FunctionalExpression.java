@@ -19,6 +19,8 @@
  *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *							Bug 425142 - [1.8][compiler] NPE in ConstraintTypeFormula.reduceSubType
  *							Bug 425153 - [1.8] Having wildcard allows incompatible types in a lambda expression
+ *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
+ *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -51,6 +53,7 @@ public abstract class FunctionalExpression extends Expression {
 	protected CompilationResult compilationResult;
 	public BlockScope enclosingScope;
 	protected boolean ellipsisArgument;
+	public int bootstrapMethodNumber = -1;
 	protected static IErrorHandlingPolicy silentErrorHandlingPolicy = DefaultErrorHandlingPolicies.ignoreAllProblems();
 
 	public FunctionalExpression(CompilationResult compilationResult) {
