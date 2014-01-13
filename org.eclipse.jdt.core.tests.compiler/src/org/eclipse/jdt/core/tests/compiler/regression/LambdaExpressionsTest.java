@@ -2241,6 +2241,21 @@ public void test425152() {
 			"}\n"
 		});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
+public void test425512() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" +
+				"public class X  {\n" +
+				"    public static void main(String argv[]) {\n" +
+				"    	int [] a = (int [] & Cloneable & Serializable) new int[5];\n" +
+				"       System.out.println(a.length);\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"5");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

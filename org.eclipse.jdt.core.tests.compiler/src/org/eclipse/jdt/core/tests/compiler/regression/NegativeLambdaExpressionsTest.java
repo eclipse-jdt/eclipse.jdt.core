@@ -7929,6 +7929,147 @@ public void test424444() throws Exception {
 		"Constructed array int[] cannot be assigned to Integer[] as required in the interface descriptor  \n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
+public void test425512() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"interface IJK {\n" +
+				"    void foo(int size);\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"    public static void main(String argv[]) {\n" +
+				"    	int [] a = (int [] & IJK) null;\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	int [] a = (int [] & IJK) null;\n" + 
+		"	                     ^^^\n" + 
+		"Impossible interface for array type\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
+public void test425512a() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" +
+				"interface IJK {\n" +
+				"    void foo(int size);\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"    public static void main(String argv[]) {\n" +
+				"    	int [] a = (int [] & Serializable & IJK) null;\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	int [] a = (int [] & Serializable & IJK) null;\n" + 
+		"	                                    ^^^\n" + 
+		"Impossible interface for array type\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
+public void test425512b() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" +
+				"interface IJK {\n" +
+				"    void foo(int size);\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"    public static void main(String argv[]) {\n" +
+				"    	int [] a = (int [] & IJK & Serializable) null;\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	int [] a = (int [] & IJK & Serializable) null;\n" + 
+		"	                     ^^^\n" + 
+		"Impossible interface for array type\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
+public void test425512c() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" +
+				"interface IJK {\n" +
+				"    void foo(int size);\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"    public static void main(String argv[]) {\n" +
+				"    	int [] a = (IJK & Serializable & int []) null;\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	int [] a = (IJK & Serializable & int []) null;\n" + 
+		"	                                 ^^^^^^\n" + 
+		"The type int[] is not an interface; it cannot be specified as a bounded parameter\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
+public void test425512cd() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" +
+				"interface I {\n" +
+				"    void foo(int size);\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"    public static void main(String argv[]) {\n" +
+				"    	I i = (int [] & I) (i) -> {};\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	I i = (int [] & I) (i) -> {};\n" + 
+		"	                ^\n" + 
+		"Impossible interface for array type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	I i = (int [] & I) (i) -> {};\n" + 
+		"	                   ^^^^^^\n" + 
+		"The target type of this expression must be a functional interface\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
+public void test425512ce() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" +
+				"interface I {\n" +
+				"    void foo(int size);\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"    public static void main(String argv[]) {\n" +
+				"    	I i = (int [] & Serializable) (i) -> {};\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	I i = (int [] & Serializable) (i) -> {};\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from int[] to I\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	I i = (int [] & Serializable) (i) -> {};\n" + 
+		"	                              ^^^^^^\n" + 
+		"The target type of this expression must be a functional interface\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
