@@ -6336,6 +6336,33 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			}, 
 			"OK",
 			customOptions);		
-	}	
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425599, [1.8][compiler] ISE when trying to compile qualified and annotated class instance creation 
+	public void _test425599() {
+		
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"public class X {\n" +
+				"    Object ax = new @A Outer().new Middle<String>();\n" +
+				"    public static void main(String args[]) {\n" +
+				"        System.out.println(\"OK\");\n" +
+				"    }\n" +
+				"}\n" +
+				"@Target(ElementType.TYPE_USE) @interface A {}\n" +
+				"class Outer {\n" +
+				"    class Middle<E> {\n" +
+				"    	class Inner<I> {}\n" +
+				"    	@A Middle<Object>.@A Inner<Character> ax = new pack.@A Outer().new @A Middle<@A Object>().new @A Inner<@A Character>(null);\n" +
+				"    }\n" +
+				"}\n"
+			}, 
+			"OK",
+			customOptions);		
+	}
 }
 
