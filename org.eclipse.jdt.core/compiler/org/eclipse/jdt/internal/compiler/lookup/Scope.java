@@ -1149,6 +1149,7 @@ public abstract class Scope {
 		MethodBinding concreteMatch) {
 
 		int startFoundSize = found.size;
+		final boolean sourceLevel18 = this.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8;
 		ReferenceBinding currentType = classHierarchyStart;
 		while (currentType != null) {
 			findMethodInSuperInterfaces(currentType, selector, found, invocationSite);
@@ -1160,6 +1161,7 @@ public abstract class Scope {
 		int foundSize = found.size;
 		if (foundSize > startFoundSize) {
 			// argument type compatibility check
+			next:
 			for (int i = startFoundSize; i < foundSize; i++) {
 				MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
 				MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite, APPLICABILITY);
@@ -1167,6 +1169,13 @@ public abstract class Scope {
 					if (compatibleMethod.isValidBinding()) {
 						if (concreteMatch != null && environment().methodVerifier().areMethodsCompatible(concreteMatch, compatibleMethod))
 							continue; // can skip this method since concreteMatch overrides it
+						if (sourceLevel18) {
+							for (int j = 0; j < startFoundSize; j++) {
+								MethodBinding concreteMethod = (MethodBinding) found.elementAt(j);
+								if (concreteMethod != null && environment().methodVerifier().areMethodsCompatible(concreteMethod, compatibleMethod))
+									continue next; // can skip this method since concreteMethod overrides it
+							}
+						}
 						if (candidatesCount == 0) {
 							candidates = new MethodBinding[foundSize - startFoundSize + 1];
 							if (concreteMatch != null)
@@ -1571,6 +1580,7 @@ public abstract class Scope {
 		long complianceLevel = compilerOptions().complianceLevel;
 		boolean isCompliant14 = complianceLevel >= ClassFileConstants.JDK1_4;
 		boolean isCompliant15 = complianceLevel >= ClassFileConstants.JDK1_5;
+		boolean soureLevel18 = compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8;
 		ReferenceBinding classHierarchyStart = currentType;
 		MethodVerifier verifier = environment().methodVerifier();
 		while (currentType != null) {
@@ -1632,7 +1642,7 @@ public abstract class Scope {
 		MethodBinding[] candidates = null;
 		int candidatesCount = 0;
 		MethodBinding problemMethod = null;
-		boolean searchForDefaultAbstractMethod = isCompliant14 && ! receiverTypeIsInterface && (receiverType.isAbstract() || receiverType.isTypeVariable());
+		boolean searchForDefaultAbstractMethod = soureLevel18 || (isCompliant14 && ! receiverTypeIsInterface && (receiverType.isAbstract() || receiverType.isTypeVariable()));
 		if (foundSize > 0) {
 			// argument type compatibility check
 			for (int i = 0; i < foundSize; i++) {

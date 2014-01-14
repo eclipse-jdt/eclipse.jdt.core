@@ -8097,6 +8097,72 @@ public void test425621() throws Exception {
 		"Explicit type arguments cannot be specified in raw constructor reference expression\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423803, [1.8][compiler] No error shown for ambiguous reference to the method
+public void test423803() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"class C2 implements C2_Sup {\n" +
+				"    public static final FI fi = x -> x++;\n" +
+				"    public static final FL fl = x -> x++;\n" +
+				"    {\n" +
+				"        bar(x -> x++); // [1]\n" +
+				"        bar(fl); \n" +
+				"    }\n" +
+				"    void bar(FI fi) { }\n" +
+				"}\n" +
+				"interface C2_Sup {	\n" +
+				"	default void bar(FL fl) { }\n" +
+				"}\n" +
+				"@FunctionalInterface\n" +
+				"interface FI {\n" +
+				"	int foo(int x);\n" +
+				"}\n" +
+				"@FunctionalInterface\n" +
+				"interface FL {\n" +
+				"    long foo(long x);\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	bar(x -> x++); // [1]\n" + 
+		"	^^^\n" + 
+		"The method bar(FI) is ambiguous for the type C2\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 8)\n" + 
+		"	void bar(FI fi) { }\n" + 
+		"	            ^^\n" + 
+		"The parameter fi is hiding a field from type C2\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423803, [1.8][compiler] No error shown for ambiguous reference to the method
+public void test423803b() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X implements K {\n" +
+				"    {\n" +
+				"        bar(x -> x++); // [1]\n" +
+				"    }\n" +
+				"    void bar(I fi) { }\n" +
+				"}\n" +
+				"interface K {	\n" +
+				"	default void bar(J fl) { }\n" +
+				"}\n" +
+				"interface I {\n" +
+				"	int foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"    long foo(long x);\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	bar(x -> x++); // [1]\n" + 
+		"	^^^\n" + 
+		"The method bar(I) is ambiguous for the type X\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
