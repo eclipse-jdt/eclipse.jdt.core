@@ -2234,5 +2234,40 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			}, 
 			"Hello from I.foo:1522756");
 	}	
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422731, [1.8] Ambiguous method not reported on overridden default method 
+	public void test422731() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X extends Base implements I {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		X x = new X();\n" +
+					"		x.foo((short)5, (short)10);\n" +
+					"		x.bar((short)5, (short)10);\n" +
+					"	}\n" +
+					"	public void foo(short s, int i) {} // No error, but should have been\n" +
+					"	public void bar(short s, int i) {} // Correctly reported\n" +
+					"\n" +
+					"}\n" +
+					"interface I {\n" +
+					"	public default void foo(int i, short s) {}\n" +
+					"}\n" +
+					"class Base {\n" +
+					"	public void bar(int i, short s) {}\n" +
+					"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	x.foo((short)5, (short)10);\n" + 
+			"	  ^^^\n" + 
+			"The method foo(short, int) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	x.bar((short)5, (short)10);\n" + 
+			"	  ^^^\n" + 
+			"The method bar(short, int) is ambiguous for the type X\n" + 
+			"----------\n");
+	}
 
 }
