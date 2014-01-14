@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 GK Software AG and others.
+ * Copyright (c) 2011, 2014 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4650,6 +4650,36 @@ public void testBug411098_test7() {
 			"  }\n" + 
 			"}"
 		},
+		options
+		);
+}
+
+// https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
+// should report potential leak only. 
+public void testBug411098_comment19() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"A.java",
+			"import java.io.PrintWriter;\n" + 
+			"public class A {\n" + 
+			"	PrintWriter fWriter;\n" + 
+			"	void bug(boolean useField) {\n" + 
+			"		PrintWriter bug= useField ? fWriter : null;\n" + 
+			"		System.out.println(bug);\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 5)\n" + 
+		"	PrintWriter bug= useField ? fWriter : null;\n" + 
+		"	            ^^^\n" + 
+		"Potential resource leak: \'bug\' may not be closed\n" + 
+		"----------\n",
+		null,
+		true,
 		options
 		);
 }

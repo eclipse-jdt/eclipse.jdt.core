@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 GK Software AG and others.
+ * Copyright (c) 2011, 2014 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -212,7 +212,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	 */
 	public static void preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local, Expression rhs, FlowInfo flowInfo) {
 		FakedTrackingVariable closeTracker = null;
-		if (rhs instanceof AllocationExpression || rhs instanceof ConditionalExpression) {
+		if (containsAllocation(rhs)) {
 			closeTracker = local.closeTracker;
 			if (closeTracker == null) {
 				if (rhs.resolvedType != TypeBinding.NULL) { // not NULL means valid closeable as per method precondition
@@ -227,6 +227,16 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				preConnectTrackerAcrossAssignment(location, local, flowInfo, closeTracker, rhs);
 			}
 		}
+	}
+
+	private static boolean containsAllocation(ASTNode location) {
+		if (location instanceof AllocationExpression)
+			return true;
+		if (location instanceof ConditionalExpression) {
+			ConditionalExpression conditional = (ConditionalExpression) location;
+			return containsAllocation(conditional.valueIfTrue) || containsAllocation(conditional.valueIfFalse);
+		}
+		return false;
 	}
 
 	private static void preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local, FlowInfo flowInfo,
