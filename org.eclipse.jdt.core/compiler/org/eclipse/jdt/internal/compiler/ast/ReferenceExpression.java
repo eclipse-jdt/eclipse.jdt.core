@@ -100,11 +100,13 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		} else if (this.syntheticAccessor != null) {
 			if (this.lhs.isSuper() || isMethodReference())
 				this.binding = this.syntheticAccessor;
-		} else { // cf. MessageSend.generateCode()
+		} else { // cf. MessageSend.generateCode()'s call to CodeStream.getConstantPoolDeclaringClass. We have extracted the relevant portions sans side effect here. 
 			if (this.binding != null && isMethodReference()) {
-				TypeBinding declaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, this.binding, this.lhs.resolvedType, false);
-				if (declaringClass instanceof ReferenceBinding)
-					this.binding.declaringClass = (ReferenceBinding) declaringClass;
+				if (TypeBinding.notEquals(this.binding.declaringClass, this.lhs.resolvedType.erasure())) {
+					if (!this.binding.declaringClass.canBeSeenBy(currentScope)) {
+						this.binding = new MethodBinding(this.binding, (ReferenceBinding) this.lhs.resolvedType.erasure());
+					}
+				}
 			}
 		}
 		

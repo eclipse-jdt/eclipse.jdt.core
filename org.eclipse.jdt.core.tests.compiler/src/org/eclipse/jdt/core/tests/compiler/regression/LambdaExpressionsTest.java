@@ -2256,6 +2256,32 @@ public void test425512() throws Exception {
 		},
 		"5");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424628, [1.8][compiler] Multiple method references to inherited method throws LambdaConversionException
+public void test424628() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public static interface Consumer<T> {\n" +
+				"        void accept(T t);\n" +
+				"    }\n" +
+				"    \n" +
+				"    public static class Base {\n" +
+				"        public void method () { System.out.println(123); }\n" +
+				"    }\n" +
+				"    public static class Foo extends Base {}\n" +
+				"    public static class Bar extends Base {}\n" +
+				"\n" +
+				"    public static void main (String[] args) {\n" +
+				"        Consumer<Foo> foo = Foo::method;\n" +
+				"        Consumer<Bar> bar = Bar::method;\n" +
+				"        foo.accept(new Foo());\n" +
+		        "        bar.accept(new Bar());\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"123\n123");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
