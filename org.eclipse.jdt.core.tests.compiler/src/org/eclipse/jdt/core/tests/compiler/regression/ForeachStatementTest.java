@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -83,11 +83,11 @@ public void test002() {
 			"    }\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	for (int value : new int[] {value}) {\n" +
-		"	                            ^^^^^\n" +
-		"The local variable value may not have been initialized\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	for (int value : new int[] {value}) {\n" + 
+		"	                            ^^^^^\n" + 
+		"value cannot be resolved to a variable\n" + 
 		"----------\n");
 }
 public void test003() {
@@ -103,11 +103,11 @@ public void test003() {
 			"    }\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	for (int value : value) {\n" +
-		"	                 ^^^^^\n" +
-		"Can only iterate over an array or an instance of java.lang.Iterable\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	for (int value : value) {\n" + 
+		"	                 ^^^^^\n" + 
+		"value cannot be resolved to a variable\n" + 
 		"----------\n");
 }
 public void test004() {
@@ -2995,7 +2995,22 @@ public void test057() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425632, [1.8][compiler] Compiler gets the scope of enhanced for loop's expression wrong. 
+public void test425632() throws Exception {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	static int[] i = {1, 2, 3};\n" +
+				"	public static void main(String [] args) {\n" +
+				"		for (int i : i) {\n" +
+				"			System.out.println(i);\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"1\n2\n3");
+}
 public static Class testClass() {
 	return ForeachStatementTest.class;
 }
