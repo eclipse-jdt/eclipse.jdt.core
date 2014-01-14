@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@
  *								Bug 413958 - Function override returning inherited Generic Type
  *								Bug 415734 - Eclipse gives compilation error calling method with an inferred generic return type
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 423496 - [1.8] Implement new incorporation rule once it becomes available
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -40,7 +41,6 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "testBug415734" };
 //		TESTS_NAMES = new String[] { "testBug413958" };
 //		TESTS_NUMBERS = new int[] { 1465 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
@@ -3199,9 +3199,9 @@ public void testBug413958_1() {
 		});
 }
 // https://bugs.eclipse.org/413958 - Function override returning inherited Generic Type
-// variation showing different inference with / without a method parameter
+// Passing since https://bugs.eclipse.org/423496
 public void testBug413958_2() {
-	runNegativeTest(
+	runConformTest(
 		new String[] {
 			"TestA.java",
 			"public class TestA { }\n",
@@ -3269,16 +3269,9 @@ public void testBug413958_2() {
 			"        final WritableWrapper<TestA2,TestB> v5 = v1.icopy2(new TestA2());\n" +
 			"    }\n" +
 			"}\n"
-		},
-		"----------\n" +
-		"1. ERROR in TestGenerics.java (at line 6)\n" +
-		"	final WritableWrapper<TestA2,TestB> v4 = v1.icopy();\n" +
-		"	                                         ^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from ReadOnlyWrapper<TestA,TestB> to WritableWrapper<TestA2,TestB>\n" +
-		"----------\n");
+		});
 }
-// Disabled due to spec bug, see https://bugs.eclipse.org/423496
-public void _testBug415734() {
+public void testBug415734() {
 	String compileSrc =
 			"import java.util.ArrayList;\n" +
 			"import java.util.List;\n" +

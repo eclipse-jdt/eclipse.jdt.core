@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 GK Software AG.
+ * Copyright (c) 2013, 2014 GK Software AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,9 +14,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -383,7 +385,16 @@ class BoundSet {
 					if (newConstraint != null) {
 						if (!reduceOneConstraint(context, newConstraint))
 							return false;
+						// TODO here and below: better checking if constraint really added to the boundset (optimization)?
 						hasUpdate = true;
+					}
+					ConstraintFormula[] typeArgumentConstraints = deriveTypeArgumentConstraints(boundI, boundJ);
+					if (typeArgumentConstraints != null) {
+						for (int k = 0; k < typeArgumentConstraints.length; k++) {
+							if (!reduceOneConstraint(context, typeArgumentConstraints[k]))
+								return false;
+							hasUpdate = true;
+						}
 					}
 				}
 				this.incorporatedBounds.add(boundI);
@@ -484,6 +495,8 @@ class BoundSet {
 		if (boundKind == Wildcard.EXTENDS) {
 			if (bi.id == TypeIds.T_JavaLangObject)
 				formula = new ConstraintTypeFormula(t, r, ReductionResult.SUBTYPE);
+			if (t.id == TypeIds.T_JavaLangObject)
+				formula = new ConstraintTypeFormula(context.substitute(bi), r, ReductionResult.SUBTYPE);
 		} else {
 			formula = new ConstraintTypeFormula(context.substitute(bi), r, ReductionResult.SUBTYPE);
 		}
@@ -574,7 +587,67 @@ class BoundSet {
 			return new ConstraintTypeFormula(boundT.left, boundS.right, boundS.relation, boundT.isSoft||boundS.isSoft);
 		if (boundS.right == boundT.left) //$IDENTITY-COMPARISON$ InferenceVariable
 			// came in as: S REL α and α REL T imply ⟨S REL T⟩ 
-			return new ConstraintTypeFormula(boundS.left, boundT.right, boundS.relation, boundT.isSoft||boundS.isSoft);		
+			return new ConstraintTypeFormula(boundS.left, boundT.right, boundS.relation, boundT.isSoft||boundS.isSoft);
+		return null;
+	}
+
+
+	private ConstraintFormula[] deriveTypeArgumentConstraints(TypeBound boundS, TypeBound boundT) {
+		/* From 18.4:
+		 *  If two bounds have the form α <: S and α <: T, and if for some generic class or interface, G,
+		 *  there exists a supertype (4.10) of S of the form G<S1, ..., Sn> and a supertype of T of the form G<T1, ..., Tn>,
+		 *  then for all i, 1 ≤ i ≤ n, if Si and Ti are types (not wildcards), the constraint ⟨Si = Ti⟩ is implied. 
+		 */
+		if (boundS.relation != ReductionResult.SUBTYPE || boundT.relation != ReductionResult.SUBTYPE)
+			return null;
+		if (boundS.left != boundT.left) //$IDENTITY-COMPARISON$ InferenceVariable
+			return null;
+		return deriveTypeArgumentConstraintsRecursive(boundS.right, boundT.right, boundS.isSoft || boundT.isSoft);
+	}
+
+	protected ConstraintFormula[] deriveTypeArgumentConstraintsRecursive(TypeBinding s, TypeBinding t, boolean isSoft) {
+		if (s == null || s.id == TypeIds.T_JavaLangObject || t == null || t.id == TypeIds.T_JavaLangObject)
+			return null;
+		if (TypeBinding.equalsEquals(s.original(), t.original())) {
+			return typeArgumentEqualityConstraints(s, t, isSoft);
+		}
+		TypeBinding tSuper = t.findSuperTypeOriginatingFrom(s);
+		if (tSuper != null) {
+			return typeArgumentEqualityConstraints(s, tSuper, isSoft);
+		}
+		ConstraintFormula[] result = deriveTypeArgumentConstraintsRecursive(s.superclass(), t, isSoft);
+		if (result != null)
+			return result;
+		ReferenceBinding[] superInterfaces = s.superInterfaces();
+		if (superInterfaces != null) {
+			for (int i = 0; i < superInterfaces.length; i++) {
+				result = deriveTypeArgumentConstraintsRecursive(superInterfaces[i], t, isSoft);
+				if (result != null)
+					return result;
+			}
+		}
+		return null;
+	}
+
+	private ConstraintFormula[] typeArgumentEqualityConstraints(TypeBinding s, TypeBinding t, boolean isSoft) {
+		if (!(s instanceof ParameterizedTypeBinding) || !(t instanceof ParameterizedTypeBinding))
+			return null;
+		if (TypeBinding.equalsEquals(s, t)) // don't create useless constraints
+			return null;
+		TypeBinding[] sis = s.typeArguments();
+		TypeBinding[] tis = t.typeArguments();
+		if (sis == null || tis == null || sis.length != tis.length)
+			return null;
+		List/*<ConstraintFormula>*/ result = new ArrayList(); 
+		for (int i = 0; i < sis.length; i++) {
+			TypeBinding si = sis[i];
+			TypeBinding ti = tis[i];
+			if (si.isWildcard() || ti.isWildcard() || TypeBinding.equalsEquals(si, ti))
+				continue;
+			result.add(new ConstraintTypeFormula(si, ti, ReductionResult.SAME, isSoft));
+		}
+		if (result.size() > 0)
+			return (ConstraintFormula[])result.toArray(new ConstraintFormula[result.size()]);
 		return null;
 	}
 
