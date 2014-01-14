@@ -8070,6 +8070,33 @@ public void test425512ce() throws Exception {
 		"The target type of this expression must be a functional interface\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425621, [1.8][compiler] Missing error for raw type in constructor reference with explicit type arguments
+public void test425621() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"class Y<T> {\n" +
+				"    Y() {}\n" +
+				"}    \n" +
+				"interface I {\n" +
+				"    Y<Y> foo();\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"    I i = Y::<X>new;\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	Y<Y> foo();\n" + 
+		"	  ^\n" + 
+		"Y is a raw type. References to generic type Y<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	I i = Y::<X>new;\n" + 
+		"	          ^\n" + 
+		"Explicit type arguments cannot be specified in raw constructor reference expression\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

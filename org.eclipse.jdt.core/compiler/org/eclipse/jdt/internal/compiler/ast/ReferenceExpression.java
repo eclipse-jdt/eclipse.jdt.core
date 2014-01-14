@@ -264,6 +264,10 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     			}
     			if (this.typeArgumentsHaveErrors)
     				return this.resolvedType = null;
+    			if (isConstructorReference() && lhsType.isRawType()) {
+    				scope.problemReporter().rawConstructorReferenceNotWithExplicitTypeArguments(this.typeArguments);
+    				return this.resolvedType = null;
+    			}
     		}
     	} else {
     		if (this.typeArgumentsHaveErrors)

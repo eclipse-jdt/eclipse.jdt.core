@@ -1774,6 +1774,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.9 BETA_JAVA8 */
 	int IllegalModifiers = Internal + 1002;
 
+	/** @since 3.9 BETA_JAVA8 */
+	int IllegalTypeArgumentsInRawConstructorReference = TypeRelated + 1003;
+
 	// default methods:
 	/** @since 3.9 BETA_JAVA8 */
 	int IllegalModifierForInterfaceMethod18 = MethodRelated + 1050;

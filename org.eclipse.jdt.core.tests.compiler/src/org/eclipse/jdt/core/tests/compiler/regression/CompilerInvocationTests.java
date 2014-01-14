@@ -579,6 +579,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalRedefinitionToNonNullParameter", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("IllegalStaticModifierForMemberType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalTypeAnnotationsInStaticMemberAccess", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("IllegalTypeArgumentsInRawConstructorReference", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalTypeForExplicitThis", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("IllegalTypeVariableSuperReference", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("IllegalUnderscorePosition", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
@@ -1389,6 +1390,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IllegalReturnNullityRedefinition", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
 		expectedProblemAttributes.put("IllegalStaticModifierForMemberType", SKIP);
 		expectedProblemAttributes.put("IllegalTypeAnnotationsInStaticMemberAccess", SKIP);
+		expectedProblemAttributes.put("IllegalTypeArgumentsInRawConstructorReference", SKIP);
 		expectedProblemAttributes.put("IllegalTypeForExplicitThis", SKIP);
 		expectedProblemAttributes.put("IllegalTypeVariableSuperReference", SKIP);
 		expectedProblemAttributes.put("IllegalUnderscorePosition", SKIP);

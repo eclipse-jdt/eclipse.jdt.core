@@ -8976,6 +8976,14 @@ public void diamondNotWithExplicitTypeArguments(TypeReference[] typeArguments) {
 			typeArguments[0].sourceStart, 
 			typeArguments[typeArguments.length - 1].sourceEnd);
 }
+public void rawConstructorReferenceNotWithExplicitTypeArguments(TypeReference[] typeArguments) {
+	this.handle(
+			IProblem.IllegalTypeArgumentsInRawConstructorReference,
+			NoArgument,
+			NoArgument,
+			typeArguments[0].sourceStart, 
+			typeArguments[typeArguments.length - 1].sourceEnd);
+}
 public void diamondNotWithAnoymousClasses(TypeReference type) {
 	this.handle(
 			IProblem.CannotUseDiamondWithAnonymousClasses,

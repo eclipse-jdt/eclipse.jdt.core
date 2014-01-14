@@ -3334,7 +3334,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"   public static <T> String foo(String bar) { return bar; }\n"+
 				"	public void bar() {\n" +
 				"       System.out.println(\"abc\");\n" +
-				"       MR ref = X::<@A String>new;\n" +
+				"       MR ref = X<String>::<@A String>new;\n" +
 				"       ref.process(\"abc\");\n" +
 				"	}\n" + 
 				"}",
