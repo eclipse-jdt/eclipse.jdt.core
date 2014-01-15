@@ -8189,7 +8189,73 @@ public void test425712() throws Exception {
 		"The method bar(FC) is ambiguous for the type C2\n" + 
 		"----------\n");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421926, [1.8][compiler] Compiler tolerates illegal forward reference from lambda in initializer 
+public void test421926() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	I run(int s1);\n" +
+				"}\n" +
+				"class X {	\n" +
+				"   public static final int f = f;\n" +
+				"	public static final I fi = x -> fi;\n" +
+				"	public static final I fj = x -> fk;\n" +
+				"	public static final I fk = x -> fj;\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	public static final int f = f;\n" + 
+		"	                            ^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	public static final I fi = x -> fi;\n" + 
+		"	                                ^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	public static final I fj = x -> fk;\n" + 
+		"	                                ^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421926, [1.8][compiler] Compiler tolerates illegal forward reference from lambda in initializer 
+public void test421926b() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"interface I { \n" +
+				"	int run(int s1, int s2); \n" +
+				"}\n" +
+				"public class X {\n" +
+				"    static int f = ((I) (int x5, int x2) -> x1).run(10,  20);\n" +
+				"    static int x1 = 2;\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	static int f = ((I) (int x5, int x2) -> x1).run(10,  20);\n" + 
+		"	                                        ^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421926, [1.8][compiler] Compiler tolerates illegal forward reference from lambda in initializer 
+public void test421926c() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"interface I { \n" +
+				"	int run(int s1, int s2); \n" +
+				"}\n" +
+				"public class X {\n" +
+				"    int f = ((I) (int x5, int x2) -> x1).run(10,  20);\n" +
+				"    static int x1 = 2;\n" +
+				"}\n",
+		},
+		"");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

@@ -206,7 +206,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		} 
 		
 		MethodScope methodScope = blockScope.methodScope();
-		this.scope = new MethodScope(blockScope, this, methodScope.isStatic);
+		this.scope = new MethodScope(blockScope, this, methodScope.isStatic, methodScope.lastVisibleFieldID);
 		this.scope.isConstructorCall = methodScope.isConstructorCall;
 
 		super.resolveType(blockScope); // compute & capture interface function descriptor in singleAbstractMethod.

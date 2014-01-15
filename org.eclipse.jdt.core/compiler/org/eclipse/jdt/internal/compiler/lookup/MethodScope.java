@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -73,6 +73,11 @@ public MethodScope(Scope parent, ReferenceContext context, boolean isStatic) {
 	this.referenceContext = context;
 	this.isStatic = isStatic;
 	this.startIndex = 0;
+}
+
+public MethodScope(Scope parent, ReferenceContext context, boolean isStatic, int lastVisibleFieldID) {
+	this(parent, context, isStatic);
+	this.lastVisibleFieldID = lastVisibleFieldID;
 }
 
 String basicToString(int tab) {
