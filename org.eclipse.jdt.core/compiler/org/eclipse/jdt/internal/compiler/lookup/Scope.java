@@ -1161,19 +1161,28 @@ public abstract class Scope {
 		int foundSize = found.size;
 		if (foundSize > startFoundSize) {
 			// argument type compatibility check
+			final MethodVerifier methodVerifier = environment().methodVerifier();
 			next:
 			for (int i = startFoundSize; i < foundSize; i++) {
 				MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
 				MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite, APPLICABILITY);
 				if (compatibleMethod != null) {
 					if (compatibleMethod.isValidBinding()) {
-						if (concreteMatch != null && environment().methodVerifier().areMethodsCompatible(concreteMatch, compatibleMethod))
-							continue; // can skip this method since concreteMatch overrides it
+						if (concreteMatch != null) {
+							if (methodVerifier.areMethodsCompatible(concreteMatch, compatibleMethod))
+								continue; // can skip this method since concreteMatch overrides it
+							if (compatibleMethod.isDefaultMethod() && methodVerifier.isParameterSubsignature(concreteMatch, compatibleMethod))
+								continue;
+						}
 						if (sourceLevel18) {
 							for (int j = 0; j < startFoundSize; j++) {
 								MethodBinding concreteMethod = (MethodBinding) found.elementAt(j);
-								if (concreteMethod != null && environment().methodVerifier().areMethodsCompatible(concreteMethod, compatibleMethod))
-									continue next; // can skip this method since concreteMethod overrides it
+								if (concreteMethod != null) {
+									if (methodVerifier.areMethodsCompatible(concreteMethod, compatibleMethod))
+										continue next; // can skip this method since concreteMethod overrides it
+									if (compatibleMethod.isDefaultMethod() && methodVerifier.isParameterSubsignature(concreteMethod, compatibleMethod))
+										continue;
+								}
 							}
 						}
 						if (candidatesCount == 0) {

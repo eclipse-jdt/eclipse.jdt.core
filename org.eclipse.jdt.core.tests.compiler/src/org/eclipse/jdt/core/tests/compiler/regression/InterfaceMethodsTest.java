@@ -2269,5 +2269,27 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"The method bar(short, int) is ambiguous for the type X\n" + 
 			"----------\n");
 	}
-
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425719, [1.8][compiler] Bogus ambiguous call error from compiler
+	public void test425719() throws Exception {
+		this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"   default void foo(Object obj) {\n" +
+					"	   System.out.println(\"interface method\");\n" +
+					"   }\n" +
+					"}\n" +
+					"class Base {\n" +
+					"    public void foo(Object obj) {\n" +
+					"        System.out.println(\"class method\");\n" +
+					"   }\n" +
+					"}\n" +
+					"public class X extends Base implements I {\n" +
+					"	 public static void main(String argv[]) {\n" +
+					"	    	new X().foo(null);\n" +
+					"	    }\n" +
+					"}\n",
+			},
+			"class method");
+	}
 }
