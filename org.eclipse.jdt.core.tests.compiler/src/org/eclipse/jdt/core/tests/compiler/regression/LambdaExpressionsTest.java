@@ -2282,6 +2282,27 @@ public void test424628() throws Exception {
 		},
 		"123\n123");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425712, [1.8][compiler] Valid program rejected by the compiler. 
+public void test425712() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    {\n" +
+				"        bar( () -> (char) 0); // [1]\n" +
+				"    }\n" +
+				"    void bar(FB fb) { }\n" +
+				"    public static void main(String[] args) {\n" +
+				"		System.out.println(\"OK\");\n" +
+				"	}\n" +
+				"}\n" +
+				"interface FB {\n" +
+				"	byte foo();\n" +
+				"}\n",
+		},
+		"OK");
+}
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

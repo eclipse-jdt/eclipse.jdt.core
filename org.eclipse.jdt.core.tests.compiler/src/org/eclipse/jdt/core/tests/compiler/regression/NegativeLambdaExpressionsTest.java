@@ -8163,6 +8163,33 @@ public void test423803b() throws Exception {
 		"The method bar(I) is ambiguous for the type X\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425712, [1.8][compiler] Valid program rejected by the compiler. 
+public void test425712() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"class C2 {\n" +
+				"    {\n" +
+				"        bar( () -> (char) 0); // [1]\n" +
+				"    }\n" +
+				"    void bar(FC fc) { }\n" +
+				"    void bar(FB fb) { }\n" +
+				"}\n" +
+				"interface FB {\n" +
+				"	byte foo();\n" +
+				"}\n" +
+				"interface FC {\n" +
+				"    char foo();\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	bar( () -> (char) 0); // [1]\n" + 
+		"	^^^\n" + 
+		"The method bar(FC) is ambiguous for the type C2\n" + 
+		"----------\n");
+}
+
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

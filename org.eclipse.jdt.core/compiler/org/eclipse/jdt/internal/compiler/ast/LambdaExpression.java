@@ -736,8 +736,9 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 					return false;
 			} else {
 				if (this.enclosingScope.parameterCompatibilityLevel(returnExpressions[i].resolvedType, sam.returnType) == Scope.NOT_COMPATIBLE) {
-					if (sam.returnType.id != TypeIds.T_void || this.body instanceof Block)
-						return false;
+					if (!returnExpressions[i].isConstantValueOfTypeAssignableToType(returnExpressions[i].resolvedType, sam.returnType))
+						if (sam.returnType.id != TypeIds.T_void || this.body instanceof Block)
+							return false;
 				}
 			}
 		}
