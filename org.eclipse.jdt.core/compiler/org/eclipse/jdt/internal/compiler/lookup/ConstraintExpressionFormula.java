@@ -326,12 +326,12 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			}
 			TypeBinding rTheta = inferenceContext.substitute(returnType);
 			ParameterizedTypeBinding parameterizedType = InferenceContext18.parameterizedWithWildcard(rTheta);
-			if (parameterizedType != null) {
+			if (parameterizedType != null && parameterizedType.arguments != null) {
 				TypeBinding[] arguments = parameterizedType.arguments;
 				InferenceVariable[] betas = inferenceContext.addTypeVariableSubstitutions(arguments);
 				TypeBinding gbeta = inferenceContext.environment.createParameterizedType(
 						parameterizedType.genericType(), betas, parameterizedType.enclosingType(), parameterizedType.getTypeAnnotations());
-				inferenceContext.currentBounds.captures.put(gbeta, parameterizedType);
+				inferenceContext.currentBounds.captures.put(gbeta, parameterizedType); // established: both types have nonnull arguments
 				ConstraintTypeFormula newConstraint = new ConstraintTypeFormula(gbeta, targetType, COMPATIBLE);
 				return inferenceContext.reduceAndIncorporate(newConstraint);
 			}

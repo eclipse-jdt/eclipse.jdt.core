@@ -219,7 +219,10 @@ class BoundSet {
 	// main storage of type bounds:
 	HashMap/*<InferenceVariable,ThreeSets>*/ boundsPerVariable = new HashMap();
 	
-	/** 18.1.3 bullet 4: G<α1, ..., αn> = capture(G<A1, ..., An>) */
+	/**
+	 * 18.1.3 bullet 4: G<α1, ..., αn> = capture(G<A1, ..., An>)
+	 * On both sides we only enter types with nonnull arguments. 
+	 */
 	HashMap/*<ParameterizedTypeBinding,ParameterizedTypeBinding>*/ captures = new HashMap();
 	/** 18.1.3 bullet 5: throws α */
 	Set/*<InferenceVariable>*/ inThrows = new HashSet();

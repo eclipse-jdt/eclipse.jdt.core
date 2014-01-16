@@ -1027,14 +1027,19 @@ public class InferenceContext18 {
 		this.problemMethods.add(problemMethod);
 	}
 
-	public static ParameterizedTypeBinding parameterizedWithWildcard(TypeBinding returnType) {
-		if (returnType == null || returnType.kind() != Binding.PARAMETERIZED_TYPE)
+	/**
+	 * If 'type' is a parameterized type and one of its arguments is a wildcard answer the casted type, else null.
+	 * A nonnull answer is ensured to also have nonnull arguments.
+	 */
+	public static ParameterizedTypeBinding parameterizedWithWildcard(TypeBinding type) {
+		if (type == null || type.kind() != Binding.PARAMETERIZED_TYPE)
 			return null;
-		ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) returnType;
+		ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) type;
 		TypeBinding[] arguments = parameterizedType.arguments;
-		for (int i = 0; i < arguments.length; i++) {
-			if (arguments[i].isWildcard())
-				return parameterizedType;
+		if (arguments != null) {
+			for (int i = 0; i < arguments.length; i++)
+				if (arguments[i].isWildcard())
+					return parameterizedType;
 		}
 		return null;
 	}
@@ -1042,11 +1047,13 @@ public class InferenceContext18 {
 	/**
 	 * Create initial bound set for 18.5.3 Functional Interface Parameterization Inference
 	 * @param functionalInterface the functional interface F<A1,..Am>
-	 * @return the parameter types Q1..Qk of the function type of the type F<α1, ..., αm> 
+	 * @return the parameter types Q1..Qk of the function type of the type F<α1, ..., αm>, or null 
 	 */
 	public TypeBinding[] createBoundsForFunctionalInterfaceParameterizationInference(ParameterizedTypeBinding functionalInterface) {
 		this.currentBounds = new BoundSet();
 		TypeBinding[] a = functionalInterface.arguments;
+		if (a == null)
+			return null;
 		InferenceVariable[] alpha = addInitialTypeVariableSubstitutions(a);
 
 		for (int i = 0; i < a.length; i++) {

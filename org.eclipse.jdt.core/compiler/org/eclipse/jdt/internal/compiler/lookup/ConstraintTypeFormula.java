@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 GK Software AG.
+ * Copyright (c) 2013, 2014 GK Software AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -314,7 +314,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 		if (cb == null)
 			return false; // nothing here means we failed 
 		TypeBinding[] bi = ((ParameterizedTypeBinding) cb).arguments;
-		if (cb.isRawType() || bi.length == 0)
+		if (cb.isRawType() || bi == null || bi.length == 0)
 			return (this.isSoft && InferenceContext18.SIMULATE_BUG_JDK_8026527) ? true : false; // FALSE would conform to the spec 
 		for (int i = 0; i < ai.length; i++)
 			constraints.add(new ConstraintTypeFormula(bi[i], ai[i], TYPE_ARGUMENT_CONTAINED, this.isSoft));

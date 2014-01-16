@@ -24,6 +24,7 @@
  *							Bug 425142 - [1.8][compiler] NPE in ConstraintTypeFormula.reduceSubType
  *							Bug 425153 - [1.8] Having wildcard allows incompatible types in a lambda expression
  *							Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
+ *							Bug 425798 - [1.8][compiler] Another NPE in ConstraintTypeFormula.reduceSubType
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -287,8 +288,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				// invoke 18.5.3 Functional Interface Parameterization Inference
 				InferenceContext18 ctx = new InferenceContext18(methodScope);
 				TypeBinding[] q = ctx.createBoundsForFunctionalInterfaceParameterizationInference(withWildCards);
-				if (q.length != this.arguments.length) {
-					// fail  TODO: can this still happen here?
+				if (q == null || q.length != this.arguments.length) {
+					// fail  TODO: can lengths actually differ here?
 				} else {
 					if (ctx.reduceWithEqualityConstraints(this.argumentTypes, q)) {
 						TypeBinding[] a = withWildCards.arguments;
@@ -301,6 +302,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 							reportSamProblem(blockScope, this.descriptor);
 					}
 				}
+				// TODO: in which cases do we have to assign this.resolvedType & this.descriptor (with problem bindings) to prevent NPE downstream??
 			}
 		}
 		for (int i = 0; i < length; i++) {

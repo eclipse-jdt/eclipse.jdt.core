@@ -29,6 +29,7 @@
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *								Bug 425278 - [1.8][compiler] Suspect error: The target type of this expression is not a well formed parameterized type due to bound(s) mismatch
+ *								Bug 425798 - [1.8][compiler] Another NPE in ConstraintTypeFormula.reduceSubType
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1326,7 +1327,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (theAbstractMethod == null || !theAbstractMethod.isValidBinding())
 			return this.singleAbstractMethod = theAbstractMethod;
 		
-		TypeBinding [] typeArguments = this.arguments; // A1 ... An 
+		TypeBinding [] typeArguments = this.arguments; // A1 ... An
+		if (typeArguments == null)
+			typeArguments = Binding.NO_TYPES;
 		TypeVariableBinding [] typeParameters = genericType.typeVariables(); // P1 ... Pn
 		TypeBinding [] types = new TypeBinding[typeArguments.length];  // T1 ... Tn
 		for (int i = 0, length = typeArguments.length; i < length; i++) {

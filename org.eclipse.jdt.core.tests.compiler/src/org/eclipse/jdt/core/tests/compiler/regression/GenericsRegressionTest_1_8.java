@@ -918,4 +918,34 @@ public void testBug425798() {
 		"The type of annotationType() from the type Annotation is Class<? extends Annotation>, this is incompatible with the descriptor's return type: Class<capture#3-of ? extends Annotation>\n" + 
 		"----------\n");
 }
+// witness for NPE mentioned in https://bugs.eclipse.org/bugs/show_bug.cgi?id=425798#c2
+public void testBug425798b() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Objects;\n" + 
+			"import java.util.PrimitiveIterator;\n" + 
+			"import java.util.Spliterator;\n" + 
+			"import java.util.Spliterator.OfInt;\n" + 
+			"import java.util.function.Consumer;\n" + 
+			"import java.util.function.IntConsumer;\n" + 
+			"\n" + 
+			"class IntIteratorSpliterator implements OfInt {\n" + 
+			"	public IntIteratorSpliterator(PrimitiveIterator.OfInt arg) { }\n" + 
+			"	public void forEachRemaining(IntConsumer action) { }\n" + 
+			"	public boolean tryAdvance(Consumer<? super Integer> action) { return false; }\n" + 
+			"	public long estimateSize() { return 0; }\n" + 
+			"	public int characteristics() { return 0; }\n" + 
+			"	public OfInt trySplit() { return null; }\n" + 
+			"	public boolean tryAdvance(IntConsumer action) { return false; }\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	public Spliterator.OfInt spliterator(PrimitiveIterator.OfInt iterator) {\n" + 
+			"		return new IntIteratorSpliterator(id(iterator));\n" + 
+			"	}\n" + 
+			"	<T> T id(T e) { return e; }\n" + 
+			"}\n"
+		});
+}
 }
