@@ -890,4 +890,32 @@ public void testBug425783() {
 			"}\n"
 		});
 }
+public void testBug425798() {
+	runNegativeTest( // TODO: for now we just want to prove absence of NPE, should, however, be a conform test, actually.
+		new String[] {
+			"X.java",
+			"import java.lang.annotation.*;\n" +
+			"import java.util.*;\n" +
+			"import java.util.function.*;\n" +
+			"import java.util.stream.*;\n" +
+			"interface MyCollector<T, A, R> extends Collector<T, A, R> {\n" + 
+			"}\n" +
+			"public abstract class X {\n" +
+			"	abstract <T, K, U, M extends Map<K, U>>\n" + 
+			"    MyCollector<T, ?, M> toMap(Function<? super T, ? extends K> km,\n" + 
+			"                                BinaryOperator<U> mf);" +
+			"	void test(Stream<Annotation> annotations) {\n" +
+			"		annotations\n" +
+			"			.collect(toMap(Annotation::annotationType,\n" +
+			"				 (first, second) -> first));\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	.collect(toMap(Annotation::annotationType,\n" + 
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The type of annotationType() from the type Annotation is Class<? extends Annotation>, this is incompatible with the descriptor's return type: Class<capture#3-of ? extends Annotation>\n" + 
+		"----------\n");
+}
 }

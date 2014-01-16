@@ -433,7 +433,7 @@ class BoundSet {
 										return false;
 								}
 							}
-							if (three.subBounds != null) {
+							if (three.subBounds != null && pi.firstBound != null) {
 								// If Bi is Object, α <: R implies ⟨T <: R⟩	(extends wildcard)
 								// α <: R implies ⟨θ Bi <: R⟩				(else) 
 								it = three.subBounds.iterator();
