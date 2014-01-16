@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@
  *								Bug 416174 - [1.8][compiler][null] Bogus name clash error with null annotations
  *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
+ *								Bug 425783 - An internal error occurred during: "Requesting Java AST from selection". java.lang.StackOverflowError
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -177,6 +178,11 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	    }
         return true;
 	}
+
+    public boolean isProperType(boolean admitCapture18) {
+    	TypeBinding type = actualType();
+    	return type != null && type.isProperType(admitCapture18);
+    }
 
 	protected void initializeArguments() {
 		TypeVariableBinding[] typeVariables = genericType().typeVariables();

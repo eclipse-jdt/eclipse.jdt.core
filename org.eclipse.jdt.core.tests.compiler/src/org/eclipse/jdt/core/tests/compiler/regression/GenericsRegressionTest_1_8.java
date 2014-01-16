@@ -870,4 +870,24 @@ public void testBug425278() {
 			"}\n"
 		});
 }
+public void testBug425783() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"class MyType<S extends MyType<S>> {\n" +
+			"	S myself() { return (S)this; }\n" +
+			"}\n" + 
+			"public class Test {\n" +
+			"	MyType test() {\n" +
+			"		return newInstance().myself();\n" +
+			"	}\n" +
+			"	MyType test2() {\n" +
+			"		return newInstance().myself();\n" +
+			"	}\n" +
+			"	public <T extends MyType> T newInstance() {\n" + 
+			"		return (T) new MyType();\n" + 
+			"	}" +
+			"}\n"
+		});
+}
 }
