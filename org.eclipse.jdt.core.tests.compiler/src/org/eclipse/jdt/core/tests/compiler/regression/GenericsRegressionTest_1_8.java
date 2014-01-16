@@ -1087,4 +1087,42 @@ public void testBug425156() {
 			"}\n"
 		});
 }
+public void testBug425493() {
+	runNegativeTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" + 
+			"    public void addAttributeBogus(Attribute<?> attribute) {\n" + 
+			"        addAttribute(java.util.Objects.requireNonNull(attribute, \"\"),\n" + 
+			"                attribute.getDefault());\n" + 
+			"        addAttribute(attribute, attribute.getDefault());\n" + 
+			"    }\n" + 
+			"    public <T> void addAttributeOK(Attribute<T> attribute) {\n" + 
+			"        addAttribute(java.util.Objects.requireNonNull(attribute, \"\"),\n" + 
+			"                attribute.getDefault());\n" + 
+			"        addAttribute(attribute, attribute.getDefault());\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private <T> void addAttribute(Attribute<T> attribute, T defaultValue) {}\n" + 
+			"\n" + 
+			"    static class Attribute<T> {\n" + 
+			"\n" + 
+			"        T getDefault() {\n" + 
+			"            return null;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 3)\n" + 
+		"	addAttribute(java.util.Objects.requireNonNull(attribute, \"\"),\n" + 
+		"	^^^^^^^^^^^^\n" + 
+		"The method addAttribute(Test.Attribute<T>, T) in the type Test is not applicable for the arguments (Test.Attribute<capture#1-of ?>, capture#2-of ?)\n" + 
+		"----------\n" + 
+		"2. ERROR in Test.java (at line 5)\n" + 
+		"	addAttribute(attribute, attribute.getDefault());\n" + 
+		"	^^^^^^^^^^^^\n" + 
+		"The method addAttribute(Test.Attribute<T>, T) in the type Test is not applicable for the arguments (Test.Attribute<capture#3-of ?>, capture#4-of ?)\n" + 
+		"----------\n");
+}
 }
