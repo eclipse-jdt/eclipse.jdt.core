@@ -2292,4 +2292,31 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			},
 			"class method");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425718, [1.8] default method changes access privilege of protected overridden method from Object 
+	public void _test425718() throws Exception {
+		this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"   default Object clone() { return null; };\n" +
+					"}\n" +
+					"public class X  {\n" +
+					"    public void foo() {\n" +
+					"        I x = new I(){};\n" +
+					"        System.out.println(x.clone());\n" +
+					"    }\n" +
+					"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	I x = new I(){};\n" + 
+			"	          ^^^\n" + 
+			"The inherited method Object.clone() cannot hide the public abstract method in I\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	I x = new I(){};\n" + 
+			"	          ^^^\n" + 
+			"Exception CloneNotSupportedException in throws clause of Object.clone() is not compatible with I.clone()\n" + 
+			"----------\n");
+	}	
 }
