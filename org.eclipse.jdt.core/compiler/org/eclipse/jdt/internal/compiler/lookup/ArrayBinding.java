@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,10 +21,12 @@
  *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 425460 - [1.8] [inference] Type not inferred on stream.toArray
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -113,6 +115,17 @@ public void collectSubstitutes(Scope scope, TypeBinding actualType, InferenceCon
 			// TODO (philippe) should consider array bounds, and recurse
 			break;
 	}
+}
+
+void collectInferenceVariables(Set variables) {
+	this.leafComponentType.collectInferenceVariables(variables);
+}
+
+TypeBinding substituteInferenceVariable(InferenceVariable var, TypeBinding substituteType) {
+	TypeBinding substitutedLeaf = this.leafComponentType.substituteInferenceVariable(var, substituteType);
+	if (TypeBinding.notEquals(substitutedLeaf, this.leafComponentType))
+		return this.environment.createArrayType(substitutedLeaf, this.dimensions, this.typeAnnotations);
+	return this;
 }
 
 /*

@@ -794,7 +794,7 @@ public class InferenceContext18 {
 	}
 
 	private Set findBottomSet(Set constraints, Set allOutputVariables) {
-		// 18.5.2 bullet 5.1
+		// 18.5.2 bullet 6.1
 		//  A subset of constraints is selected, satisfying the property
 		// that, for each constraint, no input variable depends on an
 		// output variable of another constraint in C ...
@@ -806,6 +806,8 @@ public class InferenceContext18 {
 			Iterator outputIt = allOutputVariables.iterator();
 			while (inputIt.hasNext()) {
 				InferenceVariable in = (InferenceVariable) inputIt.next();
+				if (allOutputVariables.contains(in)) // not explicit in the spec, but let's assume any inference variable depends on itself
+					continue constraintLoop;
 				while (outputIt.hasNext()) {
 					if (this.currentBounds.dependsOnResolutionOf(in, (InferenceVariable) outputIt.next()))
 						continue constraintLoop;

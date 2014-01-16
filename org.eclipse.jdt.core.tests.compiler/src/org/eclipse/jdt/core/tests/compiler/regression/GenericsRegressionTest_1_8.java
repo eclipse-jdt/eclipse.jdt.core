@@ -948,4 +948,32 @@ public void testBug425798b() {
 			"}\n"
 		});
 }
+public void testBug425460orig() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"public class X {\n" +
+			"	final Integer[] boom =\n" + 
+			"  		Arrays.asList(\"1\", \"22\", \"333\")\n" + 
+			"  			.stream()\n" + 
+			"  			.map(str -> str.length())\n" + 
+			"  			.toArray(i -> new Integer[i]);\n" +
+			"}\n"
+		});
+}
+public void testBug425460variant() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"public class X {\n" +
+			"	final Integer[] boom =\n" + 
+			"  		Arrays.asList(\"1\", \"22\", \"333\")\n" + 
+			"  			.stream()\n" + 
+			"  			.map(str -> str.length())\n" + 
+			"  			.toArray((int i) -> new Integer[i]);\n" +
+			"}\n"
+		});
+}
 }
