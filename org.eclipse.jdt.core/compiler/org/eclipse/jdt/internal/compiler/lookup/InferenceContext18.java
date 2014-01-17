@@ -692,7 +692,21 @@ public class InferenceContext18 {
 						}
 						if (tmpBoundSet == this.currentBounds)
 							tmpBoundSet = tmpBoundSet.copy();
-						// FIXME: remove capture bounds
+						Iterator captureKeys = tmpBoundSet.captures.keySet().iterator();
+						Set toRemove = new HashSet();
+						while (captureKeys.hasNext()) {
+							ParameterizedTypeBinding key = (ParameterizedTypeBinding) captureKeys.next();
+							int len = key.arguments.length;
+							for (int i = 0; i < len; i++) {
+								if (key.arguments[i] == variable) { //$IDENTITY-COMPARISON$
+									toRemove.add(key);
+									break;
+								}
+							}
+						}
+						captureKeys = toRemove.iterator();
+						while (captureKeys.hasNext())
+							tmpBoundSet.captures.remove(captureKeys.next());
 						tmpBoundSet.addBound(new TypeBound(variable, zsj, ReductionResult.SAME));
 					}
 					if (tmpBoundSet.incorporate(this)) {

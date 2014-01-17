@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@
  *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *							Bug 424637 - [1.8][compiler][null] AIOOB in ReferenceExpression.resolveType with a method reference to Files::walk
+ *							Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contribution for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -554,6 +555,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		ExpressionContext previousContext = this.expressionContext;
 		MethodBinding previousBinding = this.binding;
 		MethodBinding previousDescriptor = this.descriptor;
+		TypeBinding previousResolvedType = this.resolvedType;
 		try {
 			setExpressionContext(INVOCATION_CONTEXT);
 			setExpectedType(targetType);
@@ -565,6 +567,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			// remove *any relevant* traces of this 'inofficial' resolving:
 			this.binding = previousBinding;
 			this.descriptor = previousDescriptor;
+			this.resolvedType = previousResolvedType;
 			setExpressionContext(previousContext);
 			this.expectedType = null; // don't call setExpectedType(null), would NPE
 		}

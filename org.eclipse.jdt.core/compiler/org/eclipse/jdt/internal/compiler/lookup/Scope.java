@@ -26,6 +26,7 @@
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
  *								Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
+ *								Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -4908,12 +4909,16 @@ public abstract class Scope {
 	 * otherwise return the applicable method unchanged.
 	 */
 	protected MethodBinding inferInvocationType(InvocationSite invocationSite, MethodBinding applicable, TypeBinding[] argumentTypes) {
-		if (applicable instanceof ParameterizedGenericMethodBinding && invocationSite instanceof Invocation) {
+		if (invocationSite instanceof Invocation) {
 			Invocation invocation = (Invocation) invocationSite;
-			ParameterizedGenericMethodBinding parameterizedMethod = (ParameterizedGenericMethodBinding) applicable;
-			InferenceContext18 infCtx18 = invocation.getInferenceContext(parameterizedMethod);
-			if (infCtx18 != null && infCtx18.stepCompleted < InferenceContext18.TYPE_INFERRED) {
-				return infCtx18.inferInvocationType(invocation, argumentTypes, parameterizedMethod);
+			if (applicable instanceof ParameterizedGenericMethodBinding) {
+				ParameterizedGenericMethodBinding parameterizedMethod = (ParameterizedGenericMethodBinding) applicable;
+				InferenceContext18 infCtx18 = invocation.getInferenceContext(parameterizedMethod);
+				if (infCtx18 != null && infCtx18.stepCompleted < InferenceContext18.TYPE_INFERRED) {
+					return infCtx18.inferInvocationType(invocation, argumentTypes, parameterizedMethod);
+				}
+			} else {
+				ASTNode.resolvePolyExpressionArguments(invocation, applicable, argumentTypes);
 			}
 		}
 		return applicable;

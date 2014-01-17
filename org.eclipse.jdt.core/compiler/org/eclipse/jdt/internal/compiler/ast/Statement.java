@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,7 @@
  *								Bug 416307 - [1.8][compiler][null] subclass with type parameter substitution confuses null checking
  *								Bug 417758 - [1.8][null] Null safety compromise during array creation.
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
  *        Andy Clement - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
@@ -332,13 +333,12 @@ public ExpressionContext getExpressionContext() {
 }
 /**
  * For all constructor invocations: find the constructor binding; 
- * if polyExpressionSeen perform some post processing for those and produce
+ * if site.innersNeedUpdate() perform some post processing for those and produce
  * any updates as side-effects into 'argumentTypes'.
  */
-protected MethodBinding findConstructorBinding(BlockScope scope, Invocation site, ReferenceBinding receiverType, TypeBinding[] argumentTypes, boolean polyExpressionSeen) {
+protected MethodBinding findConstructorBinding(BlockScope scope, Invocation site, ReferenceBinding receiverType, TypeBinding[] argumentTypes) {
 	MethodBinding ctorBinding = scope.getConstructor(receiverType, argumentTypes, site);
-	if (polyExpressionSeen)
-		resolvePolyExpressionArguments(site, ctorBinding, argumentTypes);
+	resolvePolyExpressionArguments(site, ctorBinding, argumentTypes);
 	return ctorBinding;
 }
 }

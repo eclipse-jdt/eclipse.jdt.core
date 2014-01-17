@@ -249,9 +249,10 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				if (!functionType.parameters[i].isProperType(true))
 					return FALSE;
 			// Otherwise, a search for a compile-time declaration is performed, as defined in 15.28.1....
-			reference.resolveTypeExpecting(reference.enclosingScope, t);
-			MethodBinding compileTimeDecl = reference.binding;
-			if (compileTimeDecl == null || !compileTimeDecl.isValidBinding())
+			// Note: we currently don't distinguish search for a potentially-applicable method from searching the compiler-time declaration,
+			// hence reusing the method binding from above
+			MethodBinding compileTimeDecl = potentiallyApplicable;
+			if (!compileTimeDecl.isValidBinding())
 				return FALSE;
 			TypeBinding r = functionType.isConstructor() ? functionType.declaringClass : functionType.returnType;
 			if (r.id == TypeIds.T_void)

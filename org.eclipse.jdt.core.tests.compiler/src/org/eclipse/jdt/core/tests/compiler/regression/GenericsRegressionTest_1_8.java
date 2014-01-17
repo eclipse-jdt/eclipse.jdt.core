@@ -19,7 +19,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug424205b" };
+//	TESTS_NAMES = new String[] { "testBug424415c" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -316,7 +316,77 @@ public void testBug424415() {
 			"}\n"
 		});
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424415#c6
+public void testBug424415b() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Collection;\n" + 
+			"\n" + 
+			"interface Functional<T> {\n" + 
+			"   T apply();\n" + 
+			"}\n" + 
+			"\n" + 
+			"class X {\n" + 
+			"    void foo(Object o) { }\n" + 
+			"    void foo(String str) {} \n" + 
+			"\n" + 
+			"    <Q extends Collection<?>> Q goo(Functional<Q> s) {\n" + 
+			"        return null;\n" + 
+			"    } \n" + 
+			"\n" + 
+			"    void test() {\n" + 
+			"        foo(goo(ArrayList<String>::new));\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424415#c8
+public void testBug424415c() {
+	runConformTest(
+		new String[] {
+			"com/example/MyEmployee.java",
+			"package com.example;\n" + 
+			"class MyEmployee {\n" + 
+			"	\n" + 
+			"	public enum Gender { MALE, FEMALE, OTHERS }\n" + 
+			"\n" + 
+			"	private int age = 0;\n" + 
+			"	private Gender gender = Gender.MALE;\n" + 
+			"	\n" + 
+			"	public MyEmployee(int age, Gender gender) {\n" + 
+			"		this.age = age;\n" + 
+			"		this.gender = gender;\n" + 
+			"	}	\n" + 
+			"	\n" + 
+			"	public int getAge() {\n" + 
+			"		return age;\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public Gender getGender() {\n" + 
+			"		return gender;\n" + 
+			"	}\n" + 
+			"}",
+			"com/example/Test.java",
+			"package com.example;\n" + 
+			"\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.concurrent.ConcurrentMap;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"\n" + 
+			"	ConcurrentMap<MyEmployee.Gender, List<MyEmployee>> test(List<MyEmployee> el) {\n" + 
+			"		return el.parallelStream()\n" + 
+			"					.collect(\n" + 
+			"						Collectors.groupingByConcurrent(MyEmployee::getGender)\n" + 
+			"						);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"}"
+		});
+}
 public void testBug424631() {
 	runConformTest(
 		new String[] {

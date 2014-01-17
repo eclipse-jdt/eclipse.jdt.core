@@ -26,6 +26,7 @@
  *								Bug 424742 - [1.8] NPE in LambdaExpression.isCompatibleWith
  *								Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
  *								Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
+ *								Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
  *     Jesper S Moller - Contributions for
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -643,6 +644,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	 * 	the method lookup.
 	 */
 	public static void resolvePolyExpressionArguments(Invocation invocation, MethodBinding methodBinding, TypeBinding[] argumentTypes) {
+		if (!invocation.innersNeedUpdate())
+			return;
 		int problemReason = 0;
 		MethodBinding candidateMethod;
 		if (methodBinding.isValidBinding()) {
@@ -659,8 +662,12 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			if (candidateMethod instanceof ParameterizedGenericMethodBinding) {
 				infCtx = invocation.getInferenceContext((ParameterizedGenericMethodBinding) candidateMethod);
 				if (infCtx != null) {
-					if (infCtx.stepCompleted < InferenceContext18.TYPE_INFERRED)
-						return; // not yet ready for pushing type information down to arguments
+					if (infCtx.stepCompleted != InferenceContext18.TYPE_INFERRED) {
+						// only work in the exact state of TYPE_INFERRED
+						// - below we're not yet ready
+						// - above we're already done-done
+						return;
+					}
 					variableArity &= infCtx.isVarArgs(); // TODO: if no infCtx is available, do we have to re-check if this is a varargs invocation?
 				}
 			} else if (invocation instanceof AllocationExpression) {
@@ -687,10 +694,15 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					if (binding instanceof ParameterizedGenericMethodBinding) {
 						ParameterizedGenericMethodBinding parameterizedMethod = (ParameterizedGenericMethodBinding) binding;
 						InferenceContext18 innerContext = innerInvocation.getInferenceContext(parameterizedMethod);
-						if (innerContext != null && innerContext.stepCompleted < InferenceContext18.TYPE_INFERRED) {							
-							argument.setExpectedType(parameterType);
-							MethodBinding improvedBinding = innerContext.inferInvocationType(innerInvocation, parameterizedMethod);
-							innerInvocation.updateBindings(improvedBinding);
+						if (innerContext != null) {
+							if (innerContext.stepCompleted < InferenceContext18.TYPE_INFERRED) {
+								argument.setExpectedType(parameterType);
+								MethodBinding improvedBinding = innerContext.inferInvocationType(innerInvocation, parameterizedMethod);
+								innerInvocation.updateBindings(improvedBinding);
+								// TODO need to report invalidMethod if !improvedBinding.isValidBinding() ?
+							} else if (innerContext.stepCompleted < InferenceContext18.BINDINGS_UPDATED) {
+								innerContext.rebindInnerPolies(parameterizedMethod, innerInvocation);
+							}
 						}
 						continue; // otherwise these have been dealt with during inner method lookup
 					}
@@ -714,6 +726,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				}
 			}
 		}
+		invocation.innerUpdateDone();
 	}
 
 	public static void resolveAnnotations(BlockScope scope, Annotation[] sourceAnnotations, Binding recipient) {

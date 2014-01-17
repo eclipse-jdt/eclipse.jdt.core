@@ -29,6 +29,7 @@
  *							Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
  *							Bug 425152 - [1.8] [compiler] Lambda Expression not resolved but flow analyzed leading to NPE.
  *							Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
+ *							Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *							bug 378674 - "The method can be declared as static" is wrong
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -68,6 +69,7 @@ public class AllocationExpression extends Expression implements Invocation {
 
 	 // hold on to this context from invocation applicability inference until invocation type inference (per method candidate):
 	private SimpleLookupTable/*<PGMB,IC18>*/ inferenceContexts;
+	protected boolean innersNeedUpdate; // see Invocation.innersNeedUpdate()
 
 	/** Record to keep state between different parts of resolution. */
 	ResolutionState suspendedResolutionState;
@@ -76,18 +78,16 @@ public class AllocationExpression extends Expression implements Invocation {
 		boolean isDiamond;
 		boolean diamondNeedsDeferring;
 		boolean argsContainCast;
-		boolean polyExpressionSeen;
 		boolean cannotInferDiamond; // request the an error be reported in due time
 		TypeBinding[] argumentTypes;
 
 		ResolutionState(BlockScope scope, boolean isDiamond, boolean diamonNeedsDeferring,
-				boolean argsContainCast, boolean polyExpressionSeen, TypeBinding[] argumentTypes)
+				boolean argsContainCast, TypeBinding[] argumentTypes)
 		{
 			this.scope = scope;
 			this.isDiamond = isDiamond;
 			this.diamondNeedsDeferring = diamonNeedsDeferring;
 			this.argsContainCast = argsContainCast;
-			this.polyExpressionSeen = polyExpressionSeen;
 			this.argumentTypes = argumentTypes;
 		}
 	}
@@ -404,7 +404,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	// buffering the arguments' types
 	boolean argsContainCast = false;
 	TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
-	boolean polyExpressionSeen = false;
 	if (this.arguments != null) {
 		boolean argHasError = false;
 		int length = this.arguments.length;
@@ -420,7 +419,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				argHasError = true;
 			}
 			if (sourceLevel >= ClassFileConstants.JDK1_8 && argument.isPolyExpression())
-				polyExpressionSeen = true;
+				this.innersNeedUpdate = true;
 		}
 		if (argHasError) {
 			/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=345359, if arguments have errors, completely bail out in the <> case.
@@ -466,7 +465,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().cannotInstantiate(this.type, this.resolvedType);
 		return this.resolvedType;
 	}
-	ResolutionState state = new ResolutionState(scope, isDiamond, diamondNeedsDeferring, argsContainCast, polyExpressionSeen, argumentTypes);
+	ResolutionState state = new ResolutionState(scope, isDiamond, diamondNeedsDeferring, argsContainCast, argumentTypes);
 	if (diamondNeedsDeferring) {
 		this.suspendedResolutionState = state; // resolving to be continued later (via binding(TypeBinding targetType)).
 		return new PolyTypeBinding(this);
@@ -496,7 +495,7 @@ boolean resolvePart2(ResolutionState state) {
 		state.cannotInferDiamond = false;
  	}
 	ReferenceBinding receiverType = (ReferenceBinding) this.resolvedType;
-	this.binding = findConstructorBinding(state.scope, this, receiverType, state.argumentTypes, state.polyExpressionSeen);
+	this.binding = findConstructorBinding(state.scope, this, receiverType, state.argumentTypes);
 	return true;
 }
 
@@ -735,6 +734,12 @@ public InferenceContext18 getInferenceContext(ParameterizedGenericMethodBinding 
 	if (this.inferenceContexts == null)
 		return null;
 	return (InferenceContext18) this.inferenceContexts.get(method);
+}
+public boolean innersNeedUpdate() {
+	return this.innersNeedUpdate;
+}
+public void innerUpdateDone() {
+	this.innersNeedUpdate = false;
 }
 
 //-- interface InvocationSite: --

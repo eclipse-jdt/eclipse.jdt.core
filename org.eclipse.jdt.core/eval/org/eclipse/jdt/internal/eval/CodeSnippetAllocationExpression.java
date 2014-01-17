@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@
  *                          Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
  *        Stephan Herrmann - Contribution for
  *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec) 
+ *							Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
@@ -185,7 +186,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	// buffering the arguments' types
 	boolean argsContainCast = false;
 	TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
-	boolean polyExpressionSeen = false;
 	if (this.arguments != null) {
 		boolean argHasError = false;
 		int length = this.arguments.length;
@@ -202,7 +202,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				argHasError = true;
 			}
 			if (argumentType != null && argumentType.kind() == Binding.POLY_TYPE)
-				polyExpressionSeen = true;
+				this.innersNeedUpdate = true;
 		}
 		if (argHasError) {
 			return this.resolvedType;
@@ -225,7 +225,7 @@ public TypeBinding resolveType(BlockScope scope) {
  	}
 	
 	ReferenceBinding allocatedType = (ReferenceBinding) this.resolvedType;
-	this.binding = findConstructorBinding(scope, this, allocatedType, argumentTypes, polyExpressionSeen);
+	this.binding = findConstructorBinding(scope, this, allocatedType, argumentTypes);
 
 	if (!this.binding.isValidBinding()) {	
 		if (this.binding instanceof ProblemMethodBinding

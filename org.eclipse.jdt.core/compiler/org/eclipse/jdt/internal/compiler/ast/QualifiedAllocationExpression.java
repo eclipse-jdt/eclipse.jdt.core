@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,7 @@
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *								Bug 416267 - NPE in QualifiedAllocationExpression.resolveType
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *								bug 378674 - "The method can be declared as static" is wrong
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -397,7 +398,6 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 
 		// will check for null after args are resolved
 		TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
-		boolean polyExpressionSeen = false;
 		if (this.arguments != null) {
 			int length = this.arguments.length;
 			argumentTypes = new TypeBinding[length];
@@ -412,7 +412,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					hasError = true;
 				}
 				if (sourceLevel >= ClassFileConstants.JDK1_8 && argument.isPolyExpression())
-					polyExpressionSeen = true;
+					this.innersNeedUpdate = true;
 			}
 		}
 
@@ -476,7 +476,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				receiverType = this.type.resolvedType = scope.environment().createParameterizedType(((ParameterizedTypeBinding) receiverType).genericType(), inferredTypes, ((ParameterizedTypeBinding) receiverType).enclosingType());
 			}
 			ReferenceBinding allocationType = (ReferenceBinding) receiverType;
-			this.binding = findConstructorBinding(scope, this, allocationType, argumentTypes, polyExpressionSeen);
+			this.binding = findConstructorBinding(scope, this, allocationType, argumentTypes);
 
 			if (this.binding.isValidBinding()) {	
 				if (isMethodUseDeprecated(this.binding, scope, true)) {
@@ -542,7 +542,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		if ((this.resolvedType.tagBits & TagBits.HierarchyHasProblems) != 0) {
 			return null; // stop secondary errors
 		}
-		MethodBinding inheritedBinding = findConstructorBinding(scope, this, anonymousSuperclass, argumentTypes, polyExpressionSeen);
+		MethodBinding inheritedBinding = findConstructorBinding(scope, this, anonymousSuperclass, argumentTypes);
 			
 		if (!inheritedBinding.isValidBinding()) {
 			if (inheritedBinding.declaringClass == null) {

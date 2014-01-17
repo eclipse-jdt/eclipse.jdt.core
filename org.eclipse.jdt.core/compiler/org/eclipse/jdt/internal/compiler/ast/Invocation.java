@@ -65,5 +65,15 @@ public interface Invocation extends InvocationSite {
 	 * @return true if an update has happened
 	 */
 	boolean updateBindings(MethodBinding updatedBinding);
+	
+	/**
+	 * Answer whether the current invocation has inner expressions that still need updating after inference.
+	 */
+	boolean innersNeedUpdate();
 
+	/**
+	 * Mark that updating (the need for which is signaled via {@link #innersNeedUpdate()}) has been done.
+	 */
+	void innerUpdateDone();
+	
 }

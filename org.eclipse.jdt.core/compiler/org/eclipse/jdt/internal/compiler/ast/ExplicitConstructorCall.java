@@ -22,6 +22,7 @@
  *								Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
  *								Bug 425152 - [1.8] [compiler] Lambda Expression not resolved but flow analyzed leading to NPE.
  *								Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
+ *								Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 409245 - [1.8][compiler] Type annotations dropped when call is routed through a synthetic bridge method
  *******************************************************************************/
@@ -74,6 +75,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation, Ex
 
 	 // hold on to this context from invocation applicability inference until invocation type inference (per method candidate):
 	private SimpleLookupTable/*<PGMB,InferenceContext18>*/ inferenceContexts;
+	private boolean innersNeedUpdate; // see Invocation.innersNeedUpdate()
 
 	public ExplicitConstructorCall(int accessMode) {
 		this.accessMode = accessMode;
@@ -374,7 +376,6 @@ public class ExplicitConstructorCall extends Statement implements Invocation, Ex
 			// arguments buffering for the method lookup
 			TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
 			boolean argsContainCast = false;
-			boolean polyExpressionSeen = false;
 			if (this.arguments != null) {
 				boolean argHasError = false; // typeChecks all arguments
 				int length = this.arguments.length;
@@ -390,7 +391,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation, Ex
 						argHasError = true;
 					}
 					if (sourceLevel >= ClassFileConstants.JDK1_8 && argument.isPolyExpression())
-						polyExpressionSeen = true;
+						this.innersNeedUpdate = true;
 				}
 				if (argHasError) {
 					if (receiverType == null) {
@@ -427,7 +428,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation, Ex
 			if (receiverType == null) {
 				return;
 			}
-			this.binding = findConstructorBinding(scope, this, receiverType, argumentTypes, polyExpressionSeen);
+			this.binding = findConstructorBinding(scope, this, receiverType, argumentTypes);
 
 			if (this.binding.isValidBinding()) {
 				if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
@@ -525,6 +526,12 @@ public class ExplicitConstructorCall extends Statement implements Invocation, Ex
 	public boolean usesInference() {
 		return (this.binding instanceof ParameterizedGenericMethodBinding) 
 				&& getInferenceContext((ParameterizedGenericMethodBinding) this.binding) != null;
+	}
+	public boolean innersNeedUpdate() {
+		return this.innersNeedUpdate;
+	}
+	public void innerUpdateDone() {
+		this.innersNeedUpdate = false;
 	}
 
 	// -- interface InvocationSite: --
