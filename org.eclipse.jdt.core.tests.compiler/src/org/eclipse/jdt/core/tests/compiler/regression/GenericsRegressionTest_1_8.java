@@ -1053,4 +1053,21 @@ public void testBug425951a() {
 			"}\n"
 		});
 }
+public void testBug424906() {
+	runConformTest(
+		new String[] {
+			"Main.java",
+			"public class Main {\n" + 
+			"	public <T> void test(Result r) {}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new Main().test(r -> System.out.println(\"Hmmm...\" + r));\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Result {\n" + 
+			"	public void result(Object object);\n" + 
+			"}"
+		});
+}
 }
