@@ -976,4 +976,81 @@ public void testBug425460variant() {
 			"}\n"
 		});
 }
+public void testBug425951() {
+	runNegativeTest(
+		new String[] {
+			"Test.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        index(new A().test());\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static <X> void index(Iterable<X> collection)\n" + 
+			"    {\n" + 
+			"    }\n" + 
+			"	\n" + 
+			"    public class A<S extends A<S>>\n" + 
+			"    {\n" + 
+			"        protected A() {}\n" + 
+			"		\n" + 
+			"        public <T> List<T> test()\n" + 
+			"       {\n" + 
+			"            return null;\n" + 
+			"       }\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in Test.java (at line 6)\n" + 
+		"	index(new A().test());\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation index(List) of the generic method index(Iterable<X>) of type Test\n" + 
+		"----------\n" + 
+		"2. WARNING in Test.java (at line 6)\n" + 
+		"	index(new A().test());\n" + 
+		"	      ^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to Iterable<Object>\n" + 
+		"----------\n" + 
+		"3. ERROR in Test.java (at line 6)\n" + 
+		"	index(new A().test());\n" + 
+		"	      ^^^^^^^\n" + 
+		"No enclosing instance of type Test is accessible. Must qualify the allocation with an enclosing instance of type Test (e.g. x.new A() where x is an instance of Test).\n" + 
+		"----------\n" + 
+		"4. WARNING in Test.java (at line 6)\n" + 
+		"	index(new A().test());\n" + 
+		"	          ^\n" + 
+		"Test.A is a raw type. References to generic type Test.A<S> should be parameterized\n" + 
+		"----------\n");
+}
+public void testBug425951a() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"\n" + 
+			"    public void test() {\n" + 
+			"        index(new A().test());\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static <X> void index(Iterable<X> collection)\n" + 
+			"    {\n" + 
+			"    }\n" + 
+			"	\n" + 
+			"    public class A<S extends A<S>>\n" + 
+			"    {\n" + 
+			"        protected A() {}\n" + 
+			"		\n" + 
+			"        public <T> List<T> test()\n" + 
+			"       {\n" + 
+			"            return null;\n" + 
+			"       }\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }

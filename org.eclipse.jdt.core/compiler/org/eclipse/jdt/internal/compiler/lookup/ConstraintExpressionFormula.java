@@ -107,8 +107,12 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					if (previousMethod instanceof ParameterizedGenericMethodBinding) {
 						// find the previous inner inference context to see what inference kind this invocation needs:
 						InferenceContext18 innerCtx = invocation.getInferenceContext((ParameterizedGenericMethodBinding) previousMethod);
-						if (innerCtx == null)
-							InferenceContext18.missingImplementation("Missing context for inner inference for "+invocation.toString()); //$NON-NLS-1$
+						if (innerCtx == null) { // no inference -> assume it wasn't really poly after all
+							TypeBinding exprType = this.left.resolvedType;
+							if (exprType == null || !exprType.isValidBinding())
+								return FALSE;
+							return new ConstraintTypeFormula(exprType, this.right, COMPATIBLE, this.isSoft);
+						}
 						inferenceContext.inferenceKind = innerCtx.inferenceKind;
 						innerCtx.outerContext = inferenceContext;
 					}

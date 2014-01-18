@@ -850,11 +850,15 @@ public class InferenceContext18 {
 
 	public void leavePolyInvocation(InvocationRecord record) {
 		// merge inference variables:
-		int l1 = this.inferenceVariables.length;
-		int l2 = record.inferenceVariables.length;
-		// move to back, add previous to front:
-		System.arraycopy(this.inferenceVariables, 0, this.inferenceVariables=new InferenceVariable[l1+l2], l2, l1);
-		System.arraycopy(record.inferenceVariables, 0, this.inferenceVariables, 0, l2);
+		if (this.inferenceVariables == null) { // no new ones, assume we aborted prematurely
+			this.inferenceVariables = record.inferenceVariables;
+		} else {
+			int l1 = this.inferenceVariables.length;
+			int l2 = record.inferenceVariables.length;
+			// move to back, add previous to front:
+			System.arraycopy(this.inferenceVariables, 0, this.inferenceVariables=new InferenceVariable[l1+l2], l2, l1);
+			System.arraycopy(record.inferenceVariables, 0, this.inferenceVariables, 0, l2);
+		}
 
 		// replace invocation site & arguments:
 		this.currentInvocation = record.site;
