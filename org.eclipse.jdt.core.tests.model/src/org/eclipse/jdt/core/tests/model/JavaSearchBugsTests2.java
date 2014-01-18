@@ -7,6 +7,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 377883 - NPE on open Call Hierarchy
  *******************************************************************************/
 
 package org.eclipse.jdt.core.tests.model;
@@ -1624,6 +1626,64 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			search(pattern,  scope, this.resultCollector);
 			assertSearchResults("X.java int void X.f():<anonymous>#1.compare(C2) [compare] EXACT_MATCH\n" +
 								"X.java int Y.compare(T) [compare] EXACT_MATCH"); // an NPE was thrown without the fix
+		} finally {
+			deleteProject("P");
+		}
+	}
+
+	public void testBug401272() throws CoreException, IOException {
+		// the strategy of this test was outlined in https://bugs.eclipse.org/bugs/show_bug.cgi?id=401272#c16
+		try {
+			IJavaProject p = createJavaProject("P", new String[] { "src" }, new String[] { "JCL15_LIB", "/P/libStuff.jar" }, "bin", "1.5");
+
+			org.eclipse.jdt.core.tests.util.Util.createJar(
+				new String[] {
+					// this class must be our possibleMatch #401
+					// it must be binary to trigger the ClassFileMatchLocator
+					// the match must be impossible-due-to-mismatching-type-variables to trigger matchLocator.getMethodBinding(this.pattern);
+					"p2/A.java",
+					"package p2;\n" +
+					"public class A<E> {\n" +
+					"	public int test(E b) { return 1; }\n" +
+					"	void bar() {\n" +
+					"		test(null);\n" +
+					"	}\n" +
+					"}\n",
+					// this class contains the method we search for, possibleMatch #402
+					// (must be > 401 possibleMatches to trigger environment cleanup)
+					"p2/B.java",
+					"package p2;\n" + 
+					"public class B<T> {\n" +
+					"	public int test(T t) {\n" +
+					"		return 0;\n" +
+					"	}\n" +
+					"}\n"
+				}, 
+				p.getProject().getLocation().append("libStuff.jar").toOSString(), "1.5");
+			refresh(p);
+			
+			createFolder("/P/src/pkg");
+			// 400 matches, which populate MatchLocator.unitScope
+			// all 400 matches are processed in one go of MatchLocator.locateMatches(JavaProject, PossibleMatch[], int, int)	
+			// next round will call nameEnvironment.cleanup() but reuse MatchLocator.unitScope ==> BOOM
+			for (int i = 0; i < 400; i++) {				
+				createFile("/P/src/pkg/Bug"+i+".java",
+						"package pkg;\n"+
+						"public class Bug"+i+" {\n"+
+						"	String[] test(p2.B<String> b) {\n" +
+						"		return b.test(\"S\");\n" +
+						"	}\n" +
+						"}");
+			}
+			
+			waitUntilIndexesReady();
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p },
+					IJavaSearchScope.SOURCES|IJavaSearchScope.SYSTEM_LIBRARIES|IJavaSearchScope.APPLICATION_LIBRARIES);
+
+			IMethod method = p.findType("p2.B").getMethods()[1];
+			search(method, METHOD, ALL_OCCURRENCES, scope, this.resultCollector);
+
+			assertSearchResults("libStuff.jar int p2.B.test(T) [No source] EXACT_MATCH"); // an NPE was thrown without the fix
 		} finally {
 			deleteProject("P");
 		}
