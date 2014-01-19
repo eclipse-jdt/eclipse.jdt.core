@@ -21,6 +21,7 @@
  *							bug 404728 - [1.8]NPE on QualifiedSuperReference error
  *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
+ *							Bug 425156 - [1.8] Lambda as an argument is flagged with incompatible error
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -5109,10 +5110,15 @@ this.runNegativeTest(
 				"----------\n" + 
 				"3. ERROR in X.java (at line 16)\n" + 
 				"	new X().foo(()-> 10);\n" + 
+				"	        ^^^\n" + 
+				"The method foo(I) in the type X is not applicable for the arguments (() -> 10)\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 16)\n" + 
+				"	new X().foo(()-> 10);\n" + 
 				"	                 ^^\n" + 
 				"Void methods cannot return a value\n" + 
 				"----------\n" + 
-				"4. ERROR in X.java (at line 18)\n" + 
+				"5. ERROR in X.java (at line 18)\n" + 
 				"	new X().foo((s)->{ return;});\n" + 
 				"	                   ^^^^^^^\n" + 
 				"This method must return a result of type String\n" + 
@@ -6510,20 +6516,35 @@ public void test406614() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 9)\n" + 
 			"	this(() -> this.f);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^\n" + 
+			"The constructor X(() -> this.f) is undefined\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	this(() -> this.f);\n" + 
 			"	           ^^^^\n" + 
 			"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 12)\n" + 
+			"3. ERROR in X.java (at line 12)\n" + 
+			"	this(() -> this.g());\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The constructor X(() -> this.g()) is undefined\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 12)\n" + 
 			"	this(() -> this.g());\n" + 
 			"	           ^^^^\n" + 
 			"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 15)\n" + 
+			"5. ERROR in X.java (at line 15)\n" + 
+			"	this(() -> f);\n" + 
+			"	^^^^^^^^^^^^^^\n" + 
+			"The constructor X(() -> f) is undefined\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 15)\n" + 
 			"	this(() -> f);\n" + 
 			"	           ^\n" + 
 			"Cannot refer to an instance field f while explicitly invoking a constructor\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 18)\n" + 
+			"7. ERROR in X.java (at line 18)\n" + 
 			"	this(() -> g());\n" + 
 			"	           ^\n" + 
 			"Cannot refer to an instance method while explicitly invoking a constructor\n" + 
@@ -7013,13 +7034,19 @@ public void test412650() {
 				"	static Integer getInt() { return 0; }\n" +
 				"}\n"
 		},
-		"----------\n" + 
+		"----------\n" +
+		// this is reported because the lambda has errors and thus is not marked as valueCompatible:
 		"1. ERROR in X.java (at line 7)\n" + 
+		"	foo(() -> foo(X::getInt));\n" + 
+		"	^^^\n" + 
+		"The method foo(I) in the type X is not applicable for the arguments (() -> foo(X::getInt))\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
 		"	foo(() -> foo(X::getInt));\n" + 
 		"	          ^^^\n" + 
 		"The method foo(I) in the type X is not applicable for the arguments (X::getInt)\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 7)\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
 		"	foo(() -> foo(X::getInt));\n" + 
 		"	              ^^^^^^^^^\n" + 
 		"The type of getInt() from the type X is Integer, this is incompatible with the descriptor\'s return type: String\n" + 

@@ -19,6 +19,7 @@
  *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *							Bug 425142 - [1.8][compiler] NPE in ConstraintTypeFormula.reduceSubType
  *							Bug 425153 - [1.8] Having wildcard allows incompatible types in a lambda expression
+ *							Bug 425156 - [1.8] Lambda as an argument is flagged with incompatible error
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -55,6 +56,7 @@ public abstract class FunctionalExpression extends Expression {
 	protected boolean ellipsisArgument;
 	public int bootstrapMethodNumber = -1;
 	protected static IErrorHandlingPolicy silentErrorHandlingPolicy = DefaultErrorHandlingPolicies.ignoreAllProblems();
+	private boolean hasReportedSamProblem = false;
 
 	public FunctionalExpression(CompilationResult compilationResult) {
 		this.compilationResult = compilationResult;
@@ -133,15 +135,20 @@ public abstract class FunctionalExpression extends Expression {
 	}
 
 	protected TypeBinding reportSamProblem(BlockScope blockScope, MethodBinding sam) {
+		if (this.hasReportedSamProblem)
+			return null;
 		switch (sam.problemId()) {
 			case ProblemReasons.NoSuchSingleAbstractMethod:
 				blockScope.problemReporter().targetTypeIsNotAFunctionalInterface(this);
+				this.hasReportedSamProblem = true;
 				break;
 			case ProblemReasons.NotAWellFormedParameterizedType:
 				blockScope.problemReporter().illFormedParameterizationOfFunctionalInterface(this);
+				this.hasReportedSamProblem = true;
 				break;
 			case ProblemReasons.IntersectionHasMultipleFunctionalInterfaces:
 				blockScope.problemReporter().multipleFunctionalInterfaces(this);
+				this.hasReportedSamProblem = true;
 				break;
 		}
 		return null;

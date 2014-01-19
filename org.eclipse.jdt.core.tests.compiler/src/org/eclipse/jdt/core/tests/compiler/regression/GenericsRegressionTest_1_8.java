@@ -1070,4 +1070,21 @@ public void testBug424906() {
 			"}"
 		});
 }
+public void testBug425156() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<T> {\n" + 
+			"    void foo(T t);\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"    void bar(I<?> i) {\n" + 
+			"        i.foo(null);\n" + 
+			"    }\n" + 
+			"    void run() {\n" + 
+			"        bar((X x) -> {}); // Incompatible error reported\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }

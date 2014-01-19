@@ -25,6 +25,7 @@
  *							Bug 425153 - [1.8] Having wildcard allows incompatible types in a lambda expression
  *							Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
  *							Bug 425798 - [1.8][compiler] Another NPE in ConstraintTypeFormula.reduceSubType
+ *							Bug 425156 - [1.8] Lambda as an argument is flagged with incompatible error
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -283,24 +284,15 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			}
 		}
 		if (!argumentsTypeElided && !buggyArguments) {
-			ParameterizedTypeBinding withWildCards = InferenceContext18.parameterizedWithWildcard(this.expectedType);
-			if (withWildCards != null) {
-				// invoke 18.5.3 Functional Interface Parameterization Inference
-				InferenceContext18 ctx = new InferenceContext18(methodScope);
-				TypeBinding[] q = ctx.createBoundsForFunctionalInterfaceParameterizationInference(withWildCards);
-				if (q == null || q.length != this.arguments.length) {
-					// fail  TODO: can lengths actually differ here?
+			ReferenceBinding groundType = null;
+			if (this.expectedType instanceof ReferenceBinding)
+				groundType = findGroundTargetType(blockScope, (ReferenceBinding)this.expectedType, argumentsTypeElided);
+			if (groundType != null) {
+				this.descriptor = groundType.getSingleAbstractMethod(blockScope, true);
+				if (!this.descriptor.isValidBinding()) {
+					reportSamProblem(blockScope, this.descriptor);
 				} else {
-					if (ctx.reduceWithEqualityConstraints(this.argumentTypes, q)) {
-						TypeBinding[] a = withWildCards.arguments;
-						TypeBinding[] aprime = ctx.getFunctionInterfaceArgumentSolutions(a);
-						// TODO If F<A'1, ..., A'm> is a well-formed type, ...
-						ReferenceBinding genericType = withWildCards.genericType();
-						this.resolvedType = blockScope.environment().createParameterizedType(genericType, aprime, genericType.enclosingType());
-						this.descriptor = this.resolvedType.getSingleAbstractMethod(blockScope, true);
-						if (!this.descriptor.isValidBinding())
-							reportSamProblem(blockScope, this.descriptor);
-					}
+					this.resolvedType = groundType;
 				}
 				// TODO: in which cases do we have to assign this.resolvedType & this.descriptor (with problem bindings) to prevent NPE downstream??
 			}
@@ -397,6 +389,35 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			this.isSerializable = true;
 		}
 		return this.resolvedType;
+	}
+
+	private ReferenceBinding findGroundTargetType(BlockScope blockScope, ReferenceBinding targetType, boolean argumentTypesElided) {
+		ParameterizedTypeBinding withWildCards = InferenceContext18.parameterizedWithWildcard(targetType);
+		if (withWildCards != null) {
+			ReferenceBinding genericType = withWildCards.genericType();
+			if (!argumentTypesElided) {
+				// invoke 18.5.3 Functional Interface Parameterization Inference
+				InferenceContext18 ctx = new InferenceContext18(blockScope);
+				TypeBinding[] q = ctx.createBoundsForFunctionalInterfaceParameterizationInference(withWildCards);
+				if (q == null || q.length != this.arguments.length) {
+					// fail  TODO: can this still happen here?
+				} else {
+					if (ctx.reduceWithEqualityConstraints(this.argumentTypes, q)) {
+						TypeBinding[] a = withWildCards.arguments; // a is not-null by construction of parameterizedWithWildcard()
+						TypeBinding[] aprime = ctx.getFunctionInterfaceArgumentSolutions(a);
+						// TODO If F<A'1, ..., A'm> is a well-formed type, ...
+						return blockScope.environment().createParameterizedType(genericType, aprime, genericType.enclosingType());
+					}
+				}
+			} else {
+				// non-wildcard parameterization (9.8) of the target type
+				TypeBinding[] types = withWildCards.getNonWildcardParameterization();
+				if (types == null)
+					return null;
+				return blockScope.environment().createParameterizedType(genericType, types, genericType.enclosingType());
+			}
+		}
+		return targetType;
 	}
 
 	public boolean argumentsTypeElided() {
@@ -656,15 +677,10 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	}
 	
 	public boolean isCompatibleWith(final TypeBinding left, final Scope someScope) {
-		
-		final MethodBinding sam = left.getSingleAbstractMethod(this.enclosingScope, true);
-		
-		if (sam == null || !sam.isValidBinding())
+		if (!(left instanceof ReferenceBinding))
 			return false;
-		if (sam.parameters.length != this.arguments.length)
-			return false;
-		
-		if (!this.shapeAnalysisComplete) {
+
+		shapeAnalysis: if (!this.shapeAnalysisComplete) {
 			IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
 			final CompilerOptions compilerOptions = this.enclosingScope.compilerOptions();
 			boolean analyzeNPE = compilerOptions.isAnnotationBasedNullAnalysisEnabled;
@@ -674,13 +690,14 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				if (copy == null) {
 					if (this.assistNode) {
 						analyzeShape(); // not on terra firma here !
-						if (sam.returnType.id == TypeIds.T_void) {
-							if (!this.voidCompatible)
-								return false;
-						} else {
-							if (!this.valueCompatible)
-								return false;
-						}
+// FIXME: we don't yet have the same, should we compute it here & now?
+//						if (sam.returnType.id == TypeIds.T_void) {
+//							if (!this.voidCompatible)
+//								return false;
+//						} else {
+//							if (!this.valueCompatible)
+//								return false;
+//						}
 					}
 					return !isPertinentToApplicability(left, null);
 				}
@@ -705,8 +722,10 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				// Do not proceed with data/control flow analysis if resolve encountered errors.
 				if (type == null || !type.isValidBinding() || this.hasIgnoredMandatoryErrors || enclosingScopesHaveErrors()) {
 					if (!isPertinentToApplicability(left, null))
-						return true;
-					return this.arguments.length == 0; // error not because of the target type imposition, but is inherent. Just say compatible since errors in body aren't to influence applicability.
+						break shapeAnalysis;
+					if (this.arguments.length != 0) // error not because of the target type imposition, but is inherent. Just say compatible since errors in body aren't to influence applicability.
+						return false;
+					break shapeAnalysis;
 				}
 				
 				// value compatibility of block lambda's is the only open question.
@@ -720,6 +739,16 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 			}
 		}
+
+		ReferenceBinding groundTargetType = findGroundTargetType(this.enclosingScope, (ReferenceBinding) left, argumentsTypeElided());
+		if (groundTargetType == null)
+			return false;
+		
+		MethodBinding sam = groundTargetType.getSingleAbstractMethod(this.enclosingScope, true);
+		if (sam == null || !sam.isValidBinding())
+			return false;
+		if (sam.parameters.length != this.arguments.length)
+			return false;
 
 		if (!isPertinentToApplicability(left, null))  // This check should happen after return type check below, but for buggy javac compatibility we have left it in.
 			return true;

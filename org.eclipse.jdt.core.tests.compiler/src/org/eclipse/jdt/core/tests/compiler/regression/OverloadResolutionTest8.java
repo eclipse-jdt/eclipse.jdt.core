@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation and others.
+ * Copyright (c) 2013, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 425156 - [1.8] Lambda as an argument is flagged with incompatible error
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -124,7 +125,7 @@ public void test003() {
 			"goo(J)\n" +
 			"goo(J)");
 }
-// FAIL cannot detect errors against 2nd and 3rd lambda, because of enclosingScopesHaveErrors()
+
 public void test004() {
 	this.runNegativeTest(
 			new String[] {
@@ -161,6 +162,19 @@ public void test004() {
 			"  boolean y = true;\n" + 
 			"  while (y)    ;\n" + 
 			"})\n" + 
+			"----------\n2. ERROR in X.java (at line 15)\n" + 
+			"	goo(()-> { \n" + 
+			"	^^^\n" + 
+			"The method goo(J) in the type X is not applicable for the arguments (() -> {\n" + 
+			"  while (x)    ;\n" + 
+			"})\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 18)\n" + 
+			"	goo(()-> { \n" + 
+			"	^^^\n" + 
+			"The method goo(J) in the type X is not applicable for the arguments (() -> {\n" + 
+			"  while (f)    ;\n" + 
+			"})\n" + 
 			"----------\n");
 }
 public void test005() {
@@ -190,8 +204,15 @@ public void test005() {
 				"	}\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 19)\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 18)\n" + 
+			"	goo(()-> { \n" + 
+			"	^^^\n" + 
+			"The method goo(J) in the type X is not applicable for the arguments (() -> {\n" + // because lambda has errors -> not valueCompatible 
+			"  while (f)    ;\n" + 
+			"})\n" + 
+			"----------\n" +
+			"2. ERROR in X.java (at line 19)\n" + 
 			"	while (f); \n" + 
 			"	       ^\n" + 
 			"Cannot make a static reference to the non-static field f\n" + 
