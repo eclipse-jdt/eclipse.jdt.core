@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -422,8 +426,8 @@ public final class ImportRewrite {
 	 * </p>
 	 * @param typeSig the signature of the type to be added.
 	 * @param ast the AST to create the returned type for.
-	 * @return returns a type to which the type binding can be assigned to. The returned type contains is unqualified
-	 * when an import could be added or was already known. It is fully qualified, if an import conflict prevented the import.
+	 * @return returns either the simple member name if the import was successful or else the qualified name if
+	 * an import conflict prevented the import.
 	 */
 	public Type addImportFromSignature(String typeSig, AST ast) {
 		return addImportFromSignature(typeSig, ast, this.defaultContext);
@@ -446,8 +450,8 @@ public final class ImportRewrite {
 	 * @param ast the AST to create the returned type for.
 	 * @param context an optional context that knows about types visible in the current scope or <code>null</code>
 	 * to use the default context only using the available imports.
-	 * @return returns a type to which the type binding can be assigned to. The returned type contains is unqualified
-	 * when an import could be added or was already known. It is fully qualified, if an import conflict prevented the import.
+	 * @return returns either the simple member name if the import was successful or else the qualified name if
+	 * an import conflict prevented the import.
 	 */
 	public Type addImportFromSignature(String typeSig, AST ast, ImportRewriteContext context) {
 		if (typeSig == null || typeSig.length() == 0) {
@@ -503,8 +507,8 @@ public final class ImportRewrite {
 
 
 	/**
-	 * Adds a new import to the rewriter's record and returns a type reference that can be used
-	 * in the code. The type binding can be an array binding, type variable or wildcard.
+	 * Adds a new import to the rewriter's record and returns a name - single member name if
+	 * import is successful, else qualified name. The type binding can be an array binding, type variable or wildcard.
 	 * If the binding is a generic type, the type parameters are ignored. For parameterized types, also the type
 	 * arguments are processed and imports added if necessary. Anonymous types inside type arguments are normalized to their base type, wildcard
 	 * of wildcards are ignored.
@@ -516,16 +520,16 @@ public final class ImportRewrite {
 	 * in any way by this method; rather, the rewriter just records that a new import has been added.
 	 * </p>
 	 * @param binding the signature of the type to be added.
-	 * @return returns a type to which the type binding can be assigned to. The returned type contains is unqualified
-	 * when an import could be added or was already known. It is fully qualified, if an import conflict prevented the import.
+	 * @return returns either the simple member name if the import was successful or else the qualified name if
+	 * an import conflict prevented the import.
 	 */
 	public String addImport(ITypeBinding binding) {
 		return addImport(binding, this.defaultContext);
 	}
 
 	/**
-	 * Adds a new import to the rewriter's record and returns a type reference that can be used
-	 * in the code. The type binding can be an array binding, type variable or wildcard.
+	 * Adds a new import to the rewriter's record and returns a name - single member name if
+	 * import is successful, else qualified name. The type binding can be an array binding, type variable or wildcard.
 	 * If the binding is a generic type, the type parameters are ignored. For parameterized types, also the type
 	 * arguments are processed and imports added if necessary. Anonymous types inside type arguments are normalized to their base type, wildcard
 	 * of wildcards are ignored.
@@ -539,8 +543,8 @@ public final class ImportRewrite {
 	 * @param binding the signature of the type to be added.
 	 * @param context an optional context that knows about types visible in the current scope or <code>null</code>
 	 * to use the default context only using the available imports.
-	 * @return returns a type to which the type binding can be assigned to. The returned type contains is unqualified
-	 * when an import could be added or was already known. It is fully qualified, if an import conflict prevented the import.
+	 * @return returns either the simple member name if the import was successful or else the qualified name if
+	 * an import conflict prevented the import.
 	 */
 	public String addImport(ITypeBinding binding, ImportRewriteContext context) {
 		if (binding.isPrimitive() || binding.isTypeVariable() || binding.isRecovered()) {
@@ -651,7 +655,8 @@ public final class ImportRewrite {
 	 * in the code. The type binding can be an array binding, type variable or wildcard.
 	 * If the binding is a generic type, the type parameters are ignored. For parameterized types, also the type
 	 * arguments are processed and imports added if necessary. Anonymous types inside type arguments are normalized to their base type, wildcard
-	 * of wildcards are ignored.
+	 * of wildcards are ignored. if type annotations or type arguments are present at any point, the import is added up to that point and 
+	 * the type retained from that point with type annotations and type arguments.
 	 * 	<p>
  	 * No imports are added for types that are already known. If a import for a type is recorded to be removed, this record is discarded instead.
 	 * </p>
@@ -673,7 +678,8 @@ public final class ImportRewrite {
 	 * in the code. The type binding can be an array binding, type variable or wildcard.
 	 * If the binding is a generic type, the type parameters are ignored. For parameterized types, also the type
 	 * arguments are processed and imports added if necessary. Anonymous types inside type arguments are normalized to their base type, wildcard
-	 * of wildcards are ignored.
+	 * of wildcards are ignored. if type annotations or type arguments are present at any point, the import is added up to that point and 
+	 * the type retained from that point with type annotations and type arguments
 	 * 	<p>
  	 * No imports are added for types that are already known. If a import for a type is recorded to be removed, this record is discarded instead.
 	 * </p>
@@ -689,6 +695,10 @@ public final class ImportRewrite {
 	 * when an import could be added or was already known. It is fully qualified, if an import conflict prevented the import.
 	 */
 	public Type addImport(ITypeBinding binding, AST ast, ImportRewriteContext context) {
+		ITypeBinding bindingPoint = checkAnnotationAndGenerics(binding);
+		if (bindingPoint != null) {
+			return createType(binding, bindingPoint, ast, context);
+		}
 		if (binding.isPrimitive()) {
 			return ast.newPrimitiveType(PrimitiveType.toCode(binding.getName()));
 		}
@@ -743,8 +753,8 @@ public final class ImportRewrite {
 
 
 	/**
-	 * Adds a new import to the rewriter's record and returns a type reference that can be used
-	 * in the code. The type binding can only be an array or non-generic type.
+	 * Adds a new import to the rewriter's record and returns a name - single member name if
+	 * import is successful, else qualified name. The type binding can only be an array or non-generic type.
 	 * 	<p>
  	 * No imports are added for types that are already known. If a import for a type is recorded to be removed, this record is discarded instead.
 	 * </p>
@@ -755,8 +765,8 @@ public final class ImportRewrite {
 	 * @param qualifiedTypeName the qualified type name of the type to be added
 	 * @param context an optional context that knows about types visible in the current scope or <code>null</code>
 	 * to use the default context only using the available imports.
-	 * @return returns a type to which the type binding can be assigned to. The returned type contains is unqualified
-	 * when an import could be added or was already known. It is fully qualified, if an import conflict prevented the import.
+	 * @return returns either the simple member name if the import was successful or else the qualified name if
+	 * an import conflict prevented the import.
 	 */
 	public String addImport(String qualifiedTypeName, ImportRewriteContext context) {
 		int angleBracketOffset= qualifiedTypeName.indexOf('<');
@@ -771,8 +781,8 @@ public final class ImportRewrite {
 	}
 
 	/**
-	 * Adds a new import to the rewriter's record and returns a type reference that can be used
-	 * in the code. The type binding can only be an array or non-generic type.
+	 * Adds a new import to the rewriter's record and returns a name - single member name if
+	 * import is successful, else qualified name. The type binding can only be an array or non-generic type.
 	 * 	<p>
  	 * No imports are added for types that are already known. If a import for a type is recorded to be removed, this record is discarded instead.
 	 * </p>
@@ -781,17 +791,16 @@ public final class ImportRewrite {
 	 * in any way by this method; rather, the rewriter just records that a new import has been added.
 	 * </p>
 	 * @param qualifiedTypeName the qualified type name of the type to be added
-	 * @return returns a type to which the type binding can be assigned to. The returned type contains is unqualified
-	 * when an import could be added or was already known. It is fully qualified, if an import conflict prevented the import.
+	 * @return returns either the simple member name if the import was successful or else the qualified name if
+	 * an import conflict prevented the import.
 	 */
 	public String addImport(String qualifiedTypeName) {
 		return addImport(qualifiedTypeName, this.defaultContext);
 	}
 
 	/**
-	 * Adds a new static import to the rewriter's record and returns a reference that can be used in the code. The reference will
-	 * be fully qualified if an import conflict prevented the import or unqualified if the import succeeded or was already
-	 * existing.
+	 * Adds a new static import to the rewriter's record and returns returns a name - single member name if
+	 * import is successful, else qualified name.
 	 * 	<p>
  	 * No imports are added for members that are already known. If a import for a type is recorded to be removed, this record is discarded instead.
 	 * </p>
@@ -810,9 +819,8 @@ public final class ImportRewrite {
 	}
 
 	/**
-	 * Adds a new static import to the rewriter's record and returns a reference that can be used in the code. The reference will
-	 * be fully qualified if an import conflict prevented the import or unqualified if the import succeeded or was already
-	 * existing.
+	 * Adds a new static import to the rewriter's record and returns a name - single member name if
+	 * import is successful, else qualified name.
 	 * 	<p>
  	 * No imports are added for members that are already known. If a import for a type is recorded to be removed, this record is discarded instead.
 	 * </p>
@@ -845,9 +853,8 @@ public final class ImportRewrite {
 	}
 
 	/**
-	 * Adds a new static import to the rewriter's record and returns a reference that can be used in the code. The reference will
-	 * be fully qualified if an import conflict prevented the import or unqualified if the import succeeded or was already
-	 * existing.
+	 * Adds a new static import to the rewriter's record and returns a name - single member name if
+	 * import is successful, else qualified name.
 	 * 	<p>
  	 * No imports are added for members that are already known. If a import for a type is recorded to be removed, this record is discarded instead.
 	 * </p>
@@ -867,9 +874,8 @@ public final class ImportRewrite {
 	}
 
 	/**
-	 * Adds a new static import to the rewriter's record and returns a reference that can be used in the code. The reference will
-	 * be fully qualified if an import conflict prevented the import or unqualified if the import succeeded or was already
-	 * existing.
+	 * Adds a new static import to the rewriter's record and returns a name - single member name if
+	 * import is successful, else qualified name.
 	 * 	<p>
  	 * No imports are added for members that are already known. If a import for a type is recorded to be removed, this record is discarded instead.
 	 * </p>
@@ -1158,4 +1164,217 @@ public final class ImportRewrite {
 		return (String[]) res.toArray(new String[res.size()]);
 	}
 
+	private ITypeBinding checkAnnotationAndGenerics(ITypeBinding binding) {
+		ITypeBinding bindingPoint = null;
+		while (binding != null) {
+			IAnnotationBinding annotationBinding [] = binding.getTypeAnnotations();
+			ITypeBinding []  typeArguments = binding.getTypeArguments();
+			if ((annotationBinding != null && annotationBinding.length > 0) ||
+					(typeArguments != null && typeArguments.length > 0)) {
+				bindingPoint = binding;
+			}
+			if (binding.isMember()) {
+				binding = binding.getDeclaringClass();
+			} else {
+				break;
+			}
+		}
+		return bindingPoint;
+	}
+
+	private Type createType(ITypeBinding binding, ITypeBinding bindingPoint, AST ast, ImportRewriteContext context) {
+		String str = addImport(bindingPoint, context);
+		int dotIndex = str != null ? str.lastIndexOf('.') : -1;
+		Type qualifier = null;
+		if (dotIndex != -1) {
+			char buf [] = new char [dotIndex];
+			for (int i = 0; i < dotIndex; ++i)
+				buf[i] = str.charAt(i);
+			str = new String(buf);
+			qualifier = ast.newSimpleType(ast.newName(str));
+		}
+		return createType(binding, bindingPoint, ast, qualifier, context);
+	}
+
+	private Type createType(ITypeBinding binding, ITypeBinding bindingPoint, AST ast, Type qualifier, ImportRewriteContext context) {
+		Type type = null;
+		if (binding.equals(bindingPoint)) {
+			type = createType(qualifier, binding, ast, context);
+		} else {
+			Type currentType = binding.isMember() ? createType(binding.getDeclaringClass(), bindingPoint, ast, qualifier, context) : null;
+			type = createType(currentType, binding, ast, context);
+		}
+		IAnnotationBinding [] annotationBindings = binding.getTypeAnnotations();
+		if (annotationBindings != null && annotationBindings.length > 0) {
+			AnnotatableType aType = type instanceof AnnotatableType ? (AnnotatableType) type : 
+				type instanceof ParameterizedType ? (AnnotatableType) ((ParameterizedType) type).getType() : null;
+			if (aType != null)
+				annotateType(aType, annotationBindings, ast, context);
+		}
+		return type;
+	}
+
+	private Type createType(Type currentType, ITypeBinding binding, AST ast, ImportRewriteContext context) {
+
+		if (binding.isPrimitive()) {
+			return ast.newPrimitiveType(PrimitiveType.toCode(binding.getName()));
+		}
+
+		ITypeBinding normalizedBinding = normalizeTypeBinding(binding);
+		if (normalizedBinding == null) {
+			return ast.newSimpleType(ast.newSimpleName("invalid")); //$NON-NLS-1$
+		}
+
+		if (normalizedBinding.isTypeVariable()) {
+			if (currentType != null) {
+				return ast.newQualifiedType(currentType, ast.newSimpleName(binding.getName()));
+			}
+			return ast.newSimpleType(ast.newSimpleName(binding.getName()));
+		}
+
+		if (normalizedBinding.isWildcardType()) {
+			WildcardType wcType = ast.newWildcardType();
+			ITypeBinding bound = normalizedBinding.getBound();
+			if (bound != null && !bound.isWildcardType() && !bound.isCapture()) {
+				Type boundType = createType(bound, null, ast, (Type) null, context);
+				wcType.setBound(boundType, normalizedBinding.isUpperbound());
+			}
+			return wcType;
+		}
+
+		if (normalizedBinding.isArray()) {
+			Type elementType = createType(currentType, normalizedBinding.getElementType(), ast, context);
+			return ast.newArrayType(elementType, normalizedBinding.getDimensions());
+		}
+
+		if (normalizedBinding.isParameterizedType()) {
+			ITypeBinding[] typeArguments = normalizedBinding.getTypeArguments();
+			if (typeArguments.length > 0) {
+				Type erasureType = currentType == null ? (Type) ast.newSimpleType(ast.newName(getRawName(normalizedBinding))) :
+							(Type) ast.newQualifiedType(currentType, ast.newSimpleName(getRawName(normalizedBinding)));
+				ParameterizedType paramType = ast.newParameterizedType(erasureType);
+				List arguments = paramType.typeArguments();
+				for (int i = 0; i < typeArguments.length; i++) {
+					ITypeBinding curr = typeArguments[i];
+					if (containsNestedCapture(curr, false)) { // see bug 103044
+						arguments.add(ast.newWildcardType());
+					} else {
+						arguments.add(addImport(curr, ast, context));
+					}
+				}
+				return paramType;
+			}
+		}
+
+		if (currentType != null) {
+			if (currentType instanceof AnnotatableType) {
+				AnnotatableType annotatableType = (AnnotatableType) currentType;
+				List annotations = annotatableType.annotations();
+				if (annotations == null || annotations.size() == 0) {
+					Name qualifierName = ast.newName(currentType.toString());
+					return ast.newNameQualifiedType(qualifierName, ast.newSimpleName(getRawName(normalizedBinding)));
+				}
+			}
+			return ast.newQualifiedType(currentType, ast.newSimpleName(getRawName(normalizedBinding)));
+		}
+		return ast.newSimpleType(ast.newName(getRawName(normalizedBinding)));
+	}
+
+	private void annotateType(AnnotatableType type, IAnnotationBinding [] annotationBindings, AST ast, ImportRewriteContext context) {
+		for (int i = 0; i< annotationBindings.length; i++) {
+			Annotation annotation = newAnnotation(ast, annotationBindings[i], context);
+			if (annotation != null) type.annotations().add(annotation);
+		}
+	}
+
+	private Annotation newAnnotation(AST ast, IAnnotationBinding annotation, ImportRewriteContext context) {
+		Type type = createType((Type) null, annotation.getAnnotationType(), ast, context);
+		Name name;
+		if (type instanceof SimpleType) {
+			SimpleType simpleType = (SimpleType) type;
+			name = simpleType.getName();
+			simpleType.setName(ast.newSimpleName(name.toString()));
+		} else {
+			name = ast.newName(type.toString());
+		}
+
+		IMemberValuePairBinding[] mvps= annotation.getDeclaredMemberValuePairs();
+		if (mvps.length == 0) {
+			MarkerAnnotation result = ast.newMarkerAnnotation();
+			result.setTypeName(name);
+			return result;
+		} else if (mvps.length == 1 && "value".equals(mvps[0].getName())) { //$NON-NLS-1$
+			SingleMemberAnnotation result= ast.newSingleMemberAnnotation();
+			result.setTypeName(name);
+			Object value = mvps[0].getValue();
+			if (value != null)
+				result.setValue(newAnnotationValue(ast,  value, context));
+			return result;
+		} else {
+			NormalAnnotation result = ast.newNormalAnnotation();
+			result.setTypeName(name);
+			for (int i= 0; i < mvps.length; i++) {
+				IMemberValuePairBinding mvp = mvps[i];
+				MemberValuePair mvpNode = ast.newMemberValuePair();
+				mvpNode.setName(ast.newSimpleName(mvp.getName()));
+				Object value = mvp.getValue();
+				if (value != null)
+					mvpNode.setValue(newAnnotationValue(ast, value, context));
+				result.values().add(mvpNode);
+			}
+			return result;
+		}
+	}
+
+	private Expression newAnnotationValue(AST ast, Object value, ImportRewriteContext context) {
+		if (value instanceof Boolean) {
+			return ast.newBooleanLiteral(((Boolean) value).booleanValue());
+		} else if (value instanceof Byte || value instanceof Short || value instanceof Integer || value instanceof Long
+				|| value instanceof Float || value instanceof Double) {
+			return ast.newNumberLiteral(value.toString());
+		} else if (value instanceof Character) {
+			CharacterLiteral result = ast.newCharacterLiteral();
+			result.setCharValue(((Character) value).charValue());
+			return result;
+		} else if (value instanceof ITypeBinding) {
+			TypeLiteral result = ast.newTypeLiteral();
+			result.setType(createType((Type) null, (ITypeBinding) value, ast, context));
+			return result;
+		} else if (value instanceof String) {
+			StringLiteral result = ast.newStringLiteral();
+			result.setLiteralValue((String) value);
+			return result;
+		} else if (value instanceof IVariableBinding) {
+			IVariableBinding variable = (IVariableBinding) value;
+
+			FieldAccess result = ast.newFieldAccess();
+			result.setName(ast.newSimpleName(variable.getName()));
+			Type type = createType((Type) null, variable.getType(), ast, context);
+			Name name;
+			if (type instanceof SimpleType) {
+				SimpleType simpleType = (SimpleType) type;
+				name = simpleType.getName();
+				simpleType.setName(ast.newSimpleName(name.toString()));
+			} else {
+				name = ast.newName(type.toString());
+			}
+			result.setExpression(name);
+			return result;
+		} else if (value instanceof IAnnotationBinding) {
+			return newAnnotation(ast, (IAnnotationBinding) value, context);
+		} else if (value instanceof Object[]) {
+			Object[] values = (Object[]) value;
+			if (values.length == 1)
+				return newAnnotationValue(ast, values[0], context);
+
+			ArrayInitializer initializer = ast.newArrayInitializer();
+			List expressions = initializer.expressions();
+			int size = values.length;
+			for (int i = 0; i < size; i++)
+				expressions.add(newAnnotationValue(ast, values[i], context));
+			return initializer;
+		} else {
+			return null;
+		}
+	}
 }
