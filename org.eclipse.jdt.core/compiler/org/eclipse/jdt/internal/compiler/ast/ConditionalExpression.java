@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@
  *							Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *							Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *							Bug 426078 - [1.8] VerifyError when conditional expression passed as an argument
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -649,13 +650,19 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	public void setExpressionContext(ExpressionContext context) {
 		this.expressionContext = context;
 	}
+
+	public ExpressionContext getExpressionContext() {
+		return this.expressionContext;
+	}
 	
 	public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType) {
 		// in 1.8 if treated as a poly expression:
-		this.valueIfTrue.checkAgainstFinalTargetType(targetType);
-		this.valueIfFalse.checkAgainstFinalTargetType(targetType);
-		this.resolvedType = targetType;
-		return targetType;
+		if (isPolyExpression()) {
+			this.valueIfTrue.checkAgainstFinalTargetType(targetType);
+			this.valueIfFalse.checkAgainstFinalTargetType(targetType);
+			this.resolvedType = targetType;
+		}
+		return this.resolvedType;
 	}
 	
 	public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
@@ -667,7 +674,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		if (this.expressionContext != ASSIGNMENT_CONTEXT && this.expressionContext != INVOCATION_CONTEXT)
 			return false;
 		
-		if (this.isPolyExpression) // TODO(stephan): is this still used/needed?
+		if (this.isPolyExpression)
 			return true;
 
 		// "... unless both operands produce primitives (or boxed primitives)":

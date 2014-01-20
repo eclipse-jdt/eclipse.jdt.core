@@ -77,8 +77,8 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426078, Bug 426078 - [1.8] VerifyError when conditional expression passed as an argument
-	public void _test003() {
-		if (this.complianceLevel < ClassFileConstants.JDK1_7)
+	public void test003() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_5)
 			return;
 		this.runConformTest(
 			new String[] {
