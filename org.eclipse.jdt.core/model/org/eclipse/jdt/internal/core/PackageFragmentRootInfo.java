@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,14 +60,18 @@ public PackageFragmentRootInfo() {
 static Object[] computeFolderNonJavaResources(IPackageFragmentRoot root, IContainer folder, char[][] inclusionPatterns, char[][] exclusionPatterns) throws JavaModelException {
 	IResource[] nonJavaResources = new IResource[5];
 	int nonJavaResourcesCounter = 0;
-	JavaProject project = (JavaProject) root.getJavaProject();
 	try {
-		IClasspathEntry[] classpath = project.getResolvedClasspath();
 		IResource[] members = folder.members();
 		int length = members.length;
 		if (length > 0) {
-			String sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
-			String complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+			// if package fragment root refers to folder in another IProject, then
+			// folder.getProject() is different than root.getJavaProject().getProject()
+			// use the other java project's options to verify the name
+			IJavaProject otherJavaProject = JavaCore.create(folder.getProject());
+			String sourceLevel = otherJavaProject.getOption(JavaCore.COMPILER_SOURCE, true);
+			String complianceLevel = otherJavaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+			JavaProject javaProject = (JavaProject) root.getJavaProject();
+			IClasspathEntry[] classpath = javaProject.getResolvedClasspath();
 			nextResource: for (int i = 0; i < length; i++) {
 				IResource member = members[i];
 				switch (member.getType()) {
