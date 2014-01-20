@@ -2302,6 +2302,26 @@ public void test425712() throws Exception {
 		},
 		"OK");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426074, [1.8][compiler] 18.5.2 Functional interface parameterization inference problem with intersection types. 
+public void test426074() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"interface Functional<T> {\n" +
+				"    void foo(T t);\n" +
+				"}\n" +
+				"interface I { }\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"    	Functional<? extends X> f = (Functional<? extends X> & I) (X c) -> {\n" +
+				"    		System.out.println(\"main\");\n" +
+				"    	};\n" +
+				"    	f.foo(null);\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"main");
+}
 
 public static Class testClass() {
 	return LambdaExpressionsTest.class;

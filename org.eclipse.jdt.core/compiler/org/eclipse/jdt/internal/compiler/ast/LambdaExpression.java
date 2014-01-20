@@ -285,8 +285,13 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		}
 		if (!argumentsTypeElided && !buggyArguments) {
 			ReferenceBinding groundType = null;
-			if (this.expectedType instanceof ReferenceBinding)
-				groundType = findGroundTargetType(blockScope, (ReferenceBinding)this.expectedType, argumentsTypeElided);
+			ReferenceBinding expectedSAMType = null;
+			if (this.expectedType instanceof IntersectionCastTypeBinding)
+				expectedSAMType = (ReferenceBinding) ((IntersectionCastTypeBinding) this.expectedType).getSAMType(blockScope); 
+			else if (this.expectedType instanceof ReferenceBinding)
+				expectedSAMType = (ReferenceBinding) this.expectedType;
+			if (expectedSAMType != null)
+				groundType = findGroundTargetType(blockScope, expectedSAMType, argumentsTypeElided);
 			if (groundType != null) {
 				this.descriptor = groundType.getSingleAbstractMethod(blockScope, true);
 				if (!this.descriptor.isValidBinding()) {
@@ -740,7 +745,12 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			}
 		}
 
-		ReferenceBinding groundTargetType = findGroundTargetType(this.enclosingScope, (ReferenceBinding) left, argumentsTypeElided());
+		ReferenceBinding expectedSAMType = null;
+		if (left instanceof IntersectionCastTypeBinding)
+			expectedSAMType = (ReferenceBinding) ((IntersectionCastTypeBinding) left).getSAMType(this.enclosingScope); 
+		else if (left instanceof ReferenceBinding)
+			expectedSAMType = (ReferenceBinding) left;
+		ReferenceBinding groundTargetType = expectedSAMType != null ? findGroundTargetType(this.enclosingScope, expectedSAMType, argumentsTypeElided()) : null;
 		if (groundTargetType == null)
 			return false;
 		
