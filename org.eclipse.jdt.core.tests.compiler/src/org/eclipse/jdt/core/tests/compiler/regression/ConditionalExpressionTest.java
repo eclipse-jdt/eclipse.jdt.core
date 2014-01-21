@@ -99,4 +99,110 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		);
 	}
 	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423685, - [1.8] poly conditional expression must not use lub
+	public void test004() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_5)
+			return;
+		if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+			this.runNegativeTest(
+					new String[] {
+						"X.java",
+						"class A{/**/}\n" +
+						"class B extends A {/**/}\n" +
+						"class G<T> {\n" +
+						"	G<B> gb=null;\n" +
+						"	G<? super A> gsa=null;\n" +
+						"	G<? super B> l = (true)? gsa : gb;\n" +
+						"}\n" +
+						"public class X {\n" +
+						"	public static void main(String[] args) {\n" +
+						"		System.out.println(\"OK\");\n" +
+						"	}\n" +
+						"}\n",
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 6)\n" + 
+					"	G<? super B> l = (true)? gsa : gb;\n" + 
+					"	                 ^^^^^^^^^^^^^^^^\n" + 
+					"Type mismatch: cannot convert from G<capture#2-of ? extends Object> to G<? super B>\n" + 
+					"----------\n"
+				);
+		} else {
+			this.runConformTest(
+					new String[] {
+							"X.java",
+							"class A{/**/}\n" +
+							"class B extends A {/**/}\n" +
+							"class G<T> {\n" +
+							"	G<B> gb=null;\n" +
+							"	G<? super A> gsa=null;\n" +
+							"	G<? super B> l = (true)? gsa : gb;\n" +
+							"}\n" +
+							"public class X {\n" +
+							"	public static void main(String[] args) {\n" +
+							"		System.out.println(\"OK\");\n" +
+							"	}\n" +
+							"}\n",
+					},
+					"OK"
+					);
+		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425181, - Cast expression in ternary operation reported as incompatible
+	public void test005() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_5)
+			return;
+		if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+			this.runNegativeTest(
+					new String[] {
+						"X.java",
+						"public class X {\n" +
+						"    public static void main(String args[]) {\n" +
+						"    	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" +
+						"       System.out.println(\"OK\");\n" +
+						"    }\n" +
+						"}\n" +
+						"interface I<T> {}\n" +
+						"interface J<T> extends I<T> {}\n",
+					},
+					"----------\n" + 
+					"1. WARNING in X.java (at line 3)\n" + 
+					"	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" + 
+					"	          ^\n" + 
+					"J is a raw type. References to generic type J<T> should be parameterized\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 3)\n" + 
+					"	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" + 
+					"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Type mismatch: cannot convert from I<capture#1-of ? extends I> to I<? super J>\n" + 
+					"----------\n" + 
+					"3. WARNING in X.java (at line 3)\n" + 
+					"	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" + 
+					"	                           ^\n" + 
+					"I is a raw type. References to generic type I<T> should be parameterized\n" + 
+					"----------\n" + 
+					"4. WARNING in X.java (at line 3)\n" + 
+					"	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" + 
+					"	                                         ^\n" + 
+					"J is a raw type. References to generic type J<T> should be parameterized\n" + 
+					"----------\n"
+				);
+		} else {
+			this.runConformTest(
+					new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    public static void main(String args[]) {\n" +
+					"    	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" +
+					"       System.out.println(\"OK\");\n" +
+					"    }\n" +
+					"}\n" +
+					"interface I<T> {}\n" +
+					"interface J<T> extends I<T> {}\n",
+					},
+					"OK"
+					);
+		}
+	}
 }

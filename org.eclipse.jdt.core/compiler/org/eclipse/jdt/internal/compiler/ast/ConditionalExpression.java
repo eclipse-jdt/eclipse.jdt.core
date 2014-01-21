@@ -609,6 +609,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				return null;
 			}
 		}
+		if (use18specifics && isPolyExpression()) {
+			if (this.expectedType == null)
+				return new PolyTypeBinding(this);
+			return this.resolvedType = this.expectedType;
+		}
 		if (use15specifics) {
 			// >= 1.5 : LUB(operand types) must exist
 			TypeBinding commonType = null;

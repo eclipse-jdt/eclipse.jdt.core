@@ -86,7 +86,7 @@ public void testConditionalExpression1() {
 		});
 }
 
-public void _testConditionalExpression2() {
+public void testConditionalExpression2() {
 	runConformTest(
 		new String[] {
 			"X.java",
