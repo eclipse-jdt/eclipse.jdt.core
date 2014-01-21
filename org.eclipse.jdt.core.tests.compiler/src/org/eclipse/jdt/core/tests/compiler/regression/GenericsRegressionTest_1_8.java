@@ -470,25 +470,6 @@ public void testBug401850b() {
 		"The constructor X<String>(String) is ambiguous\n" + 
 		"----------\n");
 }
-// rejecting seems to be the spec'd answer (0.7.0), but I'd expect acceptance
-public void _testBug424075() {
-	runConformTest(
-		new String[] {
-			"X.java",
-			"import java.util.*;\n"	+
-			"import java.util.function.*;\n"	+
-			"public class X {\n" +
-			"    public static void main(String[] args) {\n" + 
-			"        Consumer<Object> c = null;\n" + 
-			"        Arrays.asList(pred(), c);\n" + 
-			"    }\n" + 
-			"\n" + 
-			"    static <T> Predicate<T> pred() {\n" + 
-			"        return null;\n" + 
-			"    }\n" +
-			"}\n"
-		});
-}
 
 public void testBug424710() {
 	runConformTest(
