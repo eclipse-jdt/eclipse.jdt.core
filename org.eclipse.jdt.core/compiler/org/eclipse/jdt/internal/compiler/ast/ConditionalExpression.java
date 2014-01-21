@@ -612,6 +612,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		if (use18specifics && isPolyExpression()) {
 			if (this.expectedType == null)
 				return new PolyTypeBinding(this);
+			if (valueIfTrueType != null && !valueIfTrueType.isCompatibleWith(this.expectedType, scope)) {
+				scope.problemReporter().typeMismatchError(valueIfTrueType, this.expectedType, this.valueIfTrue, null);
+			}
+			if (valueIfFalseType != null && !valueIfFalseType.isCompatibleWith(this.expectedType, scope)) {
+				scope.problemReporter().typeMismatchError(valueIfFalseType, this.expectedType, this.valueIfFalse, null);
+			}
 			return this.resolvedType = this.expectedType;
 		}
 		if (use15specifics) {

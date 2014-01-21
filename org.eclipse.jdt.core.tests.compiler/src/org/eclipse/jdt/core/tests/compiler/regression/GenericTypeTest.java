@@ -15308,12 +15308,19 @@ public void test0499(){
 			"		 }\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	Integer[] var = cond ? tab1 : tab2;\n" +
-		"	                ^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from Object&Serializable&Comparable<? extends Object&Serializable&Comparable<?>>[] to Integer[]\n" +
-		"----------\n");
+		this.complianceLevel < ClassFileConstants.JDK1_8 ? 
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	Integer[] var = cond ? tab1 : tab2;\n" +
+			"	                ^^^^^^^^^^^^^^^^^^\n" +
+			"Type mismatch: cannot convert from Object&Serializable&Comparable<? extends Object&Serializable&Comparable<?>>[] to Integer[]\n" +
+			"----------\n": 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	Integer[] var = cond ? tab1 : tab2;\n" + 
+				"	                       ^^^^\n" + 
+				"Type mismatch: cannot convert from String[] to Integer[]\n" + 
+				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84251
 public void test0500(){
@@ -15964,6 +15971,7 @@ public void test0500(){
 				"	}\n" +
 				"}\n"
 			},
+			this.complianceLevel < ClassFileConstants.JDK1_8 ? 
 			"----------\n" +
 			"1. ERROR in X.java (at line 6)\n" +
 			"	int i = l.get(0).length;\n" +
@@ -15974,7 +15982,18 @@ public void test0500(){
 			"	Serializable s2 = b ? l.get(0) : s;\n" +
 			"	                  ^^^^^^^^^^^^^^^^\n" +
 			"Type mismatch: cannot convert from Object to Serializable\n" +
-			"----------\n");
+			"----------\n" :
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	int i = l.get(0).length;\n" + 
+				"	                 ^^^^^^\n" + 
+				"length cannot be resolved or is not a field\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 13)\n" + 
+				"	Serializable s2 = b ? l.get(0) : s;\n" + 
+				"	                      ^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from capture#3-of ? super int[] to Serializable\n" + 
+				"----------\n");
 	}
 	// type parameter hiding
 	public void test0509() {
@@ -19722,12 +19741,24 @@ public void test0617() {
 				"	}\n" +
 				"}\n",
             },
-    		"----------\n" +
-    		"1. ERROR in X.java (at line 10)\n" +
-    		"	String s = l1 != null ? foo(l1, l2) : l3;\n" +
-    		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-    		"Type mismatch: cannot convert from List<capture#4-of ? extends Object> to String\n" +
-    		"----------\n");
+            this.complianceLevel < ClassFileConstants.JDK1_8 ? 
+	    		"----------\n" +
+	    		"1. ERROR in X.java (at line 10)\n" +
+	    		"	String s = l1 != null ? foo(l1, l2) : l3;\n" +
+	    		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+	    		"Type mismatch: cannot convert from List<capture#4-of ? extends Object> to String\n" +
+	    		"----------\n" : 
+	    			"----------\n" + 
+	    			"1. ERROR in X.java (at line 10)\n" + 
+	    			"	String s = l1 != null ? foo(l1, l2) : l3;\n" + 
+	    			"	                        ^^^^^^^^^^^\n" + 
+	    			"Type mismatch: cannot convert from List<capture#2-of ? extends Number&Comparable<?>> to String\n" + 
+	    			"----------\n" + 
+	    			"2. ERROR in X.java (at line 10)\n" + 
+	    			"	String s = l1 != null ? foo(l1, l2) : l3;\n" + 
+	    			"	                                      ^^\n" + 
+	    			"Type mismatch: cannot convert from List<capture#3-of ?> to String\n" + 
+	    			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=92556
 	public void test0629() {
@@ -25608,42 +25639,79 @@ public void test0799() {
 			"	Y<E> next;\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
-		"	Y first;\n" +
-		"	^\n" +
-		"Y is a raw type. References to generic type Y<E> should be parameterized\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 3)\n" +
-		"	Y first2;\n" +
-		"	^\n" +
-		"Y is a raw type. References to generic type Y<E> should be parameterized\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 9)\n" +
-		"	String s = foo(ref, first);\n" +
-		"	           ^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from Y to String\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 13)\n" +
-		"	ref.next = first == null ? ref : first;\n" +
-		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: The expression of type Y needs unchecked conversion to conform to Y<capture#2-of ? extends T>\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 14)\n" +
-		"	String s = first == null ? ref : first;\n" +
-		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from Y to String\n" +
-		"----------\n" +
-		"6. WARNING in X.java (at line 15)\n" +
-		"	ref.next = first2 == null ? ref : first2;\n" +
-		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: The expression of type Y needs unchecked conversion to conform to Y<capture#5-of ? extends T>\n" +
-		"----------\n" +
-		"7. WARNING in X.java (at line 18)\n" +
-		"	return first == null ? ref : first;\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: The expression of type Y needs unchecked conversion to conform to Y<? extends T>\n" +
-		"----------\n");
+		this.complianceLevel < ClassFileConstants.JDK1_8 ? 
+			"----------\n" +
+			"1. WARNING in X.java (at line 2)\n" +
+			"	Y first;\n" +
+			"	^\n" +
+			"Y is a raw type. References to generic type Y<E> should be parameterized\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 3)\n" +
+			"	Y first2;\n" +
+			"	^\n" +
+			"Y is a raw type. References to generic type Y<E> should be parameterized\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 9)\n" +
+			"	String s = foo(ref, first);\n" +
+			"	           ^^^^^^^^^^^^^^^\n" +
+			"Type mismatch: cannot convert from Y to String\n" +
+			"----------\n" +
+			"4. WARNING in X.java (at line 13)\n" +
+			"	ref.next = first == null ? ref : first;\n" +
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: The expression of type Y needs unchecked conversion to conform to Y<capture#2-of ? extends T>\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 14)\n" +
+			"	String s = first == null ? ref : first;\n" +
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type mismatch: cannot convert from Y to String\n" +
+			"----------\n" +
+			"6. WARNING in X.java (at line 15)\n" +
+			"	ref.next = first2 == null ? ref : first2;\n" +
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: The expression of type Y needs unchecked conversion to conform to Y<capture#5-of ? extends T>\n" +
+			"----------\n" +
+			"7. WARNING in X.java (at line 18)\n" +
+			"	return first == null ? ref : first;\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: The expression of type Y needs unchecked conversion to conform to Y<? extends T>\n" +
+			"----------\n" : 
+				"----------\n" + 
+				"1. WARNING in X.java (at line 2)\n" + 
+				"	Y first;\n" + 
+				"	^\n" + 
+				"Y is a raw type. References to generic type Y<E> should be parameterized\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 3)\n" + 
+				"	Y first2;\n" + 
+				"	^\n" + 
+				"Y is a raw type. References to generic type Y<E> should be parameterized\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 9)\n" + 
+				"	String s = foo(ref, first);\n" + 
+				"	           ^^^^^^^^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from Y to String\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 13)\n" + 
+				"	ref.next = first == null ? ref : first;\n" + 
+				"	                           ^^^\n" + 
+				"Type mismatch: cannot convert from Y<capture#3-of ? extends T> to Y<capture#2-of ? extends T>\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 14)\n" + 
+				"	String s = first == null ? ref : first;\n" + 
+				"	                           ^^^\n" + 
+				"Type mismatch: cannot convert from Y<capture#4-of ? extends T> to String\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 14)\n" + 
+				"	String s = first == null ? ref : first;\n" + 
+				"	                                 ^^^^^\n" + 
+				"Type mismatch: cannot convert from Y to String\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 15)\n" + 
+				"	ref.next = first2 == null ? ref : first2;\n" + 
+				"	                            ^^^\n" + 
+				"Type mismatch: cannot convert from Y<capture#6-of ? extends T> to Y<capture#5-of ? extends T>\n" + 
+				"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744
 public void test0800() {
@@ -25750,8 +25818,7 @@ public void test0802() {
 		"The method zz() is undefined for the type Z\n" +
 		"----------\n");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101831
-// FIXME: javac8 doesn't find the error
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=101831
 public void test0803() {
 	this.runNegativeTest(
 		new String[] {
@@ -25776,22 +25843,40 @@ public void test0803() {
 			"  }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 9)\n" + 
-		"	return true ? list : list;\n" + 
-		"	                     ^^^^\n" + 
-		"Dead code\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 13)\n" + 
-		"	return true ? superList : superList;\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from ArrayList<capture#3-of ? extends Object> to ArrayList<? super A>\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 17)\n" + 
-		"	return true ? extendsList : extendsList;\n" + 
-		"	                            ^^^^^^^^^^^\n" + 
-		"Dead code\n" + 
-		"----------\n");
+		this.complianceLevel < ClassFileConstants.JDK1_8 ? 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 9)\n" + 
+			"	return true ? list : list;\n" + 
+			"	                     ^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 13)\n" + 
+			"	return true ? superList : superList;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from ArrayList<capture#3-of ? extends Object> to ArrayList<? super A>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 17)\n" + 
+			"	return true ? extendsList : extendsList;\n" + 
+			"	                            ^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" : 
+				"----------\n" + 
+				"1. WARNING in X.java (at line 9)\n" + 
+				"	return true ? list : list;\n" + 
+				"	                     ^^^^\n" + 
+				"Dead code\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 13)\n" + 
+				"	return true ? superList : superList;\n" + 
+				"	                          ^^^^^^^^^\n" + 
+				"Dead code\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 17)\n" + 
+				"	return true ? extendsList : extendsList;\n" + 
+				"	                            ^^^^^^^^^^^\n" + 
+				"Dead code\n" + 
+				"----------\n"
+			);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106865
 public void test0804() {
@@ -28379,29 +28464,51 @@ public void test0875() {
 			"	}\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 6)\n" +
-		"	private static final Map<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>> uiMap = new HashMap<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>>();\n" +
-		"	                                                                          ^^^^^^^^^^^^\n" +
-		"X.ObjectFormUI is a raw type. References to generic type X.ObjectFormUI<T> should be parameterized\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 6)\n" +
-		"	private static final Map<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>> uiMap = new HashMap<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>>();\n" +
-		"	                                                                                                                                                              ^^^^^^^^^^^^\n" +
-		"X.ObjectFormUI is a raw type. References to generic type X.ObjectFormUI<T> should be parameterized\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 10)\n" +
-		"	return null != null \n" +
-		"			? uiMap.get(persistentClass)\n" +
-		"			: (Class<? extends ObjectFormUI<T>>) uiMap.get(persistentClass);\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from Class<capture#4-of ? extends X.ObjectFormUI> to Class<? extends X.ObjectFormUI<T>>\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 12)\n" +
-		"	: (Class<? extends ObjectFormUI<T>>) uiMap.get(persistentClass);\n" +
-		"	  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: Unchecked cast from Class<capture#2-of ? extends X.ObjectFormUI> to Class<? extends X.ObjectFormUI<T>>\n" +
-		"----------\n");
+		this.complianceLevel < ClassFileConstants.JDK1_8 ? 
+			"----------\n" +
+			"1. WARNING in X.java (at line 6)\n" +
+			"	private static final Map<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>> uiMap = new HashMap<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>>();\n" +
+			"	                                                                          ^^^^^^^^^^^^\n" +
+			"X.ObjectFormUI is a raw type. References to generic type X.ObjectFormUI<T> should be parameterized\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 6)\n" +
+			"	private static final Map<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>> uiMap = new HashMap<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>>();\n" +
+			"	                                                                                                                                                              ^^^^^^^^^^^^\n" +
+			"X.ObjectFormUI is a raw type. References to generic type X.ObjectFormUI<T> should be parameterized\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 10)\n" +
+			"	return null != null \n" +
+			"			? uiMap.get(persistentClass)\n" +
+			"			: (Class<? extends ObjectFormUI<T>>) uiMap.get(persistentClass);\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type mismatch: cannot convert from Class<capture#4-of ? extends X.ObjectFormUI> to Class<? extends X.ObjectFormUI<T>>\n" +
+			"----------\n" +
+			"4. WARNING in X.java (at line 12)\n" +
+			"	: (Class<? extends ObjectFormUI<T>>) uiMap.get(persistentClass);\n" +
+			"	  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: Unchecked cast from Class<capture#2-of ? extends X.ObjectFormUI> to Class<? extends X.ObjectFormUI<T>>\n" +
+			"----------\n" : 
+				"----------\n" + 
+				"1. WARNING in X.java (at line 6)\n" + 
+				"	private static final Map<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>> uiMap = new HashMap<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>>();\n" + 
+				"	                                                                          ^^^^^^^^^^^^\n" + 
+				"X.ObjectFormUI is a raw type. References to generic type X.ObjectFormUI<T> should be parameterized\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 6)\n" + 
+				"	private static final Map<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>> uiMap = new HashMap<Class<? extends DatabaseObject>, Class<? extends ObjectFormUI>>();\n" + 
+				"	                                                                                                                                                              ^^^^^^^^^^^^\n" + 
+				"X.ObjectFormUI is a raw type. References to generic type X.ObjectFormUI<T> should be parameterized\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 11)\n" + 
+				"	? uiMap.get(persistentClass)\n" + 
+				"	  ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from Class<capture#1-of ? extends X.ObjectFormUI> to Class<? extends X.ObjectFormUI<T>>\n" + 
+				"----------\n" + 
+				"4. WARNING in X.java (at line 12)\n" + 
+				"	: (Class<? extends ObjectFormUI<T>>) uiMap.get(persistentClass);\n" + 
+				"	  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type safety: Unchecked cast from Class<capture#2-of ? extends X.ObjectFormUI> to Class<? extends X.ObjectFormUI<T>>\n" + 
+				"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=119395 - variation
 public void test0876() {
@@ -39004,6 +39111,7 @@ public void test1129() {
 			"	}\n" +
 			"}  ", // =================
 		},
+		this.complianceLevel < ClassFileConstants.JDK1_8 ?
 		"----------\n" +
 		"1. ERROR in X.java (at line 18)\n" +
 		"	String s = b ? arg1 : arg2;\n" +
@@ -39014,7 +39122,28 @@ public void test1129() {
 		"	String s = b ? arg1 : arg2;\n" +
 		"	           ^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from Object&Comparable<?>&Serializable to String\n" +
-		"----------\n");
+		"----------\n" :
+			"----------\n" + 
+			"1. ERROR in X.java (at line 18)\n" + 
+			"	String s = b ? arg1 : arg2;\n" + 
+			"	               ^^^^\n" + 
+			"Type mismatch: cannot convert from IX<String> to String\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 18)\n" + 
+			"	String s = b ? arg1 : arg2;\n" + 
+			"	                      ^^^^\n" + 
+			"Type mismatch: cannot convert from IX<capture#1-of ? extends Object> to String\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 21)\n" + 
+			"	String s = b ? arg1 : arg2;\n" + 
+			"	               ^^^^\n" + 
+			"Type mismatch: cannot convert from Arg1 to String\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 21)\n" + 
+			"	String s = b ? arg1 : arg2;\n" + 
+			"	                      ^^^^\n" + 
+			"Type mismatch: cannot convert from Arg2 to String\n" + 
+			"----------\n");
 }
 public void test1130() {
 	this.runNegativeTest(
@@ -39031,12 +39160,24 @@ public void test1130() {
 			"	}\n" +
 			"}\n", // =================
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	String s = b ? l1.get(0) : l2.get(0);\n" +
-		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from Comparable<T> to String\n" +
-		"----------\n");
+		this.complianceLevel < ClassFileConstants.JDK1_8 ? 
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	String s = b ? l1.get(0) : l2.get(0);\n" +
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type mismatch: cannot convert from Comparable<T> to String\n" +
+			"----------\n" :
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	String s = b ? l1.get(0) : l2.get(0);\n" + 
+				"	               ^^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from capture#1-of ? extends T to String\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\n" + 
+				"	String s = b ? l1.get(0) : l2.get(0);\n" + 
+				"	                           ^^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from capture#2-of ? extends Comparable<T> to String\n" + 
+				"----------\n");
 }
 public void test1131() {
 	this.runNegativeTest(
@@ -39051,12 +39192,24 @@ public void test1131() {
 			"	}\n" +
 			"} \n", // =================
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	String s = b ? l1.get(0) : l2.get(0);\n" +
-		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from Comparable<capture#3-of ? extends T> to String\n" +
-		"----------\n");
+		this.complianceLevel < ClassFileConstants.JDK1_8 ? 
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	String s = b ? l1.get(0) : l2.get(0);\n" +
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type mismatch: cannot convert from Comparable<capture#3-of ? extends T> to String\n" +
+			"----------\n" : 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	String s = b ? l1.get(0) : l2.get(0);\n" + 
+				"	               ^^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from capture#1-of ? extends V to String\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	String s = b ? l1.get(0) : l2.get(0);\n" + 
+				"	                           ^^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from capture#2-of ? extends Comparable<V> to String\n" + 
+				"----------\n");
 }
 public void test1132() {
 	this.runNegativeTest(

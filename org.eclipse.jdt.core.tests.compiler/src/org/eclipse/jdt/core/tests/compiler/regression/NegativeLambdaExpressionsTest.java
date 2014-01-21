@@ -8283,6 +8283,30 @@ public void test421926c() throws Exception {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426206, [1.8][compiler] Compiler tolerates illegal code.
+public void test426206() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"import java.util.Comparator;\n" +
+				"public class X  {\n" +
+				"    public static void main(String argv[]) {\n" +
+				"        Comparator<? extends String> c = true ? (Integer i, Integer j) -> { return 0; } : (Long i, Long j) -> { return 1; };\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	Comparator<? extends String> c = true ? (Integer i, Integer j) -> { return 0; } : (Long i, Long j) -> { return 1; };\n" + 
+		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Comparator<Integer> to Comparator<? extends String>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	Comparator<? extends String> c = true ? (Integer i, Integer j) -> { return 0; } : (Long i, Long j) -> { return 1; };\n" + 
+		"	                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Comparator<Long> to Comparator<? extends String>\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
