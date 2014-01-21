@@ -416,7 +416,7 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 	MethodBinding[] abstractMethods = new MethodBinding[length - 1];
 	index = 0;
 	for (int i = 0; i < length; i++)
-		if (methods[i].isAbstract())
+		if (methods[i].isAbstract() || (methods[i] != concreteMethod && methods[i].isDefaultMethod()))
 			abstractMethods[index++] = methods[i];
 	if (index == 0) return; // can happen with methods that contain 'equal' Missing Types, see bug 257384
 	if (index < abstractMethods.length)

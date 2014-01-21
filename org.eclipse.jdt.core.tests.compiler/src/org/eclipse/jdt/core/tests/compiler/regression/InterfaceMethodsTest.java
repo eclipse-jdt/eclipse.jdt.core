@@ -2293,8 +2293,8 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"class method");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425718, [1.8] default method changes access privilege of protected overridden method from Object 
-	public void _test425718() throws Exception {
-		this.runConformTest(
+	public void test425718() throws Exception {
+		this.runNegativeTest(
 			new String[] {
 					"X.java",
 					"interface I {\n" +
