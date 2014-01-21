@@ -3201,7 +3201,7 @@ public void testBug413958_1() {
 // https://bugs.eclipse.org/413958 - Function override returning inherited Generic Type
 // Passing since https://bugs.eclipse.org/423496
 public void testBug413958_2() {
-	runConformTest(
+	String[] sourceFiles =
 		new String[] {
 			"TestA.java",
 			"public class TestA { }\n",
@@ -3269,7 +3269,18 @@ public void testBug413958_2() {
 			"        final WritableWrapper<TestA2,TestB> v5 = v1.icopy2(new TestA2());\n" +
 			"    }\n" +
 			"}\n"
-		});
+		};
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		runNegativeTest(
+			sourceFiles,
+			"----------\n" +
+			"1. ERROR in TestGenerics.java (at line 6)\n" +
+			"	final WritableWrapper<TestA2,TestB> v4 = v1.icopy();\n" +
+			"	                                         ^^^^^^^^^^\n" +
+			"Type mismatch: cannot convert from ReadOnlyWrapper<TestA,TestB> to WritableWrapper<TestA2,TestB>\n" +
+			"----------\n");
+	else
+		runConformTest(sourceFiles);
 }
 public void testBug415734() {
 	String compileSrc =
