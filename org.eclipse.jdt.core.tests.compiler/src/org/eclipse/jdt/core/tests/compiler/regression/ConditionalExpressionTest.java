@@ -205,4 +205,27 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 					);
 		}
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426315, - [1.8][compiler] UnsupportedOperationException with conditional expression
+	public void test006() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_8)
+			return;
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	static int foo(Object x) {\n" +
+						"		return 0;\n" +
+						"	}\n" +
+						"	static int foo(int e) { \n" +
+						"		return 1; \n" +
+						"	}\n" +
+						" 	public static void main(String args[]) {\n" +
+						" 		Object x = new Object();\n" +
+						"		System.out.println(foo(true ? x : new int[0]) != 0);\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"false"
+				);
+	}
 }

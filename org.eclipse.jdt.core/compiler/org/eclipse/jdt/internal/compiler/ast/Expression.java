@@ -1155,7 +1155,7 @@ public void setExpressionContext(ExpressionContext context) {
 }
 
 public boolean isCompatibleWith(TypeBinding left, Scope scope) {
-	throw new UnsupportedOperationException("Unexpected control flow, should not have reached Expression.isCompatibleWith"); //$NON-NLS-1$
+	return this.resolvedType != null && this.resolvedType.isCompatibleWith(left,  scope);
 }
 
 public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
