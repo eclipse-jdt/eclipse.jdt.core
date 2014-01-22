@@ -510,7 +510,7 @@ void checkMethods() {
 	char[][] methodSelectors = this.inheritedMethods.keyTable;
 	nextSelector : for (int s = methodSelectors.length; --s >= 0;) {
 		if (methodSelectors[s] == null) continue nextSelector;
-        MethodBinding[] current = (MethodBinding[]) this.currentMethods.get(methodSelectors[s]);
+		MethodBinding[] current = (MethodBinding[]) this.currentMethods.get(methodSelectors[s]);
 		MethodBinding[] inherited = (MethodBinding[]) this.inheritedMethods.valueTable[s];
 		// ensure that if we have a concrete method this shows up at position [0]:
 		inherited = Sorting.concreteFirst(inherited, inherited.length);
@@ -693,11 +693,12 @@ boolean isSkippableOrOverridden(MethodBinding specific, MethodBinding general, b
 /* 'general' is considered as replaced by 'specific' if
  * - 'specific' is "at least as concrete as" 'general'
  * - 'specific' has a signature that is a subsignature of the substituted signature of 'general' (as seen from specific's declaring class)  
+ * - default methods should also be considered replaced by class methods that meet the signature that is a subsignature criteria.
  */
 MethodBinding findReplacedMethod(MethodBinding specific, MethodBinding general) {
 	MethodBinding generalSubstitute = computeSubstituteMethod(general, specific);
 	if (generalSubstitute != null 
-			&& (!specific.isAbstract() || general.isAbstract())	// if (abstract(specific) => abstract(general)) check if 'specific' overrides 'general' 
+			&& (!specific.isAbstract() || general.isAbstract() || (general.isDefaultMethod() && specific.declaringClass.isClass()))	// if (abstract(specific) => abstract(general)) check if 'specific' overrides 'general' 
 			&& isSubstituteParameterSubsignature(specific, generalSubstitute)) 
 	{
 		return generalSubstitute;

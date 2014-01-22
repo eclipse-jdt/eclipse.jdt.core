@@ -2318,5 +2318,33 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"	          ^^^\n" + 
 			"Exception CloneNotSupportedException in throws clause of Object.clone() is not compatible with I.clone()\n" + 
 			"----------\n");
-	}	
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426318, [1.8][compiler] Bogus name clash error in the presence of default methods and varargs
+	public void test426318() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"abstract class Y { \n" +
+					"    public abstract void foo(Object[] x);\n" +
+					"    public abstract void goo(Object[] x);\n" +
+					"}\n" +
+					"interface I {\n" +
+					"   default public <T> void foo(T... x) {};\n" +
+					"   public abstract <T> void goo(T ... x);\n" +
+					"}\n" +
+					"public abstract class X extends Y implements I { \n" +
+					"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	default public <T> void foo(T... x) {};\n" + 
+			"	                                 ^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter x\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
+			"	public abstract <T> void goo(T ... x);\n" + 
+			"	                                   ^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter x\n" + 
+			"----------\n");
+	}
 }
