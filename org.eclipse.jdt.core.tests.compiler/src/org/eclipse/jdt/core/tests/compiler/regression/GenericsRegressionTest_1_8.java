@@ -1176,4 +1176,38 @@ public void testBug425493() {
 		"The method addAttribute(Test.Attribute<T>, T) in the type Test is not applicable for the arguments (Test.Attribute<capture#3-of ?>, capture#4-of ?)\n" + 
 		"----------\n");
 }
+public void testBug426366() {
+	runConformTest(
+		new String[] {
+			"a/Test.java",
+			"package a;\n" + 
+			"\n" + 
+			"import java.util.Collections;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"/**\n" + 
+			" * @author tomschindl\n" + 
+			" *\n" + 
+			" */\n" + 
+			"public class Test {\n" + 
+			"	public static class A {\n" + 
+			"		public A(B newSelectedObject, String editorController) {\n" + 
+			"	    }\n" + 
+			"\n" + 
+			"	    public A(List<B> newSelectedObjects, String editorController) {\n" + 
+			"	    }\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static class B {\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static class C extends A {\n" + 
+			"		public C() {\n" + 
+			"			super(Collections.emptyList(), \"\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
 }

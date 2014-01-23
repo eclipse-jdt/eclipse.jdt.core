@@ -27,6 +27,7 @@
  *								Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
  *								Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
  *								Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
+ *								Bug 426366 - [1.8][compiler] Type inference doesn't handle multiple candidate target types in outer overload context
  *     Jesper S Moller - Contributions for
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -695,10 +696,12 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						ParameterizedGenericMethodBinding parameterizedMethod = (ParameterizedGenericMethodBinding) binding;
 						InferenceContext18 innerContext = innerInvocation.getInferenceContext(parameterizedMethod);
 						if (innerContext != null) {
-							if (innerContext.stepCompleted < InferenceContext18.TYPE_INFERRED) {
+							if (!innerContext.hasResultFor(parameterType)) {
 								argument.setExpectedType(parameterType);
 								MethodBinding improvedBinding = innerContext.inferInvocationType(innerInvocation, parameterizedMethod);
-								innerInvocation.updateBindings(improvedBinding);
+								if (innerInvocation.updateBindings(improvedBinding, parameterType)) {
+									resolvePolyExpressionArguments(innerInvocation, improvedBinding);
+								}
 								// TODO need to report invalidMethod if !improvedBinding.isValidBinding() ?
 							} else if (innerContext.stepCompleted < InferenceContext18.BINDINGS_UPDATED) {
 								innerContext.rebindInnerPolies(parameterizedMethod, innerInvocation);
@@ -727,6 +730,17 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			}
 		}
 		invocation.innerUpdateDone();
+	}
+
+	public static void resolvePolyExpressionArguments(Invocation invocation, MethodBinding methodBinding) {
+		TypeBinding[] argumentTypes = null;
+		Expression[] innerArguments = invocation.arguments();
+		if (innerArguments != null) {
+			argumentTypes = new TypeBinding[innerArguments.length];
+			for (int i = 0; i < innerArguments.length; i++)
+				argumentTypes[i] = innerArguments[i].resolvedType;
+		}
+		resolvePolyExpressionArguments(invocation, methodBinding, argumentTypes);
 	}
 
 	public static void resolveAnnotations(BlockScope scope, Annotation[] sourceAnnotations, Binding recipient) {

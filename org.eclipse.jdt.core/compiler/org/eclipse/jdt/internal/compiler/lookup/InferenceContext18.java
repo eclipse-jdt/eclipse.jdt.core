@@ -17,9 +17,11 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -123,7 +125,7 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  *    <li>In some situations invocation arguments that are poly invocations need to be resolved in the middle of overload resolution
  *    	to answer {@link Scope#parameterCompatibilityLevel18} (where the outer invocation did not involve any inference).<br/>
  *    </ul>
- *    Pushing inference results into an inner invocation happens using {@link Invocation#updateBindings(MethodBinding)}.</li>
+ *    Pushing inference results into an inner invocation happens using {@link Invocation#updateBindings(MethodBinding,TypeBinding)}.</li>
  * <li>Decision whether or not an invocation is a <b>variable-arity</b> invocation is made by first attempting
  * 		to solve 18.5.1 in mode {@link #CHECK_LOOSE}. Only if that fails, another attempt is made in mode {@link #CHECK_VARARG}.
  * 		Which of these two attempts was successful is stored in {@link #inferenceKind}.
@@ -161,18 +163,22 @@ public class InferenceContext18 {
 
 	/** solution of applicability inference, stored for use as fallback, if invocation type inference fails. */
 	BoundSet storedSolution;
+
+	/** For each candidate target type imposed from the outside store the solution of invocation type inference. */
+	Map/*<TypeBinding,Solution>*/ solutionsPerTargetType = new HashMap();
+
 	/** One of CHECK_STRICT, CHECK_LOOSE, or CHECK_VARARGS. */
 	int inferenceKind;
 	/** Marks how much work has been done so far? Used to avoid performing any of these tasks more than once. */
 	public int stepCompleted = NOT_INFERRED;
 
-	public static int NOT_INFERRED = 0;
+	public static final int NOT_INFERRED = 0;
 	/** Applicability Inference (18.5.1) has been completed. */
-	public static int APPLICABILITY_INFERRED = 1;
-	/** Invocation Type Inference (18.5.2) has been completed. */
-	public static int TYPE_INFERRED = 2;
+	public static final int APPLICABILITY_INFERRED = 1;
+	/** Invocation Type Inference (18.5.2) has been completed (for some target type). */
+	public static final int TYPE_INFERRED = 2;
 	/** All nested elements have been fully resolved. */
-	public static int BINDINGS_UPDATED = 3;
+	public static final int BINDINGS_UPDATED = 3;
 	
 	/** Signals whether any type compatibility makes use of unchecked conversion. */
 	public List constraintsWithUncheckedConversion;
@@ -206,6 +212,18 @@ public class InferenceContext18 {
 		}
 	}
 	
+	/** Record for a candidate solution of Invocation Type Inference for one specific target type. */
+	static class Solution {
+		TypeBinding resolvedType;
+		MethodBinding method;
+		BoundSet bounds;
+		Solution(MethodBinding method, BoundSet bounds) {
+			this.method = method;
+			this.resolvedType = method.isConstructor() ? method.declaringClass : method.returnType;
+			this.bounds = bounds;
+		}
+	}
+
 	/** Construct an inference context for an invocation (method/constructor). */
 	public InferenceContext18(Scope scope, Expression[] arguments, InvocationSite site) {
 		this.scope = scope;
@@ -460,19 +478,22 @@ public class InferenceContext18 {
 		boolean haveProperTargetType = targetType != null && targetType.isProperType(true);
 		if (haveProperTargetType) {
 			MethodBinding original = method.originalMethod;
-			// start over from a previous candidate but discard its type variable instantiations
-			// TODO: should we retain any instantiations of type variables not owned by the method? 
-			BoundSet result = null;
-			try {
-				result = inferInvocationType(this.currentBounds, targetType, invocation, original);
-			} catch (InferenceFailureException e) {
-				// no solution, but do more checks below
+			BoundSet result = (BoundSet) this.solutionsPerTargetType.get(targetType);
+			if (result == null) {
+				// start over from a previous candidate but discard its type variable instantiations
+				// TODO: should we retain any instantiations of type variables not owned by the method? 
+				try {
+					result = inferInvocationType(this.currentBounds, targetType, invocation, original);
+				} catch (InferenceFailureException e) {
+					// no solution, but do more checks below
+				}
 			}
 			if (result != null) {
 				TypeBinding[] solutions = getSolutions(original.typeVariables(), invocation, result);
 				if (solutions != null) {
 					finalMethod = this.environment.createParameterizedGenericMethod(original, solutions);
 					invocation.registerInferenceContext(finalMethod, this);
+					this.solutionsPerTargetType.put(targetType, new Solution(finalMethod, result));
 				}
 			}
 			if (finalMethod != null)
@@ -518,6 +539,21 @@ public class InferenceContext18 {
 		return inferInvocationType(invocation, argumentTypes, method);
 	}
 
+	public boolean hasResultFor(TypeBinding targetType) {
+		if (targetType == null)
+			return this.stepCompleted >= TYPE_INFERRED;
+		else
+			return this.solutionsPerTargetType.containsKey(targetType);
+	}
+
+	public boolean registerSolution(TypeBinding targetType, MethodBinding updatedBinding) {
+		Solution solution = (Solution) this.solutionsPerTargetType.get(targetType);
+		if (solution != null)
+			return false; // no update
+		this.solutionsPerTargetType.put(targetType, new Solution(updatedBinding, null));
+		this.stepCompleted = TYPE_INFERRED;
+		return true;
+	}
 
 	// ========== Below this point: implementation of the generic algorithm: ==========
 
@@ -883,15 +919,21 @@ public class InferenceContext18 {
 	public boolean rebindInnerPolies(MethodBinding method, InvocationSite site) {
 		BoundSet bounds = this.currentBounds;
 		TypeBinding targetType = site.invocationTargetType();
-		if ((targetType == null || !targetType.isProperType(true)) && site.getExpressionContext() == ExpressionContext.VANILLA_CONTEXT) {
-			// in this case we don't yet have the solution, compute it now:
-			try {
-				bounds = inferInvocationType(this.currentBounds, null, site, method);
-			} catch (InferenceFailureException e) {
-				return false;
+		if (targetType == null || !targetType.isProperType(true)) {
+			if (site.getExpressionContext() == ExpressionContext.VANILLA_CONTEXT) {
+				// in this case we don't yet have the solution, compute it now:
+				try {
+					bounds = inferInvocationType(this.currentBounds, null, site, method);
+				} catch (InferenceFailureException e) {
+					return false;
+				}
+				if (bounds == null)
+					return false;
 			}
-			if (bounds == null)
-				return false;
+		} else {
+			Solution solution = (Solution) this.solutionsPerTargetType.get(targetType);
+			if (solution != null && solution.bounds != null)
+				bounds = solution.bounds;
 		}
 		rebindInnerPolies(bounds, method.parameters);
 		return true;
@@ -916,7 +958,8 @@ public class InferenceContext18 {
 			Expression inner = (Expression) this.innerPolies.get(i);
 			if (inner instanceof Invocation) {
 				Invocation innerMessage = (Invocation) inner;
-				MethodBinding binding = innerMessage.binding(getParameter(parameterTypes, i, isVarargs));
+				TypeBinding innerTargetType = getParameter(parameterTypes, i, isVarargs);
+				MethodBinding binding = innerMessage.binding(innerTargetType);
 				if (binding == null)
 					continue;
 				MethodBinding original = binding.original();
@@ -935,15 +978,8 @@ public class InferenceContext18 {
 					continue; // play safe, but shouldn't happen in a resolved context
 				ParameterizedGenericMethodBinding innerBinding = this.environment.createParameterizedGenericMethod(original, solutions);
 				
-				if (innerMessage.updateBindings(innerBinding)) { // only if we are actually improving anything
-					TypeBinding[] innerArgumentTypes = null;
-					Expression[] innerArguments = innerMessage.arguments();
-					if (innerArguments != null) {
-						innerArgumentTypes = new TypeBinding[innerArguments.length];
-						for (int j = 0; j < innerArguments.length; j++)
-							innerArgumentTypes[i] = innerArguments[i].resolvedType;
-					}
-					ASTNode.resolvePolyExpressionArguments(innerMessage, innerBinding, innerArgumentTypes);
+				if (innerMessage.updateBindings(innerBinding, innerTargetType)) { // only if we are actually improving anything
+					ASTNode.resolvePolyExpressionArguments(innerMessage, innerBinding);
 				}
 			}
 		}
@@ -1016,14 +1052,25 @@ public class InferenceContext18 {
 	// debugging:
 	public String toString() {
 		StringBuffer buf = new StringBuffer("Inference Context"); //$NON-NLS-1$
-		if (isResolved(this.currentBounds))
+		switch (this.stepCompleted) {
+			case NOT_INFERRED: buf.append(" (initial)");break; //$NON-NLS-1$
+			case APPLICABILITY_INFERRED: buf.append(" (applicability inferred)");break; //$NON-NLS-1$
+			case TYPE_INFERRED: buf.append(" (type inferred)");break; //$NON-NLS-1$
+			case BINDINGS_UPDATED: buf.append(" (bindings updated)");break; //$NON-NLS-1$
+		}
+		switch (this.inferenceKind) {
+			case CHECK_STRICT: buf.append(" (strict)");break; //$NON-NLS-1$
+			case CHECK_LOOSE: buf.append(" (loose)");break; //$NON-NLS-1$
+			case CHECK_VARARG: buf.append(" (vararg)");break; //$NON-NLS-1$
+		}
+		if (this.currentBounds != null && isResolved(this.currentBounds))
 			buf.append(" (resolved)"); //$NON-NLS-1$
 		buf.append('\n');
 		if (this.inferenceVariables != null) {
 			buf.append("Inference Variables:\n"); //$NON-NLS-1$
 			for (int i = 0; i < this.inferenceVariables.length; i++) {
 				buf.append('\t').append(this.inferenceVariables[i].sourceName).append("\t:\t"); //$NON-NLS-1$
-				if (this.currentBounds.isInstantiated(this.inferenceVariables[i]))
+				if (this.currentBounds != null && this.currentBounds.isInstantiated(this.inferenceVariables[i]))
 					buf.append(this.currentBounds.getInstantiation(this.inferenceVariables[i]).readableName());
 				else
 					buf.append("NOT INSTANTIATED"); //$NON-NLS-1$

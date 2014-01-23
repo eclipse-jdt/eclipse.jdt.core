@@ -27,6 +27,7 @@
  *								Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
  *								Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
  *								Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
+ *								Bug 426366 - [1.8][compiler] Type inference doesn't handle multiple candidate target types in outer overload context
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -791,12 +792,12 @@ public abstract class Scope {
 							if (innerBinding instanceof ParameterizedGenericMethodBinding) {
 								ParameterizedGenericMethodBinding innerParameterized = (ParameterizedGenericMethodBinding) innerBinding;
 								InferenceContext18 infCtx18 = innerPoly.getInferenceContext(innerParameterized);
-								if (infCtx18 != null && infCtx18.stepCompleted < InferenceContext18.TYPE_INFERRED) {
+								if (infCtx18 != null && !infCtx18.hasResultFor(targetType)) {
 									// not detected as compatible, because inference still needs to complete?
 									invocArg.setExpectedType(targetType);
 									MethodBinding solution = infCtx18.inferInvocationType(innerPoly, innerParameterized);
 									if (solution != null && solution.isValidBinding()) {
-										innerPoly.updateBindings(solution);
+										innerPoly.updateBindings(solution, targetType);
 										if (solution.returnType != null && solution.returnType.isCompatibleWith(targetType, this))
 											return isVarArgs ? VARARGS_COMPATIBLE : COMPATIBLE;
 									}
@@ -4914,7 +4915,7 @@ public abstract class Scope {
 			if (applicable instanceof ParameterizedGenericMethodBinding) {
 				ParameterizedGenericMethodBinding parameterizedMethod = (ParameterizedGenericMethodBinding) applicable;
 				InferenceContext18 infCtx18 = invocation.getInferenceContext(parameterizedMethod);
-				if (infCtx18 != null && infCtx18.stepCompleted < InferenceContext18.TYPE_INFERRED) {
+				if (infCtx18 != null && !infCtx18.hasResultFor(invocation.invocationTargetType())) {
 					return infCtx18.inferInvocationType(invocation, argumentTypes, parameterizedMethod);
 				}
 			} else {

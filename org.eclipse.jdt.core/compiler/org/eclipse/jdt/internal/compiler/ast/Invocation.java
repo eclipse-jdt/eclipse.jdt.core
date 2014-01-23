@@ -62,9 +62,11 @@ public interface Invocation extends InvocationSite {
 	 * Where the AST node may hold references to the results of Invocation Applicability Inference,
 	 * this method allows to update those references to the result of Invocation Type Inference.
 	 * Note that potentially more than just the method binding is updated.
+	 * @param updatedBinding the final method binding after full inference
+	 * @param targetType the target type used during Invocation Type Inference
 	 * @return true if an update has happened
 	 */
-	boolean updateBindings(MethodBinding updatedBinding);
+	boolean updateBindings(MethodBinding updatedBinding, TypeBinding targetType);
 	
 	/**
 	 * Answer whether the current invocation has inner expressions that still need updating after inference.

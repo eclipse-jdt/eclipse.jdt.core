@@ -30,6 +30,7 @@
  *							Bug 425152 - [1.8] [compiler] Lambda Expression not resolved but flow analyzed leading to NPE.
  *							Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
  *							Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
+ *							Bug 426366 - [1.8][compiler] Type inference doesn't handle multiple candidate target types in outer overload context
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *							bug 378674 - "The method can be declared as static" is wrong
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -706,20 +707,19 @@ public Expression[] arguments() {
 	return this.arguments;
 }
 
-public boolean updateBindings(MethodBinding updatedBinding) {
-	if (this.binding == updatedBinding)
-		return false;
+public boolean updateBindings(MethodBinding updatedBinding, TypeBinding targetType) {
+	boolean hasUpdate = this.binding != updatedBinding;
 	if (this.inferenceContexts != null) {
 		InferenceContext18 ctx = (InferenceContext18)this.inferenceContexts.removeKey(this.binding);
 		if (ctx != null && updatedBinding instanceof ParameterizedGenericMethodBinding) {
 			this.inferenceContexts.put(updatedBinding, ctx);
 			// solution may have come from an outer inference, mark now that this (inner) is done (but not deep inners):
-			ctx.stepCompleted = InferenceContext18.TYPE_INFERRED;
+			hasUpdate |= ctx.registerSolution(targetType, updatedBinding);
 		}
 	}
 	this.binding = updatedBinding;
 	this.resolvedType = updatedBinding.declaringClass;
-	return true;
+	return hasUpdate;
 }
 public void registerInferenceContext(ParameterizedGenericMethodBinding method, InferenceContext18 infCtx18) {
 	if (this.inferenceContexts == null)
