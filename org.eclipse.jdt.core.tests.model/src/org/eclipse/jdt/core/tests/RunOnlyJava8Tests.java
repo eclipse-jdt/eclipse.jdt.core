@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.tests.compiler.parser.ReferenceExpressionSyntaxTest;
 import org.eclipse.jdt.core.tests.compiler.parser.SelectionParserTest18;
 import org.eclipse.jdt.core.tests.compiler.parser.TypeAnnotationSyntaxTest;
 import org.eclipse.jdt.core.tests.compiler.regression.ClassFileReaderTest_1_8;
+import org.eclipse.jdt.core.tests.compiler.regression.ConditionalExpressionTest;
 import org.eclipse.jdt.core.tests.compiler.regression.Deprecated18Test;
 import org.eclipse.jdt.core.tests.compiler.regression.ExpressionContextTests;
 import org.eclipse.jdt.core.tests.compiler.regression.CompilerInvocationTests;
@@ -51,6 +52,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.OverloadResolutionTest8;
 import org.eclipse.jdt.core.tests.compiler.regression.RepeatableAnnotationTest;
 import org.eclipse.jdt.core.tests.compiler.regression.SerializableLambdaTest;
 import org.eclipse.jdt.core.tests.compiler.regression.TypeAnnotationTest;
+import org.eclipse.jdt.core.tests.compiler.regression.Unicode18Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverter15JLS8Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverter18Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverterAST8Test;
@@ -104,6 +106,8 @@ public class RunOnlyJava8Tests extends TestCase {
 			CompletionTests18.class,
 			GenericsRegressionTest_1_8.class,
 			IncrementalTests18.class,
+			ConditionalExpressionTest.class,
+			Unicode18Test.class,
 		};
 	}
 	
