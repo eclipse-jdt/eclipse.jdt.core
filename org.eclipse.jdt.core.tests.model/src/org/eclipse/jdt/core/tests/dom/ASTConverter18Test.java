@@ -3868,4 +3868,45 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		checkSourceRange(arrayType.getElementType(), "Object", contents);
 		assertTrue(arrayType.getDimensions() == 3);
 	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=420458
+	 */
+	public void testBug425741() throws JavaModelException {
+		String contents =
+				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface Annot { String value(); }\n" +
+				"@Annot(\"decl\") public class X {\n" +
+				"	@Annot(\"field\") X x = null;\n" +
+				"	public void foo(@Annot(\"param\") X i) {\n" +
+				"	}\n" +
+				"}";
+		this.workingCopy = getWorkingCopy("/Converter18/src/test/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		node = getASTNode(compilationUnit, 1);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		FieldDeclaration field = ((TypeDeclaration) node).getFields()[0];
+		List fragments = field.fragments();
+		ITypeBinding typeBinding = field.getType().resolveBinding();
+		IAnnotationBinding[] annots = typeBinding.getTypeAnnotations();
+		assertEquals("Incorrect type annotations", 1, annots.length);
+		assertEquals("Incorrect annotation", "@Annot(value = field)", annots[0].toString());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		typeBinding = typeBinding.getTypeDeclaration();
+		annots = typeBinding.getTypeAnnotations();
+		assertEquals("Incorrect type annotations", 0, annots.length);
+		typeBinding = fragment.resolveBinding().getType().getTypeDeclaration();
+		annots = typeBinding.getTypeAnnotations();
+		assertEquals("Incorrect type annotations", 0, annots.length);
+		MethodDeclaration method = ((TypeDeclaration) node).getMethods()[0];
+		SingleVariableDeclaration param = (SingleVariableDeclaration) method.parameters().get(0);
+		typeBinding = param.getType().resolveBinding();
+		annots = typeBinding.getTypeAnnotations();
+		assertEquals("Incorrect type annotations", 1, annots.length);
+		assertEquals("Incorrect annotation", "@Annot(value = param)", annots[0].toString());
+		typeBinding = typeBinding.getTypeDeclaration();
+		annots = typeBinding.getTypeAnnotations();
+		assertEquals("Incorrect type annotations", 0, annots.length);
+	}
 }

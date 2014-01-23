@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -561,7 +561,10 @@ public interface ITypeBinding extends IBinding {
 	 * type.</p>
 	 * <p>A different non-generic binding will be returned when one of the declaring
 	 * types/methods was parameterized.</p>
-	 * <p>For other type bindings, this returns the same binding.</p>
+	 * <p>For other type bindings, this returns the binding for the type declaration
+	 * corresponding to this type binding. In particular, for type bindings that
+	 * correspond to an annotated type use, this returns the binding for the type
+	 * declaration which will not have the type annotations from the use site.</p>
 	 *
 	 * @return the type binding
 	 * @since 3.1

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -467,7 +467,7 @@ class TypeBinding implements ITypeBinding {
 	public ITypeBinding getTypeDeclaration() {
 		if (this.binding instanceof ParameterizedTypeBinding)
 			return this.resolver.getTypeBinding(((ParameterizedTypeBinding)this.binding).genericType());
-		return this;
+		return this.resolver.getTypeBinding(this.binding.unannotated());
 	}
 
 	/* (non-Javadoc)
