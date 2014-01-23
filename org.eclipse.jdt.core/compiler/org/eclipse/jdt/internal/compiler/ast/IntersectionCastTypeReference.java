@@ -27,7 +27,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class IntersectionCastTypeReference extends TypeReference {
 	public TypeReference[] typeReferences;
@@ -75,7 +74,7 @@ public class IntersectionCastTypeReference extends TypeReference {
 		int length = this.typeReferences.length;
 		ReferenceBinding[] intersectingTypes = new ReferenceBinding[length];
 		boolean hasError = false;
-		TypeBinding primaryType = null;
+		
 		int typeCount = 0;
 		nextType:
 		for (int i = 0; i < length; i++) {
@@ -86,23 +85,18 @@ public class IntersectionCastTypeReference extends TypeReference {
 				continue;
 			}
 			if (i == 0) {
-				primaryType = type;
 				if (type.isBaseType()) { // rejected in grammar for i > 0
 					scope.problemReporter().onlyReferenceTypesInIntersectionCast(typeReference);
 					hasError = true;
 					continue;
 				}
-				if (type.isArrayType())
+				if (type.isArrayType()) { // javac rejects the pedantic cast: (X[] & Serializable & Cloneable) new X[0], what is good for the goose ...
+					scope.problemReporter().illegalArrayTypeInIntersectionCast(typeReference);
+					hasError = true;
 					continue;
+				}
 			} else if (!type.isInterface()) {
 				scope.problemReporter().boundMustBeAnInterface(typeReference, type);
-				hasError = true;
-				continue;
-			}
-			if (i > 0 && primaryType.isArrayType()) {
-				if (type.id == TypeIds.T_JavaIoSerializable || type.id == TypeIds.T_JavaLangCloneable)
-					continue;
-				scope.problemReporter().illegalArrayTypeInIntersectionCast(typeReference);
 				hasError = true;
 				continue;
 			}
@@ -129,9 +123,6 @@ public class IntersectionCastTypeReference extends TypeReference {
 			return null;
 		}
 		if (typeCount != length) {
-			if (typeCount == 0 && primaryType.isArrayType()) {
-				return this.resolvedType = primaryType;
-			}
 			if (typeCount == 1) {
 				return this.resolvedType = intersectingTypes[0];
 			}

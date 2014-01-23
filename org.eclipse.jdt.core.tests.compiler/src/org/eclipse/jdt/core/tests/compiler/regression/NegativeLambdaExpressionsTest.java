@@ -7973,8 +7973,8 @@ public void test425512() throws Exception {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	int [] a = (int [] & IJK) null;\n" + 
-		"	                     ^^^\n" + 
-		"Impossible interface for array type\n" + 
+		"	            ^^^^^^\n" + 
+		"Arrays are not allowed in intersection cast operator\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
@@ -7995,8 +7995,8 @@ public void test425512a() throws Exception {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	int [] a = (int [] & Serializable & IJK) null;\n" + 
-		"	                                    ^^^\n" + 
-		"Impossible interface for array type\n" + 
+		"	            ^^^^^^\n" + 
+		"Arrays are not allowed in intersection cast operator\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
@@ -8017,8 +8017,8 @@ public void test425512b() throws Exception {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	int [] a = (int [] & IJK & Serializable) null;\n" + 
-		"	                     ^^^\n" + 
-		"Impossible interface for array type\n" + 
+		"	            ^^^^^^\n" + 
+		"Arrays are not allowed in intersection cast operator\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
@@ -8061,8 +8061,8 @@ public void test425512cd() throws Exception {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	I i = (int [] & I) (i) -> {};\n" + 
-		"	                ^\n" + 
-		"Impossible interface for array type\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Arrays are not allowed in intersection cast operator\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 7)\n" + 
 		"	I i = (int [] & I) (i) -> {};\n" + 
@@ -8088,8 +8088,8 @@ public void test425512ce() throws Exception {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	I i = (int [] & Serializable) (i) -> {};\n" + 
-		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from int[] to I\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Arrays are not allowed in intersection cast operator\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 7)\n" + 
 		"	I i = (int [] & Serializable) (i) -> {};\n" + 

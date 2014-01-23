@@ -2243,7 +2243,7 @@ public void test425152() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
 public void test425512() throws Exception {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 				"X.java",
 				"import java.io.Serializable;\n" +
@@ -2254,7 +2254,12 @@ public void test425512() throws Exception {
 				"    }\n" +
 				"}\n",
 		},
-		"5");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	int [] a = (int [] & Cloneable & Serializable) new int[5];\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Arrays are not allowed in intersection cast operator\n" + 
+		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424628, [1.8][compiler] Multiple method references to inherited method throws LambdaConversionException
 public void test424628() throws Exception {
