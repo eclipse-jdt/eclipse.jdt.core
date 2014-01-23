@@ -1261,4 +1261,60 @@ public void testBug425152() {
 			"}\n"
 		});
 }
+public void testBug426048() {
+	runNegativeTest(
+		new String[] {
+			"MyFunction.java",
+			"import java.lang.annotation.Annotation;\n" + 
+			"import java.lang.annotation.ElementType;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target(ElementType.TYPE_USE)\n" + 
+			"@interface Throws {\n" + 
+			"  Class<? extends Throwable>[] value() default Throwable.class;\n" + 
+			"  Returns method() default @Returns(Annotation.class);\n" + 
+			"}\n" + 
+			"\n" + 
+			"@Target(ElementType.TYPE_USE)\n" + 
+			"@interface Returns {\n" + 
+			"  Class<? extends Annotation> value() default Annotation.class;\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface public interface MyFunction<T, @Returns R> {\n" + 
+			"  @Returns  R apply(T t);\n" + 
+			"\n" + 
+			"  default <V> @Throws(((MyFunction<? super V, ? extends T>) before::apply) @Returns MyFunction<V, @Returns R>\n" + 
+			"    compose(MyFunction<? super V, ? extends T> before) {\n" + 
+			"\n" + 
+			"    return (V v) -> apply(before.apply(v));\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in MyFunction.java (at line 19)\n" + 
+		"	default <V> @Throws(((MyFunction<? super V, ? extends T>) before::apply) @Returns MyFunction<V, @Returns R>\n" + 
+		"	          ^\n" + 
+		"Syntax error, insert \"Type Identifier (\" to complete MethodHeaderName\n" + 
+		"----------\n" + 
+		"2. ERROR in MyFunction.java (at line 19)\n" + 
+		"	default <V> @Throws(((MyFunction<? super V, ? extends T>) before::apply) @Returns MyFunction<V, @Returns R>\n" + 
+		"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from MyFunction<capture#1-of ? super V,capture#2-of ? extends T> to Class<? extends Throwable>[]\n" + 
+		"----------\n" + 
+		"3. ERROR in MyFunction.java (at line 19)\n" + 
+		"	default <V> @Throws(((MyFunction<? super V, ? extends T>) before::apply) @Returns MyFunction<V, @Returns R>\n" + 
+		"	                                                          ^^^^^^\n" + 
+		"before cannot be resolved\n" + 
+		"----------\n" + 
+		"4. ERROR in MyFunction.java (at line 19)\n" + 
+		"	default <V> @Throws(((MyFunction<? super V, ? extends T>) before::apply) @Returns MyFunction<V, @Returns R>\n" + 
+		"	                                                                       ^\n" + 
+		"Syntax error, insert \")\" to complete Modifiers\n" + 
+		"----------\n" + 
+		"5. ERROR in MyFunction.java (at line 20)\n" + 
+		"	compose(MyFunction<? super V, ? extends T> before) {\n" + 
+		"	       ^\n" + 
+		"Syntax error on token \"(\", , expected\n" + 
+		"----------\n");
+}
 }

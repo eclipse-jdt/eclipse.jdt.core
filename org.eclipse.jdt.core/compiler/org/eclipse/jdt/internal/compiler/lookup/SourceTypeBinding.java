@@ -32,6 +32,7 @@
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *								Bug 416172 - [1.8][compiler][null] null type annotation not evaluated on method return type
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
+ *								Bug 426048 - [1.8] NPE in TypeVariableBinding.internalBoundCheck when parentheses are not balanced
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *      Till Brychcy - Contributions for
@@ -1769,6 +1770,11 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 
 	final long sourceLevel = this.scope.compilerOptions().sourceLevel;
 	if (sourceLevel >= ClassFileConstants.JDK1_5) {
+		ReferenceBinding object = this.scope.getJavaLangObject();
+		TypeVariableBinding[] tvb = method.typeVariables;
+		for (int i = 0; i < tvb.length; i++)
+			tvb[i].superclass = object;		// avoid null (see https://bugs.eclipse.org/426048)
+
 		if ((method.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
 			method.modifiers |= ClassFileConstants.AccDeprecated;
 	}
