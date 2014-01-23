@@ -1237,4 +1237,28 @@ public void testBug426290() {
 		},
 		"goo(List<Integer>)");
 }
+public void testBug425152() {
+	runConformTest(
+		new String[] {
+			"packDown/SorterNew.java",
+			"package packDown;\n" + 
+			"\n" + 
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Collections;\n" + 
+			"import java.util.Comparator;\n" + 
+			"\n" + 
+			"public class SorterNew {\n" + 
+			"	void sort() {\n" + 
+			"		Collections.sort(new ArrayList<Person>(),\n" + 
+			"				Comparator.comparing((Person p) -> p.getName()));\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Person {\n" + 
+			"	public String getName() {\n" + 
+			"		return \"p\";\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
 }

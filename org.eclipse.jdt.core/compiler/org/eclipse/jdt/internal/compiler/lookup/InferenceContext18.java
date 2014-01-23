@@ -962,7 +962,7 @@ public class InferenceContext18 {
 				MethodBinding binding = innerMessage.binding(innerTargetType);
 				if (binding == null)
 					continue;
-				MethodBinding original = binding.original();
+				MethodBinding original = binding.shallowOriginal();
 
 				// apply inference results onto the allocation type of inner diamonds:
 				if (original.isConstructor() && inner.isPolyExpression()) {

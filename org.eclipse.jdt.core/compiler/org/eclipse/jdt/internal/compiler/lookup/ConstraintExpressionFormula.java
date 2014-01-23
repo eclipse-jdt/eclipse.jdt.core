@@ -91,11 +91,9 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				MethodBinding previousMethod = invocation.binding(this.right);
 				MethodBinding method = previousMethod;
 				// ignore previous (inner) inference result and do a fresh start:
-				if (previousMethod instanceof ParameterizedMethodBinding) {
-					// avoid original(), since we only want to discard one level of instantiation 
-					// (method type variables - not class type variables)!
-					method = ((ParameterizedMethodBinding)previousMethod).originalMethod;
-				}
+				// avoid original(), since we only want to discard one level of instantiation 
+				// (method type variables - not class type variables)!
+				method = previousMethod.shallowOriginal();
 				InvocationRecord prevInvocation = inferenceContext.enterPolyInvocation(invocation, invocation.arguments());
 
 				// Invocation Applicability Inference: 18.5.1 & Invocation Type Inference: 18.5.2
