@@ -77,5 +77,11 @@ public interface Invocation extends InvocationSite {
 	 * Mark that updating (the need for which is signaled via {@link #innersNeedUpdate()}) has been done.
 	 */
 	void innerUpdateDone();
+
+	/**
+	 * If this invocation has any poly expressions as arguments, this method answers an inference helper 
+	 * that mediates during overload resolution, even if no actual inference happens for this invocation.
+	 */
+	InnerInferenceHelper innerInferenceHelper();
 	
 }

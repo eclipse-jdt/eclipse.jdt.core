@@ -24,6 +24,7 @@
  *								Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
  *								Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
  *								Bug 426366 - [1.8][compiler] Type inference doesn't handle multiple candidate target types in outer overload context
+ *								Bug 426290 - [1.8][compiler] Inference + overloading => wrong method resolution ?
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 409245 - [1.8][compiler] Type annotations dropped when call is routed through a synthetic bridge method
  *******************************************************************************/
@@ -76,7 +77,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation, Ex
 
 	 // hold on to this context from invocation applicability inference until invocation type inference (per method candidate):
 	private SimpleLookupTable/*<PGMB,InferenceContext18>*/ inferenceContexts;
-	private boolean innersNeedUpdate; // see Invocation.innersNeedUpdate()
+	private InnerInferenceHelper innerInferenceHelper;
 
 	public ExplicitConstructorCall(int accessMode) {
 		this.accessMode = accessMode;
@@ -391,8 +392,10 @@ public class ExplicitConstructorCall extends Statement implements Invocation, Ex
 					if ((argumentTypes[i] = argument.resolveType(scope)) == null) {
 						argHasError = true;
 					}
-					if (sourceLevel >= ClassFileConstants.JDK1_8 && argument.isPolyExpression())
-						this.innersNeedUpdate = true;
+					if (sourceLevel >= ClassFileConstants.JDK1_8 && argument.isPolyExpression()) {
+						if (this.innerInferenceHelper == null)
+							this.innerInferenceHelper = new InnerInferenceHelper();
+					}
 				}
 				if (argHasError) {
 					if (receiverType == null) {
@@ -528,10 +531,13 @@ public class ExplicitConstructorCall extends Statement implements Invocation, Ex
 				&& getInferenceContext((ParameterizedGenericMethodBinding) this.binding) != null;
 	}
 	public boolean innersNeedUpdate() {
-		return this.innersNeedUpdate;
+		return this.innerInferenceHelper != null;
 	}
 	public void innerUpdateDone() {
-		this.innersNeedUpdate = false;
+		this.innerInferenceHelper = null;
+	}
+	public InnerInferenceHelper innerInferenceHelper() {
+		return this.innerInferenceHelper;
 	}
 
 	// -- interface InvocationSite: --

@@ -45,6 +45,7 @@
  *								Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
  *								Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
  *								Bug 426366 - [1.8][compiler] Type inference doesn't handle multiple candidate target types in outer overload context
+ *								Bug 426290 - [1.8][compiler] Inference + overloading => wrong method resolution ?
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -109,7 +110,7 @@ public class MessageSend extends Expression implements Invocation {
 
 	 // hold on to this context from invocation applicability inference until invocation type inference (per method candidate):
 	private SimpleLookupTable/*<PGMB,InferenceContext18>*/ inferenceContexts;
-	protected boolean innersNeedUpdate; // see Invocation.innersNeedUpdate()
+	protected InnerInferenceHelper innerInferenceHelper;
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	boolean nonStatic = !this.binding.isStatic();
@@ -645,8 +646,10 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 			if (sourceLevel >= ClassFileConstants.JDK1_8) {
 				if (argument.isPolyExpression()
-					|| (argument instanceof Invocation && ((Invocation)argument).usesInference()))
-					this.innersNeedUpdate = true;
+					|| (argument instanceof Invocation && ((Invocation)argument).usesInference())) {
+					if (this.innerInferenceHelper == null)
+						this.innerInferenceHelper = new InnerInferenceHelper();
+				}
 			}
 		}
 		if (argHasError) {
@@ -992,10 +995,13 @@ public boolean updateBindings(MethodBinding updatedBinding, TypeBinding targetTy
 	return hasUpdate;
 }
 public boolean innersNeedUpdate() {
-	return this.innersNeedUpdate;
+	return this.innerInferenceHelper != null;
 }
 public void innerUpdateDone() {
-	this.innersNeedUpdate = false;
+	this.innerInferenceHelper = null;
+}
+public InnerInferenceHelper innerInferenceHelper() {
+	return this.innerInferenceHelper;
 }
 // -- Interface InvocationSite: --
 public InferenceContext18 freshInferenceContext(Scope scope) {

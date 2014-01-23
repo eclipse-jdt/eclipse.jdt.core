@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.InnerInferenceHelper;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
@@ -201,8 +202,10 @@ public TypeBinding resolveType(BlockScope scope) {
 			if ((argumentType = argumentTypes[i] = argument.resolveType(scope)) == null) {
 				argHasError = true;
 			}
-			if (argumentType != null && argumentType.kind() == Binding.POLY_TYPE)
-				this.innersNeedUpdate = true;
+			if (argumentType != null && argumentType.kind() == Binding.POLY_TYPE) {
+				if (this.innerInferenceHelper == null)
+					this.innerInferenceHelper = new InnerInferenceHelper();
+			}
 		}
 		if (argHasError) {
 			return this.resolvedType;

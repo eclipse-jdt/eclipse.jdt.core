@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.InnerInferenceHelper;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -239,8 +240,10 @@ public TypeBinding resolveType(BlockScope scope) {
 			argument.setExpressionContext(INVOCATION_CONTEXT);
 			if ((argumentType = argumentTypes[i] = this.arguments[i].resolveType(scope)) == null)
 				argHasError = true;
-			if (argumentType != null && argumentType.kind() == Binding.POLY_TYPE)
-				this.innersNeedUpdate = true;
+			if (argumentType != null && argumentType.kind() == Binding.POLY_TYPE) {
+				if (this.innerInferenceHelper == null)
+					this.innerInferenceHelper = new InnerInferenceHelper();
+			}
 		}
 		if (argHasError) {
 			if(this.actualReceiverType instanceof ReferenceBinding) {

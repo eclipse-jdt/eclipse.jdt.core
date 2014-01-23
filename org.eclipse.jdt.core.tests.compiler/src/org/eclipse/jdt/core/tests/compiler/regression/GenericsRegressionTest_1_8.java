@@ -1210,4 +1210,31 @@ public void testBug426366() {
 			"}\n"
 		});
 }
+public void testBug426290() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    public static void main(String argv[]) {\n" + 
+			"       goo(foo());\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static <T extends Number> List<T> foo() {\n" + 
+			"        return new ArrayList<T>();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static void goo(Object p1) {\n" + 
+			"        System.out.println(\"goo(Object)\");\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static void goo(List<Integer> p1) {\n" + 
+			"        System.out.println(\"goo(List<Integer>)\");\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"goo(List<Integer>)");
+}
 }

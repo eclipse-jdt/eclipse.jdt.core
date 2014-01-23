@@ -28,6 +28,7 @@
  *								Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
  *								Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
  *								Bug 426366 - [1.8][compiler] Type inference doesn't handle multiple candidate target types in outer overload context
+ *								Bug 426290 - [1.8][compiler] Inference + overloading => wrong method resolution ?
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -775,6 +776,7 @@ public abstract class Scope {
 			// collect inner invocations where the outer did not involve any inference:
 			Expression[] invocationArguments = invocation.arguments();
 			if (invocationArguments != null) {
+				InnerInferenceHelper innerInferenceHelper = invocation.innerInferenceHelper();
 				int argLen = invocationArguments.length;
 				boolean isVarArgs = false;
 				for (int i = 0; i < argLen; i++) {
@@ -797,7 +799,10 @@ public abstract class Scope {
 									invocArg.setExpectedType(targetType);
 									MethodBinding solution = infCtx18.inferInvocationType(innerPoly, innerParameterized);
 									if (solution != null && solution.isValidBinding()) {
-										innerPoly.updateBindings(solution, targetType);
+										if (innerPoly.updateBindings(solution, targetType)) {
+											if (innerInferenceHelper != null)
+												innerInferenceHelper.registerInnerResult(method, invocArg.resolvedType, argLen, i);
+										}
 										if (solution.returnType != null && solution.returnType.isCompatibleWith(targetType, this))
 											return isVarArgs ? VARARGS_COMPATIBLE : COMPATIBLE;
 									}
@@ -4231,8 +4236,10 @@ public abstract class Scope {
 
 	// caveat: this is not a direct implementation of JLS
 	protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize, TypeBinding[] argumentTypes, final InvocationSite invocationSite, ReferenceBinding receiverType) {
-		// Apply one level of filtering per poly expression more specific rules.
-		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8) {
+
+		boolean isJdk18 = compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8;
+		if (isJdk18) {
+			// Apply one level of filtering per poly expression more specific rules.
 			MethodBinding[] moreSpecific = new MethodBinding[visibleSize];
 			int count = 0;
 			for (int i = 0, length = argumentTypes.length; i < length; i++) {
@@ -4270,8 +4277,15 @@ public abstract class Scope {
 		// JLS7 implementation  
 		
 		int[] compatibilityLevels = new int[visibleSize];
-		for (int i = 0; i < visibleSize; i++)
-			compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argumentTypes);
+		for (int i = 0; i < visibleSize; i++) {
+			TypeBinding[] argTypes = argumentTypes;
+			if (isJdk18 && invocationSite instanceof Invocation) {
+				InnerInferenceHelper innerInferenceHelper = ((Invocation)invocationSite).innerInferenceHelper();
+				if (innerInferenceHelper != null)
+					argTypes = innerInferenceHelper.getArgumentTypesForCandidate(visible[i], argumentTypes);
+			}
+			compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argTypes);
+		}
 
 		InvocationSite tieBreakInvocationSite = new InvocationSite() {
 			public TypeBinding[] genericTypeArguments() { return null; } // ignore genericTypeArgs
