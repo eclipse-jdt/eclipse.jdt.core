@@ -20,6 +20,7 @@
  *							Bug 425142 - [1.8][compiler] NPE in ConstraintTypeFormula.reduceSubType
  *							Bug 425153 - [1.8] Having wildcard allows incompatible types in a lambda expression
  *							Bug 425156 - [1.8] Lambda as an argument is flagged with incompatible error
+ *							Bug 424403 - [1.8][compiler] Generic method call with method reference argument fails to resolve properly.
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -40,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public abstract class FunctionalExpression extends Expression {
 	
@@ -92,6 +94,22 @@ public abstract class FunctionalExpression extends Expression {
 	}
 	public boolean isPolyExpression() {
 		return true; // always as per introduction of part D, JSR 335
+	}
+
+	public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
+		if (targetType instanceof TypeVariableBinding) {
+			if (method != null) { // when called from type inference
+				if (((TypeVariableBinding)targetType).declaringElement == method)
+					return false;
+				if (method.isConstructor() && ((TypeVariableBinding)targetType).declaringElement == method.declaringClass)
+					return false;
+			} else { // for internal calls
+				TypeVariableBinding typeVariable = (TypeVariableBinding) targetType;
+				if (typeVariable.declaringElement instanceof MethodBinding)
+					return false;
+			}
+		}
+		return true;
 	}
 
 	public TypeBinding invocationTargetType() {

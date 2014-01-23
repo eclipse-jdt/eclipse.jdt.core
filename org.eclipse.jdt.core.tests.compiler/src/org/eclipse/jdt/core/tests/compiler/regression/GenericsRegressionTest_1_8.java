@@ -412,13 +412,13 @@ public void testBug424631() {
 		});
 }
 
-public void _testBug424403() {
+public void testBug424403() {
 	runConformTest(
 		new String[] {
 			"X.java",
 			"interface Functional { int foo(); }\n" + 
 			"\n" + 
-			"class X {\n" + 
+			"public class X {\n" + 
 			"    static int bar() {\n" + 
 			"        return -1;\n" + 
 			"    }\n" + 

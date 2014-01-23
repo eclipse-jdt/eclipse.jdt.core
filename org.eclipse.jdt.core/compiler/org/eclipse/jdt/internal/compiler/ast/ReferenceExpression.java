@@ -24,6 +24,7 @@
  *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *							Bug 424637 - [1.8][compiler][null] AIOOB in ReferenceExpression.resolveType with a method reference to Files::walk
  *							Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
+ *							Bug 424403 - [1.8][compiler] Generic method call with method reference argument fails to resolve properly.
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contribution for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -585,8 +586,11 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		return !CharOperation.equals(this.selector,  ConstantPool.Init);
 	}
 	
-	public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding candidateMethod) {
-		return this.isExactMethodReference();
+	public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
+		if (!this.isExactMethodReference()) {
+			return false;
+		}
+		return super.isPertinentToApplicability(targetType, method);
 	}
 	
 	public TypeBinding[] genericTypeArguments() {

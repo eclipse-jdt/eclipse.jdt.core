@@ -26,6 +26,7 @@
  *							Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
  *							Bug 425798 - [1.8][compiler] Another NPE in ConstraintTypeFormula.reduceSubType
  *							Bug 425156 - [1.8] Lambda as an argument is flagged with incompatible error
+ *							Bug 424403 - [1.8][compiler] Generic method call with method reference argument fails to resolve properly.
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -74,7 +75,6 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
-import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
@@ -551,18 +551,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if (argumentsTypeElided())
 			return false;
 		
-		if (targetType instanceof TypeVariableBinding) {
-			if (method != null) { // when called from type inference
-				if (((TypeVariableBinding)targetType).declaringElement == method)
-					return false;
-				if (method.isConstructor() && ((TypeVariableBinding)targetType).declaringElement == method.declaringClass)
-					return false;
-			} else { // for internal calls
-				TypeVariableBinding typeVariable = (TypeVariableBinding) targetType;
-				if (typeVariable.declaringElement instanceof MethodBinding)
-					return false;
-			}
-		}
+		if (!super.isPertinentToApplicability(targetType, method))
+			return false;
 		
 		if (this.body instanceof Expression) {
 			if (!((Expression) this.body).isPertinentToApplicability(targetType, method))
