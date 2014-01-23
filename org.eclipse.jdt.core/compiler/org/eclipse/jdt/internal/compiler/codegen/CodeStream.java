@@ -3365,11 +3365,13 @@ public static TypeBinding getConstantPoolDeclaringClass(Scope currentScope, Meth
 		// and not from Object or implicit static method call.
 		if (TypeBinding.notEquals(constantPoolDeclaringClass, actualReceiverType.erasure()) && !actualReceiverType.isArrayType()) {
 			CompilerOptions options = currentScope.compilerOptions();
+	
 			if ((options.targetJDK >= ClassFileConstants.JDK1_2
 						&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(isImplicitThisReceiver && codegenBinding.isStatic()))
 						&& codegenBinding.declaringClass.id != TypeIds.T_JavaLangObject) // no change for Object methods
 					|| !codegenBinding.declaringClass.canBeSeenBy(currentScope)) {
-				constantPoolDeclaringClass = actualReceiverType.erasure();
+				if (!actualReceiverType.isIntersectionCastType()) // no constant pool representation. FIXME, visibility issue not handled.
+					constantPoolDeclaringClass = actualReceiverType.erasure();
 			}
 		}				
 	}

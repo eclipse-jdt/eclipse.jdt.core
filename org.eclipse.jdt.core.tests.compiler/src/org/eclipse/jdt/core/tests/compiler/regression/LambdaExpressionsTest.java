@@ -2322,7 +2322,102 @@ public void test426074() throws Exception {
 		},
 		"main");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts 
+public void test426411() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" +
+				"public class X {\n" +
+				"	public static void main(String argv[]) throws Exception {\n" +
+				"		((Serializable & AutoCloseable) (() -> {})).close();\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts 
+public void test426411b() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" +
+				"interface AnotherAutoCloseable extends AutoCloseable {}\n" +
+				"public class X {\n" +
+				"	public static void main(String argv[]) throws Exception {\n" +
+				"		((Serializable & AnotherAutoCloseable) (() -> {})).close();\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts 
+public void test426411c() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" +
+				"public class X {\n" +
+				"	public static void main(String argv[]) throws Exception {\n" +
+				"		((AutoCloseable & Serializable) (() -> {})).close();\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts 
+public void test426411d() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" +
+				"interface AnotherAutoCloseable extends AutoCloseable {}\n" +
+				"public class X {\n" +
+				"	public static void main(String argv[]) throws Exception {\n" +
+				"		((AnotherAutoCloseable & Serializable) (() -> {})).close();\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts 
+public void test426411e() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" +
+				"interface I {}\n" +
+				"interface J extends I {\n" +
+				"   static final int xyz = 99;\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String argv[]) throws Exception {\n" +
+				"		J j = new J() {};\n" +
+				"		System.out.println(((I & J) j).xyz);\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"99");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts 
+public void test426411f() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" +
+				"interface I {}\n" +
+				"interface J extends I {\n" +
+				"   final int xyz = 99;\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String argv[]) throws Exception {\n" +
+				"		J j = new J() {};\n" +
+				"		System.out.println(((I & J) j).xyz);\n" +
+				"	}\n" +
+				"}\n",
+		},
+		"99");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
