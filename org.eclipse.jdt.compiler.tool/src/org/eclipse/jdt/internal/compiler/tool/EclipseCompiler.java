@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2013 IBM Corporation and others.
+ * Copyright (c) 2006, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -220,7 +224,12 @@ public class EclipseCompiler implements JavaCompiler {
 	 */
 	@Override
 	public int run(InputStream in, OutputStream out, OutputStream err, String... arguments) {
-		boolean succeed = new Main(new PrintWriter(new OutputStreamWriter(out)), new PrintWriter(new OutputStreamWriter(err)), true/*systemExit*/, null/*options*/, null/*progress*/).compile(arguments);
+		boolean succeed = new Main(
+				new PrintWriter(new OutputStreamWriter(out != null ? out : System.out)),
+				new PrintWriter(new OutputStreamWriter(err != null ? err : System.err)),
+				true/* systemExit */,
+				null/* options */,
+				null/* progress */).compile(arguments);
 		return succeed ? 0 : -1;
 	}
 }
