@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 BEA Systems, Inc. and others
+ * Copyright (c) 2007, 2014 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
@@ -94,6 +98,16 @@ public class FileManagerTests extends TestCase {
 				builder.append(name.substring(lastIndexOf + 1));
 			}
 			assertEquals("Wrong contents", "X.java", String.valueOf(builder));
+			
+			List<File> files = new ArrayList<File>();
+			files.add(dir);
+			try {
+				fileManager.getJavaFileObjectsFromFiles(files);
+				fail("IllegalArgumentException should be thrown but not");
+			} catch(IllegalArgumentException iae) {
+				// Do nothing
+			}
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {

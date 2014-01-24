@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2013 IBM Corporation and others.
+ * Copyright (c) 2006, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -878,6 +878,16 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				builder.append(name.substring(lastIndexOf + 1));
 			}
 			assertEquals("Wrong contents", "X.java", String.valueOf(builder));
+			
+			List<File> files = new ArrayList<File>();
+			files.add(dir);
+			try {
+				fileManager.getJavaFileObjectsFromFiles(files);
+				fail("IllegalArgumentException should be thrown but not");
+			} catch(IllegalArgumentException iae) {
+				// Do nothing
+			}
+			
 			fileManager.close();
 		} catch (IOException e) {
 			e.printStackTrace();
