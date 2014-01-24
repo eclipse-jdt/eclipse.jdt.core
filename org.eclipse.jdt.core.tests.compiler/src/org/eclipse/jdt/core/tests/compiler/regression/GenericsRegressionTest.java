@@ -3359,4 +3359,22 @@ public void test426534() {
 						"The method foo(T...) of type B is not applicable as the formal varargs element type T is not accessible here\n" + 
 						"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426589, [1.8][compiler] Compiler error with generic method/constructor invocation as vargs argument
+public void _test426589() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	void take(String... strings) {\n" +
+				"	}\n" +
+				"	void test() {\n" +
+				"		take(getString());\n" +
+				"	}\n" +
+				"	private <T> String getString() {\n" +
+				"		return \"hi\";\n" +
+				"	}\n" +
+				"}\n"
+			}, 
+			"");
+}
 }
