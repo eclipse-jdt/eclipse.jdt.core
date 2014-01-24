@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -12,6 +16,8 @@
  *								bug 401271 - StackOverflowError when searching for a methods references
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
+
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 import junit.framework.Test;
 
@@ -821,12 +827,19 @@ public class StaticImportTest extends AbstractComparableTest {
 				"package p;\n" +
 				"public class B { public static int F = 2; }\n",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	import static p.B.F;\n" +
-			"	              ^^^^^\n" +
-			"The import p.B.F collides with another import statement\n" +
-			"----------\n"
+			this.complianceLevel < ClassFileConstants.JDK1_8 ? 
+					"----------\n" +
+					"1. ERROR in X.java (at line 2)\n" +
+					"	import static p.B.F;\n" +
+					"	              ^^^^^\n" +
+					"The import p.B.F collides with another import statement\n" +
+					"----------\n" :
+						"----------\n" + 
+						"1. ERROR in X.java (at line 4)\n" + 
+						"	int i = F;\n" + 
+						"	        ^\n" + 
+						"The field F is ambiguous\n" + 
+						"----------\n"
 			// F is already defined in a single-type import
 		);
 	}
@@ -2922,12 +2935,21 @@ public class StaticImportTest extends AbstractComparableTest {
 				"	}\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in Test.java (at line 2)\n" + 
-			"	import static p3.Foo.B;\n" + 
-			"	              ^^^^^^^^\n" + 
-			"The import p3.Foo.B collides with another import statement\n" + 
-			"----------\n");
+			this.complianceLevel < ClassFileConstants.JDK1_8 ? 
+					"----------\n" + 
+					"1. ERROR in Test.java (at line 2)\n" + 
+					"	import static p3.Foo.B;\n" + 
+					"	              ^^^^^^^^\n" + 
+					"The import p3.Foo.B collides with another import statement\n" + 
+					"----------\n" : 
+						"----------\n" + 
+						"1. ERROR in Test.java (at line 7)\n" + 
+						"	System.out.println(B.class.getCanonicalName().toString());\n" + 
+						"	                   ^\n" + 
+						"The type B is ambiguous\n" + 
+						"----------\n"
+						
+				);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=361327
 	// To verify that all static members are imported with a single static import statement,
@@ -3108,6 +3130,71 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	^\n" + 
 			"a cannot be resolved to a type\n" + 
 			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426544 - [1.8][compiler] Compiler over-eagerly detects collision of single static imports
+	public void test426544() {
+		runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"    public static int f;\n" +
+                "    public static class C {}\n" +
+				"    public static class I {}\n" +
+				"}\n",
+				"q/X.java",
+				"package q;\n" +
+				"public class X {\n" +
+				"    public static int f;\n" +
+				"    public static class C {}\n" +
+				"    public static class I {}\n" +
+				"}\n",
+				"X.java",
+				"import static p.X.f;\n" + 
+				"import static q.X.f;\n" + 
+				"import static p.X.C;\n" + 
+				"import static p.X.I;\n" + 
+				"import static q.X.C;\n" + 
+				"import static q.X.I;\n" + 
+				"public class X { \n" + 
+				"    { f = 0; }\n" +
+				"    { C c = null; }\n" +
+				"    { I i = null; }\n" +
+				"}\n"
+			},
+			this.complianceLevel < ClassFileConstants.JDK1_8 ? 
+					"----------\n" + 
+					"1. ERROR in X.java (at line 2)\n" + 
+					"	import static q.X.f;\n" + 
+					"	              ^^^^^\n" + 
+					"The import q.X.f collides with another import statement\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 5)\n" + 
+					"	import static q.X.C;\n" + 
+					"	              ^^^^^\n" + 
+					"The import q.X.C collides with another import statement\n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 6)\n" + 
+					"	import static q.X.I;\n" + 
+					"	              ^^^^^\n" + 
+					"The import q.X.I collides with another import statement\n" + 
+					"----------\n" :
+						"----------\n" + 
+						"1. ERROR in X.java (at line 8)\n" + 
+						"	{ f = 0; }\n" + 
+						"	  ^\n" + 
+						"The field f is ambiguous\n" + 
+						"----------\n" + 
+						"2. ERROR in X.java (at line 9)\n" + 
+						"	{ C c = null; }\n" + 
+						"	  ^\n" + 
+						"The type C is ambiguous\n" + 
+						"----------\n" + 
+						"3. ERROR in X.java (at line 10)\n" + 
+						"	{ I i = null; }\n" + 
+						"	  ^\n" + 
+						"The type I is ambiguous\n" + 
+						"----------\n");
 	}
 }
 
