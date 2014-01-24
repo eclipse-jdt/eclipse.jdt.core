@@ -34,7 +34,7 @@ public static Test suite() {
 	return buildModelTestSuite(SnippetCompletionContextTests.class);
 }
 static {
-	TESTS_NAMES = new String[]{"test0002"};
+//	TESTS_NAMES = new String[]{"test0002"};
 }
 public void test0001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];

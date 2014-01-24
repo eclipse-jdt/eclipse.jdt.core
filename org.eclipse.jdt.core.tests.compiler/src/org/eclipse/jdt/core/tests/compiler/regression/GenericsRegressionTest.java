@@ -3317,4 +3317,46 @@ public void testBug415734() {
 			});
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426534, [1.8][compiler] Accessibility of vararg element type not checked for generic methods.
+public void test426534() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
+		runNegativeTest(
+			new String[] {
+				"p/B.java",
+				"package p;\n" +
+				"class A {\n" +
+				"}\n" +
+				"public class B extends A {\n" +
+				"    public <T extends A> void foo(T ... o) { }\n" +
+				"}\n",
+				
+				"X.java",
+				"import p.*;\n" +
+				"public class X  {\n" +
+				"    public static void main(String argv[]) {\n" +
+				"        new B().foo(null, null);\n" +
+				"    }\n" +
+				"}\n"
+			},
+			this.complianceLevel < ClassFileConstants.JDK1_7 ? 
+					"----------\n" + 
+					"1. ERROR in X.java (at line 4)\n" + 
+					"	new B().foo(null, null);\n" + 
+					"	        ^^^\n" + 
+					"The method foo(T...) of type B is not applicable as the formal varargs element type T is not accessible here\n" + 
+					"----------\n" : 
+						"----------\n" + 
+						"1. WARNING in p\\B.java (at line 5)\n" + 
+						"	public <T extends A> void foo(T ... o) { }\n" + 
+						"	                                    ^\n" + 
+						"Type safety: Potential heap pollution via varargs parameter o\n" + 
+						"----------\n" + 
+						"----------\n" + 
+						"1. ERROR in X.java (at line 4)\n" + 
+						"	new B().foo(null, null);\n" + 
+						"	        ^^^\n" + 
+						"The method foo(T...) of type B is not applicable as the formal varargs element type T is not accessible here\n" + 
+						"----------\n");
+}
 }
