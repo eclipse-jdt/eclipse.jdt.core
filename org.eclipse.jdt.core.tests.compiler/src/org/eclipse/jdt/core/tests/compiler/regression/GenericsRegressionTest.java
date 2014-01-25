@@ -3403,4 +3403,31 @@ public void testBug426590() {
 			"	}\n"
 		});
 }
+public void testBug426590b() {
+	runConformTest(
+		new String[] {
+			"A.java",
+			"public class A {\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	class B extends A {\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	class C extends B {\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	class D {\n" + 
+			"		void bla(boolean b) {\n" + 
+			"			test(b ? new B() : new C());\n" + 
+			"		}\n" + 
+			"		\n" + 
+			"		void test(A a) {\n" + 
+			"			\n" + 
+			"		}\n" + 
+			"	}\n"
+		});
+}
 }
