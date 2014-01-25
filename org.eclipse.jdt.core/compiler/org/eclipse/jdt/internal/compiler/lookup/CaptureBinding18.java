@@ -65,6 +65,10 @@ public class CaptureBinding18 extends CaptureBinding {
 		return true;
 	}
 
+	public void initializeBounds(Scope scope, ParameterizedTypeBinding capturedParameterizedType) {
+		// nothing to initialize here (and cannot use super methods which requires wildcard to be set).
+	}
+
 	public TypeBinding clone(TypeBinding enclosingType) {
 		return new CaptureBinding18(this.sourceType, this.sourceName, this.originalName, this.captureID, this.environment);
 	}

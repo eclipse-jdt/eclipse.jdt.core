@@ -19,7 +19,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug424415c" };
+//	TESTS_NAMES = new String[] { "testBug426540" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -1316,5 +1316,28 @@ public void testBug426048() {
 		"	       ^\n" + 
 		"Syntax error on token \"(\", , expected\n" + 
 		"----------\n");
+}
+public void _testBug426540() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.stream.Stream;\n" + 
+			"import java.util.Collections;\n" + 
+			"import static java.util.stream.Collectors.collectingAndThen;\n" + 
+			"import static java.util.stream.Collectors.toList;\n" + 
+			"public class X {\n" + 
+			"	Object o = ((Stream<Integer>) null).collect(collectingAndThen(toList(), Collections::unmodifiableList));\n" + 
+			"}\n"
+		});
+}
+public void testBug426652() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import static java.util.stream.Collectors.toList;\n" + 
+			"public class X {\n" + 
+			"	Object o = toList();\n" + 
+			"}\n"
+		});
 }
 }

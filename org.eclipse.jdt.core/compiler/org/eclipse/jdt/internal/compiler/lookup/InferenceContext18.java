@@ -478,7 +478,8 @@ public class InferenceContext18 {
 		boolean haveProperTargetType = targetType != null && targetType.isProperType(true);
 		if (haveProperTargetType) {
 			MethodBinding original = method.originalMethod;
-			BoundSet result = (BoundSet) this.solutionsPerTargetType.get(targetType);
+			Solution solution = (Solution) this.solutionsPerTargetType.get(targetType);
+			BoundSet result = solution != null ? solution.bounds : null;
 			if (result == null) {
 				// start over from a previous candidate but discard its type variable instantiations
 				// TODO: should we retain any instantiations of type variables not owned by the method? 
@@ -667,8 +668,8 @@ public class InferenceContext18 {
 									tmpBoundSet.addBound(new TypeBound(variable, runtimeException, ReductionResult.SAME));
 								} else {
 									// try upper bounds:
+									TypeBinding glb = this.object;
 									if (upperBounds != Binding.NO_TYPES) {
-										TypeBinding glb;
 										if (upperBounds.length == 1) {
 											glb = upperBounds[0];
 										} else {
@@ -680,8 +681,8 @@ public class InferenceContext18 {
 											else
 												glb = new IntersectionCastTypeBinding(glbs, this.environment);
 										}
-										tmpBoundSet.addBound(new TypeBound(variable, glb, ReductionResult.SAME));
 									}
+									tmpBoundSet.addBound(new TypeBound(variable, glb, ReductionResult.SAME));
 								}
 							}
 						}
