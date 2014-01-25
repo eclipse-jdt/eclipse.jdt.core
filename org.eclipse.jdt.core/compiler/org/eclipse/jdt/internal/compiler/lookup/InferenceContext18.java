@@ -27,8 +27,10 @@ import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ExpressionContext;
+import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Invocation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
@@ -410,10 +412,11 @@ public class InferenceContext18 {
 					TypeBinding fsi = fs[Math.min(i, p-1)];
 					TypeBinding substF = substitute(fsi);
 					// For all i (1 ≤ i ≤ k), if ei is not pertinent to applicability, the set contains ⟨ei → θ Fi⟩.
-					if (!arguments[i].isPertinentToApplicability(fsi, method)) {
-						c.add(new ConstraintExpressionFormula(arguments[i], substF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT));
+					Expression argument = arguments[i];
+					if (!argument.isPertinentToApplicability(fsi, method)) {
+						c.add(new ConstraintExpressionFormula(argument, substF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT));
 					}
-					c.add(new ConstraintExceptionFormula(arguments[i], substF));
+					addExceptionConstraint(c, argument, substF);
 				}
 			}
 			// 5. bullet: determine B3 from C
@@ -455,6 +458,16 @@ public class InferenceContext18 {
 			return this.currentBounds = solution; // this is final, keep the result:
 		} finally {
 			this.stepCompleted = TYPE_INFERRED;
+		}
+	}
+
+	private void addExceptionConstraint(Set c, Expression argument, TypeBinding substF) {
+		if (argument instanceof FunctionalExpression) {
+			c.add(new ConstraintExceptionFormula((FunctionalExpression) argument, substF));
+		} else if (argument instanceof ConditionalExpression) {
+			ConditionalExpression ce = (ConditionalExpression) argument;
+			addExceptionConstraint(c, ce.valueIfTrue, substF);
+			addExceptionConstraint(c, ce.valueIfFalse, substF);
 		}
 	}
 

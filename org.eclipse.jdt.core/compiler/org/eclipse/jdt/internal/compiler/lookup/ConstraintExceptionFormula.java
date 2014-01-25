@@ -21,8 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
-import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 
@@ -34,9 +33,9 @@ import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
  */
 public class ConstraintExceptionFormula extends ConstraintFormula {
 
-	Expression left;
+	FunctionalExpression left;
 	
-	public ConstraintExceptionFormula(Expression left, TypeBinding type) {
+	public ConstraintExceptionFormula(FunctionalExpression left, TypeBinding type) {
 		this.left = left;
 		this.right = type;
 		this.relation = EXCEPTIONS_CONTAINED;
@@ -44,85 +43,72 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 	
 	public Object reduce(InferenceContext18 inferenceContext) {
 		// JLS 18.2.5
-		if (this.left instanceof LambdaExpression || this.left instanceof ReferenceExpression) {
-			Scope scope = inferenceContext.scope;
-			if (!this.right.isFunctionalInterface(scope))
+		Scope scope = inferenceContext.scope;
+		if (!this.right.isFunctionalInterface(scope))
+			return FALSE;
+		MethodBinding sam = this.right.getSingleAbstractMethod(scope, true);
+		if (sam == null)
+			return FALSE;
+		if (this.left instanceof LambdaExpression) {
+			if (((LambdaExpression)this.left).argumentsTypeElided()) {
+				int nParam = sam.parameters.length;
+				for (int i = 0; i < nParam; i++)
+					if (!sam.parameters[i].isProperType(true))
+						return FALSE;
+			}
+			if (sam.returnType != TypeBinding.VOID && !sam.returnType.isProperType(true))
 				return FALSE;
-			MethodBinding sam = this.right.getSingleAbstractMethod(scope, true);
-			if (sam == null)
-				return FALSE;
-			if (this.left instanceof LambdaExpression) {
-				if (((LambdaExpression)this.left).argumentsTypeElided()) {
-					int nParam = sam.parameters.length;
-					for (int i = 0; i < nParam; i++)
-						if (!sam.parameters[i].isProperType(true))
-							return FALSE;
-				}
+		} else { // reference expression
+			if (!((ReferenceExpression)this.left).isExactMethodReference()) {					
+				int nParam = sam.parameters.length;
+				for (int i = 0; i < nParam; i++)
+					if (!sam.parameters[i].isProperType(true))
+						return FALSE;
 				if (sam.returnType != TypeBinding.VOID && !sam.returnType.isProperType(true))
 					return FALSE;
-			} else { // reference expression
-				if (!((ReferenceExpression)this.left).isExactMethodReference()) {					
-					int nParam = sam.parameters.length;
-					for (int i = 0; i < nParam; i++)
-						if (!sam.parameters[i].isProperType(true))
-							return FALSE;
-					if (sam.returnType != TypeBinding.VOID && !sam.returnType.isProperType(true))
-						return FALSE;
-				}
-			}
-			TypeBinding[] thrown = sam.thrownExceptions;
-			TypeBinding[] e = new TypeBinding[thrown.length];
-			int n = 0;
-			for (int i = 0; i < thrown.length; i++)
-				if (!thrown[i].isProperType(true))
-					e[n++] = thrown[i];
-			TypeBinding[] ePrime = null;
-			if (this.left instanceof LambdaExpression) {
-// TODO find exceptions thrown by the lambda's body
-//				((LambdaExpression)this.left).
-//				InferenceContext18.missingImplementation("NYI");
-			} else {
-				ReferenceExpression referenceExpression = (ReferenceExpression)this.left;
-				MethodBinding method = referenceExpression.findCompileTimeMethodTargeting(this.right, scope);
-				if (method != null)
-					ePrime = method.thrownExceptions;
-			}
-			if (ePrime == null)
-				return TRUE; // TODO is it a bug if we actually get here?
-			int m = ePrime.length;
-			if (n == 0) {
-				actual: for (int i = 0; i < m; i++) {
-					for (int j = 0; j < thrown.length; j++)
-						if (ePrime[i].isCompatibleWith(thrown[j]))
-							continue actual;
-					return FALSE;
-				}
-				return TRUE;
-			} else {
-				List result = new ArrayList();
-				actual: for (int i = 0; i < m; i++) {
-					for (int j = 0; j < thrown.length; j++)
-						if (ePrime[i].isCompatibleWith(thrown[j]))
-							continue actual;
-					for (int j = 0; j < n; j++)
-						result.add(new ConstraintTypeFormula(ePrime[i], e[j], SUBTYPE));
-				}				
-				for (int j = 0; j < n; j++)
-					result.add(new ConstraintExceptionFormula(this.left, e[j]));
-				return result.toArray(new ConstraintFormula[result.size()]);
-			}
-		} else if (this.left.isPolyExpression()) {
-			// parenthesized: transparent in our AST
-
-			if (this.left instanceof ConditionalExpression) {
-				ConditionalExpression conditional = (ConditionalExpression) this.left;
-				return new ConstraintFormula[] {
-						new ConstraintExceptionFormula(conditional.valueIfTrue, this.right),
-						new ConstraintExceptionFormula(conditional.valueIfFalse, this.right)
-				};
 			}
 		}
-		return TRUE;
+		TypeBinding[] thrown = sam.thrownExceptions;
+		TypeBinding[] e = new TypeBinding[thrown.length];
+		int n = 0;
+		for (int i = 0; i < thrown.length; i++)
+			if (!thrown[i].isProperType(true))
+				e[n++] = thrown[i];
+		TypeBinding[] ePrime = null;
+		if (this.left instanceof LambdaExpression) {
+// TODO find exceptions thrown by the lambda's body, see 18.2.5 bullet 5
+//				((LambdaExpression)this.left).
+//				InferenceContext18.missingImplementation("NYI");
+		} else {
+			ReferenceExpression referenceExpression = (ReferenceExpression)this.left;
+			MethodBinding method = referenceExpression.findCompileTimeMethodTargeting(this.right, scope);
+			if (method != null)
+				ePrime = method.thrownExceptions;
+		}
+		if (ePrime == null)
+			return TRUE; // TODO is it a bug if we actually get here?
+		int m = ePrime.length;
+		if (n == 0) {
+			actual: for (int i = 0; i < m; i++) {
+				for (int j = 0; j < thrown.length; j++)
+					if (ePrime[i].isCompatibleWith(thrown[j]))
+						continue actual;
+				return FALSE;
+			}
+			return TRUE;
+		} else {
+			List result = new ArrayList();
+			actual: for (int i = 0; i < m; i++) {
+				for (int j = 0; j < thrown.length; j++)
+					if (thrown[j].isProperType(true) && ePrime[i].isCompatibleWith(thrown[j]))
+						continue actual;
+				for (int j = 0; j < n; j++)
+					result.add(new ConstraintTypeFormula(ePrime[i], e[j], SUBTYPE));
+			}				
+			for (int j = 0; j < n; j++)
+				result.add(new ConstraintExceptionFormula(this.left, e[j]));
+			return result.toArray(new ConstraintFormula[result.size()]);
+		}
 	}
 
 	Collection inputVariables(final InferenceContext18 context) {
@@ -161,13 +147,7 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 				}
 				sam.returnType.collectInferenceVariables(variables);
 				return variables;
-			}			
-		} else if (this.left instanceof ConditionalExpression && this.left.isPolyExpression()) {
-			ConditionalExpression expr = (ConditionalExpression) this.left;
-			Set variables = new HashSet();
-			variables.addAll(new ConstraintExceptionFormula(expr.valueIfTrue, this.right).inputVariables(context));
-			variables.addAll(new ConstraintExceptionFormula(expr.valueIfFalse, this.right).inputVariables(context));
-			return variables;
+			}
 		}
 		return EMPTY_VARIABLE_LIST;
 	}

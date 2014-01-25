@@ -188,9 +188,6 @@ class ConstraintTypeFormula extends ConstraintFormula {
 					// checking dimensions already now is an optimization over reducing one dim at a time
 					return new ConstraintTypeFormula(this.left.leafComponentType(), this.right.leafComponentType(), SAME, this.isSoft);
 				}
-				if (this.left.kind() == Binding.INTERSECTION_TYPE && this.right.kind() == Binding.INTERSECTION_TYPE) {
-					InferenceContext18.missingImplementation("Intersection type equality NYI"); //$NON-NLS-1$
-				}
 			}
 		}
 		return FALSE;
