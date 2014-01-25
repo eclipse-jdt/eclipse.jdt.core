@@ -203,12 +203,12 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				return TRUE;
 			return FALSE;
 		}
+		if (subCandidate.id == TypeIds.T_null)
+			return TRUE;
 		if (subCandidate instanceof InferenceVariable)
 			return new TypeBound((InferenceVariable)subCandidate, superCandidate, SUBTYPE, this.isSoft);
 		if (superCandidate instanceof InferenceVariable)
 			return new TypeBound((InferenceVariable)superCandidate, subCandidate, SUPERTYPE, this.isSoft); // normalize to have variable on LHS
-		if (subCandidate.id == TypeIds.T_null)
-			return TRUE;
 		switch (superCandidate.kind()) {
 			case Binding.GENERIC_TYPE:
 			case Binding.TYPE:

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2013 GK Software AG and others.
+ * Copyright (c) 2010, 2014 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -61,11 +61,6 @@ String nullTypeSafety() {
 	return (this.complianceLevel < ClassFileConstants.JDK1_8)
 			? "Null type safety: "
 			: "Null type safety (type annotations): ";
-}
-String mismatch_NonNull_Null(String type7, String type8) {
-	return 	(this.complianceLevel < ClassFileConstants.JDK1_8) 
-			? "Null type mismatch: required \'@NonNull "+type7+"\' but the provided value is null\n" 
-			: "Null type mismatch: required \'@NonNull "+type8+"\' but the provided value is null\n";
 }
 String variableMayBeNull(String var) {
 	return 	(this.complianceLevel < ClassFileConstants.JDK1_8) 
@@ -512,7 +507,7 @@ public void test_nonnull_parameter_012() {
 		"2. ERROR in X.java (at line 4)\n" + 
 		"	ContainingInner2.Inner inner = container.new Inner(null);\n" + 
 		"	                                                   ^^^^\n" + 
-		mismatch_NonNull_Null("Object", "T") +
+		"Null type mismatch: required \'@NonNull Object' but the provided value is null\n"  +
 		"----------\n");
 }
 // a method of a local class has a non-null parameter, client passes null

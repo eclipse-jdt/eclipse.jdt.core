@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3829,11 +3829,7 @@ public void test078() {
 		"1. ERROR in X.java (at line 12)\n" + 
 		"	x.b(null);\n" + 
 		"	  ^\n" +
-		(this.complianceLevel < ClassFileConstants.JDK1_8 ?
-		"The method b(Number) is ambiguous for the type X\n" 
-		:
-		"The method b(null) is ambiguous for the type X\n"
-		) +
+		"The method b(Number) is ambiguous for the type X\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 13)\n" + 
 		"	x.<Integer>b(null);\n" + 
