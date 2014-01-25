@@ -29,6 +29,7 @@
  *								Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
  *								Bug 426366 - [1.8][compiler] Type inference doesn't handle multiple candidate target types in outer overload context
  *								Bug 426290 - [1.8][compiler] Inference + overloading => wrong method resolution ?
+ *								Bug 426589 - [1.8][compiler] Compiler error with generic method/constructor invocation as vargs argument
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -778,17 +779,17 @@ public abstract class Scope {
 			if (invocationArguments != null) {
 				InnerInferenceHelper innerInferenceHelper = invocation.innerInferenceHelper();
 				int argLen = invocationArguments.length;
-				boolean isVarArgs = false;
+				boolean isVarArgs = argLen != method.parameters.length; // if same lengths, isVarArgs can still be updated below
 				for (int i = 0; i < argLen; i++) {
 					Expression invocArg = invocationArguments[i];
 					if (invocArg instanceof Invocation && invocArg.resolvedType != null) { // TODO any poly? ReferenceExpression?
 						Invocation innerPoly = (Invocation) invocArg;
-						TypeBinding targetType = InferenceContext18.getParameter(method.parameters, i, false);
-						if (targetType == null && method.isVarargs()) {
+						TypeBinding resolvedType = invocArg.resolvedType;
+						TypeBinding targetType = InferenceContext18.getParameter(method.parameters, i, isVarArgs);
+						if (!isVarArgs && shouldTryVarargs(method, resolvedType, targetType)) {
 							isVarArgs = true;
 							targetType = InferenceContext18.getParameter(method.parameters, i, true);
 						}
-						TypeBinding resolvedType = invocArg.resolvedType; 
 						if (!resolvedType.isCompatibleWith(targetType, this)) {
 							MethodBinding innerBinding = innerPoly.binding(null); // 1. try without update
 							if (innerBinding instanceof ParameterizedGenericMethodBinding) {
@@ -835,6 +836,17 @@ public abstract class Scope {
 		}
 		return parameterCompatibilityLevel(method, arguments, tiebreakingVarargsMethods);
 	}
+
+	private boolean shouldTryVarargs(MethodBinding method, TypeBinding resolvedType, TypeBinding targetType) {
+		if (!method.isVarargs())
+			return false;
+		if (targetType == null)
+			return true;	// off range
+		if (targetType.isArrayType() && !resolvedType.isCompatibleWith(targetType, this))
+			return true;	// not a direct match but hope to improve
+		return false;
+	}
+
 	/**
 	 * Connect type variable supertypes, and returns true if no problem was detected
 	 * @param typeParameters

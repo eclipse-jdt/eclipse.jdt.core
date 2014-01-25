@@ -3360,7 +3360,7 @@ public void test426534() {
 						"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=426589, [1.8][compiler] Compiler error with generic method/constructor invocation as vargs argument
-public void _test426589() {
+public void test426589() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
