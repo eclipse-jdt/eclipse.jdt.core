@@ -1020,7 +1020,8 @@ public class InferenceContext18 {
 
 	/**
 	 * Retrieve the rank'th parameter, possibly respecting varargs invocation, see 15.12.2.4.
-	 * Returns null if out of bounds and CHECK_VARARG was not requested. 
+	 * Returns null if out of bounds and CHECK_VARARG was not requested.
+	 * Precondition: isVarArgs implies method.isVarargs()
 	 */
 	public static TypeBinding getParameter(TypeBinding[] parameters, int rank, boolean isVarArgs) {
 		if (isVarArgs) {

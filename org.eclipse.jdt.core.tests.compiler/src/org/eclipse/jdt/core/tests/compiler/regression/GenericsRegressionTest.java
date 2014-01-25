@@ -21,6 +21,7 @@
  *								Bug 415734 - Eclipse gives compilation error calling method with an inferred generic return type
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 423496 - [1.8] Implement new incorporation rule once it becomes available
+ *								Bug 426590 - [1.8][compiler] Compiler error with tenary operator
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -3374,5 +3375,32 @@ public void test426589() {
 				"}\n"
 			}, 
 			"");
+}
+public void testBug426590() {
+	runConformTest(
+		new String[] {
+			"A.java",
+			"public class A {\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	class B extends A {\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	class C extends B {\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	class D {\n" + 
+			"		D(A a) {\n" + 
+			"			\n" + 
+			"		}\n" + 
+			"		\n" + 
+			"		D(boolean b) {\n" + 
+			"			this(b ? new B() : new C());\n" + 
+			"		}\n" + 
+			"	}\n"
+		});
 }
 }

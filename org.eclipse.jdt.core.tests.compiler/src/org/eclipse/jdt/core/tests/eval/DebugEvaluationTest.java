@@ -35,6 +35,9 @@ import org.eclipse.jdt.internal.eval.InstallException;
 import com.sun.jdi.VirtualMachine;
 
 public class DebugEvaluationTest extends EvaluationTest {
+	static {
+//		TESTS_NAMES = new String[] { "test069" };
+	}
 	class DebugRequestor extends Requestor {
 		public boolean acceptClassFiles(org.eclipse.jdt.internal.compiler.ClassFile[] classFiles, char[] codeSnippetClassName) {
 			if (DebugEvaluationTest.this.jdiStackFrame == null) {

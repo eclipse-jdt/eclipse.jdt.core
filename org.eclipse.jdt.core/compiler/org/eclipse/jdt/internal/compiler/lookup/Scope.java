@@ -30,6 +30,7 @@
  *								Bug 426366 - [1.8][compiler] Type inference doesn't handle multiple candidate target types in outer overload context
  *								Bug 426290 - [1.8][compiler] Inference + overloading => wrong method resolution ?
  *								Bug 426589 - [1.8][compiler] Compiler error with generic method/constructor invocation as vargs argument
+ *								Bug 426590 - [1.8][compiler] Compiler error with tenary operator
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -763,7 +764,8 @@ public abstract class Scope {
 	}
 
 	private int parameterCompatibilityLevel18(MethodBinding method, TypeBinding[] arguments, boolean tiebreakingVarargsMethods, InvocationSite site) {
-		if (site instanceof Invocation) {
+		jdk18checks:
+		if (site instanceof Invocation && compilerOptions().complianceLevel >= ClassFileConstants.JDK1_8) {
 			Invocation invocation = (Invocation) site;
 			if (method instanceof ParameterizedGenericMethodBinding) {
 				InferenceContext18 infCtx = invocation.getInferenceContext((ParameterizedGenericMethodBinding) method);
@@ -779,62 +781,105 @@ public abstract class Scope {
 			if (invocationArguments != null) {
 				InnerInferenceHelper innerInferenceHelper = invocation.innerInferenceHelper();
 				int argLen = invocationArguments.length;
-				boolean isVarArgs = argLen != method.parameters.length; // if same lengths, isVarArgs can still be updated below
+				boolean isVarArgs[] = new boolean[1]; // emulate an in-out parameter for compatibilityLevel18FromInner(..)
+				isVarArgs[0] = method.isVarargs() && argLen != method.parameters.length; // if same lengths, isVarArgs can still be updated below
+				int level = COMPATIBLE;
 				for (int i = 0; i < argLen; i++) {
-					Expression invocArg = invocationArguments[i];
-					if (invocArg instanceof Invocation && invocArg.resolvedType != null) { // TODO any poly? ReferenceExpression?
-						Invocation innerPoly = (Invocation) invocArg;
-						TypeBinding resolvedType = invocArg.resolvedType;
-						TypeBinding targetType = InferenceContext18.getParameter(method.parameters, i, isVarArgs);
-						if (!isVarArgs && shouldTryVarargs(method, resolvedType, targetType)) {
-							isVarArgs = true;
-							targetType = InferenceContext18.getParameter(method.parameters, i, true);
+					int nextLevel = compatibilityLevel18FromInner(method, innerInferenceHelper, invocationArguments[i], argLen, i, isVarArgs);
+					if (nextLevel == NOT_COMPATIBLE)
+						return nextLevel;
+					if (nextLevel == -2)
+						break jdk18checks;
+					level = Math.max(level,  nextLevel);
+				}
+				return level; // neither NOT_COMPATIBLE nor unknown(-2) seen
+			}
+		}
+		// fall back to old method:
+		return parameterCompatibilityLevel(method, arguments, tiebreakingVarargsMethods);
+	}
+
+	private int compatibilityLevel18FromInner(MethodBinding method, InnerInferenceHelper innerInferenceHelper, Expression invocArg, int argLen, int i, boolean[] isVarArgs)
+	{
+		int compatible = isVarArgs[0] ? VARARGS_COMPATIBLE : COMPATIBLE;
+		TypeBinding resolvedType = invocArg.resolvedType;
+		TypeBinding targetType = InferenceContext18.getParameter(method.parameters, i, isVarArgs[0]);
+		if (!isVarArgs[0] && shouldTryVarargs(method, resolvedType, targetType)) {
+			isVarArgs[0] = true;
+			targetType = InferenceContext18.getParameter(method.parameters, i, true);
+		}
+		if (targetType == null)
+			return NOT_COMPATIBLE; // mismatching number of args or other severe problem inside method binding
+		if (invocArg instanceof Invocation && resolvedType != null) {
+			Invocation innerPoly = (Invocation) invocArg;
+			if (resolvedType.isCompatibleWith(targetType, this)) {
+				return compatible;
+			} else {
+				MethodBinding innerBinding = innerPoly.binding(null); // 1. try without update
+				if (innerBinding instanceof ParameterizedGenericMethodBinding) {
+					ParameterizedGenericMethodBinding innerParameterized = (ParameterizedGenericMethodBinding) innerBinding;
+					InferenceContext18 infCtx18 = innerPoly.getInferenceContext(innerParameterized);
+					if (infCtx18 != null && !infCtx18.hasResultFor(targetType)) {
+						// not detected as compatible, because inference still needs to complete?
+						invocArg.setExpectedType(targetType);
+						MethodBinding solution = infCtx18.inferInvocationType(innerPoly, innerParameterized);
+						if (solution != null && solution.isValidBinding()) {
+							if (innerPoly.updateBindings(solution, targetType)) {
+								if (innerInferenceHelper != null)
+									innerInferenceHelper.registerInnerResult(method, invocArg.resolvedType, argLen, i);
+							}
+							if (solution.returnType != null && solution.returnType.isCompatibleWith(targetType, this))
+								return compatible;
 						}
-						if (!resolvedType.isCompatibleWith(targetType, this)) {
-							MethodBinding innerBinding = innerPoly.binding(null); // 1. try without update
-							if (innerBinding instanceof ParameterizedGenericMethodBinding) {
-								ParameterizedGenericMethodBinding innerParameterized = (ParameterizedGenericMethodBinding) innerBinding;
-								InferenceContext18 infCtx18 = innerPoly.getInferenceContext(innerParameterized);
-								if (infCtx18 != null && !infCtx18.hasResultFor(targetType)) {
-									// not detected as compatible, because inference still needs to complete?
-									invocArg.setExpectedType(targetType);
-									MethodBinding solution = infCtx18.inferInvocationType(innerPoly, innerParameterized);
-									if (solution != null && solution.isValidBinding()) {
-										if (innerPoly.updateBindings(solution, targetType)) {
-											if (innerInferenceHelper != null)
-												innerInferenceHelper.registerInnerResult(method, invocArg.resolvedType, argLen, i);
-										}
-										if (solution.returnType != null && solution.returnType.isCompatibleWith(targetType, this))
-											return isVarArgs ? VARARGS_COMPATIBLE : COMPATIBLE;
-									}
-									return NOT_COMPATIBLE;
-								} else if (innerPoly instanceof AllocationExpression) {
-									// not detected as compatible, because its a diamond whose type hasn't yet been inferred?
-									TypeBinding[] typeArguments = resolvedType.typeArguments();
-									if (typeArguments != null && typeArguments.length == 0) {
-										AllocationExpression alloc = (AllocationExpression) innerPoly;
-										if ((alloc.type.bits & ASTNode.IsDiamond) != 0) {
-											// not-yet-inferred diamond: erasure compatibility should suffice, detail will be checked using inference
-											if (invocArg.resolvedType.isCompatibleWith(targetType.erasure(), this))
-												return COMPATIBLE;
-											return NOT_COMPATIBLE;
-										}
-									}
-								}
-							} else if (innerPoly instanceof AllocationExpression) {
-								MethodBinding updatedMethod = innerPoly.binding(targetType); // 2. try with updating
-								if (updatedMethod != innerBinding && updatedMethod != null && updatedMethod.isValidBinding()) {
-									if (updatedMethod.declaringClass.isCompatibleWith(targetType))
-										return COMPATIBLE;
-									return NOT_COMPATIBLE;
-								}
+						return NOT_COMPATIBLE;
+					} else if (innerPoly instanceof AllocationExpression) {
+						// not detected as compatible, because its a diamond whose type hasn't yet been inferred?
+						TypeBinding[] typeArguments = resolvedType.typeArguments();
+						if (typeArguments != null && typeArguments.length == 0) {
+							AllocationExpression alloc = (AllocationExpression) innerPoly;
+							if ((alloc.type.bits & ASTNode.IsDiamond) != 0) {
+								// not-yet-inferred diamond: erasure compatibility should suffice, detail will be checked using inference
+								if (resolvedType.isCompatibleWith(targetType.erasure(), this))
+									return compatible;
+								return NOT_COMPATIBLE;
 							}
 						}
 					}
+				} else if (innerPoly instanceof AllocationExpression) {
+					MethodBinding updatedMethod = innerPoly.binding(targetType); // 2. try with updating
+					if (updatedMethod != innerBinding && updatedMethod != null && updatedMethod.isValidBinding()) {
+						if (updatedMethod.declaringClass.isCompatibleWith(targetType))
+							return compatible;
+						return NOT_COMPATIBLE;
+					}
 				}
 			}
+		} else if (invocArg.isPolyExpression()) {
+			if (invocArg instanceof ConditionalExpression) {
+				ConditionalExpression ce = (ConditionalExpression) invocArg;
+				int level = compatibilityLevel18FromInner(method, innerInferenceHelper, ce.valueIfTrue, argLen, compatible, isVarArgs);
+				if (level == NOT_COMPATIBLE)
+					return NOT_COMPATIBLE;
+				int level2 = compatibilityLevel18FromInner(method, innerInferenceHelper, ce.valueIfFalse, argLen, compatible, isVarArgs);
+				if (level2 == NOT_COMPATIBLE)
+					return NOT_COMPATIBLE;
+				return Math.max(level, level2);
+			}
+			// LE or RE:
+			if (invocArg.isCompatibleWith(targetType, this))
+				return COMPATIBLE;
+			if (!isVarArgs[0] && method.isVarargs()) { // can't use shouldTryVarargs without a resolvedType, so just try it:
+				isVarArgs[0] = true;
+				targetType = InferenceContext18.getParameter(method.parameters, i, true);
+				if (targetType != null && invocArg.isCompatibleWith(targetType, this))
+					return VARARGS_COMPATIBLE;
+			}
+			return NOT_COMPATIBLE;
+		} else if (resolvedType != null && resolvedType.isValidBinding()) {
+			// need to handle "normal" expressions too, since mixed poly/standalone argument lists must be fully analyzed.
+			return parameterCompatibilityLevel(resolvedType, targetType);
 		}
-		return parameterCompatibilityLevel(method, arguments, tiebreakingVarargsMethods);
+		return -2; // don't know
 	}
 
 	private boolean shouldTryVarargs(MethodBinding method, TypeBinding resolvedType, TypeBinding targetType) {
@@ -842,7 +887,7 @@ public abstract class Scope {
 			return false;
 		if (targetType == null)
 			return true;	// off range
-		if (targetType.isArrayType() && !resolvedType.isCompatibleWith(targetType, this))
+		if (targetType.isArrayType() && resolvedType != null && !resolvedType.isCompatibleWith(targetType, this))
 			return true;	// not a direct match but hope to improve
 		return false;
 	}
@@ -4637,12 +4682,12 @@ public abstract class Scope {
 		if (arg == null || param == null)
 			return NOT_COMPATIBLE;
 		
-		if (arg.isCompatibleWith(param))
+		if (arg.isCompatibleWith(param, this))
 			return COMPATIBLE;
 		
 		if (arg.isBaseType() != param.isBaseType()) {
 			TypeBinding convertedType = environment().computeBoxingType(arg);
-			if (TypeBinding.equalsEquals(convertedType, param) || convertedType.isCompatibleWith(param))
+			if (TypeBinding.equalsEquals(convertedType, param) || convertedType.isCompatibleWith(param, this))
 				return AUTOBOX_COMPATIBLE;
 		}
 		return NOT_COMPATIBLE;
