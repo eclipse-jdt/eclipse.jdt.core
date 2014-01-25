@@ -22,6 +22,7 @@
  *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *							Bug 425156 - [1.8] Lambda as an argument is flagged with incompatible error
+ *							Bug 426563 - [1.8] AIOOBE when method with error invoked with lambda expression as argument
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -8305,6 +8306,42 @@ public void test426206() throws Exception {
 		"	Comparator<? extends String> c = true ? (Integer i, Integer j) -> { return 0; } : (Long i, Long j) -> { return 1; };\n" + 
 		"	                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from Comparator<Long> to Comparator<? extends String>\n" + 
+		"----------\n");
+}
+public void testBug426563() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I<U, V extends J<U>> { \n" + 
+			"    void foo(U u, V v); \n" + 
+			"}\n" + 
+			"\n" + 
+			"interface J<T> {}\n" + 
+			"\n" + 
+			"public class X  {\n" + 
+			"\n" + 
+			"    public void bar(FI<?, ?> fi) {}\n" + 
+			"\n" + 
+			"    public static void main(String args[]) {\n" + 
+			"      new X().bar((p, q) -> {}); \n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	public void bar(FI<?, ?> fi) {}\n" + 
+		"	                ^^\n" + 
+		"FI cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 12)\n" + 
+		"	new X().bar((p, q) -> {}); \n" + 
+		"	        ^^^\n" + 
+		"The method bar(FI<?,?>) from the type X refers to the missing type FI\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 12)\n" + 
+		"	new X().bar((p, q) -> {}); \n" + 
+		"	            ^^^^^^^^^\n" + 
+		"The target type of this expression must be a functional interface\n" + 
 		"----------\n");
 }
 public static Class testClass() {

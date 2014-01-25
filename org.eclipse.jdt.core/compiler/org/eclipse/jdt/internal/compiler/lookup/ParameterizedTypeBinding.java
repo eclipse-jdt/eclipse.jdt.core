@@ -31,6 +31,7 @@
  *								Bug 425278 - [1.8][compiler] Suspect error: The target type of this expression is not a well formed parameterized type due to bound(s) mismatch
  *								Bug 425798 - [1.8][compiler] Another NPE in ConstraintTypeFormula.reduceSubType
  *								Bug 425156 - [1.8] Lambda as an argument is flagged with incompatible error
+ *								Bug 426563 - [1.8] AIOOBE when method with error invoked with lambda expression as argument
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1323,6 +1324,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (this.singleAbstractMethod != null) {
 			return this.singleAbstractMethod;
 		}
+		if (!isValidBinding())
+			return null;
 		final ReferenceBinding genericType = genericType();
 		MethodBinding theAbstractMethod = genericType.getSingleAbstractMethod(scope, replaceWildcards);
 		if (theAbstractMethod == null || !theAbstractMethod.isValidBinding())
@@ -1356,6 +1359,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 
 	// from JLS 9.8
 	public TypeBinding[] getNonWildcardParameterization() {
+		// precondition: isValidBinding()
 		TypeBinding[] typeArguments = this.arguments; 							// A1 ... An
 		if (typeArguments == null)
 			return NO_TYPES;

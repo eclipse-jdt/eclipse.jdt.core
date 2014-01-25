@@ -27,6 +27,7 @@
  *							Bug 425798 - [1.8][compiler] Another NPE in ConstraintTypeFormula.reduceSubType
  *							Bug 425156 - [1.8] Lambda as an argument is flagged with incompatible error
  *							Bug 424403 - [1.8][compiler] Generic method call with method reference argument fails to resolve properly.
+ *							Bug 426563 - [1.8] AIOOBE when method with error invoked with lambda expression as argument
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -397,6 +398,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	}
 
 	private ReferenceBinding findGroundTargetType(BlockScope blockScope, ReferenceBinding targetType, boolean argumentTypesElided) {
+		if (!targetType.isValidBinding())
+			return null;
 		ParameterizedTypeBinding withWildCards = InferenceContext18.parameterizedWithWildcard(targetType);
 		if (withWildCards != null) {
 			ReferenceBinding genericType = withWildCards.genericType();
