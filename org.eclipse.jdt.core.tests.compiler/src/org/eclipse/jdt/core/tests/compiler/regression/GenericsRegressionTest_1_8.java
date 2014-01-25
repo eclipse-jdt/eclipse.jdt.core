@@ -1317,7 +1317,7 @@ public void testBug426048() {
 		"Syntax error on token \"(\", , expected\n" + 
 		"----------\n");
 }
-public void _testBug426540() {
+public void testBug426540() {
 	runConformTest(
 		new String[] {
 			"X.java",

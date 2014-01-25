@@ -483,7 +483,7 @@ class BoundSet {
 							}
 						}
 					} else {
-						addBound(new TypeBound(alpha, context.substitute(ai), ReductionResult.SAME));
+						addBound(new TypeBound(alpha, ai, ReductionResult.SAME));
 					}
 				}
 			}
