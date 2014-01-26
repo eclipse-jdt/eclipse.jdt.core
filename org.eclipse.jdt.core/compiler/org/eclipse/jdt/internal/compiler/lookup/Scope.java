@@ -1763,7 +1763,20 @@ public abstract class Scope {
 			// error is already reported
 			MethodBinding interfaceMethod =
 				findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, null);
-			if (interfaceMethod != null) return interfaceMethod;
+			if (interfaceMethod != null) {
+				if (soureLevel18 && foundSize > 0 && interfaceMethod.isVarargs() && interfaceMethod instanceof ParameterizedGenericMethodBinding) {
+					MethodBinding original = interfaceMethod.original();
+					for (int i = 0; i < foundSize; i++) {
+						MethodBinding classMethod = (MethodBinding) found.elementAt(i);
+						if (!classMethod.isAbstract()) { // this check shouldn't matter, but to compatible with javac...
+							MethodBinding substitute = verifier.computeSubstituteMethod(original, classMethod);
+							if (substitute != null && verifier.isSubstituteParameterSubsignature(classMethod, substitute)) 
+								return new ProblemMethodBinding(interfaceMethod, selector, argumentTypes, ProblemReasons.ApplicableMethodOverriddenByInapplicable);
+						}
+					}
+				}
+				return interfaceMethod;
+			}
 			if (found.size == 0) return null;
 			if (problemMethod != null) return problemMethod;
 

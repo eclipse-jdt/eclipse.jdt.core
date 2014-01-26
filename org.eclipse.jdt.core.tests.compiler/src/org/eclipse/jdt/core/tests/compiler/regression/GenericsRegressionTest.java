@@ -3430,4 +3430,258 @@ public void testBug426590b() {
 			"	}\n"
 		});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426633, [1.8][compiler] Compiler generates code that invokes inapplicable method.
+public void test426633() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	<T> void foo (T... p);\n" +
+			"}\n" +
+			"abstract class A implements I {\n" +
+			"	public void foo(Object [] p) {}\n" +
+			"}\n" +
+			"public class X extends A {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		A a = new X();\n" +
+			"		a.foo(\"hello\", \"world\");\n" +
+			"	}\n" +
+			"}\n"
+
+		},
+		this.complianceLevel >= ClassFileConstants.JDK1_8 ? 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	<T> void foo (T... p);\n" + 
+			"	                   ^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter p\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	public void foo(Object [] p) {}\n" + 
+			"	            ^^^^^^^^^^^^^^^^\n" + 
+			"Varargs methods should only override or be overridden by other varargs methods unlike A.foo(Object[]) and I.foo(Object...)\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	a.foo(\"hello\", \"world\");\n" + 
+			"	  ^^^\n" + 
+			"The method foo(Object[]) in the type A is not applicable for the arguments (String, String)\n" + 
+			"----------\n" : 
+				this.complianceLevel >= ClassFileConstants.JDK1_7 ?
+					"----------\n" + 
+					"1. WARNING in X.java (at line 2)\n" + 
+					"	<T> void foo (T... p);\n" + 
+					"	                   ^\n" + 
+					"Type safety: Potential heap pollution via varargs parameter p\n" + 
+					"----------\n" + 
+					"2. WARNING in X.java (at line 5)\n" + 
+					"	public void foo(Object [] p) {}\n" + 
+					"	            ^^^^^^^^^^^^^^^^\n" + 
+					"Varargs methods should only override or be overridden by other varargs methods unlike A.foo(Object[]) and I.foo(Object...)\n" + 
+					"----------\n" : 
+						"----------\n" + 
+						"1. WARNING in X.java (at line 5)\n" + 
+						"	public void foo(Object [] p) {}\n" + 
+						"	            ^^^^^^^^^^^^^^^^\n" + 
+						"Varargs methods should only override or be overridden by other varargs methods unlike A.foo(Object[]) and I.foo(Object...)\n" + 
+						"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426633, [1.8][compiler] Compiler generates code that invokes inapplicable method.
+public void test426633a() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+					"	 <T> void foo (T... p);\n" +
+					"}\n" +
+					"abstract class A  {\n" +
+					"	public void foo(Object [] p) {\n" +
+					"		System.out.println(\"A.foo\");\n" +
+					"	}\n" +
+					"}\n" +
+					"abstract class B extends A implements I {\n" +
+					"}\n" +
+					"public class X extends B implements I {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		B b = new X();\n" +
+					"		b.foo(\"hello\", \"world\");\n" +
+					"	}\n" +
+					"}\n"
+		},
+		this.complianceLevel >= ClassFileConstants.JDK1_8 ? 
+				"----------\n" + 
+				"1. WARNING in X.java (at line 2)\n" + 
+				"	<T> void foo (T... p);\n" + 
+				"	                   ^\n" + 
+				"Type safety: Potential heap pollution via varargs parameter p\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 9)\n" + 
+				"	abstract class B extends A implements I {\n" + 
+				"	               ^\n" + 
+				"Varargs methods should only override or be overridden by other varargs methods unlike A.foo(Object[]) and I.foo(Object...)\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 11)\n" + 
+				"	public class X extends B implements I {\n" + 
+				"	             ^\n" + 
+				"Varargs methods should only override or be overridden by other varargs methods unlike A.foo(Object[]) and I.foo(Object...)\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 14)\n" + 
+				"	b.foo(\"hello\", \"world\");\n" + 
+				"	  ^^^\n" + 
+				"The method foo(T...) of type I cannot be invoked as it is overridden by an inapplicable method\n" + 
+				"----------\n" : 
+				this.complianceLevel >= ClassFileConstants.JDK1_7 ?
+						"----------\n" + 
+						"1. WARNING in X.java (at line 2)\n" + 
+						"	<T> void foo (T... p);\n" + 
+						"	                   ^\n" + 
+						"Type safety: Potential heap pollution via varargs parameter p\n" + 
+						"----------\n" + 
+						"2. WARNING in X.java (at line 9)\n" + 
+						"	abstract class B extends A implements I {\n" + 
+						"	               ^\n" + 
+						"Varargs methods should only override or be overridden by other varargs methods unlike A.foo(Object[]) and I.foo(Object...)\n" + 
+						"----------\n" + 
+						"3. WARNING in X.java (at line 11)\n" + 
+						"	public class X extends B implements I {\n" + 
+						"	             ^\n" + 
+						"Varargs methods should only override or be overridden by other varargs methods unlike A.foo(Object[]) and I.foo(Object...)\n" + 
+						"----------\n" : 
+							"----------\n" + 
+							"1. WARNING in X.java (at line 9)\n" + 
+							"	abstract class B extends A implements I {\n" + 
+							"	               ^\n" + 
+							"Varargs methods should only override or be overridden by other varargs methods unlike A.foo(Object[]) and I.foo(Object...)\n" + 
+							"----------\n" + 
+							"2. WARNING in X.java (at line 11)\n" + 
+							"	public class X extends B implements I {\n" + 
+							"	             ^\n" + 
+							"Varargs methods should only override or be overridden by other varargs methods unlike A.foo(Object[]) and I.foo(Object...)\n" + 
+							"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426633, [1.8][compiler] Compiler generates code that invokes inapplicable method.
+public void test426633b() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	 <T> void foo (T... p);\n" +
+			"}\n" +
+			"abstract class A  {\n" +
+			"	public abstract void foo(Object [] p);\n" +
+			"}\n" +
+			"abstract class B extends A implements I {\n" +
+			"}\n" +
+			"public abstract class X extends B implements I {\n" +
+			"	public static void main(B b) {\n" +
+			"		b.foo(\"hello\", \"world\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		this.complianceLevel >= ClassFileConstants.JDK1_7 ?
+				"----------\n" + 
+				"1. WARNING in X.java (at line 2)\n" + 
+				"	<T> void foo (T... p);\n" + 
+				"	                   ^\n" + 
+				"Type safety: Potential heap pollution via varargs parameter p\n" + 
+				"----------\n" : "");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426633, [1.8][compiler] Compiler generates code that invokes inapplicable method.
+public void test426633c() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	 default <T> void foo (T... p) {}\n" +
+			"}\n" +
+			"abstract class A  {\n" +
+			"	public abstract void foo(Object [] p);\n" +
+			"}\n" +
+			"abstract class B extends A implements I {\n" +
+			"}\n" +
+			"public abstract class X extends B implements I {\n" +
+			"	public static void main(B b) {\n" +
+			"		b.foo(\"hello\", \"world\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	default <T> void foo (T... p) {}\n" + 
+		"	                           ^\n" + 
+		"Type safety: Potential heap pollution via varargs parameter p\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426633, [1.8][compiler] Compiler generates code that invokes inapplicable method.
+public void test426633d() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	 default <T> void foo (T... p) {}\n" +
+			"}\n" +
+			"abstract class A  {\n" +
+			"	public void foo(Object [] p) {}\n" +
+			"}\n" +
+			"abstract class B extends A implements I {\n" +
+			"}\n" +
+			"public abstract class X extends B implements I {\n" +
+			"	public static void main(B b) {\n" +
+			"		b.foo(\"hello\", \"world\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	default <T> void foo (T... p) {}\n" + 
+		"	                           ^\n" + 
+		"Type safety: Potential heap pollution via varargs parameter p\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	abstract class B extends A implements I {\n" + 
+		"	               ^\n" + 
+		"Varargs methods should only override or be overridden by other varargs methods unlike A.foo(Object[]) and I.foo(Object...)\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 9)\n" + 
+		"	public abstract class X extends B implements I {\n" + 
+		"	                      ^\n" + 
+		"Varargs methods should only override or be overridden by other varargs methods unlike A.foo(Object[]) and I.foo(Object...)\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
+		"	b.foo(\"hello\", \"world\");\n" + 
+		"	  ^^^\n" + 
+		"The method foo(T...) of type I cannot be invoked as it is overridden by an inapplicable method\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426633, [1.8][compiler] Compiler generates code that invokes inapplicable method.
+public void test426633e() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	 default <T> void foo (T... p) {}\n" +
+			"}\n" +
+			"abstract class A  {\n" +
+			"	public void foo(String [] p) {}\n" +
+			"}\n" +
+			"abstract class B extends A implements I {\n" +
+			"}\n" +
+			"public abstract class X extends B implements I {\n" +
+			"	public static void main(B b) {\n" +
+			"		b.foo(\"hello\", \"world\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	default <T> void foo (T... p) {}\n" + 
+		"	                           ^\n" + 
+		"Type safety: Potential heap pollution via varargs parameter p\n" + 
+		"----------\n");
+}
 }

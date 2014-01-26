@@ -1548,6 +1548,9 @@ void setSourceStart(int sourceStart);
 	int VarargsElementTypeNotVisible = MethodRelated + 807;
 	/** @since 3.8 */
 	int VarargsElementTypeNotVisibleForConstructor = ConstructorRelated + 808;
+	/** @since 3.9 BETA_JAVA8 */
+	int ApplicableMethodOverriddenByInapplicable = MethodRelated + 809;
+
 	/**
 	 * Javadoc Generic
 	 */

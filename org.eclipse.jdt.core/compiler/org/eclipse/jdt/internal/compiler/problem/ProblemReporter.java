@@ -4239,6 +4239,26 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 				(int) (messageSend.nameSourcePosition >>> 32),
 				(int) messageSend.nameSourcePosition);
 			return;
+		case ProblemReasons.ApplicableMethodOverriddenByInapplicable:
+			problemMethod = (ProblemMethodBinding) method;
+			if (problemMethod.closestMatch != null) {
+			    shownMethod = problemMethod.closestMatch.original();
+		    }
+			this.handle(
+				IProblem.ApplicableMethodOverriddenByInapplicable,
+				new String[] {
+				        new String(shownMethod.selector),
+				        typesAsString(shownMethod, false),
+				        new String(shownMethod.declaringClass.readableName()),
+				},
+				new String[] {
+				        new String(shownMethod.selector),
+				        typesAsString(shownMethod, true),
+				        new String(shownMethod.declaringClass.shortReadableName()),
+				},
+				(int) (messageSend.nameSourcePosition >>> 32),
+				(int) messageSend.nameSourcePosition);
+			return;
 		case ProblemReasons.NoError : // 0
 		default :
 			needImplementation(messageSend); // want to fail to see why we were here...
