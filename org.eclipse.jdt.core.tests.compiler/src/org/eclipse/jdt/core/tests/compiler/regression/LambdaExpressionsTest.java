@@ -2423,6 +2423,60 @@ public void test426411f() throws Exception {
 		},
 		"99");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426086, [1.8] LambdaConversionException when method reference to an inherited method is invoked from sub class 
+public void test426086() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"interface Functional {\n" +
+				"    Long square(Integer a);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    static class Base {\n" +
+				"    	 private Long square(Integer a) {\n" +
+				"             return Long.valueOf(a*a);\n" +
+				"         } \n" +
+				"    }\n" +
+				"    static class SubClass extends Base {\n" +
+				"        public Long callSquare(Integer i) {\n" +
+				"            Functional fi = SubClass.super::square;\n" +
+				"            return fi.square(i);\n" +
+				"        }\n" +
+				"    }\n" +
+				"    public static void main(String argv[]) throws Exception {\n" +
+				"    	System.out.println(new SubClass().callSquare(-3));\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"9");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426086, [1.8] LambdaConversionException when method reference to an inherited method is invoked from sub class 
+public void test426086a() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"interface Functional {\n" +
+				"    Long square(Integer a);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    static class Base {\n" +
+				"    	 private Long square(Integer a) {\n" +
+				"             return Long.valueOf(a*a);\n" +
+				"         } \n" +
+				"    }\n" +
+				"    static class SubClass extends Base {\n" +
+				"        public Long callSquare(Integer i) {\n" +
+				"            Functional fi = super::square;\n" +
+				"            return fi.square(i);\n" +
+				"        }\n" +
+				"    }\n" +
+				"    public static void main(String argv[]) throws Exception {\n" +
+				"    	System.out.println(new SubClass().callSquare(-3));\n" +
+				"    }\n" +
+				"}\n",
+		},
+		"9");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

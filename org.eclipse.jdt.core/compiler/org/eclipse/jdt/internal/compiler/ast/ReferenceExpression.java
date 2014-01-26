@@ -118,7 +118,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		buffer.append('(');
 		if (this.haveReceiver) {
 			this.lhs.generateCode(currentScope, codeStream, true);
-			if (this.lhs.isSuper()) {
+			if (this.lhs.isSuper() && !this.actualMethodBinding.isPrivate()) {
 				if (this.lhs instanceof QualifiedSuperReference) {
 					QualifiedSuperReference qualifiedSuperReference = (QualifiedSuperReference) this.lhs;
 					TypeReference qualification = qualifiedSuperReference.qualification;
@@ -602,7 +602,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	}
 
 	public boolean isSuperAccess() {
-		return false;
+		return this.lhs.isSuper();
 	}
 
 	public boolean isTypeAccess() {
