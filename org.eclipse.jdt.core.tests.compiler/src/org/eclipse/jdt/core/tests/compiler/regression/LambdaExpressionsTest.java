@@ -1036,33 +1036,6 @@ public void test039() {
 				},
 				"X cannot be cast to I");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406744, [1.8][compiler][codegen] LambdaConversionException seen when method reference targets a varargs method
-public void _test040() {
-	this.runConformTest(
-			new String[] {
-					"X.java",
-					"interface I {\n" +
-					"    void foo(Integer a1, Integer a2, String a3);\n" +
-					"}\n" +
-					"class Y {\n" +
-					"    static void m(Number a1, Object... rest) { \n" +
-					"        System.out.println(a1);\n" +
-					"        print(rest);\n" +
-					"    }\n" +
-					"    static void print (Object [] o) {\n" +
-					"        for (int i = 0; i < o.length; i++)\n" +
-					"            System.out.println(o[i]);\n" +
-					"    }\n" +
-					"}\n" +
-					"public class X {\n" +
-					"    public static void main(String [] args) {\n" +
-					"        I i = Y::m;\n" +
-					"        i.foo(10, 20, \"10, 20\");\n" +
-					"    }\n" +
-					"}\n",
-				},
-				"X cannot be cast to I");
-}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
 public void test041() {
 	this.runConformTest(
@@ -2477,6 +2450,101 @@ public void test426086a() throws Exception {
 		},
 		"9");
 }
+// Bug 406744 - [1.8][compiler][codegen] LambdaConversionException seen when method reference targets a varargs method.
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406744
+public void _test406744a() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(Integer a1, Integer a2, String a3);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	static void m(Number a1, Object... rest) {\n" + 
+				"		System.out.println(a1);\n" +
+				"		print(rest);\n" +
+				"	}\n" +
+				"	static void print (Object [] o) {\n" +
+				"		for (int i = 0; i < o.length; i++)\n" +
+				"			System.out.println(o[i]);\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String [] args) {\n" +
+				"		I i = Y::m;\n" +
+				"		i.foo(10, 20, \"10, 20\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"10\n" +
+			"20\n" +
+			"10, 20"
+			);
+}
+public void _test406744b() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	int foo(Integer a1, Integer a2, String a3);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	static int m(Number a1, Object... rest) {\n" + 
+				"		System.out.println(a1);\n" +
+				"		print(rest);\n" +
+				"		return 1;\n" +
+				"	}\n" +
+				"	static void print (Object [] o) {\n" +
+				"		for (int i = 0; i < o.length; i++)\n" +
+				"			System.out.println(o[i]);\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String [] args) {\n" +
+				"		I i = Y::m;\n" +
+				"		i.foo(10, 20, \"10, 20\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"10\n" +
+			"20\n" +
+			"10, 20"
+			);
+}
+public void _test406744c() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(Integer a1, Integer a2, String a3);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	 Y(Number a1, Object... rest) {\n" + 
+				"		System.out.println(a1);\n" +
+				"		print(rest);\n" +
+				"	}\n" +
+				"	static void m(Number a1, Object... rest) {\n" + 
+				"		System.out.println(a1);\n" +
+				"		print(rest);\n" +
+				"	}\n" +
+				"	static void print (Object [] o) {\n" +
+				"		for (int i = 0; i < o.length; i++)\n" +
+				"			System.out.println(o[i]);\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String [] args) {\n" +
+				"		I i = Y::new;\n" +
+				"		i.foo(10, 20, \"10, 20\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"10\n" +
+			"20\n" +
+			"10, 20"
+			);
+}
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
