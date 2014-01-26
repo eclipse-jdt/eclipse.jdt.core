@@ -489,7 +489,7 @@ public class InferenceContext18 {
 		ParameterizedGenericMethodBinding methodToCheck = method;
 		
 		boolean haveProperTargetType = targetType != null && targetType.isProperType(true);
-		if (haveProperTargetType) {
+		if (haveProperTargetType || invocation.getExpressionContext() == ExpressionContext.VANILLA_CONTEXT) {
 			MethodBinding original = method.originalMethod;
 			Solution solution = (Solution) this.solutionsPerTargetType.get(targetType);
 			BoundSet result = solution != null ? solution.bounds : null;
@@ -935,9 +935,13 @@ public class InferenceContext18 {
 		TypeBinding targetType = site.invocationTargetType();
 		if (targetType == null || !targetType.isProperType(true)) {
 			if (site.getExpressionContext() == ExpressionContext.VANILLA_CONTEXT) {
-				// in this case we don't yet have the solution, compute it now:
+				// in this case we may not yet have the solution(?, get or compute it now:
+				Solution solution = (Solution) this.solutionsPerTargetType.get(targetType);
 				try {
-					bounds = inferInvocationType(this.currentBounds, null, site, method);
+					if (solution != null && solution.bounds != null)
+						bounds = solution.bounds;
+					else
+						bounds = inferInvocationType(this.currentBounds, null, site, method.shallowOriginal());
 				} catch (InferenceFailureException e) {
 					return false;
 				}

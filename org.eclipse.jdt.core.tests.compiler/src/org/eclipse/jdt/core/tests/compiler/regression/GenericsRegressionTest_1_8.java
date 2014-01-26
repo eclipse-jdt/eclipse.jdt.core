@@ -19,7 +19,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug426540" };
+//	TESTS_NAMES = new String[] { "testBug426671b" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -1329,6 +1329,53 @@ public void testBug426540() {
 			"	Object o = ((Stream<Integer>) null).collect(collectingAndThen(toList(), Collections::unmodifiableList));\n" + 
 			"}\n"
 		});
+}
+public void _testBug426671_full() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.stream.Stream;\n" + 
+			"import java.util.*;\n" + 
+			"import static java.util.stream.Collectors.collectingAndThen;\n" + 
+			"import static java.util.stream.Collectors.toList;\n" + 
+			"public class X {\n" +
+			"	void test() {\n" +
+			"		Arrays.asList((List<Integer>) null).stream().collect(collectingAndThen(toList(), Collections::unmodifiableList))\n" +
+			"			.remove(0);\n" +
+			"	}\n" + 
+			"}\n"
+		});
+}
+public void testBug426671b() {
+	runNegativeTest(
+		new String[] {
+			"Test.java",
+			"interface I<X,Y> {\n" + 
+			"	Y fun(X y);\n" + 
+			"}\n" + 
+			"public class Test {\n" + 
+			"	static <S> S id(S s) { return s; }\n" + 
+			"	void test() {\n" + 
+			"        m1(Test::id, \"Hi\");\n" + 
+			"        m2(Test::id, \"Hi\").toUpperCase();\n" + 
+			"        m3(Test::id, \"Hi\").toUpperCase();\n" + 
+			"   }\n" + 
+			"\n" + 
+			"	<U,V> void m1(I<V,U> i, U u) { }\n" +
+			"	<U,V> V m2(I<V,U> i, U u) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	<U,V> V m3(I<U,V> i, U u) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 8)\n" + 
+		"	m2(Test::id, \"Hi\").toUpperCase();\n" + 
+		"	                   ^^^^^^^^^^^\n" + 
+		"The method toUpperCase() is undefined for the type Object\n" + 
+		"----------\n");
 }
 public void testBug426652() {
 	runConformTest(
