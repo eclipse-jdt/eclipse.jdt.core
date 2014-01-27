@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -6098,6 +6099,228 @@ public void testBug392581() throws CoreException {
 	    	requestor.getResults());
 	} finally {
 		deleteProject("P");
+	}
+}
+/**
+ * Project's compliance: source: 1.5, compiler: 1.5
+ * Jar's compliance: source: 1.3, compiler: 1.3
+ * Jar contains a class with "enum" package and is located inside the project.
+ * The test verifies that class from the "enum" package is not proposed.
+ */
+public void testBug410207a() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB", "/P/lib.jar"}, "bin", "1.5");
+		Util.createJar(new String[] {
+				"a/enum/b/NonCompliant.java",
+				"package a.enum.b;\n" +
+				"public class NonCompliant {\n" +
+				"}",
+				"lib/External.java",
+				"package lib;\n" +
+				"import a.enum.b.NonCompliant;\n" +
+				"public class External {\n" +
+				"   public NonCompliant setNonCompliant(NonCompliant x) {\n" +
+				"      return null;\n" +
+				"	}\n" +
+				"}"
+			},
+			p.getProject().getLocation().append("lib.jar").toOSString(),
+			"1.3");
+		refresh(p);
+		createFolder("/P/src/p/");
+		createFile(
+				"/P/src/p/Main.java",
+				"package p;\n" +
+				"import lib.External;\n" +
+				"public class Main {\n" +
+				"   public void m() {\n" +
+				"      External external = new External();\n" +
+				"      external.setNonCompliant(new );\n" +
+				"   };\n" +
+				"}"
+		);
+		waitUntilIndexesReady();
+		ICompilationUnit cu = getCompilationUnit("P", "src", "p", "Main.java");
+		String source = cu.getSource();
+		String completeBehind = "external.setNonCompliant(new ";
+		int cursorLocation = source.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		cu.codeComplete(cursorLocation, requestor);
+		assertResults(
+				"Main[TYPE_REF]{Main, p, Lp.Main;, null, null, 27}",
+				requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+/**
+ * Project's compliance: source: 1.5, compiler: 1.5
+ * Jar's compliance: source: 1.4, compiler: 1.6
+ * Jar contains a class with "enum" package and is located inside the project.
+ * The test verifies that class from the "enum" package is not proposed. It verifies also that
+ * compiler compliance of the jar is not used as source compliance.
+ */
+public void testBug410207b() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB", "/P/lib.jar"}, "bin", "1.5");
+		Map options = new HashMap();
+		options.put(CompilerOptions.OPTION_Source, "1.4");
+		Util.createJar(new String[] {
+				"a/enum/b/NonCompliant.java",
+				"package a.enum.b;\n" +
+				"public class NonCompliant {\n" +
+				"}",
+				"lib/External.java",
+				"package lib;\n" +
+				"import a.enum.b.NonCompliant;\n" +
+				"public class External {\n" +
+				"   public NonCompliant setNonCompliant(NonCompliant x) {\n" +
+				"      return null;\n" +
+				"	}\n" +
+				"}"
+			},
+			null,/*extraPathsAndContents*/
+			p.getProject().getLocation().append("lib.jar").toOSString(),
+			null,/*classpath*/
+			"1.6",
+			options);
+		refresh(p);
+		createFolder("/P/src/p/");
+		createFile(
+				"/P/src/p/Main.java",
+				"package p;\n" +
+				"import lib.External;\n" +
+				"public class Main {\n" +
+				"   public void m() {\n" +
+				"      External external = new External();\n" +
+				"      external.setNonCompliant(new );\n" +
+				"   };\n" +
+				"}"
+		);
+		waitUntilIndexesReady();
+		ICompilationUnit cu = getCompilationUnit("P", "src", "p", "Main.java");
+		String source = cu.getSource();
+		String completeBehind = "external.setNonCompliant(new ";
+		int cursorLocation = source.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		cu.codeComplete(cursorLocation, requestor);
+		assertResults(
+				"Main[TYPE_REF]{Main, p, Lp.Main;, null, null, 27}",
+				requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+/**
+ * Two projects:
+ * 		Lib: source: 1.4, compiler: 1.4
+ * 		P: source: 1.5, compiler: 1.5
+ * Lib contains a class with "enum" package and is required by P (dependency on the bin folder).
+ * The test verifies that class from the "enum" package is not proposed for P.
+ */
+public void testBug410207c() throws Exception {
+	try {
+		createJavaProject("Lib", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.4");
+		createFolder("/Lib/src/a/enum/b");
+		createFile(
+				"/Lib/src/a/enum/b/NonCompliant.java",
+				"package a.enum.b;\n" +
+				"public class NonCompliant {\n" +
+				"}"
+		);
+		createFolder("/Lib/src/lib");
+		createFile(
+				"/Lib/src/lib/External.java",
+				"package lib;\n" +
+				"import a.enum.b.NonCompliant;\n" +
+				"public class External {\n" +
+				"   public NonCompliant setNonCompliant(NonCompliant x) {\n" +
+				"      return null;\n" +
+				"	}\n" +
+				"}"
+		);
+		getProject("Lib").build(IncrementalProjectBuilder.FULL_BUILD, null);
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB", "/Lib/bin"}, "bin", "1.5");
+		createFolder("/P/src/p");
+		createFile(
+				"/P/src/p/Main.java",
+				"package p;\n" +
+				"import lib.External;\n" +
+				"public class Main {\n" +
+				"   public void m() {\n" +
+				"      External external = new External();\n" +
+				"      external.setNonCompliant(new );\n" +
+				"   };\n" +
+				"}"
+		);
+		waitUntilIndexesReady();
+		ICompilationUnit cu = getCompilationUnit("P", "src", "p", "Main.java");
+		String source = cu.getSource();
+		String completeBehind = "external.setNonCompliant(new ";
+		int cursorLocation = source.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		cu.codeComplete(cursorLocation, requestor);
+		assertResults(
+				"Main[TYPE_REF]{Main, p, Lp.Main;, null, null, 27}",
+				requestor.getResults());
+	} finally {
+		deleteProjects(new String[] { "Lib", "P" });
+	}
+}
+/**
+ * Two projects:
+ * 		Lib: source: 1.4, compiler: 1.4
+ * 		P: source: 1.5, compiler: 1.5
+ * Lib contains a class with "enum" package and is required by P (dependency on the whole project).
+ * The test verifies that class from the "enum" package is not proposed for P.
+ */
+public void testBug410207d() throws Exception {
+	try {
+		createJavaProject("Lib", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.4");
+		createFolder("/Lib/src/a/enum/b");
+		createFile(
+				"/Lib/src/a/enum/b/NonCompliant.java",
+				"package a.enum.b;\n" +
+				"public class NonCompliant {\n" +
+				"}"
+		);
+		createFolder("/Lib/src/lib");
+		createFile(
+				"/Lib/src/lib/External.java",
+				"package lib;\n" +
+				"import a.enum.b.NonCompliant;\n" +
+				"public class External {\n" +
+				"   public NonCompliant setNonCompliant(NonCompliant x) {\n" +
+				"      return null;\n" +
+				"	}\n" +
+				"}"
+		);
+		getProject("Lib").build(IncrementalProjectBuilder.FULL_BUILD, null);
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, new String[] {"/Lib"}, "bin", "1.5");
+		createFolder("/P/src/p");
+		createFile(
+				"/P/src/p/Main.java",
+				"package p;\n" +
+				"import lib.External;\n" +
+				"public class Main {\n" +
+				"   public void m() {\n" +
+				"      External external = new External();\n" +
+				"      external.setNonCompliant(new );\n" +
+				"   };\n" +
+				"}"
+		);
+		waitUntilIndexesReady();
+		ICompilationUnit cu = getCompilationUnit("P", "src", "p", "Main.java");
+		String source = cu.getSource();
+		String completeBehind = "external.setNonCompliant(new ";
+		int cursorLocation = source.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		cu.codeComplete(cursorLocation, requestor);
+		assertResults(
+				"Main[TYPE_REF]{Main, p, Lp.Main;, null, null, 27}",
+				requestor.getResults());
+	} finally {
+		deleteProjects(new String[] { "Lib", "P" });
 	}
 }
 // Bug 418011 - [1.8][code assist] NPE in code assist
