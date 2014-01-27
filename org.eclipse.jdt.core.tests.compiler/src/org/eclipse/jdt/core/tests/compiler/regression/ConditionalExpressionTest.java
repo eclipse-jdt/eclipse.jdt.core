@@ -207,11 +207,9 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426315, - [1.8][compiler] UnsupportedOperationException with conditional expression
 	public void test006() {
-		if (this.complianceLevel < ClassFileConstants.JDK1_8)
-			return;
 		this.runConformTest(
 				new String[] {
-						"X.java",
+					"X.java",
 						"public class X {\n" +
 						"	static int foo(Object x) {\n" +
 						"		return 0;\n" +
@@ -226,6 +224,66 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 						"}\n",
 				},
 				"false"
+				);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426680, - [1.8][compiler] Incorrect handling of poly conditional leads to CCE
+	public void test007() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_8)
+			return;
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"interface BinaryOperation<T> {\n" +
+						"    T operate(T x, T y);\n" +
+						"}\n" +
+						"class StringCatenation implements BinaryOperation<String> { \n" +
+						"    public String operate(String x, String y) { return x + y; }\n" +
+						"}\n" +
+						"public class X {\n" +
+						"    public static void main(String argv[]) {\n" +
+						"    	foo(false ? (a,b)->a+b :new StringCatenation());\n" +
+						"    }\n" +
+						"    static void foo(BinaryOperation<Integer> x) {\n" +
+						"       x.operate(5, 15);\n" +
+						"    }\n" +
+						"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 9)\n" + 
+				"	foo(false ? (a,b)->a+b :new StringCatenation());\n" + 
+				"	                        ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from StringCatenation to BinaryOperation<Integer>\n" + 
+				"----------\n"
+				);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426680, - [1.8][compiler] Incorrect handling of poly conditional leads to CCE
+	public void test008() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_8)
+			return;
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"interface BinaryOperation<T> {\n" +
+						"    T operate(T x, T y);\n" +
+						"}\n" +
+						"class StringCatenation implements BinaryOperation<String> { \n" +
+						"    public String operate(String x, String y) { return x + y; }\n" +
+						"}\n" +
+						"public class X {\n" +
+						"    public static void main(String argv[]) {\n" +
+						"    	foo(false ? new StringCatenation() : (a,b)->a+b);\n" +
+						"    }\n" +
+						"    static void foo(BinaryOperation<Integer> x) {\n" +
+						"       x.operate(5, 15);\n" +
+						"    }\n" +
+						"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 9)\n" + 
+				"	foo(false ? new StringCatenation() : (a,b)->a+b);\n" + 
+				"	            ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from StringCatenation to BinaryOperation<Integer>\n" + 
+				"----------\n"
 				);
 	}
 }

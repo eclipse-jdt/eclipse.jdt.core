@@ -1064,7 +1064,7 @@ public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedTy
  * @param targetType the final target type (aka expectedType) for this expression.
  */
 public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType) {
-	return targetType; // subclasses may choose to do real stuff here
+	return this.resolvedType; // subclasses may choose to do real stuff here
 }
 
 /**

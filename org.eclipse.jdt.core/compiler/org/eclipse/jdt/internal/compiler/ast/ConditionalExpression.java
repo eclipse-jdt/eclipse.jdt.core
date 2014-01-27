@@ -54,7 +54,7 @@ public class ConditionalExpression extends OperatorExpression {
 	private boolean isPolyExpression = false;
 	private TypeBinding originalValueIfTrueType;
 	private TypeBinding originalValueIfFalseType;
-
+	private Scope polyExpressionScope;
 	public ConditionalExpression(
 		Expression condition,
 		Expression valueIfTrue,
@@ -463,6 +463,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			
 			if (this.originalValueIfTrueType.kind() == Binding.POLY_TYPE || this.originalValueIfFalseType.kind() == Binding.POLY_TYPE) {
 				this.isPolyExpression = true;
+				this.polyExpressionScope = scope;
 				return new PolyTypeBinding(this);
 			}
 		} else {
@@ -610,8 +611,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			}
 		}
 		if (use18specifics && isPolyExpression()) {
-			if (this.expectedType == null)
+			if (this.expectedType == null) {
+				this.polyExpressionScope = scope;
 				return new PolyTypeBinding(this);
+			}
 			if (valueIfTrueType != null && !valueIfTrueType.isCompatibleWith(this.expectedType, scope)) {
 				scope.problemReporter().typeMismatchError(valueIfTrueType, this.expectedType, this.valueIfTrue, null);
 			}
@@ -669,8 +672,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType) {
 		// in 1.8 if treated as a poly expression:
 		if (isPolyExpression()) {
-			this.valueIfTrue.checkAgainstFinalTargetType(targetType);
-			this.valueIfFalse.checkAgainstFinalTargetType(targetType);
+			TypeBinding valueIfTrueType = this.valueIfTrue.checkAgainstFinalTargetType(targetType);
+			TypeBinding valueIfFalseType = this.valueIfFalse.checkAgainstFinalTargetType(targetType);
+			if (valueIfTrueType != null && !valueIfTrueType.isCompatibleWith(targetType, this.polyExpressionScope)) {
+				this.polyExpressionScope.problemReporter().typeMismatchError(valueIfTrueType, targetType, this.valueIfTrue, null);
+			}
+			if (valueIfFalseType != null && !valueIfFalseType.isCompatibleWith(targetType, this.polyExpressionScope)) {
+				this.polyExpressionScope.problemReporter().typeMismatchError(valueIfFalseType, targetType, this.valueIfFalse, null);
+			}
 			this.resolvedType = targetType;
 		}
 		return this.resolvedType;
