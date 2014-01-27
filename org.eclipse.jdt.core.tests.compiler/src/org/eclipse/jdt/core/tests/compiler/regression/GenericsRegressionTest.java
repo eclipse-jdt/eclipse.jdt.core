@@ -3686,7 +3686,7 @@ public void test426633e() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=426678, [1.8][compiler] Another issue with vararg type element accessibility
 public void test426678() {
-	runConformTest(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"import p.*;\n" +
@@ -3705,7 +3705,25 @@ public void test426678() {
 			"    public void foo(Object... o) { System.out.println(\"MB\"); }\n" +
 			"}\n",
 		},
-		"MB");
+		this.complianceLevel < ClassFileConstants.JDK1_7 ? 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	new B().foo(null, null);\n" + 
+				"	        ^^^\n" + 
+				"The method foo(T...) of type B is not applicable as the formal varargs element type T is not accessible here\n" + 
+				"----------\n" :
+					"----------\n" + 
+					"1. ERROR in X.java (at line 4)\n" + 
+					"	new B().foo(null, null);\n" + 
+					"	        ^^^\n" + 
+					"The method foo(T...) of type B is not applicable as the formal varargs element type T is not accessible here\n" + 
+					"----------\n" + 
+					"----------\n" + 
+					"1. WARNING in p\\B.java (at line 5)\n" + 
+					"	public <T extends A> void foo(T ... o) { System.out.println(\"PGMB\"); }\n" + 
+					"	                                    ^\n" + 
+					"Type safety: Potential heap pollution via varargs parameter o\n" + 
+					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=426678, [1.8][compiler] Another issue with vararg type element accessibility
 public void test426678a() {

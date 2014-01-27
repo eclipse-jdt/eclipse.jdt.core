@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 IBM Corporation and others.
+ * Copyright (c) 2005, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3425,9 +3425,9 @@ public class VarargsTest extends AbstractComparableTest {
 			System.setProperty("tolerateIllegalAmbiguousVarargsInvocation", "false");
 		}
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421922,  [1.8][compiler] Varargs & Overload - Align to JLS8
-	public void _test421922() {
-		runConformTest(
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426678, [1.8][compiler] Another issue with vararg type element accessibility
+	public void test426678() {
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"import p.*;\n" +
@@ -3446,6 +3446,11 @@ public class VarargsTest extends AbstractComparableTest {
 				"    public void foo(Object... o) { System.out.println(\"MB:O\"); }\n" +
 				"}\n",
 			},
-			"MB"); // check and adjust,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	new B().foo(null, null);\n" + 
+			"	        ^^^\n" + 
+			"The method foo(A...) of type B is not applicable as the formal varargs element type A is not accessible here\n" + 
+			"----------\n"); // check and adjust,
 	}
 }

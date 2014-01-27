@@ -735,20 +735,11 @@ public abstract class Scope {
 			}
 		}
 
-		int compatibilityLevel;
 		if (tiebreakingVarargsMethods) {
 			if (CompilerOptions.tolerateIllegalAmbiguousVarargsInvocation && compilerOptions.complianceLevel < ClassFileConstants.JDK1_7)
 				tiebreakingVarargsMethods = false;
 		}
-		if ((compatibilityLevel = parameterCompatibilityLevel18(method, arguments, tiebreakingVarargsMethods, invocationSite)) > NOT_COMPATIBLE) {
-			if (compatibilityLevel == VARARGS_COMPATIBLE) {
-				TypeBinding varargsElementType = method.parameters[method.parameters.length - 1].leafComponentType();
-				if (varargsElementType instanceof ReferenceBinding) {
-					if (!((ReferenceBinding) varargsElementType).canBeSeenBy(this)) {
-						return new ProblemMethodBinding(method, method.selector, genericTypeArguments, ProblemReasons.VarargsElementTypeNotVisible);
-					}
-				}
-			}
+		if ((parameterCompatibilityLevel18(method, arguments, tiebreakingVarargsMethods, invocationSite)) > NOT_COMPATIBLE) {
 			if ((method.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
 				// generate polymorphic method
 				return this.environment().createPolymorphicMethod(method, arguments);
@@ -1628,6 +1619,19 @@ public abstract class Scope {
 
 	// Internal use only - use findMethod()
 	public MethodBinding findMethod(ReferenceBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite, boolean inStaticContext) {
+		MethodBinding method = findMethod0(receiverType, selector, argumentTypes, invocationSite, inStaticContext);
+		if (method != null && method.isValidBinding() && method.isVarargs()) {
+			TypeBinding elementType = method.parameters[method.parameters.length - 1].leafComponentType();
+			if (elementType instanceof ReferenceBinding) {
+				if (!((ReferenceBinding) elementType).canBeSeenBy(this)) {
+					return new ProblemMethodBinding(method, method.selector, invocationSite.genericTypeArguments(), ProblemReasons.VarargsElementTypeNotVisible);
+				}
+			}
+		}
+		return method;
+	}	
+	
+	public MethodBinding findMethod0(ReferenceBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite, boolean inStaticContext) {
 		ReferenceBinding currentType = receiverType;
 		boolean receiverTypeIsInterface = receiverType.isInterface();
 		ObjectVector found = new ObjectVector(3);
@@ -2376,8 +2380,21 @@ public abstract class Scope {
 		}
 		return exactConstructor;
 	}
-	
+
 	public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
+		MethodBinding method = getConstructor0(receiverType, argumentTypes, invocationSite);
+		if (method != null && method.isValidBinding() && method.isVarargs()) {
+			TypeBinding elementType = method.parameters[method.parameters.length - 1].leafComponentType();
+			if (elementType instanceof ReferenceBinding) {
+				if (!((ReferenceBinding) elementType).canBeSeenBy(this)) {
+					return new ProblemMethodBinding(method, method.selector, invocationSite.genericTypeArguments(), ProblemReasons.VarargsElementTypeNotVisible);
+				}
+			}
+		}
+		return method;
+	}
+
+	public MethodBinding getConstructor0(ReferenceBinding receiverType, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		LookupEnvironment env = unitScope.environment;
 		try {
