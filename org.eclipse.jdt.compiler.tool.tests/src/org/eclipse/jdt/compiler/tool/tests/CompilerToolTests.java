@@ -65,6 +65,7 @@ public class CompilerToolTests extends TestCase {
 		suite.addTest(new CompilerToolTests("testInitializeJavaCompiler"));
 		suite.addTest(new CompilerToolTests("testFileManager"));
 		suite.addTest(new CompilerToolTests("testFileManager2"));
+		suite.addTest(new CompilerToolTests("testInferBinaryName"));
 		suite.addTest(new CompilerToolTests("testCheckOptions"));
 		suite.addTest(new CompilerToolTests("testCompilerOneClassWithSystemCompiler"));
 //		suite.addTest(new CompilerToolTests("testCompilerOneClassWithSystemCompiler2"));
@@ -831,6 +832,53 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		assertTrue("delete failed", inputFile.delete());
 	}
 
+	// Test that JavaFileManager#inferBinaryName returns null for invalid file
+	public void testInferBinaryName() {
+		String tmpFolder = System.getProperty("java.io.tmpdir");
+		File dir = new File(tmpFolder, "src" + System.currentTimeMillis());
+		dir.mkdirs();
+		File inputFile = new File(dir, "test.txt");
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(inputFile));
+			writer.write("This is not a valid Java file");
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+		try {
+			StandardJavaFileManager fileManager = Compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+	
+			List<File> fins = new ArrayList<File>();
+			fins.add(dir);
+			JavaFileManager.Location sourceLoc = javax.tools.StandardLocation.SOURCE_PATH;
+			fileManager.setLocation(sourceLoc, fins);
+	
+			Set<JavaFileObject.Kind> fileTypes = new HashSet<JavaFileObject.Kind>();
+			fileTypes.add(JavaFileObject.Kind.OTHER);
+
+			Iterable<? extends JavaFileObject> compilationUnits = fileManager.list(sourceLoc, "", fileTypes, true);
+			JavaFileObject invalid = null;
+			for (JavaFileObject javaFileObject : compilationUnits) {
+				invalid = javaFileObject;
+				break;
+			}
+			String inferredName = fileManager.inferBinaryName(sourceLoc, invalid);
+			fileManager.close();
+			assertNull("Should return null for invalid file", inferredName);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		assertTrue("delete failed", inputFile.delete());
+		assertTrue("delete failed", dir.delete());
+	}
 	public void testFileManager() {
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File dir = new File(tmpFolder, "src" + System.currentTimeMillis());

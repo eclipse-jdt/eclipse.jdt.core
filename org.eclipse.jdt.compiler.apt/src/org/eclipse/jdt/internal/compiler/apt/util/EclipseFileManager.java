@@ -766,6 +766,8 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			javaFileObject = getJavaFileForInput(location, name, file.getKind());
 		} catch (IOException e) {
 			// ignore
+		} catch (IllegalArgumentException iae) {
+			return null; // Either unknown kind or location not present
 		}
 		if (javaFileObject == null) {
 			return null;
