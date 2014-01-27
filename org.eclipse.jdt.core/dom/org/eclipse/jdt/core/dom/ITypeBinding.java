@@ -513,7 +513,7 @@ public interface ITypeBinding extends IBinding {
 	 * different type use annotations.
 	 * <p>
 	 * For example, the following three type references would produce three distinct type 
-	 * bindings for java.lang.String.
+	 * bindings for java.lang.String that share the same key:
 	 * <ul>
 	 * <li>java.lang.@Marker1 String</li>
 	 * <li>java.lang.@Marker2 String</li>
@@ -523,6 +523,7 @@ public interface ITypeBinding extends IBinding {
 	 * @return type annotations specified on this type reference, or an empty array if
 	 * no type use annotations are found.
 	 * @see #getTypeDeclaration()
+	 * @see #getKey()
 	 * @since 3.9 BETA_JAVA8
 	 */
 	public IAnnotationBinding[] getTypeAnnotations();

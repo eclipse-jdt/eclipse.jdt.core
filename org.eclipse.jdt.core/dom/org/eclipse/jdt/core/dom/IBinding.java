@@ -236,7 +236,7 @@ public interface IBinding {
 	 * Returns the key for this binding.
 	 * <p>
 	 * Within a connected cluster of bindings (produced by the same call to an
-	 * {@code ASTParser#create*(*)} method)), each binding will have a distinct key.
+	 * {@code ASTParser#create*(*)} method)), each binding has a distinct key.
 	 * The keys are generated in a manner that is predictable and as
 	 * stable as possible. This last property makes these keys useful for
 	 * comparing bindings between disconnected clusters of bindings (for example,
@@ -290,7 +290,8 @@ public interface IBinding {
 	 * </p>
 	 * <p>
 	 * The key for a type binding does not contain {@link ITypeBinding#getTypeAnnotations() type annotations},
-	 * so bindings with different type annotations may have the same key (iff they denote the same un-annotated type).
+	 * so type bindings with different type annotations may have the same key (iff they denote the same un-annotated type).
+	 * By construction, this also applies to method bindings if their declaring types contain type annotations.
 	 * </p>
 	 * <p>Note that the key for member value pair bindings is
 	 * not yet implemented. This method returns <code>null</code> for that kind of bindings.<br>
@@ -333,9 +334,10 @@ public interface IBinding {
 	 * are used where available.
 	 * 
 	 * <p>
-	 * Note that type binding that only differ in their {@link ITypeBinding#getTypeAnnotations() type annotations}
+	 * Note that type bindings that only differ in their {@link ITypeBinding#getTypeAnnotations() type annotations}
 	 * have the same {@link IBinding#getKey() key}, and hence this method returns
-	 * <code>true</code> for such type bindings.
+	 * <code>true</code> for such type bindings. By construction of the key, this also applies
+	 * to method bindings if their declaring types contain type annotations.
 	 * </p>
 	 *
 	 * @param binding the other binding, or <code>null</code>
