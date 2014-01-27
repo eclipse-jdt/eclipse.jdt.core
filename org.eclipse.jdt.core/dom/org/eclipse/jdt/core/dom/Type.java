@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@ package org.eclipse.jdt.core.dom;
 
 
 /**
- * Abstract base class of all type AST node types. A type node represents a
+ * Abstract base class of all type reference AST node types. A type node represents a
  * reference to a primitive type (including void), to an array type, or to a
  * simple named type (or type variable), to a qualified type, to a
  * parameterized type, to a union type, to an intersection type, or to a wildcard type. Note that not all of these

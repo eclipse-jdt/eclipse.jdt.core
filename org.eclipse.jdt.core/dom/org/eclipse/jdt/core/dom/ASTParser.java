@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2013 IBM Corporation and others.
+ * Copyright (c) 2004, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -384,7 +384,7 @@ public class ASTParser {
 	 * Requests that the compiler should provide binding information for
 	 * the AST nodes it creates.
 	 * <p>
-	 * Default to <code>false</code> (no bindings).
+	 * Defaults to <code>false</code> (no bindings).
 	 * </p>
 	 * <p>
 	 * If {@link #setResolveBindings(boolean) setResolveBindings(true)}, the various names
@@ -407,12 +407,12 @@ public class ASTParser {
 	 * <code>resolveBinding</code> methods return <code>null</code> from the outset.
 	 * </p>
 	 * <p>
-	 * When bindings are requested, instead of considering compilation units on disk only
-	 * one can supply a <code>WorkingCopyOwner</code>. Working copies owned
+	 * When bindings are requested, instead of considering compilation units on disk only,
+	 * one can also supply a <code>WorkingCopyOwner</code>. Working copies owned
 	 * by this owner take precedence over the underlying compilation units when looking
 	 * up names and drawing the connections.
 	 * </p>
-	 * <p>Note that working copy owner are used only if the <code>org.eclipse.jdt.core</code>
+	 * <p>Note that working copy owners are used only if the <code>org.eclipse.jdt.core</code>
 	 * bundle is initialized.</p>
 	 * <p>
 	 * Binding information is obtained from the Java model.
@@ -715,7 +715,7 @@ public class ASTParser {
 	}
 
     /**
-     * Sets the working copy owner using when resolving bindings, where
+     * Sets the working copy owner used when resolving bindings, where
      * <code>null</code> means the primary owner. Defaults to the primary owner.
      *
 	 * @param owner the owner of working copies that take precedence over underlying

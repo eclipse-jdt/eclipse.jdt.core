@@ -119,7 +119,6 @@ public interface ITypeBinding extends IBinding {
 	 * Returns the binding representing the component type of this array type,
 	 * or <code>null</code> if this is not an array type binding. The component
 	 * type of an array might be an array type.
-	 * <p>This is subject to change before 3.2 release.</p>
 	 *
 	 * @return the component type binding, or <code>null</code> if this is
 	 *   not an array type
@@ -509,6 +508,26 @@ public interface ITypeBinding extends IBinding {
 	public ITypeBinding getSuperclass();
 
 	/**
+	 * Returns the type annotations that this type reference is annotated with. Since JLS8, 
+	 * multiple instances of type bindings may be created if they are annotated with 
+	 * different type use annotations.
+	 * <p>
+	 * For example, the following three type references would produce three distinct type 
+	 * bindings for java.lang.String.
+	 * <ul>
+	 * <li>java.lang.@Marker1 String</li>
+	 * <li>java.lang.@Marker2 String</li>
+	 * <li>java.lang.String</li>
+	 * </ul>
+	 * </p>
+	 * @return type annotations specified on this type reference, or an empty array if
+	 * no type use annotations are found.
+	 * @see #getTypeDeclaration()
+	 * @since 3.9 BETA_JAVA8
+	 */
+	public IAnnotationBinding[] getTypeAnnotations();
+
+	/**
 	 * Returns the type arguments of this generic type instance, or the
 	 * empty list for other type bindings.
 	 * <p>
@@ -555,19 +574,20 @@ public interface ITypeBinding extends IBinding {
 	 * binding.
 	 * <p>For parameterized types ({@link #isParameterizedType()})
 	 * and most raw types ({@link #isRawType()}), this method returns the binding
-	 * for the corresponding generic type.</p>
+	 * for the corresponding generic type ({@link #isGenericType()}.</p>
 	 * <p>For raw member types ({@link #isRawType()}, {@link #isMember()})
 	 * of a raw declaring class, the type declaration is a generic or a non-generic
 	 * type.</p>
 	 * <p>A different non-generic binding will be returned when one of the declaring
 	 * types/methods was parameterized.</p>
-	 * <p>For other type bindings, this returns the binding for the type declaration
+	 * <p>For other type bindings, this method returns the binding for the type declaration
 	 * corresponding to this type binding. In particular, for type bindings that
-	 * correspond to an annotated type use, this returns the binding for the type
-	 * declaration which will not have the type annotations from the use site.</p>
+	 * contain a {@link #getTypeAnnotations() type annotation}, this method returns the binding for the type
+	 * declaration, which does not contain the type annotations from the use site.</p>
 	 *
-	 * @return the type binding
+	 * @return the declaration type binding
 	 * @since 3.1
+	 * @see #isEqualTo(IBinding)
 	 */
 	public ITypeBinding getTypeDeclaration();
 
@@ -586,7 +606,6 @@ public interface ITypeBinding extends IBinding {
 	 * @see #isTypeVariable()
 	 * @since 3.1
 	 */
-	// TODO (jeem) - clarify whether binding for a generic type instance carries a copy of the generic type's type parameters as well as type arguments
 	public ITypeBinding[] getTypeParameters();
 
 	/**
@@ -979,23 +998,5 @@ public interface ITypeBinding extends IBinding {
 	 * @see #isUpperbound()
 	 */
 	public boolean isWildcardType();
-
-	/**
-	 * Returns the annotations that this type reference is annotated with. Since JLS8, 
-	 * multiple instances of type bindings may be created if they are annotated with 
-	 * different type use annotations.
-	 * <p>
-	 * For example, the following two type references would produce two distinct type 
-	 * bindings for java.lang.String.
-	 * <ul>
-	 * <li>java.lang.@Marker1 String</li>
-	 * <li>java.lang.@Marker2 String</li>
-	 * </ul>
-	 * </p>
-	 * @return type annotations specified on this type reference, or an empty array if
-	 * no type use annotations are found.
-	 * @since 3.9 BETA_JAVA8
-	 */
-	public IAnnotationBinding[] getTypeAnnotations();
 	
 }

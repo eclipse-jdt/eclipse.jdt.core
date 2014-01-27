@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -109,12 +113,18 @@ public interface IMethodBinding extends IBinding {
 	public Object getDefaultValue();
 
 	/**
-	 * Returns the resolved annotations of a parameter of this method.
+	 * Returns the resolved declaration annotations of a parameter of this method.
 	 * The result returned is the same regardless of whether
 	 * this is a parameterized method.
+	 * <p>
+	 * <b>Note:</b> This method only returns declaration annotations.
+	 * <em>Type annotations</em> in the sense of JLS8 9.7.4 are <em>not</em> returned.
+	 * Type annotations can be retrieved from a parameter type 
+	 * via {@link ITypeBinding#getTypeAnnotations()}. 
+	 * </p>
 	 *
 	 * @param paramIndex the index of the parameter of interest
-	 * @return the resolved annotations of the <code>paramIndex</code>th parameter,
+	 * @return the resolved declaration annotations of the <code>paramIndex</code>th parameter,
 	 * or an empty list if there are none
 	 * @throws ArrayIndexOutOfBoundsException if <code>paramIndex</code> is
 	 * not a valid index
