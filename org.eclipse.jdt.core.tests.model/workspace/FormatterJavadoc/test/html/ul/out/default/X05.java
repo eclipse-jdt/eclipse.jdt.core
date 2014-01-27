@@ -3,7 +3,7 @@ package test.html.ul;
 interface X05 {
 
 	/**
-	 * 
+	 *
 	 * Before P
 	 * <p>
 	 * Before UL

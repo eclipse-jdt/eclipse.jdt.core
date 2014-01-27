@@ -14,8 +14,8 @@ public interface X04 {
 	 * 
 	 * </ul>
 	 * toto
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	int foo(int a, int b);
 

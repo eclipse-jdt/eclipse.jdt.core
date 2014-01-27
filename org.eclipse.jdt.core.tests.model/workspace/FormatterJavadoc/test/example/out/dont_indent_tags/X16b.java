@@ -5,7 +5,7 @@ public class X16b {
 	 * Asserts that an argument is legal. If the given boolean is not
 	 * <code>true</code>, an <code>IllegalArgumentException</code> is thrown.
 	 * The given message is included in that exception, to aid debugging.
-	 * 
+	 *
 	 * @param expression
 	 * the outcode of the check
 	 * @param message

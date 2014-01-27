@@ -1,16 +1,16 @@
 package test.wksp.eclipse;
 
 /**
- * 
+ *
  * A ControlEditor is a manager for a Control that appears above a composite and
  * tracks with the moving and resizing of that composite. It can be used to
  * display one control above another control. This could be used when editing a
  * control that does not have editing capabilities by using a text editor or for
  * launching a dialog by placing a button above a control.
- * 
+ *
  * <p>
  * Here is an example of using a ControlEditor:
- * 
+ *
  * <code><pre>
  * Canvas canvas = new Canvas(shell, SWT.BORDER);
  * canvas.setBounds(10, 10, 300, 300);	

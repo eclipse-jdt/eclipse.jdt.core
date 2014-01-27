@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ray V. (voidstar@gmail.com) - Contribution for bug 282988
+ *     Robin Stocker - Bug 49619 - [formatting] comment formatter leaves whitespace in comments
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
@@ -4727,17 +4728,17 @@ public void testBug294500a() {
 		"\n" + 
 		"/**\n" + 
 		" * This sample produce an MalformedTreeException when formatted.\n" + 
-		" * \n" + 
+		" *\n" + 
 		" * <p>\n" + 
 		" * First paragraph {@link java.lang.String </code>a simple string<code>}.\n" + 
-		" * \n" + 
+		" *\n" + 
 		" * <p>\n" + 
 		" * Second paragraph.\n" + 
-		" * \n" + 
+		" *\n" + 
 		" * <p>\n" + 
 		" * Third paragraph.\n" + 
 		" * </p>\n" + 
-		" * \n" + 
+		" *\n" + 
 		" */\n" + 
 		"public class X01 {\n" + 
 		"\n" + 
@@ -4762,7 +4763,7 @@ public void testBug294500b() {
 		"\n" + 
 		"/**\n" + 
 		" * This sample produce an AIIOBE when formatting.\n" + 
-		" * \n" + 
+		" *\n" + 
 		" * <p>\n" + 
 		" * First paragraph {@link java.lang.String </code>a simple string<code>}.\n" + 
 		" */\n" + 
@@ -4812,18 +4813,18 @@ public void testBug294618a() {
 		" * <li>\n" + 
 		" * <p>\n" + 
 		" * First item\n" + 
-		" * \n" + 
+		" *\n" + 
 		" * <li>\n" + 
 		" * <p>\n" + 
 		" * Second item\n" + 
-		" * \n" + 
+		" *\n" + 
 		" * <li>\n" + 
 		" * <p>\n" + 
 		" * First paragraph of third item\n" + 
-		" * \n" + 
+		" *\n" + 
 		" * <p>\n" + 
 		" * Second paragraph of third item\n" + 
-		" * \n" + 
+		" *\n" + 
 		" * <blockquote>\n" + 
 		" * <table cellpadding=0 cellspacing=0 summary=\"layout\">\n" + 
 		" * <tr>\n" + 
@@ -5037,7 +5038,7 @@ public void testBug295175d() {
 		"	/**\n" + 
 		"	 * <p>\n" + 
 		"	 * Following p tag can miss a space before after formatting\n" + 
-		"	 * \n" + 
+		"	 *\n" + 
 		"	 * <p>\n" + 
 		"	 * <BR>\n" + 
 		"	 * <B>NOTE</B><BR>\n" + 

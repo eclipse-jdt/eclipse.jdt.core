@@ -13,7 +13,7 @@ package test.wksp.ganymede;
  * </em>}</li>
  * </ul>
  * </p>
- * 
+ *
  * @see org.eclipse.gmf.mappings.GMFMapPackage#getAuditedMetricTarget()
  * @model annotation=
  *        "http://www.eclipse.org/gmf/2005/constraints/meta def='context' ocl='\'ecore::EDoubleObject\''"

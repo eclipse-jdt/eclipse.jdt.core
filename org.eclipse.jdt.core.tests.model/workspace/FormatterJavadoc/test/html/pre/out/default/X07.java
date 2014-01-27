@@ -6,7 +6,7 @@ interface X07 {
 	 * within javadoc comments:
 	 * 
 	 * 
-	 * 
+	 *
 	 * 
 	 * 
 	 * 
@@ -15,7 +15,7 @@ interface X07 {
 	 * <pre>
 	 * 
 	 * 
-	 * 
+	 *
 	 * 
 	 * public class Example {
 	 * 	final int a = 1;
@@ -27,7 +27,7 @@ interface X07 {
 	 * 
 	 * </pre>
 	 * 
-	 * 
+	 *
 	 * 
 	 * 
 	 * Descriptions of parameters and return values are best appended at end of

@@ -23,7 +23,7 @@ interface X02 {
 	 * 
 	 * </pre>
 	 * 
-	 * 
+	 *
 	 * 
 	 * 
 	 * Descriptions of parameters and return values are best appended at end of
