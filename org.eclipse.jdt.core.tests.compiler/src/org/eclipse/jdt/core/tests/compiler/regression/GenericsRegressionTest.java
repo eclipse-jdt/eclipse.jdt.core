@@ -3684,4 +3684,51 @@ public void test426633e() {
 		"Type safety: Potential heap pollution via varargs parameter p\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426678, [1.8][compiler] Another issue with vararg type element accessibility
+public void test426678() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import p.*;\n" +
+			"public class X  {\n" +
+			"    public static void main(String argv[]) {\n" +
+			"        new B().foo(null, null);\n" +
+			"    }\n" +
+			"}\n",
+				
+			"p/B.java",
+			"package p;\n" +
+			"class A {\n" +
+			"}\n" +
+			"public class B extends A {\n" +
+			"    public <T extends A> void foo(T ... o) { System.out.println(\"PGMB\"); }\n" +
+			"    public void foo(Object... o) { System.out.println(\"MB\"); }\n" +
+			"}\n",
+		},
+		"MB");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426678, [1.8][compiler] Another issue with vararg type element accessibility
+public void test426678a() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import p.*;\n" +
+			"public class X  {\n" +
+			"    public static void main(String argv[]) {\n" +
+			"        new B().foo(null, null);\n" +
+			"    }\n" +
+			"}\n",
+			"p/A.java",
+			"package p;\n" +
+			"public class A {\n" +
+			"}\n",
+			"p/B.java",
+			"package p;\n" +
+			"public class B extends A {\n" +
+			"    public <T extends A> void foo(T ... o) { System.out.println(\"PGMB\"); }\n" +
+			"    public void foo(Object... o) { System.out.println(\"MB\"); }\n" +
+			"}\n",
+		},
+		"PGMB");
+}
 }
