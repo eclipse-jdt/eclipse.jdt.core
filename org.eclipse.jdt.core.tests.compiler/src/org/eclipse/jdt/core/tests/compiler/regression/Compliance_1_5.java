@@ -2968,7 +2968,7 @@ public void test088() {
 		"3. WARNING in p\\X.java (at line 39)\n" +
 		"	Method _getMethod = c.getMethod(\"d\",null);\n" +
 		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The argument of type null should explicitly be cast to Class[] for the invocation of the varargs method getMethod(String, Class...) from type Class. It could alternatively be cast to Class for a varargs invocation\n" +
+		"Type null of the last argument to method getMethod(String, Class...) doesn't exactly match the vararg parameter type. Cast to Class[] to confirm the non-varargs invocation, or pass individual arguments of type Class for a varargs invocation.\n" +
 		"----------\n";
 	String javaVersion = System.getProperty("java.version");
 	if (isJRELevel(AbstractCompilerTest.F_1_6|AbstractCompilerTest.F_1_7|AbstractCompilerTest.F_1_8)
@@ -2989,7 +2989,7 @@ public void test088() {
 			"3. WARNING in p\\X.java (at line 39)\n" +
 			"	Method _getMethod = c.getMethod(\"d\",null);\n" +
 			"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The argument of type null should explicitly be cast to Class[] for the invocation of the varargs method getMethod(String, Class...) from type Class. It could alternatively be cast to Class for a varargs invocation\n" +
+			"Type null of the last argument to method getMethod(String, Class...) doesn't exactly match the vararg parameter type. Cast to Class[] to confirm the non-varargs invocation, or pass individual arguments of type Class for a varargs invocation.\n" +
 			"----------\n" +
 			"4. WARNING in p\\X.java (at line 39)\n" +
 			"	Method _getMethod = c.getMethod(\"d\",null);\n" +

@@ -577,7 +577,7 @@ public void test_nonnull_parameter_015() {
 			"3. WARNING in X.java (at line 18)\n" + 
 			"	foo2(2, null);\n" + 
 			"	^^^^^^^^^^^^^\n" + 
-			"The argument of type null should explicitly be cast to Object[] for the invocation of the varargs method foo2(int, Object...) from type X. It could alternatively be cast to Object for a varargs invocation\n" + 
+			"Type null of the last argument to method foo2(int, Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 18)\n" + 
 			"	foo2(2, null);\n" + 
