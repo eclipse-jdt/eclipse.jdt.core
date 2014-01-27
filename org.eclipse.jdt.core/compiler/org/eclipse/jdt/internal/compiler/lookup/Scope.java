@@ -1235,18 +1235,12 @@ public abstract class Scope {
 						if (concreteMatch != null) {
 							if (methodVerifier.areMethodsCompatible(concreteMatch, compatibleMethod))
 								continue; // can skip this method since concreteMatch overrides it
-							if (compatibleMethod.isDefaultMethod() && methodVerifier.isParameterSubsignature(concreteMatch, compatibleMethod))
-								continue;
 						}
 						if (sourceLevel18) {
 							for (int j = 0; j < startFoundSize; j++) {
-								MethodBinding concreteMethod = (MethodBinding) found.elementAt(j);
-								if (concreteMethod != null) {
-									if (methodVerifier.areMethodsCompatible(concreteMethod, compatibleMethod))
-										continue next; // can skip this method since concreteMethod overrides it
-									if (compatibleMethod.isDefaultMethod() && methodVerifier.isParameterSubsignature(concreteMethod, compatibleMethod))
-										continue;
-								}
+								MethodBinding classMethod = (MethodBinding) found.elementAt(j);
+								if (classMethod != null && methodVerifier.areMethodsCompatible(classMethod, compatibleMethod))
+									continue next; // can skip this method since classMethod overrides it
 							}
 						}
 						if (candidatesCount == 0) {
@@ -4452,7 +4446,7 @@ public abstract class Scope {
 						break nextSpecific; // duplicates thru substitution
 
 					if (!original.isAbstract()) {
-						if (original2.isAbstract())
+						if (original2.isAbstract() || original2.isDefaultMethod())
 							continue; // only compare current against other concrete methods
 
 						original2 = original.findOriginalInheritedMethod(original2);
@@ -5009,3 +5003,4 @@ public abstract class Scope {
 		return applicable;
 	}
 }
+

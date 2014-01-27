@@ -3731,4 +3731,103 @@ public void test426678a() {
 		},
 		"PGMB");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425719, [1.8][compiler] Bogus ambiguous call error from compiler.
+public void test425719() {
+	String interfaceMethod = this.complianceLevel < ClassFileConstants.JDK1_8 ?
+			"   <T> void foo(List<T> list);\n" :
+				"   default <T> void foo(List<T> list) {\n" +
+				"	   System.out.println(\"interface method\");\n" +
+				"   }\n";
+			
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"interface I {\n" +
+			 interfaceMethod +
+			"}\n" +
+			"class Base {\n" +
+			"    public <T> void foo(List<T> list) {\n" +
+			"        System.out.println(\"class method\");\n" +
+			"   }\n" +
+			"}\n" +
+			"public class X extends Base implements I {\n" +
+			"	 public static void main(String argv[]) {\n" +
+			"	    	new X().foo(new ArrayList<String>());\n" +
+			"	    }\n" +
+			"}\n",
+		},
+		"class method");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425719, [1.8][compiler] Bogus ambiguous call error from compiler.
+public void test425719a() {
+	String interfaceMethod = this.complianceLevel < ClassFileConstants.JDK1_8 ?
+				"   <T> void foo(List<T> list);\n\n\n" :
+				"   default <T> void foo(List<T> list) {\n" +
+				"	   System.out.println(\"interface method\");\n" +
+				"   }\n";
+			
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"interface I {\n" +
+			 interfaceMethod +
+			"}\n" +
+			"abstract class Base {\n" +
+			"    public abstract <T> void foo(List<T> list);\n" +
+			"}\n" +
+			"public abstract class X extends Base implements I {\n" +
+			"	 public static void main(String argv[]) {\n" +
+			"           X x = new Y();\n" +
+			"	    	x.foo(new ArrayList<String>());\n" +
+			"	    }\n" +
+			"}\n" +
+			"class Y extends X {}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 17)\n" + 
+		"	class Y extends X {}\n" + 
+		"	      ^\n" + 
+		"The type Y must implement the inherited abstract method Base.foo(List<T>)\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425719, [1.8][compiler] Bogus ambiguous call error from compiler.
+public void test425719b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	String interfaceMethod = this.complianceLevel < ClassFileConstants.JDK1_8 ?
+				"   <T> void foo(List<T> list);\n\n\n" :
+				"   default <T> void foo(List<T> list) {\n" +
+				"	   System.out.println(\"interface method\");\n" +
+				"   }\n";
+			
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"interface I {\n" +
+			 interfaceMethod +
+			"}\n" +
+			"abstract class Base {\n" +
+			"    public abstract <T> void foo(List<T> list);\n" +
+			"}\n" +
+			"public abstract class X extends Base implements I {\n" +
+			"	 public static void main(String argv[]) {\n" +
+			"           X x = new Y();\n" +
+			"	    	x.foo(new ArrayList<String>());\n" +
+			"	    }\n" +
+			"}\n" +
+			"class Y extends X {\n" +
+			"    public <T> void foo(List<T> list) {\n" +
+			"        System.out.println(\"Y.foo\");\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"Y.foo");
+}
+}
+
