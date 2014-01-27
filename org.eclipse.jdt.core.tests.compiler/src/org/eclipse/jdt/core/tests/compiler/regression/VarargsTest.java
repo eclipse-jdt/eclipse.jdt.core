@@ -3425,4 +3425,27 @@ public class VarargsTest extends AbstractComparableTest {
 			System.setProperty("tolerateIllegalAmbiguousVarargsInvocation", "false");
 		}
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421922,  [1.8][compiler] Varargs & Overload - Align to JLS8
+	public void _test421922() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import p.*;\n" +
+				"public class X  {\n" +
+				"    public static void main(String argv[]) {\n" +
+				"        new B().foo(null, null);\n" +
+				"    }\n" +
+				"}\n",
+					
+				"p/B.java",
+				"package p;\n" +
+				"class A {\n" +
+				"}\n" +
+				"public class B extends A {\n" +
+				"    public void foo(A ... o) { System.out.println(\"MB:A\"); }\n" +
+				"    public void foo(Object... o) { System.out.println(\"MB:O\"); }\n" +
+				"}\n",
+			},
+			"MB"); // check and adjust,
+	}
 }
