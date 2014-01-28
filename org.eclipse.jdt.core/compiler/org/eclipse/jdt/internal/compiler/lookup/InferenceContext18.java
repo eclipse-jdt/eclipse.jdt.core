@@ -565,7 +565,7 @@ public class InferenceContext18 {
 		if (solution != null)
 			return false; // no update
 		this.solutionsPerTargetType.put(targetType, new Solution(updatedBinding, null));
-		this.stepCompleted = TYPE_INFERRED;
+		this.stepCompleted = Math.max(this.stepCompleted, TYPE_INFERRED);
 		return true;
 	}
 
@@ -1011,7 +1011,26 @@ public class InferenceContext18 {
 			TypeBinding targetType = getParameter(parameterTypes, i, isVarArgs);
 			if (!targetType.isProperType(true))
 				targetType = Scope.substitute(substitution, targetType);
-			this.invocationArguments[i].checkAgainstFinalTargetType(targetType);
+			Expression expression = this.invocationArguments[i];
+			expression.checkAgainstFinalTargetType(targetType);
+			if (expression instanceof Invocation) {
+				Invocation invocation = (Invocation) expression;
+				if (!this.innerPolies.contains(invocation)) {
+					MethodBinding method = invocation.binding(targetType);
+					if (method instanceof ParameterizedGenericMethodBinding) {
+						ParameterizedGenericMethodBinding previousBinding = (ParameterizedGenericMethodBinding) method;
+						InferenceContext18 innerCtx = invocation.getInferenceContext(previousBinding);
+						if (innerCtx != null) {
+							// we have a non-poly generic invocation, which needs inference but is not connected via innerPolis.
+							// Finish that inner inference now (incl. binding updates):
+							MethodBinding innerBinding = innerCtx.inferInvocationType(invocation, previousBinding);
+							if (invocation.updateBindings(innerBinding, targetType)) { // only if we are actually improving anything
+								ASTNode.resolvePolyExpressionArguments(invocation, innerBinding);
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 

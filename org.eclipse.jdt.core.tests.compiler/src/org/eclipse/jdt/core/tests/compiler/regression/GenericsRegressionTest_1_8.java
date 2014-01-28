@@ -19,7 +19,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug426671_" };
+//	TESTS_NAMES = new String[] { "testBug426778" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -1416,6 +1416,28 @@ public void testBug426652() {
 			"import static java.util.stream.Collectors.toList;\n" + 
 			"public class X {\n" + 
 			"	Object o = toList();\n" + 
+			"}\n"
+		});
+}
+public void testBug426778() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	void test(List<CourseProviderEmploymentStatistics> result) {\n" + 
+			"          Collections.sort( result, \n" + 
+			"              Comparator.comparingInt(\n" + 
+			"                  (CourseProviderEmploymentStatistics stat) ->  stat.doneTrainingsTotal\n" + 
+			"				)\n" + 
+			"              .reversed()\n" + 
+			"              .thenComparing(\n" + 
+			"                  (CourseProviderEmploymentStatistics stat) -> stat.courseProviderName ) );\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class CourseProviderEmploymentStatistics {\n" + 
+			"   int doneTrainingsTotal;\n" + 
+			"   String courseProviderName;\n" + 
 			"}\n"
 		});
 }
