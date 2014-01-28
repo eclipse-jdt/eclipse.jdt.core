@@ -1517,4 +1517,16 @@ public void testBug424591_comment22() {
 			"}\n"
 		});
 }
+public void testBug425063() {
+    runConformTest(
+        new String[] {
+            "ComparatorUse.java",
+            "import java.util.Comparator;\n" + 
+            "public class ComparatorUse {\n" + 
+            "   Comparator<String> c =\n" + 
+            "           Comparator.comparing((String s)->s.toString())\n" + 
+            "           .thenComparing(s -> s.length());\n" + 
+            "}\n"
+        });
+}
 }
