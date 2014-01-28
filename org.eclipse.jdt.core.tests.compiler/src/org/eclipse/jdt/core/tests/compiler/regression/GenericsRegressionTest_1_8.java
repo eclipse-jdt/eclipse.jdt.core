@@ -19,7 +19,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug426671b" };
+//	TESTS_NAMES = new String[] { "testBug426671_" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -1327,6 +1327,38 @@ public void testBug426540() {
 			"import static java.util.stream.Collectors.toList;\n" + 
 			"public class X {\n" + 
 			"	Object o = ((Stream<Integer>) null).collect(collectingAndThen(toList(), Collections::unmodifiableList));\n" + 
+			"}\n"
+		});
+}
+public void testBug426671_ok() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.stream.Stream;\n" + 
+			"import java.util.*;\n" + 
+			"import static java.util.stream.Collectors.collectingAndThen;\n" + 
+			"import static java.util.stream.Collectors.toList;\n" + 
+			"public class X {\n" +
+			"	void test(Stream<List<Integer>> stream) {\n" +
+			"		stream.collect(collectingAndThen(toList(), Collections::<List<Integer>>unmodifiableList))\n" +
+			"			.remove(0);\n" +
+			"	}\n" + 
+			"}\n"
+		});
+}
+public void _testBug426671_medium() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.stream.Stream;\n" + 
+			"import java.util.*;\n" + 
+			"import static java.util.stream.Collectors.collectingAndThen;\n" + 
+			"import static java.util.stream.Collectors.toList;\n" + 
+			"public class X {\n" +
+			"	void test(Stream<List<Integer>> stream) {\n" +
+			"		stream.collect(collectingAndThen(toList(), Collections::unmodifiableList))\n" +
+			"			.remove(0);\n" +
+			"	}\n" + 
 			"}\n"
 		});
 }
