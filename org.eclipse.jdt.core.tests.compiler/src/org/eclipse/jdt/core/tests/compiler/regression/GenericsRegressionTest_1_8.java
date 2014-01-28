@@ -19,7 +19,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug426778" };
+//	TESTS_NAMES = new String[] { "testBug426676" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -1438,6 +1438,31 @@ public void testBug426778() {
 			"class CourseProviderEmploymentStatistics {\n" + 
 			"   int doneTrainingsTotal;\n" + 
 			"   String courseProviderName;\n" + 
+			"}\n"
+		});
+}
+public void testBug426676() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.Arrays;\n" + 
+			"import java.util.function.Supplier;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"    public static void main(String[] args) throws Exception {\n" + 
+			"        // Type inference works on map call.\n" + 
+			"        Stream<String> s1 =\n" + 
+			"        Arrays.stream(new Integer[] { 1, 2 })\n" + 
+			"              .map(i -> i.toString());\n" + 
+			"        \n" + 
+			"        // Type inference doesn't work on map call.\n" + 
+			"        Stream<String> s2 =\n" + 
+			"        Arrays.stream(new Integer[] { 1, 2 })\n" + 
+			"              .map(i -> i.toString())\n" + 
+			"              .distinct();\n" + 
+			"    }\n" + 
 			"}\n"
 		});
 }

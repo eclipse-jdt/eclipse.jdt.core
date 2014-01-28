@@ -21,6 +21,7 @@
  *								bug 406928 - computation of inherited methods seems damaged (affecting @Overrides)
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 424286 - [1.8] Update type inference to spec version 0.9.1
+ *								Bug 426676 - [1.8][compiler] Wrong generic method type inferred from lambda expression
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -19720,7 +19721,11 @@ public void test0617() {
     		"1. ERROR in X.java (at line 9)\n" +
     		"	String s = foo(l1, l2);\n" +
     		"	           ^^^^^^^^^^^\n" +
-    		"Type mismatch: cannot convert from List<capture#2-of ? extends Object&Serializable&Comparable<?>> to String\n" +
+    		(this.complianceLevel < ClassFileConstants.JDK1_8 ? 
+    		"Type mismatch: cannot convert from List<capture#2-of ? extends Object&Serializable&Comparable<?>> to String\n"
+			:
+			"Type mismatch: cannot convert from List<? extends Object&Serializable&Comparable<?>> to String\n"
+    		) +
     		"----------\n");
 	}
 	// check capture for conditional operator
@@ -19751,13 +19756,8 @@ public void test0617() {
 	    			"----------\n" + 
 	    			"1. ERROR in X.java (at line 10)\n" + 
 	    			"	String s = l1 != null ? foo(l1, l2) : l3;\n" + 
-	    			"	                        ^^^^^^^^^^^\n" + 
-	    			"Type mismatch: cannot convert from List<capture#2-of ? extends Number&Comparable<?>> to String\n" + 
-	    			"----------\n" + 
-	    			"2. ERROR in X.java (at line 10)\n" + 
-	    			"	String s = l1 != null ? foo(l1, l2) : l3;\n" + 
-	    			"	                                      ^^\n" + 
-	    			"Type mismatch: cannot convert from List<capture#3-of ?> to String\n" + 
+		    		"	                        ^^^^^^^^^^^\n" +
+		    		"Type mismatch: cannot convert from List<? extends Number&Comparable<?>> to String\n" +
 	    			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=92556

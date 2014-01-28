@@ -13,11 +13,14 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
+ *							Bug 426676 - [1.8][compiler] Wrong generic method type inferred from lambda expression
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.lookup;
+
+import java.util.Set;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
@@ -198,5 +201,22 @@ public class IntersectionCastTypeBinding extends ReferenceBinding {
 			samType = typeBinding;
 		}
 		return samType;
+	}
+
+	@Override
+	void collectInferenceVariables(Set<InferenceVariable> variables) {
+		for (int i = 0; i < this.intersectingTypes.length; i++)
+			this.intersectingTypes[i].collectInferenceVariables(variables);
+	}
+	
+	@Override
+	public boolean mentionsAny(TypeBinding[] parameters, int idx) {
+		if (super.mentionsAny(parameters, idx))
+			return true;
+		for (int i = 0; i < this.intersectingTypes.length; i++) {
+			if (this.intersectingTypes[i].mentionsAny(parameters, -1))
+				return true;
+		}
+		return false;
 	}
 }

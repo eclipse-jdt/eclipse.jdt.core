@@ -118,6 +118,11 @@ public void collectSubstitutes(Scope scope, TypeBinding actualType, InferenceCon
 	}
 }
 
+@Override
+public boolean mentionsAny(TypeBinding[] parameters, int idx) {
+	return this.leafComponentType.mentionsAny(parameters, idx);
+}
+
 void collectInferenceVariables(Set<InferenceVariable> variables) {
 	this.leafComponentType.collectInferenceVariables(variables);
 }

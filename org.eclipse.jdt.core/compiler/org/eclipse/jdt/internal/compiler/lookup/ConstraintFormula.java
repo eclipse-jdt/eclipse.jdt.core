@@ -59,7 +59,8 @@ abstract class ConstraintFormula extends ReductionResult {
 	Collection<InferenceVariable> outputVariables(InferenceContext18 context) {
 		Set<InferenceVariable> variables = new HashSet<InferenceVariable>();
 		this.right.collectInferenceVariables(variables);
-		variables.removeAll(inputVariables(context));
+		if (!variables.isEmpty())
+			variables.removeAll(inputVariables(context));
 		return variables;
 	}
 
