@@ -3749,6 +3749,29 @@ public void test426678a() {
 		},
 		"PGMB");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421922, [1.8][compiler] Varargs & Overload - Align to JLS8
+public void _test421922() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import p.*;\n" +
+			"public class X  {\n" +
+			"    public static void main(String argv[]) {\n" +
+			"        new B().foo(null, null);\n" +
+			"    }\n" +
+			"}\n",
+				
+			"p/B.java",
+			"package p;\n" +
+			"interface A {\n" +
+			"}\n" +
+			"public class B implements A {\n" +
+			"    public <T extends A> void foo(T ... o) { System.out.println(\"PGMB\"); }\n" +
+			"    public void foo(Object... o) { System.out.println(\"MB\"); }\n" +
+			"}\n",
+		},
+		"PGMB");
+}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425719, [1.8][compiler] Bogus ambiguous call error from compiler.
 public void test425719() {
 	String interfaceMethod = this.complianceLevel < ClassFileConstants.JDK1_8 ?
