@@ -241,23 +241,23 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				case Binding.INTERSECTION_TYPE:
 					{
 						WildcardBinding intersection = (WildcardBinding) subCandidate;
-						int numArrayBounds = 0;
-						if (intersection.bound.isArrayType()) numArrayBounds++;
-						for (int i = 0; i < intersection.otherBounds.length; i++) {
-							if (intersection.otherBounds[i].isArrayType()) numArrayBounds++;
-						}
-						if (numArrayBounds == 0)
-							return FALSE;
-						InferenceContext18.missingImplementation("Cannot filter most specific array type"); //$NON-NLS-1$
-						// FIXME assign sPrime
+						sPrimeArray = findMostSpecificSuperArray(intersection.bound, intersection.otherBounds, intersection);
 						break;
 					}
 				case Binding.ARRAY_TYPE:
 					sPrimeArray = (ArrayBinding) subCandidate;
 					break;
+				case Binding.TYPE_PARAMETER:
+					{
+						TypeVariableBinding subTVB = (TypeVariableBinding)subCandidate;
+						sPrimeArray = findMostSpecificSuperArray(subTVB.firstBound, subTVB.otherUpperBounds(), subTVB);
+						break;
+					}
 				default:					
 					return FALSE;
 				}
+				if (sPrimeArray == null)
+					return FALSE;
 				TypeBinding sPrime = sPrimeArray.elementsType();
 				if (!tPrime.isBaseType() && !sPrime.isBaseType()) {
 					return new ConstraintTypeFormula(sPrime, tPrime, SUBTYPE, this.isSoft);
@@ -287,6 +287,27 @@ class ConstraintTypeFormula extends ConstraintFormula {
 		throw new IllegalStateException("Unexpected RHS "+superCandidate); //$NON-NLS-1$
 	}
 	
+	private ArrayBinding findMostSpecificSuperArray(TypeBinding firstBound, TypeBinding[] otherUpperBounds, TypeBinding theType) {
+		int numArrayBounds = 0;
+		ArrayBinding result = null;
+		if (firstBound.isArrayType()) {
+			result = (ArrayBinding) firstBound;
+			numArrayBounds++;
+		}
+		for (int i = 0; i < otherUpperBounds.length; i++) {
+			if (otherUpperBounds[i].isArrayType()) {
+				result = (ArrayBinding) otherUpperBounds[i];
+				numArrayBounds++;
+			}
+		}
+		if (numArrayBounds == 0)
+			return null;
+		if (numArrayBounds == 1)
+			return result;
+		InferenceContext18.missingImplementation("Extracting array from intersection is not defined"); //$NON-NLS-1$
+		return null;
+	}
+
 	private boolean hasSuperType(ReferenceBinding sub, ReferenceBinding superType) {
 		if (TypeBinding.equalsEquals(sub, superType))
 			return true;

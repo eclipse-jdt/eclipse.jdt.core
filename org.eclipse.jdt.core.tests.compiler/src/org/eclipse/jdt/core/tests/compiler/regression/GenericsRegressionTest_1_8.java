@@ -1466,4 +1466,55 @@ public void testBug426676() {
 			"}\n"
 		});
 }
+public void testBug424591_comment20() {
+	runConformTest(
+		new String[] {
+			"MyList.java",
+			"import java.util.Arrays;\n" + 
+			"public class MyList {\n" + 
+			"    protected Object[] elements;\n" + 
+			"    private int size;\n" + 
+			"    @SuppressWarnings(\"unchecked\")\n" + 
+			"    public <A> A[] toArray(A[] a) {\n" + 
+			"        return (A[]) Arrays.copyOf(elements, size, a.getClass());\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+public void testBug424591_comment20_variant() {
+	runNegativeTest(
+		new String[] {
+			"MyList.java",
+			"import java.util.Arrays;\n" + 
+			"public class MyList {\n" + 
+			"    protected Object[] elements;\n" + 
+			"    private int size;\n" + 
+			"    @SuppressWarnings(\"unchecked\")\n" + 
+			"    public <A> A[] toArray(A[] a) {\n" + 
+			"        return (A[]) Arrays.copyOf(elements, size, getClass());\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in MyList.java (at line 7)\n" + 
+		"	return (A[]) Arrays.copyOf(elements, size, getClass());\n" + 
+		"	                    ^^^^^^\n" + 
+		"The method copyOf(U[], int, Class<? extends T[]>) in the type Arrays is not applicable for the arguments (Object[], int, Class<capture#1-of ? extends MyList>)\n" + 
+		"----------\n");
+}
+public void testBug424591_comment22() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.*;\n" + 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"        Test.forObject(new HashSet<>());\n" + 
+			"	}\n" + 
+			"    public static Test forObject(Object o) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }
