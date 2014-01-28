@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 GK Software AG.
+ * Copyright (c) 2013, 2014 GK Software AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,6 @@ import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
  * <li>Expression contains<sub>throws</sub> T</li>
  * </ul>
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class ConstraintExceptionFormula extends ConstraintFormula {
 
 	FunctionalExpression left;
@@ -98,7 +97,7 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 			}
 			return TRUE;
 		} else {
-			List result = new ArrayList();
+			List<ConstraintFormula> result = new ArrayList<ConstraintFormula>();
 			actual: for (int i = 0; i < m; i++) {
 				for (int j = 0; j < thrown.length; j++)
 					if (thrown[j].isProperType(true) && ePrime[i].isCompatibleWith(thrown[j]))
@@ -112,16 +111,16 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 		}
 	}
 
-	Collection inputVariables(final InferenceContext18 context) {
+	Collection<InferenceVariable> inputVariables(final InferenceContext18 context) {
 		// from 18.5.2.
 		if (this.left instanceof LambdaExpression) {
 			if (this.right instanceof InferenceVariable) {
-				return Collections.singletonList(this.right);
+				return Collections.singletonList((InferenceVariable)this.right);
 			}
 			if (this.right.isFunctionalInterface(context.scope)) {
 				LambdaExpression lambda = (LambdaExpression) this.left;
 				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope, true); // TODO derive with target type?
-				final Set variables = new HashSet();
+				final Set<InferenceVariable> variables = new HashSet<InferenceVariable>();
 				if (lambda.argumentsTypeElided()) {
 					// i)
 					int len = sam.parameters.length;
@@ -137,11 +136,11 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 			}
 		} else if (this.left instanceof ReferenceExpression) {
 			if (this.right instanceof InferenceVariable) {
-				return Collections.singletonList(this.right);
+				return Collections.singletonList((InferenceVariable)this.right);
 			}
 			if (this.right.isFunctionalInterface(context.scope)) { // TODO: && this.left is inexact
 				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope, true); // TODO derive with target type?
-				final Set variables = new HashSet();
+				final Set<InferenceVariable> variables = new HashSet<InferenceVariable>();
 				int len = sam.parameters.length;
 				for (int i = 0; i < len; i++) {
 					sam.parameters[i].collectInferenceVariables(variables);

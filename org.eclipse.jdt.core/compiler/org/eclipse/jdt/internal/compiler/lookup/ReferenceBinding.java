@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,7 @@
  *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
+ *								Bug 426792 - [1.8][inference][impl] generify new type inference engine
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -56,7 +57,6 @@ Non-public fields have accessors which should be used everywhere you expect the 
 null is NOT a valid value for a non-public field... it just means the field is not initialized.
 */
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 abstract public class ReferenceBinding extends TypeBinding {
 
 	public char[][] compoundName;
@@ -77,17 +77,17 @@ abstract public class ReferenceBinding extends TypeBinding {
 		public boolean hasTypeBit(int bit) { return false; }
 	};
 
-	private static final Comparator FIELD_COMPARATOR = new Comparator() {
-		public int compare(Object o1, Object o2) {
-			char[] n1 = ((FieldBinding) o1).name;
-			char[] n2 = ((FieldBinding) o2).name;
+	private static final Comparator<FieldBinding> FIELD_COMPARATOR = new Comparator<FieldBinding>() {
+		public int compare(FieldBinding o1, FieldBinding o2) {
+			char[] n1 = o1.name;
+			char[] n2 = o2.name;
 			return ReferenceBinding.compare(n1, n2, n1.length, n2.length);
 		}
 	};
-	private static final Comparator METHOD_COMPARATOR = new Comparator() {
-		public int compare(Object o1, Object o2) {
-			MethodBinding m1 = (MethodBinding) o1;
-			MethodBinding m2 = (MethodBinding) o2;
+	private static final Comparator<MethodBinding> METHOD_COMPARATOR = new Comparator<MethodBinding>() {
+		public int compare(MethodBinding o1, MethodBinding o2) {
+			MethodBinding m1 = o1;
+			MethodBinding m2 = o2;
 			char[] s1 = m1.selector;
 			char[] s2 = m2.selector;
 			int c = ReferenceBinding.compare(s1, s2, s1.length, s2.length);

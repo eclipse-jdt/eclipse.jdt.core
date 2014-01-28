@@ -135,7 +135,6 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  * 		See also {@link #getParameter(TypeBinding[], int, boolean)} and its clients.</li>
  * </ul>
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class InferenceContext18 {
 
 	/** to conform with javac regarding https://bugs.openjdk.java.net/browse/JDK-8026527 */
@@ -168,7 +167,7 @@ public class InferenceContext18 {
 	BoundSet storedSolution;
 
 	/** For each candidate target type imposed from the outside store the solution of invocation type inference. */
-	Map/*<TypeBinding,Solution>*/ solutionsPerTargetType = new HashMap();
+	Map<TypeBinding,Solution> solutionsPerTargetType = new HashMap<TypeBinding, Solution>();
 
 	/** One of CHECK_STRICT, CHECK_LOOSE, or CHECK_VARARGS. */
 	int inferenceKind;
@@ -184,15 +183,15 @@ public class InferenceContext18 {
 	public static final int BINDINGS_UPDATED = 3;
 	
 	/** Signals whether any type compatibility makes use of unchecked conversion. */
-	public List constraintsWithUncheckedConversion;
+	public List<ConstraintFormula> constraintsWithUncheckedConversion;
 
 	// ---
 
 	/** Inner poly invocations which have been included in this inference. */
-	List/*<InvocationSite>*/ innerPolies = new ArrayList();
+	List<InvocationSite> innerPolies = new ArrayList<InvocationSite>();
 	/** Link to an outer inference context, used for bundled error reporting. */
 	public InferenceContext18 outerContext;
-	private ArrayList problemMethods;
+	private ArrayList<MethodBinding> problemMethods;
 
 	Scope scope;
 	LookupEnvironment environment;
@@ -392,7 +391,7 @@ public class InferenceContext18 {
 			// 4. bullet: assemble C:
 			TypeBinding[] fs;
 			Expression[] arguments = this.invocationArguments;
-			Set c = new HashSet();
+			Set<ConstraintFormula> c = new HashSet<ConstraintFormula>();
 			if (arguments != null) {
 				int k = arguments.length;
 				int p = method.parameters.length;
@@ -423,25 +422,25 @@ public class InferenceContext18 {
 			// 5. bullet: determine B3 from C
 			while (!c.isEmpty()) {
 				// *
-				Set bottomSet = findBottomSet(c, allOutputVariables(c));
+				Set<ConstraintFormula> bottomSet = findBottomSet(c, allOutputVariables(c));
 				if (bottomSet.isEmpty()) {
 					bottomSet.add(pickFromCycle(c)); 
 				}
 				// *
 				c.removeAll(bottomSet);
 				// * The union of the input variables of all the selected constraints, α1, ..., αm, ...
-				Set allInputs = new HashSet();
-				Iterator bottomIt = bottomSet.iterator();
+				Set<InferenceVariable> allInputs = new HashSet<InferenceVariable>();
+				Iterator<ConstraintFormula> bottomIt = bottomSet.iterator();
 				while (bottomIt.hasNext()) {
-					allInputs.addAll(((ConstraintFormula)bottomIt.next()).inputVariables(this));
+					allInputs.addAll(bottomIt.next().inputVariables(this));
 				}
-				InferenceVariable[] variablesArray = (InferenceVariable[]) allInputs.toArray(new InferenceVariable[allInputs.size()]);
+				InferenceVariable[] variablesArray = allInputs.toArray(new InferenceVariable[allInputs.size()]);
 				//   ... is resolved
 				BoundSet solution = resolve();
 				// * ~ apply substitutions to all constraints: 
 				bottomIt = bottomSet.iterator();
 				while (bottomIt.hasNext()) {
-					ConstraintFormula constraint = ((ConstraintFormula)bottomIt.next());
+					ConstraintFormula constraint = bottomIt.next();
 					if (solution != null)
 						if (!constraint.applySubstitution(solution, variablesArray))
 							return null;
@@ -462,7 +461,7 @@ public class InferenceContext18 {
 		}
 	}
 
-	private void addExceptionConstraint(Set c, Expression argument, TypeBinding substF) {
+	private void addExceptionConstraint(Set<ConstraintFormula> c, Expression argument, TypeBinding substF) {
 		if (argument instanceof FunctionalExpression) {
 			c.add(new ConstraintExceptionFormula((FunctionalExpression) argument, substF));
 		} else if (argument instanceof ConditionalExpression) {
@@ -492,7 +491,7 @@ public class InferenceContext18 {
 		boolean haveProperTargetType = targetType != null && targetType.isProperType(true);
 		if (haveProperTargetType || invocation.getExpressionContext() == ExpressionContext.VANILLA_CONTEXT) {
 			MethodBinding original = method.originalMethod;
-			Solution solution = (Solution) this.solutionsPerTargetType.get(targetType);
+			Solution solution = this.solutionsPerTargetType.get(targetType);
 			BoundSet result = solution != null ? solution.bounds : null;
 			if (result == null) {
 				// start over from a previous candidate but discard its type variable instantiations
@@ -562,7 +561,7 @@ public class InferenceContext18 {
 	}
 
 	public boolean registerSolution(TypeBinding targetType, MethodBinding updatedBinding) {
-		Solution solution = (Solution) this.solutionsPerTargetType.get(targetType);
+		Solution solution = this.solutionsPerTargetType.get(targetType);
 		if (solution != null)
 			return false; // no update
 		this.solutionsPerTargetType.put(targetType, new Solution(updatedBinding, null));
@@ -655,12 +654,12 @@ public class InferenceContext18 {
 		BoundSet tmpBoundSet = this.currentBounds;
 		if (this.inferenceVariables != null) {
 			// find a minimal set of dependent variables:
-			Set variableSet;
+			Set<InferenceVariable> variableSet;
 			while ((variableSet = getSmallestVariableSet(tmpBoundSet)) != null) {
 				int oldNumUninstantiated = tmpBoundSet.numUninstantiatedVariables(this.inferenceVariables);
 				final int numVars = variableSet.size();
 				if (numVars > 0) {
-					final InferenceVariable[] variables = (InferenceVariable[]) variableSet.toArray(new InferenceVariable[numVars]);
+					final InferenceVariable[] variables = variableSet.toArray(new InferenceVariable[numVars]);
 					if (!tmpBoundSet.hasCaptureBound(variableSet)) {
 						// try to instantiate this set of variables in a fresh copy of the bound set:
 						BoundSet prevBoundSet = tmpBoundSet;
@@ -743,10 +742,10 @@ public class InferenceContext18 {
 						}
 						if (tmpBoundSet == this.currentBounds)
 							tmpBoundSet = tmpBoundSet.copy();
-						Iterator captureKeys = tmpBoundSet.captures.keySet().iterator();
-						Set toRemove = new HashSet();
+						Iterator<ParameterizedTypeBinding> captureKeys = tmpBoundSet.captures.keySet().iterator();
+						Set<ParameterizedTypeBinding> toRemove = new HashSet<ParameterizedTypeBinding>();
 						while (captureKeys.hasNext()) {
-							ParameterizedTypeBinding key = (ParameterizedTypeBinding) captureKeys.next();
+							ParameterizedTypeBinding key = captureKeys.next();
 							int len = key.arguments.length;
 							for (int i = 0; i < len; i++) {
 								if (key.arguments[i] == variable) { //$IDENTITY-COMPARISON$
@@ -805,9 +804,9 @@ public class InferenceContext18 {
 	}
 
 	static void sortTypes(TypeBinding[] types) {
-		Arrays.sort(types, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				int i1 = ((TypeBinding)o1).id, i2 = ((TypeBinding)o2).id; 
+		Arrays.sort(types, new Comparator<TypeBinding>() {
+			public int compare(TypeBinding o1, TypeBinding o2) {
+				int i1 = o1.id, i2 = o2.id; 
 				return (i1<i2 ? -1 : (i1==i2 ? 0 : 1));
 			}
 		});
@@ -817,13 +816,13 @@ public class InferenceContext18 {
 	 * Find the smallest set of uninstantiated inference variables not depending
 	 * on any uninstantiated variable outside the set.
 	 */
-	private Set getSmallestVariableSet(BoundSet bounds) {
+	private Set<InferenceVariable> getSmallestVariableSet(BoundSet bounds) {
 		int min = Integer.MAX_VALUE;
-		Set result = null;
+		Set<InferenceVariable> result = null;
 		for (int i = 0; i < this.inferenceVariables.length; i++) {
 			InferenceVariable currentVariable = this.inferenceVariables[i];
 			if (!bounds.isInstantiated(currentVariable)) {
-				Set set = new HashSet();
+				Set<InferenceVariable> set = new HashSet<InferenceVariable>();
 				if (!addDependencies(bounds, set, currentVariable, min))
 					continue;
 				int cur = set.size();
@@ -838,7 +837,7 @@ public class InferenceContext18 {
 		return result;
 	}
 
-	private boolean addDependencies(BoundSet boundSet, Set variableSet, InferenceVariable currentVariable, int min) {
+	private boolean addDependencies(BoundSet boundSet, Set<InferenceVariable> variableSet, InferenceVariable currentVariable, int min) {
 		if (variableSet.size() >= min)
 			return false; // no improvement
 		if (boundSet.isInstantiated(currentVariable)) return true; // not added
@@ -853,28 +852,28 @@ public class InferenceContext18 {
 		return true;
 	}
 
-	private Object pickFromCycle(Set c) {
+	private ConstraintFormula pickFromCycle(Set<ConstraintFormula> c) {
 		missingImplementation("Breaking a dependency cycle NYI"); //$NON-NLS-1$
 		return null; // never
 	}
 
-	private Set findBottomSet(Set constraints, Set allOutputVariables) {
+	private Set<ConstraintFormula> findBottomSet(Set<ConstraintFormula> constraints, Set<InferenceVariable> allOutputVariables) {
 		// 18.5.2 bullet 6.1
 		//  A subset of constraints is selected, satisfying the property
 		// that, for each constraint, no input variable depends on an
 		// output variable of another constraint in C ...
-		Set result = new HashSet();
-		Iterator it = constraints.iterator();
+		Set<ConstraintFormula> result = new HashSet<ConstraintFormula>();
+		Iterator<ConstraintFormula> it = constraints.iterator();
 		constraintLoop: while (it.hasNext()) {
-			ConstraintFormula constraint = (ConstraintFormula)it.next();
-			Iterator inputIt = constraint.inputVariables(this).iterator();
-			Iterator outputIt = allOutputVariables.iterator();
+			ConstraintFormula constraint = it.next();
+			Iterator<InferenceVariable> inputIt = constraint.inputVariables(this).iterator();
+			Iterator<InferenceVariable> outputIt = allOutputVariables.iterator();
 			while (inputIt.hasNext()) {
-				InferenceVariable in = (InferenceVariable) inputIt.next();
+				InferenceVariable in = inputIt.next();
 				if (allOutputVariables.contains(in)) // not explicit in the spec, but let's assume any inference variable depends on itself
 					continue constraintLoop;
 				while (outputIt.hasNext()) {
-					if (this.currentBounds.dependsOnResolutionOf(in, (InferenceVariable) outputIt.next()))
+					if (this.currentBounds.dependsOnResolutionOf(in, outputIt.next()))
 						continue constraintLoop;
 				}
 			}
@@ -883,11 +882,11 @@ public class InferenceContext18 {
 		return result;
 	}
 
-	Set allOutputVariables(Set constraints) {
-		Set result = new HashSet();
-		Iterator it = constraints.iterator();
+	Set<InferenceVariable> allOutputVariables(Set<ConstraintFormula> constraints) {
+		Set<InferenceVariable> result = new HashSet<InferenceVariable>();
+		Iterator<ConstraintFormula> it = constraints.iterator();
 		while (it.hasNext()) {
-			result.addAll(((ConstraintFormula)it.next()).outputVariables(this));
+			result.addAll(it.next().outputVariables(this));
 		}
 		return result;
 	}
@@ -937,7 +936,7 @@ public class InferenceContext18 {
 		if (targetType == null || !targetType.isProperType(true)) {
 			if (site.getExpressionContext() == ExpressionContext.VANILLA_CONTEXT) {
 				// in this case we may not yet have the solution(?, get or compute it now:
-				Solution solution = (Solution) this.solutionsPerTargetType.get(targetType);
+				Solution solution = this.solutionsPerTargetType.get(targetType);
 				try {
 					if (solution != null && solution.bounds != null)
 						bounds = solution.bounds;
@@ -950,7 +949,7 @@ public class InferenceContext18 {
 					return false;
 			}
 		} else {
-			Solution solution = (Solution) this.solutionsPerTargetType.get(targetType);
+			Solution solution = this.solutionsPerTargetType.get(targetType);
 			if (solution != null && solution.bounds != null)
 				bounds = solution.bounds;
 		}
@@ -1110,7 +1109,7 @@ public class InferenceContext18 {
 
 	public void addProblemMethod(ProblemMethodBinding problemMethod) {
 		if (this.problemMethods == null)
-			this.problemMethods = new ArrayList();
+			this.problemMethods = new ArrayList<MethodBinding>();
 		this.problemMethods.add(problemMethod);
 	}
 
@@ -1198,7 +1197,7 @@ public class InferenceContext18 {
 	/** Record the fact that the given constraint requires unchecked conversion. */
 	public void recordUncheckedConversion(ConstraintTypeFormula constraint) {
 		if (this.constraintsWithUncheckedConversion == null)
-			this.constraintsWithUncheckedConversion = new ArrayList();
+			this.constraintsWithUncheckedConversion = new ArrayList<ConstraintFormula>();
 		this.constraintsWithUncheckedConversion.add(constraint);
 	}
 	

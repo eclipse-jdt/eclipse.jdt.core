@@ -63,7 +63,7 @@ public class InferenceVariable extends TypeVariableBinding {
 		return this;
 	}
 
-	void collectInferenceVariables(Set variables) {
+	void collectInferenceVariables(Set<InferenceVariable> variables) {
 		variables.add(this);
 	}
 

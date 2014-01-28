@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 426792 - [1.8][inference][impl] generify new type inference engine
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -56,7 +57,6 @@ import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class Expression extends Statement implements ExpressionContext {
 
 	public Constant constant;
@@ -827,15 +827,15 @@ public void generateOptimizedStringConcatenationCreation(BlockScope blockScope, 
 }
 
 private MethodBinding[] getAllOriginalInheritedMethods(ReferenceBinding binding) {
-	ArrayList collector = new ArrayList();
+	ArrayList<MethodBinding> collector = new ArrayList<MethodBinding>();
 	getAllInheritedMethods0(binding, collector);
 	for (int i = 0, len = collector.size(); i < len; i++) {
-		collector.set(i, ((MethodBinding)collector.get(i)).original());
+		collector.set(i, collector.get(i).original());
 	}
-	return (MethodBinding[]) collector.toArray(new MethodBinding[collector.size()]);
+	return collector.toArray(new MethodBinding[collector.size()]);
 }
 
-private void getAllInheritedMethods0(ReferenceBinding binding, ArrayList collector) {
+private void getAllInheritedMethods0(ReferenceBinding binding, ArrayList<MethodBinding> collector) {
 	if (!binding.isInterface()) return;
 	MethodBinding[] methodBindings = binding.methods();
 	for (int i = 0, max = methodBindings.length; i < max; i++) {

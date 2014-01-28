@@ -28,7 +28,6 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  * <li>S <= T <em>type argument containment</em></li>
  * </ul>
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 class ConstraintTypeFormula extends ConstraintFormula {
 
 	TypeBinding left;
@@ -220,7 +219,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				}
 			case Binding.PARAMETERIZED_TYPE:
 				{
-					List constraints = new ArrayList();
+					List<ConstraintFormula> constraints = new ArrayList<ConstraintFormula>();
 					while (superCandidate instanceof ParameterizedTypeBinding && subCandidate != null)  {
 						if (!addConstraintsFromTypeParamters(subCandidate, (ParameterizedTypeBinding) superCandidate, constraints))
 							return FALSE;
@@ -304,7 +303,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 		return false;
 	}
 
-	boolean addConstraintsFromTypeParamters(TypeBinding subCandidate, ParameterizedTypeBinding ca, List constraints) {
+	boolean addConstraintsFromTypeParamters(TypeBinding subCandidate, ParameterizedTypeBinding ca, List<ConstraintFormula> constraints) {
 		TypeBinding[] ai = ca.arguments;								// C<A1,A2,...>
 		if (ai == null)
 			return true; // no arguments here means nothing to check

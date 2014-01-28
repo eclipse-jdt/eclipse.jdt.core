@@ -40,7 +40,6 @@ import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18.InvocationRec
  * <li>Expression -> T</li>
  * </ul>
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 class ConstraintExpressionFormula extends ConstraintFormula {
 	Expression left;
 
@@ -155,7 +154,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					if (!lambda.isValueCompatible())
 						return FALSE;
 				}
-				List result = new ArrayList();
+				List<ConstraintFormula> result = new ArrayList<ConstraintFormula>();
 				if (!lambda.argumentsTypeElided()) {
 					Argument[] arguments = lambda.arguments();
 					for (int i = 0; i < parameters.length; i++)
@@ -221,7 +220,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 		if (potentiallyApplicable == null)
 			return FALSE;
 		if (reference.isExactMethodReference()) {
-			List /*<ConstraintFormula>*/ newConstraints = new ArrayList();
+			List<ConstraintFormula> newConstraints = new ArrayList<ConstraintFormula>();
 			TypeBinding[] p = functionType.parameters;
 			int n = p.length;
 			TypeBinding[] pPrime = potentiallyApplicable.parameters;
@@ -333,7 +332,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			if (parameterizedType != null && parameterizedType.arguments != null) {
 				TypeBinding[] arguments = parameterizedType.arguments;
 				InferenceVariable[] betas = inferenceContext.addTypeVariableSubstitutions(arguments);
-				TypeBinding gbeta = inferenceContext.environment.createParameterizedType(
+				ParameterizedTypeBinding gbeta = inferenceContext.environment.createParameterizedType(
 						parameterizedType.genericType(), betas, parameterizedType.enclosingType(), parameterizedType.getTypeAnnotations());
 				inferenceContext.currentBounds.captures.put(gbeta, parameterizedType); // established: both types have nonnull arguments
 				ConstraintTypeFormula newConstraint = new ConstraintTypeFormula(gbeta, targetType, COMPATIBLE);
@@ -365,16 +364,16 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 		return true;
 	}
 
-	Collection inputVariables(final InferenceContext18 context) {
+	Collection<InferenceVariable> inputVariables(final InferenceContext18 context) {
 		// from 18.5.2.
 		if (this.left instanceof LambdaExpression) {
 			if (this.right instanceof InferenceVariable) {
-				return Collections.singletonList(this.right);
+				return Collections.singletonList((InferenceVariable)this.right);
 			}
 			if (this.right.isFunctionalInterface(context.scope)) {
 				LambdaExpression lambda = (LambdaExpression) this.left;
 				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope, true); // TODO derive with target type?
-				final Set variables = new HashSet();
+				final Set<InferenceVariable> variables = new HashSet<InferenceVariable>();
 				if (lambda.argumentsTypeElided()) {
 					// i)
 					int len = sam.parameters.length;
@@ -402,11 +401,11 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			}
 		} else if (this.left instanceof ReferenceExpression) {
 			if (this.right instanceof InferenceVariable) {
-				return Collections.singletonList(this.right);
+				return Collections.singletonList((InferenceVariable)this.right);
 			}
 			if (this.right.isFunctionalInterface(context.scope) && !this.left.isExactMethodReference()) {
 				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope, true);
-				final Set variables = new HashSet();
+				final Set<InferenceVariable> variables = new HashSet<InferenceVariable>();
 				int len = sam.parameters.length;
 				for (int i = 0; i < len; i++) {
 					sam.parameters[i].collectInferenceVariables(variables);
@@ -415,7 +414,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			}			
 		} else if (this.left instanceof ConditionalExpression && this.left.isPolyExpression()) {
 			ConditionalExpression expr = (ConditionalExpression) this.left;
-			Set variables = new HashSet();
+			Set<InferenceVariable> variables = new HashSet<InferenceVariable>();
 			variables.addAll(new ConstraintExpressionFormula(expr.valueIfTrue, this.right, COMPATIBLE).inputVariables(context));
 			variables.addAll(new ConstraintExpressionFormula(expr.valueIfFalse, this.right, COMPATIBLE).inputVariables(context));
 			return variables;

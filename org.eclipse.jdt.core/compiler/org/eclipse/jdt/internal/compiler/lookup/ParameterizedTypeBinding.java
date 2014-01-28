@@ -32,6 +32,7 @@
  *								Bug 425798 - [1.8][compiler] Another NPE in ConstraintTypeFormula.reduceSubType
  *								Bug 425156 - [1.8] Lambda as an argument is flagged with incompatible error
  *								Bug 426563 - [1.8] AIOOBE when method with error invoked with lambda expression as argument
+ *								Bug 426792 - [1.8][inference][impl] generify new type inference engine
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -886,7 +887,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return false;
 	}
 
-	void collectInferenceVariables(Set variables) {
+	void collectInferenceVariables(Set<InferenceVariable> variables) {
 		if (this.arguments != null) {
 			int len = this.arguments.length;
 			for (int i = 0; i < len; i++) {

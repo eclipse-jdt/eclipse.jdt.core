@@ -22,6 +22,7 @@
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *								Bug 424712 - [1.8][compiler] NPE in TypeBinding.isProvablyDistinctTypeArgument
+ *								Bug 426792 - [1.8][inference][impl] generify new type inference engine
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -1509,7 +1510,7 @@ public boolean mentionsAny(TypeBinding[] parameters, int idx) {
 }
 
 /** Collect all inference variables mentioned in this type into the set 'variables'. */
-void collectInferenceVariables(Set variables) {
+void collectInferenceVariables(Set<InferenceVariable> variables) {
 	// nop
 }
 /** Answer an additional bit characterizing this type, like {@link TypeIds#BitAutoCloseable}. */
