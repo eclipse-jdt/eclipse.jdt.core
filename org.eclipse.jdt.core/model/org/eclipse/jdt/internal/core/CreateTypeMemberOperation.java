@@ -37,6 +37,7 @@ import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
  * Implements functionality common to
  * operations that create type members.
  */
+@SuppressWarnings("rawtypes")
 public abstract class CreateTypeMemberOperation extends CreateElementInCUOperation {
 	/**
 	 * The source code for the new member.

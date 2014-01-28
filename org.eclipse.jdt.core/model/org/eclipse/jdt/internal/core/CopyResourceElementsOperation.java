@@ -59,6 +59,7 @@ import org.eclipse.text.edits.TextEdit;
  * </ul>
  *
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class CopyResourceElementsOperation extends MultiOperation implements SuffixConstants {
 	/**
 	 * The list of new resources created during this operation.

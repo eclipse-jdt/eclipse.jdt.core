@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  * Implementation of 18.1.3 in JLS8.
  * This class is also responsible for incorporation as defined in 18.3.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 class BoundSet {
 
 	static final BoundSet TRUE = new BoundSet();	// empty set of bounds

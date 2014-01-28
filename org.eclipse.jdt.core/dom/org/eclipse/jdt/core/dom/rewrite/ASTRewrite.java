@@ -95,6 +95,7 @@ import org.eclipse.text.edits.TextEditGroup;
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noextend This class is not intended to be subclassed by clients.
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class ASTRewrite {
 	/** root node for the rewrite: Only nodes under this root are accepted */
 	private final AST ast;

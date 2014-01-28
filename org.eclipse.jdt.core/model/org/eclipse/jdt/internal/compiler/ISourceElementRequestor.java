@@ -47,7 +47,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
  * other simpler elements (package, import) are read all at once: - accept
  * <Element>
  */
-
+@SuppressWarnings("rawtypes")
 public interface ISourceElementRequestor {
 
 	public static class TypeInfo {

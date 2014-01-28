@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
+@SuppressWarnings("rawtypes")
 public class SimpleName extends Name {
 
 	/**

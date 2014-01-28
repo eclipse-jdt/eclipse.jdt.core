@@ -41,6 +41,7 @@ import java.util.List;
  * @since 3.9 BETA_JAVA8
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
+@SuppressWarnings({"rawtypes"})
 public class NameQualifiedType extends AnnotatableType {
 
 	/**

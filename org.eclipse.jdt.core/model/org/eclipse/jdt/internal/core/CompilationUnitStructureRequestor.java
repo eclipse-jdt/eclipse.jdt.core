@@ -54,6 +54,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 /**
  * A requestor for the fuzzy parser, used to compute the children of an ICompilationUnit.
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter implements ISourceElementRequestor {
 	
 	/**

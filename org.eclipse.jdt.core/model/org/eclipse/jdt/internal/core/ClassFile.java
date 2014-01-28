@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * @see IClassFile
  */
 
+@SuppressWarnings({"rawtypes"})
 public class ClassFile extends Openable implements IClassFile, SuffixConstants {
 
 	protected String name;

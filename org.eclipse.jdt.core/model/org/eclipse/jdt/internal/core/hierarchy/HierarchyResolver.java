@@ -65,6 +65,7 @@ import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.ASTNodeFinder;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class HierarchyResolver implements ITypeRequestor {
 
 	private ReferenceBinding focusType;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
  * A code snippet evaluator compiles and returns class file for a code snippet.
  * Or it reports problems against the code snippet.
  */
+@SuppressWarnings({ "rawtypes" })
 public class CodeSnippetEvaluator extends Evaluator implements EvaluationConstants {
 	/**
 	 * Whether the code snippet support classes should be found in the provided name environment

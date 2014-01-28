@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class IndexManager extends JobManager implements IIndexConstants {
 
 	// key = containerPath, value = indexLocation path

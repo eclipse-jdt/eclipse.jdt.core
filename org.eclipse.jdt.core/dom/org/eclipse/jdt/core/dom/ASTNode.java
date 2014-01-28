@@ -126,6 +126,7 @@ import org.eclipse.jdt.internal.core.dom.NaiveASTFlattener;
  * @since 2.0
  * @noextend This class is not intended to be subclassed by clients.
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class ASTNode {
 	/*
 	 * ATTENTION: When doing anything to the ASTNode hierarchy, do not try to

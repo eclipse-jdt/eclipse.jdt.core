@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  *
  * @since 3.0
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 class DocCommentParser extends AbstractCommentParser {
 
 	private Javadoc docComment;

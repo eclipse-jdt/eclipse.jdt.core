@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.core.PackageFragment;
 /**
  * This class represents the recovered binding for a type
  */
+@SuppressWarnings("rawtypes")
 class RecoveredTypeBinding implements ITypeBinding {
 
 	private VariableDeclaration variableDeclaration;

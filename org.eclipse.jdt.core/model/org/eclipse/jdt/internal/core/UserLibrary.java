@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,7 @@ import org.xml.sax.SAXException;
 /**
  * Internal model element to represent a user library and code to serialize / deserialize.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class UserLibrary {
 
 	private static final String VERSION_ONE = "1"; //$NON-NLS-1$

@@ -42,6 +42,7 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public final class ASTRewriteFormatter {
 
 	public static class NodeMarker extends Position {

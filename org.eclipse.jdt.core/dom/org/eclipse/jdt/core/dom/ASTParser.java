@@ -91,6 +91,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * @since 3.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class ASTParser {
 
 	/**

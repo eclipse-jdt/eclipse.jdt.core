@@ -150,6 +150,7 @@ import org.eclipse.text.edits.TextEdit;
       </codeFormatter>
    </extension>
 */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class CodeFormatterVisitor extends ASTVisitor {
 
 	public static class MultiFieldDeclaration extends FieldDeclaration {

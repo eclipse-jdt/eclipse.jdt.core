@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 import java.io.*;
 import java.util.*;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaBuilder extends IncrementalProjectBuilder {
 
 IProject currentProject;

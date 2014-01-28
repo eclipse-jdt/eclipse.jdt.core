@@ -56,6 +56,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class CodeStream {
 
 	// It will be responsible for the following items.

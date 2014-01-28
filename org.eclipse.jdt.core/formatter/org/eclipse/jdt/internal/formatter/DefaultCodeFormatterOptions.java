@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.formatter.align.Alignment;
  * @since 3.0
  */
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class DefaultCodeFormatterOptions {
 	public static final int TAB = 1;
 	public static final int SPACE = 2;

@@ -23,6 +23,7 @@ import java.util.Set;
 /**
  * Implementation of 18.1.2 in JLS8
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 abstract class ConstraintFormula extends ReductionResult {
 
 	static final List EMPTY_VARIABLE_LIST = Collections.EMPTY_LIST;

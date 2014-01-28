@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+@SuppressWarnings("rawtypes")
 public class MethodInfo extends ClassFileStruct implements IBinaryMethod, Comparable {
 	static private final char[][] noException = CharOperation.NO_CHAR_CHAR;
 	static private final char[][] noArgumentNames = CharOperation.NO_CHAR_CHAR;

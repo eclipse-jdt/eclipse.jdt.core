@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  *
  * @see org.eclipse.jdt.core.IPackageFragment
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 class JarPackageFragment extends PackageFragment {
 /**
  * Constructs a package fragment that is contained within a jar or a zip.

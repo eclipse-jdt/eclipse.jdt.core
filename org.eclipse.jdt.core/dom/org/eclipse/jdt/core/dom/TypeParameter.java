@@ -29,6 +29,7 @@ import java.util.List;
  * @since 3.1
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class TypeParameter extends ASTNode {
 
 	/**

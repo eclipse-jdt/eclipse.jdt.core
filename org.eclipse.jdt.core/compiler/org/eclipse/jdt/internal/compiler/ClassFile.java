@@ -119,6 +119,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  *      information. Those bytes are decodable with a regular class file reader,
  *      such as DietClassFileReader
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class ClassFile implements TypeConstants, TypeIds {
 
 	private byte[] bytes;

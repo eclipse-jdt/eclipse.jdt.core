@@ -69,6 +69,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class ASTNode implements TypeConstants, TypeIds {
 
 	public int sourceStart, sourceEnd;

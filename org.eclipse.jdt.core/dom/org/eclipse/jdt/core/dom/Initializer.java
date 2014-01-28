@@ -24,6 +24,7 @@ import java.util.List;
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
+@SuppressWarnings({"rawtypes"})
 public class Initializer extends BodyDeclaration {
 
 	/**

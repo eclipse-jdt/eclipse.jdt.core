@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 /**
  * @see IPackageFragmentRoot
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PackageFragmentRoot extends Openable implements IPackageFragmentRoot {
 
 	/**

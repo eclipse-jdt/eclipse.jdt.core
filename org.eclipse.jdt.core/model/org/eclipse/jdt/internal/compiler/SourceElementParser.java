@@ -47,6 +47,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
  *
  * Any (parsing) problem encountered is also provided.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class SourceElementParser extends CommentRecorderParser {
 
 	ISourceElementRequestor requestor;

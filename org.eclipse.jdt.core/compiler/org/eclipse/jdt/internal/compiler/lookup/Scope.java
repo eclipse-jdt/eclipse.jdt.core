@@ -53,6 +53,7 @@ import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class Scope {
 
 	/* Scope kinds */

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 /**
  * Common functionality for Binary member handles.
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public abstract class BinaryMember extends NamedMember {
 		
 /*

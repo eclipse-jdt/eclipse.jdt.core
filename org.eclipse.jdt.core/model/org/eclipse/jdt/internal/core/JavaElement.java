@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  *
  * @see IJavaElement
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class JavaElement extends PlatformObject implements IJavaElement {
 //	private static final QualifiedName PROJECT_JAVADOC= new QualifiedName(JavaCore.PLUGIN_ID, "project_javadoc_location"); //$NON-NLS-1$
 

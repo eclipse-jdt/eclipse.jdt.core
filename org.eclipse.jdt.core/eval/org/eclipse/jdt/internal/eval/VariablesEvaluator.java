@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
  * A variables evaluator compiles the global variables of an evaluation context and returns
  * the corresponding class files. Or it reports problems against these variables.
  */
+@SuppressWarnings({"rawtypes"})
 public class VariablesEvaluator extends Evaluator implements EvaluationConstants {
 /**
  * Creates a new global variables evaluator.

@@ -135,6 +135,7 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  * 		See also {@link #getParameter(TypeBinding[], int, boolean)} and its clients.</li>
  * </ul>
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class InferenceContext18 {
 
 	/** to conform with javac regarding https://bugs.openjdk.java.net/browse/JDK-8026527 */

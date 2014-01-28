@@ -42,6 +42,7 @@ import org.eclipse.text.edits.TextEdit;
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class CompilationUnit extends ASTNode {
 
 	/**

@@ -44,6 +44,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * Internal method structure for parsing recovery
  */
 
+@SuppressWarnings("rawtypes")
 public class RecoveredMethod extends RecoveredElement implements TerminalTokens {
 
 	public AbstractMethodDeclaration methodDeclaration;

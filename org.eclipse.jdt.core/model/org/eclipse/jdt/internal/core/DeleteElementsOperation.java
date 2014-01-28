@@ -41,6 +41,7 @@ import org.eclipse.text.edits.TextEdit;
  * a package, etc (which have an actual resource), a DeleteResourcesOperation
  * should be used.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class DeleteElementsOperation extends MultiOperation {
 	/**
 	 * The elements this operation processes grouped by compilation unit

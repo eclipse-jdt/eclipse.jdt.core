@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 
+@SuppressWarnings("rawtypes")
 public class RecoveredField extends RecoveredElement {
 
 	public FieldDeclaration fieldDeclaration;

@@ -44,6 +44,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 /**
  * @see IPackageFragment
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PackageFragment extends Openable implements IPackageFragment, SuffixConstants {
 	/**
 	 * Constant empty list of class files

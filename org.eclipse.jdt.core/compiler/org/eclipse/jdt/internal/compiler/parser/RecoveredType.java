@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
  * Internal type structure for parsing recovery
  */
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class RecoveredType extends RecoveredStatement implements TerminalTokens {
 	public static final int MAX_TYPE_DEPTH = 256;
 	

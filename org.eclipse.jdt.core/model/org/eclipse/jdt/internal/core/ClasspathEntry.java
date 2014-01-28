@@ -68,6 +68,7 @@ import org.w3c.dom.Text;
 /**
  * @see IClasspathEntry
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class ClasspathEntry implements IClasspathEntry {
 	
 	public static class AssertionFailedException extends RuntimeException {

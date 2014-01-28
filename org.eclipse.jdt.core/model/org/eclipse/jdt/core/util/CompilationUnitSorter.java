@@ -33,6 +33,7 @@ import org.eclipse.text.edits.TextEditGroup;
  * @since 2.1
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
+@SuppressWarnings("rawtypes")
 public final class CompilationUnitSorter {
 
  	/**

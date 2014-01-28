@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+@SuppressWarnings("rawtypes")
 public class FieldInfo extends ClassFileStruct implements IBinaryField, Comparable {
 	protected int accessFlags;
 	protected int attributeBytes;

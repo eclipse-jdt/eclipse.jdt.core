@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * @see org.eclipse.jdt.core.IPackageFragmentRoot
  * @see org.eclipse.jdt.internal.core.JarPackageFragmentRootInfo
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class JarPackageFragmentRoot extends PackageFragmentRoot {
 
 	private final static ArrayList EMPTY_LIST = new ArrayList();

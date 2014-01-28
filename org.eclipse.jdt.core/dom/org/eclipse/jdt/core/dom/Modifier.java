@@ -48,6 +48,7 @@ import java.util.Map;
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public final class Modifier extends ASTNode implements IExtendedModifier {
 
 	/**

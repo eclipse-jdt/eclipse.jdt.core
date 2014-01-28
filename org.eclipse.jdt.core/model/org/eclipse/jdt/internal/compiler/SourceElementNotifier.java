@@ -54,6 +54,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class SourceElementNotifier {
 	/**
 	 * An ast visitor that visits local type declarations.

@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18.InvocationRec
  * <li>Expression -> T</li>
  * </ul>
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 class ConstraintExpressionFormula extends ConstraintFormula {
 	Expression left;
 

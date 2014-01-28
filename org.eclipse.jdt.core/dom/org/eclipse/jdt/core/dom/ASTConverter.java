@@ -70,6 +70,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 /**
  * Internal class for converting internal compiler ASTs into public ASTs.
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 class ASTConverter {
 
 	protected AST ast;

@@ -46,6 +46,7 @@ import org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation;
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noextend This class is not intended to be subclassed by clients.
  */
+@SuppressWarnings({"rawtypes"})
 public class ReconcileContext {
 
 	private ReconcileWorkingCopyOperation operation;

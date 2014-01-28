@@ -69,6 +69,7 @@ import org.eclipse.jdt.internal.core.util.HashSetOfCharArrayArray;
  * attempt. If this was the desired behavior, a call to the CompletionEngine should be
  * performed instead.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public final class SelectionEngine extends Engine implements ISearchRequestor {
 	
 	private static class SelectionTypeNameMatchRequestorWrapper extends TypeNameMatchRequestorWrapper {

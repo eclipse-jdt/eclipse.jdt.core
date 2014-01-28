@@ -84,6 +84,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class LambdaExpression extends FunctionalExpression implements ReferenceContext, ProblemSeverities {
 	private Argument [] arguments;
 	private TypeBinding [] argumentTypes;

@@ -28,6 +28,7 @@ import java.util.List;
  * @since 3.1
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class ParameterizedType extends Type {
     /**
      * This index represents the position inside a parameterized qualified type.

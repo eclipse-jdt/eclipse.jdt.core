@@ -31,6 +31,7 @@ import java.util.List;
  *
  * @since 3.9 BETA_JAVA8
  */
+@SuppressWarnings({"rawtypes"})
 public abstract class AnnotatableType extends Type {
 	
 	/**

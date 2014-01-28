@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * 
  * See bug 349326 - [1.7] new warning for missing try-with-resources
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class FakedTrackingVariable extends LocalDeclaration {
 
 	private static final char[] UNASSIGNED_CLOSEABLE_NAME = "<unassigned Closeable value>".toCharArray(); //$NON-NLS-1$

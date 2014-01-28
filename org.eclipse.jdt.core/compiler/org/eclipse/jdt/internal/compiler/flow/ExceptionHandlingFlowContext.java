@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
  * Reflects the context of code analysis, keeping track of enclosing
  *	try statements, exception handlers, etc...
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class ExceptionHandlingFlowContext extends FlowContext {
 
 	public final static int BitCacheSize = 32; // 32 bits per int

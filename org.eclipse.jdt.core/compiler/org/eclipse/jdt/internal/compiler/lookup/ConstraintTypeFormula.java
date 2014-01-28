@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  * <li>S <= T <em>type argument containment</em></li>
  * </ul>
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 class ConstraintTypeFormula extends ConstraintFormula {
 
 	TypeBinding left;

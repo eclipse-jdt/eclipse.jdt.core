@@ -60,6 +60,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * in real time through an <code>IJavaElementRequestor</code>.
  *
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class NameLookup implements SuffixConstants {
 	public static class Answer {
 		public IType type;

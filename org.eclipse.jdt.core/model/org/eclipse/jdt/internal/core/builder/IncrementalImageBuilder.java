@@ -31,6 +31,7 @@ import java.util.*;
 /**
  * The incremental image builder
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class IncrementalImageBuilder extends AbstractImageBuilder {
 
 protected ArrayList sourceFiles;

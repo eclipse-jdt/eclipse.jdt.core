@@ -49,6 +49,7 @@ import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
  * Reflects the context of code analysis, keeping track of enclosing
  *	try statements, exception handlers, etc...
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class LoopingFlowContext extends SwitchFlowContext {
 
 	public BranchLabel continueLabel;

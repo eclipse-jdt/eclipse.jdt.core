@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
  * <li>Expression contains<sub>throws</sub> T</li>
  * </ul>
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class ConstraintExceptionFormula extends ConstraintFormula {
 
 	FunctionalExpression left;

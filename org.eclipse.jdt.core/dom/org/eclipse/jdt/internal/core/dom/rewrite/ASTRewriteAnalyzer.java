@@ -62,6 +62,7 @@ import org.eclipse.text.edits.TextEditGroup;
  * - This visitor analyzes the changes or annotations and generates text edits
  * (text manipulation API) that describe the required code changes.
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 	/** @deprecated using deprecated code */

@@ -20,6 +20,7 @@ import java.util.Map;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class InnerInferenceHelper {
 
 	/** For each candidate method store here the array of argument types if inner inference has improved any during Invocation Type Inference. */

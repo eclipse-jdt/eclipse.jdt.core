@@ -41,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class BlockScope extends Scope {
 
 	// Local variable management
