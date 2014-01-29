@@ -43,6 +43,7 @@
 
   <modules>
     <module>org.eclipse.jdt.annotation</module>
+    <module>org.eclipse.jdt.annotation_v1</module>
     <module>org.eclipse.jdt.compiler.tool</module>
     <module>org.eclipse.jdt.core</module>
     <module>org.eclipse.jdt.compiler.tool.tests</module>
