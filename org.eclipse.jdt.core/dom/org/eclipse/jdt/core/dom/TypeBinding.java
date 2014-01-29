@@ -64,6 +64,7 @@ class TypeBinding implements ITypeBinding {
 	private IVariableBinding[] fields;
 	private IAnnotationBinding[] annotations;
 	private IAnnotationBinding[] typeAnnotations;
+	private IAnnotationBinding[][] typeAnnotationsOnDimensions;
 	private IMethodBinding[] methods;
 	private ITypeBinding[] members;
 	private ITypeBinding[] interfaces;
@@ -130,6 +131,26 @@ class TypeBinding implements ITypeBinding {
 			return tempAnnotations;
 		}
 		return AnnotationBinding.NoAnnotations;
+	}
+	private IAnnotationBinding[][] resolveAnnotationBindingsOnDimensions(org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding) {
+		if (!typeBinding.isArrayType()) {
+			return null;
+		}
+		int dimensions = typeBinding.dimensions();
+		IAnnotationBinding[][] annotationsBindingsOnDimensions = new IAnnotationBinding[dimensions][];
+		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] annotationBindings = typeBinding.getTypeAnnotations();
+		for (int i = 0, j = -1; i < dimensions; i++) {
+			if (annotationBindings != null) {
+				int start = j;
+				while (++j < annotationBindings.length && annotationBindings[j] != null) {
+					int length = j - start;
+					org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] currentDimension = new org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[length];
+					System.arraycopy(annotationBindings, start + 1, currentDimension, 0, length);
+					annotationsBindingsOnDimensions[i] = resolveAnnotationBindings(currentDimension, true);
+				}
+			}
+		}
+		return annotationsBindingsOnDimensions;
 	}
 
 	/*
@@ -1335,5 +1356,16 @@ class TypeBinding implements ITypeBinding {
 		}
 		this.typeAnnotations = resolveAnnotationBindings(this.binding.getTypeAnnotations(), true);
 		return this.typeAnnotations;
+	}
+
+	/*
+	 * @see ITypeBinding#getTypeAnnotationsOnDimensions()
+	 */
+	public IAnnotationBinding[][] getTypeAnnotationsOnDimensions() {
+		if (this.typeAnnotationsOnDimensions != null) {
+			return this.typeAnnotationsOnDimensions;
+		}
+		this.typeAnnotationsOnDimensions = resolveAnnotationBindingsOnDimensions(this.binding);
+		return this.typeAnnotationsOnDimensions;
 	}
 }

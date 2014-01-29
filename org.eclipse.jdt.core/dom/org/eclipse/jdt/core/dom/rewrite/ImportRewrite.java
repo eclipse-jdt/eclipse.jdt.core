@@ -697,61 +697,12 @@ public final class ImportRewrite {
 	 */
 	public Type addImport(ITypeBinding binding, AST ast, ImportRewriteContext context) {
 		ITypeBinding bindingPoint = checkAnnotationAndGenerics(binding);
-		if (bindingPoint != null) {
-			return createType(binding, bindingPoint, ast, context);
+		Type type = internalAddImport(bindingPoint == null ? binding : bindingPoint, ast, context, null, /* getBase */ true);
+		if (bindingPoint != null && !bindingPoint.equals(binding)) {
+			type = buildType(binding, bindingPoint, ast, context, type);
 		}
-		if (binding.isPrimitive()) {
-			return ast.newPrimitiveType(PrimitiveType.toCode(binding.getName()));
-		}
-
-		ITypeBinding normalizedBinding= normalizeTypeBinding(binding);
-		if (normalizedBinding == null) {
-			return ast.newSimpleType(ast.newSimpleName("invalid")); //$NON-NLS-1$
-		}
-
-		if (normalizedBinding.isTypeVariable()) {
-			// no import
-			return ast.newSimpleType(ast.newSimpleName(binding.getName()));
-		}
-		if (normalizedBinding.isWildcardType()) {
-			WildcardType wcType= ast.newWildcardType();
-			ITypeBinding bound= normalizedBinding.getBound();
-			if (bound != null && !bound.isWildcardType() && !bound.isCapture()) { // bug 96942
-				Type boundType= addImport(bound, ast, context);
-				wcType.setBound(boundType, normalizedBinding.isUpperbound());
-			}
-			return wcType;
-		}
-
-		if (normalizedBinding.isArray()) {
-			Type elementType= addImport(normalizedBinding.getElementType(), ast, context);
-			return ast.newArrayType(elementType, normalizedBinding.getDimensions());
-		}
-
-		String qualifiedName= getRawQualifiedName(normalizedBinding);
-		if (qualifiedName.length() > 0) {
-			String res= internalAddImport(qualifiedName, context);
-
-			ITypeBinding[] typeArguments= normalizedBinding.getTypeArguments();
-			if (typeArguments.length > 0) {
-				Type erasureType= ast.newSimpleType(ast.newName(res));
-				ParameterizedType paramType= ast.newParameterizedType(erasureType);
-				List arguments= paramType.typeArguments();
-				for (int i= 0; i < typeArguments.length; i++) {
-					ITypeBinding curr= typeArguments[i];
-					if (containsNestedCapture(curr, false)) { // see bug 103044
-						arguments.add(ast.newWildcardType());
-					} else {
-						arguments.add(addImport(curr, ast, context));
-					}
-				}
-				return paramType;
-			}
-			return ast.newSimpleType(ast.newName(res));
-		}
-		return ast.newSimpleType(ast.newName(getRawName(normalizedBinding)));
+		return type;
 	}
-
 
 	/**
 	 * Adds a new import to the rewriter's record and returns a name - single member name if
@@ -1165,6 +1116,31 @@ public final class ImportRewrite {
 		return (String[]) res.toArray(new String[res.size()]);
 	}
 
+	private void annotateList(List annotations, IAnnotationBinding [] annotationBindings, AST ast, ImportRewriteContext context) {
+		for (int i = 0; i< annotationBindings.length; i++) {
+			Annotation annotation = newAnnotation(ast, annotationBindings[i], context);
+			if (annotation != null) annotations.add(annotation);
+		}
+	}
+
+	private Type annotateType(ITypeBinding binding, AST ast, ImportRewriteContext context, Type type) {
+		IAnnotationBinding [] annotationBindings = binding.getTypeAnnotations();
+		if (annotationBindings != null && annotationBindings.length > 0 && type instanceof AnnotatableType) {
+			annotateList(((AnnotatableType) type).annotations(), annotationBindings, ast, context);
+		}
+		return type;
+	}
+
+	private Type buildType(ITypeBinding binding, ITypeBinding bindingPoint, AST ast, ImportRewriteContext context, Type qualifier) {
+		if (binding.equals(bindingPoint)) {
+			return qualifier;
+		}
+		// build the type recursively from left to right
+		Type type = binding.isMember() ? buildType(binding.getDeclaringClass(), bindingPoint, ast, context, qualifier) : null;
+		type = internalAddImport(binding, ast, context, type, false);
+		return type;
+	}
+
 	private ITypeBinding checkAnnotationAndGenerics(ITypeBinding binding) {
 		ITypeBinding bindingPoint = null;
 		while (binding != null) {
@@ -1183,120 +1159,115 @@ public final class ImportRewrite {
 		return bindingPoint;
 	}
 
-	private Type createType(ITypeBinding binding, ITypeBinding bindingPoint, AST ast, ImportRewriteContext context) {
-		String str = addImport(bindingPoint, context);
-		int dotIndex = str != null ? str.lastIndexOf('.') : -1;
-		Type qualifier = null;
-		if (dotIndex != -1) {
-			char buf [] = new char [dotIndex];
-			for (int i = 0; i < dotIndex; ++i)
-				buf[i] = str.charAt(i);
-			str = new String(buf);
-			qualifier = ast.newSimpleType(ast.newName(str));
-		}
-		return createType(binding, bindingPoint, ast, qualifier, context);
-	}
+	private Type createBaseType(AST ast, ImportRewriteContext context, ITypeBinding normalizedBinding) {
+		Type type;
+		IAnnotationBinding annotationBinding [] = normalizedBinding.getTypeAnnotations();
+		boolean annotsPresent = annotationBinding != null && annotationBinding.length > 0;
 
-	private Type createType(ITypeBinding binding, ITypeBinding bindingPoint, AST ast, Type qualifier, ImportRewriteContext context) {
-		Type type = null;
-		if (binding.equals(bindingPoint)) {
-			type = createType(qualifier, binding, ast, context);
+		String qualifiedName= getRawQualifiedName(normalizedBinding);
+		String res = qualifiedName.length() > 0 ? internalAddImport(qualifiedName, context) : getRawName(normalizedBinding);
+	
+		if (annotsPresent) {
+			int dotIndex = res != null ? res.lastIndexOf('.') : -1;
+			if (dotIndex > 0) {
+				Name nameQualifier = ast.newName(res.substring(0, dotIndex));
+				SimpleName simpleName = ast.newSimpleName(res.substring(dotIndex + 1));
+				type = ast.newNameQualifiedType(nameQualifier, simpleName);
+			} else {
+				type = ast.newSimpleType(ast.newName(res));
+			}
+			annotateList(((AnnotatableType) type).annotations(), annotationBinding, ast, context);
 		} else {
-			Type currentType = binding.isMember() ? createType(binding.getDeclaringClass(), bindingPoint, ast, qualifier, context) : null;
-			type = createType(currentType, binding, ast, context);
-		}
-		IAnnotationBinding [] annotationBindings = binding.getTypeAnnotations();
-		if (annotationBindings != null && annotationBindings.length > 0) {
-			AnnotatableType aType = type instanceof AnnotatableType ? (AnnotatableType) type : 
-				type instanceof ParameterizedType ? (AnnotatableType) ((ParameterizedType) type).getType() : null;
-			if (aType != null)
-				annotateType(aType, annotationBindings, ast, context);
+			type = ast.newSimpleType(ast.newName(res));
 		}
 		return type;
 	}
 
-	private Type createType(Type currentType, ITypeBinding binding, AST ast, ImportRewriteContext context) {
-
-		if (binding.isPrimitive()) {
-			return ast.newPrimitiveType(PrimitiveType.toCode(binding.getName()));
-		}
-
-		ITypeBinding normalizedBinding = normalizeTypeBinding(binding);
-		if (normalizedBinding == null) {
-			return ast.newSimpleType(ast.newSimpleName("invalid")); //$NON-NLS-1$
-		}
-
-		if (normalizedBinding.isTypeVariable()) {
-			if (currentType != null) {
-				return ast.newQualifiedType(currentType, ast.newSimpleName(binding.getName()));
-			}
-			return ast.newSimpleType(ast.newSimpleName(binding.getName()));
-		}
-
-		if (normalizedBinding.isWildcardType()) {
-			WildcardType wcType = ast.newWildcardType();
-			ITypeBinding bound = normalizedBinding.getBound();
-			if (bound != null && !bound.isWildcardType() && !bound.isCapture()) {
-				Type boundType = createType(bound, null, ast, (Type) null, context);
-				wcType.setBound(boundType, normalizedBinding.isUpperbound());
-			}
-			return wcType;
-		}
-
-		if (normalizedBinding.isArray()) {
-			Type elementType = createType(currentType, normalizedBinding.getElementType(), ast, context);
-			return ast.newArrayType(elementType, normalizedBinding.getDimensions());
-		}
-
-		if (normalizedBinding.isParameterizedType()) {
-			ITypeBinding[] typeArguments = normalizedBinding.getTypeArguments();
-			if (typeArguments.length > 0) {
-				Type erasureType = currentType == null ? (Type) ast.newSimpleType(ast.newName(getRawName(normalizedBinding))) :
-							(Type) ast.newQualifiedType(currentType, ast.newSimpleName(getRawName(normalizedBinding)));
-				ParameterizedType paramType = ast.newParameterizedType(erasureType);
-				List arguments = paramType.typeArguments();
-				for (int i = 0; i < typeArguments.length; i++) {
-					ITypeBinding curr = typeArguments[i];
-					if (containsNestedCapture(curr, false)) { // see bug 103044
-						arguments.add(ast.newWildcardType());
-					} else {
-						arguments.add(addImport(curr, ast, context));
-					}
-				}
-				return paramType;
+	private Type getArrayType(Type elementType, AST ast, ImportRewriteContext context, ITypeBinding normalizedBinding) {
+		int noDimensions = normalizedBinding.getDimensions();
+		ArrayType arrayType = ast.newArrayType(elementType, noDimensions);
+		if (ast.apiLevel() >= AST.JLS8) {
+			IAnnotationBinding[][] annotationsOnDimensions = normalizedBinding.getTypeAnnotationsOnDimensions();
+			int length = annotationsOnDimensions != null ? annotationsOnDimensions.length : 0;
+			length = length < noDimensions ? length : noDimensions; // should not be >, but preventive.
+			for (int i = 0; i < length; ++i) {
+				List dimensions = arrayType.dimensions();
+				Dimension dimension = (Dimension) dimensions.get(i);
+				IAnnotationBinding[] annotationOnDimension = annotationsOnDimensions[i];
+				if (annotationOnDimension == null) continue;
+				annotateList(dimension.annotations(), annotationOnDimension, ast, context);
 			}
 		}
-
-		if (currentType != null) {
-			if (currentType instanceof AnnotatableType) {
-				AnnotatableType annotatableType = (AnnotatableType) currentType;
-				List annotations = annotatableType.annotations();
-				if (annotations == null || annotations.size() == 0) {
-					Name qualifierName = ast.newName(currentType.toString());
-					return ast.newNameQualifiedType(qualifierName, ast.newSimpleName(getRawName(normalizedBinding)));
-				}
-			}
-			return ast.newQualifiedType(currentType, ast.newSimpleName(getRawName(normalizedBinding)));
-		}
-		return ast.newSimpleType(ast.newName(getRawName(normalizedBinding)));
+		return arrayType;
 	}
 
-	private void annotateType(AnnotatableType type, IAnnotationBinding [] annotationBindings, AST ast, ImportRewriteContext context) {
-		for (int i = 0; i< annotationBindings.length; i++) {
-			Annotation annotation = newAnnotation(ast, annotationBindings[i], context);
-			if (annotation != null) type.annotations().add(annotation);
+	private Type internalAddImport(ITypeBinding binding, AST ast, ImportRewriteContext context, Type currentType, boolean getBase) {
+		Type type = null;
+		ITypeBinding normalizedBinding = null;
+		
+		if (binding.isPrimitive()) {
+			type = ast.newPrimitiveType(PrimitiveType.toCode(binding.getName()));
+			normalizedBinding= binding;
+		} else {
+			normalizedBinding= normalizeTypeBinding(binding);
+			if (normalizedBinding == null) {
+				type = ast.newSimpleType(ast.newSimpleName("invalid")); //$NON-NLS-1$
+			} else if (normalizedBinding.isTypeVariable()) {
+					// no import
+				type = ast.newSimpleType(ast.newSimpleName(binding.getName()));
+			} else if (normalizedBinding.isWildcardType()) {
+				WildcardType wcType= ast.newWildcardType();
+				ITypeBinding bound= normalizedBinding.getBound();
+				if (bound != null && !bound.isWildcardType() && !bound.isCapture()) { // bug 96942
+					Type boundType= addImport(bound, ast, context);
+					wcType.setBound(boundType, normalizedBinding.isUpperbound());
+				}
+				type = wcType;
+			} else if (normalizedBinding.isArray()) {
+				Type elementType= addImport(normalizedBinding.getElementType(), ast, context);
+				type = getArrayType(elementType, ast, context, normalizedBinding);
+			}
 		}
+
+		if (type != null) {
+			return annotateType(normalizedBinding, ast, context, type);
+		}
+
+		if (getBase) {
+			type = createBaseType(ast, context, normalizedBinding);
+		} else  {
+			type = currentType != null ? (Type) ast.newQualifiedType(currentType, ast.newSimpleName(getRawName(normalizedBinding))) : 
+				ast.newSimpleType(ast.newName(getRawName(normalizedBinding)));
+			type = annotateType(normalizedBinding, ast, context, type);
+		}
+
+		ITypeBinding[] typeArguments = normalizedBinding.getTypeArguments();
+		if (typeArguments.length > 0) {
+			ParameterizedType paramType = ast.newParameterizedType(type);
+			List arguments = paramType.typeArguments();
+			for (int i = 0; i < typeArguments.length; i++) {
+				ITypeBinding curr = typeArguments[i];
+				if (containsNestedCapture(curr, false)) { // see bug 103044
+					arguments.add(ast.newWildcardType());
+				} else {
+					arguments.add(addImport(curr, ast, context));
+				}
+			}
+			type = paramType;
+		}
+		return type;
 	}
 
 	private Annotation newAnnotation(AST ast, IAnnotationBinding annotation, ImportRewriteContext context) {
-		Type type = createType((Type) null, annotation.getAnnotationType(), ast, context);
+		Type type = addImport(annotation.getAnnotationType(), ast, context);
 		Name name;
 		if (type instanceof SimpleType) {
 			SimpleType simpleType = (SimpleType) type;
 			name = simpleType.getName();
-			simpleType.setName(ast.newSimpleName(name.toString()));
+			// replace name to allow reuse - pay ransom.
+			simpleType.setName(ast.newName("a")); //$NON-NLS-1$
 		} else {
-			name = ast.newName(type.toString());
+			name = ast.newName("invalid"); //$NON-NLS-1$
 		}
 
 		IMemberValuePairBinding[] mvps= annotation.getDeclaredMemberValuePairs();
@@ -1339,7 +1310,7 @@ public final class ImportRewrite {
 			return result;
 		} else if (value instanceof ITypeBinding) {
 			TypeLiteral result = ast.newTypeLiteral();
-			result.setType(createType((Type) null, (ITypeBinding) value, ast, context));
+			result.setType(addImport( (ITypeBinding) value, ast, context));
 			return result;
 		} else if (value instanceof String) {
 			StringLiteral result = ast.newStringLiteral();
@@ -1350,7 +1321,7 @@ public final class ImportRewrite {
 
 			FieldAccess result = ast.newFieldAccess();
 			result.setName(ast.newSimpleName(variable.getName()));
-			Type type = createType((Type) null, variable.getType(), ast, context);
+			Type type = addImport(variable.getType(), ast, context);
 			Name name;
 			if (type instanceof SimpleType) {
 				SimpleType simpleType = (SimpleType) type;
