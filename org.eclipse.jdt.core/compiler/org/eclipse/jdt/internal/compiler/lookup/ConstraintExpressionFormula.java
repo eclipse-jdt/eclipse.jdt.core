@@ -62,15 +62,16 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 		if (this.right.isProperType(true)) {
 			TypeBinding exprType = this.left.resolvedType;
 			if (exprType == null) {
-				if (this.left instanceof FunctionalExpression) {
-					if (this.left instanceof LambdaExpression) {
-						// cf. NegativeLambdaExpressionTest.test412453()
-						LambdaExpression copy = ((LambdaExpression) this.left).getResolvedCopyForInferenceTargeting(this.right);
-						return (copy.resolvedType != null && copy.resolvedType.isValidBinding()) ? TRUE : FALSE;
-					}
-					return this.left.isCompatibleWith(this.right, inferenceContext.scope) ? TRUE : FALSE;
-				}
-				return FALSE;
+				// if we get here for some kinds of poly expressions (incl. ConditionalExpression),
+				// then other ways for checking compatibility are needed:
+                if (this.left instanceof FunctionalExpression) {
+                    if (this.left instanceof LambdaExpression) {
+                        // cf. NegativeLambdaExpressionTest.test412453()
+                        LambdaExpression copy = ((LambdaExpression) this.left).getResolvedCopyForInferenceTargeting(this.right);
+                        return (copy.resolvedType != null && copy.resolvedType.isValidBinding()) ? TRUE : FALSE;
+                    }
+                }
+                return this.left.isCompatibleWith(this.right, inferenceContext.scope) ? TRUE : FALSE;
 			} else if (!exprType.isValidBinding()) {
 				return FALSE;
 			}

@@ -32,6 +32,7 @@
  *							Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
  *							Bug 426366 - [1.8][compiler] Type inference doesn't handle multiple candidate target types in outer overload context
  *							Bug 426290 - [1.8][compiler] Inference + overloading => wrong method resolution ?
+ *							Bug 426764 - [1.8] Presence of conditional expression as method argument confuses compiler
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *							bug 378674 - "The method can be declared as static" is wrong
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -665,10 +666,6 @@ public void setExpectedType(TypeBinding expectedType) {
 
 public void setExpressionContext(ExpressionContext context) {
 	this.expressionContext = context;
-}
-
-public boolean isCompatibleWith(TypeBinding left, Scope scope) {
-	return this.type.resolvedType != null && left.actualType() != null && this.type.resolvedType.actualType().isCompatibleWith(left.actualType());
 }
 
 public boolean isPolyExpression() {

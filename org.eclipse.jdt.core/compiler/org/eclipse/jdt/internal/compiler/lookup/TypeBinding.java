@@ -23,6 +23,7 @@
  *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *								Bug 424712 - [1.8][compiler] NPE in TypeBinding.isProvablyDistinctTypeArgument
  *								Bug 426792 - [1.8][inference][impl] generify new type inference engine
+ *								Bug 426764 - [1.8] Presence of conditional expression as method argument confuses compiler
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -1519,7 +1520,7 @@ public boolean hasTypeBit(int bit) {
 }
 
 public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
-	throw new UnsupportedOperationException("abstract virtual method called"); //$NON-NLS-1$
+	return s.isCompatibleWith(t);
 }
 
 public MethodBinding[] getMethods(char[] selector) {

@@ -31,6 +31,7 @@
  *								Bug 426290 - [1.8][compiler] Inference + overloading => wrong method resolution ?
  *								Bug 426589 - [1.8][compiler] Compiler error with generic method/constructor invocation as vargs argument
  *								Bug 426590 - [1.8][compiler] Compiler error with tenary operator
+ *								Bug 426764 - [1.8] Presence of conditional expression as method argument confuses compiler
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -4324,31 +4325,30 @@ public abstract class Scope {
 			// Apply one level of filtering per poly expression more specific rules.
 			MethodBinding[] moreSpecific = new MethodBinding[visibleSize];
 			int count = 0;
-			for (int i = 0, length = argumentTypes.length; i < length; i++) {
-				TypeBinding argumentType = argumentTypes[i];
-				if (argumentType.kind() != Binding.POLY_TYPE)
-					continue;
-				
-				for (int j = 0; j < visibleSize; j++) {
-					final TypeBinding[] mbjParameters = visible[j].parameters;
-					final int mbjParametersLength = mbjParameters.length;
-					TypeBinding s = i < mbjParametersLength ? mbjParameters[i] : mbjParameters[mbjParametersLength - 1];
-					boolean sIsMoreSpecific = true;
-					for (int k = 0; k < visibleSize; k++) {
-						if (j == k) continue;
-						final TypeBinding[] mbkParameters = visible[k].parameters;
-						final int mbkParametersLength = mbkParameters.length;
+			nextJ: for (int j = 0; j < visibleSize; j++) {
+				MethodBinding mbj = visible[j].original();
+				final TypeBinding[] mbjParameters = mbj.parameters;
+				final int mbjParametersLength = mbjParameters.length;
+				for (int k = 0; k < visibleSize; k++) {
+					if (j == k) continue;
+					MethodBinding mbk = visible[k].original();
+					final TypeBinding[] mbkParameters = mbk.parameters;
+					final int mbkParametersLength = mbkParameters.length;
+
+					for (int i = 0, length = argumentTypes.length; i < length; i++) {
+						TypeBinding argumentType = argumentTypes[i];
+						if (argumentType.kind() != Binding.POLY_TYPE)
+							continue;
+						TypeBinding s = i < mbjParametersLength ? mbjParameters[i] : mbjParameters[mbjParametersLength - 1];
 						TypeBinding t = i < mbkParametersLength ? mbkParameters[i] : mbkParameters[mbkParametersLength - 1];
 						if (TypeBinding.equalsEquals(s, t))
 							continue;
-						if (!argumentType.sIsMoreSpecific(s,t)) { 
-							sIsMoreSpecific = false;
-							break;
+						if (!argumentType.sIsMoreSpecific(s,t)) {
+							continue nextJ;
 						}
 					}
-					if (sIsMoreSpecific)
-						moreSpecific[count++] = visible[j];
 				}
+				moreSpecific[count++] = visible[j];
 			}
 			if (count != 0) {
 				visible = moreSpecific;

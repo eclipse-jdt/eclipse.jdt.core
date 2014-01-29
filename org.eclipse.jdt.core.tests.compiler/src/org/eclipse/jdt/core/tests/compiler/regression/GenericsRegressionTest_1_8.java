@@ -1529,4 +1529,21 @@ public void testBug425063() {
             "}\n"
         });
 }
+public void testBug426764() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {}\n" + 
+			"class C1 implements I {}\n" + 
+			"class C2 implements I {}\n" + 
+			"public class X  {\n" + 
+			"    <T > void foo(T p1, I p2) {}\n" + 
+			"    <T extends I> void foo(T p1, I p2) {}\n" + 
+			"    void bar() {\n" + 
+			"        foo(true ? new C1(): new C2(), false ? new C2(): new C1());\n" + 
+			"        foo(new C1(), false ? new C2(): new C1());\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }
