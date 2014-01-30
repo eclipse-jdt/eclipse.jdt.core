@@ -8344,6 +8344,23 @@ public void testBug426563() {
 		"The target type of this expression must be a functional interface\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426965,  [1.8] Eclipse rejects valid type conversion in lambda
+public void _test426965() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+					"public class X {\n" +
+					"	interface I<U extends List<X>, V> {\n" +
+					"		V foo(U p);\n" +
+					"	}\n" +
+					"	public void main() {\n" +
+					"		I<List<X>, Object> fi = p -> p.toArray(new X[] {});\n" +
+					"	}\n" +
+					"}\n"
+		},
+		"");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
