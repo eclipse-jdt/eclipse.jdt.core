@@ -19,7 +19,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug426676" };
+//	TESTS_NAMES = new String[] { "testBug424710" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -231,7 +231,7 @@ public void testBug423504() {
 		});
 }
 // https://bugs.eclipse.org/420525 - [1.8] [compiler] Incorrect error "The type Integer does not define sum(Object, Object) that is applicable here"
-public void _testBug420525() {
+public void testBug420525() {
 	runConformTest(
 		new String[] {
 			"X.java",
@@ -262,6 +262,27 @@ public void _testBug420525() {
 			"\n" + 
 			"	}\n" +
 			"	void log(String msg) {}\n" +
+			"}\n"
+		});
+}
+//https://bugs.eclipse.org/420525 - [1.8] [compiler] Incorrect error "The type Integer does not define sum(Object, Object) that is applicable here"
+public void testBug420525_mini() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.concurrent.CompletableFuture;\n" + 
+			"import java.util.concurrent.ExecutionException;\n" +
+			"public class X {\n" +
+			"	void test(List<CompletableFuture<Integer>> futures, boolean b) {\n" + 
+			"		Integer finalResult = futures.stream().map( (CompletableFuture<Integer> f) -> {\n" +
+			"					if (b) \n" +
+			"						return 1;\n" +
+			"					else\n" +
+			"						return Integer.valueOf(13);" +
+			"				}).reduce(0, Integer::sum);\n" + 
+			"	}\n" +
 			"}\n"
 		});
 }
@@ -471,7 +492,7 @@ public void testBug401850b() {
 		"----------\n");
 }
 
-public void testBug424710() {
+public void _testBug424710() {
 	runConformTest(
 		new String[] {
 			"MapperTest.java",
