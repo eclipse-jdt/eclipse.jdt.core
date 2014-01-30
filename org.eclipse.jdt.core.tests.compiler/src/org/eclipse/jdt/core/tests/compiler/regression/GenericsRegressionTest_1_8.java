@@ -1641,4 +1641,33 @@ public void testBug424930c() {
 		"Cannot make a static reference to the non-static field dequeCapacity\n" + 
 		"----------\n");
 }
+public void testBug426998a() {
+	runConformTest(
+		new String[] {
+			"Snippet.java",
+			"public class Snippet {\n" + 
+			"	static void call(Class type, long init) {\n" + 
+			"		String string = new String();\n" + 
+			"		method(type, init == 0 ? new String() : string);\n" + 
+			"	}\n" + 
+			"	private static void method(Class type, String s) {}\n" + 
+			"}\n"
+		});
+}
+// from https://bugs.eclipse.org/bugs/show_bug.cgi?id=426764#c5
+public void testBug426998b() {
+	runConformTest(
+		new String[] {
+			"Snippet.java",
+			"public class Snippet {\n" + 
+			"  private static final String PLACEHOLDER_MEMORY = new String();\n" + 
+			"\n" + 
+			"  static void newInstance(Class type, long init) {\n" + 
+			"    method(type, init == 0 ? new String() : PLACEHOLDER_MEMORY);\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  private static void method(Class type, String str) {}\n" + 
+			"}\n"
+		});
+}
 }

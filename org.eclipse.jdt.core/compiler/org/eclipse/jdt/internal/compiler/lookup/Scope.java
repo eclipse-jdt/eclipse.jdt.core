@@ -32,6 +32,7 @@
  *								Bug 426589 - [1.8][compiler] Compiler error with generic method/constructor invocation as vargs argument
  *								Bug 426590 - [1.8][compiler] Compiler error with tenary operator
  *								Bug 426764 - [1.8] Presence of conditional expression as method argument confuses compiler
+ *								Bug 426998 - [1.8][compiler] method(java.lang.Class, java.lang.String) not applicable for the arguments (java.lang.Class, java.lang.String) 
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -850,10 +851,10 @@ public abstract class Scope {
 		} else if (invocArg.isPolyExpression()) {
 			if (invocArg instanceof ConditionalExpression) {
 				ConditionalExpression ce = (ConditionalExpression) invocArg;
-				int level = compatibilityLevel18FromInner(method, innerInferenceHelper, ce.valueIfTrue, argLen, compatible, isVarArgs);
+				int level = compatibilityLevel18FromInner(method, innerInferenceHelper, ce.valueIfTrue, argLen, i, isVarArgs);
 				if (level == NOT_COMPATIBLE)
 					return NOT_COMPATIBLE;
-				int level2 = compatibilityLevel18FromInner(method, innerInferenceHelper, ce.valueIfFalse, argLen, compatible, isVarArgs);
+				int level2 = compatibilityLevel18FromInner(method, innerInferenceHelper, ce.valueIfFalse, argLen, i, isVarArgs);
 				if (level2 == NOT_COMPATIBLE)
 					return NOT_COMPATIBLE;
 				return Math.max(level, level2);
