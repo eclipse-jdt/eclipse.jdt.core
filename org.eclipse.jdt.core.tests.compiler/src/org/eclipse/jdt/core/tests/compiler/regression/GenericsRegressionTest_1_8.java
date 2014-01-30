@@ -1567,4 +1567,78 @@ public void testBug426764() {
 			"}\n"
 		});
 }
+// simplest: avoid any grief concerning dequeCapacity:
+public void testBug424930a() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayDeque;\n" + 
+			"import java.util.Deque;\n" + 
+			"import java.util.function.Supplier;\n" + 
+			"\n" + 
+			"public class X<S, T extends Deque<S>> {\n" + 
+			"    private final Supplier<T> supplier;\n" + 
+			"\n" + 
+			"    public X(Supplier<T> supplier) {\n" + 
+			"        this.supplier = supplier;\n" + 
+			"    }\n" + 
+			"    \n" +
+			"	 int dequeCapacity;\n" + 
+			"    public static <S> X<S, Deque<S>> newDefaultMap() {\n" + 
+			"        return new X<>(() -> new ArrayDeque<>(13));\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+// original test:
+public void testBug424930b() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayDeque;\n" + 
+			"import java.util.Deque;\n" + 
+			"import java.util.function.Supplier;\n" + 
+			"\n" + 
+			"public class X<S, T extends Deque<S>> {\n" + 
+			"    private final Supplier<T> supplier;\n" + 
+			"\n" + 
+			"    public X(Supplier<T> supplier) {\n" + 
+			"        this.supplier = supplier;\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public static <S> X<S, Deque<S>> newDefaultMap(int dequeCapacity) {\n" + 
+			"        return new X<>(() -> new ArrayDeque<>(dequeCapacity));\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+// witness for an NPE during experiments
+public void testBug424930c() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayDeque;\n" + 
+			"import java.util.Deque;\n" + 
+			"import java.util.function.Supplier;\n" + 
+			"\n" + 
+			"public class X<S, T extends Deque<S>> {\n" + 
+			"    private final Supplier<T> supplier;\n" + 
+			"\n" + 
+			"    public X(Supplier<T> supplier) {\n" + 
+			"        this.supplier = supplier;\n" + 
+			"    }\n" + 
+			"    \n" +
+			"	 int dequeCapacity;\n" + 
+			"    public static <S> X<S, Deque<S>> newDefaultMap() {\n" + 
+			"        return new X<>(() -> new ArrayDeque<>(dequeCapacity));\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	return new X<>(() -> new ArrayDeque<>(dequeCapacity));\n" + 
+		"	                                      ^^^^^^^^^^^^^\n" + 
+		"Cannot make a static reference to the non-static field dequeCapacity\n" + 
+		"----------\n");
+}
 }

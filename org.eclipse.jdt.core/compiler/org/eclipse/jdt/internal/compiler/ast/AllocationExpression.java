@@ -33,6 +33,7 @@
  *							Bug 426366 - [1.8][compiler] Type inference doesn't handle multiple candidate target types in outer overload context
  *							Bug 426290 - [1.8][compiler] Inference + overloading => wrong method resolution ?
  *							Bug 426764 - [1.8] Presence of conditional expression as method argument confuses compiler
+ *							Bug 424930 - [1.8][compiler] Regression: "Cannot infer type arguments" error from compiler.
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *							bug 378674 - "The method can be declared as static" is wrong
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -418,6 +419,8 @@ public TypeBinding resolveType(BlockScope scope) {
 				argsContainCast = true;
 			}
 			argument.setExpressionContext(INVOCATION_CONTEXT);
+			if (this.arguments[i].resolvedType != null) 
+				this.arguments[i].unresolve(); // some cleanup before second attempt
 			if ((argumentTypes[i] = argument.resolveType(scope)) == null) {
 				argHasError = true;
 			}

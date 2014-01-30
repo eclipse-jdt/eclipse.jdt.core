@@ -90,6 +90,8 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			if (this.left instanceof Invocation) {
 				Invocation invocation = (Invocation) this.left;
 				MethodBinding previousMethod = invocation.binding(this.right);
+				if (previousMethod == null)  	// can happen, e.g., if inside a copied lambda with ignored errors
+					return null; 				// -> proceed with no new constraints
 				MethodBinding method = previousMethod;
 				// ignore previous (inner) inference result and do a fresh start:
 				// avoid original(), since we only want to discard one level of instantiation 

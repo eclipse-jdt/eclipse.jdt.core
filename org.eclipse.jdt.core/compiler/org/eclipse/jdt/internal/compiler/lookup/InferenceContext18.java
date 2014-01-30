@@ -436,6 +436,7 @@ public class InferenceContext18 {
 				}
 				InferenceVariable[] variablesArray = allInputs.toArray(new InferenceVariable[allInputs.size()]);
 				//   ... is resolved
+				this.currentBounds.incorporate(this);
 				BoundSet solution = resolve();
 				// * ~ apply substitutions to all constraints: 
 				bottomIt = bottomSet.iterator();
