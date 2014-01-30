@@ -24,6 +24,7 @@
  *								Bug 424712 - [1.8][compiler] NPE in TypeBinding.isProvablyDistinctTypeArgument
  *								Bug 426792 - [1.8][inference][impl] generify new type inference engine
  *								Bug 426764 - [1.8] Presence of conditional expression as method argument confuses compiler
+ *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -1520,7 +1521,7 @@ public boolean hasTypeBit(int bit) {
 }
 
 public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
-	return s.isCompatibleWith(t);
+	return s.isCompatibleWith(t) && !s.needsUncheckedConversion(t);
 }
 
 public MethodBinding[] getMethods(char[] selector) {

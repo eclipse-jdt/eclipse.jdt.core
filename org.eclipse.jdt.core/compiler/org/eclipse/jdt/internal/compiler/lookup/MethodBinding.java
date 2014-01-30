@@ -22,6 +22,7 @@
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 425152 - [1.8] [compiler] Lambda Expression not resolved but flow analyzed leading to NPE.
+ *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
  *     Jesper Steen Moller - Contributions for
  *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *******************************************************************************/
@@ -896,6 +897,10 @@ public MethodBinding original() {
  */
 public MethodBinding shallowOriginal() {
 	return original();
+}
+
+public MethodBinding genericMethod() {
+	return this;
 }
 
 public char[] readableName() /* foo(int, Thread) */ {

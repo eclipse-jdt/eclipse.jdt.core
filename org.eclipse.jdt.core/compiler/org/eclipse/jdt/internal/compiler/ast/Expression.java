@@ -24,6 +24,7 @@
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 426792 - [1.8][inference][impl] generify new type inference engine
+ *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -1163,6 +1164,8 @@ public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
 	TypeBinding expressionType = this.resolvedType;
 	if (expressionType == null || !expressionType.isValidBinding()) // Shouldn't get here, just to play it safe
 		return false; // trigger ambiguity.
+	if (s.isBaseType() && t.isBaseType())
+		return s.isCompatibleWith(t);
 	return s.findSuperTypeOriginatingFrom(t) != null;
 }
 

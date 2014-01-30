@@ -11,6 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1500,6 +1502,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"    void foo3(String s, V v, String r, Object o, Object... obs) {System.out.print(2);}\n" +
 				"}\n",
 			},
+			(this.complianceLevel < ClassFileConstants.JDK1_8 ?
 			"----------\n" +
 			"1. ERROR in V.java (at line 4)\r\n" +
 			"	v.foo2(null, \"\");\r\n" +
@@ -1515,7 +1518,20 @@ public class VarargsTest extends AbstractComparableTest {
 			"	v.foo3(\"\", v, null, \"\");\r\n" +
 			"	  ^^^^\n" +
 			"The method foo3(String, V, String[]) is ambiguous for the type V\n" +
-			"----------\n");
+			"----------\n"
+			: // one fewer ambiguity in 1.8:
+				"----------\n" + 
+				"1. ERROR in V.java (at line 4)\n" + 
+				"	v.foo2(null, \"\");\n" + 
+				"	  ^^^^\n" + 
+				"The method foo2(String, Object[]) is ambiguous for the type V\n" + 
+				"----------\n" + 
+				"2. ERROR in V.java (at line 5)\n" + 
+				"	v.foo2(null, \"\", \"\");\n" + 
+				"	  ^^^^\n" + 
+				"The method foo2(String, Object[]) is ambiguous for the type V\n" + 
+				"----------\n")
+			);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105801
 	public void test038() {

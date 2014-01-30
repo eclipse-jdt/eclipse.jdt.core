@@ -32,7 +32,8 @@
  *								Bug 426589 - [1.8][compiler] Compiler error with generic method/constructor invocation as vargs argument
  *								Bug 426590 - [1.8][compiler] Compiler error with tenary operator
  *								Bug 426764 - [1.8] Presence of conditional expression as method argument confuses compiler
- *								Bug 426998 - [1.8][compiler] method(java.lang.Class, java.lang.String) not applicable for the arguments (java.lang.Class, java.lang.String) 
+ *								Bug 426998 - [1.8][compiler] method(java.lang.Class, java.lang.String) not applicable for the arguments (java.lang.Class, java.lang.String)
+ *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -4322,43 +4323,8 @@ public abstract class Scope {
 	protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize, TypeBinding[] argumentTypes, final InvocationSite invocationSite, ReferenceBinding receiverType) {
 
 		boolean isJdk18 = compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8;
-		if (isJdk18) {
-			// Apply one level of filtering per poly expression more specific rules.
-			MethodBinding[] moreSpecific = new MethodBinding[visibleSize];
-			int count = 0;
-			nextJ: for (int j = 0; j < visibleSize; j++) {
-				MethodBinding mbj = visible[j].original();
-				final TypeBinding[] mbjParameters = mbj.parameters;
-				final int mbjParametersLength = mbjParameters.length;
-				for (int k = 0; k < visibleSize; k++) {
-					if (j == k) continue;
-					MethodBinding mbk = visible[k].original();
-					final TypeBinding[] mbkParameters = mbk.parameters;
-					final int mbkParametersLength = mbkParameters.length;
 
-					for (int i = 0, length = argumentTypes.length; i < length; i++) {
-						TypeBinding argumentType = argumentTypes[i];
-						if (argumentType.kind() != Binding.POLY_TYPE)
-							continue;
-						TypeBinding s = i < mbjParametersLength ? mbjParameters[i] : mbjParameters[mbjParametersLength - 1];
-						TypeBinding t = i < mbkParametersLength ? mbkParameters[i] : mbkParameters[mbkParametersLength - 1];
-						if (TypeBinding.equalsEquals(s, t))
-							continue;
-						if (!argumentType.sIsMoreSpecific(s,t)) {
-							continue nextJ;
-						}
-					}
-				}
-				moreSpecific[count++] = visible[j];
-			}
-			if (count != 0) {
-				visible = moreSpecific;
-				visibleSize = count;
-			}
-		}
-	
-		// JLS7 implementation  
-		
+		// common part for all compliance levels:
 		int[] compatibilityLevels = new int[visibleSize];
 		for (int i = 0; i < visibleSize; i++) {
 			TypeBinding[] argTypes = argumentTypes;
@@ -4369,81 +4335,139 @@ public abstract class Scope {
 			}
 			compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argTypes);
 		}
-
-		InvocationSite tieBreakInvocationSite = new InvocationSite() {
-			public TypeBinding[] genericTypeArguments() { return null; } // ignore genericTypeArgs
-			public boolean isSuperAccess() { return invocationSite.isSuperAccess(); }
-			public boolean isTypeAccess() { return invocationSite.isTypeAccess(); }
-			public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
-			public void setDepth(int depth) { /* ignore */}
-			public void setFieldIndex(int depth) { /* ignore */}
-			public int sourceStart() { return invocationSite.sourceStart(); }
-			public int sourceEnd() { return invocationSite.sourceStart(); }
-			public TypeBinding invocationTargetType() { return invocationSite.invocationTargetType(); }
-			public boolean receiverIsImplicitThis() { return invocationSite.receiverIsImplicitThis();}
-			public InferenceContext18 freshInferenceContext(Scope scope) { return null; /* no inference when ignoring genericTypeArgs */ }
-			public ExpressionContext getExpressionContext() { return ExpressionContext.VANILLA_CONTEXT; }
-		};
 		MethodBinding[] moreSpecific = new MethodBinding[visibleSize];
-		int count = 0;
-		for (int level = 0, max = VARARGS_COMPATIBLE; level <= max; level++) {
-			nextVisible : for (int i = 0; i < visibleSize; i++) {
-				if (compatibilityLevels[i] != level) continue nextVisible;
-				max = level; // do not examine further categories, will either return mostSpecific or report ambiguous case
-				MethodBinding current = visible[i];
-				MethodBinding original = current.original();
-				MethodBinding tiebreakMethod = current.tiebreakMethod();
-				for (int j = 0; j < visibleSize; j++) {
-					if (i == j || compatibilityLevels[j] != level) continue;
-					MethodBinding next = visible[j];
-					if (original == next.original()) {
-						// parameterized superclasses & interfaces may be walked twice from different paths so skip next from now on
-						compatibilityLevels[j] = -1;
-						continue;
-					}
 
-					MethodBinding methodToTest = next;
-					if (next instanceof ParameterizedGenericMethodBinding) {
-						ParameterizedGenericMethodBinding pNext = (ParameterizedGenericMethodBinding) next;
-						if (pNext.isRaw && !pNext.isStatic()) {
-							// hold onto the raw substituted method
-						} else {
-							methodToTest = pNext.originalMethod;
+		if (isJdk18) {
+			// 15.12.2.5 Choosing the Most Specific Method
+			int count = 0;
+				
+			nextJ: for (int j = 0; j < visibleSize; j++) {
+				MethodBinding mbj = visible[j].genericMethod();
+				final TypeBinding[] mbjParameters = mbj.parameters;	
+				int levelj = compatibilityLevels[j];
+				nextK: for (int k = 0; k < visibleSize; k++) {
+					if (j == k) continue;
+					// TODO do we want to check existing inference contexts whether they can tell us better about the used inferenceKind?
+					int levelk = compatibilityLevels[k];
+					if (levelj > -1 && levelk > -1 && levelj != levelk) {
+						if (levelj < levelk)
+							continue nextK; // j is more specific than this k
+						else
+							continue nextJ; // j cannot be more specific
+					}
+					MethodBinding mbk = visible[k].genericMethod();
+					final TypeBinding[] mbkParameters = mbk.parameters;
+					// TODO: should the following line also find diamond-typeVariables?
+					if ((invocationSite instanceof Invocation) && mbk.typeVariables() != Binding.NO_TYPE_VARIABLES) {
+						// 18.5.4 More Specific Method Inference
+						Invocation invocation = (Invocation)invocationSite;
+						InferenceContext18 ic18 = new InferenceContext18(this, invocation.arguments(), invocation);
+						if (!ic18.isMoreSpecificThan(invocation, mbj, mbk, levelj == VARARGS_COMPATIBLE, levelk == VARARGS_COMPATIBLE)) {
+							continue nextJ;
+						}
+					} else {
+						for (int i = 0, length = argumentTypes.length; i < length; i++) {
+							TypeBinding argumentType = argumentTypes[i];
+							TypeBinding s = InferenceContext18.getParameter(mbjParameters, i, levelj == VARARGS_COMPATIBLE); 
+							TypeBinding t = InferenceContext18.getParameter(mbkParameters, i, levelk == VARARGS_COMPATIBLE); 
+							if (TypeBinding.equalsEquals(s, t))
+								continue;
+							if (!argumentType.sIsMoreSpecific(s,t)) {
+								continue nextJ;
+							}
 						}
 					}
-					MethodBinding acceptable = computeCompatibleMethod(methodToTest, tiebreakMethod.parameters,
-							tieBreakInvocationSite, INVOCATION_TYPE, level == VARARGS_COMPATIBLE);
-					/* There are 4 choices to consider with current & next :
-					 foo(B) & foo(A) where B extends A
-					 1. the 2 methods are equal (both accept each others parameters) -> want to continue
-					 2. current has more specific parameters than next (so acceptable is a valid method) -> want to continue
-					 3. current has less specific parameters than next (so acceptable is null) -> go on to next
-					 4. current and next are not compatible with each other (so acceptable is null) -> go on to next
-					 */
-					if (acceptable == null || !acceptable.isValidBinding())
-						continue nextVisible;
-					if (!isAcceptableMethod(tiebreakMethod, acceptable))
-						continue nextVisible;
-					// pick a concrete method over a bridge method when parameters are equal since the return type of the concrete method is more specific
-					if (current.isBridge() && !next.isBridge())
-						if (tiebreakMethod.areParametersEqual(acceptable))
-							continue nextVisible; // skip current so acceptable wins over this bridge method
 				}
-				moreSpecific[i] = current;
-				count++;
+				moreSpecific[count++] = visible[j];
 			}
-		}
-		if (count == 1) {
-			for (int i = 0; i < visibleSize; i++) {
-				if (moreSpecific[i] != null) {
-					// 1.8: Give inference a chance to perform outstanding tasks (18.5.2):
-					MethodBinding candidate = inferInvocationType(invocationSite, visible[i], argumentTypes);
-					compilationUnitScope().recordTypeReferences(candidate.thrownExceptions);
-					return candidate;
+			if (count == 0) {
+				return new ProblemMethodBinding(visible[0], visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
+			} else if (count == 1) {
+				MethodBinding candidate = inferInvocationType(invocationSite, moreSpecific[0], argumentTypes);
+				compilationUnitScope().recordTypeReferences(candidate.thrownExceptions);
+				return candidate;
+			} else {
+				visibleSize = count;
+				// we proceed with pre 1.8 code below, which checks for overriding
+			}
+		} else {
+
+			// JLS7 implementation  
+	
+			InvocationSite tieBreakInvocationSite = new InvocationSite() {
+				public TypeBinding[] genericTypeArguments() { return null; } // ignore genericTypeArgs
+				public boolean isSuperAccess() { return invocationSite.isSuperAccess(); }
+				public boolean isTypeAccess() { return invocationSite.isTypeAccess(); }
+				public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
+				public void setDepth(int depth) { /* ignore */}
+				public void setFieldIndex(int depth) { /* ignore */}
+				public int sourceStart() { return invocationSite.sourceStart(); }
+				public int sourceEnd() { return invocationSite.sourceStart(); }
+				public TypeBinding invocationTargetType() { return invocationSite.invocationTargetType(); }
+				public boolean receiverIsImplicitThis() { return invocationSite.receiverIsImplicitThis();}
+				public InferenceContext18 freshInferenceContext(Scope scope) { return null; /* no inference when ignoring genericTypeArgs */ }
+				public ExpressionContext getExpressionContext() { return ExpressionContext.VANILLA_CONTEXT; }
+			};
+			int count = 0;
+			for (int level = 0, max = VARARGS_COMPATIBLE; level <= max; level++) {
+				nextVisible : for (int i = 0; i < visibleSize; i++) {
+					if (compatibilityLevels[i] != level) continue nextVisible;
+					max = level; // do not examine further categories, will either return mostSpecific or report ambiguous case
+					MethodBinding current = visible[i];
+					MethodBinding original = current.original();
+					MethodBinding tiebreakMethod = current.tiebreakMethod();
+					for (int j = 0; j < visibleSize; j++) {
+						if (i == j || compatibilityLevels[j] != level) continue;
+						MethodBinding next = visible[j];
+						if (original == next.original()) {
+							// parameterized superclasses & interfaces may be walked twice from different paths so skip next from now on
+							compatibilityLevels[j] = -1;
+							continue;
+						}
+	
+						MethodBinding methodToTest = next;
+						if (next instanceof ParameterizedGenericMethodBinding) {
+							ParameterizedGenericMethodBinding pNext = (ParameterizedGenericMethodBinding) next;
+							if (pNext.isRaw && !pNext.isStatic()) {
+								// hold onto the raw substituted method
+							} else {
+								methodToTest = pNext.originalMethod;
+							}
+						}
+						MethodBinding acceptable = computeCompatibleMethod(methodToTest, tiebreakMethod.parameters,
+								tieBreakInvocationSite, INVOCATION_TYPE, level == VARARGS_COMPATIBLE);
+						/* There are 4 choices to consider with current & next :
+						 foo(B) & foo(A) where B extends A
+						 1. the 2 methods are equal (both accept each others parameters) -> want to continue
+						 2. current has more specific parameters than next (so acceptable is a valid method) -> want to continue
+						 3. current has less specific parameters than next (so acceptable is null) -> go on to next
+						 4. current and next are not compatible with each other (so acceptable is null) -> go on to next
+						 */
+						if (acceptable == null || !acceptable.isValidBinding())
+							continue nextVisible;
+						if (!isAcceptableMethod(tiebreakMethod, acceptable))
+							continue nextVisible;
+						// pick a concrete method over a bridge method when parameters are equal since the return type of the concrete method is more specific
+						if (current.isBridge() && !next.isBridge())
+							if (tiebreakMethod.areParametersEqual(acceptable))
+								continue nextVisible; // skip current so acceptable wins over this bridge method
+					}
+					moreSpecific[i] = current;
+					count++;
 				}
 			}
-		} else if (count == 0) {
-			return new ProblemMethodBinding(visible[0], visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
+			if (count == 1) {
+				for (int i = 0; i < visibleSize; i++) {
+					if (moreSpecific[i] != null) {
+						// 1.8: Give inference a chance to perform outstanding tasks (18.5.2):
+						MethodBinding candidate = inferInvocationType(invocationSite, visible[i], argumentTypes);
+						compilationUnitScope().recordTypeReferences(candidate.thrownExceptions);
+						return candidate;
+					}
+				}
+			} else if (count == 0) {
+				return new ProblemMethodBinding(visible[0], visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
+			}
 		}
 
 		// found several methods that are mutually acceptable -> must be equal
@@ -4561,7 +4585,6 @@ public abstract class Scope {
 			}
 		}
 
-		// if all moreSpecific methods are equal then see if duplicates exist because of substitution
 		return new ProblemMethodBinding(visible[0], visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
 	}
 
