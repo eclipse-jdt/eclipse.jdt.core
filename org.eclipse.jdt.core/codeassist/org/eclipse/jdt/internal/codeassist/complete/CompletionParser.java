@@ -3024,6 +3024,7 @@ protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 		this.identifierLengthPtr--;
 		//type
 		md.returnType = getTypeReference(this.intStack[this.intPtr--]);
+		md.bits |= (md.returnType.bits & ASTNode.HasTypeAnnotations);
 		//modifiers
 		md.declarationSourceStart = this.intStack[this.intPtr--];
 		md.modifiers = this.intStack[this.intPtr--];

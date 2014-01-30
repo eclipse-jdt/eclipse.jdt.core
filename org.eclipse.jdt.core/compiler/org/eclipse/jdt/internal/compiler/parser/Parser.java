@@ -4994,6 +4994,7 @@ protected void consumeMethodHeaderExtendedDims() {
 	if (extendedDimensions != 0) {
 		md.sourceEnd = this.endPosition;
 		md.returnType = augmentTypeWithAdditionalDimensions(md.returnType, extendedDimensions, getAnnotationsOnDimensions(extendedDimensions), false);
+		md.bits |= (md.returnType.bits & ASTNode.HasTypeAnnotations);
 		if (this.currentToken == TokenNameLBRACE){
 			md.bodyStart = this.endPosition + 1;
 		}
@@ -5021,6 +5022,7 @@ protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 	this.identifierLengthPtr--;
 	//type
 	md.returnType = getTypeReference(this.intStack[this.intPtr--]);
+	md.bits |= (md.returnType.bits & ASTNode.HasTypeAnnotations);
 	//modifiers
 	md.declarationSourceStart = this.intStack[this.intPtr--];
 	md.modifiers = this.intStack[this.intPtr--];
