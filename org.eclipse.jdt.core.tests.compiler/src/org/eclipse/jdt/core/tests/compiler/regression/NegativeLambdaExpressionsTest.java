@@ -8345,7 +8345,7 @@ public void testBug426563() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=426965,  [1.8] Eclipse rejects valid type conversion in lambda
-public void _test426965() {
+public void test426965() {
 	runNegativeTest(
 		new String[] {
 			"X.java",

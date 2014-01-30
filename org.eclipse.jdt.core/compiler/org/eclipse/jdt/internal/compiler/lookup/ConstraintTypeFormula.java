@@ -214,6 +214,9 @@ class ConstraintTypeFormula extends ConstraintFormula {
 					if (subCandidate instanceof ReferenceBinding) {
 						if (hasSuperType((ReferenceBinding) subCandidate, (ReferenceBinding) superCandidate))
 							return TRUE;
+					} else if (subCandidate.isArrayType()) { // arrays have exactly one super type that is a class or interface:
+						if (TypeBinding.equalsEquals(superCandidate, scope.getJavaLangObject())) // java.lang.Object
+							return TRUE;
 					}
 					return FALSE;
 				}
