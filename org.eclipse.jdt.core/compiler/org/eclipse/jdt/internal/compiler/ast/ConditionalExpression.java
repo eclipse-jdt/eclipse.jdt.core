@@ -717,9 +717,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	}
 	
 	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
+		if (super.sIsMoreSpecific(s, t))
+			return true;
 		return isPolyExpression() ?
 				this.valueIfTrue.sIsMoreSpecific(s, t) && this.valueIfFalse.sIsMoreSpecific(s, t):
-				super.sIsMoreSpecific(s, t);
+				false;
 	}
 	
 	public void tagAsEllipsisArgument() {

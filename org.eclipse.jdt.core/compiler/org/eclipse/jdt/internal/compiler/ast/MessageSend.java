@@ -924,7 +924,9 @@ public boolean isPolyExpression(MethodBinding resolutionCandidate) {
 }
 
 public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
-	return isPolyExpression() ? !s.isBaseType() && t.isBaseType() : super.sIsMoreSpecific(s, t);
+	if (super.sIsMoreSpecific(s, t))
+		return true;
+	return isPolyExpression() ? !s.isBaseType() && t.isBaseType() : false;
 }
 
 public void setFieldIndex(int depth) {

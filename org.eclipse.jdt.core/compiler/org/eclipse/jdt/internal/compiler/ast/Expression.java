@@ -1161,12 +1161,7 @@ public boolean isCompatibleWith(TypeBinding left, Scope scope) {
 }
 
 public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
-	TypeBinding expressionType = this.resolvedType;
-	if (expressionType == null || !expressionType.isValidBinding()) // Shouldn't get here, just to play it safe
-		return false; // trigger ambiguity.
-	if (s.isBaseType() && t.isBaseType())
-		return s.isCompatibleWith(t);
-	return s.findSuperTypeOriginatingFrom(t) != null;
+	return s.isCompatibleWith(t);
 }
 
 public void tagAsEllipsisArgument() {

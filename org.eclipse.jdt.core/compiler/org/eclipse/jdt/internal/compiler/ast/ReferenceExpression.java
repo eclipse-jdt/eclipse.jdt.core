@@ -679,10 +679,10 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	
 	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
 		
-		if (TypeBinding.equalsEquals(s, t))
+		if (super.sIsMoreSpecific(s, t))
 			return true;
 		
-		if (this.exactMethodBinding == null)
+		if (this.exactMethodBinding == null || t.findSuperTypeOriginatingFrom(s) != null)
 			return false;
 		
 		s = s.capture(this.enclosingScope, this.sourceEnd);

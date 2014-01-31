@@ -851,7 +851,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		
 		// 15.12.2.5 
 		
-		if (TypeBinding.equalsEquals(s,  t))
+		if (super.sIsMoreSpecific(s, t))
 			return true;
 		
 		if (argumentsTypeElided() || t.findSuperTypeOriginatingFrom(s) != null)

@@ -2147,4 +2147,109 @@ public void test401850() {
 			},
 			"foo(X<String>)");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427072,  [1.8][compiler] Regression since fix of bug 423505: Method is ambiguous for type X 
+public void test427072() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"    Object m(X t);\n" +
+				"}\n" +
+				"interface J extends I {\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    int foo()  { return 0; }\n" +
+				"    int test() {\n" +
+				"        return foo(X::foo);\n" +
+				"    }\n" +
+				"    int foo(I i) {return 0;}\n" +
+				"    int foo(J j) { return 1;}\n" +
+				"    public static void main(String args[]) {\n" +
+				"        X x = new X();\n" +
+				"        int i = x.test();\n" +
+				"        System.out.println(i);\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"1");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427072,  [1.8][compiler] Regression since fix of bug 423505: Method is ambiguous for type X 
+public void test427072a() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"    Object m(X t);\n" +
+				"}\n" +
+				"interface J extends I {\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    int foo()  { return 0; }\n" +
+				"    int test() {\n" +
+				"        return foo((x) -> x);\n" +
+				"    }\n" +
+				"    int foo(I i) {return 0;}\n" +
+				"    int foo(J j) { return 1;}\n" +
+				"    public static void main(String args[]) {\n" +
+				"        X x = new X();\n" +
+				"        int i = x.test();\n" +
+				"        System.out.println(i);\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"1");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427072,  [1.8][compiler] Regression since fix of bug 423505: Method is ambiguous for type X 
+public void test427072b() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"    Object m(X t);\n" +
+				"}\n" +
+				"interface J extends I {\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    int foo()  { return 0; }\n" +
+				"    int test() {\n" +
+				"        return foo(true ? (x) -> x : X::foo);\n" +
+				"    }\n" +
+				"    int foo(I i) {return 0;}\n" +
+				"    int foo(J j) { return 1;}\n" +
+				"    public static void main(String args[]) {\n" +
+				"        X x = new X();\n" +
+				"        int i = x.test();\n" +
+				"        System.out.println(i);\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"1");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427072,  [1.8][compiler] Regression since fix of bug 423505: Method is ambiguous for type X 
+public void test427072c() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"    Object m(X t);\n" +
+				"}\n" +
+				"interface J extends I {\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    int foo1()  { return 0; }\n" +
+				"    int foo2()  { return 0; }\n" +
+				"    int test() {\n" +
+				"        return foo(true ? X::foo1 : X::foo2);\n" +
+				"    }\n" +
+				"    int foo(I i) {return 0;}\n" +
+				"    int foo(J j) { return 1;}\n" +
+				"    public static void main(String args[]) {\n" +
+				"        X x = new X();\n" +
+				"        int i = x.test();\n" +
+				"        System.out.println(i);\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"1");
+}
 }
