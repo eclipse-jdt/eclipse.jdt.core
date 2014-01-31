@@ -116,15 +116,6 @@ public interface ITypeBinding extends IBinding {
 	public int getRank();
 	
 	/**
-	 * Returns the annotations on dimensions that this type reference is annotated with. Since JLS8, 
-	 * type annotations are allowed on dimensions. 
-	 * @return array of type use annotations specified on the dimensions of this type reference, or an empty array if
-	 * no type use annotations are found.
-	 * @since 3.9 BETA_JAVA8
-	 */
-	public IAnnotationBinding[][] getTypeAnnotationsOnDimensions();
-
-	/**
 	 * Returns the binding representing the component type of this array type,
 	 * or <code>null</code> if this is not an array type binding. The component
 	 * type of an array might be an array type.

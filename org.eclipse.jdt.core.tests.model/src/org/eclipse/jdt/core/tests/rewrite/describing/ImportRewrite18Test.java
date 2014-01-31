@@ -14,12 +14,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
-
-
 import java.io.IOException;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -59,12 +56,6 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 
 	public static Test allTests() {
 		return new Suite(THIS);
-	}
-
-	public static Test setUpTest(Test someTest) {
-		TestSuite suite= new Suite("one test");
-		suite.addTest(someTest);
-		return suite;
 	}
 
 	public static Test suite() {

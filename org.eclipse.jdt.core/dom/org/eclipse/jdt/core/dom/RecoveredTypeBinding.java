@@ -728,8 +728,4 @@ class RecoveredTypeBinding implements ITypeBinding {
 	public IAnnotationBinding[] getTypeAnnotations() {
 		return AnnotationBinding.NoAnnotations;
 	}
-
-	public IAnnotationBinding[][] getTypeAnnotationsOnDimensions() {
-		return null;
-	}
 }
