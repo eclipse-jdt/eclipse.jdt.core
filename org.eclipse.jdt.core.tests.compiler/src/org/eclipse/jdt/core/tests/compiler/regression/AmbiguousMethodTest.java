@@ -4468,6 +4468,7 @@ public void testBug426521() {
 			"    }\n" + 
 			"}\n"
 		},
+		this.complianceLevel < ClassFileConstants.JDK1_8 ? "" :
 		"----------\n" + 
 		"1. ERROR in Test.java (at line 9)\n" + 
 		"	m(l, l); //JDK 6/7 give ambiguity here - EJC compiles ok\n" + 
