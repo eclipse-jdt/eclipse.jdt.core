@@ -68,7 +68,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
                     if (this.left instanceof LambdaExpression) {
                         // cf. NegativeLambdaExpressionTest.test412453()
                         LambdaExpression copy = ((LambdaExpression) this.left).getResolvedCopyForInferenceTargeting(this.right);
-                        return (copy.resolvedType != null && copy.resolvedType.isValidBinding()) ? TRUE : FALSE;
+                        return (copy != null && copy.resolvedType != null && copy.resolvedType.isValidBinding()) ? TRUE : FALSE;
                     }
                 }
                 return this.left.isCompatibleWith(this.right, inferenceContext.scope) ? TRUE : FALSE;

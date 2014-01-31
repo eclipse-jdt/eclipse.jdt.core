@@ -1670,4 +1670,34 @@ public void testBug426998b() {
 			"}\n"
 		});
 }
+public void testBug427164() {
+	runNegativeTest(
+		new String[] {
+			"NNLambda.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface FInter {\n" + 
+			"	String allToString(List<String> input);\n" + 
+			"}\n" + 
+			"\n" + 
+			"public abstract class NNLambda {\n" + 
+			"	abstract <INP> void printem(FInter conv, INP single);\n" + 
+			"	\n" + 
+			"	void test() {\n" + 
+			"		printem((i) -> {\n" + 
+			"				Collections.<String>singletonList(\"const\")\n" + 
+			"			}, \n" + 
+			"			\"single\");\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in NNLambda.java (at line 13)\n" + 
+		"	Collections.<String>singletonList(\"const\")\n" + 
+		"	                                         ^\n" + 
+		"Syntax error, insert \";\" to complete BlockStatements\n" + 
+		"----------\n",
+		true); // statement recovery
+}
 }
