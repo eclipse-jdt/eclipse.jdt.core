@@ -163,7 +163,8 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					for (int i = 0; i < parameters.length; i++)
 						result.add(new ConstraintTypeFormula(parameters[i], arguments[i].type.resolveType(lambda.enclosingScope), SAME));
 					// in addition, ⟨T' <: T⟩:
-					result.add(new ConstraintTypeFormula(lambda.resolvedType, this.right, SUBTYPE));
+					if (lambda.resolvedType != null)
+						result.add(new ConstraintTypeFormula(lambda.resolvedType, this.right, SUBTYPE));
 				}
 				if (functionType.returnType != TypeBinding.VOID) {
 					TypeBinding r = functionType.returnType;

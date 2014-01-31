@@ -1700,4 +1700,30 @@ public void testBug427164() {
 		"----------\n",
 		true); // statement recovery
 }
+public void testBug427168() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface Producer<T> {\n" + 
+			"	<P> P produce();\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"	<T> void perform(Producer<T> r) { }\n" + 
+			"	void test() {\n" + 
+			"		perform(() -> 13); \n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	perform(() -> 13); \n" + 
+		"	^^^^^^^\n" + 
+		"The method perform(Producer<T>) in the type X is not applicable for the arguments (() -> 13)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	perform(() -> 13); \n" + 
+		"	        ^^^^^^^^\n" + 
+		"Illegal lambda expression: Method produce of type Producer<T> is generic \n" + 
+		"----------\n");
+}
 }
