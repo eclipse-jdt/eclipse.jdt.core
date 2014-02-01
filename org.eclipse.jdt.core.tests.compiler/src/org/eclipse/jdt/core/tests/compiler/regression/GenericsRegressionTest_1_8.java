@@ -777,7 +777,7 @@ public void testBug425142_full() {
 		"----------\n");
 }
 public void testBug424195a() {
-	runNegativeTest(
+	runNegativeTestMultiResult(
 		new String[] {
 			"NPEOnCollector.java",
 			"import java.io.IOException;\n" + 
@@ -804,13 +804,22 @@ public void testBug424195a() {
 			"  }\n" + 
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in NPEOnCollector.java (at line 17)\n" + 
-		"	Stream<JarEntry> stream = entries\n" + 
-		"          .distinct().collect(Collectors.toCollection(ArrayList::new));\n" + 
-		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Collection<JarEntry> to Stream<JarEntry>\n" + 
-		"----------\n");
+		null,
+		new String[] {
+			"----------\n" + 
+			"1. ERROR in NPEOnCollector.java (at line 17)\n" + 
+			"	Stream<JarEntry> stream = entries\n" + 
+			"          .distinct().collect(Collectors.toCollection(ArrayList::new));\n" + 
+			"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Collection<JarEntry> to Stream<JarEntry>\n" + 
+			"----------\n",
+			"----------\n" + 
+			"1. ERROR in NPEOnCollector.java (at line 18)\n" + 
+			"	.distinct().collect(Collectors.toCollection(ArrayList::new));\n" + 
+			"	                                            ^^^^^^^^^^^^^^\n" + 
+			"The constructed object of type ArrayList is incompatible with the descriptor\'s return type: Stream<JarEntry>&Collection<T#2>&Collection<JarEntry>\n" + 
+			"----------\n"
+		});
 }
 public void testBug424195b() {
 	runConformTest(

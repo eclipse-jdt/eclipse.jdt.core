@@ -1,12 +1,18 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 425721 - [1.8][compiler] Nondeterministic results in GenericsRegressionTest_1_8.testBug424195a
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1020,7 +1026,8 @@ public class JavadocTestOptions extends JavadocTest {
     }
 
     protected void checkCompilerLog(String[] testFiles, Requestor requestor,
-    		String platformIndependantExpectedLog, Throwable exception) {
+    		String[] alternatePlatformIndependantExpectedLogs, Throwable exception) {
+    	String platformIndependantExpectedLog = alternatePlatformIndependantExpectedLogs[0];
     	char firstChar = platformIndependantExpectedLog.charAt(0);
     	boolean isMethod;
     	switch (firstChar) {
@@ -1032,7 +1039,7 @@ public class JavadocTestOptions extends JavadocTest {
     			break;
     		default:
     			super.checkCompilerLog(testFiles, requestor,
-					platformIndependantExpectedLog, exception);
+					alternatePlatformIndependantExpectedLogs, exception);
     		return;
     	}
     	int level = platformIndependantExpectedLog.charAt(1) - '0';

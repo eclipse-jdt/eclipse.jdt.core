@@ -19,6 +19,7 @@
  *								Bug 412203 - [compiler] Internal compiler error: java.lang.IllegalArgumentException: info cannot be null
  *								Bug 422051 - [1.8][compiler][tests] cleanup excuses (JavacHasABug) in InterfaceMethodTests
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 425721 - [1.8][compiler] Nondeterministic results in GenericsRegressionTest_1_8.testBug424195a
  *     Jesper S Moller - Contributions for bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
@@ -1063,15 +1064,18 @@ protected static class JavacTestOptions {
 	 * Fail if exception is non null.
 	 */
 	protected void checkCompilerLog(String[] testFiles, Requestor requestor,
-			String platformIndependantExpectedLog, Throwable exception) {
+			String[] alternatePlatformIndependantExpectedLogs, Throwable exception) {
 		String computedProblemLog = Util.convertToIndependantLineDelimiter(requestor.problemLog.toString());
-		if (!platformIndependantExpectedLog.equals(computedProblemLog)) {
-			logTestTitle();
-			System.out.println(Util.displayString(computedProblemLog, INDENT, SHIFT));
-			logTestFiles(false, testFiles);
+		int i;
+		for (i = 0; i < alternatePlatformIndependantExpectedLogs.length; i++) {
+			if (alternatePlatformIndependantExpectedLogs[i].equals(computedProblemLog))
+				return; // OK
 		}
+		logTestTitle();
+		System.out.println(Util.displayString(computedProblemLog, INDENT, SHIFT));
+		logTestFiles(false, testFiles);
 		if (exception == null) {
-			assertEquals("Invalid problem log ", platformIndependantExpectedLog, computedProblemLog);
+			assertEquals("Invalid problem log ", alternatePlatformIndependantExpectedLogs[i-1], computedProblemLog);
 		}
     }
 
@@ -1382,6 +1386,7 @@ protected static class JavacTestOptions {
 			// compiler results
 			false /* expecting no compiler errors */,
 			null /* do not check compiler log */,
+			null /* no alternate compiler logs */,
 			// runtime options
 			false /* do not force execution */,
 			null /* no vm arguments */,
@@ -1472,6 +1477,7 @@ protected static class JavacTestOptions {
 				false,
 				null,
 				false,
+				null,
 				null,
 				false,
 				null,
@@ -2383,12 +2389,37 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog, b
 			customRequestor,
 			expectingCompilerErrors,
 			expectedCompilerLog,
+			null, // alternate compile errors
 			forceExecution,
 			vmArguments,
 			expectedOutputString,
 			expectedErrorString,
 			null,
 			javacTestOptions);
+	}
+	/** Call this if the compiler randomly produces different error logs. */
+	protected void runNegativeTestMultiResult(String[] testFiles, Map options, String[] alternateCompilerErrorLogs) {
+		runTest(
+			false,
+			testFiles,
+			new String[] {},
+			null,
+			options,
+			false,
+			new Requestor( /* custom requestor */
+					false,
+					null /* no custom requestor */,
+					false,
+					false),
+			true,
+			null,
+			alternateCompilerErrorLogs,
+			false,
+			null,
+			null,
+			null,
+			null,
+			JavacTestOptions.DEFAULT);
 	}
 // This is a worker method to support regression tests. To ease policy changes,
 // it should not be called directly, but through the runConformTest and
@@ -2475,6 +2506,7 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog, b
 			// compiler results
 			boolean expectingCompilerErrors,
 			String expectedCompilerLog,
+			String[] alternateCompilerLogs,
 			// runtime options
 			boolean forceExecution,
 			String[] vmArguments,
@@ -2537,9 +2569,16 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog, b
 			throw e;
 		} finally {
 			nameEnvironment.cleanup();
+			String[] alternatePlatformIndepentLogs = null;
 			if (expectedCompilerLog != null) {
-				checkCompilerLog(testFiles, requestor,
-						Util.convertToIndependantLineDelimiter(expectedCompilerLog), exception);
+				alternatePlatformIndepentLogs = new String[] {Util.convertToIndependantLineDelimiter(expectedCompilerLog)};
+			} else if (alternateCompilerLogs != null) {
+				alternatePlatformIndepentLogs = new String[alternateCompilerLogs.length];
+				for (int i = 0; i < alternateCompilerLogs.length; i++)
+					alternatePlatformIndepentLogs[i] = Util.convertToIndependantLineDelimiter(alternateCompilerLogs[i]);
+			}
+			if (alternatePlatformIndepentLogs != null) {
+				checkCompilerLog(testFiles, requestor, alternatePlatformIndepentLogs, exception);
 			}
 			if (exception == null) {
 				if (expectingCompilerErrors) {
