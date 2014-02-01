@@ -34,6 +34,7 @@
  *								Bug 426764 - [1.8] Presence of conditional expression as method argument confuses compiler
  *								Bug 426998 - [1.8][compiler] method(java.lang.Class, java.lang.String) not applicable for the arguments (java.lang.Class, java.lang.String)
  *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
+ *								Bug 427196 - [1.8][compiler] Compiler error for method reference to overloaded method
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -4358,11 +4359,18 @@ public abstract class Scope {
 					MethodBinding mbk = visible[k].genericMethod();
 					final TypeBinding[] mbkParameters = mbk.parameters;
 					// TODO: should the following line also find diamond-typeVariables?
-					if ((invocationSite instanceof Invocation) && mbk.typeVariables() != Binding.NO_TYPE_VARIABLES) {
+					if (((invocationSite instanceof Invocation) || (invocationSite instanceof ReferenceExpression))
+							&& mbk.typeVariables() != Binding.NO_TYPE_VARIABLES) 
+					{
 						// 18.5.4 More Specific Method Inference
-						Invocation invocation = (Invocation)invocationSite;
-						InferenceContext18 ic18 = new InferenceContext18(this, invocation.arguments(), invocation);
-						if (!ic18.isMoreSpecificThan(invocation, mbj, mbk, levelj == VARARGS_COMPATIBLE, levelk == VARARGS_COMPATIBLE)) {
+						Expression[] expressions = null;
+						if (invocationSite instanceof Invocation) {
+							expressions = ((Invocation)invocationSite).arguments();
+						} else {
+							expressions = ((ReferenceExpression)invocationSite).createPseudoExpressions(argumentTypes);
+						}
+						InferenceContext18 ic18 = new InferenceContext18(this, expressions, null);
+						if (!ic18.isMoreSpecificThan(mbj, mbk, levelj == VARARGS_COMPATIBLE, levelk == VARARGS_COMPATIBLE)) {
 							continue nextJ;
 						}
 					} else {

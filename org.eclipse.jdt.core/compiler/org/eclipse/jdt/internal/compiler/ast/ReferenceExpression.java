@@ -25,6 +25,7 @@
  *							Bug 424637 - [1.8][compiler][null] AIOOB in ReferenceExpression.resolveType with a method reference to Files::walk
  *							Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
  *							Bug 424403 - [1.8][compiler] Generic method call with method reference argument fails to resolve properly.
+ *							Bug 427196 - [1.8][compiler] Compiler error for method reference to overloaded method
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contribution for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -725,6 +726,22 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			}
 		}
 		visitor.endVisit(this, blockScope);
+	}
+
+	public Expression[] createPseudoExpressions(TypeBinding[] p) {
+		if (this.descriptor == null)
+			return null;
+		// from 15.28.1: 
+		// ... the reference is treated as if it were an invocation with argument expressions of types P1..Pn
+		// ... the reference is treated as if it were an invocation with argument expressions of types P2..Pn
+		// (the different sets of types are passed from our resolveType to scope.getMethod(..), see someMethod, anotherMethod)
+		Expression[] expressions = new Expression[p.length];
+		long pos = (((long)this.sourceStart)<<32)+this.sourceEnd;
+		for (int i = 0; i < p.length; i++) {
+			expressions[i] = new SingleNameReference(("fakeArg"+i).toCharArray(), pos); //$NON-NLS-1$
+			expressions[i].resolvedType = p[i];
+		}
+		return expressions;
 	}
 
 	public boolean isCompatibleWith(TypeBinding left, Scope scope) {

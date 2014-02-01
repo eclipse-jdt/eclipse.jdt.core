@@ -574,12 +574,12 @@ public class InferenceContext18 {
 	/**
 	 * 18.5.4 More Specific Method Inference
 	 */
-	public boolean isMoreSpecificThan(Invocation invocation, MethodBinding m1, MethodBinding m2, boolean isVarArgs, boolean isVarArgs2) {
+	public boolean isMoreSpecificThan(MethodBinding m1, MethodBinding m2, boolean isVarArgs, boolean isVarArgs2) {
 		// TODO: we don't yet distinguish vararg-with-passthrough from vararg-with-exactly-one-vararg-arg
 		if (isVarArgs != isVarArgs2) {
 			return isVarArgs2;
 		}
-		Expression[] arguments = invocation.arguments();
+		Expression[] arguments = this.invocationArguments;
 		int numInvocArgs = arguments == null ? 0 : arguments.length;
 		TypeVariableBinding[] p = m2.typeVariables();
 		TypeBinding[] s = m1.parameters;

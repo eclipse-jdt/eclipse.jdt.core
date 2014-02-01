@@ -1726,4 +1726,29 @@ public void testBug427168() {
 		"Illegal lambda expression: Method produce of type Producer<T> is generic \n" + 
 		"----------\n");
 }
+public void testBug427196() {
+	runConformTest(
+		new String[] {
+			"MainTest.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Collection;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"public class MainTest {\n" + 
+			"    public static <T> List<T> copyOf (Collection<T> c) {\n" + 
+			"        return new ArrayList<>(c);\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public static <T> List<T> copyOf (Iterable<T> c) {\n" + 
+			"        return new ArrayList<>();\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public static void main (String[] args) {\n" + 
+			"        Function<Collection<String>, List<String>> function1 = c -> MainTest.copyOf(c); //OK\n" + 
+			"        Function<Collection<String>, List<String>> function2 = MainTest::copyOf;        //error\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }
