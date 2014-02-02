@@ -2452,7 +2452,7 @@ public void test426086a() throws Exception {
 }
 // Bug 406744 - [1.8][compiler][codegen] LambdaConversionException seen when method reference targets a varargs method.
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406744
-public void _test406744a() {
+public void test406744a() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2481,7 +2481,7 @@ public void _test406744a() {
 			"10, 20"
 			);
 }
-public void _test406744b() {
+public void test406744b() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2511,7 +2511,7 @@ public void _test406744b() {
 			"10, 20"
 			);
 }
-public void _test406744c() {
+public void test406744c() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2544,7 +2544,604 @@ public void _test406744c() {
 			"10, 20"
 			);
 }
-
+public void test406744d() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int a1, Integer a2, String a3);\n" +
+				"}\n" +
+				"interface Y {\n" +
+				"	static void m(float a1, Object... rest) {\n" + 
+				"		System.out.println(a1);\n" +
+				"		print(rest);\n" +
+				"	}\n" +
+				"	static void print (Object [] o) {\n" +
+				"		for (int i = 0; i < o.length; i++)\n" +
+				"			System.out.println(o[i]);\n" +
+				"	}\n" +
+				"}\n" +
+				"public interface X extends Y{\n" +
+				"	public static void main(String [] args) {\n" +
+				"		I i = Y::m;\n" +
+				"		i.foo(10, 20, \"10, 20\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"10.0\n" +
+			"20\n" +
+			"10, 20"
+			);
+}
+public void test406744e() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	String method(int a);\n" +
+				"}\n" +
+				"class C {\n" +
+				"	static String foo(Integer... i) {\n" +
+				"		return \"foo\";\n" +
+				"	}\n" +
+				"	static String goo(Integer bi, Integer... i) {\n" +
+				"		return \"bar\";\n" +
+				"	}\n" +
+				"	public void foo() {\n" +
+				"		I i;\n" +
+				"		i = C::foo;\n" +
+				"		System.out.println(i.method(0));\n" +
+				"		i = C::goo;\n" +
+				"		System.out.println(i.method(0));\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String argv[])   {\n" +
+				"		new C().foo();\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo\n" +
+			"bar"
+			);
+}
+public void test406744f() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(Integer a1, Integer a2, String a3);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	void m(Number a1, Object... rest) {\n" + 
+				"		System.out.println(a1);\n" +
+				"		print(rest);\n" +
+				"	}\n" +
+				"	static void print (Object [] o) {\n" +
+				"		for (int i = 0; i < o.length; i++)\n" +
+				"			System.out.println(o[i]);\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	static void print (Object [] o) {\n" +
+				"		for (int i = 0; i < o.length; i++)\n" +
+				"			System.out.println(o[i]);\n" +
+				"	}\n" +
+				"	public static void main(String [] args) {\n" +
+				"		new X().foo();\n" +
+				"	}\n" +
+				"	void foo() {\n" + 
+				"		I i = super::m;\n" +
+				"		i.foo(10, 20, \"10, 20\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"10\n" +
+			"20\n" +
+			"10, 20"
+			);
+}
+public void test406744g() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(Integer a1, Integer a2, String a3);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	static void print (Object [] o) {\n" +
+				"		for (int i = 0; i < o.length; i++)\n" +
+				"			System.out.println(o[i]);\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	private void m(Number a1, Object... rest) {\n" + 
+				"		System.out.println(a1);\n" +
+				"		print(rest);\n" +
+				"	}\n" +
+				"	static void print (Object [] o) {\n" +
+				"		for (int i = 0; i < o.length; i++)\n" +
+				"			System.out.println(o[i]);\n" +
+				"	}\n" +
+				"	public static void main(String [] args) {\n" +
+				"		new X().foo();\n" +
+				"	}\n" +
+				"	void foo() {\n" + 
+				"		I i = this::m;\n" +
+				"		i.foo(10, 20, \"10, 20\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"10\n" +
+			"20\n" +
+			"10, 20"
+			);
+}
+public void test406744h() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int [] ia);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	void m(Object... rest) {\n" + 
+				"		System.out.println(\"Hello \" + rest.length);\n" +
+				"	}\n" +
+				"	static void print (Object [] o) {\n" +
+				"		for (int i = 0; i < o.length; i++)\n" +
+				"			System.out.println(o[i]);\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	public static void main(String [] args) {\n" +
+				"		new X().foo();\n" +
+				"	}\n" +
+				"	void foo() {\n" + 
+				"		I i = super::m;\n" +
+				"		i.foo(new int [0]);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"Hello 1"
+			);
+}
+public void test406744i() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int [] ia);\n" +
+				"}\n" +
+				"interface I1 {\n" +
+				"	void foo(int [] ia);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	void m(Object... rest) {\n" + 
+				"		System.out.println(\"Hello \" + rest.length);\n" +
+				"	}\n" +
+				"	static void print (Object [] o) {\n" +
+				"		for (int i = 0; i < o.length; i++)\n" +
+				"			System.out.println(o[i]);\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	public static void main(String [] args) {\n" +
+				"		new X().foo();\n" +
+				"	}\n" +
+				"	void foo() {\n" + 
+				"		I i = super::m;\n" +
+				"		i.foo(new int [0]);\n" +
+				"		I1 i1 = super::m;\n" +
+				"		i1.foo(new int [0]);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"Hello 1\n" +
+			"Hello 1"
+			);
+}
+public void test406744j() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int [] ia);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	void m(Object... rest) {\n" + 
+				"		I i = this::n;\n" +
+				"		i.foo(new int [0]);\n" +
+				"	}\n" +
+				"	void n(Object... rest) {\n" + 
+				"		System.out.println(\"Hello \" + rest.length);\n" +
+				"	}\n" +
+				"	static void print (Object [] o) {\n" +
+				"		for (int i = 0; i < o.length; i++)\n" +
+				"			System.out.println(o[i]);\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"	public static void main(String [] args) {\n" +
+				"		new X().foo();\n" +
+				"	}\n" +
+				"	void foo() {\n" + 
+				"		I i = super::m;\n" +
+				"		i.foo(new int [0]);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"Hello 1"
+			);
+}
+public void test406744k() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int [] ia);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	static void m(Object... rest) {\n" + 
+				"		System.out.println(\"Hello \" + rest.length);\n" +
+				"	}\n" +
+				"	static void print (Object [] o) {\n" +
+				"		for (int i = 0; i < o.length; i++)\n" +
+				"			System.out.println(o[i]);\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y1 extends Y { }\n" +
+				"public class X {\n" +
+				"	public static void main(String [] args) {\n" +
+				"		new X().foo();\n" +
+				"	}\n" +
+				"	void foo() {\n" + 
+				"		I i = Y::m;\n" +
+				"		i.foo(new int [0]);\n" +
+				"		i = Y1::m;\n" +
+				"		i.foo(new int [0]);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"Hello 1\n" +
+			"Hello 1"
+			);
+}
+public void test406744l() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(Integer i);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void foo(int ... x) {\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		I i = X::foo;\n" +
+				"		i.foo(1);\n" +
+				"		System.out.println(\"Hello\");\n" +
+				"}\n" +
+				"}\n",
+			},
+			"Hello"
+			);
+}
+public void test406744m() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int i);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void foo(int ... x) {\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		I i = X::foo;\n" +
+				"		i.foo(1);\n" +
+				"		System.out.println(\"Hello\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"Hello"
+			);
+}
+public void test406744n() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(Integer i);\n" +
+				"}\n" +
+				"class Base {\n" +
+				"	void foo(Object ...objects) {\n" +
+				"		System.out.println(\"Ok\");\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X extends Base {\n" +
+				"	void foo(Object... objects) {\n" +
+				"		throw new RuntimeException();\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X().goo();\n" +
+				"	}\n" +
+				"	void goo() {\n" +
+				"		I i = super::foo;\n" +
+				"		i.foo(10);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"Ok"
+			);
+}
+public void test406744o() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"class Base {\n" +
+				"	public void foo(int ...is) {\n" +
+				"		System.out.println(\"foo\");\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X extends Base {\n" +
+				"	public static void main( String[] args ) {\n" +
+				"		I i = new X()::foo;\n" +
+				"		i.foo(10);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo"
+			);
+}
+public void test406744p() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	private void foo(int ...is) {\n" +
+				"		System.out.println(\"foo\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args ) {\n" +
+				"		new X().new Y().foo();\n" +
+				"	}\n" +
+				"	class Y extends X {\n" +
+				"		void foo() {\n" +
+				"			I i = new X()::foo;\n" +
+				"			i.foo(10);\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo"
+			);
+}
+public void test406744q() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	public static void foo(int ...is) {\n" +
+				"		System.out.println(\"Y.foo\");\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void foo(int ...is) {\n" +
+				"		System.out.println(\"X.foo\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		I i = X::foo;\n" +
+				"		i.foo(10);\n" +
+				"		i = Y::foo;\n" +
+				"		i.foo(20);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"X.foo\n" +
+			"Y.foo"
+			);
+}
+public void test406744r() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int t, int [] ia);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void foo(Integer i, int ...is) {\n" +
+				"		System.out.println(\"Y.foo\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		I i = X::foo;\n" +
+				"		i.foo(10, null);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"Y.foo"
+			);
+}
+public void test406744s() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	X foo(int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	class Y extends X {\n" +
+				"		Y(int ... x) {\n" +
+				"			System.out.println(\"Y::Y\");\n" +
+				"		}\n" +
+				"	}\n" +
+				"	public static void main(String[] args ) {\n" +
+				"		new X().goo();\n" +
+				"	}\n" +
+				"	void goo() {\n" +
+				"		I i = Y::new;\n" +
+				"		i.foo(10);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"Y::Y"
+			);
+}
+public void test406744t() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	X foo(int x);\n" +
+				"}\n" +
+				"public class X<T> {\n" +
+				"	class Y extends X {\n" +
+				"	    Y(int ... x) {\n" +
+				"		    System.out.println(\"Y::Y\");\n" +
+				"	    }\n" +
+				"	}\n" +
+				"	public static void main(String[] args ) {\n" +
+				"		System.out.println(\"Hello\");\n" +
+				"		new X().goo();\n" +
+				"	}\n" +
+				"	void goo() {\n" +
+				"		I i = Y::new;\n" +
+				"		i.foo(10);\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"Hello\n" + 
+			"Y::Y"
+			);
+}
+public void test406744u() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	X<String> foo(int x);\n" +
+				"}\n" +
+				"public class X<T> {  \n" +
+				"	class Y extends X<String> {\n" +
+				"	    Y(int ... x) {\n" +
+				"		    System.out.println(\"Y::Y\"); \n" +
+				"	    }\n" +
+				"	}\n" +
+				"	public static void main(String[] args ) {\n" +
+				"		System.out.println(\"Hello\");\n" +
+			"		new X<String>().goo();  \n" +
+				"	}\n" +
+				"	void goo() {\n" +
+				"		I i = Y::new;\n" +
+				"		i.foo(10); \n" +
+				"	}\n" +
+				"}\n",
+			},
+			"Hello\n" + 
+			"Y::Y"
+			);
+}
+public void test406744v() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	X foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	private X(int ... is) {\n" +
+				"		System.out.println(\"X::X\");\n" +
+				"	}\n" +
+				"	\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X().new Y().goo();\n" +
+				"	}\n" +
+				"	public class Y {\n" +
+				"		public void goo() {\n" +
+				"			I i = X::new; \n" +
+				"			i.foo();\n" +
+				"		} \n" +
+				"	}\n" +
+				"}\n",
+			},
+			"X::X\n" + 
+			"X::X"
+			);
+}
+public void test406744w() {
+	this.runConformTest(
+			new String[] {
+				"p2/B.java",
+				"package p2;\n" +
+				"import p1.*;\n" +
+				"interface I {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"public class B extends A {\n" +
+				"	class Y {\n" +
+				"		void g() {\n" +
+				"			I i = B::foo;\n" +
+				"			i.foo(10);\n" +
+				"			J j = new B()::goo;\n" +
+				"			j.foo(10);\n" +
+				"		}\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new B().new Y().g();\n" +
+				"	}\n" +
+				"}\n",
+				"p1/A.java", 
+				"package p1;\n" +
+				"import p2.*;\n" +
+				"public class A {\n" +
+				"	protected static void foo(int ... is) {\n" +
+				"	    System.out.println(\"A's static foo\");\n" +
+				"	}\n" +
+				"	protected void goo(int ... is) {\n" +
+				"	    System.out.println(\"A's instance goo\");\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"A\'s static foo\n" + 
+			"A\'s instance goo"
+			);
+}
+public void test406744x() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo(int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	class Y {\n" +
+				"		void goo() {\n" +
+				"			I i = X::goo;\n" +
+				"			i.foo(10);\n" +
+				"		}\n" +
+				"	}\n" +
+				"	private static void goo(Integer i) {\n" +
+				"		System.out.println(i);\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		 new X().new Y().goo(); \n" +
+				"	}\n" +
+				"}\n"
+			},
+			"10"
+			);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

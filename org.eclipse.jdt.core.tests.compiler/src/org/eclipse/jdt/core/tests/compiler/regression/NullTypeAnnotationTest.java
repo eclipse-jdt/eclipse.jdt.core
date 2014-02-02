@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 GK Software AG and others.
+ * Copyright (c) 2012, 2014 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3427,8 +3427,7 @@ public void testBug424637a() {
 		"----------\n");
 }
 
-// DISABLED, currently throws java.lang.BootstrapMethodError at runtime:
-public void _testBug424637_comment3() {
+public void testBug424637_comment3() {
 	runConformTest(
 		new String[] {
 			"VarArgsMethodReferenceTest.java",

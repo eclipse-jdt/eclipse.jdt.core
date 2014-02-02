@@ -38,8 +38,10 @@ import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
+import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
@@ -60,6 +62,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class ReferenceExpression extends FunctionalExpression implements InvocationSite {
@@ -76,6 +79,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	MethodBinding syntheticAccessor;	// synthetic accessor for inner-emulation
 	private int depth;
 	private MethodBinding exactMethodBinding; // != null ==> exact method reference.
+	private boolean receiverPrecedesParameters = false;
 	
 	public ReferenceExpression() {
 		super();
@@ -90,8 +94,71 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		this.sourceEnd = sourceEndPosition;
 	}
  
+	public void generateImplicitLambda(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+		
+		final Parser parser = new Parser(this.enclosingScope.problemReporter(), false);
+		final char[] source = this.compilationResult.getCompilationUnit().getContents();
+		ReferenceExpression copy =  (ReferenceExpression) parser.parseExpression(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1, 
+										this.enclosingScope.referenceCompilationUnit(), false /* record line separators */);
+		
+		int argc = this.descriptor.parameters.length;
+		
+		LambdaExpression implicitLambda = new LambdaExpression(this.compilationResult, false);
+		Argument [] arguments = new Argument[argc];
+		for (int i = 0; i < argc; i++)
+			arguments[i] = new Argument(("arg" + i).toCharArray(), 0, null, 0, true); //$NON-NLS-1$
+		implicitLambda.setArguments(arguments);
+		implicitLambda.setExpressionContext(this.expressionContext);
+		implicitLambda.setExpectedType(this.expectedType);
+		
+		int parameterShift = this.receiverPrecedesParameters ? 1 : 0;
+		Expression [] argv = new SingleNameReference[argc - parameterShift];
+		for (int i = 0, length = argv.length; i < length; i++) {
+			String name = "arg" + (i + parameterShift); //$NON-NLS-1$
+			argv[i] = new SingleNameReference(name.toCharArray(), 0);
+		}
+		if (isMethodReference()) {
+			MessageSend message = new MessageSend();
+			message.selector = this.selector;
+			message.receiver = this.receiverPrecedesParameters ? new SingleNameReference("arg0".toCharArray(), 0) : copy.lhs; //$NON-NLS-1$
+			message.typeArguments = copy.typeArguments;
+			message.arguments = argv;
+			implicitLambda.setBody(message);
+		} else {
+			AllocationExpression allocation = new AllocationExpression();
+			if (this.lhs instanceof TypeReference) {
+				allocation.type = (TypeReference) this.lhs;
+			} else if (this.lhs instanceof SingleNameReference) {
+				allocation.type = new SingleTypeReference(((SingleNameReference) this.lhs).token, 0);
+			} else if (this.lhs instanceof QualifiedNameReference) {
+				allocation.type = new QualifiedTypeReference(((QualifiedNameReference) this.lhs).tokens, new long [((QualifiedNameReference) this.lhs).tokens.length]);
+			} else {
+				throw new IllegalStateException("Unexpected node type"); //$NON-NLS-1$
+			}
+			allocation.typeArguments = copy.typeArguments;
+			allocation.arguments = argv;
+			implicitLambda.setBody(allocation);
+		}
+		
+		// Process the lambda, taking care not to double report diagnostics. Don't expect any from resolve, Any from code generation should surface, but not those from flow analysis.
+		implicitLambda.resolve(currentScope);
+		IErrorHandlingPolicy oldPolicy = currentScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
+		try {
+			implicitLambda.analyseCode(currentScope, 
+					new ExceptionHandlingFlowContext(null, this, Binding.NO_EXCEPTIONS, null, currentScope, FlowInfo.DEAD_END), 
+					UnconditionalFlowInfo.fakeInitializedFlowInfo(currentScope.outerMostMethodScope().analysisIndex, currentScope.referenceType().maxFieldCount));
+		} finally {
+			currentScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
+		}
+		implicitLambda.generateCode(currentScope, codeStream, valueRequired);
+	}	
+	
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 		this.actualMethodBinding = this.binding; // grab before synthetics come into play.
+		if (this.binding.isVarargs()) {
+			generateImplicitLambda(currentScope, codeStream, valueRequired);
+			return;
+		}
 		SourceTypeBinding sourceType = currentScope.enclosingSourceType();
 		if (this.receiverType.isArrayType()) {
 			if (isConstructorReference()) {
@@ -186,6 +253,9 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			return;
 		
 		MethodBinding codegenBinding = this.binding.original();
+		if (codegenBinding.isVarargs())
+			return; // completely managed by transforming into implicit lambda expression.
+		
 		SourceTypeBinding enclosingSourceType = currentScope.enclosingSourceType();
 		
 		if (this.isConstructorReference()) {
@@ -379,7 +449,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     	}
 
         MethodBinding anotherMethod = null;
-        int paramOffset = 0;
+        this.receiverPrecedesParameters = false;
         if (!this.haveReceiver && isMethodReference && parametersLength > 0) {
         	final TypeBinding potentialReceiver = descriptorParameters[0];
         	if (potentialReceiver.isCompatibleWith(this.receiverType, scope)) {
@@ -418,7 +488,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         	}
         } else if (anotherMethod != null && anotherMethod.isValidBinding()) {
         	this.binding = anotherMethod;
-        	paramOffset = 1; // 0 is receiver, real parameters start at 1
+        	this.receiverPrecedesParameters = true; // 0 is receiver, real parameters start at 1
         	this.bits &= ~ASTNode.DepthMASK;
         	if (anotherMethodDepth > 0) {
         		this.bits |= (anotherMethodDepth & 0xFF) << ASTNode.DepthSHIFT;
@@ -485,7 +555,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         		len = Math.min(expectedlen, providedLen);
         	}
     		for (int i = 0; i < len; i++) {
-    			TypeBinding descriptorParameter = this.descriptor.parameters[i+paramOffset];
+    			TypeBinding descriptorParameter = this.descriptor.parameters[i + (this.receiverPrecedesParameters ? 1 : 0)];
     			TypeBinding bindingParameter = InferenceContext18.getParameter(this.binding.parameters, i, isVarArgs);
     			NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(bindingParameter, descriptorParameter, FlowInfo.UNKNOWN);
     			if (annotationStatus.isAnyMismatch()) {
