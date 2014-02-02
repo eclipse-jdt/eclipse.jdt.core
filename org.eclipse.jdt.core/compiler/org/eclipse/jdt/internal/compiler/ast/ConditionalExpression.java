@@ -460,10 +460,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 
 			if (conditionType == null || this.originalValueIfTrueType == null || this.originalValueIfFalseType == null)
 				return null;
-			
-			if (this.originalValueIfTrueType.kind() == Binding.POLY_TYPE || this.originalValueIfFalseType.kind() == Binding.POLY_TYPE) {
-				this.isPolyExpression = true;
+
+			if (isPolyExpression()) {
 				this.polyExpressionScope = scope;
+			}
+
+			if (this.originalValueIfTrueType.kind() == Binding.POLY_TYPE || this.originalValueIfFalseType.kind() == Binding.POLY_TYPE) {
 				return new PolyTypeBinding(this);
 			}
 		} else {
@@ -615,11 +617,19 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				this.polyExpressionScope = scope;
 				return new PolyTypeBinding(this);
 			}
-			if (valueIfTrueType != null && !valueIfTrueType.isCompatibleWith(this.expectedType, scope)) {
-				scope.problemReporter().typeMismatchError(valueIfTrueType, this.expectedType, this.valueIfTrue, null);
+			if (valueIfTrueType != null) {
+				if (!valueIfTrueType.isCompatibleWith(this.expectedType, scope)) {
+					scope.problemReporter().typeMismatchError(valueIfTrueType, this.expectedType, this.valueIfTrue, null);
+				} else {
+					this.valueIfTrue.computeConversion(scope, this.expectedType, this.originalValueIfTrueType);	
+				}
 			}
-			if (valueIfFalseType != null && !valueIfFalseType.isCompatibleWith(this.expectedType, scope)) {
-				scope.problemReporter().typeMismatchError(valueIfFalseType, this.expectedType, this.valueIfFalse, null);
+			if (valueIfFalseType != null) {
+				if (!valueIfFalseType.isCompatibleWith(this.expectedType, scope)) {
+					scope.problemReporter().typeMismatchError(valueIfFalseType, this.expectedType, this.valueIfFalse, null);
+				} else {
+					this.valueIfFalse.computeConversion(scope, this.expectedType, this.originalValueIfFalseType);
+				}
 			}
 			return this.resolvedType = this.expectedType;
 		}
@@ -674,11 +684,19 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		if (isPolyExpression()) {
 			TypeBinding valueIfTrueType = this.valueIfTrue.checkAgainstFinalTargetType(targetType);
 			TypeBinding valueIfFalseType = this.valueIfFalse.checkAgainstFinalTargetType(targetType);
-			if (valueIfTrueType != null && !valueIfTrueType.isCompatibleWith(targetType, this.polyExpressionScope)) {
-				this.polyExpressionScope.problemReporter().typeMismatchError(valueIfTrueType, targetType, this.valueIfTrue, null);
+			if (valueIfTrueType != null) {
+				if (!valueIfTrueType.isCompatibleWith(targetType, this.polyExpressionScope)) {
+					this.polyExpressionScope.problemReporter().typeMismatchError(valueIfTrueType, targetType, this.valueIfTrue, null);
+				} else {
+					this.valueIfTrue.computeConversion(this.polyExpressionScope, targetType, this.originalValueIfTrueType);	
+				}
 			}
-			if (valueIfFalseType != null && !valueIfFalseType.isCompatibleWith(targetType, this.polyExpressionScope)) {
-				this.polyExpressionScope.problemReporter().typeMismatchError(valueIfFalseType, targetType, this.valueIfFalse, null);
+			if (valueIfFalseType != null) {
+				if (!valueIfFalseType.isCompatibleWith(targetType, this.polyExpressionScope)) {
+					this.polyExpressionScope.problemReporter().typeMismatchError(valueIfFalseType, targetType, this.valueIfFalse, null);
+				} else {
+					this.valueIfFalse.computeConversion(this.polyExpressionScope, targetType, this.originalValueIfFalseType);
+				}
 			}
 			this.resolvedType = targetType;
 		}
@@ -691,12 +709,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	}
 	
 	public boolean isPolyExpression() throws UnsupportedOperationException {
-		if (this.expressionContext != ASSIGNMENT_CONTEXT && this.expressionContext != INVOCATION_CONTEXT)
-			return false;
 		
 		if (this.isPolyExpression)
 			return true;
 
+		if (this.expressionContext != ASSIGNMENT_CONTEXT && this.expressionContext != INVOCATION_CONTEXT)
+			return false;
+		
 		// "... unless both operands produce primitives (or boxed primitives)":
 		TypeBinding opType = this.valueIfTrue.resolvedType;
 		if (opType != null) {
@@ -709,7 +728,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				return false;
 		}
 
-		return true;
+		return this.isPolyExpression = true;
 	}
 	
 	public boolean isCompatibleWith(TypeBinding left, Scope scope) {
@@ -738,3 +757,4 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		visitor.endVisit(this, scope);
 	}
 }
+
