@@ -945,4 +945,43 @@ public void test425084b() {
 				expectedReplacedSource,
 				"diet ast");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427255, [1.8][code assist] Hang due to infinite loop in Parser.automatonWillShift
+public void test427255() {
+	String string = 
+			"public class X {\n" +
+			"  public final String targetApplication;\n" +
+			"  public final String arguments;\n" +
+			"  public final String appUserModelID;\n" +
+			"  public X() {}\n" +
+			"}\n";
+
+			String completeBehind = "X";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnType:X>";
+			String expectedParentNodeToString = "<NONE>";
+			String completionIdentifier = "X";
+			String expectedReplacedSource = "X";
+			String expectedUnitDisplayString =
+					"public class X {\n" + 
+					"  public final String targetApplication;\n" + 
+					"  public final String arguments;\n" + 
+					"  public final String appUserModelID;\n" + 
+					"  <CompleteOnType:X>;\n" + 
+					"  {\n" + 
+					"  }\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
 }

@@ -12424,6 +12424,10 @@ public boolean automatonWillShift(int token, int lastAction) {
 	int stackTopState = this.stack[stackTop]; // single cell non write through "alternate stack" - the automaton's stack pointer either stays fixed during this manoeuvre or monotonically decreases.
 	int highWaterMark = stackTop;
 	// A rotated version of the automaton - cf. parse()'s for(;;)
+	if (lastAction <= NUM_RULES) { // in recovery mode, we could take a detour to here, with a pending reduce action.
+		stackTop --; 
+	    lastAction += ERROR_ACTION;
+	}
 	for (;;) {  
 		if (lastAction > ERROR_ACTION) {  
 			lastAction -= ERROR_ACTION;    /* shift-reduce on loop entry from above, reduce on loop back */
