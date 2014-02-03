@@ -235,11 +235,11 @@ public interface IBinding {
 	/**
 	 * Returns the key for this binding.
 	 * <p>
-	 * Within a connected cluster of bindings (produced by the same call to an
+	 * Within a single cluster of bindings (produced by the same call to an
 	 * {@code ASTParser#create*(*)} method)), each binding has a distinct key.
 	 * The keys are generated in a manner that is predictable and as
 	 * stable as possible. This last property makes these keys useful for
-	 * comparing bindings between disconnected clusters of bindings (for example,
+	 * comparing bindings between different clusters of bindings (for example,
 	 * the bindings between the "before" and "after" ASTs of the same
 	 * compilation unit).
 	 * </p>
@@ -289,7 +289,7 @@ public interface IBinding {
 	 * </ul>
 	 * </p>
 	 * <p>
-	 * The key for a type binding does not contain {@link ITypeBinding#getTypeAnnotations() type annotations},
+	 * The key for a type binding does <em>not</em> contain {@link ITypeBinding#getTypeAnnotations() type annotations},
 	 * so type bindings with different type annotations may have the same key (iff they denote the same un-annotated type).
 	 * By construction, this also applies to method bindings if their declaring types contain type annotations.
 	 * </p>
