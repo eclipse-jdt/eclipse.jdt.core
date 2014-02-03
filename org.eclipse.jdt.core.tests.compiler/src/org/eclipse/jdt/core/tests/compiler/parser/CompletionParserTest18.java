@@ -177,9 +177,7 @@ public void test0004() {
 	int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:x>";
-	String expectedParentNodeToString = "static Foo f = (<no type> x5, <no type> x6) -> {\n" +
-										"  <CompleteOnName:x>;\n" +
-										"};";
+	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "x";
 	String expectedReplacedSource = "x";
 	String expectedUnitDisplayString =

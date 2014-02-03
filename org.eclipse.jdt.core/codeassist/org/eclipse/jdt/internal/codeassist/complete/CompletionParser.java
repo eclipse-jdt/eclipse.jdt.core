@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1069,8 +1069,8 @@ private void buildMoreCompletionContext(Expression expression) {
 	} else {
 		if(this.currentElement instanceof RecoveredField && !(this.currentElement instanceof RecoveredInitializer)
 			&& ((RecoveredField) this.currentElement).fieldDeclaration.initialization == null) {
-
-			this.assistNodeParent = ((RecoveredField) this.currentElement).fieldDeclaration;
+			if (lastIndexOfElement(K_LAMBDA_EXPRESSION_DELIMITER) <= lastIndexOfElement(K_FIELD_INITIALIZER_DELIMITER))
+				this.assistNodeParent = ((RecoveredField) this.currentElement).fieldDeclaration;
 			this.currentElement = this.currentElement.add(buildMoreCompletionEnclosingContext(statement), 0);
 		} else if(this.currentElement instanceof RecoveredLocalVariable
 			&& ((RecoveredLocalVariable) this.currentElement).localDeclaration.initialization == null) {
