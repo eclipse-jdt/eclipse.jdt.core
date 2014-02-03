@@ -3909,4 +3909,92 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		annots = typeBinding.getTypeAnnotations();
 		assertEquals("Incorrect type annotations", 0, annots.length);
 	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=416560, [1.8] Incorrect source range for lambda expression's parameter after reconciliation
+	 */
+	public void testBug416560_001() throws JavaModelException {
+		String contents =
+				"import java.lang.annotation.ElementType;\n" +
+				"@Target (ElementType.FIELD)\n" +
+				"public class X{\n" +
+				"    public FI fi= /*a*/(int n1, int n2) -> n1 * n2;\n" +
+				"}\n" +
+				"public class X\n" +
+				"    public FI fi= /*a*/(int n1, int n2) -> n1 * n2;\n" +
+				"interface FI {\n" +
+				"    int foo(int s1, int s2);\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/test/X.java", true/*resolve*/);
+		this.workingCopy.getBuffer().setContents(contents);
+		CompilationUnit compilationUnit = this.workingCopy.reconcile(AST.JLS8, ICompilationUnit.FORCE_PROBLEM_DETECTION, null, null);
+		ASTNode node = getASTNode(compilationUnit, 0);
+		FieldDeclaration[] field = ((TypeDeclaration) node).getFields();
+		List fragments = field[0].fragments();
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment)fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		LambdaExpression lambdaExpression = (LambdaExpression)expression;
+		VariableDeclaration variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
+		checkSourceRange(variableDeclaration, "int n1", contents);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=416560, [1.8] Incorrect source range for lambda expression's parameter after reconciliation
+	 */
+	public void testBug416560_002() throws JavaModelException {
+		String contents =
+				"import java.lang.annotation.ElementType;\n" +
+				"@Target (ElementType.FIELD)\n" +
+				"public class X{\n" +
+				"    public FI fi= /*a*/(int n1, int n2) -> n1 * n2;\n" +
+				"}\n" +
+				"public class X\n" +
+				"    public FI fi= /*a*/(int n1, int n2) -> n1 * n2;\n" +
+				"interface FI {\n" +
+				"    int foo(int s1, int s2);\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/test/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		node = getASTNode(compilationUnit, 0);
+		FieldDeclaration[] field = ((TypeDeclaration) node).getFields();
+		List fragments = field[0].fragments();
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment)fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		LambdaExpression lambdaExpression = (LambdaExpression)expression;
+		VariableDeclaration variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
+		checkSourceRange(variableDeclaration, "int n1", contents);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=416560, [1.8] Incorrect source range for lambda expression's parameter after reconciliation
+	 */
+	public void testBug416560_003() throws JavaModelException {
+		String contents =
+				"public class X{\n" +
+				"    void f() {\n" +
+				"	    //a\n" +
+				"	    //few\n" +
+				"	    //comments\n" +
+				"	    //here\n" +
+				"       bar((int x) -> 91);\n" +
+				"	 }\n" +
+				"    int bar(FI f){ return 1;}" +
+				"}\n" +
+				"interface FI {\n" +
+				"    int foo(int s1);\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		node = getASTNode(compilationUnit, 0);
+		MethodDeclaration[] methods = ((TypeDeclaration) node).getMethods();
+		MethodDeclaration method = methods[0];
+		Block block = method.getBody();
+		List statements = block.statements();
+		Statement statement = (Statement) statements.get(0);
+		MethodInvocation methodInvocation = (MethodInvocation) ((ExpressionStatement) statement).getExpression();
+		LambdaExpression lambdaExpression = (LambdaExpression) methodInvocation.arguments().get(0);
+		VariableDeclaration variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
+		checkSourceRange(variableDeclaration, "int x", contents);
+	}
 }

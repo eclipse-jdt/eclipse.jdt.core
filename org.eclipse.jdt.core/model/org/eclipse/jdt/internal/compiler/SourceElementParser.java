@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -393,6 +393,10 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	// is correctly set (see bug 80904)
 	// Note that this could be done in the Parser itself, but this would slow down all parsers, when they don't need
 	// the declarationSourceStart to be set
+	flushCommentsDefinedPriorTo(this.scanner.currentPosition);
+}
+protected void consumeTypeElidedLambdaParameter(boolean parenthesized) {
+	super.consumeTypeElidedLambdaParameter(parenthesized);
 	flushCommentsDefinedPriorTo(this.scanner.currentPosition);
 }
 protected void consumeInterfaceHeaderName1() {

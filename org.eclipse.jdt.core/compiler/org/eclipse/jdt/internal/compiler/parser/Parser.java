@@ -8774,6 +8774,9 @@ protected void consumeToken(int type) {
 		case TokenNameARROW:
 			consumeLambdaHeader();
 			break;
+		case TokenNameBeginLambda:
+			flushCommentsDefinedPriorTo(this.scanner.currentPosition);
+			break;
 		case TokenNameIdentifier :
 			pushIdentifier();
 			if (this.scanner.useAssertAsAnIndentifier  &&
