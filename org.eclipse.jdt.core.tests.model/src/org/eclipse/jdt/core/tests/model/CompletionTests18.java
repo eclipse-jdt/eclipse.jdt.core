@@ -962,4 +962,27 @@ public void test422901a() throws JavaModelException {
 			"expectedTypesKeys=null\n" +
 			"completion token location={STATEMENT_START}", requestor.getContext());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426851, [1.8][content assist] content assist for a type use annotation
+public void test426851() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface TypeUse {\n" +
+			"}\n" +
+			"@Ty\n" +
+			"interface I {\n" +
+			"	default void foo() { }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Ty";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("TypeUse[TYPE_REF]{TypeUse, , LTypeUse;, null, null, null, null, [131, 133], 52}", requestor.getResults());
+}
 }

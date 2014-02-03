@@ -4314,9 +4314,9 @@ public final class CompletionEngine
 		if (annotatedElement instanceof TypeDeclaration) {
 			TypeDeclaration annotatedTypeDeclaration = (TypeDeclaration) annotatedElement;
 			if (TypeDeclaration.kind(annotatedTypeDeclaration.modifiers) == TypeDeclaration.ANNOTATION_TYPE_DECL) {
-				return TagBits.AnnotationForAnnotationType | TagBits.AnnotationForType;
+				return TagBits.AnnotationForAnnotationType | TagBits.AnnotationForType | TagBits.AnnotationForTypeUse;
 			}
-			return TagBits.AnnotationForType;
+			return TagBits.AnnotationForType | TagBits.AnnotationForTypeUse;
 		} else if (annotatedElement instanceof FieldDeclaration) {
 			if (fakeNode.isParameter) {
 				return TagBits.AnnotationForParameter;
@@ -12034,18 +12034,18 @@ public final class CompletionEngine
 			if(target != 0 && (target & TagBits.AnnotationForPackage) == 0) {
 				return false;
 			}
-		} else if ((this.targetedElement & TagBits.AnnotationForType) != 0) {
+		} else if ((this.targetedElement & (TagBits.AnnotationForType | TagBits.AnnotationForTypeUse)) != 0) {
 			if (scope.parent != null &&
 					scope.parent.parent != null &&
 					scope.parent.referenceContext() instanceof CompletionOnAnnotationOfType &&
 					scope.parent.parent instanceof CompilationUnitScope) {
 				long target = typeBinding.getAnnotationTagBits() & TagBits.AnnotationTargetMASK;
 				if ((this.targetedElement & TagBits.AnnotationForAnnotationType) != 0) {
-					if(target != 0 && (target &(TagBits.AnnotationForType | TagBits.AnnotationForAnnotationType)) == 0) {
+					if(target != 0 && (target &(TagBits.AnnotationForType | TagBits.AnnotationForAnnotationType | TagBits.AnnotationForTypeUse)) == 0) {
 						return false;
 					}
 				} else {
-					if(target != 0 && (target &(TagBits.AnnotationForType)) == 0) {
+					if (target != 0 && (target & (TagBits.AnnotationForType | TagBits.AnnotationForTypeUse)) == 0) {
 						return false;
 					}
 				}

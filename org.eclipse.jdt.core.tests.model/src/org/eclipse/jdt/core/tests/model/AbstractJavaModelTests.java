@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2750,11 +2750,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		javaProject.setOptions(options);
 
 		// replace JCL_LIB with JCL15_LIB, and JCL_SRC with JCL15_SRC
+		// At 1.8 compliance, replace JCL15_LIB with JCL18_LIB, JCL15_SRC with JCL18_SRC
 		IClasspathEntry[] classpath = javaProject.getRawClasspath();
 		IPath jclLib = new Path(jclLibString);
+		IPath jcl5Lib = new Path("JCL15_LIB");
+		IPath jcl8Lib = new Path("JCL18_LIB");
+		boolean compliance18Plus = compliance.charAt(2) > '7';
 		for (int i = 0, length = classpath.length; i < length; i++) {
 			IClasspathEntry entry = classpath[i];
-			if (entry.getPath().equals(jclLib)) {
+			final IPath path = entry.getPath();
+			if (path.equals(jclLib) || (compliance18Plus && path.equals(jcl5Lib)) || (!compliance18Plus && path.equals(jcl8Lib))) {
 				classpath[i] = JavaCore.newVariableEntry(
 						new Path(newJclLibString),
 						new Path(newJclSrcString),
