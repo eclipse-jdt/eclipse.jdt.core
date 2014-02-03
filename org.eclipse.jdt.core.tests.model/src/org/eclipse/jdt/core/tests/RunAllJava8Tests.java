@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 IBM Corporation and others.
+ * Copyright (c) 2011, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.tests.dom.ASTConverterTestAST8_2;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.dom.TypeAnnotationsConverterTest;
 import org.eclipse.jdt.core.tests.dom.TypeBindingTests308;
+import org.eclipse.jdt.core.tests.formatter.FormatterBugs18Tests;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR308Tests;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR335Tests;
 import org.eclipse.jdt.core.tests.model.CompletionTests18;
@@ -52,6 +53,7 @@ public class RunAllJava8Tests extends TestCase {
 			ComplianceDiagnoseTest.class,
 			FormatterJSR335Tests.class,
 			FormatterJSR308Tests.class,
+			FormatterBugs18Tests.class,
 			JavaSearchBugs8Tests.class,
 			ResolveTests18.class,
 			CompletionTests18.class,

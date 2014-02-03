@@ -61,6 +61,7 @@ import org.eclipse.jdt.core.tests.dom.ASTConverterTestAST8_2;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.dom.TypeAnnotationsConverterTest;
 import org.eclipse.jdt.core.tests.dom.TypeBindingTests308;
+import org.eclipse.jdt.core.tests.formatter.FormatterBugs18Tests;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR308Tests;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR335Tests;
 import org.eclipse.jdt.core.tests.model.CompletionTests18;
@@ -93,6 +94,7 @@ public class RunOnlyJava8Tests extends TestCase {
 			FlowAnalysisTest8.class,
 			FormatterJSR335Tests.class,
 			FormatterJSR308Tests.class,
+			FormatterBugs18Tests.class,
 			JavaSearchBugs8Tests.class,
 			TypeAnnotationTest.class,
 			JSR308SpecSnippetTests.class,

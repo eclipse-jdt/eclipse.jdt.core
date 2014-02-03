@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2002, 2013 IBM Corporation and others.
+ * Copyright (c) 2002, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5149,7 +5149,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			if (i != 0) this.scribe.printNextToken(TerminalTokens.TokenNameDOT, false);
 			if (qualifiedTypeReference.annotations != null) {
 				formatInlineAnnotations(qualifiedTypeReference.annotations[i], false);
-				this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
+				this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, false);
 			} else {
 				this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, false);
 			}
