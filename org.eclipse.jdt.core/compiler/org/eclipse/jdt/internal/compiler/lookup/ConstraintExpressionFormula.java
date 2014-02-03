@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
@@ -75,8 +76,13 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			} else if (!exprType.isValidBinding()) {
 				return FALSE;
 			}
-			if (isCompatibleWithInLooseInvocationContext(exprType, this.right, inferenceContext))
+			if (isCompatibleWithInLooseInvocationContext(exprType, this.right, inferenceContext)) {
 				return TRUE;
+			} else if (this.left instanceof AllocationExpression && this.left.isPolyExpression()) {
+				// half-resolved diamond has a resolvedType, but that may not be the final word, try one more step of resolution:
+            	MethodBinding binding = ((AllocationExpression) this.left).binding(this.right);
+            	return (binding != null && binding.declaringClass.isCompatibleWith(this.right)) ? TRUE : FALSE;
+            }
 			return FALSE;
 		}
 		if (!canBePolyExpression(this.left)) {

@@ -1760,4 +1760,18 @@ public void testBug427196() {
 			"}\n"
 		});
 }
+public void testBug427224() {
+	runConformTest(
+		new String[] {
+			"Test2.java",
+			"import java.util.*;\n" +
+			"public class Test2 {\n" + 
+			"    public static native <T> T applyToSet(java.util.Set<String> s);\n" + 
+			"\n" + 
+			"    public static void applyToList(java.util.List<String> s) {\n" + 
+			"        applyToSet(new java.util.HashSet<>(s));\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }
