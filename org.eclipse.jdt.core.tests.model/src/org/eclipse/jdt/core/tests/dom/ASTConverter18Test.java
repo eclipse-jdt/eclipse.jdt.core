@@ -3997,4 +3997,29 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		VariableDeclaration variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
 		checkSourceRange(variableDeclaration, "int x", contents);
 	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=425743, [1.8][api] CompilationUnit#findDeclaringNode(IBinding binding) returns null for type inferred lambda parameter 
+	 */
+	public void testBug425743() throws JavaModelException {
+		String contents =
+				"public class X{\n" +
+				"    FI fi = (x2) -> x2;\n" +
+				"}\n" +
+				"interface FI {\n" +
+				"    int foo(int n);\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		node = getASTNode(compilationUnit, 0);
+		FieldDeclaration fi = ((TypeDeclaration) node).getFields()[0];
+		VariableDeclarationFragment vdf = (VariableDeclarationFragment) fi.fragments().get(0);
+		LambdaExpression lambda = (LambdaExpression) vdf.getInitializer();
+		VariableDeclaration param = (VariableDeclaration) lambda.parameters().get(0);
+		IBinding binding = param.getName().resolveBinding();
+		ASTNode astNode = compilationUnit.findDeclaringNode(binding);
+		assertNotNull(astNode);
+		assertEquals("Not a variable declaration fragment", ASTNode.VARIABLE_DECLARATION_FRAGMENT, astNode.getNodeType());
+	}
 }

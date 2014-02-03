@@ -2230,6 +2230,7 @@ class ASTConverter {
 					if (this.resolveBindings) {
 						recordNodes(simpleName, argument);
 						recordNodes(variableDeclarationFragment, argument);
+						variableDeclarationFragment.resolveBinding();
 					}
 					variableDeclarationFragment.setName(simpleName);
 					variableDeclarationFragment.setSourceRange(start, end - start + 1);
