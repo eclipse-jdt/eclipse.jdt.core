@@ -412,6 +412,66 @@ public final class ImportRewrite {
 		}
 		return ImportRewriteContext.RES_NAME_UNKNOWN;
 	}
+
+	/**
+	 * Adds the necessary imports for the given annotation binding to the rewriter's record
+	 * and returns an {@link Annotation} that can be used in the code.
+	 * <p>
+	 * No imports are added for types that are already known. If an import for a type is recorded to be removed, this record is discarded instead.
+	 * </p>
+	 * <p>
+	 * The content of the compilation unit itself is actually not modified
+	 * in any way by this method; rather, the rewriter just records newly added imports.
+	 * </p>
+	 * @param annotation the annotation to be added
+	 * @param ast the AST to create the returned annotation for
+	 * @param context an optional context that knows about types visible in the current scope or <code>null</code>
+	 * to use the default context (only using the available imports)
+	 * @return an annotation node. The returned annotation contains unqualified type names where
+	 * an import could be added or was already known. Type names are fully qualified if an import conflict prevented an import.
+	 * 
+	 * @since 3.9 BETA_JAVA8
+	 */
+	public Annotation addAnnotation(IAnnotationBinding annotation, AST ast, ImportRewriteContext context) {
+		Type type = addImport(annotation.getAnnotationType(), ast, context);
+		Name name;
+		if (type instanceof SimpleType) {
+			SimpleType simpleType = (SimpleType) type;
+			name = simpleType.getName();
+			// cut 'name' loose from its parent, so that it can be reused
+			simpleType.setName(ast.newName("a")); //$NON-NLS-1$
+		} else {
+			name = ast.newName("invalid"); //$NON-NLS-1$
+		}
+
+		IMemberValuePairBinding[] mvps= annotation.getDeclaredMemberValuePairs();
+		if (mvps.length == 0) {
+			MarkerAnnotation result = ast.newMarkerAnnotation();
+			result.setTypeName(name);
+			return result;
+		} else if (mvps.length == 1 && "value".equals(mvps[0].getName())) { //$NON-NLS-1$
+			SingleMemberAnnotation result= ast.newSingleMemberAnnotation();
+			result.setTypeName(name);
+			Object value = mvps[0].getValue();
+			if (value != null)
+				result.setValue(addAnnotation(ast, value, context));
+			return result;
+		} else {
+			NormalAnnotation result = ast.newNormalAnnotation();
+			result.setTypeName(name);
+			for (int i= 0; i < mvps.length; i++) {
+				IMemberValuePairBinding mvp = mvps[i];
+				MemberValuePair mvpNode = ast.newMemberValuePair();
+				mvpNode.setName(ast.newSimpleName(mvp.getName()));
+				Object value = mvp.getValue();
+				if (value != null)
+					mvpNode.setValue(addAnnotation(ast, value, context));
+				result.values().add(mvpNode);
+			}
+			return result;
+		}
+	}
+
 	/**
 	 * Adds a new import to the rewriter's record and returns a {@link Type} node that can be used
 	 * in the code as a reference to the type. The type binding can be an array binding, type variable or wildcard.
@@ -1118,7 +1178,7 @@ public final class ImportRewrite {
 
 	private void annotateList(List annotations, IAnnotationBinding [] annotationBindings, AST ast, ImportRewriteContext context) {
 		for (int i = 0; i< annotationBindings.length; i++) {
-			Annotation annotation = newAnnotation(ast, annotationBindings[i], context);
+			Annotation annotation = addAnnotation(annotationBindings[i], ast, context);
 			if (annotation != null) annotations.add(annotation);
 		}
 	}
@@ -1256,47 +1316,7 @@ public final class ImportRewrite {
 		return type;
 	}
 
-	private Annotation newAnnotation(AST ast, IAnnotationBinding annotation, ImportRewriteContext context) {
-		Type type = addImport(annotation.getAnnotationType(), ast, context);
-		Name name;
-		if (type instanceof SimpleType) {
-			SimpleType simpleType = (SimpleType) type;
-			name = simpleType.getName();
-			// cut 'name' loose from its parent, so that it can be reused
-			simpleType.setName(ast.newName("a")); //$NON-NLS-1$
-		} else {
-			name = ast.newName("invalid"); //$NON-NLS-1$
-		}
-
-		IMemberValuePairBinding[] mvps= annotation.getDeclaredMemberValuePairs();
-		if (mvps.length == 0) {
-			MarkerAnnotation result = ast.newMarkerAnnotation();
-			result.setTypeName(name);
-			return result;
-		} else if (mvps.length == 1 && "value".equals(mvps[0].getName())) { //$NON-NLS-1$
-			SingleMemberAnnotation result= ast.newSingleMemberAnnotation();
-			result.setTypeName(name);
-			Object value = mvps[0].getValue();
-			if (value != null)
-				result.setValue(newAnnotationValue(ast, value, context));
-			return result;
-		} else {
-			NormalAnnotation result = ast.newNormalAnnotation();
-			result.setTypeName(name);
-			for (int i= 0; i < mvps.length; i++) {
-				IMemberValuePairBinding mvp = mvps[i];
-				MemberValuePair mvpNode = ast.newMemberValuePair();
-				mvpNode.setName(ast.newSimpleName(mvp.getName()));
-				Object value = mvp.getValue();
-				if (value != null)
-					mvpNode.setValue(newAnnotationValue(ast, value, context));
-				result.values().add(mvpNode);
-			}
-			return result;
-		}
-	}
-
-	private Expression newAnnotationValue(AST ast, Object value, ImportRewriteContext context) {
+	private Expression addAnnotation(AST ast, Object value, ImportRewriteContext context) {
 		if (value instanceof Boolean) {
 			return ast.newBooleanLiteral(((Boolean) value).booleanValue());
 		} else if (value instanceof Byte || value instanceof Short || value instanceof Integer || value instanceof Long
@@ -1332,17 +1352,17 @@ public final class ImportRewrite {
 			result.setExpression(name);
 			return result;
 		} else if (value instanceof IAnnotationBinding) {
-			return newAnnotation(ast, (IAnnotationBinding) value, context);
+			return addAnnotation((IAnnotationBinding) value, ast, context);
 		} else if (value instanceof Object[]) {
 			Object[] values = (Object[]) value;
 			if (values.length == 1)
-				return newAnnotationValue(ast, values[0], context);
+				return addAnnotation(ast, values[0], context);
 
 			ArrayInitializer initializer = ast.newArrayInitializer();
 			List expressions = initializer.expressions();
 			int size = values.length;
 			for (int i = 0; i < size; i++)
-				expressions.add(newAnnotationValue(ast, values[i], context));
+				expressions.add(addAnnotation(ast, values[i], context));
 			return initializer;
 		} else {
 			return null;

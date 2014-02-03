@@ -25,10 +25,15 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
@@ -645,6 +650,109 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 	}
 	public void testBug42609410_since_8() throws Exception {
 		bug426094_runi_since_8(10);
+	}
+
+	public void testBug426510a() throws Exception {
+		String contents = "package pack1;\n" +
+				"public class X{\n" +
+				"	public void foo001(@pack2.Marker Object o2, A arg) {}\n" +
+				"	public void foo002(@pack2.Annot2({1,2}) Object o2, A arg) {}\n" +
+				"	public void foo003(@pack2.Annot1(value = true, value2 = 1) Object o2, A arg) {}\n" +
+				"}\n";
+		createFolder("/" + PROJECT + "/src/pack1");
+		createFile("/" + PROJECT + "/src/pack1/X.java", contents);
+		contents = "package pack1;\n" +
+				"public class A{}\n";
+		createFile("/" + PROJECT + "/src/pack1/A.java", contents);
+		contents = "package pack2;\n" +
+				"import java.lang.annotation.*;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"public @interface Marker {}";
+		createFolder("/" + PROJECT + "/src/pack2");
+		createFile("/" + PROJECT + "/src/pack2/Marker.java", contents);
+		contents = "package pack2;\n" +
+				"import java.lang.annotation.*;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"public @interface Annot1 {\n" +
+				"	boolean value() default false;\n" +
+				"	int value2();\n" +
+				"}";
+		createFile("/" + PROJECT + "/src/pack2/Annot1.java", contents);
+		contents = "package pack2;\n" +
+				"import java.lang.annotation.*;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"public @interface Annot2 {\n" +
+				"	int[] value() default {1,2};\n" +
+				"}";
+		createFile("/" + PROJECT + "/src/pack2/Annot2.java", contents);
+
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ICompilationUnit cu = getCompilationUnit("/" + PROJECT + "/src/pack1/X.java");
+		parser.setSource(cu);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(true);
+		CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) astRoot.types().get(0);
+		MethodDeclaration [] methods =  typeDeclaration.getMethods();
+		int methodCount = 0;
+
+		{
+			MethodDeclaration method = methods[methodCount++];
+			cu = getCompilationUnit("/" + PROJECT + "/src/pack1/A.java");
+			ImportRewrite rewrite = newImportsRewrite(cu, new String[0], 99, 99, true);
+			SingleVariableDeclaration variable = (SingleVariableDeclaration) method.parameters().get(0);
+			MarkerAnnotation markerAnnotation = (MarkerAnnotation) variable.modifiers().get(0);
+			Annotation annotation = rewrite.addAnnotation(markerAnnotation.resolveAnnotationBinding(), astRoot.getAST(), null);
+			assertTrue(annotation.isMarkerAnnotation());
+			assertEquals("@Marker", annotation.toString());
+
+			apply(rewrite);
+			contents = "package pack1;\n" +
+					"\n" +
+					"import pack2.Marker;\n" +
+					"\n" +
+					"public class A{}\n";
+			cu = getCompilationUnit("/" + PROJECT + "/src/pack1/A.java");
+			assertEqualStringIgnoreDelim(cu.getSource(), contents);
+		}
+		{
+			MethodDeclaration method = methods[methodCount++];
+			cu = getCompilationUnit("/" + PROJECT + "/src/pack1/A.java");
+			ImportRewrite rewrite = newImportsRewrite(cu, new String[0], 99, 99, true);
+			SingleVariableDeclaration variable = (SingleVariableDeclaration) method.parameters().get(0);
+			SingleMemberAnnotation singleMemberAnnotation = (SingleMemberAnnotation) variable.modifiers().get(0);
+			Annotation annotation = rewrite.addAnnotation(singleMemberAnnotation.resolveAnnotationBinding(), astRoot.getAST(), null);
+			assertTrue(annotation.isSingleMemberAnnotation());
+			assertEquals("@Annot2({1,2})", annotation.toString());
+
+			apply(rewrite);
+			contents = "package pack1;\n" +
+					"\n" +
+					"import pack2.Annot2;\n" +
+					"\n" +
+					"public class A{}\n";
+			cu = getCompilationUnit("/" + PROJECT + "/src/pack1/A.java");
+			assertEqualStringIgnoreDelim(cu.getSource(), contents);
+		}
+		{
+			MethodDeclaration method = methods[methodCount++];
+			cu = getCompilationUnit("/" + PROJECT + "/src/pack1/A.java");
+			ImportRewrite rewrite = newImportsRewrite(cu, new String[0], 99, 99, true);
+			SingleVariableDeclaration variable = (SingleVariableDeclaration) method.parameters().get(0);
+			NormalAnnotation normalAnnotation = (NormalAnnotation) variable.modifiers().get(0);
+			Annotation annotation = rewrite.addAnnotation(normalAnnotation.resolveAnnotationBinding(), astRoot.getAST(), null);
+			assertTrue(annotation.isNormalAnnotation());
+			assertEquals("@Annot1(value=true,value2=1)", annotation.toString());
+
+			apply(rewrite);
+			contents = "package pack1;\n" +
+					"\n" +
+					"import pack2.Annot1;\n" +
+					"\n" +
+					"public class A{}\n";
+			cu = getCompilationUnit("/" + PROJECT + "/src/pack1/A.java");
+			assertEqualStringIgnoreDelim(cu.getSource(), contents);
+		}
 	}
 
 	private void assertEqualStringIgnoreDelim(String actual, String expected) throws IOException {
