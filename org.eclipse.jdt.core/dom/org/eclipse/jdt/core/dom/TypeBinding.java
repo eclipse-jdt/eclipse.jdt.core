@@ -469,13 +469,6 @@ class TypeBinding implements ITypeBinding {
 			return this.resolver.getTypeBinding(((ParameterizedTypeBinding)this.binding).genericType());
 		return this.resolver.getTypeBinding(this.binding.unannotated());
 	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getEnclosingType()
-	 */
-	public ITypeBinding getEnclosingType() {
-		return this.resolver.getTypeBinding(this.binding.enclosingType());
-	}
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getErasure()

@@ -189,14 +189,6 @@ class RecoveredTypeBinding implements ITypeBinding {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getEnclosingType()
-	 */
-	
-	public ITypeBinding getEnclosingType() {
-		return null;
-	}
-
-	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getErasure()
 	 */
 	public ITypeBinding getErasure() {

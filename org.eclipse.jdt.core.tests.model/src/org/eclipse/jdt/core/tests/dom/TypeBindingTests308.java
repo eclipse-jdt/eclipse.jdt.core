@@ -1507,7 +1507,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			ITypeBinding [] memberTypes = binding.getDeclaredTypes();
 			assertEquals("Incorrect no of types", 1, memberTypes.length);
 			assertEquals("Incorrect no of types", "@T Outer.Inner", memberTypes[0].toString());
-			assertEquals("Incorrect no of types", "@T Outer", memberTypes[0].getEnclosingType().toString());
+			assertEquals("Incorrect no of types", "@T Outer", memberTypes[0].getDeclaringClass().toString());
 		} finally {
 			removeLibrary(javaProject, jarName, srcName);
 		}
@@ -1634,7 +1634,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		assertEquals("Incorrect no of fields", 1, fields.length);
 		FieldDeclaration field = fields[0];
 		ITypeBinding binding = field.getType().resolveBinding();
-		assertEquals("Wrong Type", "@T X", (binding = binding.getEnclosingType()).toString());
+		assertEquals("Wrong Type", "@T X", (binding = binding.getDeclaringClass()).toString());
 		assertEquals("Wrong Type", "@T X.Y", (binding = binding.getDeclaredTypes()[0]).toString());
 	}
 	public void testAnnotatedTypeIdentity() throws CoreException, IOException {
