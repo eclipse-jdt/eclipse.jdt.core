@@ -3485,7 +3485,7 @@ class ASTConverter {
 					org.eclipse.jdt.internal.compiler.ast.Annotation typeAnnotation = annotations[i];
 					if (typeAnnotation != null) {
 						Annotation annotation = convert(typeAnnotation);
-						typeParameter.annotations().add(annotation);
+						typeParameter.modifiers().add(annotation);
 					}
 				}
 		}

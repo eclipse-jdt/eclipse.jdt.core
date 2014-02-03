@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1602,7 +1602,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		TypeDeclaration x1 = this.ast.newTypeDeclaration();
 		TypeParameter x2 = this.ast.newTypeParameter();
 		x2.setName(this.ast.newSimpleName("T"));
-		x2.annotations().add(this.ANO1);
+		x2.modifiers().add(this.ANO1);
 		x1.typeParameters().add(x2);
 		x1.setName(this.N2);
 		basicMatch(x1);

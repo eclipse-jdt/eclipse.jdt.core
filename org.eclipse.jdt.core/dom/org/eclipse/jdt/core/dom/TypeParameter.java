@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2013 IBM Corporation and others.
+ * Copyright (c) 2003, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,11 +33,11 @@ import java.util.List;
 public class TypeParameter extends ASTNode {
 
 	/**
-	 * The "annotations" structural property of this node type (element type: {@link Annotation}) (added in JLS8 API).
+	 * The "modifiers" structural property of this node type (element type: {@link IExtendedModifier}) (added in JLS8 API).
 	 * @since 3.9 BETA_JAVA8
 	 */
-	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
-			new ChildListPropertyDescriptor(TypeParameter.class, "annotations", Annotation.class, CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildListPropertyDescriptor MODIFIERS_PROPERTY =
+			new ChildListPropertyDescriptor(TypeParameter.class, "modifiers", IExtendedModifier.class, CYCLE_RISK); //$NON-NLS-1$
 	
 	/**
 	 * The "name" structural property of this node type (child type: {@link SimpleName}).
@@ -74,7 +74,7 @@ public class TypeParameter extends ASTNode {
 		
 		propertyList = new ArrayList(4);
 		createPropertyList(TypeParameter.class, propertyList);
-		addProperty(ANNOTATIONS_PROPERTY, propertyList);
+		addProperty(MODIFIERS_PROPERTY, propertyList);
 		addProperty(NAME_PROPERTY, propertyList);
 		addProperty(TYPE_BOUNDS_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);
@@ -115,11 +115,11 @@ public class TypeParameter extends ASTNode {
 		new ASTNode.NodeList(TYPE_BOUNDS_PROPERTY);
 
 	/**
-	 * The type annotations (element type: {@link Annotation}).
+	 * The modifiers (element type: {@link IExtendedModifier}).
 	 * Null in JLS < 8. Added in JLS8; defaults to an empty list
 	 * (see constructor).
 	 */
-	private ASTNode.NodeList annotations = null;
+	private ASTNode.NodeList modifiers = null;
 	
 	/**
 	 * Creates a new unparented node for a parameterized type owned by the
@@ -135,7 +135,7 @@ public class TypeParameter extends ASTNode {
 		super(ast);
 	    unsupportedIn2();
 	    if (ast.apiLevel >= AST.JLS8) {
-			this.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
+			this.modifiers = new ASTNode.NodeList(MODIFIERS_PROPERTY);
 		}
 	}
 
@@ -166,8 +166,8 @@ public class TypeParameter extends ASTNode {
 	 * Method declared on ASTNode.
 	 */
 	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
-		if (property == ANNOTATIONS_PROPERTY) {
-			return annotations();
+		if (property == MODIFIERS_PROPERTY) {
+			return modifiers();
 		}
 		if (property == TYPE_BOUNDS_PROPERTY) {
 			return typeBounds();
@@ -190,8 +190,8 @@ public class TypeParameter extends ASTNode {
 		TypeParameter result = new TypeParameter(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		if (this.ast.apiLevel >= AST.JLS8) {
-			result.annotations().addAll(
-					ASTNode.copySubtrees(target, annotations()));
+			result.modifiers().addAll(
+					ASTNode.copySubtrees(target, modifiers()));
 		}
 		result.setName((SimpleName) ((ASTNode) getName()).clone(target));
 		result.typeBounds().addAll(
@@ -215,7 +215,7 @@ public class TypeParameter extends ASTNode {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			if (this.ast.apiLevel >= AST.JLS8) {
-				acceptChildren(visitor, this.annotations);
+				acceptChildren(visitor, this.modifiers);
 			}
 			acceptChild(visitor, getName());
 			acceptChildren(visitor, this.typeBounds);
@@ -292,19 +292,19 @@ public class TypeParameter extends ASTNode {
 	}
 	
 	/**
-	 * Returns the live ordered list of annotations for this TypeParameter node (added in JLS8 API).
+	 * Returns the live ordered list of modifiers for this TypeParameter node (added in JLS8 API).
 	 *
-	 * @return the live list of annotations (element type: {@link Annotation})
+	 * @return the live list of modifiers (element type: {@link IExtendedModifier})
 	 * @exception UnsupportedOperationException if this operation is used
 	 *            in a JLS2, JLS3 or JLS4 AST
 	 * @since 3.9 BETA_JAVA8
 	 */
-	public List annotations() {
+	public List modifiers() {
 		// more efficient than just calling unsupportedIn2_3_4() to check
-		if (this.annotations == null) {
+		if (this.modifiers == null) {
 			unsupportedIn2_3_4();
 		}
-		return this.annotations;
+		return this.modifiers;
 	}
 
 	/* (omit javadoc for this method)
@@ -321,7 +321,7 @@ public class TypeParameter extends ASTNode {
 	int treeSize() {
 		return
 			memSize()
-			+ (this.annotations == null ? 0 : this.annotations.listSize())
+			+ (this.modifiers == null ? 0 : this.modifiers.listSize())
 			+ (this.typeVariableName == null ? 0 : getName().treeSize())
 			+ this.typeBounds.listSize();
 	}

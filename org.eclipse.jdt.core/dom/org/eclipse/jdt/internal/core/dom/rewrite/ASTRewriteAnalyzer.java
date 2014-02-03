@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1533,7 +1533,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		Prefix formatterPrefix;
-		if (property == SingleVariableDeclaration.MODIFIERS2_PROPERTY || isAnnotationsProperty)
+		if (property == SingleVariableDeclaration.MODIFIERS2_PROPERTY || 
+				property == TypeParameter.MODIFIERS_PROPERTY || isAnnotationsProperty)
 			formatterPrefix= this.formatter.PARAM_ANNOTATION_SEPARATION;
 		else
 			formatterPrefix= this.formatter.ANNOTATION_SEPARATION;
@@ -4243,7 +4244,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 		int pos;
 		if (node.getAST().apiLevel() >= AST.JLS8) {
-			pos = rewriteTypeAnnotations(node, TypeParameter.ANNOTATIONS_PROPERTY, node.getStartPosition());
+			pos = rewriteModifiers2(node, TypeParameter.MODIFIERS_PROPERTY, node.getStartPosition());
 		}
 		pos= rewriteRequiredNode(node, TypeParameter.NAME_PROPERTY);
 		rewriteNodeList(node, TypeParameter.TYPE_BOUNDS_PROPERTY, pos, " extends ", " & "); //$NON-NLS-1$ //$NON-NLS-2$

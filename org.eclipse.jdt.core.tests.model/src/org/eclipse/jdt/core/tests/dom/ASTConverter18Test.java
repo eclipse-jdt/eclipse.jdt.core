@@ -1441,8 +1441,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 
 		// TypeParameter with TYPE_USE and TYPE_PARAMETER annotation combination.
 		assertEquals("@Marker1 @Marker3 F extends @Marker1 @Marker2 File", typeParameter.toString());
-		assertTrue(typeParameter.annotations().size() == 2);
-		Annotation annotation = (Annotation)typeParameter.annotations().get(1);
+		assertTrue(typeParameter.modifiers().size() == 2);
+		Annotation annotation = (Annotation)typeParameter.modifiers().get(1);
 		assertEquals("@Marker3", annotation.toString());
 		IAnnotationBinding abinding = annotation.resolveAnnotationBinding();
 		assertEquals("@Marker3()", abinding.toString());
@@ -1530,8 +1530,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
 		typeParameter = (TypeParameter) typedeclaration.typeParameters().get(0);
 		assertEquals("@Marker3 T", typeParameter.toString());
-		assertTrue(typeParameter.annotations().size() == 1);
-		annotation = (Annotation)typeParameter.annotations().get(0);
+		assertTrue(typeParameter.modifiers().size() == 1);
+		annotation = (Annotation)typeParameter.modifiers().get(0);
 		assertEquals("@Marker3", annotation.toString());
 		abinding = annotation.resolveAnnotationBinding();
 		assertEquals("@Marker3()", abinding.toString());
