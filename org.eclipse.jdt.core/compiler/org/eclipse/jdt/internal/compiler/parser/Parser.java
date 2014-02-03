@@ -12425,12 +12425,12 @@ public boolean automatonWillShift(int token, int lastAction) {
 	int highWaterMark = stackTop;
 	// A rotated version of the automaton - cf. parse()'s for(;;)
 	if (lastAction <= NUM_RULES) { // in recovery mode, we could take a detour to here, with a pending reduce action.
-		stackTop --; 
-	    lastAction += ERROR_ACTION;
+		stackTop --;
+		lastAction += ERROR_ACTION;
 	}
 	for (;;) {  
 		if (lastAction > ERROR_ACTION) {  
-			lastAction -= ERROR_ACTION;    /* shift-reduce on loop entry from above, reduce on loop back */
+			lastAction -= ERROR_ACTION;    /* reduce or shift-reduce on loop entry from above, reduce on loop back */
 			do { /* reduce */
 				stackTop -= rhs[lastAction] - 1;
 				if (stackTop < highWaterMark) {
