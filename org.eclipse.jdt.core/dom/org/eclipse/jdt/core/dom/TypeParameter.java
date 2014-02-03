@@ -19,11 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Type parameter node (added in JLS3 API).
+ * Type parameter declaration node (added in JLS3 API).
  * 
  * <pre>
  * TypeParameter:
- *    { Annotation } TypeVariable [ <b>extends</b> Type { <b>&</b> Type } ]
+ *    { ExtendedModifier } Identifier [ <b>extends</b> Type { <b>&</b> Type } ]
  * </pre>
  *
  * @since 3.1
