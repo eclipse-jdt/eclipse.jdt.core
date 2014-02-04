@@ -2593,6 +2593,7 @@ protected void consumeExitVariableWithInitialization() {
 	} else if (this.assistNode != null && this.assistNode == variable.initialization) {
 			this.assistNodeParent = variable;
 	}
+	triggerRecoveryUponLambdaClosure(variable, false);
 }
 protected void consumeExitVariableWithoutInitialization() {
 	// ExitVariableWithoutInitialization ::= $empty

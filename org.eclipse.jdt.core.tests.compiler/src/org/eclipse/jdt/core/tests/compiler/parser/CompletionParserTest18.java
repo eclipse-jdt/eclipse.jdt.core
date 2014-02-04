@@ -984,4 +984,90 @@ public void test427255() {
 				expectedReplacedSource,
 				"diet ast");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427322, [1.8][code assist] Eclipse hangs upon completion just past lambda
+public void test427322() {
+	String string = 
+			"public class X {\n" +
+			"	interface I {\n" +
+			"		int foo();\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		I i = () -> 1, i.;\n" +
+			"	}\n" +
+			"}\n";
+
+			String completeBehind = "i.";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:>";
+			String expectedParentNodeToString = "<NONE>";
+			String completionIdentifier = "";
+			String expectedReplacedSource = "";
+			String expectedUnitDisplayString =
+					"public class X {\n" + 
+					"  interface I {\n" + 
+					"    int foo();\n" + 
+					"  }\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"    I i;\n" + 
+					"    I i;\n" + 
+					"    <CompleteOnName:>;\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427322, [1.8][code assist] Eclipse hangs upon completion just past lambda
+public void test427322a() {
+	String string = 
+			"public class X {\n" +
+			"	interface I {\n" +
+			"		int foo();\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		I i = 1, i.;\n" +
+			"	}\n" +
+			"}\n";
+
+			String completeBehind = "i.";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:>";
+			String expectedParentNodeToString = "<NONE>";
+			String completionIdentifier = "";
+			String expectedReplacedSource = "";
+			String expectedUnitDisplayString =
+					"public class X {\n" + 
+					"  interface I {\n" + 
+					"    int foo();\n" + 
+					"  }\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"    I i;\n" + 
+					"    I i;\n" + 
+					"    <CompleteOnName:>;\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
 }
