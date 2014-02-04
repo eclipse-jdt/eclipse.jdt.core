@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8801,7 +8801,6 @@ public void test264() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=258906 
 public void test265() {
-	if (new CompilerOptions(getCompilerOptions()).complianceLevel < ClassFileConstants.JDK1_6) return;
 
 	INameEnvironment nameEnvironment = new FileSystem(Util.getJavaClassLibs(), new String[] {}, null);
 	IErrorHandlingPolicy errorHandlingPolicy = new IErrorHandlingPolicy() {
@@ -8840,7 +8839,7 @@ public void test265() {
 		annotations = type.getAnnotations();
 	}
 	assertTrue ("Annotations missing on package-info interface", annotations != null && annotations.length == 1);
-	assertEquals("Wrong annotation on package-info interface ", "@XmlSchema{ namespace = (String)\"test\"}", annotations[0].toString());
+	assertEquals("Wrong annotation on package-info interface ", "@XmlSchema(namespace = (String)\"test\")", annotations[0].toString());
 	nameEnvironment.cleanup();
 	if (requestor.hasErrors)
 		System.err.print(requestor.problemLog); // problem log empty if no problems

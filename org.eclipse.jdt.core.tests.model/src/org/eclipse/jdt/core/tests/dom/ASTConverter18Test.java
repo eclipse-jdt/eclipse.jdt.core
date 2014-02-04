@@ -3328,8 +3328,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		Type returnType = methodDeclaration.getReturnType2();
 		ITypeBinding tBinding1 = returnType.resolveBinding();
-		assertEquals("Unexpected type", tBinding1.toString(), "@Marker{ value = (String)\"1\"} String @Marker{ value = (String)\"2\"} []");
-		assertEquals("Unexpected type", methodDeclaration.resolveBinding().getReturnType().toString(), "@Marker{ value = (String)\"1\"} String @Marker3{ value = (String)\"3\"} [] @Marker{ value = (String)\"2\"} []");
+		assertEquals("Unexpected type", tBinding1.toString(), "@Marker((String)\"1\") String @Marker((String)\"2\") []");
+		assertEquals("Unexpected type", methodDeclaration.resolveBinding().getReturnType().toString(), "@Marker((String)\"1\") String @Marker3((String)\"3\") [] @Marker((String)\"2\") []");
 		
 		List params = methodDeclaration.parameters();
 		assertEquals("Incorrect params", 1, params.size());
@@ -3346,7 +3346,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		List fragments = field.fragments();
 		assertEquals("Incorrect no of fragments", 1, fragments.size());
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
-		assertEquals("Unexpected type", fragment.resolveBinding().getType().toString(), "String @Marker{ value = (String)\"Extended\"} [] @Marker{ value = (String)\"i0\"} @Marker2 [] [] @Marker{ value = (String)\"i1\"} []");
+		assertEquals("Unexpected type", fragment.resolveBinding().getType().toString(), "String @Marker((String)\"Extended\") [] @Marker((String)\"i0\") @Marker2 [] [] @Marker((String)\"i1\") []");
 		assertEquals("Unexpected type", "String @Marker(\"i0\") @Marker2 [][] @Marker(\"i1\") []", field.getType().toString());
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=417669

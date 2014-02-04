@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.Arrays;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 
 /**
@@ -233,12 +234,16 @@ public String toString() {
 	StringBuffer buffer = new StringBuffer(5);
 	buffer.append('@').append(this.type.sourceName);
 	if (this.pairs != null && this.pairs.length > 0) {
-		buffer.append("{ "); //$NON-NLS-1$
-		for (int i = 0, max = this.pairs.length; i < max; i++) {
-			if (i > 0) buffer.append(", "); //$NON-NLS-1$
-			buffer.append(this.pairs[i]);
+		buffer.append('(');
+		if (this.pairs.length == 1 && CharOperation.equals(this.pairs[0].getName(), TypeConstants.VALUE)) {
+			buffer.append(this.pairs[0].value); 
+		} else {
+			for (int i = 0, max = this.pairs.length; i < max; i++) {
+				if (i > 0) buffer.append(", "); //$NON-NLS-1$
+				buffer.append(this.pairs[i]);
+			}
 		}
-		buffer.append('}');
+		buffer.append(')');
 	}
 	return buffer.toString();
 }
