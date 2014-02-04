@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation and others.
+ * Copyright (c) 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1152,7 +1152,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			Assignment assignment = (Assignment) stmt.getExpression();
 			Expression left = assignment.getLeftHandSide();
 			ITypeBinding type = left.resolveTypeBinding();
-			assertEquals("Wrong type", "@Marker{ value = (String)\"Outer\"} Outer.@Marker{ value = (String)\"Middle\"} Middle.@Marker{ value = (String)\"Inner\"} Inner", type.toString());		
+			assertEquals("Wrong type", "@Marker((String)\"Outer\") Outer.@Marker((String)\"Middle\") Middle.@Marker((String)\"Inner\") Inner", type.toString());		
 		} finally {
 			removeLibrary(javaProject, jarName, srcName);
 		}
@@ -1205,7 +1205,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			Assignment assignment = (Assignment) stmt.getExpression();
 			Expression left = assignment.getLeftHandSide();
 			ITypeBinding type = left.resolveTypeBinding();
-			assertEquals("Wrong type", "@Marker{ value = (String)\"Outer\"} Outer.@Marker{ value = (String)\"Middle\"} Middle.@Marker{ value = (String)\"Inner\"} Inner @Marker{ value = (String)\"Extended []\"} [] @Marker{ value = (String)\"Prefix []\"} []", type.toString());		
+			assertEquals("Wrong type", "@Marker((String)\"Outer\") Outer.@Marker((String)\"Middle\") Middle.@Marker((String)\"Inner\") Inner @Marker((String)\"Extended []\") [] @Marker((String)\"Prefix []\") []", type.toString());		
 		} finally {
 			removeLibrary(javaProject, jarName, srcName);
 		}
@@ -1256,7 +1256,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			Assignment assignment = (Assignment) stmt.getExpression();
 			Expression left = assignment.getLeftHandSide();
 			ITypeBinding type = left.resolveTypeBinding();
-			assertEquals("Wrong type", "@T{ value = (int)1} Outer<@T{ value = (int)2} String>.@T{ value = (int)3} Inner<@T{ value = (int)4} Integer> @T{ value = (int)6} [] @T{ value = (int)5} []", type.toString());		
+			assertEquals("Wrong type", "@T((int)1) Outer<@T((int)2) String>.@T((int)3) Inner<@T((int)4) Integer> @T((int)6) [] @T((int)5) []", type.toString());		
 		} finally {
 			removeLibrary(javaProject, jarName, srcName);
 		}
@@ -1308,7 +1308,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			Assignment assignment = (Assignment) stmt.getExpression();
 			Expression left = assignment.getLeftHandSide();
 			ITypeBinding type = left.resolveTypeBinding();
-			assertEquals("Wrong type", "@T{ value = (int)1} String @T{ value = (int)3} [] @T{ value = (int)2} []", type.toString());		
+			assertEquals("Wrong type", "@T((int)1) String @T((int)3) [] @T((int)2) []", type.toString());		
 		} finally {
 			removeLibrary(javaProject, jarName, srcName);
 		}
@@ -1359,7 +1359,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			Assignment assignment = (Assignment) stmt.getExpression();
 			Expression left = assignment.getLeftHandSide();
 			ITypeBinding type = left.resolveTypeBinding();
-			assertEquals("Wrong type", "@T{ value = (int)1} Outer<@T{ value = (int)2} ? extends @T{ value = (int)3} String>.@T{ value = (int)4} Inner<@T{ value = (int)5} ? super @T{ value = (int)6} Integer> @T{ value = (int)8} [] @T{ value = (int)7} []", type.toString());		
+			assertEquals("Wrong type", "@T((int)1) Outer<@T((int)2) ? extends @T((int)3) String>.@T((int)4) Inner<@T((int)5) ? super @T((int)6) Integer> @T((int)8) [] @T((int)7) []", type.toString());		
 		} finally {
 			removeLibrary(javaProject, jarName, srcName);
 		}
@@ -1410,7 +1410,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			Assignment assignment = (Assignment) stmt.getExpression();
 			Expression left = assignment.getLeftHandSide();
 			ITypeBinding type = left.resolveTypeBinding();
-			assertEquals("Wrong type", "@T{ value = (int)1} Outer#RAW.@T{ value = (int)2} Inner#RAW @T{ value = (int)4} [] @T{ value = (int)3} []", type.toString());		
+			assertEquals("Wrong type", "@T((int)1) Outer#RAW.@T((int)2) Inner#RAW @T((int)4) [] @T((int)3) []", type.toString());		
 		} finally {
 			removeLibrary(javaProject, jarName, srcName);
 		}
