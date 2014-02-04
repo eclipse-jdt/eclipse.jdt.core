@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.ast.ExpressionContext;
 import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Invocation;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
+import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
@@ -1168,8 +1169,18 @@ public class InferenceContext18 {
 				
 				// apply results of the combined inference onto the binding of the inner invocation:
 				TypeBinding[] solutions = getSolutions(original.typeVariables(), innerMessage, bounds);
-				if (solutions == null) 
-					continue; // play safe, but shouldn't happen in a resolved context
+				if (solutions == null) {
+					if (binding instanceof ParameterizedGenericMethodBinding) {
+						InferenceContext18 innerCtx = innerMessage.getInferenceContext((ParameterizedGenericMethodBinding) binding);
+						if (innerCtx != null && !binding.isValidBinding()) {
+							if (innerMessage instanceof MessageSend)
+								innerCtx.scope.problemReporter().invalidMethod((MessageSend) innerMessage, binding);
+							else
+								innerCtx.scope.problemReporter().invalidConstructor(inner, binding);
+						}
+					}
+					continue; // inner inference not requested -> not a problem
+				}
 				ParameterizedGenericMethodBinding innerBinding = this.environment.createParameterizedGenericMethod(original, solutions);
 				
 				if (innerMessage.updateBindings(innerBinding, innerTargetType)) { // only if we are actually improving anything
@@ -1200,6 +1211,12 @@ public class InferenceContext18 {
 							// we have a non-poly generic invocation, which needs inference but is not connected via innerPolis.
 							// Finish that inner inference now (incl. binding updates):
 							MethodBinding innerBinding = innerCtx.inferInvocationType(invocation, previousBinding);
+							if (!innerBinding.isValidBinding()) {
+								if (invocation instanceof MessageSend)
+									innerCtx.scope.problemReporter().invalidMethod((MessageSend) invocation, innerBinding);
+								else
+									innerCtx.scope.problemReporter().invalidConstructor(expression, innerBinding);
+							}
 							if (invocation.updateBindings(innerBinding, targetType)) { // only if we are actually improving anything
 								ASTNode.resolvePolyExpressionArguments(invocation, innerBinding);
 							}

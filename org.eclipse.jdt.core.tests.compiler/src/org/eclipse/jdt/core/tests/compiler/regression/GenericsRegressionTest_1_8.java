@@ -1805,4 +1805,45 @@ public void testBug424637() {
 		"world",
 		options);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=427218, [1.8][compiler] Verify error varargs + inference 
+public void test427218_reduced() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"   public static void main(String[] args) {\n" +
+			"      match(getLast(\"a\"), null);\n" +
+			"   }\n" +
+			"   public static <T> T getLast(T... array) { return null; } // same with T[]\n" +
+			"   public static void match(boolean b, Object foo) { }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	match(getLast(\"a\"), null);\n" + 
+		"	^^^^^\n" + 
+		"The method match(boolean, Object) in the type X is not applicable for the arguments (String, null)\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	public static <T> T getLast(T... array) { return null; } // same with T[]\n" + 
+		"	                                 ^^^^^\n" + 
+		"Type safety: Potential heap pollution via varargs parameter array\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=427218, [1.8][compiler] Verify error varargs + inference 
+public void _test427218() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"   public static void main(String[] args) {\n" +
+			"      match(getLast(\"a\"), null);\n" +
+			"   }\n" +
+			"   public static <T> T getLast(T... array) { return null; } // same with T[]\n" +
+			"   public static void match(boolean b, Object foo) { }\n" +
+			"   public static <A> void match(Object o, A foo) { }\n" +
+			"}\n",
+		},
+		"");
+}
 }
