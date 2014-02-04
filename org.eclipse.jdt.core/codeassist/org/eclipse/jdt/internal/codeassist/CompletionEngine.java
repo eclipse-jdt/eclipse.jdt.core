@@ -682,7 +682,7 @@ public final class CompletionEngine
 		this.lookupEnvironment =
 			new LookupEnvironment(this, this.compilerOptions, this.problemReporter, nameEnvironment);
 		this.parser =
-			new CompletionParser(this.problemReporter, this.requestor.isExtendedContextRequired());
+			new CompletionParser(this.problemReporter, this.requestor.isExtendedContextRequired(), monitor);
 		this.owner = owner;
 		this.monitor = monitor;
 	}

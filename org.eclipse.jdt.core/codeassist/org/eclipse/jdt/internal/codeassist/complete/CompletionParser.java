@@ -28,6 +28,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
 
 import java.util.HashSet;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
@@ -172,6 +173,8 @@ public class CompletionParser extends AssistParser {
 	private boolean storeSourceEnds;
 	public HashtableOfObjectToInt sourceEnds;
 	private boolean inReferenceExpression;
+	private IProgressMonitor monitor;
+	private int resumeOnSyntaxError = 0;
 
 public CompletionParser(ProblemReporter problemReporter, boolean storeExtraSourceEnds) {
 	super(problemReporter);
@@ -182,6 +185,10 @@ public CompletionParser(ProblemReporter problemReporter, boolean storeExtraSourc
 		this.storeSourceEnds = true;
 		this.sourceEnds = new HashtableOfObjectToInt();
 	}
+}
+public CompletionParser(ProblemReporter problemReporter, boolean storeExtraSourceEnds, IProgressMonitor monitor) {
+	this(problemReporter, storeExtraSourceEnds);
+	this.monitor = monitor;
 }
 private void addPotentialName(char[] potentialVariableName, int start, int end) {
 	int length = this.potentialVariableNames.length;
@@ -5017,6 +5024,17 @@ public void restoreAssistParser(Object parserState) {
 	
 	this.cursorLocation = state[0];
 	completionScanner.cursorLocation = state[1];
+}
+@Override
+protected int resumeOnSyntaxError() {
+	if (this.monitor != null) {
+		if (++this.resumeOnSyntaxError > 100) {
+			this.resumeOnSyntaxError = 0;
+			if (this.monitor.isCanceled()) 
+				return HALT;
+		}
+	}
+	return super.resumeOnSyntaxError();
 }
 /*
  * Reset context so as to resume to regular parse loop
