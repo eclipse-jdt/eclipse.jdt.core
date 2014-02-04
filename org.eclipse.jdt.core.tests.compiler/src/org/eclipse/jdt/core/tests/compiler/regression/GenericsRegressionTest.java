@@ -22,6 +22,7 @@
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 423496 - [1.8] Implement new incorporation rule once it becomes available
  *								Bug 426590 - [1.8][compiler] Compiler error with tenary operator
+ *								Bug 427216 - [Java8] array to varargs regression
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -3896,6 +3897,24 @@ public void test427282() {
 		"	           ^^\n" + 
 		"Null pointer access: The variable as can only be null at this location\n" + 
 		"----------\n");
+}
+public void testBug427216() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"public class Test\n" + 
+			"{\n" + 
+			"   public static void main(String[] args)\n" + 
+			"   {\n" + 
+			"      foo(args); // ok in 1.7 and 1.8\n" + 
+			"      foo(java.util.Arrays.asList(\"1\").toArray(new String[0]));\n" +
+			"		System.out.println(\"good\");\n" + 
+			"   }\n" + 
+			"\n" + 
+			"   private static void foo(String... args) { }\n" + 
+			"}\n"
+		},
+		"good");
 }
 }
 
