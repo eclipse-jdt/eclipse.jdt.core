@@ -3870,5 +3870,34 @@ public void test425719b() {
 		},
 		"Y.foo");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427282,  Internal compiler error: java.lang.ArrayIndexOutOfBoundsException: -1 at org.eclipse.jdt.internal.compiler.ClassFile.traverse
+public void test427282() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collection;\n" +
+			"public class X {\n" +
+			"	public X(String... a) {\n" +
+			"	}\n" +
+			"	public static <T> T[] a(T[] a, T[] b) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public static void error() {\n" +
+			"		final Collection<X> as = null;\n" +
+			"       for (X a : as) {\n" +
+			"           new X(X.a(new String[0], new String[0]));\n" +
+			"       }\n" +
+			"	}\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 10)\n" + 
+		"	for (X a : as) {\n" + 
+		"	           ^^\n" + 
+		"Null pointer access: The variable as can only be null at this location\n" + 
+		"----------\n");
+}
 }
 
