@@ -1851,4 +1851,22 @@ public void _test427218() {
 		},
 		"");
 }
+public void testBug427223() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.*;\n" +
+			"public class Test {\n" + 
+			"\n" + 
+			"	List<Object> toList(Object o) {\n" + 
+			"		if (o instanceof Optional) {\n" + 
+			"			return Arrays.asList(((Optional<?>) o).orElse(null));\n" + 
+			"		} else {\n" + 
+			"			return null;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n"
+		});
+}
 }

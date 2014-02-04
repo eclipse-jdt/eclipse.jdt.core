@@ -293,7 +293,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 	private ArrayBinding findMostSpecificSuperArray(TypeBinding firstBound, TypeBinding[] otherUpperBounds, TypeBinding theType) {
 		int numArrayBounds = 0;
 		ArrayBinding result = null;
-		if (firstBound.isArrayType()) {
+		if (firstBound != null && firstBound.isArrayType()) {
 			result = (ArrayBinding) firstBound;
 			numArrayBounds++;
 		}
