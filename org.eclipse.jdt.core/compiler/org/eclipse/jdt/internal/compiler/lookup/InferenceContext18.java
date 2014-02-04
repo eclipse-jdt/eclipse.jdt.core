@@ -34,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.ast.Invocation;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
+import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /**
@@ -1173,10 +1174,7 @@ public class InferenceContext18 {
 					if (binding instanceof ParameterizedGenericMethodBinding) {
 						InferenceContext18 innerCtx = innerMessage.getInferenceContext((ParameterizedGenericMethodBinding) binding);
 						if (innerCtx != null && !binding.isValidBinding()) {
-							if (innerMessage instanceof MessageSend)
-								innerCtx.scope.problemReporter().invalidMethod((MessageSend) innerMessage, binding);
-							else
-								innerCtx.scope.problemReporter().invalidConstructor(inner, binding);
+							innerCtx.reportInvalidInvocation(innerMessage, binding);
 						}
 					}
 					continue; // inner inference not requested -> not a problem
@@ -1212,10 +1210,7 @@ public class InferenceContext18 {
 							// Finish that inner inference now (incl. binding updates):
 							MethodBinding innerBinding = innerCtx.inferInvocationType(invocation, previousBinding);
 							if (!innerBinding.isValidBinding()) {
-								if (invocation instanceof MessageSend)
-									innerCtx.scope.problemReporter().invalidMethod((MessageSend) invocation, innerBinding);
-								else
-									innerCtx.scope.problemReporter().invalidConstructor(expression, innerBinding);
+								innerCtx.reportInvalidInvocation(invocation, innerBinding);
 							}
 							if (invocation.updateBindings(innerBinding, targetType)) { // only if we are actually improving anything
 								ASTNode.resolvePolyExpressionArguments(invocation, innerBinding);
@@ -1278,6 +1273,13 @@ public class InferenceContext18 {
 		problemMethod.returnType = expectedType;
 		problemMethod.inferenceContext = this;
 		return problemMethod;
+	}
+
+	public void reportInvalidInvocation(Invocation invocation, MethodBinding binding) {
+		if (invocation instanceof MessageSend)
+			this.scope.problemReporter().invalidMethod((MessageSend) invocation, binding);
+		else
+			this.scope.problemReporter().invalidConstructor((Statement)invocation, binding);
 	}
 
 	// debugging:

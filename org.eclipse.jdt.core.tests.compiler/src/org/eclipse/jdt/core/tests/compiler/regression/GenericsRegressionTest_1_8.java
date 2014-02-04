@@ -1824,7 +1824,12 @@ public void test427218_reduced() {
 		"	^^^^^\n" + 
 		"The method match(boolean, Object) in the type X is not applicable for the arguments (String, null)\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 5)\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	match(getLast(\"a\"), null);\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from String to boolean\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 5)\n" + 
 		"	public static <T> T getLast(T... array) { return null; } // same with T[]\n" + 
 		"	                                 ^^^^^\n" + 
 		"Type safety: Potential heap pollution via varargs parameter array\n" + 
