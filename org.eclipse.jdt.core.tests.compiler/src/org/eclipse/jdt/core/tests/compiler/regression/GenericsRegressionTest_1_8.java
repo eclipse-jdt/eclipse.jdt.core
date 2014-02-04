@@ -14,6 +14,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Map;
+
+import org.eclipse.jdt.core.JavaCore;
+
 import junit.framework.Test;
 
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
@@ -1773,5 +1777,32 @@ public void testBug427224() {
 			"    }\n" + 
 			"}\n"
 		});
+}
+// comment 12
+public void testBug424637() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"	String foo(X x, String s2);\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	String goo(String ...ts) {\n" + 
+			"		System.out.println(ts[0]);  \n" + 
+			"		return ts[0];\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		I i = X::goo;\n" + 
+			"		String s = i.foo(new X(), \"world\");\n" + 
+			"		System.out.println(s);     \n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"world\n" +
+		"world",
+		options);
 }
 }

@@ -546,6 +546,8 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         	int len;
         	int expectedlen = this.binding.parameters.length;
         	int providedLen = this.descriptor.parameters.length;
+        	if (this.receiverPrecedesParameters)
+        		providedLen--; // one parameter is 'consumed' as the receiver
         	boolean isVarArgs = false;
         	if (this.binding.isVarargs()) {
         		isVarArgs = (providedLen == expectedlen)
