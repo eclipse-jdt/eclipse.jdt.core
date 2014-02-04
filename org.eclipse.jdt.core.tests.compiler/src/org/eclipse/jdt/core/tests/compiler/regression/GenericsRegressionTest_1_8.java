@@ -1380,7 +1380,7 @@ public void testBug426671_ok() {
 			"}\n"
 		});
 }
-public void _testBug426671_medium() {
+public void testBug426671_medium() {
 	runConformTest(
 		new String[] {
 			"X.java",
@@ -1396,7 +1396,7 @@ public void _testBug426671_medium() {
 			"}\n"
 		});
 }
-public void _testBug426671_full() {
+public void testBug426671_full() {
 	runConformTest(
 		new String[] {
 			"X.java",

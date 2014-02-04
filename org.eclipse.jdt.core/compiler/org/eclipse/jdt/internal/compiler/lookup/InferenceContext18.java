@@ -390,36 +390,9 @@ public class InferenceContext18 {
 				}
 			}
 			// 4. bullet: assemble C:
-			TypeBinding[] fs;
-			Expression[] arguments = this.invocationArguments;
 			Set<ConstraintFormula> c = new HashSet<ConstraintFormula>();
-			if (arguments != null) {
-				int k = arguments.length;
-				int p = method.parameters.length;
-				if (k < (method.isVarargs() ? p-1 : p))
-					return null; // insufficient arguments for parameters!
-				switch (this.inferenceKind) {
-					case CHECK_STRICT:
-					case CHECK_LOOSE:
-						fs = method.parameters;
-						break;
-					case CHECK_VARARG:
-						fs = varArgTypes(method.parameters, k);
-						break;
-					default:
-						throw new IllegalStateException("Unexpected checkKind "+this.inferenceKind); //$NON-NLS-1$
-				}
-				for (int i = 0; i < k; i++) {
-					TypeBinding fsi = fs[Math.min(i, p-1)];
-					TypeBinding substF = substitute(fsi);
-					// For all i (1 ≤ i ≤ k), if ei is not pertinent to applicability, the set contains ⟨ei → θ Fi⟩.
-					Expression argument = arguments[i];
-					if (!argument.isPertinentToApplicability(fsi, method)) {
-						c.add(new ConstraintExpressionFormula(argument, substF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT));
-					}
-					addExceptionConstraint(c, argument, substF);
-				}
-			}
+			if (!addConstraintsToC(this.invocationArguments, c, method))
+				return null;
 			// 5. bullet: determine B3 from C
 			while (!c.isEmpty()) {
 				// *
@@ -463,14 +436,53 @@ public class InferenceContext18 {
 		}
 	}
 
-	private void addExceptionConstraint(Set<ConstraintFormula> c, Expression argument, TypeBinding substF) {
-		if (argument instanceof FunctionalExpression) {
-			c.add(new ConstraintExceptionFormula((FunctionalExpression) argument, substF));
-		} else if (argument instanceof ConditionalExpression) {
-			ConditionalExpression ce = (ConditionalExpression) argument;
-			addExceptionConstraint(c, ce.valueIfTrue, substF);
-			addExceptionConstraint(c, ce.valueIfFalse, substF);
+	private boolean addConstraintsToC(Expression[] exprs, Set<ConstraintFormula> c, MethodBinding method) {
+		TypeBinding[] fs;
+		if (exprs != null) {
+			int k = exprs.length;
+			int p = method.parameters.length;
+			if (k < (method.isVarargs() ? p-1 : p))
+				return false; // insufficient arguments for parameters!
+			switch (this.inferenceKind) {
+				case CHECK_STRICT:
+				case CHECK_LOOSE:
+					fs = method.parameters;
+					break;
+				case CHECK_VARARG:
+					fs = varArgTypes(method.parameters, k);
+					break;
+				default:
+					throw new IllegalStateException("Unexpected checkKind "+this.inferenceKind); //$NON-NLS-1$
+			}
+			for (int i = 0; i < k; i++) {
+				TypeBinding fsi = fs[Math.min(i, p-1)];
+				TypeBinding substF = substitute(fsi);
+				if (!addConstraintsToC_OneExpr(exprs[i], c, fsi, substF, method))
+					return false;
+	        }
 		}
+		return true;
+	}
+
+	private boolean addConstraintsToC_OneExpr(Expression expri, Set<ConstraintFormula> c, TypeBinding fsi, TypeBinding substF, MethodBinding method) {
+		// For all i (1 ≤ i ≤ k), if ei is not pertinent to applicability, the set contains ⟨ei → θ Fi⟩.
+		if (!expri.isPertinentToApplicability(fsi, method)) {
+			c.add(new ConstraintExpressionFormula(expri, substF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT));
+		}
+		if (expri instanceof FunctionalExpression) {
+			c.add(new ConstraintExceptionFormula((FunctionalExpression) expri, substF));
+		} else if (expri instanceof Invocation && expri.isPolyExpression()) {
+			Invocation invocation = (Invocation) expri;
+			MethodBinding innerMethod = invocation.binding(null);
+			if (innerMethod instanceof ParameterizedGenericMethodBinding) {
+				return addConstraintsToC(invocation.arguments(), c, innerMethod.genericMethod());
+			}
+		} else if (expri instanceof ConditionalExpression) {
+			ConditionalExpression ce = (ConditionalExpression) expri;
+			return addConstraintsToC_OneExpr(ce.valueIfTrue, c, fsi, substF, method)
+				 && addConstraintsToC_OneExpr(ce.valueIfFalse, c, fsi, substF, method);
+		}
+		return true;
 	}
 
 	/**
