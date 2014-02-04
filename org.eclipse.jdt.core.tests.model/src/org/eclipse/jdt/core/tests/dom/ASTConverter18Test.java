@@ -3740,18 +3740,18 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=418979
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=424977
 	 */
-	public void _testBug418979_002() throws JavaModelException {
+	public void testBug418979_002() throws JavaModelException {
 		String contents =
 				"package test;\n" +
 				"import java.lang.annotation.*;\n" +
 				"public class X {\n" +
-				"    test.@A Outer<>.@A Inner<> i;\n" +
+				"    test.@A Outer<C>.@A Inner<C> i;\n" +
 				" }\n" +
 				"class Outer<T> {\n" +
 				"	class Inner<S> {}\n" +
 				"}\n" +
+				"class C {}\n" +
 				"@Target (ElementType.TYPE_USE)\n" +
 				"@interface A{}";
 		this.workingCopy = getWorkingCopy("/Converter18/src/test/X.java", true/*resolve*/);
@@ -3761,13 +3761,13 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		node = getASTNode(compilationUnit, 0);
 		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		FieldDeclaration field = ((TypeDeclaration) node).getFields()[0];
-		checkSourceRange(field, "test.@A Outer<>.@A Inner<> i", contents);
+		checkSourceRange(field, "test.@A Outer<C>.@A Inner<C> i;", contents);
 		ParameterizedType parameterizedType = (ParameterizedType) field.getType();
-		checkSourceRange(parameterizedType, "test.@A Outer<>.@A Inner<>", contents);
+		checkSourceRange(parameterizedType, "test.@A Outer<C>.@A Inner<C>", contents);
 		QualifiedType qualifiedType = (QualifiedType) parameterizedType.getType();
-		checkSourceRange(qualifiedType, "test.@A Outer<>.@A Inner", contents);
+		checkSourceRange(qualifiedType, "test.@A Outer<C>.@A Inner", contents);
 		parameterizedType = (ParameterizedType) qualifiedType.getQualifier();
-		checkSourceRange(parameterizedType, "test.@A Outer<>", contents);
+		checkSourceRange(parameterizedType, "test.@A Outer<C>", contents);
 		NameQualifiedType nameQualifiedType = (NameQualifiedType) parameterizedType.getType();
 		checkSourceRange(nameQualifiedType, "test.@A Outer", contents);
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 IBM Corporation and others.
+ * Copyright (c) 2011, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,8 +15,11 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
+import java.util.Map;
 
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
 import junit.framework.Test;
 
 public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
@@ -4306,5 +4309,65 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				},
 				"",
 				true);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424977,  [1.8][compiler]ArrayIndexIndexOutOfBoundException in annotated wrong<> code
+	public void testBug426977() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+		runNegativeTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n" +
+				"import java.lang.annotation.ElementType;\n" + 
+				"import java.lang.annotation.Target;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    test.@A Outer<>.@A Inner<> i;\n" + 
+				"}\n" +
+				"class Outer<T> {\n" +
+				"    class Inner {}\n" +
+				"}\n" +
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@interface A {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in test\\X.java (at line 6)\n" + 
+			"	test.@A Outer<>.@A Inner<> i;\n" + 
+			"	^^^^^^^^^^^^^\n" + 
+			"Incorrect number of arguments for type Outer<T>; it cannot be parameterized with arguments <>\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424977,  [1.8][compiler] ArrayIndexIndexOutOfBoundException in annotated wrong<> code
+	public void testBug426977a() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+		runNegativeTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n" +
+				"import java.lang.annotation.ElementType;\n" + 
+				"import java.lang.annotation.Target;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    test.@A Outer<Object>.@A Inner<> i;\n" + 
+				"}\n" +
+				"class Outer<T> {\n" +
+				"    class Inner {}\n" +
+				"}\n" +
+				"@Target(ElementType.TYPE_USE)\n" + 
+				"@interface A {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in test\\X.java (at line 6)\n" + 
+			"	test.@A Outer<Object>.@A Inner<> i;\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type Outer<Object>.Inner is not generic; it cannot be parameterized with arguments <>\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
 	}
 }

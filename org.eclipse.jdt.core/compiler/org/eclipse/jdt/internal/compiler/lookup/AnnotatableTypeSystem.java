@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation and others.
+ * Copyright (c) 2013, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -257,6 +257,8 @@ public class AnnotatableTypeSystem extends TypeSystem {
 						break;
 				}
 				if (i == levels) // empty annotations array ? 
+					return type;
+				if (j < 0) // Not kosher, broken type that is not flagged as invalid while reporting compilation error ? don't touch.
 					return type;
 				// types[j] is the first component being annotated. Its annotations are annotations[i]
 				for (enclosingType = j == 0 ? null : types[j - 1]; i < levels; i++, j++) {
