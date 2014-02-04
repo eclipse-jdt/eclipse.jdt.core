@@ -152,10 +152,6 @@ public interface IBinding {
 	 * Note that 'deprecated' is not included among the modifiers.
 	 * Use <code>isDeprecated</code> to find out whether a binding is deprecated.
 	 * </p>
-	 * <p>
-	 * Note that 'default' is not included among the modifiers.
-	 * Default methods are interface methods that are neither abstract nor static.
-	 * </p>
 	 *
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see Modifier
