@@ -1869,4 +1869,19 @@ public void testBug427223() {
 			"}\n"
 		});
 }
+public void testBug425183_comment8() {
+	// similar to what triggered the NPE, but it never did trigger
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String... args) {\n" + 
+			"        java.util.Comparator.reverseOrder().thenComparingLong(X::toLong);\n" +
+			"        System.out.println(\"ok\");\n" + 
+			"    }\n" +
+			"    static <T> long toLong(T in) { return 0L; }\n" +
+			"}\n"
+		},
+		"ok");
+}
 }
