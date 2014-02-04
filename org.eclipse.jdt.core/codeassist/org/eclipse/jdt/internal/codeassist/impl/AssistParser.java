@@ -598,17 +598,19 @@ protected void consumeOpenBlock() {
 	this.blockStarts[this.realBlockPtr] = this.scanner.startPosition;
 	if (requireExtendedRecovery()) {
 		// This is an epsilon production: We are in the state with kernel item: Block ::= .OpenBlock LBRACE BlockStatementsopt RBRACE
-		stackLength = this.stack.length;
-		if (++this.stateStackTop >= stackLength - 1) {   // Need two slots.
-			System.arraycopy(
-				this.stack, 0,
-				this.stack = new int[stackLength + StackIncrement], 0,
-				stackLength);
+		if (this.currentToken == TokenNameLBRACE && this.unstackedAct > NUM_RULES) { // wait for chain reductions to finish before commit.
+			stackLength = this.stack.length;
+			if (++this.stateStackTop >= stackLength - 1) {   // Need two slots.
+				System.arraycopy(
+						this.stack, 0,
+						this.stack = new int[stackLength + StackIncrement], 0,
+						stackLength);
+			}
+			this.stack[this.stateStackTop++] = this.unstackedAct; // transition to Block ::= OpenBlock  .LBRACE BlockStatementsopt RBRACE
+			this.stack[this.stateStackTop] = tAction(this.unstackedAct, this.currentToken); // transition to Block ::= OpenBlock LBRACE  .BlockStatementsopt RBRACE 
+			commit();
+			this.stateStackTop -= 2;
 		}
-		this.stack[this.stateStackTop++] = this.unstackedAct; // transition to Block ::= OpenBlock  .LBRACE BlockStatementsopt RBRACE
-		this.stack[this.stateStackTop] = tAction(this.unstackedAct, this.currentToken); // transition to Block ::= OpenBlock LBRACE  .BlockStatementsopt RBRACE 
-		commit();
-		this.stateStackTop -= 2;
 	}
 }
 protected void consumeOpenFakeBlock() {

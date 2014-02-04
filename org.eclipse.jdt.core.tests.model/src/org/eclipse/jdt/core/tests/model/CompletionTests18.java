@@ -878,7 +878,7 @@ public void testBug405125b() throws JavaModelException {
 	    	requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425084, [1.8][completion] Eclipse freeze while autocompleting try block in lambda.
-public void _test425084() throws JavaModelException {
+public void test425084() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
@@ -887,6 +887,7 @@ public void _test425084() throws JavaModelException {
 			"}\n" +
 			"public class X {\n" +
 			"	I goo() {\n" +
+			"       int tryit = 0;\n" +
 			"		return () -> {\n" +
 			"			try\n" +
 			"		};\n" +
@@ -899,8 +900,7 @@ public void _test425084() throws JavaModelException {
 	String completeBehind = "try";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, null, null, [155, 158], 27}\n" +
-                  "StringParameter[LOCAL_VARIABLE_REF]{StringParameter, null, LX;, null, null, StringParameter, null, [155, 158], 27}", requestor.getResults());
+	assertResults("tryit[LOCAL_VARIABLE_REF]{tryit, null, I, null, null, tryit, null, [99, 102], 27}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
 public void test422901() throws JavaModelException {
