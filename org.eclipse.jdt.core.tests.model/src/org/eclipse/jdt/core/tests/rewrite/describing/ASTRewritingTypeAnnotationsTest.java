@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation and others.
+ * Copyright (c) 2013, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -809,7 +809,7 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void _testEmptyListInsertAnnotation() throws Exception {
+	public void testEmptyListInsertAnnotation() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -842,7 +842,7 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 		buf.append("public class X {\n");
 		buf.append("	String myObject = \"Foo\";\n");
 		buf.append("	public void foo() {\n");
-		buf.append("		String myString = (@Annot String) myObject;\n");//Actual: String myString = ( @AnnotString) myObject;
+		buf.append("		String myString = (@Annot String) myObject;\n");
 		buf.append("	}\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
