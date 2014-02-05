@@ -453,4 +453,58 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 				},
 				"SomeInt instance");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427438, - NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode
+	public void test014() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public X(Class clazz) {\n" +
+						"	}\n" +
+						"	public void error() {\n" +
+						"		boolean test = false;\n" +
+						"		int i = 1;\n" +
+						"		new X(test ? (i == 2 ? D.class : E.class) : null);\n" +
+						"	}\n" +
+						"	public class D {\n" +
+						"	}\n" +
+						"	public class E {\n" +
+						"	}\n" +
+						"}\n",
+				},
+				this.complianceLevel < ClassFileConstants.JDK1_5 ? "" :
+					"----------\n" + 
+					"1. WARNING in X.java (at line 2)\n" + 
+					"	public X(Class clazz) {\n" + 
+					"	         ^^^^^\n" + 
+					"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+					"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427438, - NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode
+	public void test015() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public X(Class clazz) {\n" +
+						"	}\n" +
+						"	public void error() {\n" +
+						"		boolean test = false;\n" +
+						"		int i = 1;\n" +
+						"		new X(test ? null : (i == 2 ? D.class : E.class));\n" +
+						"	}\n" +
+						"	public class D {\n" +
+						"	}\n" +
+						"	public class E {\n" +
+						"	}\n" +
+						"}\n",
+				},
+				this.complianceLevel < ClassFileConstants.JDK1_5 ? "" :
+					"----------\n" + 
+					"1. WARNING in X.java (at line 2)\n" + 
+					"	public X(Class clazz) {\n" + 
+					"	         ^^^^^\n" + 
+					"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+					"----------\n");
+	}	
 }

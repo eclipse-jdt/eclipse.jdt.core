@@ -718,12 +718,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		
 		// "... unless both operands produce primitives (or boxed primitives)":
 		TypeBinding opType = this.valueIfTrue.resolvedType;
-		if (opType != null) {
+		if (opType != null && opType.id != TypeIds.T_null) {
 			if (opType.isBaseType() || (opType.id >= TypeIds.T_JavaLangByte && opType.id <= TypeIds.T_JavaLangBoolean))
 				return false;
 		}
 		opType = this.valueIfFalse.resolvedType;
-		if (opType != null) {
+		if (opType != null && opType.id != TypeIds.T_null) {
 			if (opType.isBaseType() || (opType.id >= TypeIds.T_JavaLangByte && opType.id <= TypeIds.T_JavaLangBoolean))
 				return false;
 		}
