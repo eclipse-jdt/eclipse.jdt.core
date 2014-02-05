@@ -47,6 +47,7 @@ import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
@@ -2183,5 +2184,42 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		assertEquals("Incorrect type binding", "@NonNull String", binding.toString());
 		binding = method.getParameterTypes()[1];
 		assertEquals("Incorrect type binding", "@NonNull List<@NonNull String>", binding.toString());
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426515
+	public void testBug426515() throws CoreException {
+		try {
+			String contents =
+					"public class X {\n" +
+					"	void foo() {\n" +
+					"		Outer.getInner();\n" +
+					"	}\n" +
+					"}\n";
+
+			createFile("/Converter18/src/A.java",
+					"import java.lang.annotation.ElementType;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"@Target(ElementType.TYPE_USE)\n" +
+					"@interface A { int value() default 0; \n }");
+			createFile("/Converter18/src/Outer.java",
+					"class Outer<T> { \n" +
+					"	public class Inner<I> {}\n" +
+					"	public static @A(1) Outer<java.lang.@A(2) String>.@A(3) Inner<java.lang.@A(4) Object> getInner() { \n" +
+					"		return null;\n" +
+					"	}\n" +
+					"}");
+
+			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+			ASTNode node = buildAST(contents, this.workingCopy, false, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			TypeDeclaration type = (TypeDeclaration) ((CompilationUnit) node).types().get(0);
+			MethodDeclaration method = type.getMethods()[0];
+			ExpressionStatement statement = (ExpressionStatement) method.getBody().statements().get(0);
+			MethodInvocation methodCal = (MethodInvocation) statement.getExpression();
+			ITypeBinding binding = methodCal.resolveTypeBinding();
+			assertEquals("Incorrect type binding", "@A((int)1) Outer<@A((int)2) String>.@A((int)3) Inner<@A((int)4) Object>", binding.toString());
+		} finally {
+			deleteFile("/Converter18/src/A.java");
+			deleteFile("/Converter18/src/Outer.java");
+		}
 	}
 }
