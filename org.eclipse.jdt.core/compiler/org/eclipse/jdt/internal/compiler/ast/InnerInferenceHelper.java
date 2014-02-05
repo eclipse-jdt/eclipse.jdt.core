@@ -20,21 +20,27 @@ import java.util.Map;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class InnerInferenceHelper {
 
 	/** For each candidate method store here the array of argument types if inner inference has improved any during Invocation Type Inference. */
-	private Map/*<MethodBinding,TypeBinding[]>*/ argTypesPerCandidate = new HashMap();
+	private Map<MethodBinding,TypeBinding[]> argTypesPerCandidate = new HashMap<MethodBinding,TypeBinding[]>();
 
 	public void registerInnerResult(MethodBinding method, TypeBinding resolvedType, int argCount, int argIdx) {
-		TypeBinding[] argTypes = (TypeBinding[]) this.argTypesPerCandidate.get(method);
+		TypeBinding[] argTypes = this.argTypesPerCandidate.get(method);
 		if (argTypes == null)
 			this.argTypesPerCandidate.put(method, argTypes = new TypeBinding[argCount]);
 		argTypes[argIdx] = resolvedType;
 	}
 	
 	public TypeBinding[] getArgumentTypesForCandidate(MethodBinding candidate, TypeBinding[] plainArgTypes) {
-		TypeBinding[] argTypes = (TypeBinding[]) this.argTypesPerCandidate.get(candidate);
-		return argTypes != null ? argTypes : plainArgTypes;
+		TypeBinding[] argTypes = this.argTypesPerCandidate.get(candidate);
+		if (argTypes == null)
+			return plainArgTypes;
+		// fill in any blanks now:
+		for (int i = 0; i < argTypes.length; i++) {
+			if (argTypes[i] == null)
+				argTypes[i] = plainArgTypes[i];
+		}
+		return argTypes;
 	}
 }
