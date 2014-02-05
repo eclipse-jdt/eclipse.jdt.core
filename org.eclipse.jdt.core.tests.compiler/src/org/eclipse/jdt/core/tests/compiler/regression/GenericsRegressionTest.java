@@ -43,7 +43,7 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "testBug413958" };
+//		TESTS_NAMES = new String[] { "testBug427433" };
 //		TESTS_NUMBERS = new int[] { 1465 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
@@ -3915,6 +3915,32 @@ public void testBug427216() {
 			"}\n"
 		},
 		"good");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427433, NPE at org.eclipse.jdt.internal.compiler.lookup.Scope.parameterCompatibilityLevel(Scope.java:4755)
+public void testBug427433() {
+	if (this.complianceLevel == ClassFileConstants.JDK1_8)
+		return;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void testError() {\n" +
+			"		assertEquals(A.e(null, null, null), null);\n" +
+			"	}\n" +
+			"	public static boolean assertEquals(String a, String b) {\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public static boolean assertEquals(Object a, Object b) {\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"}\n" +
+			"class A {\n" +
+			"	public static <T, V> V e(T[] t, V[] v, T object) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"");
 }
 }
 
