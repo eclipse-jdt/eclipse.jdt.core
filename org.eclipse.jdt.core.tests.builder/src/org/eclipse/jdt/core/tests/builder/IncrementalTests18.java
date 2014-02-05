@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation and others.
+ * Copyright (c) 2013, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.tests.builder;
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -121,4 +122,114 @@ public class IncrementalTests18 extends BuilderTests {
 		incrementalBuild(projectPath);
 		expectingNoProblems();
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427105, [1.8][builder] Differences between incremental and full builds in method contract verification in the presence of type annotations
+	public void test427105() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.8");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "", "X",
+				"import java.util.List;\n" +
+				"public class X implements I {\n" +
+				"	public void f(List x, List<I> ls) {                                      \n" +
+				"	}\n" +
+				"}\n"
+		);
+		env.addClass(root, "", "I",
+				"import java.util.List;\n" +
+				"public interface I {\n" +
+				"	void f(@T List x, List<I> ls);\n" +
+				"}\n"
+		);
+		env.addClass(root, "", "T",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"public @interface T {\n" +
+				"}\n"
+			);
+		
+		// force annotation encoding into bindings which is necessary to reproduce.
+		env.getJavaProject("Project").setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+
+		fullBuild(projectPath);
+		expectingProblemsFor(
+				projectPath,
+				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/I.java> range : <55,59> category : <130> severity : <1>]\n" + 
+				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/X.java> range : <68,72> category : <130> severity : <1>]"
+			);
+		env.addClass(root, "", "X",
+				"import java.util.List;\n" +
+				"public class X implements I {\n" +
+				"	public void f(List x, List<I> ls) {                                      \n" +
+				"	}\n" +
+				"}\n"
+		);
+		incrementalBuild(projectPath);
+		expectingProblemsFor(
+				projectPath,
+				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/I.java> range : <55,59> category : <130> severity : <1>]\n" + 
+				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/X.java> range : <68,72> category : <130> severity : <1>]"
+			);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427105, [1.8][builder] Differences between incremental and full builds in method contract verification in the presence of type annotations
+	public void test427105a() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.8");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "", "X",
+				"import java.util.List;\n" +
+				"public class X implements I {\n" +
+				"	public void f(List x, List<I> ls) {                                      \n" +
+				"	}\n" +
+				"}\n"
+		);
+		env.addClass(root, "", "I",
+				"import java.util.List;\n" +
+				"public interface I {\n" +
+				"	void f(@T List x, List<I> ls);\n" +
+				"}\n"
+		);
+		env.addClass(root, "", "T",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"public @interface T {\n" +
+				"}\n"
+			);
+		
+		// force annotation encoding into bindings which is necessary to reproduce.
+		env.getJavaProject("Project").setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+
+		fullBuild(projectPath);
+		expectingProblemsFor(
+				projectPath,
+				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/I.java> range : <55,59> category : <130> severity : <1>]\n" + 
+				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/X.java> range : <68,72> category : <130> severity : <1>]"
+			);
+		env.addClass(root, "", "X",
+				"import java.util.List;\n" +
+				"public class X implements I {\n" +
+				"	public void f(@T List x, List<I> ls) {                                      \n" +
+				"	}\n" +
+				"}\n"
+		);
+		incrementalBuild(projectPath);
+		expectingProblemsFor(
+				projectPath,
+				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/I.java> range : <55,59> category : <130> severity : <1>]\n" + 
+				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/X.java> range : <71,75> category : <130> severity : <1>]"
+			);
+	}	
 }

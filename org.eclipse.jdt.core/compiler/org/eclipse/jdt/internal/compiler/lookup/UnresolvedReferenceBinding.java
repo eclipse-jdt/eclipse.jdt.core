@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,11 +86,17 @@ public TypeBinding prototype() {
 }
 
 ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericToRawType) {
+	ReferenceBinding targetType;
 	if (this != this.prototype) { //$IDENTITY-COMPARISON$
-		this.prototype.resolve(environment, convertGenericToRawType);
-		return this.resolvedType;
+		targetType = this.prototype.resolve(environment, convertGenericToRawType);
+		if (convertGenericToRawType && targetType != null && targetType.isRawType()) {
+			targetType = (ReferenceBinding) environment.createAnnotatedType(targetType, this.typeAnnotations);
+		} else {
+			targetType = this.resolvedType;
+		}
+		return targetType;
 	}
-    ReferenceBinding targetType = this.resolvedType;
+	targetType = this.resolvedType;
 	if (targetType == null) {
 		targetType = this.fPackage.getType0(this.compoundName[this.compoundName.length - 1]);
 		if (targetType == this) { //$IDENTITY-COMPARISON$
