@@ -4752,6 +4752,8 @@ public abstract class Scope {
 	
 	private int parameterCompatibilityLevel(TypeBinding arg, TypeBinding param, LookupEnvironment env, boolean tieBreakingVarargsMethods) {
 		// only called if env.options.sourceLevel >= ClassFileConstants.JDK1_5
+		if (arg == null || param == null)
+			return NOT_COMPATIBLE;
 		if (arg.isCompatibleWith(param, this))
 			return COMPATIBLE;
 		if (tieBreakingVarargsMethods && (this.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_7 || !CompilerOptions.tolerateIllegalAmbiguousVarargsInvocation)) {

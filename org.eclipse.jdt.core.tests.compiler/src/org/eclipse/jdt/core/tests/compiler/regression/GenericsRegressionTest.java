@@ -3918,8 +3918,6 @@ public void testBug427216() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427433, NPE at org.eclipse.jdt.internal.compiler.lookup.Scope.parameterCompatibilityLevel(Scope.java:4755)
 public void testBug427433() {
-	if (this.complianceLevel == ClassFileConstants.JDK1_8)
-		return;
 	runNegativeTest(
 		new String[] {
 			"X.java",
