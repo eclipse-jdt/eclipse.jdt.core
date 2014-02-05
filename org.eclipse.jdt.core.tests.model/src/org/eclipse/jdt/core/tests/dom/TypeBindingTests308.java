@@ -40,6 +40,7 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
@@ -2153,5 +2154,34 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy, false, true);
 		assertEquals("AST mismatch", expected, node.toString());
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427337
+	public void testBug427337() throws CoreException, IOException {
+		String contents = 
+				"public class X implements I {\n" +
+				"}\n";
+
+		createFile("/Converter18/src/NonNull.java", 
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface NonNull {}");
+		createFile("/Converter18/src/I.java",
+				"import java.util.List;\n" +
+				"interface I { \n" +
+				"	String bar2(@NonNull String s, @NonNull List<@NonNull String> l2);\n" +
+				"}");
+
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy, false, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		TypeDeclaration type = (TypeDeclaration) ((CompilationUnit) node).types().get(0);
+		ITypeBinding binding = type.resolveBinding();
+		ITypeBinding superInterface = binding.getInterfaces()[0];
+		IMethodBinding method = superInterface.getDeclaredMethods()[0];
+		binding = method.getParameterTypes()[0];
+		assertEquals("Incorrect type binding", "@NonNull String", binding.toString());
+		binding = method.getParameterTypes()[1];
+		assertEquals("Incorrect type binding", "@NonNull List<@NonNull String>", binding.toString());
 	}
 }
