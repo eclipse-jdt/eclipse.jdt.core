@@ -29,6 +29,7 @@
  *								Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
  *								Bug 426366 - [1.8][compiler] Type inference doesn't handle multiple candidate target types in outer overload context
  *								Bug 427282 - [1.8][compiler] AIOOB (-1) at org.eclipse.jdt.internal.compiler.ClassFile.traverse(ClassFile.java:6209)
+ *								Bug 427483 - [Java 8] Variables in lambdas sometimes can't be resolved
  *     Jesper S Moller - Contributions for
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -57,6 +58,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -662,8 +664,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		if (candidateMethod != null) {
 			boolean variableArity = candidateMethod.isVarargs();
 			InferenceContext18 infCtx = null;
-			if (candidateMethod instanceof ParameterizedGenericMethodBinding) {
-				infCtx = invocation.getInferenceContext((ParameterizedGenericMethodBinding) candidateMethod);
+			if (candidateMethod instanceof ParameterizedMethodBinding) {
+				infCtx = invocation.getInferenceContext((ParameterizedMethodBinding) candidateMethod);
 				if (infCtx != null) {
 					if (infCtx.stepCompleted != InferenceContext18.TYPE_INFERRED) {
 						// only work in the exact state of TYPE_INFERRED

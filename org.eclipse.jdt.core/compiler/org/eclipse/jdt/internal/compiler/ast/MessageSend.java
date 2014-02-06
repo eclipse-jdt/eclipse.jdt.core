@@ -46,6 +46,7 @@
  *								Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
  *								Bug 426366 - [1.8][compiler] Type inference doesn't handle multiple candidate target types in outer overload context
  *								Bug 426290 - [1.8][compiler] Inference + overloading => wrong method resolution ?
+ *								Bug 427483 - [Java 8] Variables in lambdas sometimes can't be resolved
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -75,6 +76,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -973,7 +975,7 @@ public void registerInferenceContext(ParameterizedGenericMethodBinding method, I
 		this.inferenceContexts = new SimpleLookupTable();
 	this.inferenceContexts.put(method, infCtx18);
 }
-public InferenceContext18 getInferenceContext(ParameterizedGenericMethodBinding method) {
+public InferenceContext18 getInferenceContext(ParameterizedMethodBinding method) {
 	if (this.inferenceContexts == null)
 		return null;
 	return (InferenceContext18) this.inferenceContexts.get(method);

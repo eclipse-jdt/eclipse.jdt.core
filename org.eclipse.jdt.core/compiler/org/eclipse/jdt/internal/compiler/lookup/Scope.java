@@ -35,6 +35,7 @@
  *								Bug 426998 - [1.8][compiler] method(java.lang.Class, java.lang.String) not applicable for the arguments (java.lang.Class, java.lang.String)
  *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
  *								Bug 427196 - [1.8][compiler] Compiler error for method reference to overloaded method
+ *								Bug 427483 - [Java 8] Variables in lambdas sometimes can't be resolved
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -4837,8 +4838,7 @@ public abstract class Scope {
 			TypeVariableBinding[] methodTypeVariables = method.typeVariables();
 			int methodTypeVariablesArity = methodTypeVariables.length;
 	        
-			MethodBinding staticFactory = new MethodBinding(method.modifiers | ClassFileConstants.AccStatic, TypeConstants.SYNTHETIC_STATIC_FACTORY,
-																		null, null, null, method.declaringClass);
+			MethodBinding staticFactory = new SyntheticFactoryMethodBinding(method, this.environment());
 			staticFactory.typeVariables = new TypeVariableBinding[classTypeVariablesArity + methodTypeVariablesArity];
 			final SimpleLookupTable map = new SimpleLookupTable(classTypeVariablesArity + methodTypeVariablesArity);
 			// Rename each type variable T of the type to T'

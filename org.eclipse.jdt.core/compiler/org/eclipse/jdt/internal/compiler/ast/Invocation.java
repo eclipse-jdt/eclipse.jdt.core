@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 /**
@@ -51,7 +52,7 @@ public interface Invocation extends InvocationSite {
 	 * @param method an intermediate resolved candidate for this invocation
 	 * return a suspended inference context or null if none was registered for this method.
 	 */
-	InferenceContext18 getInferenceContext(ParameterizedGenericMethodBinding method);
+	InferenceContext18 getInferenceContext(ParameterizedMethodBinding method);
 
 	/**
 	 * Answer true if this invocation has determined its binding using inference.

@@ -107,7 +107,7 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  * <li>Intermediate <b>state</b> regarding inference must be stored between both phases. Inference is performed with different
  *   inputs for each pair of {@link Invocation} x {@link ParameterizedGenericMethodBinding},
  *    see {@link Invocation#registerInferenceContext(ParameterizedGenericMethodBinding, InferenceContext18) Invocation.registerInferenceContext()} and
- *    {@link Invocation#getInferenceContext(ParameterizedGenericMethodBinding) getInferenceContext()}.<br/>
+ *    {@link Invocation#getInferenceContext(ParameterizedMethodBinding) getInferenceContext()}.<br/>
  *    As part of the lifecycle state, each instance of InferenceContext18 remembers the current {@link #inferenceKind}
  *    and {@link #stepCompleted}.</li>
  * <li><b>Nested inference/resolving</b>: If an invocation argument is a poly expression itself, final resolving of the argument can only happened

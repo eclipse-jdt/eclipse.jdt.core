@@ -1884,4 +1884,21 @@ public void testBug425183_comment8() {
 		},
 		"ok");
 }
+public void testBug427483() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"public class X {\n" +
+			"	void test() {\n" +
+			"		new TreeSet<>((String qn1, String qn2) -> {\n" + 
+			"   		boolean b = true;\n" + 
+			"			System.out.println(b); // ok\n" + 
+			"   		if(b) { }\n" + 
+			"	   		return qn1.compareTo(qn2);\n" + 
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		});
+}
 }
