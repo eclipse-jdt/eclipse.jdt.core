@@ -393,7 +393,7 @@ public class InferenceContext18 {
 			}
 			// 4. bullet: assemble C:
 			Set<ConstraintFormula> c = new HashSet<ConstraintFormula>();
-			if (!addConstraintsToC(this.invocationArguments, c, method))
+			if (!addConstraintsToC(this.invocationArguments, c, method, this.inferenceKind))
 				return null;
 			// 5. bullet: determine B3 from C
 			while (!c.isEmpty()) {
@@ -438,14 +438,14 @@ public class InferenceContext18 {
 		}
 	}
 
-	private boolean addConstraintsToC(Expression[] exprs, Set<ConstraintFormula> c, MethodBinding method) {
+	private boolean addConstraintsToC(Expression[] exprs, Set<ConstraintFormula> c, MethodBinding method, int inferenceKindForMethod) {
 		TypeBinding[] fs;
 		if (exprs != null) {
 			int k = exprs.length;
 			int p = method.parameters.length;
 			if (k < (method.isVarargs() ? p-1 : p))
 				return false; // insufficient arguments for parameters!
-			switch (this.inferenceKind) {
+			switch (inferenceKindForMethod) {
 				case CHECK_STRICT:
 				case CHECK_LOOSE:
 					fs = method.parameters;
@@ -477,7 +477,9 @@ public class InferenceContext18 {
 			Invocation invocation = (Invocation) expri;
 			MethodBinding innerMethod = invocation.binding(null);
 			if (innerMethod instanceof ParameterizedGenericMethodBinding) {
-				return addConstraintsToC(invocation.arguments(), c, innerMethod.genericMethod());
+				InferenceContext18 innerCtx = invocation.getInferenceContext((ParameterizedMethodBinding) innerMethod);
+				int innerKind = innerCtx != null ? innerCtx.inferenceKind : this.inferenceKind;
+				return addConstraintsToC(invocation.arguments(), c, innerMethod.genericMethod(), innerKind);
 			}
 		} else if (expri instanceof ConditionalExpression) {
 			ConditionalExpression ce = (ConditionalExpression) expri;

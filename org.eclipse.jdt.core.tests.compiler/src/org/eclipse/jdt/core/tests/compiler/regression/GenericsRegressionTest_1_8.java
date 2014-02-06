@@ -23,7 +23,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug424710" };
+//	TESTS_NAMES = new String[] { "testBug424195_comment2" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -1898,6 +1898,23 @@ public void testBug427483() {
 			"	   		return qn1.compareTo(qn2);\n" + 
 			"		});\n" +
 			"	}\n" +
+			"}\n"
+		});
+}
+public void testBug427504() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" + 
+			"\n" + 
+			"	public static <T> Tree<T> model(T o) {\n" + 
+			"		return Node(Leaf(o), Leaf(o));\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	interface Tree<T> {}\n" + 
+			"	static <T> Tree<T> Node(Tree<T>... children) { return null; }\n" + 
+			"	static <T> Tree<T> Leaf(T o) { return null; }\n" + 
+			"	\n" + 
 			"}\n"
 		});
 }
