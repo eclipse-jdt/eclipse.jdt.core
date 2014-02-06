@@ -28,7 +28,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
-import org.eclipse.jdt.internal.compiler.ast.ExpressionContext;
 import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Invocation;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
@@ -507,7 +506,7 @@ public class InferenceContext18 {
 		ParameterizedGenericMethodBinding methodToCheck = method;
 		
 		boolean haveProperTargetType = targetType != null && targetType.isProperType(true);
-		if (haveProperTargetType || invocation.getExpressionContext() == ExpressionContext.VANILLA_CONTEXT) {
+		if (haveProperTargetType || !invocation.getExpressionContext().definesTargetType()) {
 			MethodBinding original = method.originalMethod;
 			Solution solution = this.solutionsPerTargetType.get(targetType);
 			BoundSet result = solution != null ? solution.bounds : null;
@@ -538,7 +537,7 @@ public class InferenceContext18 {
 		if (problemMethod != null)
 			return problemMethod;
 
-		if (!haveProperTargetType && invocation.getExpressionContext() != ExpressionContext.VANILLA_CONTEXT)
+		if (!haveProperTargetType && invocation.getExpressionContext().definesTargetType())
 			return method; // still not ready!
 
 		if (finalMethod != null) {
@@ -1114,7 +1113,7 @@ public class InferenceContext18 {
 		BoundSet bounds = this.currentBounds;
 		TypeBinding targetType = site.invocationTargetType();
 		if (targetType == null || !targetType.isProperType(true)) {
-			if (site.getExpressionContext() == ExpressionContext.VANILLA_CONTEXT) {
+			if (!site.getExpressionContext().definesTargetType()) {
 				// in this case we may not yet have the solution(?, get or compute it now:
 				Solution solution = this.solutionsPerTargetType.get(targetType);
 				try {

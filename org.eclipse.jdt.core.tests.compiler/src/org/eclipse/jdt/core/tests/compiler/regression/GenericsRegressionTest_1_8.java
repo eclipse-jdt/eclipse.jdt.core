@@ -619,6 +619,16 @@ public void testBug424712a() {
 		"	Set<Y> rosterSet = (Set<Y>) foo(null, Set::new);\n" + 
 		"	                        ^\n" + 
 		"Y cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 12)\n" + 
+		"	Set<Y> rosterSet = (Set<Y>) foo(null, Set::new);\n" + 
+		"	                                      ^^^^^^^^\n" + 
+		"The target type of this expression must be a functional interface\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 12)\n" + 
+		"	Set<Y> rosterSet = (Set<Y>) foo(null, Set::new);\n" + 
+		"	                                      ^^^\n" + 
+		"Cannot instantiate the type Set\n" + 
 		"----------\n");
 }
 public void testBug424712b() {

@@ -35,6 +35,7 @@
  *							Bug 426764 - [1.8] Presence of conditional expression as method argument confuses compiler
  *							Bug 424930 - [1.8][compiler] Regression: "Cannot infer type arguments" error from compiler.
  *							Bug 427483 - [Java 8] Variables in lambdas sometimes can't be resolved
+ *							Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *							bug 378674 - "The method can be declared as static" is wrong
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -44,6 +45,8 @@
  *     						bug 413460 - NonNullByDefault is not inherited to Constructors when accessed via Class File
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
+
+import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.*;
 
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;

@@ -3967,8 +3967,6 @@ public void testBug427433b() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427438#c3, [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode
 public void testBug427438c3() {
-	if (this.complianceLevel == ClassFileConstants.JDK1_8)
-		return;
 	runNegativeTest(
 		new String[] {
 			"X.java",
