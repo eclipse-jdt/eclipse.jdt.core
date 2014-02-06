@@ -1114,4 +1114,51 @@ public void test427463() {
 				expectedReplacedSource,
 				"diet ast");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427117, [1.8][code assist] code assist after lambda as a parameter does not work
+public void test427117() {
+	String string = 
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		bar();\n" +
+			"	}\n" +
+			"	public static void bar() {\n" +
+			"		List<Integer> list = new ArrayList<Integer>();\n" +
+			"		list.forEach(s -> System.out.println(s));\n" +
+			"		list.\n" +
+			"	}\n" +
+			"}\n";
+
+			String completeBehind = "list.";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:list.>";
+			String expectedParentNodeToString = "<NONE>";
+			String completionIdentifier = "";
+			String expectedReplacedSource = "list.";
+			String expectedUnitDisplayString =
+					"import java.util.ArrayList;\n" + 
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"  }\n" + 
+					"  public static void bar() {\n" + 
+					"    List<Integer> list;\n" + 
+					"    <CompleteOnName:list.>;\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
 }

@@ -1624,21 +1624,41 @@ public void parseBlockStatements(MethodDeclaration md, CompilationUnitDeclaratio
 	}
 
 }
-protected void popElement(int kind){
-	if(this.elementPtr < 0 || this.elementKindStack[this.elementPtr] != kind) return;
 
-	this.previousKind = this.elementKindStack[this.elementPtr];
-	this.previousInfo = this.elementInfoStack[this.elementPtr];
-	this.previousObjectInfo = this.elementObjectInfoStack[this.elementPtr];
-
-	this.elementObjectInfoStack[this.elementPtr] = null;
-
-	switch (kind) {
-		default :
-			this.elementPtr--;
-			break;
+// the name is a misnomer, we allow "pop"s not just at the TOS. Lambda wants to be sticky till fully reduced, however we do want other elements poppped at the right point, so ... 
+protected void popElement(int kind) {
+	
+	if (this.elementPtr < 0)
+		return;
+	
+	int stackPointer = this.elementPtr;
+	
+	if (this.elementKindStack[stackPointer] == K_LAMBDA_EXPRESSION_DELIMITER) {
+		if (kind == K_FIELD_INITIALIZER_DELIMITER) // wait until lambda is reduced.
+			return;
 	}
-}
+	
+	if (kind != K_LAMBDA_EXPRESSION_DELIMITER) {
+		while (this.elementKindStack[stackPointer] == K_LAMBDA_EXPRESSION_DELIMITER) {
+			stackPointer --;
+		}
+	}
+	if (stackPointer < 0 || this.elementKindStack[stackPointer] != kind)
+		return;
+	
+	this.previousKind = this.elementKindStack[stackPointer];
+	this.previousInfo = this.elementInfoStack[stackPointer];
+	this.previousObjectInfo = this.elementObjectInfoStack[stackPointer];
+
+	final int length = this.elementPtr - stackPointer;
+	if (length > 0) {
+		System.arraycopy(this.elementKindStack, stackPointer + 1, this.elementKindStack, stackPointer, length);
+		System.arraycopy(this.elementInfoStack, stackPointer + 1, this.elementInfoStack, stackPointer, length);
+		System.arraycopy(this.elementObjectInfoStack, stackPointer + 1, this.elementObjectInfoStack, stackPointer, length);
+	}
+	this.elementObjectInfoStack[this.elementPtr] = null;
+	this.elementPtr--;
+ }
 protected void popUntilElement(int kind){
 	if(this.elementPtr < 0) return;
 	int i = this.elementPtr;
