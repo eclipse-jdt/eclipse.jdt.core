@@ -43,7 +43,7 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "testBug427433" };
+//		TESTS_NAMES = new String[] { "testBug427438c3" };
 //		TESTS_NUMBERS = new int[] { 1465 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
@@ -3964,6 +3964,42 @@ public void testBug427433b() {
 			"}\n"
 		},
 		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427438#c3, [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode
+public void testBug427438c3() {
+	if (this.complianceLevel == ClassFileConstants.JDK1_8)
+		return;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	boolean b;\n" +
+			"	public List<A> getLignes() {\n" +
+			"		return (List<A>) data(b ? (Serializable) get() : null);\n" +
+			"	}\n" +
+			"	public List<A> get() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public <T extends Serializable> T data(T data) {\n" +
+			"		return data;\n" +
+			"	}\n" +
+			"	public class A implements Serializable {\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	return (List<A>) data(b ? (Serializable) get() : null);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Serializable to List<X.A>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 14)\n" + 
+		"	public class A implements Serializable {\n" + 
+		"	             ^\n" + 
+		"The serializable class A does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
 }
 }
 
