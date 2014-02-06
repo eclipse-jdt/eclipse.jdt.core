@@ -83,5 +83,71 @@ public void testBug426520b() throws JavaModelException {
 			"	java.util.@T() Set<java.lang.@T() String> s;\n" +
 			"}\n");
 }
+public void testBug425040() throws JavaModelException {
+	String source =
+			"import java.lang.annotation.*;\n" +
+			"\n" +
+			"public class X extends @Annot1 Object {\n" +
+			"	@Deprecated	@Annot3 public @Annot2	int b;\n" +
+			"\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"	public @Annot3() int foo(@Annot4 C<@Annot5() Object> a) {\n" +
+			"		@Annot1 int @Annot2 [] i;\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"}\n" +
+			"class C<T> {}\n" +
+			"@Documented\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface Annot1 {}\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface Annot2 {}\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface Annot3 {}\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface Annot4 {}\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface Annot5 {}\n";
+	formatSource(source,
+			"import java.lang.annotation.*;\n" +
+			"\n" +
+			"public class X extends @Annot1 Object {\n" +
+			"	@Deprecated\n" +
+			"	@Annot3\n" +
+			"	public @Annot2 int b;\n" +
+			"\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"	public @Annot3() int foo(@Annot4 C<@Annot5() Object> a) {\n" +
+			"		@Annot1\n" +
+			"		int @Annot2 [] i;\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class C<T> {\n" +
+			"}\n" +
+			"\n" +
+			"@Documented\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface Annot1 {\n" +
+			"}\n" +
+			"\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface Annot2 {\n" +
+			"}\n" +
+			"\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface Annot3 {\n" +
+			"}\n" +
+			"\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface Annot4 {\n" +
+			"}\n" +
+			"\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface Annot5 {\n" +
+			"}\n"
+			);
+}
 
 }

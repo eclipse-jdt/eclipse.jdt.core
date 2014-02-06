@@ -1,6 +1,5 @@
 public @interface X {
-	public @Marker
-	String value();
+	public @Marker String value();
 
 	@Marker
 	String value2();

@@ -2,8 +2,7 @@ public class X {
 	int x() {
 		@Marker
 		int p;
-		final @Marker
-		int q;
+		final @Marker int q;
 		@Marker
 		final int r;
 		return 10;

@@ -5295,6 +5295,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			if (length > 0 && (!this.isNextTokenPunctuation() || this.isNextToken(TerminalTokens.TokenNameLBRACKET))) {
 				this.scribe.space();
 			}
+			if (this.scribe.formatter.preferences.insert_new_line_after_type_annotation) {
+				this.scribe.printNewLine();
+			}
 			return true;
 		}
 		return false;

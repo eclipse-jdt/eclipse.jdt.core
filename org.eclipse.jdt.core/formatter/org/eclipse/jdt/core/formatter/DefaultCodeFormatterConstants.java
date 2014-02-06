@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1406,6 +1406,18 @@ public class DefaultCodeFormatterConstants {
 	 */
 	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_annotation_on_type";//$NON-NLS-1$
 
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a new line after a type annotation
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_type_annotation"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           DO_NOT_INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.9 BETA_JAVA8
+	 */
+	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_TYPE_ANNOTATION = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_type_annotation";//$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a new line after an annotation on a parameter

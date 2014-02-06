@@ -3,8 +3,7 @@ public class X {
 		for (@Marker
 		int i : new int[3]) {
 		}
-		for (final @Marker
-		int i : new int[3]) {
+		for (final @Marker int i : new int[3]) {
 		}
 		for (@Marker
 		final int i : new int[3]) {

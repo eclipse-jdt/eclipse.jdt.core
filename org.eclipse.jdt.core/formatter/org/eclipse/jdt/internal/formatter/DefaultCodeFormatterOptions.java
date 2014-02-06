@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -147,6 +147,7 @@ public class DefaultCodeFormatterOptions {
 	public int indentation_size;
 
 	public boolean insert_new_line_after_annotation_on_type;
+	public boolean insert_new_line_after_type_annotation;
 	public boolean insert_new_line_after_annotation_on_field;
 	public boolean insert_new_line_after_annotation_on_method;
 	public boolean insert_new_line_after_annotation_on_package;
@@ -448,6 +449,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, this.indent_switchstatements_compare_to_switch ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE, Integer.toString(this.indentation_size));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE, this.insert_new_line_after_annotation_on_type ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_TYPE_ANNOTATION, this.insert_new_line_after_type_annotation ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD, this.insert_new_line_after_annotation_on_field ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD, this.insert_new_line_after_annotation_on_method ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE, this.insert_new_line_after_annotation_on_package ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -2279,6 +2281,7 @@ public class DefaultCodeFormatterOptions {
 		this.indent_switchstatements_compare_to_switch = true;
 		this.indentation_size = 4;
 		this.insert_new_line_after_annotation_on_type = true;
+		this.insert_new_line_after_type_annotation = false;
 		this.insert_new_line_after_annotation_on_field = true;
 		this.insert_new_line_after_annotation_on_method = true;
 		this.insert_new_line_after_annotation_on_package = true;
@@ -2569,6 +2572,7 @@ public class DefaultCodeFormatterOptions {
 		this.indent_switchstatements_compare_to_switch = false;
 		this.indentation_size = 4;
 		this.insert_new_line_after_annotation_on_type = true;
+		this.insert_new_line_after_type_annotation = false;
 		this.insert_new_line_after_annotation_on_field = true;
 		this.insert_new_line_after_annotation_on_method = true;
 		this.insert_new_line_after_annotation_on_package = true;
