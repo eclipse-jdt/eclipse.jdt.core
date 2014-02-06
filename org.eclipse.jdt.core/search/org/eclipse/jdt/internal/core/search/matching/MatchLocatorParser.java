@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -224,7 +224,9 @@ protected void consumeCastExpressionLL1WithBounds() {
 	super.consumeCastExpressionLL1WithBounds();
 	if ((this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
 		CastExpression castExpression = (CastExpression) this.expressionStack[this.expressionPtr];
-		this.patternLocator.match(castExpression.type, this.nodeSet);
+		TypeReference[] typeReferences = ((IntersectionCastTypeReference) castExpression.type).typeReferences;
+		for (int i = 0, length = typeReferences.length; i < length; i++)
+			this.patternLocator.match(typeReferences[i], this.nodeSet);
 	}
 }
 protected void consumeCastExpressionWithGenericsArray() {
