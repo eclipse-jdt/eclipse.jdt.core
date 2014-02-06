@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -733,9 +733,6 @@ protected static class JavacTestOptions {
 				new JavacHasABug(
 					MismatchType.EclipseErrorsJavacNone,
 					ClassFileConstants.JDK1_7, 0 /* 1.7.0 b03 */) : null,
-			JavacBug6294779 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6294779
-				new JavacHasABug(
-					MismatchType.JavacErrorsEclipseNone) : null,
 			JavacBug6302954 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6302954 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=98379
 				new JavacHasABug(
 					MismatchType.JavacErrorsEclipseNone,

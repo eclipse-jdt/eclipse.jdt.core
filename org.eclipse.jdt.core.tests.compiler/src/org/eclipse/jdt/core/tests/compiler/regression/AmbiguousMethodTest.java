@@ -2259,8 +2259,7 @@ public void test028() {
 			"    foo(0.0f);\n" +
 			"  }\n" +
 			"}"
-		},
-	  	JavacTestOptions.JavacHasABug.JavacBug6294779 /* javac test options */);
+		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - simplified
@@ -2279,8 +2278,7 @@ public void test029() {
 			"    foo(0.0f);\n" +
 			"  }\n" +
 			"}"
-		},
-	  	JavacTestOptions.JavacHasABug.JavacBug6294779 /* javac test options */);
+		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - same return type
@@ -2323,8 +2321,7 @@ public void test031() {
 			"    foo(0.0f);\n" +
 			"  }\n" +
 			"}"
-		},
-	  	JavacTestOptions.JavacHasABug.JavacBug6294779 /* javac test options */);
+		});
 }
 // tests 32-34 were moved to MethodVerifyTest 134-140
 
@@ -2369,9 +2366,7 @@ public void test037() {
 			"    foo(0.0f);\n" +
 			"  }\n" +
 			"}"
-		},
-		// javac options
-	  	JavacTestOptions.JavacHasABug.JavacBug6294779 /* javac test options */);
+		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - no promotion of parameter from float to Number
@@ -2390,8 +2385,7 @@ public void test038() {
 			"    foo(0.0f);\n" +
 			"  }\n" +
 			"}"
-		},
-	  	JavacTestOptions.JavacHasABug.JavacBug6294779 /* javac test options */);
+		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - an explicit cast solves the issue
@@ -2482,9 +2476,7 @@ public void test042() {
 			"    return null;\n" +
 			"  }\n" +
 			"}"
-		},
-		// javac options
-	  	JavacTestOptions.JavacHasABug.JavacBug6294779 /* javac test options */);
+		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - a further inheriting class implements Object foo
