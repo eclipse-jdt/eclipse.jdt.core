@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,6 @@ package org.eclipse.jdt.internal.codeassist.impl;
  *
  */
 
-import org.eclipse.jdt.internal.codeassist.complete.CompletionOnKeyword2;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
@@ -1697,8 +1696,6 @@ protected void prepareForHeaders() {
 }
 
 public boolean requireExtendedRecovery() {
-	if (this.assistNode instanceof TypeReference || this.assistNode instanceof CompletionOnKeyword2)
-		return false;
 	return lastIndexOfElement(K_LAMBDA_EXPRESSION_DELIMITER) >= 0;
 }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation and others.
+ * Copyright (c) 2013, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1057,6 +1057,50 @@ public void test427322a() {
 					"    I i;\n" + 
 					"    I i;\n" + 
 					"    <CompleteOnName:>;\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427463, [1.8][content assist] No completions available in throw statement within lambda body
+public void test427463() {
+	String string = 
+			"interface FI1 {\n" +
+			"	int foo(int x) throws Exception;\n" +
+			"}\n" +
+			"class Test {\n" +
+			"	FI1 fi1= (int x) -> {\n" +
+			"		throw new Ex\n" +
+			"	};\n" +
+			"	private void test() throws Exception {\n" +
+			"		throw new Ex\n" +
+			"	}\n" +
+			"}\n";
+
+			String completeBehind = "new Ex";
+			int cursorLocation = string.indexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnException:Ex>";
+			String expectedParentNodeToString = "throw new <CompleteOnException:Ex>();";
+			String completionIdentifier = "Ex";
+			String expectedReplacedSource = "Ex";
+			String expectedUnitDisplayString =
+					"interface FI1 {\n" + 
+					"  int foo(int x) throws Exception;\n" + 
+					"}\n" + 
+					"class Test {\n" + 
+					"  FI1 fi1 = (int x) ->   {\n" + 
+					"    <CompleteOnException:Ex>;\n" + 
+					"  };\n" + 
+					"  Test() {\n" + 
 					"  }\n" + 
 					"}\n";
 
