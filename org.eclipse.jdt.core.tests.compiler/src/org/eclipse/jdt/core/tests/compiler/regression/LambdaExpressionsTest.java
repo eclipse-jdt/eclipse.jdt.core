@@ -3142,6 +3142,27 @@ public void test406744x() {
 			"10"
 			);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427483, [Java 8] Variables in lambdas sometimes can't be resolved
+public void test427483() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.TreeSet;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new TreeSet<>((String qn1, String qn2) -> {\n" +
+				"			boolean b = true;\n" +
+				"			System.out.println(b); // ok\n" +
+				"			if (b) {\n" +
+				"			} // Eclipse says: b cannot be resolved or is not a field\n" +
+				"			return qn1.compareTo(qn2);\n" +
+				"		});\n" +
+				"	}\n" +
+				"}\n"
+			},
+			""
+			);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

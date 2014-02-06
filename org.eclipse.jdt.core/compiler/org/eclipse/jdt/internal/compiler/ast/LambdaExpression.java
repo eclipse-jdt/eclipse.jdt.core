@@ -203,6 +203,9 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	 */
 	public TypeBinding resolveType(BlockScope blockScope) {
 		
+		if (this.resolvedType != null)
+			return this.resolvedType;
+		
 		this.constant = Constant.NotAConstant;
 		this.enclosingScope = blockScope;
 		
