@@ -1161,4 +1161,49 @@ public void test427117() {
 				expectedReplacedSource,
 				"diet ast");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427532, [1.8][code assist] Completion engine does not like intersection casts
+public void test427532() {
+	String string = 
+			"import java.io.Serializable;\n" +
+			"interface I {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		I i = (I & Serializable) () -> {};\n" +
+			"		syso\n" +
+			"	}\n" +
+			"}\n";
+
+			String completeBehind = "syso";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:syso>";
+			String expectedParentNodeToString = "<NONE>";
+			String completionIdentifier = "syso";
+			String expectedReplacedSource = "syso";
+			String expectedUnitDisplayString =
+					"import java.io.Serializable;\n" + 
+					"interface I {\n" + 
+					"  void foo();\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"    I i;\n" + 
+					"    <CompleteOnName:syso>;\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
 }

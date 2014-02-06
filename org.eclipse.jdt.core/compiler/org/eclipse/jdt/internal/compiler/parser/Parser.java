@@ -2291,20 +2291,16 @@ protected void consumeCastExpressionLL1WithBounds() {
 	//CastExpression ::= '(' Name AdditionalBoundsList ')' UnaryExpressionNotPlusMinus
 	Expression cast;
 	Expression exp;
-	
-	int additionalBoundsLength = this.genericsLengthStack[this.genericsLengthPtr--];
-	TypeReference[] bounds = new TypeReference[additionalBoundsLength + 1];
-	this.genericsPtr -= additionalBoundsLength;
-	System.arraycopy(this.genericsStack, this.genericsPtr + 1, bounds, 1, additionalBoundsLength);
-
-	pushOnGenericsLengthStack(0); // handle type arguments
-	pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
-	bounds[0] = getTypeReference(0);
- 
+	int length;
+	exp = this.expressionStack[this.expressionPtr--];
+	this.expressionLengthPtr --;
+	TypeReference[] bounds = new TypeReference[length = this.expressionLengthStack[this.expressionLengthPtr]];
+	System.arraycopy(this.expressionStack, this.expressionPtr -= (length - 1), bounds, 0, length);
 	this.expressionStack[this.expressionPtr] =
 		cast = new CastExpression(
-			exp=this.expressionStack[this.expressionPtr] ,
+			exp,
 			createIntersectionCastTypeReference(bounds));
+	this.expressionLengthStack[this.expressionLengthPtr] = 1;
 	updateSourcePosition(cast);
 	cast.sourceEnd=exp.sourceEnd;
 }
@@ -4402,6 +4398,20 @@ protected void consumeInsideCastExpressionLL1() {
 }
 protected void consumeInsideCastExpressionLL1WithBounds() {
 	// InsideCastExpressionLL1WithBounds ::= $empty
+	int additionalBoundsLength = this.genericsLengthStack[this.genericsLengthPtr--];
+	TypeReference[] bounds = new TypeReference[additionalBoundsLength + 1];
+	this.genericsPtr -= additionalBoundsLength;
+	System.arraycopy(this.genericsStack, this.genericsPtr + 1, bounds, 1, additionalBoundsLength);
+
+	pushOnGenericsLengthStack(0); // handle type arguments
+	pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
+	bounds[0] = getTypeReference(0);
+ 
+	for (int i = 0; i <= additionalBoundsLength; i++) {
+		pushOnExpressionStack(bounds[i]);
+		if (i > 0)
+			this.expressionLengthStack[--this.expressionLengthPtr]++;
+	}
 }
 protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 	// InsideCastExpressionWithQualifiedGenerics ::= $empty

@@ -2830,9 +2830,12 @@ protected void consumeInsideCastExpressionLL1WithBounds() {
 			this.skipRecord = true;
 			super.consumeInsideCastExpressionLL1WithBounds();
 			if (this.record) {
-				Expression typeReference = this.expressionStack[this.expressionPtr];
-				if (!isAlreadyPotentialName(typeReference.sourceStart)) {
-					addPotentialName(null, typeReference.sourceStart, typeReference.sourceEnd);
+				int length =  this.expressionLengthStack[this.expressionLengthPtr];
+				for (int i = 0; i < length; i++) {
+					Expression typeReference = this.expressionStack[this.expressionPtr - length + i + 1];
+					if (!isAlreadyPotentialName(typeReference.sourceStart)) {
+						addPotentialName(null, typeReference.sourceStart, typeReference.sourceEnd);
+					}
 				}
 			}
 		} finally {
