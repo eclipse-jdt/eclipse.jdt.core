@@ -2494,8 +2494,10 @@ public final class CompletionEngine
 	private void completionOnMarkerAnnotationName(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
 		CompletionOnMarkerAnnotationName annot = (CompletionOnMarkerAnnotationName) astNode;
 
-		CompletionOnAnnotationOfType fakeType = (CompletionOnAnnotationOfType)scope.parent.referenceContext();
-		if (fakeType.annotations[0] == annot) {
+		// When completion is inside lambda body, the fake type cannot be attached to the lambda.
+		ReferenceContext referenceContext = scope.parent.referenceContext();
+		CompletionOnAnnotationOfType fakeType = (CompletionOnAnnotationOfType) (referenceContext instanceof CompletionOnAnnotationOfType ? referenceContext : null);
+		if (fakeType != null && fakeType.annotations[0] == annot) {
 			// When the completion is inside a method body the annotation cannot be accuratly attached to the correct node by completion recovery.
 			// So 'targetedElement' is not computed in this case.
 			if (scope.parent.parent == null || !(scope.parent.parent instanceof MethodScope)) {
@@ -2512,7 +2514,7 @@ public final class CompletionEngine
 
 			if (scope.parent.parent != null &&
 					!(scope.parent.parent instanceof MethodScope) &&
-					!fakeType.isParameter) {
+					fakeType != null && !fakeType.isParameter) {
 
 				if (this.completionToken.length <= Keywords.INTERFACE.length
 					&& CharOperation.prefixEquals(this.completionToken, Keywords.INTERFACE, false /* ignore case */

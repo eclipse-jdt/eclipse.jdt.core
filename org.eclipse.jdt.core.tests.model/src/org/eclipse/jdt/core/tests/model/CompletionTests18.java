@@ -1079,4 +1079,29 @@ public void test427532b() throws JavaModelException {
 			"expectedTypesKeys=null\n" +
 			"completion token location={STATEMENT_START}", requestor.getContext());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427464, [1.8][content assist] CCE : MethodDeclaration incompatible with CompletionOnAnnotationOfType 
+public void test427464() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"@interface Annotation {}\n" +
+			"interface FI1 {\n" +
+			"	int foo(int x) throws Exception;\n" +
+			"}\n" +
+			"class Test {\n" +
+			"	private void foo() {\n" +
+			"		FI1 fi1 = (x) -> { \n" +
+			"			@Ann\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "@Ann";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("Annotation[TYPE_REF]{Annotation, , LAnnotation;, null, null, null, null, [138, 141], 47}", requestor.getResults());
+}
 }
