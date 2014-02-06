@@ -4022,4 +4022,49 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertNotNull(astNode);
 		assertEquals("Not a variable declaration fragment", ASTNode.VARIABLE_DECLARATION_FRAGMENT, astNode.getNodeType());
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427357
+	public void testBug427357() throws JavaModelException {
+		String contents =
+			"public class X {\n" +
+			"	public static void foo(X this, int i){}\n" +
+			"	public void foo(Inner this){}\n" +
+			"	I I = new I() {\n" +
+			"		public void bar(I this, int i) {}\n" +
+			"	};\n" +
+			"	static class Inner {\n" +
+			"		public Inner(Test2 Test2.this){}\n" +
+			"		public Inner(Inner Inner.this, int i){}\n" + 
+			"	}\n" +
+			"}\n"+
+			"interface I {}";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		TypeDeclaration typeDecl = (TypeDeclaration) unit.types().get(0);
+		MethodDeclaration method = (MethodDeclaration) typeDecl.bodyDeclarations().get(0);
+		Type receiver = method.getReceiverType();
+		assertNotNull("Receiver should not be null", receiver);
+		assertEquals("Incorrect receiver type", "X", receiver.toString());
+		
+		method = (MethodDeclaration) typeDecl.bodyDeclarations().get(1);
+		receiver = method.getReceiverType();
+		assertNotNull("Receiver should not be null", receiver);
+
+		FieldDeclaration field = (FieldDeclaration) typeDecl.bodyDeclarations().get(2);
+		ClassInstanceCreation anonymousInst =  (ClassInstanceCreation ) ((VariableDeclarationFragment) field.fragments().get(0)).getInitializer();
+		AnonymousClassDeclaration anonymousDecl = anonymousInst.getAnonymousClassDeclaration();
+		method = (MethodDeclaration) anonymousDecl.bodyDeclarations().get(0);
+		receiver = method.getReceiverType();
+		assertNotNull("Receiver should not be null", receiver);
+		assertEquals("Incorrect receiver type", "I", receiver.toString());
+		typeDecl = (TypeDeclaration) typeDecl.bodyDeclarations().get(3);
+		method = (MethodDeclaration) typeDecl.bodyDeclarations().get(0);
+		receiver = method.getReceiverType();
+		assertNotNull("Receiver should not be null", receiver);
+		assertEquals("Incorrect receiver type", "Test2", receiver.toString());
+		method = (MethodDeclaration) typeDecl.bodyDeclarations().get(1);
+		receiver = method.getReceiverType();
+		assertNotNull("Receiver should not be null", receiver);
+	}
 }
