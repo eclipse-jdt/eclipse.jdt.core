@@ -1147,6 +1147,10 @@ public class DefaultCodeFormatterOptions {
 				this.blank_lines_at_beginning_of_method_body = 0;
 			}
 		}
+		final Object insertNewLineAfterTypeAnnotationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_TYPE_ANNOTATION);
+		if (insertNewLineAfterTypeAnnotationOption != null) {
+			this.insert_new_line_after_type_annotation = JavaCore.INSERT.equals(insertNewLineAfterTypeAnnotationOption);
+		}
 		setDeprecatedOptions(settings);
 		final Object commentFormatJavadocCommentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT);
 		if (commentFormatJavadocCommentOption != null) {
