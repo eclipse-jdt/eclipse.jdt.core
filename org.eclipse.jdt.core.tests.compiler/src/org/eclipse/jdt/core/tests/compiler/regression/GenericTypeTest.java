@@ -25698,20 +25698,35 @@ public void test0799() {
 				"	                           ^^^\n" + 
 				"Type mismatch: cannot convert from Y<capture#3-of ? extends T> to Y<capture#2-of ? extends T>\n" + 
 				"----------\n" + 
-				"5. ERROR in X.java (at line 14)\n" + 
+				"5. WARNING in X.java (at line 13)\n" + 
+				"	ref.next = first == null ? ref : first;\n" + 
+				"	                                 ^^^^^\n" + 
+				"Type safety: The expression of type Y needs unchecked conversion to conform to Y<capture#2-of ? extends T>\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 14)\n" + 
 				"	String s = first == null ? ref : first;\n" + 
 				"	                           ^^^\n" + 
 				"Type mismatch: cannot convert from Y<capture#4-of ? extends T> to String\n" + 
 				"----------\n" + 
-				"6. ERROR in X.java (at line 14)\n" + 
+				"7. ERROR in X.java (at line 14)\n" + 
 				"	String s = first == null ? ref : first;\n" + 
 				"	                                 ^^^^^\n" + 
 				"Type mismatch: cannot convert from Y to String\n" + 
 				"----------\n" + 
-				"7. ERROR in X.java (at line 15)\n" + 
+				"8. ERROR in X.java (at line 15)\n" + 
 				"	ref.next = first2 == null ? ref : first2;\n" + 
 				"	                            ^^^\n" + 
 				"Type mismatch: cannot convert from Y<capture#6-of ? extends T> to Y<capture#5-of ? extends T>\n" + 
+				"----------\n" + 
+				"9. WARNING in X.java (at line 15)\n" + 
+				"	ref.next = first2 == null ? ref : first2;\n" + 
+				"	                                  ^^^^^^\n" + 
+				"Type safety: The expression of type Y needs unchecked conversion to conform to Y<capture#5-of ? extends T>\n" + 
+				"----------\n" + 
+				"10. WARNING in X.java (at line 18)\n" + 
+				"	return first == null ? ref : first;\n" + 
+				"	                             ^^^^^\n" + 
+				"Type safety: The expression of type Y needs unchecked conversion to conform to Y<? extends T>\n" + 
 				"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744

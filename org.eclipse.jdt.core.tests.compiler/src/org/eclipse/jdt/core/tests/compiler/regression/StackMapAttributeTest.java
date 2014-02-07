@@ -851,9 +851,13 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"        [pc: 5, pc: 24] local: bar index: 2 type: java.lang.String\n" +
 					"      Stack map table: number of frames 2\n" +
 					"        [pc: 19, full, stack: {java.io.PrintStream}, locals: {java.lang.String[], int, java.lang.String}]\n" +
-					"        [pc: 20, full, stack: {java.io.PrintStream, java.lang.Comparable}, locals: {java.lang.String[], int, java.lang.String}]\n" +
+					(this.complianceLevel >= ClassFileConstants.JDK1_8 ? // in 1.8 the ternary is resolved to its target type j.l.Object
+					"        [pc: 20, full, stack: {java.io.PrintStream, java.lang.Object}, locals: {java.lang.String[], int, java.lang.String}]\n" :
+					"        [pc: 20, full, stack: {java.io.PrintStream, java.lang.Comparable}, locals: {java.lang.String[], int, java.lang.String}]\n") +
 					"  \n" +
-					"  // Method descriptor #48 (Ljava/lang/Comparable;)V\n" +
+					(this.complianceLevel >= ClassFileConstants.JDK1_8 ?
+					"  // Method descriptor #46 (Ljava/lang/Comparable;)V\n" :
+					"  // Method descriptor #48 (Ljava/lang/Comparable;)V\n") +
 					"  // Signature: <T::Ljava/lang/Comparable<*>;>(TT;)V\n" +
 					"  // Stack: 2, Locals: 3\n" +
 					"  void foo(java.lang.Comparable foo);\n" +

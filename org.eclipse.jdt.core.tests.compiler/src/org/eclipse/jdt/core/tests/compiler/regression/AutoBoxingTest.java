@@ -18,6 +18,7 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class AutoBoxingTest extends AbstractComparableTest {
@@ -3771,22 +3772,34 @@ public void test124() {
 			"	}	\n" +
 			"}", // =================
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	boolean x = false ? \"\" : false;\n" +
-		"	            ^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from Object&Serializable&Comparable<?> to boolean\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 3)\n" +
-		"	boolean x = false ? \"\" : false;\n" +
-		"	                         ^^^^^\n" +
-		"The expression of type boolean is boxed into Boolean\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
-		"	System.out.print(\"[4:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" +
-		"	                                  ^^^^^^^^^^^^\n" +
-		"Cannot invoke getClass() on the primitive type boolean\n" +
-		"----------\n");
+		this.complianceLevel >= ClassFileConstants.JDK1_8 ? 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	boolean x = false ? \"\" : false;\n" + 
+				"	                    ^^\n" + 
+				"Type mismatch: cannot convert from String to boolean\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	System.out.print(\"[4:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" + 
+				"	                                  ^^^^^^^^^^^^\n" + 
+				"Cannot invoke getClass() on the primitive type boolean\n" + 
+				"----------\n" : 
+						"----------\n" +
+						"1. ERROR in X.java (at line 3)\n" +
+						"	boolean x = false ? \"\" : false;\n" +
+						"	            ^^^^^^^^^^^^^^^^^^\n" +
+						"Type mismatch: cannot convert from Object&Serializable&Comparable<?> to boolean\n" +
+						"----------\n" +
+						"2. WARNING in X.java (at line 3)\n" +
+						"	boolean x = false ? \"\" : false;\n" +
+						"	                         ^^^^^\n" +
+						"The expression of type boolean is boxed into Boolean\n" +
+						"----------\n" +
+						"3. ERROR in X.java (at line 4)\n" +
+						"	System.out.print(\"[4:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" +
+						"	                                  ^^^^^^^^^^^^\n" +
+						"Cannot invoke getClass() on the primitive type boolean\n" +
+						"----------\n");
 	}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155255 - variation
 public void test125() {

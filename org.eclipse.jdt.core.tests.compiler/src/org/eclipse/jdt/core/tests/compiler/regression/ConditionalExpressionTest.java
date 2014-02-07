@@ -506,5 +506,29 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 					"	         ^^^^^\n" + 
 					"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 					"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427625, - NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode
+	public void test427625() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_5)
+			return;
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"import java.util.Collection;\n" +
+						"import java.util.List;\n" +
+						"public class X {\n" +
+						"	public void error(Collection<Object> c) {\n" +
+						"		boolean b  =true;\n" +
+						"		c.add(b ? new Integer(1)\n" +
+						"		        : c==null ? null \n" +
+						"				  : c instanceof List ? Integer.valueOf(1) \n" +
+						"				                      : o()); \n" +
+						"	}\n" +
+						"	public Object o() {\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"");
 	}	
 }

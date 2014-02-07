@@ -1592,7 +1592,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"Null type mismatch: required \'ArrayList<String> @NonNull[]\' but the provided value is null\n" + 
 				"----------\n");
 	}
-	
+
 	public void testConditional1() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -1614,17 +1614,17 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n" + 
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	return f == 0 ? good : dubious;\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	                       ^^^^^^^\n" + 
 			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	return f == 2 ? dubious : good;\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	                ^^^^^^^\n" + 
 			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
 			"----------\n");
 	}
 
-	public void _testConditional2() {
+	public void testConditional2() {
 		runNegativeTestWithLibs(
 			new String[] {
 				"X.java",
@@ -1645,13 +1645,13 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n" + 
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	return f == 0 ? good : dubious;\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
+			"	                       ^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	return f == 2 ? dubious : good;\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
+			"	                ^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
 			"----------\n");
 	}
 
