@@ -4370,4 +4370,26 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			true,
 			customOptions);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425599, [1.8][compiler] ISE when trying to compile qualified and annotated class instance creation
+	public void test425599() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"public class X {\n" +
+				"    Object ax = new @A Outer().new Middle<String>();\n" +
+				"}\n" +
+				"@Target(ElementType.TYPE_USE) @interface A {}\n" +
+				"class Outer {\n" +
+				"    class Middle<E> {}\n" +
+				"}\n"
+			},
+			"",
+			null,
+			true,
+			customOptions);
+	}	
 }

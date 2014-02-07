@@ -2222,4 +2222,30 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			deleteFile("/Converter18/src/Outer.java");
 		}
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425599, [1.8][compiler] ISE when trying to compile qualified and annotated class instance creation 
+	public void test425599() throws CoreException, IOException {
+		String contents = 
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"public class X {\n" +
+				"    Object ax = new @A(1) Outer().new @A(2) Middle<@A(3) String>();\n" +
+				"}\n" +
+				"@Target(ElementType.TYPE_USE) @interface A { int value(); }\n" +
+				"class Outer {\n" +
+				"    class Middle<E> {}\n" +
+				"}\n";
+		
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		List types = compilationUnit.types();
+		assertEquals("Incorrect no of types", 3, types.size());
+		TypeDeclaration typeDecl = (TypeDeclaration) types.get(0);
+		FieldDeclaration[] fields = typeDecl.getFields();
+		assertEquals("Incorrect no of methods", 1, fields.length);
+		FieldDeclaration field = fields[0];
+		assertEquals("Object ax=new @A(1) Outer().new @A(2) Middle<@A(3) String>();\n", field.toString());
+	}	
 }

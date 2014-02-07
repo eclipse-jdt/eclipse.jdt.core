@@ -1363,9 +1363,9 @@ public TypeBinding original() {
 		case Binding.PARAMETERIZED_TYPE :
 		case Binding.RAW_TYPE :
 		case Binding.ARRAY_TYPE :
-			return erasure();
+			return erasure().unannotated();
 		default :
-			return this;
+			return this.unannotated();
 	}
 }
 
