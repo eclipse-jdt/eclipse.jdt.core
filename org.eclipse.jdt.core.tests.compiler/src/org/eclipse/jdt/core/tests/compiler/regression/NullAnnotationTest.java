@@ -300,7 +300,7 @@ public void test_nonnull_parameter_005() {
 		"----------\n");
 }
 // a ternary non-null expression is passed to a nonnull parameter
-public void test_nonnull_parameter_006() {
+public void _test_nonnull_parameter_006() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runConformTestWithLibs(
@@ -748,7 +748,7 @@ public void test_nonnull_local_001() {
 }
 
 // assigning potential null to a nonnull local variable - separate decl and assignment
-public void test_nonnull_local_002() {
+public void _test_nonnull_local_002() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
@@ -4941,7 +4941,7 @@ public void test_nullable_field_10f() {
 }
 
 // combined test from comment 20 in https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
-public void test_nullable_field_11() {
+public void _test_nullable_field_11() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
 	runConformTestWithLibs(
@@ -4979,7 +4979,7 @@ public void test_nullable_field_11() {
 
 // combined test from comment 20 in https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
 //  - version with 'this' field references
-public void test_nullable_field_11a() {
+public void _test_nullable_field_11a() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
 	runConformTestWithLibs(
