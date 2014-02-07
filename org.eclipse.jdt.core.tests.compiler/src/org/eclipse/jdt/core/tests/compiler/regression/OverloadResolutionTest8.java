@@ -2252,4 +2252,86 @@ public void test427072c() {
 			},
 			"1");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427628,  regression : The method * is ambiguous for the type * 
+public void test427628() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"   public static void main(String [] args) {\n" +
+				"       new X().error(null);\n" +
+				"   }\n" +
+				"	public void error(I i) {\n" +
+				"		test(i!=null?i.getJ():null);\n" +
+				"	}\n" +
+				"	public void test(I i) {\n" +
+				"       System.out.println(\"I\");\n" +
+				"	}\n" +
+				"	public void test(J j) {\n" +
+				"       System.out.println(\"J\" + j);\n" +
+				"	}\n" +
+				"	public class I{\n" +
+				"		public J getJ() {\n" +
+				"			return null;\n" +
+				"		}\n" +
+				"	}\n" +
+				"	public class J{}\n" +
+				"}\n",
+			},
+			"Jnull");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427628,  regression : The method * is ambiguous for the type * 
+public void test427628a() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"   public static void main(String [] args) {\n" +
+				"       new X().error(null);\n" +
+				"   }\n" +
+				"	public void error(I i) {\n" +
+				"		test(i!=null?i.getJ():null);\n" +
+				"	}\n" +
+				"	public void test(I i) {\n" +
+				"       System.out.println(\"I\");\n" +
+				"	}\n" +
+				"	public void test(K k) {\n" +
+				"       System.out.println(\"K\" + j);\n" +
+				"	}\n" +
+				"	public class I{\n" +
+				"		public J getJ() {\n" +
+				"			return null;\n" +
+				"		}\n" +
+				"	}\n" +
+				"	public class J{}\n" +
+				"	public class K{}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	test(i!=null?i.getJ():null);\n" + 
+			"	^^^^\n" + 
+			"The method test(((i != null) ? i.getJ() : null)) is undefined for the type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	System.out.println(\"K\" + j);\n" + 
+			"	                         ^\n" + 
+			"j cannot be resolved to a variable\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427628,  regression : The method * is ambiguous for the type * 
+public void test427628b() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public void setSetting(String key, String value) {\n" +
+				"	}\n" +
+				"	public void setSetting(String key, Integer value) {\n" +
+				"	    setSetting(key, value == null ? null : Integer.toString(value));\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"");
+}
 }

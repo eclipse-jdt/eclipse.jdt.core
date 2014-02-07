@@ -4328,6 +4328,7 @@ public abstract class Scope {
 
 		// common part for all compliance levels:
 		int[] compatibilityLevels = new int[visibleSize];
+		int compatibleCount = 0;
 		for (int i = 0; i < visibleSize; i++) {
 			TypeBinding[] argTypes = argumentTypes;
 			if (isJdk18 && invocationSite instanceof Invocation) {
@@ -4335,8 +4336,27 @@ public abstract class Scope {
 				if (innerInferenceHelper != null)
 					argTypes = innerInferenceHelper.getArgumentTypesForCandidate(visible[i], argumentTypes);
 			}
-			compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argTypes);
+			if ((compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argTypes)) != NOT_COMPATIBLE) {
+				if (i != compatibleCount) {
+					visible[compatibleCount] = visible[i];
+					compatibilityLevels[compatibleCount] = compatibilityLevels[i];
+				}
+				compatibleCount++;
+			}
 		}
+		if (compatibleCount == 0) {
+			return new ProblemMethodBinding(visible[0].selector, argumentTypes, ProblemReasons.NotFound);
+		} else if (compatibleCount == 1) {
+			MethodBinding candidate = inferInvocationType(invocationSite, visible[0], argumentTypes);
+			compilationUnitScope().recordTypeReferences(candidate.thrownExceptions);
+			return candidate;
+		}
+	
+		if (compatibleCount != visibleSize) {
+			System.arraycopy(visible, 0, visible = new MethodBinding[visibleSize = compatibleCount], 0, compatibleCount);
+			System.arraycopy(compatibilityLevels, 0, compatibilityLevels = new int[compatibleCount], 0, compatibleCount);
+		}
+		
 		MethodBinding[] moreSpecific = new MethodBinding[visibleSize];
 
 		if (isJdk18) {
