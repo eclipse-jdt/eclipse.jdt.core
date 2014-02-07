@@ -3999,5 +3999,48 @@ public void testBug427438c3() {
 		"The serializable class A does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426542,  [1.8] Most specific method not picked when one method has intersection type as type parameter
+public void test426542() {
+	if (this.complianceLevel == ClassFileConstants.JDK1_8)
+		return;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"\n" +
+			"    public static void main() {\n" +
+			
+			"        List<Object> list = null;\n" +
+			"        Object o = null;\n" +
+			
+			"        genericMethod(list, genericClassTransformer(genericClassFactory(o)));\n" +
+			
+			"        genericMethod(list, genericClassFactory(o)); // works\n" +
+			
+			"        GenericClass<Iterable<? super Object>> tempVariable = genericClassTransformer(genericClassFactory(o));\n" +
+			
+			"        GenericClass<Iterable<? super Object>> tempVariable2 = genericClassFactory(o); // works\n" +
+			
+			"    }\n" +
+			
+			"    private static <T> void genericMethod(T param1, GenericClass<? super T> param2) {\n" +
+			"        throw new UnsupportedOperationException();\n" +
+			"    }\n" +
+			
+			"    public static <T> GenericClass<Iterable<? super T>> genericClassFactory(T item) {\n" +
+			"        throw new UnsupportedOperationException();\n" +
+			"    }\n" +
+			
+			"    public static <T> GenericClass<T> genericClassTransformer(GenericClass<T> matcher) {\n" +
+			"        throw new UnsupportedOperationException();\n" +
+			"    }\n" +
+			
+			"    private static class GenericClass<T> {\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"");
+}
 }
 
