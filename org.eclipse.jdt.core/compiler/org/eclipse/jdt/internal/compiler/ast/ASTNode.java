@@ -542,6 +542,10 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 		return false;
 	}
+	
+	public boolean isUnqualifiedSuper() {
+		return false;
+	}
 
 	/* Answer true if the type use is considered deprecated.
 	* An access in the same compilation unit is allowed.

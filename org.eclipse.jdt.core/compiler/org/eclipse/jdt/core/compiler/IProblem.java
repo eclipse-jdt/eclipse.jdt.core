@@ -664,6 +664,9 @@ void setSourceStart(int sourceStart);
 	/** @since 2.1 */
 	int InvalidParenthesizedExpression = Syntax + Internal + 225;
 
+	/** @since 3.9 BETA_JAVA8 */
+	int NoSuperInInterfaceContext = Syntax + Internal + 226;
+
 	/** @since 3.0 */
 	int ParsingErrorInsertTokenBefore = Syntax + Internal + 230;
 	/** @since 3.0 */

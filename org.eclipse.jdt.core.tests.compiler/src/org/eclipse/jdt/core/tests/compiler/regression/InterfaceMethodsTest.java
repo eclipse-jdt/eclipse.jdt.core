@@ -2347,4 +2347,67 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"Type safety: Potential heap pollution via varargs parameter x\n" + 
 			"----------\n");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424914, [1.8][compiler] No error shown for method reference with super enclosed in an interface
+	public void test424914() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface A {\n" +
+					"	String foo();\n" +
+					"	String b = super.toString();\n" +
+					"	default void fun1() {\n" +
+					"		System.out.println((A) super::toString);\n" +
+					"		super.toString();\n" +
+					"		Object.super.toString();\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	String b = super.toString();\n" + 
+			"	           ^^^^^\n" + 
+			"Cannot use super in a static context\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	System.out.println((A) super::toString);\n" + 
+			"	                       ^^^^^\n" + 
+			"super reference is illegal in interface context\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
+			"	super.toString();\n" + 
+			"	^^^^^\n" + 
+			"super reference is illegal in interface context\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
+			"	Object.super.toString();\n" + 
+			"	^^^^^^^^^^^^\n" + 
+			"No enclosing instance of the type Object is accessible in scope\n" + 
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424914, [1.8][compiler] No error shown for method reference with super enclosed in an interface
+	public void test424914a() throws Exception {
+		this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface B {\n" +
+					"	default void foo() {\n" +
+					"		System.out.println(\"B.foo\");\n" +
+					"	}\n" +
+					"}\n" +
+					"interface A extends B {\n" +
+					"	default void foo() {\n" +
+					"		System.out.println(\"A.foo\");\n" +
+					"		B.super.foo();\n" +
+					"	}\n" +
+					"}\n" +
+					"public class X implements A {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		A a = new X();\n" +
+					"		a.foo();\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"A.foo\n" + 
+			"B.foo");
+	}	
 }
