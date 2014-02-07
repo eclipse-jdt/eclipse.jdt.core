@@ -202,6 +202,8 @@ class ConstraintTypeFormula extends ConstraintFormula {
 		}
 		if (subCandidate.id == TypeIds.T_null)
 			return TRUE;
+		if (superCandidate.id == TypeIds.T_null)
+			return FALSE;
 		if (subCandidate instanceof InferenceVariable)
 			return new TypeBound((InferenceVariable)subCandidate, superCandidate, SUBTYPE, this.isSoft);
 		if (superCandidate instanceof InferenceVariable)
@@ -285,8 +287,6 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			case Binding.INTERSECTION_TYPE:
 				InferenceContext18.missingImplementation("NYI"); //$NON-NLS-1$
 		}
-		if (superCandidate.id == TypeIds.T_null)
-			return FALSE;
 		throw new IllegalStateException("Unexpected RHS "+superCandidate); //$NON-NLS-1$
 	}
 	
