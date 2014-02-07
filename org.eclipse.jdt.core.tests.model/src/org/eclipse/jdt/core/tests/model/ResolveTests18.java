@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation and others.
+ * Copyright (c) 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,7 +44,7 @@ public ICompilationUnit getWorkingCopy(String path, String source) throws JavaMo
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	setUpJavaProject("Resolve", "1.8");
+	setUpJavaProject("Resolve", "1.8", true);
 
 	waitUntilIndexesReady();
 }
@@ -581,7 +581,7 @@ public void test0019() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"hashCode() [in Object [in Object.class [in java.lang [in "+ getExternalPath() + "jclMin1.8.jar]]]]",
+		"hashCode() [in Object [in Object.class [in java.lang [in "+ getExternalPath() + "jclFull1.8.jar]]]]",
 		elements
 	);
 }
@@ -607,7 +607,7 @@ public void test0020() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"hashCode() [in Object [in Object.class [in java.lang [in "+ getExternalPath() + "jclMin1.8.jar]]]]",
+		"hashCode() [in Object [in Object.class [in java.lang [in "+ getExternalPath() + "jclFull1.8.jar]]]]",
 		elements
 	);
 }
@@ -1000,7 +1000,7 @@ public void test0033() throws JavaModelException {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=408230
 public void testBug408230a() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
 		String source = "package p;\n" +
 				"public class X {\n" +
 				"  FI i1 = (a, barg) -> a+barg;\n" +
@@ -1023,7 +1023,7 @@ public void testBug408230a() throws CoreException {
 }
 public void testBug408230b() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
 		String source = "package p;\n" +
 				"public class X {\n" +
 				"  void foo() {\n" +
@@ -1048,7 +1048,7 @@ public void testBug408230b() throws CoreException {
 }
 public void testBug408230c() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
 		String source = "package p;\n" +
 				"public class X {\n" +
 				"  void foo() {\n" +
@@ -1073,7 +1073,7 @@ public void testBug408230c() throws CoreException {
 }
 public void testBug408230d() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
 		String source = "package p;\n" +
 				"public class X {\n" +
 				"  FI i1 = (barg) -> ++barg;\n" +
@@ -1096,7 +1096,7 @@ public void testBug408230d() throws CoreException {
 }
 public void testBug408230e() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
 		String source = "package p;\n" +
 				"public class X {\n" +
 				"  FI i1 = (aarg) -> { return aarg++;};\n" +
@@ -1119,7 +1119,7 @@ public void testBug408230e() throws CoreException {
 }
 public void testBug408230f() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
 		String source = "package p;\n" +
 				"public class X {\n" +
 				"  FI i1 = (aarg) -> {  int x = aarg; return aarg++;};\n" +
@@ -1142,7 +1142,7 @@ public void testBug408230f() throws CoreException {
 }
 public void testBug408230g() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
 		String source = "package p;\n" +
 				"public class X {\n" +
 				" public void boo(FI fi) {}\n" +
@@ -1168,7 +1168,7 @@ public void testBug408230g() throws CoreException {
 }
 public void testBug408230h() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
 		String source = "package p;\n" +
 				"public class X {\n" +
 				" public void boo(FI fi) {}\n" +
@@ -1194,7 +1194,7 @@ public void testBug408230h() throws CoreException {
 }
 public void testBug408230i() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
 		String source = "package p;\n" +
 				"public class X {\n" +
 				" public void boo(FI fi) {}\n" +
@@ -1220,7 +1220,7 @@ public void testBug408230i() throws CoreException {
 }
 public void testBug408230j() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
 		String source = "package p;\n" +
 				"public class X {\n" +
 				" public void boo(FI fi) {}\n" +
@@ -1246,7 +1246,7 @@ public void testBug408230j() throws CoreException {
 }
 public void testBug408230k() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
 		String source = "package p;\n" +
 				"public class X {\n" +
 				" public void boo(int x, int y, FI fi) {}\n" +
@@ -1272,7 +1272,7 @@ public void testBug408230k() throws CoreException {
 }
 public void testBug408230l() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
 		String source = "package p;\n" +
 				"public class X {\n" +
 				" public void boo(int x, FI fi) {}\n" +
@@ -1298,7 +1298,7 @@ public void testBug408230l() throws CoreException {
 }
 public void testBug408230m() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
 		String source = "package p;\n" +
 				"public class X {\n" +
 				" public void boo(int x, int y, FI fi) {}\n" +
@@ -1324,7 +1324,7 @@ public void testBug408230m() throws CoreException {
 }
 public void testBug408230n() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
 		String source = "package p;\n" +
 				"public class X {\n" +
 				" public void boo(int x, FI fi) {}\n" +
@@ -1561,7 +1561,7 @@ public void test422468d() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin1.8.jar]]]]",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclFull1.8.jar]]]]",
 		elements
 	);
 }

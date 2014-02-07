@@ -1309,6 +1309,28 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				false/*don't import*/
 			);
 	}
+	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String output, String compliance, boolean useFullJCL) throws CoreException {
+		return
+				this.createJavaProject(
+					projectName,
+					sourceFolders,
+					libraries,
+					null/*no inclusion pattern*/,
+					null/*no exclusion pattern*/,
+					null/*no project*/,
+					null/*no inclusion pattern*/,
+					null/*no exclusion pattern*/,
+					true,
+					null/*no exported project*/,
+					output,
+					null/*no source outputs*/,
+					null/*no inclusion pattern*/,
+					null/*no exclusion pattern*/,
+					compliance,
+					useFullJCL,
+					false
+				);
+	}
 	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String output, String compliance) throws CoreException {
 		return
 			this.createJavaProject(
@@ -1464,6 +1486,43 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			final String[][] exclusionPatterns,
 			final String compliance,
 			final boolean simulateImport) throws CoreException {
+		return createJavaProject(
+				projectName, 
+				sourceFolders, 
+				libraries, 
+				librariesInclusionPatterns, 
+				librariesExclusionPatterns, 
+				projects, 
+				projectsInclusionPatterns, 
+				projectsExclusionPatterns, 
+				combineAccessRestrictions, 
+				exportedProjects, 
+				projectOutput, 
+				sourceOutputs, 
+				inclusionPatterns, 
+				exclusionPatterns, 
+				compliance, 
+				false, 
+				simulateImport);
+	}
+	protected IJavaProject createJavaProject(
+			final String projectName,
+			final String[] sourceFolders,
+			final String[] libraries,
+			final String[][] librariesInclusionPatterns,
+			final String[][] librariesExclusionPatterns,
+			final String[] projects,
+			final String[][] projectsInclusionPatterns,
+			final String[][] projectsExclusionPatterns,
+			final boolean combineAccessRestrictions,
+			final boolean[] exportedProjects,
+			final String projectOutput,
+			final String[] sourceOutputs,
+			final String[][] inclusionPatterns,
+			final String[][] exclusionPatterns,
+			final String compliance,
+			final boolean fullJCL,
+			final boolean simulateImport) throws CoreException {
 		final IJavaProject[] result = new IJavaProject[1];
 		IWorkspaceRunnable create = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -1545,7 +1604,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					if (lib.startsWith("JCL")) {
 						try {
 							// ensure JCL variables are set
-							setUpJCLClasspathVariables(compliance);
+							setUpJCLClasspathVariables(compliance, fullJCL);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -1933,6 +1992,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 */
 	protected String getExternalJCLPathString(String compliance) {
 		return getExternalPath() + "jclMin" + compliance + ".jar";
+	}
+	protected String getExternalJCLPathString(String compliance, boolean useFullJCL) {
+		if (useFullJCL) {
+			return getExternalPath() + "jclFull" + compliance + ".jar";
+		} else {
+			return getExternalJCLPathString(compliance);
+		}
 	}
 	/**
 	 * Returns the IPath to the root source of the external java class library (e.g. "src")
@@ -2688,13 +2754,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return this.currentProject;
 	}
 	protected IJavaProject setUpJavaProject(final String projectName, String compliance) throws CoreException, IOException {
+		return setUpJavaProject(projectName, compliance, false);
+	}
+	protected IJavaProject setUpJavaProject(final String projectName, String compliance, boolean useFullJCL) throws CoreException, IOException {
 		// copy files in project from source workspace to target workspace
 		String sourceWorkspacePath = getSourceWorkspacePath();
 		String targetWorkspacePath = getWorkspaceRoot().getLocation().toFile().getCanonicalPath();
 		copyDirectory(new File(sourceWorkspacePath, projectName), new File(targetWorkspacePath, projectName));
 
 		// ensure variables are set
-		setUpJCLClasspathVariables(compliance);
+		setUpJCLClasspathVariables(compliance, useFullJCL);
 
 		// create project
 		final IProject project = getWorkspaceRoot().getProject(projectName);
@@ -2706,7 +2775,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		};
 		getWorkspace().run(populate, null);
 		IJavaProject javaProject = JavaCore.create(project);
-		setUpProjectCompliance(javaProject, compliance);
+		setUpProjectCompliance(javaProject, compliance, useFullJCL);
 		javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_FIELD_HIDING, JavaCore.IGNORE);
@@ -2714,8 +2783,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		javaProject.setOption(JavaCore.COMPILER_PB_TYPE_PARAMETER_HIDING, JavaCore.IGNORE);
 		return javaProject;
 	}
-
 	protected void setUpProjectCompliance(IJavaProject javaProject, String compliance) throws JavaModelException, IOException {
+		setUpProjectCompliance(javaProject, compliance, false);
+	}
+	protected void setUpProjectCompliance(IJavaProject javaProject, String compliance, boolean useFullJCL) throws JavaModelException, IOException {
 		// Look for version to set and return if that's already done
 		String version = compliance; // assume that the values of CompilerOptions.VERSION_* are used
 		if (version.equals(javaProject.getOption(CompilerOptions.OPTION_Compliance, false))) {
@@ -2740,7 +2811,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		
 
 		// ensure variables are set
-		setUpJCLClasspathVariables(compliance);
+		setUpJCLClasspathVariables(compliance, useFullJCL);
 
 		// set options
 		Map options = new HashMap();
@@ -2759,20 +2830,32 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		for (int i = 0, length = classpath.length; i < length; i++) {
 			IClasspathEntry entry = classpath[i];
 			final IPath path = entry.getPath();
-			if (path.equals(jclLib) || (compliance18Plus && path.equals(jcl5Lib)) || (!compliance18Plus && path.equals(jcl8Lib))) {
+			if (useFullJCL) {
 				classpath[i] = JavaCore.newVariableEntry(
-						new Path(newJclLibString),
+						new Path("JCL18_FULL"),
 						new Path(newJclSrcString),
 						entry.getSourceAttachmentRootPath(),
 						entry.getAccessRules(),
 						new IClasspathAttribute[0],
 						entry.isExported());
 				break;
+			} else if (path.equals(jclLib) || (compliance18Plus && path.equals(jcl5Lib)) || (!compliance18Plus && path.equals(jcl8Lib))) {
+					classpath[i] = JavaCore.newVariableEntry(
+							new Path(newJclLibString),
+							new Path(newJclSrcString),
+							entry.getSourceAttachmentRootPath(),
+							entry.getAccessRules(),
+							new IClasspathAttribute[0],
+							entry.isExported());
+					break;
 			}
 		}
 		javaProject.setRawClasspath(classpath, null);
 	}
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
+		setUpJCLClasspathVariables(compliance, false);
+	}
+	public void setUpJCLClasspathVariables(String compliance, boolean useFullJCL) throws JavaModelException, IOException {
 		if ("1.5".equals(compliance) || "1.6".equals(compliance)) {
 			if (JavaCore.getClasspathVariable("JCL15_LIB") == null) {
 				setupExternalJCL("jclMin1.5");
@@ -2790,13 +2873,22 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					null);
 			}
 		} else if ("1.8".equals(compliance)) {
-			if (JavaCore.getClasspathVariable("JCL18_LIB") == null) {
-				setupExternalJCL("jclMin1.8");
-				JavaCore.setClasspathVariables(
-					new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
-					new IPath[] {getExternalJCLPath("1.8"), getExternalJCLSourcePath("1.8"), getExternalJCLRootSourcePath()},
-					null);
-			}	
+			if (useFullJCL) {
+				if (JavaCore.getClasspathVariable("JCL18_FULL") == null) {
+					setupExternalJCL("jclMin1.8"); // Create the whole mininmal 1.8 set, though we will need only the source zip
+					setupExternalJCL("jclFull1.8");
+					JavaCore.setClasspathVariables(
+						new String[] {"JCL18_FULL", "JCL18_SRC", "JCL_SRCROOT"},
+						new IPath[] {new Path(getExternalJCLPathString("1.8", true)), getExternalJCLSourcePath("1.8"), getExternalJCLRootSourcePath()},
+						null);
+				} 
+			} else if (JavaCore.getClasspathVariable("JCL18_LIB") == null) {
+						setupExternalJCL("jclMin1.8");
+						JavaCore.setClasspathVariables(
+							new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
+							new IPath[] {getExternalJCLPath("1.8"), getExternalJCLSourcePath("1.8"), getExternalJCLRootSourcePath()},
+							null);
+			}
 		} else {
 			if (JavaCore.getClasspathVariable("JCL_LIB") == null) {
 				setupExternalJCL("jclMin");
