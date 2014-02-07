@@ -339,7 +339,7 @@ static class JavacCompiler {
 			}
 		}
 		if (version == JavaCore.VERSION_1_8) {
-			if ("1.8.0-ea".equals(rawVersion)) {
+			if ("1.8.0-ea".equals(rawVersion) || ("1.8.0".equals(rawVersion))) {
 				return 0000;
 			}
 		}
@@ -1855,6 +1855,9 @@ protected void runJavac(
 	if (options == JavacTestOptions.SKIP) {
 		return;
 	}
+	if (options == null) {
+		options = JavacTestOptions.DEFAULT;
+	}
 	String testName = testName();
 	Iterator compilers = javacCompilers.iterator();
 	while (compilers.hasNext()) {
@@ -2283,6 +2286,46 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog, b
 					JavacTestOptions.SKIP :
 					JavacTestOptions.DEFAULT /* javac test options */);
 	}
+	protected void runNegativeTest(
+			String[] testFiles,
+			String expectedCompilerLog,
+			String[] classLibraries,
+			boolean shouldFlushOutputDirectory,
+			Map customOptions,
+			boolean generateOutput,
+			boolean showCategory,
+			boolean showWarningToken,
+			boolean skipJavac,
+			JavacTestOptions javacOptions,
+			boolean performStatementsRecovery) {
+			runTest(
+		 		// test directory preparation
+				shouldFlushOutputDirectory /* should flush output directory */,
+				testFiles /* test files */,
+				// compiler options
+				classLibraries /* class libraries */,
+				customOptions /* custom options */,
+				performStatementsRecovery /* perform statements recovery */,
+				new Requestor( /* custom requestor */
+						generateOutput,
+						null /* no custom requestor */,
+						showCategory,
+						showWarningToken),
+				// compiler results
+				expectedCompilerLog == null || /* expecting compiler errors */
+					expectedCompilerLog.indexOf("ERROR") != -1,
+				expectedCompilerLog /* expected compiler log */,
+				// runtime options
+				false /* do not force execution */,
+				null /* no vm arguments */,
+				// runtime results
+				null /* do not check output string */,
+				null /* do not check error string */,
+				// javac options
+				skipJavac ?
+						JavacTestOptions.SKIP :
+						 javacOptions/* javac test options */);
+		}
 	protected void runTest(
 			String[] testFiles,
 			boolean expectingCompilerErrors,

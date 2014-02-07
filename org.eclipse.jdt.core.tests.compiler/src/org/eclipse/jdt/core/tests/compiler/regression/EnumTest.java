@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -6255,7 +6255,7 @@ public void test170() {
 // warnings about enumerators. Since these could be used in indirect ways not obvious. 
 public void test171() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
 	this.runConformTest(
 		true,	
 		new String[] {
@@ -6276,7 +6276,7 @@ public void test171() {
 		null, customOptions,
 		"",
 		"BLEUBLANCROUGE", null, 
-		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+		JavacTestOptions.DEFAULT);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=267670. Make sure we don't emit any unused
@@ -6285,7 +6285,7 @@ public void test171() {
 // we DO complain if the enumeration type itself is not used.
 public void test172() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
 	this.runConformTest(
 		true,	
 		new String[] {
@@ -6309,7 +6309,12 @@ public void test172() {
 			"}\n"
 		},
 		null, customOptions,
-		"",
+		"----------\n" +
+		"1. WARNING in X.java (at line 8)\n" +
+		"	private enum Complaint {       WARNING, ERROR, FATAL_ERROR, PANIC;\n" +
+		"	             ^^^^^^^^^\n" +
+		"The type X.Complaint is never used locally\n" +
+		"----------\n",
 		"HELLORED", null, 
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
@@ -6892,7 +6897,14 @@ public void test186() {
 		"----------\n",
 		null, // classlibs
 		true, // flush
-		options);
+		options, // customOptions
+		false /* do not generate output */,
+		false /* do not show category */,
+		false /* do not show warning token */,
+		false /* do not skip javac for this peculiar test */,
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
+		false /* performStatementsRecovery */
+		);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
 public void test187() {
@@ -6950,7 +6962,14 @@ public void test187a() {
 		"----------\n",
 		null, // classlibs
 		true, // flush
-		options);
+		options, // customOptions
+		false /* do not generate output */,
+		false /* do not show category */,
+		false /* do not show warning token */,
+		false /* do not skip javac for this peculiar test */,
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
+		false /* performStatementsRecovery */
+		);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
 public void test187b() {
@@ -7006,7 +7025,14 @@ public void test188() {
 		"----------\n",
 		null, // classlibs
 		true, // flush
-		options);
+		options, // customOptions
+		false /* do not generate output */,
+		false /* do not show category */,
+		false /* do not show warning token */,
+		false /* do not skip javac for this peculiar test */,
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
+		false /* performStatementsRecovery */
+		);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
 public void test189() {
