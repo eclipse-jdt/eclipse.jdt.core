@@ -8387,6 +8387,28 @@ public void test427207() {
 		"The target type of this expression must be a functional interface\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425278, [1.8][compiler] Suspect error: The target type of this expression is not a well formed parameterized type due to bound(s) mismatch
+// NOTE: javac 8b127 incorrectly accepts this program due to https://bugs.openjdk.java.net/browse/JDK-8033810
+public void test425278() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I<T, S extends X<T>> { \n" +
+			"    T foo(S p);\n" +
+			"}\n" +
+			"public class X<T>  {\n" +
+			"    public void bar() {\n" +
+			"    	I<Object, ? extends X<Object>> f = (p) -> p;\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	I<Object, ? extends X<Object>> f = (p) -> p;\n" + 
+		"	                                   ^^^^^^^^\n" + 
+		"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
