@@ -4044,8 +4044,6 @@ public void test427411() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427728, [1.8] Type Inference rejects calls requiring boxing/unboxing  
 public void test427728() {
-	if (this.complianceLevel == ClassFileConstants.JDK1_8)
-		return;
 	runConformTest(
 		new String[] {
 			"X.java",
@@ -4065,8 +4063,6 @@ public void test427728() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427728, [1.8] Type Inference rejects calls requiring boxing/unboxing  
 public void test427728a() {
-	if (this.complianceLevel == ClassFileConstants.JDK1_8)
-		return;
 	runNegativeTest(
 		new String[] {
 			"X.java",
@@ -4082,8 +4078,6 @@ public void test427728a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427728, [1.8] Type Inference rejects calls requiring boxing/unboxing  
 public void test427728b() {
-	if (this.complianceLevel == ClassFileConstants.JDK1_8)
-		return;
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) // uses diamond
 		return;
 	runConformTest(

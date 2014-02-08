@@ -36,6 +36,7 @@
  *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
  *								Bug 427196 - [1.8][compiler] Compiler error for method reference to overloaded method
  *								Bug 427483 - [Java 8] Variables in lambdas sometimes can't be resolved
+ *								Bug 427728 - [1.8] Type Inference rejects calls requiring boxing/unboxing
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -809,8 +810,9 @@ public abstract class Scope {
 			return NOT_COMPATIBLE; // mismatching number of args or other severe problem inside method binding
 		if (invocArg instanceof Invocation && resolvedType != null) {
 			Invocation innerPoly = (Invocation) invocArg;
-			if (resolvedType.isCompatibleWith(targetType, this)) {
-				return compatible;
+			int level = parameterCompatibilityLevel(resolvedType, targetType);
+			if (level != NOT_COMPATIBLE) {
+				return Math.max(compatible, level);
 			} else {
 				MethodBinding innerBinding = innerPoly.binding(null); // 1. try without update
 				if (innerBinding instanceof ParameterizedGenericMethodBinding) {
@@ -825,8 +827,11 @@ public abstract class Scope {
 								if (innerInferenceHelper != null)
 									innerInferenceHelper.registerInnerResult(method, invocArg.resolvedType, argLen, i);
 							}
-							if (solution.returnType != null && solution.returnType.isCompatibleWith(targetType, this))
-								return compatible;
+							if (solution.returnType != null) {
+								level = parameterCompatibilityLevel(solution.returnType, targetType);
+								if (level != NOT_COMPATIBLE)
+									return Math.max(compatible, level);
+							}
 						}
 						return NOT_COMPATIBLE;
 					} else if (innerPoly instanceof AllocationExpression) {
