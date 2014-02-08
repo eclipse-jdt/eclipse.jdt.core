@@ -1691,4 +1691,40 @@ public void test424110a() throws JavaModelException {
 		elements
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424071, [1.8][select] cannot select method invoked on a lambda parameter with inferred type
+public void test424071() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"import java.util.List;\n" +
+			"import java.util.Map;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"class Person {\n" +
+			"	String getLast() { return \"\"; };\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	void test1(List<Person> roster) {\n" +
+			"        Map<String, Person> map = \n" +
+			"                roster\n" +
+			"                    .stream()\n" +
+			"                    .collect(\n" +
+			"                        Collectors.toMap(\n" +
+			"                            p -> p.getLast(), //[1]\n" +
+			"                            p -> p            //[2]\n" +
+			"                        ));\n" +
+			"	}\n" +
+			"}\n"
+			);
+
+	String str = this.wc.getSource();
+	String selection = "getLast";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"getLast() [in Person [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
 }
