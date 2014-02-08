@@ -3999,8 +3999,8 @@ public void testBug427438c3() {
 		"The serializable class A does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426542,  [1.8] Most specific method not picked when one method has intersection type as type parameter
-public void test426542() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427411, [1.8][generics] JDT reports type mismatch when using method that returns generic type 
+public void test427411() {
 	if (this.complianceLevel == ClassFileConstants.JDK1_8)
 		return;
 	runNegativeTest(
@@ -4038,6 +4038,72 @@ public void test426542() {
 			
 			"    private static class GenericClass<T> {\n" +
 			"    }\n" +
+			"}\n"
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427728, [1.8] Type Inference rejects calls requiring boxing/unboxing  
+public void test427728() {
+	if (this.complianceLevel == ClassFileConstants.JDK1_8)
+		return;
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	static <T> int foo(T t) {\n" +
+			"		return 1234;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"            goo(foo(10));\n" +
+			"        }\n" +
+			"	static void goo(Integer i) {\n" +
+			"		System.out.println(i);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"1234");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427728, [1.8] Type Inference rejects calls requiring boxing/unboxing  
+public void test427728a() {
+	if (this.complianceLevel == ClassFileConstants.JDK1_8)
+		return;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collections;\n" +
+			"public class X {\n" +
+			"	public static void mai(String[] args) {\n" +
+			"		Math.max(2345, java.util.Collections.max(Collections.<Integer>emptySet()));\n" +
+			"		Math.max(0, java.util.Collections.<Integer>max(Collections.<Integer>emptySet()));\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427728, [1.8] Type Inference rejects calls requiring boxing/unboxing  
+public void test427728b() {
+	if (this.complianceLevel == ClassFileConstants.JDK1_8)
+		return;
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) // uses diamond
+		return;
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collections;\n" +
+			"import java.util.LinkedHashMap;\n" +
+			"import java.util.Map;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		   Map<X, Integer> map = new LinkedHashMap<>();\n" +
+			"		   map.put(null, X.getInt());\n" +
+			"		   map.put(null, X.getint());\n" +
+			"		}\n" +
+			"		private static <T> int getInt() {\n" +
+			"		   return 0;\n" +
+			"		}\n" +
+			"		private static int getint() {\n" +
+			"			   return 0;\n" +
+			"		}\n" +
 			"}\n"
 		},
 		"");
