@@ -4102,5 +4102,44 @@ public void test427728b() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427736, [1.8][generics] Method not applicable error with identical parameter types  
+public void test427736() {
+	runNegativeTest(
+		new String[] {
+			"Test1.java",
+			"public class Test1<K, V> {\n" +
+			"  /**\n" +
+			"   * @param <K2> unused\n" +
+			"   * @param <V2> unused\n" +
+			"   */\n" +
+			"  private static class Node<K2, V2> {}\n" +
+			"  \n" +
+			"  @SuppressWarnings(\"unused\")\n" +
+			"  private KeySetView<K, V> keySet(V mappedValue) {return null;}\n" +
+			"  \n" +
+			"  /**\n" +
+			"   * See {@link #keySet() keySet()},\n" +
+			"   * @param <K3> unused\n" +
+			"   * @param <V3> unused\n" +
+			"   */\n" +
+			"  private static class KeySetView<K3, V3> {}\n" +
+			"  \n" +
+			"  private static <K4, V4> Node<K4, V4> untree0(Node<K4, V4> hi) {return hi;}\n" +
+			"  void untreesomething(Node<K, V> n) {\n" +
+			"    // The method untree0(Test1.Node<K4,V4>) in the type Test1<K,V> is not \n" +
+			"    // applicable for the arguments (Test1.Node<K,V>)\n" +
+			"    untree0(n);\n" +
+			"  }\n" +
+			"  \n" +
+			"  private static <K4, V4> Node<K4, V4> tabAt0(Node<K4, V4>[] tab, int i) {return tab[i];}\n" +
+			"  void tabatsomething(Node<K, V>[] t) {\n" +
+			"    // The method tabAt0(Test2.Node<K4,V4>[], int) in the type Test2<K,V> is not \n" +
+			"    // applicable for the arguments (Test2.Node<K,V>[], int)\n" +
+			"    tabAt0(t, 0);\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"");
+}
 }
 
