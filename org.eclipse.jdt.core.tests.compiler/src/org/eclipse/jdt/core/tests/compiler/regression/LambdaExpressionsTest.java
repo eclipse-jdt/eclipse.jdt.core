@@ -3163,6 +3163,35 @@ public void test427483() {
 			""
 			);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427627, [1.8] List.toArray not compiled correctly (NoSuchMethodError) within Lambda
+public void test427627() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    Runnable r = () -> {\n" +
+				"      List<SourceKey> keys = new ArrayList<>();\n" +
+				"\n" +
+				"      associate(\"Test\", keys.toArray(new SourceKey[keys.size()]));\n" +
+				"    };\n" +
+				"    r.run();\n" +
+				"  }\n" +
+				"  private static void associate(String o, SourceKey... keys) {\n" +
+				"	  System.out.println(o);\n" +
+				"	  System.out.println(keys.length);\n" +
+				"  }\n" +
+				"  public class SourceKey {\n" +
+				"    public SourceKey(Object source, Object key) {\n" +
+				"    }\n" +
+				"  }\n" +
+				"}\n"
+			},
+			"Test\n0"
+			);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
