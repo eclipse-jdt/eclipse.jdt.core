@@ -2334,4 +2334,26 @@ public void test427628b() {
 			},
 			"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421922, [1.8][compiler] Varargs & Overload - Align to JLS8 
+public void _test421922() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Arrays;\n" +
+				"public class X {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        test(1);\n" +
+				"    }\n" +
+				"    public static void test(int... a) {\n" +
+				"        System.out.print(\"int ... = \");\n" +
+				"        System.out.println(Arrays.toString(a));\n" +
+				"    }\n" +
+				"    public static <T> void test(Object... a) {\n" +
+				"        System.out.print(\"Object ... = \");\n" +
+				"        System.out.println(Arrays.toString(a));\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"int ... = [1]");
+}
 }
