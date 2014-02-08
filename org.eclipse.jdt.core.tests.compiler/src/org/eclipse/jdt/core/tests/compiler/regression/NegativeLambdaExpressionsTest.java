@@ -8409,6 +8409,22 @@ public void test425278() {
 		"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=427265, - [1.8][compiler] Type inference with anonymous classes 
+public void test427265() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"	     List<String> ss = Arrays.asList(\"1\", \"2\", \"3\");\n" +
+			"	     ss.stream().map(s -> new Object() {});\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

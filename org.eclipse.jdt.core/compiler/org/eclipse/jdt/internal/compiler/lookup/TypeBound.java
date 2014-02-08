@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 GK Software AG.
+ * Copyright (c) 2013, 2014 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
+ *     IBM Corporation - bug fixes
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -32,13 +33,13 @@ public class TypeBound extends ReductionResult {
 	/** Create a true type bound or a dependency. */
 	TypeBound(InferenceVariable inferenceVariable, TypeBinding typeBinding, int relation) {
 		this.left = inferenceVariable;
-		this.right = typeBinding;
+		this.right = typeBinding != null && typeBinding.isLocalType() ? typeBinding.superclass() : typeBinding;
 		this.relation = relation;
 	}
 	
 	TypeBound(InferenceVariable inferenceVariable, TypeBinding typeBinding, int relation, boolean isSoft) {
 		this.left = inferenceVariable;
-		this.right = typeBinding;
+		this.right = typeBinding != null && typeBinding.isLocalType() ? typeBinding.superclass() : typeBinding;
 		this.relation = relation;
 		this.isSoft = isSoft;
 	}
