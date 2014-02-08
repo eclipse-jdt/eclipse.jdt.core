@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2012 BEA Systems, Inc. and others 
+ * Copyright (c) 2006, 2014 BEA Systems, Inc. and others 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *    wharley@bea.com - initial API and implementation
  *    
@@ -24,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
@@ -231,8 +236,14 @@ public class HookedJavaFileObject extends
 					if (binaryType != null) {
 						char[] name = binaryType.getName();
 						ReferenceBinding type = this._filer._env._compiler.lookupEnvironment.getType(CharOperation.splitOn('/', name));
-						if (type != null && type.isValidBinding() && type.isBinaryBinding()) {
-							_filer.addNewClassFile(type);
+						if (type != null && type.isValidBinding()) {
+							if (type.isBinaryBinding()) {
+								_filer.addNewClassFile(type);
+							} else {
+								BinaryTypeBinding binaryBinding = new BinaryTypeBinding(type.getPackage(), binaryType, this._filer._env._compiler.lookupEnvironment, true);
+								if (binaryBinding != null)
+									_filer.addNewClassFile(binaryBinding);
+							}
 						}
 					}
 					break;

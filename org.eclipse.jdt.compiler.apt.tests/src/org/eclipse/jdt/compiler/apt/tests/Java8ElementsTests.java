@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation.
+ * Copyright (c) 2013, 2014 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -297,20 +297,31 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations27");
 	}
+	public void testPackageAnnotations() throws Exception {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testPackageAnnotations", null, "filer8");
+	}
+	public void testPackageAnnotationsWithJavac() throws Exception {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testPackageAnnotations", null, "filer8");
+	}
 	
 	private void internalTest(JavaCompiler compiler, String processor, String testMethod) throws IOException {
 		internalTest(compiler, processor, testMethod, null);
 	}
 	private void internalTest(JavaCompiler compiler, String processor, String testMethod, String testClass) throws IOException {
+		internalTest(compiler, processor, testMethod, testClass, "model8");
+	}
+	private void internalTest(JavaCompiler compiler, String processor, String testMethod, String testClass, String resourceArea) throws IOException {
 		if (!canRunJava8()) {
 			return;
 		}
 		System.clearProperty(processor);
-		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "model8");
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", resourceArea);
 		if (testClass == null || testClass.equals("")) {
-			BatchTestUtils.copyResources("targets/model8", targetFolder);
+			BatchTestUtils.copyResources("targets/" + resourceArea, targetFolder);
 		} else {
-			BatchTestUtils.copyResource("targets/model8/" + testClass, targetFolder);
+			BatchTestUtils.copyResource("targets/" + resourceArea + "/" + testClass, targetFolder);
 		}
 		
 

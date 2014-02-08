@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation.
+ * Copyright (c) 2013, 2014 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,9 @@
 
 package org.eclipse.jdt.compiler.apt.tests.processors.elements;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -23,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.processing.Filer;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -31,8 +35,10 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
@@ -67,7 +73,7 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.Foo", "org.eclipse.jdt.compiler.apt.tests.annotations.FooContainer",
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.IFoo", "org.eclipse.jdt.compiler.apt.tests.annotations.IFooContainer",
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.Goo", "org.eclipse.jdt.compiler.apt.tests.annotations.GooNonContainer",
-	                       "org.eclipse.jdt.compiler.apt.tests.annotations.FooNonContainer"})
+	                       "org.eclipse.jdt.compiler.apt.tests.annotations.FooNonContainer", "targets.filer8.PackageAnnot"})
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class Java8ElementProcessor extends BaseProcessor {
@@ -75,7 +81,11 @@ public class Java8ElementProcessor extends BaseProcessor {
 		private static final String[] ELEMENT_NAMES = new String[] {"targets.model8.X", "T", "U", "K", "V", "KK", "VV", "KKK", "VVV"};
 		private static final String[] TYPE_PARAM_ELEMENTS_Z1 = new String[] {"KK", "VV"};
 		private static final String[] TYPE_PARAM_ELEMENTS_Z2 = new String[] {"KKK", "VVV"};
-	
+		String simpleName = "filer8";
+		String packageName = "targets.filer8";
+		int roundNo = 0;
+		boolean reportSuccessAlready = true;
+		
 	RoundEnvironment roundEnv = null;
 	// Always return false from this processor, because it supports "*".
 	// The return value does not signify success or failure!
@@ -96,7 +106,9 @@ public class Java8ElementProcessor extends BaseProcessor {
 				if (!invokeTestMethods(options)) {
 					testAll();
 				}
-				super.reportSuccess();
+				if (this.reportSuccessAlready) {
+					super.reportSuccess();
+				}
 			} catch (AssertionFailedError e) {
 				super.reportError(getExceptionStackTrace(e));
 			} catch (Throwable e) {
@@ -159,6 +171,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		testRepeatedAnnotations25();
 		testTypeAnnotations26();
 		testTypeAnnotations27();
+		testPackageAnnotations();
 	}
 	
 	public void testLambdaSpecifics() {
@@ -948,7 +961,53 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		
 	}
-	
+	public boolean testPackageAnnotations() {
+		if ( roundNo++ == 0) {
+			this.reportSuccessAlready = false;
+			try {
+				createPackageBinary();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			System.setProperty(this.getClass().getName(), "Processor did not fully do the job");
+			return false;
+		} else {
+			this.reportSuccessAlready = true;
+			PackageElement packageEl = null;
+			for (Element element : roundEnv.getRootElements()) {
+				if (element.getKind() == ElementKind.PACKAGE) {
+					packageEl = (PackageElement) element;
+				}
+			}
+			assertNotNull("Package element should not be null", packageEl);
+			assertEquals("Incorrect package name", simpleName, packageEl.getSimpleName().toString());
+			assertEquals("Incorrect package name", packageName, packageEl.getQualifiedName().toString());
+			assertFalse("Package should not be unnamed", packageEl.isUnnamed()); 
+			return false;
+		}
+	}
+	private void createPackageBinary() throws IOException {
+		String path = packageName.replace('.', '/');
+		ClassLoader loader = getClass().getClassLoader();
+		InputStream in = loader.getResourceAsStream(path + "/package-info.class");
+		try {
+			Filer filer = processingEnv.getFiler();
+			OutputStream out = filer.createClassFile(packageName + ".package-info").openOutputStream();
+			try {
+				if (in != null && out != null) {
+					int c = in.read();
+					while (c != -1) {
+						out.write(c);
+						c = in.read();
+					}
+				}
+			} finally {
+				out.close();
+			}
+		} finally {
+			in.close();
+		}
+	}	
 	
 	private String getExceptionStackTrace(Throwable t) {
 		StringBuffer buf = new StringBuffer(t.getMessage());
