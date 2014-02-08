@@ -44,6 +44,7 @@ class BoundSet {
 		Set<TypeBound> sameBounds;
 		Set<TypeBound> subBounds;
 		TypeBinding	instantiation;
+		Map<InferenceVariable,TypeBound> inverseBounds; // from right inference variable to bound
 		
 		public ThreeSets() {
 			// empty, the sets are lazily initialized
@@ -118,6 +119,12 @@ class BoundSet {
 				return true;
 			if (this.subBounds != null && hasDependency(this.subBounds, beta))
 				return true;
+			if (this.inverseBounds != null) {
+				if (this.inverseBounds.containsKey(beta)) {
+					// TODO: not yet observed in tests
+					return true;
+				}
+			}
 			return false;
 		}
 		private boolean hasDependency(Set<TypeBound> someBounds, InferenceVariable var) {
@@ -287,6 +294,18 @@ class BoundSet {
 		TypeBinding typeBinding = bound.right;
 		if (bound.relation == ReductionResult.SAME && typeBinding.isProperType(true))
 			three.instantiation = typeBinding;
+		if (bound.right instanceof InferenceVariable) {
+			// for a dependency between two IVs make a note about the inverse bound.
+			// this should be needed to determine IV dependencies independent of direction.
+			// TODO: so far no test could be identified which actually needs it ...
+			InferenceVariable rightIV = (InferenceVariable) bound.right;
+			three = this.boundsPerVariable.get(rightIV);
+			if (three == null)
+				this.boundsPerVariable.put(rightIV, (three = new ThreeSets()));
+			if (three.inverseBounds == null)
+				three.inverseBounds = new HashMap<InferenceVariable,TypeBound>();
+			three.inverseBounds.put(rightIV, bound);
+		}
 	}
 
 	private boolean addBounds(TypeBound[] newBounds) {
@@ -737,6 +756,8 @@ class BoundSet {
 		if (three == null || three.subBounds == null)
 			return Binding.NO_TYPES;
 		return three.upperBounds(onlyProper);
+		// TODO: if !onlyProper: should we also consider ThreeSets.inverseBounds,
+		//        or is it safe to rely on incorporation to produce the required bounds?
 	}
 	
 	/**

@@ -1928,4 +1928,86 @@ public void testBug427504() {
 			"}\n"
 		});
 }
+public void testBug427479() {
+	runConformTest(
+		new String[] {
+			"Bug.java",
+			"import java.util.*;\n" + 
+			"import java.util.function.BinaryOperator; \n" + 
+			"import java.util.stream.*;\n" + 
+			"\n" + 
+			"public class Bug {\n" + 
+			" \n" + 
+			"	static List<String> names = Arrays.asList(\n" + 
+			"			\"ddd\",\n" + 
+			"			\"s\",\n" + 
+			"			\"sdfs\",\n" + 
+			"			\"sfdf d\"); \n" + 
+			" \n" + 
+			"	public static void main(String[] args) {\n" + 
+			"			 BinaryOperator<List<String>> merge = (List<String> first, List<String> second) -> {\n" + 
+			"				 first.addAll(second);\n" + 
+			"				 return first;\n" + 
+			"				 };\n" + 
+			"				 \n" + 
+			"			Collector<String,?,Map<Integer,List<String>>> collector= Collectors.toMap(\n" + 
+			"					s -> s.length(), \n" + 
+			"					Arrays::asList,\n" + 
+			"					merge); \n" + 
+			"			Map<Integer, List<String>> lengthToStrings = names.stream().collect(collector);\n" + 
+			"			\n" + 
+			"			lengthToStrings.forEach((Integer i, List<String> l)-> {\n" + 
+			"				System.out.println(i + \" : \" + Arrays.deepToString(l.toArray()));\n" + 
+			"			});\n" + 
+			"\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n"
+		});
+}
+public void testBug427479b() {
+	runNegativeTest(
+		new String[] {
+			"Bug419048.java",
+			"import java.util.List;\n" + 
+			"import java.util.Map;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"\n" + 
+			"public class Bug419048 {\n" + 
+			"	void test1(List<Object> roster) {\n" + 
+			"        Map<String, Object> map = \n" + 
+			"                roster\n" + 
+			"                    .stream()\n" + 
+			"                    .collect(\n" + 
+			"                        Collectors.toMap(\n" + 
+			"                            p -> p.getLast(),\n" + 
+			"                            p -> p.getLast()\n" + 
+			"                        ));\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Bug419048.java (at line 9)\n" + 
+		"	roster\n" + 
+		"                    .stream()\n" + 
+		"                    .collect(\n" + 
+		"                        Collectors.toMap(\n" + 
+		"                            p -> p.getLast(),\n" + 
+		"                            p -> p.getLast()\n" + 
+		"                        ));\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Map<Object,Object> to Map<String,Object>\n" + 
+		"----------\n" + 
+		"2. ERROR in Bug419048.java (at line 13)\n" + 
+		"	p -> p.getLast(),\n" + 
+		"	       ^^^^^^^\n" + 
+		"The method getLast() is undefined for the type Object\n" + 
+		"----------\n" + 
+		"3. ERROR in Bug419048.java (at line 14)\n" + 
+		"	p -> p.getLast()\n" + 
+		"	       ^^^^^^^\n" + 
+		"The method getLast() is undefined for the type Object\n" + 
+		"----------\n");
+}
 }

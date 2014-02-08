@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -72,7 +73,7 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  *  </ul></li>
  * <li>18.3 <b>Incorporation</b>: {@link BoundSet#incorporate(InferenceContext18)}; during inference new constraints
  * 	are accepted via {@link BoundSet#reduceOneConstraint(InferenceContext18, ConstraintFormula)} (combining 18.2 & 18.3)</li>
- * <li>18.4 <b>Resolution</b>: {@link #resolve()}.
+ * <li>18.4 <b>Resolution</b>: {@link #resolve(InferenceVariable[])}.
  * </ul>
  * Some of the above operations accumulate their results into {@link #currentBounds}, whereas
  * the last phase <em>returns</em> the resulting bound set while keeping the previous state in {@link #currentBounds}.
@@ -399,7 +400,7 @@ public class InferenceContext18 {
 				// *
 				Set<ConstraintFormula> bottomSet = findBottomSet(c, allOutputVariables(c));
 				if (bottomSet.isEmpty()) {
-					bottomSet.add(pickFromCycle(c)); 
+					bottomSet.add(pickFromCycle(c));
 				}
 				// *
 				c.removeAll(bottomSet);
@@ -412,7 +413,11 @@ public class InferenceContext18 {
 				InferenceVariable[] variablesArray = allInputs.toArray(new InferenceVariable[allInputs.size()]);
 				//   ... is resolved
 				this.currentBounds.incorporate(this);
-				BoundSet solution = resolve();
+				BoundSet solution = resolve(variablesArray);
+				// in rare cases resolving just one set of variables doesn't suffice,
+				// don't bother with finding the necessary superset, just resolve all:
+				if (solution == null)
+					solution = resolve(this.inferenceVariables);
 				// * ~ apply substitutions to all constraints: 
 				bottomIt = bottomSet.iterator();
 				while (bottomIt.hasNext()) {
@@ -761,7 +766,7 @@ public class InferenceContext18 {
 		if (!this.currentBounds.incorporate(this))
 			return null;
 
-		return resolve();
+		return resolve(this.inferenceVariables);
 	}
 
 	/**
@@ -825,7 +830,7 @@ public class InferenceContext18 {
 	 * @return answer null if some constraint resolved to FALSE, otherwise the boundset representing the solution
 	 * @throws InferenceFailureException 
 	 */
-	private /*@Nullable*/ BoundSet resolve() throws InferenceFailureException {
+	private /*@Nullable*/ BoundSet resolve(InferenceVariable[] toResolve) throws InferenceFailureException {
 		// NOTE: 18.5.2 ... 
 		// "(While it was necessary to demonstrate that the inference variables in B1 could be resolved
 		//   in order to establish applicability, the resulting instantiations are not considered part of B1.)
@@ -834,7 +839,7 @@ public class InferenceContext18 {
 		if (this.inferenceVariables != null) {
 			// find a minimal set of dependent variables:
 			Set<InferenceVariable> variableSet;
-			while ((variableSet = getSmallestVariableSet(tmpBoundSet)) != null) {
+			while ((variableSet = getSmallestVariableSet(tmpBoundSet, toResolve)) != null) {
 				int oldNumUninstantiated = tmpBoundSet.numUninstantiatedVariables(this.inferenceVariables);
 				final int numVars = variableSet.size();
 				if (numVars > 0) {
@@ -995,11 +1000,11 @@ public class InferenceContext18 {
 	 * Find the smallest set of uninstantiated inference variables not depending
 	 * on any uninstantiated variable outside the set.
 	 */
-	private Set<InferenceVariable> getSmallestVariableSet(BoundSet bounds) {
+	private Set<InferenceVariable> getSmallestVariableSet(BoundSet bounds, InferenceVariable[] subSet) {
 		int min = Integer.MAX_VALUE;
 		Set<InferenceVariable> result = null;
-		for (int i = 0; i < this.inferenceVariables.length; i++) {
-			InferenceVariable currentVariable = this.inferenceVariables[i];
+		for (int i = 0; i < subSet.length; i++) {
+			InferenceVariable currentVariable = subSet[i];
 			if (!bounds.isInstantiated(currentVariable)) {
 				Set<InferenceVariable> set = new HashSet<InferenceVariable>();
 				if (!addDependencies(bounds, set, currentVariable, min))
@@ -1032,8 +1037,179 @@ public class InferenceContext18 {
 	}
 
 	private ConstraintFormula pickFromCycle(Set<ConstraintFormula> c) {
-		missingImplementation("Breaking a dependency cycle NYI"); //$NON-NLS-1$
-		return null; // never
+		// Detail from 18.5.2 bullet 6.1
+
+		// Note on performance: this implementation could quite possibly be optimized a lot.
+		// However, we only *very rarely* reach here,
+		// so nobody should really be affected by the performance penalty paid here.
+
+		// Note on spec conformance: the spec seems to require _all_ criteria (i)-(iv) to be fulfilled
+		// with the sole exception of (iii), which should only be used, if _any_ constraints matching (i) & (ii)
+		// also fulfill this condition.
+		// Experiments, however, show that strict application of the above is prone to failing to pick any constraint,
+		// causing non-termination of the algorithm.
+		// Since that is not acceptable, I'm *interpreting* the spec to request a search for a constraint
+		// that "best matches" the given conditions.
+		
+		// collect all constraints participating in a cycle
+		HashMap<ConstraintFormula,Set<ConstraintFormula>> dependencies = new HashMap<ConstraintFormula, Set<ConstraintFormula>>();
+		Set<ConstraintFormula> cycles = new HashSet<ConstraintFormula>();
+		for (ConstraintFormula constraint : c) {
+			Collection<InferenceVariable> infVars = constraint.inputVariables(this);
+			for (ConstraintFormula other : c) {
+				if (other == constraint) continue;
+				if (dependsOn(infVars, other.outputVariables(this))) {
+					// found a dependency, record it:
+					Set<ConstraintFormula> targetSet = dependencies.get(constraint);
+					if (targetSet == null)
+						dependencies.put(constraint, targetSet = new HashSet<ConstraintFormula>());
+					targetSet.add(other);
+					// look for a cycle:
+					Set<ConstraintFormula> nodesInCycle = new HashSet<ConstraintFormula>();
+					if (isReachable(dependencies, other, constraint, new HashSet<ConstraintFormula>(), nodesInCycle)) {
+						// found a cycle, record the involved nodes:
+						cycles.addAll(nodesInCycle);
+					}
+				}
+			}
+		}
+		Set<ConstraintFormula> outside = new HashSet<ConstraintFormula>(c);
+		outside.removeAll(cycles);
+
+		Set<ConstraintFormula> candidatesII = new HashSet<ConstraintFormula>();
+		// (i): participates in a cycle:
+		candidates: for (ConstraintFormula candidate : cycles) {
+			Collection<InferenceVariable> infVars = candidate.inputVariables(this);
+			// (ii) does not depend on any constraints outside the cycle
+			for (ConstraintFormula out : outside) {
+				if (dependsOn(infVars, out.outputVariables(this)))
+					continue candidates;
+			}
+			candidatesII.add(candidate);
+		}
+		if (candidatesII.isEmpty())
+			candidatesII = c; // not spec'ed but needed to avoid returning null below, witness: java.util.stream.Collectors
+		
+		// tentatively: (iii)  has the form ⟨Expression → T⟩
+		Set<ConstraintFormula> candidatesIII = new HashSet<ConstraintFormula>();
+		for (ConstraintFormula candidate : candidatesII) {
+			if (candidate instanceof ConstraintExpressionFormula)
+				candidatesIII.add(candidate);
+		}
+		if (candidatesIII.isEmpty()) {
+			candidatesIII = candidatesII; // no constraint fulfills (iii) -> ignore this condition
+		} else { // candidatesIII contains all relevant constraints ⟨Expression → T⟩
+			// (iv) contains an expression that appears to the left of the expression
+			// 		of every other constraint satisfying the previous three requirements
+			
+			// collect containment info regarding all expressions in candidate constraints:
+			// (a) find minimal enclosing expressions:
+			Map<ConstraintExpressionFormula,ConstraintExpressionFormula> expressionContainedBy = new HashMap<ConstraintExpressionFormula, ConstraintExpressionFormula>();
+			for (ConstraintFormula one : candidatesIII) {
+				ConstraintExpressionFormula oneCEF = (ConstraintExpressionFormula) one;
+				Expression exprOne = oneCEF.left;
+				for (ConstraintFormula two : candidatesIII) {
+					if (one == two) continue;
+					ConstraintExpressionFormula twoCEF = (ConstraintExpressionFormula) two;
+					Expression exprTwo = twoCEF.left;
+					if (doesExpressionContain(exprOne, exprTwo)) {
+						ConstraintExpressionFormula previous = expressionContainedBy.get(two);
+						if (previous == null || doesExpressionContain(previous.left, exprOne)) // only if improving
+							expressionContainedBy.put(twoCEF, oneCEF);
+					}
+				}
+			}
+			// (b) build the tree from the above
+			Map<ConstraintExpressionFormula,Set<ConstraintExpressionFormula>> containmentForest = new HashMap<ConstraintExpressionFormula, Set<ConstraintExpressionFormula>>();
+			for (Map.Entry<ConstraintExpressionFormula, ConstraintExpressionFormula> parentRelation : expressionContainedBy.entrySet()) {
+				ConstraintExpressionFormula parent = parentRelation.getValue();
+				Set<ConstraintExpressionFormula> children = containmentForest.get(parent);
+				if (children == null)
+					containmentForest.put(parent, children = new HashSet<ConstraintExpressionFormula>());
+				children.add(parentRelation.getKey());
+			}
+			
+			// approximate the spec by searching the largest containment tree:
+			int bestRank = -1;
+			ConstraintExpressionFormula candidate = null;
+			for (ConstraintExpressionFormula parent : containmentForest.keySet()) {
+				int rank = rankNode(parent, expressionContainedBy, containmentForest);
+				if (rank > bestRank) {
+					bestRank = rank;
+					candidate = parent;
+				}
+			}
+			if (candidate != null)
+				return candidate;
+		}
+		
+		if (candidatesIII.isEmpty())
+			throw new IllegalStateException("cannot pick constraint from cyclic set"); //$NON-NLS-1$
+		return candidatesIII.iterator().next();
+	}
+
+	/**
+	 * Does the first constraint depend on the other?
+	 * The first constraint is represented by its input variables and the other constraint by its output variables.
+	 */
+	private boolean dependsOn(Collection<InferenceVariable> inputsOfFirst, Collection<InferenceVariable> outputsOfOther) {
+		for (InferenceVariable iv : inputsOfFirst) {
+			for (InferenceVariable otherIV : outputsOfOther)
+				if (this.currentBounds.dependsOnResolutionOf(iv, otherIV))
+					return true;
+		}
+		return false;
+	}
+
+	/** Does 'deps' contain a chain of dependencies leading from 'from' to 'to'? */
+	private boolean isReachable(Map<ConstraintFormula,Set<ConstraintFormula>> deps, ConstraintFormula from, ConstraintFormula to,
+			Set<ConstraintFormula> nodesVisited, Set<ConstraintFormula> nodesInCycle)
+	{
+		if (from == to) {
+			nodesInCycle.add(from);
+			return true;
+		}
+		if (!nodesVisited.add(from))
+			return false;
+		Set<ConstraintFormula> targetSet = deps.get(from);
+		if (targetSet != null) {
+			for (ConstraintFormula tgt : targetSet) {
+				if (isReachable(deps, tgt, to, nodesVisited, nodesInCycle)) {
+					nodesInCycle.add(from);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/** Does exprOne lexically contain exprTwo? */
+	private boolean doesExpressionContain(Expression exprOne, Expression exprTwo) {
+		if (exprTwo.sourceStart > exprOne.sourceStart) {
+			return exprTwo.sourceEnd <= exprOne.sourceEnd;
+		} else if (exprTwo.sourceStart == exprOne.sourceStart) {
+			return exprTwo.sourceEnd < exprOne.sourceEnd;
+		}
+		return false;
+	}
+
+	/** non-roots answer -1, roots answer the size of the spanned tree */
+	private int rankNode(ConstraintExpressionFormula parent, 
+			Map<ConstraintExpressionFormula,ConstraintExpressionFormula> expressionContainedBy,
+			Map<ConstraintExpressionFormula, Set<ConstraintExpressionFormula>> containmentForest)
+	{
+		if (expressionContainedBy.get(parent) != null)
+			return -1; // not a root
+		Set<ConstraintExpressionFormula> children = containmentForest.get(parent);
+		if (children == null)
+			return 1; // unconnected node or leaf
+		int sum = 1;
+		for (ConstraintExpressionFormula child : children) {
+			int cRank = rankNode(child, expressionContainedBy, containmentForest);
+			if (cRank > 0)
+				sum += cRank;
+		}
+		return sum;
 	}
 
 	private Set<ConstraintFormula> findBottomSet(Set<ConstraintFormula> constraints, Set<InferenceVariable> allOutputVariables) {
