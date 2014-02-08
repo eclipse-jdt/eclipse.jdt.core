@@ -1655,6 +1655,35 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	// conditional in argument position
+	public void testConditional3() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n"
+				+ "import java.util.*;\n"
+				+ "public class X {\n"
+				+ "	void foo(List<@NonNull String> good, List<String> dubious, int f) {\n"
+				+ "		consume(f == 0 ? good : dubious);\n"
+				+ "		consume(f == 2 ? dubious : good);\n"
+				+ "		consume(f == 4 ? good : good);\n"
+				+ "	}\n" +
+				"	void consume(List<@NonNull String> strings) {}\n"
+				+ "}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	consume(f == 0 ? good : dubious);\n" + 
+			"	                        ^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	consume(f == 2 ? dubious : good);\n" + 
+			"	                 ^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'List<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
+			"----------\n");
+	}
+
 	// types with null annotations on details (type parameter) are compatible to equal types
 	public void testCompatibility1() {
 		runConformTestWithLibs(

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 GK Software AG and others.
+ * Copyright (c) 2013, 2014 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -66,6 +66,15 @@ public class NullAnnotationMatching {
 		if (currentScope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) {
 			lhsTagBits = var.tagBits & TagBits.AnnotationNullMASK;
 		} else {
+			if (expression instanceof ConditionalExpression && expression.isPolyExpression()) {
+				// drill into both branches:
+				ConditionalExpression ce = ((ConditionalExpression) expression);
+				int status1 = NullAnnotationMatching.checkAssignment(currentScope, flowContext, var, ce.ifTrueNullStatus, ce.valueIfTrue, ce.valueIfTrue.resolvedType);
+				int status2 = NullAnnotationMatching.checkAssignment(currentScope, flowContext, var, ce.ifFalseNullStatus, ce.valueIfFalse, ce.valueIfFalse.resolvedType);
+				if (status1 == status2)
+					return status1;
+				return nullStatus; // if both branches disagree use the precomputed & merged nullStatus
+			}
 			lhsTagBits = var.type.tagBits & TagBits.AnnotationNullMASK;
 			NullAnnotationMatching annotationStatus = analyse(var.type, providedType, nullStatus);
 			if (annotationStatus.isDefiniteMismatch()) {

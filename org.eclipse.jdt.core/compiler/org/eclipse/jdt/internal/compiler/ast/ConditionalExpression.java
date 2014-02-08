@@ -26,6 +26,7 @@
  *							Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *							Bug 426078 - [1.8] VerifyError when conditional expression passed as an argument
  *							Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
+ *							Bug 418537 - [1.8][null] Fix null type annotation analysis for poly conditional expressions
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -52,6 +53,8 @@ public class ConditionalExpression extends OperatorExpression {
 	
 	// we compute and store the null status during analyseCode (https://bugs.eclipse.org/324178):
 	private int nullStatus = FlowInfo.UNKNOWN;
+	int ifFalseNullStatus;
+	int ifTrueNullStatus;
 	private TypeBinding expectedType;
 	private ExpressionContext expressionContext = VANILLA_CONTEXT;
 	private boolean isPolyExpression = false;
@@ -98,9 +101,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		this.valueIfTrue.checkNPEbyUnboxing(currentScope, flowContext, trueFlowInfo);
 
 		// may need to fetch this null status before expireNullCheckedFieldInfo():
-		int preComputedTrueNullStatus = -1;
+		this.ifTrueNullStatus = -1;
 		if (compilerOptions.enableSyntacticNullAnalysisForFields) {
-			preComputedTrueNullStatus = this.valueIfTrue.nullStatus(trueFlowInfo, flowContext);
+			this.ifTrueNullStatus = this.valueIfTrue.nullStatus(trueFlowInfo, flowContext);
 			// wipe information that was meant only for valueIfTrue:
 			flowContext.expireNullCheckedFieldInfo();
 		}
@@ -125,8 +128,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		FlowInfo mergedInfo;
 		if (isConditionOptimizedTrue){
 			mergedInfo = trueFlowInfo.addPotentialInitializationsFrom(falseFlowInfo);
-			if (preComputedTrueNullStatus != -1) {
-				this.nullStatus = preComputedTrueNullStatus;
+			if (this.ifTrueNullStatus != -1) {
+				this.nullStatus = this.ifTrueNullStatus;
 			} else { 
 				this.nullStatus = this.valueIfTrue.nullStatus(trueFlowInfo, flowContext);
 			}
@@ -145,7 +148,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			//     (regardless of the evaluation of the condition).
 			
 			// to support (1) use the infos of both branches originating from the condition for computing the nullStatus:
-			computeNullStatus(preComputedTrueNullStatus, trueFlowInfo, falseFlowInfo, flowContext);
+			computeNullStatus(trueFlowInfo, falseFlowInfo, flowContext);
 			
 			// to support (2) we split the true/false branches according to their inner structure. Consider this:
 			// if (b ? false : (true && (v = false))) return v; -- ok
@@ -185,10 +188,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		this.mergedInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(mergedInfo);
 		mergedInfo.setReachMode(mode);
-		if (isPolyExpression() && compilerOptions.isAnnotationBasedNullAnalysisEnabled && flowInfo.reachMode() == FlowInfo.REACHABLE) {
-			checkAgainstNullTypeAnnotation(currentScope, this.resolvedType, this.valueIfTrue, flowContext, flowInfo);
-			checkAgainstNullTypeAnnotation(currentScope, this.resolvedType, this.valueIfFalse, flowContext, flowInfo);
-		}
 		
 		return mergedInfo;
 	}
@@ -201,31 +200,31 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		return true; // all checking done
 	}
 
-	private void computeNullStatus(int ifTrueNullStatus, FlowInfo trueBranchInfo, FlowInfo falseBranchInfo, FlowContext flowContext) {
+	private void computeNullStatus(FlowInfo trueBranchInfo, FlowInfo falseBranchInfo, FlowContext flowContext) {
 		// given that the condition cannot be optimized to a constant 
 		// we now merge the nullStatus from both branches:
-		if (ifTrueNullStatus == -1) { // has this status been pre-computed?
-			ifTrueNullStatus = this.valueIfTrue.nullStatus(trueBranchInfo, flowContext);
+		if (this.ifTrueNullStatus == -1) { // has this status been pre-computed?
+			this.ifTrueNullStatus = this.valueIfTrue.nullStatus(trueBranchInfo, flowContext);
 		}
-		int ifFalseNullStatus = this.valueIfFalse.nullStatus(falseBranchInfo, flowContext);
+		this.ifFalseNullStatus = this.valueIfFalse.nullStatus(falseBranchInfo, flowContext);
 
-		if (ifTrueNullStatus == ifFalseNullStatus) {
-			this.nullStatus = ifTrueNullStatus;
+		if (this.ifTrueNullStatus == this.ifFalseNullStatus) {
+			this.nullStatus = this.ifTrueNullStatus;
 			return;
 		}
 		if (trueBranchInfo.reachMode() != FlowInfo.REACHABLE) {
-			this.nullStatus = ifFalseNullStatus;
+			this.nullStatus = this.ifFalseNullStatus;
 			return;
 		}
 		if (falseBranchInfo.reachMode() != FlowInfo.REACHABLE) {
-			this.nullStatus = ifTrueNullStatus;
+			this.nullStatus = this.ifTrueNullStatus;
 			return;
 		}
 
 		// is there a chance of null (or non-null)? -> potentially null etc.
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133125
 		int status = 0;
-		int combinedStatus = ifTrueNullStatus|ifFalseNullStatus;
+		int combinedStatus = this.ifTrueNullStatus|this.ifFalseNullStatus;
 		if ((combinedStatus & (FlowInfo.NULL|FlowInfo.POTENTIALLY_NULL)) != 0)
 			status |= FlowInfo.POTENTIALLY_NULL;
 		if ((combinedStatus & (FlowInfo.NON_NULL|FlowInfo.POTENTIALLY_NON_NULL)) != 0)
