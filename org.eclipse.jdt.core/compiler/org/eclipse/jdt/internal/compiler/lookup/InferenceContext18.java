@@ -687,19 +687,19 @@ public class InferenceContext18 {
 				}
 				return true;
 			}
-			checkPrimitive1: if (r1.isBaseType() && !r2.isBaseType()) {
+			checkPrimitive1: if (r1.isNormalBaseType() && !r2.isNormalBaseType()) {
 				// check: each result expression is a standalone expression of a primitive type
 				for (int i = 0; i < results.length; i++) {
-					if (results[i].isPolyExpression() || (results[i].resolvedType != null && !results[i].resolvedType.isBaseType()))
+					if (results[i].isPolyExpression() || (results[i].resolvedType != null && !results[i].resolvedType.isNormalBaseType()))
 						break checkPrimitive1;
 				}
 				return true;
 			}
-			checkPrimitive2: if (r2.isBaseType() && !r1.isBaseType()) {
+			checkPrimitive2: if (r2.isNormalBaseType() && !r1.isNormalBaseType()) {
 				for (int i = 0; i < results.length; i++) {
 					// for all expressions (not for any expression not)
 					if (!(
-							(!results[i].isPolyExpression() && (results[i].resolvedType != null && !results[i].resolvedType.isBaseType())) // standalone of a referencetype
+							(!results[i].isPolyExpression() && (results[i].resolvedType != null && !results[i].resolvedType.isNormalBaseType())) // standalone of a referencetype
 							|| results[i].isPolyExpression()))	// or a poly
 						break checkPrimitive2;
 				}
@@ -715,9 +715,9 @@ public class InferenceContext18 {
 					return true;
 				MethodBinding method = reference.findCompileTimeMethodTargeting(null, this.scope); // TODO directly access exactMethodBinding!
 				TypeBinding returnType = method.isConstructor() ? method.declaringClass : method.returnType;
-				if (r1.isBaseType() && !r2.isBaseType() && returnType.isBaseType()) 
+				if (r1.isNormalBaseType() && !r2.isNormalBaseType() && returnType.isNormalBaseType()) 
 					return true;
-				if (r2.isBaseType() && !r1.isBaseType() && !returnType.isBaseType())
+				if (r2.isNormalBaseType() && !r1.isNormalBaseType() && !returnType.isNormalBaseType())
 					return true;
 			}
 			return reduceAndIncorporate(new ConstraintTypeFormula(r1, r2, ReductionResult.SUBTYPE));

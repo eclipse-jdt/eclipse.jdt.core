@@ -25,6 +25,7 @@
  *								Bug 426792 - [1.8][inference][impl] generify new type inference engine
  *								Bug 426764 - [1.8] Presence of conditional expression as method argument confuses compiler
  *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
+ *								Bug 427626 - [1.8] StackOverflow while typing new ArrayList<String>().toArray( and asking for code completion
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -515,6 +516,12 @@ public final boolean isArrayType() {
  */
 public final boolean isBaseType() {
 	return (this.tagBits & TagBits.IsBaseType) != 0;
+}
+
+/* Answer true if the receiver is a base type other than void or null
+ */
+public final boolean isNormalBaseType() {
+	return (this.tagBits & TagBits.IsBaseType) != 0 && this.id != TypeIds.T_void && this.id != TypeIds.T_null;
 }
 
 /* Answer true if the receiver is a primitive type or a boxed primitive type

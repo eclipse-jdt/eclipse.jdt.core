@@ -55,11 +55,11 @@ class ConstraintTypeFormula extends ConstraintFormula {
 					return TRUE;
 				return FALSE;
 			}
-			if (this.left.isBaseType() && this.left != TypeBinding.NULL) {
+			if (this.left.isNormalBaseType()) {
 				TypeBinding sPrime = inferenceContext.environment.computeBoxingType(this.left);
 				return new ConstraintTypeFormula(sPrime, this.right, COMPATIBLE, this.isSoft);
 			}
-			if (this.right.isBaseType() && this.right != TypeBinding.NULL) {
+			if (this.right.isNormalBaseType()) {
 				TypeBinding tPrime = inferenceContext.environment.computeBoxingType(this.right);
 				return new ConstraintTypeFormula(this.left, tPrime, SAME, this.isSoft);
 			}
@@ -264,7 +264,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				if (sPrimeArray == null)
 					return FALSE;
 				TypeBinding sPrime = sPrimeArray.elementsType();
-				if (!tPrime.isBaseType() && !sPrime.isBaseType()) {
+				if (!tPrime.isNormalBaseType() && !sPrime.isNormalBaseType()) {
 					return new ConstraintTypeFormula(sPrime, tPrime, SUBTYPE, this.isSoft);
 				}
 				return TypeBinding.equalsEquals(tPrime, sPrime) ? TRUE : FALSE; // same primitive type?

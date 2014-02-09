@@ -355,7 +355,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					toResolve = true;
 				} else if (inferenceContext.currentBounds.condition18_5_2_bullet_3_3_2(alpha, targetType, inferenceContext)) {
 					toResolve = true;
-				} else if (targetType.isBaseType()) {
+				} else if (targetType.isNormalBaseType()) {
 					TypeBinding wrapper = inferenceContext.currentBounds.findWrapperTypeBound(alpha);
 					if (wrapper != null)
 						toResolve = true;
