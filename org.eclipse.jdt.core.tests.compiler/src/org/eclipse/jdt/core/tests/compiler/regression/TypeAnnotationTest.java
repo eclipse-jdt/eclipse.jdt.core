@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 IBM Corporation and others.
+ * Copyright (c) 2011, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@
  *                          Bug 409246 - [1.8][compiler] Type annotations on catch parameters not handled properly
  *                          Bug 409517 - [1.8][compiler] Type annotation problems on more elaborate array references
  *                          Bug 415821 - [1.8][compiler] CLASS_EXTENDS target type annotation missing for anonymous classes
+ *                          Bug 426616 - [1.8][compiler] Type Annotations, multiple problems 
  *        Stephan Herrmann - Contribution for
  *							Bug 415911 - [1.8][compiler] NPE when TYPE_USE annotated method with missing return type
  *							Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
@@ -5557,6 +5558,222 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"Return type for the method is missing\n" + 
 			"----------\n");
 	}
+	
+	public void testBug426616() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n"+
+				"import java.lang.annotation.*;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" +
+				"@Retention(RUNTIME)\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@interface SizeHolder { Size[] value();}\n"+
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@Repeatable(SizeHolder.class)\n"+
+				"@interface Size { int max(); }\n"+
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface Nonnull {}\n"+
+				"\n"+
+				"public class X {\n" + 
+				"   public static void main(String[]argv) {}\n"+
+				"	public static String testArrays() {\n"+
+				"		List<@Size(max = 41) CharSequence>[] @Size(max = 42) [] @Nonnull @Size(max = 43) [][] test = new @Size(max = 44) ArrayList @Size(max = 45) [10][][] @Size(max = 47) @Size(max = 48) [];\n"+
+				"		return (@Size(max = 49) String) test[0][1][2][3].get(0);\n"+
+				"	}\n"+
+				"}",
+		},
+		"");
+		// Javac output
+		// 0: Size(45): NEW, offset=0
+        // 1: SizeHolder([@Size(max=47),@Size(max=48)]): NEW, offset=0, location=[ARRAY, ARRAY, ARRAY]
+        // 2: Size(44): NEW, offset=0, location=[ARRAY, ARRAY, ARRAY, ARRAY]
+		// 3: Size(49): CAST, offset=6, type_index=0		
+        // 4: Size(42): LOCAL_VARIABLE, {start_pc=6, length=19, index=0}, location=[ARRAY]
+        // 5: NonNull: LOCAL_VARIABLE, {start_pc=6, length=19, index=0}, location=[ARRAY, ARRAY]
+        // 6: Size(43): LOCAL_VARIABLE, {start_pc=6, length=19, index=0}, location=[ARRAY, ARRAY]
+        // 7: Size(41): LOCAL_VARIABLE, {start_pc=6, length=19, index=0}, location=[ARRAY, ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(0)]
+
+		String expectedOutput =
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+		
+				// X Maps to javac entry (2): location OK, target type OK, offset different, our offset is 2 and not 0
+				"      #33 @Size(\n" + 
+				"        #34 max=(int) 44 (constant type)\n" + 
+				"        target type = 0x44 NEW\n" + 
+				"        offset = 2\n" + 
+				"        location = [ARRAY, ARRAY, ARRAY, ARRAY]\n" + 
+				"      )\n" + 
+				
+				// X Maps to javac entry (0), location OK, target type OK, offset different, our offset is 2 and not 0
+				"      #33 @Size(\n" + 
+				"        #34 max=(int) 45 (constant type)\n" + 
+				"        target type = 0x44 NEW\n" + 
+				"        offset = 2\n" + 
+				"      )\n" + 
+				
+				// X Maps to javac entry (1), location OK, target type OK, offset different, our offset is 2 and not 0
+				"      #37 @SizeHolder(\n" + 
+				"        #38 value=[\n" + 
+				"          annotation value =\n" + 
+				"              #33 @Size(\n" + 
+				"                #34 max=(int) 47 (constant type)\n" + 
+				"              )\n" + 
+				"          annotation value =\n" + 
+				"              #33 @Size(\n" + 
+				"                #34 max=(int) 48 (constant type)\n" + 
+				"              )\n" + 
+				"          ]\n" + 
+				"        target type = 0x44 NEW\n" + 
+				"        offset = 2\n" + 
+				"        location = [ARRAY, ARRAY, ARRAY]\n" + 
+				"      )\n" + 
+				
+				// X Maps to javac entry (3), location OK, target type OK, offset different, our offset is 24 (not 6), type index OK
+				"      #33 @Size(\n" + 
+				"        #34 max=(int) 49 (constant type)\n" + 
+				"        target type = 0x47 CAST\n" + 
+				"        offset = 24\n" + 
+				"        type argument index = 0\n" + 
+				"      )\n" + 
+				
+				// Maps to javac entry (4), location OK, target type OK, lvar diff, slight position difference (we seem to have an extra CHECKCAST)
+				"      #33 @Size(\n" + 
+				"        #34 max=(int) 42 (constant type)\n" + 
+				"        target type = 0x40 LOCAL_VARIABLE\n" + 
+				"        local variable entries:\n" + 
+				"          [pc: 6, pc: 28] index: 0\n" + 
+				"        location = [ARRAY]\n" + 
+				"      )\n" + 
+				
+				// Maps to javac entry (5), location OK, taret type OK, lvar diff, slight position difference (we seem to have an extra CHECKCAST)
+				"      #43 @Nonnull(\n" + 
+				"        target type = 0x40 LOCAL_VARIABLE\n" + 
+				"        local variable entries:\n" + 
+				"          [pc: 6, pc: 28] index: 0\n" + 
+				"        location = [ARRAY, ARRAY]\n" + 
+				"      )\n" + 
+				
+				// Maps to javac entry (6), location OK, target type OK,  slight position difference (we seem to have an extra CHECKCAST)
+				"      #33 @Size(\n" + 
+				"        #34 max=(int) 43 (constant type)\n" + 
+				"        target type = 0x40 LOCAL_VARIABLE\n" + 
+				"        local variable entries:\n" + 
+				"          [pc: 6, pc: 28] index: 0\n" + 
+				"        location = [ARRAY, ARRAY]\n" + 
+				"      )\n" + 
+				
+				// Maps to javac entry (7), location OK, target type OK, slight position difference (we seem to have an extra CHECKCAST)
+				"      #33 @Size(\n" + 
+				"        #34 max=(int) 41 (constant type)\n" + 
+				"        target type = 0x40 LOCAL_VARIABLE\n" + 
+				"        local variable entries:\n" + 
+				"          [pc: 6, pc: 28] index: 0\n" + 
+				"        location = [ARRAY, ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(0)]\n" + 
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	
+	public void testBug426616a() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n"+
+				"import java.lang.annotation.*;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.*;\n" +
+				"@Retention(RUNTIME)\n" + 
+				"@Target(TYPE_USE)\n" + 
+				"@interface SizeHolder { Size[] value();}\n"+
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@Repeatable(SizeHolder.class)\n"+
+				"@interface Size { int max(); }\n"+
+				"@Target(TYPE_USE)\n" + 
+				"@Retention(RUNTIME)\n" + 
+				"@interface Nonnull {}\n"+
+				"\n"+
+				"public class X {\n" + 
+				"   List<@Size(max = 41) CharSequence>[] @Size(max = 42) [] @Nonnull @Size(max = 43) [][] test = new @Size(max = 44) ArrayList @Size(max = 45) [10][][] @Size(max = 47) @Size(max = 48) [];\n" +
+				"   public static void main(String[]argv) {}\n"+
+				"}",
+		},
+		"");
+		
+		String expectedOutput =
+				"  // Field descriptor #6 [[[[Ljava/util/List;\n" + 
+				"  // Signature: [[[[Ljava/util/List<Ljava/lang/CharSequence;>;\n" + 
+				"  java.util.List[][][][] test;\n" + 
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #10 @Size(\n" + 
+				"        #11 max=(int) 42 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY]\n" + 
+				"      )\n" + 
+				"      #13 @Nonnull(\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY, ARRAY]\n" + 
+				"      )\n" + 
+				"      #10 @Size(\n" + 
+				"        #11 max=(int) 43 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY, ARRAY]\n" + 
+				"      )\n" + 
+				"      #10 @Size(\n" + 
+				"        #11 max=(int) 41 (constant type)\n" + 
+				"        target type = 0x13 FIELD\n" + 
+				"        location = [ARRAY, ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(0)]\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Method descriptor #17 ()V\n" + 
+				"  // Stack: 2, Locals: 1\n" + 
+				"  public X();\n" + 
+				"     0  aload_0 [this]\n" + 
+				"     1  invokespecial java.lang.Object() [19]\n" + 
+				"     4  aload_0 [this]\n" + 
+				"     5  bipush 10\n" + 
+				"     7  anewarray java.util.ArrayList[][][] [21]\n" + 
+				"    10  putfield X.test : java.util.List[][][][] [23]\n" + 
+				"    13  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 16]\n" + 
+				"        [pc: 4, line: 17]\n" + 
+				"        [pc: 13, line: 16]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 14] local: this index: 0 type: X\n" + 
+				"    RuntimeVisibleTypeAnnotations: \n" + 
+				"      #10 @Size(\n" + 
+				"        #11 max=(int) 44 (constant type)\n" + 
+				"        target type = 0x44 NEW\n" + 
+				"        offset = 7\n" + 
+				"        location = [ARRAY, ARRAY, ARRAY, ARRAY]\n" + 
+				"      )\n" + 
+				"      #10 @Size(\n" + 
+				"        #11 max=(int) 45 (constant type)\n" + 
+				"        target type = 0x44 NEW\n" + 
+				"        offset = 7\n" + 
+				"      )\n" + 
+				"      #31 @SizeHolder(\n" + 
+				"        #32 value=[\n" + 
+				"          annotation value =\n" + 
+				"              #10 @Size(\n" + 
+				"                #11 max=(int) 47 (constant type)\n" + 
+				"              )\n" + 
+				"          annotation value =\n" + 
+				"              #10 @Size(\n" + 
+				"                #11 max=(int) 48 (constant type)\n" + 
+				"              )\n" + 
+				"          ]\n" + 
+				"        target type = 0x44 NEW\n" + 
+				"        offset = 7\n" + 
+				"        location = [ARRAY, ARRAY, ARRAY]\n" + 
+				"      )\n" + 
+				"  \n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
 
 	public void testTypeVariable() {
 		runNegativeTest(
@@ -5565,7 +5782,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"public class X<@Missing T> {\n" +
 				"}\n"
 			},
-			"----------\n" + 
+			"----------\n" + 	
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public class X<@Missing T> {\n" + 
 			"	                ^^^^^^^\n" + 

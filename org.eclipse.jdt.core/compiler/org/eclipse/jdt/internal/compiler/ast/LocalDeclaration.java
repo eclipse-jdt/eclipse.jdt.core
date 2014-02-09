@@ -32,6 +32,7 @@
  *							Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *							Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
+ *							Bug 426616 - [1.8][compiler] Type Annotations, multiple problems 
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -176,13 +177,15 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	// for local variables
 	public void getAllAnnotationContexts(int targetType, LocalVariableBinding localVariable, List allAnnotationContexts) {
 		AnnotationCollector collector = new AnnotationCollector(this, targetType, localVariable, allAnnotationContexts);
-		this.traverse(collector, (BlockScope) null);
+		this.traverseWithoutInitializer(collector, (BlockScope) null);
 	}
+
 	// for arguments
 	public void getAllAnnotationContexts(int targetType, int parameterIndex, List allAnnotationContexts) {
 		AnnotationCollector collector = new AnnotationCollector(this, targetType, parameterIndex, allAnnotationContexts);
 		this.traverse(collector, (BlockScope) null);
 	}
+		
 	public boolean isArgument() {
 		return false;
 	}
@@ -306,4 +309,17 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		visitor.endVisit(this, scope);
 	}
+	
+	private void traverseWithoutInitializer(ASTVisitor visitor, BlockScope scope) {		
+		if (visitor.visit(this, scope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
+			this.type.traverse(visitor, scope);
+		}
+		visitor.endVisit(this, scope);
+	}
+
 }
