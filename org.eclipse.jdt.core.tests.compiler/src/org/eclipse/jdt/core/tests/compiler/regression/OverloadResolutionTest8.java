@@ -2356,4 +2356,24 @@ public void _test421922() {
 			},
 			"int ... = [1]");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427748, [1.8][compiler] Cannot convert from Boolean to boolean on generic return type 
+public void _test427748() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static void main(String [] args) {\n" +
+				"    getLog(doit(baction));\n" +
+				"  }\n" +
+				"  private static interface Action<T> {T run();}\n" +
+				"  private static Action<Boolean> baction = () -> true;\n" +
+				"  static void getLog(int override) {}\n" +
+				"  static void getLog(boolean override) {\n" +
+				"      System.out.println(\"OK\");\n" +
+				"  }\n" +
+				"  private static <T> T doit(Action<T> action) { return action.run(); }\n" +
+				"}\n",
+			},
+			"OK");
+}
 }
