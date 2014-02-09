@@ -4141,5 +4141,26 @@ public void test427736() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426836, [1.8] special handling for return type in references to method getClass() ? 
+public void test426836() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	static <T> T id(T t) {\n" +
+			"		return t;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Class<? extends String> id = id(new X().getClass());\n" +
+			"	}\n" +
+			"}\n" 
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	Class<? extends String> id = id(new X().getClass());\n" + 
+		"	                             ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Class<capture#1-of ? extends X> to Class<? extends String>\n" + 
+		"----------\n");
+}
 }
 
