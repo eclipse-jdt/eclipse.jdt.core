@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
+
 /**
  * Implementation of 18.1.3 in JLS8
  */
@@ -33,15 +35,24 @@ public class TypeBound extends ReductionResult {
 	/** Create a true type bound or a dependency. */
 	TypeBound(InferenceVariable inferenceVariable, TypeBinding typeBinding, int relation) {
 		this.left = inferenceVariable;
-		this.right = typeBinding != null && typeBinding.isLocalType() ? typeBinding.superclass() : typeBinding;
+		this.right = safeType(typeBinding);
 		this.relation = relation;
 	}
 	
 	TypeBound(InferenceVariable inferenceVariable, TypeBinding typeBinding, int relation, boolean isSoft) {
 		this.left = inferenceVariable;
-		this.right = typeBinding != null && typeBinding.isLocalType() ? typeBinding.superclass() : typeBinding;
+		this.right = safeType(typeBinding);
 		this.relation = relation;
 		this.isSoft = isSoft;
+	}
+	
+	private TypeBinding safeType(TypeBinding type) {
+		if (type != null && type.isLocalType()) {
+			MethodBinding enclosingMethod = ((LocalTypeBinding) type).enclosingMethod;
+			if (enclosingMethod != null && CharOperation.equals(TypeConstants.ANONYMOUS_METHOD, enclosingMethod.selector))
+				return type.superclass(); // don't use local class inside lambda: lambda is copied, type will be re-created and thus is unmatchable
+		}
+		return type;
 	}
 
 
