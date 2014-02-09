@@ -636,7 +636,7 @@ public class InferenceContext18 {
 	// null:  need the otherwise branch
 	private Boolean moreSpecificMain(TypeBinding si, TypeBinding ti, Expression expri) throws InferenceFailureException {
 		if (si.isProperType(true) && ti.isProperType(true)) {
-			return expri.sIsMoreSpecific(si, ti) ? Boolean.TRUE : Boolean.FALSE;
+			return expri.sIsMoreSpecific(si, ti, this.scope) ? Boolean.TRUE : Boolean.FALSE;
 		}
 		if (si.isFunctionalInterface(this.scope)) {
 			TypeBinding funcI = ti.original();

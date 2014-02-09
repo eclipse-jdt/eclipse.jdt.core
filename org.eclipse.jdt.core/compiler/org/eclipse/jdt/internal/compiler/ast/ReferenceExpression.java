@@ -769,9 +769,9 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		return isCompatible;
 	}
 	
-	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
+	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t, Scope scope) {
 		
-		if (super.sIsMoreSpecific(s, t))
+		if (super.sIsMoreSpecific(s, t, scope))
 			return true;
 		
 		if (this.exactMethodBinding == null || t.findSuperTypeOriginatingFrom(s) != null)
@@ -795,7 +795,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			return false;
 		
 		// r1 <: r2
-		if (r1.isCompatibleWith(r2))
+		if (r1.isCompatibleWith(r2, scope))
 			return true;
 		
 		return r1.isBaseType() != r2.isBaseType() && r1.isBaseType() == this.exactMethodBinding.returnType.isBaseType();

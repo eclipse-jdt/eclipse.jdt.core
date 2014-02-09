@@ -761,14 +761,25 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	}
 	
 	public boolean isCompatibleWith(TypeBinding left, Scope scope) {
-		return this.valueIfTrue.isCompatibleWith(left, scope) && this.valueIfFalse.isCompatibleWith(left, scope);
+		return isPolyExpression() ? this.valueIfTrue.isCompatibleWith(left, scope) && this.valueIfFalse.isCompatibleWith(left, scope) :
+			super.isCompatibleWith(left, scope);
 	}
 	
-	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
-		if (super.sIsMoreSpecific(s, t))
+	@Override
+	public boolean isBoxingCompatibleWith(TypeBinding targetType, Scope scope) {
+		// Note: compatibility check may have failed in just one arm and we may have reached here.
+		return isPolyExpression() ? (this.valueIfTrue.isCompatibleWith(targetType, scope) || 
+				                     this.valueIfTrue.isBoxingCompatibleWith(targetType, scope)) && 
+				                    (this.valueIfFalse.isCompatibleWith(targetType, scope) || 
+				                     this.valueIfFalse.isBoxingCompatibleWith(targetType, scope)) :
+			super.isBoxingCompatibleWith(targetType, scope);
+	}	
+	
+	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t, Scope scope) {
+		if (super.sIsMoreSpecific(s, t, scope))
 			return true;
 		return isPolyExpression() ?
-				this.valueIfTrue.sIsMoreSpecific(s, t) && this.valueIfFalse.sIsMoreSpecific(s, t):
+				this.valueIfTrue.sIsMoreSpecific(s, t, scope) && this.valueIfFalse.sIsMoreSpecific(s, t, scope):
 				false;
 	}
 	

@@ -928,8 +928,8 @@ public boolean isPolyExpression(MethodBinding resolutionCandidate) {
 	return false;
 }
 
-public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
-	if (super.sIsMoreSpecific(s, t))
+public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t, Scope scope) {
+	if (super.sIsMoreSpecific(s, t, scope))
 		return true;
 	return isPolyExpression() ? !s.isBaseType() && t.isBaseType() : false;
 }

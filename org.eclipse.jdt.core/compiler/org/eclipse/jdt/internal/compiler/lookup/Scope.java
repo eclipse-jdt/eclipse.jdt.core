@@ -627,7 +627,7 @@ public abstract class Scope {
 	 * Boxing primitive
 	 */
 	public TypeBinding boxing(TypeBinding type) {
-		if (type.isBaseType())
+		if (type.isBaseType() || type.kind() == Binding.POLY_TYPE)
 			return environment().computeBoxingType(type);
 		return type;
 	}
@@ -3568,7 +3568,7 @@ public abstract class Scope {
 
 		// check if autoboxed type is compatible
 		TypeBinding convertedType = environment.computeBoxingType(expressionType);
-		return TypeBinding.equalsEquals(convertedType, targetType) || convertedType.isCompatibleWith(targetType);
+		return TypeBinding.equalsEquals(convertedType, targetType) || convertedType.isCompatibleWith(targetType, this);
 	}
 
 	/* Answer true if the scope is nested inside a given field declaration.
@@ -4406,7 +4406,7 @@ public abstract class Scope {
 							TypeBinding t = InferenceContext18.getParameter(mbkParameters, i, levelk == VARARGS_COMPATIBLE); 
 							if (TypeBinding.equalsEquals(s, t))
 								continue;
-							if (!argumentType.sIsMoreSpecific(s,t)) {
+							if (!argumentType.sIsMoreSpecific(s,t, this)) {
 								continue nextJ;
 							}
 						}
@@ -4768,7 +4768,7 @@ public abstract class Scope {
 		if (arg.isCompatibleWith(param, this))
 			return COMPATIBLE;
 		
-		if (arg.isBaseType() != param.isBaseType()) {
+		if (arg.kind() == Binding.POLY_TYPE || (arg.isBaseType() != param.isBaseType())) {
 			TypeBinding convertedType = environment().computeBoxingType(arg);
 			if (TypeBinding.equalsEquals(convertedType, param) || convertedType.isCompatibleWith(param, this))
 				return AUTOBOX_COMPATIBLE;
@@ -4791,9 +4791,9 @@ public abstract class Scope {
 			*/
 			return NOT_COMPATIBLE;
 		}
-		if (arg.isBaseType() != param.isBaseType()) {
+		if (arg.kind() == Binding.POLY_TYPE || (arg.isBaseType() != param.isBaseType())) {
 			TypeBinding convertedType = env.computeBoxingType(arg);
-			if (TypeBinding.equalsEquals(convertedType, param) || convertedType.isCompatibleWith(param))
+			if (TypeBinding.equalsEquals(convertedType, param) || convertedType.isCompatibleWith(param, this))
 				return AUTOBOX_COMPATIBLE;
 		}
 		return NOT_COMPATIBLE;

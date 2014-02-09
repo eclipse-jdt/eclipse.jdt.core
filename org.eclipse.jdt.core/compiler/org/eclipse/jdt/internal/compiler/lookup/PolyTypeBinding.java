@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation and others.
+ * Copyright (c) 2013, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 public class PolyTypeBinding extends TypeBinding {
 
 	Expression expression;
+	boolean vanillaCompatibilty = true;
 	
 	public PolyTypeBinding(Expression expression) {
 		this.expression = expression;
@@ -34,7 +35,7 @@ public class PolyTypeBinding extends TypeBinding {
 	}
 
 	public boolean isCompatibleWith(TypeBinding left, Scope scope) {
-		return this.expression.isCompatibleWith(left, scope);
+		return this.vanillaCompatibilty ? this.expression.isCompatibleWith(left, scope) : this.expression.isBoxingCompatibleWith(left, scope);
 	}
 
 	public char[] qualifiedSourceName() {
@@ -49,8 +50,8 @@ public class PolyTypeBinding extends TypeBinding {
 		return this.expression.printExpression(0,  new StringBuffer()).toString().toCharArray();
 	}
 	
-	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
-		return this.expression.sIsMoreSpecific(s, t);
+	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t, Scope scope) {
+		return this.expression.sIsMoreSpecific(s, t, scope);
 	}
 	
 	public String toString() {
@@ -60,5 +61,11 @@ public class PolyTypeBinding extends TypeBinding {
 	
 	public int kind() {
 		return Binding.POLY_TYPE;
+	}
+
+	public TypeBinding computeBoxingType() {
+		PolyTypeBinding type = new PolyTypeBinding(this.expression);
+		type.vanillaCompatibilty = !this.vanillaCompatibilty;
+		return type;
 	}
 }

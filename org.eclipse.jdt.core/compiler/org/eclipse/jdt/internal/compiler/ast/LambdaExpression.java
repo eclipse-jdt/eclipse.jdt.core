@@ -853,11 +853,11 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		return copy;
 	}
 
-	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
+	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t, Scope skope) {
 		
 		// 15.12.2.5 
 		
-		if (super.sIsMoreSpecific(s, t))
+		if (super.sIsMoreSpecific(s, t, skope))
 			return true;
 		
 		if (argumentsTypeElided() || t.findSuperTypeOriginatingFrom(s) != null)
@@ -880,7 +880,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			return false;
 		
 		// r1 <: r2
-		if (r1.isCompatibleWith(r2))
+		if (r1.isCompatibleWith(r2, skope))
 			return true;
 		
 		Expression [] returnExpressions = this.resultExpressions;
@@ -907,7 +907,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if (r1.isFunctionalInterface(this.enclosingScope) && r2.isFunctionalInterface(this.enclosingScope)) {
 			for (i = 0; i < returnExpressionsLength; i++) {
 				Expression resultExpression = returnExpressions[i];
-				if (!resultExpression.sIsMoreSpecific(r1, r2))
+				if (!resultExpression.sIsMoreSpecific(r1, r2, skope))
 					break;
 			}
 			if (i == returnExpressionsLength)

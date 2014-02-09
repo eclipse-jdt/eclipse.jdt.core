@@ -3192,6 +3192,27 @@ public void test427627() {
 			"Test\n0"
 			);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427744, [1.8][compiler][regression] Issue with boxing compatibility in poly conditional
+public void test427744() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {   \n" +
+				"    public static void main(String argv[]) {\n" +
+				"        int i = ((I) (x) -> { return 999; }).foo(true ? 0 : (Comparable) null);\n" +
+				"        System.out.println(i);\n" +
+				"    }\n" +
+				"    interface I {\n" +
+				"        int foo (Comparable arg); \n" +
+				"        default int foo (Object arg) { \n" +
+				"            return 0;\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"999"
+			);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

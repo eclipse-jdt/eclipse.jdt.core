@@ -71,6 +71,11 @@ public abstract class FunctionalExpression extends Expression {
 		super();
 	}
 	
+	// for lambda's and reference expressions boxing compatibility is same as vanilla compatibility.
+	public boolean isBoxingCompatibleWith(TypeBinding targetType, Scope scope) {
+		return isCompatibleWith(targetType, scope);
+	}
+	
 	public void setCompilationResult(CompilationResult compilationResult) {
 		this.compilationResult = compilationResult;
 	}

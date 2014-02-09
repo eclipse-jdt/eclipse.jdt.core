@@ -1161,8 +1161,12 @@ public boolean isCompatibleWith(TypeBinding left, Scope scope) {
 	return this.resolvedType != null && this.resolvedType.isCompatibleWith(left,  scope);
 }
 
-public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
-	return s.isCompatibleWith(t);
+public boolean isBoxingCompatibleWith(TypeBinding left, Scope scope) {
+	return isBoxingCompatible(this.resolvedType, left, this, scope);
+}
+
+public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t, Scope scope) {
+	return s.isCompatibleWith(t, scope);
 }
 
 public void tagAsEllipsisArgument() {

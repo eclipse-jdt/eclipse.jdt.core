@@ -1527,8 +1527,8 @@ public boolean hasTypeBit(int bit) {
 	return false;
 }
 
-public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t) {
-	return s.isCompatibleWith(t) && !s.needsUncheckedConversion(t);
+public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t, Scope scope) {
+	return s.isCompatibleWith(t, scope) && !s.needsUncheckedConversion(t);
 }
 
 public MethodBinding[] getMethods(char[] selector) {
