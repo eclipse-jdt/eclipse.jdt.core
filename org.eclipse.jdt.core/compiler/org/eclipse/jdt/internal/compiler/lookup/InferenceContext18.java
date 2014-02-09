@@ -378,6 +378,7 @@ public class InferenceContext18 {
 	public BoundSet inferInvocationType(BoundSet b1, TypeBinding expectedType, InvocationSite invocationSite, MethodBinding method)
 			throws InferenceFailureException 
 	{
+		BoundSet previous = this.currentBounds.copy();
 		this.currentBounds = b1;
 		try {
 			// bullets 1&2: definitions only.
@@ -432,8 +433,10 @@ public class InferenceContext18 {
 			}
 			// 6. bullet: solve
 			BoundSet solution = solve();
-			if (solution == null || !isResolved(solution))
+			if (solution == null || !isResolved(solution)) {
+				this.currentBounds = previous; // don't let bounds from unsuccessful attempt leak into subsequent attempts
 				return null;
+			}
 			// we're done, start reporting:
 			reportUncheckedConversions(solution);
 			return this.currentBounds = solution; // this is final, keep the result:

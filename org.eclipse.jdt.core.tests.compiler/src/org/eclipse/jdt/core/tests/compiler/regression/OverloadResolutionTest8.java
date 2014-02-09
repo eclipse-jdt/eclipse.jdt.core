@@ -2357,7 +2357,7 @@ public void _test421922() {
 			"int ... = [1]");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427748, [1.8][compiler] Cannot convert from Boolean to boolean on generic return type 
-public void _test427748() {
+public void test427748() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
