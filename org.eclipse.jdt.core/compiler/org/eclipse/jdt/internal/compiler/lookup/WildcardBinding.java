@@ -19,6 +19,7 @@
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *								Bug 426676 - [1.8][compiler] Wrong generic method type inferred from lambda expression
+ *								Bug 427411 - [1.8][generics] JDT reports type mismatch when using method that returns generic type
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -592,14 +593,7 @@ public class WildcardBinding extends ReferenceBinding {
 		}
 		haveSubstitution |= currentOtherBounds != null;
 		if (haveSubstitution) {
-			WildcardBinding newWild = new WildcardBinding(this.genericType, 
-					this.rank,
-					currentBound,
-					currentOtherBounds,
-					this.boundKind,
-					this.environment);
-			newWild.tagBits = this.tagBits;
-			return newWild;
+			return this.environment.createWildcard(this.genericType, this.rank, currentBound, currentOtherBounds, this.boundKind);
 		}
 		return this;
 	}

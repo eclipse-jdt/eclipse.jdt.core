@@ -4001,8 +4001,6 @@ public void testBug427438c3() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427411, [1.8][generics] JDT reports type mismatch when using method that returns generic type 
 public void test427411() {
-	if (this.complianceLevel == ClassFileConstants.JDK1_8)
-		return;
 	runNegativeTest(
 		new String[] {
 			"X.java",
