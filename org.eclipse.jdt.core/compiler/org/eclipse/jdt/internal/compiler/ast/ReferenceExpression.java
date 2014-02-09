@@ -340,7 +340,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     					scope.problemReporter().illegalUsageOfWildcard(typeReference);
     				}
     			}
-    			if (this.typeArgumentsHaveErrors)
+    			if (this.typeArgumentsHaveErrors || lhsType == null)
     				return this.resolvedType = null;
     			if (isConstructorReference() && lhsType.isRawType()) {
     				scope.problemReporter().rawConstructorReferenceNotWithExplicitTypeArguments(this.typeArguments);
@@ -348,9 +348,9 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     			}
     		}
     	} else {
-    		if (this.typeArgumentsHaveErrors)
-				return this.resolvedType = null;
     		lhsType = this.lhs.resolvedType;
+    		if (this.typeArgumentsHaveErrors || lhsType == null)
+				return this.resolvedType = null;
     	}
 
     	if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {

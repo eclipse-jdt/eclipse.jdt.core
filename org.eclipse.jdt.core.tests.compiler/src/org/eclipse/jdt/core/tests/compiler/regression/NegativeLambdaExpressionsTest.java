@@ -8409,7 +8409,7 @@ public void test425278() {
 		"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" + 
 		"----------\n");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=427265, - [1.8][compiler] Type inference with anonymous classes 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427265, - [1.8][compiler] Type inference with anonymous classes 
 public void test427265() {
 	runNegativeTest(
 		new String[] {
@@ -8424,6 +8424,56 @@ public void test427265() {
 			"}\n"
 		},
 		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427749, - [1.8][compiler]NullPointerException in ReferenceExpression.resolveType
+public void test427749() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"    void foo(X<String> y);\n" +
+			"}\n" +
+			"public class X<T> {\n" +
+			"    class Z<K> {\n" +
+			"        Z(X<String> y) {\n" +
+			"            System.out.println(\"Y<T>.Z<K>::new\");\n" +
+			"        }\n" +
+			"        public void bar() {\n" +
+			"            I i = Y<String>.Z<Integer>::<String> new;\n" +
+			"            i.foo(new Y<String>());\n" +
+			"        }\n" +
+			"    }\n" +
+			"	public void foo() {\n" +
+			"		Z<String> z = new Z<String>(null);\n" +
+			"		z.bar();\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Y<String> y = new Y<String>();\n" +
+			"		y.foo();\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	I i = Y<String>.Z<Integer>::<String> new;\n" + 
+		"	      ^\n" + 
+		"Y cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	i.foo(new Y<String>());\n" + 
+		"	          ^\n" + 
+		"Y cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 19)\n" + 
+		"	Y<String> y = new Y<String>();\n" + 
+		"	^\n" + 
+		"Y cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 19)\n" + 
+		"	Y<String> y = new Y<String>();\n" + 
+		"	                  ^\n" + 
+		"Y cannot be resolved to a type\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
