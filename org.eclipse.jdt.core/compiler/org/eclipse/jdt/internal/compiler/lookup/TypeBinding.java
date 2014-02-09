@@ -520,14 +520,14 @@ public final boolean isBaseType() {
 
 /* Answer true if the receiver is a base type other than void or null
  */
-public final boolean isNormalBaseType() {
+public final boolean isPrimitiveType() {
 	return (this.tagBits & TagBits.IsBaseType) != 0 && this.id != TypeIds.T_void && this.id != TypeIds.T_null;
 }
 
 /* Answer true if the receiver is a primitive type or a boxed primitive type
  */
 public final boolean isPrimitiveOrBoxedPrimitiveType() {
-	if ((this.tagBits & TagBits.IsBaseType) != 0)
+	if (isPrimitiveType())
 		return true;
 	switch (this.id) {
 		case TypeIds.T_JavaLangBoolean :

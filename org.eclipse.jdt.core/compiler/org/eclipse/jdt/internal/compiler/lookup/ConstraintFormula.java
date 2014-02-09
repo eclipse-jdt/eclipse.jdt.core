@@ -38,13 +38,13 @@ abstract class ConstraintFormula extends ReductionResult {
 	protected boolean isCompatibleWithInLooseInvocationContext(TypeBinding one, TypeBinding two, InferenceContext18 context) {
 		if (one.isCompatibleWith(two, context.scope))
 			return true;
-		if (one.isNormalBaseType()) {
+		if (one.isPrimitiveType()) {
 			if (!two.isBaseType()) {
 				TypeBinding boxingType = context.environment.computeBoxingType(one);
 				if (boxingType != one) //$IDENTITY-COMPARISON$ just checking if boxing could help
 					return boxingType.isCompatibleWith(two, context.scope);
 			}
-		} else if (two.isNormalBaseType()) {
+		} else if (two.isPrimitiveType()) {
 			TypeBinding boxingType = context.environment.computeBoxingType(two);
 			if (boxingType != two) //$IDENTITY-COMPARISON$ just checking if boxing could help
 				return one.isCompatibleWith(boxingType, context.scope);

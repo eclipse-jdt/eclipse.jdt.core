@@ -687,19 +687,19 @@ public class InferenceContext18 {
 				}
 				return true;
 			}
-			checkPrimitive1: if (r1.isNormalBaseType() && !r2.isNormalBaseType()) {
+			checkPrimitive1: if (r1.isPrimitiveType() && !r2.isPrimitiveType()) {
 				// check: each result expression is a standalone expression of a primitive type
 				for (int i = 0; i < results.length; i++) {
-					if (results[i].isPolyExpression() || (results[i].resolvedType != null && !results[i].resolvedType.isNormalBaseType()))
+					if (results[i].isPolyExpression() || (results[i].resolvedType != null && !results[i].resolvedType.isPrimitiveType()))
 						break checkPrimitive1;
 				}
 				return true;
 			}
-			checkPrimitive2: if (r2.isNormalBaseType() && !r1.isNormalBaseType()) {
+			checkPrimitive2: if (r2.isPrimitiveType() && !r1.isPrimitiveType()) {
 				for (int i = 0; i < results.length; i++) {
 					// for all expressions (not for any expression not)
 					if (!(
-							(!results[i].isPolyExpression() && (results[i].resolvedType != null && !results[i].resolvedType.isNormalBaseType())) // standalone of a referencetype
+							(!results[i].isPolyExpression() && (results[i].resolvedType != null && !results[i].resolvedType.isPrimitiveType())) // standalone of a referencetype
 							|| results[i].isPolyExpression()))	// or a poly
 						break checkPrimitive2;
 				}
@@ -715,9 +715,9 @@ public class InferenceContext18 {
 					return true;
 				MethodBinding method = reference.findCompileTimeMethodTargeting(null, this.scope); // TODO directly access exactMethodBinding!
 				TypeBinding returnType = method.isConstructor() ? method.declaringClass : method.returnType;
-				if (r1.isNormalBaseType() && !r2.isNormalBaseType() && returnType.isNormalBaseType()) 
+				if (r1.isPrimitiveType() && !r2.isPrimitiveType() && returnType.isPrimitiveType()) 
 					return true;
-				if (r2.isNormalBaseType() && !r1.isNormalBaseType() && !returnType.isNormalBaseType())
+				if (r2.isPrimitiveType() && !r1.isPrimitiveType() && !returnType.isPrimitiveType())
 					return true;
 			}
 			return reduceAndIncorporate(new ConstraintTypeFormula(r1, r2, ReductionResult.SUBTYPE));
