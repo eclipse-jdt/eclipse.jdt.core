@@ -2376,4 +2376,25 @@ public void test427748() {
 			},
 			"OK");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427808, [1.8] Correct super() invocation is not inferred when argument is a conditional expression 
+public void test427808() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X extends Foo {\n" +
+				"	public X(I i) {\n" +
+				"		super(i != null ?  i.toString() : null);\n" +
+				"    }\n" +
+				"   public static void main(String [] args) {\n" +
+				"       new X(null);\n" +
+				"   }\n" +
+				"}\n" +
+				"class Foo implements I {\n" +
+				"	Foo(I i) {}\n" +
+				"	Foo(String string){ System.out.println(\"OK\"); }\n" +
+				"}\n" +
+				"interface I {}\n",
+			},
+			"OK");
+}
 }
