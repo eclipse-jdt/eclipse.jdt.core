@@ -53,6 +53,7 @@ import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.TryStatement;
@@ -2327,5 +2328,35 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		type = fragment.getInitializer().resolveTypeBinding();
 		assertTrue(type.getTypeAnnotations().length == 0);
 		assertTrue(type.getName().equals("Inner"));
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425216, Bug 425216 - [1.8][dom ast] Binding for 'this' should have type annotations when receiver is annotated
+	public void test425216b() throws CoreException, IOException {
+		String contents = 
+				"import java.lang.annotation.*;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface A {\n" +
+				"    int value() default 0;\n" +
+				"}\n" +
+				"public class Outer {\n" +
+				"    class Middle {\n" +
+				"    	class Inner {\n" +
+				"    		public @A(1) Inner(@A(2) Outer.@A(3) Middle Middle.this) {\n" +
+				"    		}\n" +
+				"    	}\n" +
+				"    }\n" +
+				"}\n";
+		
+		this.workingCopy = getWorkingCopy("/Converter18/src/Outer.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		List types = compilationUnit.types();
+		assertEquals("Incorrect no of types", 2, types.size());
+		TypeDeclaration typeDecl = (TypeDeclaration) types.get(1);
+		MethodDeclaration method= typeDecl.getTypes()[0].getTypes()[0].getMethods()[0];
+		SimpleName receiverQualifier = method.getReceiverQualifier();
+		ITypeBinding type = receiverQualifier.resolveTypeBinding();
+		assertEquals("@A((int)2) Outer.@A((int)3) Middle", type.toString());
 	}
 }
