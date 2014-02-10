@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -116,7 +116,19 @@ public class QualifiedThisReference extends ThisReference {
 		if (depth == 0) {
 			checkAccess(scope, null);
 		} // if depth>0, path emulation will diagnose bad scenarii
-
+		
+		MethodScope methodScope = scope.namedMethodScope();
+		if (methodScope != null) {
+			MethodBinding method = methodScope.referenceMethodBinding();
+			if (method != null) {
+				TypeBinding receiver = method.receiver;
+				while (receiver != null) {
+					if (TypeBinding.equalsEquals(receiver, this.resolvedType))
+						return this.resolvedType = receiver;
+					receiver = receiver.enclosingType();	
+				}
+			}
+		}
 		return this.resolvedType;
 	}
 

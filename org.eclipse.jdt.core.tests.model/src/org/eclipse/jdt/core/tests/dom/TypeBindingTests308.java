@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM Corporation and others.
+ * Copyright (c) 2013, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,7 +52,9 @@ import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.QualifiedType;
+import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -2247,5 +2249,83 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		assertEquals("Incorrect no of methods", 1, fields.length);
 		FieldDeclaration field = fields[0];
 		assertEquals("Object ax=new @A(1) Outer().new @A(2) Middle<@A(3) String>();\n", field.toString());
-	}	
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425216, Bug 425216 - [1.8][dom ast] Binding for 'this' should have type annotations when receiver is annotated
+	public void test425216() throws CoreException, IOException {
+		String contents = 
+				"import static java.lang.annotation.ElementType.TYPE_USE;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface NonNull {}\n" +
+				"public class X {\n" +
+				"   X foo(@NonNull X this) {\n" +
+				"	   return this;\n" +
+				"   }\n" +
+				"}\n";
+		
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		List types = compilationUnit.types();
+		assertEquals("Incorrect no of types", 2, types.size());
+		TypeDeclaration typeDecl = (TypeDeclaration) types.get(1);
+		MethodDeclaration[] methods = typeDecl.getMethods();
+		assertEquals("Incorrect no of methods", 1, methods.length);
+		MethodDeclaration method = methods[0];
+		ReturnStatement statement = (ReturnStatement) method.getBody().statements().get(0);
+		ThisExpression expression = (ThisExpression) statement.getExpression();
+		ITypeBinding type = expression.resolveTypeBinding();
+		assertEquals("@NonNull X", type.toString());
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425216, Bug 425216 - [1.8][dom ast] Binding for 'this' should have type annotations when receiver is annotated
+	public void test425216a() throws CoreException, IOException {
+		String contents = 
+				"import java.lang.annotation.*;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface A {\n" +
+				"    int value() default 0;\n" +
+				"}\n" +
+				"public class Outer {\n" +
+				"    class Middle {\n" +
+				"    	class Inner {\n" +
+				"    		public @A(1) Inner(@A(2) Outer.@A(3) Middle Middle.this) {\n" +
+				"    			Outer r1 = Outer.this;\n" +
+				"    			Outer.Middle middle = Outer.Middle.this;\n" +
+				"    			Inner i = this;\n" +
+				"    		}\n" +
+				"    	}\n" +
+				"    }\n" +
+				"}\n";
+		
+		this.workingCopy = getWorkingCopy("/Converter18/src/Outer.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		List types = compilationUnit.types();
+		assertEquals("Incorrect no of types", 2, types.size());
+		TypeDeclaration typeDecl = (TypeDeclaration) types.get(1);
+		MethodDeclaration method= typeDecl.getTypes()[0].getTypes()[0].getMethods()[0];
+		ITypeBinding receiverType = method.getReceiverType().resolveBinding();
+		assertEquals("@A((int)2) Outer.@A((int)3) Middle", receiverType.toString());
+		ITypeBinding declaringClass = receiverType.getDeclaringClass();
+		assertEquals("@A((int)2) Outer", declaringClass.toString());
+		final List statements = method.getBody().statements();
+		VariableDeclarationStatement statement = ((VariableDeclarationStatement) statements.get(0));
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+		ITypeBinding type = fragment.getInitializer().resolveTypeBinding();
+		assertEquals("@A((int)2) Outer", type.toString());
+		statement = ((VariableDeclarationStatement) statements.get(1));
+		fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+		type = fragment.getInitializer().resolveTypeBinding();
+		assertEquals("@A((int)2) Outer.@A((int)3) Middle", type.toString());
+		assertEquals("@A((int)2) Outer", type.getDeclaringClass().toString());
+		statement = ((VariableDeclarationStatement) statements.get(2));
+		fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+		type = fragment.getInitializer().resolveTypeBinding();
+		assertTrue(type.getTypeAnnotations().length == 0);
+		assertTrue(type.getName().equals("Inner"));
+	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -138,7 +138,14 @@ public class ThisReference extends Reference {
 		if (!isImplicitThis() &&!checkAccess(scope, enclosingReceiverType)) {
 			return null;
 		}
-		return this.resolvedType = enclosingReceiverType;
+		this.resolvedType = enclosingReceiverType;
+		MethodScope methodScope = scope.namedMethodScope();
+		if (methodScope != null) {
+			MethodBinding method = methodScope.referenceMethodBinding();
+			if (method != null && method.receiver != null && TypeBinding.equalsEquals(method.receiver, this.resolvedType))
+				this.resolvedType = method.receiver;
+		}
+		return this.resolvedType;
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
