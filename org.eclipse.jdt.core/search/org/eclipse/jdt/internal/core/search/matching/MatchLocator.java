@@ -2325,6 +2325,8 @@ protected void reportMatching(AbstractMethodDeclaration method, TypeDeclaration 
  * @param otherElements TODO
  */
 protected void reportMatching(Annotation[] annotations, IJavaElement enclosingElement, IJavaElement[] otherElements, Binding elementBinding, MatchingNodeSet nodeSet, boolean matchedContainer, boolean enclosesElement) throws CoreException {
+	if (annotations == null)
+		return;
 	for (int i=0, al=annotations.length; i<al; i++) {
 		Annotation annotationType = annotations[i];
 		IJavaElement localAnnotation = null;
@@ -2720,7 +2722,9 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 		if (superClass != null) {
 			reportMatchingSuper(superClass, enclosingElement, type.binding, nodeSet, matchedClassContainer);
 			for (int i = 0, length = superClass.annotations == null ? 0 : superClass.annotations.length; i < length; i++) {
-				reportMatching(superClass.annotations[i], enclosingElement, null, type.binding, nodeSet, matchedClassContainer, enclosesElement);	
+				Annotation[] annotations = superClass.annotations[i];
+				if (annotations == null) continue;
+				reportMatching(annotations, enclosingElement, null, type.binding, nodeSet, matchedClassContainer, enclosesElement);	
 			}
 		}
 		TypeReference[] superInterfaces = type.superInterfaces;
@@ -2728,9 +2732,11 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 			for (int i = 0, l = superInterfaces.length; i < l; i++) {
 				reportMatchingSuper(superInterfaces[i], enclosingElement, type.binding, nodeSet, matchedClassContainer);
 				TypeReference typeReference  = type.superInterfaces[i];
-				if (typeReference != null &&  typeReference.annotations != null) {
-					for (int j = 0, length = typeReference.annotations.length; j < length; j++) {
-						reportMatching(typeReference.annotations[j], enclosingElement, null, type.binding, nodeSet, matchedClassContainer, enclosesElement);	
+				Annotation[][] annotations = typeReference != null ? typeReference.annotations : null;
+				if (annotations != null) {
+					for (int j = 0, length = annotations.length; j < length; j++) {
+						if (annotations[j] == null) continue;
+						reportMatching(annotations[j], enclosingElement, null, type.binding, nodeSet, matchedClassContainer, enclosesElement);	
 					}
 				}			
 			}

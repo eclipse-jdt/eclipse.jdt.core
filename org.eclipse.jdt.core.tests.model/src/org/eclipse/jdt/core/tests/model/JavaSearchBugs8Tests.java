@@ -98,6 +98,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("testBug424119_002"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug424119_003"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug427537a"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug427677"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -1751,6 +1752,31 @@ public void testBug427537a() throws CoreException {
 		"src/b427537/X.java void b427537.X.main(String[]) [I] EXACT_MATCH\n" +
 		"src/b427537/X.java void b427537.X.main(String[]) [I] EXACT_MATCH"
 	);
+}
+/**
+ * @bug 427677: [1.8][search] NPE in MatchLocator.reportMatching with unresolved NameQualifiedType qualifier
+ * @test test
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=427677"
+ */
+public void testBug427677() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b427677/X.java",
+			"import java.lang.annotation.*; \n" +
+			"class X implements unresolved. @Marker1 Collection<Integer> { } \n" +
+			"@Target (ElementType.TYPE_USE) \n" +
+			"@interface Marker1 {}"
+	);
+	SearchPattern pattern = SearchPattern.createPattern(
+		"Marker1",
+		ANNOTATION_TYPE,
+		REFERENCES,
+		EXACT_RULE);
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults("src/b427677/X.java b427677.X [Marker1] EXACT_MATCH");
 }
 // Add new tests in JavaSearchBugs8Tests
 }
