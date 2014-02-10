@@ -6581,41 +6581,5 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"OK",
 			customOptions);		
 	}
-	public void testDisassemblyOf308() throws Exception { // in DETAILED mode type annotations should show up.
-		this.runConformTest(
-				new String[] {
-					"X.java",
-					"import java.lang.annotation.*;\n" +
-					"import static java.lang.annotation.ElementType.*;\n" +
-					"@Retention(RetentionPolicy.RUNTIME)\n" +
-					"@Target(TYPE_USE)\n" +
-					"@interface Marker {}\n" +
-					"public class X extends @Marker Object {}\n",					
-				},
-				"");
-		// javac-b81: 9[0 1 0 0 0 0 13 0 0]  (13=Marker annotation)
-		String expectedOutput =
-				"// Compiled from X.java (version 1.8 : 52.0, super bit)\n" + 
-				"\n" + 
-				"  RuntimeVisibleTypeAnnotations: \n" + 
-				"    #17 @Marker(\n" + 
-				"      target type = 0x10 CLASS_EXTENDS\n" + 
-				"      type index = -1\n" + 
-				"    )public class X {\n" + 
-				"  \n" + 
-				"  // Method descriptor #6 ()V\n" + 
-				"  // Stack: 1, Locals: 1\n" + 
-				"  public X();\n" + 
-				"    0  aload_0 [this]\n" + 
-				"    1  invokespecial java.lang.Object() [8]\n" + 
-				"    4  return\n" + 
-				"      Line numbers:\n" + 
-				"        [pc: 0, line: 6]\n" + 
-				"      Local variable table:\n" + 
-				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-				"\n" + 
-				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
-	}
 }
 

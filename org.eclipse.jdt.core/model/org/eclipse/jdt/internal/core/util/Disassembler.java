@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -612,9 +612,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		char[] methodDescriptor = methodInfo.getDescriptor();
 		final IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
 		final IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
-		final IClassFileAttribute runtimeVisibleTypeAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
-		final IClassFileAttribute runtimeInvisibleTypeAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
-		
 		// disassemble compact version of annotations
 		if (runtimeInvisibleAnnotationsAttribute != null) {
 			disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
@@ -624,13 +621,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 			writeNewLine(buffer, lineSeparator, tabNumber);
 		}
-		if (runtimeVisibleTypeAnnotationsAttribute != null) {
-			disassemble((IRuntimeVisibleTypeAnnotationsAttribute) runtimeVisibleTypeAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
-		}
-		if (runtimeInvisibleTypeAnnotationsAttribute != null) {
-			disassemble((IRuntimeInvisibleTypeAnnotationsAttribute) runtimeInvisibleTypeAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
-		}
-		
 		final int accessFlags = methodInfo.getAccessFlags();
 		decodeModifiersForMethod(buffer, accessFlags & IModifierConstants.ACC_PRIVATE);
 		CharOperation.replace(methodDescriptor, '/', '.');
@@ -743,12 +733,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
-			if (runtimeVisibleTypeAnnotationsAttribute != null) {
-				disassemble((IRuntimeVisibleTypeAnnotationsAttribute) runtimeVisibleTypeAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
-			}
-			if (runtimeInvisibleTypeAnnotationsAttribute != null) {
-				disassemble((IRuntimeInvisibleTypeAnnotationsAttribute) runtimeInvisibleTypeAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
- 			}
 		}
 		final int accessFlags = methodInfo.getAccessFlags();
 		decodeModifiersForMethod(buffer, accessFlags);
@@ -1079,12 +1063,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, 0, mode);
 				writeNewLine(buffer, lineSeparator, 0);
 			}
-			if (runtimeVisibleTypeAnnotationsAttribute != null) {
-				disassemble((IRuntimeVisibleTypeAnnotationsAttribute) runtimeVisibleTypeAnnotationsAttribute, buffer, lineSeparator, 0, mode);
-			}
-			if (runtimeInvisibleTypeAnnotationsAttribute != null) {
-				disassemble((IRuntimeInvisibleTypeAnnotationsAttribute) runtimeInvisibleTypeAnnotationsAttribute, buffer, lineSeparator, 0, mode);
- 			}
 		}
 		boolean decoded = false;
 		if (isEnum && checkMode(mode, WORKING_COPY)) {
@@ -1798,9 +1776,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		writeNewLine(buffer, lineSeparator, tabNumber);
 		final IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
 		final IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
-		final IClassFileAttribute runtimeVisibleTypeAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
-		final IClassFileAttribute runtimeInvisibleTypeAnnotationsAttribute = Util.getAttribute(fieldInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
-		
 		// disassemble compact version of annotations
 		if (runtimeInvisibleAnnotationsAttribute != null) {
 			disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
@@ -1809,12 +1784,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		if (runtimeVisibleAnnotationsAttribute != null) {
 			disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 			writeNewLine(buffer, lineSeparator, tabNumber);
-		}
-		if (runtimeVisibleTypeAnnotationsAttribute != null) {
-			disassemble((IRuntimeVisibleTypeAnnotationsAttribute) runtimeVisibleTypeAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
-		}
-		if (runtimeInvisibleTypeAnnotationsAttribute != null) {
-			disassemble((IRuntimeInvisibleTypeAnnotationsAttribute) runtimeInvisibleTypeAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 		}
 		buffer.append(new String(fieldInfo.getName()));
 		buffer.append('(');
@@ -1889,12 +1858,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
-			if (runtimeVisibleTypeAnnotationsAttribute != null) {
-				disassemble((IRuntimeVisibleTypeAnnotationsAttribute) runtimeVisibleTypeAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
-			}
-			if (runtimeInvisibleTypeAnnotationsAttribute != null) {
-				disassemble((IRuntimeInvisibleTypeAnnotationsAttribute) runtimeInvisibleTypeAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
- 			}
 		}
 		if (checkMode(mode, WORKING_COPY)) {
 			decodeModifiersForFieldForWorkingCopy(buffer, fieldInfo.getAccessFlags());
