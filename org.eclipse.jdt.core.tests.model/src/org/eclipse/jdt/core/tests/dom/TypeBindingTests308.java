@@ -2027,8 +2027,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			assertEquals("Annotation mismatch", "@T(value = 28)", annotations[0].toString());
 			
 			annotations = typeDecl.getMethods()[1].resolveBinding().getAnnotations();
-			assertTrue("Should be 1", annotations.length == 1);
-			assertEquals("Annotation mismatch", "@T(value = 29)", annotations[0].toString());
+			assertTrue("Should be 0", annotations.length == 0);
 			
 			annotations = typeDecl.getTypes()[0].resolveBinding().getAnnotations();
 			assertTrue("Should be 1", annotations.length == 1);
@@ -2070,8 +2069,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			assertEquals("Annotation mismatch", "@T(value = 8)", annotations[0].toString());
 			
 			annotations = typeBinding.getSuperclass().getDeclaredMethods()[0].getAnnotations();
-			assertTrue("Should be 1", annotations.length == 1);
-			assertEquals("Annotation mismatch", "@T(value = 9)", annotations[0].toString());
+			assertTrue("Should be 0", annotations.length == 0);
 			
 			annotations = typeBinding.getSuperclass().getDeclaredTypes()[0].getAnnotations();
 			assertTrue("Should be 1", annotations.length == 1);
@@ -2358,5 +2356,54 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		SimpleName receiverQualifier = method.getReceiverQualifier();
 		ITypeBinding type = receiverQualifier.resolveTypeBinding();
 		assertEquals("@A((int)2) Outer.@A((int)3) Middle", type.toString());
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427320
+	public void testBug427320() throws Exception {
+		try {
+			String contents = 
+					"public class X {\n" +
+					"	@A @B @C X() {}\n" +
+					"	@A @B @C String foo() {\nreturn null;\n}\n" +
+					"}\n" +
+					"@java.lang.annotation.Target ({java.lang.annotation.ElementType.CONSTRUCTOR, "
+													+ "java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE_USE})\n" +
+					"@interface A {}\n" +
+					"@java.lang.annotation.Target ({java.lang.annotation.ElementType.CONSTRUCTOR, "
+													+ "java.lang.annotation.ElementType.METHOD})\n" +
+					"@interface B {}\n" +
+					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@interface C {}\n";
+		
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		List types = compilationUnit.types();
+		TypeDeclaration typeDecl = (TypeDeclaration) types.get(0);
+		MethodDeclaration method = typeDecl.getMethods()[0];
+		assertTrue("Should be a constructor", method.isConstructor());
+		IMethodBinding methodBinding = method.resolveBinding();
+		IAnnotationBinding[] annots = methodBinding.getAnnotations();
+		assertEquals("Incorrect no of annotations", 2, annots.length);
+		assertEquals("Incorrect annotations attached","@A()", annots[0].toString());
+		assertEquals("Incorrect annotations attached","@B()", annots[1].toString());
+		ITypeBinding binding = methodBinding.getReturnType();
+		annots = binding.getTypeAnnotations();
+		assertEquals("Incorrect no of annotations", 0, annots.length);
+		
+		method = typeDecl.getMethods()[1];
+		methodBinding = method.resolveBinding();
+		annots = methodBinding.getAnnotations();
+		assertEquals("Incorrect no of annotations", 2, annots.length);
+		assertEquals("Incorrect annotations attached","@A()", annots[0].toString());
+		assertEquals("Incorrect annotations attached","@B()", annots[1].toString());
+		binding = methodBinding.getReturnType();
+		annots = binding.getTypeAnnotations();
+		assertEquals("Incorrect no of annotations", 2, annots.length);
+		assertEquals("Incorrect annotations attached","@A @C String", binding.toString());
+		} finally {
+			deleteFile("/Converter18/src/X.java");
+		}
 	}
 }

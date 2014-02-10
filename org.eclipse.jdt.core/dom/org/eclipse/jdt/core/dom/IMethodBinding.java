@@ -169,6 +169,13 @@ public interface IMethodBinding extends IBinding {
 	/**
 	 * Returns the binding for the return type of this method. Returns the
 	 * special primitive <code>void</code> return type for constructors.
+	 * <p>
+	 * For methods, the type binding that is returned contains type annotations 
+	 * if any. For e.g. the following code would get the type annotations on a 
+	 * method: <br><br>
+	 *  <code> IAnnotationBinding[] annots = getReturnType().getTypeAnnotations() </code>
+	 * </p>
+	 * For a constructor, the returned binding does not include type annotations.
 	 *
 	 * @return the binding for the return type of this method, or the
 	 *    <code>void</code> return type for constructors
