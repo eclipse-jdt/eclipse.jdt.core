@@ -1841,7 +1841,7 @@ public void test427218_reduced() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=427218, [1.8][compiler] Verify error varargs + inference 
-public void _test427218() {
+public void test427218() {
 	runConformTest(
 		new String[] {
 			"X.java",

@@ -37,6 +37,7 @@
  *								Bug 427196 - [1.8][compiler] Compiler error for method reference to overloaded method
  *								Bug 427483 - [Java 8] Variables in lambdas sometimes can't be resolved
  *								Bug 427728 - [1.8] Type Inference rejects calls requiring boxing/unboxing
+ *								Bug 427218 - [1.8][compiler] Verify error varargs + inference
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -833,6 +834,7 @@ public abstract class Scope {
 									return Math.max(compatible, level);
 							}
 						}
+						invocArg.setExpectedType(null);
 						return NOT_COMPATIBLE;
 					} else if (innerPoly instanceof AllocationExpression) {
 						// not detected as compatible, because its a diamond whose type hasn't yet been inferred?
