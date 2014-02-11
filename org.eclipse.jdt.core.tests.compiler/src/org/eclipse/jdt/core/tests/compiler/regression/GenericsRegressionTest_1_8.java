@@ -2076,4 +2076,22 @@ public void testBug426542() {
 			"}\n"
 		});
 }
+public void testBug426836() {
+	runConformTest(
+		new String[] {
+			"ReferenceToGetClass.java",
+			"import java.util.function.Supplier;\n" + 
+			"\n" + 
+			"\n" + 
+			"public class ReferenceToGetClass {\n" + 
+			"	<T> T extract(Supplier<T> s) {\n" + 
+			"		return s.get();\n" + 
+			"	}\n" + 
+			"	Class<?> test() {\n" + 
+			"		Class<? extends ReferenceToGetClass> c = extract(this::getClass);\n" + 
+			"		return c;\n" + 
+			"	}\n" + 
+			"}\n"
+		} );
+}
 }

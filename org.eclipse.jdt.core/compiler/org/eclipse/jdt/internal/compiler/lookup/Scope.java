@@ -38,6 +38,7 @@
  *								Bug 427483 - [Java 8] Variables in lambdas sometimes can't be resolved
  *								Bug 427728 - [1.8] Type Inference rejects calls requiring boxing/unboxing
  *								Bug 427218 - [1.8][compiler] Verify error varargs + inference
+ *								Bug 426836 - [1.8] special handling for return type in references to method getClass()?
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -2354,6 +2355,12 @@ public abstract class Scope {
 				return environment().computeArrayClone(exactMethod);
 			if (CharOperation.equals(selector, TypeConstants.GETCLASS))
 				return environment().createGetClassMethod(receiverType, exactMethod, this);
+		}
+		if (exactMethod.declaringClass.id == TypeIds.T_JavaLangObject
+				&& CharOperation.equals(selector, TypeConstants.GETCLASS)
+			    && exactMethod.returnType.isParameterizedType())
+		{
+			return environment().createGetClassMethod(receiverType, exactMethod, this);
 		}
 		return exactMethod;
 	}
