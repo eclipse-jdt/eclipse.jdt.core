@@ -67,6 +67,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.VoidTypeBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -1924,41 +1925,43 @@ class DefaultBindingResolver extends BindingResolver {
 			leafComponentType = typeBinding.getElementType();
 			actualDimensions += typeBinding.getDimensions();
 		}
- 		org.eclipse.jdt.internal.compiler.lookup.TypeBinding leafTypeBinding = null;
- 		if (leafComponentType.isPrimitive()) {
- 	 		String name = leafComponentType.getBinaryName();
-			switch(name.charAt(0)) {
-				case 'I' :
-					leafTypeBinding = org.eclipse.jdt.internal.compiler.lookup.TypeBinding.INT;
-					break;
-				case 'B' :
-					leafTypeBinding = org.eclipse.jdt.internal.compiler.lookup.TypeBinding.BYTE;
-					break;
-				case 'Z' :
-					leafTypeBinding = org.eclipse.jdt.internal.compiler.lookup.TypeBinding.BOOLEAN;
-					break;
-				case 'C' :
-					leafTypeBinding = org.eclipse.jdt.internal.compiler.lookup.TypeBinding.CHAR;
-					break;
-				case 'J' :
-					leafTypeBinding = org.eclipse.jdt.internal.compiler.lookup.TypeBinding.LONG;
-					break;
-				case 'S' :
-					leafTypeBinding = org.eclipse.jdt.internal.compiler.lookup.TypeBinding.SHORT;
-					break;
-				case 'D' :
-					leafTypeBinding = org.eclipse.jdt.internal.compiler.lookup.TypeBinding.DOUBLE;
-					break;
-				case 'F' :
-					leafTypeBinding = org.eclipse.jdt.internal.compiler.lookup.TypeBinding.FLOAT;
-					break;
-				case 'V' :
-					throw new IllegalArgumentException();
+		if (!(leafComponentType instanceof TypeBinding)) return null;
+		org.eclipse.jdt.internal.compiler.lookup.TypeBinding leafTypeBinding = 
+											((TypeBinding) leafComponentType).binding;
+		if (leafTypeBinding instanceof VoidTypeBinding) {
+			throw new IllegalArgumentException();
+		}
+		if (typeBinding.isArray()) {
+			return this.getTypeBinding(lookupEnvironment().createArrayType(
+											leafTypeBinding,
+											actualDimensions,
+											insertAnnotations((((TypeBinding) typeBinding).binding).getTypeAnnotations(), dimensions)));
+		} else {
+			return this.getTypeBinding(lookupEnvironment().createArrayType(
+											leafTypeBinding,
+											actualDimensions));
+		}
+	}
+	
+	private org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] insertAnnotations(
+							org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] annots, int dimensions) {
+		if (dimensions == 0 || annots == null || annots.length == 0) {
+			return annots;
+		}
+		int index = 0;
+		if (dimensions < 0) {
+			for (int i = 0; i < annots.length; i++) {
+				index++;
+				if (annots[i] == null) {
+					if(++dimensions == 0) break;
+				}
 			}
- 		} else {
- 			if (!(leafComponentType instanceof TypeBinding)) return null;
- 			leafTypeBinding = ((TypeBinding) leafComponentType).binding;
- 		}
-		return this.getTypeBinding(lookupEnvironment().createArrayType(leafTypeBinding, actualDimensions));
+			if (dimensions < 0) dimensions = 0; // Just means there were no annotations
+		}
+		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] newAnnots = 
+				new org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[annots.length - index + dimensions];
+
+		System.arraycopy(annots, index, newAnnots, dimensions, annots.length - index);
+		return newAnnots;
 	}
 }

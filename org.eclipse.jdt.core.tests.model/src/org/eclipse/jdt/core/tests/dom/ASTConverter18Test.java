@@ -4067,4 +4067,160 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		receiver = method.getReceiverType();
 		assertNotNull("Receiver should not be null", receiver);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426459
+	public void testBug426459() throws JavaModelException {
+		String contents =
+			"import java.lang.annotation.*;\n" +
+			"@Target(ElementType.TYPE_USE) @interface A {}\n" +
+			"@Target(ElementType.TYPE_USE) @interface B {}\n" +
+			"@Target(ElementType.TYPE_USE) @interface C {}\n" +
+			"public class X {\n" +
+			"		@A int @B [] @C [] @A [] is;\n" +
+			"		@C String @A [] @B [] @C [] ss;\n" +
+			"		@C String @A [] [] [] [] sss;\n" +
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 3, 0);
+		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
+		FieldDeclaration field = (FieldDeclaration) node;
+		Type type = field.getType();
+		ITypeBinding original = type.resolveBinding();
+		assertEquals("Incorrect type binding", "@A int @B [] @C [] @A []", original.toString());
+		ITypeBinding binding = original.createArrayType(1);
+		assertEquals("Incorrect type binding", "@A int [] @B [] @C [] @A []", binding.toString());
+		int dims = binding.getDimensions();
+		assertEquals("Incorrect no of dimensions", 4, dims);
+		IAnnotationBinding[] annotations = binding.getTypeAnnotations();
+		assertEquals("Incorrect no of type annotations", 0, annotations.length);
+		binding = binding.getComponentType();
+		annotations = binding.getTypeAnnotations();
+		assertEquals("Incorrect no of type annotations", 1, annotations.length);
+		assertEquals("Incorrect annotation", "@B()", annotations[0].toString());
+		binding = binding.getComponentType();
+		annotations = binding.getTypeAnnotations();
+		assertEquals("Incorrect no of type annotations", 1, annotations.length);
+		assertEquals("Incorrect annotation", "@C()", annotations[0].toString());
+		binding = binding.getComponentType();
+		annotations = binding.getTypeAnnotations();
+		assertEquals("Incorrect no of type annotations", 1, annotations.length);
+		assertEquals("Incorrect annotation", "@A()", annotations[0].toString());
+		binding = binding.getElementType();
+		annotations = binding.getTypeAnnotations();
+		assertEquals("Incorrect no of type annotations", 1, annotations.length);
+		assertEquals("Incorrect annotation", "@A()", annotations[0].toString());
+		
+		node = getASTNode(compilationUnit, 3, 1);
+		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
+		field = (FieldDeclaration) node;
+		type = field.getType();
+		original = type.resolveBinding();
+		assertEquals("Incorrect type binding", "@C String @A [] @B [] @C []", original.toString());
+		binding = original.createArrayType(1);
+		assertEquals("Incorrect type binding", "@C String [] @A [] @B [] @C []", binding.toString());
+		dims = binding.getDimensions();
+		assertEquals("Incorrect no of dimensions", 4, dims);
+		
+		binding = original.createArrayType(-1);
+		assertEquals("Incorrect type binding", "@C String @B [] @C []", binding.toString());
+		dims = binding.getDimensions();
+		assertEquals("Incorrect no of dimensions", 2, dims);
+		
+		binding = original.createArrayType(-2);
+		assertEquals("Incorrect type binding", "@C String @C []", binding.toString());
+		dims = binding.getDimensions();
+		assertEquals("Incorrect no of dimensions", 1, dims);
+		
+		node = getASTNode(compilationUnit, 3, 2);
+		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
+		field = (FieldDeclaration) node;
+		type = field.getType();
+		original = type.resolveBinding();
+		assertEquals("Incorrect type binding", "@C String @A [] [] [] []", original.toString());
+		binding = original.createArrayType(-1);
+		assertEquals("Incorrect type binding", "@C String [] [] []", binding.toString());
+		dims = binding.getDimensions();
+		assertEquals("Incorrect no of dimensions", 3, dims);
+		binding = binding.createArrayType(-2);
+		assertEquals("Incorrect type binding", "@C String []", binding.toString());
+		dims = binding.getDimensions();
+		assertEquals("Incorrect no of dimensions", 1, dims);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426459
+	public void testBug426459a() throws JavaModelException {
+		String contents =
+			"import java.lang.annotation.*;\n" +
+			"@Target(ElementType.TYPE_USE) @interface A {}\n" +
+			"@Target(ElementType.TYPE_USE) @interface B {}\n" +
+			"@Target(ElementType.TYPE_USE) @interface C {}\n" +
+			"public class X {\n" +
+			"		public void foo() {}\n" +
+			"		public @A X.@B Y foo(@C int i){ return null;}\n" +
+			"		public @A @B X foo(int i, int j){ return null;}\n" +
+			"		public @A X.Y [] @B [] foo(float f){ return null;}\n" +
+			"		class Y {}\n" +
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		
+		node = getASTNode(compilationUnit, 3, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		Type type = ((MethodDeclaration) node).getReturnType2();
+		ITypeBinding binding = type.resolveBinding();
+		assertNotNull("Binding should not be null", binding);
+		try {
+			binding = binding.createArrayType(1);
+			binding = null;
+		} catch(IllegalArgumentException iae) {
+		}
+		assertNotNull("IllegalArgumentException should have been thrown", binding);
+
+		node = getASTNode(compilationUnit, 3, 1);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		type = ((MethodDeclaration) node).getReturnType2();
+		binding = type.resolveBinding();
+		assertEquals("Incorrect type binding", "@A X.@B Y", binding.toString());
+		binding = binding.createArrayType(2);
+		assertEquals("Incorrect type binding", "@A X.@B Y [] []", binding.toString());
+		int dims = binding.getDimensions();
+		assertEquals("Incorrect no of dimensions", 2, dims);
+		SingleVariableDeclaration param = (SingleVariableDeclaration) ((MethodDeclaration) node).parameters().get(0);
+		type = param.getType();
+		binding = type.resolveBinding();
+		assertEquals("Incorrect type binding", "@C int", binding.toString());
+		binding = binding.createArrayType(2);
+		assertEquals("Incorrect type binding", "@C int [] []", binding.toString());
+		
+		node = getASTNode(compilationUnit, 3, 2);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		type = ((MethodDeclaration) node).getReturnType2();
+		binding = type.resolveBinding();
+		assertEquals("Incorrect type binding", "@A @B X", binding.toString());
+		binding = binding.createArrayType(2);
+		assertEquals("Incorrect type binding", "@A @B X [] []", binding.toString());
+		dims = binding.getDimensions();
+		assertEquals("Incorrect no of dimensions", 2, dims);
+		
+		node = getASTNode(compilationUnit, 3, 3);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		type = ((MethodDeclaration) node).getReturnType2();
+		ITypeBinding original = type.resolveBinding();
+		assertEquals("Incorrect type binding", "@A X.Y [] @B []", original.toString());
+		binding = original.createArrayType(1);
+		assertEquals("Incorrect type binding", "@A X.Y [] [] @B []", binding.toString());
+		dims = binding.getDimensions();
+		assertEquals("Incorrect no of dimensions", 3, dims);
+		
+		binding = original.createArrayType(-1);
+		assertEquals("Incorrect type binding", "@A X.Y @B []", binding.toString());
+		dims = binding.getDimensions();
+		assertEquals("Incorrect no of dimensions", 1, dims);
+
+	}
 }
