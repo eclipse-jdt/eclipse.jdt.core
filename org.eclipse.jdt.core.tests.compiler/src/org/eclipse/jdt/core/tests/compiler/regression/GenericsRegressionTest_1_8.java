@@ -496,7 +496,7 @@ public void testBug401850b() {
 		"----------\n");
 }
 
-public void _testBug424710() {
+public void testBug424710() {
 	runConformTest(
 		new String[] {
 			"MapperTest.java",
@@ -986,7 +986,7 @@ public void testBug425783() {
 		});
 }
 public void testBug425798() {
-	runNegativeTest( // TODO: for now we just want to prove absence of NPE, should, however, be a conform test, actually.
+	runConformTest(
 		new String[] {
 			"X.java",
 			"import java.lang.annotation.*;\n" +
@@ -1006,12 +1006,7 @@ public void testBug425798() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 12)\n" + 
-		"	.collect(toMap(Annotation::annotationType,\n" + 
-		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The type of annotationType() from the type Annotation is Class<? extends Annotation>, this is incompatible with the descriptor's return type: Class<capture#3-of ? extends Annotation>\n" + 
-		"----------\n");
+		"");
 }
 // witness for NPE mentioned in https://bugs.eclipse.org/bugs/show_bug.cgi?id=425798#c2
 public void testBug425798b() {

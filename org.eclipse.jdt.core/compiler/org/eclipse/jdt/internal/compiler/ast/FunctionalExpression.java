@@ -181,6 +181,7 @@ public abstract class FunctionalExpression extends Expression {
 	}
 
 	public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType) {
+		targetType = targetType.uncapture(this.enclosingScope);
 		return resolveTypeExpecting(this.enclosingScope, targetType);
 	}
 

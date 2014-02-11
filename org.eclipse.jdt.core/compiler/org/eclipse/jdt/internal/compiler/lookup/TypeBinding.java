@@ -186,6 +186,13 @@ public TypeBinding capture(Scope scope, int position) {
 }
 
 /**
+ * Perform capture "deconversion" on a given type
+ */
+public TypeBinding uncapture(Scope scope) {
+	return this;
+}
+
+/**
  * In case of problems, returns the closest match found. It may not be perfect match, but the
  * result of a best effort to improve fault-tolerance.
  */

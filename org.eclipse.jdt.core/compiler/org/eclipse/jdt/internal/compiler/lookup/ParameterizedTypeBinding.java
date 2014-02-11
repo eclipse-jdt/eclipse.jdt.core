@@ -147,6 +147,23 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		}
 		return capturedParameterizedType;
 	}
+	
+	/**
+	 * Perform capture deconversion for a parameterized type with captured wildcard arguments
+	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#uncapture(Scope)
+	 */
+	public TypeBinding uncapture(Scope scope) {
+		if ((this.tagBits & TagBits.HasCapturedWildcard) == 0)
+			return this;
+
+		int length = this.arguments == null ? 0 : this.arguments.length;
+		TypeBinding[] freeTypes = new TypeBinding[length];
+
+		for (int i = 0; i < length; i++) {
+			freeTypes[i] = this.arguments[i].uncapture(scope);
+		}
+		return scope.environment().createParameterizedType(this.type, freeTypes, (ReferenceBinding) (this.enclosingType != null ? this.enclosingType.uncapture(scope) : null), this.typeAnnotations);
+	}
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#collectMissingTypes(java.util.List)
@@ -703,7 +720,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			this.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 		} else if (this.enclosingType != null) {
 			this.modifiers |= (this.enclosingType.modifiers & ExtraCompilerModifiers.AccGenericSignature);
-			this.tagBits |= this.enclosingType.tagBits & (TagBits.HasTypeVariable | TagBits.HasMissingType);
+			this.tagBits |= this.enclosingType.tagBits & (TagBits.HasTypeVariable | TagBits.HasMissingType | TagBits.HasCapturedWildcard);
 		}
 		if (someArguments != null) {
 			this.arguments = someArguments;
@@ -723,12 +740,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 						this.tagBits |= TagBits.IsBoundParameterizedType;
 						break;
 				}
-				this.tagBits |= someArgument.tagBits & (TagBits.HasTypeVariable | TagBits.HasMissingType | TagBits.ContainsNestedTypeReferences);
+				this.tagBits |= someArgument.tagBits & (TagBits.HasTypeVariable | TagBits.HasMissingType | TagBits.ContainsNestedTypeReferences | TagBits.HasCapturedWildcard);
 			}
 		}
 		this.tagBits |= someType.tagBits & (TagBits.IsLocalType| TagBits.IsMemberType | TagBits.IsNestedType | TagBits.ContainsNestedTypeReferences
 				 | TagBits.HasMissingType | TagBits.AnnotationNullMASK
-				 | TagBits.AnnotationNonNullByDefault | TagBits.AnnotationNullUnspecifiedByDefault);
+				 | TagBits.AnnotationNonNullByDefault | TagBits.AnnotationNullUnspecifiedByDefault | TagBits.HasCapturedWildcard);
 		this.tagBits &= ~(TagBits.AreFieldsComplete|TagBits.AreMethodsComplete);
 	}
 

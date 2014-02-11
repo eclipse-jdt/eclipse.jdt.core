@@ -285,4 +285,9 @@ public class CaptureBinding18 extends CaptureBinding {
 		}
 		return super.shortReadableName();
 	}
+	
+	@Override
+	public TypeBinding uncapture(Scope scope) {
+		return this;
+	}
 }

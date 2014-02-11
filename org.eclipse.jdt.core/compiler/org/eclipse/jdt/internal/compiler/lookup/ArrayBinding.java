@@ -58,7 +58,7 @@ public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environm
 	if (type instanceof UnresolvedReferenceBinding)
 		((UnresolvedReferenceBinding) type).addWrapper(this, environment);
 	else
-		this.tagBits |= type.tagBits & (TagBits.HasTypeVariable | TagBits.HasDirectWildcard | TagBits.HasMissingType | TagBits.ContainsNestedTypeReferences);
+		this.tagBits |= type.tagBits & (TagBits.HasTypeVariable | TagBits.HasDirectWildcard | TagBits.HasMissingType | TagBits.ContainsNestedTypeReferences | TagBits.HasCapturedWildcard);
 	long mask = type.tagBits & TagBits.AnnotationNullMASK;
 	if (mask != 0) {
 		this.nullTagBitsPerDimension = new long[this.dimensions + 1];
@@ -414,7 +414,7 @@ public char[] sourceName() {
 public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment env) {
 	if (this.leafComponentType == unresolvedType) { //$IDENTITY-COMPARISON$
 		this.leafComponentType = env.convertUnresolvedBinaryToRawType(resolvedType);
-		this.tagBits |= this.leafComponentType.tagBits & (TagBits.HasTypeVariable | TagBits.HasDirectWildcard | TagBits.HasMissingType);
+		this.tagBits |= this.leafComponentType.tagBits & (TagBits.HasTypeVariable | TagBits.HasDirectWildcard | TagBits.HasMissingType | TagBits.HasCapturedWildcard);
 	}
 }
 public String toString() {
@@ -422,6 +422,13 @@ public String toString() {
 }
 public TypeBinding unannotated() {
 	return this.hasTypeAnnotations() ? this.environment.getUnannotatedType(this) : this;
+}
+@Override
+public TypeBinding uncapture(Scope scope) {
+	if ((this.tagBits & TagBits.HasCapturedWildcard) == 0)
+		return this;
+	TypeBinding leafType = this.leafComponentType.uncapture(scope);
+	return scope.environment().createArrayType(leafType, this.dimensions, this.typeAnnotations);
 }
 
 }

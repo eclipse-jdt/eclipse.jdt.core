@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,6 +38,7 @@ public class CaptureBinding extends TypeVariableBinding {
 		this.sourceType = sourceType;
 		this.position = position;
 		this.captureID = captureID;
+		this.tagBits |= TagBits.HasCapturedWildcard;
 		if (wildcard.hasTypeAnnotations()) {
 			setTypeAnnotations(wildcard.getTypeAnnotations(), wildcard.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
 		}
@@ -59,6 +60,7 @@ public class CaptureBinding extends TypeVariableBinding {
 		this.position = prototype.position;
 		this.captureID = prototype.captureID;
 		this.lowerBound = prototype.lowerBound;
+		this.tagBits |= (prototype.tagBits & TagBits.HasCapturedWildcard);
 	}
 	
 	// Captures may get cloned and annotated during type inference.
@@ -281,6 +283,11 @@ public class CaptureBinding extends TypeVariableBinding {
 			return name;
 		}
 		return super.shortReadableName();
+	}
+	
+	@Override
+	public TypeBinding uncapture(Scope scope) {
+		return this.wildcard;
 	}
 
 	public String toString() {

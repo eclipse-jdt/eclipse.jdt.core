@@ -510,12 +510,13 @@ public class WildcardBinding extends ReferenceBinding {
 			this.fPackage = someGenericType.getPackage();
 		}
 		if (someBound != null) {
-			this.tagBits |= someBound.tagBits & (TagBits.HasTypeVariable | TagBits.HasMissingType | TagBits.ContainsNestedTypeReferences | TagBits.HasNullTypeAnnotation);
+			this.tagBits |= someBound.tagBits & (TagBits.HasTypeVariable | TagBits.HasMissingType | TagBits.ContainsNestedTypeReferences | 
+					TagBits.HasNullTypeAnnotation | TagBits.HasCapturedWildcard);
 		}
 		if (someOtherBounds != null) {
 			for (int i = 0, max = someOtherBounds.length; i < max; i++) {
 				TypeBinding someOtherBound = someOtherBounds[i];
-				this.tagBits |= someOtherBound.tagBits & (TagBits.ContainsNestedTypeReferences | TagBits.HasNullTypeAnnotation);
+				this.tagBits |= someOtherBound.tagBits & (TagBits.ContainsNestedTypeReferences | TagBits.HasNullTypeAnnotation | TagBits.HasCapturedWildcard);
 			}
 		}
 	}
@@ -677,17 +678,17 @@ public class WildcardBinding extends ReferenceBinding {
 			case Wildcard.EXTENDS :
 				TypeBinding resolveType = BinaryTypeBinding.resolveType(this.bound, this.environment, true /* raw conversion */);
 				this.bound = resolveType;
-				this.tagBits |= resolveType.tagBits & TagBits.ContainsNestedTypeReferences;
+				this.tagBits |= resolveType.tagBits & TagBits.ContainsNestedTypeReferences | TagBits.HasCapturedWildcard;
 				for (int i = 0, length = this.otherBounds == null ? 0 : this.otherBounds.length; i < length; i++) {
 					resolveType = BinaryTypeBinding.resolveType(this.otherBounds[i], this.environment, true /* raw conversion */);
 					this.otherBounds[i]= resolveType;
-					this.tagBits |= resolveType.tagBits & TagBits.ContainsNestedTypeReferences;
+					this.tagBits |= resolveType.tagBits & TagBits.ContainsNestedTypeReferences | TagBits.HasCapturedWildcard;
 				}
 				break;
 			case Wildcard.SUPER :
 				resolveType = BinaryTypeBinding.resolveType(this.bound, this.environment, true /* raw conversion */);
 				this.bound = resolveType;
-				this.tagBits |= resolveType.tagBits & TagBits.ContainsNestedTypeReferences;
+				this.tagBits |= resolveType.tagBits & TagBits.ContainsNestedTypeReferences | TagBits.HasCapturedWildcard;
 				break;
 			case Wildcard.UNBOUND :
 		}
@@ -857,6 +858,18 @@ public class WildcardBinding extends ReferenceBinding {
 
 	public TypeBinding unannotated() {
 		return this.hasTypeAnnotations() ? this.environment.getUnannotatedType(this) : this;
+	}
+	@Override
+	public TypeBinding uncapture(Scope scope) {
+		if ((this.tagBits & TagBits.HasCapturedWildcard) == 0)
+			return this;
+		TypeBinding freeBound = this.bound != null ? this.bound.uncapture(scope) : null;
+		int length = 0;
+		TypeBinding [] freeOtherBounds = this.otherBounds == null ? null : new TypeBinding[length = this.otherBounds.length];
+		for (int i = 0; i < length; i++) {
+			freeOtherBounds[i] = this.otherBounds[i] == null ? null : this.otherBounds[i].uncapture(scope);
+		}
+		return scope.environment().createWildcard(this.genericType, this.rank, freeBound, freeOtherBounds, this.boundKind, getTypeAnnotations());
 	}
 	@Override
 	void collectInferenceVariables(Set<InferenceVariable> variables) {

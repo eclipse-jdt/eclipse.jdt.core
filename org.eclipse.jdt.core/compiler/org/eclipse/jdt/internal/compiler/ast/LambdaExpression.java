@@ -682,10 +682,11 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		this.shapeAnalysisComplete = true;
 	}
 	
-	public boolean isCompatibleWith(final TypeBinding left, final Scope someScope) {
+	public boolean isCompatibleWith(TypeBinding left, final Scope someScope) {
 		if (!(left instanceof ReferenceBinding))
 			return false;
 
+		left = left.uncapture(this.enclosingScope);
 		shapeAnalysis: if (!this.shapeAnalysisComplete) {
 			IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
 			final CompilerOptions compilerOptions = this.enclosingScope.compilerOptions();
@@ -805,6 +806,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		// note: this is essentially a simplified extract from isCompatibleWith(TypeBinding,Scope).
 		if (this.shapeAnalysisComplete && this.binding != null)
 			return this;
+		
+		targetType = targetType.uncapture(this.enclosingScope);
 		// TODO: caching
 		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
 		final CompilerOptions compilerOptions = this.enclosingScope.compilerOptions();
