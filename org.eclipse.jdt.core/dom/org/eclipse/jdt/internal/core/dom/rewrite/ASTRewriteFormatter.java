@@ -286,7 +286,8 @@ public final class ASTRewriteFormatter {
 				case ASTNode.PRIMITIVE_TYPE:
 				case ASTNode.QUALIFIED_TYPE:
 				case ASTNode.SIMPLE_TYPE:
-					suffix= " x;"; //$NON-NLS-1$
+					prefix= "void m("; //$NON-NLS-1$
+					suffix= " x);"; //$NON-NLS-1$
 					code= CodeFormatter.K_CLASS_BODY_DECLARATIONS;
 					break;
 				case ASTNode.WILDCARD_TYPE:
