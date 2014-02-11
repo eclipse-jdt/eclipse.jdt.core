@@ -4102,8 +4102,6 @@ public void test427728b() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427736, [1.8][generics] Method not applicable error with identical parameter types  
 public void test427736() {
-	if (this.complianceLevel == ClassFileConstants.JDK1_8)
-		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
 	runNegativeTest(

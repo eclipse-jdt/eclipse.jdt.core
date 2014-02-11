@@ -334,6 +334,8 @@ class ConstraintTypeFormula extends ConstraintFormula {
 		TypeBinding cb = subCandidate.findSuperTypeOriginatingFrom(ca);	// C<B1,B2,...>
 		if (cb == null)
 			return false; // nothing here means we failed 
+		if (TypeBinding.equalsEquals(ca, cb)) // incl C#RAW vs C#RAW
+			return true;
 		TypeBinding[] bi = ((ParameterizedTypeBinding) cb).arguments;
 		if (cb.isRawType() || bi == null || bi.length == 0)
 			return (this.isSoft && InferenceContext18.SIMULATE_BUG_JDK_8026527) ? true : false; // FALSE would conform to the spec 
