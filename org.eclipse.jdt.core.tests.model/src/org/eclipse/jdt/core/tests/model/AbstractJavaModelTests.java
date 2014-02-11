@@ -2792,23 +2792,23 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		if (version.equals(javaProject.getOption(CompilerOptions.OPTION_Compliance, false))) {
 			return;
 		}
-		String jclLibString;
 		String newJclLibString;
 		String newJclSrcString;
-		if (compliance.charAt(2) > '7') {
-			jclLibString = "JCL_LIB";
-			newJclLibString = "JCL18_LIB";
-			newJclSrcString = "JCL18_SRC";
-		} else if (compliance.charAt(2) > '4') {
-			jclLibString = "JCL_LIB";
-			newJclLibString = "JCL15_LIB";
-			newJclSrcString = "JCL15_SRC";
+		if (useFullJCL) {
+			newJclLibString = "JCL18_FULL";
+			newJclSrcString = "JCL18_SRC"; // Use the same source
 		} else {
-			jclLibString = "JCL15_LIB";
-			newJclLibString = "JCL_LIB";
-			newJclSrcString = "JCL_SRC";
+			if (compliance.charAt(2) > '7') {
+				newJclLibString = "JCL18_LIB";
+				newJclSrcString = "JCL18_SRC";
+			} else if (compliance.charAt(2) > '4') {
+				newJclLibString = "JCL15_LIB";
+				newJclSrcString = "JCL15_SRC";
+			} else {
+				newJclLibString = "JCL_LIB";
+				newJclSrcString = "JCL_SRC";
+			}
 		}
-		
 
 		// ensure variables are set
 		setUpJCLClasspathVariables(compliance, useFullJCL);
@@ -2820,26 +2820,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		options.put(CompilerOptions.OPTION_TargetPlatform, version);
 		javaProject.setOptions(options);
 
-		// replace JCL_LIB with JCL15_LIB, and JCL_SRC with JCL15_SRC
-		// At 1.8 compliance, replace JCL15_LIB with JCL18_LIB, JCL15_SRC with JCL18_SRC
 		IClasspathEntry[] classpath = javaProject.getRawClasspath();
-		IPath jclLib = new Path(jclLibString);
-		IPath jcl5Lib = new Path("JCL15_LIB");
-		IPath jcl8Lib = new Path("JCL18_LIB");
-		boolean compliance18Plus = compliance.charAt(2) > '7';
+
 		for (int i = 0, length = classpath.length; i < length; i++) {
 			IClasspathEntry entry = classpath[i];
 			final IPath path = entry.getPath();
-			if (useFullJCL) {
-				classpath[i] = JavaCore.newVariableEntry(
-						new Path("JCL18_FULL"),
-						new Path(newJclSrcString),
-						entry.getSourceAttachmentRootPath(),
-						entry.getAccessRules(),
-						new IClasspathAttribute[0],
-						entry.isExported());
-				break;
-			} else if (path.equals(jclLib) || (compliance18Plus && path.equals(jcl5Lib)) || (!compliance18Plus && path.equals(jcl8Lib))) {
+			// Choose the new JCL path only if the current JCL path is different
+			if (isJCLPath(path) && !path.equals(newJclLibString)) {
 					classpath[i] = JavaCore.newVariableEntry(
 							new Path(newJclLibString),
 							new Path(newJclSrcString),
@@ -2851,6 +2838,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		javaProject.setRawClasspath(classpath, null);
+	}
+	public boolean isJCLPath(IPath path) {
+		IPath jclLib = new Path("JCL_LIB");
+		IPath jcl5Lib = new Path("JCL15_LIB");
+		IPath jcl8Lib = new Path("JCL18_LIB");
+		IPath jclFull = new Path("JCL18_FULL");
+
+		return path.equals(jclLib) || path.equals(jcl5Lib) || path.equals(jcl8Lib) || path.equals(jclFull);
 	}
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
 		setUpJCLClasspathVariables(compliance, false);
