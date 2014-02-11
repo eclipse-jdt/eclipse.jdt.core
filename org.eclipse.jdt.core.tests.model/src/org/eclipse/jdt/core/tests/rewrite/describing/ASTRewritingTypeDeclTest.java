@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1965,6 +1965,57 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		assertTrue((outerTypeBinding.getModifiers() & Modifier.STATIC) == 0);
 		ITypeBinding memberTypeBinding = memberTypeDeclaration.resolveBinding();
 		assertTrue((memberTypeBinding.getModifiers() & Modifier.STATIC) != 0);
+	}
+	
+	public void test401848_since_3() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public int i;\n");
+		buf.append("    public F f;\n");
+		buf.append("}\n");
+		buf.append("class F {}\n");
+		buf.append("@Target (Element.FIELD);\n");
+		buf.append("@interface Marker {}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+
+		{  // Add an annotation to fields
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			FieldDeclaration[] fields = type.getFields();
+			{
+				FieldDeclaration field = fields[0];
+				MarkerAnnotation annot = ast.newMarkerAnnotation();
+				annot.setTypeName(ast.newSimpleName("Marker"));
+				ListRewrite listRewrite = rewrite.getListRewrite(field, FieldDeclaration.MODIFIERS2_PROPERTY);
+				listRewrite.insertFirst(annot, null);
+			}
+			{
+				FieldDeclaration field = fields[1];
+				MarkerAnnotation annot = ast.newMarkerAnnotation();
+				annot.setTypeName(ast.newQualifiedName(ast.newName("test1"), ast.newSimpleName("Marker")));
+				ListRewrite listRewrite = rewrite.getListRewrite(field, FieldDeclaration.MODIFIERS2_PROPERTY);
+				listRewrite.insertFirst(annot, null);
+			}
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+		String expected = "package test1;\n" +
+			"public class E {\n" +
+			"    @Marker\n"+ 
+			"    public int i;\n" +
+			"    @test1.Marker\n" +
+			"    public F f;\n" +
+			"}\n" +
+			"class F {}\n" +
+			"@Target (Element.FIELD);\n" +
+			"@interface Marker {}\n";
+		assertEqualString(preview, expected);
+
 	}
 
 }
