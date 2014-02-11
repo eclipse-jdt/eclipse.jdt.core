@@ -2056,4 +2056,24 @@ public void testBug427626() {
 		"Cannot return a void result\n" + 
 		"----------\n");
 }
+public void testBug426542() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" +
+			"public class X {\n" + 
+			"	\n" + 
+			"	<T extends Comparable & Serializable> void foo(T o1) {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	<T extends Serializable> void foo(T o1) {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	void bar() {\n" + 
+			"		foo((Comparable & Serializable)0);\n" + 
+			"		foo(0);\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
 }
