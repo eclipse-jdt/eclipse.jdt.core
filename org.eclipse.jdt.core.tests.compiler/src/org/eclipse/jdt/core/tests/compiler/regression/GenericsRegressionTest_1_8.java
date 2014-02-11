@@ -1008,6 +1008,29 @@ public void testBug425798() {
 		},
 		"");
 }
+public void testBug425798a() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.annotation.*;\n" +
+			"import java.util.*;\n" +
+			"import java.util.function.*;\n" +
+			"import java.util.stream.*;\n" +
+			"interface MyCollector<T, A, R> extends Collector<T, A, R> {\n" + 
+			"}\n" +
+			"public abstract class X {\n" +
+			"	abstract <T, K, U, M extends Map<K, U>>\n" + 
+			"    MyCollector<T, ?, M> toMap(Function<? super T, ? extends K> km,\n" + 
+			"                                BinaryOperator<U> mf);" +
+			"	void test(Stream<Annotation> annotations) {\n" +
+			"		annotations\n" +
+			"			.collect(toMap(true ? Annotation::annotationType : Annotation::annotationType,\n" +
+			"				 (first, second) -> first));\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"");
+}
 // witness for NPE mentioned in https://bugs.eclipse.org/bugs/show_bug.cgi?id=425798#c2
 public void testBug425798b() {
 	runConformTest(

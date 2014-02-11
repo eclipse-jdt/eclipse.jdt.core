@@ -720,6 +720,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType) {
 		// in 1.8 if treated as a poly expression:
 		if (isPolyExpression()) {
+			targetType = targetType.uncapture(this.polyExpressionScope);
 			this.originalValueIfTrueType = this.valueIfTrue.checkAgainstFinalTargetType(targetType);
 			this.originalValueIfFalseType = this.valueIfFalse.checkAgainstFinalTargetType(targetType);
 			computeConversions(this.polyExpressionScope, targetType);
