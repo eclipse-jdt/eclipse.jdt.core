@@ -463,6 +463,9 @@ protected static class JavacTestOptions {
 	String getCompilerOptions() {
 		return this.compilerOptions;
 	}
+	public void setCompilerOptions(String options) {
+		this.compilerOptions = options;
+	}
 	boolean skip(JavacCompiler compiler) {
 		return false;
 	}
@@ -1857,6 +1860,10 @@ protected void runJavac(
 	}
 	if (options == null) {
 		options = JavacTestOptions.DEFAULT;
+	}
+	String newOptions = options.getCompilerOptions();
+	if (newOptions.indexOf(" -d ") < 0) {
+		options.setCompilerOptions(newOptions.concat(" -d ."));
 	}
 	String testName = testName();
 	Iterator compilers = javacCompilers.iterator();
