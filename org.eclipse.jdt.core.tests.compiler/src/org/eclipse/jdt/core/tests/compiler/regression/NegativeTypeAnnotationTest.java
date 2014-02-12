@@ -4393,7 +4393,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			customOptions);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427955, [1.8][compiler] NPE in TypeSystem.getUnannotatedType
-	public void _test427955() {
+	public void test427955() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
 		runNegativeTest(
@@ -4403,6 +4403,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				" * @param <K> unused\n" +
 				" * @param <V> unused\n" +
 				" */\n" +
+				"public class X {}\n" +
 				"class Outer<K, V> {\n" +
 				"  void method() {\n" +
 				"    //Internal compiler error: java.lang.NullPointerException at\n" +

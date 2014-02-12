@@ -4910,7 +4910,7 @@ public abstract class Scope {
 					}
 					public TypeBinding substitute(TypeVariableBinding typeVariable) {
 						TypeBinding retVal = (TypeBinding) map.get(typeVariable);
-						return typeVariable.hasTypeAnnotations() ? environment().createAnnotatedType(retVal, typeVariable.getTypeAnnotations()) : retVal;
+						return retVal == null ? typeVariable : typeVariable.hasTypeAnnotations() ? environment().createAnnotatedType(retVal, typeVariable.getTypeAnnotations()) : retVal;
 					}
 				};
 
