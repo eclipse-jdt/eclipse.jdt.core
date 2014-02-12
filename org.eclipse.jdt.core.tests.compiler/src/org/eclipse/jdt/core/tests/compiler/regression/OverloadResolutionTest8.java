@@ -2311,9 +2311,14 @@ public void test427628a() {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	test(i!=null?i.getJ():null);\n" + 
 			"	^^^^\n" + 
-			"The method test(((i != null) ? i.getJ() : null)) is undefined for the type X\n" + 
+			"The method test(X.I) in the type X is not applicable for the arguments (((i != null) ? i.getJ() : null))\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 12)\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	test(i!=null?i.getJ():null);\n" + 
+			"	             ^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from X.J to X.I\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 12)\n" + 
 			"	System.out.println(\"K\" + j);\n" + 
 			"	                         ^\n" + 
 			"j cannot be resolved to a variable\n" + 

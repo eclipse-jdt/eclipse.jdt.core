@@ -39,6 +39,7 @@
  *								Bug 427728 - [1.8] Type Inference rejects calls requiring boxing/unboxing
  *								Bug 427218 - [1.8][compiler] Verify error varargs + inference
  *								Bug 426836 - [1.8] special handling for return type in references to method getClass()?
+ *								Bug 427628 - [1.8] regression : The method * is ambiguous for the type *
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -810,9 +811,10 @@ public abstract class Scope {
 		}
 		if (targetType == null)
 			return NOT_COMPATIBLE; // mismatching number of args or other severe problem inside method binding
+		int level = -2; // don't know
 		if (invocArg instanceof Invocation && resolvedType != null) {
 			Invocation innerPoly = (Invocation) invocArg;
-			int level = parameterCompatibilityLevel(resolvedType, targetType);
+			level = parameterCompatibilityLevel(resolvedType, targetType);
 			if (level != NOT_COMPATIBLE) {
 				return Math.max(compatible, level);
 			} else {
@@ -852,23 +854,27 @@ public abstract class Scope {
 					}
 				} else if (innerPoly instanceof AllocationExpression) {
 					MethodBinding updatedMethod = innerPoly.binding(targetType); // 2. try with updating
-					if (updatedMethod != innerBinding && updatedMethod != null && updatedMethod.isValidBinding()) {
-						if (updatedMethod.declaringClass.isCompatibleWith(targetType))
-							return compatible;
-						return NOT_COMPATIBLE;
+					if (updatedMethod != innerBinding && updatedMethod != null) {
+						if (updatedMethod.isValidBinding()) {
+							if (updatedMethod.declaringClass.isCompatibleWith(targetType))
+								return compatible;
+							return NOT_COMPATIBLE;
+						} else if (updatedMethod.problemId() == ProblemReasons.Ambiguous) {
+							level = -2; // neither good nor bad, answer "unknown"
+						}
 					}
 				}
 			}
 		} else if (invocArg.isPolyExpression()) {
 			if (invocArg instanceof ConditionalExpression) {
 				ConditionalExpression ce = (ConditionalExpression) invocArg;
-				int level = compatibilityLevel18FromInner(method, innerInferenceHelper, ce.valueIfTrue, argLen, i, isVarArgs);
-				if (level == NOT_COMPATIBLE)
+				int level1 = compatibilityLevel18FromInner(method, innerInferenceHelper, ce.valueIfTrue, argLen, i, isVarArgs);
+				if (level1 == NOT_COMPATIBLE)
 					return NOT_COMPATIBLE;
 				int level2 = compatibilityLevel18FromInner(method, innerInferenceHelper, ce.valueIfFalse, argLen, i, isVarArgs);
 				if (level2 == NOT_COMPATIBLE)
 					return NOT_COMPATIBLE;
-				return Math.max(level, level2);
+				return Math.max(level1, level2);
 			}
 			// LE or RE:
 			if (invocArg.isCompatibleWith(targetType, this))
@@ -884,7 +890,7 @@ public abstract class Scope {
 			// need to handle "normal" expressions too, since mixed poly/standalone argument lists must be fully analyzed.
 			return parameterCompatibilityLevel(resolvedType, targetType);
 		}
-		return -2; // don't know
+		return level;
 	}
 
 	private boolean shouldTryVarargs(MethodBinding method, TypeBinding resolvedType, TypeBinding targetType) {
@@ -4342,7 +4348,6 @@ public abstract class Scope {
 
 		// common part for all compliance levels:
 		int[] compatibilityLevels = new int[visibleSize];
-		int compatibleCount = 0;
 		for (int i = 0; i < visibleSize; i++) {
 			TypeBinding[] argTypes = argumentTypes;
 			if (isJdk18 && invocationSite instanceof Invocation) {
@@ -4350,27 +4355,8 @@ public abstract class Scope {
 				if (innerInferenceHelper != null)
 					argTypes = innerInferenceHelper.getArgumentTypesForCandidate(visible[i], argumentTypes);
 			}
-			if ((compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argTypes)) != NOT_COMPATIBLE) {
-				if (i != compatibleCount) {
-					visible[compatibleCount] = visible[i];
-					compatibilityLevels[compatibleCount] = compatibilityLevels[i];
-				}
-				compatibleCount++;
-			}
+			compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argTypes);
 		}
-		if (compatibleCount == 0) {
-			return new ProblemMethodBinding(visible[0].selector, argumentTypes, ProblemReasons.NotFound);
-		} else if (compatibleCount == 1) {
-			MethodBinding candidate = inferInvocationType(invocationSite, visible[0], argumentTypes);
-			compilationUnitScope().recordTypeReferences(candidate.thrownExceptions);
-			return candidate;
-		}
-	
-		if (compatibleCount != visibleSize) {
-			System.arraycopy(visible, 0, visible = new MethodBinding[visibleSize = compatibleCount], 0, compatibleCount);
-			System.arraycopy(compatibilityLevels, 0, compatibilityLevels = new int[compatibleCount], 0, compatibleCount);
-		}
-		
 		MethodBinding[] moreSpecific = new MethodBinding[visibleSize];
 
 		if (isJdk18) {
