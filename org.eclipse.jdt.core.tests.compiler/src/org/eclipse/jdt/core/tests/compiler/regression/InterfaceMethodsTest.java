@@ -2410,4 +2410,31 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"A.foo\n" + 
 			"B.foo");
 	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427478, [1.8][compiler] Wrong "Duplicate default methods" error on AbstractDoubleSpliterator
+	public void _test427478() throws Exception {
+		this.runConformTest(
+			new String[] {
+					"X.java",
+					"import java.util.function.Consumer;\n" +
+					"import java.util.function.DoubleConsumer;\n" +
+					"public interface X<T> {\n" +
+					"    default void forEachRemaining(Consumer<? super T> action) {\n" +
+					"    }\n" +
+					"    public interface OfPrimitive<T, T_CONS, T_SPLITR extends OfPrimitive<T, T_CONS, T_SPLITR>> extends X<T> {\n" +
+					"        default void forEachRemaining(T_CONS action) {\n" +
+					"        }\n" +
+					"    }\n" +
+					"    public interface OfDouble extends OfPrimitive<Double, DoubleConsumer, OfDouble> {\n" +
+					"        default void forEachRemaining(Consumer<? super Double> action) {\n" +
+					"        }\n" +
+					"        default void forEachRemaining(DoubleConsumer action) {\n" +
+					"        }\n" +
+					"    }\n" +
+					"}\n" +
+					"abstract class AbstractDoubleSpliterator implements X.OfDouble {\n" +
+					"}\n",
+			},
+			"A.foo\n" + 
+			"B.foo");
+	}	
 }
