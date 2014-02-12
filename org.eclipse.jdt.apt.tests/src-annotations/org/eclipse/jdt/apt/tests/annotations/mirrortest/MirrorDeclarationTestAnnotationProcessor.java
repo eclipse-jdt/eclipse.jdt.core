@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2014 BEA Systems, Inc. and others 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *    sbandow@bea.com - initial API and implementation
@@ -24,8 +28,8 @@
 
 package org.eclipse.jdt.apt.tests.annotations.mirrortest;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 
 import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
@@ -168,15 +172,14 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 		Collection<MethodDeclaration> methodDecls = testClassDec.getMethods();
 		ProcessorTestStatus.assertEquals("Number of methods", 5, methodDecls.size());
 
-		HashSet<AnnotationMirror> annotationMirrors = new HashSet<AnnotationMirror>();
+		ArrayList<AnnotationMirror> annotationMirrors = new ArrayList<AnnotationMirror>();
 		for (MethodDeclaration methodDeclaration : methodDecls) {
 			Collection<AnnotationMirror> mirrors = methodDeclaration.getAnnotationMirrors();
 			annotationMirrors.addAll(mirrors);
 		}
 		ProcessorTestStatus.assertEquals("Wrong size for annotation mirrors", 3, annotationMirrors.size());
 		
-		MethodDeclaration methodDecl = null;
-		methodDecl = methodDecls.iterator().next();
+		MethodDeclaration methodDecl = methodDecls.iterator().next();
 		ProcessorTestStatus.assertTrue("method declaration exists", methodDecl != null);
 		
 		ClassType superClass = testClassDec.getSuperclass();
@@ -297,7 +300,7 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 		MethodDeclaration methodDec = null;
 		MethodDeclaration methodDecNoArg = null;
 		for(MethodDeclaration method : methodDecls) {
-			if(method.toString().endsWith("methodDec(int k, String ... t)"))
+			if(method.toString().endsWith("methodDec(int k, String... t)"))
 				methodDec = method;
 			if(method.toString().endsWith("methodDecNoArg()"))
 				methodDecNoArg = method;
@@ -322,12 +325,12 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 		for(ParameterDeclaration param : paramDecls) {
 			if(param.toString().startsWith("int"))
 				paramDeclInt = param;
-			if(param.toString().startsWith("String ..."))
+			if(param.toString().startsWith("String..."))
 				paramDeclString = param;
 		}
 		ProcessorTestStatus.assertTrue("int parameter exists", paramDeclInt != null);
 		ProcessorTestStatus.assertEquals("Parameter type is int", "int", paramDeclInt.getType().toString());
-		ProcessorTestStatus.assertTrue("String ... parameter exists", paramDeclString != null);
+		ProcessorTestStatus.assertTrue("String... parameter exists", paramDeclString != null);
 		ProcessorTestStatus.assertEquals("Parameter type is String[]", "java.lang.String[]", paramDeclString.getType().toString());
 		ProcessorTestStatus.assertEquals("Number of parameters in methodDecNoArg", 0, methodDecNoArg.getParameters().size());
 	}
