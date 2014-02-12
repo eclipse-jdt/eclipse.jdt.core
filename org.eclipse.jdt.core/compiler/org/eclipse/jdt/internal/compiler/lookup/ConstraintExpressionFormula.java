@@ -244,7 +244,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				newConstraints.add(new ConstraintTypeFormula(p[i], pPrime[i-offset], COMPATIBLE));
 			TypeBinding r = functionType.returnType;
 			if (r != TypeBinding.VOID) {
-				TypeBinding rAppl = potentiallyApplicable.isConstructor() ? potentiallyApplicable.declaringClass : potentiallyApplicable.returnType;
+				TypeBinding rAppl = potentiallyApplicable.isConstructor() && !reference.isArrayConstructorReference() ? potentiallyApplicable.declaringClass : potentiallyApplicable.returnType;
 				if (rAppl == TypeBinding.VOID)
 					return FALSE;
 				TypeBinding rPrime = rAppl.capture(inferenceContext.scope, 14); // FIXME capture position??

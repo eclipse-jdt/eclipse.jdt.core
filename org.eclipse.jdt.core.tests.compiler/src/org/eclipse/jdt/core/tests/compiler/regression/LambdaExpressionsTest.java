@@ -3213,6 +3213,33 @@ public void test427744() {
 			"999"
 			);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427962, [1.8][compiler] Stream#toArray(String[]::new) not inferred without help
+public void test427962() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.function.Function;\n" +
+				"import java.util.function.IntFunction;\n" +
+				"import java.util.stream.Stream;\n" +
+				"import java.util.stream.IntStream;\n" +
+				"public class X {\n" +
+				"  static <A, B> Stream<B> objmap(Function<A, B> p1, A[] p2) {return Stream.of(p2).map(p1);}\n" +
+				"  static <B> Stream<B> intmap(IntFunction<B> p1, int[] p2) {return IntStream.of(p2).mapToObj(p1);}\n" +
+				"  public static void main(String[] args) {\n" +
+				"    Integer[] p12 = {1, 2, 3};\n" +
+				"    int[] p22 = {1, 2, 3};\n" +
+				"    //works\n" +
+				"    String[] a11 = objmap(String::valueOf, p12).<String> toArray(String[]::new);\n" +
+				"    String[] a21 = intmap(String::valueOf, p22).<String> toArray(String[]::new);\n" +
+				"    //does not work\n" +
+				"    String[] a12 = objmap(String::valueOf, p12).toArray(String[]::new);\n" +
+				"    String[] a22 = intmap(String::valueOf, p22).toArray(String[]::new);\n" +
+				"  }\n" +
+				"}\n"
+			},
+			""
+			);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

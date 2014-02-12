@@ -807,4 +807,8 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			this.actualMethodBinding = this.binding;
 		return this.actualMethodBinding;
 	}
+
+	public boolean isArrayConstructorReference() {
+		return isConstructorReference() && this.lhs.resolvedType != null && this.lhs.resolvedType.isArrayType();
+	}
 }
