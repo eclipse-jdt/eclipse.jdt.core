@@ -651,8 +651,29 @@ void checkMethods() {
 			}
 			if (index == -1) continue;
 
-			if (index > 0)
-				checkInheritedMethods(matchingInherited, index + 1, isOverridden, isInherited); // pass in the length of matching
+			if (index > 0) {
+				int length = index + 1;
+				boolean[] matchingIsOverridden;
+				boolean[] matchingIsInherited;
+				if (length != inheritedLength) { // transfer inherited & overridden status to align with subset of methods.
+					matchingIsOverridden = new boolean[length];
+					matchingIsInherited = new boolean[length];
+					for (int j = 0; j < length; j++) {
+						for (int k = 0; k < inheritedLength; k++) {
+							if (matchingInherited[j] == inherited[k]) {
+								matchingIsOverridden[j] = isOverridden[k];
+								matchingIsInherited[j] = isInherited[k];
+								break;
+							}
+						}
+					}
+				} else {
+					matchingIsOverridden = isOverridden;
+					matchingIsInherited = isInherited;
+				}
+				
+				checkInheritedMethods(matchingInherited, length, matchingIsOverridden, matchingIsInherited); // pass in the length of matching
+			}
 			else if (mustImplementAbstractMethods && matchingInherited[0].isAbstract() && matchMethod == null)
 				checkAbstractMethod(matchingInherited[0]);
 			while (index >= 0) matchingInherited[index--] = null; // clear the previous contents of the matching methods

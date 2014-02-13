@@ -2411,7 +2411,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"B.foo");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427478, [1.8][compiler] Wrong "Duplicate default methods" error on AbstractDoubleSpliterator
-	public void _test427478() throws Exception {
+	public void test427478() throws Exception { // extracted smaller test case.
 		this.runConformTest(
 			new String[] {
 					"X.java",
@@ -2434,7 +2434,47 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 					"abstract class AbstractDoubleSpliterator implements X.OfDouble {\n" +
 					"}\n",
 			},
-			"A.foo\n" + 
-			"B.foo");
-	}	
+			"");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427478, [1.8][compiler] Wrong "Duplicate default methods" error on AbstractDoubleSpliterator
+	public void test427478a() throws Exception { // full test case.
+		this.runConformTest(
+			new String[] {
+					"Spliterator.java",
+					"import java.util.function.Consumer;\n" +
+					"import java.util.function.DoubleConsumer;\n" +
+					"public interface Spliterator<T> {\n" +
+					"    default void forEachRemaining(Consumer<? super T> action) {\n" +
+					"    }\n" +
+					"    public interface OfPrimitive<T, T_CONS, T_SPLITR extends OfPrimitive<T, T_CONS, T_SPLITR>>\n" +
+					"            extends Spliterator<T> {\n" +
+					"        // overloads Spliterator#forEachRemaining(Consumer<? super T>)\n" +
+					"        default void forEachRemaining(T_CONS action) {\n" +
+					"        }\n" +
+					"    }\n" +
+					"    public interface OfDouble extends OfPrimitive<Double, DoubleConsumer, OfDouble> {\n" +
+					"        @Override // the method from Spliterator\n" +
+					"        default void forEachRemaining(Consumer<? super Double> action) {\n" +
+					"        }\n" +
+					"        \n" +
+					"        @Override // the method from OfPrimitive\n" +
+					"        default void forEachRemaining(DoubleConsumer action) {\n" +
+					"        }\n" +
+					"    }\n" +
+					"}\n" +
+					"class Spliterators {\n" +
+					"    /* Error on class: Duplicate default methods named forEachRemaining with\n" +
+					"     * the parameters (Consumer<? super Double>) and (Consumer<? super T>) are\n" +
+					"     * inherited from the types Spliterator.OfDouble and Spliterator<Double>\n" +
+					"     */\n" +
+					"    public abstract static class AbstractDoubleSpliterator implements Spliterator.OfDouble {\n" +
+					"        /* Implementation that prevents the compile error: */\n" +
+					"//        @Override // the method from Spliterator\n" +
+					"//        public void forEachRemaining(Consumer<? super Double> action) {\n" +
+					"//        }\n" +
+					"    }\n" +
+					"}\n",
+			},
+			"");
+	}
 }
