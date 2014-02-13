@@ -4143,5 +4143,42 @@ public void test426836() {
 		"Type mismatch: cannot convert from Class<capture#1-of ? extends X> to Class<? extends String>\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428071, [1.8][compiler] Bogus error about incompatible return type during override
+public void test428071() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+	runNegativeTest(
+		new String[] {
+			"K1.java",
+			"import java.util.List;\n" +
+			"import java.util.Map;\n" +
+			"interface K1 {\n" +
+			"	public Map<String,List> get();\n" +
+			"}\n",
+			"K.java",
+			"import java.util.List;\n" +
+			"import java.util.Map;\n" +
+			"public class K implements K1 {\n" +
+			"	public Map<String, List> get() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in K1.java (at line 4)\n" + 
+		"	public Map<String,List> get();\n" + 
+		"	                  ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. WARNING in K.java (at line 4)\n" + 
+		"	public Map<String, List> get() {\n" + 
+		"	                   ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
 }
 

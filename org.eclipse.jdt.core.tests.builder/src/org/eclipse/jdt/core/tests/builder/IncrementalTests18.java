@@ -30,7 +30,7 @@ public class IncrementalTests18 extends BuilderTests {
 	public static Test suite() {
 		return buildTestSuite(IncrementalTests18.class);
 	}
-
+	
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423122, [1.8] Missing incremental build dependency from lambda expression to functional interface.
 	public void test423122() throws JavaModelException {
@@ -232,4 +232,47 @@ public class IncrementalTests18 extends BuilderTests {
 				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/X.java> range : <71,75> category : <130> severity : <1>]"
 			);
 	}	
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428071, [1.8][compiler] Bogus error about incompatible return type during override
+	public void test428071() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.8");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "", "K1",
+				"import java.util.List;\n" +
+				"import java.util.Map;\n" +
+				"interface K1 {\n" +
+				"	public Map<String,List> get();\n" +
+				"}\n"
+		);
+		env.addClass(root, "", "K",
+				"import java.util.List;\n" +
+				"import java.util.Map;\n" +
+				"public class K implements K1 {\n" +
+				"	public Map<String, List> get() {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}\n"
+		);
+		env.getJavaProject("Project").setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
+		fullBuild(projectPath);
+		expectingNoProblems();
+		env.addClass(root, "", "K",
+				"import java.util.List;\n" +
+				"import java.util.Map;\n" +
+				"public class K implements K1 {\n" +
+				"	public Map<String, List> get() {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}\n"
+		);
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+	}
 }

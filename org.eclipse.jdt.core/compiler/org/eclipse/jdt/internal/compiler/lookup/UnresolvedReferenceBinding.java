@@ -125,12 +125,12 @@ void setResolvedType(ReferenceBinding targetType, LookupEnvironment environment)
 
 	// targetType may be a source or binary type
 	this.resolvedType = targetType;
+	environment.updateCaches(this, targetType);
 	// must ensure to update any other type bindings that can contain the resolved type
 	// otherwise we could create 2 : 1 for this unresolved type & 1 for the resolved type
 	if (this.wrappers != null)
 		for (int i = 0, l = this.wrappers.length; i < l; i++)
 			this.wrappers[i].swapUnresolved(this, targetType, environment);
-	environment.updateCaches(this, targetType);
 }
 
 public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding unannotatedType, LookupEnvironment environment) {
@@ -139,10 +139,10 @@ public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceB
 	this.resolvedType = annotatedType;
 	annotatedType.setTypeAnnotations(getTypeAnnotations(), environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
 	annotatedType.id = unannotatedType.id = this.id;
+	environment.updateCaches(this, annotatedType);
 	if (this.wrappers != null)
 		for (int i = 0, l = this.wrappers.length; i < l; i++)
 			this.wrappers[i].swapUnresolved(this, annotatedType, environment);
-	environment.updateCaches(this, annotatedType);
 }
 
 public String toString() {
