@@ -2477,4 +2477,33 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			},
 			"");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423467, [1.8][compiler] wrong error for functional interface with @Override default method
+	public void test423467() throws Exception { // full test case.
+		this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"    int foo(String s);\n" +
+					"}\n" +
+					"@FunctionalInterface\n" +
+					"interface A extends I { // wrong compile error (A *is* a functional interface)\n" +
+					"    @Override\n" +
+					"    default int foo(String s) {\n" +
+					"        return -1;\n" +
+					"    }\n" +
+					"    Integer foo(java.io.Serializable s);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"    A a = (s) -> 10;\n" +
+					"}\n" +
+					"@FunctionalInterface\n" +
+					"interface B { // OK\n" +
+					"    default int foo(String s) {\n" +
+					"        return -1;\n" +
+					"    }\n" +
+					"    Integer foo(java.io.Serializable s);\n" +
+					"}\n"
+			},
+			"");
+	}
 }

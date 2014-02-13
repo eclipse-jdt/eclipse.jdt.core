@@ -1803,28 +1803,13 @@ private MethodBinding [] getInterfaceAbstractContracts(Scope scope) throws Inval
 	MethodBinding [] contracts = new MethodBinding[0];
 	int contractsCount = 0;
 	int contractsLength = 0;
+	
+	// -- the following are used for early termination.
 	MethodBinding aContract = null;
 	int contractParameterLength = 0;
 	char [] contractSelector = null;
+	// ---
 	
-	for (int i = 0, length = methods == null ? 0 : methods.length; i < length; i++) {
-		final MethodBinding method = methods[i];
-		if (!method.isAbstract() || method.redeclaresPublicObjectMethod(scope)) continue; // skips statics, defaults, public object methods ...
-		final boolean validBinding = method.isValidBinding();
-		if (aContract == null && validBinding) {
-			aContract = method;
-			contractParameterLength = aContract.parameters.length;
-			contractSelector = aContract.selector;
-		} else {
-			if (!validBinding || method.parameters.length != contractParameterLength || !CharOperation.equals(contractSelector, method.selector)) {
-				throw new InvalidInputException("Not a functional interface"); //$NON-NLS-1$
-			}
-		}
-		if (contractsCount == contractsLength) {
-			System.arraycopy(contracts, 0, contracts = new MethodBinding[contractsLength += 16], 0, contractsCount);
-		}
-		contracts[contractsCount++] = method;
-	}
 	ReferenceBinding [] superInterfaces = superInterfaces();
 	for (int i = 0, length = superInterfaces.length; i < length; i++) {
 		MethodBinding [] superInterfaceContracts = superInterfaces[i].getInterfaceAbstractContracts(scope);
@@ -1847,6 +1832,42 @@ private MethodBinding [] getInterfaceAbstractContracts(Scope scope) throws Inval
 			System.arraycopy(superInterfaceContracts, 0, contracts, contractsCount,	superInterfaceContractsLength);
 			contractsCount += superInterfaceContractsLength;
 		}
+	}
+	for (int i = 0, length = methods == null ? 0 : methods.length; i < length; i++) {
+		final MethodBinding method = methods[i];
+		if (method.isStatic() || method.redeclaresPublicObjectMethod(scope)) continue;
+		if (method.isDefaultMethod()) {
+			for (int j = 0; j < contractsCount; j++) {
+				if (contracts[j] == null)
+					continue;
+				if (MethodVerifier.doesMethodOverride(method, contracts[j], scope.environment())) {
+					if (aContract == contracts[j]) {
+						aContract = null;
+						contractParameterLength = 0;
+						contractSelector = null;
+					}
+					contractsCount--;
+					// abstract method from super type rendered default by present interface ==> contracts[j] = null;
+					if (j < contractsCount)
+						System.arraycopy(contracts, j+1, contracts, j, contractsCount - j);
+				}
+			}
+			continue; // skip default method itself
+		}
+		final boolean validBinding = method.isValidBinding();
+		if (aContract == null && validBinding) {
+			aContract = method;
+			contractParameterLength = aContract.parameters.length;
+			contractSelector = aContract.selector;
+		} else {
+			if (!validBinding || method.parameters.length != contractParameterLength || !CharOperation.equals(contractSelector, method.selector)) {
+				throw new InvalidInputException("Not a functional interface"); //$NON-NLS-1$
+			}
+		}
+		if (contractsCount == contractsLength) {
+			System.arraycopy(contracts, 0, contracts = new MethodBinding[contractsLength += 16], 0, contractsCount);
+		}
+		contracts[contractsCount++] = method;
 	}
 	if (contractsCount < contractsLength) {
 		System.arraycopy(contracts, 0, contracts = new MethodBinding[contractsCount], 0, contractsCount);
