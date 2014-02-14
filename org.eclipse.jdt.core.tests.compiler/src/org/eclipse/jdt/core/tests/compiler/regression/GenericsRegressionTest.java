@@ -4180,5 +4180,31 @@ public void test428071() {
 		true,
 		customOptions);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428019, [1.8][compiler] Type inference failures with nested generic invocation.
+public void test428019() {
+	if (this.complianceLevel == ClassFileConstants.JDK1_8)
+		return;
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public final class X {\n" +
+			"  static class Obj {}\n" +
+			"  static class Dial<T> {}\n" +
+			"  static void foo(Dial<? super Obj> dial, X context) {\n" +
+			"    context.put(Dial.class, wrap(dial));\n" +
+			"  }\n" +
+			"  <T> void put(Class<T> clazz, T data) {\n" +
+			"	System.out.println(\"put\");\n" +
+			"  }\n" +
+			"  static <T> Dial<T> wrap(Dial<T> dl) {\n" +
+			"	  return null;\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
+			"	X.foo(new Dial<Obj>(), new X());\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"put");
+}
 }
 
