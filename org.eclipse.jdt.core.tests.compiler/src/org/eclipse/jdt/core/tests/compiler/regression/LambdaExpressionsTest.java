@@ -3240,6 +3240,25 @@ public void test427962() {
 			""
 			);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428112, [1.8][compiler] ClassCastException in ReferenceExpression.generateCode
+public void test428112() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Arrays;\n" +
+				"import java.util.Locale;\n" +
+				"import java.util.stream.Collectors;\n" +
+				"import java.util.stream.Stream;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(Locale.lookup(Stream.of( \"de\", \"*-CH\" ).map(Locale.LanguageRange::new).collect(Collectors.toList()), \n" +
+				"                                   Arrays.asList(Locale.getAvailableLocales())));\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"de"
+			);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

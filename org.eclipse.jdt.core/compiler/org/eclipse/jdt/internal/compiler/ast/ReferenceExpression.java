@@ -54,8 +54,6 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.NestedTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -209,12 +207,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			if (this.isConstructorReference()) {
 				ReferenceBinding[] enclosingInstances = Binding.UNINITIALIZED_REFERENCE_TYPES;
 				if (this.receiverType.isNestedType()) {
-					NestedTypeBinding nestedType = null;
-					if (this.receiverType instanceof ParameterizedTypeBinding) {
-						nestedType = (NestedTypeBinding)((ParameterizedTypeBinding) this.receiverType).genericType();
-					} else {
-						nestedType = (NestedTypeBinding) this.receiverType;
-					}
+					ReferenceBinding nestedType = (ReferenceBinding) this.receiverType;
 					if ((enclosingInstances = nestedType.syntheticEnclosingInstanceTypes()) != null) {
 						int length = enclosingInstances.length;
 						argumentsSize = length;
@@ -230,7 +223,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 					}
 					// Reject types that capture outer local arguments, these cannot be manufactured by the metafactory.
 					if (nestedType.syntheticOuterLocalVariables() != null) {
-						currentScope.problemReporter().noSuchEnclosingInstance(nestedType.enclosingType, this, false);
+						currentScope.problemReporter().noSuchEnclosingInstance(nestedType.enclosingType(), this, false);
 						return;
 					}
 				}
