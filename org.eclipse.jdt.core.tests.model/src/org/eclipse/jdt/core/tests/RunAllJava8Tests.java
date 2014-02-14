@@ -38,6 +38,7 @@ import org.eclipse.jdt.core.tests.formatter.FormatterBugs18Tests;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR308Tests;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR335Tests;
 import org.eclipse.jdt.core.tests.model.CompletionTests18;
+import org.eclipse.jdt.core.tests.model.JavaElement8Tests;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs8Tests;
 import org.eclipse.jdt.core.tests.model.ResolveTests18;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest;
@@ -59,6 +60,7 @@ public class RunAllJava8Tests extends TestCase {
 			CompletionTests18.class,
 			IncrementalTests18.class,
 			org.eclipse.jdt.compiler.apt.tests.AllTests.class,
+			JavaElement8Tests.class,
 		};
 	}
 	
