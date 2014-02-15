@@ -408,9 +408,9 @@ public class ClassScope extends Scope {
 
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		environment().setAccessRestriction(sourceType, accessRestriction);
-		sourceType.fPackage.addType(sourceType);
 		checkAndSetModifiers();
-		buildTypeVariables();
+		buildTypeVariables(); // do this before adding the type to avoid race: see https://bugs.eclipse.org/bugs/show_bug.cgi?id=428247
+		sourceType.fPackage.addType(sourceType);
 		buildMemberTypes(accessRestriction);
 		return sourceType;
 	}
