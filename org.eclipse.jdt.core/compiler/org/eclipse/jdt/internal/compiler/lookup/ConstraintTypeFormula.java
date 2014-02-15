@@ -213,13 +213,8 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			case Binding.TYPE:
 			case Binding.RAW_TYPE:
 				{
-					if (subCandidate instanceof ReferenceBinding) {
-						if (hasSuperType((ReferenceBinding) subCandidate, (ReferenceBinding) superCandidate))
-							return TRUE;
-					} else if (subCandidate.isArrayType()) { // arrays have exactly one super type that is a class or interface:
-						if (TypeBinding.equalsEquals(superCandidate, scope.getJavaLangObject())) // java.lang.Object
-							return TRUE;
-					}
+					if (subCandidate.isSubtypeOf(superCandidate))
+						return TRUE;
 					return FALSE;
 				}
 			case Binding.PARAMETERIZED_TYPE:
@@ -309,22 +304,6 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			return result;
 		InferenceContext18.missingImplementation("Extracting array from intersection is not defined"); //$NON-NLS-1$
 		return null;
-	}
-
-	private boolean hasSuperType(ReferenceBinding sub, ReferenceBinding superType) {
-		if (TypeBinding.equalsEquals(sub, superType))
-			return true;
-		if (sub.id == TypeIds.T_JavaLangObject)
-			return false;
-		if (hasSuperType(sub.superclass(), superType))
-			return true;
-		ReferenceBinding[] superInterfaces = sub.superInterfaces();
-		if (superInterfaces != null) {
-			for (int i=0, l=superInterfaces.length; i<l; i++)
-				if (hasSuperType(superInterfaces[i], superType))
-					return true;
-		}
-		return false;
 	}
 
 	boolean addConstraintsFromTypeParamters(TypeBinding subCandidate, ParameterizedTypeBinding ca, List<ConstraintFormula> constraints) {

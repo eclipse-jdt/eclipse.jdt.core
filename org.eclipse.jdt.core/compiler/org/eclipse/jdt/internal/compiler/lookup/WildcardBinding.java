@@ -20,6 +20,7 @@
  *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *								Bug 426676 - [1.8][compiler] Wrong generic method type inferred from lambda expression
  *								Bug 427411 - [1.8][generics] JDT reports type mismatch when using method that returns generic type
+ *								Bug 428019 - [1.8][compiler] Type inference failure with nested generic invocation.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -540,6 +541,23 @@ public class WildcardBinding extends ReferenceBinding {
      */
     public boolean isIntersectionType() {
     	return this.otherBounds != null;
+    }
+
+    @Override
+    public ReferenceBinding[] getIntersectingTypes() {
+    	if (isIntersectionType()) {
+    		ReferenceBinding[] allBounds = new ReferenceBinding[this.otherBounds.length+1];
+    		try {
+    			allBounds[0] = (ReferenceBinding) this.bound;
+    			System.arraycopy(this.otherBounds, 0, allBounds, 1, this.otherBounds.length);
+    		} catch (ClassCastException cce) {
+    			return null;
+    		} catch (ArrayStoreException ase) {
+    			return null;
+    		}
+    		return allBounds;
+    	}
+    	return null;
     }
 
 	public boolean isHierarchyConnected() {

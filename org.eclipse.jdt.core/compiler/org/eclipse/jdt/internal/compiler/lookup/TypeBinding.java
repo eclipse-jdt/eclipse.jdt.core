@@ -26,6 +26,7 @@
  *								Bug 426764 - [1.8] Presence of conditional expression as method argument confuses compiler
  *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
  *								Bug 427626 - [1.8] StackOverflow while typing new ArrayList<String>().toArray( and asking for code completion
+ *								Bug 428019 - [1.8][compiler] Type inference failure with nested generic invocation.
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -1536,6 +1537,10 @@ public boolean hasTypeBit(int bit) {
 
 public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t, Scope scope) {
 	return s.isCompatibleWith(t, scope) && !s.needsUncheckedConversion(t);
+}
+
+public boolean isSubtypeOf(TypeBinding right) {
+	return isCompatibleWith(right);
 }
 
 public MethodBinding[] getMethods(char[] selector) {

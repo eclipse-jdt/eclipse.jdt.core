@@ -30,6 +30,7 @@
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *								Bug 426792 - [1.8][inference][impl] generify new type inference engine
+ *								Bug 428019 - [1.8][compiler] Type inference failure with nested generic invocation.
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -1305,6 +1306,54 @@ private boolean isCompatibleWith0(TypeBinding otherType, /*@Nullable*/ Scope cap
 		default :
 			return false;
 	}
+}
+
+public boolean isSubtypeOf(TypeBinding other) {
+	if (isSubTypeOfRTL(other))
+		return true;
+	// TODO: if this has wildcards, perform capture before the next call:
+	TypeBinding candidate = findSuperTypeOriginatingFrom(other);
+	if (candidate == null)
+		return false;
+	if (TypeBinding.equalsEquals(candidate, other))
+		return true;
+	
+	// T<Ai...> <: T#RAW:
+	if (other.isRawType() && TypeBinding.equalsEquals(candidate.erasure(), other.erasure()))
+		return true;
+	
+	TypeBinding[] sis = other.typeArguments();
+	TypeBinding[] tis = candidate.typeArguments();
+	if (tis == null || sis == null)
+		return false;
+	if (sis.length != tis.length)
+		return false;
+	for (int i = 0; i < sis.length; i++) {
+		if (!tis[i].isTypeArgumentContainedBy(sis[i]))
+			return false;
+	}
+	return true;
+}
+
+protected boolean isSubTypeOfRTL(TypeBinding other) {
+	if (TypeBinding.equalsEquals(this, other))
+		return true;
+	if (other instanceof CaptureBinding) {
+		// for this one kind we must first unwrap the rhs:
+		TypeBinding lower = ((CaptureBinding) other).lowerBound;
+		return (lower != null && isSubtypeOf(lower));
+	}
+	if (other instanceof ReferenceBinding) {
+		TypeBinding[] intersecting = ((ReferenceBinding) other).getIntersectingTypes();
+		if (intersecting != null) {
+			for (int i = 0; i < intersecting.length; i++) {
+				if (!isSubtypeOf(intersecting[i]))
+					return false;
+			}
+			return true;
+		}
+	}
+	return false;
 }
 
 /**

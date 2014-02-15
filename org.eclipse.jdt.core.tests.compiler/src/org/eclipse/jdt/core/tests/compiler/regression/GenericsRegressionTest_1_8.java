@@ -23,7 +23,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug424195_comment2" };
+//	TESTS_NAMES = new String[] { "testBug428019" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -2093,5 +2093,30 @@ public void testBug426836() {
 			"	}\n" + 
 			"}\n"
 		} );
+}
+public void testBug428019() {
+    runConformTest(
+        new String[] {
+            "X.java",
+            "final public class X {\n" + 
+            "  static class Obj {}\n" + 
+            "  static class Dial<T> {}\n" + 
+            "\n" + 
+            "  <T> void put(Class<T> clazz, T data) {\n" + 
+            "  }\n" + 
+            "\n" + 
+            "  static <T> Dial<T> wrap(Dial<T> dl) {\n" + 
+            "	  return null;\n" + 
+            "  }\n" + 
+            "\n" + 
+            "  static void foo(Dial<? super Obj> dial, X context) {\n" + 
+            "    context.put(Dial.class, wrap(dial));\n" + 
+            "  }\n" + 
+            "  \n" + 
+            "  public static void main(String[] args) {\n" + 
+            "	X.foo(new Dial<Obj>(), new X());\n" + 
+            "  }\n" + 
+            "}\n"
+        });
 }
 }

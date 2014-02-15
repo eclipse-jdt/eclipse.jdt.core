@@ -23,6 +23,7 @@
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 425460 - [1.8] [inference] Type not inferred on stream.toArray
  *								Bug 426792 - [1.8][inference][impl] generify new type inference engine
+ *								Bug 428019 - [1.8][compiler] Type inference failure with nested generic invocation.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -279,6 +280,33 @@ public boolean isCompatibleWith(TypeBinding otherType, Scope captureScope) {
 	}
 	//Check dimensions - Java does not support explicitly sized dimensions for types.
 	//However, if it did, the type checking support would go here.
+	switch (otherType.leafComponentType().id) {
+	    case TypeIds.T_JavaLangObject :
+	    case TypeIds.T_JavaLangCloneable :
+	    case TypeIds.T_JavaIoSerializable :
+	        return true;
+	}
+	return false;
+}
+
+@Override
+public boolean isSubtypeOf(TypeBinding otherType) {
+	if (equalsEquals(this, otherType))
+		return true;
+
+	switch (otherType.kind()) {
+		case Binding.ARRAY_TYPE :
+			ArrayBinding otherArray = (ArrayBinding) otherType;
+			if (otherArray.leafComponentType.isBaseType())
+				return false; // relying on the fact that all equal arrays are identical
+			if (this.dimensions == otherArray.dimensions)
+				return this.leafComponentType.isSubtypeOf(otherArray.leafComponentType);
+			if (this.dimensions < otherArray.dimensions)
+				return false; // cannot assign 'String[]' into 'Object[][]' but can assign 'byte[][]' into 'Object[]'
+			break;
+		case Binding.BASE_TYPE :
+			return false;
+	}
 	switch (otherType.leafComponentType().id) {
 	    case TypeIds.T_JavaLangObject :
 	    case TypeIds.T_JavaLangCloneable :

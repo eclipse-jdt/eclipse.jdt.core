@@ -15,6 +15,7 @@
  *							Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *							Bug 426676 - [1.8][compiler] Wrong generic method type inferred from lambda expression
  *							Bug 426542 - [1.8] Most specific method not picked when one method has intersection type as type parameter
+ *							Bug 428019 - [1.8][compiler] Type inference failure with nested generic invocation.
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -160,6 +161,17 @@ public class IntersectionCastTypeBinding extends ReferenceBinding {
 		// normal case:
 		for (int i = 0; i < this.length; i++) {		
 			if (this.intersectingTypes[i].isCompatibleWith(right, scope))
+				return true;
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean isSubtypeOf(TypeBinding other) {
+		if (TypeBinding.equalsEquals(this, other))
+			return true;
+		for (int i = 0; i < this.intersectingTypes.length; i++) {
+			if (this.intersectingTypes[i].isSubtypeOf(other))
 				return true;
 		}
 		return false;
