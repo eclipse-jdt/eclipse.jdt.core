@@ -26,6 +26,7 @@
  *								Bug 426792 - [1.8][inference][impl] generify new type inference engine
  *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
  *								Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
+ *								Bug 426996 - [1.8][inference] try to avoid method Expression.unresolve()? 
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -955,11 +956,6 @@ public Constant optimizedBooleanConstant() {
 
 public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
 	return true;
-}
-// call this before resolving an expression for the second time.
-// FIXME: we should find a better strategy, see LambdaExpressionsTest.testLambdaInference1() f. for tests that currently need this.
-void unresolve() {
-	this.resolvedType = null;
 }
 /**
  * Returns the type of the expression after required implicit conversions. When expression type gets promoted

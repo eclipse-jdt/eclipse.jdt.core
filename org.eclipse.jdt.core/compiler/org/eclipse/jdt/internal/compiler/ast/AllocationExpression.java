@@ -36,6 +36,7 @@
  *							Bug 424930 - [1.8][compiler] Regression: "Cannot infer type arguments" error from compiler.
  *							Bug 427483 - [Java 8] Variables in lambdas sometimes can't be resolved
  *							Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
+ *							Bug 426996 - [1.8][inference] try to avoid method Expression.unresolve()? 
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *							bug 378674 - "The method can be declared as static" is wrong
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -424,7 +425,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 			argument.setExpressionContext(INVOCATION_CONTEXT);
 			if (this.arguments[i].resolvedType != null) 
-				this.arguments[i].unresolve(); // some cleanup before second attempt
+				scope.problemReporter().genericInferenceError("Argument was unexpectedly found resolved", this); //$NON-NLS-1$
 			if ((argumentTypes[i] = argument.resolveType(scope)) == null) {
 				argHasError = true;
 			}
