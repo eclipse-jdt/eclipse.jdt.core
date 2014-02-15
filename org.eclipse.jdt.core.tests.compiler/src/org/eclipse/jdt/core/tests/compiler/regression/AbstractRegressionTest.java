@@ -104,7 +104,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				"	public java.util.Comparator<*> reverseOrder() { return null;}\n" +
 				"	public java.util.Comparator<*> reversed() { return null;}\n" +
 				"	public java.util.Comparator<*> thenComparing(java.util.Comparator<? super *> other) { return null;}\n" +
-				"	public <% extends java.lang.Comparable<? super %>> java.util.Comparator<*> thenComparing(java.util.function.Function<? super *, ? extends %> keyExtractor, java.util.Comparator<? super %> keyComparator) { return null;}\n" +
+				"	public <%> java.util.Comparator<*> thenComparing(java.util.function.Function<? super *, ? extends %> keyExtractor, java.util.Comparator<? super %> keyComparator) { return null;}\n" +
 				"	public <% extends java.lang.Comparable<? super %>> java.util.Comparator<*> thenComparing(java.util.function.Function<? super *, ? extends %> keyExtractor) { return null;}\n" +
 				"	public java.util.Comparator<*> thenComparingInt(java.util.function.ToIntFunction<? super *> keyExtractor) { return null;}\n" +
 				"	public java.util.Comparator<*> thenComparingLong(java.util.function.ToLongFunction<? super *> keyExtractor) { return null;}\n" +
