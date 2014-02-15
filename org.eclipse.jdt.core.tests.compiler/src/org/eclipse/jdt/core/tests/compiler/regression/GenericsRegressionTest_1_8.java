@@ -23,7 +23,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug428019" };
+//	TESTS_NAMES = new String[] { "testBug428198b" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -2118,5 +2118,44 @@ public void testBug428019() {
             "  }\n" + 
             "}\n"
         });
+}
+public void testBug428198() {
+	runConformTest(
+		new String[] {
+			"Snippet.java",
+			"import java.util.*;\n" + 
+			"interface BundleRevision {}\n" + 
+			"interface BundleDescription extends BundleRevision {}\n" + 
+			"public class Snippet {\n" + 
+			"  static Collection<BundleRevision> test(BundleDescription[] triggers) {\n" + 
+			"    @SuppressWarnings(\"unchecked\")\n" + 
+			"    Collection<BundleRevision> triggerRevisions =\n" + 
+			"    //Type mismatch: cannot convert from Collection<Object> to Collection<BundleRevision>\n" + 
+			"      Collections\n" + 
+			"        .unmodifiableCollection(triggers == null ? Collections.EMPTY_LIST\n" + 
+			"        : Arrays.asList((BundleRevision[]) triggers));\n" + 
+			"    return triggerRevisions;\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
+public void testBug428198b() {
+	runConformTest(
+		new String[] {
+			"Snippet.java",
+			"import java.util.*;\n" + 
+			"interface BundleRevision {}\n" + 
+			"interface BundleDescription extends BundleRevision {}\n" + 
+			"public class Snippet {\n" + 
+			"  static Collection<BundleRevision> test(BundleDescription[] triggers) {\n" + 
+			"    @SuppressWarnings(\"unchecked\")\n" + 
+			"    Collection<BundleRevision> triggerRevisions =\n" + 
+			"      Collections\n" + 
+			"        .unmodifiableCollection(triggers == null ? Collections.emptyList()\n" + 
+			"        : Arrays.asList((BundleRevision[]) triggers));\n" + 
+			"    return triggerRevisions;\n" + 
+			"  }\n" + 
+			"}\n"
+		});
 }
 }

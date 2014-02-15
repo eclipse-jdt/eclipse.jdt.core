@@ -869,6 +869,21 @@ protected void findMethodBinding(BlockScope scope, TypeBinding[] argumentTypes) 
 	resolvePolyExpressionArguments(this, this.binding, argumentTypes);
 }
 
+@Override
+public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType) {
+	if (this.binding instanceof ParameterizedGenericMethodBinding) {
+		InferenceContext18 ctx = getInferenceContext((ParameterizedMethodBinding) this.binding);
+		if (ctx != null && ctx.stepCompleted < InferenceContext18.TYPE_INFERRED) {
+			this.expectedType = targetType;
+			MethodBinding updatedBinding = ctx.inferInvocationType(this, (ParameterizedGenericMethodBinding) this.binding);
+			if (updateBindings(updatedBinding, targetType)) {
+				ASTNode.resolvePolyExpressionArguments(this, updatedBinding);
+			}
+		}
+	}
+	return this.resolvedType;
+}
+
 public void setActualReceiverType(ReferenceBinding receiverType) {
 	if (receiverType == null) return; // error scenario only
 	this.actualReceiverType = receiverType;

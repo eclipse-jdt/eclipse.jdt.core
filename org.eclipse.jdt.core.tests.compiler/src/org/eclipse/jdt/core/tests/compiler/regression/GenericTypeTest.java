@@ -16812,11 +16812,7 @@ public void test0500(){
 			"6. WARNING in X.java (at line 10)\n" + 
 			"	EnumSet<Enum> eSet = EnumSet.allOf(c);\n" + 
 			"	                                   ^\n" + 
-			(this.complianceLevel < ClassFileConstants.JDK1_8 ?
-			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum>\n"
-			:
-			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum<Enum<E>>>\n"
-			) + 
+			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum>\n" + 
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
@@ -31948,11 +31944,7 @@ public void test0961() {
 		"5. WARNING in X.java (at line 7)\n" +
 		"	Comparable c = newInstance2(x);\n" +
 		"	                            ^\n" +
-		(this.complianceLevel < ClassFileConstants.JDK1_8 ?
-		"Type safety: The expression of type X needs unchecked conversion to conform to X<Comparable>\n"
-		:
-		"Type safety: The expression of type X needs unchecked conversion to conform to X<Comparable<Comparable<B>>>\n"
-		)+
+		"Type safety: The expression of type X needs unchecked conversion to conform to X<Comparable>\n" +
 		"----------\n" +
 		"6. ERROR in X.java (at line 9)\n" +
 		"	Zork z;\n" +
@@ -33316,11 +33308,7 @@ public void test0999() {
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
 			"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			(this.complianceLevel == ClassFileConstants.JDK1_7 ?
-			"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<Number>[]\n"
-			: // with unchecked conversion involved, 1.8 infers a weaker type:
-			"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<Object>[]\n"
-			)+ 
+			"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<Number>[]\n" +
 			"----------\n" + 
 			"5. ERROR in X.java (at line 14)\n" + 
 			"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
@@ -33458,7 +33446,7 @@ public void test1000() {
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
 			"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<? extends Object>[]\n" + 
+			"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<? extends Number>[]\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 14)\n" + 
 			"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 

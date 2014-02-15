@@ -335,7 +335,10 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				// spec says erasure, but we don't really have compatibility rules for erasure, use raw type instead:
 				TypeBinding erasure = inferenceContext.environment.convertToRawType(returnType, false);
 				ConstraintTypeFormula newConstraint = new ConstraintTypeFormula(erasure, targetType, COMPATIBLE);
-				return inferenceContext.reduceAndIncorporate(newConstraint);
+				if (!inferenceContext.reduceAndIncorporate(newConstraint))
+					return false;
+				// continuing at true is not spec'd but needed for javac-compatibility,
+				// see org.eclipse.jdt.core.tests.compiler.regression.GenericsRegressionTest_1_8.testBug428198()
 			}
 			TypeBinding rTheta = inferenceContext.substitute(returnType);
 			ParameterizedTypeBinding parameterizedType = InferenceContext18.parameterizedWithWildcard(rTheta);

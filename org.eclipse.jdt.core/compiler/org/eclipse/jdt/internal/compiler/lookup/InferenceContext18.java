@@ -1377,7 +1377,6 @@ public class InferenceContext18 {
 			if (!targetType.isProperType(true))
 				targetType = Scope.substitute(substitution, targetType);
 			Expression expression = this.invocationArguments[i];
-			expression.checkAgainstFinalTargetType(targetType);
 			if (expression instanceof Invocation) {
 				Invocation invocation = (Invocation) expression;
 				if (!this.innerPolies.contains(invocation)) {
@@ -1398,6 +1397,8 @@ public class InferenceContext18 {
 						}
 					}
 				}
+			} else {
+				expression.checkAgainstFinalTargetType(targetType);
 			}
 		}
 	}
