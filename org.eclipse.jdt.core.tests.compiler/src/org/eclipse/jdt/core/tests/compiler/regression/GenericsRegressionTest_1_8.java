@@ -2158,4 +2158,23 @@ public void testBug428198b() {
 			"}\n"
 		});
 }
+public void testBug428264() {
+	runConformTest(
+		new String[] {
+			"Y.java",
+			"import java.util.function.*;\n" + 
+			"import java.util.Optional;\n" + 
+			"\n" + 
+			"interface I<E,F> {}\n" + 
+			"class A<G> implements I<G, Optional<G>> {}\n" + 
+			"\n" + 
+			"public class Y<S,T> {\n" + 
+			"    Y(T o, Predicate<T> p, Supplier<I<S,T>> s) {}\n" + 
+			"\n" + 
+			"    static <Z> Y<Z, Optional<Z>> m() {\n" + 
+			"        return new Y<>(Optional.empty(), Optional::isPresent, A::new);\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }

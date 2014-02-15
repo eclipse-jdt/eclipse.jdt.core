@@ -27,6 +27,7 @@
  *							Bug 424403 - [1.8][compiler] Generic method call with method reference argument fails to resolve properly.
  *							Bug 427196 - [1.8][compiler] Compiler error for method reference to overloaded method
  *							Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
+ *							Bug 428264 - [1.8] method reference of generic class causes problems (wrong inference result or NPE)
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contribution for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -743,6 +744,10 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	}
 
 	public boolean isCompatibleWith(TypeBinding left, Scope scope) {
+		if (this.binding != null && this.binding.isValidBinding() // binding indicates if full resolution has already happened
+				&& this.resolvedType != null && this.resolvedType.isValidBinding()) {
+			return this.resolvedType.isCompatibleWith(left, scope);
+		}
 		// 15.28.2
 		left = left.uncapture(this.enclosingScope);
 		final MethodBinding sam = left.getSingleAbstractMethod(this.enclosingScope, true);

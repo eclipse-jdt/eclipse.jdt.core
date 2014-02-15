@@ -339,6 +339,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					return false;
 				// continuing at true is not spec'd but needed for javac-compatibility,
 				// see org.eclipse.jdt.core.tests.compiler.regression.GenericsRegressionTest_1_8.testBug428198()
+				// and org.eclipse.jdt.core.tests.compiler.regression.GenericsRegressionTest_1_8.testBug428264()
 			}
 			TypeBinding rTheta = inferenceContext.substitute(returnType);
 			ParameterizedTypeBinding parameterizedType = InferenceContext18.parameterizedWithWildcard(rTheta);
