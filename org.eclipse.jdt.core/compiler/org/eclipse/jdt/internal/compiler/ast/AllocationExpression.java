@@ -715,8 +715,8 @@ public Expression[] arguments() {
 
 public boolean updateBindings(MethodBinding updatedBinding, TypeBinding targetType) {
 	boolean hasUpdate = this.binding != updatedBinding;
-	if (this.inferenceContexts != null) {
-		InferenceContext18 ctx = (InferenceContext18)this.inferenceContexts.removeKey(this.binding);
+	if (this.inferenceContexts != null && this.binding.original() == updatedBinding.original()) {
+		InferenceContext18 ctx = (InferenceContext18)this.inferenceContexts.get(this.binding);
 		if (ctx != null && updatedBinding instanceof ParameterizedGenericMethodBinding) {
 			this.inferenceContexts.put(updatedBinding, ctx);
 			// solution may have come from an outer inference, mark now that this (inner) is done (but not deep inners):

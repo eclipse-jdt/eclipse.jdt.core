@@ -2257,4 +2257,43 @@ public void testBug428291() {
 			"}\n"
 		});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428275,  [1.8][compiler] CCE in InferenceContext18.varArgTypes 
+public void testBug428275() {
+	runConformTest(
+		new String[] {
+			"p1/C1.java",
+			"package p1;\n" + 
+			"\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class C1<T1> {\n" + 
+			"\n" + 
+			"	public static class CInner<T2A,T2B> {\n" + 
+			"		public CInner(T2A a, T2B b) {}\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static class CInner2<T3A,T3B> {\n" + 
+			"		public CInner2(String n, List<CInner<T3A,T3B>> arg) {}\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"    public static <E> List<E> getList1(E... items) {\n" + 
+			"    	return null;\n" + 
+			"    }\n" + 
+			"}\n",
+			"Test.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"import p1.C1;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"	void test2(List<C1.CInner2> l) {\n" + 
+			"		l.add(\n" + 
+			"			new C1.CInner2<>(\"a\",\n" + 
+			"				C1.getList1(new C1.CInner<>(\"b\", 13))\n" + 
+			"			)\n" + 
+			"		);\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
 }
