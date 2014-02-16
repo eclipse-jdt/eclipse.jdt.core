@@ -47,6 +47,7 @@
  *								Bug 416307 - [1.8][compiler][null] subclass with type parameter substitution confuses null checking
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 424637 - [1.8][compiler][null] AIOOB in ReferenceExpression.resolveType with a method reference to Files::walk
+ *								Bug 428294 - [1.8][compiler] Type mismatch: cannot convert from List<Object> to Collection<Object[]>
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -9944,7 +9945,12 @@ public void disallowedTargetForContainerAnnotation(Annotation annotation, TypeBi
 }
 public void genericInferenceError(String message, InvocationSite invocationSite) {
 	String[] args = new String[]{message};
-	this.handle( IProblem.GenericInferenceError, args, args, invocationSite.sourceStart(), invocationSite.sourceEnd());	
+	int start = 0, end = 0;
+	if (invocationSite != null) {
+		start = invocationSite.sourceStart();
+		end = invocationSite.sourceEnd();
+	}
+	this.handle( IProblem.GenericInferenceError, args, args, start, end);	
 }
 public void uninternedIdentityComparison(EqualExpression expr, TypeBinding lhs, TypeBinding rhs, CompilationUnitDeclaration unit) {
 	

@@ -2177,4 +2177,40 @@ public void testBug428264() {
 			"}\n"
 		});
 }
+public void testBug428294() {
+	runConformTest(
+		new String[] {
+			"Junk5.java",
+			"import java.util.Collection;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"\n" + 
+			"public class Junk5 {\n" + 
+			"\n" + 
+			"    class TestTouchDevice {\n" + 
+			"        public Object [] points;\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public static List<TestTouchDevice> getTouchDevices() {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static Collection<Object[]> getTouchDeviceParameters2(int minPoints) {\n" + 
+			"        Collection c = getTouchDevices().stream()\n" + 
+			"                .filter(d -> d.points.length >= minPoints)\n" + 
+			"                .map(d -> new Object[] { d })\n" + 
+			"                .collect(Collectors.toList());\n" + 
+			"         return c;\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public static Collection<Object[]> getTouchDeviceParameters3(int minPoints) {\n" + 
+			"        return getTouchDevices().stream()\n" + 
+			"                .filter(d -> d.points.length >= minPoints)\n" + 
+			"                .map(d -> new Object[] { d })\n" + 
+			"                .collect(Collectors.toList());\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }

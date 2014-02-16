@@ -33,9 +33,11 @@
  *								Bug 425156 - [1.8] Lambda as an argument is flagged with incompatible error
  *								Bug 426563 - [1.8] AIOOBE when method with error invoked with lambda expression as argument
  *								Bug 426792 - [1.8][inference][impl] generify new type inference engine
+ *								Bug 428294 - [1.8][compiler] Type mismatch: cannot convert from List<Object> to Collection<Object[]>
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -1356,7 +1358,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		ParameterizedTypeBinding declaringType = null;
 		TypeBinding [] types = this.arguments; 
 		if (replaceWildcards) {
-			types = getNonWildcardParameterization();
+			types = getNonWildcardParameterization(scope);
 			if (types == null)
 				return this.singleAbstractMethod = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NotAWellFormedParameterizedType);
 		} else if (types == null) {
@@ -1380,7 +1382,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	// from JLS 9.8
-	public TypeBinding[] getNonWildcardParameterization() {
+	public TypeBinding[] getNonWildcardParameterization(Scope scope) {
 		// precondition: isValidBinding()
 		TypeBinding[] typeArguments = this.arguments; 							// A1 ... An
 		if (typeArguments == null)
@@ -1402,29 +1404,32 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 						int len = 1 + (otherUBounds != null ? otherUBounds.length : 0) + otherBBounds.length;
 						if (typeParameters[i].firstBound != null)
 							len++;
-						ReferenceBinding[] allBounds = new ReferenceBinding[len];
-						try {
-							int idx = 0;
-							// Ui
-							allBounds[idx++] = (ReferenceBinding) wildcard.bound;
-							if (otherUBounds != null)
-								for (int j = 0; j < otherUBounds.length; j++)
-									allBounds[idx++] = (ReferenceBinding) otherUBounds[j];
-							// Bi
-							if (typeParameters[i].firstBound != null)
-								allBounds[idx++] = (ReferenceBinding) typeParameters[i].firstBound;
-							for (int j = 0; j < otherBBounds.length; j++)
-								allBounds[idx++] = (ReferenceBinding) otherBBounds[j];
-						} catch (ClassCastException cce) {
-							return null;
-						}
-						ReferenceBinding[] glb = Scope.greaterLowerBound(allBounds);
+						TypeBinding[] allBounds = new TypeBinding[len]; // TypeBinding so that in this round we accept ArrayBinding, too.
+						int idx = 0;
+						// Ui
+						allBounds[idx++] = wildcard.bound;
+						if (otherUBounds != null)
+							for (int j = 0; j < otherUBounds.length; j++)
+								allBounds[idx++] = otherUBounds[j];
+						// Bi
+						if (typeParameters[i].firstBound != null)
+							allBounds[idx++] = typeParameters[i].firstBound;
+						for (int j = 0; j < otherBBounds.length; j++)
+							allBounds[idx++] = otherBBounds[j];
+						TypeBinding[] glb = Scope.greaterLowerBound(allBounds, null, this.environment);
 						if (glb == null || glb.length == 0) {
 							return null;
 						} else if (glb.length == 1) {
 							types[i] = glb[0];
 						} else {
-							types[i] = new IntersectionCastTypeBinding(glb, this.environment);
+							try {
+								ReferenceBinding[] refs = new ReferenceBinding[glb.length];
+								System.arraycopy(glb, 0, refs, 0, glb.length); // TODO: if an array type plus more types get here, we get ArrayStoreException!
+								types[i] = new IntersectionCastTypeBinding(refs, this.environment);
+							} catch (ArrayStoreException ase) {
+								scope.problemReporter().genericInferenceError("Cannot compute glb of "+Arrays.toString(glb), null); //$NON-NLS-1$
+								return null;
+							}
 						}
 						break;
 					case Wildcard.SUPER :

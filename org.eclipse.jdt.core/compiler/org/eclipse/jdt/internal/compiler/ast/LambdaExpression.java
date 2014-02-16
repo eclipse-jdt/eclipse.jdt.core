@@ -30,6 +30,7 @@
  *							Bug 426563 - [1.8] AIOOBE when method with error invoked with lambda expression as argument
  *							Bug 420525 - [1.8] [compiler] Incorrect error "The type Integer does not define sum(Object, Object) that is applicable here"
  *							Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
+ *							Bug 428294 - [1.8][compiler] Type mismatch: cannot convert from List<Object> to Collection<Object[]>
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -427,7 +428,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				}
 			} else {
 				// non-wildcard parameterization (9.8) of the target type
-				TypeBinding[] types = withWildCards.getNonWildcardParameterization();
+				TypeBinding[] types = withWildCards.getNonWildcardParameterization(blockScope);
 				if (types == null)
 					return null;
 				return blockScope.environment().createParameterizedType(genericType, types, genericType.enclosingType());
