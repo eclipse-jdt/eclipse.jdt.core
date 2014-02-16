@@ -3259,6 +3259,66 @@ public void test428112() {
 			"de"
 			);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428003, [1.8][compiler] Incorrect error on lambda expression when preceded by another explicit lambda expression
+public void test428003() { // extracted small test
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Arrays;\n" +
+				"public class X {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        Arrays.sort(args, (String x, String y) -> x.length() - y.length());\n" +
+				"        Arrays.sort(args, (x, y) -> Integer.compare(x.length(), y.length()));\n" +
+				"    }\n" +
+				"}\n"
+			},
+			""
+			);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428003, [1.8][compiler] Incorrect error on lambda expression when preceded by another explicit lambda expression
+public void test428003a() { // full test case
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Arrays;\n" +
+				"public class X {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        String[] words = {\"java\", \"interface\", \"lambda\", \"expression\" };\n" +
+				"        Arrays.sort(words, (String word1, String word2) -> {\n" +
+				"                    if (word1.length() < word2.length())\n" +
+				"                        return -1;\n" +
+				"                    else if (word1.length() > word2.length())\n" +
+				"                        return 1;\n" +
+				"                    else\n" +
+				"                        return 0;\n" +
+				"                  });\n" +
+				"        for (String word : words)\n" +
+				"            System.out.println(word);\n" +
+				"        words = new String [] {\"java\", \"interface\", \"lambda\", \"expression\" };\n" +
+				"        Arrays.sort(words, (word1, word2) -> Integer.compare(word1.length(), word2.length()));\n" +
+				"        for (String word : words)\n" +
+				"            System.out.println(word);\n" +
+				"        words = new String [] {\"java\", \"interface\", \"lambda\", \"expression\" };\n" +
+				"        Arrays.sort(words, (String word1, String word2) -> Integer.compare(word1.length(), word2.length()));\n" +
+				"        for (String word : words)\n" +
+				"            System.out.println(word);\n" +
+				"      }\n" +
+				"  }\n"
+			},
+			"java\n" +
+			"lambda\n" +
+			"interface\n" +
+			"expression\n" +
+			"java\n" +
+			"lambda\n" +
+			"interface\n" +
+			"expression\n" +
+			"java\n" +
+			"lambda\n" +
+			"interface\n" +
+			"expression"
+			);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

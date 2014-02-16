@@ -1179,7 +1179,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			TypeBinding[] intersectionTypes = ((IntersectionCastTypeBinding)this.expectedType).intersectingTypes;
 			for (int i = 0,max = intersectionTypes.length; i < max; i++) {
 				TypeBinding typeBinding = intersectionTypes[i];
-				MethodBinding methodBinding = typeBinding.getSingleAbstractMethod(this.scope, false);
+				MethodBinding methodBinding = typeBinding.getSingleAbstractMethod(this.scope, true);
 				// Why doesn't getSingleAbstractMethod do as the javadoc says, and return null
 				// when it is not a SAM type
 				if (!(methodBinding instanceof ProblemMethodBinding && ((ProblemMethodBinding)methodBinding).problemId()==ProblemReasons.NoSuchSingleAbstractMethod)) {

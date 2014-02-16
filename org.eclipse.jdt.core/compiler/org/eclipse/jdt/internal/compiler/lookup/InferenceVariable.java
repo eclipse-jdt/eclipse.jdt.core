@@ -26,16 +26,12 @@ public class InferenceVariable extends TypeVariableBinding {
 	InvocationSite site;
 	TypeBinding typeParameter;
 	
-	public InferenceVariable(TypeBinding typeParameter, int variableRank, InvocationSite site, LookupEnvironment environment) {
+	public InferenceVariable(TypeBinding typeParameter, int variableRank, InvocationSite site, LookupEnvironment environment, ReferenceBinding object) {
 		super(CharOperation.concat(typeParameter.shortReadableName(), Integer.toString(variableRank).toCharArray(), '#'), 
 				null/*declaringElement*/, variableRank, environment);
 		this.site = site;
 		this.typeParameter = typeParameter;
-	}
-
-	public InferenceVariable(int expressionRank, int variableRank, LookupEnvironment environment) {
-		super(CharOperation.concat("expr#".toCharArray(), Integer.toString(variableRank).toCharArray()), //$NON-NLS-1$
-				null/*declaringElement*/, variableRank, environment);
+		this.superclass = object;
 	}
 
 	public char[] constantPoolName() {

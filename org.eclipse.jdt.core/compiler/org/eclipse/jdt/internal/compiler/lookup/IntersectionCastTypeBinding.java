@@ -43,21 +43,26 @@ public class IntersectionCastTypeBinding extends ReferenceBinding {
 	}
 	
 	public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcards) {
-		if (this.singleAbstractMethod != null)
-			return this.singleAbstractMethod;
+		int index = replaceWildcards ? 0 : 1;
+		if (this.singleAbstractMethod != null) {
+			if (this.singleAbstractMethod[index] != null)
+			return this.singleAbstractMethod[index];
+		} else {
+			this.singleAbstractMethod = new MethodBinding[2];
+		}
 		MethodBinding sam = samProblemBinding;  // guilty unless proven innocent !
 		for (int i = 0; i < this.length; i++) {
 			MethodBinding method = this.intersectingTypes[i].getSingleAbstractMethod(scope, replaceWildcards);
 			if (method != null) {
 				if (method.isValidBinding()) {
 					if (sam.isValidBinding())
-						return this.singleAbstractMethod = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.IntersectionHasMultipleFunctionalInterfaces);
+						return this.singleAbstractMethod[index] = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.IntersectionHasMultipleFunctionalInterfaces);
 					else
 						sam = method;
 				}
 			}
 		}
-		return this.singleAbstractMethod = sam; // I don't see a value in building the notional interface described in 9.8 - it appears just pedantic/normative - perhaps it plays a role in wildcard parameterized types ?
+		return this.singleAbstractMethod[index] = sam; // I don't see a value in building the notional interface described in 9.8 - it appears just pedantic/normative - perhaps it plays a role in wildcard parameterized types ?
 	}
 
 	public boolean hasTypeBit(int bit) { // Stephan ??
@@ -238,7 +243,7 @@ public class IntersectionCastTypeBinding extends ReferenceBinding {
 		TypeBinding samType = null;
 		for (int i = 0, max = this.intersectingTypes.length; i < max; i++) {
 			TypeBinding typeBinding = this.intersectingTypes[i];
-			MethodBinding methodBinding = typeBinding.getSingleAbstractMethod(scope, false);
+			MethodBinding methodBinding = typeBinding.getSingleAbstractMethod(scope, true);
 			// Why doesn't getSingleAbstractMethod do as the javadoc says, and return null
 			// when it is not a SAM type
 			if (methodBinding instanceof ProblemMethodBinding && ((ProblemMethodBinding) methodBinding).problemId()==ProblemReasons.NoSuchSingleAbstractMethod) {

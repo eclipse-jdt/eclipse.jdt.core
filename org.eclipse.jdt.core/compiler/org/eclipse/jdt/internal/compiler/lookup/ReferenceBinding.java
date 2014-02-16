@@ -71,7 +71,7 @@ abstract public class ReferenceBinding extends TypeBinding {
 	private SimpleLookupTable compatibleCache;
 
 	int typeBits; // additional bits characterizing this type
-	protected MethodBinding singleAbstractMethod;
+	protected MethodBinding [] singleAbstractMethod;
 
 	public static final ReferenceBinding LUB_GENERIC = new ReferenceBinding() { /* used for lub computation */
 		{ this.id = TypeIds.T_undefined; }
@@ -1925,8 +1925,12 @@ private MethodBinding [] getInterfaceAbstractContracts(Scope scope) throws Inval
 }
 public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcards) {
 	
+	int index = replaceWildcards ? 0 : 1;
 	if (this.singleAbstractMethod != null) {
-		return this.singleAbstractMethod;
+		if (this.singleAbstractMethod[index] != null)
+		return this.singleAbstractMethod[index];
+	} else {
+		this.singleAbstractMethod = new MethodBinding[2];
 	}
 
 	if (this.compoundName != null)
@@ -1935,10 +1939,10 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 	try {
 		methods = getInterfaceAbstractContracts(scope);
 	} catch (InvalidInputException e) {
-		return this.singleAbstractMethod = samProblemBinding;
+		return this.singleAbstractMethod[index] = samProblemBinding;
 	}
 	if (methods != null && methods.length == 1)
-		return this.singleAbstractMethod = methods[0];
+		return this.singleAbstractMethod[index] = methods[0];
 	
 	final LookupEnvironment environment = scope.environment();
 	boolean genericMethodSeen = false;
@@ -2022,15 +2026,15 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 		if (exceptionsCount != exceptionsLength) {
 			System.arraycopy(exceptions, 0, exceptions = new ReferenceBinding[exceptionsCount], 0, exceptionsCount);
 		}
-		this.singleAbstractMethod = new MethodBinding(theAbstractMethod.modifiers, 
+		this.singleAbstractMethod[index] = new MethodBinding(theAbstractMethod.modifiers, 
 				theAbstractMethod.selector, 
 				theAbstractMethod.returnType, 
 				theAbstractMethod.parameters, 
 				exceptions, 
 				theAbstractMethod.declaringClass);
-	    this.singleAbstractMethod.typeVariables = theAbstractMethod.typeVariables;
-		return this.singleAbstractMethod;
+	    this.singleAbstractMethod[index].typeVariables = theAbstractMethod.typeVariables;
+		return this.singleAbstractMethod[index];
 	}
-	return this.singleAbstractMethod = samProblemBinding;
+	return this.singleAbstractMethod[index] = samProblemBinding;
 }
 }

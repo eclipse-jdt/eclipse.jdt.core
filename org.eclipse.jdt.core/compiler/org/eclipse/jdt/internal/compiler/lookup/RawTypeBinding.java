@@ -196,13 +196,17 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	}
 	
 	public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcards) {
+		int index = replaceWildcards ? 0 : 1;
 		if (this.singleAbstractMethod != null) {
-			return this.singleAbstractMethod;
+			if (this.singleAbstractMethod[index] != null)
+			return this.singleAbstractMethod[index];
+		} else {
+			this.singleAbstractMethod = new MethodBinding[2];
 		}
 		final ReferenceBinding genericType = genericType();
 		MethodBinding theAbstractMethod = genericType.getSingleAbstractMethod(scope, replaceWildcards);
 		if (theAbstractMethod == null || !theAbstractMethod.isValidBinding())
-			return this.singleAbstractMethod = theAbstractMethod;
+			return this.singleAbstractMethod[index] = theAbstractMethod;
 		
 		ReferenceBinding declaringType = (ReferenceBinding) scope.environment().convertToRawType(genericType, true);
 		declaringType = (ReferenceBinding) declaringType.findSuperTypeOriginatingFrom(theAbstractMethod.declaringClass);
@@ -210,10 +214,10 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		for (int i = 0, length = choices.length; i < length; i++) {
 			MethodBinding method = choices[i];
 			if (!method.isAbstract() || method.redeclaresPublicObjectMethod(scope)) continue; // (re)skip statics, defaults, public object methods ...
-			this.singleAbstractMethod = method;
+			this.singleAbstractMethod[index] = method;
 			break;
 		}
-		return this.singleAbstractMethod;
+		return this.singleAbstractMethod[index];
 	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#readableName()
