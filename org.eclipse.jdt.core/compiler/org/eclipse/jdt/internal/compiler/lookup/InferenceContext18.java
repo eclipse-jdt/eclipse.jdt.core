@@ -858,6 +858,15 @@ public class InferenceContext18 {
 
 		return resolve(this.inferenceVariables);
 	}
+	
+	public /*@Nullable*/ BoundSet solve(InferenceVariable[] toResolve) throws InferenceFailureException {
+		if (!reduce())
+			return null;
+		if (!this.currentBounds.incorporate(this))
+			return null;
+
+		return resolve(toResolve);
+	}
 
 	/**
 	 * JLS 18.2. reduce all initial constraints 

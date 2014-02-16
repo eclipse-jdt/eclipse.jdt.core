@@ -2631,4 +2631,88 @@ public void testBug429424() {
 			"\n"
 		});
 }
+public void _testBug426537() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(J[] list, I<J<?>> i) {\n" + 
+			"		sort(list, i);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	<T> T[] sort(T[] list, I<? super T> i) {\n" + 
+			"		return list;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface I<T> {}\n" + 
+			"interface J<T> {}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	void foo(J[] list, I<J<?>> i) {\n" + 
+		"	         ^\n" + 
+		"J is a raw type. References to generic type J<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	sort(list, i);\n" + 
+		"	^^^^\n" + 
+		"The method sort(T[], I<? super T>) in the type X is not applicable for the arguments (J[], I<J<?>>)\n" + 
+		"----------\n");
+}
+public void testBug426537b() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"interface C<T, A, R> {}\n" + 
+			"\n" + 
+			"class MImpl<K, V> {}\n" + 
+			"\n" + 
+			"interface S<T> { T get(); }\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"	static <T, K, D> C<T, ?, MImpl<K, D>> m1() {\n" + 
+			"        return m2(MImpl::new);\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    static <T, K, D, M extends MImpl<K, D>> C<T, ?, M> m2(S<M> s) {\n" + 
+			"    	return null;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n"
+		});
+}
+public void testBug426537c() {
+	// touching MImpl#RAW before type inference we got undesired results from #typeArguments() 
+	runConformTest(
+		new String[] {
+			"Ups.java",
+			"public class Ups {\n" + 
+			"    static Object innocent(MImpl o) {\n" + 
+			"            return o.remove(\"nice\");\n" + // method lookup triggers initialization of the RawTypeBinding.
+			"    }\n" + 
+			"}\n",
+			"Test.java",
+			"interface S<T> { T get(); }\n" + 
+			"interface F<T, R> { R apply(T t); }\n" + 
+			"interface C<T, A, R> { }\n" + 
+			"interface IM<K,V> {}\n" + 
+			"class MImpl<K,V>  implements IM<K,V> { \n" + 
+			"	public V remove(Object key) { return null; } \n" + 
+			"}\n" + 
+			"public final class Test {\n" + 
+			"\n" + 
+			"    static <T, K, A, D>\n" + 
+			"    C<T, ?, IM<K, D>> m1(F<? super T, ? extends K> f, C<? super T, A, D> c) {\n" + 
+			"        return m2(f, MImpl::new, c);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static <T, K, D, A, M extends IM<K, D>>\n" + 
+			"    C<T, ?, M> m2(F<? super T, ? extends K> classifier,\n" + 
+			"                                  S<M> mapFactory,\n" + 
+			"                                  C<? super T, A, D> downstream) {\n" + 
+			"    	return null;\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }

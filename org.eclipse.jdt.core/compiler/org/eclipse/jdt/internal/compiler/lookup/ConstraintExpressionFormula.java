@@ -207,7 +207,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 									|| exprType.isCompatibleWith(r)))
 								return FALSE;
 						} else {
-							result.add(new ConstraintExpressionFormula(expr, r, COMPATIBLE));
+							result.add(new ConstraintExpressionFormula(expr, r, COMPATIBLE, this.isSoft));
 						}
 					}
 				}
@@ -302,7 +302,9 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			MethodBinding original = compileTimeDecl.original();
 			if (reference.typeArguments == null
 					&& ((original.typeVariables() != Binding.NO_TYPE_VARIABLES && r.mentionsAny(original.typeVariables(), -1))
-						|| (original.isConstructor() && original.declaringClass.typeVariables() != Binding.NO_TYPE_VARIABLES && r.mentionsAny(original.declaringClass.typeVariables(), -1)))) 
+						|| (original.isConstructor() && original.declaringClass.typeVariables() != Binding.NO_TYPE_VARIABLES)))
+							// not checking r.mentionsAny for constructors, because A::new resolves to the raw type
+							// whereas in fact the type of all expressions of this shape depends on their type variable (if any)
 			{
 				SuspendedInferenceRecord prevInvocation = inferenceContext.enterPolyInvocation(reference, null/*no invocation arguments available*/);
 
@@ -311,7 +313,11 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					inferInvocationApplicability(inferenceContext, original, functionType.parameters, original.isConstructor()/*mimic a diamond?*/, inferenceContext.inferenceKind);
 					if (!inferPolyInvocationType(inferenceContext, reference, r, original))
 						return FALSE;
-					return null; // already incorporated
+					if (!original.isConstructor() 
+							|| reference.receiverType.isRawType()  // note: rawtypes may/may not have typeArguments() depending on initialization state
+							|| reference.receiverType.typeArguments() == null)
+						return null; // already incorporated
+					// for Foo<Bar>::new we need to (illegally) add one more constraint below to get to the Bar
 				} catch (InferenceFailureException e) {
 					return FALSE;
 				} finally {
@@ -398,7 +404,9 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 						toResolve = true;
 				}
 				if (toResolve) {
-					BoundSet solution = inferenceContext.solve(); // TODO: minimal resolving for only α
+					BoundSet solution = inferenceContext.solve(new InferenceVariable[]{alpha});
+					if (solution == null)
+						return false;
 					TypeBinding u = solution.getInstantiation(alpha, null).capture(inferenceContext.scope, invocationSite.sourceStart()); // TODO make position unique?
 					ConstraintTypeFormula newConstraint = ConstraintTypeFormula.create(u, targetType, COMPATIBLE);
 					return inferenceContext.reduceAndIncorporate(newConstraint);
