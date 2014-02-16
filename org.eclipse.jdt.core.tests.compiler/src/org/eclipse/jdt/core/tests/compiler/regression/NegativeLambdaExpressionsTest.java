@@ -8475,6 +8475,38 @@ public void test427749() {
 		"Y cannot be resolved to a type\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428300, - [1.8] Map.computeIfAbsent fails with array value types
+public void test428300() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.concurrent.ConcurrentHashMap;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		ConcurrentHashMap<String, String[]> map = new ConcurrentHashMap<>();\n" +
+			"		map.computeIfAbsent(\"doo\", e -> new String[] {});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428300, - [1.8] Map.computeIfAbsent fails with array value types
+public void test428300a() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.concurrent.ConcurrentHashMap;\n" +
+			"import java.util.function.Function;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		ConcurrentHashMap<String, String[]> map = new ConcurrentHashMap<>();\n" +
+			"		Function<String, String[]> f = e -> new String[] {};\n" +
+			"		map.computeIfAbsent(\"doo\", f);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
