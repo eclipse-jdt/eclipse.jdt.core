@@ -485,8 +485,9 @@ public class InferenceContext18 {
 			MethodBinding innerMethod = invocation.binding(null);
 			if (innerMethod instanceof ParameterizedGenericMethodBinding) {
 				InferenceContext18 innerCtx = invocation.getInferenceContext((ParameterizedMethodBinding) innerMethod);
-				int innerKind = innerCtx != null ? innerCtx.inferenceKind : this.inferenceKind;
-				return addConstraintsToC(invocation.arguments(), c, innerMethod.genericMethod(), innerKind);
+				if (innerCtx != null) { // otherwise innerMethod does not participate in inference
+					return addConstraintsToC(invocation.arguments(), c, innerMethod.genericMethod(), innerCtx.inferenceKind);
+				}
 			}
 		} else if (expri instanceof ConditionalExpression) {
 			ConditionalExpression ce = (ConditionalExpression) expri;
