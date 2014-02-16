@@ -213,7 +213,7 @@ public void testBug424038() {
 		"1. ERROR in Foo.java (at line 8)\n" + 
 		"	List<Consumer<E>> list2 = stream.gather(() -> new Stuff<>()).toList(); // ERROR\n" + 
 		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from List<Foo<E>.Stuff<E>> to List<Consumer<E>>\n" + 
+		"Type mismatch: cannot convert from List<Foo.Stuff<E>> to List<Consumer<E>>\n" + 
 		"----------\n");
 }
 

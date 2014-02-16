@@ -23,19 +23,20 @@ public class SyntheticFactoryMethodBinding extends MethodBinding {
 
 	private MethodBinding staticFactoryFor;
 	private LookupEnvironment environment;
+	private ReferenceBinding enclosingType;
 	
-	public SyntheticFactoryMethodBinding(MethodBinding method, LookupEnvironment environment) {
+	public SyntheticFactoryMethodBinding(MethodBinding method, LookupEnvironment environment, ReferenceBinding enclosingType) {
 		super(method.modifiers | ClassFileConstants.AccStatic, TypeConstants.SYNTHETIC_STATIC_FACTORY,
 				null, null, null, method.declaringClass);
 		this.environment = environment;
 		this.staticFactoryFor = method;
+		this.enclosingType = enclosingType;
 	}
 	
 	/** Apply the given type arguments on the (declaring class of the) actual constructor being represented by this factory method. */
 	public ParameterizedMethodBinding applyTypeArgumentsOnConstructor(TypeBinding[] typeArguments) {
-		ReferenceBinding originalDeclaringClass = (ReferenceBinding) this.declaringClass.original();
-		ReferenceBinding parameterizedType = this.environment.createParameterizedType(originalDeclaringClass, typeArguments,
-																						originalDeclaringClass.enclosingType());
+		ReferenceBinding parameterizedType = this.environment.createParameterizedType(this.declaringClass, typeArguments,
+																						this.enclosingType);
 		for (MethodBinding parameterizedMethod : parameterizedType.methods()) {
 			if (parameterizedMethod.original() == this.staticFactoryFor)
 				return (ParameterizedMethodBinding) parameterizedMethod;

@@ -473,7 +473,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				return this.resolvedType = receiverType;
 			}
 			if (isDiamond) {
-				TypeBinding [] inferredTypes = inferElidedTypes(((ParameterizedTypeBinding) receiverType).genericType(), receiverType.enclosingType(), argumentTypes, scope);
+				TypeBinding [] inferredTypes = inferElidedTypes((ParameterizedTypeBinding) receiverType, receiverType.enclosingType(), argumentTypes, scope);
 				if (inferredTypes == null) {
 					scope.problemReporter().cannotInferElidedTypes(this);
 					return this.resolvedType = null;

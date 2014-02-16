@@ -57,7 +57,6 @@ import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
@@ -494,7 +493,7 @@ boolean resolvePart2(ResolutionState state) {
 	// TODO: all information persisted during this method may need to be stored per targetType?
 	if (state.isDiamond) {
 		ReferenceBinding genericType = ((ParameterizedTypeBinding) this.resolvedType).genericType();
-		TypeBinding [] inferredTypes = inferElidedTypes(genericType, genericType.enclosingType(), state.argumentTypes, state.scope);
+		TypeBinding [] inferredTypes = inferElidedTypes((ParameterizedTypeBinding) this.resolvedType, this.resolvedType.enclosingType(), state.argumentTypes, state.scope);
 		if (inferredTypes == null) {
 			if (!state.diamondNeedsDeferring) {
 				state.scope.problemReporter().cannotInferElidedTypes(this);
@@ -568,7 +567,7 @@ void checkIllegalNullAnnotation(BlockScope scope, TypeBinding allocationType) {
 	}
 }
 
-public TypeBinding[] inferElidedTypes(ReferenceBinding allocationType, ReferenceBinding enclosingType, TypeBinding[] argumentTypes, final BlockScope scope) {
+public TypeBinding[] inferElidedTypes(ParameterizedTypeBinding allocationType, ReferenceBinding enclosingType, TypeBinding[] argumentTypes, final BlockScope scope) {
 	/* Given the allocation type and the arguments to the constructor, see if we can synthesize a generic static factory
 	   method that would, given the argument types and the invocation site, manufacture a parameterized object of type allocationType.
 	   If we are successful then by design and construction, the parameterization of the return type of the factory method is identical
@@ -595,8 +594,7 @@ public TypeBinding[] inferElidedTypes(ReferenceBinding allocationType, Reference
 }
 
 public void checkTypeArgumentRedundancy(ParameterizedTypeBinding allocationType, ReferenceBinding enclosingType, TypeBinding[] argumentTypes, final BlockScope scope) {
-	ProblemReporter reporter = scope.problemReporter();
-	if ((reporter.computeSeverity(IProblem.RedundantSpecificationOfTypeArguments) == ProblemSeverities.Ignore) || scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_7) return;
+	if ((scope.problemReporter().computeSeverity(IProblem.RedundantSpecificationOfTypeArguments) == ProblemSeverities.Ignore) || scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_7) return;
 	if (allocationType.arguments == null) return;  // raw binding
 	if (this.genericTypeArguments != null) return; // diamond can't occur with explicit type args for constructor
 	if (argumentTypes == Binding.NO_PARAMETERS && this.typeExpected instanceof ParameterizedTypeBinding) {
@@ -610,7 +608,7 @@ public void checkTypeArgumentRedundancy(ParameterizedTypeBinding allocationType,
 					break;
 			}
 			if (i == allocationType.arguments.length) {
-				reporter.redundantSpecificationOfTypeArguments(this.type, allocationType.arguments);
+				scope.problemReporter().redundantSpecificationOfTypeArguments(this.type, allocationType.arguments);
 				return;
 			}	
 		}
@@ -621,7 +619,7 @@ public void checkTypeArgumentRedundancy(ParameterizedTypeBinding allocationType,
 		// checking for redundant type parameters must fake a diamond, 
 		// so we infer the same results as we would get with a diamond in source code:
 		this.type.bits |= IsDiamond;
-		inferredTypes = inferElidedTypes(allocationType.genericType(), enclosingType, argumentTypes, scope);
+		inferredTypes = inferElidedTypes(allocationType, enclosingType, argumentTypes, scope);
 	} finally {
 		// reset effects of inference
 		this.type.bits = previousBits;
@@ -633,7 +631,7 @@ public void checkTypeArgumentRedundancy(ParameterizedTypeBinding allocationType,
 		if (TypeBinding.notEquals(inferredTypes[i], allocationType.arguments[i]))
 			return;
 	}
-	reporter.redundantSpecificationOfTypeArguments(this.type, allocationType.arguments);
+	scope.problemReporter().redundantSpecificationOfTypeArguments(this.type, allocationType.arguments);
 }
 
 public void setActualReceiverType(ReferenceBinding receiverType) {

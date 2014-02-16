@@ -1403,7 +1403,7 @@ public void test0034() {
 		"5. ERROR in X.java (at line 17)\n" + 
 		"	X<Integer>.Y<String> y4 = new X<>(1).new Y<>(\"\",\"\");\n" + 
 		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Cannot infer type arguments for Y<>\n" + 
+		"The constructor X<Integer>.Y<String>(String, String) is undefined\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 19)\n" + 
 		"	X<Integer>.Y<String> y6 = new X<>().new Y<>(1,\"\");\n" + 
