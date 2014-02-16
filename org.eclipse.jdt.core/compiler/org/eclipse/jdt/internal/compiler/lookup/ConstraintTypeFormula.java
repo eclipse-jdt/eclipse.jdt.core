@@ -220,7 +220,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			case Binding.PARAMETERIZED_TYPE:
 				{
 					List<ConstraintFormula> constraints = new ArrayList<ConstraintFormula>();
-					while (superCandidate instanceof ParameterizedTypeBinding && subCandidate != null)  {
+					while (superCandidate != null && superCandidate.kind() == Binding.PARAMETERIZED_TYPE && subCandidate != null)  {
 						if (!addConstraintsFromTypeParamters(subCandidate, (ParameterizedTypeBinding) superCandidate, constraints))
 							return FALSE;
 						// travel to enclosing types to check if they have type parameters, too:

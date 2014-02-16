@@ -1402,7 +1402,7 @@ public void test0034() {
 		"----------\n" + 
 		"5. ERROR in X.java (at line 17)\n" + 
 		"	X<Integer>.Y<String> y4 = new X<>(1).new Y<>(\"\",\"\");\n" + 
-		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Cannot infer type arguments for Y<>\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 19)\n" + 
@@ -2588,6 +2588,58 @@ public void test0061() {
 			"Unused type arguments for the non generic method newFileSystem(URI, Map<String,?>) of type FileSystems; it should not be parameterized with arguments <String, Object>\n" + 
 			"----------\n"
 		));
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428220, [1.8][compiler] Javadoc processing interferes with type inference. 
+public void test428220() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class HashMap<K, V> {\n" +
+			"	static class Node<K, V> {\n" +
+			"		Node(int hash, K key, V value, Node<K, V> next) {}\n" +
+			"	}\n" +
+			"	/** @see #put(Object, Object) */\n" +
+			"	public V put(K key, V value) {	return null; }\n" +
+			"\n" +
+			"	Node<K, V> newNode(int hash, K key, V value, Node<K, V> next) {\n" +
+			"		return new Node<>(hash, key, value, next); // Error\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class HashMap<K, V> {\n" + 
+		"	             ^^^^^^^\n" + 
+		"The public type HashMap must be defined in its own file\n" + 
+		"----------\n", null, true, customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428220, [1.8][compiler] Javadoc processing interferes with type inference. 
+public void test428220a() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class HashMap<K, V> {\n" +
+			"	static class Node<K, V> {\n" +
+			"		Node(int hash, K key, V value, Node<K, V> next) {}\n" +
+			"	}\n" +
+			"	/** @see #put(Object, Object) */\n" +
+			"	public V put(K key, V value) {	return null; }\n" +
+			"\n" +
+			"	Node<K, V> newNode(int hash, K key, V value, Node<K, V> next) {\n" +
+			"		return new Node<>(hash, key, value, next); // Error\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class HashMap<K, V> {\n" + 
+		"	             ^^^^^^^\n" + 
+		"The public type HashMap must be defined in its own file\n" + 
+		"----------\n", null, true, customOptions);
 }
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;

@@ -631,7 +631,7 @@ class BoundSet {
 	}
 
 	private ConstraintFormula[] typeArgumentEqualityConstraints(TypeBinding s, TypeBinding t, boolean isSoft) {
-		if (!(s instanceof ParameterizedTypeBinding) || !(t instanceof ParameterizedTypeBinding))
+		if (s == null || s.kind() != Binding.PARAMETERIZED_TYPE || t == null || t.kind() != Binding.PARAMETERIZED_TYPE)
 			return null;
 		if (TypeBinding.equalsEquals(s, t)) // don't create useless constraints
 			return null;
