@@ -266,18 +266,31 @@ class ConstraintTypeFormula extends ConstraintFormula {
 
 			// "type variable" has two implementations in JDT:
 			case Binding.WILDCARD_TYPE:
-				// TODO If S is an intersection type of which T is an element, the constraint reduces to true. 
-				if (subCandidate.kind() == Binding.INTERSECTION_TYPE)
-					InferenceContext18.missingImplementation("NYI"); //$NON-NLS-1$
+				if (subCandidate.kind() == Binding.INTERSECTION_TYPE) {
+					ReferenceBinding[] intersectingTypes = subCandidate.getIntersectingTypes();
+					if (intersectingTypes != null)
+						for (int i = 0; i < intersectingTypes.length; i++)
+							if (TypeBinding.equalsEquals(intersectingTypes[i], superCandidate))
+								return true;
+				}
 				WildcardBinding variable = (WildcardBinding) superCandidate;
 				if (variable.boundKind == Wildcard.SUPER)
 					return new ConstraintTypeFormula(subCandidate, variable.bound, SUBTYPE, this.isSoft);
 				return FALSE;
 			case Binding.TYPE_PARAMETER:
-				// same as wildcard (but we don't have a lower bound any way)
-				// TODO If S is an intersection type of which T is an element, the constraint reduces to true.
-				if (subCandidate.kind() == Binding.INTERSECTION_TYPE)
-					InferenceContext18.missingImplementation("NYI"); //$NON-NLS-1$
+				// similar to wildcard, but different queries for lower bound
+				if (subCandidate.kind() == Binding.INTERSECTION_TYPE) {
+					ReferenceBinding[] intersectingTypes = subCandidate.getIntersectingTypes();
+					if (intersectingTypes != null)
+						for (int i = 0; i < intersectingTypes.length; i++)
+							if (TypeBinding.equalsEquals(intersectingTypes[i], superCandidate))
+								return true;
+				}
+				if (superCandidate instanceof CaptureBinding) {
+					CaptureBinding capture = (CaptureBinding) superCandidate;
+					if (capture.lowerBound != null && capture.firstBound == null)
+						return new ConstraintTypeFormula(subCandidate, capture.lowerBound, SUBTYPE, this.isSoft);
+				}
 				return FALSE;
 			case Binding.INTERSECTION_TYPE:
 				InferenceContext18.missingImplementation("NYI"); //$NON-NLS-1$

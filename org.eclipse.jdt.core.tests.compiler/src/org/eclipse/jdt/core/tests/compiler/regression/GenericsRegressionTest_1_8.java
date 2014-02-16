@@ -2213,4 +2213,48 @@ public void testBug428294() {
 			"}\n"
 		});
 }
+public void testBug428291() {
+	runConformTest(
+		new String[] {
+			"AC3.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"interface I0<T> { }\n" + 
+			"\n" + 
+			"interface I1 { }\n" + 
+			"interface I1List<E> extends List<E>, I1 {}\n" + 
+			"interface I2<T> extends I1 {\n" + 
+			"	void foo(I0<? super T> arg1);\n" + 
+			"	void bar(I0<? super T> arg2);\n" + 
+			"}\n" + 
+			"interface I3<T> extends I2<T> {}\n" + 
+			"interface I4<T> extends I2<T> { }\n" + 
+			"interface I3List<E> extends I3<I1List<E>>, I1List<E> {}\n" + 
+			"abstract class AC1<E> implements I3List<E> { }\n" + 
+			"\n" + 
+			"abstract class AC2<E>  {\n" + 
+			"    public static <E> AC2<E> bork(AC2<E> f1, I3List<E> i3l, I0<? super I1List<E>> i1l) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"    public static <E> AC2<E> garp(AC2<E> f2, I0<? super I1List<E>> i1l) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"public abstract class AC3<E> extends AC1<E> implements I4<I1List<E>> {\n" + 
+			"\n" + 
+			"    AC2<E> f = null;\n" + 
+			"\n" + 
+			"    @Override\n" + 
+			"    public void foo(I0<? super I1List<E>> arg1) {\n" + 
+			"        f = AC2.bork(f, this, arg1);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    @Override\n" + 
+			"    public void bar(I0<? super I1List<E>> arg2) {\n" + 
+			"        f = AC2.garp(f, arg2);\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }
