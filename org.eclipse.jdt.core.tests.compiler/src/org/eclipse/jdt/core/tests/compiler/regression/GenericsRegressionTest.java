@@ -4182,8 +4182,6 @@ public void test428071() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428019, [1.8][compiler] Type inference failures with nested generic invocation.
 public void test428019() {
-	if (this.complianceLevel == ClassFileConstants.JDK1_8)
-		return;
 	runConformTest(
 		new String[] {
 			"X.java",
@@ -4205,6 +4203,26 @@ public void test428019() {
 			"}\n"
 		},
 		"put");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428285,  [1.8][compiler] ECJ fails to recognize ? super Object == { Object }
+public void test428285() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"class Reference<T> {\n" +
+			"	ReferenceQueue<? super T>  queue;\n" +
+			"}\n" +
+			"class ReferenceQueue<T> {\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    public static void main(String args[]) {\n" +
+			"            Reference<Object> r = new Reference<Object>();\n" +
+			"            ReferenceQueue<Object> q = r.queue;\n" +
+			"            System.out.println(\"OK\");\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"OK");
 }
 }
 

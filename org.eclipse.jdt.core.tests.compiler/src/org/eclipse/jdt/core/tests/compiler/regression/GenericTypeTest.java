@@ -11066,7 +11066,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"17. ERROR in X.java (at line 34)\n" +
 			"	target= value; // foo11 - wrong\n" +
 			"	        ^^^^^\n" +
-			"Type mismatch: cannot convert from MX<capture#8-of ? super String> to MX<? super Object>\n" +
+			"Type mismatch: cannot convert from MX<capture#7-of ? super String> to MX<? super Object>\n" +
 			"----------\n");
 	}
 	// check param type equivalences
