@@ -221,7 +221,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				{
 					List<ConstraintFormula> constraints = new ArrayList<ConstraintFormula>();
 					while (superCandidate != null && superCandidate.kind() == Binding.PARAMETERIZED_TYPE && subCandidate != null)  {
-						if (!addConstraintsFromTypeParamters(subCandidate, (ParameterizedTypeBinding) superCandidate, constraints))
+						if (!addConstraintsFromTypeParameters(subCandidate, (ParameterizedTypeBinding) superCandidate, constraints))
 							return FALSE;
 						// travel to enclosing types to check if they have type parameters, too:
 						superCandidate = superCandidate.enclosingType();
@@ -306,7 +306,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 		return null;
 	}
 
-	boolean addConstraintsFromTypeParamters(TypeBinding subCandidate, ParameterizedTypeBinding ca, List<ConstraintFormula> constraints) {
+	boolean addConstraintsFromTypeParameters(TypeBinding subCandidate, ParameterizedTypeBinding ca, List<ConstraintFormula> constraints) {
 		TypeBinding[] ai = ca.arguments;								// C<A1,A2,...>
 		if (ai == null)
 			return true; // no arguments here means nothing to check
