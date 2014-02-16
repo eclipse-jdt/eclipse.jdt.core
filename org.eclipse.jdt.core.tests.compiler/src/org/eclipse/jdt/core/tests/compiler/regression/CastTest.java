@@ -1,12 +1,18 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2011 IBM Corporation and others.
+ * Copyright (c) 2003, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contributions for 
+ *								Bug 428274 - [1.8] [compiler] Cannot cast from Number to double
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -36,6 +42,9 @@ public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());
 }
 
+static {
+//	TESTS_NAMES = new String[] { "testBug428274" };
+}
 /*
  * check extra checkcast (interface->same interface)
  */
@@ -2471,6 +2480,101 @@ public void test420283() {
 			"SUCCESS"
 		);
 }
+
+public void testBug428274() {
+	String source = 
+			"public class Junk4 {\n" + 
+			"    static void setValue(Number n) {\n" + 
+			"        int rounded = (int) Math.round((double) n);\n" +
+			"		System.out.println(rounded);\n" + 
+			"    }\n" +
+			"	public static void main(String[] args) {\n" +
+			"		setValue(Double.valueOf(3.3));\n" +
+			"		setValue(Double.valueOf(3.7));\n" +
+			"	}\n" + 
+			"}\n";
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+		runNegativeTest(
+			new String[] {
+				"Junk4.java",
+				source
+			},
+			"----------\n" + 
+			"1. ERROR in Junk4.java (at line 3)\n" + 
+			"	int rounded = (int) Math.round((double) n);\n" + 
+			"	                               ^^^^^^^^^^\n" + 
+			"Cannot cast from Number to double\n" + 
+			"----------\n");
+	} else {
+		runConformTest(
+			new String[] {
+				"Junk4.java",
+				source
+			},
+			"3\n4");
+	}
+}
+public void testBug428274b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return; // uses generics
+	String source = 
+			"public class Junk4<T> {\n" + 
+			"    void setValue(T n) {\n" + 
+			"        int rounded = (int) Math.round((double) n);\n" +
+			"		System.out.println(rounded);\n" + 
+			"    }\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Junk4<Number> j = new Junk4<Number>();\n" +
+			"		j.setValue(Double.valueOf(3.3));\n" +
+			"		j.setValue(Double.valueOf(3.7));\n" +
+			"	}\n" + 
+			"}\n";
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+		runNegativeTest(
+			new String[] {
+				"Junk4.java",
+				source
+			},
+			"----------\n" + 
+			"1. ERROR in Junk4.java (at line 3)\n" + 
+			"	int rounded = (int) Math.round((double) n);\n" + 
+			"	                               ^^^^^^^^^^\n" + 
+			"Cannot cast from T to double\n" + 
+			"----------\n");
+	} else {
+		runConformTest(
+			new String[] {
+				"Junk4.java",
+				source
+			},
+			"3\n4");
+	}
+}
+// note: spec allows all reference types, but neither javac nor common sense accept arrays :)
+public void testBug428274c() {
+	String source = 
+			"public class Junk4 {\n" + 
+			"    static void setValue(Object[] n) {\n" + 
+			"        int rounded = (int) Math.round((double) n);\n" +
+			"		System.out.println(rounded);\n" + 
+			"    }\n" +
+			"	public static void main(String[] args) {\n" +
+			"		setValue(new Double[] { Double.valueOf(3.3) });\n" +
+			"	}\n" + 
+			"}\n";
+	runNegativeTest(
+		new String[] {
+			"Junk4.java",
+			source
+		},
+		"----------\n" + 
+		"1. ERROR in Junk4.java (at line 3)\n" + 
+		"	int rounded = (int) Math.round((double) n);\n" + 
+		"	                               ^^^^^^^^^^\n" + 
+		"Cannot cast from Object[] to double\n" + 
+		"----------\n");
+}
+
 public static Class testClass() {
 	return CastTest.class;
 }

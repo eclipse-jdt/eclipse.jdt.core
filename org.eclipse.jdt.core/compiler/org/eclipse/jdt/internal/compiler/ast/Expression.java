@@ -26,7 +26,8 @@
  *								Bug 426792 - [1.8][inference][impl] generify new type inference engine
  *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
  *								Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
- *								Bug 426996 - [1.8][inference] try to avoid method Expression.unresolve()? 
+ *								Bug 426996 - [1.8][inference] try to avoid method Expression.unresolve()?
+ *								Bug 428274 - [1.8] [compiler] Cannot cast from Number to double
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -286,8 +287,9 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 				return true;
 
 			}
-		} else if (use17specifics && expressionType.id == TypeIds.T_JavaLangObject){
-			// cast from Object to base type allowed from 1.7, see JLS $5.5
+		} else if (use17specifics && expressionType instanceof ReferenceBinding && !expressionType.isPrimitiveOrBoxedPrimitiveType()) {
+			// cast from any reference type (other than boxing types) to base type allowed from 1.7, see JLS $5.5
+			// by our own interpretation (in accordance with javac) we reject arays, though.
 			return true;
 		} else if (use15specifics
 							&& scope.environment().computeBoxingType(expressionType).isCompatibleWith(castType)) { // unboxing - only widening match is allowed
