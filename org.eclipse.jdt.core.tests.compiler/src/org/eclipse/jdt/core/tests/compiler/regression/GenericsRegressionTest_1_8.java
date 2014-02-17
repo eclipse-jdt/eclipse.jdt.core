@@ -2296,4 +2296,27 @@ public void testBug428275() {
 			"}\n"
 		});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428352, [1.8][compiler] NPE in AllocationExpression.analyseCode when trying to pass Consumer as Function 
+public void _test428352() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collection;\n" +
+			"import java.util.List;\n" +
+			"import java.util.function.Consumer;\n" +
+			"import java.util.function.Function;\n" +
+			"\n" +
+			"class OperationsPile<B> {\n" +
+			"  OperationsPile(Function<B, ?> handler) {}\n" +
+			"\n" +
+			"  private static <T> void addAll3(Collection<T> c, T t) {}\n" +
+			"\n" +
+			"  static <S> void adaad3(List<OperationsPile<?>> combined, Consumer<S> handler) {\n" +
+			"    addAll3(combined, new OperationsPile<>(null));\n" +
+			"    addAll3(combined, new OperationsPile<>(handler));\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"");
+}
 }
