@@ -4845,7 +4845,7 @@ public abstract class Scope {
 	 */
 	public MethodBinding getStaticFactory (ParameterizedTypeBinding allocationType, ReferenceBinding originalEnclosingType, TypeBinding[] argumentTypes, final Invocation allocationSite) {
 		
-		// allocationType is the generic type. originalEnclosingType is the real enclosing type ==> may be parameterized, parameterized with own type variables, raw, just plain type or null.
+		// allocationType is the diamond type. originalEnclosingType is the real enclosing type ==> may be parameterized, parameterized with own type variables, raw, just plain type or null.
 		int classTypeVariablesArity = 0;
 		TypeVariableBinding[] classTypeVariables = Binding.NO_TYPE_VARIABLES;
 		ReferenceBinding genericType = allocationType.genericType();
