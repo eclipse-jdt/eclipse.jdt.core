@@ -6242,7 +6242,6 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419331, [1.8][compiler] Weird error on forward reference to type annotations from type parameter declarations
-	// ENCODES WRONG BEHAVIOR - FIX TEST ALONG WITH FIX
 	public void testForwardReference() {
 		this.runNegativeTest(
 			new String[] {
