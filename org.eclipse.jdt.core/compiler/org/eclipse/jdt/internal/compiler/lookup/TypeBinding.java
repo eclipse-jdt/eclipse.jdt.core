@@ -1558,4 +1558,8 @@ public ReferenceBinding superclass() {
 public ReferenceBinding[] superInterfaces() {
 	return Binding.NO_SUPERINTERFACES;
 }
+
+public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
+	return null;		// is null if no enclosing instances are required
+}
 }

@@ -60,6 +60,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SyntheticArgumentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -153,12 +154,17 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		} finally {
 			currentScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 		}
+		SyntheticArgumentBinding[] outerLocals = this.receiverType.syntheticOuterLocalVariables();
+		for (int i = 0, length = outerLocals == null ? 0 : outerLocals.length; i < length; i++)
+			implicitLambda.addSyntheticArgument(outerLocals[i].actualOuterLocalVariable);
+		
 		implicitLambda.generateCode(currentScope, codeStream, valueRequired);
 	}	
 	
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 		this.actualMethodBinding = this.binding; // grab before synthetics come into play.
-		if (this.binding.isVarargs()) {
+		// Handle some special cases up front and transform them into implicit lambdas.
+		if (this.binding.isVarargs() || (isConstructorReference() && this.receiverType.syntheticOuterLocalVariables() != null && currentScope.methodScope().isStatic)) {
 			generateImplicitLambda(currentScope, codeStream, valueRequired);
 			return;
 		}

@@ -1783,9 +1783,6 @@ public ReferenceBinding[] syntheticEnclosingInstanceTypes() {
 		return null;
 	return new ReferenceBinding[] {enclosingType};
 }
-public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
-	return null;		// is null if no enclosing instances are required
-}
 
 MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't resolve types
 	return methods();

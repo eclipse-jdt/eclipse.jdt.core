@@ -3319,6 +3319,57 @@ public void test428003a() { // full test case
 			"expression"
 			);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428261, [1.8][compiler] Incorrect error: No enclosing instance of the type X is accessible in scope
+public void test428261() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	X foo(int a);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		String s = \"Blah\";\n" +
+				"		class Local extends X {\n" +
+				"			Local(int a) {\n" +
+				"				System.out.println(a);\n" +
+				"				System.out.println(s);\n" +
+				"			}\n" +
+				"		}\n" +
+				"		I i = Local::new; // Incorrect error here.\n" +
+				"       i.foo(10);\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"10\n" +
+			"Blah"
+			);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428261, [1.8][compiler] Incorrect error: No enclosing instance of the type X is accessible in scope
+public void test428261a() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	X foo(int a);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void goo() {\n" +
+				"		class Local extends X {\n" +
+				"			Local(int a) {\n" +
+				"				System.out.println(a);\n" +
+				"			}\n" +
+				"		}\n" +
+				"		I i = Local::new;\n" +
+				"       i.foo(10);\n" +
+				"	}\n" +
+				"   public static void main(String [] args) {\n" +
+				"        new X().goo();\n" +
+				"   }\n" +
+				"}\n"
+			},
+			"10");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
