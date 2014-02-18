@@ -3128,7 +3128,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("class E {\n");
-		buf.append("    public void foo(@X\n    @A int a, @B2 int b, @X\n    int c, @X int d, @X\n    int e) {\n");
+		buf.append("    public void foo(@X @A int a, @B2 int b, @X int c, @X int d, @X int e) {\n");
 		buf.append("    }\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
@@ -3802,6 +3802,33 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("@Target (Element.TYPE_USE);\n");
 		buf.append("@interface Marker {}\n");
 
+		assertEqualString(preview, buf.toString());
+		
+		// still no new line if new line after annotation on parameter is enabled:
+		this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER, JavaCore.INSERT);
+		
+		preview= evaluateRewrite(cu, rewrite);
+		assertEqualString(preview, buf.toString());
+		
+		// do insert new line if new line after type annotation is enabled:
+		this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER, JavaCore.DO_NOT_INSERT);
+		this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_TYPE_ANNOTATION, JavaCore.INSERT);
+		
+		preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("import java.lang.annotation.*;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    public void test() throws @Marker\n");
+		buf.append("    MyException{}\n");
+		buf.append("    class MyException extends Throwable {\n");
+		buf.append("     private static final long serialVersionUID=-3045365361549263819L;");
+		buf.append("    }\n");
+		buf.append("}\n");
+		buf.append("@Target (Element.TYPE_USE);\n");
+		buf.append("@interface Marker {}\n");
+		
 		assertEqualString(preview, buf.toString());
 	}
 	

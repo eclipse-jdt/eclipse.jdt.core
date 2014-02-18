@@ -1,6 +1,6 @@
 public class X {
 	@Deprecated
 	public void bar(@SuppressWarnings("unused")
-	int i) {
+	final int i) {
 	}
 }

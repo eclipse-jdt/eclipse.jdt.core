@@ -1,4 +1,4 @@
 public class X {
-	@Deprecated public void bar(@SuppressWarnings("unused") int i) {
+	@Deprecated public void bar(@SuppressWarnings("unused") final int i) {
 	}
 }

@@ -2411,7 +2411,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		return 0;
 	}
 
-		private void skipPastTypeAnnotations() {  // we get here having seen @
+	private void skipPastTypeAnnotations() {  // we get here having seen @
 		int balance = 0;
 		int currentTokenStartPosition = this.localScanner.currentPosition;
 		try {
@@ -2461,6 +2461,42 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		return false;
 	}
 
+	private boolean hasNonAnnotationModifiers() {
+		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
+		try {
+			int token;
+			while ((token = this.localScanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+				switch(token) {
+					case TerminalTokens.TokenNamedefault :
+					case TerminalTokens.TokenNamepublic :
+					case TerminalTokens.TokenNameprotected :
+					case TerminalTokens.TokenNameprivate :
+					case TerminalTokens.TokenNamestatic :
+					case TerminalTokens.TokenNameabstract :
+					case TerminalTokens.TokenNamefinal :
+					case TerminalTokens.TokenNamenative :
+					case TerminalTokens.TokenNamesynchronized :
+					case TerminalTokens.TokenNametransient :
+					case TerminalTokens.TokenNamevolatile :
+					case TerminalTokens.TokenNamestrictfp :
+						return true;
+					case TerminalTokens.TokenNameAT :
+						skipPastTypeAnnotations();
+						break;
+					case TerminalTokens.TokenNameCOMMENT_BLOCK :
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+					case TerminalTokens.TokenNameCOMMENT_LINE :
+						break;
+					default:
+						return false;
+				}
+			}
+		} catch(InvalidInputException e) {
+			// ignore
+		}
+		return false;
+	}
+	
 	private boolean isNextToken(int tokenName) {
 		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
 		try {
@@ -2742,7 +2778,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		if (argument.modifiers != NO_MODIFIERS || argument.annotations != null) {
 	        this.scribe.printComment();
-			this.scribe.printModifiers(argument.annotations, this, ICodeFormatterConstants.ANNOTATION_ON_PARAMETER);
+			this.scribe.printModifiers(argument.annotations, this, ICodeFormatterConstants.ANNOTATION_ON_PARAMETER, !hasNonAnnotationModifiers());
 			this.scribe.space();
 		}
 

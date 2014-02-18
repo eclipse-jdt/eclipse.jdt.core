@@ -4540,11 +4540,11 @@ public class Scribe implements IJavaDocTagConstants {
 		}
     }
 
-	public void printModifiers(Annotation[] annotations, ASTVisitor visitor) {
-		printModifiers(annotations, visitor, ICodeFormatterConstants.ANNOTATION_UNSPECIFIED);
+	public void printModifiers(Annotation[] annotations, ASTVisitor visitor, int annotationSourceKind) {
+		printModifiers(annotations, visitor, annotationSourceKind, false);
 	}
 
-	public void printModifiers(Annotation[] annotations, ASTVisitor visitor, int annotationSourceKind) {
+	public void printModifiers(Annotation[] annotations, ASTVisitor visitor, int annotationSourceKind, boolean firstIsTypeAnnotation) {
 		try {
 			int annotationsLength = annotations != null ? annotations.length : 0;
 			int annotationsIndex = 0;
@@ -4552,7 +4552,7 @@ public class Scribe implements IJavaDocTagConstants {
 			int currentTokenStartPosition = this.scanner.currentPosition;
 			boolean hasComment = false;
 			boolean hasModifiers = false;
-			boolean foundNonAnnotModifiers = false;
+			boolean treatNextAsTypeAnnotation = firstIsTypeAnnotation;
 			while ((this.currentToken = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				int foundTaskCount = this.scanner.foundTaskCount;
 				int tokenStartPosition = this.scanner.getCurrentTokenStartPosition();
@@ -4571,7 +4571,7 @@ public class Scribe implements IJavaDocTagConstants {
 					case TerminalTokens.TokenNamevolatile :
 					case TerminalTokens.TokenNamestrictfp :
 						hasModifiers = true;
-						foundNonAnnotModifiers = true;
+						treatNextAsTypeAnnotation = true;
 						print(this.scanner.currentPosition - this.scanner.startPosition, !isFirstModifier);
 						isFirstModifier = false;
 						currentTokenStartPosition = this.scanner.currentPosition;
@@ -4595,34 +4595,34 @@ public class Scribe implements IJavaDocTagConstants {
 							boolean shouldAddNewLine = false;
 							switch (annotationSourceKind) {
 								case ICodeFormatterConstants.ANNOTATION_ON_TYPE :
-									if (this.formatter.preferences.insert_new_line_after_annotation_on_type) {
-										shouldAddNewLine = foundNonAnnotModifiers ? this.formatter.preferences.insert_new_line_after_type_annotation : true;
-									}
+									shouldAddNewLine = treatNextAsTypeAnnotation
+											? this.formatter.preferences.insert_new_line_after_type_annotation
+											: this.formatter.preferences.insert_new_line_after_annotation_on_type;
 									break;
 								case ICodeFormatterConstants.ANNOTATION_ON_FIELD :
-									if (this.formatter.preferences.insert_new_line_after_annotation_on_field) {
-										shouldAddNewLine = foundNonAnnotModifiers ? this.formatter.preferences.insert_new_line_after_type_annotation : true;
-									}
+									shouldAddNewLine = treatNextAsTypeAnnotation
+											? this.formatter.preferences.insert_new_line_after_type_annotation
+											: this.formatter.preferences.insert_new_line_after_annotation_on_field;
 									break;
 								case ICodeFormatterConstants.ANNOTATION_ON_METHOD :
-									if (this.formatter.preferences.insert_new_line_after_annotation_on_method) {
-										shouldAddNewLine = foundNonAnnotModifiers ? this.formatter.preferences.insert_new_line_after_type_annotation : true;
-									}
+									shouldAddNewLine = treatNextAsTypeAnnotation
+											? this.formatter.preferences.insert_new_line_after_type_annotation
+											: this.formatter.preferences.insert_new_line_after_annotation_on_method;
 									break;
 								case ICodeFormatterConstants.ANNOTATION_ON_PACKAGE :
-									if (this.formatter.preferences.insert_new_line_after_annotation_on_package) {
-										shouldAddNewLine = foundNonAnnotModifiers ? this.formatter.preferences.insert_new_line_after_type_annotation : true;
-									}
+									shouldAddNewLine = treatNextAsTypeAnnotation
+											? this.formatter.preferences.insert_new_line_after_type_annotation
+											: this.formatter.preferences.insert_new_line_after_annotation_on_package;
 									break;
 								case ICodeFormatterConstants.ANNOTATION_ON_PARAMETER :
-									if (this.formatter.preferences.insert_new_line_after_annotation_on_parameter) {
-										shouldAddNewLine = foundNonAnnotModifiers ? this.formatter.preferences.insert_new_line_after_type_annotation : true;
-									}
+									shouldAddNewLine = treatNextAsTypeAnnotation
+											? this.formatter.preferences.insert_new_line_after_type_annotation
+											: this.formatter.preferences.insert_new_line_after_annotation_on_parameter;
 									break;
 								case ICodeFormatterConstants.ANNOTATION_ON_LOCAL_VARIABLE :
-									if (this.formatter.preferences.insert_new_line_after_annotation_on_local_variable) {
-										shouldAddNewLine = foundNonAnnotModifiers ? this.formatter.preferences.insert_new_line_after_type_annotation : true;
-									}
+									shouldAddNewLine = treatNextAsTypeAnnotation
+											? this.formatter.preferences.insert_new_line_after_type_annotation
+											: this.formatter.preferences.insert_new_line_after_annotation_on_local_variable;
 									break;
 								default:
 									// do nothing when no annotation formatting option specified
