@@ -18,6 +18,7 @@
  *								bug 400421 - [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
  *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
  *								Bug 405569 - Resource leak check false positive when using DbUtils.closeQuietly
+ *								Bug 427199 - [1.8][resource] avoid resource leak warnings on Streams that have no resource
  *    Jesper S Moller - Contributions for
  *								Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -173,6 +174,7 @@ public interface TypeConstants {
 	char[][] JAVA_IO_IOEXCEPTION = new char[][] { JAVA, IO, "IOException".toCharArray()};//$NON-NLS-1$
 	char[][] JAVA_IO_OBJECTOUTPUTSTREAM = new char[][] { JAVA, IO, "ObjectOutputStream".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_IO_OBJECTINPUTSTREAM = new char[][] { JAVA, IO, "ObjectInputStream".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_NIO_FILE_FILES = new char[][] { JAVA, "nio".toCharArray(), "file".toCharArray(), "Files".toCharArray() };   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 	// javax.rmi.CORBA.Stub
 	char[][] JAVAX_RMI_CORBA_STUB = new char[][] {
 			JAVAX,
@@ -278,6 +280,9 @@ public interface TypeConstants {
 		"CharArrayReader".toCharArray(), //$NON-NLS-1$
 		"CharArrayWriter".toCharArray(), //$NON-NLS-1$
 		"StringBufferInputStream".toCharArray(), //$NON-NLS-1$
+	};
+	char[][] RESOURCE_FREE_CLOSEABLE_STREAM = new char[][] {
+		JAVA, UTIL, "stream".toCharArray(), "Stream".toCharArray() //$NON-NLS-1$ //$NON-NLS-2$
 	};
 	
 	// different assertion utilities:

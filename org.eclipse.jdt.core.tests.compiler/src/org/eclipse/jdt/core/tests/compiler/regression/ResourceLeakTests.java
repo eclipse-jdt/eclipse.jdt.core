@@ -4683,4 +4683,110 @@ public void testBug411098_comment19() {
 		options
 		);
 }
+// normal java.util.stream.Stream doesn't hold on to any resources
+public void testStream1() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return; // uses JRE 8 API
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"A.java",
+			"import java.util.*;\n" +
+			"import java.util.stream.Stream;\n" + 
+			"class A {\n" + 
+			"  long test(List<String> ss) {\n" + 
+			"    Stream<String> stream = ss.stream();\n" + 
+			"    return stream.count();\n" + 
+			"  }\n" + 
+			"}"
+		},
+		options
+		);
+}
+// Functions java.nio.file.Files.x() returning *Stream* do produce a resource needing closing
+public void testStream2() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return; // uses JRE 8 API
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"A.java",
+			"import java.util.stream.Stream;\n" + 
+			"import java.nio.file.*;\n" + 
+			"class A {\n" + 
+			"  long test(Path start, FileVisitOption... options) throws java.io.IOException {\n" + 
+			"    Stream<Path> stream = Files.walk(start, options);\n" + 
+			"    return stream.count();\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 5)\n" + 
+		"	Stream<Path> stream = Files.walk(start, options);\n" + 
+		"	             ^^^^^^\n" + 
+		"Resource leak: \'stream\' is never closed\n" + 
+		"----------\n",
+		null,
+		true,
+		options
+		);
+}
+// closeable, but Stream, but produced by Files.m, but only potentially closed:
+public void testStream3() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return; // uses JRE 8 API
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"A.java",
+			"import java.util.stream.Stream;\n" + 
+			"import java.nio.file.*;\n" + 
+			"class A {\n" + 
+			"  void test(Path file) throws java.io.IOException {\n" + 
+			"    Stream<String> lines = Files.lines(file);\n" +
+			"    if (lines.count() > 0)" + 
+			"    	lines.close();\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 5)\n" + 
+		"	Stream<String> lines = Files.lines(file);\n" + 
+		"	               ^^^^^\n" + 
+		"Potential resource leak: \'lines\' may not be closed\n" + 
+		"----------\n",
+		null,
+		true,
+		options
+		);
+}
+// special stream from Files.m is properly handled by t-w-r
+public void testStream4() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return; // uses JRE 8 API
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"A.java",
+			"import java.util.stream.Stream;\n" + 
+			"import java.nio.file.*;\n" + 
+			"class A {\n" + 
+			"  void test(Path dir) throws java.io.IOException {\n" + 
+			"    try (Stream<Path> list = Files.list(dir)) {\n" +
+			"    	list.forEach(child -> System.out.println(child));\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}"
+		},
+		options
+		);
+}
 }

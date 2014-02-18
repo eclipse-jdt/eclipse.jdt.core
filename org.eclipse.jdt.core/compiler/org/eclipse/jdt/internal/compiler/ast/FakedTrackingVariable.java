@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -400,8 +401,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	}
 
 	/** 
-	 * Check if the rhs of an assignment or local declaration is an (Auto)Closeable.
-	 * If so create or re-use a tracking variable, and wire and initialize everything.
+	 * Given the rhs of an assignment or local declaration has a (Auto)Closeable type (or null), setup for leak analysis now:
+	 * Create or re-use a tracking variable, and wire and initialize everything.
 	 * @param scope scope containing the assignment
 	 * @param upstreamInfo info without analysis of the rhs, use this to determine the status of a resource being disconnected
 	 * @param flowInfo info with analysis of the rhs, use this for recording resource status because this will be passed downstream
@@ -523,6 +524,17 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				break;
 		}
 
+		boolean isResourceProducer = false;
+		if (expression.resolvedType instanceof ReferenceBinding) {
+			ReferenceBinding resourceType = (ReferenceBinding) expression.resolvedType;
+			if (resourceType.hasTypeBit(TypeIds.BitResourceFreeCloseable)) {
+				if (isBlacklistedMethod(expression))
+					isResourceProducer = true;
+				else
+					return null; // (a) resource-free closeable: -> null
+			}
+		}
+
 		// analyze by node type:
 		if (expression instanceof AllocationExpression) {
 			// allocation expressions already have their tracking variables analyzed by analyseCloseableAllocation(..)
@@ -537,7 +549,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		{
 			// we *might* be responsible for the resource obtained
 			FakedTrackingVariable tracker = new FakedTrackingVariable(local, location, flowInfo, flowContext, FlowInfo.POTENTIALLY_NULL); // shed some doubt
-			tracker.globalClosingState |= SHARED_WITH_OUTSIDE;
+			if (!isResourceProducer)
+				tracker.globalClosingState |= SHARED_WITH_OUTSIDE;
 			return tracker;
 		} else if (
 				(expression.bits & RestrictiveFlagMASK) == Binding.FIELD
@@ -551,13 +564,6 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			return tracker;			
 		}
 
-		if (expression.resolvedType instanceof ReferenceBinding) {
-			ReferenceBinding resourceType = (ReferenceBinding) expression.resolvedType;
-			if (resourceType.hasTypeBit(TypeIds.BitResourceFreeCloseable)) {
-				// (a) resource-free closeable: -> null
-				return null;
-			}
-		}
 		if (local.closeTracker != null)
 			// (c): inner has already been analyzed: -> re-use track var
 			return local.closeTracker;
@@ -567,6 +573,16 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			newTracker.globalClosingState |= OWNED_BY_OUTSIDE;
 		}
 		return newTracker;
+	}
+
+	private static boolean isBlacklistedMethod(Expression expression) {
+		if (expression instanceof MessageSend) {
+			MethodBinding method = ((MessageSend) expression).binding;
+			if (method != null && method.isValidBinding())
+				// for all methods in java.nio.file.Files that return a resource (Stream) it really needs closing
+				return CharOperation.equals(method.declaringClass.compoundName, TypeConstants.JAVA_NIO_FILE_FILES);
+		}
+		return false;
 	}
 
 	public static void cleanUpAfterAssignment(BlockScope currentScope, int lhsBits, Expression expression) {

@@ -34,6 +34,7 @@
  *								Bug 426563 - [1.8] AIOOBE when method with error invoked with lambda expression as argument
  *								Bug 426792 - [1.8][inference][impl] generify new type inference engine
  *								Bug 428294 - [1.8][compiler] Type mismatch: cannot convert from List<Object> to Collection<Object[]>
+ *								Bug 427199 - [1.8][resource] avoid resource leak warnings on Streams that have no resource
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1195,6 +1196,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	        ReferenceBinding genericSuperclass = this.type.superclass();
 	        if (genericSuperclass == null) return null; // e.g. interfaces
 		    this.superclass = (ReferenceBinding) Scope.substitute(this, genericSuperclass);
+			this.typeBits |= (this.superclass.typeBits & TypeIds.InheritableBits);
+			if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()! 
+				this.typeBits |= applyCloseableClassWhitelists();
 	    }
 		return this.superclass;
 	}
@@ -1204,9 +1208,16 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 */
 	public ReferenceBinding[] superInterfaces() {
 	    if (this.superInterfaces == null) {
-	    		if (this.type.isHierarchyBeingConnected())
-	    			return Binding.NO_SUPERINTERFACES; // prevent superinterfaces from being assigned before they are connected
-	    		this.superInterfaces = Scope.substitute(this, this.type.superInterfaces());
+    		if (this.type.isHierarchyBeingConnected())
+    			return Binding.NO_SUPERINTERFACES; // prevent superinterfaces from being assigned before they are connected
+    		this.superInterfaces = Scope.substitute(this, this.type.superInterfaces());
+    		if (this.superInterfaces != null) {
+	    		for (int i = this.superInterfaces.length; --i >= 0;) {
+	    			this.typeBits |= (this.superInterfaces[i].typeBits & TypeIds.InheritableBits);
+	    			if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()! 
+	    				this.typeBits |= applyCloseableInterfaceWhitelists();
+	    		}
+    		}
 	    }
 		return this.superInterfaces;
 	}

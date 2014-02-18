@@ -31,6 +31,7 @@
  *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *								Bug 426792 - [1.8][inference][impl] generify new type inference engine
  *								Bug 428019 - [1.8][compiler] Type inference failure with nested generic invocation.
+ *								Bug 427199 - [1.8][resource] avoid resource leak warnings on Streams that have no resource
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -1796,7 +1797,7 @@ public FieldBinding[] unResolvedFields() {
  * If a type - known to be a Closeable - is mentioned in one of our white lists
  * answer the typeBit for the white list (BitWrapperCloseable or BitResourceFreeCloseable).
  */
-protected int applyCloseableWhitelists() {
+protected int applyCloseableClassWhitelists() {
 	switch (this.compoundName.length) {
 		case 3:
 			if (CharOperation.equals(TypeConstants.JAVA, this.compoundName[0])) {
@@ -1838,6 +1839,20 @@ protected int applyCloseableWhitelists() {
 	return 0;
 }
 
+
+/*
+ * If a type - known to be a Closeable - is mentioned in one of our white lists
+ * answer the typeBit for the white list (BitWrapperCloseable or BitResourceFreeCloseable).
+ */
+protected int applyCloseableInterfaceWhitelists() {
+	switch (this.compoundName.length) {
+		case 4:
+			if (CharOperation.equals(this.compoundName, TypeConstants.RESOURCE_FREE_CLOSEABLE_STREAM))
+				return TypeIds.BitResourceFreeCloseable;
+			break;
+	}
+	return 0;
+}
 
 private MethodBinding [] getInterfaceAbstractContracts(Scope scope) throws InvalidInputException {
 	
