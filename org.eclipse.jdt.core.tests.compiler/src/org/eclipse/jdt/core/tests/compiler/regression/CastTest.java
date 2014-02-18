@@ -2574,6 +2574,130 @@ public void testBug428274c() {
 		"Cannot cast from Object[] to double\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+public void test428388() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"	int x = (int) \"Hello\";\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	int x = (int) \"Hello\";\n" + 
+		"	        ^^^^^^^^^^^^^\n" + 
+		"Cannot cast from String to int\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+public void test428388a() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    static void setValue(Number n) {\n" + 
+			"       int rounded = (int) Math.round((double) n);\n" +
+			"		System.out.println(rounded);\n" + 
+			"    }\n" +
+			"	public static void main(String[] args) {\n" +
+			"		setValue(Double.valueOf(3.3));\n" +
+			"		setValue(Double.valueOf(3.7));\n" +
+			"	}\n" + 
+			"}\n",
+		},
+		"3\n4");
+
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED);
+
+	String expectedOutput =
+			"  // Method descriptor #15 (Ljava/lang/Number;)V\n" + 
+			"  // Stack: 2, Locals: 2\n" + 
+			"  static void setValue(java.lang.Number n);\n" + 
+			"     0  aload_0 [n]\n" + 
+			"     1  checkcast java.lang.Double [16]\n" + 
+			"     4  invokevirtual java.lang.Double.doubleValue() : double [18]\n" + 
+			"     7  invokestatic java.lang.Math.round(double) : long [22]\n" + 
+			"    10  l2i\n" + 
+			"    11  istore_1 [rounded]\n" + 
+			"    12  getstatic java.lang.System.out : java.io.PrintStream [28]\n" + 
+			"    15  iload_1 [rounded]\n" + 
+			"    16  invokevirtual java.io.PrintStream.println(int) : void [34]\n" + 
+			"    19  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 12, line: 4]\n" + 
+			"        [pc: 19, line: 5]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 20] local: n index: 0 type: java.lang.Number\n" + 
+			"        [pc: 12, pc: 20] local: rounded index: 1 type: int\n" + 
+			"  \n";
+	int index = actualOutput.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(actualOutput, 2));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, actualOutput);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+public void test428388b() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    static void setValue(Number n) {\n" + 
+			"       char rounded = (char) n;\n" +
+			"		System.out.println(rounded);\n" + 
+			"    }\n" +
+			"	public static void main(String[] args) {\n" +
+			"		setValue(Double.valueOf(3.3));\n" +
+			"		setValue(Double.valueOf(3.7));\n" +
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	char rounded = (char) n;\n" + 
+		"	               ^^^^^^^^\n" + 
+		"Cannot cast from Number to char\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+public void test428388c() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    static void setValue(Number n) {\n" + 
+			"       try {\n" +		
+			"           byte rounded = (byte) n;\n" +
+			"		    System.out.println(rounded);\n" +
+			"       } catch (ClassCastException c) {\n" +
+			"           System.out.println(\"CCE\");\n" +
+			"       }\n" +
+			"    }\n" +
+			"	public static void main(String[] args) {\n" +
+			"		setValue(Double.valueOf(3.3));\n" +
+			"		setValue(Double.valueOf(3.7));\n" +
+			"	}\n" + 
+			"}\n",
+		},
+		"CCE\nCCE");
+}
 
 public static Class testClass() {
 	return CastTest.class;

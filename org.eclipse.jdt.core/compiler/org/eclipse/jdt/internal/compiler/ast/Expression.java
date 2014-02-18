@@ -288,7 +288,8 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 				return true;
 
 			}
-		} else if (use17specifics && expressionType instanceof ReferenceBinding && !expressionType.isPrimitiveOrBoxedPrimitiveType()) {
+		} else if (use17specifics && castType.isPrimitiveType() && expressionType instanceof ReferenceBinding && 
+				!expressionType.isPrimitiveOrBoxedPrimitiveType() && checkCastTypesCompatibility(scope, scope.boxing(castType), expressionType, expression)) {
 			// cast from any reference type (other than boxing types) to base type allowed from 1.7, see JLS $5.5
 			// by our own interpretation (in accordance with javac) we reject arays, though.
 			return true;
