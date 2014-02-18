@@ -28,6 +28,7 @@
  *								Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
  *								Bug 426996 - [1.8][inference] try to avoid method Expression.unresolve()?
  *								Bug 428274 - [1.8] [compiler] Cannot cast from Number to double
+ *								Bug 428352 - [1.8][compiler] Resolution errors don't always surface
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -1063,8 +1064,9 @@ public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedTy
  * Once outer contexts have finalized the target type for this expression,
  * perform any checks that might have been delayed previously.
  * @param targetType the final target type (aka expectedType) for this expression.
+ * @param scope scope for error reporting
  */
-public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType) {
+public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType, Scope scope) {
 	return this.resolvedType; // subclasses may choose to do real stuff here
 }
 

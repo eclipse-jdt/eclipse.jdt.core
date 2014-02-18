@@ -31,6 +31,7 @@
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 424415 - [1.8][compiler] Eventual resolution of ReferenceExpression is not seen to be happening.
  *								Bug 418537 - [1.8][null] Fix null type annotation analysis for poly conditional expressions
+ *								Bug 428352 - [1.8][compiler] Resolution errors don't always surface
  *        Andy Clement - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
@@ -362,7 +363,7 @@ public ExpressionContext getExpressionContext() {
  */
 protected MethodBinding findConstructorBinding(BlockScope scope, Invocation site, ReferenceBinding receiverType, TypeBinding[] argumentTypes) {
 	MethodBinding ctorBinding = scope.getConstructor(receiverType, argumentTypes, site);
-	resolvePolyExpressionArguments(site, ctorBinding, argumentTypes);
+	resolvePolyExpressionArguments(site, ctorBinding, argumentTypes, scope);
 	return ctorBinding;
 }
 }

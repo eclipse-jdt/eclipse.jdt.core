@@ -2297,10 +2297,10 @@ public void testBug428275() {
 		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428352, [1.8][compiler] NPE in AllocationExpression.analyseCode when trying to pass Consumer as Function 
-public void _test428352() {
-	runConformTest(
+public void test428352() {
+	runNegativeTest(
 		new String[] {
-			"X.java",
+			"OperationsPile.java",
 			"import java.util.Collection;\n" +
 			"import java.util.List;\n" +
 			"import java.util.function.Consumer;\n" +
@@ -2317,6 +2317,36 @@ public void _test428352() {
 			"  }\n" +
 			"}\n"
 		},
-		"");
+		"----------\n" + 
+		"1. ERROR in OperationsPile.java (at line 13)\n" + 
+		"	addAll3(combined, new OperationsPile<>(handler));\n" + 
+		"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot infer type arguments for OperationsPile<>\n" + 
+		"----------\n");
+}
+public void test428352b() {
+	runConformTest(
+		new String[] {
+			"OperationsPile.java",
+			"import java.util.Collection;\n" +
+			"import java.util.List;\n" +
+			"import java.util.function.Consumer;\n" +
+			"import java.util.function.Function;\n" +
+			"\n" +
+			"public class OperationsPile<B> {\n" +
+			"  OperationsPile(Function<B, ?> handler) {}\n" +
+			"\n" +
+			"  private static <T> void addAll3(Collection<T> c, T t) {}\n" +
+			"\n" +
+			"  static <S> void adaad3(List<OperationsPile<?>> combined, Consumer<S> handler) {\n" +
+			"    addAll3(combined, new OperationsPile<>(null));\n" +
+			"  }\n" +
+			"	public static void main(String[] args) {\n" +
+			"		adaad3(null, null);\n" +
+			"		System.out.println(13);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"13");
 }
 }

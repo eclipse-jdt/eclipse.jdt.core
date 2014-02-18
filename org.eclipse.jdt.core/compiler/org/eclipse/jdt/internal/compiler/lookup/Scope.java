@@ -40,6 +40,7 @@
  *								Bug 427218 - [1.8][compiler] Verify error varargs + inference
  *								Bug 426836 - [1.8] special handling for return type in references to method getClass()?
  *								Bug 427628 - [1.8] regression : The method * is ambiguous for the type *
+ *								Bug 428352 - [1.8][compiler] Resolution errors don't always surface
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -819,7 +820,7 @@ public abstract class Scope {
 			if (level != NOT_COMPATIBLE) {
 				return Math.max(compatible, level);
 			} else {
-				MethodBinding innerBinding = innerPoly.binding(null); // 1. try without update
+				MethodBinding innerBinding = innerPoly.binding(null, false, null); // 1. try without update
 				if (innerBinding instanceof ParameterizedGenericMethodBinding) {
 					ParameterizedGenericMethodBinding innerParameterized = (ParameterizedGenericMethodBinding) innerBinding;
 					InferenceContext18 infCtx18 = innerPoly.getInferenceContext(innerParameterized);
@@ -854,7 +855,7 @@ public abstract class Scope {
 						}
 					}
 				} else if (innerPoly instanceof AllocationExpression) {
-					MethodBinding updatedMethod = innerPoly.binding(targetType); // 2. try with updating
+					MethodBinding updatedMethod = innerPoly.binding(targetType, false, null); // 2. try with updating
 					if (updatedMethod != innerBinding && updatedMethod != null) {
 						if (updatedMethod.isValidBinding()) {
 						if (updatedMethod.declaringClass.isCompatibleWith(targetType))
@@ -5091,7 +5092,7 @@ public abstract class Scope {
 					return infCtx18.inferInvocationType(invocation, argumentTypes, parameterizedMethod);
 				}
 			} else {
-				ASTNode.resolvePolyExpressionArguments(invocation, applicable, argumentTypes);
+				ASTNode.resolvePolyExpressionArguments(invocation, applicable, argumentTypes, this);
 			}
 		}
 		return applicable;

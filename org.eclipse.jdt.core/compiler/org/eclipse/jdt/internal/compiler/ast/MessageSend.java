@@ -49,6 +49,7 @@
  *								Bug 427483 - [Java 8] Variables in lambdas sometimes can't be resolved
  *								Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
  *								Bug 426996 - [1.8][inference] try to avoid method Expression.unresolve()? 
+ *								Bug 428352 - [1.8][compiler] Resolution errors don't always surface
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -866,18 +867,18 @@ protected void findMethodBinding(BlockScope scope, TypeBinding[] argumentTypes) 
 	this.binding = this.receiver.isImplicitThis()
 			? scope.getImplicitMethod(this.selector, argumentTypes, this)
 			: scope.getMethod(this.actualReceiverType, this.selector, argumentTypes, this);
-	resolvePolyExpressionArguments(this, this.binding, argumentTypes);
+	resolvePolyExpressionArguments(this, this.binding, argumentTypes, scope);
 }
 
 @Override
-public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType) {
+public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType, Scope scope) {
 	if (this.binding instanceof ParameterizedGenericMethodBinding) {
 		InferenceContext18 ctx = getInferenceContext((ParameterizedMethodBinding) this.binding);
 		if (ctx != null && ctx.stepCompleted < InferenceContext18.TYPE_INFERRED) {
 			this.expectedType = targetType;
 			MethodBinding updatedBinding = ctx.inferInvocationType(this, (ParameterizedGenericMethodBinding) this.binding);
 			if (updateBindings(updatedBinding, targetType)) {
-				ASTNode.resolvePolyExpressionArguments(this, updatedBinding);
+				ASTNode.resolvePolyExpressionArguments(this, updatedBinding, scope);
 			}
 		}
 	}
@@ -980,7 +981,13 @@ public boolean receiverIsImplicitThis() {
 	return this.receiver.isImplicitThis();
 }
 // -- interface Invocation: --
-public MethodBinding binding(TypeBinding targetType) {
+public MethodBinding binding(TypeBinding targetType, boolean reportErrors, Scope scope) {
+	if (reportErrors) {
+		if (this.binding == null)
+			scope.problemReporter().genericInferenceError("method is unexpectedly unresolved", this); //$NON-NLS-1$
+		else if (!this.binding.isValidBinding())
+			scope.problemReporter().invalidMethod(this, this.binding);
+	}
 	return this.binding;
 }
 public Expression[] arguments() {

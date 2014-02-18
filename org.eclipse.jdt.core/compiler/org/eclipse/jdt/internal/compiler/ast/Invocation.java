@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 /**
@@ -35,8 +36,12 @@ public interface Invocation extends InvocationSite {
 	/**
 	 * Answer the resolved method binding of this invocation.
 	 * If a target type is given, the invocation gets a chance to do repeated method lookup.
+	 * @param targetType the target type of this invocation or null if not yet known
+	 * @param reportErrors if true then this is the last call, if no valid binding can be answered we should report an error
+	 * @param scope if reportErrors is true then this scope can be used for error reporting
+	 * 
 	 */
-	MethodBinding binding(TypeBinding targetType);
+	MethodBinding binding(TypeBinding targetType, boolean reportErrors, Scope scope);
 
 	/**
 	 * Register the given inference context, which produced the given method as its intermediate result.

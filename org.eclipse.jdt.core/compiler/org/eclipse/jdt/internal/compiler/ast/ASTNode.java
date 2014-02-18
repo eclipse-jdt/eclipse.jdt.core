@@ -30,6 +30,7 @@
  *								Bug 426366 - [1.8][compiler] Type inference doesn't handle multiple candidate target types in outer overload context
  *								Bug 427282 - [1.8][compiler] AIOOB (-1) at org.eclipse.jdt.internal.compiler.ClassFile.traverse(ClassFile.java:6209)
  *								Bug 427483 - [Java 8] Variables in lambdas sometimes can't be resolved
+ *								Bug 428352 - [1.8][compiler] Resolution errors don't always surface
  *     Jesper S Moller - Contributions for
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -651,8 +652,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	 * @param methodBinding the method produced by lookup (possibly involving type inference).
 	 * @param argumentTypes the argument types as collected from first resolving the invocation arguments and as used for
 	 * 	the method lookup.
+	 * @param scope scope for error reporting
 	 */
-	public static void resolvePolyExpressionArguments(Invocation invocation, MethodBinding methodBinding, TypeBinding[] argumentTypes) {
+	public static void resolvePolyExpressionArguments(Invocation invocation, MethodBinding methodBinding, TypeBinding[] argumentTypes, Scope scope) {
 		if (!invocation.innersNeedUpdate())
 			return;
 		int problemReason = 0;
@@ -706,7 +708,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 				if (argument instanceof Invocation) {
 					Invocation innerInvocation = (Invocation)argument;
-					MethodBinding binding = innerInvocation.binding(parameterType);
+					MethodBinding binding = innerInvocation.binding(parameterType, true, scope);
 					if (binding instanceof ParameterizedGenericMethodBinding) {
 						ParameterizedGenericMethodBinding parameterizedMethod = (ParameterizedGenericMethodBinding) binding;
 						InferenceContext18 innerContext = innerInvocation.getInferenceContext(parameterizedMethod);
@@ -718,7 +720,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 									innerContext.reportInvalidInvocation(innerInvocation, improvedBinding);
 								}
 								if (innerInvocation.updateBindings(improvedBinding, parameterType)) {
-									resolvePolyExpressionArguments(innerInvocation, improvedBinding);
+									resolvePolyExpressionArguments(innerInvocation, improvedBinding, scope);
 								}
 							} else if (innerContext.stepCompleted < InferenceContext18.BINDINGS_UPDATED) {
 								innerContext.rebindInnerPolies(parameterizedMethod, innerInvocation);
@@ -733,7 +735,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					if (infCtx != null && infCtx.stepCompleted == InferenceContext18.BINDINGS_UPDATED)
 						updatedArgumentType = argument.resolvedType; // in this case argument was already resolved via InferenceContext18.acceptPendingPolyArguments()
 					else
-						updatedArgumentType = argument.checkAgainstFinalTargetType(parameterType);
+						updatedArgumentType = argument.checkAgainstFinalTargetType(parameterType, scope);
 
 					if (problemReason == ProblemReasons.NoError // preserve errors
 							&& updatedArgumentType != null					// do we have a relevant update? ...
@@ -749,7 +751,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		invocation.innerUpdateDone();
 	}
 
-	public static void resolvePolyExpressionArguments(Invocation invocation, MethodBinding methodBinding) {
+	public static void resolvePolyExpressionArguments(Invocation invocation, MethodBinding methodBinding, Scope scope) {
 		TypeBinding[] argumentTypes = null;
 		Expression[] innerArguments = invocation.arguments();
 		if (innerArguments != null) {
@@ -757,7 +759,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			for (int i = 0; i < innerArguments.length; i++)
 				argumentTypes[i] = innerArguments[i].resolvedType;
 		}
-		resolvePolyExpressionArguments(invocation, methodBinding, argumentTypes);
+		resolvePolyExpressionArguments(invocation, methodBinding, argumentTypes, scope);
 	}
 
 	public static void resolveAnnotations(BlockScope scope, Annotation[] sourceAnnotations, Binding recipient) {

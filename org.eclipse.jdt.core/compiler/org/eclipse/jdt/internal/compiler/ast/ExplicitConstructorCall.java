@@ -27,6 +27,7 @@
  *								Bug 426290 - [1.8][compiler] Inference + overloading => wrong method resolution ?
  *								Bug 427483 - [Java 8] Variables in lambdas sometimes can't be resolved
  *								Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
+ *								Bug 428352 - [1.8][compiler] Resolution errors don't always surface
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 409245 - [1.8][compiler] Type annotations dropped when call is routed through a synthetic bridge method
  *******************************************************************************/
@@ -502,7 +503,13 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 	}
 
 	// -- interface Invocation: --
-	public MethodBinding binding(TypeBinding targetType) {
+	public MethodBinding binding(TypeBinding targetType, boolean reportErrors, Scope scope) {
+		if (reportErrors) {
+			if (this.binding == null)
+				scope.problemReporter().genericInferenceError("constructor is unexpectedly unresolved", this); //$NON-NLS-1$
+			else if (!this.binding.isValidBinding())
+				scope.problemReporter().invalidConstructor(this, this.binding);
+		}
 		return this.binding;
 	}
 	public Expression[] arguments() {

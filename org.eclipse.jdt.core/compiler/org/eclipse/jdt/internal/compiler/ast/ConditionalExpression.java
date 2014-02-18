@@ -27,6 +27,7 @@
  *							Bug 426078 - [1.8] VerifyError when conditional expression passed as an argument
  *							Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
  *							Bug 418537 - [1.8][null] Fix null type annotation analysis for poly conditional expressions
+ *							Bug 428352 - [1.8][compiler] Resolution errors don't always surface
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -717,12 +718,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		return this.expressionContext;
 	}
 	
-	public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType) {
+	public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType, Scope scope) {
 		// in 1.8 if treated as a poly expression:
 		if (isPolyExpression()) {
 			targetType = targetType.uncapture(this.polyExpressionScope);
-			this.originalValueIfTrueType = this.valueIfTrue.checkAgainstFinalTargetType(targetType);
-			this.originalValueIfFalseType = this.valueIfFalse.checkAgainstFinalTargetType(targetType);
+			this.originalValueIfTrueType = this.valueIfTrue.checkAgainstFinalTargetType(targetType, scope);
+			this.originalValueIfFalseType = this.valueIfFalse.checkAgainstFinalTargetType(targetType, scope);
 			computeConversions(this.polyExpressionScope, targetType);
 			this.resolvedType = targetType;
 		}

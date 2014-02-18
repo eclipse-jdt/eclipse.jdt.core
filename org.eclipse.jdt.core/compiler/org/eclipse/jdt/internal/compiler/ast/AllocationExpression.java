@@ -37,6 +37,7 @@
  *							Bug 427483 - [Java 8] Variables in lambdas sometimes can't be resolved
  *							Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
  *							Bug 426996 - [1.8][inference] try to avoid method Expression.unresolve()? 
+ *							Bug 428352 - [1.8][compiler] Resolution errors don't always surface
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *							bug 378674 - "The method can be declared as static" is wrong
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -88,6 +89,7 @@ public class AllocationExpression extends Expression implements Invocation {
 		boolean argsContainCast;
 		boolean cannotInferDiamond; // request the an error be reported in due time
 		TypeBinding[] argumentTypes;
+		boolean hasReportedError;
 
 		ResolutionState(BlockScope scope, boolean isDiamond, boolean diamonNeedsDeferring,
 				boolean argsContainCast, TypeBinding[] argumentTypes)
@@ -497,6 +499,7 @@ boolean resolvePart2(ResolutionState state) {
 		if (inferredTypes == null) {
 			if (!state.diamondNeedsDeferring) {
 				state.scope.problemReporter().cannotInferElidedTypes(this);
+				state.hasReportedError = true;
 				this.resolvedType = null;
 			} else {
 				state.cannotInferDiamond = true; // defer reporting
@@ -513,6 +516,8 @@ boolean resolvePart2(ResolutionState state) {
 
 /** Final part of resolving (once): check and report various error conditions. */
 TypeBinding resolvePart3(ResolutionState state) {
+	if (this.suspendedResolutionState != null && this.suspendedResolutionState.hasReportedError)
+		return this.resolvedType;
 	this.suspendedResolutionState = null;
 	if (state.cannotInferDiamond) {
 		state.scope.problemReporter().cannotInferElidedTypes(this);
@@ -694,20 +699,34 @@ public boolean statementExpression() {
 }
 
 //-- interface Invocation: --
-public MethodBinding binding(TypeBinding targetType) {
+public MethodBinding binding(TypeBinding targetType, boolean reportErrors, Scope scope) {
 	if (this.suspendedResolutionState != null && targetType != null) {
 		setExpectedType(targetType);
-		if (!resolvePart2(this.suspendedResolutionState))
+		if (!resolvePart2(this.suspendedResolutionState)) {
+			if (reportErrors && !this.suspendedResolutionState.hasReportedError) {
+				if (this.suspendedResolutionState.cannotInferDiamond)
+					scope.problemReporter().cannotInferElidedTypes(this);
+				else
+					scope.problemReporter().genericInferenceError("constructor is unexpectedly unresolved", this); //$NON-NLS-1$
+				this.suspendedResolutionState.hasReportedError = true;
+			}
 			return null;
+		}
+	}
+	if (reportErrors && this.binding != null && !this.binding.isValidBinding()) {
+		if (this.binding.declaringClass == null)
+			this.binding.declaringClass = (ReferenceBinding) this.resolvedType;
+		scope.problemReporter().invalidConstructor(this, this.binding);
+		this.suspendedResolutionState.hasReportedError = true;
 	}
 	return this.binding;
 }
-public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType) {
+public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType, Scope scope) {
 	if (this.suspendedResolutionState != null) {
 		return resolvePart3(this.suspendedResolutionState);
 		// also: should this trigger any propagation to inners, too?
 	}
-	return super.checkAgainstFinalTargetType(targetType);
+	return super.checkAgainstFinalTargetType(targetType, scope);
 }
 public Expression[] arguments() {
 	return this.arguments;

@@ -80,7 +80,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				return TRUE;
 			} else if (this.left instanceof AllocationExpression && this.left.isPolyExpression()) {
 				// half-resolved diamond has a resolvedType, but that may not be the final word, try one more step of resolution:
-            	MethodBinding binding = ((AllocationExpression) this.left).binding(this.right);
+            	MethodBinding binding = ((AllocationExpression) this.left).binding(this.right, false, null);
             	return (binding != null && binding.declaringClass.isCompatibleWith(this.right)) ? TRUE : FALSE;
             }
 			return FALSE;
@@ -95,7 +95,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			// - parenthesized expression : these are transparent in our AST
 			if (this.left instanceof Invocation) {
 				Invocation invocation = (Invocation) this.left;
-				MethodBinding previousMethod = invocation.binding(this.right);
+				MethodBinding previousMethod = invocation.binding(this.right, false, null);
 				if (previousMethod == null)  	// can happen, e.g., if inside a copied lambda with ignored errors
 					return null; 				// -> proceed with no new constraints
 				MethodBinding method = previousMethod;
