@@ -8507,6 +8507,60 @@ public void test428300a() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428177, - [1.8][compiler] Insistent capture issues
+public void _test428177() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"import java.nio.file.Path;\n" +
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"import java.util.function.Function;\n" +
+			"import java.util.jar.JarEntry;\n" +
+			"import java.util.jar.JarFile;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"import java.util.stream.Stream;\n" +
+			"class InsistentCapture {\n" +
+			"  static void processJar(Path plugin) throws IOException {\n" +
+			"    try(JarFile jar = new JarFile(plugin.toFile())) {\n" +
+			"      try(Stream<JarEntry> entries = jar.stream()) {\n" +
+			"        Function<? super JarEntry, ? extends String> toName =\n" +
+			"          entry -> entry.getName();\n" +
+			"        Stream<? extends String> stream = entries.map(toName).distinct(); // Ok\n" +
+			"        withWildcard(entries.map(toName).distinct()); // Ok\n" +
+			"        withWildcard(stream); // Ok\n" +
+			"        Stream<String> stream2 = entries.map(toName).distinct(); // ERROR\n" +
+			"        withoutWildcard(entries.map(toName).distinct()); // ERROR\n" +
+			"        withoutWildcard(stream); // ERROR\n" +
+			"        withoutWildcard(stream2); // Ok\n" +
+			"        withoutWildcard(coerce(stream)); // Ok\n" +
+			"        withoutWildcard(stream.map((String v1) -> { // ERROR\n" +
+			"          String r = \"\" + v1; // Hover on v: Ok\n" +
+			"          return r;\n" +
+			"        }));\n" +
+			"        withoutWildcard(stream.map((v2) -> { // Ok\n" +
+			"          String r = \"\" + v2; // Hover on v: NOT OK\n" +
+			"          return r;\n" +
+			"        }));\n" +
+			"      }\n" +
+			"    }\n" +
+			"  }\n" +
+			"  private static Stream<String> coerce(Stream<? extends String> stream) {\n" +
+			"    if(\"1\" == \"\") { return stream.collect(Collectors.toList()).stream(); // ERROR\n" +
+			"    }\n" +
+			"    return stream.collect(Collectors.toList()); // NO ERROR\n" +
+			"  }\n" +
+			"  private static void withWildcard(Stream<? extends String> distinct) {\n" +
+			"    distinct.forEach(s1 -> System.out.println(s1)); // hover on s: NOT OK\n" +
+			"  }\n" +
+			"  private static void withoutWildcard(Stream<String> distinct) {\n" +
+			"    distinct.forEach(s2 -> System.out.println(s2)); // hover on s: Ok\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"valid error messages go here - some are expected since javac also complains");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
