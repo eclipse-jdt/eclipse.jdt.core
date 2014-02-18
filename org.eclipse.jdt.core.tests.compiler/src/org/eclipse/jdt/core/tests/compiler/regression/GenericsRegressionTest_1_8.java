@@ -2349,4 +2349,32 @@ public void test428352b() {
 		},
 		"13");
 }
+public void testBug428307() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.stream.*;\n" + 
+			"\n" + 
+			"interface Bar {\n" + 
+			"	Class<? extends Bar> type();\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			" \n" + 
+			"    <T extends Bar> T[] test(Class<T> barClass, Stream<Bar> bars) {\n" + 
+			"        return get(bars.\n" + 
+			"                    collect(Collectors.toMap(Bar::type,\n" + 
+			"                                             Function.identity(),\n" + 
+			"                                             ((first,second) -> first),\n" + 
+			"                                             HashMap::new)),\n" + 
+			"                            barClass);\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    <A extends Bar> A[] get(Map<Class<? extends Bar>,Bar> m, Class<A> c) {\n" + 
+			"    	return null;\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }

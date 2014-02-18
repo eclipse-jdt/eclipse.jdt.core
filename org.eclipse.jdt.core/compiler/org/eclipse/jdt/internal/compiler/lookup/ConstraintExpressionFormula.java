@@ -60,6 +60,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 
 	public Object reduce(InferenceContext18 inferenceContext) throws InferenceFailureException {
 		// JLS 18.2.1
+		proper:
 		if (this.right.isProperType(true)) {
 			TypeBinding exprType = this.left.resolvedType;
 			if (exprType == null) {
@@ -81,7 +82,17 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			} else if (this.left instanceof AllocationExpression && this.left.isPolyExpression()) {
 				// half-resolved diamond has a resolvedType, but that may not be the final word, try one more step of resolution:
             	MethodBinding binding = ((AllocationExpression) this.left).binding(this.right, false, null);
-            	return (binding != null && binding.declaringClass.isCompatibleWith(this.right)) ? TRUE : FALSE;
+            	return (binding != null && binding.declaringClass.isCompatibleWith(this.right, inferenceContext.scope)) ? TRUE : FALSE;
+            } else if (this.left instanceof Invocation && this.left.isPolyExpression()) {
+            	Invocation invoc = (Invocation) this.left;
+            	MethodBinding binding = invoc.binding(this.right, false, null);
+            	if (binding instanceof ParameterizedGenericMethodBinding) {
+            		ParameterizedGenericMethodBinding method = (ParameterizedGenericMethodBinding) binding;
+					InferenceContext18 leftCtx = invoc.getInferenceContext(method);
+            		if (leftCtx.stepCompleted < InferenceContext18.TYPE_INFERRED) {
+            			break proper; // fall through into nested inference below (not explicit in the spec!)
+            		}
+            	}
             }
 			return FALSE;
 		}
