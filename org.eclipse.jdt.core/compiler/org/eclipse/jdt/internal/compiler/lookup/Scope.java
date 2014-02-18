@@ -41,6 +41,7 @@
  *								Bug 426836 - [1.8] special handling for return type in references to method getClass()?
  *								Bug 427628 - [1.8] regression : The method * is ambiguous for the type *
  *								Bug 428352 - [1.8][compiler] Resolution errors don't always surface
+ *								Bug 428366 - [1.8] [compiler] The method valueAt(ObservableList<Object>, int) is ambiguous for the type Bindings
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -58,6 +59,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -4365,6 +4367,9 @@ public abstract class Scope {
 				}
 				compatibleCount++;
 			}
+		}
+		if (compatibleCount != visibleSize) {
+			problemReporter().genericInferenceProblem("(Recovered) Internal inconsistency while checking invocation ambiguity", invocationSite, ProblemSeverities.Warning); //$NON-NLS-1$
 		}
 		if (compatibleCount == 0) {
 			return new ProblemMethodBinding(visible[0].selector, argumentTypes, ProblemReasons.NotFound);

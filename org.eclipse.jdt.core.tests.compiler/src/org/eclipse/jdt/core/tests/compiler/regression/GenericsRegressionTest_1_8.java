@@ -2377,4 +2377,24 @@ public void testBug428307() {
 			"}\n"
 		});
 }
+public void testBug428366() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	<T> void m(String s, int i) {}\n" +
+			"	<T> void m(String s1, String s2) {}\n" +
+			"	void test() {\n" +
+			"		m(\"1\", null);\n" +
+			"	}\n" +
+			"	Zork z;\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }

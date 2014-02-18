@@ -38,6 +38,8 @@ abstract class ConstraintFormula extends ReductionResult {
 	protected boolean isCompatibleWithInLooseInvocationContext(TypeBinding one, TypeBinding two, InferenceContext18 context) {
 		if (one.isCompatibleWith(two, context.scope))
 			return true;
+		if (one.isBaseType() == two.isBaseType()) // this also protects against comparing null & primitive
+			return false;
 		if (one.isPrimitiveType()) {
 			if (!two.isBaseType()) {
 				TypeBinding boxingType = context.environment.computeBoxingType(one);
