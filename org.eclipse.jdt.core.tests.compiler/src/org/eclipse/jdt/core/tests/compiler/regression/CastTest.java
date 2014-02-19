@@ -2718,6 +2718,188 @@ public void _test428388d() throws Exception {
 		},
 		"CCE\nCCE");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428522,  [1.8] VerifyError when a non primitive type cast to primitive type 
+public void test428522() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String args[]) {\n" +
+			"    	long l = (long) ((Object) 100L);\n" +
+			"    	System.out.println(\"OK\");\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"OK", customOptions);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED);
+
+	String expectedOutput =
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+			"  // Stack: 2, Locals: 1\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
+			"     0  ldc2_w <Long 100> [16]\n" + 
+			"     3  invokestatic java.lang.Long.valueOf(long) : java.lang.Long [18]\n" + 
+			"     6  checkcast java.lang.Long [19]\n" + 
+			"     9  invokevirtual java.lang.Long.longValue() : long [24]\n" + 
+			"    12  pop2\n" + 
+			"    13  getstatic java.lang.System.out : java.io.PrintStream [28]\n" + 
+			"    16  ldc <String \"OK\"> [34]\n" + 
+			"    18  invokevirtual java.io.PrintStream.println(java.lang.String) : void [36]\n" + 
+			"    21  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 13, line: 4]\n" + 
+			"        [pc: 21, line: 5]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 22] local: args index: 0 type: java.lang.String[]\n" + 
+			"}";
+	int index = actualOutput.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(actualOutput, 2));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, actualOutput);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428522,  [1.8] VerifyError when a non primitive type cast to primitive type 
+public void test428522a() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String args[]) {\n" +
+			"    	long l = (long) ((Object) 100L);\n" +
+			"    	System.out.println(\"OK\");\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"OK", customOptions);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED);
+
+	String expectedOutput =
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+			"  // Stack: 2, Locals: 3\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
+			"     0  ldc2_w <Long 100> [16]\n" + 
+			"     3  invokestatic java.lang.Long.valueOf(long) : java.lang.Long [18]\n" + 
+			"     6  checkcast java.lang.Long [19]\n" + 
+			"     9  invokevirtual java.lang.Long.longValue() : long [24]\n" + 
+			"    12  lstore_1 [l]\n" + 
+			"    13  getstatic java.lang.System.out : java.io.PrintStream [28]\n" + 
+			"    16  ldc <String \"OK\"> [34]\n" + 
+			"    18  invokevirtual java.io.PrintStream.println(java.lang.String) : void [36]\n" + 
+			"    21  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 13, line: 4]\n" + 
+			"        [pc: 21, line: 5]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 22] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 13, pc: 22] local: l index: 1 type: long\n" + 
+			"}";
+	int index = actualOutput.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(actualOutput, 2));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, actualOutput);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428522,  [1.8] VerifyError when a non primitive type cast to primitive type 
+public void test428522b() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String args[]) {\n" +
+			"       try {\n" +
+			"    	    int l = (int) ((Object) 100L);\n" +
+			"       } catch (ClassCastException c) {\n" +
+			"    	    System.out.println(\"CCE:OK\");\n" +
+			"       }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"CCE:OK", customOptions);
+
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428522,  [1.8] VerifyError when a non primitive type cast to primitive type 
+public void test428522c() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String args[]) {\n" +
+			"    	int l = (int) ((Object) 100);\n" +
+			"    	System.out.println(\"OK\");\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"OK", customOptions);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED);
+
+	String expectedOutput =
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+			"  // Stack: 2, Locals: 1\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
+			"     0  bipush 100\n" + 
+			"     2  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [16]\n" + 
+			"     5  checkcast java.lang.Integer [17]\n" + 
+			"     8  invokevirtual java.lang.Integer.intValue() : int [22]\n" + 
+			"    11  pop\n" + 
+			"    12  getstatic java.lang.System.out : java.io.PrintStream [26]\n" + 
+			"    15  ldc <String \"OK\"> [32]\n" + 
+			"    17  invokevirtual java.io.PrintStream.println(java.lang.String) : void [34]\n" + 
+			"    20  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 3]\n" + 
+			"        [pc: 12, line: 4]\n" + 
+			"        [pc: 20, line: 5]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 21] local: args index: 0 type: java.lang.String[]\n" + 
+			"}";
+	int index = actualOutput.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(actualOutput, 2));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, actualOutput);
+	}
+}
 
 public static Class testClass() {
 	return CastTest.class;

@@ -461,7 +461,16 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	if (valueRequired) {
 		codeStream.generateImplicitConversion(this.implicitConversion);
 	} else if (needRuntimeCheckcast) {
-		codeStream.pop();
+		boolean isUnboxing = (this.implicitConversion & TypeIds.UNBOXING) != 0;
+		switch (isUnboxing ? postConversionType(currentScope).id : this.resolvedType.id) {
+			case T_long :
+			case T_double :
+				codeStream.pop2();
+				break;
+			default :
+				codeStream.pop();
+				break;
+		}
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
