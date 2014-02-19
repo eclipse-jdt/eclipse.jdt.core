@@ -3370,6 +3370,30 @@ public void test428261a() {
 			},
 			"10");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428552,  [1.8][compiler][codegen] Serialization does not work for method references
+public void test428552() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.*;\n" +
+				"public class X {\n" +
+				"	interface Example extends Serializable {\n" +
+				"		String convert(Object o);\n" +
+				"	}\n" +
+				"	public static void main(String[] args) throws IOException {\n" +
+				"		Example e=Object::toString;\n" +
+				"		try(ObjectOutputStream os=new ObjectOutputStream(new ByteArrayOutputStream())) {\n" +
+				"			os.writeObject(e);\n" +
+				"		}\n" +
+				"       System.out.println(\"No exception !\");\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"No exception !",
+			null,
+			true,
+			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

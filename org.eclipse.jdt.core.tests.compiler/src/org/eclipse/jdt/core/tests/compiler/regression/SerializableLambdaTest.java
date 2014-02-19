@@ -1096,6 +1096,33 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "X.class");
 		checkExpected(expectedOutput,data);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428552,  [1.8][compiler][codegen] Serialization does not work for method references
+	public void test428552() throws Exception {
+		this.runConformTest(
+				new String[]{
+					"X.java",
+					"import java.io.*;\n" +
+					"public class X {\n" +
+					"	interface Example extends Serializable {\n" +
+					"		String convert(X o);\n" +
+					"	}\n" +
+					"	public static void main(String[] args) throws IOException {\n" +
+					"		Example e=X::toString;\n" +
+					"       util.Helper.write(e);\n"+
+					"       e = (Example)util.Helper.read();\n"+
+					"       System.out.println(e.convert(new X()));\n"+
+					"	}\n" +
+					"   public String toString() {\n" +
+					"       return \"XItIs\";\n" +
+					"   }\n" +
+					"}\n",
+					"Helper.java",HELPER_CLASS,
+					},
+					"XItIs",
+					null,
+					true,
+					new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
+	}
 	
 	
 	// ---
