@@ -43,7 +43,7 @@ public static Test suite() {
 }
 
 static {
-//	TESTS_NAMES = new String[] { "testBug428274" };
+//	TESTS_NAMES = new String[] { "test428388d" };
 }
 /*
  * check extra checkcast (interface->same interface)
@@ -2694,6 +2694,26 @@ public void test428388c() throws Exception {
 			"		setValue(Double.valueOf(3.3));\n" +
 			"		setValue(Double.valueOf(3.7));\n" +
 			"	}\n" + 
+			"}\n",
+		},
+		"CCE\nCCE");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+public void _test428388d() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" +
+			"public class X implements Serializable {\n" +
+			"	static int test(Serializable v) {\n" +
+			"		return (int)v;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = test(new X());\n" +
+			"		System.out.println(i);\n" +
+			"	}\n" +
 			"}\n",
 		},
 		"CCE\nCCE");
