@@ -289,7 +289,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 
 			}
 		} else if (use17specifics && castType.isPrimitiveType() && expressionType instanceof ReferenceBinding && 
-				!expressionType.isPrimitiveOrBoxedPrimitiveType() && checkCastTypesCompatibility(scope, scope.boxing(castType), expressionType, expression)) {
+				!expressionType.isBoxedPrimitiveType() && checkCastTypesCompatibility(scope, scope.boxing(castType), expressionType, expression)) {
 			// cast from any reference type (other than boxing types) to base type allowed from 1.7, see JLS $5.5
 			// by our own interpretation (in accordance with javac) we reject arays, though.
 			return true;
@@ -664,7 +664,10 @@ public void computeConversion(Scope scope, TypeBinding runtimeType, TypeBinding 
 	int compileTimeTypeID, runtimeTypeID;
 	if ((compileTimeTypeID = compileTimeType.id) >= TypeIds.T_LastWellKnownTypeId) { // e.g. ? extends String  ==> String (103227); >= TypeIds.T_LastWellKnownTypeId implies TypeIds.NoId
 		compileTimeTypeID = compileTimeType.erasure().id == TypeIds.T_JavaLangString ? TypeIds.T_JavaLangString : TypeIds.T_JavaLangObject;
+	} else if (runtimeType.isPrimitiveType() && compileTimeType instanceof ReferenceBinding && !compileTimeType.isBoxedPrimitiveType()) {
+		compileTimeTypeID = TypeIds.T_JavaLangObject; // treatment is the same as for jlO.
 	}
+
 	switch (runtimeTypeID = runtimeType.id) {
 		case T_byte :
 		case T_short :

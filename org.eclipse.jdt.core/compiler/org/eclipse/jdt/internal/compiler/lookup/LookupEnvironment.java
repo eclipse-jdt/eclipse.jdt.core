@@ -435,6 +435,8 @@ public TypeBinding computeBoxingType(TypeBinding type) {
 			break;
 		case Binding.POLY_TYPE:
 			return ((PolyTypeBinding) type).computeBoxingType();
+		case Binding.INTERSECTION_CAST_TYPE:
+			return computeBoxingType(type.getIntersectingTypes()[0]);
 	}
 	return type;
 }

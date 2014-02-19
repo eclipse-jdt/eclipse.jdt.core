@@ -126,6 +126,12 @@ public class IntersectionCastTypeBinding extends ReferenceBinding {
 		}
 		return this.intersectingTypes;
 	}
+	
+	@Override
+	public boolean isBoxedPrimitiveType() {
+		return this.intersectingTypes[0].isBoxedPrimitiveType();
+	}
+	
 	/* Answer true if the receiver type can be assigned to the argument type (right)
 	 */
 	public boolean isCompatibleWith(TypeBinding right, Scope scope) {

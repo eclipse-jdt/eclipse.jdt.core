@@ -552,6 +552,24 @@ public final boolean isPrimitiveOrBoxedPrimitiveType() {
 	}
 }
 
+/* Answer true if the receiver is a boxed primitive type
+ */
+public boolean isBoxedPrimitiveType() {
+	switch (this.id) {
+		case TypeIds.T_JavaLangBoolean :
+		case TypeIds.T_JavaLangByte :
+		case TypeIds.T_JavaLangCharacter :
+		case TypeIds.T_JavaLangShort :
+		case TypeIds.T_JavaLangDouble :
+		case TypeIds.T_JavaLangFloat :
+		case TypeIds.T_JavaLangInteger :
+		case TypeIds.T_JavaLangLong :
+			return true;
+		default: 
+			return false;
+	}
+}
+
 /**
  *  Returns true if parameterized type AND not of the form List<?>
  */

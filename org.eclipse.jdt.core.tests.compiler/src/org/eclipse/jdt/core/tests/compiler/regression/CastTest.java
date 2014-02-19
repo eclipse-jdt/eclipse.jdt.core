@@ -2699,7 +2699,7 @@ public void test428388c() throws Exception {
 		"CCE\nCCE");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
-public void _test428388d() throws Exception {
+public void test428388d() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7)
 		return;
 	this.runConformTest(
@@ -2708,7 +2708,12 @@ public void _test428388d() throws Exception {
 			"import java.io.Serializable;\n" +
 			"public class X implements Serializable {\n" +
 			"	static int test(Serializable v) {\n" +
-			"		return (int)v;\n" +
+			"       try {\n" +
+			"		    return (int)v;\n" +
+			"       } catch (ClassCastException c) {\n" +
+			"           System.out.println(\"CCE\");\n" +
+			"       }\n" +
+			"       return -1;\n" +
 			"	}\n" +
 			"	public static void main(String[] args) {\n" +
 			"		int i = test(new X());\n" +
@@ -2716,7 +2721,198 @@ public void _test428388d() throws Exception {
 			"	}\n" +
 			"}\n",
 		},
-		"CCE\nCCE");
+		"CCE\n-1");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+public void test428388e() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" +
+			"public class X implements Serializable {\n" +
+			"	static int test(Serializable v) {\n" +
+			"       try {\n" +
+			"		    return (int)v;\n" +
+			"       } catch (ClassCastException c) {\n" +
+			"           System.out.println(\"CCE\");\n" +
+			"       }\n" +
+			"       return -1;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = test(new Long(1234));\n" +
+			"		System.out.println(i);\n" +
+			"	}\n" +
+			"}\n",
+		},
+		"CCE\n-1");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+public void test428388f() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" +
+			"public class X implements Serializable {\n" +
+			"	static int test(Serializable v) {\n" +
+			"       try {\n" +
+			"		    return (int)v;\n" +
+			"       } catch (ClassCastException c) {\n" +
+			"           System.out.println(\"CCE\");\n" +
+			"       }\n" +
+			"       return -1;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = test(new Integer(1234));\n" +
+			"		System.out.println(i);\n" +
+			"	}\n" +
+			"}\n",
+		},
+		"1234");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+public void test428388g() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" +
+			"public class X implements Serializable {\n" +
+			"  static <S extends Boolean & Serializable>int test(S b) {\n" +
+			"    return (int) b;\n" +
+			"  }\n" +
+			"\n" +
+			"  public static void main(String[] args) {\n" +
+			"    int i = test(Boolean.TRUE);\n" +
+			"    System.out.println(i);\n" +
+			"  }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	public class X implements Serializable {\n" + 
+		"	             ^\n" + 
+		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	static <S extends Boolean & Serializable>int test(S b) {\n" + 
+		"	                  ^^^^^^^\n" + 
+		"The type parameter S should not be bounded by the final type Boolean. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	return (int) b;\n" + 
+		"	       ^^^^^^^\n" + 
+		"Cannot cast from S to int\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+public void test428388h() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return; // uses intersection cast
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" +
+			"public class X implements Serializable {\n" +
+			"  static int test(Serializable b) {\n" +
+			"    return (int) (Boolean & Serializable) b;\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
+			"    int i = test(Boolean.TRUE);\n" +
+			"    System.out.println(i);\n" +
+			"  }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	public class X implements Serializable {\n" + 
+		"	             ^\n" + 
+		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	return (int) (Boolean & Serializable) b;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from Boolean & Serializable to int\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+public void test428388i() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" +
+			"public class X implements Serializable {\n" +
+			"	static int test(Serializable v) {\n" +
+			"       try {\n" +
+			"		    return (int)v;\n" +
+			"       } catch (ClassCastException c) {\n" +
+			"           System.out.println(\"CCE\");\n" +
+			"       }\n" +
+			"       return -1;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = test(new Integer(1234));\n" +
+			"		System.out.println(i);\n" +
+			"	}\n" +
+			"}\n",
+		},
+		"1234");
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED);
+
+	String expectedOutput =
+			"  // Method descriptor #17 (Ljava/io/Serializable;)I\n" + 
+			"  // Stack: 2, Locals: 2\n" + 
+			"  static int test(java.io.Serializable v);\n" + 
+			"     0  aload_0 [v]\n" + 
+			"     1  checkcast java.lang.Integer [18]\n" + 
+			"     4  invokevirtual java.lang.Integer.intValue() : int [20]\n" + 
+			"     7  ireturn\n" + 
+			"     8  astore_1 [c]\n" + 
+			"     9  getstatic java.lang.System.out : java.io.PrintStream [24]\n" + 
+			"    12  ldc <String \"CCE\"> [30]\n" + 
+			"    14  invokevirtual java.io.PrintStream.println(java.lang.String) : void [32]\n" + 
+			"    17  iconst_m1\n" + 
+			"    18  ireturn\n";
+	
+	int index = actualOutput.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(actualOutput, 2));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, actualOutput);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
+public void test428388j() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return; // uses intersection cast
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" +
+			"public class X implements Serializable {\n" +
+			"  static int test(Serializable b) {\n" +
+			"    return (int) (Integer & Serializable) b;\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
+			"    int i = test(10101010);\n" +
+			"    System.out.println(i);\n" +
+			"  }\n" +
+			"}\n",
+		},
+		"10101010");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428522,  [1.8] VerifyError when a non primitive type cast to primitive type 
 public void test428522() throws Exception {
