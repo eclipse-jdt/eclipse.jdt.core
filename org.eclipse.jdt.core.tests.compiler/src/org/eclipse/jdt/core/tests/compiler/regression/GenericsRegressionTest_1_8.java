@@ -2377,4 +2377,35 @@ public void testBug428307() {
 			"}\n"
 		});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428524, [1.8][compiler] NPE when using JSE8 Class Constructor ref "TheClass::new" and "TheClass" is using default no-arg constructor 
+public void test428524() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.function.Supplier;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Supplier<WithNoArgConstructor> works = WithNoArgConstructor::new;\n" +
+			"		System.out.println(works.get());\n" +
+			"		Supplier<WithoutNoArgConstructor> error = WithoutNoArgConstructor::new;\n" +
+			"		System.out.println(error.get());\n" +
+			"		\n" +
+			"	}\n" +
+			"	private static class WithNoArgConstructor {\n" +
+			"		public WithNoArgConstructor() {\n" +
+			"		}\n" +
+			"       public String toString() {\n" +
+			"           return(\"WithNoArgConstructor\");\n" +
+			"       }\n" +
+			"	}\n" +
+			"	private static class WithoutNoArgConstructor {\n" +
+			"       public String toString() {\n" +
+			"           return(\"WithOutNoArgConstructor\");\n" +
+			"       }\n" +
+			"	}\n" +
+			"}\n"
+		}, 
+		"WithNoArgConstructor\n" + 
+		"WithOutNoArgConstructor");
+}
 }

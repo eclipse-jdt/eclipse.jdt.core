@@ -227,6 +227,8 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 									true /* disallow instance reference in explicit constructor call */);
 							codeStream.generateOuterAccess(emulationPath, this, syntheticArgumentType, currentScope);
 						}
+					} else {
+						enclosingInstances = Binding.NO_REFERENCE_TYPES;
 					}
 					// Reject types that capture outer local arguments, these cannot be manufactured by the metafactory.
 					if (nestedType.syntheticOuterLocalVariables() != null) {

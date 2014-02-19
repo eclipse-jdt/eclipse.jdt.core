@@ -48,6 +48,7 @@ public abstract class Binding {
 
 	// Shared binding collections
 	public static final TypeBinding[] NO_TYPES = new TypeBinding[0];
+	public static final ReferenceBinding[] NO_REFERENCE_TYPES = new ReferenceBinding[0];
 	public static final TypeBinding[] NO_PARAMETERS = new TypeBinding[0];
 	public static final ReferenceBinding[] NO_EXCEPTIONS = new ReferenceBinding[0];
 	public static final ReferenceBinding[] ANY_EXCEPTION = new ReferenceBinding[] { null }; // special handler for all exceptions
