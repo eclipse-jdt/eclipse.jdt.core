@@ -6717,4 +6717,45 @@ public void testTypeAnnotationProblemNotIn17() {
 			"The annotation @NonNull is disallowed for this location\n" + 
 			"----------\n");
 }
+public void testBug420313() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"OverrideTest.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"\n" + 
+			"public class OverrideTest implements TypedBase<String>, UntypedBase\n" + 
+			"{\n" + 
+			"   public void doSomething(String text) // No warning\n" + 
+			"   {\n" + 
+			"      System.out.println(text);\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void doSomethingElse(String text) // \"Missing non-null annotation\" warning\n" + 
+			"   {\n" + 
+			"      System.out.println(text);\n" + 
+			"   }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface TypedBase<T>\n" + 
+			"{\n" + 
+			"   void doSomething(@NonNull T text);\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface UntypedBase\n" + 
+			"{\n" + 
+			"   void doSomethingElse(@NonNull String text);\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in OverrideTest.java (at line 5)\n" + 
+		"	public void doSomething(String text) // No warning\n" + 
+		"	                        ^^^^^^\n" + 
+		"Missing non-null annotation: inherited method from TypedBase<String> specifies this parameter as @NonNull\n" + 
+		"----------\n" + 
+		"2. WARNING in OverrideTest.java (at line 10)\n" + 
+		"	public void doSomethingElse(String text) // \"Missing non-null annotation\" warning\n" + 
+		"	                            ^^^^^^\n" + 
+		"Missing non-null annotation: inherited method from UntypedBase specifies this parameter as @NonNull\n" + 
+		"----------\n");
+}
 }
