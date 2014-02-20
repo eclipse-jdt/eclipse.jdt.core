@@ -6675,4 +6675,46 @@ public void testBug418235() {
             "Illegal redefinition of parameter o, inherited method from GenericInterface<Object> does not constrain this parameter\n" + 
             "----------\n");
 }
+
+public void testTypeAnnotationProblemNotIn17() {
+	String source =
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	public @NonNull java.lang.String test(@NonNull java.lang.String arg) {\n" +
+			"		@NonNull java.lang.String local = arg;\n" +
+			"		return local;\n" +
+			"	}\n" +
+			"}\n";
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				source
+			}, 
+			getCompilerOptions(),
+			"");
+	else
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				source
+			}, 
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	public @NonNull java.lang.String test(@NonNull java.lang.String arg) {\n" + 
+			"	       ^^^^^^^^\n" + 
+			"The annotation @NonNull is disallowed for this location\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	public @NonNull java.lang.String test(@NonNull java.lang.String arg) {\n" + 
+			"	                                      ^^^^^^^^\n" + 
+			"The annotation @NonNull is disallowed for this location\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	@NonNull java.lang.String local = arg;\n" + 
+			"	^^^^^^^^\n" + 
+			"The annotation @NonNull is disallowed for this location\n" + 
+			"----------\n");
+}
 }
