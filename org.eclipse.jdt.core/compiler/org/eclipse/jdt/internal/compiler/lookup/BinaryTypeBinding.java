@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -449,7 +449,7 @@ private void createFields(IBinaryField[] iFields, long sourceLevel, char[][][] m
 			if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
 				for (int i = 0; i <size; i++) {
 					IBinaryField binaryField = iFields[i];
-					scanFieldForNullAnnotation(binaryField, this.fields[i]);
+					scanFieldForNullAnnotation(binaryField, this.fields[i], this.isEnum());
 				}
 			}
 		}
@@ -1163,7 +1163,7 @@ SimpleLookupTable storedAnnotations(boolean forceInitialize) {
 	return this.storedAnnotations;
 }
 
-void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBinding) {
+void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBinding, boolean isEnum) {
 	// global option is checked by caller
 	char[][] nullableAnnotationName = this.environment.getNullableAnnotationName();
 	char[][] nonNullAnnotationName = this.environment.getNonNullAnnotationName();
@@ -1195,6 +1195,11 @@ void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBinding) {
 	}
 	if (!explicitNullness && (this.tagBits & TagBits.AnnotationNonNullByDefault) != 0) {
 		fieldBinding.tagBits |= TagBits.AnnotationNonNull;
+	}
+	if (isEnum) {
+		if ((field.getModifiers() & ClassFileConstants.AccEnum) != 0) {
+			fieldBinding.tagBits |= TagBits.AnnotationNonNull;
+		}
 	}
 }
 
