@@ -899,6 +899,9 @@ class ASTConverter {
 		setModifiers(variableDecl, argument);
 		final SimpleName name = new SimpleName(this.ast);
 		name.internalSetIdentifier(new String(argument.name));
+		if (argument instanceof Receiver) {
+			name.setFlags(name.getFlags() | ASTNode.MALFORMED);
+		}
 		int start = argument.sourceStart;
 		int nameEnd = argument.sourceEnd;
 		name.setSourceRange(start, nameEnd - start + 1);
