@@ -213,6 +213,12 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		this.constant = Constant.NotAConstant;
 		this.enclosingScope = blockScope;
 		
+		boolean argumentsTypeElided = argumentsTypeElided();
+		int length = this.arguments == null ? 0 : this.arguments.length;
+		if (!argumentsTypeElided) {
+			for (int i = 0; i < length; i++)
+				this.argumentTypes[i] = this.arguments[i].type.resolveType(blockScope, true /* check bounds*/);
+		}
 		if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
 			return new PolyTypeBinding(this);
 		} 
@@ -223,7 +229,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 
 		super.resolveType(blockScope); // compute & capture interface function descriptor in singleAbstractMethod.
 		
-		boolean argumentsTypeElided = argumentsTypeElided();
 		final boolean haveDescriptor = this.descriptor != null;
 		
 		if (haveDescriptor && this.descriptor.typeVariables != Binding.NO_TYPE_VARIABLES) // already complained in kosher*
@@ -235,7 +240,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 					return null; // FUBAR, bail out...
 				// for code assist ONLY, keep the sluice gate shut on bogus errors otherwise.
 				argumentsTypeElided = false;
-				int length = this.arguments != null ? this.arguments.length : 0;
 				for (int i = 0; i < length; i++) {
 					this.arguments[i].type = new SingleTypeReference(TypeConstants.OBJECT, 0);
 				}
@@ -261,7 +265,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		}
 		
 		boolean buggyArguments = false;
-		int length = this.arguments == null ? 0 : this.arguments.length;
 		TypeBinding[] newParameters = new TypeBinding[length];
 
 		AnnotationBinding [][] parameterAnnotations = null;
@@ -278,7 +281,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			
 			TypeBinding parameterType;
 			final TypeBinding expectedParameterType = haveDescriptor && i < this.descriptor.parameters.length ? this.descriptor.parameters[i] : null;
-			parameterType = argumentsTypeElided ? expectedParameterType : (this.argumentTypes[i] = argument.type.resolveType(this.scope, true /* check bounds*/));
+			parameterType = argumentsTypeElided ? expectedParameterType : this.argumentTypes[i];
 			if (parameterType == null) {
 				buggyArguments = true;
 			} else if (parameterType == TypeBinding.VOID) {

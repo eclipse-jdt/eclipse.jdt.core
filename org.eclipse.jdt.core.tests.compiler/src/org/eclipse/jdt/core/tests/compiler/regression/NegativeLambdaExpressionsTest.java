@@ -1512,7 +1512,12 @@ public void test042() {
 			"	       ^^^^^^^^\n" + 
 			"Illegal lambda expression: Method m of type G2 is generic \n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 14)\n" + 
+			"2. ERROR in X.java (at line 11)\n" + 
+			"	G g1 = (F x) -> {\n" + 
+			"	        ^\n" + 
+			"F cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 14)\n" + 
 			"	G g2 = (IOException x) -> {\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^\n" + 
 			"Illegal lambda expression: Method m of type G2 is generic \n" + 
