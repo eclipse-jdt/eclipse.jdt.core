@@ -4223,4 +4223,71 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("Incorrect no of dimensions", 1, dims);
 
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428526, [1.8] API to get the single abstract method in a functional interface
+	public void test428526() throws JavaModelException {
+		String contents =
+				"interface Foo<T, N extends Number> {\n" +
+				"    void m(T arg);\n" +
+				"    void m(N arg);\n" +
+				"}\n" +
+				"interface Baz extends Foo<Integer, Integer> {}\n";
+		
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		
+		TypeDeclaration type = (TypeDeclaration) getASTNode(compilationUnit, 0);
+		assertEquals("Not a Type declaration", ASTNode.TYPE_DECLARATION, type.getNodeType());
+		ITypeBinding binding = type.resolveBinding();
+		assertNotNull("Binding should not be null", binding);
+		IMethodBinding functionalInterfaceMethod = binding.getFunctionalInterfaceMethod();
+		assertNull("Should not be a functional interface", functionalInterfaceMethod);
+		
+		type = (TypeDeclaration) getASTNode(compilationUnit, 1);
+		assertEquals("Not a Type declaration", ASTNode.TYPE_DECLARATION, type.getNodeType());
+		binding = type.resolveBinding();
+		assertNotNull("Binding should not be null", binding);
+		functionalInterfaceMethod = binding.getFunctionalInterfaceMethod();
+		assertNotNull("Should be a functional interface", functionalInterfaceMethod);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428526, [1.8] API to get the single abstract method in a functional interface
+	public void test428526a() throws JavaModelException {
+		String contents =
+				"interface I { X foo(); }\n" +
+				"interface J { Y foo(); }\n" +
+				"interface K extends I, J {}\n" +
+				"class X {}\n" +
+				"class Y extends X {}\n";
+		
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		
+		TypeDeclaration type = (TypeDeclaration) getASTNode(compilationUnit, 0);
+		assertEquals("Not a Type declaration", ASTNode.TYPE_DECLARATION, type.getNodeType());
+		ITypeBinding binding = type.resolveBinding();
+		assertNotNull("Binding should not be null", binding);
+		IMethodBinding functionalInterfaceMethod = binding.getFunctionalInterfaceMethod();
+		assertNotNull("Should not be a functional interface", functionalInterfaceMethod);
+		
+		type = (TypeDeclaration) getASTNode(compilationUnit, 1);
+		assertEquals("Not a Type declaration", ASTNode.TYPE_DECLARATION, type.getNodeType());
+		binding = type.resolveBinding();
+		assertNotNull("Binding should not be null", binding);
+		functionalInterfaceMethod = binding.getFunctionalInterfaceMethod();
+		assertNotNull("Should be a functional interface", functionalInterfaceMethod);
+		
+		type = (TypeDeclaration) getASTNode(compilationUnit, 2);
+		assertEquals("Not a Type declaration", ASTNode.TYPE_DECLARATION, type.getNodeType());
+		binding = type.resolveBinding();
+		assertNotNull("Binding should not be null", binding);
+		functionalInterfaceMethod = binding.getFunctionalInterfaceMethod();
+		assertNotNull("Should be a functional interface", functionalInterfaceMethod);
+		ITypeBinding returnType = functionalInterfaceMethod.getReturnType();
+		assertEquals("Y", returnType.getName());
+	}
 }

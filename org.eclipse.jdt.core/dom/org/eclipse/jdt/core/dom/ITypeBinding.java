@@ -293,6 +293,21 @@ public interface ITypeBinding extends IBinding {
 	 * @since 3.1
 	 */
 	public ITypeBinding getErasure();
+	
+	/**
+	 * Returns the single abstract method that constitutes the single function 
+	 * contract (aside from any redeclarations of methods of <code>java.lang.Object</code>) 
+	 * of the receiver interface type or null if there no such contract or if the receiver 
+	 * is not an interface. 
+	 * 
+	 * @return the single abstract method that represents the single function contract 
+	 * (aside from any redeclarations of methods of <code>java.lang.Object</code>) of 
+	 * this interface type or null if the receiver is not an interface or if the receiver 
+	 * has more than one abstract method or no abstract methods.
+	 *
+	 * @since 3.9 BETA_JAVA8
+	 */
+	public IMethodBinding getFunctionalInterfaceMethod();
 
 	/**
 	 * Returns a list of type bindings representing the direct superinterfaces

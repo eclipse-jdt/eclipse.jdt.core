@@ -476,6 +476,20 @@ class TypeBinding implements ITypeBinding {
 	public ITypeBinding getErasure() {
 		return this.resolver.getTypeBinding(this.binding.erasure());
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getFunctionalInterfaceMethod
+	 */
+	@Override
+	public IMethodBinding getFunctionalInterfaceMethod() {
+		Scope scope = this.resolver.scope();
+		if (this.binding == null || scope == null)
+			return null;
+		MethodBinding sam = this.binding.getSingleAbstractMethod(scope, true);
+		if (sam == null || !sam.isValidBinding())
+			return null;
+		return this.resolver.getMethodBinding(sam);
+	}
 
 	public synchronized ITypeBinding[] getInterfaces() {
 		if (this.prototype != null) {

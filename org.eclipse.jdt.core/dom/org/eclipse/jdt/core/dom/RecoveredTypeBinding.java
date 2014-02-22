@@ -196,6 +196,14 @@ class RecoveredTypeBinding implements ITypeBinding {
 	}
 
 	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getFunctionalInterfaceMethod
+	 */
+	@Override
+	public IMethodBinding getFunctionalInterfaceMethod() {
+		return null;
+	}
+	
+	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getInterfaces()
 	 */
 	public ITypeBinding[] getInterfaces() {
