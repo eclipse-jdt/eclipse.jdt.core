@@ -4251,6 +4251,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertNotNull("Binding should not be null", binding);
 		functionalInterfaceMethod = binding.getFunctionalInterfaceMethod();
 		assertNotNull("Should be a functional interface", functionalInterfaceMethod);
+		ITypeBinding declaringClass = functionalInterfaceMethod.getDeclaringClass();
+		assertEquals("Foo<Integer,Integer>", declaringClass.getName());
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428526, [1.8] API to get the single abstract method in a functional interface
 	public void test428526a() throws JavaModelException {
