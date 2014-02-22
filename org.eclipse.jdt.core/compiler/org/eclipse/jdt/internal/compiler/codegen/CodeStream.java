@@ -2526,7 +2526,7 @@ public void generateSyntheticBodyForEnumValueOf(SyntheticMethodBinding methodBin
  */
 public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding methodBinding,SyntheticMethodBinding[] syntheticMethodBindings) {
 	initializeMaxLocals(methodBinding);
-	
+
 	// Compute the list of the serializable lambdas from the full set of synthetic method bindings
 	// Also compute a map of hashcodes to a list of serializable lambdas whose names share a hashcode 
 	List syntheticsForSerializableLambdas = new ArrayList();	
@@ -2653,7 +2653,14 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 		aload_0();
 		invoke(Opcodes.OPC_invokevirtual, 1, 1, ConstantPool.JavaLangInvokeSerializedLambdaConstantPoolName, 
 				ConstantPool.GetFunctionalInterfaceClass, ConstantPool.GetFunctionalInterfaceClassSignature);
-		ldc(new String(CharOperation.concatWith(lambdaEx.descriptor.declaringClass.compoundName,'/'))); // e.g. "com/foo/X$Foo"
+		String functionalInterface = null;
+		final TypeBinding expectedType = lambdaEx.expectedType();
+		if (expectedType instanceof IntersectionCastTypeBinding) {
+			functionalInterface = new String(((IntersectionCastTypeBinding)expectedType).getSAMType(scope).constantPoolName());
+		} else {
+			functionalInterface = new String(expectedType.constantPoolName());
+		}
+		ldc(functionalInterface);// e.g. "com/foo/X$Foo"
 		invokeObjectEquals();
 		ifeq(errorLabel);
 		

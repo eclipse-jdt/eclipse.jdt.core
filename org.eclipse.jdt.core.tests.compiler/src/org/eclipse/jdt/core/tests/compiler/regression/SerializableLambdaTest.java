@@ -1124,6 +1124,87 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 					new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
 	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428642
+	public void test428642() throws Exception {
+		this.runConformTest(
+				new String[]{
+					"QuickSerializedLambdaTest.java",
+					"import java.io.*;\n"+
+					"import java.util.function.IntConsumer;\n"+
+					"\n"+
+					"public class QuickSerializedLambdaTest {\n"+
+					"	interface X extends IntConsumer,Serializable{}\n"+
+					"	public static void main(String[] args) throws IOException, ClassNotFoundException {\n"+
+					"		X x2 = System::exit; // method reference\n"+
+					"		ByteArrayOutputStream debug=new ByteArrayOutputStream();\n"+
+					"		try(ObjectOutputStream oo=new ObjectOutputStream(debug))\n"+
+					"		{\n"+
+					"			oo.writeObject(x2);\n"+
+					"		}\n"+
+					"		try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray())))\n"+
+					"		{\n"+
+					"			X x=(X)oi.readObject();\n"+
+					"			x.accept(0);// shall exit\n"+
+					"		}\n"+
+					"		throw new AssertionError(\"should not reach this point\");\n"+
+					"	}\n"+
+					"}\n",
+					"Helper.java",
+					"public class Helper {\n"+
+					"  public static String tostring(java.lang.invoke.SerializedLambda sl) {\n"+
+					"    return sl.toString();\n"+
+					"  }\n"+
+					"}"
+				},
+				"",
+				null,true,
+				new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
+	}
+	
+	public void test428642_2() throws Exception {
+		this.runConformTest(
+				new String[]{
+					"Helper.java",
+					"public class Helper {\n"+
+					"  public static String tostring(java.lang.invoke.SerializedLambda sl) {\n"+
+					"    return sl.toString();\n"+
+					"  }\n"+
+					"  public static void main(String[]argv) throws Exception {\n"+
+					"    foo.QuickSerializedLambdaTest.main(argv);\n"+
+					"  }\n"+
+					"}",
+					"QuickSerializedLambdaTest.java",
+					"package foo;\n"+
+					"import java.io.*;\n"+
+					"import java.util.function.IntConsumer;\n"+
+					"\n"+
+					"public class QuickSerializedLambdaTest {\n"+
+					"	interface X extends IntConsumer,Serializable{}\n"+
+					"	public static void main(String[] args) throws IOException, ClassNotFoundException {\n"+
+					"		X x1 = i -> System.out.println(i);// lambda expression\n"+
+					"		X x2 = System::exit; // method reference\n"+
+					"		ByteArrayOutputStream debug=new ByteArrayOutputStream();\n"+
+					"		try(ObjectOutputStream oo=new ObjectOutputStream(debug))\n"+
+					"		{\n"+
+					"			oo.writeObject(x1);\n"+
+					"			oo.writeObject(x2);\n"+
+					"		}\n"+
+					"		try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray())))\n"+
+					"		{\n"+
+					"			X x=(X)oi.readObject();\n"+
+					"			x.accept(42);// shall print \"42\"\n"+
+					"			x=(X)oi.readObject();\n"+
+					"			x.accept(0);// shall exit\n"+
+					"		}\n"+
+					"		throw new AssertionError(\"should not reach this point\");\n"+
+					"	}\n"+
+					"}\n"
+				},
+				"42",
+				null,true,
+				new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
+	}
+	
 	
 	// ---
 	

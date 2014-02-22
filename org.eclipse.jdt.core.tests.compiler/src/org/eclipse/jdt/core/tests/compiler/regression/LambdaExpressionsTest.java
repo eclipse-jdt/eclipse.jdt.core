@@ -3394,6 +3394,40 @@ public void test428552() {
 			true,
 			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428642, [1.8][compiler] java.lang.IllegalArgumentException: Invalid lambda deserialization exception
+public void test428642() {
+	this.runConformTest(
+			new String[] {
+				"QuickSerializedLambdaTest.java",
+				"import java.io.*;\n" +
+				"import java.util.function.IntConsumer;\n" +
+				"public class QuickSerializedLambdaTest {\n" +
+				"	interface X extends IntConsumer,Serializable{}\n" +
+				"	public static void main(String[] args) throws IOException, ClassNotFoundException {\n" +
+				"		X x1 = i -> System.out.println(i);// lambda expression\n" +
+				"		X x2 = System::exit; // method reference\n" +
+				"		ByteArrayOutputStream debug=new ByteArrayOutputStream();\n" +
+				"		try(ObjectOutputStream oo=new ObjectOutputStream(debug))\n" +
+				"		{\n" +
+				"			oo.writeObject(x1);\n" +
+				"			oo.writeObject(x2);\n" +
+				"		}\n" +
+				"		try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray())))\n" +
+				"		{\n" +
+				"			X x=(X)oi.readObject();\n" +
+				"			x.accept(42);// shall print 42\n" +
+				"			x=(X)oi.readObject();\n" +
+				"			x.accept(0);// shall exit\n" +
+				"		}\n" +
+				"		throw new AssertionError(\"should not reach this point\");\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"42",
+			null,
+			true,
+			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
