@@ -31,6 +31,7 @@
  *							Bug 420525 - [1.8] [compiler] Incorrect error "The type Integer does not define sum(Object, Object) that is applicable here"
  *							Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
  *							Bug 428294 - [1.8][compiler] Type mismatch: cannot convert from List<Object> to Collection<Object[]>
+ *							Bug 428786 - [1.8][compiler] Inference needs to compute the "ground target type" when reducing a lambda compatibility constraint
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -126,6 +127,10 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	
 	public Argument [] arguments() {
 		return this.arguments;
+	}
+
+	public TypeBinding[] argumentTypes() {
+		return this.argumentTypes;
 	}
 
 	public void setBody(Statement body) {
@@ -414,30 +419,21 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			return null;
 		ParameterizedTypeBinding withWildCards = InferenceContext18.parameterizedWithWildcard(targetType);
 		if (withWildCards != null) {
-			ReferenceBinding genericType = withWildCards.genericType();
-			if (!argumentTypesElided) {
-				// invoke 18.5.3 Functional Interface Parameterization Inference
-				InferenceContext18 ctx = new InferenceContext18(blockScope);
-				TypeBinding[] q = ctx.createBoundsForFunctionalInterfaceParameterizationInference(withWildCards);
-				if (q == null || q.length != this.arguments.length) {
-					// fail  TODO: can this still happen here?
-				} else {
-					if (ctx.reduceWithEqualityConstraints(this.argumentTypes, q)) {
-						TypeBinding[] a = withWildCards.arguments; // a is not-null by construction of parameterizedWithWildcard()
-						TypeBinding[] aprime = ctx.getFunctionInterfaceArgumentSolutions(a);
-						// TODO If F<A'1, ..., A'm> is a well-formed type, ...
-						return blockScope.environment().createParameterizedType(genericType, aprime, genericType.enclosingType());
-					}
-				}
-			} else {
-				// non-wildcard parameterization (9.8) of the target type
-				TypeBinding[] types = withWildCards.getNonWildcardParameterization(blockScope);
-				if (types == null)
-					return null;
-				return blockScope.environment().createParameterizedType(genericType, types, genericType.enclosingType());
-			}
+			if (!argumentTypesElided)
+				return new InferenceContext18(blockScope).inferFunctionalInterfaceParameterization(this, blockScope, withWildCards);
+			else
+				return findGroundTargetTypeForElidedLambda(blockScope, withWildCards);
 		}
 		return targetType;
+	}
+
+	public ReferenceBinding findGroundTargetTypeForElidedLambda(BlockScope blockScope, ParameterizedTypeBinding withWildCards) {
+		// non-wildcard parameterization (9.8) of the target type
+		TypeBinding[] types = withWildCards.getNonWildcardParameterization(blockScope);
+		if (types == null)
+			return null;
+		ReferenceBinding genericType = withWildCards.genericType();
+		return blockScope.environment().createParameterizedType(genericType, types, genericType.enclosingType());
 	}
 
 	public boolean argumentsTypeElided() {
