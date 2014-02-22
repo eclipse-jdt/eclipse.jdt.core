@@ -1119,4 +1119,162 @@ public void test427464() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("Annotation[TYPE_REF]{Annotation, , LAnnotation;, null, null, null, null, [138, 141], 47}", requestor.getResults());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+public void test428735() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.List;\n" +
+			"class Person {\n" +
+			"   String getLastName() { return null; }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	void test1 (List<Person> people) {\n" +
+			"		people.stream().forEach(p -> System.out.println(p.get)); // NOK\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "p.get";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [186, 189], 35}\n" +
+                  "getLastName[METHOD_REF]{getLastName(), LPerson;, ()Ljava.lang.String;, null, null, getLastName, null, [186, 189], 35}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+public void test428735a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.List;\n" +
+			"class Person {\n" +
+			"   String getLastName() { return null; }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	void test1 (List<Person> people) {\n" +
+			"		people.stream().forEach(p -> System.out.println(p.)); // NOK\n" +
+			"	}\n" +
+			"   void test2(List<Person> people) {\n" +
+			"       people.sort((x,y) -> x.get);  // OK\n" +
+			"   }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "x.get";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [267, 270], 35}\n" +
+                  "getLastName[METHOD_REF]{getLastName(), LPerson;, ()Ljava.lang.String;, null, null, getLastName, null, [267, 270], 35}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+public void test428735b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.List;\n" +
+			"class Person {\n" +
+			"   String getLastName() { return null; }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	void test1 (List<Person> people) {\n" +
+			"		people.stream().forEach(p -> System.out.println(p.)); // NOK\n" +
+			"	}\n" +
+			"   void test2(List<Person> people) {\n" +
+			"       people.sort((x,y) -> x.getLastName().compareTo(y.get));\n" + 
+			"   }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "y.get";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [293, 296], 35}\n" +
+                  "getLastName[METHOD_REF]{getLastName(), LPerson;, ()Ljava.lang.String;, null, null, getLastName, null, [293, 296], 35}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+public void test428735c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.List;\n" +
+			"class Person {\n" +
+			"   String getLastName() { return null; }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	void test1 (List<Person> people) {\n" +
+			"		people.stream().forEach(p -> System.out.println(p.)); // NOK\n" +
+			"	}\n" +
+			"   void test2(List<Person> people) {\n" +
+			"       people.sort((x,y) -> x.getLastName() + y.get);\n" + 
+			"   }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "y.get";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [285, 288], 35}\n" +
+                  "getLastName[METHOD_REF]{getLastName(), LPerson;, ()Ljava.lang.String;, null, null, getLastName, null, [285, 288], 65}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+public void test428735d() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.List;\n" +
+			"class Person {\n" +
+			"   String getLastName() { return null; }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	void test1 (List<Person> people) {\n" +
+			"		people.stream().forEach(p -> System.out.println(p.)); // NOK\n" +
+			"	}\n" +
+			"   void test2(List<Person> people) {\n" +
+			"       people.sort((x,y) -> \"\" + x.get); \n" + 
+			"   }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "x.get";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [272, 275], 35}\n" +
+                  "getLastName[METHOD_REF]{getLastName(), LPerson;, ()Ljava.lang.String;, null, null, getLastName, null, [272, 275], 65}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+public void test428735e() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.List;\n" +
+			"class Person {\n" +
+			"   String getLastName() { return null; }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"   void test2(List<Person> people) {\n" +
+			"       people.sort((x,y) -> {\n" +
+			"              if (true) return \"\" + x.get); \n" +
+			"              else return \"\";\n" +
+			"   }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "x.get";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [203, 206], 35}\n" +
+               "getLastName[METHOD_REF]{getLastName(), LPerson;, ()Ljava.lang.String;, null, null, getLastName, null, [203, 206], 65}", requestor.getResults());
+}
 }

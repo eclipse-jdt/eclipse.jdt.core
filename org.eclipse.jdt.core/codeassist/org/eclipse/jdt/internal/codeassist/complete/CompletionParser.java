@@ -234,6 +234,14 @@ public void stopRecordingIdentifiers() {
 public char[] assistIdentifier(){
 	return ((CompletionScanner)this.scanner).completionIdentifier;
 }
+@Override
+protected ASTNode assistNodeParent() {
+	return this.assistNodeParent;
+}
+@Override
+protected ASTNode enclosingNode() {
+	return this.enclosingNode;
+}
 protected void attachOrphanCompletionNode(){
 	if(this.assistNode == null || this.isAlreadyAttached) return;
 

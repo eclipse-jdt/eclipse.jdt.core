@@ -1206,4 +1206,254 @@ public void test427532() {
 				expectedReplacedSource,
 				"diet ast");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+public void test428735() {
+	String string = 
+			"import java.util.List;\n" +
+			"class Person {\n" +
+			"   String getLastName() { return null; }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	void test1 (List<Person> people) {\n" +
+			"		people.stream().forEach(p -> System.out.println(p.)); // NOK\n" +
+			"	}\n" +
+			"}\n";
+
+			String completeBehind = "p.";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:p.>";
+			String expectedParentNodeToString = "System.out.println(<CompleteOnName:p.>)";
+			String completionIdentifier = "";
+			String expectedReplacedSource = "p.";
+			String expectedUnitDisplayString =
+					"import java.util.List;\n" + 
+					"class Person {\n" + 
+					"  Person() {\n" + 
+					"  }\n" + 
+					"  String getLastName() {\n" + 
+					"  }\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"  void test1(List<Person> people) {\n" + 
+					"    people.stream().forEach((<no type> p) -> System.out.println(<CompleteOnName:p.>));\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+public void test428735a() {
+	String string = 
+			"import java.util.List;\n" +
+			"class Person {\n" +
+			"   String getLastName() { return null; }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	void test1 (List<Person> people) {\n" +
+			"		people.stream().forEach(p -> System.out.println(p.)); // NOK\n" +
+			"	}\n" +
+			"   void test2(List<Person> people) {\n" +
+			"       people.sort((x,y) -> x.|);  // OK\n" +
+			"   }\n" +
+			"}\n";
+
+			String completeBehind = "x.";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:x.>";
+			String expectedParentNodeToString = "<NONE>";
+			String completionIdentifier = "";
+			String expectedReplacedSource = "x.";
+			String expectedUnitDisplayString =
+					"import java.util.List;\n" + 
+					"class Person {\n" + 
+					"  Person() {\n" + 
+					"  }\n" + 
+					"  String getLastName() {\n" + 
+					"  }\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"  void test1(List<Person> people) {\n" + 
+					"  }\n" + 
+					"  void test2(List<Person> people) {\n" + 
+					"    people.sort((<no type> x, <no type> y) -> <CompleteOnName:x.>);\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+public void test428735b() {
+	String string = 
+			"import java.util.List;\n" +
+			"class Person {\n" +
+			"   String getLastName() { return null; }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	void test1 (List<Person> people) {\n" +
+			"		people.stream().forEach(p -> System.out.println(p.)); // NOK\n" +
+			"	}\n" +
+			"   void test2(List<Person> people) {\n" +
+			"       people.sort((x,y) -> x.getLastName().compareTo(y.));\n" + 
+			"   }\n" +
+			"}\n";
+
+			String completeBehind = "y.";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:y.>";
+			String expectedParentNodeToString = "x.getLastName().compareTo(<CompleteOnName:y.>)";
+			String completionIdentifier = "";
+			String expectedReplacedSource = "y.";
+			String expectedUnitDisplayString =
+					"import java.util.List;\n" + 
+					"class Person {\n" + 
+					"  Person() {\n" + 
+					"  }\n" + 
+					"  String getLastName() {\n" + 
+					"  }\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"  void test1(List<Person> people) {\n" + 
+					"  }\n" + 
+					"  void test2(List<Person> people) {\n" + 
+					"    people.sort((<no type> x, <no type> y) -> x.getLastName().compareTo(<CompleteOnName:y.>));\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+public void test428735c() {
+	String string = 
+			"import java.util.List;\n" +
+			"class Person {\n" +
+			"   String getLastName() { return null; }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	void test1 (List<Person> people) {\n" +
+			"		people.stream().forEach(p -> System.out.println(p.)); // NOK\n" +
+			"	}\n" +
+			"   void test2(List<Person> people) {\n" +
+			"       people.sort((x,y) -> x.getLastName() + y.);\n" + 
+			"   }\n" +
+			"}\n";
+
+			String completeBehind = "y.";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:y.>";
+			String expectedParentNodeToString = "(x.getLastName() + <CompleteOnName:y.>)";
+			String completionIdentifier = "";
+			String expectedReplacedSource = "y.";
+			String expectedUnitDisplayString =
+					"import java.util.List;\n" + 
+					"class Person {\n" + 
+					"  Person() {\n" + 
+					"  }\n" + 
+					"  String getLastName() {\n" + 
+					"  }\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"  void test1(List<Person> people) {\n" + 
+					"  }\n" + 
+					"  void test2(List<Person> people) {\n" + 
+					"    people.sort((<no type> x, <no type> y) -> (x.getLastName() + <CompleteOnName:y.>));\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+public void test428735d() {
+	String string = 
+			"import java.util.List;\n" +
+			"class Person {\n" +
+			"   String getLastName() { return null; }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	void test1 (List<Person> people) {\n" +
+			"		people.stream().forEach(p -> System.out.println(p.)); // NOK\n" +
+			"	}\n" +
+			"   void test2(List<Person> people) {\n" +
+			"       people.sort((x,y) -> \"\" + x.); \n" + 
+			"   }\n" +
+			"}\n";
+
+			String completeBehind = "x.";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:x.>";
+			String expectedParentNodeToString = "(\"\" + <CompleteOnName:x.>)";
+			String completionIdentifier = "";
+			String expectedReplacedSource = "x.";
+			String expectedUnitDisplayString =
+					"import java.util.List;\n" + 
+					"class Person {\n" + 
+					"  Person() {\n" + 
+					"  }\n" + 
+					"  String getLastName() {\n" + 
+					"  }\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"  void test1(List<Person> people) {\n" + 
+					"  }\n" + 
+					"  void test2(List<Person> people) {\n" + 
+					"    people.sort((<no type> x, <no type> y) -> (\"\" + <CompleteOnName:x.>));\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
 }
