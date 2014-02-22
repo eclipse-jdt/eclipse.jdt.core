@@ -1456,4 +1456,154 @@ public void test428735d() {
 				expectedReplacedSource,
 				"diet ast");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+public void test428735e() { // field
+	String string = 
+			"class Person {\n" +
+			"   String getLastName() { return null; }\n" +
+			"}\n" +
+			"interface I {\n" +
+			"	int foo(Person p, Person q);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	I i =  (x, y) -> 10 + x.getLastName().compareTo(y.get);\n" +
+			"}\n";
+
+			String completeBehind = "y.get";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:y.get>";
+			String expectedParentNodeToString = "x.getLastName().compareTo(<CompleteOnName:y.get>)";
+			String completionIdentifier = "get";
+			String expectedReplacedSource = "y.get";
+			String expectedUnitDisplayString =
+					"class Person {\n" + 
+					"  Person() {\n" + 
+					"  }\n" + 
+					"  String getLastName() {\n" + 
+					"  }\n" + 
+					"}\n" + 
+					"interface I {\n" + 
+					"  int foo(Person p, Person q);\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  I i = (<no type> x, <no type> y) -> (10 + x.getLastName().compareTo(<CompleteOnName:y.get>));\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+public void test428735f() { // local
+	String string = 
+			"class Person {\n" +
+			"   String getLastName() { return null; }\n" +
+			"}\n" +
+			"interface I {\n" +
+			"	int foo(Person p, Person q);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"   void foo() {\n" +
+			"	    I i =  (x, y) -> 10 + x.getLastName().compareTo(y.get);\n" +
+			"   }\n" +
+			"}\n";
+
+			String completeBehind = "y.get";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:y.get>";
+			String expectedParentNodeToString = "x.getLastName().compareTo(<CompleteOnName:y.get>)";
+			String completionIdentifier = "get";
+			String expectedReplacedSource = "y.get";
+			String expectedUnitDisplayString =
+					"class Person {\n" + 
+					"  Person() {\n" + 
+					"  }\n" + 
+					"  String getLastName() {\n" + 
+					"  }\n" + 
+					"}\n" + 
+					"interface I {\n" + 
+					"  int foo(Person p, Person q);\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"  void foo() {\n" + 
+					"    I i = (<no type> x, <no type> y) -> (10 + x.getLastName().compareTo(<CompleteOnName:y.get>));\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+public void test428735g() { // initializer block
+	String string = 
+			"import java.util.List;\n" +
+			"class Person {\n" +
+			"   String getLastName() { return null; }\n" +
+			"}\n" +
+			"interface I {\n" +
+			"	int foo(Person p, Person q);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"   List<Person> people;\n" +
+			"   {\n" +
+			"       people.sort((x,y) -> \"\" + x.); \n" + 
+			"   }\n" +
+			"}\n";
+
+			String completeBehind = "x.";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:x.>";
+			String expectedParentNodeToString = "(\"\" + <CompleteOnName:x.>)";
+			String completionIdentifier = "";
+			String expectedReplacedSource = "x.";
+			String expectedUnitDisplayString =
+					"import java.util.List;\n" + 
+					"class Person {\n" + 
+					"  Person() {\n" + 
+					"  }\n" + 
+					"  String getLastName() {\n" + 
+					"  }\n" + 
+					"}\n" + 
+					"interface I {\n" + 
+					"  int foo(Person p, Person q);\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  List<Person> people;\n" + 
+					"  {\n" + 
+					"    people.sort((<no type> x, <no type> y) -> (\"\" + <CompleteOnName:x.>));\n" + 
+					"  }\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
 }

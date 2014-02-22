@@ -473,6 +473,7 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 			/* See if CompletionParser.attachOrphanCompletionNode has already added bits and pieces of AST to the recovery tree. If so, we want to
 			   replace those fragments with the fuller statement that provides target type for the lambda that got closed just now. There is prior
 			   art/precedent in the Java 7 world to this: Search for recoveredBlock.statements[--recoveredBlock.statementCount] = null;
+			   See also that this concern does not arise in the case of field/local initialization since the initializer is replaced with full tree by consumeExitVariableWithInitialization.
 			*/
 			ASTNode assistNodeParent = this.assistNodeParent();
 			ASTNode enclosingNode = this.enclosingNode();
