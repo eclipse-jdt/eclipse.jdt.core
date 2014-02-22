@@ -1747,6 +1747,8 @@ public final class CompletionEngine
 			completionOnBranchStatementLabel(astNode);
 		} else if(astNode instanceof CompletionOnMessageSendName) {
 			completionOnMessageSendName(astNode, qualifiedBinding, scope);
+		} else if (astNode instanceof CompletionOnReferenceExpressionName) {
+			completionOnReferenceExpressionName(astNode, qualifiedBinding, scope);
 		// Completion on Javadoc nodes
 		} else if ((astNode.bits & ASTNode.InsideJavadoc) != 0) {
 			if (astNode instanceof CompletionOnJavadocSingleTypeReference) {
@@ -2792,6 +2794,40 @@ public final class CompletionEngine
 			}
 		}
 	}
+	private void completionOnReferenceExpressionName(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
+		if (!this.requestor.isIgnored(CompletionProposal.METHOD_NAME_REFERENCE)) {
+			CompletionOnReferenceExpressionName referenceExpression = (CompletionOnReferenceExpressionName) astNode;
+			this.insideQualifiedReference = true;
+			this.completionToken = referenceExpression.selector;
+			boolean onlyStatic = false;
+			
+			TypeBinding receiverType = (TypeBinding) qualifiedBinding;
+			if (receiverType != null && receiverType instanceof ReferenceBinding) {
+				findMethods(
+						this.completionToken,
+						referenceExpression.resolvedTypeArguments,
+						null,
+						(ReferenceBinding)receiverType.capture(scope, referenceExpression.sourceEnd),
+						scope,
+						new ObjectVector(),
+						onlyStatic,
+						false,
+						referenceExpression,
+						scope,
+						false,
+						false,
+						false,
+						null,
+						null,
+						null,
+						false,
+						null,
+						-1,
+						-1);
+			}
+		}
+	}
+
 	
 	private void completionOnMethodName(ASTNode astNode, Scope scope) {
 		if (!this.requestor.isIgnored(CompletionProposal.VARIABLE_DECLARATION)) {
@@ -8451,6 +8487,7 @@ public final class CompletionEngine
 		int receiverStart,
 		int receiverEnd) {
 
+		boolean completionOnReferenceExpressionName = invocationSite instanceof ReferenceExpression;
 		ObjectVector newMethodsFound =  new ObjectVector();
 		// Inherited methods which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
@@ -8562,11 +8599,11 @@ public final class CompletionEngine
 			char[][] parameterPackageNames = new char[length][];
 			char[][] parameterTypeNames = new char[length][];
 
-			for (int i = 0; i < length; i++) {
-				TypeBinding type = method.original().parameters[i];
-				parameterPackageNames[i] = type.qualifiedPackageName();
-				parameterTypeNames[i] = type.qualifiedSourceName();
-			}
+				for (int i = 0; i < length; i++) {
+					TypeBinding type = method.original().parameters[i];
+					parameterPackageNames[i] = type.qualifiedPackageName();
+					parameterTypeNames[i] = type.qualifiedSourceName();
+				}
 			char[][] parameterNames = findMethodParameterNames(method,parameterTypeNames);
 
 			char[] completion = CharOperation.NO_CHAR;
@@ -8626,11 +8663,13 @@ public final class CompletionEngine
 			} else {
 				// nothing to insert - do not want to replace the existing selector & arguments
 				if (!exactMatch) {
-					if (this.source != null
+					if (completionOnReferenceExpressionName)
+						completion = method.selector;
+					else if (this.source != null
 						&& this.source.length > this.endPosition
 						&& this.source[this.endPosition] == '(')
 						completion = method.selector;
-					else
+					else 
 						completion = CharOperation.concat(method.selector, new char[] { '(', ')' });
 
 					if (castedReceiver != null) {
@@ -8672,7 +8711,7 @@ public final class CompletionEngine
 			if (castedReceiver == null) {
 				// Standard proposal
 				if(!this.isIgnored(CompletionProposal.METHOD_REF, missingElements != null) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
-					InternalCompletionProposal proposal =  createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+					InternalCompletionProposal proposal =  createProposal(completionOnReferenceExpressionName ? CompletionProposal.METHOD_NAME_REFERENCE : CompletionProposal.METHOD_REF, this.actualCompletionPosition);
 					proposal.setDeclarationSignature(getSignature(method.declaringClass));
 					proposal.setSignature(getSignature(method));
 					MethodBinding original = method.original();
@@ -8700,7 +8739,10 @@ public final class CompletionEngine
 					}
 					proposal.setCompletion(completion);
 					proposal.setFlags(method.modifiers);
-					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					if (completionOnReferenceExpressionName)
+						proposal.setReplaceRange(this.endPosition - this.offset - methodLength, this.endPosition - this.offset);
+					else 
+						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 					if(parameterNames != null) proposal.setParameterNames(parameterNames);

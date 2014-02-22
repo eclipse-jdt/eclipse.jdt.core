@@ -1277,4 +1277,146 @@ public void test428735e() throws JavaModelException {
 	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [203, 206], 35}\n" +
                "getLastName[METHOD_REF]{getLastName(), LPerson;, ()Ljava.lang.String;, null, null, getLastName, null, [203, 206], 65}", requestor.getResults());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402081, [1.8][code complete] No proposals while completing at method/constructor references
+public void test402081() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"    String foo(String x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    public  String longMethodName(String x) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"    void foo() {\n" +
+			"    	X x = new X();\n" +
+			"    	I i = x::long\n" +
+			"       System.out.println();\n" +
+			"    }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "long";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("longMethodName[METHOD_IMPORT]{longMethodName, LX;, (Ljava.lang.String;)Ljava.lang.String;, null, null, longMethodName, (x), [183, 187], 35}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402081, [1.8][code complete] No proposals while completing at method/constructor references
+public void test402081a() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/X.java",
+				"interface I {\n" +
+				"    String foo(String x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    public  String longMethodName(String x) {\n" +
+				"        return null;\n" +
+				"    }\n" +
+				"}\n" +
+				"public class Y {\n" +
+				"    X x;" +
+				"    void foo()\n" +
+				"    {\n" +
+				"    	Y y = new Y();\n" +
+				"    	I i = y.x::longMethodN    \n" +
+				"    }\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = " y.x::longMethodN";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"longMethodName[METHOD_IMPORT]{longMethodName, Ltest.X;, (Ljava.lang.String;)Ljava.lang.String;, longMethodName, (x), 35}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402081, [1.8][code complete] No proposals while completing at method/constructor references
+public void test402081b() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/X.java",
+				"interface I {\n" +
+				"    String foo(X<String> xs, String x);\n" +
+				"}\n" +
+				"public class X<T> {\n" +
+				"    public  String longMethodName(String x) {\n" +
+				"        return null;\n" +
+				"    }\n" +
+				"    void foo() {\n" +
+				"    	I i = X<String>::lo\n" +
+				"    }\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "lo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"longMethodName[METHOD_IMPORT]{longMethodName, Ltest.X<Ljava.lang.String;>;, (Ljava.lang.String;)Ljava.lang.String;, longMethodName, (x), 35}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402081, [1.8][code complete] No proposals while completing at method/constructor references
+public void test402081c() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/X.java",
+				"interface I {\n" +
+				"    String foo(String x);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"    public  String longMethodName(String x) {\n" +
+				"        return null;\n" +
+				"    }\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"    void foo() {\n" +
+				"    	X x = new X();\n" +
+				"    	I i = super::lo;\n" +
+				"    }\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "lo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"longMethodName[METHOD_IMPORT]{longMethodName, Ltest.Y;, (Ljava.lang.String;)Ljava.lang.String;, longMethodName, (x), 35}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402081, [1.8][code complete] No proposals while completing at method/constructor references
+public void test402081d() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/X.java",
+				"interface I {\n" +
+				"    String foo(String x);\n" +
+				"}\n" +
+				"class Y {\n" +
+				"    public  String longMethodName(String x) {\n" +
+				"        return null;\n" +
+				"    }\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"    void foo() {\n" +
+				"    	X x = new X();\n" +
+				"    	I i = this::lo;\n" +
+				"    }\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "lo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"longMethodName[METHOD_IMPORT]{longMethodName, Ltest.Y;, (Ljava.lang.String;)Ljava.lang.String;, longMethodName, (x), 35}",
+			requestor.getResults());
+}
 }

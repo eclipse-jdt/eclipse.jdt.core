@@ -1606,4 +1606,53 @@ public void test428735g() { // initializer block
 				expectedReplacedSource,
 				"diet ast");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=402081, [1.8][code complete] No proposals while completing at method/constructor references
+public void test402081() { // initializer block
+	String string = 
+			"interface I {\n" +
+			"    String foo(String x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    public  String longMethodName(String x) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"    void foo() {\n" +
+			"    	X x = new X();\n" +
+			"    	I i = x::long\n" +
+			"       System.out.println();\n" +
+			"    }\n" +
+			"}\n";
+
+			String completeBehind = "long";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompletionOnReferenceExpressionName:x::long>";
+			String expectedParentNodeToString = "I i = <CompletionOnReferenceExpressionName:x::long>;";
+			String completionIdentifier = "long";
+			String expectedReplacedSource = "x::long";
+			String expectedUnitDisplayString =
+					"interface I {\n" + 
+					"  String foo(String x);\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"  public String longMethodName(String x) {\n" + 
+					"  }\n" + 
+					"  void foo() {\n" + 
+					"    X x;\n" + 
+					"    I i = <CompletionOnReferenceExpressionName:x::long>;\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
 }
