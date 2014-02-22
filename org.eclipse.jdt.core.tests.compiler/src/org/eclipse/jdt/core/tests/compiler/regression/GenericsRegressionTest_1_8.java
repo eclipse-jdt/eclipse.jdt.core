@@ -2408,4 +2408,22 @@ public void test428524() {
 		"WithNoArgConstructor\n" + 
 		"WithOutNoArgConstructor");
 }
+public void testBug428786() {
+	runConformTest(
+		new String[] {
+			"Junk9.java",
+			"import java.util.*;\n" +
+			"public class Junk9 {\n" + 
+			"    class Node {\n" + 
+			"        public double getLayoutY() {return 12;}\n" + 
+			"    }\n" + 
+			"    class Node2 extends Node {\n" + 
+			"    }\n" + 
+			"    void junk() {\n" + 
+			"        List<Node2> visibleCells = new ArrayList<>(20);\n" + 
+			"        Collections.sort(visibleCells, (Node o1, Node o2) -> Double.compare(o1.getLayoutY(), o2.getLayoutY()));\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }

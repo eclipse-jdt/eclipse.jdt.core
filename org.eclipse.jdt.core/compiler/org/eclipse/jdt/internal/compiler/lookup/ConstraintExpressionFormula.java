@@ -140,7 +140,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 						return FALSE;
 					return null; // already incorporated
 				} finally {
-					inferenceContext.leavePolyInvocation(prevInvocation);
+					inferenceContext.resumeSuspendedInference(prevInvocation);
 				}
 			} else if (this.left instanceof ConditionalExpression) {
 				ConditionalExpression conditional = (ConditionalExpression) this.left;
@@ -150,9 +150,16 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				};
 			} else if (this.left instanceof LambdaExpression) {
 				LambdaExpression lambda = (LambdaExpression) this.left;
-				Scope scope = inferenceContext.scope;
-				TypeBinding t = this.right;
-				if (!t.isFunctionalInterface(scope))
+				BlockScope scope = lambda.enclosingScope;
+				if (!this.right.isFunctionalInterface(scope))
+					return FALSE;
+				
+				ReferenceBinding t = (ReferenceBinding) this.right;
+				ParameterizedTypeBinding withWildCards = InferenceContext18.parameterizedWithWildcard(t);
+				if (withWildCards != null) {
+					t = findGroundTargetType(inferenceContext, scope, lambda, withWildCards);
+				}
+				if (t == null)
 					return FALSE;
 				MethodBinding functionType = t.getSingleAbstractMethod(scope, true);
 				if (functionType == null)
@@ -212,6 +219,21 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			}
 		}
 		return FALSE;
+	}
+
+	public ReferenceBinding findGroundTargetType(InferenceContext18 inferenceContext, BlockScope scope,
+													LambdaExpression lambda, ParameterizedTypeBinding targetTypeWithWildCards)
+	{
+		if (lambda.argumentsTypeElided()) {
+			return lambda.findGroundTargetTypeForElidedLambda(scope, targetTypeWithWildCards);
+		} else {
+			SuspendedInferenceRecord previous = inferenceContext.enterLambda(lambda);
+			try {
+				return inferenceContext.inferFunctionalInterfaceParameterization(lambda, scope, targetTypeWithWildCards);
+			} finally {
+				inferenceContext.resumeSuspendedInference(previous);
+			}
+		}
 	}
 
 	private boolean canBePolyExpression(Expression expr) {
@@ -293,7 +315,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				} catch (InferenceFailureException e) {
 					return FALSE;
 				} finally {
-					inferenceContext.leavePolyInvocation(prevInvocation);
+					inferenceContext.resumeSuspendedInference(prevInvocation);
 				}
 			}
 			TypeBinding rPrime = compileTimeDecl.isConstructor() ? compileTimeDecl.declaringClass : compileTimeDecl.returnType;

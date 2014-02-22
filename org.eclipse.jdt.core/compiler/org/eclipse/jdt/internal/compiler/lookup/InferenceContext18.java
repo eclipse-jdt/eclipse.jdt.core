@@ -1344,8 +1344,16 @@ public class InferenceContext18 {
 		this.innerPolies.add(invocation);
 		return record;
 	}
+	
+	public SuspendedInferenceRecord enterLambda(LambdaExpression lambda) {
+		SuspendedInferenceRecord record = new SuspendedInferenceRecord(this.currentInvocation, this.invocationArguments, this.inferenceVariables, this.inferenceKind);
+		this.inferenceVariables = null;
+		this.invocationArguments = null;
+		this.currentInvocation = null;
+		return record;
+	}
 
-	public void leavePolyInvocation(SuspendedInferenceRecord record) {
+	public void resumeSuspendedInference(SuspendedInferenceRecord record) {
 		// merge inference variables:
 		if (this.inferenceVariables == null) { // no new ones, assume we aborted prematurely
 			this.inferenceVariables = record.inferenceVariables;
