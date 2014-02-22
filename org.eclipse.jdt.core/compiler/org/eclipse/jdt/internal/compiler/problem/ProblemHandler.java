@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -122,7 +122,7 @@ public void handle(
 		return;
 
 	 boolean mandatory = (severity & (ProblemSeverities.Error | ProblemSeverities.Optional)) == ProblemSeverities.Error;
-	 if (this.policy.ignoreAllErrors()) { 
+	 if (severity < ProblemSeverities.InternalError && this.policy.ignoreAllErrors()) { 
 		 // Error is not to be exposed, but clients may need still notification as to whether there are silently-ignored-errors.
 		 if (mandatory)
 			 referenceContext.tagAsHavingIgnoredMandatoryErrors(problemId);

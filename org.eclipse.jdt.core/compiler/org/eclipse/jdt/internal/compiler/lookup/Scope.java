@@ -1162,6 +1162,18 @@ public abstract class Scope {
 		}
 		return null; // may answer null if no method around
 	}
+	
+	public final MethodScope enclosingLambdaScope() {
+		Scope scope = this;
+		while ((scope = scope.parent) != null) {
+			if (scope instanceof MethodScope) {
+				MethodScope methodScope = (MethodScope) scope;
+				if (methodScope.referenceContext instanceof LambdaExpression) 
+					return methodScope;
+			}
+		}
+		return null; // may answer null if no method around
+	}
 
 	/* Answer the scope receiver type (could be parameterized)
 	*/

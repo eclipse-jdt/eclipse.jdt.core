@@ -8561,6 +8561,30 @@ public void _test428177() {
 		},
 		"valid error messages go here - some are expected since javac also complains");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428795, - [1.8]Internal compiler error: java.lang.NullPointerException at org.eclipse.jdt.internal.compiler.ast.MessageSend.analyseCode
+public void test428795() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.net.NetworkInterface;\n" +
+			"import java.util.Optional;\n" +
+			"public class X {\n" +
+			"  public static void main( String[] args ) {\n" +
+			"    Optional.ofNullable( NetworkInterface.getByIndex( 2 ) ).ifPresent( ni -> {\n" +
+			"      Optional.ofNullable( ni.getDisplayName() ).ifPresent( name ->\n" +
+			"        System.out.println( name.get().toUpperCase() )\n" +
+			"      );\n" +
+			"    });\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	System.out.println( name.get().toUpperCase() )\n" + 
+		"	                         ^^^\n" + 
+		"The method get() is undefined for the type String\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

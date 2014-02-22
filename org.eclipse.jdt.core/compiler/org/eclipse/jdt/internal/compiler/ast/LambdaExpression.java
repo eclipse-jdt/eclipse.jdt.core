@@ -442,9 +442,14 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	}
 
 	private boolean doesNotCompleteNormally() {
-		return this.body.analyseCode(this.scope, 
+		try {
+			return this.body.analyseCode(this.scope, 
 									 new ExceptionHandlingFlowContext(null, this, Binding.NO_EXCEPTIONS, null, this.scope, FlowInfo.DEAD_END), 
-									 UnconditionalFlowInfo.fakeInitializedFlowInfo(this.scope.outerMostMethodScope().analysisIndex, this.scope.referenceType().maxFieldCount)) == FlowInfo.DEAD_END; 
+									 UnconditionalFlowInfo.fakeInitializedFlowInfo(this.scope.outerMostMethodScope().analysisIndex, this.scope.referenceType().maxFieldCount)) == FlowInfo.DEAD_END;
+		} catch (RuntimeException e) {
+			this.scope.problemReporter().lambdaShapeComputationError(this);
+			return this.valueCompatible;
+		}
 	}
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, final FlowInfo flowInfo) {
 		
@@ -1027,6 +1032,13 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				return;
 			default: 
 				this.original.hasIgnoredMandatoryErrors = true;
+				MethodScope enclosingLambdaScope = this.scope == null ? null : this.scope.enclosingLambdaScope();
+				while (enclosingLambdaScope != null) {
+					LambdaExpression enclosingLambda = (LambdaExpression) enclosingLambdaScope.referenceContext;
+					if (enclosingLambda.original != enclosingLambda)
+						enclosingLambda.original.hasIgnoredMandatoryErrors = true;
+					enclosingLambdaScope = enclosingLambdaScope.enclosingLambdaScope();
+				}
 				return;
 		}
 	}
