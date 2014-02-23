@@ -310,6 +310,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		}
 		StandardJavaFileManager manager = Compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
+		@SuppressWarnings("resource")
 		ForwardingJavaFileManager<StandardJavaFileManager> forwardingJavaFileManager = new ForwardingJavaFileManager<StandardJavaFileManager>(manager) {
 			@Override
 			public FileObject getFileForInput(Location location, String packageName, String relativeName)
@@ -564,6 +565,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		// System compiler
 		StandardJavaFileManager manager = Compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
+		@SuppressWarnings("resource")
 		ForwardingJavaFileManager<StandardJavaFileManager> forwardingJavaFileManager = new ForwardingJavaFileManager<StandardJavaFileManager>(manager) {
 			@Override
 			public JavaFileObject getJavaFileForOutput(Location location,
