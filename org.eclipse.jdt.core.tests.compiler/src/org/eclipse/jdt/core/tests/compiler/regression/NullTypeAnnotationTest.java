@@ -767,8 +767,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403216#c9 
-	public void testBug403216_3() {
-		runConformTestWithLibs(
+	public void testBug403216_3a() {
+		runNegativeTestWithLibs(
 			new String[] {
 				"Test.java",
 				"import java.lang.annotation.ElementType;\n" + 
@@ -780,6 +780,33 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"class X {\n" + 
 				"	class Y {\n" + 
 				"		public void foo( @A X. @NonNull Y this) {}\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"@Target(value={ElementType.TYPE_USE})\n" + 
+				"@interface A {}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 9)\n" + 
+			"	public void foo( @A X. @NonNull Y this) {}\n" + 
+			"	                 ^^^^^^^^^^^^^^^^\n" + 
+			"Nullness annotations are not applicable at this location \n" + 
+			"----------\n");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403216#c9 
+	public void testBug403216_3b() {
+		runConformTestWithLibs(
+			new String[] {
+				"Test.java",
+				"import java.lang.annotation.ElementType;\n" + 
+				"import java.lang.annotation.Target;\n" +
+				"\n" + 
+				"public class Test {}\n" + 
+				"\n" + 
+				"class X {\n" + 
+				"	class Y {\n" + 
+				"		public void foo( @A X. @A Y this) {}\n" + 
 				"	}\n" + 
 				"}\n" + 
 				"@Target(value={ElementType.TYPE_USE})\n" + 
@@ -2138,7 +2165,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
-	// illegal for cast & instanceof with scalar type
+	// illegal / unchecked for cast & instanceof with scalar type
 	public void testUnsupportedLocation03() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2170,7 +2197,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
-	// illegal for cast & instanceof with complex type
+	// illegal / unchecked for cast & instanceof with complex type
 	public void testUnsupportedLocation04() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2235,6 +2262,27 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	// illegal instanceof check with annotated type argument
+	public void testUnsupportedLocation04a() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"import java.util.*;\n" +
+				"public class X {\n" +
+				"	boolean instanceOf2(Object o) {\n" + 
+				"		return o instanceof List<@Nullable ?>;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	return o instanceof List<@Nullable ?>;\n" + 
+			"	                    ^^^^^^^^^^^^^^^^^\n" + 
+			"Nullness annotations are not applicable at this location \n" + 
+			"----------\n");
+	}
+
 	// illegal for allocation expression
 	public void testUnsupportedLocation05() {
 		runNegativeTestWithLibs(
@@ -2258,6 +2306,82 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	Inner i = this.new @Nullable Inner();\n" + 
 			"	                   ^^^^^^^^^\n" + 
 			"The nullness annotation \'Nullable\' is not applicable at this location\n" + 
+			"----------\n");
+	}
+
+	// method receiver
+	public void testUnsupportedLocation06() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class X {\n" +
+				"	void receiver(@Nullable X this, Object o) {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	void receiver(@Nullable X this, Object o) {}\n" + 
+			"	              ^^^^^^^^^^^\n" + 
+			"Nullness annotations are not applicable at this location \n" + 
+			"----------\n");
+	}
+
+	// receiver type in method/constructor reference
+	public void testUnsupportedLocation07() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"import java.util.function.Supplier;\n" +
+				"public class X {\n" +
+				"	void consume(Supplier<Object> c) {}\n" + 
+				"	static Object supply() { return null; }\n" + 
+				"	void consumeSupplied() {\n" + 
+				"		consume(@NonNull X::supply);\n" + 
+				"		consume(@NonNull X::new);\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	consume(@NonNull X::supply);\n" + 
+			"	        ^^^^^^^^^^\n" + 
+			"Nullness annotations are not applicable at this location \n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	consume(@NonNull X::new);\n" + 
+			"	        ^^^^^^^^^^\n" + 
+			"Nullness annotations are not applicable at this location \n" + 
+			"----------\n");
+	}
+
+	// exceptions (throws & catch)
+	public void testUnsupportedLocation08() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"import java.io.*;\n" +
+				"public class X {\n" +
+				"	void throwsDecl() throws @Nullable IOException {}\n" + 
+				"	void excParam() {\n" + 
+				"		try {\n" + 
+				"			throwsDecl();\n" + 
+				"		} catch (@NonNull IOException ioe) {}\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	void throwsDecl() throws @Nullable IOException {}\n" + 
+			"	                         ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Nullness annotations are not applicable at this location \n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	} catch (@NonNull IOException ioe) {}\n" + 
+			"	                  ^^^^^^^^^^^\n" + 
+			"Nullness annotations are not applicable at this location \n" + 
 			"----------\n");
 	}
 

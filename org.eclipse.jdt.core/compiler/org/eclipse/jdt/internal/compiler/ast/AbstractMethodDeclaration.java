@@ -24,6 +24,7 @@
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *								Bug 403216 - [1.8][null] TypeReference#captureTypeAnnotations treats type annotations as type argument annotations
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
+ *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -586,6 +587,10 @@ public abstract class AbstractMethodDeclaration
 
 		if (TypeBinding.notEquals(enclosingReceiver, resolvedReceiverType)) {
 			this.scope.problemReporter().illegalTypeForExplicitThis(this.receiver, enclosingReceiver);
+		}
+
+		if (resolvedReceiverType.hasNullTypeAnnotations()) {
+			this.scope.problemReporter().nullAnnotationUnsupportedLocation(this.receiver.type);
 		}
 	}
 	public void resolveJavadoc() {

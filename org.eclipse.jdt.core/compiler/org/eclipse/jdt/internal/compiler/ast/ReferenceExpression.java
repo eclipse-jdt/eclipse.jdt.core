@@ -28,6 +28,7 @@
  *							Bug 427196 - [1.8][compiler] Compiler error for method reference to overloaded method
  *							Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
  *							Bug 428264 - [1.8] method reference of generic class causes problems (wrong inference result or NPE)
+ *							Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contribution for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -388,6 +389,10 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			return this.resolvedType = null;
 		}
 		
+		if (this.lhs instanceof TypeReference && lhsType.hasNullTypeAnnotations()) {
+			scope.problemReporter().nullAnnotationUnsupportedLocation((TypeReference) this.lhs);
+		}
+
 		/* 15.28: "It is a compile-time error if a method reference of the form super :: NonWildTypeArgumentsopt Identifier or of the form 
 		   TypeName . super :: NonWildTypeArgumentsopt Identifier occurs in a static context.": This is nop since the primary when it resolves
 		   itself will complain automatically.

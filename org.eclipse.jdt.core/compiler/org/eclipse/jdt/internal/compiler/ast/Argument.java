@@ -15,6 +15,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
+ *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 409246 - [1.8][compiler] Type annotations on catch parameters not handled properly
  *******************************************************************************/
@@ -199,6 +200,9 @@ public class Argument extends LocalDeclaration {
 		}
 		resolveAnnotations(scope, this.annotations, this.binding, true);
 		Annotation.isTypeUseCompatible(this.type, scope, this.annotations);
+		if (this.type.resolvedType != null && this.type.resolvedType.hasNullTypeAnnotations()) {
+			scope.problemReporter().nullAnnotationUnsupportedLocation(this.type);
+		}
 
 		scope.addLocalVariable(this.binding);
 		this.binding.setConstant(Constant.NotAConstant);

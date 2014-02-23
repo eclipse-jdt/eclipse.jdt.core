@@ -33,6 +33,7 @@
  *								Bug 416172 - [1.8][compiler][null] null type annotation not evaluated on method return type
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *								Bug 426048 - [1.8] NPE in TypeVariableBinding.internalBoundCheck when parentheses are not balanced
+ *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *      Till Brychcy - Contributions for
@@ -1814,6 +1815,9 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 			}
 			if ((resolvedExceptionType.tagBits & TagBits.HasMissingType) != 0) {
 				method.tagBits |= TagBits.HasMissingType;
+			}
+			if (resolvedExceptionType.hasNullTypeAnnotations()) {
+				methodDecl.scope.problemReporter().nullAnnotationUnsupportedLocation(exceptionTypes[i]);
 			}
 			method.modifiers |= (resolvedExceptionType.modifiers & ExtraCompilerModifiers.AccGenericSignature);
 			method.thrownExceptions[count++] = resolvedExceptionType;
