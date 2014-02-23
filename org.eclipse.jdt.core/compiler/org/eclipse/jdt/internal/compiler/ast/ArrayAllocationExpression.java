@@ -16,6 +16,7 @@
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *								Bug 417758 - [1.8][null] Null safety compromise during array creation.
+ *								Bug 427163 - [1.8][null] bogus error "Contradictory null specification" on varags
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409247 - [1.8][compiler] Verify error with code allocating multidimensional array
@@ -173,10 +174,24 @@ public class ArrayAllocationExpression extends Expression {
 			if (this.dimensions.length > 255) {
 				scope.problemReporter().tooManyDimensions(this);
 			}
+			if (this.type.annotations != null
+					&& (referenceType.tagBits & TagBits.AnnotationNullMASK) == TagBits.AnnotationNullMASK)
+			{
+				scope.problemReporter().contradictoryNullAnnotations(this.type.annotations[this.type.annotations.length-1]);
+			}
 			this.resolvedType = scope.createArrayType(referenceType, this.dimensions.length);
 
 			if (this.annotationsOnDimensions != null) {
 				this.resolvedType = resolveAnnotations(scope, this.annotationsOnDimensions, this.resolvedType);
+				long[] nullTagBitsPerDimension = ((ArrayBinding)this.resolvedType).nullTagBitsPerDimension;
+				if (nullTagBitsPerDimension != null) {
+					for (int i = 0; i < this.annotationsOnDimensions.length; i++) {
+						if ((nullTagBitsPerDimension[i] & TagBits.AnnotationNullMASK) == TagBits.AnnotationNullMASK) {
+							scope.problemReporter().contradictoryNullAnnotations(this.annotationsOnDimensions[i]);
+							nullTagBitsPerDimension[i] = 0;
+						}
+					}
+				}
 			}
 
 			// check the initializer

@@ -31,6 +31,7 @@
  *								Bug 427282 - [1.8][compiler] AIOOB (-1) at org.eclipse.jdt.internal.compiler.ClassFile.traverse(ClassFile.java:6209)
  *								Bug 427483 - [Java 8] Variables in lambdas sometimes can't be resolved
  *								Bug 428352 - [1.8][compiler] Resolution errors don't always surface
+ *								Bug 427163 - [1.8][null] bogus error "Contradictory null specification" on varags
  *     Jesper S Moller - Contributions for
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -1099,7 +1100,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		if (existingType == null || !existingType.isValidBinding()) return existingType;
 		TypeReference unionRef = typeRef.isUnionType() ? ((UnionTypeReference) typeRef).typeReferences[0] : null;
 		
-		long prevNullBits = existingType.tagBits & TagBits.AnnotationNullMASK;
+		// for arrays: @T X[] SE7 associates @T to the type, but in SE8 it affects the leaf component type
+		long prevNullBits = existingType.leafComponentType().tagBits & TagBits.AnnotationNullMASK;
 		if (se8nullBits != 0 && prevNullBits != se8nullBits && ((prevNullBits | se8nullBits) == TagBits.AnnotationNullMASK)) {
 			scope.problemReporter().contradictoryNullAnnotations(se8NullAnnotation);
 		}

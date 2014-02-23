@@ -3253,6 +3253,27 @@ public void test_contradictory_annotations_02() {
 		"----------\n");
 }
 
+// contradictory null annotations on a field - array type
+public void test_contradictory_annotations_03() {
+	Map customOptions = getCompilerOptions();
+	runNegativeTestWithLibs(
+		new String[] {
+			"p2/Y.java",
+			"package p2;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Y {\n" +
+			"    @NonNull @Nullable Object[] o;\n" +
+			"}\n"
+		},
+		customOptions,
+		"----------\n" + 
+		"1. ERROR in p2\\Y.java (at line 4)\n" + 
+		"	@NonNull @Nullable Object[] o;\n" + 
+		"	         ^^^^^^^^^\n" + 
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n");
+}
+
 // a nonnull variable is dereferenced in a loop
 public void test_nonnull_var_in_constrol_structure_1() {
 	Map customOptions = getCompilerOptions();

@@ -9407,6 +9407,14 @@ public void nullDefaultAnnotationIsRedundant(ASTNode location, Annotation[] anno
 }
 
 public void contradictoryNullAnnotations(Annotation annotation) {
+	contradictoryNullAnnotations(annotation.sourceStart, annotation.sourceEnd);
+}
+
+public void contradictoryNullAnnotations(Annotation[] annotations) {
+	contradictoryNullAnnotations(annotations[0].sourceStart, annotations[annotations.length-1].sourceEnd);
+}
+
+public void contradictoryNullAnnotations(int sourceStart, int sourceEnd) {
 	// when this error is triggered we can safely assume that both annotations have been configured
 	char[][] nonNullAnnotationName = this.options.nonNullAnnotationName;
 	char[][] nullableAnnotationName = this.options.nullableAnnotationName;
@@ -9418,7 +9426,7 @@ public void contradictoryNullAnnotations(Annotation annotation) {
 			new String(nonNullAnnotationName[nonNullAnnotationName.length-1]),
 			new String(nullableAnnotationName[nullableAnnotationName.length-1])
 		};
-	this.handle(IProblem.ContradictoryNullAnnotations, arguments, shortArguments, annotation.sourceStart, annotation.sourceEnd);
+	this.handle(IProblem.ContradictoryNullAnnotations, arguments, shortArguments, sourceStart, sourceEnd);
 }
 
 public void contradictoryNullAnnotationsOnBounds(Annotation annotation, long previousTagBit) {

@@ -18,6 +18,7 @@
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
+ *								Bug 427163 - [1.8][null] bogus error "Contradictory null specification" on varags
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
@@ -596,9 +597,21 @@ protected void resolveAnnotations(Scope scope) {
 				TypeBinding leafComponentType = this.resolvedType.leafComponentType();
 				leafComponentType = resolveAnnotations(resolutionScope, this.annotations, leafComponentType);
 				this.resolvedType = dimensions > 0 ? scope.environment().createArrayType(leafComponentType, dimensions) : leafComponentType;
+				// contradictory null annotations on the type are already detected in Annotation.resolveType() (SE7 treatment)
 			}
 			if (annotationsOnDimensions != null) {
-				this.resolvedType = resolveAnnotations(resolutionScope, annotationsOnDimensions, this.resolvedType);		
+				this.resolvedType = resolveAnnotations(resolutionScope, annotationsOnDimensions, this.resolvedType);
+				if (this.resolvedType instanceof ArrayBinding) {
+					long[] nullTagBitsPerDimension = ((ArrayBinding)this.resolvedType).nullTagBitsPerDimension;
+					if (nullTagBitsPerDimension != null) {
+						for (int i = 0; i < dimensions; i++) { // skip last annotations at [dimensions] (concerns the leaf type)
+							if ((nullTagBitsPerDimension[i] & TagBits.AnnotationNullMASK) == TagBits.AnnotationNullMASK) {
+								scope.problemReporter().contradictoryNullAnnotations(annotationsOnDimensions[i]);
+								nullTagBitsPerDimension[i] = 0;
+							}
+						}
+					}
+				}
 			}
 		}
 	}

@@ -3469,4 +3469,91 @@ public void testBug424637_comment3() {
 			"}"
 		});
 }
+public void testBug427163() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	void consume(@NonNull String @Nullable... strings) {\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		""
+	);
+}
+public void testBug427163b() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	void consume1(@NonNull @Nullable String @Nullable[] strings) {}\n" + 
+			"	void consume2(@Nullable String @NonNull @Nullable... strings) {}\n" +
+			"	void consume3(@Nullable String[] @NonNull @Nullable[] strings) {}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	void consume1(@NonNull @Nullable String @Nullable[] strings) {}\n" + 
+		"	                       ^^^^^^^^^\n" + 
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	void consume2(@Nullable String @NonNull @Nullable... strings) {}\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^\n" + 
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	void consume3(@Nullable String[] @NonNull @Nullable[] strings) {}\n" + 
+		"	                                 ^^^^^^^^^^^^^^^^^^\n" + 
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n"
+	);
+}
+public void testBug427163c() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	String[][] strings0 = new @NonNull String @Nullable[] @Nullable[] {};\n" + 
+			"	String[] strings1 = new String @NonNull @Nullable[] {};\n" + 
+			"	Object[] objects2 = new Object @NonNull @Nullable[1];\n" +
+			"	String[] strings3 = new @NonNull @Nullable String [1];\n" +
+			"	String[] strings4 = new @NonNull String  @Nullable @NonNull[1];\n" +
+			"	String[][] strings5 = new String[] @NonNull @Nullable[] {};\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	String[] strings1 = new String @NonNull @Nullable[] {};\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^\n" + 
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	Object[] objects2 = new Object @NonNull @Nullable[1];\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^\n" + 
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	String[] strings3 = new @NonNull @Nullable String [1];\n" + 
+		"	                        ^^^^^^^^^^^^^^^^^^\n" + 
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 7)\n" + 
+		"	String[] strings4 = new @NonNull String  @Nullable @NonNull[1];\n" + 
+		"	                                         ^^^^^^^^^^^^^^^^^^\n" + 
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 8)\n" + 
+		"	String[][] strings5 = new String[] @NonNull @Nullable[] {};\n" + 
+		"	                                   ^^^^^^^^^^^^^^^^^^\n" + 
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n"
+	);
+}
 }
