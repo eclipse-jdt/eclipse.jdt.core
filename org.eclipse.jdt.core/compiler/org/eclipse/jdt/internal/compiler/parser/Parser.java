@@ -7962,6 +7962,7 @@ protected void consumeLambdaExpression() {
 	if (this.currentElement != null) {
 		this.lastCheckPoint = body.sourceEnd + 1;
 	}
+	this.referenceContext.compilationResult().hasFunctionalTypes = true;
 }
 
 protected Argument typeElidedArgument() {
@@ -8147,6 +8148,7 @@ protected void consumeReferenceExpression(ReferenceExpression referenceExpressio
 	if (!this.parsingJava8Plus) {
 		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
 	}
+	this.referenceContext.compilationResult().hasFunctionalTypes = true;
 }
 protected void consumeReferenceExpressionTypeArgumentsAndTrunk(boolean qualified) {
 	// ReferenceExpressionTypeArgumentsAndTrunk ::= OnlyTypeArguments Dimsopt ==> qualified == false
