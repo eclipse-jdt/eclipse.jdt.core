@@ -361,6 +361,12 @@ protected void consumeInterfaceType() {
 	this.patternLocator.setFlavors(PatternLocator.NO_FLAVOR);
 }
 
+@Override
+protected void consumeLambdaExpression() {
+	super.consumeLambdaExpression();
+	this.patternLocator.match((LambdaExpression) this.expressionStack[this.expressionPtr], this.nodeSet);
+}
+
 protected void consumeLocalVariableDeclaration() {
 	super.consumeLocalVariableDeclaration();
 	this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
@@ -515,6 +521,14 @@ protected void consumePrimaryNoNewArrayWithName() {
 	// (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=23329)
 	this.intPtr--;
 	this.intPtr--;
+}
+
+@Override
+protected void consumeReferenceExpression(ReferenceExpression referenceExpression) {
+	super.consumeReferenceExpression(referenceExpression);
+	if (this.patternFineGrain == 0 || (this.patternFineGrain & IJavaSearchConstants.THIS_REFERENCE) != 0) {
+		this.patternLocator.match(referenceExpression, this.nodeSet);
+	}
 }
 
 protected void consumeSingleMemberAnnotation(boolean isTypeAnnotation) {

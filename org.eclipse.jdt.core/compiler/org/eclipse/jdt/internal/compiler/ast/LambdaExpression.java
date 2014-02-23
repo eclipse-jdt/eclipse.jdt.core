@@ -145,6 +145,10 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		return this.resultExpressions;
 	}
 
+	public int getSyntheticArgumentSize() {
+		return this.outerLocalVariables.length;
+	}
+	
 	public void setArrowPosition(int arrowPosition) {
 		this.arrowPosition = arrowPosition;
 	}

@@ -8093,11 +8093,7 @@ protected void consumeReferenceExpressionTypeForm(boolean isPrimitive) { // actu
 	} else {
 		referenceExpression.initialize(this.compilationUnit.compilationResult, getUnspecifiedReference(), typeArguments, selector, sourceEnd);
 	}
-	pushOnExpressionStack(referenceExpression);
-
-	if (!this.parsingJava8Plus) {
-		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
-	}
+	consumeReferenceExpression(referenceExpression);
 }
 protected void consumeReferenceExpressionPrimaryForm() {
 	// ReferenceExpression ::= Primary '::' NonWildTypeArgumentsopt Identifier
@@ -8121,10 +8117,7 @@ protected void consumeReferenceExpressionPrimaryForm() {
 	Expression primary = this.expressionStack[this.expressionPtr--];
 	this.expressionLengthPtr--;
 	referenceExpression.initialize(this.compilationUnit.compilationResult, primary, typeArguments, selector, sourceEnd);
-	pushOnExpressionStack(referenceExpression);
-	if (!this.parsingJava8Plus) {
-		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
-	}
+	consumeReferenceExpression(referenceExpression);
 }
 protected void consumeReferenceExpressionSuperForm() {
 	// ReferenceExpression ::= 'super' '::' NonWildTypeArgumentsopt Identifier
@@ -8147,6 +8140,9 @@ protected void consumeReferenceExpressionSuperForm() {
 	
 	SuperReference superReference = new SuperReference(this.intStack[this.intPtr--], this.endPosition);
 	referenceExpression.initialize(this.compilationUnit.compilationResult, superReference, typeArguments, selector, sourceEnd);
+	consumeReferenceExpression(referenceExpression);
+}
+protected void consumeReferenceExpression(ReferenceExpression referenceExpression) {
 	pushOnExpressionStack(referenceExpression);
 	if (!this.parsingJava8Plus) {
 		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
@@ -8195,10 +8191,7 @@ protected void consumeReferenceExpressionGenericTypeForm() {
 	
 	referenceExpression.initialize(this.compilationUnit.compilationResult, type, typeArguments, selector, sourceEnd);
 
-	pushOnExpressionStack(referenceExpression);
-	if (!this.parsingJava8Plus) {
-		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
-	}
+	consumeReferenceExpression(referenceExpression);
 }
 protected void consumeEnterInstanceCreationArgumentList() {
 	return;
