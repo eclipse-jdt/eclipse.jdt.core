@@ -9955,7 +9955,7 @@ public void genericInferenceProblem(String message, InvocationSite invocationSit
 		start = invocationSite.sourceStart();
 		end = invocationSite.sourceEnd();
 	}
-	this.handle(IProblem.GenericInferenceError, args, args, severity, start, end);	
+	this.handle(IProblem.GenericInferenceError, args, args, severity|ProblemSeverities.InternalError, start, end);	
 }
 public void uninternedIdentityComparison(EqualExpression expr, TypeBinding lhs, TypeBinding rhs, CompilationUnitDeclaration unit) {
 	
