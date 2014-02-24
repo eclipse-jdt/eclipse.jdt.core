@@ -989,7 +989,7 @@ public void scheduleDocumentIndexing(final SearchDocument searchDocument, IPath 
 			} finally {
 				monitor.exitWrite(); // free write lock
 			}
-			if (searchDocument.shouldIndexResolvedDocument) {
+			if (searchDocument.shouldIndexResolvedDocument()) {
 				indexResolvedDocument(searchDocument, searchParticipant, index, indexPath);
 			}
 			return true;

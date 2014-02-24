@@ -45,7 +45,7 @@ public class JavaSearchBugs8Tests extends AbstractJavaSearchTests {
 
 	static {
 //	 org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
-//	TESTS_NAMES = new String[] {"testBug400899g29"};
+//	TESTS_NAMES = new String[] {"testBug400905_0010"};
 }
 
 public JavaSearchBugs8Tests(String name) {
@@ -121,10 +121,13 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0003"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0004"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0005"));
-//	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0006"));
-//	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0007"));
-//	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0008"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0006"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0007"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0008"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0009"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0010"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0011"));
+//	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0012"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -2544,7 +2547,7 @@ public void testBug400905_0005() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905"
  * 
  */
-public void _testBug400905_0006() throws CoreException {
+public void testBug400905_0006() throws CoreException {
 	try {
 		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
@@ -2587,7 +2590,7 @@ public void _testBug400905_0006() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905"
  * 
  */
-public void _testBug400905_0007() throws CoreException {
+public void testBug400905_0007() throws CoreException {
 	try {
 		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
@@ -2618,7 +2621,7 @@ public void _testBug400905_0007() throws CoreException {
 		deleteProject("P");
 	}
 }
-public void _testBug400905_0008() throws CoreException {
+public void testBug400905_0008() throws CoreException {
 	try {
 		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
@@ -2675,6 +2678,121 @@ public void testBug400905_0009() throws CoreException {
 		);
 		IMethod method = getCompilationUnit("/P/src/Y.java").getType("Y").getMethod("goo", new String[] {"I"});
 		search(method, REFERENCES, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaProject[] {project}), this.resultCollector);
+		assertSearchResults("");
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+public void testBug400905_0010() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createFile(
+			"/P/src/J.java",
+			"public interface J {\n" +
+			"    public static void main(String [] args) {\n" +
+			"		I i = Y::goo;\n" +
+			"	}\n" +
+			"    default void foo() {\n" +
+			"       I i = Y::goo;\n" +
+			"       Y.goo(()->{});\n" +
+			"   }\n" +
+			"}\n"
+		);
+		createFile(
+			"/P/src/Y.java",
+			"public class Y {\n" +
+			"    public static void goo(I i) {};\n" +
+			"    public static void goo() {};\n" +
+			"}\n"
+		);
+		createFile(
+			"/P/src/I.java",
+			"public interface I {\n" +
+			"    public void foo();\n" +
+			"}\n"
+		);
+		IMethod method = getCompilationUnit("/P/src/Y.java").getType("Y").getMethod("goo", new String[0]);
+		search(method, REFERENCES, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaProject[] {project}), this.resultCollector);
+		assertSearchResults("src/J.java void J.main(String[]) [Y::goo] EXACT_MATCH\n" + 
+				"src/J.java void J.foo() [Y::goo] EXACT_MATCH");
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+public void testBug400905_0011() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createFile(
+			"/P/src/J.java",
+			"public interface J {\n" +
+			"    public static void main(String [] args) {\n" +
+			"		I i = Y::goo;\n" +
+			"	}\n" +
+			"    default void foo() {\n" +
+			"       I i = Y::goo;\n" +
+			"       Y.goo(()->{});\n" +
+			"   }\n" +
+			"}\n"
+		);
+		createFile(
+			"/P/src/Y.java",
+			"public class Y {\n" +
+			"    public static void goo(I i) {};\n" +
+			"    public static void goo() {};\n" +
+			"}\n"
+		);
+		createFile(
+			"/P/src/I.java",
+			"public interface I {\n" +
+			"    public void foo();\n" +
+			"}\n"
+		);
+		IMethod method = getCompilationUnit("/P/src/I.java").getType("I").getMethod("foo", new String[0]);
+		search(method, REFERENCES, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaProject[] {project}), this.resultCollector);
+		assertSearchResults("");
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+public void _testBug400905_0012() throws CoreException {
+	try {
+		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createFile(
+			"/P/src/J.java",
+			"public class J implements I {\n" +
+			"    public static void main(String [] args) {\n" +
+			"		I i = Y::goo;\n" +
+			"	 }\n" +
+			"    void foo() {\n" +
+			"       I i = Y::goo;\n" +
+			"       Y.goo(()->{});\n" +
+			"       I i2 = new I() {\n" +
+			"		    public void foo() {\n" +
+			"		    }\n" +
+			"	    };\n" +
+			"   }\n" +
+			"}\n"
+		);
+		createFile(
+			"/P/src/Y.java",
+			"public class Y {\n" +
+			"    public static void goo(I i) {};\n" +
+			"    public static void goo() {};\n" +
+			"}\n"
+		);
+		createFile(
+			"/P/src/I.java",
+			"public interface I {\n" +
+			"    public void foo();\n" +
+			"}\n"
+		);
+		
+		IType type = getCompilationUnit("/P/src/I.java").getType("I");
+		IMethod method = type.getMethod("foo", new String[0]);
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
 		assertSearchResults("");
 	}
 	finally {

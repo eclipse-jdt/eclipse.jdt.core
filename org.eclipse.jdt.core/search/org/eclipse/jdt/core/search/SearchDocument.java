@@ -32,7 +32,7 @@ public abstract class SearchDocument {
 	private SourceElementParser parser;
 	private String documentPath;
 	private SearchParticipant participant;
-	public boolean shouldIndexResolvedDocument = false;
+	private boolean shouldIndexResolvedDocument = false;
 
 	/**
 	 * Creates a new search document. The given document path is a string that uniquely identifies the document.
@@ -167,5 +167,20 @@ public abstract class SearchDocument {
 	 */
 	public void setParser(SourceElementParser sourceElementParser) {
 		this.parser = sourceElementParser;
+	}
+
+	/** Flags the document as requiring indexing after symbol and type resolution. A participant would be asked 
+	 *  to resolve the document via {@link SearchParticipant#resolveDocument} and to index the document adding 
+	 *  additional entries via {@link SearchParticipant#indexResolvedDocument} 
+	 *  
+	 * @since 3.9 BETA_JAVA8 
+	 */
+	public void requireIndexingResolvedDocument() {
+		this.shouldIndexResolvedDocument = true;
+	}
+	
+	/* non API */
+	public boolean shouldIndexResolvedDocument() {
+		return this.shouldIndexResolvedDocument;
 	}
 }

@@ -18,9 +18,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -33,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
@@ -41,17 +41,16 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
-import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.jdom.CompilationUnit;
+import org.eclipse.jdt.internal.core.search.matching.JavaSearchNameEnvironment;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
@@ -62,6 +61,7 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
  * - Interfaces;<br>
  * - Methods;<br>
  * - Fields;<br>
+ * - Lambda expressions;<br>
  * References to:<br>
  * - Methods (with number of arguments); <br>
  * - Fields;<br>
@@ -72,10 +72,11 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 
 	private LookupEnvironment lookupEnvironment;
 	private CompilerOptions options;
-	private CompilationUnitDeclaration cu;
 	public ISourceElementRequestor requestor;
 	private Parser basicParser;
-	private ProblemReporter problemReporter;
+	private CompilationUnit compilationUnit;
+	private CompilationUnitDeclaration cud;
+	private static final boolean DEBUG = false;
 	
 	public SourceIndexer(SearchDocument document) {
 		super(document);
@@ -103,44 +104,14 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 			// ignore
 		}
 		if (source == null || name == null) return; // could not retrieve document info (e.g. resource was discarded)
-		CompilationUnit compilationUnit = new CompilationUnit(source, name);
+		this.compilationUnit = new CompilationUnit(source, name);
 		try {
-			this.cu = parser.parseCompilationUnit(compilationUnit, true/*full parse*/, null/*no progress*/);
-			// this.document.shouldIndexResolvedDocument = this.cu.hasFunctionalTypes();
+			if (parser.parseCompilationUnit(this.compilationUnit, true, null).hasFunctionalTypes())
+				this.document.requireIndexingResolvedDocument();
 		} catch (Exception e) {
 			if (JobManager.VERBOSE) {
 				e.printStackTrace();
 			}
-		}
-	}
-
-	public void resolveDocument() {
-		IPath path = new Path(this.document.getPath());
-		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0));
-		JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
-		JavaProject javaProject = (JavaProject) model.getJavaProject(project);
-		try {
-			CancelableNameEnvironment nameEnvironment;
-			nameEnvironment = new CancelableNameEnvironment(javaProject, DefaultWorkingCopyOwner.PRIMARY, null);
-			this.options = new CompilerOptions(javaProject.getOptions(true));
-			this.problemReporter =
-					new ProblemReporter(
-						DefaultErrorHandlingPolicies.proceedWithAllProblems(),
-						this.options,
-						new DefaultProblemFactory());
-			this.lookupEnvironment = new LookupEnvironment(this, this.options, this.problemReporter, nameEnvironment);
-		} catch (JavaModelException e) {
-			if (JobManager.VERBOSE) {
-				e.printStackTrace();
-			}
-			this.cu = null;
-			return;
-		}
-		this.lookupEnvironment.buildTypeBindings(this.cu, null);
-		this.lookupEnvironment.completeTypeBindings();
-		if (this.cu.scope != null) {
-			this.cu.scope.faultInTypes();
-			this.cu.resolve();
 		}
 	}
 	
@@ -150,65 +121,72 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 
 	public void accept(ICompilationUnit unit, AccessRestriction accessRestriction) {
 		CompilationResult unitResult = new CompilationResult(unit, 1, 1, this.options.maxProblemsPerUnit);
-		CompilationUnitDeclaration parsedUnit = basicParser().dietParse(unit, unitResult);
+		CompilationUnitDeclaration parsedUnit = this.basicParser.dietParse(unit, unitResult);
 		this.lookupEnvironment.buildTypeBindings(parsedUnit, accessRestriction);
 		this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
 	}
 
 	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, AccessRestriction accessRestriction) {
-		// ensure to jump back to toplevel type for first one (could be a member)
-		while (sourceTypes[0].getEnclosingType() != null) {
-			sourceTypes[0] = sourceTypes[0].getEnclosingType();
-		}
-
-		CompilationResult result =
-			new CompilationResult(sourceTypes[0].getFileName(), 1, 1, this.options.maxProblemsPerUnit);
-		
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259, build the compilation unit in its own sand box.
-		final long savedComplianceLevel = this.options.complianceLevel;
-		final long savedSourceLevel = this.options.sourceLevel;
-		
-		try {
-			IJavaProject project = ((SourceTypeElementInfo) sourceTypes[0]).getHandle().getJavaProject();
-			this.options.complianceLevel = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_COMPLIANCE, true));
-			this.options.sourceLevel = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_SOURCE, true));
-
-			// need to hold onto this
-			CompilationUnitDeclaration unit =
-				SourceTypeConverter.buildCompilationUnit(
-						sourceTypes,//sourceTypes[0] is always toplevel here
-						SourceTypeConverter.FIELD_AND_METHOD // need field and methods
-						| SourceTypeConverter.MEMBER_TYPE // need member types
-						| SourceTypeConverter.FIELD_INITIALIZATION // need field initialization
-						| SourceTypeConverter.LOCAL_TYPE, // need local type
-						this.lookupEnvironment.problemReporter,
-						result);
-
-			if (unit != null) {
-				this.lookupEnvironment.buildTypeBindings(unit, accessRestriction);
-				this.lookupEnvironment.completeTypeBindings(unit);
-			}
-		} finally {
-			this.options.complianceLevel = savedComplianceLevel;
-			this.options.sourceLevel = savedSourceLevel;
-		}
+		ISourceType sourceType = sourceTypes[0];
+		while (sourceType.getEnclosingType() != null)
+			sourceType = sourceType.getEnclosingType();
+		SourceTypeElementInfo elementInfo = (SourceTypeElementInfo) sourceType;
+		IType type = elementInfo.getHandle();
+		ICompilationUnit sourceUnit = (ICompilationUnit) type.getCompilationUnit();
+		accept(sourceUnit, accessRestriction);		
 	}
 	
-	protected Parser basicParser() {
-		if (this.basicParser == null) {
-			this.basicParser = new Parser(this.problemReporter, false);
+	public void resolveDocument() {
+		try {
+			IPath path = new Path(this.document.getPath());
+			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0));
+			JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+			JavaProject javaProject = (JavaProject) model.getJavaProject(project);
+
+			this.options = new CompilerOptions(javaProject.getOptions(true));
+			ProblemReporter problemReporter =
+					new ProblemReporter(
+							DefaultErrorHandlingPolicies.proceedWithAllProblems(),
+							this.options,
+							new DefaultProblemFactory());
+
+			// Re-parse using normal parser, IndexingParser swallows several nodes, see comment above class.
+			this.basicParser = new Parser(problemReporter, false);
 			this.basicParser.reportOnlyOneSyntaxError = true;
+			this.cud = this.basicParser.parse(this.compilationUnit, new CompilationResult(this.compilationUnit, 0, 0, this.options.maxProblemsPerUnit));
+
+			// Use a non model name environment to avoid locks, monitors and such.
+			INameEnvironment nameEnvironment = new JavaSearchNameEnvironment(javaProject, JavaModelManager.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, true/*add primary WCs*/));
+			this.lookupEnvironment = new LookupEnvironment(this, this.options, problemReporter, nameEnvironment);
+
+			this.lookupEnvironment.buildTypeBindings(this.cud, null);
+			this.lookupEnvironment.completeTypeBindings();
+			this.cud.scope.faultInTypes();
+			this.cud.resolve();
+		} catch (Exception e) {
+			if (JobManager.VERBOSE) {
+				e.printStackTrace();
+			}
 		}
-		return this.basicParser;
 	}
 
-
-public void indexResolvedDocument() {
-	if (this.cu != null && this.cu.scope != null) {
-		final ASTVisitor visitor = new ASTVisitor() {
+	public void indexResolvedDocument() {
+		try {
+			if (DEBUG) {
+				System.out.println(new String(this.cud.compilationResult.fileName) + ':');
+			}
+			final ASTVisitor visitor = new ASTVisitor() {
 				public boolean visit(LambdaExpression lambdaExpression, BlockScope blockScope) {
 					if (lambdaExpression.binding != null && lambdaExpression.binding.isValidBinding()) {
+						if (DEBUG) {
+							System.out.println('\t' + new String(lambdaExpression.descriptor.declaringClass.sourceName()) + '.' + 
+									new String(lambdaExpression.descriptor.selector) + "-> {}"); //$NON-NLS-1$
+						}
 						SourceIndexer.this.addIndexEntry(IIndexConstants.METHOD_DECL, MethodPattern.createIndexKey(lambdaExpression.descriptor.selector, lambdaExpression.descriptor.parameters.length));
+					} else {
+						if (DEBUG) {
+							System.out.println("\tnull/bad binding in lambda"); //$NON-NLS-1$
+						}
 					}
 					return true;
 				}
@@ -217,15 +195,28 @@ public void indexResolvedDocument() {
 						return true;
 					MethodBinding binding = referenceExpression.getMethodBinding();
 					if (binding != null && binding.isValidBinding()) {
+						if (DEBUG) {
+							System.out.println('\t' + new String(referenceExpression.descriptor.declaringClass.sourceName()) + "::"  //$NON-NLS-1$
+									+ new String(referenceExpression.descriptor.selector) + " == " + new String(binding.declaringClass.sourceName()) + '.' + //$NON-NLS-1$
+									new String(binding.selector));
+						}
 						if (referenceExpression.isMethodReference())
 							SourceIndexer.this.addMethodReference(binding.selector, binding.parameters.length);
 						else
 							SourceIndexer.this.addConstructorReference(binding.declaringClass.sourceName(), binding.parameters.length);
+					} else {
+						if (DEBUG) {
+							System.out.println("\tnull/bad binding in reference expression"); //$NON-NLS-1$
+						}
 					}
 					return true;
 				}
 			};
-		this.cu.traverse(visitor , this.cu.scope, false);
+			this.cud.traverse(visitor , this.cud.scope, false);
+		} catch (Exception e) {
+			if (JobManager.VERBOSE) {
+				e.printStackTrace();
+			}
+		}
 	}
-}
 }

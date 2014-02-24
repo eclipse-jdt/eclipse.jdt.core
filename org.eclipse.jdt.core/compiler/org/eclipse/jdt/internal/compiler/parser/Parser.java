@@ -4725,21 +4725,35 @@ protected void consumeInterfaceMethodDeclaration(boolean hasSemicolonBody) {
 	this.intStack :
 	*/
 
+	int explicitDeclarations = 0;
+	Statement[] statements = null;
 	if (!hasSemicolonBody) {
 		// pop the position of the {  (body of the method) pushed in block decl
 		this.intPtr--;
-		// retrieve end position of method declarator
-
+		this.intPtr--;
+		
+		explicitDeclarations = this.realBlockStack[this.realBlockPtr--];
+		
 		//statements
-		this.realBlockPtr--;
 		int length;
 		if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-			this.astPtr -= length;
+			if (this.options.ignoreMethodBodies) {
+				this.astPtr -= length;
+			} else {
+				System.arraycopy(
+					this.astStack,
+					(this.astPtr -= length) + 1,
+					statements = new Statement[length],
+					0,
+					length);
+			}
 		}
 	}
 
 	//watch for } that could be given as a unicode ! ( u007D is '}' )
 	MethodDeclaration md = (MethodDeclaration) this.astStack[this.astPtr];
+	md.statements = statements;
+	md.explicitDeclarations = explicitDeclarations;
 	md.bodyEnd = this.endPosition;
 	md.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 	
