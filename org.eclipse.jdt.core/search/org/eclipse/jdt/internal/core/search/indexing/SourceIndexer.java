@@ -106,7 +106,7 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 		CompilationUnit compilationUnit = new CompilationUnit(source, name);
 		try {
 			this.cu = parser.parseCompilationUnit(compilationUnit, true/*full parse*/, null/*no progress*/);
-			this.document.shouldIndexResolvedDocument = this.cu.hasFunctionalTypes();
+			// this.document.shouldIndexResolvedDocument = this.cu.hasFunctionalTypes();
 		} catch (Exception e) {
 			if (JobManager.VERBOSE) {
 				e.printStackTrace();
