@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
@@ -898,12 +899,23 @@ class TypeBinding implements ITypeBinding {
 		if (this.bounds != null) {
 			return this.bounds;
 		}
+		TypeVariableBinding typeVariableBinding = null;
 		if (this.binding instanceof TypeVariableBinding) {
-			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.binding;
+			typeVariableBinding = (TypeVariableBinding) this.binding;
+		} else if (this.binding instanceof WildcardBinding) {
+			WildcardBinding wildcardBinding = (WildcardBinding) this.binding;
+			typeVariableBinding = wildcardBinding.typeVariable();
+		}
+		if (typeVariableBinding != null) {
 			ReferenceBinding varSuperclass = typeVariableBinding.superclass();
 			org.eclipse.jdt.internal.compiler.lookup.TypeBinding firstClassOrArrayBound = typeVariableBinding.firstBound;
 			int boundsLength = 0;
-			if (firstClassOrArrayBound != null) {
+			if (firstClassOrArrayBound == null) {
+				if (varSuperclass != null && varSuperclass.id != TypeIds.T_JavaLangObject) {
+					firstClassOrArrayBound = varSuperclass;
+					boundsLength++;
+				}
+			} else  {
 				if (org.eclipse.jdt.internal.compiler.lookup.TypeBinding.equalsEquals(firstClassOrArrayBound, varSuperclass)) {
 					boundsLength++;
 				} else if (firstClassOrArrayBound.isArrayType()) { // capture of ? extends/super arrayType

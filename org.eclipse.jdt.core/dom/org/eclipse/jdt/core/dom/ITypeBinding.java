@@ -555,8 +555,8 @@ public interface ITypeBinding extends IBinding {
 	public ITypeBinding[] getTypeArguments();
 
 	/**
-	 * Returns the declared type bounds of this type variable or capture. If the
-	 * variable or the capture had no explicit bound, then it returns an empty list.
+	 * Returns the upper type bounds of this type variable, wildcard, or capture. If the
+	 * variable, wildcard, or capture had no explicit bound, then it returns an empty list.
      * <p>
      * Note that per construction, it can only contain one class or array type,
      * at most, and then it is located in first position.
@@ -566,7 +566,7 @@ public interface ITypeBinding extends IBinding {
      * binding, e.g. <code>capture-of ? extends Object[]</code>
      * </p>
 	 *
-	 * @return the list of type bindings for this type variable or capture,
+	 * @return the list of upper bounds for this type variable, wildcard, or capture,
      * or otherwise the empty list
 	 * @see #isCapture()
 	 * @see #isTypeVariable()
