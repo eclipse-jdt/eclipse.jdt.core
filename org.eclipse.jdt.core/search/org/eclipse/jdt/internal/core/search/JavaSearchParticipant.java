@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 public class JavaSearchParticipant extends SearchParticipant {
 
 	private ThreadLocal indexSelector = new ThreadLocal();
+	private SourceIndexer sourceIndexer;
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.search.SearchParticipant#beginSearching()
@@ -71,12 +72,37 @@ public class JavaSearchParticipant extends SearchParticipant {
 
 		String documentPath = document.getPath();
 		if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(documentPath)) {
-			new SourceIndexer(document).indexDocument();
+			this.sourceIndexer = new SourceIndexer(document);
+			this.sourceIndexer.indexDocument();
 		} else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(documentPath)) {
 			new BinaryIndexer(document).indexDocument();
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.search.SearchParticipant#indexResolvedDocument(SearchDocument, IPath)
+	 */
+	@Override
+	public void indexResolvedDocument(SearchDocument document, IPath indexPath) {
+		String documentPath = document.getPath();
+		if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(documentPath)) {
+			if (this.sourceIndexer != null)
+				this.sourceIndexer.indexResolvedDocument();
+			this.sourceIndexer = null;
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.search.SearchParticipant#resolveDocument(SearchDocument document)
+	 */
+	public void resolveDocument(SearchDocument document) {
+		String documentPath = document.getPath();
+		if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(documentPath)) {
+			if (this.sourceIndexer != null)
+				this.sourceIndexer.resolveDocument();
+		}
+	}
+	
 	/* (non-Javadoc)
 	 * @see SearchParticipant#locateMatches(SearchDocument[], SearchPattern, IJavaSearchScope, SearchRequestor, IProgressMonitor)
 	 */

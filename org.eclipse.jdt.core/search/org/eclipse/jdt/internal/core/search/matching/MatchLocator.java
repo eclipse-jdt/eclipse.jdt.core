@@ -451,6 +451,70 @@ protected char[][][] computeSuperTypeNames(IType focusType) {
 	return this.allSuperTypeNames;
 }
 /**
+ * Creates an IMethod from the given lambda declaration and type.
+ */
+protected IJavaElement createHandle(LambdaExpression lambdaExpression, IJavaElement parent) {
+	if (!(parent instanceof IType)) return parent;
+
+	IType type = (IType) parent;
+	Argument[] arguments = lambdaExpression.arguments();
+	int syntheticArgumentSize = lambdaExpression.getSyntheticArgumentSize();
+	MethodBinding descriptor = lambdaExpression.descriptor;
+	int argCount = arguments == null ? 0 : arguments.length;
+	if (type.isBinary()) {
+		ClassFileReader reader = classFileReader(type);
+		if (reader != null) {
+			// build arguments names
+			char[][] argumentTypeNames = new char[argCount - syntheticArgumentSize][];
+			for (int i = syntheticArgumentSize; i < argCount; i++) {
+				char[] typeName = null;
+				if (arguments != null) {
+					TypeReference typeRef = arguments[i].type;
+					typeName = CharOperation.concatWith(typeRef.getTypeName(), '.');
+					for (int k = 0, dim = typeRef.dimensions(); k < dim; k++)
+						typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
+				}
+				if (typeName == null) {
+					// invalid type name
+					return null;
+				}
+				argumentTypeNames[i - syntheticArgumentSize] = typeName;
+			}
+			// return binary method
+			IMethod binaryMethod = createBinaryMethodHandle(type, descriptor.selector, argumentTypeNames);
+			if (binaryMethod == null) {
+				// when first attempt fails, try with similar matches if any...
+				PossibleMatch similarMatch = this.currentPossibleMatch.getSimilarMatch();
+				while (similarMatch != null) {
+					type = ((ClassFile)similarMatch.openable).getType();
+					binaryMethod = createBinaryMethodHandle(type, descriptor.selector, argumentTypeNames);
+					if (binaryMethod != null) {
+						return binaryMethod;
+					}
+					similarMatch = similarMatch.getSimilarMatch();
+				}
+			}
+			return binaryMethod;
+		}
+		if (BasicSearchEngine.VERBOSE) {
+			System.out.println("Not able to createHandle for the lambda expression " + //$NON-NLS-1$
+					CharOperation.charToString(descriptor.selector) + " May miss some results");  //$NON-NLS-1$
+		}
+		return null;
+	}
+
+	String[] parameterTypeSignatures = new String[argCount - syntheticArgumentSize];
+	if (arguments != null) {
+		for (int i = syntheticArgumentSize; i < argCount; i++) {
+			TypeReference typeRef = arguments[i].type;
+			char[] typeName = CharOperation.concatWith(typeRef.getParameterizedTypeName(), '.');
+			parameterTypeSignatures[i - syntheticArgumentSize] = Signature.createTypeSignature(typeName, false);
+		}
+	}
+
+	return createMethodHandle(type, new String(descriptor.selector), parameterTypeSignatures);
+}
+/**
  * Creates an IMethod from the given method declaration and type.
  */
 protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaElement parent) {
@@ -2193,6 +2257,24 @@ protected void reportBinaryMemberDeclaration(IResource resource, IMember binaryM
 	if (resource == null) resource =  this.currentPossibleMatch.resource;
 	SearchMatch match = newDeclarationMatch(binaryMember, binaryMemberBinding, accuracy, range.getOffset(), range.getLength(), getParticipant(), resource);
 	report(match);
+}
+
+protected void reportMatching(LambdaExpression lambdaExpression,  IJavaElement parent, int accuracy, MatchingNodeSet nodeSet) throws CoreException {
+	if (accuracy > -1) {
+		IJavaElement enclosingElement = createHandle(lambdaExpression, parent);
+		if (enclosingElement != null) { // skip if unable to find method
+			// compute source positions of the selector
+			int nameSourceStart = lambdaExpression.sourceStart;
+			if (encloses(enclosingElement)) {
+				SearchMatch match = null;
+				int length = lambdaExpression.getArrowPosition() + 1 - nameSourceStart;
+				match = this.patternLocator.newDeclarationMatch(lambdaExpression, enclosingElement, lambdaExpression.descriptor, accuracy, length, this);
+				if (match != null) {
+					report(match);
+				}
+			}
+		}
+	}
 }
 /**
  * Visit the given method declaration and report the nodes that match exactly the

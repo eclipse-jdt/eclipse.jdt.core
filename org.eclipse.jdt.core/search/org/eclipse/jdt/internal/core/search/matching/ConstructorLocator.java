@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -88,6 +92,11 @@ public int match(MessageSend msgSend, MatchingNodeSet nodeSet)  {
 	}
 	return IMPOSSIBLE_MATCH;
 }
+public int match(ReferenceExpression node, MatchingNodeSet nodeSet) {
+	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
+	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+}
+
 //public int match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
 public int match(TypeDeclaration node, MatchingNodeSet nodeSet) {
 	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
@@ -302,6 +311,9 @@ public int resolveLevel(ASTNode node) {
 			return resolveLevel((FieldDeclaration) node);
 		if (node instanceof JavadocMessageSend) {
 			return resolveLevel(((JavadocMessageSend)node).binding);
+		}
+		if (node instanceof ReferenceExpression) {
+			return resolveLevel(((ReferenceExpression)node).getMethodBinding());
 		}
 	}
 	if (node instanceof ConstructorDeclaration)

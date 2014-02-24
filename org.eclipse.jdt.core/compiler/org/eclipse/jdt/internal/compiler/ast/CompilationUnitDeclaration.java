@@ -691,7 +691,10 @@ public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
 }
 
 public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope) {
-	if (this.ignoreFurtherInvestigation)
+	traverse(visitor, unitScope, true);
+}
+public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope, boolean skipOnError) {
+	if (skipOnError && this.ignoreFurtherInvestigation)
 		return;
 	try {
 		if (visitor.visit(this, this.scope)) {

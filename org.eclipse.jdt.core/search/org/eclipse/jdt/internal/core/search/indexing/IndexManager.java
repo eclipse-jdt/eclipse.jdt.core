@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -506,6 +510,20 @@ public void indexDocument(SearchDocument searchDocument, SearchParticipant searc
 		searchDocument.setIndex(null);
 	}
 }
+public void indexResolvedDocument(SearchDocument searchDocument, SearchParticipant searchParticipant, Index index, IPath indexLocation) {
+	searchParticipant.resolveDocument(searchDocument);
+	ReadWriteMonitor monitor = index.monitor;
+	if (monitor == null) 
+		return; // index got deleted since acquired
+	try {
+		monitor.enterWrite(); // ask permission to write
+		searchDocument.setIndex(index);
+		searchParticipant.indexResolvedDocument(searchDocument, indexLocation);	
+	} finally {
+		searchDocument.setIndex(null);
+		monitor.exitWrite();
+	}
+}
 /**
  * Trigger addition of the entire content of a project
  * Note: the actual operation is performed in background
@@ -964,12 +982,15 @@ public void scheduleDocumentIndexing(final SearchDocument searchDocument, IPath 
 			if (index == null) return true;
 			ReadWriteMonitor monitor = index.monitor;
 			if (monitor == null) return true; // index got deleted since acquired
-
+			final Path indexPath = new Path(indexLocation.getCanonicalFilePath());
 			try {
 				monitor.enterWrite(); // ask permission to write
-				indexDocument(searchDocument, searchParticipant, index, new Path(indexLocation.getCanonicalFilePath()));
+				indexDocument(searchDocument, searchParticipant, index, indexPath);
 			} finally {
 				monitor.exitWrite(); // free write lock
+			}
+			if (searchDocument.shouldIndexResolvedDocument) {
+				indexResolvedDocument(searchDocument, searchParticipant, index, indexPath);
 			}
 			return true;
 		}

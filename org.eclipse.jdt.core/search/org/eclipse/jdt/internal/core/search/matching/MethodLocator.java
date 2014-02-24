@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -22,6 +26,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
@@ -168,6 +173,15 @@ public int match(ASTNode node, MatchingNodeSet nodeSet) {
 	}
 	return nodeSet.addMatch(node, declarationsLevel);
 }
+
+public int match(LambdaExpression node, MatchingNodeSet nodeSet) {
+	if (!this.pattern.findDeclarations) return IMPOSSIBLE_MATCH;
+	if (this.pattern.parameterSimpleNames.length != node.arguments().length) return IMPOSSIBLE_MATCH;
+
+	nodeSet.mustResolve = true;
+	return nodeSet.addMatch(node, POSSIBLE_MATCH);
+}
+
 //public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
@@ -231,6 +245,12 @@ public int match(MessageSend node, MatchingNodeSet nodeSet) {
 	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 //public int match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
+public int match(ReferenceExpression node, MatchingNodeSet nodeSet) {
+	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
+	if (!matchesName(this.pattern.selector, node.selector)) return IMPOSSIBLE_MATCH;
+	nodeSet.mustResolve = true;
+	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+}
 public int match(Annotation node, MatchingNodeSet nodeSet) {
 	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
 	MemberValuePair[] pairs = node.memberValuePairs();
@@ -255,6 +275,8 @@ protected int matchContainer() {
 		// need to look almost everywhere to find in javadocs and static import
 		return ALL_CONTAINER;
 	}
+	if (CompilerOptions.versionToJdkLevel(JavaCore.getOption(JavaCore.COMPILER_SOURCE)) >= 8)
+		return ALL_CONTAINER;
 	return CLASS_CONTAINER;
 }
 /* (non-Javadoc)
@@ -648,10 +670,16 @@ public int resolveLevel(ASTNode possibleMatchingNode) {
 			MemberValuePair memberValuePair = (MemberValuePair) possibleMatchingNode;
 			return resolveLevel(memberValuePair.binding);
 		}
+		if (possibleMatchingNode instanceof ReferenceExpression) {
+			return resolveLevel((ReferenceExpression)possibleMatchingNode);
+		}
 	}
 	if (this.pattern.findDeclarations) {
 		if (possibleMatchingNode instanceof MethodDeclaration) {
 			return resolveLevel(((MethodDeclaration) possibleMatchingNode).binding);
+		}
+		if (possibleMatchingNode instanceof LambdaExpression) {
+			return resolveLevel(((LambdaExpression) possibleMatchingNode).descriptor);
 		}
 	}
 	return IMPOSSIBLE_MATCH;
@@ -732,6 +760,24 @@ protected int resolveLevel(MessageSend messageSend) {
 	} else {
 		declaringLevel = resolveLevelForType(this.pattern.declaringSimpleName, this.pattern.declaringQualification, method.declaringClass);
 	}
+	return (methodLevel & MATCH_LEVEL_MASK) > (declaringLevel & MATCH_LEVEL_MASK) ? declaringLevel : methodLevel; // return the weaker match
+}
+
+protected int resolveLevel(ReferenceExpression referenceExpression) {
+	MethodBinding method = referenceExpression.getMethodBinding();
+	if (method == null || referenceExpression.resolvedType == null)
+		return INACCURATE_MATCH;
+
+	int methodLevel = matchMethod(method, false);
+	if (methodLevel == IMPOSSIBLE_MATCH) {
+		if (method != method.original()) methodLevel = matchMethod(method.original(), false);
+		if (methodLevel == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
+		method = method.original();
+	}
+
+	// receiver type
+	if (this.pattern.declaringSimpleName == null && this.pattern.declaringQualification == null) return methodLevel; // since any declaring class will do
+	int declaringLevel = resolveLevelForType(this.pattern.declaringSimpleName, this.pattern.declaringQualification, method.declaringClass);
 	return (methodLevel & MATCH_LEVEL_MASK) > (declaringLevel & MATCH_LEVEL_MASK) ? declaringLevel : methodLevel; // return the weaker match
 }
 
