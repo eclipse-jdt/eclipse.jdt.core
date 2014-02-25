@@ -192,6 +192,7 @@
  *									NullityMismatchTypeArgument
  *									ContradictoryNullAnnotationsOnBound
  *									UnsafeNullnessCast
+ *									ContradictoryNullAnnotationsInferred
  *      Jesper S Moller  - added the following constants
  *									TargetTypeNotAFunctionalInterface
  *									OuterLocalMustBeEffectivelyFinal
@@ -1772,7 +1773,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.9 BETA_JAVA8 */
 	int ContradictoryNullAnnotationsOnBound = Internal + 965;
 	/** @since 3.9 BETA_JAVA8 */
-	int UnsafeNullnessCast = Internal + 966;
+	int ContradictoryNullAnnotationsInferred = Internal + 966;
+	/** @since 3.9 BETA_JAVA8 */
+	int UnsafeNullnessCast = Internal + 967;
 
 	// Java 8 work
 	/** @since 3.9 BETA_JAVA8 */

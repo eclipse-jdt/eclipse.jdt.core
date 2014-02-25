@@ -20,10 +20,17 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 
@@ -211,5 +218,52 @@ public class NullAnnotationMatching {
 			}
 		}
 		return 0; // OK by tagBits
+	}
+
+	public static ParameterizedGenericMethodBinding checkForContraditions(
+			final ParameterizedGenericMethodBinding method, final InvocationSite invocationSite, final Scope scope) {
+		
+		class SearchContradictions extends TypeBindingVisitor {
+			ReferenceBinding typeWithContradiction;
+			@Override
+			public boolean visit(ReferenceBinding referenceBinding) {
+				if ((referenceBinding.tagBits & TagBits.AnnotationNullMASK) == TagBits.AnnotationNullMASK) {
+					this.typeWithContradiction = referenceBinding;
+					return false;
+				}
+				return true;
+			}
+			@Override
+			public boolean visit(TypeVariableBinding typeVariable) {
+				return visit((ReferenceBinding)typeVariable);
+			}
+			@Override
+			public boolean visit(RawTypeBinding rawType) {
+				return visit((ReferenceBinding)rawType);
+			}
+		}
+
+		SearchContradictions searchContradiction = new SearchContradictions();
+		TypeBindingVisitor.visit(searchContradiction, method.returnType);
+		if (searchContradiction.typeWithContradiction != null) {
+			scope.problemReporter().contradictoryNullAnnotationsInferred(method, invocationSite);
+			// note: if needed, we might want to update the method by removing the contradictory annotations??
+			return method;
+		}
+
+		Expression[] arguments = null;
+		if (invocationSite instanceof Invocation)
+			arguments = ((Invocation)invocationSite).arguments();
+		for (int i = 0; i < method.parameters.length; i++) {
+			TypeBindingVisitor.visit(searchContradiction, method.parameters[i]);
+			if (searchContradiction.typeWithContradiction != null) {
+				if (arguments != null && i < arguments.length)
+					scope.problemReporter().contradictoryNullAnnotationsInferred(method, arguments[i]);
+				else
+					scope.problemReporter().contradictoryNullAnnotationsInferred(method, invocationSite);
+				return method;
+			}
+		}
+		return method;
 	}
 }

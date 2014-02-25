@@ -9429,6 +9429,33 @@ public void contradictoryNullAnnotations(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.ContradictoryNullAnnotations, arguments, shortArguments, sourceStart, sourceEnd);
 }
 
+public void contradictoryNullAnnotationsInferred(MethodBinding inferredMethod, ASTNode location) {
+	contradictoryNullAnnotationsInferred(inferredMethod, location.sourceStart, location.sourceEnd);
+}
+public void contradictoryNullAnnotationsInferred(MethodBinding inferredMethod, InvocationSite location) {
+	contradictoryNullAnnotationsInferred(inferredMethod, location.sourceStart(), location.sourceEnd());
+}
+public void contradictoryNullAnnotationsInferred(MethodBinding inferredMethod, int sourceStart, int sourceEnd) {
+	// when this error is triggered we can safely assume that both annotations have been configured
+	char[][] nonNullAnnotationName = this.options.nonNullAnnotationName;
+	char[][] nullableAnnotationName = this.options.nullableAnnotationName;
+	String[] arguments = {
+		new String(CharOperation.concatWith(nonNullAnnotationName, '.')),
+		new String(CharOperation.concatWith(nullableAnnotationName, '.')),
+		new String(inferredMethod.returnType.nullAnnotatedReadableName(this.options, false)),
+		new String(inferredMethod.selector),
+		typesAsString(inferredMethod, false, true)
+	};
+	String[] shortArguments = {
+			new String(nonNullAnnotationName[nonNullAnnotationName.length-1]),
+			new String(nullableAnnotationName[nullableAnnotationName.length-1]),
+			new String(inferredMethod.returnType.nullAnnotatedReadableName(this.options, true)),
+			new String(inferredMethod.selector),
+			typesAsString(inferredMethod, true, true)
+		};
+	this.handle(IProblem.ContradictoryNullAnnotationsInferred, arguments, shortArguments, sourceStart, sourceEnd);
+}
+
 public void contradictoryNullAnnotationsOnBounds(Annotation annotation, long previousTagBit) {
 	char[][] annotationName = previousTagBit == TagBits.AnnotationNonNull ? this.options.nonNullAnnotationName : this.options.nullableAnnotationName;
 	String[] arguments = {

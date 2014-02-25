@@ -20,13 +20,16 @@
  *								Bug 424710 - [1.8][compiler] CCE in SingleNameReference.localVariableBinding
  *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
  *								Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
+ *								Bug 418743 - [1.8][null] contradictory annotations on invocation of generic method not reported
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.Invocation;
+import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
  * Binding denoting a generic method after type parameter substitutions got performed.
@@ -93,7 +96,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 
 // ==== 1.8: The main driver for inference of generic methods: ====
 			InferenceContext18 infCtx18 = null;
-			if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8) {
+			CompilerOptions compilerOptions = scope.compilerOptions();
+			if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
 				if ((inferenceLevel & Scope.APPLICABILITY) != 0)
 					infCtx18 = invocationSite.freshInferenceContext(scope);
 				else if (invocationSite instanceof Invocation && originalMethod instanceof ParameterizedGenericMethodBinding)
@@ -153,6 +157,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 						if (solutions != null) {
 							
 							methodSubstitute = scope.environment().createParameterizedGenericMethod(originalMethod, solutions);
+							if (compilerOptions.isAnnotationBasedNullAnalysisEnabled)
+								methodSubstitute = NullAnnotationMatching.checkForContraditions(methodSubstitute, invocationSite, scope);
 							if (hasReturnProblem) { // illegally working from the provisional result?
 								MethodBinding problemMethod = infCtx18.getReturnProblemMethodIfNeeded(expectedType, methodSubstitute);
 								if (problemMethod instanceof ProblemMethodBinding)

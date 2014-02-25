@@ -29,7 +29,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testConditional2" };
+//			TESTS_NAMES = new String[] { "testNullTypeInference3b" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -2619,6 +2619,66 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	// conflicting annotations from type variable application and type variable substitution
+	public void testNullTypeInference3() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"Generics.java",
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"public class Generics {\n" + 
+				"	<X> X m(@Nullable X a) { return null; }\n" + 
+				"	void test(@NonNull String in) {\n" + 
+				"		@NonNull String s = m(in);\n" + 
+				"		System.out.println(s.toLowerCase());\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new Generics().test(\"hallo\");\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in Generics.java (at line 6)\n" + 
+			"	@NonNull String s = m(in);\n" + 
+			"	                      ^^\n" + 
+			"Contradictory null annotations: method was inferred as \'@NonNull String m(@NonNull @Nullable String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+			"----------\n");
+	}
+
+	// conflicting annotations from type variable application and type variable substitution
+	public void testNullTypeInference3b() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"Generics.java",
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"public class Generics {\n" + 
+				"	<X> @Nullable X m1(@Nullable X a) { return null; }\n" + 
+				"	<X> @Nullable X m2(X a) { return null; }\n" + 
+				"	void test(@NonNull String in) {\n" + 
+				"		@NonNull String s1 = m1(in);\n" + 
+				"		@NonNull String s2 = m2(in);\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new Generics().test(\"hallo\");\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in Generics.java (at line 7)\n" + 
+			"	@NonNull String s1 = m1(in);\n" + 
+			"	                     ^^^^^^\n" + 
+			"Contradictory null annotations: method was inferred as \'@NonNull @Nullable String m1(@NonNull @Nullable String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+			"----------\n" + 
+			"2. ERROR in Generics.java (at line 8)\n" + 
+			"	@NonNull String s2 = m2(in);\n" + 
+			"	                     ^^^^^^\n" + 
+			"Contradictory null annotations: method was inferred as \'@NonNull @Nullable String m2(@NonNull String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+			"----------\n");
+	}
+
 	// missing return type should not cause NPE
 	public void testBug415850_01() {
 		runNegativeTestWithLibs(
@@ -3521,7 +3581,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"}\n"
 			}, 
 			getCompilerOptions(), 
-			"");		
+			"----------\n" + 
+			"1. ERROR in X.java (at line 17)\n" + 
+			"	getAdd(lx);\n" + 
+			"	       ^^\n" + 
+			"Contradictory null annotations: method was inferred as \'void getAdd(List<@NonNull @Nullable capture#>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+			"----------\n");		
 	}
 	public void testLocalArrays() {
 		runNegativeTestWithLibs(
