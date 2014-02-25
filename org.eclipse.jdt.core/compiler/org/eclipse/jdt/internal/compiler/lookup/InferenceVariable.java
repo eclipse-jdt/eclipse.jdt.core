@@ -25,12 +25,14 @@ public class InferenceVariable extends TypeVariableBinding {
 
 	InvocationSite site;
 	TypeBinding typeParameter;
+	long nullHints;
 	
 	public InferenceVariable(TypeBinding typeParameter, int variableRank, InvocationSite site, LookupEnvironment environment, ReferenceBinding object) {
 		super(CharOperation.concat(typeParameter.shortReadableName(), Integer.toString(variableRank).toCharArray(), '#'), 
 				null/*declaringElement*/, variableRank, environment);
 		this.site = site;
 		this.typeParameter = typeParameter;
+		this.nullHints |= typeParameter.tagBits & TagBits.AnnotationNullMASK;
 		this.superclass = object;
 	}
 

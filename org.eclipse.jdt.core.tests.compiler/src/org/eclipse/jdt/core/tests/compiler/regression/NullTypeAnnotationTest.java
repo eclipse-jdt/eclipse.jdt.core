@@ -2560,6 +2560,65 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	// demonstrate that null annotations from the functional interface win, resulting in successful inference but null-safety issues
+	public void testNullTypeInference2e() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"PolyNull.java",
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"interface Func<T>  {\n" + 
+				"	T a(T i);\n" + 
+				"}\n" + 
+				"public class PolyNull {\n" + 
+				"	String extract(Func<@Nullable String> f, @Nullable String s) { return f.a(s); }\n" + 
+				"	@NonNull String testWARN() {\n" + 
+				"		return extract(i -> null, \"hallo\"); // OK to pass null\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. WARNING in PolyNull.java (at line 9)\n" + 
+			"	return extract(i -> null, \"hallo\"); // OK to pass null\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull String\'\n" + 
+			"----------\n");
+	}
+
+	// demonstrate that null annotations from the functional interface win, resulting in successful inference but null-safety issues
+	public void testNullTypeInference2f() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"PolyNull.java",
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"interface Func<T>  {\n" + 
+				"	T a(T i);\n" + 
+				"}\n" + 
+				"public class PolyNull {\n" + 
+				"	<X> X extract(Func<@Nullable X> f, @Nullable X s) { return f.a(s); }\n" + 
+				"	@NonNull String testERR() {\n" + 
+				"		return extract(i -> needNN(i), \"ola\");\n" + 
+				"	}\n" +
+				"	@NonNull String needNN(@NonNull String s) { return \"\"; }\n" + 
+				"" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. WARNING in PolyNull.java (at line 9)\n" + 
+			"	return extract(i -> needNN(i), \"ola\");\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull String\'\n" + 
+			"----------\n" + 
+			"2. ERROR in PolyNull.java (at line 9)\n" + 
+			"	return extract(i -> needNN(i), \"ola\");\n" + 
+			"	                           ^\n" + 
+			"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
+			"----------\n");
+	}
+
 	// missing return type should not cause NPE
 	public void testBug415850_01() {
 		runNegativeTestWithLibs(

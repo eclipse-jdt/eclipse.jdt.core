@@ -69,10 +69,10 @@ class BoundSet {
 			}
 		}
 		// pre: this.superBounds != null
-		public TypeBinding[] lowerBounds(boolean onlyProper, LookupEnvironment environment) {
+		public TypeBinding[] lowerBounds(boolean onlyProper, InferenceVariable variable) {
 			TypeBinding[] boundTypes = new TypeBinding[this.superBounds.size()];
 			Iterator<TypeBound> it = this.superBounds.iterator();
-			long nullHints = 0;
+			long nullHints = variable.nullHints;
 			int i = 0;
 			while(it.hasNext()) {
 				TypeBound current = it.next();
@@ -86,16 +86,16 @@ class BoundSet {
 				return Binding.NO_TYPES;
 			if (i < boundTypes.length)
 				System.arraycopy(boundTypes, 0, boundTypes=new TypeBinding[i], 0, i);
-			useNullHints(nullHints, boundTypes, environment);
+			useNullHints(nullHints, boundTypes, variable.environment);
 			InferenceContext18.sortTypes(boundTypes);
 			return boundTypes;
 		}
 		// pre: this.subBounds != null
-		public TypeBinding[] upperBounds(boolean onlyProper, LookupEnvironment environment) {
+		public TypeBinding[] upperBounds(boolean onlyProper, InferenceVariable variable) {
 			ReferenceBinding[] rights = new ReferenceBinding[this.subBounds.size()];
 			TypeBinding simpleUpper = null;
 			Iterator<TypeBound> it = this.subBounds.iterator();
-			long nullHints = 0;
+			long nullHints = variable.nullHints;
 			int i = 0;
 			while(it.hasNext()) {
 				TypeBinding right=it.next().right;
@@ -116,7 +116,7 @@ class BoundSet {
 				return new TypeBinding[] { simpleUpper }; // no nullHints since not a reference type
 			if (i < rights.length)
 				System.arraycopy(rights, 0, rights=new ReferenceBinding[i], 0, i);
-			useNullHints(nullHints, rights, environment);
+			useNullHints(nullHints, rights, variable.environment);
 			InferenceContext18.sortTypes(rights);
 			return rights;
 		}
@@ -782,7 +782,7 @@ class BoundSet {
 		ThreeSets three = this.boundsPerVariable.get(variable);
 		if (three == null || three.subBounds == null)
 			return Binding.NO_TYPES;
-		return three.upperBounds(onlyProper, variable.environment);
+		return three.upperBounds(onlyProper, variable);
 		// TODO: if !onlyProper: should we also consider ThreeSets.inverseBounds,
 		//        or is it safe to rely on incorporation to produce the required bounds?
 	}
@@ -795,7 +795,7 @@ class BoundSet {
 		ThreeSets three = this.boundsPerVariable.get(variable);
 		if (three == null || three.superBounds == null)
 			return Binding.NO_TYPES;
-		return three.lowerBounds(onlyProper, variable.environment);
+		return three.lowerBounds(onlyProper, variable);
 		// bounds where 'variable' appears at the RHS are not relevant because
 		// we're only interested in bounds with a proper type, but if 'variable'
 		// appears as RHS the bound is by construction an inference variable,too.
