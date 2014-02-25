@@ -72,17 +72,21 @@ class BoundSet {
 		public TypeBinding[] lowerBounds(boolean onlyProper, LookupEnvironment environment) {
 			TypeBinding[] boundTypes = new TypeBinding[this.superBounds.size()];
 			Iterator<TypeBound> it = this.superBounds.iterator();
+			long nullHints = 0;
 			int i = 0;
 			while(it.hasNext()) {
 				TypeBound current = it.next();
 				TypeBinding boundType = current.right;
-				if (!onlyProper || boundType.isProperType(true))
+				if (!onlyProper || boundType.isProperType(true)) {
 					boundTypes[i++] = boundType;
+					nullHints |= current.nullHints;
+				}
 			}
 			if (i == 0)
 				return Binding.NO_TYPES;
 			if (i < boundTypes.length)
 				System.arraycopy(boundTypes, 0, boundTypes=new TypeBinding[i], 0, i);
+			useNullHints(nullHints, boundTypes, environment);
 			InferenceContext18.sortTypes(boundTypes);
 			return boundTypes;
 		}
@@ -91,12 +95,14 @@ class BoundSet {
 			ReferenceBinding[] rights = new ReferenceBinding[this.subBounds.size()];
 			TypeBinding simpleUpper = null;
 			Iterator<TypeBound> it = this.subBounds.iterator();
+			long nullHints = 0;
 			int i = 0;
 			while(it.hasNext()) {
 				TypeBinding right=it.next().right;
 				if (!onlyProper || right.isProperType(true)) {
 					if (right instanceof ReferenceBinding) {
 						rights[i++] = (ReferenceBinding) right;
+						nullHints |= right.tagBits & TagBits.AnnotationNullMASK; 
 					} else {
 						if (simpleUpper != null)
 							return Binding.NO_TYPES; // shouldn't
@@ -110,6 +116,7 @@ class BoundSet {
 				return new TypeBinding[] { simpleUpper }; // no nullHints since not a reference type
 			if (i < rights.length)
 				System.arraycopy(rights, 0, rights=new ReferenceBinding[i], 0, i);
+			useNullHints(nullHints, rights, environment);
 			InferenceContext18.sortTypes(rights);
 			return rights;
 		}
@@ -222,6 +229,20 @@ class BoundSet {
 				}		
 			}
 			return wrapperBound;
+		}
+		/**
+		 * Not per JLS: enhance the given type bounds using the nullHints, if useful.
+		 * Will only ever be effective if any TypeBounds carry nullHints,
+		 * which only happens if any TypeBindings have non-zero (tagBits & AnnotationNullMASK),
+		 * which only happens if null annotations are enabled in the first place.
+		 */
+		private void useNullHints(long nullHints, TypeBinding[] boundTypes, LookupEnvironment environment) {
+			AnnotationBinding[] annot = environment.nullAnnotationsFromTagBits(nullHints);
+			if (annot != null) {
+				// only get here if exactly one of @NonNull or @Nullable was hinted; now apply this hint:
+				for (int i = 0; i < boundTypes.length; i++)
+					boundTypes[i] = environment.createAnnotatedType(boundTypes[i], annot);
+			}
 		}
 	}
 	// main storage of type bounds:
@@ -410,6 +431,11 @@ class BoundSet {
 							return false;
 						// TODO here and below: better checking if constraint really added to the boundset (optimization)?
 						hasUpdate = true;
+						// not per JLS: if the new constraint relates types where at least one has a null annotations,
+						// record all null tagBits as hints for the final inference solution.
+						long nullHints = (newConstraint.left.tagBits | newConstraint.right.tagBits) & TagBits.AnnotationNullMASK;
+						boundI.nullHints |= nullHints;
+						boundJ.nullHints |= nullHints;
 					}
 					ConstraintFormula[] typeArgumentConstraints = deriveTypeArgumentConstraints(boundI, boundJ);
 					if (typeArgumentConstraints != null) {

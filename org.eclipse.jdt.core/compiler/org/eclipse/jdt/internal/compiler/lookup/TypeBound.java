@@ -26,6 +26,9 @@ public class TypeBound extends ReductionResult {
 	
 	// this flag contributes to the workaround controlled by InferenceContext18.ARGUMENT_CONSTRAINTS_ARE_SOFT:
 	boolean isSoft;
+
+	// here we accumulate null tagBits from any types that have been related to this type bound during incorporation:
+	long nullHints;
 	
 	static TypeBound createBoundOrDependency(InferenceContext18 context, TypeBinding type, InferenceVariable variable) {
         // Part of JLS8 sect 18.1.3:

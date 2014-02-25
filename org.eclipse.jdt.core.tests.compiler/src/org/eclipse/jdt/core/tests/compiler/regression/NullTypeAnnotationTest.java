@@ -2531,6 +2531,35 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	// the only null annotation is on the target type, which propagates into the implicitly typed lambda argument
+	public void testNullTypeInference2d() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"PolyNull.java",
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"interface Func<T>  {\n" + 
+				"	T a(T i);\n" + 
+				"}\n" + 
+				"public class PolyNull {\n" + 
+				"	<X> X extract(Func<X> f, X s) { return f.a(s); }\n" + 
+				"	@NonNull String testOK() {\n" + 
+				"		return extract(i -> i, \"hallo\");\n" + 
+				"	}\n" + 
+				"	@NonNull String testERR() {\n" + 
+				"		return extract(i -> null, \"hallo\"); // err\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in PolyNull.java (at line 12)\n" + 
+			"	return extract(i -> null, \"hallo\"); // err\n" + 
+			"	                    ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+			"----------\n");
+	}
+
 	// missing return type should not cause NPE
 	public void testBug415850_01() {
 		runNegativeTestWithLibs(
