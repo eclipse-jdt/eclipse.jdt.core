@@ -1288,6 +1288,7 @@ public void test_parameter_specification_inheritance_014() {
 			"}\n",
 		},
 		customOptions,
+		(this.complianceLevel < ClassFileConstants.JDK1_8 ?
 		"----------\n" +
 		"1. ERROR in p1\\Y.java (at line 2)\n" +
 		"	public class Y extends X implements IY {\n" +
@@ -1308,7 +1309,29 @@ public void test_parameter_specification_inheritance_014() {
 		"	public class Y extends X implements IY {\n" +
 		"	             ^\n" +
 		"The method getString3(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" +
-		"----------\n");
+		"----------\n"
+		: // at 1.8 we show null type annotations in the message:
+		"----------\n" + 
+		"1. ERROR in p1\\Y.java (at line 2)\n" + 
+		"	public class Y extends X implements IY {\n" + 
+		"	             ^\n" + 
+		"The method @Nullable String getString1(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" + 
+		"----------\n" + 
+		"2. ERROR in p1\\Y.java (at line 2)\n" + 
+		"	public class Y extends X implements IY {\n" + 
+		"	             ^\n" + 
+		"The method String getString2(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" + 
+		"----------\n" + 
+		"3. ERROR in p1\\Y.java (at line 2)\n" + 
+		"	public class Y extends X implements IY {\n" + 
+		"	             ^\n" + 
+		"The method getString5(@NonNull String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" + 
+		"----------\n" + 
+		"4. ERROR in p1\\Y.java (at line 2)\n" + 
+		"	public class Y extends X implements IY {\n" + 
+		"	             ^\n" + 
+		"The method getString3(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" + 
+		"----------\n"));
 }
 // a method relaxes the parameter null specification from @NonNull to un-annotated
 // see https://bugs.eclipse.org/381443
@@ -5859,6 +5882,7 @@ public void testBug388281_06() {
 																  // whereas I2A cancels that same default
 			"}\n"
 		},
+		(this.complianceLevel < ClassFileConstants.JDK1_8 ?
 		"----------\n" + 
 		"1. ERROR in ctest\\C.java (at line 2)\n" + 
 		"	public class C extends c.C2 implements i2.I2A {\n" + 
@@ -5869,7 +5893,19 @@ public void testBug388281_06() {
 		"	public class C extends c.C2 implements i2.I2A {\n" + 
 		"	             ^\n" + 
 		"The method m1(Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" + 
-		"----------\n",
+		"----------\n"
+		: // at 1.8 we show null type annotations:
+		"----------\n" + 
+		"1. ERROR in ctest\\C.java (at line 2)\n" + 
+		"	public class C extends c.C2 implements i2.I2A {\n" + 
+		"	             ^\n" + 
+		"The method m2(@NonNull Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" + 
+		"----------\n" + 
+		"2. ERROR in ctest\\C.java (at line 2)\n" + 
+		"	public class C extends c.C2 implements i2.I2A {\n" + 
+		"	             ^\n" + 
+		"The method m1(@NonNull Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" + 
+		"----------\n"),
 		libs,		
 		true /* shouldFlush*/,
 		options);

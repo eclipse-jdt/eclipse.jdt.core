@@ -49,6 +49,7 @@
  *								Bug 424637 - [1.8][compiler][null] AIOOB in ReferenceExpression.resolveType with a method reference to Files::walk
  *								Bug 428294 - [1.8][compiler] Type mismatch: cannot convert from List<Object> to Collection<Object[]>
  *								Bug 428366 - [1.8] [compiler] The method valueAt(ObservableList<Object>, int) is ambiguous for the type Bindings
+ *								Bug 416190 - [1.8][null] detect incompatible overrides due to null type annotations
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -9339,19 +9340,27 @@ public void expressionPotentialNullReference(ASTNode location) {
 		location.sourceEnd);
 }
 
-public void cannotImplementIncompatibleNullness(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+public void cannotImplementIncompatibleNullness(MethodBinding currentMethod, MethodBinding inheritedMethod, boolean showReturn) {
 	int sourceStart = 0, sourceEnd = 0;
 	if (this.referenceContext instanceof TypeDeclaration) {
 		sourceStart = ((TypeDeclaration) this.referenceContext).sourceStart;
 		sourceEnd =   ((TypeDeclaration) this.referenceContext).sourceEnd;
 	}
 	String[] problemArguments = {
-			new String(currentMethod.readableName()),
+			showReturn 
+				? new String(currentMethod.returnType.nullAnnotatedReadableName(this.options, false))+' '
+				: "", //$NON-NLS-1$
+			new String(currentMethod.selector),
+			typesAsString(currentMethod, false, true),
 			new String(currentMethod.declaringClass.readableName()),
 			new String(inheritedMethod.declaringClass.readableName())
 		};
 	String[] messageArguments = {
-			new String(currentMethod.shortReadableName()),
+			showReturn 
+				? new String(currentMethod.returnType.nullAnnotatedReadableName(this.options, true))+' '
+				: "", //$NON-NLS-1$
+			new String(currentMethod.selector),
+			typesAsString(currentMethod, true, true),
 			new String(currentMethod.declaringClass.shortReadableName()),
 			new String(inheritedMethod.declaringClass.shortReadableName())
 		};

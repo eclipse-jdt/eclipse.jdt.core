@@ -26,6 +26,7 @@
  *								Bug 416183 - [1.8][compiler][null] Overload resolution fails with null annotations
  *								Bug 416307 - [1.8][compiler][null] subclass with type parameter substitution confuses null checking
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
+ *								Bug 416190 - [1.8][null] detect incompatible overrides due to null type annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 

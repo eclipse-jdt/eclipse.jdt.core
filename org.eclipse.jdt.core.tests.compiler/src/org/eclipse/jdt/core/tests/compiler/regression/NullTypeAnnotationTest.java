@@ -2853,31 +2853,107 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
     		"----------\n");
     }
 	
+	// incompatible null constraints on parameters 
 	public void testBug416174() {
-		// FIXME(stephan): should report null spec violation
-		runConformTestWithLibs(
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_NONNULL_PARAMETER_ANNOTATION_DROPPED, JavaCore.IGNORE);
+		runNegativeTestWithLibs(
 			new String[] {
 				"X.java",
 				"import java.util.List;\n" + 
 				"\n" + 
-				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" + 
 				"\n" + 
 				"public class X {\n" + 
-				"	void  foo(List<X> lx) {\n" + 
-				"	}\n" + 
+				"	void  foo1(List<X> lx) {}\n" +
+				"	void  foo2(List<@NonNull X> lx) {}\n" +
+				"	void  foo3(List<@Nullable X> lx) {}\n" +
+				"	void  foo4(@NonNull List<@Nullable X> lx) {}\n" +
 				"}\n" + 
 				"\n" + 
 				"class Z extends X {\n" + 
-				"	void  foo(List<@NonNull X> xy) {\n" + 
+				"	@Override void foo1(List<@NonNull X> xy) {}\n" + 
+				"	@Override void foo2(List<X> lx) {}\n" +
+				"	@Override void foo3(List<X> lx) {}\n" +
+				"	@Override void foo4(List<@Nullable X> lx) {}\n" + // omitting annotation at toplevel can be tolerated (via option)
+				"}\n"
+			},
+			options,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	class Z extends X {\n" + 
+			"	      ^\n" + 
+			"The method foo1(List<@NonNull X>) from Z cannot implement the corresponding method from X due to incompatible nullness constraints\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	class Z extends X {\n" + 
+			"	      ^\n" + 
+			"The method foo2(List<X>) from Z cannot implement the corresponding method from X due to incompatible nullness constraints\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 12)\n" + 
+			"	class Z extends X {\n" + 
+			"	      ^\n" + 
+			"The method foo3(List<X>) from Z cannot implement the corresponding method from X due to incompatible nullness constraints\n" + 
+			"----------\n");
+	}
+
+	// incompatibility at return type, which should be shown here in the error message
+	public void testBug416174b() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"public abstract class X {\n" + 
+				"	List<X> foo1() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	List<@Nullable X> foo2() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	abstract @NonNull List<@NonNull X> foo3();\n" + 
+				"	List<@Nullable X> foo4() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class Z extends X {\n" + 
+				"	@Override\n" +
+				"	List<@NonNull X> foo1() {\n" +
+				"		return null;\n" + 
+				"	}\n" + 
+				"	@Override\n" +
+				"	List<@NonNull X> foo2() {\n" +
+				"		return null;\n" + 
+				"	}\n" + 
+				"	@Override\n" +
+				"	@NonNull List<X> foo3() {\n" + 
+				"		return new ArrayList<>();\n" + 
+				"	}\n" + 
+				"	@Override\n" +
+				"	@NonNull List<@Nullable X> foo4() {\n" + // OK
+				"		return new ArrayList<>();\n" + 
 				"	}\n" + 
 				"}\n"
 			},
 			getCompilerOptions(),
 			"----------\n" + 
-			"1. WARNING in X.java (at line 11)\n" + 
-			"	void  foo(List<@NonNull X> xy) {\n" + 
-			"	      ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The method foo(List<X>) of type Z should be tagged with @Override since it actually overrides a superclass method\n" + 
+			"1. ERROR in X.java (at line 18)\n" + 
+			"	abstract class Z extends X {\n" + 
+			"	               ^\n" + 
+			"The method List<@NonNull X> foo1() from Z cannot implement the corresponding method from X due to incompatible nullness constraints\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 18)\n" + 
+			"	abstract class Z extends X {\n" + 
+			"	               ^\n" + 
+			"The method List<@NonNull X> foo2() from Z cannot implement the corresponding method from X due to incompatible nullness constraints\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 18)\n" + 
+			"	abstract class Z extends X {\n" + 
+			"	               ^\n" + 
+			"The method @NonNull List<X> foo3() from Z cannot implement the corresponding method from X due to incompatible nullness constraints\n" + 
 			"----------\n");
 	}
 

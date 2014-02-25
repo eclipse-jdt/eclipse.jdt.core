@@ -110,6 +110,10 @@ public class NullAnnotationMatching {
 	 * @return a status object representing the severity of mismatching plus optionally a supertype hint
 	 */
 	public static NullAnnotationMatching analyse(TypeBinding requiredType, TypeBinding providedType, int nullStatus) {
+		return analyse(requiredType, providedType, nullStatus, false);
+	}
+	// additional parameter strict: if true we do not tolerate incompatibly missing annotations on type parameters (for overriding analysis)
+	public static NullAnnotationMatching analyse(TypeBinding requiredType, TypeBinding providedType, int nullStatus, boolean strict) {
 		int severity = 0;
 		TypeBinding superTypeHint = null;
 		if (requiredType instanceof ArrayBinding) {
@@ -126,7 +130,7 @@ public class NullAnnotationMatching {
 							long providedBits = validNullTagBits(providedDimsTagBits[i]);
 							if (i > 0)
 								nullStatus = -1; // don't use beyond the outermost dimension
-							severity = Math.max(severity, computeNullProblemSeverity(requiredBits, providedBits, nullStatus));
+							severity = Math.max(severity, computeNullProblemSeverity(requiredBits, providedBits, nullStatus, strict));
 							if (severity == 2)
 								return NullAnnotationMatching.NULL_ANNOTATIONS_MISMATCH;
 						}
@@ -142,7 +146,7 @@ public class NullAnnotationMatching {
 					|| nullStatus == -1) // only at detail/recursion even nullable must be matched exactly
 			{
 				long providedBits = validNullTagBits(providedType.tagBits);
-				severity = computeNullProblemSeverity(requiredBits, providedBits, nullStatus);
+				severity = computeNullProblemSeverity(requiredBits, providedBits, nullStatus, strict && nullStatus == -1);
 			}
 			if (severity < 2) {
 				TypeBinding providedSuper = providedType.findSuperTypeOriginatingFrom(requiredType);
@@ -153,7 +157,7 @@ public class NullAnnotationMatching {
 					TypeBinding[] providedArguments = ((ParameterizedTypeBinding) providedSuper).arguments;
 					if (requiredArguments != null && providedArguments != null && requiredArguments.length == providedArguments.length) {
 						for (int i = 0; i < requiredArguments.length; i++) {
-							NullAnnotationMatching status = analyse(requiredArguments[i], providedArguments[i], -1);
+							NullAnnotationMatching status = analyse(requiredArguments[i], providedArguments[i], -1, strict);
 							severity = Math.max(severity, status.severity);
 							if (severity == 2)
 								return new NullAnnotationMatching(severity, superTypeHint);
@@ -162,7 +166,7 @@ public class NullAnnotationMatching {
 				} else 	if (requiredType instanceof WildcardBinding) {
 					WildcardBinding wildcardBinding = (WildcardBinding) requiredType;
 					if (wildcardBinding.bound != null) {
-						NullAnnotationMatching status = analyse(wildcardBinding.bound, providedType, nullStatus);
+						NullAnnotationMatching status = analyse(wildcardBinding.bound, providedType, nullStatus, strict);
 						severity = Math.max(severity, status.severity);
 					}
 					// TODO(stephan): what about otherBounds? Do we accept "? extends @NonNull I1 & @Nullable I2" in the first place??
@@ -170,7 +174,7 @@ public class NullAnnotationMatching {
 				TypeBinding requiredEnclosing = requiredType.enclosingType();
 				TypeBinding providedEnclosing = providedType.enclosingType();
 				if (requiredEnclosing != null && providedEnclosing != null) {
-					NullAnnotationMatching status = analyse(requiredEnclosing, providedEnclosing, -1);
+					NullAnnotationMatching status = analyse(requiredEnclosing, providedEnclosing, -1, strict);
 					severity = Math.max(severity, status.severity);
 				}
 			}
@@ -206,8 +210,8 @@ public class NullAnnotationMatching {
 		return one;
 	}
 
-	private static int computeNullProblemSeverity(long requiredBits, long providedBits, int nullStatus) {
-		if (requiredBits != 0 && requiredBits != providedBits) {
+	private static int computeNullProblemSeverity(long requiredBits, long providedBits, int nullStatus, boolean strict) {
+		if ((requiredBits != 0 || strict) && requiredBits != providedBits) {
 			if (requiredBits == TagBits.AnnotationNonNull && nullStatus == FlowInfo.NON_NULL) {
 				return 0; // OK by flow analysis
 			}

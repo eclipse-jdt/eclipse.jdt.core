@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 GK Software AG, IBM Corporation and others.
+ * Copyright (c) 2012, 2014 GK Software AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -274,8 +274,15 @@ public class ImplicitNullAnnotationVerifier {
 					if (srcMethod != null) {
 						scope.problemReporter().illegalReturnRedefinition(srcMethod, inheritedMethod,
 																	this.environment.getNonNullAnnotationName());
+						break returnType;
 					} else {
-						scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod);
+						scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod, useTypeAnnotations);
+						return;
+					}
+				}
+				if (useTypeAnnotations) {
+					if (NullAnnotationMatching.analyse(inheritedMethod.returnType, currentMethod.returnType, 0, true).isAnyMismatch()) {
+						scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod, useTypeAnnotations);
 						return;
 					}
 				}
@@ -355,8 +362,9 @@ public class ImplicitNullAnnotationVerifier {
 								inheritedMethod.declaringClass,
 								(inheritedNonNullNess == null) ? null : this.environment.getNullableAnnotationName());
 					} else {
-						scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod);
+						scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod, false);
 					}
+					continue;
 				} else if (currentNonNullNess == null) 
 				{
 					// unannotated strictly conflicts only with inherited @Nullable
@@ -367,14 +375,21 @@ public class ImplicitNullAnnotationVerifier {
 									inheritedMethod.declaringClass,
 									annotationName);
 						} else {
-							scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod);
+							scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod, false);
 						}
+						continue;
 					} else if (inheritedNonNullNess == Boolean.TRUE) {
 						// not strictly a conflict, but a configurable warning is given anyway:
 						scope.problemReporter().parameterLackingNonnullAnnotation(
 								currentArgument,
 								inheritedMethod.declaringClass,
 								annotationName);
+						continue;
+					}
+				} 
+				if (useTypeAnnotations) {
+					if (NullAnnotationMatching.analyse(currentMethod.parameters[i], inheritedMethod.parameters[i], 0, true).isAnyMismatch()) {
+						scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod, false);
 					}
 				}
 			}
