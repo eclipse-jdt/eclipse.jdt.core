@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2014 BEA Systems, Inc. and others 
+ * Copyright (c) 2007, 2014 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@
  *    wharley@bea.com - initial API and implementation
  *    IBM Corporation - fix for 342598
  *    IBM Corporation - Java 8 support
+ *    het@google.com - Bug 427943 - The method org.eclipse.jdt.internal.compiler.apt.model.Factory.getPrimitiveType does not throw IllegalArgumentException
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.model;
@@ -428,7 +429,7 @@ public class Factory {
 		case SHORT:
 			return PrimitiveTypeImpl.SHORT;
 		default:
-			throw new IllegalStateException();
+			throw new IllegalArgumentException();
 		}
 	}
 	
