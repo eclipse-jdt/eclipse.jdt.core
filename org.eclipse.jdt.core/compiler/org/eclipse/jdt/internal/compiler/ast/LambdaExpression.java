@@ -32,6 +32,7 @@
  *							Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
  *							Bug 428294 - [1.8][compiler] Type mismatch: cannot convert from List<Object> to Collection<Object[]>
  *							Bug 428786 - [1.8][compiler] Inference needs to compute the "ground target type" when reducing a lambda compatibility constraint
+ *							Bug 428980 - [1.8][null] simple expression as lambda body doesn't leverage null annotation on argument
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -495,10 +496,10 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			}
 		} else { // Expression
 			if (currentScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled 
-					&& flowInfo.reachMode() == FlowInfo.REACHABLE)
+					&& lambdaInfo.reachMode() == FlowInfo.REACHABLE)
 			{
 				Expression expression = (Expression)this.body;
-				checkAgainstNullAnnotation(flowContext, expression, expression.nullStatus(flowInfo, flowContext));
+				checkAgainstNullAnnotation(flowContext, expression, expression.nullStatus(lambdaInfo, flowContext));
 			}
 		}
 		return flowInfo;
