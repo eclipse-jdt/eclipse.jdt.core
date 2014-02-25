@@ -69,12 +69,13 @@ class BoundSet {
 			}
 		}
 		// pre: this.superBounds != null
-		public TypeBinding[] lowerBounds(boolean onlyProper) {
+		public TypeBinding[] lowerBounds(boolean onlyProper, LookupEnvironment environment) {
 			TypeBinding[] boundTypes = new TypeBinding[this.superBounds.size()];
 			Iterator<TypeBound> it = this.superBounds.iterator();
 			int i = 0;
 			while(it.hasNext()) {
-				TypeBinding boundType = it.next().right;
+				TypeBound current = it.next();
+				TypeBinding boundType = current.right;
 				if (!onlyProper || boundType.isProperType(true))
 					boundTypes[i++] = boundType;
 			}
@@ -86,7 +87,7 @@ class BoundSet {
 			return boundTypes;
 		}
 		// pre: this.subBounds != null
-		public TypeBinding[] upperBounds(boolean onlyProper) {
+		public TypeBinding[] upperBounds(boolean onlyProper, LookupEnvironment environment) {
 			ReferenceBinding[] rights = new ReferenceBinding[this.subBounds.size()];
 			TypeBinding simpleUpper = null;
 			Iterator<TypeBound> it = this.subBounds.iterator();
@@ -106,7 +107,7 @@ class BoundSet {
 			if (i == 0)
 				return Binding.NO_TYPES;
 			if (i == 1 && simpleUpper != null)
-				return new TypeBinding[] { simpleUpper };
+				return new TypeBinding[] { simpleUpper }; // no nullHints since not a reference type
 			if (i < rights.length)
 				System.arraycopy(rights, 0, rights=new ReferenceBinding[i], 0, i);
 			InferenceContext18.sortTypes(rights);
@@ -365,7 +366,7 @@ class BoundSet {
 					TypeBound boundJ = bounds[j];
 					if (this.incorporatedBounds.contains(boundI) && this.incorporatedBounds.contains(boundJ))
 						continue;
-					ConstraintFormula newConstraint = null;
+					ConstraintTypeFormula newConstraint = null;
 					switch (boundI.relation) {
 						case ReductionResult.SAME:
 							switch (boundJ.relation) {
@@ -526,14 +527,14 @@ class BoundSet {
 			reduceOneConstraint(context, formula);
 	}
 
-	private ConstraintFormula combineSameSame(TypeBound boundS, TypeBound boundT) {
+	private ConstraintTypeFormula combineSameSame(TypeBound boundS, TypeBound boundT) {
 		
 		// α = S and α = T imply ⟨S = T⟩
 		if (boundS.left == boundT.left) //$IDENTITY-COMPARISON$ InferenceVariable
 			return new ConstraintTypeFormula(boundS.right, boundT.right, ReductionResult.SAME, boundS.isSoft||boundT.isSoft);
 
 		// match against more shapes:
-		ConstraintFormula newConstraint;
+		ConstraintTypeFormula newConstraint;
 		newConstraint = combineSameSameWithProperType(boundS, boundT);
 		if (newConstraint != null)
 			return newConstraint;
@@ -556,7 +557,7 @@ class BoundSet {
 		return null;
 	}
 	
-	private ConstraintFormula combineSameSubSuper(TypeBound boundS, TypeBound boundT) {
+	private ConstraintTypeFormula combineSameSubSuper(TypeBound boundS, TypeBound boundT) {
 		//  α = S and α <: T imply ⟨S <: T⟩ 
 		//  α = S and T <: α imply ⟨T <: S⟩
 		InferenceVariable alpha = boundS.left;
@@ -586,7 +587,7 @@ class BoundSet {
 		return null;
 	}
 
-	private ConstraintFormula combineSuperAndSub(TypeBound boundS, TypeBound boundT) {
+	private ConstraintTypeFormula combineSuperAndSub(TypeBound boundS, TypeBound boundT) {
 		//  permutations of: S <: α and α <: T imply ⟨S <: T⟩
 		InferenceVariable alpha = boundS.left;
 		if (alpha == boundT.left) //$IDENTITY-COMPARISON$ InferenceVariable
@@ -602,7 +603,7 @@ class BoundSet {
 		return null;
 	}
 	
-	private ConstraintFormula combineEqualSupers(TypeBound boundS, TypeBound boundT) {
+	private ConstraintTypeFormula combineEqualSupers(TypeBound boundS, TypeBound boundT) {
 		//  more permutations of: S <: α and α <: T imply ⟨S <: T⟩
 		if (boundS.left == boundT.right) //$IDENTITY-COMPARISON$ InferenceVariable
 			// came in as: α REL S and T REL α imply ⟨T REL S⟩ 
@@ -614,7 +615,7 @@ class BoundSet {
 	}
 
 
-	private ConstraintFormula[] deriveTypeArgumentConstraints(TypeBound boundS, TypeBound boundT) {
+	private ConstraintTypeFormula[] deriveTypeArgumentConstraints(TypeBound boundS, TypeBound boundT) {
 		/* From 18.4:
 		 *  If two bounds have the form α <: S and α <: T, and if for some generic class or interface, G,
 		 *  there exists a supertype (4.10) of S of the form G<S1, ..., Sn> and a supertype of T of the form G<T1, ..., Tn>,
@@ -630,7 +631,7 @@ class BoundSet {
 		return null;
 	}
 
-	private ConstraintFormula[] typeArgumentEqualityConstraints(TypeBinding s, TypeBinding t, boolean isSoft) {
+	private ConstraintTypeFormula[] typeArgumentEqualityConstraints(TypeBinding s, TypeBinding t, boolean isSoft) {
 		if (s == null || s.kind() != Binding.PARAMETERIZED_TYPE || t == null || t.kind() != Binding.PARAMETERIZED_TYPE)
 			return null;
 		if (TypeBinding.equalsEquals(s, t)) // don't create useless constraints
@@ -648,7 +649,7 @@ class BoundSet {
 			result.add(new ConstraintTypeFormula(si, ti, ReductionResult.SAME, isSoft));
 		}
 		if (result.size() > 0)
-			return result.toArray(new ConstraintFormula[result.size()]);
+			return result.toArray(new ConstraintTypeFormula[result.size()]);
 		return null;
 	}
 
@@ -755,7 +756,7 @@ class BoundSet {
 		ThreeSets three = this.boundsPerVariable.get(variable);
 		if (three == null || three.subBounds == null)
 			return Binding.NO_TYPES;
-		return three.upperBounds(onlyProper);
+		return three.upperBounds(onlyProper, variable.environment);
 		// TODO: if !onlyProper: should we also consider ThreeSets.inverseBounds,
 		//        or is it safe to rely on incorporation to produce the required bounds?
 	}
@@ -768,7 +769,7 @@ class BoundSet {
 		ThreeSets three = this.boundsPerVariable.get(variable);
 		if (three == null || three.superBounds == null)
 			return Binding.NO_TYPES;
-		return three.lowerBounds(onlyProper);
+		return three.lowerBounds(onlyProper, variable.environment);
 		// bounds where 'variable' appears at the RHS are not relevant because
 		// we're only interested in bounds with a proper type, but if 'variable'
 		// appears as RHS the bound is by construction an inference variable,too.
