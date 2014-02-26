@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -719,9 +719,9 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		if (arrayLength < toBeFoundLength)
 			return -1;
 		loop: for (int i = start, max = arrayLength - toBeFoundLength + 1; i < max; i++) {
-			if (array[i] == toBeFound[0]) {
+			if (isSameCharacter(array[i], toBeFound[0])) {
 				for (int j = 1; j < toBeFoundLength; j++) {
-					if (array[i + j] != toBeFound[j])
+					if (!isSameCharacter(array[i + j], toBeFound[j]))
 						continue loop;
 				}
 				return i;
@@ -729,6 +729,13 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		}
 		return -1;
 	}
+	boolean isSameCharacter(byte b1, byte b2) {
+		if (b1 == b2 || Character.toUpperCase((char) b1) == Character.toUpperCase((char) b2)) {
+			return true;
+		}
+		return false;
+	}
+	
 	/*
 	 * We don't use getContentEncoding() on the URL connection, because it might leave open streams behind.
 	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=117890
