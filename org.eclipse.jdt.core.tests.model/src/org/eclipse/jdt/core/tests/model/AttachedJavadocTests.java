@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -95,6 +95,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		suite.addTest(new AttachedJavadocTests("testBug394967"));
 		suite.addTest(new AttachedJavadocTests("testBug394382"));
 		suite.addTest(new AttachedJavadocTests("testBug398272"));
+		suite.addTest(new AttachedJavadocTests("testBug426058"));
 		return suite;
 	}
 
@@ -1170,6 +1171,65 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			if (!(jme.getCause() instanceof FileNotFoundException)) {
 				fail("Should not throw Java Model Exception");
 			}
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426058
+	public void testBug426058() throws JavaModelException {
+		IClasspathEntry[] oldClasspath = this.project.getRawClasspath();
+		try {
+			String encoding = "UTF-8";
+			IResource resource = this.project.getProject().findMember("/UTF8doc2/"); //$NON-NLS-1$
+			assertNotNull("doc folder cannot be null", resource); //$NON-NLS-1$
+			URI locationURI = resource.getLocationURI();
+			assertNotNull("doc folder cannot be null", locationURI); //$NON-NLS-1$
+			URL docUrl = null;
+			try {
+				docUrl = locationURI.toURL();
+			} catch (MalformedURLException e) {
+				assertTrue("Should not happen", false); //$NON-NLS-1$
+			} catch(IllegalArgumentException e) {
+				assertTrue("Should not happen", false); //$NON-NLS-1$
+			}
+			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME, docUrl.toExternalForm());
+			IClasspathEntry newEntry = JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/lib/bug394382.jar"), null, null, new IAccessRule[]{}, new IClasspathAttribute[] { attribute }, false ); //$NON-NLS-1$
+			IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length + 1];
+			System.arraycopy(oldClasspath, 0, newClasspath, 0, oldClasspath.length);
+			newClasspath[oldClasspath.length] = newEntry;
+			this.project.setRawClasspath(newClasspath, null);
+			waitForAutoBuild();
+
+			IPackageFragmentRoot[] roots = this.project.getAllPackageFragmentRoots();
+			IPackageFragmentRoot packageRoot = null;
+			for(int i=0; i < roots.length; i++) {
+				IPath path = roots[i].getPath();
+				if (path.segment(path.segmentCount() - 1).equals("bug394382.jar")) {
+					packageRoot = roots[i];
+				}
+			}
+
+			assertNotNull("Should not be null", packageRoot);
+			IPackageFragment packageFragment = packageRoot.getPackageFragment("p"); //$NON-NLS-1$
+			assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
+			IClassFile classFile = packageFragment.getClassFile("TestBug394382.class"); //$NON-NLS-1$
+			assertNotNull(classFile);
+			IType type = classFile.getType();
+			IFile sourceFile = (IFile) this.project.getProject().findMember("UTF8doc2/p/TestBug394382.txt");
+			String javadoc = null;
+			try {
+				javadoc = type.getAttachedJavadoc(new NullProgressMonitor());
+			} catch(JavaModelException e) {
+				assertTrue("Should not happen", false);
+			}
+			assertNotNull("Shouldhave a javadoc", javadoc); //$NON-NLS-1$
+			String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			char[] charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = javadoc.toCharArray();
+			javadoc = new String(CharOperation.remove(charArray, '\r'));
+			assertTrue("Sources should be decoded the same way", encodedContents.equals(javadoc));
+		}
+		finally {
+			this.project.setRawClasspath(oldClasspath, null);
 		}
 	}
 }
