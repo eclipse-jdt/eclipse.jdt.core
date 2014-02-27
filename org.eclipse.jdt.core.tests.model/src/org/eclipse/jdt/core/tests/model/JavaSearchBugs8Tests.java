@@ -21,6 +21,8 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -132,6 +134,11 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0014"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0015"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0016"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0017"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0018"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0019"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0020"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0021"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -2938,6 +2945,135 @@ public void testBug400905_0016() throws CoreException {
 	}
 	finally {
 		deleteProject("P");
+	}
+}
+public void testBug400905_0017() throws CoreException {
+	try {
+		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createFile(
+			"/P/src/Function.java",
+			"@FunctionalInterface\n" +
+			"public interface Function<T, R> {\n" +
+			"    R apply(T t);\n" +
+			"}\n");
+		createFile(
+				"/P/src/Y.java",
+				"public final class Collectors {\n" +
+				" @SuppressWarnings(\"unchecked\")\n" +
+				"    private static <I, R> Function<I, R> castingIdentity() {\n" +
+				"        return i -> (R) i;\n" +
+				"    }\n" +
+				"}\n");
+
+		IType type = getCompilationUnit("/P/src/Function.java").getType("Function");
+		IMethod method = type.getMethods()[0];
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
+		assertSearchResults("src/Function.java R Function.apply(T) [apply] EXACT_MATCH\n" + 
+				"src/Y.java java/lang/Object Function<I,R> Collectors.castingIdentity():<lambda>#1.lambda$1(java/lang/Object) [i ->] EXACT_MATCH");
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+public void testBug400905_0018() throws CoreException {
+	try {
+		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createFile(
+			"/P/src/Function.java",
+			"@FunctionalInterface\n" +
+			"public interface Function<T, R> {\n" +
+			"    R apply(T t);\n" +
+			"}\n");
+		createFile(
+				"/P/src/Y.java",
+				"public final class Collectors {\n" +
+				" @SuppressWarnings(\"unchecked\")\n" +
+				"    private static <I, R> Function<String, String> castingIdentity() {\n" +
+				"        return i -> (R) i;\n" +
+				"    }\n" +
+				"}\n");
+
+		IType type = getCompilationUnit("/P/src/Function.java").getType("Function");
+		IMethod method = type.getMethods()[0];
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
+		assertSearchResults("src/Function.java R Function.apply(T) [apply] EXACT_MATCH\n" + 
+				"src/Y.java java/lang/String Function<String,String> Collectors.castingIdentity():<lambda>#1.lambda$1(java/lang/String) [i ->] EXACT_MATCH");
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+// test working copy.
+public void testBug400905_0019() throws CoreException { // bad package + bad cast - make sure there is no NPE.
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400905/Function.java",
+			"@FunctionalInterface\n" +
+			"public interface Function<T, R> {\n" +
+			"    R apply(T t);\n" +
+			"}\n"
+	);
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b400905/Collectors.java",
+			"public final class Collectors {\n" +
+			" @SuppressWarnings(\"unchecked\")\n" +
+			"    private static <I, R> Function<String, String> castingIdentity() {\n" +
+			"        return i -> (R) i;\n" +
+			"    }\n" +
+			"}\n") ;
+	IType type = this.workingCopies[0].getType("Function");
+	IMethod method = type.getMethods()[0];
+	search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
+	assertSearchResults("src/b400905/Function.java R b400905.Function.apply(T) [apply] EXACT_MATCH");
+}
+// test working copy (dirty), expect only focus type
+public void testBug400905_0020() throws CoreException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Function.java",
+			"@FunctionalInterface\n" +
+			"public interface Function<T, R> {\n" +
+			"    R apply(T t);\n" +
+			"}\n"
+	);
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/Collectors.java",
+			"public final class Collectors {\n" +
+			"    private static <I, R> Function<I, R> castingIdentity() {\n" +
+			"        return i -> (R) i;\n" +
+			"    }\n" +
+			"}\n") ;
+	IType type = this.workingCopies[0].getType("Function");
+	IMethod method = type.getMethods()[0];
+	search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
+	assertSearchResults("src/Function.java R Function.apply(T) [apply] EXACT_MATCH");
+}
+// test working copy after commit, expect focus type + other matches.
+public void testBug400905_0021() throws CoreException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/p400905/Function.java",
+			"package p400905;\n" +
+			"public interface Function<T, R> {\n" +
+			"    R apply(T t);\n" +
+			"}\n"
+	);
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p400905/Collectors.java",
+			"package p400905;\n" +
+			"public final class Collectors {\n" +
+			"    private static <I, R> Function<I, R> castingIdentity() {\n" +
+			"        return i -> (R) i;\n" +
+			"    }\n" +
+			"}\n") ;
+	
+	IPath path = new Path("/JavaSearchBugs/src/p400905");
+	try {
+		createFolder(path);
+		this.workingCopies[0].commitWorkingCopy(true, null);
+		this.workingCopies[1].commitWorkingCopy(true, null);
+
+		IType type = this.workingCopies[0].getType("Function");
+		IMethod method = type.getMethods()[0];
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
+		assertSearchResults("src/p400905/Function.java R p400905.Function.apply(T) [apply] EXACT_MATCH\n" + 
+				"src/p400905/Collectors.java java/lang/Object Function<I,R> p400905.Collectors.castingIdentity():<lambda>#1.lambda$1(java/lang/Object) [i ->] EXACT_MATCH");
+	} finally { 
+		deleteFolder(path);
 	}
 }
 // Add new tests in JavaSearchBugs8Tests

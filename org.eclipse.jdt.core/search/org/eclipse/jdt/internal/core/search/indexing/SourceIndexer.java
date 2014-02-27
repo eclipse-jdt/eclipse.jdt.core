@@ -187,8 +187,8 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 					
 						addClassDeclaration(0,  // most entries are blank, that is fine, since lambda type/method cannot be searched.
 								CharOperation.NO_CHAR, // package name
-								lambdaExpression.binding.selector,
-								CharOperation.NO_CHAR_CHAR, // enclosing types.
+								ONE_ZERO,
+								ONE_ZERO_CHAR, // enclosing types.
 								CharOperation.NO_CHAR, // super class
 								new char[][] { superinterface },
 								CharOperation.NO_CHAR_CHAR,

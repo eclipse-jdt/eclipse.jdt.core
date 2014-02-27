@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -713,18 +713,8 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 					// create parsed unit from file
 					IFile file = (IFile) cu.getResource();
 					ICompilationUnit sourceUnit = this.builder.createCompilationUnitFromPath(openable, file);
-					if (isJava8 && !containsLocalType) {
-						try {
-							// move state to handle as this defeats the purpose.
-							final CompilationUnitElementInfo compilationUnitElementInfo = (CompilationUnitElementInfo) openable.getElementInfo();
-							if (compilationUnitElementInfo.hasFunctionalTypes)  
-								containsLocalType = true;
-						} catch (JavaModelException e) {
-							// drop.
-						}
-					}
 					CompilationResult unitResult = new CompilationResult(sourceUnit, i, openablesLength, this.options.maxProblemsPerUnit);
-					parsedUnit = containsLocalType ? parser.parse(sourceUnit, unitResult) : parser.dietParse(sourceUnit, unitResult);
+					parsedUnit = parser.dietParse(sourceUnit, unitResult);
 				}
 
 				if (parsedUnit != null) {
