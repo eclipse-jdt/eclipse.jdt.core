@@ -306,10 +306,6 @@ public class InferenceContext18 {
 			System.arraycopy(this.initialConstraints, 0, this.initialConstraints = new ConstraintFormula[numConstraints], 0, numConstraints);
 	}
 
-	public void setInitialConstraint(ConstraintFormula constraintFormula) {
-		this.initialConstraints = new ConstraintFormula[] { constraintFormula };
-	}
-
 	private InferenceVariable[] addInitialTypeVariableSubstitutions(TypeBinding[] typeVariables) {
 		int len = typeVariables.length;
 		if (len == 0) {
@@ -662,7 +658,7 @@ public class InferenceContext18 {
 		if (p != null) {
 			for (int i = 0; i < p.length; i++) {
 				try {
-					if (!this.reduceAndIncorporate(new ConstraintTypeFormula(p[i], q[i], ReductionResult.SAME)))
+					if (!this.reduceAndIncorporate(ConstraintTypeFormula.create(p[i], q[i], ReductionResult.SAME)))
 						return false;
 				} catch (InferenceFailureException e) {
 					return false;
@@ -697,13 +693,13 @@ public class InferenceContext18 {
 				if (result == Boolean.FALSE)
 					return false;
 				if (result == null)
-					if (!reduceAndIncorporate(new ConstraintTypeFormula(si, ti, ReductionResult.SUBTYPE)))
+					if (!reduceAndIncorporate(ConstraintTypeFormula.create(si, ti, ReductionResult.SUBTYPE)))
 						return false;
 			}
 			if (t.length == numInvocArgs + 1) {
 				TypeBinding skplus1 = getParameter(s, numInvocArgs, true);
 				TypeBinding tkplus1 = getParameter(t, numInvocArgs, true);
-				if (!reduceAndIncorporate(new ConstraintTypeFormula(skplus1, tkplus1, ReductionResult.SUBTYPE)))
+				if (!reduceAndIncorporate(ConstraintTypeFormula.create(skplus1, tkplus1, ReductionResult.SUBTYPE)))
 					return false;
 			}
 			return solve() != null;
@@ -786,11 +782,11 @@ public class InferenceContext18 {
 				}
 				return true;
 			}
-			return reduceAndIncorporate(new ConstraintTypeFormula(r1, r2, ReductionResult.SUBTYPE));
+			return reduceAndIncorporate(ConstraintTypeFormula.create(r1, r2, ReductionResult.SUBTYPE));
 		} else if (expri instanceof ReferenceExpression && ((ReferenceExpression)expri).isExactMethodReference()) {
 			for (int i = 0; i < u.length; i++) {
 				ReferenceExpression reference = (ReferenceExpression) expri;
-				if (!reduceAndIncorporate(new ConstraintTypeFormula(u[i], v[i], ReductionResult.SAME)))
+				if (!reduceAndIncorporate(ConstraintTypeFormula.create(u[i], v[i], ReductionResult.SAME)))
 					return false;
 				if (r2.id == TypeIds.T_void)
 					return true;
@@ -801,7 +797,7 @@ public class InferenceContext18 {
 				if (r2.isPrimitiveType() && !r1.isPrimitiveType() && !returnType.isPrimitiveType())
 					return true;
 			}
-			return reduceAndIncorporate(new ConstraintTypeFormula(r1, r2, ReductionResult.SUBTYPE));
+			return reduceAndIncorporate(ConstraintTypeFormula.create(r1, r2, ReductionResult.SUBTYPE));
 		} else if (expri instanceof ConditionalExpression) {
 			ConditionalExpression cond = (ConditionalExpression) expri;
 			return  checkExpression(cond.valueIfTrue, u, r1, v, r2) && checkExpression(cond.valueIfFalse, u, r1, v, r2);

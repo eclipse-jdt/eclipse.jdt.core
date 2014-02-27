@@ -35,15 +35,28 @@ class ConstraintTypeFormula extends ConstraintFormula {
 	// this flag contributes to the workaround controlled by InferenceContext18.ARGUMENT_CONSTRAINTS_ARE_SOFT:
 	boolean isSoft;
 
-	public ConstraintTypeFormula(TypeBinding exprType, TypeBinding right, int relation) {
+	public static ConstraintTypeFormula create(TypeBinding exprType, TypeBinding right, int relation) {
+		if (exprType == null || right == null) 
+			return FALSE;
+		return new ConstraintTypeFormula(exprType, right, relation, false);
+	}
+
+	public static ConstraintTypeFormula create(TypeBinding exprType, TypeBinding right, int relation, boolean isSoft) {
+		if (exprType == null || right == null) 
+			return FALSE;
+		return new ConstraintTypeFormula(exprType, right, relation, isSoft);
+	}
+
+	// DON'T USE, use factory methods above instead.
+	private ConstraintTypeFormula(TypeBinding exprType, TypeBinding right, int relation, boolean isSoft) {
 		this.left = exprType;
 		this.right = right;
 		this.relation = relation;
-	}
-	public ConstraintTypeFormula(TypeBinding exprType, TypeBinding right, int relation, boolean isSoft) {
-		this(exprType, right, relation);
 		this.isSoft = isSoft;
 	}
+
+	// for constants TRUE & FALSE, only:
+	ConstraintTypeFormula() { }
 
 	// return: ReductionResult or ConstraintFormula[]
 	public Object reduce(InferenceContext18 inferenceContext) {
@@ -57,11 +70,11 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			}
 			if (this.left.isPrimitiveType()) {
 				TypeBinding sPrime = inferenceContext.environment.computeBoxingType(this.left);
-				return new ConstraintTypeFormula(sPrime, this.right, COMPATIBLE, this.isSoft);
+				return ConstraintTypeFormula.create(sPrime, this.right, COMPATIBLE, this.isSoft);
 			}
 			if (this.right.isPrimitiveType()) {
 				TypeBinding tPrime = inferenceContext.environment.computeBoxingType(this.right);
-				return new ConstraintTypeFormula(this.left, tPrime, SAME, this.isSoft);
+				return ConstraintTypeFormula.create(this.left, tPrime, SAME, this.isSoft);
 			}
 			switch (this.right.kind()) {
 			case Binding.ARRAY_TYPE:
@@ -79,7 +92,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 					break;
 				}
 			}
-			return new ConstraintTypeFormula(this.left, this.right, SUBTYPE, this.isSoft);
+			return ConstraintTypeFormula.create(this.left, this.right, SUBTYPE, this.isSoft);
 		case SUBTYPE:
 			// 18.2.3:
 			return reduceSubType(inferenceContext.scope, this.left, this.right);
@@ -93,7 +106,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			// 18.2.3:
 			if (this.right.kind() != Binding.WILDCARD_TYPE) { // "If T is a type" ... all alternatives require "wildcard"
 				if (this.left.kind() != Binding.WILDCARD_TYPE) {
-					return new ConstraintTypeFormula(this.left, this.right, SAME, this.isSoft);						
+					return ConstraintTypeFormula.create(this.left, this.right, SAME, this.isSoft);						
 				} else {
 					return FALSE;
 				}
@@ -103,27 +116,27 @@ class ConstraintTypeFormula extends ConstraintFormula {
 					return TRUE;
 				if (t.boundKind == Wildcard.EXTENDS) {
 					if (this.left.kind() != Binding.WILDCARD_TYPE) {
-						return new ConstraintTypeFormula(this.left, t.bound, SUBTYPE, this.isSoft);
+						return ConstraintTypeFormula.create(this.left, t.bound, SUBTYPE, this.isSoft);
 					} else {
 						WildcardBinding s = (WildcardBinding) this.left;
 						switch (s.boundKind) {
 							case Wildcard.UNBOUND:
-								return new ConstraintTypeFormula(inferenceContext.object, t.bound, SUBTYPE, this.isSoft);
+								return ConstraintTypeFormula.create(inferenceContext.object, t.bound, SUBTYPE, this.isSoft);
 							case Wildcard.EXTENDS: 
-								return new ConstraintTypeFormula(s.bound, t.bound, SUBTYPE, this.isSoft);
+								return ConstraintTypeFormula.create(s.bound, t.bound, SUBTYPE, this.isSoft);
 							case Wildcard.SUPER: 
-								return new ConstraintTypeFormula(inferenceContext.object, t.bound, SAME, this.isSoft);
+								return ConstraintTypeFormula.create(inferenceContext.object, t.bound, SAME, this.isSoft);
 							default:
 								throw new IllegalArgumentException("Unexpected boundKind "+s.boundKind);  //$NON-NLS-1$
 						}
 					}
 				} else { // SUPER 
 					if (this.left.kind() != Binding.WILDCARD_TYPE) {
-						return new ConstraintTypeFormula(t.bound, this.left, SUBTYPE, this.isSoft);
+						return ConstraintTypeFormula.create(t.bound, this.left, SUBTYPE, this.isSoft);
 					} else {
 						WildcardBinding s = (WildcardBinding) this.left;
 						if (s.boundKind == Wildcard.SUPER) {
-							return new ConstraintTypeFormula(t.bound, s.bound, SUBTYPE, this.isSoft);
+							return ConstraintTypeFormula.create(t.bound, s.bound, SUBTYPE, this.isSoft);
 						} else {
 							return FALSE;
 						}
@@ -144,13 +157,13 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				if (leftWC.boundKind == Wildcard.UNBOUND && rightWC.boundKind == Wildcard.UNBOUND)
 					return TRUE;
 				if (leftWC.boundKind == Wildcard.UNBOUND && rightWC.boundKind == Wildcard.EXTENDS)
-					return new ConstraintTypeFormula(object, rightWC.bound, SAME, this.isSoft);
+					return ConstraintTypeFormula.create(object, rightWC.bound, SAME, this.isSoft);
 				if (leftWC.boundKind == Wildcard.EXTENDS && rightWC.boundKind == Wildcard.UNBOUND)
-					return new ConstraintTypeFormula(leftWC.bound, object, SAME, this.isSoft);
+					return ConstraintTypeFormula.create(leftWC.bound, object, SAME, this.isSoft);
 				if ((leftWC.boundKind == Wildcard.EXTENDS && rightWC.boundKind == Wildcard.EXTENDS)
 					||(leftWC.boundKind == Wildcard.SUPER && rightWC.boundKind == Wildcard.SUPER))
 				{
-					return new ConstraintTypeFormula(leftWC.bound, rightWC.bound, SAME, this.isSoft);
+					return ConstraintTypeFormula.create(leftWC.bound, rightWC.bound, SAME, this.isSoft);
 				}						
 			}
 		} else {
@@ -180,13 +193,13 @@ class ConstraintTypeFormula extends ConstraintFormula {
 					int len = leftParams.length;
 					ConstraintFormula[] constraints = new ConstraintFormula[len];
 					for (int i = 0; i < len; i++) {
-						constraints[i] = new ConstraintTypeFormula(leftParams[i], rightParams[i], SAME, this.isSoft);
+						constraints[i] = ConstraintTypeFormula.create(leftParams[i], rightParams[i], SAME, this.isSoft);
 					}
 					return constraints;
 				}
 				if (this.left.isArrayType() && this.right.isArrayType() && this.left.dimensions() == this.right.dimensions()) {
 					// checking dimensions already now is an optimization over reducing one dim at a time
-					return new ConstraintTypeFormula(this.left.leafComponentType(), this.right.leafComponentType(), SAME, this.isSoft);
+					return ConstraintTypeFormula.create(this.left.leafComponentType(), this.right.leafComponentType(), SAME, this.isSoft);
 				}
 			}
 		}
@@ -260,7 +273,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 					return FALSE;
 				TypeBinding sPrime = sPrimeArray.elementsType();
 				if (!tPrime.isPrimitiveType() && !sPrime.isPrimitiveType()) {
-					return new ConstraintTypeFormula(sPrime, tPrime, SUBTYPE, this.isSoft);
+					return ConstraintTypeFormula.create(sPrime, tPrime, SUBTYPE, this.isSoft);
 				}
 				return TypeBinding.equalsEquals(tPrime, sPrime) ? TRUE : FALSE; // same primitive type?
 
@@ -275,7 +288,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				}
 				WildcardBinding variable = (WildcardBinding) superCandidate;
 				if (variable.boundKind == Wildcard.SUPER)
-					return new ConstraintTypeFormula(subCandidate, variable.bound, SUBTYPE, this.isSoft);
+					return ConstraintTypeFormula.create(subCandidate, variable.bound, SUBTYPE, this.isSoft);
 				return FALSE;
 			case Binding.TYPE_PARAMETER:
 				// similar to wildcard, but different queries for lower bound
@@ -289,7 +302,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				if (superCandidate instanceof CaptureBinding) {
 					CaptureBinding capture = (CaptureBinding) superCandidate;
 					if (capture.lowerBound != null && (capture.firstBound == null || capture.firstBound.id == TypeIds.T_JavaLangObject))
-						return new ConstraintTypeFormula(subCandidate, capture.lowerBound, SUBTYPE, this.isSoft);
+						return ConstraintTypeFormula.create(subCandidate, capture.lowerBound, SUBTYPE, this.isSoft);
 				}
 				return FALSE;
 			case Binding.INTERSECTION_TYPE:
@@ -332,7 +345,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 		if (cb.isRawType() || bi == null || bi.length == 0)
 			return (this.isSoft && InferenceContext18.SIMULATE_BUG_JDK_8026527) ? true : false; // FALSE would conform to the spec 
 		for (int i = 0; i < ai.length; i++)
-			constraints.add(new ConstraintTypeFormula(bi[i], ai[i], TYPE_ARGUMENT_CONTAINED, this.isSoft));
+			constraints.add(ConstraintTypeFormula.create(bi[i], ai[i], TYPE_ARGUMENT_CONTAINED, this.isSoft));
 		return true;
 	}
 

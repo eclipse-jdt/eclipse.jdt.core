@@ -103,7 +103,7 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 					if (thrown[j].isProperType(true) && ePrime[i].isCompatibleWith(thrown[j]))
 						continue actual;
 				for (int j = 0; j < n; j++)
-					result.add(new ConstraintTypeFormula(ePrime[i], e[j], SUBTYPE));
+					result.add(ConstraintTypeFormula.create(ePrime[i], e[j], SUBTYPE));
 			}				
 			for (int j = 0; j < n; j++)
 				result.add(new ConstraintExceptionFormula(this.left, e[j]));

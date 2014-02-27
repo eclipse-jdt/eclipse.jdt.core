@@ -2426,4 +2426,41 @@ public void testBug428786() {
 			"}\n"
 		});
 }
+public void testBug429090_comment1() {
+	runNegativeTest(
+		new String[] {
+			"Junk10.java",
+			"\n" + 
+			"public class Junk10 {\n" + 
+			"    class Observable<T> {}\n" + 
+			"    interface InvalidationListener {\n" + 
+			"        public void invalidated(Observable<?> observable);\n" + 
+			"    }\n" + 
+			"    public static abstract class Change<E2> {}\n" + 
+			"    interface SetChangeListener<E1> {\n" + 
+			"        void onChanged(Change<? extends E1> change);\n" + 
+			"    }\n" + 
+			"    class SetListenerHelper<T> {}\n" + 
+			"    public static <E> SetListenerHelper<E> addListener(\n" +
+			"			SetListenerHelper<E> helper, SetChangeListener<? super E> listener) {\n" + 
+			"        return helper;\n" + 
+			"    }\n" + 
+			"    void junk() {\n" + 
+			"        addListener(null, (SetChangeListener.Change<?> c) -> {});\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Junk10.java (at line 17)\n" + 
+		"	addListener(null, (SetChangeListener.Change<?> c) -> {});\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"The method addListener(Junk10.SetListenerHelper<E>, Junk10.SetChangeListener<? super E>) in the type Junk10 is not applicable for the arguments (null, (SetChangeListener.Change<?> c) -> {\n" + 
+		"})\n" + 
+		"----------\n" + 
+		"2. ERROR in Junk10.java (at line 17)\n" + 
+		"	addListener(null, (SetChangeListener.Change<?> c) -> {});\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"SetChangeListener.Change cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
