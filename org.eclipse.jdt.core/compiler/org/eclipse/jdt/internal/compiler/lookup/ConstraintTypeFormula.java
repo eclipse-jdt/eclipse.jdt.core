@@ -340,7 +340,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 		super.applySubstitution(solutionSet, variables);
 		for (int i=0; i<variables.length; i++) {
 			InferenceVariable variable = variables[i];
-			TypeBinding instantiation = solutionSet.getInstantiation(variables[i]);
+			TypeBinding instantiation = solutionSet.getInstantiation(variables[i], null);
 			if (instantiation == null)
 				return false;
 			this.left = this.left.substituteInferenceVariable(variable, instantiation);

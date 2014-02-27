@@ -244,6 +244,12 @@ class BoundSet {
 					boundTypes[i] = environment.createAnnotatedType(boundTypes[i], annot);
 			}
 		}
+		public void setInstantiation(TypeBinding type, LookupEnvironment environment) {
+			if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+				// TODO check for existing instantiation and compare null annotations
+			}
+			this.instantiation = type;
+		}
 	}
 	// main storage of type bounds:
 	HashMap<InferenceVariable, ThreeSets> boundsPerVariable = new HashMap<InferenceVariable, ThreeSets>();
@@ -270,9 +276,9 @@ class BoundSet {
 			TypeBound[] someBounds = typeParameter.getTypeBounds(variable, context);
 			boolean hasProperBound = false;
 			if (someBounds.length > 0)
-				hasProperBound = addBounds(someBounds);
+				hasProperBound = addBounds(someBounds, context.environment);
 			if (!hasProperBound)
-				addBound(new TypeBound(variable, context.object, ReductionResult.SUBTYPE));
+				addBound(new TypeBound(variable, context.object, ReductionResult.SUBTYPE), context.environment);
 		}
 	}
 
@@ -307,7 +313,7 @@ class BoundSet {
 		return copy;
 	}
 
-	public void addBound(TypeBound bound) {
+	public void addBound(TypeBound bound, LookupEnvironment environment) {
 		ThreeSets three = this.boundsPerVariable.get(bound.left);
 		if (three == null)
 			this.boundsPerVariable.put(bound.left, (three = new ThreeSets()));
@@ -315,7 +321,7 @@ class BoundSet {
 		// check if this makes the inference variable instantiated:
 		TypeBinding typeBinding = bound.right;
 		if (bound.relation == ReductionResult.SAME && typeBinding.isProperType(true))
-			three.instantiation = typeBinding;
+			three.setInstantiation(typeBinding, environment);
 		if (bound.right instanceof InferenceVariable) {
 			// for a dependency between two IVs make a note about the inverse bound.
 			// this should be needed to determine IV dependencies independent of direction.
@@ -330,10 +336,10 @@ class BoundSet {
 		}
 	}
 
-	private boolean addBounds(TypeBound[] newBounds) {
+	private boolean addBounds(TypeBound[] newBounds, LookupEnvironment environment) {
 		boolean hasProperBound = false;
 		for (int i = 0; i < newBounds.length; i++) {
-			addBound(newBounds[i]);
+			addBound(newBounds[i], environment);
 			hasProperBound |= newBounds[i].isBound();
 		}
 		return hasProperBound;
@@ -346,10 +352,13 @@ class BoundSet {
 		return false;
 	}
 
-	public TypeBinding getInstantiation(InferenceVariable inferenceVariable) {
+	public TypeBinding getInstantiation(InferenceVariable inferenceVariable, LookupEnvironment environment) {
 		ThreeSets three = this.boundsPerVariable.get(inferenceVariable);
-		if (three != null)
-			return three.instantiation;
+		if (three != null) {
+			TypeBinding instantiation = three.instantiation;
+			// TODO consider null annotations if enabled
+			return instantiation;
+		}
 		return null;
 	}
 
@@ -464,7 +473,7 @@ class BoundSet {
 					// A set of bounds on α1, ..., αn, constructed from the declared bounds of P1, ..., Pn as described in 18.1.3, is immediately implied.
 					TypeVariableBinding pi = parameters[i];
 					InferenceVariable alpha = (InferenceVariable) gAlpha.arguments[i];
-					addBounds(pi.getTypeBounds(alpha, context));
+					addBounds(pi.getTypeBounds(alpha, context), context.environment);
 
 					TypeBinding ai = gA.arguments[i];
 					if (ai instanceof WildcardBinding) {
@@ -529,7 +538,7 @@ class BoundSet {
 							}
 						}
 					} else {
-						addBound(new TypeBound(alpha, ai, ReductionResult.SAME));
+						addBound(new TypeBound(alpha, ai, ReductionResult.SAME), context.environment);
 					}
 				}
 			}
@@ -704,7 +713,7 @@ class BoundSet {
 					if (!reduceOneConstraint(context, resultArray[i]))
 						return false;
 			} else {
-				this.addBound((TypeBound)result);
+				addBound((TypeBound)result, context.environment);
 			}
 		}
 		return true; // no FALSE encountered

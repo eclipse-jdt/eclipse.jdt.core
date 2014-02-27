@@ -649,7 +649,7 @@ public class InferenceContext18 {
 			} else {
 				bound = new TypeBound(alpha[i], a[i], ReductionResult.SAME);
 			}
-			this.currentBounds.addBound(bound);
+			this.currentBounds.addBound(bound, this.environment);
 		}
 		TypeBinding falpha = substitute(functionalInterface);
 		return falpha.getSingleAbstractMethod(this.scope, true).parameters;
@@ -888,7 +888,7 @@ public class InferenceContext18 {
 			for (int j = 0; j < this.inferenceVariables.length; j++) {
 				InferenceVariable variable = this.inferenceVariables[j];
 				if (variable.site == site && TypeBinding.equalsEquals(variable.typeParameter, typeParameters[i])) {
-					substitutions[i] = boundSet.getInstantiation(variable);
+					substitutions[i] = boundSet.getInstantiation(variable, this.environment);
 					break;
 				}
 			}
@@ -934,13 +934,13 @@ public class InferenceContext18 {
 								TypeBinding lub = this.scope.lowerUpperBound(lowerBounds);
 								if (lub == TypeBinding.VOID || lub == null)
 									return null;
-								tmpBoundSet.addBound(new TypeBound(variable, lub, ReductionResult.SAME));
+								tmpBoundSet.addBound(new TypeBound(variable, lub, ReductionResult.SAME), this.environment);
 							} else {
 								TypeBinding[] upperBounds = tmpBoundSet.upperBounds(variable, true/*onlyProper*/);
 								// check exception bounds:
 								if (tmpBoundSet.inThrows.contains(variable) && tmpBoundSet.hasOnlyTrivialExceptionBounds(variable, upperBounds)) {
 									TypeBinding runtimeException = this.scope.getType(TypeConstants.JAVA_LANG_RUNTIMEEXCEPTION, 3);
-									tmpBoundSet.addBound(new TypeBound(variable, runtimeException, ReductionResult.SAME));
+									tmpBoundSet.addBound(new TypeBound(variable, runtimeException, ReductionResult.SAME), this.environment);
 								} else {
 									// try upper bounds:
 									TypeBinding glb = this.object;
@@ -957,7 +957,7 @@ public class InferenceContext18 {
 												glb = new IntersectionCastTypeBinding(glbs, this.environment);
 										}
 									}
-									tmpBoundSet.addBound(new TypeBound(variable, glb, ReductionResult.SAME));
+									tmpBoundSet.addBound(new TypeBound(variable, glb, ReductionResult.SAME), this.environment);
 								}
 							}
 						}
@@ -1019,7 +1019,7 @@ public class InferenceContext18 {
 						captureKeys = toRemove.iterator();
 						while (captureKeys.hasNext())
 							tmpBoundSet.captures.remove(captureKeys.next());
-						tmpBoundSet.addBound(new TypeBound(variable, zsj, ReductionResult.SAME));
+						tmpBoundSet.addBound(new TypeBound(variable, zsj, ReductionResult.SAME), this.environment);
 					}
 					if (tmpBoundSet.incorporate(this)) {
 						if (tmpBoundSet.numUninstantiatedVariables(this.inferenceVariables) == oldNumUninstantiated)
@@ -1500,7 +1500,7 @@ public class InferenceContext18 {
 			}
 			public TypeBinding substitute(TypeVariableBinding typeVariable) {
 				if (typeVariable instanceof InferenceVariable) {
-					return result.getInstantiation((InferenceVariable) typeVariable);
+					return result.getInstantiation((InferenceVariable) typeVariable, InferenceContext18.this.environment);
 				}
 				return typeVariable;
 			}
@@ -1572,7 +1572,7 @@ public class InferenceContext18 {
 			for (int i = 0; i < this.inferenceVariables.length; i++) {
 				buf.append('\t').append(this.inferenceVariables[i].sourceName).append("\t:\t"); //$NON-NLS-1$
 				if (this.currentBounds != null && this.currentBounds.isInstantiated(this.inferenceVariables[i]))
-					buf.append(this.currentBounds.getInstantiation(this.inferenceVariables[i]).readableName());
+					buf.append(this.currentBounds.getInstantiation(this.inferenceVariables[i], this.environment).readableName());
 				else
 					buf.append("NOT INSTANTIATED"); //$NON-NLS-1$
 				buf.append('\n');
@@ -1617,7 +1617,7 @@ public class InferenceContext18 {
 		TypeBinding[] aprime = new TypeBinding[m];
 		for (int i = 0; i < this.inferenceVariables.length; i++) {
 			InferenceVariable alphai = this.inferenceVariables[i];
-			TypeBinding t = this.currentBounds.getInstantiation(alphai);
+			TypeBinding t = this.currentBounds.getInstantiation(alphai, this.environment);
 			if (t != null)
 				aprime[i] = t;
 			else

@@ -399,7 +399,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				}
 				if (toResolve) {
 					BoundSet solution = inferenceContext.solve(); // TODO: minimal resolving for only α
-					TypeBinding u = solution.getInstantiation(alpha).capture(inferenceContext.scope, invocationSite.sourceStart()); // TODO make position unique?
+					TypeBinding u = solution.getInstantiation(alpha, null).capture(inferenceContext.scope, invocationSite.sourceStart()); // TODO make position unique?
 					ConstraintTypeFormula newConstraint = new ConstraintTypeFormula(u, targetType, COMPATIBLE);
 					return inferenceContext.reduceAndIncorporate(newConstraint);
 				}
