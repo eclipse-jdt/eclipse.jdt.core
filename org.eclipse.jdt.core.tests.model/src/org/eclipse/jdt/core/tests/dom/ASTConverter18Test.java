@@ -2703,6 +2703,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=412726
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428526
 	public void testBug412726() throws JavaModelException {
 		String contents =
 			"public interface X {\n" +
@@ -2729,23 +2730,26 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		/* case 0: vanilla case - interface with one abstract method */
 		TypeDeclaration type =  (TypeDeclaration) unit.types().get(0);
 		ITypeBinding typeBinding = type.resolveBinding();
-		assertTrue("Not a functional interface", typeBinding.isFunctionalInterface());
+		assertEquals("Incorrect method", typeBinding.getDeclaredMethods()[0], typeBinding.getFunctionalInterfaceMethod());
 		/* case 1: interface without any method */
 		type =  (TypeDeclaration) unit.types().get(1);
 		typeBinding = type.resolveBinding();
-		assertFalse("A Functional interface", typeBinding.isFunctionalInterface());
+		assertNull(typeBinding.getFunctionalInterfaceMethod());
 		/* case 2: interface with just one default method and without any abstract method */
 		type =  (TypeDeclaration) unit.types().get(2);
 		typeBinding = type.resolveBinding();
-		assertFalse("A Functional interface", typeBinding.isFunctionalInterface());
+		assertNull(typeBinding.getFunctionalInterfaceMethod());
 		/* case 3: interface with just one default method and one abstract method */
 		type =  (TypeDeclaration) unit.types().get(3);
 		typeBinding = type.resolveBinding();
-		assertTrue("A Functional interface", typeBinding.isFunctionalInterface());
+		IMethodBinding functionalInterfaceMethod = typeBinding.getFunctionalInterfaceMethod();
+		assertNotNull(functionalInterfaceMethod);
+		assertEquals("Incorrect method", "public abstract void bar() ", functionalInterfaceMethod.toString());
+		assertEquals(typeBinding, functionalInterfaceMethod.getDeclaringClass());
 		/* case 4: interface with just one default method and two abstract methods */
 		type =  (TypeDeclaration) unit.types().get(4);
 		typeBinding = type.resolveBinding();
-		assertFalse("A Functional interface", typeBinding.isFunctionalInterface());
+		assertNull(typeBinding.getFunctionalInterfaceMethod());
 	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=417017

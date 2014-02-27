@@ -217,6 +217,7 @@ public interface IBinding {
 	 * <li>the default constructor of a source class</li>
 	 * <li>the constructor of an anonymous class</li>
 	 * <li>member value pairs</li>
+	 * <li>synthetic bindings</li>
 	 * </ul>
 	 * For all other kind of type, method, variable, annotation and package bindings,
 	 * this method returns non-<code>null</code>.

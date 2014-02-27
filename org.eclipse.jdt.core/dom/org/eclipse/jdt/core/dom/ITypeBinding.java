@@ -297,13 +297,15 @@ public interface ITypeBinding extends IBinding {
 	/**
 	 * Returns the single abstract method that constitutes the single function 
 	 * contract (aside from any redeclarations of methods of <code>java.lang.Object</code>) 
-	 * of the receiver interface type or null if there no such contract or if the receiver 
-	 * is not an interface. 
+	 * of the receiver interface type or <code>null</code> if there is no such contract or if the receiver 
+	 * is not an interface.
+	 * <p>
+	 * The returned method binding may be synthetic and its {@link #getDeclaringClass() declaring type}
+	 * may be a super interface type of this type binding.
+	 * </p>
 	 * 
-	 * @return the single abstract method that represents the single function contract 
-	 * (aside from any redeclarations of methods of <code>java.lang.Object</code>) of 
-	 * this interface type or null if the receiver is not an interface or if the receiver 
-	 * has more than one abstract method or no abstract methods.
+	 * @return the single abstract method that represents the single function contract, or
+	 * <code>null</code> if the receiver is not a functional interface type
 	 *
 	 * @since 3.9 BETA_JAVA8
 	 */
@@ -776,15 +778,6 @@ public interface ITypeBinding extends IBinding {
 	 * @since 3.1
 	 */
 	public boolean isGenericType();
-
-	/**
-	 * Returns whether this type binding represents a functional interface type.
-	 *
-	 * @return <code>true</code> if this object represents a functional interface,
-	 *    and <code>false</code> otherwise
-	 * @since 3.9 BETA_JAVA8
-	 */
-	public boolean isFunctionalInterface();
 
 	/**
 	 * Returns whether this type binding represents an interface type.

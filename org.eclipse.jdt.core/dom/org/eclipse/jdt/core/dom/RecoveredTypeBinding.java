@@ -453,13 +453,6 @@ class RecoveredTypeBinding implements ITypeBinding {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isFunctionalInterface()
-	 */
-	public boolean isFunctionalInterface() {
-		return false;
-	}
-
-	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isInterface()
 	 */
 	public boolean isInterface() {

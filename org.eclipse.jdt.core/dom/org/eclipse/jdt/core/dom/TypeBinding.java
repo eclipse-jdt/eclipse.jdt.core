@@ -1179,20 +1179,6 @@ class TypeBinding implements ITypeBinding {
 		return false;
 	}
 
-
-	/*
-	 * @see ITypeBinding#isFunctionalInterface()
-	 */
-	public boolean isFunctionalInterface() {
-		if (isInterface()) {
-			ReferenceBinding referenceBinding = (ReferenceBinding)this.binding;
-			if (referenceBinding != null) {
-				return referenceBinding.isFunctionalInterface(this.resolver.scope());
-			}
-		}
-		return false;
-	}
-
 	/*
 	 * @see ITypeBinding#isInterface()
 	 */
