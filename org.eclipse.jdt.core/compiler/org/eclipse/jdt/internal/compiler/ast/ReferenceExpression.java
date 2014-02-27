@@ -335,6 +335,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     	if (this.constant != Constant.NotAConstant) {
     		this.constant = Constant.NotAConstant;
     		this.enclosingScope = scope;
+    		scope.referenceCompilationUnit().record(this);
     		if (isConstructorReference())
     			this.lhs.bits |= ASTNode.IgnoreRawTypeCheck; // raw types in constructor references are to be treated as though <> were specified.
 

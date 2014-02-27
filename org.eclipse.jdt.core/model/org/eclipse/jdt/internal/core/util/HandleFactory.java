@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -33,6 +37,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -160,6 +165,12 @@ public class HandleFactory {
 		return createElement(scope, scope.referenceContext.sourceStart, unit, existingElements, knownScopes);
 	}
 	/**
+	 * Returns a handle denoting the lambda type identified by its scope.
+	 */
+	public IJavaElement createLambdaTypeElement(LambdaExpression expression, ICompilationUnit unit, HashSet existingElements, HashMap knownScopes) {
+		return createElement(expression.scope, expression.sourceStart(), unit, existingElements, knownScopes).getParent();
+	}
+	/**
 	 * Create handle by adding child to parent obtained by recursing into parent scopes.
 	 */
 	private IJavaElement createElement(Scope scope, int elementPosition, ICompilationUnit unit, HashSet existingElements, HashMap knownScopes) {
@@ -199,6 +210,12 @@ public class HandleFactory {
 				}
 				break;
 			case Scope.METHOD_SCOPE :
+				if (scope.isLambdaScope()) {
+					parentElement = createElement(scope.parent, elementPosition, unit, existingElements, knownScopes);
+					newElement = new org.eclipse.jdt.internal.core.LambdaExpression((JavaElement) parentElement, (LambdaExpression) scope.referenceContext()).getMethod();
+					knownScopes.put(scope, newElement);
+					return newElement;
+				}
 				IType parentType = (IType) createElement(scope.parent, elementPosition, unit, existingElements, knownScopes);
 				MethodScope methodScope = (MethodScope) scope;
 				if (methodScope.isInsideInitializer()) {

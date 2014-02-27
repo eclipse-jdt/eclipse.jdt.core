@@ -45,7 +45,7 @@ public class JavaSearchBugs8Tests extends AbstractJavaSearchTests {
 
 	static {
 //	 org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
-//	TESTS_NAMES = new String[] {"testBug400905_0010"};
+//	TESTS_NAMES = new String[] {"testBug400905_0002"};
 }
 
 public JavaSearchBugs8Tests(String name) {
@@ -127,7 +127,11 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0009"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0010"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0011"));
-//	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0012"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0012"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0013"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0014"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0015"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0016"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -2382,9 +2386,8 @@ public void testBug400905_0001() throws CoreException {
 	search(method, DECLARATIONS, EXACT_RULE);
 	assertSearchResults(
 			"src/b400905/X.java int b400905.I.foo() [foo] EXACT_MATCH\n" +
-			"src/b400905/X.java void b400905.X.main(String[]) [() ->] EXACT_MATCH\n" +
-			"src/b400905/X.java void b400905.X.doit() [() ->] EXACT_MATCH"
-	);	
+			"src/b400905/X.java int void b400905.X.main(String[]):<lambda>#1.lambda$1() [() ->] EXACT_MATCH\n" +			
+			"src/b400905/X.java int void b400905.X.doit():<lambda>#2.lambda$2() [() ->] EXACT_MATCH");	
 }
 /**
  * @bug 400905
@@ -2423,12 +2426,11 @@ public void testBug400905_0002() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {});
 	search(method, DECLARATIONS, EXACT_RULE);
 	assertSearchResults(
-			"src/b400905/I.java int b400905.I.foo() [foo] EXACT_MATCH\n" +
-			"src/b400905/X.java void b400905.X.main(String[]) [() ->] EXACT_MATCH\n" +
-			"src/b400905/X.java void b400905.X.main(String[]) [()  ->] EXACT_MATCH\n" +
-			"src/b400905/X.java void b400905.X.main(String[]) [()->] EXACT_MATCH\n" +
-			"src/b400905/X.java I b400905.X.bar() [() ->] EXACT_MATCH"
-	);	
+			"src/b400905/I.java int b400905.I.foo() [foo] EXACT_MATCH\n" + 
+			"src/b400905/X.java int void b400905.X.main(String[]):<lambda>#1.lambda$1() [() ->] EXACT_MATCH\n" + 
+			"src/b400905/X.java int void b400905.X.main(String[]):<lambda>#2.lambda$2() [()  ->] EXACT_MATCH\n" + 
+			"src/b400905/X.java int void b400905.X.main(String[]):<lambda>#3.lambda$3() [()->] EXACT_MATCH\n" + 
+			"src/b400905/X.java int I b400905.X.bar():<lambda>#4.lambda$4() [() ->] EXACT_MATCH");	
 }
 /**
  * @bug 400905
@@ -2461,10 +2463,10 @@ public void testBug400905_0003() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {"QY;"});
 	search(method, DECLARATIONS, EXACT_RULE);
 	assertSearchResults(
-			"src/b400905/I.java boolean b400905.I.foo(Y) [foo] EXACT_MATCH\n" +
-			"src/b400905/X.java void b400905.X.main(String[]) [y->] EXACT_MATCH\n" +
-			"src/b400905/X.java void b400905.X.main(String[]) [y ->] EXACT_MATCH\n" +
-			"src/b400905/X.java void b400905.X.main(String[]) [y  ->] EXACT_MATCH"
+			"src/b400905/I.java boolean b400905.I.foo(Y) [foo] EXACT_MATCH\n" + 
+			"src/b400905/X.java boolean void b400905.X.main(String[]):<lambda>#1.lambda$1(b400905/Y) [y->] EXACT_MATCH\n" + 
+			"src/b400905/X.java boolean void b400905.X.main(String[]):<lambda>#2.lambda$2(b400905/Y) [y ->] EXACT_MATCH\n" + 
+			"src/b400905/X.java boolean void b400905.X.main(String[]):<lambda>#3.lambda$3(b400905/Y) [y  ->] EXACT_MATCH"
 	);	
 }
 /**
@@ -2498,11 +2500,11 @@ public void testBug400905_0004() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {});
 	search(method, DECLARATIONS, EXACT_RULE);
 	assertSearchResults(
-			"src/b400905/I.java T b400905.I.foo() [foo] EXACT_MATCH\n" +
-			"src/b400905/X.java void b400905.X.main(String[]) [() /* foo */ ->] EXACT_MATCH\n" +
-			"src/b400905/X.java void b400905.X.main(String[]) [() /* true */->] EXACT_MATCH\n" +
-			"src/b400905/X.java void b400905.X.main(String[]) [() /* false */ ->] EXACT_MATCH\n" +
-			"src/b400905/X.java void b400905.X.main(String[]) [() /* cast */ ->] EXACT_MATCH"
+			"src/b400905/I.java T b400905.I.foo() [foo] EXACT_MATCH\n" + 
+			"src/b400905/X.java b400905/Y void b400905.X.main(String[]):<lambda>#1.lambda$1() [() /* foo */ ->] EXACT_MATCH\n" + 
+			"src/b400905/X.java b400905/Y void b400905.X.main(String[]):<lambda>#3.lambda$3() [() /* true */->] EXACT_MATCH\n" + 
+			"src/b400905/X.java b400905/Y void b400905.X.main(String[]):<lambda>#4.lambda$4() [() /* false */ ->] EXACT_MATCH\n" + 
+			"src/b400905/X.java java/lang/Object void b400905.X.main(String[]):<lambda>#5.lambda$5() [() /* cast */ ->] EXACT_MATCH"
 	);	
 }
 /**
@@ -2535,7 +2537,7 @@ public void testBug400905_0005() throws CoreException {
 	IMethod method = type.getMethod("bar", new String[] {});
 	search(method, DECLARATIONS, EXACT_RULE);
 	assertSearchResults(
-			"src/b400905/X.java void b400905.X.main(String[]) [() /* bar */ ->] EXACT_MATCH\n" +
+			"src/b400905/X.java void void b400905.X.main(String[]):<lambda>#2.lambda$2() [() /* bar */ ->] EXACT_MATCH\n" + 
 			"src/b400905/Y.java void b400905.Y.bar() [bar] EXACT_MATCH"
 	);	
 }
@@ -2549,7 +2551,7 @@ public void testBug400905_0005() throws CoreException {
  */
 public void testBug400905_0006() throws CoreException {
 	try {
-		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/X.java",
 			"public class X {\n" +
@@ -2574,7 +2576,7 @@ public void testBug400905_0006() throws CoreException {
 		search(method, DECLARATIONS, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaProject[] {project}), this.resultCollector);
 		assertSearchResults(
 				"src/I.java void I.foo() [foo] EXACT_MATCH\n" + 
-				"src/X.java void X.main(String[]) [()->] EXACT_MATCH"
+				"src/X.java void void X.main(String[]):<lambda>#1.lambda$1() [()->] EXACT_MATCH"
 		);
 	}
 	finally {
@@ -2592,7 +2594,7 @@ public void testBug400905_0006() throws CoreException {
  */
 public void testBug400905_0007() throws CoreException {
 	try {
-		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/X.java",
 			"public class X  {\n" +
@@ -2623,7 +2625,7 @@ public void testBug400905_0007() throws CoreException {
 }
 public void testBug400905_0008() throws CoreException {
 	try {
-		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/X.java",
 			"public class X {\n" +
@@ -2654,7 +2656,7 @@ public void testBug400905_0008() throws CoreException {
 }
 public void testBug400905_0009() throws CoreException {
 	try {
-		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/X.java",
 			"public class X {\n" +
@@ -2686,7 +2688,7 @@ public void testBug400905_0009() throws CoreException {
 }
 public void testBug400905_0010() throws CoreException {
 	try {
-		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/J.java",
 			"public interface J {\n" +
@@ -2723,7 +2725,7 @@ public void testBug400905_0010() throws CoreException {
 }
 public void testBug400905_0011() throws CoreException {
 	try {
-		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
 			"/P/src/J.java",
 			"public interface J {\n" +
@@ -2757,48 +2759,186 @@ public void testBug400905_0011() throws CoreException {
 		deleteProject("P");
 	}
 }
-public void _testBug400905_0012() throws CoreException {
+public void testBug400905_0012() throws CoreException {
 	try {
-		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
 		createFile(
-			"/P/src/J.java",
-			"public class J implements I {\n" +
-			"    public static void main(String [] args) {\n" +
-			"		I i = Y::goo;\n" +
-			"	 }\n" +
-			"    void foo() {\n" +
-			"       I i = Y::goo;\n" +
-			"       Y.goo(()->{});\n" +
-			"       I i2 = new I() {\n" +
-			"		    public void foo() {\n" +
-			"		    }\n" +
-			"	    };\n" +
-			"   }\n" +
-			"}\n"
-		);
-		createFile(
-			"/P/src/Y.java",
-			"public class Y {\n" +
-			"    public static void goo(I i) {};\n" +
-			"    public static void goo() {};\n" +
-			"}\n"
+			"/P/src/X.java",
+			"public class X {\n" +
+			"	static void foo() {}\n" +
+			"	I i = () -> {};\n" +
+			"	I i2 = new I() {\n" +
+			"		public void doit() {\n" +
+			"			\n" +
+			"		}\n" +
+			"	};\n" +
+			"}\n" +
+			" class Y {}\n"
 		);
 		createFile(
 			"/P/src/I.java",
 			"public interface I {\n" +
-			"    public void foo();\n" +
+			"    public void doit();\n" +
 			"}\n"
 		);
 		
 		IType type = getCompilationUnit("/P/src/I.java").getType("I");
-		IMethod method = type.getMethod("foo", new String[0]);
+		IMethod method = type.getMethod("doit", new String[0]);
 		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
-		assertSearchResults("");
+		assertSearchResults("src/I.java void I.doit() [doit] EXACT_MATCH\n" + 
+				"src/X.java void X.i:<lambda>#1.lambda$1() [() ->] EXACT_MATCH\n" + 
+				"src/X.java void X.i2:<anonymous>#1.doit() [doit] EXACT_MATCH");
 	}
 	finally {
 		deleteProject("P");
 	}
 }
+public void testBug400905_0013() throws CoreException {
+	try {
+		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"   void zoo() {\n" +
+			"	    I i = () -> 0;\n" +
+			"	    I i2 = new I() {\n" +
+			"		    public int doit() {\n" +
+			"			    return 0;\n" +
+			"		    }\n" +
+			"	    };\n" +
+			"   }\n" +
+			"}\n" +
+			" class Y {}\n"
+		);
+		createFile(
+			"/P/src/I.java",
+			"public interface I {\n" +
+			"    public int doit();\n" +
+			"}\n"
+		);
+		
+		IType type = getCompilationUnit("/P/src/I.java").getType("I");
+		IMethod method = type.getMethod("doit", new String[0]);
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
+		assertSearchResults("src/I.java int I.doit() [doit] EXACT_MATCH\n" + 
+				"src/X.java int void X.zoo():<lambda>#1.lambda$1() [() ->] EXACT_MATCH\n" + 
+				"src/X.java int void X.zoo():<anonymous>#1.doit() [doit] EXACT_MATCH");
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+public void testBug400905_0014() throws CoreException {
+	try {
+		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"   void zoo() {\n" +
+			"	    Y.goo((x) -> -x);\n" +
+			"   }\n" +
+			"}\n");
+		createFile(
+				"/P/src/Y.java",
+				"public class Y {\n" +
+				"   static void goo(I i) {}\n" +
+				"}\n");
 
+		createFile(
+			"/P/src/I.java",
+			"public interface I {\n" +
+			"    public int doit(int x);\n" +
+			"}\n"
+		);
+		
+		IType type = getCompilationUnit("/P/src/I.java").getType("I");
+		IMethod method = type.getMethod("doit", new String[] {"I"});
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
+		assertSearchResults("src/I.java int I.doit(int) [doit] EXACT_MATCH\n" + 
+							"src/X.java int void X.zoo():<lambda>#1.lambda$1(int) [(x) ->] EXACT_MATCH");
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+public void testBug400905_0015() throws CoreException {
+	try {
+		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"   void zoo() {\n" +
+			"	    Y.goo((x) -> -x);\n" +
+			"   }\n" +
+			"}\n");
+		createFile(
+				"/P/src/Y.java",
+				"public class Y {\n" +
+				"   static void goo(J j) {}\n" +
+				"}\n");
+
+		createFile(
+			"/P/src/I.java",
+			"public interface I {\n" +
+			"    public int doit(int x);\n" +
+			"}\n"
+		);
+		createFile(
+				"/P/src/J.java",
+				"public interface J {\n" +
+				"    public int doit(int x);\n" +
+				"}\n"
+			);
+		
+		IType type = getCompilationUnit("/P/src/I.java").getType("I");
+		IMethod method = type.getMethod("doit", new String[] {"I"});
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
+		assertSearchResults("src/I.java int I.doit(int) [doit] EXACT_MATCH");
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+public void testBug400905_0016() throws CoreException {
+	try {
+		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"   void zoo() {\n" +
+			"	    Y.goo((x) -> -x);\n" +
+			"	    Y.zoo((x) -> -x);\n" +
+			"   }\n" +
+			"}\n");
+		createFile(
+				"/P/src/Y.java",
+				"public class Y {\n" +
+				"   static void goo(J j) {}\n" +
+				"   static void zoo(I i) {}\n" +
+				"}\n");
+
+		createFile(
+			"/P/src/I.java",
+			"public interface I {\n" +
+			"    public int doit(int x);\n" +
+			"}\n"
+		);
+		createFile(
+				"/P/src/J.java",
+				"public interface J {\n" +
+				"    public int doit(int x);\n" +
+				"}\n"
+			);
+		
+		IType type = getCompilationUnit("/P/src/I.java").getType("I");
+		IMethod method = type.getMethod("doit", new String[] {"I"});
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
+		assertSearchResults("src/I.java int I.doit(int) [doit] EXACT_MATCH\n" + 
+				"src/X.java int void X.zoo():<lambda>#2.lambda$2(int) [(x) ->] EXACT_MATCH");
+	}
+	finally {
+		deleteProject("P");
+	}
+}
 // Add new tests in JavaSearchBugs8Tests
 }

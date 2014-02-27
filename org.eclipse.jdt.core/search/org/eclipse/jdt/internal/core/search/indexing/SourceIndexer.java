@@ -20,13 +20,14 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchDocument;
-import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
@@ -36,7 +37,6 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
@@ -172,27 +172,35 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 
 	public void indexResolvedDocument() {
 		try {
-			if (DEBUG) {
-				System.out.println(new String(this.cud.compilationResult.fileName) + ':');
-			}
-			final ASTVisitor visitor = new ASTVisitor() {
-				public boolean visit(LambdaExpression lambdaExpression, BlockScope blockScope) {
+			if (DEBUG) System.out.println(new String(this.cud.compilationResult.fileName) + ':');
+			for (int i = 0, length = this.cud.functionalExpressionsCount; i < length; i++) {
+				FunctionalExpression expression = this.cud.functionalExpressions[i];
+				if (expression instanceof LambdaExpression) {
+					LambdaExpression lambdaExpression = (LambdaExpression) expression;
 					if (lambdaExpression.binding != null && lambdaExpression.binding.isValidBinding()) {
+						final char[] superinterface = lambdaExpression.descriptor.declaringClass.sourceName();
 						if (DEBUG) {
-							System.out.println('\t' + new String(lambdaExpression.descriptor.declaringClass.sourceName()) + '.' + 
+							System.out.println('\t' + new String(superinterface) + '.' + 
 									new String(lambdaExpression.descriptor.selector) + "-> {}"); //$NON-NLS-1$
 						}
 						SourceIndexer.this.addIndexEntry(IIndexConstants.METHOD_DECL, MethodPattern.createIndexKey(lambdaExpression.descriptor.selector, lambdaExpression.descriptor.parameters.length));
+					
+						addClassDeclaration(0,  // most entries are blank, that is fine, since lambda type/method cannot be searched.
+								CharOperation.NO_CHAR, // package name
+								lambdaExpression.binding.selector,
+								CharOperation.NO_CHAR_CHAR, // enclosing types.
+								CharOperation.NO_CHAR, // super class
+								new char[][] { superinterface },
+								CharOperation.NO_CHAR_CHAR,
+								true); // not primary.
+
 					} else {
-						if (DEBUG) {
-							System.out.println("\tnull/bad binding in lambda"); //$NON-NLS-1$
-						}
+						if (DEBUG) System.out.println("\tnull/bad binding in lambda"); //$NON-NLS-1$
 					}
-					return true;
-				}
-				public boolean visit(ReferenceExpression referenceExpression, BlockScope blockScope) {
+				} else {
+					ReferenceExpression referenceExpression = (ReferenceExpression) expression;
 					if (referenceExpression.isArrayConstructorReference())
-						return true;
+						continue;
 					MethodBinding binding = referenceExpression.getMethodBinding();
 					if (binding != null && binding.isValidBinding()) {
 						if (DEBUG) {
@@ -205,14 +213,10 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 						else
 							SourceIndexer.this.addConstructorReference(binding.declaringClass.sourceName(), binding.parameters.length);
 					} else {
-						if (DEBUG) {
-							System.out.println("\tnull/bad binding in reference expression"); //$NON-NLS-1$
-						}
+						if (DEBUG) System.out.println("\tnull/bad binding in reference expression"); //$NON-NLS-1$
 					}
-					return true;
 				}
-			};
-			this.cud.traverse(visitor , this.cud.scope, false);
+			}
 		} catch (Exception e) {
 			if (JobManager.VERBOSE) {
 				e.printStackTrace();

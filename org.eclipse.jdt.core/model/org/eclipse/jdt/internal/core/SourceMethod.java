@@ -185,6 +185,10 @@ public String[] getRawParameterNames() throws JavaModelException {
  * @see IMethod
  */
 public String getReturnType() throws JavaModelException {
+	if (this.parent instanceof LambdaExpression) {
+		LambdaExpression le = (LambdaExpression) this.parent;
+		return new String(le.lambdaExpression.descriptor.returnType.signature());
+	}
 	SourceMethodElementInfo info = (SourceMethodElementInfo) getElementInfo();
 	return Signature.createTypeSignature(info.getReturnTypeName(), false);
 }

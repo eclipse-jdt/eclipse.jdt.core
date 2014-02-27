@@ -166,6 +166,8 @@ public IType getDeclaringType() {
  * @see IMember
  */
 public int getFlags() throws JavaModelException {
+	if (this.parent instanceof LambdaExpression)
+		return 0;
 	MemberElementInfo info = (MemberElementInfo) getElementInfo();
 	return info.getModifiers();
 }

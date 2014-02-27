@@ -46,6 +46,8 @@ import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -152,7 +154,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, Acc
 	CompilationUnitDeclaration unit =
 		SourceTypeConverter.buildCompilationUnit(
 			new ISourceType[] {sourceType}, // ignore secondary types, to improve laziness
-			SourceTypeConverter.MEMBER_TYPE, // need member types
+			SourceTypeConverter.MEMBER_TYPE | (this.lookupEnvironment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8 ? SourceTypeConverter.METHOD : 0), // need member types
 			// no need for field initialization
 			this.lookupEnvironment.problemReporter,
 			result);
@@ -407,41 +409,51 @@ private void remember(IType type, ReferenceBinding typeBinding) {
 	} else {
 		if (typeBinding == null) return;
 
-		TypeDeclaration typeDeclaration = ((SourceTypeBinding)typeBinding).scope.referenceType();
+		if (typeBinding instanceof SourceTypeBinding) {
+			TypeDeclaration typeDeclaration = ((SourceTypeBinding)typeBinding).scope.referenceType();
 
-		// simple super class name
-		char[] superclassName = null;
-		TypeReference superclass;
-		if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
-			superclass = typeDeclaration.allocation.type;
-		} else {
-			superclass = typeDeclaration.superclass;
-		}
-		if (superclass != null) {
-			char[][] typeName = superclass.getTypeName();
-			superclassName = typeName == null ? null : typeName[typeName.length-1];
-		}
-
-		// simple super interface names
-		char[][] superInterfaceNames = null;
-		TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
-		if (superInterfaces != null) {
-			int length = superInterfaces.length;
-			superInterfaceNames = new char[length][];
-			for (int i = 0; i < length; i++) {
-				TypeReference superInterface = superInterfaces[i];
-				char[][] typeName = superInterface.getTypeName();
-				superInterfaceNames[i] = typeName[typeName.length-1];
+			// simple super class name
+			char[] superclassName = null;
+			TypeReference superclass;
+			if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
+				superclass = typeDeclaration.allocation.type;
+			} else {
+				superclass = typeDeclaration.superclass;
 			}
-		}
+			if (superclass != null) {
+				char[][] typeName = superclass.getTypeName();
+				superclassName = typeName == null ? null : typeName[typeName.length-1];
+			}
 
-		HierarchyType hierarchyType = new HierarchyType(
-			type,
-			typeDeclaration.name,
-			typeDeclaration.binding.modifiers,
-			superclassName,
-			superInterfaceNames);
-		remember(hierarchyType, typeDeclaration.binding);
+			// simple super interface names
+			char[][] superInterfaceNames = null;
+			TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
+			if (superInterfaces != null) {
+				int length = superInterfaces.length;
+				superInterfaceNames = new char[length][];
+				for (int i = 0; i < length; i++) {
+					TypeReference superInterface = superInterfaces[i];
+					char[][] typeName = superInterface.getTypeName();
+					superInterfaceNames[i] = typeName[typeName.length-1];
+				}
+			}
+
+			HierarchyType hierarchyType = new HierarchyType(
+					type,
+					typeDeclaration.name,
+					typeDeclaration.binding.modifiers,
+					superclassName,
+					superInterfaceNames);
+			remember(hierarchyType, typeDeclaration.binding);
+		} else {
+			HierarchyType hierarchyType = new HierarchyType(
+					type,
+					typeBinding.sourceName(),
+					typeBinding.modifiers,
+					typeBinding.superclass().sourceName(),
+					new char [][] { typeBinding.superInterfaces()[0].sourceName() });
+			remember(hierarchyType, typeBinding);
+		}
 	}
 
 }
@@ -456,16 +468,29 @@ private void rememberAllTypes(CompilationUnitDeclaration parsedUnit, org.eclipse
 			rememberWithMemberTypes(type, cu.getType(new String(type.name)));
 		}
 	}
-	if (includeLocalTypes && parsedUnit.localTypes != null) {
-		HandleFactory factory = new HandleFactory();
-		HashSet existingElements = new HashSet(parsedUnit.localTypeCount);
-		HashMap knownScopes = new HashMap(parsedUnit.localTypeCount);
+	if (!includeLocalTypes || (parsedUnit.localTypes == null && parsedUnit.functionalExpressions == null))
+		return;
+	
+	HandleFactory factory = new HandleFactory();
+	HashSet existingElements = new HashSet(parsedUnit.localTypeCount + parsedUnit.functionalExpressionsCount);
+	HashMap knownScopes = new HashMap(parsedUnit.localTypeCount + parsedUnit.functionalExpressionsCount);
+	
+	if (parsedUnit.localTypes != null) {
 		for (int i = 0; i < parsedUnit.localTypeCount; i++) {
 			LocalTypeBinding localType = parsedUnit.localTypes[i];
 			ClassScope classScope = localType.scope;
 			TypeDeclaration typeDecl = classScope.referenceType();
 			IType typeHandle = (IType)factory.createElement(classScope, cu, existingElements, knownScopes);
 			rememberWithMemberTypes(typeDecl, typeHandle);
+		}
+	}
+	if (parsedUnit.functionalExpressions != null) {
+		for (int i = 0; i < parsedUnit.functionalExpressionsCount; i++) {
+			if (parsedUnit.functionalExpressions[i] instanceof LambdaExpression) {
+				final LambdaExpression expression = (LambdaExpression) parsedUnit.functionalExpressions[i];
+				IType typeHandle = (IType)factory.createLambdaTypeElement(expression, cu, existingElements, knownScopes);
+				remember(typeHandle, expression.getTypeBinding());
+			}
 		}
 	}
 }
@@ -637,6 +662,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 
 		// build type bindings
 		Parser parser = new Parser(this.lookupEnvironment.problemReporter, true);
+		final boolean isJava8 = this.options.sourceLevel >= ClassFileConstants.JDK1_8;
 		for (int i = 0; i < openablesLength; i++) {
 			Openable openable = openables[i];
 			if (openable instanceof org.eclipse.jdt.core.ICompilationUnit) {
@@ -670,7 +696,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 						// types/cu exist since cu is opened
 					}
 					int flags = !containsLocalType
-						? SourceTypeConverter.MEMBER_TYPE
+						? SourceTypeConverter.MEMBER_TYPE | (isJava8 ? SourceTypeConverter.METHOD : 0)
 						: SourceTypeConverter.FIELD_AND_METHOD | SourceTypeConverter.MEMBER_TYPE | SourceTypeConverter.LOCAL_TYPE;
 					parsedUnit =
 						SourceTypeConverter.buildCompilationUnit(
@@ -687,9 +713,18 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 					// create parsed unit from file
 					IFile file = (IFile) cu.getResource();
 					ICompilationUnit sourceUnit = this.builder.createCompilationUnitFromPath(openable, file);
-
+					if (isJava8 && !containsLocalType) {
+						try {
+							// move state to handle as this defeats the purpose.
+							final CompilationUnitElementInfo compilationUnitElementInfo = (CompilationUnitElementInfo) openable.getElementInfo();
+							if (compilationUnitElementInfo.hasFunctionalTypes)  
+								containsLocalType = true;
+						} catch (JavaModelException e) {
+							// drop.
+						}
+					}
 					CompilationResult unitResult = new CompilationResult(sourceUnit, i, openablesLength, this.options.maxProblemsPerUnit);
-					parsedUnit = parser.dietParse(sourceUnit, unitResult);
+					parsedUnit = containsLocalType ? parser.parse(sourceUnit, unitResult) : parser.dietParse(sourceUnit, unitResult);
 				}
 
 				if (parsedUnit != null) {

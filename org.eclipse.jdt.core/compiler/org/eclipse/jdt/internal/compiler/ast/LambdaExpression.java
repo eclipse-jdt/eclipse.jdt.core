@@ -111,6 +111,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	public boolean shouldCaptureInstance = false;
 	private boolean assistNode = false;
 	private boolean hasIgnoredMandatoryErrors = false;
+	private ReferenceBinding classType;
+	public int ordinal;
 	private static final SyntheticArgumentBinding [] NO_SYNTHETIC_ARGUMENTS = new SyntheticArgumentBinding[0];
 	private static final Block NO_BODY = new Block(0, true);
 
@@ -146,10 +148,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		return this.resultExpressions;
 	}
 
-	public int getSyntheticArgumentSize() {
-		return this.outerLocalVariables.length;
-	}
-	
 	public void setArrowPosition(int arrowPosition) {
 		this.arrowPosition = arrowPosition;
 	}
@@ -220,6 +218,10 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if (this.resolvedType != null)
 			return this.resolvedType;
 		
+		if (this.expectedType != null && this.original == this) {  // final resolution.
+			this.ordinal = blockScope.referenceCompilationUnit().record(this);
+		}
+		
 		this.constant = Constant.NotAConstant;
 		this.enclosingScope = blockScope;
 		
@@ -257,7 +259,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		}
 		
 		this.binding = new MethodBinding(ClassFileConstants.AccPrivate | ClassFileConstants.AccSynthetic | ExtraCompilerModifiers.AccUnresolved,
-							TypeConstants.ANONYMOUS_METHOD, // will be fixed up later.
+							CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.ordinal).toCharArray()), // will be fixed up later.
 							haveDescriptor ? this.descriptor.returnType : null, 
 							Binding.NO_PARAMETERS, // for now. 
 							haveDescriptor ? this.descriptor.thrownExceptions : Binding.NO_EXCEPTIONS, 
@@ -722,9 +724,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				copy.setExpectedType(left);
 				this.hasIgnoredMandatoryErrors = false;
 				TypeBinding type = copy.resolveType(this.enclosingScope);
-				if (!argumentsTypeElided()) {
-					this.argumentTypes = copy.argumentTypes;
-				}
 				if (this.body instanceof Block) {
 					if (this.returnsVoid) {
 						this.shapeAnalysisComplete = true;
@@ -1212,5 +1211,34 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			}
 		}
 		return null;
+	}
+
+	public ReferenceBinding getTypeBinding() {
+	
+		if (this.classType != null || this.resolvedType == null)
+			return null;
+		
+		class LambdaTypeBinding extends ReferenceBinding {
+			public MethodBinding[] methods() {
+				return new MethodBinding [] { getMethodBinding() };
+			}
+			public char[] sourceName() {
+				return TypeConstants.LAMBDA_TYPE;
+			}
+			public ReferenceBinding superclass() {
+				return LambdaExpression.this.scope.getJavaLangObject();
+			}
+			public ReferenceBinding[] superInterfaces() {
+				return new ReferenceBinding[] { (ReferenceBinding) LambdaExpression.this.resolvedType };
+			}
+			public String toString() {
+				StringBuffer output = new StringBuffer("()->{} implements "); //$NON-NLS-1$
+				output.append(LambdaExpression.this.descriptor.declaringClass.sourceName());
+				output.append('.');
+				output.append(LambdaExpression.this.descriptor.toString());
+				return output.toString();
+			}
+		}
+		return this.classType = new LambdaTypeBinding();
 	}
 }

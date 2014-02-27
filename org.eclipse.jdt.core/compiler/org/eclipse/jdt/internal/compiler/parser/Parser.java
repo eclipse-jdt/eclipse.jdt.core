@@ -7977,6 +7977,7 @@ protected void consumeLambdaExpression() {
 		this.lastCheckPoint = body.sourceEnd + 1;
 	}
 	this.referenceContext.compilationResult().hasFunctionalTypes = true;
+	markEnclosingMemberWithLocalTypeOrLambda();
 }
 
 protected Argument typeElidedArgument() {
@@ -10612,6 +10613,9 @@ private void jumpOverType(){
 }
 protected void markEnclosingMemberWithLocalType() {
 	if (this.currentElement != null) return; // this is already done in the recovery code
+	markEnclosingMemberWithLocalTypeOrLambda();
+}
+protected void markEnclosingMemberWithLocalTypeOrLambda() {
 	for (int i = this.astPtr; i >= 0; i--) {
 		ASTNode node = this.astStack[i];
 		if (node instanceof AbstractMethodDeclaration
