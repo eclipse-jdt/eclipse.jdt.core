@@ -24,8 +24,8 @@ public class CaptureBinding18 extends CaptureBinding {
 	TypeBinding[] upperBounds;
 	private char[] originalName;
 
-	public CaptureBinding18(ReferenceBinding contextType, char[] sourceName, char[] originalName, int captureID, LookupEnvironment environment) {
-		super(contextType, sourceName, 0, captureID, environment);
+	public CaptureBinding18(ReferenceBinding contextType, char[] sourceName, char[] originalName, int position, int captureID, LookupEnvironment environment) {
+		super(contextType, sourceName, position, captureID, environment);
 		this.originalName = originalName;
 	}
 	
@@ -72,7 +72,7 @@ public class CaptureBinding18 extends CaptureBinding {
 	}
 
 	public TypeBinding clone(TypeBinding enclosingType) {
-		return new CaptureBinding18(this.sourceType, this.sourceName, this.originalName, this.captureID, this.environment);
+		return new CaptureBinding18(this.sourceType, this.sourceName, this.originalName, this.position, this.captureID, this.environment);
 	}
 
 	public MethodBinding[] getMethods(char[] selector) {
@@ -289,5 +289,16 @@ public class CaptureBinding18 extends CaptureBinding {
 	@Override
 	public TypeBinding uncapture(Scope scope) {
 		return this;
+	}
+	@Override
+	public char[] computeUniqueKey(boolean isLeaf) {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(TypeConstants.CAPTURE18);
+		buffer.append('{').append(this.position).append('#').append(this.captureID).append('}');
+		buffer.append(';');
+		int length = buffer.length();
+		char[] uniqueKey = new char[length];
+		buffer.getChars(0, length, uniqueKey, 0);
+		return uniqueKey;
 	}
 }

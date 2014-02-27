@@ -37,6 +37,7 @@ import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.util.Sorting;
 
 /**
  * Main class for new type inference as per JLS8 sect 18.
@@ -908,6 +909,7 @@ public class InferenceContext18 {
 	 * @throws InferenceFailureException 
 	 */
 	private /*@Nullable*/ BoundSet resolve(InferenceVariable[] toResolve) throws InferenceFailureException {
+		this.captureId = 0;
 		// NOTE: 18.5.2 ... 
 		// "(While it was necessary to demonstrate that the inference variables in B1 could be resolved
 		//   in order to establish applicability, the resulting instantiations are not considered part of B1.)
@@ -965,6 +967,7 @@ public class InferenceContext18 {
 						tmpBoundSet = prevBoundSet;// clean-up for second attempt
 					}
 					// Otherwise, a second attempt is made...
+					Sorting.sortInferenceVariables(variables); // ensure stability of capture IDs
 					final CaptureBinding18[] zs = new CaptureBinding18[numVars];
 					for (int j = 0; j < numVars; j++)
 						zs[j] = freshCapture(variables[j]);
@@ -1032,13 +1035,14 @@ public class InferenceContext18 {
 		return tmpBoundSet;
 	}
 	
-	// === FIXME(stephan): this capture business is a bit drafty: ===
 	int captureId = 0;
 	
 	/** For 18.4: "Let Z1, ..., Zn be fresh type variables" use capture bindings. */
 	private CaptureBinding18 freshCapture(InferenceVariable variable) {
 		char[] sourceName = CharOperation.concat("Z-".toCharArray(), variable.sourceName); //$NON-NLS-1$
-		return new CaptureBinding18(this.scope.enclosingSourceType(), sourceName, variable.typeParameter.shortReadableName(), this.captureId++, this.environment);
+		int position = this.currentInvocation != null ? this.currentInvocation.sourceStart() : 0;
+		return new CaptureBinding18(this.scope.enclosingSourceType(), sourceName, variable.typeParameter.shortReadableName(),
+						position, this.captureId++, this.environment);
 	}
 	// === ===
 	

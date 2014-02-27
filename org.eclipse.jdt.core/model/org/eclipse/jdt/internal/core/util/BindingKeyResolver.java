@@ -1,12 +1,18 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 IBM Corporation and others.
+ * Copyright (c) 2005, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *     							Bug 425183 - [1.8][inference] make CaptureBinding18 safe
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
@@ -32,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
+import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding18;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -138,10 +145,18 @@ public class BindingKeyResolver extends BindingKeyParser {
 		}
 	}
 
+	public void consumeCapture18ID(int id, int position) {
+		consumeAnyCapture(id, position);
+	}
+
 	public void consumeCapture(final int position) {
+		consumeAnyCapture(-1, position);
+	}
+	public void consumeAnyCapture(final int capture18id, final int position) {
 		CompilationUnitDeclaration outerParsedUnit = this.outerMostParsedUnit == null ? this.parsedUnit : this.outerMostParsedUnit;
 		if (outerParsedUnit == null) return;
-		final Binding wildcardBinding = ((BindingKeyResolver) this.types.get(0)).compilerBinding;
+		final Binding wildcardBinding = this.types.size() > 0  // 0 may happen for CaptureBinding18
+				? ((BindingKeyResolver) this.types.get(0)).compilerBinding : null;
 		class CaptureFinder extends ASTVisitor {
 			CaptureBinding capture;
 			boolean checkType(TypeBinding binding) {
@@ -174,6 +189,10 @@ public class BindingKeyResolver extends BindingKeyParser {
 						if (binding.isCapture()) {
 							CaptureBinding captureBinding = (CaptureBinding) binding;
 							if (captureBinding.position == position && captureBinding.wildcard == wildcardBinding) {
+								if (captureBinding instanceof CaptureBinding18) {
+									if (((CaptureBinding18)captureBinding).captureID != capture18id)
+										return false;
+								}
 								this.capture = captureBinding;
 								return true;
 							}

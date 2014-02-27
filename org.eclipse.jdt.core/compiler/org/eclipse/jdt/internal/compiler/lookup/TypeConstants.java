@@ -19,6 +19,7 @@
  *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
  *								Bug 405569 - Resource leak check false positive when using DbUtils.closeQuietly
  *								Bug 427199 - [1.8][resource] avoid resource leak warnings on Streams that have no resource
+ *								Bug 425183 - [1.8][inference] make CaptureBinding18 safe
  *    Jesper S Moller - Contributions for
  *								Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -68,6 +69,7 @@ public interface TypeConstants {
     char[] WILDCARD_CAPTURE_NAME_PREFIX = "capture#".toCharArray(); //$NON-NLS-1$
     char[] WILDCARD_CAPTURE_NAME_SUFFIX = "-of ".toCharArray(); //$NON-NLS-1$
 	char[] WILDCARD_CAPTURE = { '!' };
+	char[] CAPTURE18 = { '^' };
 	char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
 	char[] SHORT = "short".toCharArray(); //$NON-NLS-1$
 	char[] INT = "int".toCharArray(); //$NON-NLS-1$

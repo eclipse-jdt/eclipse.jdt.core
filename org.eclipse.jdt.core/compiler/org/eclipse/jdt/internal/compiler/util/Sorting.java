@@ -14,6 +14,10 @@
  **********************************************************************/
 package org.eclipse.jdt.internal.compiler.util;
 
+import java.util.Arrays;
+import java.util.Comparator;
+
+import org.eclipse.jdt.internal.compiler.lookup.InferenceVariable;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -107,5 +111,15 @@ public class Sorting {
 			if (!methods[i].isAbstract())
 				copy[idx++] = methods[i];
 		return copy;
+	}
+
+	/** Sort inference variables by rank. */
+	public static void sortInferenceVariables(InferenceVariable[] variables) {
+		Arrays.sort(variables, new Comparator<InferenceVariable>() {
+			@Override
+			public int compare(InferenceVariable iv1, InferenceVariable iv2) {
+				return iv1.rank - iv2.rank;
+			}
+		});		
 	}
 }

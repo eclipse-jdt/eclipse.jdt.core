@@ -11,6 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 425183 - [1.8][inference] make CaptureBinding18 safe
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
@@ -19,26 +21,11 @@ import java.util.List;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.AnnotatableType;
-import org.eclipse.jdt.core.dom.ArrayCreation;
-import org.eclipse.jdt.core.dom.ArrayType;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Dimension;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.LambdaExpression;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 public class ASTConverter18Test extends ConverterTestSetup {
 
@@ -4296,4 +4283,50 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		ITypeBinding returnType = functionalInterfaceMethod.getReturnType();
 		assertEquals("Y", returnType.getName());
 	}
+
+// round-trip for binding keys of CaptureBinding18:
+public void testBug425183a() throws JavaModelException {
+	String contents = 
+			"interface Comparator<T> {\n" +
+			"    public static <T extends Comparable<? super T>> Comparator<T> naturalOrder() { return null; }\n" +
+			"}\n" + 
+			"public class Bug425183a {\n" +
+			"    @SuppressWarnings(\"unchecked\")\n" + 
+			"	<T> void test() {\n" + 
+			"		Comparator<? super T> comparator = (Comparator<? super T>) Comparator.naturalOrder();\n" +
+			"		System.out.println(\"OK\");\n" + 
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new Bug425183a().test();\n" +
+			"	}\n" +
+			"}\n";
+	
+	this.workingCopy = getWorkingCopy("/Converter18/src/Bug425183a.java", true);
+	ASTNode node = buildAST(contents, this.workingCopy);
+	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+	CompilationUnit compilationUnit = (CompilationUnit) node;
+	assertProblemsSize(compilationUnit, 0);
+	
+	String selection = "naturalOrder";
+	int start = contents.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopy.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"naturalOrder() {key=LBug425183a~Comparator<>;.naturalOrder<T::Ljava/lang/Comparable<-TT;>;>()LComparator<TT;>;%<^{267#0};>} [in Comparator [in [Working copy] Bug425183a.java [in <default> [in src [in Converter18]]]]]",
+		elements,
+		true
+	);
+	IMethod method = (IMethod)elements[0];
+	String[] keys = new String[] { method.getKey() };
+	BindingRequestor requestor = new BindingRequestor();
+	resolveASTs(new ICompilationUnit[] { this.workingCopy } , keys, requestor, getJavaProject("Converter18"), null);
+	assertBindingsEqual(
+			keys[0],
+			requestor.getBindings(keys));
+	
+	// assert that KeyToSignature doesn't throw AIOOBE, the result containing '!*' is a workaround for now, see https://bugs.eclipse.org/429264
+	assertEquals("wrong signature", "<T::Ljava.lang.Comparable<-TT;>;>()LComparator<!*>;", new BindingKey(method.getKey()).toSignature());
+}
 }
