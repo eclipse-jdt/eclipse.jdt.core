@@ -3428,6 +3428,90 @@ public void test428642() {
 			true,
 			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429112,  [1.8][compiler] Exception when compiling Serializable array constructor reference
+public void test429112() {
+	this.runConformTest(
+			new String[] {
+				"ArrayConstructorReference.java",
+				"import java.io.Serializable;\n" +
+				"import java.util.function.IntFunction;\n" +
+				"public class ArrayConstructorReference {\n" +
+				"  interface IF extends IntFunction<Object>, Serializable {}\n" +
+				"  public static void main(String[] args) {\n" +
+				"    IF factory=String[][][]::new;\n" +
+				"    Object o = factory.apply(10);\n" +
+				"    System.out.println(o.getClass());\n" +
+				"    String [][][] sa = (String [][][]) o;\n" +
+				"    System.out.println(sa.length);\n" +
+				"  }\n" +
+				"}\n"
+			},
+			"class [[[Ljava.lang.String;\n" + 
+			"10");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429112,  [1.8][compiler] Exception when compiling Serializable array constructor reference
+public void test429112a() {
+	this.runConformTest(
+			new String[] {
+				"ArrayConstructorReference.java",
+				"import java.io.Serializable;\n" +
+				"import java.util.function.IntFunction;\n" +
+				"public class ArrayConstructorReference {\n" +
+				"  interface IF extends IntFunction<Object>, Serializable {}\n" +
+				"  public static void main(String[] args) {\n" +
+				"    IF factory=java.util.function.IntFunction[][][]::new;\n" +
+				"    Object o = factory.apply(10);\n" +
+				"    System.out.println(o.getClass());\n" +
+				"    java.util.function.IntFunction[][][] sa = (java.util.function.IntFunction[][][]) o;\n" +
+				"    System.out.println(sa.length);\n" +
+				"  }\n" +
+				"}\n"
+			},
+			"class [[[Ljava.util.function.IntFunction;\n" + 
+			"10");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429112,  [1.8][compiler] Exception when compiling Serializable array constructor reference
+public void test429112b() {
+	this.runConformTest(
+			new String[] {
+				"ArrayConstructorReference.java",
+				"import java.io.Serializable;\n" +
+				"import java.util.function.IntFunction;\n" +
+				"public class ArrayConstructorReference {\n" +
+				"  interface IF extends IntFunction<Object>, Serializable {}\n" +
+				"  public static void main(String[] args) {\n" +
+				"    IF factory=java.util.function.IntFunction[]::new;\n" +
+				"    Object o = factory.apply(10);\n" +
+				"    System.out.println(o.getClass());\n" +
+				"    java.util.function.IntFunction[] sa = (java.util.function.IntFunction[]) o;\n" +
+				"    System.out.println(sa.length);\n" +
+				"  }\n" +
+				"}\n"
+			},
+			"class [Ljava.util.function.IntFunction;\n" + 
+			"10");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429112,  [1.8][compiler] Exception when compiling Serializable array constructor reference
+public void test429112c() {
+	this.runConformTest(
+			new String[] {
+				"ArrayConstructorReference.java",
+				"import java.io.Serializable;\n" +
+				"import java.util.function.IntFunction;\n" +
+				"public class ArrayConstructorReference {\n" +
+				"  interface IF extends IntFunction<Object>, Serializable {}\n" +
+				"  public static void main(String[] args) {\n" +
+				"    IF factory=String[]::new;\n" +
+				"    Object o = factory.apply(10);\n" +
+				"    System.out.println(o.getClass());\n" +
+				"    String [] sa = (String []) o;\n" +
+				"    System.out.println(sa.length);\n" +
+				"  }\n" +
+				"}\n"
+			},
+			"class [Ljava.lang.String;\n" + 
+			"10");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

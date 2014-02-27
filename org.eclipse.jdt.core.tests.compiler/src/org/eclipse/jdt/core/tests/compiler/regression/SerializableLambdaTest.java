@@ -1205,7 +1205,39 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 				new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
 	
-	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429112, [1.8][compiler] Exception when compiling Serializable array constructor reference
+	public void test429112() throws Exception {
+		this.runConformTest(
+				new String[]{
+					"X.java",
+					"import java.io.*;\n" +
+					"import java.util.function.IntFunction;\n" +
+					"public class X {\n" +
+					"  interface IF extends IntFunction<Object>, Serializable {}\n" +
+					"  public static void main(String[] args) throws IOException, ClassNotFoundException {\n" +
+					"    IF factory=String[]::new;\n" +
+					"    Object o = factory.apply(1234);\n" +
+					"		ByteArrayOutputStream debug=new ByteArrayOutputStream();\n"+
+					"		try(ObjectOutputStream oo=new ObjectOutputStream(debug))\n"+
+					"		{\n"+
+					"			oo.writeObject(factory);\n"+
+					"		}\n"+
+					"		try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray())))\n"+
+					"		{\n"+
+					"			IF x = (IF)oi.readObject();\n"+
+					"			Object p = x.apply(1234);\n"+
+					"           System.out.println(p.getClass());\n" +
+					"           String [] sa = (String []) p;\n" +
+					"           System.out.println(sa.length);\n" +
+					"		}\n"+
+					"	}\n"+
+					"}\n",
+				},
+				"class [Ljava.lang.String;\n" + 
+				"1234",
+				null,true,
+				new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
+	}
 	// ---
 	
 	private void checkExpected(String expected, String actual) {

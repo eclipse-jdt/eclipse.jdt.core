@@ -131,6 +131,21 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			message.typeArguments = copy.typeArguments;
 			message.arguments = argv;
 			implicitLambda.setBody(message);
+		} else if (isArrayConstructorReference()) {
+			// We don't care for annotations, source positions etc. They are immaterial, just drop.
+			ArrayAllocationExpression arrayAllocationExpression = new ArrayAllocationExpression();
+			arrayAllocationExpression.dimensions = new Expression[] { argv[0] };
+			if (this.lhs instanceof ArrayTypeReference) {
+				ArrayTypeReference arrayTypeReference = (ArrayTypeReference) this.lhs;
+				arrayAllocationExpression.type = arrayTypeReference.dimensions == 1 ? new SingleTypeReference(arrayTypeReference.token, 0L) : 
+																new ArrayTypeReference(arrayTypeReference.token, arrayTypeReference.dimensions - 1, 0L);
+			} else {
+				ArrayQualifiedTypeReference arrayQualifiedTypeReference = (ArrayQualifiedTypeReference) this.lhs;
+				arrayAllocationExpression.type = arrayQualifiedTypeReference.dimensions == 1 ? new QualifiedTypeReference(arrayQualifiedTypeReference.tokens, arrayQualifiedTypeReference.sourcePositions)
+																: new ArrayQualifiedTypeReference(arrayQualifiedTypeReference.tokens, arrayQualifiedTypeReference.dimensions - 1, 
+																		arrayQualifiedTypeReference.sourcePositions);
+			}
+			implicitLambda.setBody(arrayAllocationExpression);
 		} else {
 			AllocationExpression allocation = new AllocationExpression();
 			if (this.lhs instanceof TypeReference) {
