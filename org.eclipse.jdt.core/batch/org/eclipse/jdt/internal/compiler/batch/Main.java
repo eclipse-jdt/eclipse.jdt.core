@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4532,7 +4532,7 @@ protected void setPaths(ArrayList bootclasspaths,
 	 * entries are searched for both sources and binaries except
 	 * the sourcepath entries which are searched for sources only.
 	 */
-	bootclasspaths.addAll(endorsedDirClasspaths);
+	bootclasspaths.addAll(0, endorsedDirClasspaths);
 	bootclasspaths.addAll(extdirsClasspaths);
 	bootclasspaths.addAll(sourcepathClasspaths);
 	bootclasspaths.addAll(classpaths);

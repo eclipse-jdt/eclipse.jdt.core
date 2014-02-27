@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13984,5 +13984,54 @@ public void test408038e() {
 	        "----------\n" +
 	        "1 problem (1 warning)\n",
 			true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419351
+public void testBug419351() {
+	String backup = System.getProperty("java.endorsed.dirs");
+	String currentWorkingDirectoryPath = System.getProperty("user.dir");
+	if (currentWorkingDirectoryPath == null) {
+		fail("BatchCompilerTest#testBug419351 could not access the current working directory " + currentWorkingDirectoryPath);
+	} else if (!new File(currentWorkingDirectoryPath).isDirectory()) {
+		fail("BatchCompilerTest#testBug419351 current working directory is not a directory " + currentWorkingDirectoryPath);
+	}
+	String endorsedPath = currentWorkingDirectoryPath + File.separator + "endorsed";
+	new File(endorsedPath).mkdir();
+	String lib1Path = endorsedPath + File.separator + "lib1.jar";
+	try {
+		System.setProperty("java.endorsed.dirs", endorsedPath);
+		Util.createJar(
+				new String[] {
+						"java/lang/String.java",
+						"package java.lang;\n" + 
+						"public class String {\n" +
+						"    public String(java.lang.Object obj) {}\n" +
+						"}\n"
+				},
+				null,
+				lib1Path,
+				JavaCore.VERSION_1_5);
+		this.runConformTest(
+				new String[] {
+						"src/X.java",
+						"public class X {\n" +
+						"    public void foo(Object obj) {\n" +
+						"        java.lang.String str = new java.lang.String(obj);\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
+				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+				+ " -1.4 -nowarn"
+				+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+				"",
+				"",
+		        true);
+	} catch (IOException e) {
+		System.err.println("BatchCompilerTest#testBug419351 could not write to current working directory " + currentWorkingDirectoryPath);
+	} finally {
+		System.setProperty("java.endorsed.dirs", backup);
+		new File(endorsedPath).delete();
+		new File(lib1Path).delete();
+	}
 }
 }
