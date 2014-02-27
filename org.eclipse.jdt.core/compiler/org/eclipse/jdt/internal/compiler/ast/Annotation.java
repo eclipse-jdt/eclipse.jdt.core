@@ -901,6 +901,10 @@ public abstract class Annotation extends Expression {
 					// jsr 308
 					return true;
 				}
+				if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) {
+					// already reported as syntax error; don't report secondary problems
+					return true;
+				}
 				break;
 			case Binding.TYPE :
 			case Binding.GENERIC_TYPE :

@@ -3357,7 +3357,7 @@ public void test406846() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401850: [1.8][compiler] Compiler fails to type poly allocation expressions in method invocation contexts
 // FAIL: sub-optimal overload picked
-public void _test401850() {
+public void test401850() {
 	
 	if (this.complianceLevel < ClassFileConstants.JDK1_7)
 		return;
@@ -3377,5 +3377,36 @@ public void _test401850() {
 				"}\n",
 			},
 			this.complianceLevel == ClassFileConstants.JDK1_7 ? "foo(Object)" : "foo(X<String>)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429110: [1.8][quick fix] Hovering over the error does not show the quick fix
+//FAIL: sub-optimal overload picked
+public void test429110() {
+	if (this.complianceLevel != ClassFileConstants.JDK1_7)
+		return;
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"	@Target(ElementType.TYPE_USE)\n" +
+				"	static @interface NonNull { }\n" +
+				"	List<@NonNull String> foo(List<@NonNull String> arg) {\n" +
+				"		return arg;\n" +
+				"	}\n" +
+				"}\n"
+			}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	List<@NonNull String> foo(List<@NonNull String> arg) {\n" + 
+			"	     ^^^^^^^^\n" + 
+			"Syntax error, type annotations are available only when source level is at least 1.8\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	List<@NonNull String> foo(List<@NonNull String> arg) {\n" + 
+			"	                               ^^^^^^^^\n" + 
+			"Syntax error, type annotations are available only when source level is at least 1.8\n" + 
+			"----------\n");
 }
 }
