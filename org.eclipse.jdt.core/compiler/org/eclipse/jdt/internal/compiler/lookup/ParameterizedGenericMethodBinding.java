@@ -157,14 +157,14 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 						if (solutions != null) {
 							
 							methodSubstitute = scope.environment().createParameterizedGenericMethod(originalMethod, solutions);
-							if (compilerOptions.isAnnotationBasedNullAnalysisEnabled)
-								methodSubstitute = NullAnnotationMatching.checkForContraditions(methodSubstitute, invocationSite, scope);
 							if (hasReturnProblem) { // illegally working from the provisional result?
 								MethodBinding problemMethod = infCtx18.getReturnProblemMethodIfNeeded(expectedType, methodSubstitute);
 								if (problemMethod instanceof ProblemMethodBinding)
 									return problemMethod;
 							}
 							if (invocationTypeInferred) {
+								if (compilerOptions.isAnnotationBasedNullAnalysisEnabled)
+									methodSubstitute = NullAnnotationMatching.checkForContraditions(methodSubstitute, invocationSite, scope);
 								infCtx18.rebindInnerPolies(result, methodSubstitute.parameters);
 								return methodSubstitute.boundCheck18(scope, arguments);
 							} else {

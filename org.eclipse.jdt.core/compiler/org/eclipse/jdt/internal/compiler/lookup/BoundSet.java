@@ -244,9 +244,49 @@ class BoundSet {
 					boundTypes[i] = environment.createAnnotatedType(boundTypes[i], annot);
 			}
 		}
+		TypeBinding combineAndUseNullHints(TypeBinding type, long nullHints, LookupEnvironment environment) {
+			// precondition: only called when null annotations are enabled.
+			// TODO(optimization): may want to collect all nullHints in the ThreeSets, which, however,
+			// needs a reference TypeBound->ThreeSets to propagate the bits as they are added.
+			if (this.sameBounds != null) {
+				Iterator<TypeBound> it = this.sameBounds.iterator();
+				while(it.hasNext())
+					nullHints |= it.next().nullHints;
+			}
+			if (this.superBounds != null) {
+				Iterator<TypeBound> it = this.superBounds.iterator();
+				while(it.hasNext())
+					nullHints |= it.next().nullHints;
+			}
+			if (this.subBounds != null) {
+				Iterator<TypeBound> it = this.subBounds.iterator();
+				while(it.hasNext())
+					nullHints |= it.next().nullHints;
+			}
+			AnnotationBinding[] annot = environment.nullAnnotationsFromTagBits(nullHints);
+			if (annot != null)
+				// only get here if exactly one of @NonNull or @Nullable was hinted; now apply this hint:
+				return environment.createAnnotatedType(type, annot);
+			return type;
+		}
 		public void setInstantiation(TypeBinding type, LookupEnvironment environment) {
 			if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
-				// TODO check for existing instantiation and compare null annotations
+				if (this.instantiation != null) {
+					// sanity check:
+					if (!TypeBinding.equalsEquals(this.instantiation, type)) {
+						this.instantiation = null;
+						return; // incorporation should find the conflict and fail the inference
+					}
+					long oldBits = this.instantiation.tagBits & TagBits.AnnotationNullMASK;
+					if (oldBits != 0) {
+						long newBits = type.tagBits & TagBits.AnnotationNullMASK;
+						if (newBits == oldBits || newBits == 0)
+							return; // no update
+						AnnotationBinding[] annot = environment.nullAnnotationsFromTagBits(newBits);
+						if (annot != null)
+							type = environment.createAnnotatedType(this.instantiation, annot);
+					}
+				}
 			}
 			this.instantiation = type;
 		}
@@ -356,7 +396,9 @@ class BoundSet {
 		ThreeSets three = this.boundsPerVariable.get(inferenceVariable);
 		if (three != null) {
 			TypeBinding instantiation = three.instantiation;
-			// TODO consider null annotations if enabled
+			if (environment != null && environment.globalOptions.isAnnotationBasedNullAnalysisEnabled 
+					&& instantiation != null && (instantiation.tagBits & TagBits.AnnotationNullMASK) == 0)
+				return three.combineAndUseNullHints(instantiation, inferenceVariable.nullHints, environment);
 			return instantiation;
 		}
 		return null;

@@ -2679,6 +2679,37 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	// conflicting annotations from type variable application and type variable substitution
+	public void testNullTypeInference3c() { 
+		runNegativeTestWithLibs(
+			new String[] {
+				"Generics.java",
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"import java.util.*;\n" + 
+				"\n" + 
+				"interface Function<I,O> { }\n" + 
+				"abstract class MyFunc implements Function<@NonNull Object, @Nullable String> { }\n" + 
+				"  \n" + 
+				"public class Generics {\n" + 
+				"  <@NonNull I,@Nullable O> \n" + 
+				"  Collection<O> map1(Collection<I> in, Function<I, O> f) { return null; }\n" +
+				"  <@Nullable I,@NonNull O> \n" + 
+				"  Collection<O> map2(Collection<I> in, Function<I, O> f) { return null; }\n" +
+				"	void test(@NonNull List<Object> inList, MyFunc f) {\n" +
+				"		Collection<@Nullable String> result = map1(inList, f);\n" + 
+				"		map2(inList, f);\n" + 
+				"	}\n" +
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in Generics.java (at line 14)\n" + 
+			"	map2(inList, f);\n" + 
+			"	^^^^^^^^^^^^^^^\n" + 
+			"Contradictory null annotations: method was inferred as \'Collection<@NonNull @Nullable String> map2(Collection<@NonNull @Nullable Object>, Function<@NonNull @Nullable Object,@NonNull @Nullable String>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+			"----------\n");
+	}
+
 	// missing return type should not cause NPE
 	public void testBug415850_01() {
 		runNegativeTestWithLibs(

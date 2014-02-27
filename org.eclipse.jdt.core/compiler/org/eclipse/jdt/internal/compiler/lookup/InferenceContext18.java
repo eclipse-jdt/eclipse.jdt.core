@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Invocation;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
@@ -532,6 +533,8 @@ public class InferenceContext18 {
 				TypeBinding[] solutions = getSolutions(original.typeVariables(), invocation, result);
 				if (solutions != null) {
 					finalMethod = this.environment.createParameterizedGenericMethod(original, solutions);
+					if (this.scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled)
+						finalMethod = NullAnnotationMatching.checkForContraditions(finalMethod, invocation, this.scope);
 					invocation.registerInferenceContext(finalMethod, this);
 					this.solutionsPerTargetType.put(targetType, new Solution(finalMethod, result));
 				}
