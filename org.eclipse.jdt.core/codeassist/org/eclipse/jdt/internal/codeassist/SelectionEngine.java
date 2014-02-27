@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -504,7 +504,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				null/*taskPriorities*/,
 				true /*taskCaseSensitive*/);
 		scanner.setSource(source);
-
+		
 		int lastIdentifierStart = -1;
 		int lastIdentifierEnd = -1;
 		char[] lastIdentifier = null;
@@ -597,6 +597,19 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				}
 			} while (token != TerminalTokens.TokenNameEOF);
 		} else {
+			if (selectionStart == selectionEnd) { // Widen the selection to scan -> || :: if needed. No unicode handling for now.
+				if (selectionStart > 0 && selectionEnd < source.length - 1) {
+					if ((source[selectionStart] == '>' && source[selectionStart - 1] == '-') ||
+							source[selectionStart] == ':' && source[selectionStart - 1] == ':') { 
+						selectionStart--;
+					} else {
+						if ((source[selectionStart] == '-' && source[selectionEnd + 1] == '>') ||
+								source[selectionStart] == ':' && source[selectionEnd + 1] == ':') {
+							selectionEnd++;
+						}
+					}
+				}  
+			} // there could be some innocuous widening, shouldn't matter.
 			scanner.resetTo(selectionStart, selectionEnd);
 
 			boolean expectingIdentifier = true;
@@ -623,6 +636,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						expectingIdentifier = false;
 						break;
 					case TerminalTokens.TokenNameCOLON_COLON:	
+						if (selectionStart >= scanner.startPosition && selectionEnd < scanner.currentPosition) {
+							this.actualSelectionStart = selectionStart;
+							this.actualSelectionEnd = selectionEnd;
+							this.selectedIdentifier = CharOperation.NO_CHAR;
+							return true;		
+						}
+						//$FALL-THROUGH$
 					case TerminalTokens.TokenNameDOT :
 						if (expectingIdentifier)
 							return false;
@@ -640,6 +660,14 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						if(scanner.startPosition != scanner.initialPosition)
 							return false;
 						break;
+					case TerminalTokens.TokenNameARROW:
+						if (selectionStart >= scanner.startPosition && selectionEnd < scanner.currentPosition) {
+							this.actualSelectionStart = selectionStart;
+							this.actualSelectionEnd = selectionEnd;
+							this.selectedIdentifier = CharOperation.NO_CHAR;
+							return true;		
+						}
+						return false;
 					default :
 						return false;
 				}

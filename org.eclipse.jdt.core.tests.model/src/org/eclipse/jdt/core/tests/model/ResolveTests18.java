@@ -1987,4 +1987,175 @@ public void test424198c() throws JavaModelException {
 		true
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429262,  [1.8][code select] Hover/navigation support at -> and ::
+public void test429262() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"class Y {\n" +
+			"    static void goo(I i) {}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    public static void main(String [] args) {\n" +
+			"        Y.goo(x -> x * x);\n" +
+			"    }\n" +
+			"}\n" +
+			"interface I {\n" +
+			"	int foo(int x);\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "->";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo(int) [in I [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429262,  [1.8][code select] Hover/navigation support at -> and ::
+public void test429262a() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"class Y {\n" +
+			"    static void goo(I i) {}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    public static void main(String [] args) {\n" +
+			"        Y.goo(x -> x * x);\n" +
+			"    }\n" +
+			"}\n" +
+			"interface I {\n" +
+			"	int foo(int x);\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = ">";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo(int) [in I [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429262,  [1.8][code select] Hover/navigation support at -> and ::
+public void test429262b() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"class Y {\n" +
+			"    static void goo(I i) {}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    public static void main(String [] args) {\n" +
+			"        Y.goo(x -> x * x);\n" +
+			"    }\n" +
+			"}\n" +
+			"interface I {\n" +
+			"	int foo(int x);\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "-";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo(int) [in I [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429262,  [1.8][code select] Hover/navigation support at -> and ::
+public void test429262c() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"class Y {\n" +
+			"    static void goo(I i) {}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    static int zoo(int x) { return x; }\n" +
+			"    public static void main(String [] args) {\n" +
+			"        Y.goo(X::zoo);\n" +
+			"    }\n" +
+			"}\n" +
+			"interface I {\n" +
+			"	int foo(int x);\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "::";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo(int) [in I [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429262,  [1.8][code select] Hover/navigation support at -> and ::
+public void test429262d() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"class Y {\n" +
+			"    static void goo(I i) {}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    static int zoo(int x) { return x; }\n" +
+			"    public static void main(String [] args) {\n" +
+			"        Y.goo(X::zoo);\n" +
+			"    }\n" +
+			"}\n" +
+			"interface I {\n" +
+			"	int foo(int x);\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = ":";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo(int) [in I [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429262,  [1.8][code select] Hover/navigation support at -> and ::
+public void test429262e() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"class Y {\n" +
+			"    static void goo(I i) {}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    static int zoo(int x) { return x; }\n" +
+			"    public static void main(String [] args) {\n" +
+			"        Y.goo(X::zoo);\n" +
+			"    }\n" +
+			"}\n" +
+			"interface I {\n" +
+			"	int foo(int x);\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = ":";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo(int) [in I [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
 }

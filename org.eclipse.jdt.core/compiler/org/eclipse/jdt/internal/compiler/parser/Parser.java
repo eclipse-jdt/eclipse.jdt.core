@@ -957,6 +957,7 @@ public class Parser extends CommitRollbackParser implements ConflictedParser, Op
 	protected int lParenPos,rParenPos; //accurate only when used !
 	protected int modifiers;
 	protected int modifiersSourceStart;
+	protected int colonColonStart = -1;
 	protected int[] nestedMethod; //the ptr is nestedType
 
 	protected int nestedType, dimensions;
@@ -8793,6 +8794,9 @@ protected void consumeToken(int type) {
 	switch (type) {
 		case TokenNameARROW:
 			consumeLambdaHeader();
+			break;
+		case TokenNameCOLON_COLON:
+			this.colonColonStart = this.scanner.currentPosition - 2;
 			break;
 		case TokenNameBeginLambda:
 			flushCommentsDefinedPriorTo(this.scanner.currentPosition);

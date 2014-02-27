@@ -86,6 +86,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	private int depth;
 	private MethodBinding exactMethodBinding; // != null ==> exact method reference.
 	private boolean receiverPrecedesParameters = false;
+	protected boolean trialResolution = false;
 	
 	public ReferenceExpression() {
 		super();
@@ -654,6 +655,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			setExpressionContext(INVOCATION_CONTEXT);
 			setExpectedType(targetType);
 			this.binding = null;
+			this.trialResolution = true;
 			resolveType(this.enclosingScope);
 			return this.binding;
 		} finally {
@@ -664,6 +666,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			this.resolvedType = previousResolvedType;
 			setExpressionContext(previousContext);
 			this.expectedType = null; // don't call setExpectedType(null), would NPE
+			this.trialResolution = false;
 		}
 	}
 
@@ -781,12 +784,14 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
 		try {
 			this.binding = null;
+			this.trialResolution = true;
 			resolveType(this.enclosingScope);
 		} finally {
 			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 			isCompatible = this.binding != null && this.binding.isValidBinding();
 			this.binding = null;
 			setExpectedType(null);
+			this.trialResolution = false;
 		}
 		return isCompatible;
 	}

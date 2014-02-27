@@ -2212,7 +2212,7 @@ protected void reportMatching(LambdaExpression lambdaExpression,  IJavaElement p
 			int nameSourceStart = lambdaExpression.sourceStart;
 			if (encloses(enclosingElement)) {
 				SearchMatch match = null;
-				int length = lambdaExpression.getArrowPosition() + 1 - nameSourceStart;
+				int length = lambdaExpression.arrowPosition() + 1 - nameSourceStart;
 				match = this.patternLocator.newDeclarationMatch(lambdaExpression, enclosingElement, null, accuracy, length, this);
 				if (match != null) {
 					report(match);

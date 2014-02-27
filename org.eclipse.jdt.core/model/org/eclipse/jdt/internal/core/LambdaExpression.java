@@ -108,7 +108,7 @@ public class LambdaExpression extends SourceType {
 
 	@Override
 	public ISourceRange getNameRange() throws JavaModelException {
-		return new SourceRange(this.lambdaExpression.sourceStart, this.lambdaExpression.getArrowPosition() - this.lambdaExpression.sourceStart + 1);
+		return new SourceRange(this.lambdaExpression.sourceStart, this.lambdaExpression.arrowPosition() - this.lambdaExpression.sourceStart + 1);
 	}
 
 	@Override

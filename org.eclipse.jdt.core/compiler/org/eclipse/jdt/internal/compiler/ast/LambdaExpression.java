@@ -105,7 +105,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	boolean returnsValue;
 	public boolean isSerializable;
 	boolean returnsVoid;
-	private LambdaExpression original = this;
+	protected LambdaExpression original = this;
 	public SyntheticArgumentBinding[] outerLocalVariables = NO_SYNTHETIC_ARGUMENTS;
 	private int outerLocalVariablesSlotSize = 0;
 	public boolean shouldCaptureInstance = false;
@@ -152,7 +152,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		this.arrowPosition = arrowPosition;
 	}
 	
-	public int getArrowPosition() {
+	public int arrowPosition() {
 		return this.arrowPosition;
 	}
 	

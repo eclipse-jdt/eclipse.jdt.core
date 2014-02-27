@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
@@ -759,6 +760,31 @@ protected void consumeInstanceOfExpressionWithName() {
 		this.lastIgnoredToken = -1;
 	}
 }
+@Override
+protected void consumeLambdaExpression() {
+	super.consumeLambdaExpression();
+	LambdaExpression expression = (LambdaExpression) this.expressionStack[this.expressionPtr];
+	int arrowEnd = expression.arrowPosition();
+	int arrowStart = arrowEnd - 1;
+	if (this.selectionStart == arrowStart || this.selectionStart == arrowEnd) {
+		if (this.selectionEnd == arrowStart || this.selectionEnd == arrowEnd) {
+			this.expressionStack[this.expressionPtr] = new SelectionOnLambdaExpression(expression);
+		}
+	}
+}
+@Override
+protected void consumeReferenceExpression(ReferenceExpression referenceExpression) {
+	int kolonKolonStart = this.colonColonStart;
+	int kolonKolonEnd = kolonKolonStart + 1;
+	this.colonColonStart = -1;
+	if (this.selectionStart == kolonKolonStart || this.selectionStart == kolonKolonEnd) {
+		if (this.selectionEnd == kolonKolonStart || this.selectionEnd == kolonKolonEnd) {
+			referenceExpression = new SelectionOnReferenceExpression(referenceExpression);
+		}
+	}
+	super.consumeReferenceExpression(referenceExpression);
+}
+
 protected void consumeLocalVariableDeclarationStatement() {
 	super.consumeLocalVariableDeclarationStatement();
 

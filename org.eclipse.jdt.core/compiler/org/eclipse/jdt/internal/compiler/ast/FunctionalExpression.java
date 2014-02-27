@@ -49,7 +49,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public abstract class FunctionalExpression extends Expression {
 	
-	TypeBinding expectedType;
+	protected TypeBinding expectedType;
 	public MethodBinding descriptor;
 	public MethodBinding binding;                 // Code generation binding. May include synthetics. See getMethodBinding()
 	protected MethodBinding actualMethodBinding;  // void of synthetics.
@@ -57,7 +57,7 @@ public abstract class FunctionalExpression extends Expression {
 	protected ExpressionContext expressionContext = VANILLA_CONTEXT;
 	static Expression [] NO_EXPRESSIONS = new Expression[0];
 	protected Expression [] resultExpressions = NO_EXPRESSIONS;
-	protected CompilationResult compilationResult;
+	public CompilationResult compilationResult;
 	public BlockScope enclosingScope;
 	protected boolean ellipsisArgument;
 	public int bootstrapMethodNumber = -1;
