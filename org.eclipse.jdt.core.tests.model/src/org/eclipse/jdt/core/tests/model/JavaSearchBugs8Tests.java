@@ -83,11 +83,11 @@ public static Test suite() {
 //	suite.addTest(new JavaSearchBugs8Tests("testBug400899g22"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g23"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g24"));
-//	suite.addTest(new JavaSearchBugs8Tests("testBug400899g25"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400899g25"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g26"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g27"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g28"));
-//	suite.addTest(new JavaSearchBugs8Tests("testBug400899g29"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400899g29"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g30"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g31"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g32"));
@@ -837,7 +837,7 @@ assertSearchResults(
  * ReferenceType2 ::= ReferenceType '>>'
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
-public void _testBug400899g18() throws CoreException {
+public void testBug400899g18() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
 		"import java.lang.annotation.ElementType;\n" +
@@ -869,7 +869,7 @@ assertSearchResults(
  * ReferenceType3 ::= ReferenceType '>>>'
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
-public void _testBug400899g19() throws CoreException {
+public void testBug400899g19() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
 		"import java.lang.annotation.ElementType;\n" +
@@ -944,7 +944,7 @@ assertSearchResults(
  * TypeParameter1 ::= TypeParameterHeader 'extends' ReferenceType AdditionalBoundList1
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
-public void _testBug400899g22() throws CoreException {
+public void testBug400899g22() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
 		"import java.lang.annotation.ElementType;\n" +
@@ -1056,7 +1056,7 @@ assertSearchResults(
  * ReferenceExpressionTypeArgumentsAndTrunk ::= OnlyTypeArguments '.' ClassOrInterfaceType Dimsopt
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
-public void _testBug400899g25() throws CoreException {
+public void testBug400899g25() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
 		"import java.lang.annotation.ElementType;\n" +
@@ -1078,7 +1078,11 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"TODO: ADD THE EXPECTED RESULT HERE"
+		"src/b400899/X.java b400899.X$X [Marker] POTENTIAL_MATCH\n" +
+		"src/b400899/X.java b400899.X$X [Marker] POTENTIAL_MATCH\n" +
+		"src/b400899/X.java b400899.X$X [Marker] POTENTIAL_MATCH\n" +
+		"src/b400899/X.java b400899.X$X [Marker] POTENTIAL_MATCH\n" +
+		"src/b400899/X.java b400899.X$X [Marker] POTENTIAL_MATCH"
 );	
 }
 
@@ -1195,7 +1199,7 @@ assertSearchResults(
  * ReferenceType2 ::= ClassOrInterface '<' TypeArgumentList3
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
  */
-public void _testBug400899g29() throws CoreException {
+public void testBug400899g29() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
 		"import java.lang.annotation.ElementType;\n" +
@@ -1220,7 +1224,8 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"TODO: EXACT MATCH RESULTS TO BE ADDED"
+		"src/b400899/X.java b400899.Foo [Marker] EXACT_MATCH\n" +
+		"src/b400899/X.java b400899.Bar [Marker] EXACT_MATCH"
 );	
 }
 
