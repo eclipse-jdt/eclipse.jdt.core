@@ -2463,4 +2463,33 @@ public void testBug429090_comment1() {
 		"SetChangeListener.Change cannot be resolved to a type\n" + 
 		"----------\n");
 }
+public void testBug429090() {
+	runConformTest(
+		new String[] {
+			"Junk10.java",
+			"public class Junk10 {\n" + 
+			"    class Observable<T> {}\n" + 
+			"    interface InvalidationListener {\n" + 
+			"        public void invalidated(Observable observable);\n" + 
+			"    }\n" + 
+			"    interface SetChangeListener<E> {\n" + 
+			"        public static abstract class Change<E> {}\n" + 
+			"        void onChanged(Change<? extends E> change);\n" + 
+			"    }\n" + 
+			"    class SetListenerHelper<T> {}\n" + 
+			"    public static <E> SetListenerHelper<E> addListener(SetListenerHelper<E> helper, InvalidationListener listener) {\n" + 
+			"        return helper;\n" + 
+			"    }\n" + 
+			"    public static <E> SetListenerHelper<E> addListener(SetListenerHelper<E> helper, SetChangeListener<? super E> listener) {\n" + 
+			"        return helper;\n" + 
+			"    }\n" + 
+			"    void junk() {\n" + 
+			"        addListener(null, new SetChangeListener () {\n" + 
+			"            public void onChanged(SetChangeListener.Change change) {}\n" + 
+			"        });\n" + 
+			"        addListener(null, (SetChangeListener.Change<? extends Object> c) -> {});\n" + // original was without "extends Object" 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }
