@@ -964,6 +964,26 @@ public TypeBinding createAnnotatedType(TypeBinding type, AnnotationBinding[] new
 		System.arraycopy(newbies, 0, newbies = new AnnotationBinding[newLength + oldLength], 0, newLength);
 		System.arraycopy(oldies, 0, newbies, newLength, oldLength);
 	}
+	if (this.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+		// filter duplicate null annotations
+		// (do we want to filter other annotations as well? only if not repeatable?)
+		long tagBitsSeen = 0;
+		AnnotationBinding[] filtered = new AnnotationBinding[newbies.length];
+		int count = 0;
+		for (int i = 0; i < newbies.length; i++) {
+			long tagBits = 0;
+			switch (newbies[i].type.id) {
+				case TypeIds.T_ConfiguredAnnotationNonNull  : tagBits = TagBits.AnnotationNonNull; break;
+				case TypeIds.T_ConfiguredAnnotationNullable : tagBits = TagBits.AnnotationNullable; break;
+			}
+			if ((tagBitsSeen & tagBits) == 0) {
+				tagBitsSeen |= tagBits;
+				filtered[count++] = newbies[i];
+			}
+		}
+		if (count < newbies.length)
+			System.arraycopy(filtered, 0, newbies = new AnnotationBinding[count], 0, count);
+	}
 	return this.typeSystem.getAnnotatedType(type, new AnnotationBinding [][] { newbies });
 }
 
