@@ -38,6 +38,7 @@
  *							Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
  *							Bug 426996 - [1.8][inference] try to avoid method Expression.unresolve()? 
  *							Bug 428352 - [1.8][compiler] Resolution errors don't always surface
+ *							Bug 429203 - [1.8][compiler] NPE in AllocationExpression.binding
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *							bug 378674 - "The method can be declared as static" is wrong
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -716,9 +717,10 @@ public MethodBinding binding(TypeBinding targetType, boolean reportErrors, Scope
 	if (reportErrors && this.binding != null && !this.binding.isValidBinding()) {
 		if (this.binding.declaringClass == null)
 			this.binding.declaringClass = (ReferenceBinding) this.resolvedType;
-		scope.problemReporter().invalidConstructor(this, this.binding);
-		if (this.suspendedResolutionState != null)
+		if (this.suspendedResolutionState != null) {
+			scope.problemReporter().invalidConstructor(this, this.binding);
 			this.suspendedResolutionState.hasReportedError = true;
+		}
 	}
 	return this.binding;
 }

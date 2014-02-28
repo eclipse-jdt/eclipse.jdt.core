@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contribution for
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
+ *								Bug 429203 - [1.8][compiler] NPE in AllocationExpression.binding
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -2640,6 +2641,38 @@ public void test428220a() {
 		"	             ^^^^^^^\n" + 
 		"The public type HashMap must be defined in its own file\n" + 
 		"----------\n", null, true, customOptions);
+}
+public void testBug429203() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"DTest.java",
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"\n" + 
+			"public class DTest<T> {\n" + 
+			"	public DTest(Function<T, T> func) { }\n" + 
+			"	\n" + 
+			"	public DTest(DTest<Integer> dti) {}\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		DTest<String> t1 = new DTest<String>(new DTest<Integer>());\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in DTest.java (at line 10)\n" + 
+		"	DTest<String> t1 = new DTest<String>(new DTest<Integer>());\n" + 
+		"	                       ^^^^^\n" + 
+		"Redundant specification of type arguments <String>\n" + 
+		"----------\n" + 
+		"2. ERROR in DTest.java (at line 10)\n" + 
+		"	DTest<String> t1 = new DTest<String>(new DTest<Integer>());\n" + 
+		"	                                     ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The constructor DTest<Integer>() is undefined\n" +
+		"----------\n",
+		null, true, customOptions);
 }
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
