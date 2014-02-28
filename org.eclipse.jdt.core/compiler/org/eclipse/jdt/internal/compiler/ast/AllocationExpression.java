@@ -717,7 +717,8 @@ public MethodBinding binding(TypeBinding targetType, boolean reportErrors, Scope
 		if (this.binding.declaringClass == null)
 			this.binding.declaringClass = (ReferenceBinding) this.resolvedType;
 		scope.problemReporter().invalidConstructor(this, this.binding);
-		this.suspendedResolutionState.hasReportedError = true;
+		if (this.suspendedResolutionState != null)
+			this.suspendedResolutionState.hasReportedError = true;
 	}
 	return this.binding;
 }
