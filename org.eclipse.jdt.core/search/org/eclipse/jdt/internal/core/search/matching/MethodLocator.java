@@ -176,7 +176,7 @@ public int match(ASTNode node, MatchingNodeSet nodeSet) {
 
 public int match(LambdaExpression node, MatchingNodeSet nodeSet) {
 	if (!this.pattern.findDeclarations) return IMPOSSIBLE_MATCH;
-	if (this.pattern.parameterSimpleNames.length != node.arguments().length) return IMPOSSIBLE_MATCH;
+	if (this.pattern.parameterSimpleNames != null && this.pattern.parameterSimpleNames.length != node.arguments().length) return IMPOSSIBLE_MATCH;
 
 	nodeSet.mustResolve = true;
 	return nodeSet.addMatch(node, POSSIBLE_MATCH);

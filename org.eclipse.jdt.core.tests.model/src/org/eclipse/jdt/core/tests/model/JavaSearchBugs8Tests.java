@@ -139,6 +139,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0019"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0020"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0021"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0022"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -3080,6 +3081,28 @@ public void testBug400905_0021() throws CoreException {
 	} finally { 
 		deleteFolder(path);
 	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905#c35
+public void testBug400905_0022() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
+			"interface FunctionalInterface {\n" +
+			"	int thrice(int x);\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	int twice(int x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	FunctionalInterface i = (x) -> {return x * 3;}; \n" +
+			"	X x = null;\n" +
+			"	static void goo(FunctionalInterface i) {} \n" +
+			"} \n"
+	);
+	search("thrice", METHOD, DECLARATIONS, ERASURE_RULE, getJavaSearchScope(), this.resultCollector);
+	assertSearchResults(
+			"src/test/Test.java int test.FunctionalInterface.thrice(int) [thrice] EXACT_MATCH\n" + 
+			"src/test/Test.java int test.X.i:<lambda>#1.lambda$1(int) [(x) ->] EXACT_MATCH"
+	);
 }
 // Add new tests in JavaSearchBugs8Tests
 }
