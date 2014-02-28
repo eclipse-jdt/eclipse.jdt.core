@@ -273,6 +273,7 @@ public class ArrayType extends Type {
 	 * @return the component type node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS4
+	 * @see #dimensions()
 	 * @deprecated In the JLS8 API, the recursive structure is not valid.
 	 */
 	public Type getComponentType() {

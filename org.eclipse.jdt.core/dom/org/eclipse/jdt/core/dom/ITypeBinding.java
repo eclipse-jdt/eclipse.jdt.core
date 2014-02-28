@@ -119,10 +119,12 @@ public interface ITypeBinding extends IBinding {
 	/**
 	 * Returns the binding representing the component type of this array type,
 	 * or <code>null</code> if this is not an array type binding. The component
-	 * type of an array might be an array type.
+	 * type of an array might be an array type (with one dimension less than
+	 * this array type).
 	 *
 	 * @return the component type binding, or <code>null</code> if this is
 	 *   not an array type
+	 * @see #getElementType()
 	 * @since 3.2
 	 */
 	public ITypeBinding getComponentType();
@@ -260,7 +262,7 @@ public interface ITypeBinding extends IBinding {
 	/**
 	 * Returns the binding representing the element type of this array type,
 	 * or <code>null</code> if this is not an array type binding. The element
-	 * type of an array is never itself an array type.
+	 * type of an array type is never itself an array type.
 	 *
 	 * @return the element type binding, or <code>null</code> if this is
 	 *   not an array type
@@ -985,10 +987,10 @@ public interface ITypeBinding extends IBinding {
 	 * Returns whether this type binding represents a wildcard type. A wildcard
 	 * type occurs only as an argument to a parameterized type reference.
 	 * <p>
-	 * For example, a AST type like
-	 * <code>Collection&lt;? extends Object&gt;</code> typically resolves to a
+	 * For example, an AST type like
+	 * <code>Collection&lt;? extends Number&gt;</code> typically resolves to a
 	 * parameterized type binding whose type argument is a wildcard type
-	 * with upper type bound <code>java.util.Object</code>.
+	 * with upper type bound <code>java.lang.Number</code>.
 	 * </p>
 	 *
 	 * @return <code>true</code> if this object represents a wildcard type,
