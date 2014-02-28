@@ -90,6 +90,7 @@ public interface ITypeBinding extends IBinding {
 	 * @return the bound of this wildcard type, or <code>null</code> if none
 	 * @see #isWildcardType()
 	 * @see #isUpperbound()
+	 * @see #getTypeBounds()
 	 * @since 3.1
 	 */
 	public ITypeBinding getBound();
@@ -570,8 +571,9 @@ public interface ITypeBinding extends IBinding {
 	 *
 	 * @return the list of upper bounds for this type variable, wildcard, or capture,
      * or otherwise the empty list
+     * @see #isTypeVariable()
+     * @see #isWildcardType()
 	 * @see #isCapture()
-	 * @see #isTypeVariable()
 	 * @since 3.1
 	 */
 	public ITypeBinding[] getTypeBounds();
