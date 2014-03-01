@@ -14057,4 +14057,30 @@ public void test423849() {
 			"}\n"
 		});
 }
+// assure that an inherited bridge method need not be repeated
+public void testBug426546() {
+	runConformTest(
+		new String[] {
+			"C.java",
+			"class A {\n" + 
+			"   A getMe() { return null; }\n" + 
+			"}\n" + 
+			"class B extends A {\n" + 
+			"   B getMe() { return null; }\n" + 
+			"}\n" + 
+			"public class C extends B {\n" + 
+			"   C getMe() { return this; }\n" +
+			"   public String toString() { return \"C\"; }\n" + 
+			"   public static void main(String[] args) {\n" + 
+			"      C c = new C();\n" + 
+			"      System.out.print(c.getMe());\n" + 
+			"      B b = c;\n" + 
+			"      System.out.print(b.getMe());\n" + 
+			"      A a = c;\n" + 
+			"      System.out.print(a.getMe()); \n" + 
+			"   }\n" + 
+			"}\n"
+		},
+		"CCC");
+}
 }
