@@ -4255,4 +4255,48 @@ public void testTypeBounds4() {
 		"----------\n"
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429387, [1.8][compiler] AIOOBE in AbstractMethodDeclaration.createArgumentBindings
+public void _test429387() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import java.util.function.BiFunction;\n" +
+			"import java.util.function.Supplier;\n" +
+			"import java.util.function.ToIntFunction;\n" +
+			"import java.util.stream.IntStream;\n" +
+			"import java.util.stream.Stream;\n" +
+			"public interface X {\n" +
+			"static <BT, T extends BT, IS extends IntStream, E extends Exception> IntStreamy<E>\n" +
+			"internalFlatMapToInt(Functionish<BT, IS, E> mapper,\n" +
+			"Class<E> classOfE,\n" +
+			"Supplier<Stream<T>> maker) {\n" +
+			"BiFunction<Stream<T>, ToIntFunction<BT>, IntStream> func = (Stream<T> t, ToIntFunction<BT, IS> m) -> t.flatmmapToInt(m);\n" +
+			"return IntStreamy.fromFlatMap(func, mapper, classOfE, maker);\n" +
+			"}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	static <BT, T extends BT, IS extends IntStream, E extends Exception> IntStreamy<E>\n" + 
+		"	                                                                     ^^^^^^^^^^\n" + 
+		"IntStreamy cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	internalFlatMapToInt(Functionish<BT, IS, E> mapper,\n" + 
+		"	                     ^^^^^^^^^^^\n" + 
+		"Functionish cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	BiFunction<Stream<T>, ToIntFunction<BT>, IntStream> func = (Stream<T> t, ToIntFunction<BT, IS> m) -> t.flatmmapToInt(m);\n" + 
+		"	                                                                         ^^^^^^^^^^^^^\n" + 
+		"Incorrect number of arguments for type ToIntFunction<T>; it cannot be parameterized with arguments <BT, IS>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 12)\n" + 
+		"	return IntStreamy.fromFlatMap(func, mapper, classOfE, maker);\n" + 
+		"	       ^^^^^^^^^^\n" + 
+		"IntStreamy cannot be resolved\n" + 
+		"----------\n"
+	);
+}
 }
