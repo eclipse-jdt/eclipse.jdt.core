@@ -58,6 +58,7 @@
  *								bug 412151 - [1.8][compiler] Check repeating annotation's collection type
  *								bug 419209 - [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
  *								Bug 429384 - [1.8][null] implement conformance rules for null-annotated lower / upper type bounds
+ *								Bug 416182 - [1.8][compiler][null] Contradictory null annotations not rejected
  ********************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -4272,6 +4273,10 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 				},
 				(int) (messageSend.nameSourcePosition >>> 32),
 				(int) messageSend.nameSourcePosition);
+			return;
+		case ProblemReasons.ContradictoryNullAnnotations:
+			problemMethod = (ProblemMethodBinding) method;
+			contradictoryNullAnnotationsInferred(problemMethod.closestMatch, (ASTNode)messageSend);
 			return;
 		case ProblemReasons.NoError : // 0
 		default :

@@ -22,8 +22,10 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -323,8 +325,12 @@ public class NullAnnotationMatching {
 		return 0; // OK by tagBits
 	}
 
-	public static ParameterizedGenericMethodBinding checkForContraditions(
-			final ParameterizedGenericMethodBinding method, final InvocationSite invocationSite, final Scope scope) {
+	/**
+	 * After a method has substituted type parameters, check if this resulted in any contradictory null annotations.
+	 * Problems are either reported directly (if scope != null) or by returning a ProblemMethodBinding.
+	 */
+	public static MethodBinding checkForContraditions(
+			final MethodBinding method, final InvocationSite invocationSite, final Scope scope) {
 		
 		class SearchContradictions extends TypeBindingVisitor {
 			ReferenceBinding typeWithContradiction;
@@ -349,6 +355,8 @@ public class NullAnnotationMatching {
 		SearchContradictions searchContradiction = new SearchContradictions();
 		TypeBindingVisitor.visit(searchContradiction, method.returnType);
 		if (searchContradiction.typeWithContradiction != null) {
+			if (scope == null)
+				return new ProblemMethodBinding(method, method.selector, method.parameters, ProblemReasons.ContradictoryNullAnnotations);
 			scope.problemReporter().contradictoryNullAnnotationsInferred(method, invocationSite);
 			// note: if needed, we might want to update the method by removing the contradictory annotations??
 			return method;
@@ -360,6 +368,8 @@ public class NullAnnotationMatching {
 		for (int i = 0; i < method.parameters.length; i++) {
 			TypeBindingVisitor.visit(searchContradiction, method.parameters[i]);
 			if (searchContradiction.typeWithContradiction != null) {
+				if (scope == null)
+					return new ProblemMethodBinding(method, method.selector, method.parameters, ProblemReasons.ContradictoryNullAnnotations);
 				if (arguments != null && i < arguments.length)
 					scope.problemReporter().contradictoryNullAnnotationsInferred(method, arguments[i]);
 				else

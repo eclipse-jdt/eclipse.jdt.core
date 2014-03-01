@@ -21,6 +21,7 @@
  *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
  *								Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
  *								Bug 418743 - [1.8][null] contradictory annotations on invocation of generic method not reported
+ *								Bug 416182 - [1.8][compiler][null] Contradictory null annotations not rejected
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -164,7 +165,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 							}
 							if (invocationTypeInferred) {
 								if (compilerOptions.isAnnotationBasedNullAnalysisEnabled)
-									methodSubstitute = NullAnnotationMatching.checkForContraditions(methodSubstitute, invocationSite, scope);
+									NullAnnotationMatching.checkForContraditions(methodSubstitute, invocationSite, scope);
 								infCtx18.rebindInnerPolies(result, methodSubstitute.parameters);
 								return methodSubstitute.boundCheck18(scope, arguments);
 							} else {

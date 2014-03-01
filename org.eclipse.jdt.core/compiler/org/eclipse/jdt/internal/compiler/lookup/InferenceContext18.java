@@ -530,7 +530,7 @@ public class InferenceContext18 {
 				if (solutions != null) {
 					finalMethod = this.environment.createParameterizedGenericMethod(original, solutions);
 					if (this.scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled)
-						finalMethod = NullAnnotationMatching.checkForContraditions(finalMethod, invocation, this.scope);
+						NullAnnotationMatching.checkForContraditions(finalMethod, invocation, this.scope);
 					invocation.registerInferenceContext(finalMethod, this);
 					this.solutionsPerTargetType.put(targetType, new Solution(finalMethod, result));
 				}
@@ -1430,6 +1430,8 @@ public class InferenceContext18 {
 					TypeBinding[] arguments = getSolutions(declaringClass.typeVariables(), innerMessage, bounds);
 					declaringClass = this.environment.createParameterizedType(declaringClass, arguments, declaringClass.enclosingType());
 					original = ((ParameterizedTypeBinding)declaringClass).createParameterizedMethod(original);
+					if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled)
+						NullAnnotationMatching.checkForContraditions(original, innerMessage, this.scope);
 				}
 				
 				// apply results of the combined inference onto the binding of the inner invocation:

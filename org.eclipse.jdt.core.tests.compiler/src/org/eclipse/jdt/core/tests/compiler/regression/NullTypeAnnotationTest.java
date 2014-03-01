@@ -3185,7 +3185,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"		return t;\n" + 
 				"	}\n" + 
 				"	public static void main(String[] args) {\n" + 
-				"		X<@Nullable String> xs = new X<String>();\n" + // TODO(stephan): must detect that foo() now has contradictory annots, see bug 416190 
+				"		X<@Nullable String> xs = new X<String>();\n" + 
 				"		xs.foo(null);\n" + 
 				"	}\n" + 
 				"	\n" +
@@ -3199,10 +3199,10 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			},
 			getCompilerOptions(),
 			"----------\n" + 
-			"1. WARNING in X.java (at line 9)\n" + 
-			"	X<@Nullable String> xs = new X<String>();\n" + 
-			"	                         ^^^^^^^^^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type 'X<String>' needs unchecked conversion to conform to 'X<@Nullable String>'\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	xs.foo(null);\n" + 
+			"	^^^^^^^^^^^^\n" + 
+			"Contradictory null annotations: method was inferred as \'@Nullable String foo(@NonNull @Nullable String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 14)\n" + 
 			"	X<@Nullable String> xs = x;\n" + 

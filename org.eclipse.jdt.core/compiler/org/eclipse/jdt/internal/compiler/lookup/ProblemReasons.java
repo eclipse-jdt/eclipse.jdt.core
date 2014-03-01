@@ -16,6 +16,7 @@
  *	   Stephan Herrmann - Contribution for
  *								bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 416182 - [1.8][compiler][null] Contradictory null annotations not rejected
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -45,4 +46,5 @@ public interface ProblemReasons {
 	final int DefectiveContainerAnnotationType = 22;
 	final int ParameterizedMethodExpectedTypeProblem = 23;
 	final int ApplicableMethodOverriddenByInapplicable = 24;
+	final int ContradictoryNullAnnotations = 25;
 }
