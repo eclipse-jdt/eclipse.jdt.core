@@ -877,7 +877,7 @@ public void testBug424195_comment2() {
 			"\n" + 
 			"    public static void main(String argv[]) {\n" + 
 			"        ArrayList<Integer> al = IntStream\n" + 
-			"        	     .range(0, 10_000_000)\n" + 
+			"        	     .range(0, 10_000)\n" + 
 			"        	     .boxed()\n" + 
 			"        	     .collect(Collectors.toCollection(ArrayList::new));\n" + 
 			"\n" + 
