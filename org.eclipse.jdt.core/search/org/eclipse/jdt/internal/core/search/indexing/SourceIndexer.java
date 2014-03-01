@@ -26,10 +26,13 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -153,12 +156,13 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 			// Re-parse using normal parser, IndexingParser swallows several nodes, see comment above class.
 			this.basicParser = new Parser(problemReporter, false);
 			this.basicParser.reportOnlyOneSyntaxError = true;
+			this.basicParser.scanner.taskTags = null;
 			this.cud = this.basicParser.parse(this.compilationUnit, new CompilationResult(this.compilationUnit, 0, 0, this.options.maxProblemsPerUnit));
 
 			// Use a non model name environment to avoid locks, monitors and such.
 			INameEnvironment nameEnvironment = new JavaSearchNameEnvironment(javaProject, JavaModelManager.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, true/*add primary WCs*/));
 			this.lookupEnvironment = new LookupEnvironment(this, this.options, problemReporter, nameEnvironment);
-
+			reduceParseTree(this.cud);
 			this.lookupEnvironment.buildTypeBindings(this.cud, null);
 			this.lookupEnvironment.completeTypeBindings();
 			this.cud.scope.faultInTypes();
@@ -168,6 +172,32 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 				e.printStackTrace();
 			}
 		}
+	}
+
+	/**
+	 * Called prior to the unit being resolved. Reduce the parse tree where possible.
+	 */
+	private void reduceParseTree(CompilationUnitDeclaration unit) {
+		// remove statements from methods that have no functional interface types.
+		TypeDeclaration[] types = unit.types;
+		for (int i = 0, l = types.length; i < l; i++)
+			purgeMethodStatements(types[i]);
+	}
+
+	private void purgeMethodStatements(TypeDeclaration type) {
+		AbstractMethodDeclaration[] methods = type.methods;
+		for (int j = 0, length = methods.length; j < length; j++) {
+			AbstractMethodDeclaration method = methods[j];
+			if ((method.bits & ASTNode.HasFunctionalInterfaceTypes) == 0) {
+				method.statements = null;
+				method.javadoc = null;
+			}
+		}
+
+		TypeDeclaration[] memberTypes = type.memberTypes;
+		if (memberTypes != null)
+			for (int i = 0, l = memberTypes.length; i < l; i++)
+				purgeMethodStatements(memberTypes[i]);
 	}
 
 	public void indexResolvedDocument() {

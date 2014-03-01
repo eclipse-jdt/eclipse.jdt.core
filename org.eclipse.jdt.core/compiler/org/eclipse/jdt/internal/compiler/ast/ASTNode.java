@@ -320,6 +320,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for annotation reference, signal if annotation was created from a default:
 	public static final int IsSynthetic = ASTNode.Bit7;
 	
+	// for all reference context entries.
+	public static final int HasFunctionalInterfaceTypes = ASTNode.Bit22;
+	
 	public static final Argument [] NO_ARGUMENTS = new Argument [0];
 
 	public ASTNode() {
