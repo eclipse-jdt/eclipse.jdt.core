@@ -140,6 +140,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0020"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0021"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0022"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0023"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -3104,5 +3105,43 @@ public void testBug400905_0022() throws CoreException {
 			"src/test/Test.java int test.X.i:<lambda>#1.lambda$1(int) [(x) ->] EXACT_MATCH"
 	);
 }
+public void testBug400905_0023() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
+			"interface I { \n" +
+			"	int thrice(int x);\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	int twice(int x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	I i = (x) /* field */ -> {return x * 3;}; \n" +
+			"	X x = null;\n" +
+			"	static void goo(I i) {} \n" +
+			"	public static void main(String[] args) { \n" +
+			"			goo((x) /*call*/ -> { \n" +
+			"				int y = 3;\n" +
+			"				return x * y; \n" +
+			"			});\n" +
+			"		I i2 = (x) /* local */ -> {\n" +
+			"			int y = 3; \n" +
+			"			return x * y;\n" +
+			"		};\n" +
+			"		J j1 = (x) -> { \n" +
+			"			int y = 2;  \n" +
+			"			return x * y;\n" +
+			"		};  \n" +
+			"	}\n" +
+			"}\n"
+	);
+	search("thrice", METHOD, DECLARATIONS, ERASURE_RULE, getJavaSearchScope(), this.resultCollector);
+	assertSearchResults(
+			"src/test/Test.java int test.I.thrice(int) [thrice] EXACT_MATCH\n" + 
+			"src/test/Test.java int test.X.i:<lambda>#1.lambda$1(int) [(x) /* field */ ->] EXACT_MATCH\n" + 
+			"src/test/Test.java int void test.X.main(String[]):<lambda>#2.lambda$2(int) [(x) /*call*/ ->] EXACT_MATCH\n" + 
+			"src/test/Test.java int void test.X.main(String[]):<lambda>#3.lambda$3(int) [(x) /* local */ ->] EXACT_MATCH"
+	);
+}
 // Add new tests in JavaSearchBugs8Tests
 }
+

@@ -674,7 +674,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 					containsLocalType = true;
 				} else {
 					IPath path = cu.getPath();
-					containsLocalType = localTypes.contains(path.toString());
+					containsLocalType = cu.isWorkingCopy() ? true /* presume conservatively */ : localTypes.contains(path.toString());
 				}
 
 				// build parsed unit
@@ -921,3 +921,4 @@ protected void worked(IProgressMonitor monitor, int work) {
 	}
 }
 }
+

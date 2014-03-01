@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -18,6 +22,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.JavaCore;
@@ -205,5 +210,158 @@ public void test228845b() throws CoreException, IOException {
 		}
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=228845
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905
+// Fix for 228845 does not seem to work for anonymous/local/functional types. 
+public void test400905() throws CoreException {
+	String newContents =
+		"package x.y;\n" +
+		"public class A {\n" +
+		"    void foo() {\n" +
+        "        class X extends B {}\n" +
+		"    }\n" +
+		"}";
+	
+	ICompilationUnit primaryCu = this.copy.getPrimary();
+	primaryCu.becomeWorkingCopy(null);
+	
+	primaryCu.getBuffer().setContents(newContents);
+	primaryCu.reconcile(ICompilationUnit.NO_AST, false, null, null);
+			
+	IFile file = null;
+	try {
+		file = this.createFile(
+			"P/src/x/y/B.java",
+			"package x.y;\n" +
+			"public class B {\n" +
+			"}");
+
+		IType type = this.getCompilationUnit("P/src/x/y/B.java").getType("B");
+		ITypeHierarchy h = type.newTypeHierarchy(null);  // no working copies explicitly passed, should still honor primary working copies.
+
+		assertHierarchyEquals(
+				"Focus: B [in B.java [in x.y [in src [in P]]]]\n" + 
+				"Super types:\n" + 
+				"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+				"Sub types:\n" + 
+				"  X [in foo() [in A [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n",
+			h);
+	} finally {
+		primaryCu.discardWorkingCopy();
+		if (file != null) {
+			this.deleteResource(file);
+		}
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=228845
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905
+// Fix for 228845 does not seem to work for anonymous/local/functional types. 
+public void test400905a() throws CoreException {
+	String newContents =
+		"package x.y;\n" +
+		"public class A {\n" +
+		"    void foo() {\n" +
+        "        X x  = new B() {}\n" +
+		"    }\n" +
+		"}";
+	
+	ICompilationUnit primaryCu = this.copy.getPrimary();
+	primaryCu.becomeWorkingCopy(null);
+	
+	primaryCu.getBuffer().setContents(newContents);
+	primaryCu.reconcile(ICompilationUnit.NO_AST, false, null, null);
+			
+	IFile file = null;
+	try {
+		file = this.createFile(
+			"P/src/x/y/B.java",
+			"package x.y;\n" +
+			"public class B {\n" +
+			"}");
+
+		IType type = this.getCompilationUnit("P/src/x/y/B.java").getType("B");
+		ITypeHierarchy h = type.newTypeHierarchy(null);  // no working copies explicitly passed, should still honor primary working copies.
+
+		assertHierarchyEquals(
+				"Focus: B [in B.java [in x.y [in src [in P]]]]\n" + 
+				"Super types:\n" + 
+				"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+				"Sub types:\n" + 
+				"  <anonymous #1> [in foo() [in A [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n",
+			h);
+	} finally {
+		primaryCu.discardWorkingCopy();
+		if (file != null) {
+			this.deleteResource(file);
+		}
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=228845
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905
+// Fix for 228845 does not seem to work for anonymous/local/functional types. 
+public void test400905b() throws CoreException, IOException {
+	IJavaProject javaProject = getJavaProject("P");
+	String oldCompliance = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+	String oldSource = javaProject.getOption(JavaCore.COMPILER_SOURCE, true);
+	try {
+		javaProject.setOption(JavaCore.COMPILER_COMPLIANCE, "1.8");
+		javaProject.setOption(JavaCore.COMPILER_SOURCE, "1.8");
+		String newContents =
+						"package x.y;\n" +
+						"interface I { \n" +
+						"	int thrice(int x);\n" +
+						"}\n" +
+						"interface J {\n" +
+						"	int twice(int x);\n" +
+						"}\n" +
+						"public class X {\n" +
+						"	I i = (x) -> {return x * 3;}; \n" +
+						"	X x = null;\n" +
+						"	static void goo(I i) {} \n" +
+						"	public static void main(String[] args) { \n" +
+						"		goo((x)-> { \n" +
+						"			int y = 3;\n" +
+						"			return x * y; \n" +
+						"		});\n" +
+						"		I i2 = (x) -> {\n" +
+						"			int y = 3; \n" +
+						"			return x * y;\n" +
+						"		};\n" +
+						"		J j1 = (x) -> { \n" +
+						"			int y = 2;  \n" +
+						"			return x * y;\n" +
+						"		};  \n" +
+						"	}\n" +
+						"}\n";
+
+		ICompilationUnit primaryCu = this.copy.getPrimary();
+		primaryCu.becomeWorkingCopy(null);
+
+		primaryCu.getBuffer().setContents(newContents);
+		primaryCu.reconcile(ICompilationUnit.NO_AST, false, null, null);
+
+		try {
+			IType type = primaryCu.getType("I");
+			ITypeHierarchy h = type.newTypeHierarchy(null);  // no working copies explicitly passed, should still honor primary working copies.
+
+			assertHierarchyEquals(
+					"Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]\n" + 
+					"Super types:\n" + 
+					"Sub types:\n" + 
+					"  <lambda> [in i [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
+					"  <lambda>#2 [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
+					"  <lambda>#3 [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n",
+				h);
+		} finally {
+			primaryCu.discardWorkingCopy();
+		}
+	} finally {
+		if (oldCompliance != null)
+			javaProject.setOption(JavaCore.COMPILER_COMPLIANCE, oldCompliance);
+		if (oldSource != null)
+			javaProject.setOption(JavaCore.COMPILER_SOURCE, oldSource);
+	}
+}
 
 }
+
