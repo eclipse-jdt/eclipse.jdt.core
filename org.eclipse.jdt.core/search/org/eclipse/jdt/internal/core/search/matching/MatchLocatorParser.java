@@ -526,8 +526,20 @@ protected void consumePrimaryNoNewArrayWithName() {
 @Override
 protected void consumeReferenceExpression(ReferenceExpression referenceExpression) {
 	super.consumeReferenceExpression(referenceExpression);
-	if (this.patternFineGrain == 0 || (this.patternFineGrain & IJavaSearchConstants.THIS_REFERENCE) != 0) {
+	if (this.patternFineGrain == 0) {
 		this.patternLocator.match(referenceExpression, this.nodeSet);
+	} else if (referenceExpression.lhs.isThis()) {
+		if ((this.patternFineGrain & IJavaSearchConstants.THIS_REFERENCE) != 0) {
+			this.patternLocator.match(referenceExpression, this.nodeSet);
+		}
+	} else if (referenceExpression.lhs.isSuper()) {
+		if ((this.patternFineGrain & IJavaSearchConstants.SUPER_REFERENCE) != 0) {
+			this.patternLocator.match(referenceExpression, this.nodeSet);
+		}
+	} else if (referenceExpression.lhs instanceof QualifiedNameReference || referenceExpression.lhs instanceof QualifiedTypeReference) {
+		if ((this.patternFineGrain & IJavaSearchConstants.QUALIFIED_REFERENCE) != 0) {
+			this.patternLocator.match(referenceExpression, this.nodeSet);
+		} 
 	}
 }
 

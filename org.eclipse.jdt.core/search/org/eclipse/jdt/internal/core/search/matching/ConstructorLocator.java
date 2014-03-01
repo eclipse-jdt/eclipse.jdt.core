@@ -93,7 +93,7 @@ public int match(MessageSend msgSend, MatchingNodeSet nodeSet)  {
 	return IMPOSSIBLE_MATCH;
 }
 public int match(ReferenceExpression node, MatchingNodeSet nodeSet) {
-	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
+	if (!this.pattern.findReferences || node.isMethodReference()) return IMPOSSIBLE_MATCH;
 	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 

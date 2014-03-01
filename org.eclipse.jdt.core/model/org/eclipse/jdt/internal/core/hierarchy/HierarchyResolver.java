@@ -488,8 +488,10 @@ private void rememberAllTypes(CompilationUnitDeclaration parsedUnit, org.eclipse
 		for (int i = 0; i < parsedUnit.functionalExpressionsCount; i++) {
 			if (parsedUnit.functionalExpressions[i] instanceof LambdaExpression) {
 				final LambdaExpression expression = (LambdaExpression) parsedUnit.functionalExpressions[i];
-				IType typeHandle = (IType)factory.createLambdaTypeElement(expression, cu, existingElements, knownScopes);
-				remember(typeHandle, expression.getTypeBinding());
+				if (expression.binding != null && expression.binding.isValidBinding()) {
+					IType typeHandle = (IType)factory.createLambdaTypeElement(expression, cu, existingElements, knownScopes);
+					remember(typeHandle, expression.getTypeBinding());
+				}
 			}
 		}
 	}

@@ -93,10 +93,10 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class LambdaExpression extends FunctionalExpression implements ReferenceContext, ProblemSeverities {
-	private Argument [] arguments;
+	public Argument [] arguments;
 	private TypeBinding [] argumentTypes;
 	private int arrowPosition;
-	private Statement body;
+	public Statement body;
 	public boolean hasParentheses;
 	public MethodScope scope;
 	boolean voidCompatible = true;

@@ -104,6 +104,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("testBug427537a"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug427677"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400904_0001"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400904_0001a"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400904_0002"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400904_0003"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400904_0004"));
@@ -125,12 +126,19 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0005"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0006"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0007"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0007a"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0008"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0009"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0010"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0011"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0012"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0013"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0013a"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0013b"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0013c"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0013d"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0013e"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0013f"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0014"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0015"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0016"));
@@ -141,6 +149,13 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0021"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0022"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0023"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0024"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0025"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0026"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0027"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0028"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0029"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0030"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -1861,6 +1876,35 @@ public void testBug400904_0001() throws CoreException {
 	);	
 }
 
+public void testBug400904_0001a() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400904/X.java",
+			"interface I {\n" +
+			"    void foo(int x);\n" +
+			"}\n" +
+			"public class X extends Y {\n" +
+			"    public static void main(String [] args) {\n" +
+			"	new X().doit();\n" +
+			"    }\n" +
+			"    void doit() {\n" +
+			"        I i = super::foo;\n" +
+			"        i.foo(10); \n" +
+			"    }\n" +
+			"}\n" +
+			"class Y {\n" +
+			"    public void foo(int x) {\n" +
+			"	System.out.println(x);\n" +
+			"    }\n" +
+			"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Y");
+	IMethod method = type.getMethod("foo", new String[] {"I"});
+	search(method, SUPER_REFERENCE);
+	assertSearchResults(
+			"src/b400904/X.java void b400904.X.doit() [super::foo] EXACT_MATCH"
+	);	
+}
+
 /**
  * @bug 400904
  * @test tests search for Reference expression - super:: form, with type arguments
@@ -2551,7 +2595,7 @@ public void testBug400905_0005() throws CoreException {
 	IMethod method = type.getMethod("bar", new String[] {});
 	search(method, DECLARATIONS, EXACT_RULE);
 	assertSearchResults(
-			"src/b400905/X.java void void b400905.X.main(String[]):<lambda>#2.lambda$2() [() /* bar */ ->] EXACT_MATCH\n" + 
+			"src/b400905/X.java void b400905/Y void b400905.X.main(String[]):<lambda>#1.lambda$1():<lambda>#2.lambda$2() [() /* bar */ ->] EXACT_MATCH\n" + 
 			"src/b400905/Y.java void b400905.Y.bar() [bar] EXACT_MATCH"
 	);	
 }
@@ -2632,6 +2676,38 @@ public void testBug400905_0007() throws CoreException {
 		IMethod method = getCompilationUnit("/P/src/Y.java").getType("Y").getMethod("Y", new String[] {"I"});
 		search(method, REFERENCES, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaProject[] {project}), this.resultCollector);
 		assertSearchResults("src/X.java void X.foo() [Y::new] EXACT_MATCH");
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+public void testBug400905_0007a() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createFile(
+			"/P/src/X.java",
+			"public class X  {\n" +
+			"    void foo() {\n" +
+			"        I i = Y::new;\n" + 
+			"    }\n" +
+			"}\n"
+		);
+		createFile(
+			"/P/src/Y.java",
+			"public class Y extends X {\n" +
+			"    Y(int x) {};\n" +
+			"    Y() {};\n" +
+			"}\n"
+		);
+		createFile(
+			"/P/src/I.java",
+			"interface I {\n" +
+			"    X foo();\n" +
+			"}\n"
+		);
+		IMethod method = getCompilationUnit("/P/src/Y.java").getType("Y").getMethod("Y", new String[] {"I"});
+		search(method, REFERENCES, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaProject[] {project}), this.resultCollector);
+		assertSearchResults("");
 	}
 	finally {
 		deleteProject("P");
@@ -2837,6 +2913,213 @@ public void testBug400905_0013() throws CoreException {
 		assertSearchResults("src/I.java int I.doit() [doit] EXACT_MATCH\n" + 
 				"src/X.java int void X.zoo():<lambda>#1.lambda$1() [() ->] EXACT_MATCH\n" + 
 				"src/X.java int void X.zoo():<anonymous>#1.doit() [doit] EXACT_MATCH");
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+// verify that nested lambdas are found and they are linked properly.
+public void testBug400905_0013a() throws CoreException {
+	try {
+		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"   void zoo() {\n" +
+			"	    I i = () /*1*/-> {\n" +
+			"                 I i2 = () /*2*/-> 10;\n" +
+			"                 return 0;\n" +
+			"       };\n" +
+			"   }\n" +
+			"}\n" +
+			" class Y {}\n"
+		);
+		createFile(
+			"/P/src/I.java",
+			"public interface I {\n" +
+			"    public int doit();\n" +
+			"}\n"
+		);
+		
+		IType type = getCompilationUnit("/P/src/I.java").getType("I");
+		IMethod method = type.getMethod("doit", new String[0]);
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
+		assertSearchResults("src/I.java int I.doit() [doit] EXACT_MATCH\n" + 
+				"src/X.java int void X.zoo():<lambda>#1.lambda$1() [() /*1*/->] EXACT_MATCH\n" + 
+				"src/X.java int int void X.zoo():<lambda>#1.lambda$1():<lambda>#2.lambda$2() [() /*2*/->] EXACT_MATCH");
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+// Verify that nested lambdas are found and they are linked properly. (hierarchy scope)
+public void testBug400905_0013b() throws CoreException {
+	try {
+		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"   void zoo() {\n" +
+			"	    I i = (X x2) /*1*/-> {\n" +
+			"                 I i2 = (X x3) /*2*/-> 10;\n" +
+			"                 return 0;\n" +
+			"       };\n" +
+			"   }\n" +
+			"}\n" +
+			" class Y {}\n"
+		);
+		createFile(
+			"/P/src/I.java",
+			"public interface I {\n" +
+			"    public int doit(X x1);\n" +
+			"}\n"
+		);
+		
+		IType type = getCompilationUnit("/P/src/X.java").getType("X");
+		search(type, REFERENCES, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
+		assertSearchResults("src/X.java int int void X.zoo():<lambda>#1.lambda$1(X):<lambda>#2.lambda$2(X) [X] EXACT_MATCH\n" + 
+				"src/X.java int void X.zoo():<lambda>#1.lambda$1(X) [X] EXACT_MATCH");
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+// Verify that nested lambdas are found and they are linked properly. (java search scope - type)
+public void testBug400905_0013c() throws CoreException {
+	try {
+		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"   void zoo() {\n" +
+			"	    I i = (X x2) /*1*/-> {\n" +
+			"                 I i2 = (X x3) /*2*/-> 10;\n" +
+			"                 return 0;\n" +
+			"       };\n" +
+			"   }\n" +
+			"}\n" +
+			" class Y {}\n"
+		);
+		createFile(
+			"/P/src/I.java",
+			"public interface I {\n" +
+			"    public int doit(X x1);\n" +
+			"}\n"
+		);
+		
+		IType type = getCompilationUnit("/P/src/X.java").getType("X");
+		search(type, REFERENCES, SearchEngine.createJavaSearchScope(new IJavaElement[] {type}), this.resultCollector);
+		assertSearchResults("src/X.java int int void X.zoo():<lambda>#1.lambda$1(X):<lambda>#2.lambda$2(X) [X] EXACT_MATCH\n" + 
+				"src/X.java int void X.zoo():<lambda>#1.lambda$1(X) [X] EXACT_MATCH");
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+// Verify that nested lambdas are found and they are linked properly. (java search scope - project)
+public void testBug400905_0013d() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"   void zoo() {\n" +
+			"	    I i = (X x2) /*1*/-> {\n" +
+			"                 I i2 = (X x3) /*2*/-> 10;\n" +
+			"                 return 0;\n" +
+			"       };\n" +
+			"   }\n" +
+			"}\n" +
+			" class Y {}\n"
+		);
+		createFile(
+			"/P/src/I.java",
+			"public interface I {\n" +
+			"    public int doit(X x1);\n" +
+			"}\n"
+		);
+		
+		IType type = getCompilationUnit("/P/src/X.java").getType("X");
+		search(type, REFERENCES, SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), this.resultCollector);
+		assertSearchResults("src/I.java int I.doit(X) [X] EXACT_MATCH\n" + 
+				"src/X.java int int void X.zoo():<lambda>#1.lambda$1(X):<lambda>#2.lambda$2(X) [X] EXACT_MATCH\n" + 
+				"src/X.java int void X.zoo():<lambda>#1.lambda$1(X) [X] EXACT_MATCH");
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+// Verify that nested lambdas are found and they are linked properly. (java search scope - project)
+public void testBug400905_0013e() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"   void zoo() {\n" +
+			"	    I i = (X x2) /*1*/-> {\n" +
+			"                 I i2 = (X x3) /*2*/-> 10;\n" +
+			"                 class Q {\n" +
+			"                     X x;\n" +
+			"                 }\n" +
+			"                 return 0;\n" +
+			"       };\n" +
+			"   }\n" +
+			"}\n" +
+			" class Y {}\n"
+		);
+		createFile(
+			"/P/src/I.java",
+			"public interface I {\n" +
+			"    public int doit(X x1);\n" +
+			"}\n"
+		);
+		
+		IType type = getCompilationUnit("/P/src/X.java").getType("X");
+		search(type, REFERENCES, SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), this.resultCollector);
+		assertSearchResults("src/I.java int I.doit(X) [X] EXACT_MATCH\n" + 
+				"src/X.java int int void X.zoo():<lambda>#1.lambda$1(X):<lambda>#2.lambda$2(X) [X] EXACT_MATCH\n" + 
+				"src/X.java int void X.zoo():<lambda>#1.lambda$1(X):Q#1.x [X] EXACT_MATCH\n" + 
+				"src/X.java int void X.zoo():<lambda>#1.lambda$1(X) [X] EXACT_MATCH");
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+// Verify that nested lambdas are found and they are linked properly. (java search scope - project)
+public void testBug400905_0013f() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"   void zoo() {\n" +
+			"	    I i = (X x2) /*1*/-> {\n" +
+			"                 X x2;\n" +
+			"                 I i2 = (X x3) /*2*/-> 10;\n" +
+			"                 class Q {\n" +
+			"                     X x;\n" +
+			"                 }\n" +
+			"                 return 0;\n" +
+			"       };\n" +
+			"   }\n" +
+			"}\n" +
+			" class Y {}\n"
+		);
+		createFile(
+			"/P/src/I.java",
+			"public interface I {\n" +
+			"    public int doit(X x1);\n" +
+			"}\n"
+		);
+		
+		IType type = getCompilationUnit("/P/src/X.java").getType("X");
+		search(type, REFERENCES, SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), this.resultCollector);
+		assertSearchResults("src/I.java int I.doit(X) [X] EXACT_MATCH\n" + 
+				"src/X.java int int void X.zoo():<lambda>#1.lambda$1(X):<lambda>#2.lambda$2(X) [X] EXACT_MATCH\n" + 
+				"src/X.java int void X.zoo():<lambda>#1.lambda$1(X):Q#1.x [X] EXACT_MATCH\n" + 
+				"src/X.java int void X.zoo():<lambda>#1.lambda$1(X) [X] EXACT_MATCH\n" + 
+				"src/X.java int void X.zoo():<lambda>#1.lambda$1(X) [X] EXACT_MATCH");
 	}
 	finally {
 		deleteProject("P");
@@ -3141,6 +3424,150 @@ public void testBug400905_0023() throws CoreException {
 			"src/test/Test.java int void test.X.main(String[]):<lambda>#2.lambda$2(int) [(x) /*call*/ ->] EXACT_MATCH\n" + 
 			"src/test/Test.java int void test.X.main(String[]):<lambda>#3.lambda$3(int) [(x) /* local */ ->] EXACT_MATCH"
 	);
+}
+public void testBug400905_0024() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
+			"interface I { \n" +
+			"	int thrice(int x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static int goo(int x) { return 3 * x; } \n" +
+			"	public static void main(String[] args) { \n" +
+			"		I i = X::goo;\n" +
+			"	}\n" +
+			"}\n"
+	);
+	
+	search(this.workingCopies[0].getType("X").getMethod("goo", new String[] { "I" }), THIS_REFERENCE);
+	assertSearchResults("");
+}
+public void testBug400905_0025() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
+			"interface I { \n" +
+			"	int thrice(int p);\n" +
+			"}\n" +
+			"class Y {\n" +
+			"	int goo(int x) { return 3 * x; } \n" +
+			"}\n" +
+			"public class X extends Y {\n" +
+			"	public void main(String[] args) { \n" +
+			"		I i = this::goo;\n" +
+			"       i = super::goo;\n" +
+			"	}\n" +
+			"}\n"
+	);
+	
+	search(this.workingCopies[0].getType("Y").getMethod("goo", new String[] { "I" }), THIS_REFERENCE);
+	assertSearchResults("src/test/Test.java void test.X.main(String[]) [this::goo] EXACT_MATCH");
+}
+public void testBug400905_0026() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
+			"interface I { \n" +
+			"	int thrice(int p);\n" +
+			"}\n" +
+			"class Y {\n" +
+			"	int goo(int x) { return 3 * x; } \n" +
+			"}\n" +
+			"public class X extends Y {\n" +
+			"	public void main(String[] args) { \n" +
+			"		I i = this::goo;\n" +
+			"       i = super::goo;\n" +
+			"	}\n" +
+			"}\n"
+	);
+	
+	search(this.workingCopies[0].getType("Y").getMethod("goo", new String[] { "I" }), SUPER_REFERENCE);
+	assertSearchResults("src/test/Test.java void test.X.main(String[]) [super::goo] EXACT_MATCH");
+}
+public void testBug400905_0027() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
+			"interface I { \n" +
+			"	int thrice(int p);\n" +
+			"}\n" +
+			"class Y {\n" +
+			"	int goo(int x) { return 3 * x; } \n" +
+			"}\n" +
+			"public class X extends Y {\n" +
+			"	public void main(String[] args) { \n" +
+			"		I i = this::goo;\n" +
+			"       i = super::goo;\n" +
+			"	}\n" +
+			"}\n"
+	);
+	
+	search(this.workingCopies[0].getType("Y").getMethod("goo", new String[] { "I" }), QUALIFIED_REFERENCE);
+	assertSearchResults("");
+}
+public void testBug400905_0028() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
+			"interface I { \n" +
+			"	int thrice(int p);\n" +
+			"}\n" +
+			"class Y {\n" +
+			"	static class Z {\n" +
+			"		static int goo(int x) { return 3 * x; }   \n" +
+			"		I i = Z::goo;\n" +
+			"   }\n" +
+			"}\n" +
+			"public class X extends Y.Z {\n" +
+			"	public void main(String[] args) { \n" +
+			"		I i = Y.Z::goo;\n" +
+			"	}\n" +
+			"}\n"
+	);
+	
+	search(this.workingCopies[0].getType("Y").getType("Z").getMethod("goo", new String[] { "I" }), THIS_REFERENCE | SUPER_REFERENCE | QUALIFIED_REFERENCE);
+	assertSearchResults("src/test/Test.java void test.X.main(String[]) [Y.Z::goo] EXACT_MATCH");
+}
+public void testBug400905_0029() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
+			"interface I { \n" +
+			"	int thrice(int p);\n" +
+			"}\n" +
+			"class Y {\n" +
+			"	static class Z {\n" +
+			"		static int goo(int x) { return 3 * x; }   \n" +
+			"		I i = Z::goo;\n" +
+			"   }\n" +
+			"}\n" +
+			"public class X extends Y.Z {\n" +
+			"	public void main(String[] args) { \n" +
+			"		I i = Y.Z::goo;\n" +
+			"	}\n" +
+			"}\n"
+	);
+	
+	search(this.workingCopies[0].getType("Y").getType("Z").getMethod("goo", new String[] { "I" }), REFERENCES, EXACT_RULE);
+	assertSearchResults("src/test/Test.java test.Y$Z.i [Z::goo] EXACT_MATCH\n" + 
+			"src/test/Test.java void test.X.main(String[]) [Y.Z::goo] EXACT_MATCH");
+}
+public void testBug400905_0030() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
+			"interface I { \n" +
+			"	int thrice(int p);\n" +
+			"}\n" +
+			"class Y {\n" +
+			"	static class Z {\n" +
+			"		static int goo(int x) { return 3 * x; }   \n" +
+			"		I i = Z::goo;\n" +
+			"   }\n" +
+			"}\n" +
+			"public class X extends Y.Z {\n" +
+			"	public void main(String[] args) { \n" +
+			"		I i = Y.Z::goo;\n" +
+			"	}\n" +
+			"}\n"
+	);
+	
+	search(this.workingCopies[0].getType("Y").getType("Z").getMethod("goo", new String[] { "I" }), IMPLICIT_THIS_REFERENCE);
+	assertSearchResults("");
 }
 // Add new tests in JavaSearchBugs8Tests
 }
