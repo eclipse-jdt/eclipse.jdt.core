@@ -1356,8 +1356,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"		x.arrays(a)[0] = null; // illegal\n" +
 					"		x.nesting(null, null); // 1st null is illegal\n" +
 					"		x.wildcard2(new ArrayList<@NonNull Object>());\n" +
-					"		x.wildcard2(new ArrayList<@Nullable Object>()); // incompatible(1)\n" +
-					"		x.wildcard1(new ArrayList<@NonNull X1>()); // incompatible(2)\n" +
+					"		x.wildcard2(new ArrayList<@Nullable Object>()); // OK\n" +
+					"		x.wildcard1(new ArrayList<@NonNull X1>()); // incompatible\n" +
 					"	}\n" +
 					"}\n"
 				}, 
@@ -1378,13 +1378,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	          ^^^^\n" + 
 				"Null type mismatch: required \'X1.@NonNull Inner\' but the provided value is null\n" + 
 				"----------\n" + 
-				"4. ERROR in Y1.java (at line 10)\n" + 
-				"	x.wildcard2(new ArrayList<@Nullable Object>()); // incompatible(1)\n" + 
-				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Null type mismatch (type annotations): required \'List<? super @NonNull X1>\' but this expression has type \'ArrayList<@Nullable Object>\', corresponding supertype is \'List<@Nullable Object>\'\n" + 
-				"----------\n" + 
-				"5. ERROR in Y1.java (at line 11)\n" + 
-				"	x.wildcard1(new ArrayList<@NonNull X1>()); // incompatible(2)\n" + 
+				"4. ERROR in Y1.java (at line 11)\n" + 
+				"	x.wildcard1(new ArrayList<@NonNull X1>()); // incompatible\n" + 
 				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Null type mismatch (type annotations): required \'List<@Nullable ? extends X1>\' but this expression has type \'ArrayList<@NonNull X1>\', corresponding supertype is \'List<@NonNull X1>\'\n" + 
 				"----------\n");
@@ -1446,8 +1441,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"		x.arrays(a)[0] = null; // illegal\n" +
 					"		x.nesting(null, null); // 1st null is illegal\n" +
 					"		x.wildcard2(new ArrayList<java.lang.@NonNull Object>());\n" +
-					"		x.wildcard2(new ArrayList<java.lang.@Nullable Object>()); // incompatible(1)\n" +
-					"		x.wildcard1(new ArrayList<p.@NonNull X1>()); // incompatible(2)\n" +
+					"		x.wildcard2(new ArrayList<java.lang.@Nullable Object>());\n" +
+					"		x.wildcard1(new ArrayList<p.@NonNull X1>()); // incompatible\n" +
 					"	}\n" +
 					"}\n"
 				}, 
@@ -1468,13 +1463,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	          ^^^^\n" + 
 				"Null type mismatch: required \'X1.@NonNull Inner\' but the provided value is null\n" + 
 				"----------\n" + 
-				"4. ERROR in Y1.java (at line 10)\n" + 
-				"	x.wildcard2(new ArrayList<java.lang.@Nullable Object>()); // incompatible(1)\n" + 
-				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Null type mismatch (type annotations): required \'List<? super @NonNull X1>\' but this expression has type \'ArrayList<@Nullable Object>\', corresponding supertype is \'List<@Nullable Object>\'\n" + 
-				"----------\n" + 
-				"5. ERROR in Y1.java (at line 11)\n" + 
-				"	x.wildcard1(new ArrayList<p.@NonNull X1>()); // incompatible(2)\n" + 
+				"4. ERROR in Y1.java (at line 11)\n" + 
+				"	x.wildcard1(new ArrayList<p.@NonNull X1>()); // incompatible\n" + 
 				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Null type mismatch (type annotations): required \'List<@Nullable ? extends X1>\' but this expression has type \'ArrayList<@NonNull X1>\', corresponding supertype is \'List<@NonNull X1>\'\n" + 
 				"----------\n");
@@ -2705,8 +2695,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n" + 
 			"1. ERROR in Generics.java (at line 14)\n" + 
 			"	map2(inList, f);\n" + 
-			"	^^^^^^^^^^^^^^^\n" + 
-			"Contradictory null annotations: method was inferred as \'Collection<@NonNull @Nullable String> map2(Collection<@NonNull @Nullable Object>, Function<@NonNull @Nullable Object,@NonNull @Nullable String>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+			"	     ^^^^^^\n" + 
+			"Contradictory null annotations: method was inferred as \'Collection<@NonNull String> map2(Collection<@NonNull @Nullable Object>, Function<@NonNull @Nullable Object,@NonNull String>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 			"----------\n");
 	}
 
@@ -3010,12 +3000,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. WARNING in X.java (at line 8)\n" + 
 			"	List<@NonNull ? extends @NonNull String> ls = new ArrayList<String>();\n" + 
 			"	                                              ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'List<@NonNull ? extends String>\'\n" + 
+			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'List<@NonNull ? extends @NonNull String>\'\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	ls.add(null);\n" + 
 			"	       ^^^^\n" + 
-			"Null type mismatch: required \'@NonNull ? extends String\' but the provided value is null\n" + 
+			"Null type mismatch: required \'@NonNull ? extends @NonNull String\' but the provided value is null\n" + 
 			"----------\n");
 	}
 
@@ -3628,7 +3618,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. WARNING in X.java (at line 16)\n" + 
 			"	getAdd(lx);\n" + 
 			"	       ^^\n" + 
-			"Null type safety (type annotations): The expression of type \'List<capture#>\' needs unchecked conversion to conform to \'List<@NonNull capture#>\'\n" + 
+			"Null type safety (type annotations): The expression of type \'List<capture#of ? extends X>\' needs unchecked conversion to conform to \'List<@NonNull capture#of ? extends X>\'\n" + 
 			"----------\n");		
 	}
 	public void testWildcardCapture2() {
@@ -3692,7 +3682,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. ERROR in X.java (at line 17)\n" + 
 			"	getAdd(lx);\n" + 
 			"	       ^^\n" + 
-			"Contradictory null annotations: method was inferred as \'void getAdd(List<@NonNull @Nullable capture#>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+			"Contradictory null annotations: method was inferred as \'void getAdd(List<@NonNull @Nullable capture#of @Nullable ? extends X>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 			"----------\n");		
 	}
 	public void testLocalArrays() {
@@ -4056,6 +4046,212 @@ public void testBug427163c() {
 		"	String[][] strings5 = new String[] @NonNull @Nullable[] {};\n" + 
 		"	                                   ^^^^^^^^^^^^^^^^^^\n" + 
 		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n"
+	);
+}
+// assorted tests with upper-bounded wildcards with null annotations
+public void testTypeBounds1() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"C.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"class A { }\n" + 
+			"class B extends A {}\n" + 
+			"public class C {\n" + 
+			"	\n" + 
+			"	@NonNull A testExtends(List<@NonNull B> lb1, List<@Nullable B> lb2, boolean f) {\n" + 
+			"		List<? extends @NonNull A> la1 = lb1;\n" + 
+			"		la1.add(null); // ERR1\n" + 
+			"		if (la1.size() > 0)\n" + 
+			"			return la1.get(0); // OK\n" +
+			"		la1 = lb2; // ERR2\n" + 
+			"		List<? extends @Nullable A> la2 = lb1; // OK\n" + 
+			"		la2.add(null); // ERR3\n" + 
+			"		if (la2.size() > 0)\n" + 
+			"			return la2.get(0); // ERR4\n" +
+			"		la2 = lb2; // OK\n" + 
+			"		if (f)\n" + 
+			"			return mExtends1(lb1); // OK, since we infer T to @NonNull B\n" + 
+			"		return mExtends2(lb1);\n" + 
+			"	}\n" + 
+			"	<T extends @Nullable A> T mExtends1(List<T> t) { return null; /*ERR5*/ }\n" + 
+			"	<T extends @NonNull A> T mExtends2(List<T> t) { return null; /*ERR6*/ }\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in C.java (at line 12)\n" + 
+		"	la1.add(null); // ERR1\n" + 
+		"	        ^^^^\n" + 
+		"Null type mismatch: required \'? extends @NonNull A\' but the provided value is null\n" + 
+		"----------\n" + 
+		"2. ERROR in C.java (at line 15)\n" + 
+		"	la1 = lb2; // ERR2\n" + 
+		"	      ^^^\n" + 
+		"Null type mismatch (type annotations): required \'List<? extends @NonNull A>\' but this expression has type \'List<@Nullable B>\'\n" + 
+		"----------\n" + 
+		"3. ERROR in C.java (at line 17)\n" + 
+		"	la2.add(null); // ERR3\n" + 
+		"	        ^^^^\n" + 
+		"Null type mismatch: required \'? extends @Nullable A\' but the provided value is null\n" + 
+		"----------\n" + 
+		"4. ERROR in C.java (at line 19)\n" + 
+		"	return la2.get(0); // ERR4\n" + 
+		"	       ^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull A\' but this expression has type \'capture#of ? extends @Nullable A\'\n" + 
+		"----------\n" + 
+		"5. ERROR in C.java (at line 25)\n" + 
+		"	<T extends @Nullable A> T mExtends1(List<T> t) { return null; /*ERR5*/ }\n" + 
+		"	                                                        ^^^^\n" + 
+		"Null type mismatch: required \'T extends @Nullable A\' but the provided value is null\n" + 
+		"----------\n" + 
+		"6. ERROR in C.java (at line 26)\n" + 
+		"	<T extends @NonNull A> T mExtends2(List<T> t) { return null; /*ERR6*/ }\n" + 
+		"	                                                       ^^^^\n" + 
+		"Null type mismatch: required \'T extends @NonNull A\' but the provided value is null\n" + 
+		"----------\n"
+	);
+}
+// assorted tests with lower-bounded wildcards with null annotations
+public void testTypeBounds2() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"C.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"class A { }\n" + 
+			"class B extends A {}\n" + 
+			"public class C {\n" + 
+			"	\n" + 
+			"	@NonNull Object testSuper(List<@Nullable A> la1, List<@NonNull A> la2, boolean f) {\n" + 
+			"		List<? super @NonNull B> lb1 = la1; // OK\n" + 
+			"		lb1.add(null); // ERR1\n" + 
+			"		if (lb1.size() > 0)\n" + 
+			"			return lb1.get(0); // ERR2\n" +
+			"		lb1 = la2; // OK\n" + 
+			"		List<? super @Nullable B> lb2 = la1;\n" + 
+			"		lb2.add(null);\n" + 
+			"		if (lb2.size() > 0)\n" + 
+			"			return lb2.get(0); // ERR3\n" +
+			"		lb2 = la2; // ERR4\n" + 
+			"		if (f)\n" + 
+			"			return mSuper1(la1); // ERR5\n" + 
+			"		return mSuper2(la1); // ERR6 on arg\n" + 
+			"	}\n" + 
+			"	<T extends @Nullable A> T mSuper1(List<T> t) { return null; /*ERR7*/ }\n" + 
+			"	<T extends @NonNull A> T mSuper2(List<T> t) { return null; /*ERR8*/ }\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in C.java (at line 12)\n" + 
+		"	lb1.add(null); // ERR1\n" + 
+		"	        ^^^^\n" + 
+		"Null type mismatch: required \'? super @NonNull B\' but the provided value is null\n" + 
+		"----------\n" + 
+		"2. ERROR in C.java (at line 14)\n" + 
+		"	return lb1.get(0); // ERR2\n" + 
+		"	       ^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'capture#of ? super @NonNull B\'\n" + 
+		"----------\n" + 
+		"3. ERROR in C.java (at line 19)\n" + 
+		"	return lb2.get(0); // ERR3\n" + 
+		"	       ^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'capture#of ? super @Nullable B\'\n" + 
+		"----------\n" + 
+		"4. ERROR in C.java (at line 20)\n" + 
+		"	lb2 = la2; // ERR4\n" + 
+		"	      ^^^\n" + 
+		"Null type mismatch (type annotations): required \'List<? super @Nullable B>\' but this expression has type \'List<@NonNull A>\'\n" + 
+		"----------\n" + 
+		"5. ERROR in C.java (at line 22)\n" + 
+		"	return mSuper1(la1); // ERR5\n" + 
+		"	       ^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'@Nullable A\'\n" + 
+		"----------\n" + 
+		"6. ERROR in C.java (at line 23)\n" + 
+		"	return mSuper2(la1); // ERR6 on arg\n" + 
+		"	               ^^^\n" + 
+		"Null type mismatch (type annotations): required \'List<@NonNull A>\' but this expression has type \'List<@Nullable A>\'\n" + 
+		"----------\n" + 
+		"7. ERROR in C.java (at line 25)\n" + 
+		"	<T extends @Nullable A> T mSuper1(List<T> t) { return null; /*ERR7*/ }\n" + 
+		"	                                                      ^^^^\n" + 
+		"Null type mismatch: required \'T extends @Nullable A\' but the provided value is null\n" + 
+		"----------\n" + 
+		"8. ERROR in C.java (at line 26)\n" + 
+		"	<T extends @NonNull A> T mSuper2(List<T> t) { return null; /*ERR8*/ }\n" + 
+		"	                                                     ^^^^\n" + 
+		"Null type mismatch: required \'T extends @NonNull A\' but the provided value is null\n" + 
+		"----------\n"
+	);
+}
+// assigning values upper bounded wildcard types carrying null annotations
+public void testTypeBounds3() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"C.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"class A { }\n" + 
+			"class B extends A {}\n" + 
+			"public class C {\n" + 
+			"	\n" + 
+			"	void testExtends(List<? extends @NonNull B> lb1, List<? extends @Nullable B> lb2) {\n" + 
+			"		List<? extends @NonNull A> la1 = lb1;\n" + 
+			"		la1 = lb2; // ERR\n" + 
+			"		List<? extends @Nullable A> la2 = lb1;\n" + 
+			"		la2 = lb2;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in C.java (at line 12)\n" + 
+		"	la1 = lb2; // ERR\n" + 
+		"	      ^^^\n" + 
+		"Null type mismatch (type annotations): required \'List<? extends @NonNull A>\' but this expression has type \'List<capture#of ? extends @Nullable B>\'\n" + 
+		"----------\n"
+	);
+}
+// assigning values lower bounded wildcard types carrying null annotations
+public void testTypeBounds4() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"C.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"class A { }\n" + 
+			"class B extends A {}\n" + 
+			"public class C {\n" + 
+			"	\n" + 
+			"	void testSuper(List<? super @Nullable A> la1, List<? super @NonNull A> la2) {\n" + 
+			"		List<? super @NonNull B> lb1 = la1; // OK\n" + 
+			"		lb1 = la2; // OK\n" + 
+			"		List<? super @Nullable B> lb2 = la1;\n" + 
+			"		lb2 = la2; // ERR4\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in C.java (at line 14)\n" + 
+		"	lb2 = la2; // ERR4\n" + 
+		"	      ^^^\n" + 
+		"Null type mismatch (type annotations): required \'List<? super @Nullable B>\' but this expression has type \'List<capture#of ? super @NonNull A>\'\n" + 
 		"----------\n"
 	);
 }

@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
@@ -141,11 +142,11 @@ public class NullAnnotationMatching {
 				}
 			}
 		} else if (requiredType.hasNullTypeAnnotations() || providedType.hasNullTypeAnnotations()) {
-			long requiredBits = validNullTagBits(requiredType.tagBits);
+			long requiredBits = requiredNullTagBits(requiredType);
 			if (requiredBits != TagBits.AnnotationNullable // nullable lhs accepts everything, ...
 					|| nullStatus == -1) // only at detail/recursion even nullable must be matched exactly
 			{
-				long providedBits = validNullTagBits(providedType.tagBits);
+				long providedBits = providedNullTagBits(providedType);
 				severity = computeNullProblemSeverity(requiredBits, providedBits, nullStatus, strict && nullStatus == -1);
 			}
 			if (severity < 2) {
@@ -163,13 +164,6 @@ public class NullAnnotationMatching {
 								return new NullAnnotationMatching(severity, superTypeHint);
 						}
 					}
-				} else 	if (requiredType instanceof WildcardBinding) {
-					WildcardBinding wildcardBinding = (WildcardBinding) requiredType;
-					if (wildcardBinding.bound != null) {
-						NullAnnotationMatching status = analyse(wildcardBinding.bound, providedType, nullStatus, strict);
-						severity = Math.max(severity, status.severity);
-					}
-					// TODO(stephan): what about otherBounds? Do we accept "? extends @NonNull I1 & @Nullable I2" in the first place??
 				}
 				TypeBinding requiredEnclosing = requiredType.enclosingType();
 				TypeBinding providedEnclosing = providedType.enclosingType();
@@ -182,6 +176,109 @@ public class NullAnnotationMatching {
 		if (severity == 0)
 			return NullAnnotationMatching.NULL_ANNOTATIONS_OK;
 		return new NullAnnotationMatching(severity, superTypeHint);
+	}
+
+	// interpreting 'type' as a required type, compute the required null bits
+	// we inspect the main type plus bounds of type variables and wildcards
+	static long requiredNullTagBits(TypeBinding type) {
+
+		long tagBits = type.tagBits & TagBits.AnnotationNullMASK;
+		if (tagBits != 0)
+			return validNullTagBits(tagBits);
+
+		if (type.isWildcard()) {
+			WildcardBinding wildcard = (WildcardBinding)type;
+			if (wildcard.boundKind == Wildcard.UNBOUND)
+				return 0;
+			tagBits = wildcard.bound.tagBits & TagBits.AnnotationNullMASK;
+			if (tagBits == 0)
+				return 0;
+			switch (wildcard.boundKind) {
+				case Wildcard.EXTENDS :
+					if (tagBits == TagBits.AnnotationNonNull)
+						return TagBits.AnnotationNonNull;
+					return TagBits.AnnotationNullMASK; // wildcard accepts @Nullable or better
+				case Wildcard.SUPER :
+					if (tagBits == TagBits.AnnotationNullable)
+						return TagBits.AnnotationNullable;
+					return TagBits.AnnotationNullMASK; // wildcard accepts @NonNull or worse
+			}
+			return 0;
+		} 
+		
+		if (type.isTypeVariable()) {
+			// assume we must require @NonNull, unless: (1) lower @Nullable bound, or (2) no nullness specified
+			TypeVariableBinding typeVariable = (TypeVariableBinding)type;
+			boolean haveNullBits = false;
+			if (type.isCapture()) {
+				TypeBinding lowerBound = ((CaptureBinding) type).lowerBound;
+				if (lowerBound != null) {
+					tagBits = lowerBound.tagBits & TagBits.AnnotationNullMASK;
+					if (tagBits == TagBits.AnnotationNullable)
+						return TagBits.AnnotationNullable; // (1) type cannot require @NonNull
+					haveNullBits = tagBits != 0;
+				}
+			}
+			if (typeVariable.firstBound != null)
+				haveNullBits |= (typeVariable.firstBound.tagBits & TagBits.AnnotationNullMASK) != 0;
+			if (haveNullBits)
+				return TagBits.AnnotationNonNull; // could require @NonNull (unless (2) unspecified nullness)
+		}
+
+		return 0;
+	}
+
+	// interpreting 'type' as a provided type, compute the provide null bits
+	// we inspect the main type plus bounds of type variables and wildcards
+	static long providedNullTagBits(TypeBinding type) {
+
+		long tagBits = type.tagBits & TagBits.AnnotationNullMASK;
+		if (tagBits != 0)
+			return validNullTagBits(tagBits);
+		
+		if (type.isWildcard()) { // wildcard can be 'provided' during inheritance checks
+			WildcardBinding wildcard = (WildcardBinding)type;
+			if (wildcard.boundKind == Wildcard.UNBOUND)
+				return 0;
+			tagBits = wildcard.bound.tagBits & TagBits.AnnotationNullMASK;
+			if (tagBits == 0)
+				return 0;
+			switch (wildcard.boundKind) {
+				case Wildcard.EXTENDS :
+					if (tagBits == TagBits.AnnotationNonNull)
+						return TagBits.AnnotationNonNull;
+					return TagBits.AnnotationNullMASK; // @Nullable or better
+				case Wildcard.SUPER :
+					if (tagBits == TagBits.AnnotationNullable)
+						return TagBits.AnnotationNullable;
+					return TagBits.AnnotationNullMASK; // @NonNull or worse
+			}
+			return 0;
+		}
+	
+		if (type.isTypeVariable()) { // incl. captures
+			TypeVariableBinding typeVariable = (TypeVariableBinding)type;
+			boolean haveNullBits = false;
+			if (typeVariable.isCapture()) {
+				TypeBinding lowerBound = ((CaptureBinding) typeVariable).lowerBound;
+				if (lowerBound != null) {
+					tagBits = lowerBound.tagBits & TagBits.AnnotationNullMASK;
+					if (tagBits == TagBits.AnnotationNullable)
+						return TagBits.AnnotationNullable; // cannot be @NonNull
+					haveNullBits |= (tagBits != 0);
+				}
+			}
+			if (typeVariable.firstBound != null) {
+				long boundBits = typeVariable.firstBound.tagBits & TagBits.AnnotationNullMASK;
+				if (boundBits == TagBits.AnnotationNonNull)
+					return TagBits.AnnotationNonNull; // cannot be @Nullable
+				haveNullBits |= (boundBits != 0);
+			}
+			if (haveNullBits)
+				return TagBits.AnnotationNullMASK; // could be either, can only match to a wildcard accepting both
+		}
+
+		return 0;
 	}
 
 	public static long validNullTagBits(long bits) {
@@ -215,6 +312,8 @@ public class NullAnnotationMatching {
 			if (requiredBits == TagBits.AnnotationNonNull && nullStatus == FlowInfo.NON_NULL) {
 				return 0; // OK by flow analysis
 			}
+			if (requiredBits == TagBits.AnnotationNullMASK)
+				return 0; // OK since LHS accepts either
 			if (providedBits != 0) {
 				return 2; // mismatching annotations
 			} else {

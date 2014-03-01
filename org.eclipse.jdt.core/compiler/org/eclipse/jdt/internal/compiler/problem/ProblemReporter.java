@@ -57,6 +57,7 @@
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *								bug 412151 - [1.8][compiler] Check repeating annotation's collection type
  *								bug 419209 - [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
+ *								Bug 429384 - [1.8][null] implement conformance rules for null-annotated lower / upper type bounds
  ********************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -9125,12 +9126,15 @@ public void nullityMismatchIsNull(Expression expression, TypeBinding requiredTyp
 			requiredType = capture.wildcard;
 	}
 	int problemId = IProblem.RequiredNonNullButProvidedNull;
-	String[] arguments = new String[] {
-			annotatedTypeName(requiredType, this.options.nonNullAnnotationName)
-	};
-	String[] argumentsShort = new String[] {
-			shortAnnotatedTypeName(requiredType, this.options.nonNullAnnotationName)
-	};
+	String[] arguments;
+	String[] argumentsShort;
+	if (this.options.sourceLevel < ClassFileConstants.JDK1_8) {
+		arguments      = new String[] { annotatedTypeName(requiredType, this.options.nonNullAnnotationName) };
+		argumentsShort = new String[] { shortAnnotatedTypeName(requiredType, this.options.nonNullAnnotationName) };
+	} else {
+		arguments      = new String[] { new String(requiredType.nullAnnotatedReadableName(this.options, false)) };
+		argumentsShort = new String[] { new String(requiredType.nullAnnotatedReadableName(this.options, true)) };
+	}
 	this.handle(problemId, arguments, argumentsShort, expression.sourceStart, expression.sourceEnd);
 }
 public void nullityMismatchSpecdNullable(Expression expression, TypeBinding requiredType, char[][] annotationName) {

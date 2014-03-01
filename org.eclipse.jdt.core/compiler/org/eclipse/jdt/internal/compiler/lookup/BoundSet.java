@@ -269,23 +269,20 @@ class BoundSet {
 				return environment.createAnnotatedType(type, annot);
 			return type;
 		}
-		public void setInstantiation(TypeBinding type, LookupEnvironment environment) {
+		public void setInstantiation(TypeBinding type, InferenceVariable variable, LookupEnvironment environment) {
 			if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
-				if (this.instantiation != null) {
-					// sanity check:
-					if (!TypeBinding.equalsEquals(this.instantiation, type)) {
-						this.instantiation = null;
-						return; // incorporation should find the conflict and fail the inference
-					}
-					long oldBits = this.instantiation.tagBits & TagBits.AnnotationNullMASK;
-					if (oldBits != 0) {
-						long newBits = type.tagBits & TagBits.AnnotationNullMASK;
-						if (newBits == oldBits || newBits == 0)
-							return; // no update
-						AnnotationBinding[] annot = environment.nullAnnotationsFromTagBits(newBits);
-						if (annot != null)
-							type = environment.createAnnotatedType(this.instantiation, annot);
-					}
+				long oldBits = ((this.instantiation != null) ? this.instantiation.tagBits : variable.tagBits)
+								& TagBits.AnnotationNullMASK;
+				long requestedBits = type.tagBits & TagBits.AnnotationNullMASK;
+				long newBits = (oldBits == TagBits.AnnotationNonNull) ? oldBits : requestedBits; // need to preserve @NonNull
+				if (this.instantiation != null && oldBits == newBits) {
+					return; // no update needed
+				}
+				if (requestedBits != newBits) {
+					// adjust 'type' to fit the newBits
+					AnnotationBinding[] annot = environment.nullAnnotationsFromTagBits(newBits);
+					if (annot != null)
+						type = environment.createAnnotatedType(type.unannotated(), annot);
 				}
 			}
 			this.instantiation = type;
@@ -361,7 +358,7 @@ class BoundSet {
 		// check if this makes the inference variable instantiated:
 		TypeBinding typeBinding = bound.right;
 		if (bound.relation == ReductionResult.SAME && typeBinding.isProperType(true))
-			three.setInstantiation(typeBinding, environment);
+			three.setInstantiation(typeBinding, bound.left, environment);
 		if (bound.right instanceof InferenceVariable) {
 			// for a dependency between two IVs make a note about the inverse bound.
 			// this should be needed to determine IV dependencies independent of direction.

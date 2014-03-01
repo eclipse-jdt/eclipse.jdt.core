@@ -669,7 +669,7 @@ public class WildcardBinding extends ReferenceBinding {
             case Wildcard.EXTENDS :
             	if (this.otherBounds == null) {
             		buffer.append(TypeConstants.WILDCARD_NAME).append(TypeConstants.WILDCARD_EXTENDS);
-            		buffer.append(shortNames ? this.bound.shortReadableName(): this.bound.readableName());
+            		buffer.append(this.bound.nullAnnotatedReadableName(options, shortNames));
             	} else {
 	            	buffer.append(this.bound.nullAnnotatedReadableName(options, shortNames));
 	            	for (int i = 0, length = this.otherBounds.length; i < length; i++) {
