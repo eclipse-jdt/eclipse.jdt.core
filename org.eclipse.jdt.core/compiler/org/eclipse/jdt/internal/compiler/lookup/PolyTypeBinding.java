@@ -11,6 +11,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 428811 - [1.8][compiler] Type witness unnecessarily required
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.lookup;
@@ -36,6 +38,10 @@ public class PolyTypeBinding extends TypeBinding {
 
 	public boolean isCompatibleWith(TypeBinding left, Scope scope) {
 		return this.vanillaCompatibilty ? this.expression.isCompatibleWith(left, scope) : this.expression.isBoxingCompatibleWith(left, scope);
+	}
+
+	public boolean isPertinentToApplicability(TypeBinding targetType) {
+		return this.expression.isPertinentToApplicability(targetType, null);
 	}
 
 	public char[] qualifiedSourceName() {

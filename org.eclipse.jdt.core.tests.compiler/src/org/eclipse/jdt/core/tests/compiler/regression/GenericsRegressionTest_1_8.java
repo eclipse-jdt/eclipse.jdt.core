@@ -2492,4 +2492,54 @@ public void testBug429090() {
 			"}\n"
 		});
 }
+public void _testBug428811() {
+	// perhaps fail is the correct answer?
+	runConformTest(
+		new String[] {
+			"MoreCollectors.java",
+			"import java.util.AbstractList;\n" + 
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Arrays;\n" + 
+			"import java.util.Collection;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.stream.Collector;\n" + 
+			"\n" + 
+			"public class MoreCollectors {\n" + 
+			"    public static void main (String[] args) {\n" + 
+			"        ImmutableList<String> list = Arrays.asList(\"a\", \"b\", \"c\").stream().collect(toImmutableList());\n" + 
+			"        \n" + 
+			"        System.out.println(list);\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public static <T> Collector<T, ?, ImmutableList<T>> toImmutableList () {\n" + 
+			"        return Collector.of(ArrayList<T>::new,\n" + 
+			"                List<T>::add,\n" + 
+			"                (left, right) -> { left.addAll(right); return left; },\n" + 
+			"                ImmutableList::copyOf);\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    private static class ImmutableList<T> extends AbstractList<T> {\n" + 
+			"        public static <T> ImmutableList<T> copyOf (Collection<T> c) {\n" + 
+			"            return new ImmutableList<>(c.toArray());\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        private Object[] array;\n" + 
+			"        \n" + 
+			"        private ImmutableList (Object[] array) {\n" + 
+			"            this.array = array;\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        @Override @SuppressWarnings(\"unchecked\")\n" + 
+			"        public T get(int index) {\n" + 
+			"            return (T)array[index];\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        @Override\n" + 
+			"        public int size() {\n" + 
+			"            return array.length;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }
