@@ -93,6 +93,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return this.type;
 	}
 
+	public boolean isParameterizedType() {
+		return true;
+	}
+
 	/**
 	 * Iterate type arguments, and validate them according to corresponding variable bounds.
 	 */

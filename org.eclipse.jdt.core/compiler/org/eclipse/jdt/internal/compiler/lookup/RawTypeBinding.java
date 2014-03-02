@@ -93,6 +93,10 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		return this.environment.createParameterizedGenericMethod(originalMethod, this);
 	}
 
+	public boolean isParameterizedType() {
+		return false;
+	}
+
 	public int kind() {
 		return RAW_TYPE;
 	}
