@@ -4256,7 +4256,7 @@ public void testTypeBounds4() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429387, [1.8][compiler] AIOOBE in AbstractMethodDeclaration.createArgumentBindings
-public void _test429387() {
+public void test429387() {
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
@@ -4292,11 +4292,15 @@ public void _test429387() {
 		"	                                                                         ^^^^^^^^^^^^^\n" + 
 		"Incorrect number of arguments for type ToIntFunction<T>; it cannot be parameterized with arguments <BT, IS>\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 12)\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
+		"	BiFunction<Stream<T>, ToIntFunction<BT>, IntStream> func = (Stream<T> t, ToIntFunction<BT, IS> m) -> t.flatmmapToInt(m);\n" + 
+		"	                                                                                                                     ^\n" + 
+		"m cannot be resolved to a variable\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 12)\n" + 
 		"	return IntStreamy.fromFlatMap(func, mapper, classOfE, maker);\n" + 
 		"	       ^^^^^^^^^^\n" + 
 		"IntStreamy cannot be resolved\n" + 
-		"----------\n"
-	);
+		"----------\n");
 }
 }

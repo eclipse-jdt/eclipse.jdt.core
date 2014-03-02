@@ -388,7 +388,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				this.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 		} // TODO (stephan): else? (can that happen?)
 
-		if (haveDescriptor && blockScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
+		if (haveDescriptor && !buggyArguments && blockScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
 			if (!argumentsTypeElided) {
 				AbstractMethodDeclaration.createArgumentBindings(this.arguments, this.binding, this.scope);
 				validateNullAnnotations();
