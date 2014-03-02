@@ -3512,6 +3512,95 @@ public void test429112c() {
 			"class [Ljava.lang.String;\n" + 
 			"10");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+public void test428857() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Arrays;\n" +
+				"import java.util.List;\n" +
+				"import java.util.function.Function;\n" +
+				"public class X {\n" +
+				"    public static void main (String[] args) {\n" +
+				"        Function<List<String>, String> func = List::toString;\n" +
+				"        System.out.println(func.apply(Arrays.asList(\"a\", \"b\")));\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"[a, b]",
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+public void test428857a() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"import java.util.function.Function;\n" +
+			"interface I {\n" +
+			"    List<String> getList();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    public static void main (String[] args) {\n" +
+			"        I i = ArrayList::new;\n" +
+			"        System.out.println(i.getList());\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"[]",
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+public void test428857b() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"import java.util.function.Function;\n" +
+			"interface I {\n" +
+			"    ArrayList<String> getList();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    public static void main (String[] args) {\n" +
+			"        I i = ArrayList::new;\n" +
+			"        System.out.println(i.getList());\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"[]",
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+public void test428857c() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Arrays;\n" +
+				"import java.util.List;\n" +
+				"import java.util.function.Function;\n" +
+				"import java.util.ArrayList;\n" +
+				"public class X {\n" +
+				"    public static void main (String[] args) {\n" +
+				"        Function<ArrayList<String>, String> func = List::toString;\n" +
+				"        System.out.println(func.apply(new ArrayList<>(Arrays.asList(\"a\", \"b\"))));\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"[a, b]",
+			customOptions);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

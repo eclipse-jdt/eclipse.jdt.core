@@ -4286,12 +4286,7 @@ public void test384750m() {
 					"	       ^^^^^^^^^^^^^^\n" + 
 					"The type String does not define length(ArrayList<String>) that is applicable here\n" + 
 					"----------\n" + 
-					"4. WARNING in X.java (at line 15)\n" + 
-					"	J j2 = List::size;\n" + 
-					"	       ^^^^\n" + 
-					"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-					"----------\n" + 
-					"5. ERROR in X.java (at line 17)\n" + 
+					"4. ERROR in X.java (at line 17)\n" + 
 					"	J j4 = List<Integer>::size;\n" + 
 					"	       ^^^^^^^^^^^^^^^^^^^\n" + 
 					"The type List<Integer> does not define size(ArrayList<String>) that is applicable here\n" + 
@@ -4492,12 +4487,7 @@ public void test384750r() {
 					"}\n"
 					},
 					"----------\n" + 
-					"1. WARNING in X.java (at line 9)\n" + 
-					"	I i1 = X::foo;\n" + 
-					"	       ^\n" + 
-					"X is a raw type. References to generic type X<T> should be parameterized\n" + 
-					"----------\n" + 
-					"2. ERROR in X.java (at line 9)\n" + 
+					"1. ERROR in X.java (at line 9)\n" + 
 					"	I i1 = X::foo;\n" + 
 					"	       ^^^^^^\n" + 
 					"The type of foo() from the type X<String> is void, this is incompatible with the descriptor\'s return type: List<String>\n" + 
@@ -4569,12 +4559,7 @@ public void test384750u() {
 					"}\n"
 					},
 					"----------\n" + 
-					"1. WARNING in X.java (at line 9)\n" + 
-					"	I i1 = X::foo;\n" + 
-					"	       ^\n" + 
-					"X is a raw type. References to generic type X<T> should be parameterized\n" + 
-					"----------\n" + 
-					"2. ERROR in X.java (at line 9)\n" + 
+					"1. ERROR in X.java (at line 9)\n" + 
 					"	I i1 = X::foo;\n" + 
 					"	       ^^^^^^\n" + 
 					"The type X does not define foo(X<String>, int) that is applicable here\n" + 
@@ -4897,12 +4882,7 @@ public void test384750z6() {
 					"   I i = X::foo;\n" +
 					"}\n",
 					},
-					"----------\n" + 
-					"1. WARNING in X.java (at line 8)\n" + 
-					"	I i = X::foo;\n" + 
-					"	      ^\n" + 
-					"X is a raw type. References to generic type X<T> should be parameterized\n" + 
-					"----------\n");
+					"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
 public void test384750z7() {
@@ -4923,11 +4903,6 @@ this.runNegativeTest(
 				"1. WARNING in X.java (at line 4)\n" + 
 				"	List<String> doit(X x, int y);\n" + 
 				"	                  ^\n" + 
-				"X is a raw type. References to generic type X<T> should be parameterized\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 8)\n" + 
-				"	I i = X::foo;\n" + 
-				"	      ^\n" + 
 				"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 				"----------\n");
 }
@@ -8589,6 +8564,266 @@ public void test428795() {
 		"	                         ^^^\n" + 
 		"The method get() is undefined for the type String\n" + 
 		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+public void test428857() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"import java.util.function.Function;\n" +
+			"public class X {\n" +
+			"    public static void main (String[] args) {\n" +
+			"        Function<List<String>, String> func = ArrayList::toString;\n" +
+			"        System.out.println(func.apply(Arrays.asList(\"a\", \"b\")));\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	Function<List<String>, String> func = ArrayList::toString;\n" + 
+		"	                                      ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The type ArrayList does not define toString(List<String>) that is applicable here\n" + 
+		"----------\n", null, false, customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+public void test428857a() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"import java.util.function.Function;\n" +
+			"public class X {\n" +
+			"    public static void main (String[] args) {\n" +
+			"        Function<ArrayList<String>, String> func = ArrayList::toString;\n" +
+			"        System.out.println(func.apply(Arrays.asList(\"a\", \"b\")));\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	System.out.println(func.apply(Arrays.asList(\"a\", \"b\")));\n" + 
+		"	                        ^^^^^\n" + 
+		"The method apply(ArrayList<String>) in the type Function<ArrayList<String>,String> is not applicable for the arguments (List<String>)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	System.out.println(func.apply(Arrays.asList(\"a\", \"b\")));\n" + 
+		"	                              ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<String> to ArrayList<String>\n" + 
+		"----------\n", null, false, customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+public void test428857b() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"import java.util.function.Function;\n" +
+			"public class X {\n" +
+			"    public static void main (String[] args) {\n" +
+			"        Function<ArrayList<String>, String> func = List::toString;\n" +
+			"        System.out.println(func.apply(Arrays.asList(\"a\", \"b\")));\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	System.out.println(func.apply(Arrays.asList(\"a\", \"b\")));\n" + 
+		"	                        ^^^^^\n" + 
+		"The method apply(ArrayList<String>) in the type Function<ArrayList<String>,String> is not applicable for the arguments (List<String>)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	System.out.println(func.apply(Arrays.asList(\"a\", \"b\")));\n" + 
+		"	                              ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<String> to ArrayList<String>\n" + 
+		"----------\n", null, false, customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+public void test428857c() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"import java.util.function.Function;\n" +
+			"class Vector<E> extends ArrayList<E> {}\n" +
+			"interface I {\n" +
+			"    ArrayList<String> get();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    public static void main (String[] args) {\n" +
+			"        I i = ArrayList::new;\n" +
+			"        System.out.println(i.get());\n" +
+			"    }\n" +
+			"    Zork z;\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	class Vector<E> extends ArrayList<E> {}\n" + 
+		"	      ^^^^^^\n" + 
+		"The serializable class Vector does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n", null, false, customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+public void test428857d() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"import java.util.function.Function;\n" +
+			"class Vector<E> extends ArrayList<E> {}\n" +
+			"interface I {\n" +
+			"    List<String> get();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    public static void main (String[] args) {\n" +
+			"        I i = ArrayList::new;\n" +
+			"        System.out.println(i.get());\n" +
+			"    }\n" +
+			"    Zork z;\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	class Vector<E> extends ArrayList<E> {}\n" + 
+		"	      ^^^^^^\n" + 
+		"The serializable class Vector does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n", null, false, customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+public void test428857e() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"import java.util.function.Function;\n" +
+			"class Vector<E> extends ArrayList<E> {}\n" +
+			"interface I {\n" +
+			"    Vector<String> get();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    public static void main (String[] args) {\n" +
+			"        I i = ArrayList::new;\n" +
+			"        System.out.println(i.get());\n" +
+			"    }\n" +
+			"    Zork z;\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	class Vector<E> extends ArrayList<E> {}\n" + 
+		"	      ^^^^^^\n" + 
+		"The serializable class Vector does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	I i = ArrayList::new;\n" + 
+		"	      ^^^^^^^^^^^^^^\n" + 
+		"The constructed object of type ArrayList is incompatible with the descriptor\'s return type: Vector<String>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 14)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n", null, false, customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+public void test428857f() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"import java.util.function.Function;\n" +
+			"class Vector<E> extends ArrayList<E> {}\n" +
+			"interface I {\n" +
+			"    ArrayList<String> get();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    public static void main (String[] args) {\n" +
+			"        I i = Vector::new;\n" +
+			"        System.out.println(i.get());\n" +
+			"    }\n" +
+			"    Zork z;\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	class Vector<E> extends ArrayList<E> {}\n" + 
+		"	      ^^^^^^\n" + 
+		"The serializable class Vector does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n", null, false, customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, - [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
+public void test428857g() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"import java.util.function.Function;\n" +
+			"public class X {\n" +
+			"    public static void main (String[] args) {\n" +
+			"        Function<? extends ArrayList<String>, String> func = ArrayList::toString;\n" +
+			"        System.out.println(func.apply(Arrays.asList(\"a\", \"b\")));\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	System.out.println(func.apply(Arrays.asList(\"a\", \"b\")));\n" + 
+		"	                        ^^^^^\n" + 
+		"The method apply(capture#1-of ? extends ArrayList<String>) in the type Function<capture#1-of ? extends ArrayList<String>,String> is not applicable for the arguments (List<String>)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	System.out.println(func.apply(Arrays.asList(\"a\", \"b\")));\n" + 
+		"	                              ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<String> to capture#1-of ? extends ArrayList<String>\n" + 
+		"----------\n", null, false, customOptions);
 }
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;

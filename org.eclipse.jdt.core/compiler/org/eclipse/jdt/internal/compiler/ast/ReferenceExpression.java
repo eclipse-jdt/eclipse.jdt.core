@@ -69,7 +69,6 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
-import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class ReferenceExpression extends FunctionalExpression implements InvocationSite {
 	
@@ -352,8 +351,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     		this.constant = Constant.NotAConstant;
     		this.enclosingScope = scope;
     		scope.referenceCompilationUnit().record(this);
-    		if (isConstructorReference())
-    			this.lhs.bits |= ASTNode.IgnoreRawTypeCheck; // raw types in constructor references are to be treated as though <> were specified.
+    		this.lhs.bits |= ASTNode.IgnoreRawTypeCheck;
 
     		lhsType = this.lhs.resolveType(scope);
     		if (this.typeArguments != null) {
@@ -421,7 +419,9 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		*/
 		
 		// handle the special case of array construction first.
-        this.receiverType = lhsType;
+		this.receiverType = lhsType;
+		if (!this.haveReceiver && !this.lhs.isSuper() && !this.isArrayConstructorReference())
+			this.receiverType = lhsType.capture(scope, this.sourceEnd);
 		final int parametersLength = descriptorParameters.length;
         if (isConstructorReference() && lhsType.isArrayType()) {
         	final TypeBinding leafComponentType = lhsType.leafComponentType();
@@ -474,13 +474,8 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         			return this.resolvedType = null;
         		}
         	} 
-        } else {
-        	if (this.lhs instanceof NameReference && !this.haveReceiver && isMethodReference() && this.receiverType.isRawType()) {
-        		if ((this.lhs.bits & ASTNode.IgnoreRawTypeCheck) == 0 && compilerOptions.getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
-        			scope.problemReporter().rawTypeReference(this.lhs, this.receiverType);
-        		}
-        	}
         }
+    	
     	if (this.lhs.isSuper() && this.lhs.resolvedType.isInterface()) {
     		scope.checkAppropriateMethodAgainstSupers(this.selector, someMethod, this.descriptor.parameters, this);
     	}
@@ -494,7 +489,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         		if (this.receiverType.isRawType()) {
         			TypeBinding superType = potentialReceiver.findSuperTypeOriginatingFrom(this.receiverType);
         			if (superType != null)
-        				typeToSearch = superType;
+        				typeToSearch = superType.capture(scope, this.sourceEnd);
         		}
         		TypeBinding [] parameters = Binding.NO_PARAMETERS;
         		if (parametersLength > 1) {
