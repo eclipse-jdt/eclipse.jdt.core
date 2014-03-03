@@ -484,7 +484,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 
 				if (iFields != null) {
 					for (int i = 0; i < iFields.length; i++)
-						scanFieldForNullAnnotation(iFields[i], this.fields[i]);
+						scanFieldForNullAnnotation(iFields[i], this.fields[i], this.isEnum());
 				}
 				if (iMethods != null) {
 					for (int i = 0; i < iMethods.length; i++)
@@ -1451,7 +1451,7 @@ SimpleLookupTable storedAnnotations(boolean forceInitialize) {
 	return this.storedAnnotations;
 }
 
-private void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBinding) {
+private void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBinding, boolean isEnum) {
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
 		TypeBinding fieldType = fieldBinding.type;
@@ -1495,6 +1495,11 @@ private void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBi
 	}
 	if (!explicitNullness && (this.tagBits & TagBits.AnnotationNonNullByDefault) != 0) {
 		fieldBinding.tagBits |= TagBits.AnnotationNonNull;
+	}
+	if (isEnum) {
+		if ((field.getModifiers() & ClassFileConstants.AccEnum) != 0) {
+			fieldBinding.tagBits |= TagBits.AnnotationNonNull;
+		}
 	}
 }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 Walter Harley and others.
+ * Copyright (c) 2009, 2014 Walter Harley and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1561,4 +1561,109 @@ public class AnnotationDependencyTests extends BuilderTests {
 		// verify that Test2 only was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.Test2" });
 	}
+
+	 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=411771
+	 //[compiler][null] Enum constants not recognized as being NonNull.
+	 //This test case exposes the bug mentioned in the defect. The enum
+	 //definition comes from a file different from where it is accessed.
+	 public void test411771a() throws IOException, JavaModelException {
+		 setupProjectForNullAnnotations();
+		 String testEnumCode = "package p1;\n" +
+				 "enum TestEnum {FOO };\n";
+		 env.addClass( this.srcRoot, "p1", "TestEnum", testEnumCode );
+		 fullBuild( this.projectPath );
+		 expectingNoProblems();
+
+		 String nullTestCode = "package p1;\n" +
+				 "import org.eclipse.jdt.annotation.NonNull;\n" +
+				 "public class NullTest {\n" +
+				 "	public static TestEnum bla() {\n" +
+				 "		@NonNull final TestEnum t = TestEnum.FOO;\n" +
+				 "		return t;\n" +
+				 "	}\n" +
+				 "}";
+		 env.addClass( this.srcRoot, "p1", "NullTest", nullTestCode );
+		 incrementalBuild( this.projectPath );
+		 expectingNoProblems();
+
+		 expectingUniqueCompiledClasses(new String[] { "p1.NullTest" });
+	 }
+
+	 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=411771
+	 //[compiler][null] Enum constants not recognized as being NonNull.
+	 //Distinguish between enum constant and enum type. The enum type should not
+	 //be marked as NonNull.
+	 public void test411771b() throws IOException, JavaModelException {
+		 setupProjectForNullAnnotations();
+		 String testEnumCode = "package p1;\n" +
+				 "enum TestEnum { FOO };\n";
+		 env.addClass( this.srcRoot, "p1", "TestEnum", testEnumCode );
+		 fullBuild( this.projectPath );
+		 expectingNoProblems();
+
+		 String testClass = "package p1;\n" +
+				 "public class X { TestEnum f; };\n";
+		 env.addClass( this.srcRoot, "p1", "X", testClass );
+		 incrementalBuild( this.projectPath );
+		 expectingNoProblems();
+
+		 String nullTestCode = "package p1;\n" +
+				 "import org.eclipse.jdt.annotation.NonNull;\n" +
+				 "public class NullTest {\n" +
+				 "	public static TestEnum bla(X x) {\n" +
+				 "		@NonNull final TestEnum t = x.f;\n" +
+				 "		return t;\n" +
+				 "	}\n" +
+				 "}\n";
+		 IPath test1Path = env.addClass( this.srcRoot, "p1", "NullTest", nullTestCode );
+		 incrementalBuild( this.projectPath );
+
+		 expectingProblemsFor(test1Path,
+				 "Problem : Null type safety: The expression of type 'TestEnum' needs unchecked conversion to conform to " +
+				 "'@NonNull TestEnum' [ resource : </Project/src/p1/NullTest.java> range : <144,147> category : <90> severity : <1>]");
+
+		 expectingUniqueCompiledClasses(new String[] { "p1.NullTest" });
+	 }
+
+	 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=411771
+	 //[compiler][null] Enum constants not recognized as being NonNull.
+	 //A enum may contain fields other than predefined constants. We
+	 //should not tag them as NonNull.
+	 public void test411771c() throws IOException, JavaModelException {
+		 setupProjectForNullAnnotations();
+		 String testClass = "package p1;\n" +
+				 "public class A {}";
+		 env.addClass( this.srcRoot, "p1", "A", testClass );
+		 fullBuild( this.projectPath );
+		 expectingNoProblems();
+
+		 String testEnumCode = "package p1;\n" +
+				 "enum TestEnum {\n" +
+				 "	FOO;\n" +
+				 "	public static A a;" +
+				 "};\n";
+		 env.addClass( this.srcRoot, "p1", "TestEnum", testEnumCode );
+		 incrementalBuild( this.projectPath );
+		 expectingNoProblems();
+
+		 String nullTestCode = "package p1;\n" +
+				 "import org.eclipse.jdt.annotation.NonNull;\n" +
+				 "public class NullTest {\n" +
+				 "	public static TestEnum bla() {\n" +
+				 "		@NonNull final TestEnum t = TestEnum.FOO;\n" +
+				 "		return t;\n" +
+				 "	}\n" +
+				 "	public A testint() {\n" +
+				 "	@NonNull A a = TestEnum.a;\n" +
+				 "		return a;\n" +
+				 "	}\n" +
+				 "}";
+		 IPath test1Path = env.addClass( this.srcRoot, "p1", "NullTest", nullTestCode );
+		 incrementalBuild( this.projectPath );
+		 expectingProblemsFor(test1Path,
+				 "Problem : Null type safety: The expression of type 'A' needs unchecked conversion to conform to " +
+				 "'@NonNull A' [ resource : </Project/src/p1/NullTest.java> range : <208,218> category : <90> severity : <1>]");
+
+		 expectingUniqueCompiledClasses(new String[] { "p1.NullTest" });
+	 }
 }
