@@ -69,6 +69,10 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public static final char JEM_LOCALVARIABLE = '@';
 	public static final char JEM_TYPE_PARAMETER = ']';
 	public static final char JEM_ANNOTATION = '}';
+	public static final char JEM_LAMBDA_EXPRESSION = '>';
+	public static final char JEM_LAMBDA_METHOD = '*';
+	public static final char JEM_STRING = '"';
+	
 
 	/**
 	 * This element's parent, or <code>null</code> if this
@@ -149,6 +153,9 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 				case JEM_LOCALVARIABLE:
 				case JEM_TYPE_PARAMETER:
 				case JEM_ANNOTATION:
+				case JEM_LAMBDA_EXPRESSION:
+				case JEM_LAMBDA_METHOD:
+				case JEM_STRING:
 					buffer.append(JEM_ESCAPE);
 			}
 			buffer.append(character);

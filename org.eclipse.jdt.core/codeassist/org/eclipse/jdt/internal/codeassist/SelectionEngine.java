@@ -977,7 +977,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 									System.out.println(e.binding.toString());
 								}
 								// if null then we found a problem in the selection node
-								selectFrom(e.binding, parsedUnit, e.isDeclaration);
+								selectFrom(e.binding, parsedUnit, sourceUnit, e.isDeclaration);
 							}
 						}
 					}
@@ -1082,6 +1082,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	}
 
 	private void selectFrom(Binding binding, CompilationUnitDeclaration parsedUnit, boolean isDeclaration) {
+		selectFrom(binding, parsedUnit, null, isDeclaration);
+	}
+	private void selectFrom(Binding binding, CompilationUnitDeclaration parsedUnit, ICompilationUnit unit, boolean isDeclaration) {
 		if(binding instanceof TypeVariableBinding) {
 			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) binding;
 			Binding enclosingElement = typeVariableBinding.declaringElement;
@@ -1262,7 +1265,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 		} else if (binding instanceof LocalVariableBinding) {
 			if (this.requestor instanceof SelectionRequestor) {
-				((SelectionRequestor)this.requestor).acceptLocalVariable((LocalVariableBinding)binding);
+				((SelectionRequestor)this.requestor).acceptLocalVariable((LocalVariableBinding)binding, unit);
 				this.acceptedAnswer = true;
 			} else {
 				// open on the type of the variable
@@ -1381,15 +1384,6 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				typeName = Signature.toCharArray(typeSig);
 			}
 
-			// find the outer most type
-			IType outerType = context;
-			IType parent = context.getDeclaringType();
-			while (parent != null) {
-				outerType = parent;
-				parent = parent.getDeclaringType();
-			}
-
-			// compute parse tree for this most outer type
 			CompilationUnitDeclaration parsedUnit = null;
 			TypeDeclaration typeDeclaration = null;
 			org.eclipse.jdt.core.ICompilationUnit cu = context.getCompilationUnit();
@@ -1400,8 +1394,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			 	for (int i = 0; i < length; i++) {
 					topLevelInfos[i] = (SourceTypeElementInfo) ((SourceType)topLevelTypes[i]).getElementInfo();
 				}
-				ISourceType outerTypeInfo = (ISourceType) ((SourceType) outerType).getElementInfo();
-				CompilationResult result = new CompilationResult(outerTypeInfo.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
+				CompilationResult result = new CompilationResult((org.eclipse.jdt.internal.compiler.env.ICompilationUnit) cu, 1, 1, this.compilerOptions.maxProblemsPerUnit);
 				int flags = SourceTypeConverter.FIELD_AND_METHOD | SourceTypeConverter.MEMBER_TYPE;
 				if (context.isAnonymous() || context.isLocal())
 					flags |= SourceTypeConverter.LOCAL_TYPE;

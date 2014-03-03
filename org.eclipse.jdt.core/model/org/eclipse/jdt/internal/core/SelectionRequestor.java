@@ -15,6 +15,8 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -444,9 +446,16 @@ public void acceptLocalMethodTypeParameter(TypeVariableBinding typeVariableBindi
 		}
 	}
 }
-public void acceptLocalVariable(LocalVariableBinding binding) {
+public void acceptLocalVariable(LocalVariableBinding binding, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unit) {
 	LocalDeclaration local = binding.declaration;
-	IJavaElement parent = findLocalElement(local.sourceStart); // findLocalElement() cannot find local variable
+	IJavaElement parent = null;
+	if (binding.declaringScope.isLambdaSubscope() && unit instanceof ICompilationUnit) {
+		HashSet existingElements = new HashSet();
+		HashMap knownScopes = new HashMap();
+		parent = this.handleFactory.createElement(binding.declaringScope, local.sourceStart, (ICompilationUnit) unit, existingElements, knownScopes);
+	} else {		
+		parent = findLocalElement(local.sourceStart); // findLocalElement() cannot find local variable
+	}
 	LocalVariable localVar = null;
 	if(parent != null) {
 		localVar = new LocalVariable(

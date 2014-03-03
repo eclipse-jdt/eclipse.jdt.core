@@ -95,7 +95,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 public class LambdaExpression extends FunctionalExpression implements ReferenceContext, ProblemSeverities {
 	public Argument [] arguments;
 	private TypeBinding [] argumentTypes;
-	private int arrowPosition;
+	public int arrowPosition;
 	public Statement body;
 	public boolean hasParentheses;
 	public MethodScope scope;
@@ -1230,6 +1230,10 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			}
 			public ReferenceBinding[] superInterfaces() {
 				return new ReferenceBinding[] { (ReferenceBinding) LambdaExpression.this.resolvedType };
+			}
+			@Override
+			public char[] computeUniqueKey() {
+				return LambdaExpression.this.descriptor.declaringClass.computeUniqueKey();
 			}
 			public String toString() {
 				StringBuffer output = new StringBuffer("()->{} implements "); //$NON-NLS-1$

@@ -1,0 +1,153 @@
+/*******************************************************************************
+ * Copyright (c) 2014 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
+
+package org.eclipse.jdt.internal.core;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.core.util.Util;
+
+public class LambdaMethod extends SourceMethod {
+
+	private int sourceStart; // cached for ease of use in hashcode/equals.
+	private String [] parameterNameStrings;
+	private String returnTypeString;
+	SourceMethodElementInfo elementInfo;
+	private String key;
+	
+	public LambdaMethod(JavaElement parent, String name, String key, int sourceStart, String [] parameterTypes, String [] parameterNames, String returnType, SourceMethodElementInfo elementInfo) {
+		super(parent, name, parameterTypes);
+		this.sourceStart = sourceStart;
+		this.parameterNameStrings = parameterNames;
+		this.returnTypeString = returnType;
+		this.elementInfo = elementInfo;
+		this.key = key;
+	}
+	
+	public static LambdaMethod make(JavaElement parent, org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression) {
+		int length;
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		String [] parameterTypes = new String[length = lambdaExpression.descriptor.parameters.length];
+		for (int i = 0; i < length; i++)
+			parameterTypes[i] = manager.intern(new String(lambdaExpression.descriptor.parameters[i].signature()));
+		String [] parameterNames = new String[length];
+		for (int i = 0; i < length; i++)
+			parameterNames[i] = manager.intern(new String(lambdaExpression.arguments[i].name));
+		String returnType = manager.intern(new String(Signature.toCharArray(lambdaExpression.descriptor.returnType.signature())));
+		String selector = manager.intern(new String(lambdaExpression.descriptor.selector));
+		String key = new String(lambdaExpression.descriptor.computeUniqueKey());
+		LambdaMethod lambdaMethod = make(parent, selector, key, lambdaExpression.sourceStart, lambdaExpression.sourceEnd, lambdaExpression.arrowPosition, parameterTypes, parameterNames, returnType);
+		ILocalVariable [] parameters = new ILocalVariable[length = lambdaExpression.arguments.length];
+		for (int i = 0; i < length; i++) {
+			Argument argument = lambdaExpression.arguments[i];
+			String signature = manager.intern(new String(lambdaExpression.descriptor.parameters[i].signature()));
+			parameters[i] = new LocalVariable(
+					lambdaMethod,
+					new String(argument.name),
+					argument.declarationSourceStart,
+					argument.declarationSourceEnd,
+					argument.sourceStart,
+					argument.sourceEnd,
+					signature,
+					null, // we are not hooking up argument.annotations ATM,
+					argument.modifiers,
+					true);
+		}
+		lambdaMethod.elementInfo.arguments = parameters;
+		return lambdaMethod;
+	}
+	
+	public static LambdaMethod make(JavaElement parent, String selector, String key, int sourceStart, int sourceEnd, int arrowPosition, String [] parameterTypes, String [] parameterNames, String returnType) {
+		SourceMethodInfo info = new SourceMethodInfo();
+		info.setSourceRangeStart(sourceStart);
+		info.setSourceRangeEnd(sourceEnd);
+		info.setFlags(0);
+		info.setNameSourceStart(sourceStart);
+		info.setNameSourceEnd(arrowPosition);
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		int length;
+		char[][] argumentNames = new char[length = parameterNames.length][];
+		for (int i = 0; i < length; i++)
+			argumentNames[i] = manager.intern(parameterNames[i].toCharArray());
+		info.setArgumentNames(argumentNames);
+		info.setReturnType(manager.intern(returnType.toCharArray()));
+		info.setExceptionTypeNames(CharOperation.NO_CHAR_CHAR);
+		info.arguments = null; // will be updated shortly, parent has to come into existence first.
+		return new LambdaMethod(parent, selector, key, sourceStart, parameterTypes, parameterNames, returnType, info);
+	}
+
+	protected void closing(Object info) {
+		// nothing to do.
+	}
+	
+	public boolean equals(Object o) {
+		if (!(o instanceof LambdaMethod)) return false;
+		LambdaMethod that = (LambdaMethod) o;
+		return super.equals(o) && this.sourceStart == that.sourceStart;
+	}
+
+	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
+		return this.elementInfo;
+	}
+	
+	public void getHandleMemento(StringBuffer buff) {
+		((JavaElement) getParent()).getHandleMemento(buff);
+		char delimiter = getHandleMementoDelimiter();
+		buff.append(delimiter);
+		escapeMementoName(buff, getElementName());
+		buff.append(JEM_COUNT);
+		buff.append(this.parameterTypes.length);
+		for (int i = 0, length = this.parameterTypes.length; i < length; i++) {
+			buff.append(JEM_STRING);
+			buff.append(this.parameterTypes[i]);
+			buff.append(JEM_STRING);
+			buff.append(this.parameterNameStrings[i]);
+		}
+		buff.append(JEM_STRING);
+		buff.append(this.returnTypeString);
+		buff.append(JEM_STRING);
+		buff.append(this.key);
+		ILocalVariable[] arguments = this.elementInfo.arguments;
+		for (int i = 0, length = arguments.length; i < length; i++) {
+			LocalVariable local = (LocalVariable) arguments[i];
+			local.getHandleMemento(buff, false);
+		}
+	}
+	
+	protected char getHandleMementoDelimiter() {
+		return JavaElement.JEM_LAMBDA_METHOD;
+	}
+	
+	public String getKey() {
+		return this.key;
+	}
+	
+	public int hashCode() {
+	   return Util.combineHashCodes(super.hashCode(), this.sourceStart);
+	}
+	
+	public boolean isResolved() {
+		return true;  // we maintain enough information so as not to need another layer of abstraction.
+	}
+	
+	public JavaElement resolved(Binding binding) {
+		return this;
+	}
+}

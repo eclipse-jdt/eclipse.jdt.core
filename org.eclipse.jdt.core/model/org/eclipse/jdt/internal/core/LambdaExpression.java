@@ -15,329 +15,184 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IAnnotation;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.SourceRange;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.core.util.MementoTokenizer;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class LambdaExpression extends SourceType {
 
-	org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression;
-	SourceMethod lambdaMethod;
+	SourceTypeElementInfo elementInfo;
+	LambdaMethod lambdaMethod;
 	
+	// These fields could be materialized from elementInfo, but for ease of use stashed here 
+	protected int sourceStart;
+	protected int sourceEnd;
+	protected int arrowPosition;
+	protected String interphase;
+	
+	
+	// Construction from AST node
 	public LambdaExpression(JavaElement parent, org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression) {
-		super(parent, new String("<lambda>")); //$NON-NLS-1$
-		this.lambdaExpression = lambdaExpression;
-		this.occurrenceCount = lambdaExpression.ordinal;
+		super(parent, new String("Lambda(") + new String(lambdaExpression.descriptor.declaringClass.sourceName()) + ')'); //$NON-NLS-1$
+		this.sourceStart = lambdaExpression.sourceStart;
+		this.sourceEnd = lambdaExpression.sourceEnd;
+		this.arrowPosition = lambdaExpression.arrowPosition;
+		this.interphase = new String(lambdaExpression.descriptor.declaringClass.sourceName());
+		this.elementInfo = makeTypeElementInfo(this, this.interphase, this.sourceStart, this.sourceEnd, this.arrowPosition); 
+		this.lambdaMethod = LambdaMethod.make(this, lambdaExpression);
+		this.elementInfo.children = new IJavaElement[] { this.lambdaMethod };
 	}
 	
-	@Override
-	public String[] getCategories() throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this)); // TODO: what the heck is this supposed to be ? 
+	// Construction from memento
+	public LambdaExpression(JavaElement parent, String name, String interphase, int sourceStart, int sourceEnd, int arrowPosition) {
+		super(parent, name);
+		this.sourceStart = sourceStart;
+		this.sourceEnd = sourceEnd;
+		this.arrowPosition = arrowPosition;
+		this.interphase = interphase;
+		this.elementInfo = makeTypeElementInfo(this, interphase, this.sourceStart = sourceStart, sourceEnd, arrowPosition);
+		// Method is in the process of being fabricated, will be attached shortly.
 	}
-
-	@Override
-	public int getFlags() throws JavaModelException {
-		return this.lambdaExpression.binding.modifiers; // TODO
+	
+	// Construction from subtypes.
+	public LambdaExpression(JavaElement parent, String name, String interphase, int sourceStart, int sourceEnd, int arrowPosition, LambdaMethod lambdaMethod) {
+		super(parent, name);
+		this.sourceStart = sourceStart;
+		this.sourceEnd = sourceEnd;
+		this.arrowPosition = arrowPosition;
+		this.interphase = interphase;
+		this.elementInfo = makeTypeElementInfo(this, interphase, this.sourceStart = sourceStart, sourceEnd, arrowPosition);
+		this.elementInfo.children = new IJavaElement[] { this.lambdaMethod = lambdaMethod };
 	}
-
-	@Override
-	public ISourceRange getJavadocRange() throws JavaModelException {
-		return null;
+	
+	// Lambda expression is not backed by model, fabricate element information structure and stash it.
+	static private SourceTypeElementInfo makeTypeElementInfo (LambdaExpression handle, String interphase, int sourceStart, int sourceEnd, int arrowPosition) {
+		
+		SourceTypeElementInfo elementInfo = new SourceTypeElementInfo();
+		
+		elementInfo.setFlags(0);
+		elementInfo.setHandle(handle);
+		elementInfo.setSourceRangeStart(sourceStart);
+		elementInfo.setSourceRangeEnd(sourceEnd);
+		
+		elementInfo.setNameSourceStart(sourceStart);
+		elementInfo.setNameSourceEnd(arrowPosition);
+		elementInfo.setSuperclassName(null);
+		elementInfo.addCategories(handle, null);
+		
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		char[][] superinterfaces = new char [][] { manager.intern(interphase.toCharArray()) }; // drops marker interfaces - to fix.
+		elementInfo.setSuperInterfaceNames(superinterfaces);
+		return elementInfo;
 	}
-
-	@Override
-	public boolean isBinary() {
+	
+	protected void closing(Object info) throws JavaModelException {
+		// nothing to do, not backed by model ATM.
+	}
+	
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		/* I see cases where equal lambdas are dismissed as unequal on account of working copy owner.
+		   This results in spurious failures. See JavaSearchBugs8Tests.testBug400905_0021()
+		   For now exclude the working copy owner and compare
+		*/
+		if (o instanceof LambdaExpression) {
+			LambdaExpression that = (LambdaExpression) o;
+			if (this.sourceStart != that.sourceStart)
+				return false;
+			CompilationUnit thisCU = (CompilationUnit) this.getCompilationUnit();
+			CompilationUnit thatCU = (CompilationUnit) that.getCompilationUnit();
+			return thisCU.getElementName().equals(thatCU.getElementName()) && thisCU.parent.equals(thatCU.parent);
+		}
 		return false;
 	}
-
-	@Override
-	public Object getElementInfo() throws JavaModelException {
-		return new LambdaTypeElementInfo(this);
+	
+	public int hashCode() {
+		return Util.combineHashCodes(super.hashCode(), this.sourceStart);
 	}
 	
-	@Override
 	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
-		return new LambdaTypeElementInfo(this);
+		return this.elementInfo;
+	}
+
+	protected char getHandleMementoDelimiter() {
+		return JavaElement.JEM_LAMBDA_EXPRESSION;
 	}
 	
-	@Override
-	public boolean exists() {
-		return true;
+	/*
+	 * @see JavaElement#getHandleMemento(StringBuffer)
+	 */
+	protected void getHandleMemento(StringBuffer buff) {
+		((JavaElement)getParent()).getHandleMemento(buff);
+		buff.append(getHandleMementoDelimiter());
+		escapeMementoName(buff, this.name);
+		buff.append(JEM_STRING);
+		escapeMementoName(buff, this.interphase);
+		buff.append(JEM_COUNT);
+		buff.append(this.sourceStart);
+		buff.append(JEM_COUNT);
+		buff.append(this.sourceEnd);
+		buff.append(JEM_COUNT);
+		buff.append(this.arrowPosition);
 	}
+	
+	public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner workingCopyOwner) {
 
-	@Override
-	public int getElementType() {
-		return TYPE;
+		if (token.charAt(0) != JEM_LAMBDA_METHOD)
+			return null;
+		
+		// ----
+		if (!memento.hasMoreTokens()) return this;
+		String selector = memento.nextToken();
+		if (!memento.hasMoreTokens() || memento.nextToken().charAt(0) != JEM_COUNT) return this;
+		if (!memento.hasMoreTokens()) return this;
+		int length = Integer.parseInt(memento.nextToken());
+		String [] parameterTypes = new String[length];
+		String [] parameterNames = new String[length];
+		for (int i = 0; i < length; i++) {
+			if (!memento.hasMoreTokens() || memento.nextToken().charAt(0) != JEM_STRING) return this;
+			parameterTypes[i] = memento.nextToken();
+			if (!memento.hasMoreTokens() || memento.nextToken().charAt(0) != JEM_STRING) return this;
+			parameterNames[i] = memento.nextToken();
+		}
+		if (!memento.hasMoreTokens() || memento.nextToken().charAt(0) != JEM_STRING) return this;
+		String returnType = memento.nextToken();
+		if (!memento.hasMoreTokens() || memento.nextToken().charAt(0) != JEM_STRING) return this;
+		String key = memento.nextToken();
+		this.lambdaMethod = LambdaMethod.make(this, selector, key, this.sourceStart, this.sourceEnd, this.arrowPosition, parameterTypes, parameterNames, returnType);
+		ILocalVariable [] parameters = new ILocalVariable[length];
+		for (int i = 0; i < length; i++) {
+			parameters[i] = (ILocalVariable) this.lambdaMethod.getHandleFromMemento(memento, workingCopyOwner);
+		}
+		this.lambdaMethod.elementInfo.arguments  = parameters;
+		this.elementInfo.children = new IJavaElement[] { this.lambdaMethod };
+		return this.lambdaMethod;
 	}
-
-	@Override
-	public String getHandleIdentifier() {
-		return null; // TODO
-	}
-
-	@Override
+	
 	public boolean isReadOnly() {
 		return true;
 	}
 
-	@Override
-	public boolean isStructureKnown() throws JavaModelException {
-		return true;
-	}
-
-	@Override
-	public String getSource() throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public ISourceRange getSourceRange() throws JavaModelException {
-		return new SourceRange(this.lambdaExpression.sourceStart, this.lambdaExpression.sourceEnd - this.lambdaExpression.sourceStart + 1);
-	}
-
-	@Override
-	public ISourceRange getNameRange() throws JavaModelException {
-		return new SourceRange(this.lambdaExpression.sourceStart, this.lambdaExpression.arrowPosition() - this.lambdaExpression.sourceStart + 1);
-	}
-
-	@Override
-	public void copy(IJavaElement container, IJavaElement sibling, String rename, boolean replace,
-			IProgressMonitor monitor) throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public void delete(boolean force, IProgressMonitor monitor) throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public void move(IJavaElement container, IJavaElement sibling, String rename, boolean replace,
-			IProgressMonitor monitor) throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public void rename(String newName, boolean replace, IProgressMonitor monitor) throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
 	public IJavaElement[] getChildren() throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
+		return new IJavaElement[] { this.lambdaMethod };
 	}
 
-	@Override
-	public boolean hasChildren() throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public IAnnotation getAnnotation(String annotationName) {
-		return null;
-	}
-
-	@Override
-	public IAnnotation[] getAnnotations() throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public IField createField(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor)
-			throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public IInitializer createInitializer(String contents, IJavaElement sibling, IProgressMonitor monitor)
-			throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public IMethod createMethod(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor)
-			throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public IType createType(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor)
-			throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public IMethod[] findMethods(IMethod method) {
-		return null;
-	}
-
-	@Override
-	public IJavaElement[] getChildrenForCategory(String category) throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public String getElementName() {
-		return new String("<lambda>"); //$NON-NLS-1$
-	}
-
-	@Override
-	public IField getField(String fieldName) {
-		return null;
-	}
-
-	@Override
-	public IField[] getFields() throws JavaModelException {
-		return new IField[0];
-	}
-
-	@Override
-	public IInitializer getInitializer(int okkurrenceCount) {
-		return null;
-	}
-
-	@Override
-	public IInitializer[] getInitializers() throws JavaModelException {
-		return new IInitializer[0];
-	}
-
-	@Override
-	public IMethod getMethod(String selector, String[] parameterTypeSignatures) {
-		return new SourceMethod(this, selector, parameterTypeSignatures);
-	}
-	
-	public SourceMethod getMethod() {
-		if (this.lambdaMethod != null)
-			return this.lambdaMethod;
-		
-		TypeBinding [] argv = this.lambdaExpression.argumentsTypeElided() ? this.lambdaExpression.descriptor.parameters : this.lambdaExpression.argumentTypes(); 
-		int argc = argv.length;
-		String[] parameterTypeSignatures = new String[argc];
-		for (int i = 0; i < argc; i++) {
-			parameterTypeSignatures[i] = new String(argv[i].signature());
-		}
-		return this.lambdaMethod = new SourceMethod(this, new String(this.lambdaExpression.binding.selector), parameterTypeSignatures); 
-	}
-
-	@Override
-	public IMethod[] getMethods() throws JavaModelException {
-		return new IMethod[] { getMethod() };
-	}
-
-	@Override
-	public String getSuperclassName() throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public String getSuperclassTypeSignature() throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public String[] getSuperInterfaceNames() throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public String[] getTypeParameterSignatures() throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public ITypeParameter[] getTypeParameters() throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public IType getType(String typeName) {
-		return null;
-	}
-
-	@Override
-	public ITypeParameter getTypeParameter(String typeParameterName) {
-		return null;
-	}
-
-	@Override
-	public String getTypeQualifiedName() {
-		return null;
-	}
-
-	@Override
-	public IType[] getTypes() throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
-	@Override
-	public boolean isAnonymous() {
-		return true;
-	}
-
-	@Override
-	public boolean isClass() throws JavaModelException {
-		return true;
-	}
-
-	@Override
-	public boolean isEnum() throws JavaModelException {
-		return false;
-	}
-
-	@Override
-	public boolean isInterface() throws JavaModelException {
-		return false;
-	}
-
-	@Override
-	public boolean isAnnotation() throws JavaModelException {
-		return false;
-	}
-
-	@Override
 	public boolean isLocal() {
 		return true;
 	}
-
-	@Override
-	public boolean isMember()  {
-		return false;
-	}
-
-	@Override
-	public JavaElement resolved(Binding binding) {
-		return this;
-	}
 	
-	@Override
-	public boolean isResolved() {
-		return true;
+	public JavaElement resolved(Binding binding) {
+		ResolvedLambdaExpression resolvedHandle = new ResolvedLambdaExpression(this.parent, this, new String(binding.computeUniqueKey()));
+		return resolvedHandle;
 	}
 
-	@Override
-	public String[][] resolveType(String typeName) throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
+	public IMethod getMethod() {
+		return this.lambdaMethod;
 	}
-
-	@Override
-	public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
-	}
-
 }

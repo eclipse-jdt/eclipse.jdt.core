@@ -345,12 +345,12 @@ public void test400905b() throws CoreException, IOException {
 			ITypeHierarchy h = type.newTypeHierarchy(null);  // no working copies explicitly passed, should still honor primary working copies.
 
 			assertHierarchyEquals(
-					"Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]\n" + 
-					"Super types:\n" + 
-					"Sub types:\n" + 
-					"  <lambda> [in i [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
-					"  <lambda>#2 [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
-					"  <lambda>#3 [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n",
+							"Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]\n" + 
+							"Super types:\n" + 
+							"Sub types:\n" + 
+							"  Lambda(I) [in i [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
+							"  Lambda(I) [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
+							"  Lambda(I) [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n",
 				h);
 		} finally {
 			primaryCu.discardWorkingCopy();

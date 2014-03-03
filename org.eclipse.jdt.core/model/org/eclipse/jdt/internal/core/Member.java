@@ -166,8 +166,6 @@ public IType getDeclaringType() {
  * @see IMember
  */
 public int getFlags() throws JavaModelException {
-	if (this.parent instanceof LambdaExpression)
-		return 0;
 	MemberElementInfo info = (MemberElementInfo) getElementInfo();
 	return info.getModifiers();
 }
@@ -178,6 +176,26 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 	switch (token.charAt(0)) {
 		case JEM_COUNT:
 			return getHandleUpdatingCountFromMemento(memento, workingCopyOwner);
+		case JEM_LAMBDA_EXPRESSION:
+			if (!memento.hasMoreTokens()) return this;
+			String name = memento.nextToken();
+			if (!memento.hasMoreTokens() || memento.nextToken() != MementoTokenizer.STRING)
+				return this;
+			if (!memento.hasMoreTokens()) return this;
+			String interphase = memento.nextToken();
+			if (!memento.hasMoreTokens() || memento.nextToken() != MementoTokenizer.COUNT) 
+				return this;
+			int sourceStart = Integer.parseInt(memento.nextToken());
+			if (!memento.hasMoreTokens() || memento.nextToken() != MementoTokenizer.COUNT) 
+				return this;
+			int sourceEnd = Integer.parseInt(memento.nextToken());
+			if (!memento.hasMoreTokens() || memento.nextToken() != MementoTokenizer.COUNT) 
+				return this;
+			int arrowPosition = Integer.parseInt(memento.nextToken());
+			if (!memento.hasMoreTokens() || memento.nextToken() != MementoTokenizer.LAMBDA_METHOD) 
+				return this;
+			LambdaExpression expression = new LambdaExpression(this, name, interphase, sourceStart, sourceEnd, arrowPosition);
+			return expression.getHandleFromMemento(token, memento, workingCopyOwner);
 		case JEM_TYPE:
 			String typeName;
 			if (memento.hasMoreTokens()) {

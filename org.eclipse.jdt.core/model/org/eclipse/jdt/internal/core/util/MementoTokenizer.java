@@ -28,6 +28,9 @@ public class MementoTokenizer {
 	public static final String LOCALVARIABLE = Character.toString(JavaElement.JEM_LOCALVARIABLE);
 	public static final String TYPE_PARAMETER = Character.toString(JavaElement.JEM_TYPE_PARAMETER);
 	public static final String ANNOTATION = Character.toString(JavaElement.JEM_ANNOTATION);
+	public static final String LAMBDA_EXPRESSION = Character.toString(JavaElement.JEM_LAMBDA_EXPRESSION);
+	public static final String LAMBDA_METHOD = Character.toString(JavaElement.JEM_LAMBDA_METHOD);
+	public static final String STRING = Character.toString(JavaElement.JEM_STRING);
 
 	private final char[] memento;
 	private final int length;
@@ -75,6 +78,12 @@ public class MementoTokenizer {
 				return PACKAGEDECLARATION;
 			case JavaElement.JEM_IMPORTDECLARATION:
 				return IMPORTDECLARATION;
+			case JavaElement.JEM_LAMBDA_EXPRESSION:
+				return LAMBDA_EXPRESSION;
+			case JavaElement.JEM_LAMBDA_METHOD:
+				return LAMBDA_METHOD;
+			case JavaElement.JEM_STRING:
+				return STRING;
 			case JavaElement.JEM_LOCALVARIABLE:
 				return LOCALVARIABLE;
 			case JavaElement.JEM_TYPE_PARAMETER:
@@ -102,6 +111,9 @@ public class MementoTokenizer {
 				case JavaElement.JEM_PACKAGEDECLARATION:
 				case JavaElement.JEM_IMPORTDECLARATION:
 				case JavaElement.JEM_LOCALVARIABLE:
+				case JavaElement.JEM_LAMBDA_EXPRESSION:
+				case JavaElement.JEM_LAMBDA_METHOD:	
+				case JavaElement.JEM_STRING:
 				case JavaElement.JEM_TYPE_PARAMETER:
 				case JavaElement.JEM_ANNOTATION:
 					break loop;

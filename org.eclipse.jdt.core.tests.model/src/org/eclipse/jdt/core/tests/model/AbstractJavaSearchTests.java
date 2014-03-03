@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.ExtraFlags;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
+import org.eclipse.jdt.internal.core.LambdaExpression;
 import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.SourceRefElement;
@@ -529,10 +530,10 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 			} else {
 				this.line.append(typeName);
 			}
-			if (isLocal) {
+			if (isLocal && !(type instanceof LambdaExpression)) { // don't want occurrence counts for lambdas. it can be confusing at best, as not all are built.
 				this.line.append("#");
 				this.line.append(((SourceRefElement)type).occurrenceCount);
-			}
+			} 
 		}
 		protected IJavaElement getElement(SearchMatch searchMatch) {
 			return (IJavaElement) searchMatch.getElement();

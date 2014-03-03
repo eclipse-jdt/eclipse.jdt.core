@@ -268,7 +268,12 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	 * @see JavaElement#getHandleMemento(StringBuffer)
 	 */
 	protected void getHandleMemento(StringBuffer buff) {
-		((JavaElement)getParent()).getHandleMemento(buff);
+		getHandleMemento(buff, true);
+	}
+	
+	protected void getHandleMemento(StringBuffer buff, boolean memoizeParent) {
+		if (memoizeParent) 
+			((JavaElement)getParent()).getHandleMemento(buff);
 		buff.append(getHandleMementoDelimiter());
 		buff.append(this.name);
 		buff.append(JEM_COUNT);

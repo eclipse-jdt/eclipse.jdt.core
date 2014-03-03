@@ -173,7 +173,7 @@ public class HandleFactory {
 	/**
 	 * Create handle by adding child to parent obtained by recursing into parent scopes.
 	 */
-	private IJavaElement createElement(Scope scope, int elementPosition, ICompilationUnit unit, HashSet existingElements, HashMap knownScopes) {
+	public IJavaElement createElement(Scope scope, int elementPosition, ICompilationUnit unit, HashSet existingElements, HashMap knownScopes) {
 		IJavaElement newElement = (IJavaElement)knownScopes.get(scope);
 		if (newElement != null) return newElement;
 
