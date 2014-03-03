@@ -362,6 +362,76 @@ public void test400905b() throws CoreException, IOException {
 			javaProject.setOption(JavaCore.COMPILER_SOURCE, oldSource);
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429435, [1.8][search]Hierarchy search for lambda expressions do not show all the lambda expressions
+public void test429435() throws CoreException, IOException {
+	IJavaProject javaProject = getJavaProject("P");
+	String oldCompliance = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+	String oldSource = javaProject.getOption(JavaCore.COMPILER_SOURCE, true);
+	try {
+		javaProject.setOption(JavaCore.COMPILER_COMPLIANCE, "1.8");
+		javaProject.setOption(JavaCore.COMPILER_SOURCE, "1.8");
+		String newContents =
+						"package x.y;\n" +
+						"interface I {\n" +
+						"    public int doit();\n" +
+						"}\n" +
+						"public class X {\n" +
+						"void zoo() {\n" +
+						"	    I i = () /*1*/-> {\n" +
+						"                 I i2 = () /*2*/-> Y.foo(() -> Y.foo(()->Y.foo(()->10)));\n" +
+						"                 final Y y = new Y() {\n" +
+						"                		@Override\n" +
+						"                		public int doit() {\n" +
+						"                			I i = () -> 10;\n" +
+						"                			return i.doit();\n" +
+						"                		}\n" +
+						"                 };\n" +
+						"                 return 0;\n" +
+						"       };\n" +
+						"   }\n" +
+						"}\n" +
+						" class Y implements I{\n" +
+						"\n" +
+						"	static int foo(I i) { return 0;}\n" +
+						"	@Override\n" +
+						"	public int doit() {\n" +
+						"		// TODO Auto-generated method stub\n" +
+						"		return 0;\n" +
+						"	}	 \n" +
+						"}\n";
+
+		ICompilationUnit primaryCu = this.copy.getPrimary();
+		primaryCu.becomeWorkingCopy(null);
+
+		primaryCu.getBuffer().setContents(newContents);
+		primaryCu.reconcile(ICompilationUnit.NO_AST, false, null, null);
+
+		try {
+			IType type = primaryCu.getType("I");
+			ITypeHierarchy h = type.newTypeHierarchy(null);  // no working copies explicitly passed, should still honor primary working copies.
+
+			assertHierarchyEquals(
+					"Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]\n" + 
+							"Super types:\n" + 
+							"Sub types:\n" + 
+							"  Lambda(I) [in doit() [in <anonymous #1> [in doit() [in Lambda(I) [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]\n" + 
+							"  Lambda(I) [in doit() [in Lambda(I) [in doit() [in Lambda(I) [in doit() [in Lambda(I) [in doit() [in Lambda(I) [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]]]]]\n" + 
+							"  Lambda(I) [in doit() [in Lambda(I) [in doit() [in Lambda(I) [in doit() [in Lambda(I) [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]]]\n" + 
+							"  Lambda(I) [in doit() [in Lambda(I) [in doit() [in Lambda(I) [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]\n" + 
+							"  Lambda(I) [in doit() [in Lambda(I) [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]\n" + 
+							"  Lambda(I) [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
+							"  Y [in [Working copy] A.java [in x.y [in src [in P]]]]\n",
+				h);
+		} finally {
+			primaryCu.discardWorkingCopy();
+		}
+	} finally {
+		if (oldCompliance != null)
+			javaProject.setOption(JavaCore.COMPILER_COMPLIANCE, oldCompliance);
+		if (oldSource != null)
+			javaProject.setOption(JavaCore.COMPILER_SOURCE, oldSource);
+	}
+}
 
 }
 
