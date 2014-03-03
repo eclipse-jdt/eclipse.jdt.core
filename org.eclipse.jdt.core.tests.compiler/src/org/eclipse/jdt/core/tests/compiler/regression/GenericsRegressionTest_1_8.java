@@ -2542,4 +2542,28 @@ public void _testBug428811() {
 			"}\n"
 		});
 }
+public void testBug429430() {
+	runConformTest(
+		new String[] {
+			"Main.java",
+			"import java.io.*;\n" + 
+			"public class Main {\n" + 
+			"  public static interface Closer<T, X extends Exception> {\n" + 
+			"    void closeIt(T it) throws X;\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static <T, X extends Exception> void close( Closer<T, X> closer, T it ) throws X {\n" + 
+			"    closer.closeIt(it);\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static void main(String[] args) throws IOException {\n" + 
+			"    InputStream in = new ByteArrayInputStream(\"hello\".getBytes());\n" + 
+// FIXME
+//			"    close( x -> x.close(), in ); // eclipse: NO, javac: YES\n" + 
+			"    close( InputStream::close, in ); // eclipse: NO, javac: YES\n" + 
+			"    close( (Closer<InputStream, IOException>)InputStream::close, in ); // eclipse: YES, javac: YES\n" + 
+			"  }\n" +
+			"}\n"
+		});
+}
 }
