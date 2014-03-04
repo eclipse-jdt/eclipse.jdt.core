@@ -1051,10 +1051,11 @@ public class InferenceContext18 {
 	
 	/** For 18.4: "Let Z1, ..., Zn be fresh type variables" use capture bindings. */
 	private CaptureBinding18 freshCapture(InferenceVariable variable) {
-		char[] sourceName = CharOperation.concat("Z-".toCharArray(), variable.sourceName); //$NON-NLS-1$
+		int id = this.captureId++;
+		char[] sourceName = CharOperation.concat("Z".toCharArray(), '#', String.valueOf(id).toCharArray(), '-', variable.sourceName); //$NON-NLS-1$
 		int position = this.currentInvocation != null ? this.currentInvocation.sourceStart() : 0;
 		return new CaptureBinding18(this.scope.enclosingSourceType(), sourceName, variable.typeParameter.shortReadableName(),
-						position, this.captureId++, this.environment);
+						position, id, this.environment);
 	}
 	// === ===
 	

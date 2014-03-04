@@ -23,6 +23,7 @@
  *								Bug 423496 - [1.8] Implement new incorporation rule once it becomes available
  *								Bug 426590 - [1.8][compiler] Compiler error with tenary operator
  *								Bug 427216 - [Java8] array to varargs regression
+ *								Bug 425031 - [1.8] nondeterministic inference for GenericsRegressionTest.test283353
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -2528,28 +2529,44 @@ public void test347426c() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=283353
-public void _test283353() {
-	this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"  public static void main(String[] args) {\n" +
-				"    EntityKey entityKey = null;\n" +
-				"    new EntityCondenser().condense(entityKey);  \n" +
-				"  }\n" +
-				"  public static class EntityCondenser {\n" +
-				"    <I, E extends EntityType<I, E, K>, K extends EntityKey<I>> void condense(K entityKey) {\n" +
-				"    }\n" +
-				"  }\n" +
-				"  public class EntityKey<I> {}\n" +
-				"  public interface EntityType<\n" +
-				"    I,\n" +
-				"    E extends EntityType<I, E, K>,\n" +
-				"    K extends EntityKey<I>> {\n" +
-				"  }\n" +
-				"}\n"
-			},
+public void test283353() {
+	String source = 
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    EntityKey entityKey = null;\n" +
+			"    new EntityCondenser().condense(entityKey);  \n" +
+			"  }\n" +
+			"  public static class EntityCondenser {\n" +
+			"    <I, E extends EntityType<I, E, K>, K extends EntityKey<I>> void condense(K entityKey) {\n" +
+			"    }\n" +
+			"  }\n" +
+			"  public class EntityKey<I> {}\n" +
+			"  public interface EntityType<\n" +
+			"    I,\n" +
+			"    E extends EntityType<I, E, K>,\n" +
+			"    K extends EntityKey<I>> {\n" +
+			"  }\n" +
+			"}\n";
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		this.runConformTest(
+			new String[] { "X.java", source },
 			"");
+	} else {
+		// see https://bugs.eclipse.org/425031
+		runNegativeTest(
+			new String[] { "X.java", source },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	EntityKey entityKey = null;\n" + 
+			"	^^^^^^^^^\n" + 
+			"X.EntityKey is a raw type. References to generic type X.EntityKey<I> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	new EntityCondenser().condense(entityKey);  \n" + 
+			"	                      ^^^^^^^^\n" + 
+			"The method condense(K) in the type X.EntityCondenser is not applicable for the arguments (X.EntityKey)\n" + 
+			"----------\n");
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=347600
 public void test347600() {

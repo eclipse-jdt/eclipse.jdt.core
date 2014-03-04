@@ -72,7 +72,7 @@ public class CaptureBinding18 extends CaptureBinding {
 	}
 
 	public TypeBinding clone(TypeBinding enclosingType) {
-		return new CaptureBinding18(this.sourceType, this.sourceName, this.originalName, this.position, this.captureID, this.environment);
+		return new CaptureBinding18(this.sourceType, CharOperation.append(this.sourceName, '\''), this.originalName, this.position, this.captureID, this.environment);
 	}
 
 	public MethodBinding[] getMethods(char[] selector) {
@@ -207,7 +207,24 @@ public class CaptureBinding18 extends CaptureBinding {
 	}
 
 	public boolean isProperType(boolean admitCapture18) {
-		return admitCapture18;
+		if (!admitCapture18) 
+			return false;
+		if (this.inRecursiveFunction)
+			return true;
+		this.inRecursiveFunction = true;
+		try {
+			if (this.lowerBound != null && !this.lowerBound.isProperType(admitCapture18))
+				return false;
+			if (this.upperBounds != null) {
+				for (int i = 0; i < this.upperBounds.length; i++) {
+					if (!this.upperBounds[i].isProperType(admitCapture18))
+						return false;
+				}
+			}
+		} finally {
+			this.inRecursiveFunction = false;
+		}
+		return true;
 	}
 
 	int recursionLevel = 0; // used to give a hint at recursive types without going into infinity
