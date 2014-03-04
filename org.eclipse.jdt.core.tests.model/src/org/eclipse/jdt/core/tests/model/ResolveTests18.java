@@ -2222,4 +2222,50 @@ public void test428968a() throws JavaModelException {
 		elements, true
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425064,  [1.8][compiler] NPE in CaptureBinding.computeUniqueKey
+public void test425064() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"import java.util.Comparator;\n" +
+			"public class ComparatorUse {\n" +
+			"	Comparator<String> c =\n" +
+			"			Comparator.comparing((String s)->s.toString())\n" +
+			"			.thenComparing(s -> s.length());\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "comparing";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"comparing(java.util.function.Function<? super T,? extends U>) {key=Ljava/util/Comparator<>;.comparing<T:Ljava/lang/Object;U::Ljava/lang/Comparable<-TU;>;>(Ljava/util/function/Function<-TT;+TU;>;)Ljava/util/Comparator<TT;>;%<Ljava/lang/String;Ljava/lang/String;>} [in Comparator [in Comparator.class [in java.util [in "+ getExternalPath() + "jclFull1.8.jar]]]]",
+		elements, true
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425064,  [1.8][compiler] NPE in CaptureBinding.computeUniqueKey
+public void test425064a() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"import java.util.Comparator;\n" +
+			"public class ComparatorUse {\n" +
+			"	Comparator<String> c =\n" +
+			"			Comparator.comparing((String s)->s.toString())\n" +
+			"			.thenComparing(s -> s.length());\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "thenComparing";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"thenComparing(java.util.function.Function<? super T,? extends U>) {key=Ljava/util/Comparator<Ljava/lang/String;>;.thenComparing<U::Ljava/lang/Comparable<-TU;>;>(Ljava/util/function/Function<-Ljava/lang/String;+TU;>;)Ljava/util/Comparator<Ljava/lang/String;>;%<Ljava/lang/Integer;>} [in Comparator [in Comparator.class [in java.util [in "+ getExternalPath() + "jclFull1.8.jar]]]]",
+		elements, true
+	);
+}
 }
