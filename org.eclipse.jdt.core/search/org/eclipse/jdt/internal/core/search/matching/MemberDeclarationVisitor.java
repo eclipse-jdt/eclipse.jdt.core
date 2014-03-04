@@ -212,7 +212,7 @@ public boolean visit(Argument argument, BlockScope scope) {
 public boolean visit(LambdaExpression lambdaExpression, BlockScope scope) {
 	Integer level = (Integer) this.nodeSet.matchingNodes.removeKey(lambdaExpression);
 	try {
-		if (lambdaExpression.binding != null && lambdaExpression.binding.isValidBinding())
+		if (lambdaExpression.resolvedType != null && lambdaExpression.resolvedType.isValidBinding())
 			this.locator.reportMatching(lambdaExpression, this.enclosingElement, level != null ? level.intValue() : -1, this.nodeSet, this.typeInHierarchy);
 	} catch (CoreException e) {
 		throw new WrappedCoreException(e);

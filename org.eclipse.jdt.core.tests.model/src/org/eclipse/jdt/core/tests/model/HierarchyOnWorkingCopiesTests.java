@@ -432,6 +432,59 @@ public void test429435() throws CoreException, IOException {
 			javaProject.setOption(JavaCore.COMPILER_SOURCE, oldSource);
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429537, [1.8][hierarchy]NPE in hierarchy resolution 
+public void test429537() throws CoreException, IOException {
+	IJavaProject javaProject = getJavaProject("P");
+	String oldCompliance = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+	String oldSource = javaProject.getOption(JavaCore.COMPILER_SOURCE, true);
+	try {
+		javaProject.setOption(JavaCore.COMPILER_COMPLIANCE, "1.8");
+		javaProject.setOption(JavaCore.COMPILER_SOURCE, "1.8");
+		String newContents =
+						"package x.y;\n" +
+						"public class X extends Y {\n" +
+						"public static void main(String [] args) {\n" +
+						"	I<Y> c = () /* foo */ -> () /* bar */ -> {};\n" +
+						"	I<Y> y = args.length < 1 ? (() /* true */-> 42) : (() /* false */ -> 23);\n" +
+						"	Object o = (I) () /* cast */ -> 42;\n" +
+						"	}\n" +
+						"}\n" +
+						"interface I<T> {\n" +
+						"	public T foo();\n" +
+						"}\n" +
+						"class Y {\n" +
+						"	public void bar() {}\n" +
+						"}\n";
+
+		ICompilationUnit primaryCu = this.copy.getPrimary();
+		primaryCu.becomeWorkingCopy(null);
+
+		primaryCu.getBuffer().setContents(newContents);
+		primaryCu.reconcile(ICompilationUnit.NO_AST, false, null, null);
+
+		try {
+			IType type = primaryCu.getType("I");
+			ITypeHierarchy h = type.newTypeHierarchy(null);  // no working copies explicitly passed, should still honor primary working copies.
+
+			assertHierarchyEquals(
+							"Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]\n" + 
+							"Super types:\n" + 
+							"Sub types:\n" + 
+							"  Lambda(I) [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
+							"  Lambda(I) [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
+							"  Lambda(I) [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
+							"  Lambda(I) [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n",
+				h);
+		} finally {
+			primaryCu.discardWorkingCopy();
+		}
+	} finally {
+		if (oldCompliance != null)
+			javaProject.setOption(JavaCore.COMPILER_COMPLIANCE, oldCompliance);
+		if (oldSource != null)
+			javaProject.setOption(JavaCore.COMPILER_SOURCE, oldSource);
+	}
+}
 
 }
 
