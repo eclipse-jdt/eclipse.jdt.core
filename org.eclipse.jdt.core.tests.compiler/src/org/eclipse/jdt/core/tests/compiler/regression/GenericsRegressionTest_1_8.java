@@ -2566,4 +2566,49 @@ public void testBug429430() {
 			"}\n"
 		});
 }
+public void testBug429490() {
+	runNegativeTest(
+		new String[] {
+			"Junk11.java",
+			"public class Junk11 {\n" + 
+			"    class Observable<T> {}\n" + 
+			"    class ObservableValue<T> {}\n" + 
+			"    interface InvalidationListener {\n" + 
+			"        public void invalidated(Observable observable);\n" + 
+			"    }\n" + 
+			"    public interface ChangeListener<T> {\n" + 
+			"        void changed(ObservableValue<? extends T> observable, T oldValue, T newValue);\n" + 
+			"    }\n" + 
+			"    class ExpressionHelper<T> {}\n" + 
+			"    public static <T> ExpressionHelper<T> addListener(ExpressionHelper<T> helper, ObservableValue<T> observable, InvalidationListener listener) {\n" + 
+			"        return helper;\n" + 
+			"    }\n" + 
+			"    public static <T> ExpressionHelper<T> addListener(ExpressionHelper<T> helper, ObservableValue<T> observable, ChangeListener<? super T> listener) {\n" + 
+			"        return helper;\n" + 
+			"    }\n" + 
+			"    void junk() {\n" + 
+			"        addListener(null, null, new InvalidationListener () {\n" + 
+			"            public void invalidated(Observable o) {throw new RuntimeException();}\n" + 
+			"        });\n" + 
+			"        addListener(null, null, (o) -> {throw new RuntimeException();});\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in Junk11.java (at line 5)\n" + 
+		"	public void invalidated(Observable observable);\n" + 
+		"	                        ^^^^^^^^^^\n" + 
+		"Junk11.Observable is a raw type. References to generic type Junk11.Observable<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in Junk11.java (at line 19)\n" + 
+		"	public void invalidated(Observable o) {throw new RuntimeException();}\n" + 
+		"	                        ^^^^^^^^^^\n" + 
+		"Junk11.Observable is a raw type. References to generic type Junk11.Observable<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in Junk11.java (at line 21)\n" + 
+		"	addListener(null, null, (o) -> {throw new RuntimeException();});\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"The method addListener(Junk11.ExpressionHelper<Object>, Junk11.ObservableValue<Object>, Junk11.InvalidationListener) is ambiguous for the type Junk11\n" +
+		"----------\n");
+}
 }
