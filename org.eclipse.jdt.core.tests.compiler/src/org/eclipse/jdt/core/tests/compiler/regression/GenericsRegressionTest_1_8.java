@@ -2492,9 +2492,9 @@ public void testBug429090() {
 			"}\n"
 		});
 }
-public void _testBug428811() {
-	// perhaps fail is the correct answer?
-	runConformTest(
+public void testBug428811() {
+	// perhaps fail is the correct answer? FIXME: validate!
+	runNegativeTest(
 		new String[] {
 			"MoreCollectors.java",
 			"import java.util.AbstractList;\n" + 
@@ -2540,7 +2540,21 @@ public void _testBug428811() {
 			"        }\n" + 
 			"    }\n" + 
 			"}\n"
-		});
+		},
+		"----------\n" + 
+		"1. ERROR in MoreCollectors.java (at line 16)\n" + 
+		"	return Collector.of(ArrayList<T>::new,\n" + 
+		"	                 ^^\n" + 
+		"The method of(ArrayList<T>::new, List<T>::add, (<no type> left, <no type> right) -> {\n" + 
+		"  left.addAll(right);\n" + 
+		"  return left;\n" + 
+		"}, ImmutableList::copyOf) is undefined for the type Collector\n" + 
+		"----------\n" + 
+		"2. WARNING in MoreCollectors.java (at line 23)\n" + 
+		"	public static <T> ImmutableList<T> copyOf (Collection<T> c) {\n" + 
+		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method copyOf(Collection<T>) from the type MoreCollectors.ImmutableList<T> is never used locally\n" + 
+		"----------\n");
 }
 public void testBug429430() {
 	runConformTest(
@@ -2594,23 +2608,6 @@ public void testBug429490() {
 			"    }\n" + 
 			"}\n"
 		});
-//	TODO: spec'd error:
-//			"----------\n" + 
-//			"1. WARNING in Junk11.java (at line 5)\n" + 
-//			"	public void invalidated(Observable observable);\n" + 
-//			"	                        ^^^^^^^^^^\n" + 
-//			"Junk11.Observable is a raw type. References to generic type Junk11.Observable<T> should be parameterized\n" + 
-//			"----------\n" + 
-//			"2. WARNING in Junk11.java (at line 19)\n" + 
-//			"	public void invalidated(Observable o) {throw new RuntimeException();}\n" + 
-//			"	                        ^^^^^^^^^^\n" + 
-//			"Junk11.Observable is a raw type. References to generic type Junk11.Observable<T> should be parameterized\n" + 
-//			"----------\n" + 
-//			"3. ERROR in Junk11.java (at line 21)\n" + 
-//			"	addListener(null, null, (o) -> {throw new RuntimeException();});\n" + 
-//			"	^^^^^^^^^^^\n" + 
-//			"The method addListener(Junk11.ExpressionHelper<Object>, Junk11.ObservableValue<Object>, Junk11.InvalidationListener) is ambiguous for the type Junk11\n" +
-//			"----------\n";
 }
 public void testBug429424() {
 	runConformTest(

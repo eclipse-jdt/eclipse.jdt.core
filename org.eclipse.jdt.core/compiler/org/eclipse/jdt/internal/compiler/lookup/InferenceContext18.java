@@ -27,7 +27,6 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
@@ -152,9 +151,6 @@ public class InferenceContext18 {
 	 * but only for constraints derived from type variable bounds.
 	 */
 	static final boolean ARGUMENT_CONSTRAINTS_ARE_SOFT = false;
-
-	/** To conform with javac we may want to consider the number of arguments during 18.5.4 */
-	static final boolean CONSIDER_NUM_ARGS_OF_IMPLICIT_LAMBDA_DURING_18_5_4 = true;
 
 	// --- Main State of the Inference: ---
 
@@ -807,14 +803,6 @@ public class InferenceContext18 {
 			ConditionalExpression cond = (ConditionalExpression) expri;
 			return  checkExpression(cond.valueIfTrue, u, r1, v, r2) && checkExpression(cond.valueIfFalse, u, r1, v, r2);
 		} else {
-			if (CONSIDER_NUM_ARGS_OF_IMPLICIT_LAMBDA_DURING_18_5_4) {
-				if (expri instanceof LambdaExpression) { // implicitly types
-					Argument[] arguments = ((LambdaExpression)expri).arguments;
-					int count = arguments != null ? arguments.length : 0;
-					if (count == u.length && count != v.length)
-						return true;
-				}
-			}
 			return false;
 		}
 	}

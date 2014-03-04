@@ -62,7 +62,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -4386,9 +4385,10 @@ public abstract class Scope {
 				compatibleCount++;
 			}
 		}
-		if (compatibleCount != visibleSize) {
-			problemReporter().genericInferenceProblem("(Recovered) Internal inconsistency while checking invocation ambiguity", invocationSite, ProblemSeverities.Warning); //$NON-NLS-1$
-		}
+// TODO: Disabled, because we know a situation where this is expected, see https://bugs.eclipse.org/429490
+//		if (compatibleCount != visibleSize) {
+//			problemReporter().genericInferenceProblem("(Recovered) Internal inconsistency while checking invocation ambiguity", invocationSite, ProblemSeverities.Warning); //$NON-NLS-1$
+//		}
 		if (compatibleCount == 0) {
 			return new ProblemMethodBinding(visible[0].selector, argumentTypes, ProblemReasons.NotFound);
 		} else if (compatibleCount == 1) {
@@ -4803,9 +4803,6 @@ public abstract class Scope {
 		
 		if (arg == null || param == null)
 			return NOT_COMPATIBLE;
-		
-		if (arg instanceof PolyTypeBinding && !((PolyTypeBinding)arg).isPertinentToApplicability(param))
-			return COMPATIBLE;
 
 		if (arg.isCompatibleWith(param, this))
 			return COMPATIBLE;
@@ -4822,8 +4819,6 @@ public abstract class Scope {
 		// only called if env.options.sourceLevel >= ClassFileConstants.JDK1_5
 		if (arg == null || param == null)
 			return NOT_COMPATIBLE;
-		if (arg instanceof PolyTypeBinding && !((PolyTypeBinding)arg).isPertinentToApplicability(param))
-			return COMPATIBLE;
 		if (arg.isCompatibleWith(param, this))
 			return COMPATIBLE;
 		if (tieBreakingVarargsMethods && (this.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_7 || !CompilerOptions.tolerateIllegalAmbiguousVarargsInvocation)) {
