@@ -2158,4 +2158,68 @@ public void test429262e() throws JavaModelException {
 		elements
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428968, [1.8] NPE while computing a text hover
+public void test428968() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.Collections;\n" +
+			"import java.util.Comparator;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	private void foo() {\n" +
+			"		List<Person> people= new ArrayList<>();\n" +
+			"		Collections.sort(people, Comparator.comparing(p -> p.getLastName()));\n" +
+			"	}\n" +
+			"}\n" +
+			"class Person{\n" +
+			"	String getLastName() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "comparing";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"comparing(java.util.function.Function<? super T,? extends U>) {key=Ljava/util/Comparator<>;.comparing<T:Ljava/lang/Object;U::Ljava/lang/Comparable<-TU;>;>(Ljava/util/function/Function<-TT;+TU;>;)Ljava/util/Comparator<TT;>;%<Ljava/lang/Object;^{218#0};>} [in Comparator [in Comparator.class [in java.util [in "+ getExternalPath() + "jclFull1.8.jar]]]]",
+		elements, true
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428968, [1.8] NPE while computing a text hover
+public void test428968a() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.Collections;\n" +
+			"import java.util.Comparator;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	private void foo() {\n" +
+			"		List<Person> people= new ArrayList<>();\n" +
+			"		Collections.sort(people, Comparator.comparing((Person p) -> p.getLastName()));\n" +
+			"	}\n" +
+			"}\n" +
+			"class Person{\n" +
+			"	String getLastName() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "comparing";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"comparing(java.util.function.Function<? super T,? extends U>) {key=Ljava/util/Comparator<>;.comparing<T:Ljava/lang/Object;U::Ljava/lang/Comparable<-TU;>;>(Ljava/util/function/Function<-TT;+TU;>;)Ljava/util/Comparator<TT;>;%<LX~Person;Ljava/lang/String;>} [in Comparator [in Comparator.class [in java.util [in "+ getExternalPath() + "jclFull1.8.jar]]]]",
+		elements, true
+	);
+}
 }
