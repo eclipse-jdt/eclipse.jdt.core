@@ -2611,4 +2611,23 @@ public void testBug429490() {
 		"The method addListener(Junk11.ExpressionHelper<Object>, Junk11.ObservableValue<Object>, Junk11.InvalidationListener) is ambiguous for the type Junk11\n" +
 		"----------\n");
 }
+public void testBug429424() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"    public static void main (String[] args) {\n" + 
+			"        List<String> list = new ArrayList<>();\n" + 
+			"        list.addAll(X.newArrayList());\n" + 
+			"        System.out.println(list);\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public static <T> List<T> newArrayList () {\n" + 
+			"        return new ArrayList<T>();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n"
+		});
+}
 }

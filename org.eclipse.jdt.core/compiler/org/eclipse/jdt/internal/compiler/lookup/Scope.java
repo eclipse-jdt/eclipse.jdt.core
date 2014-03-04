@@ -44,6 +44,7 @@
  *								Bug 428366 - [1.8] [compiler] The method valueAt(ObservableList<Object>, int) is ambiguous for the type Bindings
  *								Bug 424728 - [1.8][null] Unexpected error: The nullness annotation 'XXXX' is not applicable at this location 
  *								Bug 428811 - [1.8][compiler] Type witness unnecessarily required
+ *								Bug 429424 - [1.8][inference] Problem inferring type of method's parameter
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -792,7 +793,8 @@ public abstract class Scope {
 				isVarArgs[0] = method.isVarargs() && argLen != method.parameters.length; // if same lengths, isVarArgs can still be updated below
 				int level = COMPATIBLE;
 				for (int i = 0; i < argLen; i++) {
-					int nextLevel = compatibilityLevel18FromInner(method, innerInferenceHelper, invocationArguments[i], argLen, i, isVarArgs);
+					TypeBinding argumentType = i < arguments.length ? arguments[i] : null; // length mismatch may happen from CodeSnippetMessageSend.resolveType() in the if (argHasError) block.
+					int nextLevel = compatibilityLevel18FromInner(method, innerInferenceHelper, invocationArguments[i], argumentType, argLen, i, isVarArgs);
 					if (nextLevel == NOT_COMPATIBLE)
 						return nextLevel;
 					if (nextLevel == -2)
@@ -806,7 +808,7 @@ public abstract class Scope {
 		return parameterCompatibilityLevel(method, arguments, tiebreakingVarargsMethods);
 	}
 
-	private int compatibilityLevel18FromInner(MethodBinding method, InnerInferenceHelper innerInferenceHelper, Expression invocArg, int argLen, int i, boolean[] isVarArgs)
+	private int compatibilityLevel18FromInner(MethodBinding method, InnerInferenceHelper innerInferenceHelper, Expression invocArg, TypeBinding argType, int argLen, int i, boolean[] isVarArgs)
 	{
 		int compatible = isVarArgs[0] ? VARARGS_COMPATIBLE : COMPATIBLE;
 		TypeBinding resolvedType = invocArg.resolvedType;
@@ -822,6 +824,8 @@ public abstract class Scope {
 			Invocation innerPoly = (Invocation) invocArg;
 			level = parameterCompatibilityLevel(resolvedType, targetType);
 			if (level != NOT_COMPATIBLE) {
+				if (TypeBinding.notEquals(argType, resolvedType) && innerInferenceHelper != null)
+					innerInferenceHelper.registerInnerResult(method, resolvedType, argLen, i);
 				return Math.max(compatible, level);
 			} else {
 				MethodBinding innerBinding = innerPoly.binding(null, false, null); // 1. try without update
@@ -874,10 +878,10 @@ public abstract class Scope {
 		} else if (invocArg.isPolyExpression()) {
 			if (invocArg instanceof ConditionalExpression) {
 				ConditionalExpression ce = (ConditionalExpression) invocArg;
-				int level1 = compatibilityLevel18FromInner(method, innerInferenceHelper, ce.valueIfTrue, argLen, i, isVarArgs);
+				int level1 = compatibilityLevel18FromInner(method, innerInferenceHelper, ce.valueIfTrue, argType, argLen, i, isVarArgs);
 				if (level1 == NOT_COMPATIBLE)
 					return NOT_COMPATIBLE;
-				int level2 = compatibilityLevel18FromInner(method, innerInferenceHelper, ce.valueIfFalse, argLen, i, isVarArgs);
+				int level2 = compatibilityLevel18FromInner(method, innerInferenceHelper, ce.valueIfFalse, argType, argLen, i, isVarArgs);
 				if (level2 == NOT_COMPATIBLE)
 					return NOT_COMPATIBLE;
 				return Math.max(level1, level2);
