@@ -154,7 +154,7 @@ public class InferenceContext18 {
 	static final boolean ARGUMENT_CONSTRAINTS_ARE_SOFT = false;
 
 	/** To conform with javac we may want to consider the number of arguments during 18.5.4 */
-	static final boolean CONSIDER_NUM_ARGS_OF_IMPLICIT_LAMBDA_DURING_18_5_4 = false;
+	static final boolean CONSIDER_NUM_ARGS_OF_IMPLICIT_LAMBDA_DURING_18_5_4 = true;
 
 	// --- Main State of the Inference: ---
 
