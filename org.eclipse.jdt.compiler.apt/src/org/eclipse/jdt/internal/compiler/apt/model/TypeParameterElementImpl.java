@@ -18,10 +18,13 @@
 
 package org.eclipse.jdt.internal.compiler.apt.model;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ElementVisitor;
@@ -140,6 +143,43 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 	protected AnnotationBinding[] getAnnotationBindings()
 	{
 		return ((TypeVariableBinding)_binding).getTypeAnnotations();
+	}
+	
+	private boolean shouldEmulateJavacBug() {
+		if (_env.getLookupEnvironment().globalOptions.emulateJavacBug8031744) {
+			AnnotationBinding [] annotations = getAnnotationBindings();
+			for (int i = 0, length = annotations.length; i < length; i++) {
+				ReferenceBinding firstAnnotationType = annotations[i].getAnnotationType();
+				for (int j = i+1; j < length; j++) {
+					ReferenceBinding secondAnnotationType = annotations[j].getAnnotationType();
+					if (firstAnnotationType == secondAnnotationType) //$IDENTITY-COMPARISON$
+						return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public List<? extends AnnotationMirror> getAnnotationMirrors() {
+		if (shouldEmulateJavacBug())
+			return Collections.emptyList();
+		return super.getAnnotationMirrors();
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked") // for the cast to A
+	public <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationType) {
+		if (shouldEmulateJavacBug())
+			return (A[]) Array.newInstance(annotationType, 0);
+		return super.getAnnotationsByType(annotationType);
+	}
+	
+	@Override
+	public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
+		if (shouldEmulateJavacBug())
+			return null;
+		return super.getAnnotation(annotationType);
 	}
 
 	/*

@@ -288,7 +288,7 @@ public class Java8ElementsTests extends TestCase {
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations26");
 	}
 	
-	public void testTypeAnnotations27() throws Exception {
+	public void _testTypeAnnotations27() throws Exception {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations27");
 	}
