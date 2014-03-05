@@ -2492,6 +2492,37 @@ public void testBug429090() {
 			"}\n"
 		});
 }
+public void testBug429490_comment33() {
+    runConformTest(
+        new String[] {
+            "Junk12.java",
+            "public class Junk12 {\n" + 
+            "    class Observable<T> {}\n" + 
+            "    class ObservableValue<T> {}\n" + 
+            "    interface InvalidationListener {\n" + 
+            "        public void invalidated(Observable observable);\n" + 
+            "    }\n" + 
+            "    public interface ChangeListener<T> {\n" + 
+            "        void changed(ObservableValue<? extends T> observable, T oldValue, T newValue);\n" + 
+            "    }\n" + 
+            "    class ExpressionHelper<T> {}\n" + 
+            "    public static <T> ExpressionHelper<T> addListener(ExpressionHelper<T> helper, ObservableValue<T> observable, InvalidationListener listener) {\n" + 
+            "        return helper;\n" + 
+            "    }\n" + 
+            "    public static <T> ExpressionHelper<T> addListener(ExpressionHelper<T> helper, ObservableValue<T> observable, ChangeListener<? super T> listener) {\n" + 
+            "        return helper;\n" + 
+            "    }\n" + 
+            "    void junk() {\n" + 
+            "        addListener(null, null, new ChangeListener () {\n" + 
+            "            public void changed(ObservableValue observable, Object oldValue, Object newValue) {\n" + 
+            "                throw new RuntimeException();\n" + 
+            "            }\n" + 
+            "        });\n" + 
+            "        addListener(null, null, (value, o1, o2) -> {throw new RuntimeException();});\n" + 
+            "    }\n" + 
+            "}\n"
+        });
+}
 public void testBug428811() {
 	// perhaps fail is the correct answer? FIXME: validate!
 	runNegativeTest(
