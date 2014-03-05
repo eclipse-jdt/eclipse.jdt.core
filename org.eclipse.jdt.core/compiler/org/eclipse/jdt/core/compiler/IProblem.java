@@ -1445,8 +1445,6 @@ void setSourceStart(int sourceStart);
 	int InterfaceNotFunctionalInterface = Internal + TypeRelated + 664;
 	/** @since 3.9 BETA_JAVA8 */
 	int ConstructionTypeMismatch = Internal + TypeRelated + 665;
-    /** @since 3.9 BETA_JAVA8 */
-    int ToleratedMisplacedTypeAnnotations = Syntax + Internal + 666;
 
 
 	/**

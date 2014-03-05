@@ -970,7 +970,6 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("Task", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ThisInStaticContext", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ThisSuperDuringConstructorInvocation", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
-		expectedProblemAttributes.put("ToleratedMisplacedTypeAnnotations", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("TooManyArgumentSlots", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("TooManyArrayDimensions", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("TooManyBytesForStringConstant", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -1785,7 +1784,6 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("Task", SKIP);
 		expectedProblemAttributes.put("ThisInStaticContext", SKIP);
 		expectedProblemAttributes.put("ThisSuperDuringConstructorInvocation", SKIP);
-		expectedProblemAttributes.put("ToleratedMisplacedTypeAnnotations", SKIP);
 		expectedProblemAttributes.put("TooManyArgumentSlots", SKIP);
 		expectedProblemAttributes.put("TooManyArrayDimensions", SKIP);
 		expectedProblemAttributes.put("TooManyBytesForStringConstant", SKIP);

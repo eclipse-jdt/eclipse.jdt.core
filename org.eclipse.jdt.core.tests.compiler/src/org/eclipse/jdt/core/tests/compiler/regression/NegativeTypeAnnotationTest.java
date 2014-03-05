@@ -853,17 +853,17 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"}\n",
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
 		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
 		"	                       ^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 3)\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
 		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
 		"	                                       ^^^^^^^^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
 		"----------\n" + 
-		"3. WARNING in X.java (at line 3)\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
 		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
 		"	                                                              ^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
@@ -4169,7 +4169,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"}\n"
 			}, 
 			"----------\n" + 
-			"1. WARNING in X.java (at line 8)\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
 			"	Class<?> c = int @T [].class; \n" + 
 			"	                 ^^\n" + 
 			"Syntax error, type annotations are illegal here\n" + 

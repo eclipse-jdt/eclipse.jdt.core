@@ -1553,7 +1553,6 @@ public int computeSeverity(int problemID){
 			break;
 		// For compatibility with javac 8b111 for now.	
 		case IProblem.RepeatableAnnotationWithRepeatingContainerAnnotation:
-		case IProblem.ToleratedMisplacedTypeAnnotations:	
 			return ProblemSeverities.Warning;
 		case IProblem.IllegalUseOfUnderscoreAsAnIdentifier:
 			return this.underScoreIsLambdaParameter ? ProblemSeverities.Error : ProblemSeverities.Warning;
@@ -4617,14 +4616,6 @@ public void invalidUsageOfTypeAnnotations(Annotation annotation) {
 			NoArgument,
 			annotation.sourceStart,
 			annotation.sourceEnd);
-}
-public void toleratedMisplacedTypeAnnotations(Annotation first, Annotation last) {
-	this.handle(
-			IProblem.ToleratedMisplacedTypeAnnotations,
-			NoArgument,
-			NoArgument,
-			first.sourceStart,
-			last.sourceEnd);	
 }
 public void misplacedTypeAnnotations(Annotation first, Annotation last) {
 	this.handle(
