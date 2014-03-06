@@ -618,13 +618,28 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n" + 
 				"3. ERROR in X.java (at line 4)\n" + 
 				"	Object o2 = @Marker int @Marker[] [] @Marker[].class;\n" + 
+				"	             ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. WARNING in X.java (at line 4)\n" + 
+				"	Object o2 = @Marker int @Marker[] [] @Marker[].class;\n" + 
 				"	                        ^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n" + 
-				"4. ERROR in X.java (at line 4)\n" + 
+				"5. ERROR in X.java (at line 4)\n" + 
+				"	Object o2 = @Marker int @Marker[] [] @Marker[].class;\n" + 
+				"	                         ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"6. WARNING in X.java (at line 4)\n" + 
 				"	Object o2 = @Marker int @Marker[] [] @Marker[].class;\n" + 
 				"	                                     ^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 4)\n" + 
+				"	Object o2 = @Marker int @Marker[] [] @Marker[].class;\n" + 
+				"	                                      ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
 				"----------\n");
 	}
 	// ReferenceExpression ::= PrimitiveType Dims '::' NonWildTypeArgumentsopt IdentifierOrNew

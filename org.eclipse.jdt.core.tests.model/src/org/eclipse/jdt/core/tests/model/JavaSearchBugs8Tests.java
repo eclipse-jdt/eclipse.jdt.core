@@ -70,7 +70,6 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g8"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g9"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g10"));
-	suite.addTest(new JavaSearchBugs8Tests("testBug400899g11"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g12"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g13"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g14"));
@@ -596,44 +595,6 @@ assertSearchResults(
 );	
 }
 
-/**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
- * PrimaryNoNewArray ::= PrimitiveType Dims '.' 'class'
- * PrimaryNoNewArray ::= PrimitiveType '.' 'class'
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
- */
-public void testBug400899g11() throws CoreException {
-this.workingCopies = new ICompilationUnit[1];
-this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X { \n" +
-		"	public void value() {\n" +
-		"		Object o = @Marker int.class;\n" +
-		"		Object o2 = @Marker int @Marker[] [] @Marker[].class;\n" +
-		"   }\n" +
-		"}\n" +
-		"@Target(ElementType.TYPE_USE)\n" +	
-		"@interface Marker {}\n"
-	);
-SearchPattern pattern = SearchPattern.createPattern(
-		"Marker",
-		ANNOTATION_TYPE,
-		REFERENCES,
-		EXACT_RULE);
-new SearchEngine(this.workingCopies).search(pattern,
-new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-getJavaSearchWorkingCopiesScope(),
-this.resultCollector,
-null);
-assertSearchResults(
-		"src/b400899/X.java void b400899.X.value() [Marker] POTENTIAL_MATCH\n" + 
-		"src/b400899/X.java void b400899.X.value() [Marker] POTENTIAL_MATCH\n" + 
-		"src/b400899/X.java void b400899.X.value() [Marker] POTENTIAL_MATCH\n" + 
-		"src/b400899/X.java void b400899.X.value() [Marker] POTENTIAL_MATCH"
-);	
-}
 
 /**
  * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs

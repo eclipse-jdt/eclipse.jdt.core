@@ -988,7 +988,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"	           ^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 20)\n" + 
+		"5. WARNING in X.java (at line 20)\n" + 
 		"	o = int @NonEmpty [].class; // illegal!\n" + 
 		"	        ^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
@@ -1064,7 +1064,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"	           ^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 27)\n" + 
+		"5. WARNING in X.java (at line 27)\n" + 
 		"	o = int @NonEmpty [].class; // illegal!\n" + 
 		"	        ^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
