@@ -18,6 +18,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
@@ -40,6 +41,8 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		TestSuite suite = new Suite(JavaElement8Tests.class.getName());
 		suite.addTest(new JavaElement8Tests("testBug428178"));
 		suite.addTest(new JavaElement8Tests("testBug428178a"));
+		suite.addTest(new JavaElement8Tests("testBug429641"));
+		suite.addTest(new JavaElement8Tests("testBug429641a"));
 		return suite;
 	}
 	public void testBug428178() throws Exception {
@@ -86,6 +89,60 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		}
 		finally {
 			deleteProject("Bug428178");
+		}
+	}
+	public void testBug429641() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Bug429641", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+			project.open(null);
+			String fileContent =  "package p;\n" +
+					 "public interface Test {\n" +
+					 "	static void main(String[] args) {\n" +
+					 "		I i = (x) -> {};\n" +
+					 "	}\n" +
+					 "}\n" + 
+					 "interface I {\n" + 
+					 "  public void foo(int x);\n" +
+					 "}";
+			createFolder("/Bug429641/src/p");
+			createFile(	"/Bug429641/src/p/Test.java",	fileContent);
+			ICompilationUnit unit = getCompilationUnit("/Bug429641/src/p/Test.java");
+			int start = fileContent.indexOf("x) ->");
+			IJavaElement[] elements = unit.codeSelect(start, 1);
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			assertEquals("Incorrect element type", IJavaElement.LOCAL_VARIABLE, elements[0].getElementType());
+			IMethod method = (IMethod) elements[0].getParent();
+			assertTrue("Should be a lambda method", method.isLambdaMethod());
+		}
+		finally {
+			deleteProject("Bug429641");
+		}
+	}
+	public void testBug429641a() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Bug429641", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+			project.open(null);
+			String fileContent =  "package p;\n" +
+					 "public interface Test {\n" +
+					 "	static void main(String[] args) {\n" +
+					 "		I i = (x) -> {};\n" +
+					 "	}\n" +
+					 "}\n" + 
+					 "interface I {\n" + 
+					 "  public void foo(int x);\n" +
+					 "}";
+			createFolder("/Bug429641/src/p");
+			createFile(	"/Bug429641/src/p/Test.java",	fileContent);
+			ICompilationUnit unit = getCompilationUnit("/Bug429641/src/p/Test.java");
+			int start = fileContent.lastIndexOf("x");
+			IJavaElement[] elements = unit.codeSelect(start, 1);
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			assertEquals("Incorrect element type", IJavaElement.LOCAL_VARIABLE, elements[0].getElementType());
+			IMethod method = (IMethod) elements[0].getParent();
+			assertTrue("Should not be a lambda method", !method.isLambdaMethod());
+		}
+		finally {
+			deleteProject("Bug429641");
 		}
 	}
 }

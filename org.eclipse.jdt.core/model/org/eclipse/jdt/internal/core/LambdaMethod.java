@@ -17,6 +17,7 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -93,6 +94,13 @@ public class LambdaMethod extends SourceMethod {
 		return new LambdaMethod(parent, selector, key, sourceStart, parameterTypes, parameterNames, returnType, info);
 	}
 
+	/**
+	 * @see IMethod#isLambdaMethod()
+	 */
+	public boolean isLambdaMethod() {
+		return true;
+	}
+	
 	protected void closing(Object info) {
 		// nothing to do.
 	}

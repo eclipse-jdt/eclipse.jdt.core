@@ -65,6 +65,7 @@ import org.eclipse.jdt.core.tests.formatter.FormatterBugs18Tests;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR308Tests;
 import org.eclipse.jdt.core.tests.formatter.FormatterJSR335Tests;
 import org.eclipse.jdt.core.tests.model.CompletionTests18;
+import org.eclipse.jdt.core.tests.model.JavaElement8Tests;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs8Tests;
 import org.eclipse.jdt.core.tests.model.ResolveTests18;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest;
@@ -110,6 +111,7 @@ public class RunOnlyJava8Tests extends TestCase {
 			IncrementalTests18.class,
 			ConditionalExpressionTest.class,
 			Unicode18Test.class,
+			JavaElement8Tests.class,
 		};
 	}
 	
