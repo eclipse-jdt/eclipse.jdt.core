@@ -3557,7 +3557,7 @@ public void test429738a() throws CoreException {
 	ILocalVariable local = (ILocalVariable) elements[0];
 	search(local, DECLARATIONS, EXACT_RULE);
 	assertSearchResults(
-			"src/b400905/X.java int b400905.X.f1:Lambda(Foo).foo(int).x [x] EXACT_MATCH");	
+			"src/b400905/X.java int b400905.X.f2:Lambda(Foo).foo(int).x [x] EXACT_MATCH");	
 }
 // Add new tests in JavaSearchBugs8Tests
 }
