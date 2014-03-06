@@ -204,7 +204,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 							TypeBinding exprType = expr.resolvedType;
 							// "not compatible in an assignment context with R"?
 							if (!(expr.isConstantValueOfTypeAssignableToType(exprType, r)
-									|| exprType.isCompatibleWith(r)))
+									|| exprType.isCompatibleWith(r) || expr.isBoxingCompatible(exprType, r, expr, scope)))
 								return FALSE;
 						} else {
 							result.add(new ConstraintExpressionFormula(expr, r, COMPATIBLE, this.isSoft));

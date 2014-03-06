@@ -3621,7 +3621,7 @@ public void _test429763() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429759, [1.8][compiler] Lambda expression's signature matching error
-public void _test429759() {
+public void test429759() {
 	this.runConformTest(
 			new String[] {
 				"X.java",

@@ -271,8 +271,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			int lambdaArgumentCount = this.arguments != null ? this.arguments.length : 0;
             if (descriptorParameterCount != lambdaArgumentCount) {
             	this.scope.problemReporter().lambdaSignatureMismatched(this);
-            	if (argumentsTypeElided) 
-            		return null; // FUBAR, bail out ...
+            	if (argumentsTypeElided || this.original != this) // no interest in continuing to error check copy.
+            		return this.resolvedType = null; // FUBAR, bail out ...
             }
 		}
 		
