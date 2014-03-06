@@ -3620,6 +3620,29 @@ public void _test429763() {
 			},
 			"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429759, [1.8][compiler] Lambda expression's signature matching error
+public void _test429759() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.function.Function;\n" +
+				"import java.util.function.Supplier;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		final int i = new Test<Integer>().test(\"\", (String s) -> 1);\n" +
+				"	}\n" +
+				"	static class Test<R> {\n" +
+				"		<T> R test(T t, Supplier<R> s) {\n" +
+				"			return s.get();\n" +
+				"		}\n" +
+				"		<T> R test(T t, Function<T, R> f) {\n" +
+				"			return f.apply(t);\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
