@@ -155,6 +155,8 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0028"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0029"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0030"));
+	suite.addTest(new JavaSearchBugs8Tests("test429738"));
+	suite.addTest(new JavaSearchBugs8Tests("test429738a"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
