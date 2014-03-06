@@ -665,6 +665,11 @@ protected void consumeTypeArguments() {
 	}
 }
 
+protected void consumeTypeElidedLambdaParameter(boolean parenthesized) {
+	super.consumeTypeElidedLambdaParameter(parenthesized);
+	this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
+}
+
 protected void consumeTypeParameter1WithExtends() {
 	super.consumeTypeParameter1WithExtends();
 	if ((this.patternFineGrain & IJavaSearchConstants.TYPE_VARIABLE_BOUND_TYPE_REFERENCE) != 0) {

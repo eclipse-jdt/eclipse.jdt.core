@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
@@ -3503,6 +3504,58 @@ public void testBug400905_0030() throws CoreException {
 	
 	search(this.workingCopies[0].getType("Y").getType("Z").getMethod("goo", new String[] { "I" }), IMPLICIT_THIS_REFERENCE);
 	assertSearchResults("");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429738, [1.8][search] Find Declarations (Ctrl + G) shows no result for type-less lambda parameter 
+public void test429738() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400905/X.java",
+			"@FunctionalInterface\n" +
+			"interface Foo {\n" +
+			"	int foo(int x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	// Select 'x' in lambda body and press Ctrl+G.\n" +
+			"	Foo f1= x -> /* here*/ x; //[1]\n" +
+			"	Foo f2= (int x) -> x; //[2]\n" +
+			"}\n"
+	);
+	
+	String str = this.workingCopies[0].getSource();
+	String selection = "/* here*/ x";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	ILocalVariable local = (ILocalVariable) elements[0];
+	search(local, DECLARATIONS, EXACT_RULE);
+	assertSearchResults(
+			"src/b400905/X.java int b400905.X.f1:Lambda(Foo).foo(int).x [x] EXACT_MATCH");	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429738, [1.8][search] Find Declarations (Ctrl + G) shows no result for type-less lambda parameter 
+public void test429738a() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400905/X.java",
+			"@FunctionalInterface\n" +
+			"interface Foo {\n" +
+			"	int foo(int x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	// Select 'x' in lambda body and press Ctrl+G.\n" +
+			"	Foo f1= x ->  x; //[1]\n" +
+			"	Foo f2= (int x) -> /* here*/ x; //[2]\n" +
+			"}\n"
+	);
+	
+	String str = this.workingCopies[0].getSource();
+	String selection = "/* here*/ x";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	ILocalVariable local = (ILocalVariable) elements[0];
+	search(local, DECLARATIONS, EXACT_RULE);
+	assertSearchResults(
+			"src/b400905/X.java int b400905.X.f1:Lambda(Foo).foo(int).x [x] EXACT_MATCH");	
 }
 // Add new tests in JavaSearchBugs8Tests
 }
