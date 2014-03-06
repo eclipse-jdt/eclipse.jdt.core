@@ -3602,18 +3602,41 @@ public void test428857c() {
 			customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429763,  [1.8][compiler] Incompatible type specified for lambda expression's parameter 
-public void _test429763() {
+public void test429763() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
 				"import java.util.function.Function;\n" +
 				"public class X {\n" +
 				"	public static void main(String[] args) {\n" +
-				"		final int i = new Test<Integer>().test((Byte b) -> (int) b);\n" +
+				"       try {\n" +
+				"		    final int i = new Test<Integer>().test((Byte b) -> (int) b);\n" +
+				"       } catch (NullPointerException e) {\n" +
+				"            System.out.println(\"NPE\");\n" +
+				"       }\n" +
 				"	}\n" +
 				"	static class Test<R> {\n" +
 				"		<T> R test(Function<T,R> f) {\n" +
 				"			return null;\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"NPE");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429763,  [1.8][compiler] Incompatible type specified for lambda expression's parameter 
+public void test429763a() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.function.Function;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		// does not compile\n" +
+				"		new Test<Integer>().test((Byte b) -> (int) b);\n" +
+				"	}\n" +
+				"	static class Test<R> {\n" +
+				"		<T> void test(Function<T,R> f) {\n" +
 				"		}\n" +
 				"	}\n" +
 				"}\n"
