@@ -2928,6 +2928,9 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 			if (typeParameter.bounds != null) {
 				for (int j=0, b=typeParameter.bounds.length; j<b; j++) {
 					TypeReference typeParameterBound = typeParameter.bounds[j];
+					if (typeParameterBound.annotations != null) {
+						reportMatching(typeParameterBound.annotations, enclosingElement, binding,nodeSet, matchedClassContainer);
+					}
 					level = (Integer) nodeSet.matchingNodes.removeKey(typeParameterBound);
 					if (level != null) {
 						IJavaElement localElement = createHandle(typeParameter, enclosingElement);
@@ -2939,6 +2942,9 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 	                    	int length = paramSTR.typeArguments.length;
 	                    	for (int k=0; k<length; k++) {
 								TypeReference typeArgument = paramSTR.typeArguments[k];
+								if (typeArgument.annotations != null) {
+									reportMatching(typeArgument.annotations, enclosingElement, binding,nodeSet, matchedClassContainer);
+								}
 								level = (Integer) nodeSet.matchingNodes.removeKey(typeArgument);
 								if (level != null) {
 									IJavaElement localElement = createHandle(typeParameter, enclosingElement);
@@ -2947,6 +2953,9 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 								if (typeArgument instanceof Wildcard) {
 		                            TypeReference wildcardBound = ((Wildcard) typeArgument).bound;
 		                            if (wildcardBound != null) {
+		            					if (wildcardBound.annotations != null) {
+		            						reportMatching(wildcardBound.annotations, enclosingElement, binding,nodeSet, matchedClassContainer);
+		            					}
 										level = (Integer) nodeSet.matchingNodes.removeKey(wildcardBound);
 										if (level != null) {
 											IJavaElement localElement = createHandle(typeParameter, enclosingElement);

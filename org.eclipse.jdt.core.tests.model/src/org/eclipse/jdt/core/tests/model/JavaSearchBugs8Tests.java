@@ -76,10 +76,9 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g15"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g16"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g17"));
-//	suite.addTest(new JavaSearchBugs8Tests("testBug400899g18"));
-//	suite.addTest(new JavaSearchBugs8Tests("testBug400899g19"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400899g18"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g20"));
-//	suite.addTest(new JavaSearchBugs8Tests("testBug400899g22"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug400899g22"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g23"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g24"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug400899g25"));
@@ -820,7 +819,7 @@ this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
 		"import java.lang.annotation.ElementType;\n" +
 		"import java.lang.annotation.Target;\n" +
-		"public class X<T extends Object & Comparable<? super @Marker String>> {}\n" +
+		"public class X<T extends @Marker Object & @Marker Comparable<@Marker ? super @Marker String>> {}\n" +
 		"class Y<T> {\n" +
 		"}\n" +
  		"@Target(ElementType.TYPE_USE)\n" +	
@@ -837,39 +836,10 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"<TODO : ADD THE EXPECTED RESULT HERE>"
-);	
-}
-
-/**
- * @bug 400899:  [1.8][search] Search engine/indexer should evolve to support Java 8 constructs
- * @test Ensures that the search for type use annotation finds matches in the following
- * ReferenceType3 ::= ReferenceType '>>>'
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400899"
- */
-public void testBug400899g19() throws CoreException {
-this.workingCopies = new ICompilationUnit[1];
-this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
-		"import java.lang.annotation.ElementType;\n" +
-		"import java.lang.annotation.Target;\n" +
-		"public class X<A extends X<X<X<@Marker String>>>> {}\n" +
-		"class Y<T> {\n" +
-		"}\n" +
- 		"@Target(ElementType.TYPE_USE)\n" +	
-		"@interface Marker {}\n"
-	);
-SearchPattern pattern = SearchPattern.createPattern(
-		"Marker",
-		ANNOTATION_TYPE,
-		REFERENCES,
-		EXACT_RULE);
-new SearchEngine(this.workingCopies).search(pattern,
-new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-getJavaSearchWorkingCopiesScope(),
-this.resultCollector,
-null);
-assertSearchResults(
-		"<TODO : ADD THE EXPECTED RESULT HERE>"
+		"src/b400899/X.java b400899.X [Marker] EXACT_MATCH\n" + 
+		"src/b400899/X.java b400899.X [Marker] EXACT_MATCH\n" + 
+		"src/b400899/X.java b400899.X [Marker] EXACT_MATCH\n" + 
+		"src/b400899/X.java b400899.X [Marker] EXACT_MATCH"
 );	
 }
 
@@ -953,7 +923,11 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"TODO - ADD THE RESULT HERE"
+		"src/b400899/X.java b400899.CI [Marker] EXACT_MATCH\n" + 
+		"src/b400899/X.java b400899.CI [Marker] EXACT_MATCH\n" + 
+		"src/b400899/X.java b400899.CI [Marker] EXACT_MATCH\n" + 
+		"src/b400899/X.java b400899.CJ [Marker] EXACT_MATCH\n" + 
+		"src/b400899/X.java b400899.CJ [Marker] EXACT_MATCH"
 );	
 }
 
