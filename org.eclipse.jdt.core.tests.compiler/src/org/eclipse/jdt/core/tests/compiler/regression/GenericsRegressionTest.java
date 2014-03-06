@@ -4311,5 +4311,44 @@ public void test429733a() {
 		},
 		"1.1");
 }
+public void test429733b() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		test(id(1.1d));\n" +
+			"	}\n" +
+			"	static <S> void test(S value) {\n" +
+			"       System.out.println(value);\n" +
+			"	}\n" +
+			"	static <T> T id(T t) {\n" +
+			"       return t;\n" +
+			"   }\n" +
+			"}\n"
+		},
+		"1.1");
+}
+public void test429733c() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X();\n" +
+			"	}\n" +
+			"	<S> X(S value) {\n" +
+			"       System.out.println(value);\n" +
+			"	}\n" +
+			"	static <T> T id(T t) {\n" +
+			"       return t;\n" +
+			"   }\n" +
+			"   X() {\n" +
+			"      this(id(1.1d));\n" +
+			"   }\n" +
+			"}\n"
+		},
+		"1.1");
+}
 }
 
