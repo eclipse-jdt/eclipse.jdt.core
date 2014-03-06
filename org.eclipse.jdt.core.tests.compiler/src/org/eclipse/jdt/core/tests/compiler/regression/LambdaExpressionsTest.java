@@ -3601,6 +3601,25 @@ public void test428857c() {
 			"[a, b]",
 			customOptions);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429763,  [1.8][compiler] Incompatible type specified for lambda expression's parameter 
+public void _test429763() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.function.Function;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		final int i = new Test<Integer>().test((Byte b) -> (int) b);\n" +
+				"	}\n" +
+				"	static class Test<R> {\n" +
+				"		<T> R test(Function<T,R> f) {\n" +
+				"			return null;\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
