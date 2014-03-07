@@ -2268,4 +2268,37 @@ public void test425064a() throws JavaModelException {
 		elements, true
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429845, [1.8] CCE on hover 
+public void test429845() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"@FunctionalInterface\n" +
+			"interface FI {\n" +
+			"	int foo();\n" +
+			"}\n" +
+			"class C1 {\n" +
+			"	void fun1(int x) {\n" +
+			"		FI test= () -> {\n" +
+			"			for (int k=0;k<1;) ;\n" +
+			"			for (int k=0;k<1;) ;\n" +
+			"			try {\n" +
+			"			} catch (Exception ex) {\n" +
+			"			}\n" +
+			"			return 0;\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "ex";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"ex [in foo() [in Lambda(FI) [in fun1(int) [in C1 [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		elements, true
+	);
+}
 }

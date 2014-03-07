@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,6 +54,11 @@ public class SelectionOnArgumentName extends Argument {
 	public void resolve(BlockScope scope) {
 
 		super.resolve(scope);
+		throw new SelectionNodeFound(this.binding);
+	}
+	
+	public TypeBinding resolveForCatch(BlockScope scope) {
+		super.resolveForCatch(scope);
 		throw new SelectionNodeFound(this.binding);
 	}
 }

@@ -343,6 +343,7 @@ protected void consumeCatchFormalParameter() {
 		long namePositions = this.identifierPositionStack[this.identifierPtr--];
 		this.intPtr--; // dimension from the variabledeclaratorid
 		TypeReference type = (TypeReference) this.astStack[this.astPtr--];
+		this.astLengthPtr --;
 		int modifierPositions = this.intStack[this.intPtr--];
 		this.intPtr--;
 		Argument arg =
