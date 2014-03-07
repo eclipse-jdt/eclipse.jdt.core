@@ -8825,6 +8825,30 @@ public void test428857g() {
 		"Type mismatch: cannot convert from List<String> to capture#1-of ? extends ArrayList<String>\n" + 
 		"----------\n", null, false, customOptions);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429833, - [1.8][compiler] Missing types cause NPE in lambda analysis.
+public void test429833() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I1 { int foo(Strin i); }\n" +
+			"class Y {\n" +
+			"	I1 i = (a) -> { \n" +
+			"		a.charAt(0);\n" +
+			"	};\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	interface I1 { int foo(Strin i); }\n" + 
+		"	                       ^^^^^\n" + 
+		"Strin cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	I1 i = (a) -> { \n" + 
+		"	       ^^^^^^\n" + 
+		"This lambda expression refers to the missing type Strin\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

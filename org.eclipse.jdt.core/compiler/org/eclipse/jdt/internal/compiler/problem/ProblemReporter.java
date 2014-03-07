@@ -6184,7 +6184,26 @@ public void missingTypeInConstructor(ASTNode location, MethodBinding constructor
 			start,
 			end);
 }
-
+public void missingTypeInLambda(LambdaExpression lambda, MethodBinding method) {
+	int nameSourceStart = lambda.sourceStart();
+	int nameSourceEnd = lambda.diagnosticsSourceEnd();
+	List missingTypes = method.collectMissingTypes(null);
+	if (missingTypes == null) {
+		System.err.println("The lambda expression " + method + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
+		return;
+	}
+	TypeBinding missingType = (TypeBinding) missingTypes.get(0);
+	this.handle(
+			IProblem.MissingTypeInLambda,
+			new String[] {
+			        new String(missingType.readableName()),
+			},
+			new String[] {
+			        new String(missingType.shortReadableName()),
+			},
+			nameSourceStart,
+			nameSourceEnd);
+}
 public void missingTypeInMethod(ASTNode astNode, MethodBinding method) {
 	int nameSourceStart, nameSourceEnd;
 	if (astNode instanceof MessageSend) {

@@ -418,6 +418,9 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				   this.expectedType.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null) {
 			this.isSerializable = true;
 		}
+		if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
+			this.scope.problemReporter().missingTypeInLambda(this, this.binding);
+		}
 		return this.resolvedType;
 	}
 

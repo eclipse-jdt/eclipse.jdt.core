@@ -727,6 +727,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.7.1 */
 	int IllegalHexaLiteral = Syntax + Internal + 270;
 
+	/** @since 3.9 BETA_JAVA8 */
+	int MissingTypeInLambda = MethodRelated + 271;
+
 	// type related problems
 	/** @since 3.1 */
 	int DiscouragedReference = TypeRelated + 280;
