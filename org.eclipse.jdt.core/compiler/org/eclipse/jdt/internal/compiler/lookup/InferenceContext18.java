@@ -1444,6 +1444,7 @@ public class InferenceContext18 {
 					TypeBinding[] arguments = getSolutions(declaringClass.typeVariables(), innerMessage, bounds);
 					declaringClass = this.environment.createParameterizedType(declaringClass, arguments, declaringClass.enclosingType());
 					original = ((ParameterizedTypeBinding)declaringClass).createParameterizedMethod(original);
+					inner.checkAgainstFinalTargetType(innerTargetType, this.scope);	
 					if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled)
 						NullAnnotationMatching.checkForContraditions(original, innerMessage, this.scope);
 				}

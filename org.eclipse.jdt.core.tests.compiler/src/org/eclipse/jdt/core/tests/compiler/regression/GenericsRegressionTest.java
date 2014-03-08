@@ -4265,8 +4265,6 @@ public void testBug428366() {
 public void test429733() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7)
 		return; // uses diamond.
-	if (this.complianceLevel == ClassFileConstants.JDK1_8)
-		return;
 	runConformTest(
 		new String[] {
 			"X.java",
