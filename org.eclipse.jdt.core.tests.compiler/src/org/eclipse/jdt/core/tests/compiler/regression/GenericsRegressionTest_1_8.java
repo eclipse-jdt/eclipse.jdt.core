@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
@@ -2587,6 +2588,7 @@ public void testBug428811() {
 		"The method copyOf(Collection<T>) from the type MoreCollectors.ImmutableList<T> is never used locally\n" + 
 		"----------\n");
 }
+// all exceptions can be inferred to match
 public void testBug429430() {
 	runConformTest(
 		new String[] {
@@ -2603,13 +2605,104 @@ public void testBug429430() {
 			"\n" + 
 			"  public static void main(String[] args) throws IOException {\n" + 
 			"    InputStream in = new ByteArrayInputStream(\"hello\".getBytes());\n" + 
-// FIXME
-//			"    close( x -> x.close(), in ); // eclipse: NO, javac: YES\n" + 
-			"    close( InputStream::close, in ); // eclipse: NO, javac: YES\n" + 
-			"    close( (Closer<InputStream, IOException>)InputStream::close, in ); // eclipse: YES, javac: YES\n" + 
+			"    close( x -> x.close(), in );\n" +
+			"    close( InputStream::close, in );\n" + 
+			"    close( (Closer<InputStream, IOException>)InputStream::close, in );\n" + 
 			"  }\n" +
 			"}\n"
 		});
+}
+// incompatible exceptions prevent suitable inference of exception type
+public void testBug429430a() {
+	runNegativeTest(
+		new String[] {
+			"Main.java",
+			"import java.io.*;\n" +
+			"@SuppressWarnings(\"serial\") class EmptyStream extends Exception {}\n" + 
+			"public class Main {\n" + 
+			"  public static interface Closer<T, X extends Exception> {\n" + 
+			"    void closeIt(T it) throws X;\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static <T, X extends Exception> void close( Closer<T, X> closer, T it ) throws X {\n" + 
+			"    closer.closeIt(it);\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static void main(String[] args) throws IOException, EmptyStream {\n" + 
+			"    InputStream in = new ByteArrayInputStream(\"hello\".getBytes());\n" + 
+			"    close( x ->  { if (in.available() == 0) throw new EmptyStream(); x.close(); }, in );\n" + 
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Main.java (at line 14)\n" + 
+		"	close( x ->  { if (in.available() == 0) throw new EmptyStream(); x.close(); }, in );\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unhandled exception type Exception\n" + 
+		"----------\n");
+}
+// one of two incompatible exceptions is caught
+// FIXME: should be possible to infer X to EmptyStream
+public void _testBug429430b() {
+	runConformTest(
+		new String[] {
+			"Main.java",
+			"import java.io.*;\n" +
+			"@SuppressWarnings(\"serial\") class EmptyStream extends Exception {}\n" + 
+			"public class Main {\n" + 
+			"  public static interface Closer<T, X extends Exception> {\n" + 
+			"    void closeIt(T it) throws X;\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static <T, X extends Exception> void close( Closer<T, X> closer, T it ) throws X {\n" + 
+			"    closer.closeIt(it);\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static void main(String[] args) throws EmptyStream {\n" + 
+			"    InputStream in = new ByteArrayInputStream(\"hello\".getBytes());\n" + 
+			"    close( x ->  {\n" + 
+			"			try {\n" + 
+			"				x.close();\n" + 
+			"			} catch (IOException ioex) { throw new EmptyStream(); } \n" + 
+			"		}," +
+			"		in);\n" + 
+			"  }\n" +
+			"}\n"
+		});
+}
+// ensure type annotation on exception doesn't confuse the inference
+public void testBug429430c() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+	runConformTest(
+		new String[] {
+			"Main.java",
+			"import java.io.*;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Target(ElementType.TYPE_USE) @interface Severe {}\n" + 
+			"public class Main {\n" + 
+			"  public static interface Closer<T, X extends Exception> {\n" + 
+			"    void closeIt(T it) throws X;\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static <T, X extends Exception> void close( Closer<T, X> closer, T it ) throws X {\n" + 
+			"    closer.closeIt(it);\n" + 
+			"  }\n" + 
+			"\n" +
+			"  static @Severe IOException getException() { return new IOException(\"severe\"); }\n" + 
+			"  public static void main(String[] args) throws IOException {\n" + 
+			"    InputStream in = new ByteArrayInputStream(\"hello\".getBytes());\n" + 
+			"    close( x -> {\n" +
+			"			if (in.available() > 0)\n" +
+			"				x.close();\n" +
+			"			else\n" +
+			"				throw getException();\n" +
+			"		},\n" +
+			"		in);\n" + 
+			"  }\n" +
+			"}\n"
+		},
+		options);
 }
 public void testBug429490() {
 	runConformTest(

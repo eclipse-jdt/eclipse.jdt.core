@@ -39,6 +39,7 @@
  *							Bug 426996 - [1.8][inference] try to avoid method Expression.unresolve()? 
  *							Bug 428352 - [1.8][compiler] Resolution errors don't always surface
  *							Bug 429203 - [1.8][compiler] NPE in AllocationExpression.binding
+ *							Bug 429430 - [1.8] Lambdas and method reference infer wrong exception type with generics (RuntimeException instead of IOException)
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *							bug 378674 - "The method can be declared as static" is wrong
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -555,6 +556,7 @@ TypeBinding resolvePart3(ResolutionState state) {
 		new ImplicitNullAnnotationVerifier(state.scope.environment(), compilerOptions.inheritNullAnnotations)
 				.checkImplicitNullAnnotations(this.binding, null/*srcMethod*/, false, state.scope);
 	}
+	recordExceptionsForEnclosingLambda(state.scope, this.binding.thrownExceptions);
 	return allocationType;
 }
 

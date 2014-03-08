@@ -33,6 +33,7 @@
  *							Bug 428294 - [1.8][compiler] Type mismatch: cannot convert from List<Object> to Collection<Object[]>
  *							Bug 428786 - [1.8][compiler] Inference needs to compute the "ground target type" when reducing a lambda compatibility constraint
  *							Bug 428980 - [1.8][null] simple expression as lambda body doesn't leverage null annotation on argument
+ *							Bug 429430 - [1.8] Lambdas and method reference infer wrong exception type with generics (RuntimeException instead of IOException)
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -40,6 +41,8 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION_CONTEXT;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -114,6 +117,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	private boolean hasIgnoredMandatoryErrors = false;
 	private ReferenceBinding classType;
 	public int ordinal;
+	private Set thrownExceptions;
 	private static final SyntheticArgumentBinding [] NO_SYNTHETIC_ARGUMENTS = new SyntheticArgumentBinding[0];
 	private static final Block NO_BODY = new Block(0, true);
 
@@ -1045,6 +1049,20 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		}
 	}
 	
+	public void throwsException(TypeBinding exceptionType) {
+		if (this.expressionContext != INVOCATION_CONTEXT)
+			return;
+		if (this.thrownExceptions == null)
+			this.thrownExceptions = new HashSet<TypeBinding>();
+		this.thrownExceptions.add(exceptionType);
+	}
+
+	public Set<TypeBinding> getThrownExceptions() {
+		if (this.thrownExceptions == null)
+			return Collections.emptySet();
+		return this.thrownExceptions;
+	}
+
 	public void generateCode(ClassScope classScope, ClassFile classFile) {
 		int problemResetPC = 0;
 		classFile.codeStream.wideMode = false;

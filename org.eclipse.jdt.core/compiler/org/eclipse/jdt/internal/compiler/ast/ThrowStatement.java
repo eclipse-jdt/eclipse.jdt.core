@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@
  *								bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+ *								Bug 429430 - [1.8] Lambdas and method reference infer wrong exception type with generics (RuntimeException instead of IOException)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -71,6 +72,7 @@ public StringBuffer printStatement(int indent, StringBuffer output) {
 
 public void resolve(BlockScope scope) {
 	this.exceptionType = this.exception.resolveType(scope);
+	recordExceptionsForEnclosingLambda(scope, this.exceptionType);
 	if (this.exceptionType != null && this.exceptionType.isValidBinding()) {
 		if (this.exceptionType == TypeBinding.NULL) {
 			if (scope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_3){

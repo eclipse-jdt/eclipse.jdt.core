@@ -50,6 +50,7 @@
  *								Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
  *								Bug 426996 - [1.8][inference] try to avoid method Expression.unresolve()? 
  *								Bug 428352 - [1.8][compiler] Resolution errors don't always surface
+ *								Bug 429430 - [1.8] Lambdas and method reference infer wrong exception type with generics (RuntimeException instead of IOException)
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -853,6 +854,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
 		scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.genericTypeArguments, this.typeArguments);
 	}
+	recordExceptionsForEnclosingLambda(scope, this.binding.thrownExceptions);
 	return (this.resolvedType.tagBits & TagBits.HasMissingType) == 0
 				? this.resolvedType
 				: null;
