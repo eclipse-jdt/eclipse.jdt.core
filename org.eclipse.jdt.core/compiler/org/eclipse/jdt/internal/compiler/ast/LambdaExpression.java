@@ -243,24 +243,12 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		
 		final boolean haveDescriptor = this.descriptor != null;
 		
-		if (haveDescriptor && this.descriptor.typeVariables != Binding.NO_TYPE_VARIABLES) // already complained in kosher*
-			return null;
-		
-		if (!haveDescriptor) {
-			if (argumentsTypeElided) {
-				if (!this.assistNode)
-					return null; // FUBAR, bail out...
-				// for code assist ONLY, keep the sluice gate shut on bogus errors otherwise.
-				argumentsTypeElided = false;
-				for (int i = 0; i < length; i++) {
-					this.arguments[i].type = new SingleTypeReference(TypeConstants.OBJECT, 0);
-				}
-			}
-		}
+		if (!haveDescriptor || this.descriptor.typeVariables != Binding.NO_TYPE_VARIABLES) // already complained in kosher*
+			return this.resolvedType = null;
 		
 		this.binding = new MethodBinding(ClassFileConstants.AccPrivate | ClassFileConstants.AccSynthetic | ExtraCompilerModifiers.AccUnresolved,
 							CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.ordinal).toCharArray()), // will be fixed up later.
-							haveDescriptor ? this.descriptor.returnType : null, 
+							haveDescriptor ? this.descriptor.returnType : TypeBinding.VOID, 
 							Binding.NO_PARAMETERS, // for now. 
 							haveDescriptor ? this.descriptor.thrownExceptions : Binding.NO_EXCEPTIONS, 
 							blockScope.enclosingSourceType());

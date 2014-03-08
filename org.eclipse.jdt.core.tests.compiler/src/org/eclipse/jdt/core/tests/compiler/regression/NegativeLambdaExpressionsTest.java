@@ -8849,6 +8849,60 @@ public void test429833() {
 		"This lambda expression refers to the missing type Strin\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429934, - [1.8][search] for references to type of lambda with 'this' parameter throws AIIOBE/NPE
+public void test429934() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Function<String, String> f1= (String s, Function this) -> s;\n" +
+			"		Function<String, String> f2= (Function this, String s) -> s;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Function<String, String> f1= (String s, Function this) -> s;\n" + 
+		"	^^^^^^^^\n" + 
+		"Function cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	Function<String, String> f1= (String s, Function this) -> s;\n" + 
+		"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The target type of this expression must be a functional interface\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	Function<String, String> f1= (String s, Function this) -> s;\n" + 
+		"	                                        ^^^^^^^^\n" + 
+		"Function cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 3)\n" + 
+		"	Function<String, String> f1= (String s, Function this) -> s;\n" + 
+		"	                                                 ^^^^\n" + 
+		"Lambda expressions cannot declare a this parameter\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 4)\n" + 
+		"	Function<String, String> f2= (Function this, String s) -> s;\n" + 
+		"	^^^^^^^^\n" + 
+		"Function cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 4)\n" + 
+		"	Function<String, String> f2= (Function this, String s) -> s;\n" + 
+		"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The target type of this expression must be a functional interface\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 4)\n" + 
+		"	Function<String, String> f2= (Function this, String s) -> s;\n" + 
+		"	                              ^^^^^^^^\n" + 
+		"Function cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 4)\n" + 
+		"	Function<String, String> f2= (Function this, String s) -> s;\n" + 
+		"	                                       ^^^^\n" + 
+		"Lambda expressions cannot declare a this parameter\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
