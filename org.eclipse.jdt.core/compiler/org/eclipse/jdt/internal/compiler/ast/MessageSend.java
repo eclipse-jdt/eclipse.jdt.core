@@ -868,6 +868,51 @@ protected void findMethodBinding(BlockScope scope, TypeBinding[] argumentTypes) 
 			? scope.getImplicitMethod(this.selector, argumentTypes, this)
 			: scope.getMethod(this.actualReceiverType, this.selector, argumentTypes, this);
 	resolvePolyExpressionArguments(this, this.binding, argumentTypes, scope);
+	
+	/* There are embedded assumptions in the JLS8 type inference scheme that a successful solution of the type equations results in an
+	   applicable method. This appears to be a tenuous assumption, at least one not made by the JLS7 engine or the reference compiler and 
+	   there are cases where this assumption would appear invalid: See https://bugs.eclipse.org/bugs/show_bug.cgi?id=426537, where we allow 
+	   certain compatibility constrains around raw types to be violated. 
+       
+       Here, we filter out such inapplicable methods with raw type usage that may have sneaked past overload resolution and type inference, 
+       playing the devils advocate, blaming the invocations with raw arguments that should not go blameless. At this time this is in the 
+       nature of a point fix and is not a general solution which needs to come later (that also includes AE, QAE and ECC)
+    */
+	final CompilerOptions compilerOptions = scope.compilerOptions();
+	if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8 && this.binding instanceof ParameterizedGenericMethodBinding && this.binding.isValidBinding()) {
+		if (!compilerOptions.postResolutionRawTypeCompatibilityCheck)
+			return;
+		ParameterizedGenericMethodBinding pgmb = (ParameterizedGenericMethodBinding) this.binding;
+		InferenceContext18 ctx = getInferenceContext(pgmb);
+		if (ctx == null || ctx.stepCompleted < InferenceContext18.BINDINGS_UPDATED)
+			return;
+		int length = pgmb.typeArguments == null ? 0 : pgmb.typeArguments.length;
+		boolean sawRawType = false;
+		for (int i = 0;  i < length; i++) {
+			/* Must check compatibility against capture free method. Formal parameters cannot have captures, but our machinery is not up to snuff to
+			   construct a PGMB without captures at the moment - for one thing ITCB does not support uncapture() yet, for another, INTERSECTION_CAST_TYPE
+			   does not appear fully hooked up into isCompatibleWith and isEquivalent to everywhere. At the moment, bail out if we see capture.
+			*/   
+			if (pgmb.typeArguments[i].isCapture())
+				return;
+			if (pgmb.typeArguments[i].isRawType())
+				sawRawType = true;
+		}
+		if (!sawRawType)
+			return;
+		length = this.arguments == null ? 0 : this.arguments.length;
+		if (length == 0)
+			return;
+		TypeBinding [] finalArgumentTypes = new TypeBinding[length];
+		for (int i = 0; i < length; i++) {
+			TypeBinding finalArgumentType = this.arguments[i].resolvedType;
+			if (finalArgumentType == null || !finalArgumentType.isValidBinding())  // already sided with the devil.
+				return;
+			finalArgumentTypes[i] = finalArgumentType; 
+		}
+		if (scope.parameterCompatibilityLevel(this.binding, finalArgumentTypes, false) == Scope.NOT_COMPATIBLE)
+			this.binding = new ProblemMethodBinding(this.binding.original(), this.binding.selector, finalArgumentTypes, ProblemReasons.NotFound);
+	}
 }
 
 @Override

@@ -150,6 +150,7 @@ public class CompilerOptions {
 	// OPTION_Store_Annotations: undocumented option for testing purposes
 	public static final String OPTION_Store_Annotations = "org.eclipse.jdt.core.compiler.storeAnnotations"; //$NON-NLS-1$
 	public static final String OPTION_EmulateJavacBug8031744 = "org.eclipse.jdt.core.compiler.emulateJavacBug8031744"; //$NON-NLS-1$
+	public static final String OPTION_PostResolutionRawTypeCompatibilityCheck = "org.eclipse.jdt.core.compiler.postResolutionRawTypeCompatibilityCheck"; //$NON-NLS-1$
 	public static final String OPTION_ReportRedundantSuperinterface =  "org.eclipse.jdt.core.compiler.problem.redundantSuperinterface"; //$NON-NLS-1$
 	public static final String OPTION_ReportComparingIdentical =  "org.eclipse.jdt.core.compiler.problem.comparingIdentical"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingSynchronizedOnInheritedMethod =  "org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod"; //$NON-NLS-1$
@@ -412,6 +413,8 @@ public class CompilerOptions {
 	public boolean processAnnotations;
 	/** Store annotations */
 	public boolean storeAnnotations;
+	/** extra check for raw type compatibility post overload resolution */
+	public boolean postResolutionRawTypeCompatibilityCheck = true;
 	/** Specify if need to report missing override annotation for a method implementing an interface method (java 1.6 and above)*/
 	public boolean reportMissingOverrideAnnotationForInterfaceMethodImplementation;
 	/** Indicate if annotation processing generates classfiles */
@@ -1137,6 +1140,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_Process_Annotations, this.processAnnotations ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_Store_Annotations, this.storeAnnotations ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_EmulateJavacBug8031744, this.emulateJavacBug8031744 ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_PostResolutionRawTypeCompatibilityCheck, this.postResolutionRawTypeCompatibilityCheck ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportRedundantSuperinterface, getSeverityString(RedundantSuperinterface));
 		optionsMap.put(OPTION_ReportComparingIdentical, getSeverityString(ComparingIdentical));
 		optionsMap.put(OPTION_ReportMissingSynchronizedOnInheritedMethod, getSeverityString(MissingSynchronizedModifierInInheritedMethod));
@@ -1810,6 +1814,13 @@ public class CompilerOptions {
 				this.emulateJavacBug8031744 = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.emulateJavacBug8031744 = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_PostResolutionRawTypeCompatibilityCheck)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.postResolutionRawTypeCompatibilityCheck = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.postResolutionRawTypeCompatibilityCheck = false;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportUninternedIdentityComparison)) != null) {
