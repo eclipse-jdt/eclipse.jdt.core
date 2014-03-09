@@ -216,8 +216,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	 */
 	public TypeBinding resolveType(BlockScope blockScope) {
 		
-		boolean illFormed = false;
-		
 		if (this.resolvedType != null)
 			return this.resolvedType;
 		
@@ -257,16 +255,21 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 							blockScope.enclosingSourceType());
 		this.binding.typeVariables = Binding.NO_TYPE_VARIABLES;
 		
+		boolean buggyArguments = false;
 		if (haveDescriptor) {
 			int descriptorParameterCount = this.descriptor.parameters.length;
 			int lambdaArgumentCount = this.arguments != null ? this.arguments.length : 0;
             if (descriptorParameterCount != lambdaArgumentCount) {
             	this.scope.problemReporter().lambdaSignatureMismatched(this);
-            	return this.resolvedType = null; // FUBAR, bail out ...
+            	if (argumentsTypeElided || this.original != this) // no interest in continuing to error check copy.
+            		return this.resolvedType = null; // FUBAR, bail out ...
+            	else {
+            		this.resolvedType = null; // continue to type check.
+            		buggyArguments = true;
+            	}
             }
 		}
 		
-		boolean buggyArguments = false;
 		TypeBinding[] newParameters = new TypeBinding[length];
 
 		AnnotationBinding [][] parameterAnnotations = null;
@@ -326,7 +329,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				if (haveDescriptor && expectedParameterType != null && parameterType.isValidBinding() && TypeBinding.notEquals(parameterType, expectedParameterType)) {
 					if (!(expectedParameterType instanceof InferenceVariable)) {
 						this.scope.problemReporter().lambdaParameterTypeMismatched(argument, argument.type, expectedParameterType);
-						illFormed = true; // continue to type check.
+						this.resolvedType = null; // continue to type check.
 					}
 				}
 
@@ -414,7 +417,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
 			this.scope.problemReporter().missingTypeInLambda(this, this.binding);
 		}
-		return illFormed ? this.resolvedType = null : this.resolvedType;
+		return this.resolvedType;
 	}
 
 	private ReferenceBinding findGroundTargetType(BlockScope blockScope, ReferenceBinding targetType, boolean argumentTypesElided) {

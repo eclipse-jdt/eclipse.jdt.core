@@ -2340,4 +2340,31 @@ public void test429948() throws JavaModelException {
 		elements, true
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429934, [1.8][search] for references to type of lambda with 'this' parameter throws AIIOBE
+public void test429934() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Resolve/src/X.java",
+			"interface Function<T, R> {\n" +
+			"    R apply(T t);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Function<String, String> f1= (String s, Function this) -> s;\n" +
+			"		Function<String, String> f2= (Function this, String s) -> s;\n" +
+			"	} \n" +
+			"}\n"
+	);
+	
+	String str = this.workingCopies[0].getSource();
+	String selection = "s";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	assertElementsEqual(
+			"Unexpected elements",
+			"s [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+			elements, true
+		);	
+}
 }
