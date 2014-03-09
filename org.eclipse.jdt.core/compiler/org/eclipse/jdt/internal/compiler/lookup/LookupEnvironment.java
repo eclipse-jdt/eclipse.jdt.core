@@ -27,6 +27,7 @@
  *								Bug 416307 - [1.8][compiler][null] subclass with type parameter substitution confuses null checking
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *								Bug 416190 - [1.8][null] detect incompatible overrides due to null type annotations
+ *								Bug 424624 - [1.8][null] if a static-object with annotation @NonNull is used, a warning is shown
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1228,19 +1229,7 @@ ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int en
 	}
 	ReferenceBinding binding = getTypeFromCompoundName(compoundName, isParameterized, wasMissingType);
 	if (walker != TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER) {
-		final int depth = binding.depth();
-		AnnotationBinding [][] annotations = null;
-		for (int i = 0; i <= depth; i++) {
-			AnnotationBinding[] annots = BinaryTypeBinding.createAnnotations(walker.getAnnotationsAtCursor(), this, missingTypeNames);
-			if (annots != null && annots.length > 0) {
-				if (annotations == null)
-					annotations = new AnnotationBinding[depth + 1][];
-				annotations[i] = annots;
-			}
-			walker = walker.toNextNestedType();
-		}
-		if (annotations != null)
-			binding = (ReferenceBinding) createAnnotatedType(binding, annotations);
+		binding = (ReferenceBinding) annotateType(binding, walker, missingTypeNames);
 	}
 	return binding;
 }
@@ -1326,24 +1315,42 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean i
 	}
 	
 	if (walker != TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER) {
-		final int depth = binding.depth();
-		AnnotationBinding [][] annotations = null;
-		for (int i = 0; i <= depth; i++) {
-			AnnotationBinding[] annots = BinaryTypeBinding.createAnnotations(walker.getAnnotationsAtCursor(), this, missingTypeNames);
-			if (annots != null && annots.length > 0) {
-				if (annotations == null)
-					annotations = new AnnotationBinding[depth + 1][];
-				annotations[i] = annots;
-			}
-			walker = walker.toNextNestedType();
-		}
-		if (annotations != null)
-			binding = createAnnotatedType(binding, annotations);
+		binding = annotateType(binding, walker, missingTypeNames);
 	}
 	
 	if (dimension != 0)
 		binding =  this.typeSystem.getArrayType(binding, dimension, AnnotatableTypeSystem.flattenedAnnotations(annotationsOnDimensions));
 	
+	return binding;
+}
+
+private TypeBinding annotateType(TypeBinding binding, TypeAnnotationWalker walker, char[][][] missingTypeNames) {
+	int depth = binding.depth() + 1;
+	if (depth > 1) {
+		// need to count non-static nesting levels, resolved binding required for precision
+		if (binding.isUnresolvedType())
+			binding = ((UnresolvedReferenceBinding) binding).resolve(this, true);
+		TypeBinding currentBinding = binding;
+		depth = 0;
+		while (currentBinding != null) {
+			depth++;
+			if (currentBinding.isStatic())
+				break;
+			currentBinding = currentBinding.enclosingType();
+		}
+	}
+	AnnotationBinding [][] annotations = null;
+	for (int i = 0; i < depth; i++) {
+		AnnotationBinding[] annots = BinaryTypeBinding.createAnnotations(walker.getAnnotationsAtCursor(), this, missingTypeNames);
+		if (annots != null && annots.length > 0) {
+			if (annotations == null)
+				annotations = new AnnotationBinding[depth][];
+			annotations[i] = annots;
+		}
+		walker = walker.toNextNestedType();
+	}
+	if (annotations != null)
+		binding = createAnnotatedType(binding, annotations);
 	return binding;
 }
 

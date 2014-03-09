@@ -6821,4 +6821,172 @@ public void testBug420313() {
 		"Missing non-null annotation: inherited method from UntypedBase specifies this parameter as @NonNull\n" + 
 		"----------\n");
 }
+// original test
+public void testBug424624() {
+	runConformTestWithLibs(
+		new String[] {
+			"Test3.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"\n" + 
+			"public class Test3 {\n" + 
+			"\n" + 
+			"	public Test3() {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	static public class Test3aa extends Object {}\n" + 
+			"	static public final @NonNull Test3aa Test3a = new Test3aa();\n" + 
+			"\n" + 
+			"}\n",
+		},
+		getCompilerOptions(),
+		"");
+	runConformTestWithLibs(
+		new String[] {
+			"Test4.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"\n" + 
+			"public class Test4 {\n" + 
+			"\n" + 
+			"	public Test4() {\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public void test() {\n" + 
+			"		test1( Test3.Test3a);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public void test1( @NonNull Object object) {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+// other nesting levels, binary case
+public void testBug424624a() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Test3.java",
+			"package test;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			(this.complianceLevel >= ClassFileConstants.JDK1_8 ?
+			"import java.lang.annotation.*;\n" +
+			"@Target(ElementType.TYPE_USE) @interface Marker {}\n"
+			:
+			""
+			)+ 
+			"\n" + 
+			"public class Test3 {\n" + 
+			"\n" + 
+			"	public Test3() {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public class Inner extends Object {\n" +
+			"		class DeepInner {}\n" +
+			"	}\n" + 
+			"	public static class Nested extends Object {\n" +
+			"		class InnerInNested {}\n" +
+			"		static class DeepNested {}\n" +
+			"	}\n" + 
+			"	static public final @NonNull Inner field1 = new Test3().new Inner();\n" + 
+			(this.complianceLevel < ClassFileConstants.JDK1_8 ?
+			"	static public final @NonNull Inner.DeepInner field2 = field1.new DeepInner();\n" + 
+			"	static public final @NonNull Nested.InnerInNested field3 = new Nested().new InnerInNested();\n" +
+			"	static public final @NonNull Nested.DeepNested field4 = new Nested.DeepNested();\n"
+			:
+			"	static public final @Marker Inner.@NonNull DeepInner field2 = field1.new DeepInner();\n" + 
+			"	static public final Nested.@NonNull InnerInNested field3 = new Nested().new InnerInNested();\n" +
+			"	static public final Nested.@NonNull DeepNested field4 = new Nested.DeepNested();\n"
+			) + 
+			"\n" + 
+			"}\n",
+		},
+		getCompilerOptions(),
+		"");
+	runConformTestWithLibs(
+		new String[] {
+			"Test4.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import test.Test3;\n" + 
+			"\n" + 
+			"public class Test4 {\n" + 
+			"\n" + 
+			"	public Test4() {\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public void test() {\n" + 
+			"		test1( Test3.field1);\n" + 
+			"		test1( Test3.field2);\n" + 
+			"		test1( Test3.field3);\n" + 
+			"		test1( Test3.field4);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public void test1( @NonNull Object object) {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+// same as previous, source case for reference
+public void testBug424624b() {
+	runConformTestWithLibs(
+		new String[] {
+			"Test3.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			(this.complianceLevel >= ClassFileConstants.JDK1_8 ?
+			"import java.lang.annotation.*;\n" +
+			"@Target(ElementType.TYPE_USE) @interface Marker {}\n"
+			:
+			""
+			)+ 
+			"\n" + 
+			"public class Test3 {\n" + 
+			"\n" + 
+			"	public Test3() {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public class Inner extends Object {\n" +
+			"		class DeepInner {}\n" +
+			"	}\n" + 
+			"	public static class Nested extends Object {\n" +
+			"		class InnerInNested {}\n" +
+			"		static class DeepNested {}\n" +
+			"	}\n" + 
+			"	static public final @NonNull Inner field1 = new Test3().new Inner();\n" + 
+			(this.complianceLevel < ClassFileConstants.JDK1_8 ?
+			"	static public final @NonNull Inner.DeepInner field2 = field1.new DeepInner();\n" + 
+			"	static public final @NonNull Nested.InnerInNested field3 = new Nested().new InnerInNested();\n" +
+			"	static public final @NonNull Nested.DeepNested field4 = new Nested.DeepNested();\n"
+			:
+			"	static public final @Marker Inner.@NonNull DeepInner field2 = field1.new DeepInner();\n" + 
+			"	static public final Nested.@NonNull InnerInNested field3 = new Nested().new InnerInNested();\n" +
+			"	static public final Nested.@NonNull DeepNested field4 = new Nested.DeepNested();\n"
+			) + 
+			"\n" + 
+			"}\n",
+			"Test4.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"\n" + 
+			"public class Test4 {\n" + 
+			"\n" + 
+			"	public Test4() {\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public void test() {\n" + 
+			"		test1( Test3.field1);\n" + 
+			"		test1( Test3.field2);\n" + 
+			"		test1( Test3.field3);\n" + 
+			"		test1( Test3.field4);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public void test1( @NonNull Object object) {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 }

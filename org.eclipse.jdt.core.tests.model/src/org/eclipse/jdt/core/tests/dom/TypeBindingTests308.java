@@ -2078,6 +2078,83 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			removeLibrary(javaProject, jarName, srcName);
 		}
 	}
+	// Variants where superclass in binary is an annotated inner/nested class
+	public void testBinaryWithoutGenericSignature_b() throws CoreException, IOException {
+		String jarName = "TypeBindingTests308.jar";
+		String srcName = "TypeBindingTests308_src.zip";
+		final IJavaProject javaProject = getJavaProject("Converter18");
+		try {
+			String[] pathAndContents = new String[] {
+				"Superclass.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"@Target(ElementType.TYPE_USE)\n" +
+				"@interface T {\n" +
+				"	int value() default 0;\n" +
+				"}\n" +
+				"@T(1)\n" +
+				"public abstract class Superclass extends @T(2) Object implements @T(3) Runnable {\n" +
+				"   @T(9)\n" +
+				"   Superclass () {}\n" +
+				"   @T(10)\n" +
+				"   class Inner {}\n" +
+				"   @T(11)\n" +
+				"   class SubInner extends @T(12) Inner {}\n" +
+				"   @T(13)\n" +
+				"   static class Nested {}\n" +
+				"   @T(14)\n" +
+				"   static class SubNested extends @T(15) Nested {}\n" +
+				"}\n"
+			};
+			
+			HashMap libraryOptions = new HashMap(javaProject.getOptions(true));
+			libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+			addLibrary(javaProject, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
+			
+			String contents = 
+					"@T(21)\n" +
+					"public abstract class X extends @T(22) Superclass implements @T(23) Runnable {\n" +
+					"}\n";
+			
+			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+			ASTNode node = buildAST(contents, this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			List types = compilationUnit.types();
+			assertEquals("Incorrect no of types", 1, types.size());
+			TypeDeclaration typeDecl = (TypeDeclaration) types.get(0);
+			ITypeBinding typeBinding = typeDecl.resolveBinding();
+			IAnnotationBinding[] annotations = typeBinding.getAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 21)", annotations[0].toString());
+			
+			ITypeBinding superclass = typeBinding.getSuperclass();
+			ITypeBinding[] inners = superclass.getDeclaredTypes();
+			assertTrue("Should be 2", inners.length == 4);
+			
+			ITypeBinding subInner = inners[2];
+			assertEquals("Type name mismatch", "SubInner", subInner.getName());
+			annotations = subInner.getAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 11)", annotations[0].toString());
+			
+			annotations = subInner.getSuperclass().getTypeAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 12)", annotations[0].toString());
+			
+			ITypeBinding subNested = inners[3];
+			annotations = subNested.getAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 14)", annotations[0].toString());
+			
+			annotations = subNested.getSuperclass().getTypeAnnotations();
+			assertTrue("Should be 1", annotations.length == 1);
+			assertEquals("Annotation mismatch", "@T(value = 15)", annotations[0].toString());			
+		} finally {
+			removeLibrary(javaProject, jarName, srcName);
+		}
+	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419918, [1.8][compiler] Annotations are not restored from class files in a few situations.
 	public void testBinaryAnnotationType() throws CoreException, IOException {
 		String jarName = "TypeBindingTests308.jar";
