@@ -27,6 +27,7 @@
  *								Bug 415850 - [1.8] Ensure RunJDTCoreTests can cope with null annotations enabled
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *								Bug 427199 - [1.8][resource] avoid resource leak warnings on Streams that have no resource
+ *								Bug 392245 - [1.8][compiler][null] Define whether / how @NonNullByDefault applies to TYPE_USE locations
  *    Jesper Steen Moller - Contributions for
  *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -1599,6 +1600,11 @@ private void scanTypeForNullDefaultAnnotation(IBinaryType binaryType, PackageBin
 						&& !((BooleanConstant)value).booleanValue())
 					{
 						// parameter is 'false': this means we cancel defaults from outer scopes:
+						annotationBit = TagBits.AnnotationNullUnspecifiedByDefault;
+						nullness = NULL_UNSPECIFIED_BY_DEFAULT;
+						break;
+					} else if (value instanceof Object[] && ((Object[])value).length == 0) {
+						// parameter is '{}': this means we cancel defaults from outer scopes:
 						annotationBit = TagBits.AnnotationNullUnspecifiedByDefault;
 						nullness = NULL_UNSPECIFIED_BY_DEFAULT;
 						break;

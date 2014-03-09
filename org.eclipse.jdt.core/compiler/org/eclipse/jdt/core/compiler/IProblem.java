@@ -193,6 +193,7 @@
  *									ContradictoryNullAnnotationsOnBound
  *									UnsafeNullnessCast
  *									ContradictoryNullAnnotationsInferred
+ *									NonNullDefaultDetailIsNotEvaluated
  *      Jesper S Moller  - added the following constants
  *									TargetTypeNotAFunctionalInterface
  *									OuterLocalMustBeEffectivelyFinal
@@ -1779,6 +1780,8 @@ void setSourceStart(int sourceStart);
 	int ContradictoryNullAnnotationsInferred = Internal + 966;
 	/** @since 3.9 BETA_JAVA8 */
 	int UnsafeNullnessCast = Internal + 967;
+	/** @since 3.9 BETA_JAVA8 */
+	int NonNullDefaultDetailIsNotEvaluated = 968;
 
 	// Java 8 work
 	/** @since 3.9 BETA_JAVA8 */

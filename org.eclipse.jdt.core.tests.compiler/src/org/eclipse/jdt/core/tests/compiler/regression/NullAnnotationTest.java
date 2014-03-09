@@ -116,6 +116,12 @@ String targetTypeUseIfAvailable() {
 				: "";
 }
 
+String cancenNonNullByDefault() {
+	return this.complianceLevel < ClassFileConstants.JDK1_8
+				? "    @NonNullByDefault(false)\n"
+				: "    @NonNullByDefault({})\n";
+}
+
 /**
  * @deprecated
  */
@@ -2613,7 +2619,7 @@ public void test_default_nullness_008() {
 			"@NonNullByDefault\n" +
 			"public class Y extends p1.X {\n" +
 			"    @Override\n" +
-			"    @NonNullByDefault(false)\n" +
+			cancenNonNullByDefault() +
 			"    protected Object getObject(Object o) {\n" +
 			"        if (o.toString().length() == 0)\n" + // dereference without a warning
 			"	        return null;\n" + // return null without a warning
@@ -2643,7 +2649,7 @@ public void test_default_nullness_009() {
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"@NonNullByDefault\n" +
 			"public class Y { \n" +
-			"    @NonNullByDefault(false)\n" +
+			cancenNonNullByDefault() +
 			"    static class Z extends p1.X {\n" +
 			"        @Override\n" +
 			"        protected Object getObject(Object o) {\n" +
@@ -5579,7 +5585,7 @@ public interface II extends i.I {
 
 package i2;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-@NonNullByDefault(false)
+@NonNullByDefault({})
 public interface I2A {
     Object m1(Object a1);
     String m2(Object a2);

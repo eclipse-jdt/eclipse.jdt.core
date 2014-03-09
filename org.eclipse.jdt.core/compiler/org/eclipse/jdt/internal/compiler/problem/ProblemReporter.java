@@ -50,6 +50,7 @@
  *								Bug 428294 - [1.8][compiler] Type mismatch: cannot convert from List<Object> to Collection<Object[]>
  *								Bug 428366 - [1.8] [compiler] The method valueAt(ObservableList<Object>, int) is ambiguous for the type Bindings
  *								Bug 416190 - [1.8][null] detect incompatible overrides due to null type annotations
+ *								Bug 392245 - [1.8][compiler][null] Define whether / how @NonNullByDefault applies to TYPE_USE locations
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -9441,6 +9442,10 @@ public void nullDefaultAnnotationIsRedundant(ASTNode location, Annotation[] anno
 		problemId = IProblem.RedundantNullDefaultAnnotationMethod;
 	}
 	this.handle(problemId, args, shortArgs, start, end);
+}
+
+public void nonNullDefaultDetailNotEvaluated(ASTNode location) {
+	this.handle(IProblem.NonNullDefaultDetailIsNotEvaluated, NoArgument, NoArgument, ProblemSeverities.Warning, location.sourceStart, location.sourceEnd);
 }
 
 public void contradictoryNullAnnotations(Annotation annotation) {

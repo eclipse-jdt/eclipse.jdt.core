@@ -4303,6 +4303,31 @@ public void test429387() {
 		"IntStreamy cannot be resolved\n" + 
 		"----------\n");
 }
+public void testBug392245_tmp_warning() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault(DefaultLocation.TYPE_ARGUMENT)\n" +
+			"public class X {\n" +
+			"	void m(Object o) {}\n" +
+			"	void test() {\n" +
+			"		m(null); // ERR\n" + // since @NonNullByDefault is still interpreted as all or nothing
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	@NonNullByDefault(DefaultLocation.TYPE_ARGUMENT)\n" + 
+		"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Arguments controling the details of the nullness default are not yet evaluated by the analysis.\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	m(null); // ERR\n" + 
+		"	  ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n");
+}
 public void testBug429403() {
 	runNegativeTestWithLibs(
 		new String[] {
