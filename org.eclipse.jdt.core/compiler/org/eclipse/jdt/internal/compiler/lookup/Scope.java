@@ -4865,6 +4865,30 @@ public abstract class Scope {
 		} while ((current = current.parent) != null);
 		return null;
 	}
+	
+	/**
+	 * Returns the nearest original reference context, starting from current scope.
+	 * If starting on a class, it will return current class. If starting on unitScope, returns unit.
+	 */
+	public ReferenceContext originalReferenceContext() {
+		Scope current = this;
+		do {
+			switch(current.kind) {
+				case METHOD_SCOPE :
+					ReferenceContext context = ((MethodScope) current).referenceContext;
+					if (context instanceof LambdaExpression) {
+						LambdaExpression expression = (LambdaExpression) context;
+						return expression.original;
+					}
+					return context; 
+				case CLASS_SCOPE :
+					return ((ClassScope) current).referenceContext;
+				case COMPILATION_UNIT_SCOPE :
+					return ((CompilationUnitScope) current).referenceContext;
+			}
+		} while ((current = current.parent) != null);
+		return null;
+	}
 
 	public void deferBoundCheck(TypeReference typeRef) {
 		if (this.kind == CLASS_SCOPE) {

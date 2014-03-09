@@ -105,7 +105,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	boolean returnsValue;
 	public boolean isSerializable;
 	boolean returnsVoid;
-	protected LambdaExpression original = this;
+	public LambdaExpression original = this;
 	public SyntheticArgumentBinding[] outerLocalVariables = NO_SYNTHETIC_ARGUMENTS;
 	private int outerLocalVariablesSlotSize = 0;
 	public boolean shouldCaptureInstance = false;

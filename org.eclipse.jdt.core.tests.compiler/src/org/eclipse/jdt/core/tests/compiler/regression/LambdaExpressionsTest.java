@@ -3666,6 +3666,30 @@ public void test429759() {
 			},
 			"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429948, Unhandled event loop exception is thrown when a lambda expression is nested
+public void test429948() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.function.Supplier;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		execute(() -> {\n" +
+				"			executeInner(() -> {\n" +
+				"			});\n" +
+				"			return null;\n" +
+				"		});\n" +
+				"		System.out.println(\"done\");\n" +
+				"	}\n" +
+				"	static <R> R execute(Supplier<R> supplier) {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"	static void executeInner(Runnable callback) {\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"done");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

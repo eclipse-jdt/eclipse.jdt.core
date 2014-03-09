@@ -211,7 +211,7 @@ public class HandleFactory {
 				break;
 			case Scope.METHOD_SCOPE :
 				if (scope.isLambdaScope()) {
-					LambdaExpression expression = (LambdaExpression) scope.referenceContext();
+					LambdaExpression expression = (LambdaExpression) scope.originalReferenceContext();
 					if (expression.resolvedType != null && expression.resolvedType.isValidBinding()) { // chain in lambda element only if resolved properly.
 						parentElement = createElement(scope.parent, elementPosition, unit, existingElements, knownScopes);
 						newElement = new org.eclipse.jdt.internal.core.LambdaExpression((JavaElement) parentElement, expression).getMethod();

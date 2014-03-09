@@ -2301,4 +2301,43 @@ public void test429845() throws JavaModelException {
 		elements, true
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429948, Unhandled event loop exception is thrown when a lambda expression is nested
+public void test429948() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"interface Supplier<T> {\n" +
+			"    T get();\n" +
+			"}\n" +
+			"interface Runnable {\n" +
+			"    public abstract void run();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		execute(() -> {\n" +
+			"			executeInner(() -> {\n" +
+			"                int xxx = 10;\n" +
+			"			});\n" +
+			"			return null;\n" +
+			"		});\n" +
+			"		System.out.println(\"done\");\n" +
+			"	}\n" +
+			"	static <R> R execute(Supplier<R> supplier) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	static void executeInner(Runnable callback) {\n" +
+			"	}\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "xxx";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"xxx [in run() [in Lambda(Runnable) [in get() [in Lambda(Supplier) [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]",
+		elements, true
+	);
+}
 }

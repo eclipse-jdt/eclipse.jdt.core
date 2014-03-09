@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.JavaCore;
 
 public class JavaElement8Tests extends AbstractJavaModelTests { 
@@ -143,6 +144,47 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		}
 		finally {
 			deleteProject("Bug429641");
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429948, Unhandled event loop exception is thrown when a lambda expression is nested
+	public void test429948() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Bug429948", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+			project.open(null);
+			String fileContent = 
+					"interface Supplier<T> {\n" +
+					"    T get();\n" +
+					"}\n" +
+					"interface Runnable {\n" +
+					"    public abstract void run();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		execute(() -> {\n" +
+					"			executeInner(() -> {\n" +
+					"			});\n" +
+					"			return null;\n" +
+					"		});\n" +
+					"		System.out.println(\"done\");\n" +
+					"	}\n" +
+					"	static <R> R execute(Supplier<R> supplier) {\n" +
+					"		return null;\n" +
+					"	}\n" +
+					"	static void executeInner(Runnable callback) {\n" +
+					"	}\n" +
+					"}\n";
+			createFile(	"/Bug429948/src/X.java",	fileContent);
+			IType type = getCompilationUnit("/Bug429948/src/X.java").getType("X");
+			ITypeHierarchy h = type.newSupertypeHierarchy(null);
+			assertHierarchyEquals(
+					"Focus: X [in X.java [in <default> [in src [in Bug429948]]]]\n" + 
+					"Super types:\n" + 
+					"  Object [in Object.class [in java.lang [in "+ getExternalPath() + "jclMin1.8.jar]]]\n" + 
+					"Sub types:\n",
+					h);
+		}
+		finally {
+			deleteProject("Bug429948");
 		}
 	}
 }
