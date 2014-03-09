@@ -34791,8 +34791,7 @@ public void test1034() {
 		"----------\n",
 		JavacTestOptions.EclipseHasABug.EclipseBug236370);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158531
-// SHOULD FAIL AT 1.8 (RET): multiple
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=158531
 public void test1035() {
 	this.runConformTest(
 		new String[] {
