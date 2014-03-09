@@ -44,6 +44,8 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		suite.addTest(new JavaElement8Tests("testBug428178a"));
 		suite.addTest(new JavaElement8Tests("testBug429641"));
 		suite.addTest(new JavaElement8Tests("testBug429641a"));
+		suite.addTest(new JavaElement8Tests("test429948"));
+		suite.addTest(new JavaElement8Tests("test429948a"));
 		return suite;
 	}
 	public void testBug428178() throws Exception {
@@ -171,6 +173,51 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 					"		return null;\n" +
 					"	}\n" +
 					"	static void executeInner(Runnable callback) {\n" +
+					"	}\n" +
+					"}\n";
+			createFile(	"/Bug429948/src/X.java",	fileContent);
+			IType type = getCompilationUnit("/Bug429948/src/X.java").getType("X");
+			ITypeHierarchy h = type.newSupertypeHierarchy(null);
+			assertHierarchyEquals(
+					"Focus: X [in X.java [in <default> [in src [in Bug429948]]]]\n" + 
+					"Super types:\n" + 
+					"  Object [in Object.class [in java.lang [in "+ getExternalPath() + "jclMin1.8.jar]]]\n" + 
+					"Sub types:\n",
+					h);
+		}
+		finally {
+			deleteProject("Bug429948");
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429948, Unhandled event loop exception is thrown when a lambda expression is nested
+	public void test429948a() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Bug429948", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+			project.open(null);
+			String fileContent = 
+					"interface Supplier<T> {\n" +
+					"    T get();\n" +
+					"}\n" +
+					"interface Runnable {\n" +
+					"    public abstract void run();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		execute(() -> {\n" +
+					"           execureOuter(() -> {\n" +
+					"			    executeInner(() -> {\n" +
+					"			    });\n" +
+					"			    return null;\n" +
+					"		    });\n" +
+					"       });\n" +
+					"		System.out.println(\"done\");\n" +
+					"	}\n" +
+					"	static <R> R execute(Supplier<R> supplier) {\n" +
+					"		return null;\n" +
+					"	}\n" +
+					"	static void executeInner(Runnable callback) {\n" +
+					"	}\n" +
+					"	static void executeOuter(Runnable callback) {\n" +
 					"	}\n" +
 					"}\n";
 			createFile(	"/Bug429948/src/X.java",	fileContent);

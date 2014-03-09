@@ -4878,7 +4878,9 @@ public abstract class Scope {
 					ReferenceContext context = ((MethodScope) current).referenceContext;
 					if (context instanceof LambdaExpression) {
 						LambdaExpression expression = (LambdaExpression) context;
-						return expression.original;
+						while (expression != expression.original)
+							expression = expression.original;
+						return expression;
 					}
 					return context; 
 				case CLASS_SCOPE :
