@@ -157,6 +157,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("testBug400905_0030"));
 	suite.addTest(new JavaSearchBugs8Tests("test429738"));
 	suite.addTest(new JavaSearchBugs8Tests("test429738a"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429836"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -3558,6 +3559,32 @@ public void test429738a() throws CoreException {
 	search(local, DECLARATIONS, EXACT_RULE);
 	assertSearchResults(
 			"src/b400905/X.java int b400905.X.f2:Lambda(Foo).foo(int).x [x] EXACT_MATCH");	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429836, [1.8][search] Search implementors in workspace does not show lambda expressions. 
+public void testBug429836() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	String buffer =	"@FunctionalInterface\n" +
+			"interface I {\n" +
+			"	int foo(int x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	I f1= x ->  x;\n" +
+			"	I f2= (int x) -> x; //[2]\n" +
+			"	public static void main(String[] args) {\n" +
+			"		I f1= x -> x;\n" +
+			"		I f2= (int x) -> x;\n" +
+			"	}\n" +
+			"}\n";
+
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429836/X.java", buffer);
+	IType type = this.workingCopies[0].getType("I");
+	search(type, IMPLEMENTORS);
+	assertSearchResults(
+		"src/b429836/X.java int b429836.X.f1:Lambda(I).foo(int) [x ->] EXACT_MATCH\n" +
+		"src/b429836/X.java int b429836.X.f2:Lambda(I).foo(int) [(int x) ->] EXACT_MATCH\n"+
+		"src/b429836/X.java int void b429836.X.main(String[]):Lambda(I).foo(int) [x ->] EXACT_MATCH\n"+
+		"src/b429836/X.java int void b429836.X.main(String[]):Lambda(I).foo(int) [(int x) ->] EXACT_MATCH"
+	);
 }
 // Add new tests in JavaSearchBugs8Tests
 }
