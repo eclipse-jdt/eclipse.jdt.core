@@ -65,6 +65,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
+import org.eclipse.jdt.internal.compiler.lookup.InferenceVariable;
 import org.eclipse.jdt.internal.compiler.lookup.IntersectionCastTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -215,6 +216,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	 */
 	public TypeBinding resolveType(BlockScope blockScope) {
 		
+		boolean illFormed = false;
+		
 		if (this.resolvedType != null)
 			return this.resolvedType;
 		
@@ -259,8 +262,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			int lambdaArgumentCount = this.arguments != null ? this.arguments.length : 0;
             if (descriptorParameterCount != lambdaArgumentCount) {
             	this.scope.problemReporter().lambdaSignatureMismatched(this);
-            	if (argumentsTypeElided || this.original != this) // no interest in continuing to error check copy.
-            		return this.resolvedType = null; // FUBAR, bail out ...
+            	return this.resolvedType = null; // FUBAR, bail out ...
             }
 		}
 		
@@ -322,7 +324,10 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			parameterType = argumentsTypeElided ? expectedParameterType : this.argumentTypes[i];
 			if (parameterType != null && parameterType != TypeBinding.VOID) {
 				if (haveDescriptor && expectedParameterType != null && parameterType.isValidBinding() && TypeBinding.notEquals(parameterType, expectedParameterType)) {
-					this.scope.problemReporter().lambdaParameterTypeMismatched(argument, argument.type, expectedParameterType);
+					if (!(expectedParameterType instanceof InferenceVariable)) {
+						this.scope.problemReporter().lambdaParameterTypeMismatched(argument, argument.type, expectedParameterType);
+						illFormed = true; // continue to type check.
+					}
 				}
 
 				TypeBinding leafType = parameterType.leafComponentType();
@@ -409,7 +414,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
 			this.scope.problemReporter().missingTypeInLambda(this, this.binding);
 		}
-		return this.resolvedType;
+		return illFormed ? this.resolvedType = null : this.resolvedType;
 	}
 
 	private ReferenceBinding findGroundTargetType(BlockScope blockScope, ReferenceBinding targetType, boolean argumentTypesElided) {

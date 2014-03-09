@@ -158,6 +158,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("test429738"));
 	suite.addTest(new JavaSearchBugs8Tests("test429738a"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug429836"));
+	suite.addTest(new JavaSearchBugs8Tests("test429934"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -3585,6 +3586,35 @@ public void testBug429836() throws CoreException {
 		"src/b429836/X.java int void b429836.X.main(String[]):Lambda(I).foo(int) [x ->] EXACT_MATCH\n"+
 		"src/b429836/X.java int void b429836.X.main(String[]):Lambda(I).foo(int) [(int x) ->] EXACT_MATCH"
 	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429934, [1.8][search] for references to type of lambda with 'this' parameter throws AIIOBE
+public void test429934() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400905/X.java",
+			"interface Function<T, R> {\n" +
+			"    R apply(T t);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Function<String, String> f1= (String s, Function this) -> s;\n" +
+			"		Function<String, String> f2= (Function this, String s) -> s;\n" +
+			"	} \n" +
+			"}\n"
+	);
+	
+	String str = this.workingCopies[0].getSource();
+	String selection = "Function";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	IType type = (IType) elements[0];
+	search(type, REFERENCES, ERASURE_RULE);
+	assertSearchResults(
+					"src/b400905/X.java void b400905.X.main(String[]) [Function] EXACT_MATCH\n" + 
+					"src/b400905/X.java void b400905.X.main(String[]) [Function] EXACT_MATCH\n" + 
+					"src/b400905/X.java void b400905.X.main(String[]) [Function] EXACT_MATCH\n" + 
+					"src/b400905/X.java void b400905.X.main(String[]) [Function] EXACT_MATCH");	
 }
 // Add new tests in JavaSearchBugs8Tests
 }
