@@ -77,6 +77,8 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 		TypeBinding[] ePrime = null;
 		if (this.left instanceof LambdaExpression) {
 			LambdaExpression lambda = ((LambdaExpression) this.left).getResolvedCopyForInferenceTargeting(this.right);
+			if (lambda == null)
+				return TRUE; // cannot make use of this buggy constraint
 			Set<TypeBinding> ePrimeSet = lambda.getThrownExceptions();
 			ePrime = ePrimeSet.toArray(new TypeBinding[ePrimeSet.size()]);
 		} else {
