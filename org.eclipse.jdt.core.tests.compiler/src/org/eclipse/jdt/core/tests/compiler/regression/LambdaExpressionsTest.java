@@ -3716,6 +3716,28 @@ public void test429969() {
 			},
 			"done");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430015, [1.8] NPE trying to disassemble classfile with lambda method and MethodParameters 
+public void test430015() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.reflect.Method;\n" +
+				"import java.lang.reflect.Parameter;\n" +
+				"import java.util.Arrays;\n" +
+				"import java.util.function.IntConsumer;\n" +
+				"public class X {\n" +
+				"    IntConsumer xx(int a) {\n" +
+				"        return i -> { };\n" +
+				"    }\n" +
+				"    public static void main(String[] args) {\n" +
+				"        Method[] methods = X.class.getDeclaredMethods();\n" +
+				"        Parameter[] parameters = methods[2].getParameters();\n" +
+				"        System.out.println(Arrays.asList(parameters));\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"[int arg0]");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import junit.framework.Test;
 
@@ -24,6 +25,7 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JSR335ClassFileTest extends AbstractComparableTest {
 
@@ -2736,6 +2738,78 @@ public void test424444d() throws Exception {
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 1]\n" + 
 			"\n";
+
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430015, [1.8] NPE trying to disassemble classfile with lambda method and MethodParameters 
+public void test430015() throws IOException, ClassFormatException {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.reflect.Method;\n" +
+				"import java.lang.reflect.Parameter;\n" +
+				"import java.util.Arrays;\n" +
+				"import java.util.function.IntConsumer;\n" +
+				"public class X {\n" +
+				"    IntConsumer xx(int a) {\n" +
+				"        return i -> { };\n" +
+				"    }\n" +
+				"    public static void main(String[] args) {\n" +
+				"        Method[] methods = X.class.getDeclaredMethods();\n" +
+				"        Parameter[] parameters = methods[2].getParameters();\n" +
+				"        System.out.println(Arrays.asList(parameters));\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"[int arg0]");
+		
+		String expectedOutput =
+				"  // Method descriptor #61 (I)V\n" + 
+				"  // Stack: 0, Locals: 1\n" + 
+				"  private static synthetic void lambda$0(int i);\n" + 
+				"    0  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 7]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 1] local: i index: 0 type: int\n" + 
+				"\n";
+
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430015, [1.8] NPE trying to disassemble classfile with lambda method and MethodParameters 
+public void test430015a() throws IOException, ClassFormatException {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_MethodParametersAttribute, CompilerOptions.GENERATE);
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.reflect.Method;\n" +
+				"import java.lang.reflect.Parameter;\n" +
+				"import java.util.Arrays;\n" +
+				"import java.util.function.IntConsumer;\n" +
+				"public class X {\n" +
+				"    IntConsumer xx(int a) {\n" +
+				"        return i -> { };\n" +
+				"    }\n" +
+				"    public static void main(String[] args) {\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"",
+			customOptions);
+		
+		String expectedOutput =
+				"  // Method descriptor #28 (I)V\n" + 
+				"  // Stack: 0, Locals: 1\n" + 
+				"  private static synthetic void lambda$0(int arg0);\n" + 
+				"    0  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 7]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 1] local: i index: 0 type: int\n" + 
+				"      Method Parameters:\n" + 
+				"        synthetic arg0\n" + 
+				"\n";
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }

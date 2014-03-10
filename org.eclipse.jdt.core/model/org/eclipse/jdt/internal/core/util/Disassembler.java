@@ -601,7 +601,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			writeNewLine(buffer, lineSeparator, tabNumber + 1);
 			short accessFlags = methodParametersAttribute.getAccessFlags(i);
 			decodeModifiersForMethodParameters(buffer, accessFlags);
-			buffer.append(methodParametersAttribute.getParameterName(i));
+			char [] parameterName = methodParametersAttribute.getParameterName(i);
+			if (parameterName == null)
+				parameterName = CharOperation.concat(Messages.disassembler_parametername.toCharArray(), Integer.toString(i).toCharArray());
+			buffer.append(parameterName);
 		}
 	}
 
