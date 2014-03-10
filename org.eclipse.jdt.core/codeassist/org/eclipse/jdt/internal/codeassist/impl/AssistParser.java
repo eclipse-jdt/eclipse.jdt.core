@@ -542,8 +542,9 @@ protected void consumeInterfaceHeader() {
 	super.consumeInterfaceHeader();
 	pushOnElementStack(K_TYPE_DELIMITER);
 }
-protected void consumeLambdaHeader() {
-	super.consumeLambdaHeader();
+@Override
+protected void consumeNestedLambda() {
+	super.consumeNestedLambda();
 	LambdaExpression lexp = (LambdaExpression) this.astStack[this.astPtr];
 	pushOnElementStack(K_LAMBDA_EXPRESSION_DELIMITER, EXPRESSION_BODY, lexp);
 }

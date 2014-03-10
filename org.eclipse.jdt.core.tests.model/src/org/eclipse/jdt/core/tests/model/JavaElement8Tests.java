@@ -50,6 +50,8 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		suite.addTest(new JavaElement8Tests("test429948a"));
 		suite.addTest(new JavaElement8Tests("test429966"));
 		suite.addTest(new JavaElement8Tests("testBug429910"));
+		suite.addTest(new JavaElement8Tests("test430026"));
+		suite.addTest(new JavaElement8Tests("test430026a"));
 		return suite;
 	}
 	public void testBug428178() throws Exception {
@@ -319,4 +321,54 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			deleteProject("Bug429910");
 		}
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430026,  [1.8] Lambda parameter has wrong parent if it declares its type
+	public void test430026() throws CoreException {
+		String projectName = "Bug429966";
+		try {
+			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+			project.open(null);
+			String fileContent = 
+					"interface MyFunction<T, R> {\n" +
+					"    R apply(T t);\n" +
+					"    default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {\n" +
+					"        return (V v) -> apply(before.apply(v));\n" +
+					"    }\n" +
+					"}\n";
+			String fileName = "/" + projectName + "/src/X.java";
+			createFile(fileName, fileContent);
+			
+			ICompilationUnit unit = getCompilationUnit(fileName);
+			int start = fileContent.indexOf("v");
+			IJavaElement[] elements = unit.codeSelect(start, 1);
+			assertElementEquals("Wrong element", "v [in apply(V) [in Lambda(MyFunction) [in compose(MyFunction<? super V,? extends T>) [in MyFunction [in X.java [in <default> [in src [in Bug429966]]]]]]]]", elements[0]);
+		}
+		finally {
+			deleteProject(projectName);
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430026,  [1.8] Lambda parameter has wrong parent if it declares its type
+	public void test430026a() throws CoreException {
+		String projectName = "Bug429966";
+		try {
+			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+			project.open(null);
+			String fileContent = 
+					"interface MyFunction<T, R> {\n" +
+					"    R apply(T t);\n" +
+					"    default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {\n" +
+					"        return v -> apply(before.apply(v));\n" +
+					"    }\n" +
+					"}\n";
+			String fileName = "/" + projectName + "/src/X.java";
+			createFile(fileName, fileContent);
+			
+			ICompilationUnit unit = getCompilationUnit(fileName);
+			int start = fileContent.indexOf("v");
+			IJavaElement[] elements = unit.codeSelect(start, 1);
+			assertElementEquals("Wrong element", "v [in apply(V) [in Lambda(MyFunction) [in compose(MyFunction<? super V,? extends T>) [in MyFunction [in X.java [in <default> [in src [in Bug429966]]]]]]]]", elements[0]);
+		}
+		finally {
+			deleteProject(projectName);
+		}
+	}	
 }

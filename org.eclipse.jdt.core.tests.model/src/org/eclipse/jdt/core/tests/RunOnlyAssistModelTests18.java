@@ -24,11 +24,13 @@ import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.compiler.parser.CompletionParserTest18;
 import org.eclipse.jdt.core.tests.compiler.parser.SelectionParserTest18;
 import org.eclipse.jdt.core.tests.model.CompletionTests18;
+import org.eclipse.jdt.core.tests.model.JavaElement8Tests;
+import org.eclipse.jdt.core.tests.model.JavaSearchBugs8Tests;
 import org.eclipse.jdt.core.tests.model.ResolveTests18;
 
-public class RunOnlyAssistTests18 extends TestCase {
+public class RunOnlyAssistModelTests18 extends TestCase {
 	
-	public RunOnlyAssistTests18(String name) {
+	public RunOnlyAssistModelTests18(String name) {
 		super(name);
 	}
 	public static Class[] getAllTestClasses() {
@@ -37,11 +39,13 @@ public class RunOnlyAssistTests18 extends TestCase {
 			CompletionParserTest18.class,
 			CompletionTests18.class,
 			SelectionParserTest18.class,
+			JavaSearchBugs8Tests.class,
+			JavaElement8Tests.class,
 		};
 	}
 	
 	public static Test suite() {
-		TestSuite ts = new TestSuite(RunOnlyAssistTests18.class.getName());
+		TestSuite ts = new TestSuite(RunOnlyAssistModelTests18.class.getName());
 
 		Class[] testClasses = getAllTestClasses();
 		addTestsToSuite(ts, testClasses);
