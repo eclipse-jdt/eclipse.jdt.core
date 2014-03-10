@@ -8903,6 +8903,66 @@ public void test429934() {
 		"Lambda expressions cannot declare a this parameter\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429969, [1.8][compiler] Possible RuntimeException in Lambda tangles ECJ
+public void test429969() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.Arrays;\n" +
+				"import java.util.Optional;\n" +
+				"public class X {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        final String s = Arrays.asList(\"done\").stream().reduce(null, (s1,s2) -> {\n" +
+				"                // THE FOLLOWING LINE CAUSES THE PROBLEM\n" +
+				"                require(s1 != null || s2 != null, \"both strings are null\");\n" +
+				"                    return (s1 != null) ? s1 : s2;\n" +
+				"            }, (s1,s2) -> (s1 != null) ? s1 : s2);\n" +
+				"	\n" +
+				"        System.out.println(s);\n" +
+				"    }\n" +
+				"    static void require(boolean condition, String msg) throws java.io.IOException {\n" +
+				"        if (!condition) {\n" +
+				"            throw new java.io.IOException(msg);\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	import java.util.Optional;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^\n" + 
+			"The import java.util.Optional is never used\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	require(s1 != null || s2 != null, \"both strings are null\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unhandled exception type IOException\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429969, [1.8][compiler] Possible RuntimeException in Lambda tangles ECJ
+public void test429969a() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"    void foo() throws RuntimeException;\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static void goo() throws Exception {\n" +
+				"		throw new Exception();\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		I i = X::goo;\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	I i = X::goo;\n" + 
+			"	      ^^^^^^\n" + 
+			"Unhandled exception type Exception\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

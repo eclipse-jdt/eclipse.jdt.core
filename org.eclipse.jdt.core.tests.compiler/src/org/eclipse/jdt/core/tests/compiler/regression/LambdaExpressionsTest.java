@@ -3690,6 +3690,32 @@ public void test429948() {
 			},
 			"done");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429969, [1.8][compiler] Possible RuntimeException in Lambda tangles ECJ
+public void test429969() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Arrays;\n" +
+				"import java.util.Optional;\n" +
+				"public class X {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        final String s = Arrays.asList(\"done\").stream().reduce(null, (s1,s2) -> {\n" +
+				"                // THE FOLLOWING LINE CAUSES THE PROBLEM\n" +
+				"                require(s1 != null || s2 != null, \"both strings are null\");\n" +
+				"                    return (s1 != null) ? s1 : s2;\n" +
+				"            }, (s1,s2) -> (s1 != null) ? s1 : s2);\n" +
+				"	\n" +
+				"        System.out.println(s);\n" +
+				"    }\n" +
+				"    static void require(boolean condition, String msg) throws RuntimeException {\n" +
+				"        if (!condition) {\n" +
+				"            throw new RuntimeException(msg);\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"done");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

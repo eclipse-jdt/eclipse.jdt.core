@@ -74,6 +74,13 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 		for (int i = 0; i < thrown.length; i++)
 			if (!thrown[i].isProperType(true))
 				e[n++] = (InferenceVariable) thrown[i]; // thrown[i] is not a proper type, since it's an exception it must be an inferenceVariable, right?
+		
+		/* If throw specification does not encode any type parameters, there are no constraints to be gleaned/gathered from the throw sites.
+		   See also that thrown exceptions are not allowed to influence compatibility and overload resolution.
+		*/
+		if (n == 0)
+			return TRUE;
+		
 		TypeBinding[] ePrime = null;
 		if (this.left instanceof LambdaExpression) {
 			LambdaExpression lambda = ((LambdaExpression) this.left).getResolvedCopyForInferenceTargeting(this.right);
@@ -88,29 +95,21 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 				ePrime = method.thrownExceptions;
 		}
 		if (ePrime == null)
-			return TRUE; // TODO is it a bug if we actually get here?
-		int m = ePrime.length;
-		if (n == 0) {
-			actual: for (int i = 0; i < m; i++) {
-				for (int j = 0; j < thrown.length; j++)
-					if (ePrime[i].isCompatibleWith(thrown[j]))
-						continue actual;
-				return FALSE;
-			}
 			return TRUE;
-		} else {
-			List<ConstraintFormula> result = new ArrayList<ConstraintFormula>();
-			actual: for (int i = 0; i < m; i++) {
-				for (int j = 0; j < thrown.length; j++)
-					if (thrown[j].isProperType(true) && ePrime[i].isCompatibleWith(thrown[j]))
-						continue actual;
-				for (int j = 0; j < n; j++)
-					result.add(ConstraintTypeFormula.create(ePrime[i], e[j], SUBTYPE));
-			}				
+		int m = ePrime.length;
+		List<ConstraintFormula> result = new ArrayList<ConstraintFormula>();
+		actual: for (int i = 0; i < m; i++) {
+			if (ePrime[i].isUncheckedException(false))
+				continue;
+			for (int j = 0; j < thrown.length; j++)
+				if (thrown[j].isProperType(true) && ePrime[i].isCompatibleWith(thrown[j]))
+					continue actual;
 			for (int j = 0; j < n; j++)
-				inferenceContext.currentBounds.inThrows.add(e[j]);
-			return result.toArray(new ConstraintFormula[result.size()]);
-		}
+				result.add(ConstraintTypeFormula.create(ePrime[i], e[j], SUBTYPE));
+		}				
+		for (int j = 0; j < n; j++)
+			inferenceContext.currentBounds.inThrows.add(e[j]);
+		return result.toArray(new ConstraintFormula[result.size()]);
 	}
 
 	Collection<InferenceVariable> inputVariables(final InferenceContext18 context) {
