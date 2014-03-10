@@ -2423,4 +2423,25 @@ public void test429985() {
 			},
 			"hi");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429985,  [1.8][compiler] Resolution of right method signature 
+public void test429985a() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.function.Supplier;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		// This does not compile with ECJ\n" +
+				"		test(() -> \"hi\");\n" +
+				"	}\n" +
+				"	static void test(Supplier<String> messageSupplier) {\n" +
+				"       System.out.println(messageSupplier.get());\n" +
+				"	}\n" +
+				"	// Note: when removing this code the main function compiles with ECJ\n" +
+				"	static void test(String message) {\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"hi");
+}
 }
