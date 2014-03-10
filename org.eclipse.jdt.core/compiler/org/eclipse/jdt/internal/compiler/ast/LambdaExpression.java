@@ -726,6 +726,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				copy.setExpectedType(left);
 				this.hasIgnoredMandatoryErrors = false;
 				TypeBinding type = copy.resolveType(this.enclosingScope);
+				if (type == null || !type.isValidBinding())
+					return false;
 				if (this.body instanceof Block) {
 					if (this.returnsVoid) {
 						this.shapeAnalysisComplete = true;
@@ -738,7 +740,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 					this.shapeAnalysisComplete = true;
 				}
 				// Do not proceed with data/control flow analysis if resolve encountered errors.
-				if (type == null || !type.isValidBinding() || this.hasIgnoredMandatoryErrors || enclosingScopesHaveErrors()) {
+				if (this.hasIgnoredMandatoryErrors || enclosingScopesHaveErrors()) {
 					if (!isPertinentToApplicability(left, null))
 						break shapeAnalysis;
 					if (this.arguments.length != 0) // error not because of the target type imposition, but is inherent. Just say compatible since errors in body aren't to influence applicability.
@@ -833,6 +835,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			copy.setExpectedType(targetType);
 			this.hasIgnoredMandatoryErrors = false;
 			TypeBinding type = copy.resolveType(this.enclosingScope);
+			if (type == null || !type.isValidBinding())
+				return null;
 			if (this.body instanceof Block) {
 				if (copy.returnsVoid) {
 					copy.shapeAnalysisComplete = true;
@@ -847,7 +851,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				copy.shapeAnalysisComplete = true;
 			}
 			// Do not proceed with data/control flow analysis if resolve encountered errors.
-			if (type != null && type.isValidBinding() && !this.hasIgnoredMandatoryErrors && !enclosingScopesHaveErrors()) {
+			if (!this.hasIgnoredMandatoryErrors && !enclosingScopesHaveErrors()) {
 				// value compatibility of block lambda's is the only open question.
 				if (!copy.shapeAnalysisComplete)
 					copy.valueCompatible = copy.doesNotCompleteNormally();
