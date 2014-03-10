@@ -68,7 +68,6 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
-import org.eclipse.jdt.internal.compiler.lookup.InferenceVariable;
 import org.eclipse.jdt.internal.compiler.lookup.IntersectionCastTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -331,7 +330,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			parameterType = argumentsTypeElided ? expectedParameterType : this.argumentTypes[i];
 			if (parameterType != null && parameterType != TypeBinding.VOID) {
 				if (haveDescriptor && expectedParameterType != null && parameterType.isValidBinding() && TypeBinding.notEquals(parameterType, expectedParameterType)) {
-					if (!(expectedParameterType instanceof InferenceVariable)) {
+					if (expectedParameterType.isProperType(true)) {
 						this.scope.problemReporter().lambdaParameterTypeMismatched(argument, argument.type, expectedParameterType);
 						this.resolvedType = null; // continue to type check.
 					}
