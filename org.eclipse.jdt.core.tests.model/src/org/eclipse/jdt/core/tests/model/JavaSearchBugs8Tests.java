@@ -2462,9 +2462,9 @@ public void testBug400905_0003() throws CoreException {
 	search(method, DECLARATIONS, EXACT_RULE);
 	assertSearchResults(
 			"src/b400905/I.java boolean b400905.I.foo(Y) [foo] EXACT_MATCH\n" + 
-			"src/b400905/X.java boolean void b400905.X.main(String[]):Lambda(I).foo(b400905/Y) [y->] EXACT_MATCH\n" + 
-			"src/b400905/X.java boolean void b400905.X.main(String[]):Lambda(I).foo(b400905/Y) [y ->] EXACT_MATCH\n" + 
-			"src/b400905/X.java boolean void b400905.X.main(String[]):Lambda(I).foo(b400905/Y) [y  ->] EXACT_MATCH"
+			"src/b400905/X.java boolean void b400905.X.main(String[]):Lambda(I).foo(b400905.Y) [y->] EXACT_MATCH\n" + 
+			"src/b400905/X.java boolean void b400905.X.main(String[]):Lambda(I).foo(b400905.Y) [y ->] EXACT_MATCH\n" + 
+			"src/b400905/X.java boolean void b400905.X.main(String[]):Lambda(I).foo(b400905.Y) [y  ->] EXACT_MATCH"
 	);	
 }
 /**
@@ -2499,10 +2499,10 @@ public void testBug400905_0004() throws CoreException {
 	search(method, DECLARATIONS, EXACT_RULE);
 	assertSearchResults(
 					"src/b400905/I.java T b400905.I.foo() [foo] EXACT_MATCH\n" + 
-					"src/b400905/X.java b400905/Y void b400905.X.main(String[]):Lambda(I).foo() [() /* foo */ ->] EXACT_MATCH\n" + 
-					"src/b400905/X.java b400905/Y void b400905.X.main(String[]):Lambda(I).foo() [() /* true */->] EXACT_MATCH\n" + 
-					"src/b400905/X.java b400905/Y void b400905.X.main(String[]):Lambda(I).foo() [() /* false */ ->] EXACT_MATCH\n" + 
-					"src/b400905/X.java java/lang/Object void b400905.X.main(String[]):Lambda(I).foo() [() /* cast */ ->] EXACT_MATCH"
+					"src/b400905/X.java b400905.Y void b400905.X.main(String[]):Lambda(I).foo() [() /* foo */ ->] EXACT_MATCH\n" + 
+					"src/b400905/X.java b400905.Y void b400905.X.main(String[]):Lambda(I).foo() [() /* true */->] EXACT_MATCH\n" + 
+					"src/b400905/X.java b400905.Y void b400905.X.main(String[]):Lambda(I).foo() [() /* false */ ->] EXACT_MATCH\n" + 
+					"src/b400905/X.java java.lang.Object void b400905.X.main(String[]):Lambda(I).foo() [() /* cast */ ->] EXACT_MATCH"
 	);	
 }
 /**
@@ -2535,7 +2535,7 @@ public void testBug400905_0005() throws CoreException {
 	IMethod method = type.getMethod("bar", new String[] {});
 	search(method, DECLARATIONS, EXACT_RULE);
 	assertSearchResults(
-					"src/b400905/X.java void b400905/Y void b400905.X.main(String[]):Lambda(I).foo():Lambda(Y).bar() [() /* bar */ ->] EXACT_MATCH\n" + 
+					"src/b400905/X.java void b400905.Y void b400905.X.main(String[]):Lambda(I).foo():Lambda(Y).bar() [() /* bar */ ->] EXACT_MATCH\n" + 
 					"src/b400905/Y.java void b400905.Y.bar() [bar] EXACT_MATCH"
 	);	
 }
@@ -3199,7 +3199,7 @@ public void testBug400905_0017() throws CoreException {
 		IMethod method = type.getMethods()[0];
 		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
 		assertSearchResults("src/Function.java R Function.apply(T) [apply] EXACT_MATCH\n" + 
-				"src/Y.java java/lang/Object Function<I,R> Collectors.castingIdentity():Lambda(Function).apply(java/lang/Object) [i ->] EXACT_MATCH");
+				"src/Y.java R Function<I,R> Collectors.castingIdentity():Lambda(Function).apply(I) [i ->] EXACT_MATCH");
 	}
 	finally {
 		deleteProject("P");
@@ -3227,7 +3227,7 @@ public void testBug400905_0018() throws CoreException {
 		IMethod method = type.getMethods()[0];
 		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
 		assertSearchResults("src/Function.java R Function.apply(T) [apply] EXACT_MATCH\n" + 
-				"src/Y.java java/lang/String Function<String,String> Collectors.castingIdentity():Lambda(Function).apply(java/lang/String) [i ->] EXACT_MATCH");
+				"src/Y.java java.lang.String Function<String,String> Collectors.castingIdentity():Lambda(Function).apply(java.lang.String) [i ->] EXACT_MATCH");
 	}
 	finally {
 		deleteProject("P");
@@ -3301,7 +3301,7 @@ public void testBug400905_0021() throws CoreException {
 		IMethod method = type.getMethods()[0];
 		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
 		assertSearchResults("src/p400905/Function.java R p400905.Function.apply(T) [apply] EXACT_MATCH\n" + 
-				"src/p400905/Collectors.java java/lang/Object Function<I,R> p400905.Collectors.castingIdentity():Lambda(Function).apply(java/lang/Object) [i ->] EXACT_MATCH");
+				"src/p400905/Collectors.java R Function<I,R> p400905.Collectors.castingIdentity():Lambda(Function).apply(I) [i ->] EXACT_MATCH");
 	} finally { 
 		deleteFolder(path);
 	}

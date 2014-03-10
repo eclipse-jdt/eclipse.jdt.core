@@ -1454,7 +1454,7 @@ public void test422468() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"first [in foo(X, java/lang/Object) [in Lambda(I) [in i [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"first [in foo(X, java.lang.Object) [in Lambda(I) [in i [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements
 	);
 }
@@ -1477,7 +1477,7 @@ public void test422468a() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"second [in foo(X, java/lang/Object) [in Lambda(I) [in i [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"second [in foo(X, java.lang.Object) [in Lambda(I) [in i [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements
 	);
 }
@@ -1593,7 +1593,7 @@ public void test422468e() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"q [in foo(java/lang/String, int) [in Lambda(K) [in foo(java/lang/String, java/lang/String) [in Lambda(J) [in foo(java/lang/String, java/lang/String) [in Lambda(I) [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]]]",
+		"q [in foo(java.lang.String, int) [in Lambda(K) [in foo(java.lang.String, java.lang.String) [in Lambda(J) [in foo(java.lang.String, java.lang.String) [in Lambda(I) [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]]]",
 		elements
 	);
 }
@@ -1628,7 +1628,7 @@ public void testParser() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"x [in foo(java/lang/String, java/lang/Integer) [in Lambda(I) [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"x [in foo(java.lang.String, java.lang.Integer) [in Lambda(I) [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements
 	);
 }
@@ -1787,7 +1787,7 @@ public void test424198() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"v1 [in apply(java/lang/String) [in Lambda(Function) [in processJar(Path) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"v1 [in apply(java.lang.String) [in Lambda(Function) [in processJar(Path) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements,
 		true
 	);
@@ -1852,7 +1852,7 @@ public void test424198a() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"v2 [in apply(java/lang/String) [in Lambda(Function) [in processJar(Path) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"v2 [in apply(? extends java.lang.String) [in Lambda(Function) [in processJar(Path) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements,
 		true
 	);
@@ -1917,7 +1917,7 @@ public void test424198b() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"s1 [in accept(java/lang/String) [in Lambda(Consumer) [in withWildcard(Stream<? extends String>) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"s1 [in accept(? extends java.lang.String) [in Lambda(Consumer) [in withWildcard(Stream<? extends String>) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements,
 		true
 	);
@@ -1982,7 +1982,7 @@ public void test424198c() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"s2 [in accept(java/lang/String) [in Lambda(Consumer) [in withoutWildcard(Stream<String>) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"s2 [in accept(java.lang.String) [in Lambda(Consumer) [in withoutWildcard(Stream<String>) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements,
 		true
 	);

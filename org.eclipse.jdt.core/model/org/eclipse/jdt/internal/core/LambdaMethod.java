@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class LambdaMethod extends SourceMethod {
@@ -47,11 +48,11 @@ public class LambdaMethod extends SourceMethod {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		String [] parameterTypes = new String[length = lambdaExpression.descriptor.parameters.length];
 		for (int i = 0; i < length; i++)
-			parameterTypes[i] = manager.intern(new String(lambdaExpression.descriptor.parameters[i].signature()));
+			parameterTypes[i] = getTypeSignature(manager, lambdaExpression.descriptor.parameters[i]);
 		String [] parameterNames = new String[length];
 		for (int i = 0; i < length; i++)
 			parameterNames[i] = manager.intern(new String(lambdaExpression.arguments[i].name));
-		String returnType = manager.intern(new String(Signature.toCharArray(lambdaExpression.descriptor.returnType.signature())));
+		String returnType = getTypeSignature(manager, lambdaExpression.descriptor.returnType);
 		String selector = manager.intern(new String(lambdaExpression.descriptor.selector));
 		String key = new String(lambdaExpression.descriptor.computeUniqueKey());
 		LambdaMethod lambdaMethod = make(parent, selector, key, lambdaExpression.sourceStart, lambdaExpression.sourceEnd, lambdaExpression.arrowPosition, parameterTypes, parameterNames, returnType);
@@ -88,12 +89,30 @@ public class LambdaMethod extends SourceMethod {
 		for (int i = 0; i < length; i++)
 			argumentNames[i] = manager.intern(parameterNames[i].toCharArray());
 		info.setArgumentNames(argumentNames);
-		info.setReturnType(manager.intern(returnType.toCharArray()));
+		info.setReturnType(manager.intern(Signature.toCharArray(returnType.toCharArray())));
 		info.setExceptionTypeNames(CharOperation.NO_CHAR_CHAR);
 		info.arguments = null; // will be updated shortly, parent has to come into existence first.
 		return new LambdaMethod(parent, selector, key, sourceStart, parameterTypes, parameterNames, returnType, info);
 	}
 
+	public static String getTypeSignature(JavaModelManager manager, TypeBinding type) {
+		char[] name = type.readableName();
+		name = CharOperation.replaceOnCopy(name, '/', '.');
+		return manager.intern(Signature.createTypeSignature(name, true));
+	}
+
+	/**
+	 * @see IMethod
+	 */
+	public String getReturnType() throws JavaModelException {
+		return this.returnTypeString;
+	}
+	/**
+	 * @see IMethod
+	 */
+	public String getSignature() throws JavaModelException {
+		return Signature.createMethodSignature(this.parameterTypes, this.returnTypeString);
+	}
 	/**
 	 * @see IMethod#isLambdaMethod()
 	 */
