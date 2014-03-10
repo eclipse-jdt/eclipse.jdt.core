@@ -19,7 +19,9 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -42,7 +44,7 @@ public class LambdaExpression extends SourceType {
 		this.sourceStart = lambdaExpression.sourceStart;
 		this.sourceEnd = lambdaExpression.sourceEnd;
 		this.arrowPosition = lambdaExpression.arrowPosition;
-		this.interphase = new String(lambdaExpression.descriptor.declaringClass.sourceName());
+		this.interphase = new String(lambdaExpression.descriptor.declaringClass.readableName());
 		this.elementInfo = makeTypeElementInfo(this, this.interphase, this.sourceStart, this.sourceEnd, this.arrowPosition); 
 		this.lambdaMethod = LambdaMethod.make(this, lambdaExpression);
 		this.elementInfo.children = new IJavaElement[] { this.lambdaMethod };
@@ -194,5 +196,18 @@ public class LambdaExpression extends SourceType {
 
 	public IMethod getMethod() {
 		return this.lambdaMethod;
+	}
+
+	public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
+		SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
+		char[][] names = info.getInterfaceNames();
+		if (names == null) {
+			return CharOperation.NO_STRINGS;
+		}
+		String[] strings = new String[names.length];
+		for (int i= 0; i < names.length; i++) {
+			strings[i] = new String(Signature.createTypeSignature(names[i], true));
+		}
+		return strings;
 	}
 }

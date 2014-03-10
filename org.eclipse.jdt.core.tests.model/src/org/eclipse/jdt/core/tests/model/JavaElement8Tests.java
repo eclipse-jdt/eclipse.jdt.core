@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.LambdaExpression;
 
 public class JavaElement8Tests extends AbstractJavaModelTests { 
 
@@ -48,6 +49,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		suite.addTest(new JavaElement8Tests("test429948"));
 		suite.addTest(new JavaElement8Tests("test429948a"));
 		suite.addTest(new JavaElement8Tests("test429966"));
+		suite.addTest(new JavaElement8Tests("testBug429910"));
 		return suite;
 	}
 	public void testBug428178() throws Exception {
@@ -281,6 +283,40 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		}
 		finally {
 			deleteProject(projectName);
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429910
+	public void testBug429910() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Bug429910", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+			project.open(null);
+			String fileContent =  "package p;\n" +
+					 "import java.util.List;\n" +
+					 "public interface Test {\n" +
+					 "	static void main(String[] args) {\n" +
+					 "		I<String> i = (x) -> {};\n" +
+					 "	}\n" +
+					 "}\n" + 
+					 "interface I<T> {\n" + 
+					 "  public void foo(List<T> x);\n" +
+					 "}";
+			createFolder("/Bug429910/src/p");
+			createFile(	"/Bug429910/src/p/Test.java",	fileContent);
+			ICompilationUnit unit = getCompilationUnit("/Bug429910/src/p/Test.java");
+			int start = fileContent.indexOf("x) ->");
+			IJavaElement[] elements = unit.codeSelect(start, 1);
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			assertEquals("Incorrect element type", IJavaElement.LOCAL_VARIABLE, elements[0].getElementType());
+			IMethod method = (IMethod) elements[0].getParent();
+			assertTrue("Should be a lambda method",method.isLambdaMethod());
+			IJavaElement parent = method.getParent();
+			assertTrue("Should be a lambda expression", (parent instanceof LambdaExpression));
+			LambdaExpression lambda = (LambdaExpression) parent;
+			String sigs = lambda.getSuperInterfaceTypeSignatures()[0];
+			assertEquals("Incorrect super interface signature", "Lp.I<Ljava.lang.String;>;", sigs);
+		}
+		finally {
+			deleteProject("Bug429910");
 		}
 	}
 }
