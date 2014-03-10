@@ -96,9 +96,9 @@ public class LambdaMethod extends SourceMethod {
 	}
 
 	public static String getTypeSignature(JavaModelManager manager, TypeBinding type) {
-		char[] name = type.readableName();
-		name = CharOperation.replaceOnCopy(name, '/', '.');
-		return manager.intern(Signature.createTypeSignature(name, true));
+		char[] signature = type.genericTypeSignature();
+		signature = CharOperation.replaceOnCopy(signature, '/', '.');
+		return manager.intern(new String(signature));
 	}
 
 	/**

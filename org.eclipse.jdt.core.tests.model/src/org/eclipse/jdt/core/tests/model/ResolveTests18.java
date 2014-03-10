@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICodeAssist;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 
@@ -2366,5 +2367,35 @@ public void test429934() throws CoreException {
 			"s [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
 			elements, true
 		);	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429812, [1.8][model] Signatures returned by lambda IMethod APIs should be dot-based
+
+public void test429812() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Resolve/src/X.java",
+			"import java.util.List;\n" +
+			"interface Getter<E> {\n" +
+			"    E get(List<E> list, int i);\n" +
+			"}\n" +
+			"public class X<U> {\n" +
+			"	public void foo(List<U> l) {\n" +
+			"		Getter<U> g= (x, i) -> x.get(i);\n" +
+			"	} \n" +
+			"}\n"
+			);
+	
+	String str = this.workingCopies[0].getSource();
+	String selection = "x";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	assertElementsEqual(
+			"Unexpected elements",
+			"x [in get(java.util.List<U>, int) [in Lambda(Getter) [in foo(List<U>) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+			elements, true
+			);
+	IMethod lambda = (IMethod) elements[0].getParent();
+	assertEquals("(Ljava.util.List<TU;>;I)TU;", lambda.getSignature());
 }
 }
