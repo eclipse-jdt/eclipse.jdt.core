@@ -346,12 +346,15 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 
 	public TypeBinding resolveType(BlockScope scope) {
 		
+		if (this.expectedType != null && !this.trialResolution) {  // final resolution ? may be not - i.e may be, but only in a non-final universe.
+			recordFunctionalType(scope);
+		}
+		
 		final CompilerOptions compilerOptions = scope.compilerOptions();
 		TypeBinding lhsType;
     	if (this.constant != Constant.NotAConstant) {
     		this.constant = Constant.NotAConstant;
     		this.enclosingScope = scope;
-    		scope.referenceCompilationUnit().record(this);
     		this.lhs.bits |= ASTNode.IgnoreRawTypeCheck;
 
     		lhsType = this.lhs.resolveType(scope);

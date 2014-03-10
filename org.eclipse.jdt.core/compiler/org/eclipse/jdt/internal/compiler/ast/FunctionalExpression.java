@@ -35,9 +35,12 @@ import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
@@ -141,6 +144,27 @@ public abstract class FunctionalExpression extends Expression {
 	}
 	
 	public boolean argumentsTypeElided() { return true; /* only exception: lambda with explicit argument types. */ }
+
+	// Notify the compilation unit that it contains some functional types, taking care not to add any transient copies. this is assumed not to be a copy
+	public int recordFunctionalType(Scope scope) {
+		while (scope != null) {
+			switch (scope.kind) {
+				case Scope.METHOD_SCOPE :
+					ReferenceContext context = ((MethodScope) scope).referenceContext;
+					if (context instanceof LambdaExpression) {
+						LambdaExpression expression = (LambdaExpression) context;
+						if (expression != expression.original) // fake universe.
+							return 0;
+					}
+					break; 
+				case Scope.COMPILATION_UNIT_SCOPE :
+					CompilationUnitDeclaration unit = ((CompilationUnitScope) scope).referenceContext;
+					return unit.record(this);
+			}
+			scope = scope.parent;
+		}
+		return 0; // not reached.
+	}
 
 	public TypeBinding resolveType(BlockScope blockScope) {
 		this.constant = Constant.NotAConstant;

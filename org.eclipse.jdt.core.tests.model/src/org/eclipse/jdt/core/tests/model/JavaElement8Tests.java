@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.tests.model;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -46,6 +47,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		suite.addTest(new JavaElement8Tests("testBug429641a"));
 		suite.addTest(new JavaElement8Tests("test429948"));
 		suite.addTest(new JavaElement8Tests("test429948a"));
+		suite.addTest(new JavaElement8Tests("test429966"));
 		return suite;
 	}
 	public void testBug428178() throws Exception {
@@ -204,7 +206,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 					"public class X {\n" +
 					"	public static void main(String[] args) {\n" +
 					"		execute(() -> {\n" +
-					"           execureOuter(() -> {\n" +
+					"           executeOuter(() -> {\n" +
 					"			    executeInner(() -> {\n" +
 					"			    });\n" +
 					"			    return null;\n" +
@@ -232,6 +234,53 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		}
 		finally {
 			deleteProject("Bug429948");
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429966, [1.8] CUD#functionalExpressions may record lambda copies in nested lambda situations
+	public void test429966() throws CoreException {
+		String projectName = "Bug429966";
+		try {
+			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+			project.open(null);
+			String fileContent = 
+					"interface Supplier<T> {\n" +
+					"    T get();\n" +
+					"}\n" +
+					"interface Runnable {\n" +
+					"    public abstract void run();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		execute(() -> {\n" +
+					"           executeOuter(() -> {\n" +
+					"			    executeInner(() -> {\n" +
+					"			    });\n" +
+					"		    });\n" +
+					"		return null;\n" +
+					"       });\n" +
+					"	}\n" +
+					"	static <R> R execute(Supplier<R> supplier) {\n" +
+					"		return null;\n" +
+					"	}\n" +
+					"	static void executeInner(Runnable callback) {\n" +
+					"	}\n" +
+					"	static void executeOuter(Runnable callback) {\n" +
+					"	}\n" +
+					"}\n";
+			String fileName = "/" + projectName + "/src/X.java";
+			createFile(fileName, fileContent);
+			IType type = getCompilationUnit(fileName).getType("Runnable");
+			ITypeHierarchy h = type.newTypeHierarchy(null);
+			assertHierarchyEquals(
+					"Focus: Runnable [in X.java [in <default> [in src [in Bug429966]]]]\n" + 
+					"Super types:\n" + 
+					"Sub types:\n" + 
+					"  Lambda(Runnable) [in get() [in Lambda(Supplier) [in main(String[]) [in X [in X.java [in <default> [in src [in Bug429966]]]]]]]]\n" + 
+					"  Lambda(Runnable) [in run() [in Lambda(Runnable) [in get() [in Lambda(Supplier) [in main(String[]) [in X [in X.java [in <default> [in src [in Bug429966]]]]]]]]]]\n",
+					h);
+		}
+		finally {
+			deleteProject(projectName);
 		}
 	}
 }

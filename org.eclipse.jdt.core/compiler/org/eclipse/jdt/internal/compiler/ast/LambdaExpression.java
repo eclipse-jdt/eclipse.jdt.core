@@ -222,8 +222,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if (this.resolvedType != null)
 			return this.resolvedType;
 		
-		if (this.expectedType != null && this.original == this) {  // final resolution.
-			this.ordinal = blockScope.referenceCompilationUnit().record(this);
+		if (this.expectedType != null && this.original == this) {  // final resolution ? may be not - i.e may be, but only in a non-final universe.
+			this.ordinal = recordFunctionalType(blockScope);
 		}
 		
 		this.constant = Constant.NotAConstant;
