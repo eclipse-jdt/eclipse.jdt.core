@@ -179,7 +179,10 @@ public abstract class SearchDocument {
 		this.shouldIndexResolvedDocument = true;
 	}
 	
-	/* non API */
+	/**
+	 * @nooverride This method is not intended to be re-implemented or extended by clients.
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
 	public boolean shouldIndexResolvedDocument() {
 		return this.shouldIndexResolvedDocument;
 	}
