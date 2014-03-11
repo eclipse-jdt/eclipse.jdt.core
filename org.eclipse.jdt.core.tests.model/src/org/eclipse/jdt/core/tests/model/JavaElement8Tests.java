@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IClassFile;
@@ -45,22 +44,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		this.endChar = "";
 	}
 	public static Test suite() {
-		if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null) {
-			return buildModelTestSuite(JavaElement8Tests.class);
-		}
-		TestSuite suite = new Suite(JavaElement8Tests.class.getName());
-		suite.addTest(new JavaElement8Tests("testBug428178"));
-		suite.addTest(new JavaElement8Tests("testBug428178a"));
-		suite.addTest(new JavaElement8Tests("testBug429641"));
-		suite.addTest(new JavaElement8Tests("testBug429641a"));
-		suite.addTest(new JavaElement8Tests("test429948"));
-		suite.addTest(new JavaElement8Tests("test429948a"));
-		suite.addTest(new JavaElement8Tests("test429966"));
-		suite.addTest(new JavaElement8Tests("testBug429910"));
-		suite.addTest(new JavaElement8Tests("test430026"));
-		suite.addTest(new JavaElement8Tests("test430026a"));
-		suite.addTest(new JavaElement8Tests("test430033"));
-		return suite;
+		return buildModelTestSuite(JavaElement8Tests.class);
 	}
 	public void testBug428178() throws Exception {
 		try {
@@ -324,6 +308,38 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			LambdaExpression lambda = (LambdaExpression) parent;
 			String sigs = lambda.getSuperInterfaceTypeSignatures()[0];
 			assertEquals("Incorrect super interface signature", "Lp.I<Ljava.lang.String;>;", sigs);
+		}
+		finally {
+			deleteProject("Bug429910");
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429910 [1.8][model] Superinterfaces of lambda element's IType are missing type arguments
+	public void testBug429910a() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Bug429910", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+			project.open(null);
+			String fileContent =  "package p;\n" +
+					"public interface MyFunction<T, R> {\n" +
+					"	R apply(T t);\n" +
+					"	default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {\n" +
+					"		return (V v) -> apply(before.apply(v));" +
+					"	}" +
+					"}";
+			createFolder("/Bug429910/src/p");
+			createFile(	"/Bug429910/src/p/MyFunction.java",	fileContent);
+			ICompilationUnit unit = getCompilationUnit("/Bug429910/src/p/MyFunction.java");
+			int start = fileContent.indexOf("v))");
+			IJavaElement[] elements = unit.codeSelect(start, 1);
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			assertEquals("Incorrect element type", IJavaElement.LOCAL_VARIABLE, elements[0].getElementType());
+			IMethod method = (IMethod) elements[0].getParent();
+			assertTrue("Should be a lambda method",method.isLambdaMethod());
+			assertEquals("Incorrect lambda method signature", "(TV;)TR;", method.getSignature());
+			IJavaElement parent = method.getParent();
+			assertTrue("Should be a lambda expression", (parent instanceof LambdaExpression));
+			LambdaExpression lambda = (LambdaExpression) parent;
+			String sigs = lambda.getSuperInterfaceTypeSignatures()[0];
+			assertEquals("Incorrect super interface signature", "Lp.MyFunction<TV;TR;>;", sigs);
 		}
 		finally {
 			deleteProject("Bug429910");
