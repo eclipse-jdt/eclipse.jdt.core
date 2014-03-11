@@ -3771,6 +3771,42 @@ public void test430040() {
 			},
 			"OK");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430043, [1.8][compiler] Cannot infer type arguments for Junk14<> 
+public void test430043() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.File;\n" +
+				"import java.io.IOException;\n" +
+				"import java.io.StringReader;\n" +
+				"import java.nio.file.Files;\n" +
+				"import java.text.MessageFormat;\n" +
+				"import java.util.*;\n" +
+				"import java.util.function.Function;\n" +
+				"import java.util.jar.Attributes;\n" +
+				"import java.util.jar.JarFile;\n" +
+				"import java.util.jar.Manifest;\n" +
+				"public class X<T>  {\n" +
+				"    public X(String name, String description, String id, Class<T> valueType, String[] fallbackIDs, Function<Map<String, ? super Object>, T> defaultValueFunction, boolean requiresUserSetting, Function<String, T> stringConverter) {\n" +
+				"    }\n" +
+				"    public static final X<String> NAME  =\n" +
+				"            new X<>(\n" +
+				"                    null,\n" +
+				"                    null,\n" +
+				"                    null,\n" +
+				"                    String.class,\n" +
+				"                    null,\n" +
+				"                    params -> {throw new IllegalArgumentException(\"junk14\");},\n" +
+				"                    true,\n" +
+				"                    s -> s\n" +
+				"            );\n" +
+				"     public static void main(String [] args) {\n" +
+				"         System.out.println(\"OK\");\n" +
+				"     }\n" +
+				"}\n"
+			},
+			"OK");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
