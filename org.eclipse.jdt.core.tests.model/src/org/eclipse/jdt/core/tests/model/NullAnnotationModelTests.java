@@ -62,9 +62,12 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 //		TESTS_NAMES = new String[] { "testConvertedSourceType1" };
 	}
 
+	/**
+	 * @deprecated indirectly uses deprecated class PackageAdmin
+	 */
 	public void setUp() throws Exception {
 		super.setUp();
-		Bundle[] bundles = Platform.getBundles("org.eclipse.jdt.annotation", "[2.0.0,3.0.0)");
+		Bundle[] bundles = org.eclipse.jdt.core.tests.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", "[2.0.0,3.0.0)");
 		File bundleFile = FileLocator.getBundleFile(bundles[0]);
 		this.ANNOTATION_LIB = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
 	}
