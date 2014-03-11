@@ -2477,6 +2477,68 @@ public void test_default_nullness_003b() {
 		mismatch_NonNull_Nullable("Object") +
 		"----------\n");
 }
+// package level default is consumed from package-info.class, similarly for type level default - fine tuned default
+public void test_default_nullness_003c() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // uses version 2.0 of @NonNullByDefault
+	Map customOptions = getCompilerOptions();
+	runConformTestWithLibs(
+		new String[] {
+	"p1/X.java",
+			"package p1;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class X {\n" +
+			"    protected Object getObject(@Nullable Object o) {\n" +
+			"        return new Object();\n" +
+			"    }\n" +
+			"	 protected void bar(Object o2) { }\n" + // parameter is nonnull per type default
+			"}\n",
+	"p2/package-info.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault({org.eclipse.jdt.annotation.DefaultLocation.PARAMETER})\n" +
+			"package p2;\n",
+			},
+			customOptions,
+			"");
+	// check if default is visible from package-info.class.
+	runNegativeTestWithLibs(
+		false, // don't flush
+		new String[] {
+	"p2/Y.java",
+			"package p2;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Y extends p1.X {\n" +
+			"    @Override\n" +
+			"    protected @Nullable Object getObject(@Nullable Object o) {\n" + // can't override inherited default nonnull
+			"        bar(o);\n" + // parameter is nonnull in super class's .class file
+			"        @NonNull Object nno = accept(o); // 2xERR\n" +
+			"        return o;\n" +
+			"    }\n" +
+			"    Object accept(Object a) { return a; }\n" + // governed by package level default (only the parameter!)
+			"}\n"
+		},
+		customOptions,
+		"----------\n" +
+		"1. ERROR in p2\\Y.java (at line 5)\n" + 
+		"	protected @Nullable Object getObject(@Nullable Object o) {\n" + 
+		"	          ^^^^^^^^^^^^^^^^\n" + 
+		"The return type is incompatible with the @NonNull return from X.getObject(Object)\n" + 
+		"----------\n" + 
+		"2. ERROR in p2\\Y.java (at line 6)\n" + 
+		"	bar(o);\n" + 
+		"	    ^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'@Nullable Object\'\n" + 
+		"----------\n" + 
+		"3. WARNING in p2\\Y.java (at line 7)\n" + 
+		"	@NonNull Object nno = accept(o); // 2xERR\n" + 
+		"	                      ^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'Object\' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
+		"----------\n" + 
+		"4. ERROR in p2\\Y.java (at line 7)\n" + 
+		"	@NonNull Object nno = accept(o); // 2xERR\n" + 
+		"	                             ^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'@Nullable Object\'\n" + 
+		"----------\n");
+}
 // don't apply type-level default to non-reference type
 public void test_default_nullness_004() {
 	Map customOptions = getCompilerOptions();
@@ -5987,7 +6049,7 @@ public void testBug388281_08() {
 			"package ctest;\n" +
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"@NonNullByDefault\n" +
-			"public class Ctest implements i2.II {\n" +
+			"public class Ctest implements i2.II {\n" + // note: i2.II.m1(Object,Object) actually has a bug itself: conflicting default & inherited annotations
 			"    public Object m1(@Nullable Object a1) { // silent: conflict at a1 avoided\n" + 
 			"		return new Object();\n" + 
 			"    }\n" + 
@@ -6317,7 +6379,10 @@ public void testBug412076() {
 		new String[] {
 			"FooImpl.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
-			"@NonNullByDefault\n" + 
+			(this.complianceLevel < ClassFileConstants.JDK1_8
+			? "@NonNullByDefault\n"
+			: "@NonNullByDefault({DefaultLocation.PARAMETER,DefaultLocation.RETURN_TYPE})\n" // avoid @NonNull on type argument <String>
+			) + 
 			"public class FooImpl implements Foo<String> {\n" + 
 			"  public String bar(final String... values) {\n" + 
 			"    return (\"\");\n" + 
@@ -6710,9 +6775,9 @@ public void testBug418843() {
 		"----------\n");
 }
 public void testBug418235() {
-    runNegativeTestWithLibs(
+	String[] testFiles = 
             new String[] {
-                    "GenericInterface.java",
+                    "GenericInterface.java", 
                     "public interface GenericInterface<T> {\n" + 
                     "       T doSomethingGeneric(T o);\n" + 
                     "}",
@@ -6726,13 +6791,48 @@ public void testBug418235() {
                     "               return o;\n" + 
                     "       }\n" + 
                     "}\n"
-            },
-            "----------\n" + 
-            "1. ERROR in Implementation.java (at line 6)\n" + 
-    		"	public Object doSomethingGeneric(Object o) {\n" + 
-    		"	                                 ^^^^^^\n" + 
-            "Illegal redefinition of parameter o, inherited method from GenericInterface<Object> does not constrain this parameter\n" + 
-            "----------\n");
+			};
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+	    runNegativeTestWithLibs(
+	            testFiles,
+	            "----------\n" + 
+	            "1. ERROR in Implementation.java (at line 6)\n" + 
+	    		"	public Object doSomethingGeneric(Object o) {\n" + 
+	    		"	                                 ^^^^^^\n" + 
+	            "Illegal redefinition of parameter o, inherited method from GenericInterface<Object> does not constrain this parameter\n" + 
+	            "----------\n");
+	} else {
+		// in 1.8 the nullness default also affects the type argument <Object> from which T is instantiated to '@NonNull Object'
+		runConformTestWithLibs(
+				testFiles, getCompilerOptions(), "");
+	}
+}
+public void testBug418235b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	runNegativeTestWithLibs(
+	        new String[] {
+			    "GenericInterface.java", 
+			    "public interface GenericInterface<T> {\n" + 
+				"       T doSomethingGeneric(T o);\n" + 
+				"}",
+			    "Implementation.java",
+			    "import org.eclipse.jdt.annotation.*;\n" + 
+				"@NonNullByDefault({DefaultLocation.PARAMETER,DefaultLocation.RETURN_TYPE})\n" + 
+				"public class Implementation implements GenericInterface<Object> {\n" + 
+				"\n" + 
+				"      @Override\n" +
+				"       public Object doSomethingGeneric(Object o) {\n" + 
+				"               return o;\n" + 
+				"       }\n" + 
+				"}\n"
+			},
+	        "----------\n" + 
+	        "1. ERROR in Implementation.java (at line 6)\n" + 
+			"	public Object doSomethingGeneric(Object o) {\n" + 
+			"	                                 ^^^^^^\n" + 
+	        "Illegal redefinition of parameter o, inherited method from GenericInterface<Object> does not constrain this parameter\n" + 
+	        "----------\n");
 }
 
 public void testTypeAnnotationProblemNotIn17() {

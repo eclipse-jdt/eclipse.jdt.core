@@ -29,6 +29,7 @@
  *								Bug 428019 - [1.8][compiler] Type inference failure with nested generic invocation.
  *								Bug 427199 - [1.8][resource] avoid resource leak warnings on Streams that have no resource
  *								Bug 418743 - [1.8][null] contradictory annotations on invocation of generic method not reported
+ *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -1090,20 +1091,35 @@ public boolean hasMemberTypes() {
 }
 
 /**
- * Answer whether a @NonNullByDefault is applicable at the given method binding.
+ * Answer whether a @NonNullByDefault is applicable at the reference binding,
+ * for 1.8 check if the default is applicable to the given kind of location.
  */
-boolean hasNonNullDefault() {
+// pre: null annotation analysis is enabled
+boolean hasNonNullDefaultFor(int location, boolean useTypeAnnotations) {
 	// Note, STB overrides for correctly handling local types
 	ReferenceBinding currentType = this;
 	while (currentType != null) {
-		if ((currentType.tagBits & TagBits.AnnotationNonNullByDefault) != 0)
-			return true;
-		if ((currentType.tagBits & TagBits.AnnotationNullUnspecifiedByDefault) != 0)
-			return false;
+		if (useTypeAnnotations) {
+			int nullDefault = ((ReferenceBinding)currentType.original()).getNullDefault();
+			if (nullDefault != 0)
+				return (nullDefault & location) != 0;
+		} else {
+			if ((currentType.tagBits & TagBits.AnnotationNonNullByDefault) != 0)
+				return true;
+			if ((currentType.tagBits & TagBits.AnnotationNullUnspecifiedByDefault) != 0)
+				return false;
+		}
 		currentType = currentType.enclosingType();
 	}
 	// package
-	return this.getPackage().defaultNullness == NONNULL_BY_DEFAULT;
+	if (useTypeAnnotations)
+		return (this.getPackage().defaultNullness & location) != 0;
+	else
+		return this.getPackage().defaultNullness == NONNULL_BY_DEFAULT;
+}
+
+int getNullDefault() {
+	return 0;
 }
 
 public final boolean hasRestrictedAccess() {

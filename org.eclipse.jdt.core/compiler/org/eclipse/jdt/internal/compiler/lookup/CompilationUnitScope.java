@@ -8,6 +8,8 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Erling Ellingsen -  patch for bug 125570
+ *     Stephan Herrmann - Contribution for
+ *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -938,5 +940,11 @@ private int checkAndRecordImportBinding(
 		recordImportBinding(new ImportConflictBinding(compoundName, importBinding, conflictingType, importReference));
 	}
 	return this.importPtr;
+}
+@Override
+public boolean hasDefaultNullnessFor(int location) {
+	if (this.fPackage != null)
+		return (this.fPackage.defaultNullness & location) != 0;
+	return false;
 }
 }

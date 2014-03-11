@@ -4300,31 +4300,6 @@ public void test429387() {
 		"IntStreamy cannot be resolved\n" + 
 		"----------\n");
 }
-public void testBug392245_tmp_warning() {
-	runNegativeTestWithLibs(
-		new String[] {
-			"X.java",
-			"import org.eclipse.jdt.annotation.*;\n" +
-			"@NonNullByDefault(DefaultLocation.TYPE_ARGUMENT)\n" +
-			"public class X {\n" +
-			"	void m(Object o) {}\n" +
-			"	void test() {\n" +
-			"		m(null); // ERR\n" + // since @NonNullByDefault is still interpreted as all or nothing
-			"	}\n" +
-			"}\n"
-		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	@NonNullByDefault(DefaultLocation.TYPE_ARGUMENT)\n" + 
-		"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Arguments controling the details of the nullness default are not yet evaluated by the analysis.\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
-		"	m(null); // ERR\n" + 
-		"	  ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n");
-}
 public void testBug429403() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -4374,5 +4349,498 @@ public void testBug430219a() {
         },
         getCompilerOptions(),
         "");
+}
+
+// apply null default to type arguments:
+public void testDefault01() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import java.util.*;\n" +
+			"@NonNullByDefault(DefaultLocation.TYPE_ARGUMENT)\n" +
+			"public class X {\n" +
+			"	List<Number> test1(List<Number> in) {\n" +
+			"		in.add(null); // ERR\n" +
+			"		return new ArrayList<@Nullable Number>(); // ERR\n" +
+			"	}\n" +
+			"	java.util.List<java.lang.Number> test2(java.util.List<java.lang.Number> in) {\n" +
+			"		in.add(null); // ERR\n" +
+			"		return new ArrayList<java.lang.@Nullable Number>(); // ERR\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	in.add(null); // ERR\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	return new ArrayList<@Nullable Number>(); // ERR\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'List<@NonNull Number>\' but this expression has type \'ArrayList<@Nullable Number>\', corresponding supertype is \'List<@Nullable Number>\'\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 10)\n" + 
+		"	in.add(null); // ERR\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
+		"	return new ArrayList<java.lang.@Nullable Number>(); // ERR\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'List<@NonNull Number>\' but this expression has type \'ArrayList<@Nullable Number>\', corresponding supertype is \'List<@Nullable Number>\'\n" + 
+		"----------\n");
+}
+
+// apply null default to type arguments - no effect on type variable or wildcard:
+public void testDefault01b() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import java.util.*;\n" +
+			"@NonNullByDefault(DefaultLocation.TYPE_ARGUMENT)\n" +
+			"public class X<T> {\n" +
+			"	List<T> test(List<? extends Number> in) {\n" +
+			"		in.add(null); // OK\n" +
+			"		return new ArrayList<@Nullable T>();\n" + // TODO: unannotated type variable should be regarded as 'could be either'
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+
+// apply null default to parameters:
+public void testDefault02() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault(DefaultLocation.PARAMETER)\n" +
+			"public class X {\n" +
+			"	Number test1(Number in) {\n" +
+			"		System.out.print(in.intValue()); // OK\n" +
+			"		test1(null); // ERR\n" +
+			"		return null; // OK\n" +
+			"	}\n" +
+			"	java.lang.Number test2(java.lang.Number in) {\n" +
+			"		System.out.print(in.intValue()); // OK\n" +
+			"		test2(null); // ERR\n" +
+			"		return null; // OK\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	test1(null); // ERR\n" + 
+		"	      ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	test2(null); // ERR\n" + 
+		"	      ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
+		"----------\n");
+}
+
+// apply null default to return type - annotation at method:
+public void testDefault03() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	@NonNullByDefault(DefaultLocation.RETURN_TYPE)\n" +
+			"	Number test(Number in) {\n" +
+			"		System.out.print(in.intValue());\n" +
+			"		test(null); // OK\n" +
+			"		return null; // ERR\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	return null; // ERR\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
+		"----------\n");
+}
+
+// apply null default to field
+public void testDefault04() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault(DefaultLocation.FIELD)\n" +
+			"public class X {\n" +
+			"	Number field; // ERR since uninitialized\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	Number field; // ERR since uninitialized\n" + 
+		"	       ^^^^^\n" + 
+		"The @NonNull field field may not have been initialized\n" + 
+		"----------\n");
+}
+
+// default default
+public void testDefault05() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class X {\n" +
+			"	Number field; // ERR since uninitialized\n" +
+			"	void test1(Number[] ns) {\n" +
+			"		ns[0] = null; // OK since not affected by default\n" +
+			"	}\n" +
+			"	void test2(java.lang.Number[] ns) {\n" +
+			"		ns[0] = null; // OK since not affected by default\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	Number field; // ERR since uninitialized\n" + 
+		"	       ^^^^^\n" + 
+		"The @NonNull field field may not have been initialized\n" + 
+		"----------\n");
+}
+
+// apply default to type parameter - inner class
+public void testDefault06() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault(DefaultLocation.TYPE_PARAMETER)\n" +
+			"public class X {\n" +
+			"	class Inner<T> {\n" +
+			"		T process(T t) {\n" +
+			"			@NonNull T t2 = t; // OK\n" +
+			"			return null; // ERR\n" +
+			" 		}\n" +
+			"	}\n" +
+			"	void test(Inner<Number> inum) {\n" +
+			"		@NonNull Number nnn = inum.process(null); // ERR on argument\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	return null; // ERR\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull T\' but the provided value is null\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	@NonNull Number nnn = inum.process(null); // ERR on argument\n" + 
+		"	                                   ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
+		"----------\n");
+}
+
+// apply default to type bound - method in inner class
+public void testDefault07() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import java.util.*;\n" +
+			"@NonNullByDefault(DefaultLocation.TYPE_BOUND)\n" +
+			"public class X {\n" +
+			"	class Inner {\n" +
+			"		<T extends Number> T process(T t, List<? extends Number> l) {\n" +
+			"			@NonNull T t2 = t; // OK\n" +
+			"			@NonNull Number n = l.get(0); // OK\n" +
+			"			return null; // ERR\n" +
+			" 		}\n" +
+			"	}\n" +
+			"	void test(Inner inner) {\n" +
+			"		@NonNull Number nnn = inner.process(Integer.MAX_VALUE, new ArrayList<@Nullable Integer>()); // WARN on 1. arg; ERR on 2. arg\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	return null; // ERR\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'T extends @NonNull Number\' but the provided value is null\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 13)\n" + 
+		"	@NonNull Number nnn = inner.process(Integer.MAX_VALUE, new ArrayList<@Nullable Integer>()); // WARN on 1. arg; ERR on 2. arg\n" + 
+		"	                                    ^^^^^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'int\' needs unchecked conversion to conform to \'@NonNull Integer\'\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 13)\n" + 
+		"	@NonNull Number nnn = inner.process(Integer.MAX_VALUE, new ArrayList<@Nullable Integer>()); // WARN on 1. arg; ERR on 2. arg\n" + 
+		"	                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'List<? extends @NonNull Number>\' but this expression has type \'ArrayList<@Nullable Integer>\', corresponding supertype is \'List<@Nullable Integer>\'\n" + 
+		"----------\n");
+}
+
+//apply null default to type arguments:
+public void testDefault01_bin() {
+	runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"import java.util.*;\n" +
+				"import java.lang.annotation.*;\n" +
+				"\n" +
+				"@Target(ElementType.TYPE_USE) @Retention(RetentionPolicy.CLASS) @interface Important {}\n" +
+				"\n" +
+				"@NonNullByDefault(DefaultLocation.TYPE_ARGUMENT)\n" +
+				"public class X {\n" +
+				"	List<Number> test1(List<@Important Number> in) {\n" +
+				"		return new ArrayList<@NonNull Number>();\n" +
+				"	}\n" +
+				"}\n"
+			},
+			getCompilerOptions(),
+			"");
+	runNegativeTestWithLibs(
+		new String[] {
+			"Y.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import java.util.*;\n" +
+			"public class Y {\n" +
+			"	void test(List<Number> in, X x) {\n" +
+			"		x.test1(new ArrayList<@Nullable Number>()) // ERR at arg\n" +
+			"			.add(null); // ERR\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in Y.java (at line 5)\n" + 
+		"	x.test1(new ArrayList<@Nullable Number>()) // ERR at arg\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'List<@NonNull Number>\' but this expression has type \'ArrayList<@Nullable Number>\', corresponding supertype is \'List<@Nullable Number>\'\n" + 
+		"----------\n" + 
+		"2. ERROR in Y.java (at line 6)\n" + 
+		"	.add(null); // ERR\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
+		"----------\n");
+}
+
+//apply null default to parameters:
+public void testDefault02_bin() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault(DefaultLocation.PARAMETER)\n" +
+			"public class X {\n" +
+			"	Number test1(Number in) {\n" +
+			"		return null; // OK\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+	runNegativeTestWithLibs(
+		new String[] {
+			"Y.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Y {\n" +
+			"	@NonNull Number test(X x) {\n" +
+			"		return x.test1(null); // error at arg, unchecked at return\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in Y.java (at line 4)\n" + 
+		"	return x.test1(null); // error at arg, unchecked at return\n" + 
+		"	       ^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'Number\' needs unchecked conversion to conform to \'@NonNull Number\'\n" + 
+		"----------\n" + 
+		"2. ERROR in Y.java (at line 4)\n" + 
+		"	return x.test1(null); // error at arg, unchecked at return\n" + 
+		"	               ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
+		"----------\n");
+}
+
+//apply null default to return type - annotation at method:
+public void testDefault03_bin() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	@NonNullByDefault(DefaultLocation.RETURN_TYPE)\n" +
+			"	Number test(Number in) {\n" +
+			"		return new Integer(13);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+	runConformTestWithLibs(
+		new String[] {
+			"Y.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Y {\n" +
+			"	@NonNull Number test(X x) {\n" +
+			"		return x.test(null); // both OK\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+
+// apply null default to field - also test mixing of explicit annotation with default @NonNull (other annot is not rendered in error)
+public void testDefault04_bin() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Target(ElementType.TYPE_USE) @Retention(RetentionPolicy.CLASS) @interface Important {}\n" +
+			"@NonNullByDefault(DefaultLocation.FIELD)\n" +
+			"public class X {\n" +
+			"	@Important Number field = new Double(1.1d);\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+	runNegativeTestWithLibs(
+		new String[] {
+			"Y.java",
+			"public class Y {\n" +
+			"	void test(X x) {\n" +
+			"		x.field = null; // ERR\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in Y.java (at line 3)\n" + 
+		"	x.field = null; // ERR\n" + 
+		"	          ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
+		"----------\n");}
+
+// default default
+public void testDefault05_bin() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class X {\n" +
+			"	Number field = new Long(13);\n" +
+			"	void test1(Number[] ns) {\n" +
+			"		ns[0] = null; // OK since not affected by default\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+	runNegativeTestWithLibs(
+		new String[] {
+			"Y.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Y {\n" +
+			"	void test(X x, @Nullable Number @NonNull[] ns) {\n" +
+			"		x.test1(ns); // OK since not affected by default\n" +
+			"		x.field = null; // ERR\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in Y.java (at line 5)\n" + 
+		"	x.field = null; // ERR\n" + 
+		"	          ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
+		"----------\n");}
+
+// apply default to type parameter - inner class
+public void testDefault06_bin() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault(DefaultLocation.TYPE_PARAMETER)\n" +
+			"public class X {\n" +
+			"	static class Inner<T> {\n" +
+			"		T process(T t) {\n" +
+			"			return t;\n" +
+			" 		}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+	runNegativeTestWithLibs(
+		new String[] {
+			"Y.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Y {\n" +
+			"	void test(X.Inner<Number> inum) {\n" +
+			"		@NonNull Number nnn = inum.process(null); // ERR on argument\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in Y.java (at line 4)\n" + 
+		"	@NonNull Number nnn = inum.process(null); // ERR on argument\n" + 
+		"	                                   ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
+		"----------\n");}
+
+// apply default to type bound - method in inner class
+public void testDefault07_bin() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import java.util.*;\n" +
+			"@NonNullByDefault(DefaultLocation.TYPE_BOUND)\n" +
+			"public class X {\n" +
+			"	static class Inner {\n" +
+			"		<T extends Number> T process(T t, List<? extends Number> l) {\n" +
+			"			return t;\n" +
+			" 		}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+	runNegativeTestWithLibs(
+		new String[] {
+			"Y.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import java.util.*;\n" +
+			"public class Y {\n" +
+			"	void test(X.Inner inner) {\n" +
+			"		@NonNull Number nnn = inner.process(Integer.MAX_VALUE, new ArrayList<@Nullable Integer>()); // WARN on 1. arg; ERR on 2. arg\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" +  // FIXME: this should not be a warning, a case of unrecognized boxing
+		"1. WARNING in Y.java (at line 5)\n" + 
+		"	@NonNull Number nnn = inner.process(Integer.MAX_VALUE, new ArrayList<@Nullable Integer>()); // WARN on 1. arg; ERR on 2. arg\n" + 
+		"	                                    ^^^^^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'int\' needs unchecked conversion to conform to \'@NonNull Integer\'\n" + 
+		"----------\n");
 }
 }
