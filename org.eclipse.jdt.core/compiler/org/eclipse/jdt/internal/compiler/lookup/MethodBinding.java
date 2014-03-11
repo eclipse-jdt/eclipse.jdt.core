@@ -531,13 +531,12 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 	}
 	if (added)
 		this.tagBits |= TagBits.HasParameterAnnotations;
-	if (   this.returnType != null
-		&& !this.returnType.isBaseType()
-		&& (this.returnType.tagBits & TagBits.AnnotationNullMASK) == 0)
-	{
-		this.returnType = env.createAnnotatedType(this.returnType, new AnnotationBinding[]{env.getNonNullAnnotation()});
-	} else if (sourceMethod != null && (this.returnType.tagBits & TagBits.AnnotationNonNull) != 0) {
-		sourceMethod.scope.problemReporter().nullAnnotationIsRedundant(sourceMethod, -1/*signifies method return*/);
+	if (this.returnType != null) {
+		if (!this.returnType.isBaseType() && (this.returnType.tagBits & TagBits.AnnotationNullMASK) == 0) {
+			this.returnType = env.createAnnotatedType(this.returnType, new AnnotationBinding[]{env.getNonNullAnnotation()});
+		} else if (sourceMethod != null && (this.returnType.tagBits & TagBits.AnnotationNonNull) != 0) {
+			sourceMethod.scope.problemReporter().nullAnnotationIsRedundant(sourceMethod, -1/*signifies method return*/);
+		}
 	}
 }
 

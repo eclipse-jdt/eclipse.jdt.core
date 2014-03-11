@@ -6989,4 +6989,21 @@ public void testBug424624b() {
 		getCompilerOptions(),
 		"");
 }
+public void testBug430084() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"@NonNullByDefault\n" +
+			"public class X {" +
+			"	Y() {} " +
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	public class X {	Y() {} }\n" +
+		"	                	^^^\n" +
+		"Return type for the method is missing\n" +
+		"----------\n");
+}
 }
