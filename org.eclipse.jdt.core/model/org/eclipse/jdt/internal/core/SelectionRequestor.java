@@ -33,12 +33,14 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
@@ -454,7 +456,7 @@ public void acceptLocalVariable(LocalVariableBinding binding, org.eclipse.jdt.in
 		HashMap knownScopes = new HashMap();
 		parent = this.handleFactory.createElement(binding.declaringScope, local.sourceStart, (ICompilationUnit) unit, existingElements, knownScopes);
 	} else {		
-		parent = findLocalElement(local.sourceStart); // findLocalElement() cannot find local variable
+		parent = findLocalElement(local.sourceStart, binding.declaringScope.methodScope()); // findLocalElement() cannot find local variable
 	}
 	LocalVariable localVar = null;
 	if(parent != null) {
@@ -856,6 +858,21 @@ protected IJavaElement findLocalElement(int pos) {
 		}
 	}
 	return res;
+}
+/*
+ * findLocalElement() cannot find lambdas.
+ */
+protected IJavaElement findLocalElement(int pos, MethodScope scope) {
+	if (scope != null && scope.isLambdaScope()) {
+		IJavaElement parent = findLocalElement(pos, scope.enclosingMethodScope());
+		LambdaExpression expression = (LambdaExpression) scope.originalReferenceContext();
+		if (expression != null && expression.resolvedType != null && expression.resolvedType.isValidBinding()) {
+			org.eclipse.jdt.internal.core.LambdaExpression lambdaElement = new org.eclipse.jdt.internal.core.LambdaExpression((JavaElement) parent, expression);
+			return lambdaElement.getMethod();
+		}
+		return parent;
+	}
+	return findLocalElement(pos);
 }
 
 /**

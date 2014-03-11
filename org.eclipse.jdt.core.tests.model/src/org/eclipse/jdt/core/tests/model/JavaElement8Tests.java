@@ -14,17 +14,24 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
+import java.util.HashMap;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.LambdaExpression;
 
 public class JavaElement8Tests extends AbstractJavaModelTests { 
@@ -52,6 +59,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		suite.addTest(new JavaElement8Tests("testBug429910"));
 		suite.addTest(new JavaElement8Tests("test430026"));
 		suite.addTest(new JavaElement8Tests("test430026a"));
+		suite.addTest(new JavaElement8Tests("test430033"));
 		return suite;
 	}
 	public void testBug428178() throws Exception {
@@ -370,5 +378,44 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		finally {
 			deleteProject(projectName);
 		}
-	}	
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430033, [1.8][model] Lambda elements missing in ancestry for binary elements 
+	public void test430033() throws CoreException, IOException {
+		
+		String jarName = "Elements.jar";
+		String srcName = "Elements_src.zip";
+		String projectName = "Bug430033";
+		IJavaProject project = null;
+		try {
+			project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+			project.open(null);
+		
+			String[] pathAndContents = new String[] {
+					"IntPredicate.java",
+					"public interface IntPredicate {\n" +
+					"    boolean test(int value);\n" +
+					"    default IntPredicate and(IntPredicate other) {\n" +
+					"        return (value) -> test(value) && other.test(value);\n" +
+					"    }\n" +
+					"}\n"
+				};
+			
+				HashMap libraryOptions = new HashMap(project.getOptions(true));
+				libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+				addLibrary(project, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
+				
+				
+			IPackageFragmentRoot[] packageFragmentRoots = project.getPackageFragmentRoots();
+			IPackageFragment packageFragment = packageFragmentRoots[2].getPackageFragment("");
+			IClassFile classFile = packageFragment.getClassFile("IntPredicate.class");
+			IJavaElement[] elements = classFile.codeSelect(128, 5);
+			assertElementEquals("Wrong element", "value [in test(int) [in Lambda(IntPredicate) [in and(IntPredicate) [in IntPredicate [in IntPredicate.class [in <default> [in Elements.jar [in Bug430033]]]]]]]]", elements[0]);
+		}
+		finally {
+			if (project != null) {
+				removeLibrary(project, jarName, srcName);
+				deleteProject(projectName);
+			}
+		}
+	}
 }
