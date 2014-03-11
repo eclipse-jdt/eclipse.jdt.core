@@ -5,10 +5,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *******************************************************************************/
@@ -40,7 +36,7 @@ import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 /**
  * Performs matching of null type annotations.
  * Instances are used to encode result from this analysis.
- * @since 3.9 BETA_JAVA8
+ * @since 3.10
  */
 public class NullAnnotationMatching {
 	

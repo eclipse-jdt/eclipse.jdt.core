@@ -5,10 +5,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -66,7 +62,7 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
  * A processor that explores the java 8 specific elements and validates the lambda and 
  * type annotated elements. To enable this processor, add 
  * -Aorg.eclipse.jdt.compiler.apt.tests.processors.elements.Java8ElementProcessor to the command line.
- * @since 3.9 BETA_JAVA8
+ * @since 3.10
  */
 @SupportedAnnotationTypes({"targets.model8.TypeAnnot",
 							"org.eclipse.jdt.compiler.apt.tests.annotations.Type", "org.eclipse.jdt.compiler.apt.tests.annotations.Type$1", 
