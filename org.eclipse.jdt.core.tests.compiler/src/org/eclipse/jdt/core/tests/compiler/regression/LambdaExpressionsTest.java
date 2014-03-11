@@ -3738,6 +3738,39 @@ public void test430015() {
 			},
 			"[int arg0]");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430040, [1.8] [compiler] Type Type mismatch: cannot convert from Junk13.ExpressionHelper<Object> to Junk13.ExpressionHelper<Object> 
+public void test430040() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public static void main(String [] args) {\n" +
+				"        System.out.println(\"OK\");\n" +
+				"    }\n" +
+				"    class Observable<T> {}\n" +
+				"    class ObservableValue<T> {}\n" +
+				"    interface InvalidationListener {\n" +
+				"        public void invalidated(Observable observable);\n" +
+				"    }\n" +
+				"    public interface ChangeListener<T> {\n" +
+				"        void changed(ObservableValue<? extends T> observable, T oldValue, T newValue);\n" +
+				"    }\n" +
+				"    static class ExpressionHelper<T> {}\n" +
+				"    public static <T> ExpressionHelper<T> addListener(ExpressionHelper<T> helper, ObservableValue<T> observable, InvalidationListener listener) {\n" +
+				"        return helper;\n" +
+				"    }\n" +
+				"    public static <T> ExpressionHelper<T> addListener(ExpressionHelper<T> helper, ObservableValue<T> observable, ChangeListener<? super T> listener) {\n" +
+				"        return helper;\n" +
+				"    }\n" +
+				"    private ExpressionHelper<Object> helper;\n" +
+				"    public void junk() {\n" +
+				"        helper = (ExpressionHelper<Object>) addListener(helper, null, (Observable o) -> {throw new RuntimeException();});\n" +
+				"        helper = addListener(helper, null, (Observable o) -> {throw new RuntimeException();});\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"OK");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
