@@ -72,7 +72,7 @@ public class BatchFilerImpl implements Filer {
 		}
 
 		_createdFiles.add(uri);
-		return new HookedJavaFileObject(jfo, jfo.getName(), this);
+		return new HookedJavaFileObject(jfo, jfo.getName(), name.toString(), this);
 	}
 
 	/* (non-Javadoc)
@@ -142,7 +142,7 @@ public class BatchFilerImpl implements Filer {
 
 		_createdFiles.add(uri);
 		// hook the file object's writers to create compilation unit and add to addedUnits()
-		return new HookedJavaFileObject(jfo, jfo.getName(), this);
+		return new HookedJavaFileObject(jfo, jfo.getName(), name.toString(), this);
 	}
 	
 	/* (non-Javadoc)

@@ -194,15 +194,20 @@ public class HookedJavaFileObject extends
 	 */
 	protected final String _fileName;
 	
+	
+	
 	/**
 	 * A compilation unit is created when the writer or stream is closed.  Only do this once.
 	 */
 	private boolean _closed = false;
+
+	private String _typeName;
 	
-	public HookedJavaFileObject(JavaFileObject fileObject, String fileName, BatchFilerImpl filer) {
+	public HookedJavaFileObject(JavaFileObject fileObject, String fileName, String typeName, BatchFilerImpl filer) {
 		super(fileObject);
 		_filer = filer;
 		_fileName = fileName;
+		_typeName = typeName;
 	}
 
 	@Override
@@ -229,7 +234,14 @@ public class HookedJavaFileObject extends
 					try {
 						binaryType = ClassFileReader.read(_fileName);
 					} catch (ClassFormatException e) {
-						// ignore
+						/* When the annotation processor produces garbage, javac seems to show some resilience, by hooking the source type,
+						   which since is resolved can answer annotations during discovery - Not sure if this sanctioned by the spec, to be taken
+						   up with Oracle. Here we mimic the bug, see that addNewClassFile is simply collecting ReferenceBinding's, so adding
+						   a SourceTypeBinding works just fine.
+						*/
+						ReferenceBinding type = this._filer._env._compiler.lookupEnvironment.getType(CharOperation.splitOn('.', _typeName.toCharArray()));
+						if (type != null) 
+							_filer.addNewClassFile(type);
 					} catch (IOException e) {
 						// ignore
 					}
