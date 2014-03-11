@@ -19,6 +19,7 @@ import junit.framework.Test;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class IncrementalTests18 extends BuilderTests {
@@ -28,10 +29,9 @@ public class IncrementalTests18 extends BuilderTests {
 	}
 
 	public static Test suite() {
-		return buildTestSuite(IncrementalTests18.class);
+		return AbstractCompilerTest.buildMinimalComplianceTestSuite(IncrementalTests18.class, AbstractCompilerTest.F_1_8);
 	}
 	
-
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423122, [1.8] Missing incremental build dependency from lambda expression to functional interface.
 	public void test423122() throws JavaModelException {
 		IPath projectPath = env.addProject("Project", "1.8");

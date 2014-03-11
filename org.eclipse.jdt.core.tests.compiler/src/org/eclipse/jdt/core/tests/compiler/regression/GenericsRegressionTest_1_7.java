@@ -2642,38 +2642,6 @@ public void test428220a() {
 		"The public type HashMap must be defined in its own file\n" + 
 		"----------\n", null, true, customOptions);
 }
-public void testBug429203() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
-	runNegativeTest(
-		new String[] {
-			"DTest.java",
-			"import java.util.function.Function;\n" + 
-			"\n" + 
-			"\n" + 
-			"public class DTest<T> {\n" + 
-			"	public DTest(Function<T, T> func) { }\n" + 
-			"	\n" + 
-			"	public DTest(DTest<Integer> dti) {}\n" + 
-			"	\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		DTest<String> t1 = new DTest<String>(new DTest<Integer>());\n" + 
-			"	}\n" + 
-			"}\n"
-		},
-		"----------\n" + 
-		"1. ERROR in DTest.java (at line 10)\n" + 
-		"	DTest<String> t1 = new DTest<String>(new DTest<Integer>());\n" + 
-		"	                       ^^^^^\n" + 
-		"Redundant specification of type arguments <String>\n" + 
-		"----------\n" + 
-		"2. ERROR in DTest.java (at line 10)\n" + 
-		"	DTest<String> t1 = new DTest<String>(new DTest<Integer>());\n" + 
-		"	                                     ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The constructor DTest<Integer>() is undefined\n" +
-		"----------\n",
-		null, true, customOptions);
-}
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
 }
