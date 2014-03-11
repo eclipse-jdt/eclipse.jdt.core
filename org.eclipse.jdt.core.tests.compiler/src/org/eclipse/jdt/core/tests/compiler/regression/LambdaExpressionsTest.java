@@ -3731,8 +3731,12 @@ public void test430015() {
 				"    }\n" +
 				"    public static void main(String[] args) {\n" +
 				"        Method[] methods = X.class.getDeclaredMethods();\n" +
-				"        Parameter[] parameters = methods[2].getParameters();\n" +
-				"        System.out.println(Arrays.asList(parameters));\n" +
+				"        for (Method method : methods) {\n" +
+				"        	if (method.getName().contains(\"lambda\")) {\n" +
+				"         		Parameter[] parameters = methods[2].getParameters();\n" +
+				"        		System.out.println(Arrays.asList(parameters));\n" +
+				"        	}\n" +
+				"        }\n" +
 				"    }\n" +
 				"}\n"
 			},

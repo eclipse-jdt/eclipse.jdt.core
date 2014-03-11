@@ -2756,15 +2756,19 @@ public void test430015() throws IOException, ClassFormatException {
 				"    }\n" +
 				"    public static void main(String[] args) {\n" +
 				"        Method[] methods = X.class.getDeclaredMethods();\n" +
-				"        Parameter[] parameters = methods[2].getParameters();\n" +
-				"        System.out.println(Arrays.asList(parameters));\n" +
+				"        for (Method method : methods) {\n" +
+				"        	if (method.getName().contains(\"lambda\")) {\n" +
+				"         		Parameter[] parameters = methods[2].getParameters();\n" +
+				"        		System.out.println(Arrays.asList(parameters));\n" +
+				"        	}\n" +
+				"        }\n" +
 				"    }\n" +
 				"}\n"
 			},
 			"[int arg0]");
 		
 		String expectedOutput =
-				"  // Method descriptor #61 (I)V\n" + 
+				"  // Method descriptor #78 (I)V\n" + 
 				"  // Stack: 0, Locals: 1\n" + 
 				"  private static synthetic void lambda$0(int i);\n" + 
 				"    0  return\n" + 
