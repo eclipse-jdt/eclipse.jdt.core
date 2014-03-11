@@ -131,7 +131,12 @@ public class LambdaExpression extends SourceType {
 	 * @see JavaElement#getHandleMemento(StringBuffer)
 	 */
 	protected void getHandleMemento(StringBuffer buff) {
-		((JavaElement)getParent()).getHandleMemento(buff);
+		getHandleMemento(buff, true);
+	}
+	
+	protected void getHandleMemento(StringBuffer buff, boolean memoizeParent) {
+		if (memoizeParent) 
+			((JavaElement)getParent()).getHandleMemento(buff);
 		buff.append(getHandleMementoDelimiter());
 		escapeMementoName(buff, this.name);
 		buff.append(JEM_STRING);
@@ -196,6 +201,24 @@ public class LambdaExpression extends SourceType {
 
 	public IMethod getMethod() {
 		return this.lambdaMethod;
+	}
+	
+	@Override
+	public IJavaElement getPrimaryElement(boolean checkOwner) {
+		if (checkOwner) {
+			CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);
+			if (cu == null || cu.isPrimary()) return this;
+		}
+		IJavaElement primaryParent = this.parent.getPrimaryElement(false);
+		if (primaryParent instanceof JavaElement) {
+			JavaElement ancestor = (JavaElement) primaryParent;
+			StringBuffer buffer = new StringBuffer(32);
+			getHandleMemento(buffer, false);
+			this.lambdaMethod.getHandleMemento(buffer, false);
+			String memento = buffer.toString();
+			return ancestor.getHandleFromMemento(new MementoTokenizer(memento), DefaultWorkingCopyOwner.PRIMARY).getParent();
+		}
+		return this;
 	}
 
 	public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {

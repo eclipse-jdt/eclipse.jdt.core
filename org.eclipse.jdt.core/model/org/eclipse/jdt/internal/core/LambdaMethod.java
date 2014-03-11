@@ -134,8 +134,9 @@ public class LambdaMethod extends SourceMethod {
 		return this.elementInfo;
 	}
 	
-	public void getHandleMemento(StringBuffer buff) {
-		((JavaElement) getParent()).getHandleMemento(buff);
+	public void getHandleMemento(StringBuffer buff, boolean memoizeParent) {
+		if (memoizeParent)
+			((JavaElement) getParent()).getHandleMemento(buff);
 		char delimiter = getHandleMementoDelimiter();
 		buff.append(delimiter);
 		escapeMementoName(buff, getElementName());
@@ -156,6 +157,9 @@ public class LambdaMethod extends SourceMethod {
 			LocalVariable local = (LocalVariable) arguments[i];
 			local.getHandleMemento(buff, false);
 		}
+	}
+	public void getHandleMemento(StringBuffer buff) {
+		getHandleMemento(buff, true);
 	}
 	
 	protected char getHandleMementoDelimiter() {

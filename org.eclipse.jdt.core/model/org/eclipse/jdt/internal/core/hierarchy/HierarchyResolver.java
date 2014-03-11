@@ -618,10 +618,12 @@ public void resolve(IGenericType suppliedType) {
 			reportHierarchy(this.builder.getType(), null, binaryTypeBinding);
 		} else {
 			org.eclipse.jdt.core.ICompilationUnit cu = ((SourceTypeElementInfo)suppliedType).getHandle().getCompilationUnit();
-			HashSet localTypes = new HashSet();
-			localTypes.add(cu.getPath().toString());
-			this.superTypesOnly = true;
-			resolve(new Openable[] {(Openable)cu}, localTypes, null);
+			if (cu != null) {
+				HashSet localTypes = new HashSet();
+				localTypes.add(cu.getPath().toString());
+				this.superTypesOnly = true;
+				resolve(new Openable[] {(Openable)cu}, localTypes, null);
+			}
 		}
 	} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
 	} finally {
