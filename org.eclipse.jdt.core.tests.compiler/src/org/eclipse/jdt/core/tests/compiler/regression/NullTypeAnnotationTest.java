@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
+ *     IBM Corporation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -4341,5 +4342,37 @@ public void testBug429403() {
 		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Null type mismatch (type annotations): required \'List<@NonNull Person>\' but this expression has type \'ArrayList<@Nullable Person>\', corresponding supertype is \'List<@Nullable Person>\'\n" + 
 		"----------\n");
+}
+public void testBug430219() {
+    runNegativeTestWithLibs(
+        new String[] {
+            "X.java",
+            "import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+            "@NonNullByDefault\n" +
+            "public class X {\n" +
+            "       void foo(int @NonNull [] x) {}\n" +
+            "}\n"
+        },
+        "----------\n" +
+	   "1. ERROR in X.java (at line 4)\n" +
+		"	void foo(int @NonNull [] x) {}\n" +
+        "	              ^^^^^^^\n" +
+	   "NonNull cannot be resolved to a type\n" +
+	   "----------\n");
+}
+public void testBug430219a() {
+    runConformTestWithLibs(
+        new String[] {
+            "X.java",
+            "import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+            "import java.lang.annotation.*;\n" +
+            "@Target(ElementType.TYPE_USE) @interface Marker{}\n" +
+            "@NonNullByDefault\n" +
+            "public class X {\n" +
+            "       void foo(int @Marker[] x) {}\n" +
+            "}\n"
+        },
+        getCompilerOptions(),
+        "");
 }
 }

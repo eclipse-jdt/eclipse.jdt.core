@@ -968,6 +968,10 @@ public TypeBinding createAnnotatedType(TypeBinding type, AnnotationBinding[] new
 		AnnotationBinding[] filtered = new AnnotationBinding[newbies.length];
 		int count = 0;
 		for (int i = 0; i < newbies.length; i++) {
+			if (newbies[i] == null) {
+				filtered[count++] = null;
+				continue;
+			}
 			long tagBits = 0;
 			switch (newbies[i].type.id) {
 				case TypeIds.T_ConfiguredAnnotationNonNull  : tagBits = TagBits.AnnotationNonNull; break;
