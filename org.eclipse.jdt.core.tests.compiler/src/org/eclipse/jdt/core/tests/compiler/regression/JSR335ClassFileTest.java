@@ -2817,6 +2817,235 @@ public void test430015a() throws IOException, ClassFormatException {
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references 
+public void test430035() throws IOException, ClassFormatException {
+	this.runConformTest(
+			new String[] {
+						"X.java",
+						"interface I<T> {\n" +
+						"	void foo(String t, T u);\n" +
+						"}\n" +
+						"interface J<T> {\n" +
+						"	void foo(T t, String u);\n" +
+						"}\n" +
+						"interface K extends I<String>, J<String> {\n" +
+						"	void foo(String t, String u);\n" +
+						"}\n" +
+						"public class X {\n" +
+						"    public static void main(String... x) {\n" +
+						"      K k = (s, u) -> System.out.println(\"m(\"+ s + u + ')');\n" +
+						"      k.foo(\"direct\", \" call\");\n" +
+						"      J<String> j = k;\n" +
+						"      j.foo(\"bridge\",  \" method(j)\");\n" +
+						"      I<String> i = k;\n" +
+						"      i.foo(\"bridge\",  \" method(i)\");\n" +
+						"    }\n" +
+						"}\n"
+			},
+			"m(direct call)\n" + 
+			"m(bridge method(j))\n" + 
+			"m(bridge method(i))");
+		
+		String expectedOutput =
+						"// Compiled from X.java (version 1.8 : 52.0, super bit)\n" + 
+						"public class X {\n" + 
+						"  Constant pool:\n" + 
+						"    constant #1 class: #2 X\n" + 
+						"    constant #2 utf8: \"X\"\n" + 
+						"    constant #3 class: #4 java/lang/Object\n" + 
+						"    constant #4 utf8: \"java/lang/Object\"\n" + 
+						"    constant #5 utf8: \"<init>\"\n" + 
+						"    constant #6 utf8: \"()V\"\n" + 
+						"    constant #7 utf8: \"Code\"\n" + 
+						"    constant #8 method_ref: #3.#9 java/lang/Object.<init> ()V\n" + 
+						"    constant #9 name_and_type: #5.#6 <init> ()V\n" + 
+						"    constant #10 utf8: \"LineNumberTable\"\n" + 
+						"    constant #11 utf8: \"LocalVariableTable\"\n" + 
+						"    constant #12 utf8: \"this\"\n" + 
+						"    constant #13 utf8: \"LX;\"\n" + 
+						"    constant #14 utf8: \"main\"\n" + 
+						"    constant #15 utf8: \"([Ljava/lang/String;)V\"\n" + 
+						"    constant #16 name_and_type: #17.#18 foo ()LK;\n" + 
+						"    constant #17 utf8: \"foo\"\n" + 
+						"    constant #18 utf8: \"()LK;\"\n" + 
+						"    constant #19 invoke dynamic: #0 #16 foo ()LK;\n" + 
+						"    constant #20 string: #21 \"direct\"\n" + 
+						"    constant #21 utf8: \"direct\"\n" + 
+						"    constant #22 string: #23 \" call\"\n" + 
+						"    constant #23 utf8: \" call\"\n" + 
+						"    constant #24 interface_method_ref: #25.#27 K.foo (Ljava/lang/String;Ljava/lang/String;)V\n" + 
+						"    constant #25 class: #26 K\n" + 
+						"    constant #26 utf8: \"K\"\n" + 
+						"    constant #27 name_and_type: #17.#28 foo (Ljava/lang/String;Ljava/lang/String;)V\n" + 
+						"    constant #28 utf8: \"(Ljava/lang/String;Ljava/lang/String;)V\"\n" + 
+						"    constant #29 string: #30 \"bridge\"\n" + 
+						"    constant #30 utf8: \"bridge\"\n" + 
+						"    constant #31 string: #32 \" method(j)\"\n" + 
+						"    constant #32 utf8: \" method(j)\"\n" + 
+						"    constant #33 interface_method_ref: #34.#36 J.foo (Ljava/lang/Object;Ljava/lang/String;)V\n" + 
+						"    constant #34 class: #35 J\n" + 
+						"    constant #35 utf8: \"J\"\n" + 
+						"    constant #36 name_and_type: #17.#37 foo (Ljava/lang/Object;Ljava/lang/String;)V\n" + 
+						"    constant #37 utf8: \"(Ljava/lang/Object;Ljava/lang/String;)V\"\n" + 
+						"    constant #38 string: #39 \" method(i)\"\n" + 
+						"    constant #39 utf8: \" method(i)\"\n" + 
+						"    constant #40 interface_method_ref: #41.#43 I.foo (Ljava/lang/String;Ljava/lang/Object;)V\n" + 
+						"    constant #41 class: #42 I\n" + 
+						"    constant #42 utf8: \"I\"\n" + 
+						"    constant #43 name_and_type: #17.#44 foo (Ljava/lang/String;Ljava/lang/Object;)V\n" + 
+						"    constant #44 utf8: \"(Ljava/lang/String;Ljava/lang/Object;)V\"\n" + 
+						"    constant #45 utf8: \"x\"\n" + 
+						"    constant #46 utf8: \"[Ljava/lang/String;\"\n" + 
+						"    constant #47 utf8: \"k\"\n" + 
+						"    constant #48 utf8: \"LK;\"\n" + 
+						"    constant #49 utf8: \"j\"\n" + 
+						"    constant #50 utf8: \"LJ;\"\n" + 
+						"    constant #51 utf8: \"i\"\n" + 
+						"    constant #52 utf8: \"LI;\"\n" + 
+						"    constant #53 utf8: \"LocalVariableTypeTable\"\n" + 
+						"    constant #54 utf8: \"LJ<Ljava/lang/String;>;\"\n" + 
+						"    constant #55 utf8: \"LI<Ljava/lang/String;>;\"\n" + 
+						"    constant #56 utf8: \"lambda$0\"\n" + 
+						"    constant #57 field_ref: #58.#60 java/lang/System.out Ljava/io/PrintStream;\n" + 
+						"    constant #58 class: #59 java/lang/System\n" + 
+						"    constant #59 utf8: \"java/lang/System\"\n" + 
+						"    constant #60 name_and_type: #61.#62 out Ljava/io/PrintStream;\n" + 
+						"    constant #61 utf8: \"out\"\n" + 
+						"    constant #62 utf8: \"Ljava/io/PrintStream;\"\n" + 
+						"    constant #63 class: #64 java/lang/StringBuilder\n" + 
+						"    constant #64 utf8: \"java/lang/StringBuilder\"\n" + 
+						"    constant #65 string: #66 \"m(\"\n" + 
+						"    constant #66 utf8: \"m(\"\n" + 
+						"    constant #67 method_ref: #63.#68 java/lang/StringBuilder.<init> (Ljava/lang/String;)V\n" + 
+						"    constant #68 name_and_type: #5.#69 <init> (Ljava/lang/String;)V\n" + 
+						"    constant #69 utf8: \"(Ljava/lang/String;)V\"\n" + 
+						"    constant #70 method_ref: #63.#71 java/lang/StringBuilder.append (Ljava/lang/String;)Ljava/lang/StringBuilder;\n" + 
+						"    constant #71 name_and_type: #72.#73 append (Ljava/lang/String;)Ljava/lang/StringBuilder;\n" + 
+						"    constant #72 utf8: \"append\"\n" + 
+						"    constant #73 utf8: \"(Ljava/lang/String;)Ljava/lang/StringBuilder;\"\n" + 
+						"    constant #74 method_ref: #63.#75 java/lang/StringBuilder.append (C)Ljava/lang/StringBuilder;\n" + 
+						"    constant #75 name_and_type: #72.#76 append (C)Ljava/lang/StringBuilder;\n" + 
+						"    constant #76 utf8: \"(C)Ljava/lang/StringBuilder;\"\n" + 
+						"    constant #77 method_ref: #63.#78 java/lang/StringBuilder.toString ()Ljava/lang/String;\n" + 
+						"    constant #78 name_and_type: #79.#80 toString ()Ljava/lang/String;\n" + 
+						"    constant #79 utf8: \"toString\"\n" + 
+						"    constant #80 utf8: \"()Ljava/lang/String;\"\n" + 
+						"    constant #81 method_ref: #82.#84 java/io/PrintStream.println (Ljava/lang/String;)V\n" + 
+						"    constant #82 class: #83 java/io/PrintStream\n" + 
+						"    constant #83 utf8: \"java/io/PrintStream\"\n" + 
+						"    constant #84 name_and_type: #85.#69 println (Ljava/lang/String;)V\n" + 
+						"    constant #85 utf8: \"println\"\n" + 
+						"    constant #86 utf8: \"s\"\n" + 
+						"    constant #87 utf8: \"Ljava/lang/String;\"\n" + 
+						"    constant #88 utf8: \"u\"\n" + 
+						"    constant #89 utf8: \"SourceFile\"\n" + 
+						"    constant #90 utf8: \"X.java\"\n" + 
+						"    constant #91 utf8: \"BootstrapMethods\"\n" + 
+						"    constant #92 method_ref: #93.#95 java/lang/invoke/LambdaMetafactory.altMetafactory (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;\n" + 
+						"    constant #93 class: #94 java/lang/invoke/LambdaMetafactory\n" + 
+						"    constant #94 utf8: \"java/lang/invoke/LambdaMetafactory\"\n" + 
+						"    constant #95 name_and_type: #96.#97 altMetafactory (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;\n" + 
+						"    constant #96 utf8: \"altMetafactory\"\n" + 
+						"    constant #97 utf8: \"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;\"\n" + 
+						"    constant #98 method handle: invokestatic (6) #92 \n" + 
+						"    constant #99 method type: #28 (Ljava/lang/String;Ljava/lang/String;)V\n" + 
+						"    constant #100 method_ref: #1.#101 X.lambda$0 (Ljava/lang/String;Ljava/lang/String;)V\n" + 
+						"    constant #101 name_and_type: #56.#28 lambda$0 (Ljava/lang/String;Ljava/lang/String;)V\n" + 
+						"    constant #102 method handle: invokestatic (6) #100 \n" + 
+						"    constant #103 method type: #28 (Ljava/lang/String;Ljava/lang/String;)V\n" + 
+						"    constant #104 integer: 4\n" +  // flag bridge
+						"    constant #105 integer: 2\n" +  // two bridges
+						"    constant #106 method type: #44 (Ljava/lang/String;Ljava/lang/Object;)V\n" +  // first bridge
+						"    constant #107 method type: #37 (Ljava/lang/Object;Ljava/lang/String;)V\n" +  // next bridge.
+						"    constant #108 utf8: \"InnerClasses\"\n" + 
+						"    constant #109 class: #110 java/lang/invoke/MethodHandles$Lookup\n" + 
+						"    constant #110 utf8: \"java/lang/invoke/MethodHandles$Lookup\"\n" + 
+						"    constant #111 class: #112 java/lang/invoke/MethodHandles\n" + 
+						"    constant #112 utf8: \"java/lang/invoke/MethodHandles\"\n" + 
+						"    constant #113 utf8: \"Lookup\"\n" + 
+						"  \n" + 
+						"  // Method descriptor #6 ()V\n" + 
+						"  // Stack: 1, Locals: 1\n" + 
+						"  public X();\n" + 
+						"    0  aload_0 [this]\n" + 
+						"    1  invokespecial java.lang.Object() [8]\n" + 
+						"    4  return\n" + 
+						"      Line numbers:\n" + 
+						"        [pc: 0, line: 10]\n" + 
+						"      Local variable table:\n" + 
+						"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+						"  \n" + 
+						"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+						"  // Stack: 3, Locals: 4\n" + 
+						"  public static void main(java.lang.String... x);\n" + 
+						"     0  invokedynamic 0 foo() : K [19]\n" + 
+						"     5  astore_1 [k]\n" + 
+						"     6  aload_1 [k]\n" + 
+						"     7  ldc <String \"direct\"> [20]\n" + 
+						"     9  ldc <String \" call\"> [22]\n" + 
+						"    11  invokeinterface K.foo(java.lang.String, java.lang.String) : void [24] [nargs: 3]\n" + 
+						"    16  aload_1 [k]\n" + 
+						"    17  astore_2 [j]\n" + 
+						"    18  aload_2 [j]\n" + 
+						"    19  ldc <String \"bridge\"> [29]\n" + 
+						"    21  ldc <String \" method(j)\"> [31]\n" + 
+						"    23  invokeinterface J.foo(java.lang.Object, java.lang.String) : void [33] [nargs: 3]\n" + 
+						"    28  aload_1 [k]\n" + 
+						"    29  astore_3 [i]\n" + 
+						"    30  aload_3 [i]\n" + 
+						"    31  ldc <String \"bridge\"> [29]\n" + 
+						"    33  ldc <String \" method(i)\"> [38]\n" + 
+						"    35  invokeinterface I.foo(java.lang.String, java.lang.Object) : void [40] [nargs: 3]\n" + 
+						"    40  return\n" + 
+						"      Line numbers:\n" + 
+						"        [pc: 0, line: 12]\n" + 
+						"        [pc: 6, line: 13]\n" + 
+						"        [pc: 16, line: 14]\n" + 
+						"        [pc: 18, line: 15]\n" + 
+						"        [pc: 28, line: 16]\n" + 
+						"        [pc: 30, line: 17]\n" + 
+						"        [pc: 40, line: 18]\n" + 
+						"      Local variable table:\n" + 
+						"        [pc: 0, pc: 41] local: x index: 0 type: java.lang.String[]\n" + 
+						"        [pc: 6, pc: 41] local: k index: 1 type: K\n" + 
+						"        [pc: 18, pc: 41] local: j index: 2 type: J\n" + 
+						"        [pc: 30, pc: 41] local: i index: 3 type: I\n" + 
+						"      Local variable type table:\n" + 
+						"        [pc: 18, pc: 41] local: j index: 2 type: J<java.lang.String>\n" + 
+						"        [pc: 30, pc: 41] local: i index: 3 type: I<java.lang.String>\n" + 
+						"  \n" + 
+						"  // Method descriptor #28 (Ljava/lang/String;Ljava/lang/String;)V\n" + 
+						"  // Stack: 4, Locals: 2\n" + 
+						"  private static synthetic void lambda$0(java.lang.String s, java.lang.String u);\n" + 
+						"     0  getstatic java.lang.System.out : java.io.PrintStream [57]\n" + 
+						"     3  new java.lang.StringBuilder [63]\n" + 
+						"     6  dup\n" + 
+						"     7  ldc <String \"m(\"> [65]\n" + 
+						"     9  invokespecial java.lang.StringBuilder(java.lang.String) [67]\n" + 
+						"    12  aload_0 [s]\n" + 
+						"    13  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [70]\n" + 
+						"    16  aload_1 [u]\n" + 
+						"    17  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [70]\n" + 
+						"    20  bipush 41\n" + 
+						"    22  invokevirtual java.lang.StringBuilder.append(char) : java.lang.StringBuilder [74]\n" + 
+						"    25  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [77]\n" + 
+						"    28  invokevirtual java.io.PrintStream.println(java.lang.String) : void [81]\n" + 
+						"    31  return\n" + 
+						"      Line numbers:\n" + 
+						"        [pc: 0, line: 12]\n" + 
+						"      Local variable table:\n" + 
+						"        [pc: 0, pc: 32] local: s index: 0 type: java.lang.String\n" + 
+						"        [pc: 0, pc: 32] local: u index: 1 type: java.lang.String\n" + 
+						"\n" + 
+						"  Inner classes:\n" + 
+						"    [inner class info: #109 java/lang/invoke/MethodHandles$Lookup, outer class info: #111 java/lang/invoke/MethodHandles\n" + 
+						"     inner name: #113 Lookup, accessflags: 25 public static final]\n" + 
+						"Bootstrap methods:\n" + 
+						"  0 : # 98 arguments: {#99,#102,#103,#104,#105,#106,#107}\n" + 
+						"}";
+
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+}
 public static Class testClass() {
 	return JSR335ClassFileTest.class;
 }

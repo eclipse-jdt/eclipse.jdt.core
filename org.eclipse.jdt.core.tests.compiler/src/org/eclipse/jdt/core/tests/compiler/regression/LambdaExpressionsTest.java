@@ -3811,6 +3811,191 @@ public void test430043() {
 			},
 			"OK");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references 
+public void test430035() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.function.Consumer;\n" +
+				"public class X {\n" +
+				"    interface StringConsumer extends Consumer<String> {\n" +
+				"        void accept(String t);\n" +
+				"    }\n" +
+				"    public static void main(String... x) {\n" +
+				"      StringConsumer c = s->System.out.println(\"m(\"+s+')');\n" +
+				"      c.accept(\"direct call\");\n" +
+				"      Consumer<String> c4b=c;\n" +
+				"      c4b.accept(\"bridge method\");\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"m(direct call)\n" + 
+			"m(bridge method)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references 
+public void test430035a() { // test reference expressions requiring bridges.
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.function.Consumer;\n" +			
+				"public class X {\n" +
+				"    interface StringConsumer extends Consumer<String> {\n" +
+				"        void accept(String t);\n" +
+				"    }\n" +
+				"    static void m(String s) { System.out.println(\"m(\"+s+\")\"); } \n" +
+				"    public static void main(String... x) {\n" +
+				"      StringConsumer c = X::m;\n" +
+				"      c.accept(\"direct call\");\n" +
+				"      Consumer<String> c4b=c;\n" +
+				"      c4b.accept(\"bridge method\");\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"m(direct call)\n" + 
+			"m(bridge method)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references 
+public void test430035b() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I<T> {\n" +
+				"	void foo(T t);\n" +
+				"}\n" +
+				"interface J<T> {\n" +
+				"	void foo(T t);\n" +
+				"}\n" +
+				"interface K extends I<String>, J<String> {\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    public static void main(String... x) {\n" +
+				"      K k = s -> System.out.println(\"m(\"+s+')');\n" +
+				"      k.foo(\"direct call\");\n" +
+				"      J<String> j = k;\n" +
+				"      j.foo(\"bridge method\");\n" +
+				"      I<String> i = k;\n" +
+				"      i.foo(\"bridge method\");\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"m(direct call)\n" +
+			"m(bridge method)\n" +
+			"m(bridge method)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references 
+public void test430035c() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I<T> {\n" +
+				"	void foo(String t, T u);\n" +
+				"}\n" +
+				"interface J<T> {\n" +
+				"	void foo(T t, String u);\n" +
+				"}\n" +
+				"interface K extends I<String>, J<String> {\n" +
+				"	void foo(String t, String u);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    public static void main(String... x) {\n" +
+				"      K k = (s, u) -> System.out.println(\"m(\"+ s + u + ')');\n" +
+				"      k.foo(\"direct\", \" call\");\n" +
+				"      J<String> j = k;\n" +
+				"      j.foo(\"bridge\",  \" method(j)\");\n" +
+				"      I<String> i = k;\n" +
+				"      i.foo(\"bridge\",  \" method(i)\");\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"m(direct call)\n" + 
+			"m(bridge method(j))\n" + 
+			"m(bridge method(i))");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references 
+public void test430035d() { // 8b131 complains of ambiguity.
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I<T> {\n" +
+				"	void foo(String t, T u);\n" +
+				"}\n" +
+				"interface J<T> {\n" +
+				"	void foo(T t, String u);\n" +
+				"}\n" +
+				"interface K extends I<String>, J<String> {\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    public static void main(String... x) {\n" +
+				"      K k = (s, u) -> System.out.println(\"m(\"+ s + u + ')');\n" +
+				"      k.foo(\"direct\", \" call\");\n" +
+				"      J<String> j = k;\n" +
+				"      j.foo(\"bridge\",  \" method(j)\");\n" +
+				"      I<String> i = k;\n" +
+				"      i.foo(\"bridge\",  \" method(i)\");\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"m(direct call)\n" + 
+			"m(bridge method(j))\n" + 
+			"m(bridge method(i))");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references 
+public void test430035e() { // 8b131 complains of ambiguity in call.
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I<T> {\n" +
+				"	Object foo(String t, T u);\n" +
+				"}\n" +
+				"interface J<T> {\n" +
+				"	String foo(T t, String u);\n" +
+				"}\n" +
+				"interface K extends I<String>, J<String> {\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    public static void main(String... x) {\n" +
+				"      K k = (s, u) -> s + u;\n" +
+				"      System.out.println(k.foo(\"direct\", \" call\"));\n" +
+				"      J<String> j = k;\n" +
+				"      System.out.println(j.foo(\"bridge\",  \" method(j)\"));\n" +
+				"      I<String> i = k;\n" +
+				"      System.out.println(i.foo(\"bridge\",  \" method(i)\"));\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"direct call\n" + 
+			"bridge method(j)\n" + 
+			"bridge method(i)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references 
+public void test430035f() { // ensure co-variant return emits a bridge request.
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I<T> {\n" +
+				"	Object foo(String t, String u);\n" +
+				"}\n" +
+				"interface J<T> {\n" +
+				"	String foo(String t, String u);\n" +
+				"}\n" +
+				"interface K extends I<String>, J<String> {\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    public static void main(String... x) {\n" +
+				"      K k = (s, u) -> s + u;\n" +
+				"      System.out.println(k.foo(\"direct\", \" call\"));\n" +
+				"      J<String> j = k;\n" +
+				"      System.out.println(j.foo(\"bridge\",  \" method(j)\"));\n" +
+				"      I<String> i = k;\n" +
+				"      System.out.println(i.foo(\"bridge\",  \" method(i)\"));\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"direct call\n" + 
+			"bridge method(j)\n" + 
+			"bridge method(i)");
+}
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

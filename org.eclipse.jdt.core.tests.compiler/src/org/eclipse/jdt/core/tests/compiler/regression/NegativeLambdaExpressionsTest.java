@@ -1699,7 +1699,7 @@ public void test044() {
 			"5. ERROR in X.java (at line 11)\n" + 
 			"	D d              =    (p) -> { return null;};\n" + 
 			"	                      ^^^^^^\n" + 
-			"Illegal lambda expression: Method foo of type A is generic \n" + 
+			"Illegal lambda expression: Method foo of type B is generic \n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 12)\n" + 
 			"	E e              =    (p) -> { return null;};\n" + 
