@@ -188,9 +188,9 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 			if (!memento.hasMoreTokens() || memento.nextToken() != MementoTokenizer.COUNT) 
 				return this;
 			int arrowPosition = Integer.parseInt(memento.nextToken());
-			if (!memento.hasMoreTokens() || (token = memento.nextToken()) != MementoTokenizer.LAMBDA_METHOD) 
-				return this;
 			LambdaExpression expression = new LambdaExpression(this, name, interphase, sourceStart, sourceEnd, arrowPosition);
+			if (!memento.hasMoreTokens() || (token = memento.nextToken()) != MementoTokenizer.LAMBDA_METHOD) 
+				return expression;
 			return expression.getHandleFromMemento(token, memento, workingCopyOwner);
 		case JEM_TYPE:
 			String typeName;
