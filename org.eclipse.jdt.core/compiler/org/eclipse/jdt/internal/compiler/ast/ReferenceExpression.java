@@ -180,7 +180,9 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		return (this.binding.isVarargs() || 
 				(isConstructorReference() && this.receiverType.syntheticOuterLocalVariables() != null && currentScope.methodScope().isStatic) ||
 				this.expectedType instanceof IntersectionCastTypeBinding || // marker interfaces require alternate meta factory.
-				this.expectedType.findSuperTypeOriginatingFrom(currentScope.getJavaIoSerializable()) != null); // serialization support.
+				this.expectedType.findSuperTypeOriginatingFrom(currentScope.getJavaIoSerializable()) != null || // serialization support.
+				this.requiresBridges()); // bridges.
+		// To fix: We should opt for direct code generation wherever possible.
 	}
 	
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {

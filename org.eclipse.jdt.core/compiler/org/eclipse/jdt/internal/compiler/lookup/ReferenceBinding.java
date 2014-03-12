@@ -1956,7 +1956,8 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 	
 	final LookupEnvironment environment = scope.environment();
 	boolean genericMethodSeen = false;
-	next:for (int i = 0, length = methods.length; i < length; i++) {
+	int length = methods.length;
+	next:for (int i = length - 1; i >= 0; --i) {
 		MethodBinding method = methods[i], otherMethod = null;
 		if (method.typeVariables != Binding.NO_TYPE_VARIABLES)
 			genericMethodSeen = true;

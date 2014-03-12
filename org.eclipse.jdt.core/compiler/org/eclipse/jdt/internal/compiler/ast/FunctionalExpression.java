@@ -35,8 +35,11 @@ import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.IntersectionCastTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
@@ -164,6 +167,7 @@ public abstract class FunctionalExpression extends Expression {
 
 	public TypeBinding resolveType(BlockScope blockScope) {
 		this.constant = Constant.NotAConstant;
+		this.enclosingScope = blockScope;
 		MethodBinding sam = this.expectedType == null ? null : this.expectedType.getSingleAbstractMethod(blockScope, argumentsTypeElided());
 		if (sam == null) {
 			blockScope.problemReporter().targetTypeIsNotAFunctionalInterface(this);
@@ -277,5 +281,77 @@ public abstract class FunctionalExpression extends Expression {
 
 	public int diagnosticsSourceEnd() {
 		return this.sourceEnd;
+	}
+
+	public MethodBinding[] getRequiredBridges() {
+
+		class BridgeCollector {
+			
+			MethodBinding [] bridges;
+			MethodBinding method;
+			char [] selector;
+			LookupEnvironment environment;
+			Scope scope;
+
+			BridgeCollector(ReferenceBinding functionalType, MethodBinding method) {
+				this.method = method;
+				this.selector = method.selector;
+				this.environment = FunctionalExpression.this.enclosingScope.environment();
+				this.scope = FunctionalExpression.this.enclosingScope;
+				collectBridges(functionalType.superInterfaces());
+			}
+			
+			void collectBridges(ReferenceBinding[] interfaces) {
+				int length = interfaces == null ? 0 : interfaces.length;
+				for (int i = 0; i < length; i++) {
+					ReferenceBinding superInterface = interfaces[i];
+					if (superInterface == null) 
+						continue;
+					MethodBinding [] methods = superInterface.getMethods(this.selector);
+					for (int j = 0, count = methods == null ? 0 : methods.length; j < count; j++) {
+						MethodBinding inheritedMethod = methods[j];
+						if (inheritedMethod == null || this.method == inheritedMethod)  // descriptor declaring class may not be same functional interface target type.
+							continue;
+						if (inheritedMethod.isStatic() || inheritedMethod.isDefaultMethod() || inheritedMethod.redeclaresPublicObjectMethod(this.scope)) 
+							continue;
+						inheritedMethod = MethodVerifier.computeSubstituteMethod(inheritedMethod, this.method, this.environment);
+						if (inheritedMethod == null || !MethodVerifier.isSubstituteParameterSubsignature(this.method, inheritedMethod, this.environment) ||
+								   !MethodVerifier.areReturnTypesCompatible(this.method, inheritedMethod, this.environment))
+							continue;
+						final MethodBinding originalInherited = inheritedMethod.original();
+						if (!this.method.areParameterErasuresEqual(originalInherited) || TypeBinding.notEquals(this.method.returnType, originalInherited.returnType))
+							add(originalInherited);
+					}
+					collectBridges(superInterface.superInterfaces());
+				}
+			}
+			void add(MethodBinding inheritedMethod) {
+				if (this.bridges == null) {
+					this.bridges = new MethodBinding[] { inheritedMethod };
+					return;
+				}
+				int length = this.bridges.length;
+				for (int i = 0; i < length; i++) {
+					if (this.bridges[i].areParameterErasuresEqual(inheritedMethod) && TypeBinding.equalsEquals(this.bridges[i].returnType, inheritedMethod.returnType))
+						return;
+				}
+				System.arraycopy(this.bridges, 0, this.bridges = new MethodBinding[length + 1], 0, length);
+				this.bridges[length] = inheritedMethod;
+			}
+			MethodBinding [] getBridges () {
+				return this.bridges;
+			}
+		}
+		
+		ReferenceBinding functionalType;
+		if (this.expectedType instanceof IntersectionCastTypeBinding) {
+			functionalType = (ReferenceBinding) ((IntersectionCastTypeBinding)this.expectedType).getSAMType(this.enclosingScope);
+		} else {
+			functionalType = (ReferenceBinding) this.expectedType;
+		}
+		return new BridgeCollector(functionalType, this.descriptor).getBridges();
+	}
+	boolean requiresBridges() {
+		return getRequiredBridges() != null; 
 	}
 }
