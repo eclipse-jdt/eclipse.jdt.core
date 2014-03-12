@@ -599,7 +599,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			decodeModifiersForMethodParameters(buffer, accessFlags);
 			char [] parameterName = methodParametersAttribute.getParameterName(i);
 			if (parameterName == null)
-				parameterName = CharOperation.concat(Messages.disassembler_parametername.toCharArray(), Integer.toString(i).toCharArray());
+				parameterName = Messages.disassembler_anonymousparametername.toCharArray();
 			buffer.append(parameterName);
 		}
 	}
@@ -2447,7 +2447,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				if (i < parameterCount && parametersAttribute.getParameterName(i) != null) {
 					parameterNames[i] = parametersAttribute.getParameterName(i);
 				} else {
-					parameterNames[i] = CharOperation.concat(Messages.disassembler_parametername.toCharArray(), Integer.toString(i).toCharArray());
+					parameterNames[i] = Messages.disassembler_anonymousparametername.toCharArray();
 				}
 			}
 		} else if (codeAttribute != null) {

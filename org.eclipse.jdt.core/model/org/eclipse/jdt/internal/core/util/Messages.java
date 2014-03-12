@@ -244,6 +244,7 @@ public final class Messages extends NLS {
 	public static String disassembler_opentypedeclaration;
 	public static String disassembler_closetypedeclaration;
 	public static String disassembler_parametername;
+	public static String disassembler_anonymousparametername;
 	public static String disassembler_localvariablename;
 	public static String disassembler_endofmethodheader;
 	public static String disassembler_begincommentline;
