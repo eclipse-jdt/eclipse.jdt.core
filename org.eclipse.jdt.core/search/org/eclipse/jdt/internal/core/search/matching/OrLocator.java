@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -20,12 +24,14 @@ import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
+import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -107,6 +113,17 @@ public int match(FieldDeclaration node, MatchingNodeSet nodeSet) {
 	}
 	return level;
 }
+public int match(LambdaExpression node, MatchingNodeSet nodeSet) {
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
+		int newLevel = this.patternLocators[i].match(node, nodeSet);
+		if (newLevel > level) {
+			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
+			level = newLevel;
+		}
+	}
+	return level;
+}
 public int match(LocalDeclaration node, MatchingNodeSet nodeSet) {
 	int level = IMPOSSIBLE_MATCH;
 	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
@@ -152,6 +169,17 @@ public int match(MessageSend node, MatchingNodeSet nodeSet) {
 	return level;
 }
 public int match(Reference node, MatchingNodeSet nodeSet) {
+	int level = IMPOSSIBLE_MATCH;
+	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
+		int newLevel = this.patternLocators[i].match(node, nodeSet);
+		if (newLevel > level) {
+			if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
+			level = newLevel;
+		}
+	}
+	return level;
+}
+public int match(ReferenceExpression node, MatchingNodeSet nodeSet) {
 	int level = IMPOSSIBLE_MATCH;
 	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
 		int newLevel = this.patternLocators[i].match(node, nodeSet);

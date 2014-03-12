@@ -181,10 +181,6 @@ public class LambdaExpression extends SourceType {
 		this.elementInfo.children = new IJavaElement[] { this.lambdaMethod };
 		return this.lambdaMethod;
 	}
-	
-	public boolean isReadOnly() {
-		return true;
-	}
 
 	public IJavaElement[] getChildren() throws JavaModelException {
 		return new IJavaElement[] { this.lambdaMethod };
