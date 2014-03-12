@@ -2805,14 +2805,14 @@ public void test430015a() throws IOException, ClassFormatException {
 		String expectedOutput =
 				"  // Method descriptor #28 (I)V\n" + 
 				"  // Stack: 0, Locals: 1\n" + 
-				"  private static synthetic void lambda$0(int arg0);\n" + 
+				"  private static synthetic void lambda$0(int <anonymous>);\n" + 
 				"    0  return\n" + 
 				"      Line numbers:\n" + 
 				"        [pc: 0, line: 7]\n" + 
 				"      Local variable table:\n" + 
 				"        [pc: 0, pc: 1] local: i index: 0 type: int\n" + 
 				"      Method Parameters:\n" + 
-				"        synthetic arg0\n" + 
+				"        synthetic <anonymous>\n" + 
 				"\n";
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
