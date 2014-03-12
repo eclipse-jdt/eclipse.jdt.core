@@ -255,7 +255,7 @@ public void testBinaryMethodMemento4() throws JavaModelException {
 	IType type = getClassFile("/P/lib/p/X.class").getType();
 	IMethod method = type.getMethod("foo", new String[] {"Ljava.util.Collection<*>;"});
 	assertMemento(
-		"=P/lib<p(X.class[X~foo~Ljava.util.Collection\\<\\*\\>;",
+		"=P/lib<p(X.class[X~foo~Ljava.util.Collection\\<*>;",
 		method);
 }
 
@@ -386,7 +386,7 @@ public void testImportDeclarationMemento() {
 
 	importDecl = getCompilationUnit("/P/src/p/X.java").getImport("java.util.*");
 	assertMemento(
-		"=P/src<p{X.java#java.util.\\*",
+		"=P/src<p{X.java#java.util.*",
 		importDecl);
 }
 /*
@@ -702,7 +702,7 @@ public void testProjectMemento() {
 public void testProjectMemento2() {
 	IJavaProject project = getJavaProject("P (abc) ~");
 	assertMemento(
-		"=P \\(abc) \\~",
+		"=P \\(abc\\) \\~",
 		project);
 }
 /**

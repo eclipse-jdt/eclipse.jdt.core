@@ -144,14 +144,14 @@ public class LambdaMethod extends SourceMethod {
 		buff.append(this.parameterTypes.length);
 		for (int i = 0, length = this.parameterTypes.length; i < length; i++) {
 			buff.append(JEM_STRING);
-			buff.append(this.parameterTypes[i]);
+			escapeMementoName(buff, this.parameterTypes[i]);
 			buff.append(JEM_STRING);
-			buff.append(this.parameterNameStrings[i]);
+			escapeMementoName(buff, this.parameterNameStrings[i]);
 		}
 		buff.append(JEM_STRING);
-		buff.append(this.returnTypeString);
+		escapeMementoName(buff, this.returnTypeString);
 		buff.append(JEM_STRING);
-		buff.append(this.key);
+		escapeMementoName(buff, this.key);
 		ILocalVariable[] arguments = this.elementInfo.arguments;
 		for (int i = 0, length = arguments.length; i < length; i++) {
 			LocalVariable local = (LocalVariable) arguments[i];
