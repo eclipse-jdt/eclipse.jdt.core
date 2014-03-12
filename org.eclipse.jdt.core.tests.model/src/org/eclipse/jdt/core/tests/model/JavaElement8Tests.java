@@ -434,4 +434,68 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			}
 		}
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430141,  [1.8][hierarchy] Incorrect hierarchy with lambda elements missing
+	public void test430141() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Bug430141", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+			project.open(null);
+			String fileContent = 
+							"interface I {\n" +
+							"	void doit();\n" +
+							"}\n" +
+							"interface J extends I {\n" +
+							"}\n" +
+							"public class X {\n" +
+							"	public static void main(String[] args) {\n" +
+							"		J j  = () -> { System.out.println(\"Lambda\"); };\n" +
+							"		j.doit();\n" +
+							"	}\n" +
+							"}\n";
+			createFile(	"/Bug430141/src/X.java",	fileContent);
+			IType type = getCompilationUnit("/Bug430141/src/X.java").getType("I");
+			ITypeHierarchy h = type.newTypeHierarchy(null);
+			assertHierarchyEquals(
+							"Focus: I [in X.java [in <default> [in src [in Bug430141]]]]\n" + 
+							"Super types:\n" + 
+							"Sub types:\n" + 
+							"  J [in X.java [in <default> [in src [in Bug430141]]]]\n" + 
+							"    Lambda(J) [in main(String[]) [in X [in X.java [in <default> [in src [in Bug430141]]]]]]\n",
+					h);
+		}
+		finally {
+			deleteProject("Bug430141");
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430141,  [1.8][hierarchy] Incorrect hierarchy with lambda elements missing
+	public void test430141a() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Bug430141", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+			project.open(null);
+			String fileContent = 
+							"interface I {\n" +
+							"	void doit();\n" +
+							"}\n" +
+							"interface J extends I {\n" +
+							"}\n" +
+							"public class X {\n" +
+							"	public static void main(String[] args) {\n" +
+							"		J j  = () -> { System.out.println(\"Lambda\"); };\n" +
+							"		j.doit();\n" +
+							"	}\n" +
+							"}\n";
+			createFile(	"/Bug430141/src/X.java",	fileContent);
+			IType type = getCompilationUnit("/Bug430141/src/X.java").getType("J");
+			ITypeHierarchy h = type.newTypeHierarchy(null);
+			assertHierarchyEquals(
+					"Focus: J [in X.java [in <default> [in src [in Bug430141]]]]\n" + 
+							"Super types:\n" + 
+							"  I [in X.java [in <default> [in src [in Bug430141]]]]\n" + 
+							"Sub types:\n" + 
+							"  Lambda(J) [in main(String[]) [in X [in X.java [in <default> [in src [in Bug430141]]]]]]\n",
+					h);
+		}
+		finally {
+			deleteProject("Bug430141");
+		}
+	}	
 }
