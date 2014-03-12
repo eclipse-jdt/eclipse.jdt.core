@@ -36,11 +36,11 @@ public class LambdaExpression extends SourceType {
 	
 	// Construction from AST node
 	public LambdaExpression(JavaElement parent, org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression) {
-		super(parent, new String("Lambda(") + new String(lambdaExpression.descriptor.declaringClass.sourceName()) + ')'); //$NON-NLS-1$
+		super(parent, new String("Lambda(") + new String(lambdaExpression.resolvedType.sourceName()) + ')'); //$NON-NLS-1$
 		this.sourceStart = lambdaExpression.sourceStart;
 		this.sourceEnd = lambdaExpression.sourceEnd;
 		this.arrowPosition = lambdaExpression.arrowPosition;
-		this.interphase = new String(CharOperation.replaceOnCopy(lambdaExpression.descriptor.declaringClass.genericTypeSignature(), '/', '.'));
+		this.interphase = new String(CharOperation.replaceOnCopy(lambdaExpression.resolvedType.genericTypeSignature(), '/', '.'));
 		this.elementInfo = makeTypeElementInfo(this, this.interphase, this.sourceStart, this.sourceEnd, this.arrowPosition); 
 		this.lambdaMethod = LambdaMethod.make(this, lambdaExpression);
 		this.elementInfo.children = new IJavaElement[] { this.lambdaMethod };

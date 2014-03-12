@@ -176,15 +176,15 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 	private void reduceParseTree(CompilationUnitDeclaration unit) {
 		// remove statements from methods that have no functional interface types.
 		TypeDeclaration[] types = unit.types;
-		for (int i = 0, l = types.length; i < l; i++)
+		for (int i = 0, l = types == null ? 0 : types.length; i < l; i++)
 			purgeMethodStatements(types[i]);
 	}
 
 	private void purgeMethodStatements(TypeDeclaration type) {
 		AbstractMethodDeclaration[] methods = type.methods;
-		for (int j = 0, length = methods.length; j < length; j++) {
+		for (int j = 0, length = methods == null ? 0 : methods.length; j < length; j++) {
 			AbstractMethodDeclaration method = methods[j];
-			if ((method.bits & ASTNode.HasFunctionalInterfaceTypes) == 0) {
+			if (method != null && (method.bits & ASTNode.HasFunctionalInterfaceTypes) == 0) {
 				method.statements = null;
 				method.javadoc = null;
 			}
@@ -204,7 +204,7 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 				if (expression instanceof LambdaExpression) {
 					LambdaExpression lambdaExpression = (LambdaExpression) expression;
 					if (lambdaExpression.binding != null && lambdaExpression.binding.isValidBinding()) {
-						final char[] superinterface = lambdaExpression.descriptor.declaringClass.sourceName();
+						final char[] superinterface = lambdaExpression.resolvedType.sourceName();
 						if (DEBUG) {
 							System.out.println('\t' + new String(superinterface) + '.' + 
 									new String(lambdaExpression.descriptor.selector) + "-> {}"); //$NON-NLS-1$
@@ -230,7 +230,7 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 					MethodBinding binding = referenceExpression.getMethodBinding();
 					if (binding != null && binding.isValidBinding()) {
 						if (DEBUG) {
-							System.out.println('\t' + new String(referenceExpression.descriptor.declaringClass.sourceName()) + "::"  //$NON-NLS-1$
+							System.out.println('\t' + new String(referenceExpression.resolvedType.sourceName()) + "::"  //$NON-NLS-1$
 									+ new String(referenceExpression.descriptor.selector) + " == " + new String(binding.declaringClass.sourceName()) + '.' + //$NON-NLS-1$
 									new String(binding.selector));
 						}
