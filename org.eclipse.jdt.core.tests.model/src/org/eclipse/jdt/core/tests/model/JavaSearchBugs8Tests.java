@@ -36,6 +36,7 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+import org.eclipse.jdt.internal.core.search.matching.AndPattern;
 
 /**
  * Non-regression tests for bugs fixed in Java Search engine.
@@ -155,6 +156,10 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("test429738a"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug429836"));
 	suite.addTest(new JavaSearchBugs8Tests("test429934"));
+	suite.addTest(new JavaSearchBugs8Tests("test430159a"));
+	suite.addTest(new JavaSearchBugs8Tests("test430159b"));
+	suite.addTest(new JavaSearchBugs8Tests("test430159c"));
+	suite.addTest(new JavaSearchBugs8Tests("test430159d"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -3611,6 +3616,159 @@ public void test429934() throws CoreException {
 					"src/b400905/X.java void b400905.X.main(String[]) [Function] EXACT_MATCH\n" + 
 					"src/b400905/X.java void b400905.X.main(String[]) [Function] EXACT_MATCH\n" + 
 					"src/b400905/X.java void b400905.X.main(String[]) [Function] EXACT_MATCH");	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430159, [1.8][search] Lambda Expression not found when searching using OrPattern or AndPattern 
+public void test430159a() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429498/X.java",
+			"interface I {\n" +
+			"    public void doit(int xyz);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	I i = (int xyz) -> {};\n" +
+			"}\n"
+	);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "doit";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	SearchPattern leftPattern = SearchPattern.createPattern(elements[0], ALL_OCCURRENCES, ERASURE_RULE);
+	
+	selection = "xyz";
+	start = str.lastIndexOf(selection);
+	length = selection.length();
+
+	elements = this.workingCopies[0].codeSelect(start, length);
+	SearchPattern rightPattern = SearchPattern.createPattern(elements[0].getParent(), ALL_OCCURRENCES, ERASURE_RULE); // mimic https://bugs.eclipse.org/bugs/show_bug.cgi?id=429498#c6
+
+	SearchPattern pattern = SearchPattern.createOrPattern(leftPattern, rightPattern);
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(
+		"src/b429498/X.java void b429498.I.doit(int) [doit] EXACT_MATCH\n" + 
+		"src/b429498/X.java void b429498.X.i:Lambda(I).doit(int) [(int xyz) ->] EXACT_MATCH"
+	);	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430159, [1.8][search] Lambda Expression not found when searching using OrPattern or AndPattern 
+public void test430159b() throws CoreException {	// this test basically checks that and pattern locator does not a lambda from being found.
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429498/X.java",
+			"interface I {\n" +
+			"    public void doit();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	I i = () -> {};\n" +
+			"}\n"
+	);
+	
+	String str = this.workingCopies[0].getSource();
+	String selection = "doit";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	SearchPattern leftPattern = SearchPattern.createPattern(elements[0], ALL_OCCURRENCES, ERASURE_RULE);
+	
+	selection = "->";
+	start = str.indexOf(selection);
+	length = selection.length();
+
+	elements = this.workingCopies[0].codeSelect(start, length);
+	SearchPattern rightPattern = SearchPattern.createPattern(elements[0], ALL_OCCURRENCES, ERASURE_RULE);
+
+	SearchPattern pattern = new AndPattern(leftPattern, rightPattern);
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(
+		"src/b429498/X.java void b429498.I.doit() [doit] EXACT_MATCH\n" + 
+		"src/b429498/X.java void b429498.X.i:Lambda(I).doit() [() ->] EXACT_MATCH"
+	);	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430159, [1.8][search] Lambda Expression not found when searching using OrPattern or AndPattern 
+public void test430159c() throws CoreException {	
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429498/X.java",
+			"interface I {\n" +
+			"	public void doit();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"   static void foo() {}\n" +
+			"   static void foo(int i) {}\n" +
+			"	I i = X :: foo;\n" +
+			"}\n"
+	);
+	String str = this.workingCopies[0].getSource();
+	String selection = "foo";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	SearchPattern leftPattern = SearchPattern.createPattern(elements[0], ALL_OCCURRENCES, ERASURE_RULE);
+	
+	selection = "::";
+	start = str.indexOf(selection);
+	length = selection.length();
+
+	elements = this.workingCopies[0].codeSelect(start, length);
+	SearchPattern rightPattern = SearchPattern.createPattern(elements[0], ALL_OCCURRENCES, ERASURE_RULE);
+
+	SearchPattern pattern = SearchPattern.createOrPattern(leftPattern, rightPattern);
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(
+		"src/b429498/X.java void b429498.I.doit() [doit] EXACT_MATCH\n" + 
+		"src/b429498/X.java b429498.X.i [X :: foo] EXACT_MATCH\n" + 
+		"src/b429498/X.java void b429498.X.foo() [foo] EXACT_MATCH"
+	);	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430159, [1.8][search] Lambda Expression not found when searching using OrPattern or AndPattern 
+public void test430159d() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429498/X.java",
+			"interface I {\n" +
+			"	public void doit();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"   static void foo() {}\n" +
+			"   static void foo(int i) {}\n" +
+			"	I i = X :: foo;\n" +
+			"}\n"
+	);
+	String str = this.workingCopies[0].getSource();
+	String selection = "foo";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	SearchPattern leftPattern = SearchPattern.createPattern(elements[0], ALL_OCCURRENCES, ERASURE_RULE);
+	
+	selection = "::";
+	start = str.indexOf(selection);
+	length = selection.length();
+
+	elements = this.workingCopies[0].codeSelect(start, length);
+	SearchPattern rightPattern = SearchPattern.createPattern(elements[0], ALL_OCCURRENCES, ERASURE_RULE);
+
+	SearchPattern pattern = new AndPattern(leftPattern, rightPattern);
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(""
+	);
 }
 // Add new tests in JavaSearchBugs8Tests
 }
