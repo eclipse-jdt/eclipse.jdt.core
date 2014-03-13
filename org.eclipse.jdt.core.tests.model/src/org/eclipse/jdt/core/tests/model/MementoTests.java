@@ -698,7 +698,7 @@ public void testProjectMemento() {
 public void testProjectMemento2() {
 	IJavaProject project = getJavaProject("P (abc) ~");
 	assertMemento(
-		"=P \\(abc\\) \\~",
+		"=P \\(abc) \\~",
 		project);
 }
 /**
