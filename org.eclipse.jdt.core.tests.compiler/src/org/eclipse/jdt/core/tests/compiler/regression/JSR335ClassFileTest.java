@@ -2758,7 +2758,7 @@ public void test430015() throws IOException, ClassFormatException {
 				"        Method[] methods = X.class.getDeclaredMethods();\n" +
 				"        for (Method method : methods) {\n" +
 				"        	if (method.getName().contains(\"lambda\")) {\n" +
-				"         		Parameter[] parameters = methods[2].getParameters();\n" +
+				"         		Parameter[] parameters = method.getParameters();\n" +
 				"        		System.out.println(Arrays.asList(parameters));\n" +
 				"        	}\n" +
 				"        }\n" +
