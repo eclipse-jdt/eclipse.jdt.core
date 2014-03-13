@@ -3991,6 +3991,28 @@ public void test430035f() { // ensure co-variant return emits a bridge request.
 			"bridge method(j)\n" + 
 			"bridge method(i)");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430241,  [1.8][compiler] Raw return type results in incorrect covariant return bridge request to LambdaMetaFactory
+public void test430241() { // ensure raw return type variant does not emit a bridge request.
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface K extends I, J {\n" +
+				"}\n" +
+				"interface I {\n" +
+				"    Comparable<Integer> foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"    Comparable foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		K k = () -> null;\n" +
+				"		System.out.println(k.foo());\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"null");
+}
 
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
