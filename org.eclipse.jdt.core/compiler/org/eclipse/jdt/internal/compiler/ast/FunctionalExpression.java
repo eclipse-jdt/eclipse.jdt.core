@@ -323,7 +323,7 @@ public abstract class FunctionalExpression extends Expression {
 								   !MethodVerifier.areReturnTypesCompatible(this.method, inheritedMethod, this.environment))
 							continue;
 						final MethodBinding originalInherited = inheritedMethod.original();
-						if (!this.method.areParameterErasuresEqual(originalInherited) || TypeBinding.notEquals(this.method.returnType, originalInherited.returnType))
+						if (!this.method.areParameterErasuresEqual(originalInherited) || TypeBinding.notEquals(this.method.returnType.erasure(), originalInherited.returnType.erasure()))
 							add(originalInherited);
 					}
 					collectBridges(superInterface.superInterfaces());
@@ -336,7 +336,7 @@ public abstract class FunctionalExpression extends Expression {
 				}
 				int length = this.bridges.length;
 				for (int i = 0; i < length; i++) {
-					if (this.bridges[i].areParameterErasuresEqual(inheritedMethod) && TypeBinding.equalsEquals(this.bridges[i].returnType, inheritedMethod.returnType))
+					if (this.bridges[i].areParameterErasuresEqual(inheritedMethod) && TypeBinding.equalsEquals(this.bridges[i].returnType.erasure(), inheritedMethod.returnType.erasure()))
 						return;
 				}
 				System.arraycopy(this.bridges, 0, this.bridges = new MethodBinding[length + 1], 0, length);
