@@ -497,5 +497,36 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		finally {
 			deleteProject("Bug430141");
 		}
-	}	
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430136
+	public void test430136() throws CoreException {
+		String projectName = "([Bug430136])";
+		try {
+			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+			project.open(null);
+			String fileContent = 
+					"interface MyFunction<T, R> {\n" +
+					"    R apply(T t);\n" +
+					"    default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {\n" +
+					"        return v -> apply(before.apply(v));\n" +
+					"    }\n" +
+					"}\n";
+			String fileName = "/" + projectName + "/src/X.java";
+			createFile(fileName, fileContent);
+			
+			ICompilationUnit unit = getCompilationUnit(fileName);
+			int start = fileContent.indexOf("v");
+			IJavaElement[] elements = unit.codeSelect(start, 1);
+			assertEquals("Incorrect java element", IJavaElement.LOCAL_VARIABLE, elements[0].getElementType());
+			IType lambda = (IType) elements[0].getParent().getParent();
+			String mem = lambda.getHandleIdentifier();
+			String expected = "=\\(\\[Bug430136\\]\\)/src<{X.java[MyFunction~compose~QMyFunction\\<-QV;+QT;>;=)Lambda\\(MyFunction\\)=\"LMyFunction\\<TV;TR;>;!148!174!151";
+			assertEquals("Incorrect memento", expected, mem);
+			IJavaElement result = JavaCore.create(expected);
+			assertEquals("Incorrect element created", lambda, result);
+		}
+		finally {
+			deleteProject(projectName);
+		}
+	}
 }

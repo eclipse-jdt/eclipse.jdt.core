@@ -137,9 +137,9 @@ public class LambdaExpression extends SourceType {
 	protected void getHandleMemento(StringBuffer buff, boolean memoizeParent) {
 		if (memoizeParent) 
 			((JavaElement)getParent()).getHandleMemento(buff);
-		buff.append(getHandleMementoDelimiter());
+		appendEscapedDelimiter(buff, getHandleMementoDelimiter());
 		escapeMementoName(buff, this.name);
-		buff.append(JEM_STRING);
+		appendEscapedDelimiter(buff, JEM_STRING);
 		escapeMementoName(buff, this.interphase);
 		buff.append(JEM_COUNT);
 		buff.append(this.sourceStart);

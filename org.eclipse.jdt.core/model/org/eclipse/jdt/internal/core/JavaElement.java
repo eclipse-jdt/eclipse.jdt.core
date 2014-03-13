@@ -73,6 +73,22 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public static final char JEM_LAMBDA_METHOD = '&';
 	public static final char JEM_STRING = '"';
 	
+	/**
+	 * Before ')', '&' and '"' became the newest additions as delimiters, the former two
+	 * were allowed as part of element attributes and possibly stored. Trying to recreate 
+	 * elements from such memento would cause undesirable results. Consider the following 
+	 * valid project name: (abc)
+	 * If we were to use ')' alone as the delimiter and decode the above name, the memento
+	 * would be wrongly identified to contain a lambda expression.  
+	 *
+	 * In order to differentiate delimiters from characters that are part of element attributes, 
+	 * the following escape character is being introduced and all the new delimiters must 
+	 * be escaped with this. So, a lambda expression would be written as: "=)..."
+	 * 
+	 * @see JavaElement#appendEscapedDelimiter(StringBuffer, char)
+	 */
+	public static final char JEM_DELIMITER_ESCAPE = JEM_JAVAPROJECT;
+	
 
 	/**
 	 * This element's parent, or <code>null</code> if this
@@ -133,6 +149,16 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		return getElementName().equals(other.getElementName()) &&
 				this.parent.equals(other.parent);
 	}
+	/**
+	 * @see #JEM_DELIMITER_ESCAPE
+	 */
+	protected void appendEscapedDelimiter(StringBuffer buffer, char delimiter) {
+		buffer.append(JEM_DELIMITER_ESCAPE);
+		buffer.append(delimiter);
+	}
+	/*
+	 * Do not add new delimiters here
+	 */
 	protected void escapeMementoName(StringBuffer buffer, String mementoName) {
 		for (int i = 0, length = mementoName.length(); i < length; i++) {
 			char character = mementoName.charAt(i);
@@ -153,9 +179,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 				case JEM_LOCALVARIABLE:
 				case JEM_TYPE_PARAMETER:
 				case JEM_ANNOTATION:
-				case JEM_LAMBDA_EXPRESSION:
-				case JEM_LAMBDA_METHOD:
-				case JEM_STRING:
 					buffer.append(JEM_ESCAPE);
 			}
 			buffer.append(character);
