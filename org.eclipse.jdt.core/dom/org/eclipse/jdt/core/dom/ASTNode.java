@@ -860,7 +860,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>NameQualifiedType</code>.
 	 * @see NameQualifiedType
-	 * @since 3.9 BETA_JAV8
+	 * @since 3.10
 	 */
 	public static final int NAME_QUALIFIED_TYPE = 88;
 
@@ -868,7 +868,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>CreationReference</code>.
 	 * @see CreationReference
-	 * @since 3.9 BETA_JAV8
+	 * @since 3.10
 	 */
 	public static final int CREATION_REFERENCE = 89;
 
@@ -876,7 +876,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>ExpressionMethodReference</code>.
 	 * @see ExpressionMethodReference
-	 * @since 3.9 BETA_JAV8
+	 * @since 3.10
 	 */
 	public static final int EXPRESSION_METHOD_REFERENCE = 90;
 
@@ -884,7 +884,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>SuperMethhodReference</code>.
 	 * @see SuperMethodReference
-	 * @since 3.9 BETA_JAV8
+	 * @since 3.10
 	 */
 	public static final int SUPER_METHOD_REFERENCE = 91;
 
@@ -892,7 +892,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>TypeMethodReference</code>.
 	 * @see TypeMethodReference
-	 * @since 3.9 BETA_JAV8
+	 * @since 3.10
 	 */
 	public static final int TYPE_METHOD_REFERENCE = 92;
 
