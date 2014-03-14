@@ -127,11 +127,13 @@ public class LambdaExpression extends SourceType {
 	 * @see JavaElement#getHandleMemento(StringBuffer)
 	 */
 	protected void getHandleMemento(StringBuffer buff) {
-		getHandleMemento(buff, true);
+		getHandleMemento(buff, true, true);
+		// lambda method and lambda expression cannot share the same memento - add a trailing discriminator.
+		appendEscapedDelimiter(buff, getHandleMementoDelimiter());
 	}
 	
-	protected void getHandleMemento(StringBuffer buff, boolean memoizeParent) {
-		if (memoizeParent) 
+	protected void getHandleMemento(StringBuffer buff, boolean serializeParent, boolean serializeChild) {
+		if (serializeParent) 
 			((JavaElement)getParent()).getHandleMemento(buff);
 		appendEscapedDelimiter(buff, getHandleMementoDelimiter());
 		escapeMementoName(buff, this.name);
@@ -143,6 +145,8 @@ public class LambdaExpression extends SourceType {
 		buff.append(this.sourceEnd);
 		buff.append(JEM_COUNT);
 		buff.append(this.arrowPosition);
+		if (serializeChild)
+			this.lambdaMethod.getHandleMemento(buff, false);
 	}
 	
 	public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner workingCopyOwner) {
@@ -175,7 +179,17 @@ public class LambdaExpression extends SourceType {
 		}
 		this.lambdaMethod.elementInfo.arguments  = parameters;
 		this.elementInfo.children = new IJavaElement[] { this.lambdaMethod };
-		return this.lambdaMethod;
+		if (!memento.hasMoreTokens())
+			return this.lambdaMethod;
+		switch (memento.nextToken().charAt(0)) {
+			case JEM_LAMBDA_METHOD:
+				if (!memento.hasMoreTokens())
+					return this.lambdaMethod;
+				return this.lambdaMethod.getHandleFromMemento(memento, workingCopyOwner);
+			case JEM_LAMBDA_EXPRESSION:
+			default:
+				return this;	
+		}
 	}
 
 	public IJavaElement[] getChildren() throws JavaModelException {
@@ -205,8 +219,7 @@ public class LambdaExpression extends SourceType {
 		if (primaryParent instanceof JavaElement) {
 			JavaElement ancestor = (JavaElement) primaryParent;
 			StringBuffer buffer = new StringBuffer(32);
-			getHandleMemento(buffer, false);
-			this.lambdaMethod.getHandleMemento(buffer, false);
+			getHandleMemento(buffer, false, true);
 			String memento = buffer.toString();
 			return ancestor.getHandleFromMemento(new MementoTokenizer(memento), DefaultWorkingCopyOwner.PRIMARY).getParent();
 		}
