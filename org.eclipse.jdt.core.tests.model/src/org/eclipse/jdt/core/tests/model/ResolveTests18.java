@@ -21,11 +21,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICodeAssist;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.core.LambdaExpression;
+import org.eclipse.jdt.internal.core.LambdaMethod;
 
 public class ResolveTests18 extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;
@@ -2424,14 +2426,14 @@ public void test430136() throws CoreException {
 	IMethod lambda = (IMethod) elements[0].getParent();
 	String memento = lambda.getHandleIdentifier();
 	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Lambda\\(Getter)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true", 
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Lambda\\(Getter)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=&", 
 			memento);
 	IJavaElement result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", lambda, result);
 	LambdaExpression expression = (LambdaExpression) lambda.getParent();
 	memento = expression.getHandleIdentifier();
 	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Lambda\\(Getter)=\"LGetter\\<TU;>;!144!161!152", 
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Lambda\\(Getter)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=)", 
 			memento);
 	result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", expression, result);
@@ -2441,16 +2443,137 @@ public void test430136() throws CoreException {
 	lambda = (IMethod) elements[0].getParent();
 	memento = lambda.getHandleIdentifier();
 	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Lambda\\(Getter)=\"LGetter\\<TU;>;!180!197!188=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!181!181!181!181!Ljava\\/util\\/List;!0!true@i!184!184!184!184!I!0!true", 
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Lambda\\(Getter)=\"LGetter\\<TU;>;!180!197!188=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!181!181!181!181!Ljava\\/util\\/List;!0!true@i!184!184!184!184!I!0!true=&", 
 			memento);
 	result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", lambda, result);
 	expression = (LambdaExpression) lambda.getParent();
 	memento = expression.getHandleIdentifier();
 	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Lambda\\(Getter)=\"LGetter\\<TU;>;!180!197!188", 
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Lambda\\(Getter)=\"LGetter\\<TU;>;!180!197!188=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!181!181!181!181!Ljava\\/util\\/List;!0!true@i!184!184!184!184!I!0!true=)", 
 			memento);
 	result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", expression, result);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430307,  [1.8][model] NPE trying to get children of a LambdaExpression restored from handleIdentifier 
+public void test430307() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Resolve/src/X.java",
+			"import java.util.List;\n" +
+			"interface Getter<E> {\n" +
+			"    E get(List<E> list, int i);\n" +
+			"}\n" +
+			"public class X<U> {\n" +
+			"	public void foo(List<U> l) {\n" +
+			"		Getter<U> g= (x, i) -> x.get(i);\n" +
+			"	} \n" +
+			"}\n"
+			);
+	
+	String str = this.workingCopies[0].getSource();
+	
+	String selection = "x,";
+	int start = str.indexOf(selection);
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, 1);
+	ILocalVariable local = (ILocalVariable) elements[0];
+	String memento = local.getHandleIdentifier();
+	assertEquals("Incorrect memento string", 
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Lambda\\(Getter)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=&@x!145!145!145!145!Ljava.util.List\\<LU;>;!0!true", 
+			memento);
+	IJavaElement result = JavaCore.create(memento);
+	assertEquals("Java elements should be equal", local, result);
+
+	IJavaElement parentMethod = result.getParent();
+	IJavaElement parentExpr = parentMethod.getParent();
+	IMethod lambda = (IMethod) elements[0].getParent();
+	memento = lambda.getHandleIdentifier();
+	assertEquals("Incorrect memento string", 
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Lambda\\(Getter)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=&", 
+			memento);
+	result = JavaCore.create(memento);
+	assertEquals("Java elements should be equal", lambda, result);
+	assertEquals("Java elements should be equal", result, parentMethod);
+	LambdaExpression expression = (LambdaExpression) lambda.getParent();
+	memento = expression.getHandleIdentifier();
+	assertEquals("Incorrect memento string", 
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Lambda\\(Getter)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=)", 
+			memento);
+	LambdaExpression recreatedType = (LambdaExpression) JavaCore.create(memento);
+	assertEquals("Java elements should be equal", expression, recreatedType);
+	assertEquals("Java elements should be equal", recreatedType, parentExpr);
+	LambdaMethod child = (LambdaMethod) recreatedType.getChildren()[0];
+	assertEquals("Java elements should be equal", lambda, child);
+}
+public void test430307a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Resolve/src/X.java",
+			"interface I {\n" +
+			"    I doit(I xyz);\n" +
+			"}\n" +
+			"public class X { \n" +
+			"	public static void main(String[] args) {\n" +
+			"		I i = (pqr) -> {\n" +
+			"			return (xyz) -> {\n" +
+			"				return (abc) -> abc; \n" +
+			"			};\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n");
+	String str = this.workingCopies[0].getSource();
+	
+	String selection = "abc)";
+	int start = str.indexOf(selection);
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, 3);
+	ILocalVariable local = (ILocalVariable) elements[0];
+	String memento = local.getHandleIdentifier();
+		assertEquals(
+				"Incorrect memento string",
+				"=Resolve/src<{X.java[X~main~\\[QString;=)Lambda\\(I)=\"LI;!103!169!110=&doit!1=\"LI;=\"pqr=\"LI;=\"LX\\~I;.doit\\(LI;)"
+				+ "LI;@pqr!104!106!104!106!LI;!0!true=&=)Lambda\\(I)=\"LI;!124!164!131=&doit!1=\"LI;=\"xyz=\"LI;=\"LX\\~I;.doit\\(LI;)"
+				+ "LI;@xyz!125!127!125!127!LI;!0!true=&=)Lambda\\(I)=\"LI;!146!157!153=&doit!1=\"LI;=\"abc=\"LI;=\"LX\\~I;.doit\\(LI;)"
+				+ "LI;@abc!147!149!147!149!LI;!0!true=&@abc!147!149!147!149!LI;!0!true",
+				memento);
+	IJavaElement result = JavaCore.create(memento);
+	assertEquals("Java elements should be equal", local, result);
+
+	IJavaElement parentMethod = result.getParent();
+	IJavaElement parentExpr = parentMethod.getParent();
+	assertEquals("Java elements should be equal", parentMethod, local.getParent());
+	assertEquals("Java elements should be equal", parentExpr, local.getParent().getParent());
+	
+	selection = "xyz)";
+	start = str.lastIndexOf(selection);
+	elements = this.workingCopies[0].codeSelect(start, 3);
+	local = (ILocalVariable) elements[0];
+	memento = local.getHandleIdentifier();
+	assertEquals("Incorrect memento string", 
+			"=Resolve/src<{X.java[X~main~\\[QString;=)Lambda\\(I)=\"LI;!103!169!110=&doit!1=\"LI;=\"pqr=\"LI;=\"LX\\~I;.doit\\(LI;)"
+			+ "LI;@pqr!104!106!104!106!LI;!0!true=&=)Lambda\\(I)=\"LI;!124!164!131=&doit!1=\"LI;=\"xyz=\"LI;=\"LX\\~I;.doit\\(LI;)"
+			+ "LI;@xyz!125!127!125!127!LI;!0!true=&@xyz!125!127!125!127!LI;!0!true", 
+			memento);
+	result = JavaCore.create(memento);
+	assertEquals("Java elements should be equal", local, result);
+
+	parentMethod = result.getParent();
+	parentExpr = parentMethod.getParent();
+	assertEquals("Java elements should be equal", parentMethod, local.getParent());
+	assertEquals("Java elements should be equal", parentExpr, local.getParent().getParent());
+	
+	selection = "pqr)";
+	start = str.indexOf(selection);
+	elements = this.workingCopies[0].codeSelect(start, 3);
+	local = (ILocalVariable) elements[0];
+	memento = local.getHandleIdentifier();
+	assertEquals("Incorrect memento string", 
+			"=Resolve/src<{X.java[X~main~\\[QString;=)Lambda\\(I)=\"LI;!103!169!110=&doit!1=\"LI;=\"pqr=\"LI;=\"LX\\~I;.doit\\(LI;)"
+			+ "LI;@pqr!104!106!104!106!LI;!0!true=&@pqr!104!106!104!106!LI;!0!true", 
+			memento);
+	result = JavaCore.create(memento);
+	assertEquals("Java elements should be equal", local, result);
+
+	parentMethod = result.getParent();
+	parentExpr = parentMethod.getParent();
+	assertEquals("Java elements should be equal", parentMethod, local.getParent());
+	assertEquals("Java elements should be equal", parentExpr, local.getParent().getParent());
 }
 }

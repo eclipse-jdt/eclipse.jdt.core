@@ -520,7 +520,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			assertEquals("Incorrect java element", IJavaElement.LOCAL_VARIABLE, elements[0].getElementType());
 			IType lambda = (IType) elements[0].getParent().getParent();
 			String mem = lambda.getHandleIdentifier();
-			String expected = "=\\(\\[Bug430136\\]\\)/src<{X.java[MyFunction~compose~QMyFunction\\<-QV;+QT;>;=)Lambda\\(MyFunction\\)=\"LMyFunction\\<TV;TR;>;!148!174!151";
+			String expected = "=\\(\\[Bug430136\\])/src<{X.java[MyFunction~compose~QMyFunction\\<-QV;+QT;>;=)Lambda\\(MyFunction)=\"LMyFunction\\<TV;TR;>;!148!174!151=&apply!1=\"TV;=\"v=\"TR;=\"LX\\~MyFunction\\<LX\\~MyFunction;:1TV;LX\\~MyFunction;:TR;>;.apply\\(TV;)TR;@v!148!148!148!148!Ljava\\/lang\\/Object;!0!true=)";
 			assertEquals("Incorrect memento", expected, mem);
 			IJavaElement result = JavaCore.create(expected);
 			assertEquals("Incorrect element created", lambda, result);
