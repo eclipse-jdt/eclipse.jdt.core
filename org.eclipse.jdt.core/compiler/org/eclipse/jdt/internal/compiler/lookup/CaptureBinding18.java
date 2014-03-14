@@ -120,13 +120,20 @@ public class CaptureBinding18 extends CaptureBinding {
 	}
 
 	public boolean isCompatibleWith(TypeBinding otherType, Scope captureScope) {
-		if (this.upperBounds != null) {
-			for (int i = 0; i < this.upperBounds.length; i++) {
-				if (this.upperBounds[i].isCompatibleWith(otherType, captureScope))
-					return true;
+		if (this.inRecursiveFunction)
+			return true;
+		this.inRecursiveFunction = true; 
+		try {
+			if (this.upperBounds != null) {
+				for (int i = 0; i < this.upperBounds.length; i++) {
+					if (this.upperBounds[i].isCompatibleWith(otherType, captureScope))
+						return true;
+				}
 			}
+			return super.isCompatibleWith(otherType, captureScope);
+		} finally {
+			this.inRecursiveFunction = false;
 		}
-		return super.isCompatibleWith(otherType, captureScope);
 	}
 
 	public TypeBinding findSuperTypeOriginatingFrom(TypeBinding otherType) {

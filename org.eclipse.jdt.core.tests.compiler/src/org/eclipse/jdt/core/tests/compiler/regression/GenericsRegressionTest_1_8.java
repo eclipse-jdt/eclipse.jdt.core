@@ -2864,4 +2864,40 @@ public void testBug429203() {
 		"----------\n",
 		null, true, customOptions);
 }
+public void testBug430296() {
+	runNegativeTest(
+		new String[] {
+			"AnnotationCollector.java",
+			"import java.lang.annotation.*;\n" + 
+			"import java.util.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"import java.util.stream.*;\n" + 
+			"\n" + 
+			"public abstract class AnnotationCollector {\n" + 
+			"        \n" + 
+			"        Map<String, Person> test2(Stream<Person> persons) {\n" + 
+			"                return persons.collect(Collectors.toMap((Person p) -> p.getLastName(),\n" + 
+			"                                                                Function::identity,\n" + 
+			"                                                        (p1, p2) -> p1));\n" + 
+			"        }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Person {\n" + 
+			"        String getLastName() { return \"\"; }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in AnnotationCollector.java (at line 9)\n" + 
+		"	return persons.collect(Collectors.toMap((Person p) -> p.getLastName(),\n" + 
+		"                                                                Function::identity,\n" + 
+		"                                                        (p1, p2) -> p1));\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Map<String,Object> to Map<String,Person>\n" + 
+		"----------\n" + 
+		"2. ERROR in AnnotationCollector.java (at line 10)\n" + 
+		"	Function::identity,\n" + 
+		"	^^^^^^^^^^^^^^^^^^\n" + 
+		"The type Function does not define identity(Person) that is applicable here\n" + 
+		"----------\n");
+}
 }
