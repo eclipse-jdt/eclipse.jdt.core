@@ -4017,6 +4017,89 @@ public void test430241() { // ensure raw return type variant does not emit a bri
 			},
 			"null");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430310, [1.8][compiler] Functional interface incorrectly rejected as not being.
+public void test430310() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface Func1<T1, R> {\n" +
+				"        R apply(T1 v1);\n" +
+				"        void other();\n" +
+				"}\n" +
+				"@FunctionalInterface // spurious error: F1<T, R> is not a functional interface\n" +
+				"public interface X<T1, R> extends Func1<T1, R> {\n" +
+				"	default void other() {}\n" +
+				"   public static void main(String [] args) {\n" +
+				"       System.out.println(\"OK\");\n" +
+				"   }\n" +
+				"}\n"
+			},
+			"OK");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430310, [1.8][compiler] Functional interface incorrectly rejected as not being.
+public void test430310a() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"@FunctionalInterface\n" +
+				"public interface X<T1, T2, R> {\n" +
+				"    R apply(T1 v1, T2 v2);\n" +
+				"    default void other() {}\n" +
+				"    public static void main(String[] args) {\n" +
+				"        System.out.println(\"OK\");\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"OK");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430310, [1.8][compiler] Functional interface incorrectly rejected as not being.
+public void test430310b() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I1 {\n" +
+				"	int foo(String s);\n" +
+				"}\n" +
+				"@FunctionalInterface\n" +
+				"interface A1 extends I1 {\n" +
+				"	@Override\n" +
+				"	default int foo(String s) {\n" +
+				"		return -1;\n" +
+				"	}\n" +
+				"	int foo(java.io.Serializable s);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(\"OK\");\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"OK");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430310, [1.8][compiler] Functional interface incorrectly rejected as not being.
+public void test430310c() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I2 {\n" +
+				"	int foo(String s);\n" +
+				"}\n" +
+				"@FunctionalInterface\n" +
+				"interface A2 extends I2 {\n" +
+				"	@Override\n" +
+				"	default int foo(String s) {\n" +
+				"		return -1;\n" +
+				"	}\n" +
+				"	int bar(java.io.Serializable s);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(\"OK\");\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"OK");
+}
 
 public static Class testClass() {
 	return LambdaExpressionsTest.class;

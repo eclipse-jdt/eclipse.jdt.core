@@ -8963,6 +8963,30 @@ public void test429969a() {
 			"Unhandled exception type Exception\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430310, [1.8][compiler] Functional interface incorrectly rejected as not being.
+public void test430310() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface Func1<T1, R> {\n" +
+				"        R apply(T1 v1);\n" +
+				"        void other();\n" +
+				"}\n" +
+				"@FunctionalInterface // spurious error: F1<T, R> is not a functional interface\n" +
+				"interface F1<T1, R> extends Func1<T1, R> {\n" +
+				"	default void other() {}\n" +
+				"}\n" +
+				"@FunctionalInterface\n" +
+				"interface F2<T1, R> extends Func1<T1, R> {\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	interface F2<T1, R> extends Func1<T1, R> {\n" + 
+			"	          ^^\n" + 
+			"Invalid \'@FunctionalInterface\' annotation; F2<T1,R> is not a functional interface\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
