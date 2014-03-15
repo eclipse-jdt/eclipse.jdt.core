@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2011 IBM Corporation and others.
+ * Copyright (c) 2008, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -302,6 +302,15 @@ class SubstringDetector extends java.util.logging.Logger {
 		return this.matchFound;
 	}
 }
+protected void compareFileLocations(String[] expected, Iterator<? extends File> actual) {
+	int i = 0;
+	while(actual.hasNext() && i < expected.length) {
+		assertEquals("Path mismatch", expected[i], actual.next().toString());
+		i++;
+	}
+	assertEquals("Incorret no of files in path", i, expected.length);
+	assertFalse("Incorrect no of files in path", actual.hasNext());
+}
 // most possibly basic test
 public void test001_basic() {
 	runTest(
@@ -347,7 +356,7 @@ public void test002_dash_d_option() {
 		new String[] { /* classFileNames */
 			"X.class"
 		});
-	assertEquals(OUTPUT_DIR, javacStandardJavaFileManager.getLocation(StandardLocation.CLASS_OUTPUT).toString());
+	compareFileLocations(new String[]{OUTPUT_DIR}, javacStandardJavaFileManager.getLocation(StandardLocation.CLASS_OUTPUT).iterator());
 }
 // exploring -d / FileManager interaction
 // -d changes CLASS_OUTPUT location (OUTPUT_DIR subdirectory)
@@ -375,7 +384,7 @@ public void test003_dash_d_option() {
 		new String[] { /* classFileNames */
 			"bin/X.class"
 		});
-	assertEquals(outputDir, javacStandardJavaFileManager.getLocation(StandardLocation.CLASS_OUTPUT).toString());
+	compareFileLocations(new String[]{outputDir}, javacStandardJavaFileManager.getLocation(StandardLocation.CLASS_OUTPUT).iterator());
 }
 // exploring -d / FileManager interaction
 // ecj uses the output location from the javac standard Java file manager if it
@@ -439,7 +448,7 @@ public void test005_dash_d_option_custom_file_manager() {
 		new String[] { /* classFileNames */
 			"X.class"
 		});
-	assertEquals(OUTPUT_DIR, customJavaFileManager.getLocation(StandardLocation.CLASS_OUTPUT).toString());
+	compareFileLocations(new String[]{OUTPUT_DIR}, customJavaFileManager.getLocation(StandardLocation.CLASS_OUTPUT).iterator());
 	assertFalse(customJavaFileManager.matchFound());
 	if (RUN_JAVAC && JAVAC_COMPILER != null) {
 		customJavaFileManager =	new SetLocationDetector(javacJavaFileManager, 
