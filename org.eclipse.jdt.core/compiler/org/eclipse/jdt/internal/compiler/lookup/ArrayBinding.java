@@ -442,6 +442,13 @@ public char[] sourceName() {
 public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment env) {
 	if (this.leafComponentType == unresolvedType) { //$IDENTITY-COMPARISON$
 		this.leafComponentType = env.convertUnresolvedBinaryToRawType(resolvedType);
+		/* Leaf component type is the key in the type system. If it undergoes change, the array has to be rehashed.
+		   We achieve by creating a fresh array with the new component type and equating this array's id with that.
+		   This means this array can still be found under the old key, but that is harmless (since the component type
+		   is always consulted (see TypeSystem.getArrayType())
+		*/ 
+		if (this.leafComponentType != resolvedType) //$IDENTITY-COMPARISON$
+			this.id = env.createArrayType(this.leafComponentType, this.dimensions, this.typeAnnotations).id;
 		this.tagBits |= this.leafComponentType.tagBits & (TagBits.HasTypeVariable | TagBits.HasDirectWildcard | TagBits.HasMissingType | TagBits.HasCapturedWildcard);
 	}
 }
