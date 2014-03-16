@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
+import java.io.File;
+
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.IPath;
@@ -19,7 +21,7 @@ import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class IncrementalTests18 extends BuilderTests {
-
+	
 	public IncrementalTests18(String name) {
 		super(name);
 	}
@@ -271,4 +273,68 @@ public class IncrementalTests18 extends BuilderTests {
 		incrementalBuild(projectPath);
 		expectingNoProblems();
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430425, [1.8][compiler] Type mismatch: cannot convert from StyleConverter<ParsedValue[],Insets> to StyleConverter<ParsedValue[],Insets>
+	public void test430425() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.8");
+		String jreDirectory = Util.getJREDirectory();
+		String jfxJar = Util.toNativePath(jreDirectory + "/lib/ext/jfxrt.jar");
+		File file = new File(jfxJar);
+		if (file.exists())
+			env.addExternalJars(projectPath, Util.concatWithClassLibs(jfxJar, false));
+		else 
+			return;
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "javafx.css", "StyleConverter",
+				"package javafx.css;\n" +
+				"import com.sun.javafx.css.converters.InsetsConverter;\n" +
+				"import javafx.geometry.Insets;\n" +
+				"public class StyleConverter<F, T> {\n" +
+				"    public static StyleConverter<ParsedValue[], Insets> getInsetsConverter() {\n" +
+				"        return InsetsConverter.getInstance();\n" +
+				"    }\n" +
+				"    void fred5555() {\n" +
+				"    }\n" +
+				"}\n"
+		);
+		env.addClass(root, "com.sun.javafx.css.converters", "InsetsConverter",
+				"package com.sun.javafx.css.converters;\n" +
+				"import com.sun.javafx.css.StyleConverterImpl;\n" +
+				"import javafx.css.ParsedValue;\n" +
+				"import javafx.css.StyleConverter;\n" +
+				"import javafx.geometry.Insets;\n" +
+				"public final class InsetsConverter extends StyleConverterImpl<ParsedValue[], Insets> {\n" +
+				"    public static StyleConverter<ParsedValue[], Insets> getInstance() {\n" +
+				"        return null;\n" +
+				"    }\n" +
+				"}\n"
+		);
+		env.addClass(root, "javafx.css", "ParsedValue",
+				"package javafx.css;\n" +
+				"public class ParsedValue<V, T> {\n" +
+				"}\n"
+		);
+		env.getJavaProject("Project").setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
+		fullBuild(projectPath);
+		expectingNoProblems();
+		env.addClass(root, "javafx.css", "StyleConverter",
+				"package javafx.css;\n" +
+				"import com.sun.javafx.css.converters.InsetsConverter;\n" +
+				"import javafx.geometry.Insets;\n" +
+				"public class StyleConverter<F, T> {\n" +
+				"    public static StyleConverter<ParsedValue[], Insets> getInsetsConverter() {\n" +
+				"        return InsetsConverter.getInstance();\n" +
+				"    }\n" +
+				"    void fred555() {\n" +
+				"    }\n" +
+				"}\n"
+		);
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+	}	
 }
