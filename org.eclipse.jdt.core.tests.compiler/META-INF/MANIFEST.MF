@@ -5,7 +5,8 @@ Bundle-SymbolicName: org.eclipse.jdt.core.tests.compiler;singleton:=true
 Bundle-Version: 3.9.3.qualifier
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Export-Package: org.eclipse.jdt.core.tests.compiler.parser,
+Export-Package: org.eclipse.jdt.core.tests.compiler,
+ org.eclipse.jdt.core.tests.compiler.parser,
  org.eclipse.jdt.core.tests.compiler.regression,
  org.eclipse.jdt.core.tests.dom,
  org.eclipse.jdt.core.tests.eval,
