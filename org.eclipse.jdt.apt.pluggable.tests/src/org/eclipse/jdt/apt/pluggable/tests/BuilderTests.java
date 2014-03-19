@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 - 2010 Walter Harley and others
+ * Copyright (c) 2008 - 2014 Walter Harley and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import junit.framework.TestSuite;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.BugsProc;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.InheritedAnnoProc;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.TestFinalRoundProc;
 import org.eclipse.jdt.core.IJavaProject;
@@ -189,4 +190,26 @@ public class BuilderTests extends TestBase
 				"Problem : FooEvent cannot be resolved to a type [ resource : </" + _projectName + "/src/test295948/FooImpl.java> range : <108,116> category : <40> severity : <2>]\n" + 
 				"Problem : FooEvent cannot be resolved to a type [ resource : </" + _projectName + "/src/test295948/FooImpl.java> range : <52,60> category : <40> severity : <2>]");
 	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=407841
+	@SuppressWarnings("restriction")
+	public void testBbug407841() throws Throwable {
+		int old = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
+		try {
+			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE =1;
+			ProcessorTestStatus.reset();
+			IJavaProject jproj = createJavaProject(_projectName);
+			disableJava5Factories(jproj);
+			IProject proj = jproj.getProject();
+			IdeTestUtils.copyResources(proj, "targets/bug407841", "src/targets/bug407841");
+			
+			AptConfig.setEnabled(jproj, true);
+			fullBuild();
+			expectingNoProblems();
+			assertEquals("Elements should have been processed", 0, BugsProc.getUnprocessedElements());
+			assertEquals("Elements should have been processed", 3, BugsProc.getNumRounds());
+		} finally {
+			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = old;
+		}
+	}
+	
 }
