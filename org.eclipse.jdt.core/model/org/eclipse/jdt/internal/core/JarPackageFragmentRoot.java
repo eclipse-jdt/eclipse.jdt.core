@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -38,6 +39,11 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	private final static ArrayList EMPTY_LIST = new ArrayList();
 
 	/**
+	 * Compiler compliance level that was used to produce the jar.
+	 */
+	protected final String complianceLevel;
+
+	/**
 	 * The path to the jar file
 	 * (a workspace relative path if the jar is internal,
 	 * or an OS path if the jar is external)
@@ -52,6 +58,9 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	protected JarPackageFragmentRoot(IPath externalJarPath, JavaProject project) {
 		super(null, project);
 		this.jarPath = externalJarPath;
+		Object file = JavaModel.getTarget(getPath(), true);
+		long level = Util.getJdkLevel(file);
+		this.complianceLevel = CompilerOptions.versionFromJdkLevel(level);
 	}
 	/**
 	 * Constructs a package fragment root which is the root of the Java package directory hierarchy
@@ -60,6 +69,9 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	protected JarPackageFragmentRoot(IResource resource, JavaProject project) {
 		super(resource, project);
 		this.jarPath = resource.getFullPath();
+		Object file = JavaModel.getTarget(getPath(), true);
+		long level = Util.getJdkLevel(file);
+		this.complianceLevel = CompilerOptions.versionFromJdkLevel(level);
 	}
 
 	/**
@@ -72,9 +84,6 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		IJavaElement[] children;
 		ZipFile jar = null;
 		try {
-			IJavaProject project = getJavaProject();
-			String sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
-			String compliance = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 			jar = getJar();
 
 			// always create the default package
@@ -82,7 +91,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 
 			for (Enumeration e= jar.entries(); e.hasMoreElements();) {
 				ZipEntry member= (ZipEntry) e.nextElement();
-				initRawPackageInfo(rawPackageInfo, member.getName(), member.isDirectory(), sourceLevel, compliance);
+				initRawPackageInfo(rawPackageInfo, member.getName(), member.isDirectory());
 			}
 
 			// loop through all of referenced packages, creating package fragments if necessary
@@ -209,7 +218,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	public int hashCode() {
 		return this.jarPath.hashCode();
 	}
-	private void initRawPackageInfo(HashtableOfArrayToObject rawPackageInfo, String entryName, boolean isDirectory, String sourceLevel, String compliance) {
+	private void initRawPackageInfo(HashtableOfArrayToObject rawPackageInfo, String entryName, boolean isDirectory) {
 		int lastSeparator = isDirectory ? entryName.length()-1 : entryName.lastIndexOf('/');
 		String[] pkgName = Util.splitOn('/', entryName, 0, lastSeparator);
 		String[] existing = null;
@@ -222,7 +231,9 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		}
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		for (int i = existingLength; i < length; i++) {
-			if (Util.isValidFolderNameForPackage(pkgName[i], sourceLevel, compliance)) {
+			// sourceLevel must be null because we know nothing about it based on a jar file
+			// complianceLevel can be retrieved from a jar file
+			if (Util.isValidFolderNameForPackage(pkgName[i], null, this.complianceLevel)) {
 				System.arraycopy(existing, 0, existing = new String[i+1], 0, i);
 				existing[i] = manager.intern(pkgName[i]);
 				rawPackageInfo.put(existing, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
