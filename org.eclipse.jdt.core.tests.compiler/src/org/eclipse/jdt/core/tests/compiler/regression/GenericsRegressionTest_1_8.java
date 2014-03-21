@@ -2900,4 +2900,33 @@ public void testBug430296() {
 		"The type Function does not define identity(Person) that is applicable here\n" + 
 		"----------\n");
 }
+public void testBug430759() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.beans.*;\n" + 
+			"import java.util.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"\n" + 
+			"public abstract class Test<T,R> implements Function<T,R> {\n" + 
+			"\n" + 
+			"  public static final <T,R> Test<T,R> getTest() {\n" + 
+			"    return new Test<T,R>() {\n" + 
+			"      protected final Map<T,ResultSupplier> results = Collections.synchronizedMap(new HashMap<T,ResultSupplier>());\n" + 
+			"      @Override\n" + 
+			"      public R apply(final T t) {\n" + 
+			"        ResultSupplier result = results.get(t);\n" + 
+			"        return result.get();\n" + 
+			"      }\n" + 
+			"      class ResultSupplier implements Supplier<R> {\n" + 
+			"        @Override\n" + 
+			"        public synchronized R get() {\n" + 
+			"          return null;\n" + 
+			"        }\n" + 
+			"      }\n" + 
+			"    };\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
 }
