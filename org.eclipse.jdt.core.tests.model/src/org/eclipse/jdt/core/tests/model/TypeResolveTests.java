@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -832,6 +832,20 @@ public void testBug342393() throws Exception {
 	}
 	finally {
 		deleteProject("Test342393");
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=377710
+public void test377710() throws CoreException, IOException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
+		String source = "public class Foo {}\n";
+		createFile("/P/src/Foo.java", source);
+		waitForAutoBuild();
+		IType itype = project.findType(".Foo");
+		assertNull(itype);
+	} finally {
+		deleteProject("P");
 	}
 }
 }
