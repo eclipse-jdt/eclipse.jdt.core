@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 BEA Systems, Inc.
+ * Copyright (c) 2007, 2014 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.lang.model.SourceVersion;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
@@ -42,6 +43,9 @@ public class ModelUtilTests extends TestCase
 	 * @throws IOException 
 	 */
 	public void testElementsWithSystemCompiler() throws IOException {
+		if (!canRunJava8()) {
+			return;
+		}
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if (compiler == null) {
 			System.out.println("No system java compiler available");
@@ -100,7 +104,14 @@ public class ModelUtilTests extends TestCase
 		// if not, it will set it to an error value.
 		assertEquals("succeeded", System.getProperty(processorClass));
 	}
-
+	private boolean canRunJava8() {
+		try {
+			SourceVersion.valueOf("RELEASE_8");
+		} catch(IllegalArgumentException iae) {
+			return false;
+		}
+		return true;
+	}
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();

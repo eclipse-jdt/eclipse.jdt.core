@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2013 BEA Systems, Inc.
+ * Copyright (c) 2007, 2014 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,9 +29,9 @@ import java.util.ServiceLoader;
 
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
+import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
-import javax.tools.JavaCompiler.CompilationTask;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
@@ -44,7 +44,9 @@ public class BatchTestUtils {
 	private static final String RESOURCES_DIR = "resources";
 	// relative to plugin directory
 	private static final String PROCESSOR_JAR_NAME = "lib/apttestprocessors.jar";
+	private static final String JLS8_PROCESSOR_JAR_NAME = "lib/apttestprocessors8.jar";
 	private static String _processorJarPath;
+	private static String _jls8ProcessorJarPath;
 
 	// locations to copy and generate files
 	private static String _tmpFolder;
@@ -63,6 +65,9 @@ public class BatchTestUtils {
 	 * and compile it.  Verify that generation and compilation succeeded.
 	 */
 	public static void compileOneClass(JavaCompiler compiler, List<String> options, File inputFile) {
+		compileOneClass(compiler, options, inputFile, false);
+	}
+	public static void compileOneClass(JavaCompiler compiler, List<String> options, File inputFile, boolean useJLS8Processors) {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
 		// create new list containing inputfile
@@ -76,10 +81,7 @@ public class BatchTestUtils {
 		options.add(_tmpBinFolderName);
 		options.add("-s");
 		options.add(_tmpGenFolderName);
-		options.add("-cp");
-		options.add(_tmpSrcFolderName + File.pathSeparator + _tmpGenFolderName + File.pathSeparator + _processorJarPath);
-		options.add("-processorpath");
-		options.add(_processorJarPath);
+		addProcessorPaths(options, useJLS8Processors);
 		options.add("-XprintRounds");
 		options.add("-XprintProcessorInfo");
 		CompilationTask task = compiler.getTask(printWriter, manager, null, options, null, units);
@@ -93,6 +95,9 @@ public class BatchTestUtils {
 	}
 
 	public static void compileTree(JavaCompiler compiler, List<String> options, File targetFolder) {
+		compileTree(compiler, options, targetFolder, false);
+	}
+	public static void compileTree(JavaCompiler compiler, List<String> options, File targetFolder, boolean useJLS8Processors) {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
 		// create new list containing inputfile
@@ -106,10 +111,7 @@ public class BatchTestUtils {
 		options.add(_tmpBinFolderName);
 		options.add("-s");
 		options.add(_tmpGenFolderName);
-		options.add("-cp");
-		options.add(_tmpSrcFolderName + File.pathSeparator + _tmpGenFolderName + File.pathSeparator + _processorJarPath);
-		options.add("-processorpath");
-		options.add(_processorJarPath);
+		addProcessorPaths(options, useJLS8Processors);
 		options.add("-XprintRounds");
 		CompilationTask task = compiler.getTask(printWriter, manager, null, options, null, units);
 		Boolean result = task.call();
@@ -135,6 +137,14 @@ public class BatchTestUtils {
 			List<String> options,
 			File targetFolder,
 			DiagnosticListener<? super JavaFileObject> diagnosticListener) {
+		return compileTreeWithErrors(compiler, options, targetFolder, diagnosticListener, false);
+	}
+	public static boolean compileTreeWithErrors(
+			JavaCompiler compiler,
+			List<String> options,
+			File targetFolder,
+			DiagnosticListener<? super JavaFileObject> diagnosticListener,
+			boolean useJLS8Processors) {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
 		// create new list containing inputfile
@@ -146,10 +156,7 @@ public class BatchTestUtils {
 		options.add(_tmpBinFolderName);
 		options.add("-s");
 		options.add(_tmpGenFolderName);
-		options.add("-cp");
-		options.add(_tmpSrcFolderName + File.pathSeparator + _tmpGenFolderName + File.pathSeparator + _processorJarPath);
-		options.add("-processorpath");
-		options.add(_processorJarPath);
+		addProcessorPaths(options, useJLS8Processors);
 		// use writer to prevent System.out/err to be polluted with problems
 		StringWriter writer = new StringWriter();
 		CompilationTask task = compiler.getTask(writer, manager, diagnosticListener, options, null, units);
@@ -232,6 +239,7 @@ public class BatchTestUtils {
 
 		try {
 			_processorJarPath = setupProcessorJar(PROCESSOR_JAR_NAME, _tmpFolder);
+			_jls8ProcessorJarPath = setupProcessorJar(JLS8_PROCESSOR_JAR_NAME, _tmpFolder);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -260,8 +268,17 @@ public class BatchTestUtils {
 		junit.framework.TestCase.assertNotNull("No Eclipse compiler found", _eclipseCompiler);
 	}
 
+	private static void addProcessorPaths(List<String> options, boolean useJLS8Processors) {
+		String path = useJLS8Processors ? _jls8ProcessorJarPath : _processorJarPath;
+		options.add("-cp");
+		options.add(_tmpSrcFolderName + File.pathSeparator + _tmpGenFolderName + File.pathSeparator + path);
+		options.add("-processorpath");
+		options.add(path);
+	}
+	
 	public static void tearDown() {
 		new File(_processorJarPath).deleteOnExit();
+		new File(_jls8ProcessorJarPath).deleteOnExit();
 		BatchTestUtils.deleteTree(new File(_tmpFolder));
 	}
 	protected static String getPluginDirectoryPath() {

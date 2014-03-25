@@ -328,7 +328,7 @@ public class Java8ElementsTests extends TestCase {
 		if (compiler instanceof EclipseCompiler) {
 			options.add("-1.8");
 		}
-		BatchTestUtils.compileTree(compiler, options, targetFolder);
+		BatchTestUtils.compileTree(compiler, options, targetFolder, true);
 
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.
