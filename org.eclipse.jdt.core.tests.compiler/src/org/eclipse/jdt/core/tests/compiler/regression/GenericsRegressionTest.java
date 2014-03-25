@@ -4537,5 +4537,90 @@ public void test427992() {
 		"The method compare(Class<?>, Class<?>) of type X.ClassInheritanceDepthComparator must override or implement a supertype method\n" + 
 		"----------\n");
 }
+public void testBug430987() {
+	String source =
+			"public class X {\n" + 
+			"\n" + 
+			"  public static interface Foo<T> {\n" + 
+			"    // no content\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public void compileError() {\n" + 
+			"    doSomethingWithFoo( any( Foo.class ), any( Foo.class ) );\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public void noCompileError() {\n" + 
+			"    Foo foo = any( Foo.class );\n" + 
+			"    doSomethingWithFoo( foo, foo );\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public void fix() {\n" + 
+			"    this.<Object>doSomethingWithFoo( any( Foo.class ), any( Foo.class ) );\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public <T> void  doSomethingWithFoo( Foo<T> foo, Foo<T> foo2 ) {\n" + 
+			"    // do something\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static <T> T any(Class<T> clazz) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"\n" + 
+			"}\n";
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		runConformTest(
+			new String[] {
+				"X.java",
+				source
+			});
+	} else {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				source
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	doSomethingWithFoo( any( Foo.class ), any( Foo.class ) );\n" + 
+			"	^^^^^^^^^^^^^^^^^^\n" + 
+			"The method doSomethingWithFoo(X.Foo<T>, X.Foo<T>) in the type X is not applicable for the arguments (X.Foo, X.Foo)\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 12)\n" + 
+			"	Foo foo = any( Foo.class );\n" + 
+			"	^^^\n" + 
+			"X.Foo is a raw type. References to generic type X.Foo<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 13)\n" + 
+			"	doSomethingWithFoo( foo, foo );\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation doSomethingWithFoo(X.Foo, X.Foo) of the generic method doSomethingWithFoo(X.Foo<T>, X.Foo<T>) of type X\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 13)\n" + 
+			"	doSomethingWithFoo( foo, foo );\n" + 
+			"	                    ^^^\n" + 
+			"Type safety: The expression of type X.Foo needs unchecked conversion to conform to X.Foo<Object>\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 13)\n" + 
+			"	doSomethingWithFoo( foo, foo );\n" + 
+			"	                         ^^^\n" + 
+			"Type safety: The expression of type X.Foo needs unchecked conversion to conform to X.Foo<Object>\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 17)\n" + 
+			"	this.<Object>doSomethingWithFoo( any( Foo.class ), any( Foo.class ) );\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation doSomethingWithFoo(X.Foo, X.Foo) of the generic method doSomethingWithFoo(X.Foo<T>, X.Foo<T>) of type X\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 17)\n" + 
+			"	this.<Object>doSomethingWithFoo( any( Foo.class ), any( Foo.class ) );\n" + 
+			"	                                 ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type X.Foo needs unchecked conversion to conform to X.Foo<Object>\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 17)\n" + 
+			"	this.<Object>doSomethingWithFoo( any( Foo.class ), any( Foo.class ) );\n" + 
+			"	                                                   ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type X.Foo needs unchecked conversion to conform to X.Foo<Object>\n" + 
+			"----------\n");
+	}
+}
 }
 
