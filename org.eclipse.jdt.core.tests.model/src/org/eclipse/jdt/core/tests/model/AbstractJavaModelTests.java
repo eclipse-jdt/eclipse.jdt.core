@@ -300,6 +300,19 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 
 	/**
+	 * See buildModelTestSuite(Class evaluationTestClass) for more information.
+	 *
+	 * @param evaluationTestClass
+	 * @param minCompliance minimum compliance level required to run this test suite
+	 * @return a test suite ({@link Test})
+	 */
+	public static Test buildModelTestSuite(int minCompliance, Class evaluationTestClass) {
+		if ((AbstractCompilerTest.getPossibleComplianceLevels() & minCompliance) != 0)
+			return buildModelTestSuite(evaluationTestClass, ORDERING);
+		return new Suite(evaluationTestClass.getName());
+	}
+
+	/**
 	 * Build a test suite with all tests computed from public methods starting with "test"
 	 * found in the given test class.
 	 * Test suite name is the name of the given test class.

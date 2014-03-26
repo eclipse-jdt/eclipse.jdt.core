@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.LambdaExpression;
 
@@ -40,7 +41,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		this.endChar = "";
 	}
 	public static Test suite() {
-		return buildModelTestSuite(JavaElement8Tests.class);
+		return buildModelTestSuite(AbstractCompilerTest.F_1_8, JavaElement8Tests.class);
 	}
 	public void testBug428178() throws Exception {
 		try {
