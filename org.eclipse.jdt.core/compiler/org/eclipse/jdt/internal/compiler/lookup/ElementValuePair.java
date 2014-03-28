@@ -116,6 +116,14 @@ public MethodBinding getMethodBinding() {
 public Object getValue() {
 	if (this.value instanceof UnresolvedEnumConstant)
 		this.value = ((UnresolvedEnumConstant)this.value).getResolved();
+	else if (this.value instanceof Object[]) {
+		Object[] valueArray = (Object[]) this.value;
+		for(int i = 0; i < valueArray.length; i++) {
+			Object object = valueArray[i];
+			if (object instanceof UnresolvedEnumConstant)
+				valueArray[i] = ((UnresolvedEnumConstant) object).getResolved();
+		}
+	}
 	return this.value;
 }
 
