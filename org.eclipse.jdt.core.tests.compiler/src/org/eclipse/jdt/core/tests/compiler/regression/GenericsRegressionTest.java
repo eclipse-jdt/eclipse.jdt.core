@@ -20,6 +20,7 @@
  *								Bug 426590 - [1.8][compiler] Compiler error with tenary operator
  *								Bug 427216 - [Java8] array to varargs regression
  *								Bug 425031 - [1.8] nondeterministic inference for GenericsRegressionTest.test283353
+ *								Bug 430686 - [1.8][compiler] Generics: erroneously reports 'method not applicable for the arguments'
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -4621,6 +4622,33 @@ public void testBug430987() {
 			"Type safety: The expression of type X.Foo needs unchecked conversion to conform to X.Foo<Object>\n" + 
 			"----------\n");
 	}
+}
+public void testBug430686() {
+	runConformTest(
+		new String[] {
+			"TestClass.java",
+			"\n" + 
+			"public class TestClass\n" + 
+			"{\n" + 
+			"    private static class Alice<A extends Alice<A, B>, B extends Bob>\n" + 
+			"    {\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static class Bob\n" + 
+			"    {\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public void callingMethod()\n" + 
+			"    {\n" + 
+			"        calledMethod(); // error: The method calledMethod() in the type TestClass is not applicable for the arguments ()\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private <A extends Alice<A, B>, B extends Bob> A calledMethod()\n" + 
+			"    {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n"
+		});
 }
 }
 

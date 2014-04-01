@@ -80,9 +80,16 @@ public class CaptureBinding18 extends CaptureBinding {
 	public TypeBinding erasure() {
 		if (this.upperBounds != null && this.upperBounds.length > 1) {
 			ReferenceBinding[] erasures = new ReferenceBinding[this.upperBounds.length];
+			boolean multipleErasures = false;
 			for (int i = 0; i < this.upperBounds.length; i++) {
 				erasures[i] = (ReferenceBinding) this.upperBounds[i].erasure(); // FIXME cast?
+				if (i > 0) {
+					if (TypeBinding.notEquals(erasures[0], erasures[i]))
+						multipleErasures = true;
+				}
 			}
+			if (!multipleErasures)
+				return erasures[0];
 			return new IntersectionCastTypeBinding(erasures, this.environment);
 		}
 		return super.erasure();
@@ -196,11 +203,25 @@ public class CaptureBinding18 extends CaptureBinding {
 				}
 			}
 			if (haveSubstitution) {
-				CaptureBinding18 newCapture = (CaptureBinding18) clone(enclosingType());
-				newCapture.superclass = currentSuperclass;
-				newCapture.superInterfaces = currentSuperInterfaces;
-				newCapture.upperBounds = currentUpperBounds;
+				final CaptureBinding18 newCapture = (CaptureBinding18) clone(enclosingType());
 				newCapture.tagBits = this.tagBits;
+				Substitution substitution = new Substitution() {
+					@Override
+					public TypeBinding substitute(TypeVariableBinding typeVariable) {
+						return  (typeVariable == CaptureBinding18.this) ? newCapture : typeVariable; //$IDENTITY-COMPARISON$
+					}
+					@Override
+					public boolean isRawSubstitution() {
+						return false;
+					}
+					@Override
+					public LookupEnvironment environment() {
+						return CaptureBinding18.this.environment;
+					}
+				};
+				newCapture.superclass = (ReferenceBinding) Scope.substitute(substitution, currentSuperclass);
+				newCapture.superInterfaces = Scope.substitute(substitution, currentSuperInterfaces);
+				newCapture.upperBounds = Scope.substitute(substitution, currentUpperBounds);
 				return newCapture;
 			}
 			return this;
