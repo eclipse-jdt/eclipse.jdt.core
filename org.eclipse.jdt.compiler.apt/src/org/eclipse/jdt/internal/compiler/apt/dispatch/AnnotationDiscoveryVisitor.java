@@ -228,7 +228,10 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 		if (length == 0)
 			return;
 		
-		ASTNode.resolveAnnotations(scope, annotations, currentBinding, true);
+		boolean old = scope.insideTypeAnnotation;
+		scope.insideTypeAnnotation = true;
+		ASTNode.resolveAnnotations(scope, annotations, currentBinding);
+		scope.insideTypeAnnotation = old;
 		ElementImpl element = (ElementImpl) _factory.newElement(currentBinding);
 		AnnotationBinding [] annotationBindings = element.getPackedAnnotationBindings(); // discovery is never in terms of repeating annotation.
 		for (AnnotationBinding binding : annotationBindings) {

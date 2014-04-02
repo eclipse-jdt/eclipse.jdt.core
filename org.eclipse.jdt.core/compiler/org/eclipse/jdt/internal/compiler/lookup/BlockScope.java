@@ -62,6 +62,9 @@ public class BlockScope extends Scope {
 
 	public final static VariableBinding[] NoEnclosingInstanceInStaticContext = {};
 
+	// annotation support
+	public boolean insideTypeAnnotation = false;
+
 public BlockScope(BlockScope parent) {
 	this(parent, true);
 }
