@@ -11008,4 +11008,68 @@ public void test416107b() {
 		"The member interface Bar can only be defined inside a top-level class or interface or in a static context\n" +
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427367
+public void test427367() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+		return;
+	}
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"@interface Annot1 {\n" + 
+			"   Thread.State value() default Thread.State.NEW;\n" + 
+			"   int value2() default 1;\n" + 
+			"}\n" +
+			"@interface Annot2 {\n" + 
+			"   Thread.State value() default Thread.State.NEW;\n" + 
+			"}\n" +
+			"@Annot1(value = XXThread.State.BLOCKED, value2 = 42)\n" +
+			"@Annot2(value = XYThread.State.BLOCKED)\n" +
+			"public class X {}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	@Annot1(value = XXThread.State.BLOCKED, value2 = 42)\n" + 
+		"	                ^^^^^^^^\n" + 
+		"XXThread cannot be resolved to a variable\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	@Annot2(value = XYThread.State.BLOCKED)\n" + 
+		"	                ^^^^^^^^\n" + 
+		"XYThread cannot be resolved to a variable\n" + 
+		"----------\n",
+		null,
+		true,
+		null,
+		true, // generate output
+		false,
+		false);
+
+	String expectedOutput = "@Annot1@Annot2\n" + 
+					"public class X {\n" + 
+					"  \n" + 
+					"  // Method descriptor #6 ()V\n" + 
+					"  // Stack: 3, Locals: 1\n" + 
+					"  public X();\n" + 
+					"     0  new java.lang.Error [8]\n" + 
+					"     3  dup\n" + 
+					"     4  ldc <String \"Unresolved compilation problems: \\n\\tXXThread cannot be resolved to a variable\\n\\tXYThread cannot be resolved to a variable\\n\"> [10]\n" + 
+					"     6  invokespecial java.lang.Error(java.lang.String) [12]\n" + 
+					"     9  athrow\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 8]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+					"\n" + 
+					"}";
+	try {
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
+	} catch(org.eclipse.jdt.core.util.ClassFormatException cfe) {
+		fail("Error reading classfile");
+	}
+}
 }
