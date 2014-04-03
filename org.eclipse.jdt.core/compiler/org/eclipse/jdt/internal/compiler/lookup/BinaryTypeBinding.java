@@ -25,6 +25,7 @@
  *								Bug 427199 - [1.8][resource] avoid resource leak warnings on Streams that have no resource
  *								Bug 392245 - [1.8][compiler][null] Define whether / how @NonNullByDefault applies to TYPE_USE locations
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
+ *								Bug 390889 - [1.8][compiler] Evaluate options to support 1.7- projects against 1.8 JRE.
  *    Jesper Steen Moller - Contributions for
  *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -582,13 +583,10 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 	if (sourceLevel < ClassFileConstants.JDK1_5)
 		methodModifiers &= ~ClassFileConstants.AccVarargs; // vararg methods are not recognized until 1.5
 	if (isInterface() && (methodModifiers & ClassFileConstants.AccAbstract) == 0) {
-		// see https://bugs.eclipse.org/388954
-		if (sourceLevel >= ClassFileConstants.JDK1_8) {
-			if ((methodModifiers & ClassFileConstants.AccStatic) == 0) {
-				methodModifiers |= ExtraCompilerModifiers.AccDefaultMethod;
-			}
-		} else {
-			methodModifiers |= ClassFileConstants.AccAbstract;
+		// see https://bugs.eclipse.org/388954 superseded by https://bugs.eclipse.org/390889
+		if ((methodModifiers & ClassFileConstants.AccStatic) == 0) {
+			// i.e. even at 1.7- we record AccDefaultMethod when reading a 1.8+ interface to avoid errors caused by default methods added to a library
+			methodModifiers |= ExtraCompilerModifiers.AccDefaultMethod;
 		}
 	}
 	ReferenceBinding[] exceptions = Binding.NO_EXCEPTIONS;

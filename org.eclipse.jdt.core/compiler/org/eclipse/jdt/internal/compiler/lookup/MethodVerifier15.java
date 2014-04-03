@@ -25,6 +25,7 @@
  *								Bug 404690 - [1.8][compiler] revisit bridge generation after VM bug is fixed
  *								Bug 410325 - [1.7][compiler] Generified method override different between javac and eclipse compiler
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
+ *								Bug 390889 - [1.8][compiler] Evaluate options to support 1.7- projects against 1.8 JRE.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -315,7 +316,8 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 							continue;
 					}
 
-					problemReporter().duplicateInheritedMethods(this.type, concreteMethod, methods[i]);
+					problemReporter().duplicateInheritedMethods(this.type, concreteMethod, methods[i],
+											this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8);
 					continueInvestigation = false;
 				}
 				concreteMethod = methods[i];

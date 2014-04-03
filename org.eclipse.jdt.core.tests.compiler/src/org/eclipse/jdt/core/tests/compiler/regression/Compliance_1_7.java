@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,8 +7,15 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 390889 - [1.8][compiler] Evaluate options to support 1.7- projects against 1.8 JRE.
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
+
+import java.util.Map;
+
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
@@ -69,6 +76,105 @@ public void test2() {
 			System.out.println(computedReferences);
 		}
 		assertTrue("did not indexed the reference to Inherited", check);
+}
+// Project with 1.7 compliance compiled against JRE 7, 8
+// regular case
+public void testBug390889_a() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.runConformTest(
+			new String[] {
+					"MyComp.java",
+					"import java.util.Comparator;\n" + 
+					"public class MyComp implements Comparator {\n" + 
+					"	@Override\n" + 
+					"	public int compare(Object o1, Object o2) {\n" + 
+					"		return 0;\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"class MyStringComp implements Comparator<String> {\n" + 
+					"	@Override\n" + 
+					"	public int compare(String o1, String o2) {\n" + 
+					"		return 0;\n" + 
+					"	}\n" + 
+					"}\n"
+			},
+			"",
+			null /* no extra class libraries */,
+			true /* flush output directory */,
+			null,
+			options,
+			null/* do not perform statements recovery */);
+}
+// Project with 1.7 compliance compiled against JRE 8
+// default method implements a regular abstract interface method
+public void testBug390889_b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	runConformTest(
+			new String[] {
+				"I1.java",
+				"interface I0 {\n" + 
+				"  void foo();\n" + 
+				"}\n" + 
+				"public interface I1 extends I0 {\n" +
+				"  @Override\n" + 
+				"  default void foo() {}\n" + 
+				"}\n"
+			});
+
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.runConformTest(
+			new String[] {
+					"C1.java",
+					"public class C1 implements I1 {\n" + 
+					"}\n"
+			},
+			"",
+			null /* no extra class libraries */,
+			false /* don't flush output directory */,
+			null,
+			options,
+			null/* do not perform statements recovery */);
+}
+// Project with 1.7 compliance compiled against JRE 7, 8
+// assert that different forms of method invocation do not produce different result (as javac does)
+public void testBug390889_c() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	runConformTest(
+			new String[] {
+				"I.java",
+				"interface I {\n" + 
+				"  default void foo() {}\n" + 
+				"}\n"
+			});
+
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.runConformTest(
+			new String[] {
+				"CI.java",
+				"public class CI implements I {\n" + 
+				"	 void test(I i) {\n" + 
+				"      this.foo();\n" + 
+				"      i.foo();\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"",
+			null /* no extra class libraries */,
+			false /* don't flush output directory */,
+			null,
+			options,
+			null/* do not perform statements recovery */);
 }
 public static Class testClass() {
 	return Compliance_1_7.class;

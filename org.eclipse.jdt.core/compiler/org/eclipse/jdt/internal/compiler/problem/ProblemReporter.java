@@ -47,6 +47,7 @@
  *								Bug 428366 - [1.8] [compiler] The method valueAt(ObservableList<Object>, int) is ambiguous for the type Bindings
  *								Bug 416190 - [1.8][null] detect incompatible overrides due to null type annotations
  *								Bug 392245 - [1.8][compiler][null] Define whether / how @NonNullByDefault applies to TYPE_USE locations
+ *								Bug 390889 - [1.8][compiler] Evaluate options to support 1.7- projects against 1.8 JRE.
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -1803,11 +1804,15 @@ public void duplicateImport(ImportReference importRef) {
 		importRef.sourceEnd);
 }
 
-public void duplicateInheritedMethods(SourceTypeBinding type, MethodBinding inheritedMethod1, MethodBinding inheritedMethod2) {
+public void duplicateInheritedMethods(SourceTypeBinding type, MethodBinding inheritedMethod1, MethodBinding inheritedMethod2, boolean isJava8) {
 	if (TypeBinding.notEquals(inheritedMethod1.declaringClass, inheritedMethod2.declaringClass)) {
-		int problemID = (inheritedMethod1.isDefaultMethod() && inheritedMethod2.isDefaultMethod())
-				? IProblem.DuplicateInheritedDefaultMethods
-				: IProblem.DuplicateInheritedMethods;
+		int problemID = IProblem.DuplicateInheritedMethods;
+		if (inheritedMethod1.isDefaultMethod() && inheritedMethod2.isDefaultMethod()) {
+			if (isJava8)
+				problemID = IProblem.DuplicateInheritedDefaultMethods;
+			else
+				return; // don't report this error at 1.7-
+		}
 		this.handle(
 			problemID,
 			new String[] {
