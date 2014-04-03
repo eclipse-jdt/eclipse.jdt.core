@@ -21,6 +21,7 @@
  *								Bug 427216 - [Java8] array to varargs regression
  *								Bug 425031 - [1.8] nondeterministic inference for GenericsRegressionTest.test283353
  *								Bug 430686 - [1.8][compiler] Generics: erroneously reports 'method not applicable for the arguments'
+ *								Bug 430759 - [1.8][compiler] SourceTypeBinding cannot be cast to ParameterizedTypeBinding
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -4646,6 +4647,43 @@ public void testBug430686() {
 			"    private <A extends Alice<A, B>, B extends Bob> A calledMethod()\n" + 
 			"    {\n" + 
 			"        return null;\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+public void testBug430759() {
+	runConformTest(
+		new String[] {
+			"A.java",
+			"class CriteriaBuilder {\n" + 
+			"\n" + 
+			"}\n" + 
+			"\n" + 
+			"class CriteriaQuery<T> {\n" + 
+			"\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Root<T> {\n" + 
+			"\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class A<E> {\n" + 
+			"\n" + 
+			"    protected abstract class CustomGenericQuery<T> {\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    protected <T> T executeCustomSingleQuery(CustomGenericQuery<T> customQuery, Class<T> resultClass) {\n" + 
+			"	return null;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public Long getCount() {\n" + 
+			"	return executeCustomSingleQuery(\n" + 
+			"\n" + 
+			"	new CustomGenericQuery<Long>() {\n" + 
+			"	    public void customizeQuery(final Root<E> root, final CriteriaBuilder cb,\n" + 
+			"		    CriteriaQuery<Long> cq) {\n" + 
+			"	    }\n" + 
+			"	}, Long.class);\n" + 
 			"    }\n" + 
 			"}\n"
 		});
