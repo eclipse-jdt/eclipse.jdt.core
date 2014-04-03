@@ -4843,4 +4843,64 @@ public void testDefault07_bin() {
 		"Null type safety (type annotations): The expression of type \'int\' needs unchecked conversion to conform to \'@NonNull Integer\'\n" + 
 		"----------\n");
 }
+public void testBug431269() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"p/QField.java",
+			"package p;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"public class QField<R extends QField<R, ? >, T> {\n" + 
+			"	@NonNull\n" + 
+			"	protected R m_root;\n" + 
+			"\n" + 
+			"	public QField(@Nullable R root, @Nullable QField<R, ? > parent, @Nullable String propertyNameInParent) {\n" + 
+			"		m_root = root;\n" + 
+			"	}\n" + 
+			"}\n",
+			"p/PLogLine.java",
+			"package p;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"public class PLogLine<R extends QField<R, ? >> extends QField<R, LogLine> {\n" + 
+			"	public PLogLine(@Nullable R root, @Nullable QField<R, ? > parent, @Nullable String name) {\n" + 
+			"		super(root, parent, name);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	@NonNull\n" + 
+			"	public final QField<R, java.lang.String> lastName() {\n" + 
+			"		return new QField<R, java.lang.Long>(m_root, this, \"lastName\");\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n",
+			"p/LogLine.java",
+			"package p;\n" + 
+			"\n" + 
+			"public class LogLine {\n" + 
+			"	private String m_lastName;\n" + 
+			"\n" + 
+			"	public String getLastName() {\n" + 
+			"		return m_lastName;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public void setLastName(String property) {\n" + 
+			"		m_lastName = property;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in p\\QField.java (at line 10)\n" + 
+		"	m_root = root;\n" + 
+		"	         ^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull R extends QField<R extends QField<R,?>,?>\' but this expression has type \'@Nullable R extends QField<R extends QField<R,?>,?>\'\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in p\\PLogLine.java (at line 12)\n" + 
+		"	return new QField<R, java.lang.Long>(m_root, this, \"lastName\");\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from QField<R,Long> to QField<R,String>\n" + 
+		"----------\n");
+}
 }
