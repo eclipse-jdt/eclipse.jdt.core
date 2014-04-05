@@ -189,6 +189,7 @@ private static Class[] getAllTestClasses() {
 		UtilTests.class,
 		
 		JavaCoreOptionsTests.class,
+		JavaCorePreferenceModifyListenerTest.class,
 		
 		// Tests regarding null-annotations:
 		NullAnnotationModelTests.class,
