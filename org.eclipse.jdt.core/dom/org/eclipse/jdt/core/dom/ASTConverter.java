@@ -503,6 +503,8 @@ class ASTConverter {
 		methodName.internalSetIdentifier(new String(methodDeclaration.selector));
 		int start = methodDeclaration.sourceStart;
 		int end = retrieveIdentifierEndPosition(start, methodDeclaration.sourceEnd);
+		if (end < start)
+			end = start + methodDeclaration.selector.length;// naive recovery with method name
 		methodName.setSourceRange(start, end - start + 1);
 		methodDecl.setName(methodName);
 		org.eclipse.jdt.internal.compiler.ast.TypeReference[] thrownExceptions = methodDeclaration.thrownExceptions;

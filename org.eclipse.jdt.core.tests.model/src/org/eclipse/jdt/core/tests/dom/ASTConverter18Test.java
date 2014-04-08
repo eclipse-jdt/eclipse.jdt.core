@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 
@@ -4324,5 +4325,41 @@ public void testBug425183a() throws JavaModelException {
 	
 	// assert that KeyToSignature doesn't throw AIOOBE, the result containing '!*' is a workaround for now, see https://bugs.eclipse.org/429264
 	assertEquals("wrong signature", "<T::Ljava.lang.Comparable<-TT;>;>()LComparator<!*>;", new BindingKey(method.getKey()).toSignature());
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=432051
+ * 
+ * @throws JavaModelException
+ */
+public void testBug432051() throws JavaModelException {
+	String contents =
+			"public class X {\n" +
+			"     * Delete line '/**' above.\n" +
+			"     *\n" +
+			"     * @param a (for example 'QVector')\n" +
+			"     * @param declaringMember the context for resolving (made in)\n" +
+			"     * @return if\n" +
+			"     */\n" +
+			"    void foo() {\n" +
+			"    }\n" +
+			"}\n";
+	this.workingCopy = getWorkingCopy("/Converter18/src/test432051/X.java", contents, true/*computeProblems*/);
+	IJavaProject javaProject = this.workingCopy.getJavaProject();
+	class BindingRequestor extends ASTRequestor {
+		ITypeBinding _result = null;
+		public void acceptBinding(String bindingKey, IBinding binding) {
+			if (this._result == null && binding != null && binding.getKind() == IBinding.TYPE)
+				this._result = (ITypeBinding) binding;
+		}
+	}
+	final BindingRequestor requestor = new BindingRequestor();
+	final ASTParser parser = ASTParser.newParser(AST.JLS8);
+	parser.setResolveBindings(false);
+	parser.setProject(javaProject);
+	try {
+		parser.createASTs(new ICompilationUnit[] {this.workingCopy}, new String[0], requestor, null);
+	} catch (IllegalArgumentException e) {
+		assertTrue("Test Failed", false);
+	}
 }
 }
