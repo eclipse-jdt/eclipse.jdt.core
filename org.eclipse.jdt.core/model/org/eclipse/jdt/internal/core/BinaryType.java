@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1035,7 +1035,7 @@ public JavadocContents getJavadocContents(IProgressMonitor monitor) throws JavaM
 
 	pathBuffer.append(pack.getElementName().replace('.', '/')).append('/').append(typeQualifiedName).append(JavadocConstants.HTML_EXTENSION);
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
-	final String contents = getURLContents(String.valueOf(pathBuffer));
+	final String contents = getURLContents(baseLocation, String.valueOf(pathBuffer));
 	JavadocContents javadocContents = new JavadocContents(this, contents);
 	synchronized (projectInfo.javadocCache) {
 		projectInfo.javadocCache.put(this, javadocContents);

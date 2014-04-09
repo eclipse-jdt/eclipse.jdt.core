@@ -96,6 +96,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		suite.addTest(new AttachedJavadocTests("testBug394382"));
 		suite.addTest(new AttachedJavadocTests("testBug398272"));
 		suite.addTest(new AttachedJavadocTests("testBug426058"));
+		suite.addTest(new AttachedJavadocTests("testBug403154"));
 		return suite;
 	}
 
@@ -1229,6 +1230,101 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			assertTrue("Sources should be decoded the same way", encodedContents.equals(javadoc));
 		}
 		finally {
+			this.project.setRawClasspath(oldClasspath, null);
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403154
+	public void testBug403154() throws Exception {
+		IClasspathEntry[] oldClasspath = this.project.getRawClasspath();
+		try {
+			IResource invalid = this.project.getProject().getFolder("invalid");
+			IResource valid = this.project.getProject().getFolder("valid");
+			createFolder("/AttachedJavadocProject/valid");
+			URL validUrl = null;
+			URL invalidUrl = null;
+			try {
+				validUrl = valid.getLocationURI().toURL();
+				invalidUrl = invalid.getLocationURI().toURL();
+			} catch (Exception e) {
+				fail("Should not be an exception");
+			}
+			addLibrary(this.project, "valid.jar", null, 
+					new String[]{
+						"p/X.java",
+						"package p;\n" +
+						"/** Javadoc for class X */\n" +
+						"public class X {}"	}, 
+					JavaCore.VERSION_1_4);
+			addLibrary(this.project, "invalid.jar", null, 
+					new String[]{
+						"q/Y.java",
+						"package q;\n" +
+						"/** Javadoc for class Y */\n" +
+						"public class Y {}"	}, 
+					JavaCore.VERSION_1_4);
+
+			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME, validUrl.toExternalForm());
+			IClasspathEntry validEntry = 
+					JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/valid.jar"), 
+							null, 
+							null, 
+							new IAccessRule[]{}, 
+							new IClasspathAttribute[] { attribute }, 
+							false);
+			
+			attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME, invalidUrl.toExternalForm());
+			IClasspathEntry invalidEntry = 
+					JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/invalid.jar"), 
+							null, 
+							null, 
+							new IAccessRule[]{}, 
+							new IClasspathAttribute[] { attribute }, 
+							false);
+
+			IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length + 2];
+			System.arraycopy(oldClasspath, 0, newClasspath, 0, oldClasspath.length);
+			newClasspath[oldClasspath.length] = validEntry;
+			newClasspath[oldClasspath.length + 1] = invalidEntry;
+			this.project.setRawClasspath(newClasspath, null);
+			waitForAutoBuild();
+
+			IPackageFragmentRoot[] roots = this.project.getAllPackageFragmentRoots();
+			IPackageFragmentRoot validRoot = null;
+			IPackageFragmentRoot invalidRoot = null;
+			for(int i=0; i < roots.length; i++) {
+				IPath path = roots[i].getPath();
+				if (path.segment(path.segmentCount() - 1).equals("valid.jar")) {
+					validRoot = roots[i];
+				} else if (path.segment(path.segmentCount() - 1).equals("invalid.jar")) {
+					invalidRoot = roots[i];
+				}
+			}
+
+			IPackageFragment packageFragment = validRoot.getPackageFragment("p");
+			IClassFile classFile = packageFragment.getClassFile("X.class");
+			IType type = classFile.getType();
+			String javadoc = null;
+			try {
+				javadoc = type.getAttachedJavadoc(new NullProgressMonitor());
+			} catch(JavaModelException e) {
+				fail("Should not throw JavaModelException");
+			}
+			assertNull("Should not have a javadoc", javadoc);
+			
+			packageFragment = invalidRoot.getPackageFragment("q");
+			classFile = packageFragment.getClassFile("Y.class");
+			type = classFile.getType();
+			try {
+				type.getAttachedJavadoc(new NullProgressMonitor());
+				fail("Should throw JavaModelException");
+			} catch(JavaModelException e) {
+				// This is expected
+			}
+		} catch(Exception e) {
+			// ignore
+		}
+		finally {
+			deleteFolder("/AttachedJavadocProject/valid");
 			this.project.setRawClasspath(oldClasspath, null);
 		}
 	}
