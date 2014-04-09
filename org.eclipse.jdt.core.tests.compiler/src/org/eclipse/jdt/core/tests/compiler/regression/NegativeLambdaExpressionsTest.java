@@ -5033,8 +5033,7 @@ this.runNegativeTest(
 				"1. ERROR in X.java (at line 20)\n" + 
 				"	new X().foo((s)->{});\n" + 
 				"	        ^^^\n" + 
-				"The method foo(I) in the type X is not applicable for the arguments ((<no type> s) -> {\n" + 
-				"})\n" + 
+				"The method foo(I) in the type X is not applicable for the arguments ((<no type> s) -> {})\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 20)\n" + 
 				"	new X().foo((s)->{});\n" + 
@@ -5076,9 +5075,7 @@ this.runNegativeTest(
 				"1. ERROR in X.java (at line 15)\n" + 
 				"	new X().foo(()->{ return \"\";});\n" + 
 				"	        ^^^\n" + 
-				"The method foo(I) in the type X is not applicable for the arguments (() -> {\n" + 
-				"  return \"\";\n" + 
-				"})\n" + 
+				"The method foo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 15)\n" + 
 				"	new X().foo(()->{ return \"\";});\n" + 
@@ -5088,7 +5085,7 @@ this.runNegativeTest(
 				"3. ERROR in X.java (at line 16)\n" + 
 				"	new X().foo(()-> 10);\n" + 
 				"	        ^^^\n" + 
-				"The method foo(I) in the type X is not applicable for the arguments (() -> 10)\n" + 
+				"The method foo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
 				"----------\n" + 
 				"4. ERROR in X.java (at line 16)\n" + 
 				"	new X().foo(()-> 10);\n" + 
@@ -5234,9 +5231,7 @@ this.runNegativeTest(
 				"1. ERROR in X.java (at line 11)\n" + 
 				"	new X().foo(()->{ return 10; });\n" + 
 				"	        ^^^\n" + 
-				"The method foo(I) in the type X is not applicable for the arguments (() -> {\n" + 
-				"  return 10;\n" + 
-				"})\n" + 
+				"The method foo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 11)\n" + 
 				"	new X().foo(()->{ return 10; });\n" + 
@@ -5290,8 +5285,7 @@ this.runNegativeTest(
 				"1. ERROR in X.java (at line 11)\n" + 
 				"	new X().foo((Object o)->{});\n" + 
 				"	        ^^^\n" + 
-				"The method foo(I) in the type X is not applicable for the arguments ((Object o) -> {\n" + 
-				"})\n" + 
+				"The method foo(I) in the type X is not applicable for the arguments ((Object o) -> {})\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 11)\n" + 
 				"	new X().foo((Object o)->{});\n" + 
@@ -5506,9 +5500,7 @@ public void test401845a() {
 			"3. ERROR in X.java (at line 9)\n" + 
 			"	foo((x)-> {return 10;});\n" + 
 			"	^^^\n" + 
-			"The method foo(I[]...) in the type X is not applicable for the arguments ((<no type> x) -> {\n" + 
-			"  return 10;\n" + 
-			"})\n" + 
+			"The method foo(I[]...) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 9)\n" + 
 			"	foo((x)-> {return 10;});\n" + 
@@ -5739,10 +5731,7 @@ public void test401939a() {
 				"2. ERROR in X.java (at line 8)\n" + 
 				"	foo(()->{ if (1 == 2) throw new RuntimeException(); });\n" + 
 				"	^^^\n" + 
-				"The method foo(I) in the type X is not applicable for the arguments (() -> {\n" + 
-				"  if ((1 == 2))\n" + 
-				"      throw new RuntimeException();\n" + 
-				"})\n" + 
+				"The method foo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
@@ -6494,7 +6483,7 @@ public void test406614() {
 			"1. ERROR in X.java (at line 9)\n" + 
 			"	this(() -> this.f);\n" + 
 			"	^^^^^^^^^^^^^^^^^^^\n" + 
-			"The constructor X(() -> this.f) is undefined\n" + 
+			"The constructor X(() -> {}) is undefined\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	this(() -> this.f);\n" + 
@@ -6504,7 +6493,7 @@ public void test406614() {
 			"3. ERROR in X.java (at line 12)\n" + 
 			"	this(() -> this.g());\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The constructor X(() -> this.g()) is undefined\n" + 
+			"The constructor X(() -> {}) is undefined\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 12)\n" + 
 			"	this(() -> this.g());\n" + 
@@ -6514,7 +6503,7 @@ public void test406614() {
 			"5. ERROR in X.java (at line 15)\n" + 
 			"	this(() -> f);\n" + 
 			"	^^^^^^^^^^^^^^\n" + 
-			"The constructor X(() -> f) is undefined\n" + 
+			"The constructor X(() -> {}) is undefined\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 15)\n" + 
 			"	this(() -> f);\n" + 
@@ -7016,7 +7005,7 @@ public void test412650() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	foo(() -> foo(X::getInt));\n" + 
 		"	^^^\n" + 
-		"The method foo(I) in the type X is not applicable for the arguments (() -> foo(X::getInt))\n" + 
+		"The method foo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 7)\n" + 
 		"	foo(() -> foo(X::getInt));\n" + 
@@ -8982,6 +8971,75 @@ public void test430310() {
 			"	          ^^\n" + 
 			"Invalid \'@FunctionalInterface\' annotation; F2<T1,R> is not a functional interface\n" + 
 			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424154, [1.8][compiler] PolyTypeBinding must not render the full lambda body in error messages
+//Example copied from bug report.
+public void test424154a() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;" +
+			"public class X {\n" +
+			"	void foo(List<Process> list) {\n" +
+			"		list.removeIf((int x) -> \"\");\n" +
+			"	}\n" +
+			"}\n",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	list.removeIf((int x) -> \"\");\n" +
+	    "	     ^^^^^^^^\n" +
+	    "The method removeIf(Predicate<? super Process>) in the type Collection<Process> is not applicable for the arguments ((int x) -> {})\n" +
+	    "----------\n" +
+	    "2. ERROR in X.java (at line 3)\n" +
+	    "	list.removeIf((int x) -> \"\");\n" +
+	    "	              ^^^^^^^^^^^^^\n" +
+	    "The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" +
+	    "----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424154,  [1.8][compiler] PolyTypeBinding must not render the full lambda body in error messages
+//Variations where return types or arguments mismatch or both.
+public void test424154b() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	interface I {int foo(int x);}\n" +
+			"	void foo2(I i) {}\n" +
+			"	void foo() {}\n" +
+			"	void bar() {\n" +
+			"		foo(0, (int x, int y) -> {return 2;}, 0);\n" +
+			"		foo2((int x) -> \"\");\n"+
+			"		foo2((float x) -> 0);\n" +
+			"   }\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	foo(0, (int x, int y) -> {return 2;}, 0);\n" +
+		"	^^^\n" +
+		"The method foo() in the type X is not applicable for the arguments (int, (int x, int y) -> {}, int)\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 7)\n" +
+		"	foo2((int x) -> \"\");\n" +
+		"	^^^^\n" +
+		"The method foo2(X.I) in the type X is not applicable for the arguments ((int x) -> {})\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 7)\n" +
+		"	foo2((int x) -> \"\");\n" +
+		"	                ^^\n" +
+		"Type mismatch: cannot convert from String to int\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 8)\n" +
+		"	foo2((float x) -> 0);\n" +
+		"	^^^^\n" +
+		"The method foo2(X.I) in the type X is not applicable for the arguments ((float x) -> {})\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 8)\n" +
+		"	foo2((float x) -> 0);\n" +
+		"	      ^^^^^\n" +
+		"Lambda expression's parameter x is expected to be of type int\n" +
+		"----------\n");
 }
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;

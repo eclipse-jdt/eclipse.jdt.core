@@ -3667,7 +3667,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		ASTNode node = buildAST(contents, this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
-		assertProblemsSize(compilationUnit, 2, "The method goo(I) in the type X is not applicable for the arguments ((<no type> s) -> 0)\n" + 
+		assertProblemsSize(compilationUnit, 2, "The method goo(I) in the type X is not applicable for the arguments ((<no type> s) -> {})\n" + 
 												"The target type of this expression must be a functional interface");
 		node = getASTNode(compilationUnit, 1);
 		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());

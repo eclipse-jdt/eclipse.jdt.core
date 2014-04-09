@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -894,10 +894,10 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		
 		String error = "Lambda expressions are allowed only at source level 1.8 or above\n" + 
 				"Lambda expressions are allowed only at source level 1.8 or above\n" + 
-				"The method foo(X.StringToInt) in the type X is not applicable for the arguments ((String s) -> s.length())\n" + 
+				"The method foo(X.StringToInt) in the type X is not applicable for the arguments ((String s) -> {})\n" + 
 				"Lambda expressions are allowed only at source level 1.8 or above\n" + 
 				"Lambda expressions are allowed only at source level 1.8 or above\n" + 
-				"The method bar(X.ReduceInt) in the type X is not applicable for the arguments ((int x, int y) -> (x + y))\n" + 
+				"The method bar(X.ReduceInt) in the type X is not applicable for the arguments ((int x, int y) -> {})\n" + 
 				"Lambda expressions are allowed only at source level 1.8 or above";
 		assertProblemsSize(unit, 7, error);
 

@@ -1756,7 +1756,7 @@ public void testBug427168() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	perform(() -> 13); \n" + 
 		"	^^^^^^^\n" + 
-		"The method perform(Producer<T>) in the type X is not applicable for the arguments (() -> 13)\n" + 
+		"The method perform(Producer<T>) in the type X is not applicable for the arguments (() -> {})\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 7)\n" + 
 		"	perform(() -> 13); \n" + 
@@ -2451,8 +2451,7 @@ public void testBug429090_comment1() {
 		"1. ERROR in Junk10.java (at line 17)\n" + 
 		"	addListener(null, (SetChangeListener.Change<?> c) -> {});\n" + 
 		"	^^^^^^^^^^^\n" + 
-		"The method addListener(Junk10.SetListenerHelper<E>, Junk10.SetChangeListener<? super E>) in the type Junk10 is not applicable for the arguments (null, (SetChangeListener.Change<?> c) -> {\n" + 
-		"})\n" + 
+		"The method addListener(Junk10.SetListenerHelper<E>, Junk10.SetChangeListener<? super E>) in the type Junk10 is not applicable for the arguments (null, (SetChangeListener.Change<?> c) -> {})\n" + 
 		"----------\n" + 
 		"2. ERROR in Junk10.java (at line 17)\n" + 
 		"	addListener(null, (SetChangeListener.Change<?> c) -> {});\n" + 
@@ -2573,10 +2572,8 @@ public void testBug428811() {
 		"1. ERROR in MoreCollectors.java (at line 16)\n" + 
 		"	return Collector.of(ArrayList<T>::new,\n" + 
 		"	                 ^^\n" + 
-		"The method of(ArrayList<T>::new, List<T>::add, (<no type> left, <no type> right) -> {\n" + 
-		"  left.addAll(right);\n" + 
-		"  return left;\n" + 
-		"}, ImmutableList::copyOf) is undefined for the type Collector\n" + 
+		"The method of(ArrayList<T>::new, List<T>::add, (<no type> left, <no type> right) -> {}" + 
+		", ImmutableList::copyOf) is undefined for the type Collector\n" + 
 		"----------\n" + 
 		"2. WARNING in MoreCollectors.java (at line 23)\n" + 
 		"	public static <T> ImmutableList<T> copyOf (Collection<T> c) {\n" + 

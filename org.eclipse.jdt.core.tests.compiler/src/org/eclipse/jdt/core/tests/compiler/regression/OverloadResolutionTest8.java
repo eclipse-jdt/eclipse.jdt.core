@@ -154,23 +154,16 @@ public void test004() {
 			"1. ERROR in X.java (at line 11)\n" + 
 			"	goo(()-> { \n" + 
 			"	^^^\n" + 
-			"The method goo(J) in the type X is not applicable for the arguments (() -> {\n" + 
-			"  boolean y = true;\n" + 
-			"  while (y)    ;\n" + 
-			"})\n" + 
+			"The method goo(J) in the type X is not applicable for the arguments (() -> {})\n" + 
 			"----------\n2. ERROR in X.java (at line 15)\n" + 
 			"	goo(()-> { \n" + 
 			"	^^^\n" + 
-			"The method goo(J) in the type X is not applicable for the arguments (() -> {\n" + 
-			"  while (x)    ;\n" + 
-			"})\n" + 
+			"The method goo(J) in the type X is not applicable for the arguments (() -> {})\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 18)\n" + 
 			"	goo(()-> { \n" + 
 			"	^^^\n" + 
-			"The method goo(J) in the type X is not applicable for the arguments (() -> {\n" + 
-			"  while (f)    ;\n" + 
-			"})\n" + 
+			"The method goo(J) in the type X is not applicable for the arguments (() -> {})\n" + 
 			"----------\n");
 }
 public void test005() {
@@ -204,9 +197,7 @@ public void test005() {
 			"1. ERROR in X.java (at line 18)\n" + 
 			"	goo(()-> { \n" + 
 			"	^^^\n" + 
-			"The method goo(J) in the type X is not applicable for the arguments (() -> {\n" + // because lambda has errors -> not valueCompatible 
-			"  while (f)    ;\n" + 
-			"})\n" + 
+			"The method goo(J) in the type X is not applicable for the arguments (() -> {})\n" + // because lambda has errors -> not valueCompatible 
 			"----------\n" +
 			"2. ERROR in X.java (at line 19)\n" + 
 			"	while (f); \n" + 
@@ -258,7 +249,7 @@ public void test007() {
 			"1. ERROR in X.java (at line 9)\n" + 
 			"	goo(()-> 10); \n" + 
 			"	^^^\n" + 
-			"The method goo(J) in the type X is not applicable for the arguments (() -> 10)\n" + 
+			"The method goo(J) in the type X is not applicable for the arguments (() -> {})\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	goo(()-> 10); \n" + 

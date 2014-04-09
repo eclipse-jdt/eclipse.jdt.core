@@ -2147,7 +2147,7 @@ public void testBug424742() {
 		"1. ERROR in TestInlineLambdaArray.java (at line 4)\n" + 
 		"	TestInlineLambdaArray h = new TestInlineLambdaArray(x -> x++);	// [9]\n" + 
 		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The constructor TestInlineLambdaArray((<no type> x) -> x ++) is undefined\n" + 
+		"The constructor TestInlineLambdaArray((<no type> x) -> {}) is undefined\n" + 
 		"----------\n" + 
 		"2. ERROR in TestInlineLambdaArray.java (at line 5)\n" + 
 		"	public TestInlineLambda(FI fi) {}\n" + 

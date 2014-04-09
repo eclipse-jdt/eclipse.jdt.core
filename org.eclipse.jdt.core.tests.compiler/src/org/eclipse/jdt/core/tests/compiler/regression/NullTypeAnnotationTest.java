@@ -3812,9 +3812,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"			return o1.compareToIgnoreCase(o1);\n" + 
 			"		});\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked invocation sort(ArrayList, (<no type> o1, <no type> o2) -> {\n" + 
-			"  return o1.compareToIgnoreCase(o1);\n" + 
-			"}) of the generic method sort(List<T>, Comparator<? super T>) of type Collections\n" + 
+			"Type safety: Unchecked invocation sort(ArrayList, (<no type> o1, <no type> o2) -> {})" + 
+			" of the generic method sort(List<T>, Comparator<? super T>) of type Collections\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	Collections.sort(new ArrayList(), (o1, o2) -> {\n" + 

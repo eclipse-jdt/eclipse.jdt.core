@@ -602,6 +602,10 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	}
 	
 	public StringBuffer printExpression(int tab, StringBuffer output) {
+		return printExpression(tab, output, false);
+	}
+
+	public StringBuffer printExpression(int tab, StringBuffer output, boolean makeShort) {
 		int parenthesesCount = (this.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		String suffix = ""; //$NON-NLS-1$
 		for(int i = 0; i < parenthesesCount; i++) {
@@ -616,10 +620,14 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			}
 		}
 		output.append(") -> " ); //$NON-NLS-1$
-		if (this.body != null)
-			this.body.print(this.body instanceof Block ? tab : 0, output);
-		else 
-			output.append("<@incubator>"); //$NON-NLS-1$
+		if (makeShort) {
+			output.append("{}"); //$NON-NLS-1$
+		} else {
+			if (this.body != null)
+				this.body.print(this.body instanceof Block ? tab : 0, output);
+			else
+				output.append("<@incubator>"); //$NON-NLS-1$
+		}
 		return output.append(suffix);
 	}
 
