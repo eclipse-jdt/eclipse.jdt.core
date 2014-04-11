@@ -21,6 +21,7 @@
  *								Bug 428019 - [1.8][compiler] Type inference failure with nested generic invocation.
  *								Bug 429384 - [1.8][null] implement conformance rules for null-annotated lower / upper type bounds
  *								Bug 431269 - [1.8][compiler][null] StackOverflow in nullAnnotatedReadableName
+ *								Bug 431408 - Java 8 (1.8) generics bug
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -384,15 +385,15 @@ public class TypeVariableBinding extends ReferenceBinding {
 	/**
 	 * Compute the initial type bounds for one inference variable as per JLS8 sect 18.1.3.
 	 */
-	TypeBound[] getTypeBounds(InferenceVariable variable, InferenceContext18 context) {
+	TypeBound[] getTypeBounds(InferenceVariable variable, InferenceSubstitution theta) {
 		int n = boundsCount();
         if (n == 0)
         	return NO_TYPE_BOUNDS;
         TypeBound[] bounds = new TypeBound[n];
-        bounds[0] = TypeBound.createBoundOrDependency(context, this.firstBound, variable);
+        bounds[0] = TypeBound.createBoundOrDependency(theta, this.firstBound, variable);
         int ifcOffset = TypeBinding.equalsEquals(this.firstBound, this.superclass) ? -1 : 0;
         for (int i = 1; i < n; i++)
-			bounds[i] = TypeBound.createBoundOrDependency(context, this.superInterfaces[i+ifcOffset], variable);
+			bounds[i] = TypeBound.createBoundOrDependency(theta, this.superInterfaces[i+ifcOffset], variable);
         return bounds;
 	}
 

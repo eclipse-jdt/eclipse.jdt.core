@@ -26,9 +26,9 @@ public class TypeBound extends ReductionResult {
 	// here we accumulate null tagBits from any types that have been related to this type bound during incorporation:
 	long nullHints;
 	
-	static TypeBound createBoundOrDependency(InferenceContext18 context, TypeBinding type, InferenceVariable variable) {
+	static TypeBound createBoundOrDependency(InferenceSubstitution theta, TypeBinding type, InferenceVariable variable) {
         // Part of JLS8 sect 18.1.3:
-		return new TypeBound(variable, context.substitute(type), SUBTYPE, true);
+		return new TypeBound(variable, theta.substitute(theta, type), SUBTYPE, true);
 	}
 
 	/** Create a true type bound or a dependency. */

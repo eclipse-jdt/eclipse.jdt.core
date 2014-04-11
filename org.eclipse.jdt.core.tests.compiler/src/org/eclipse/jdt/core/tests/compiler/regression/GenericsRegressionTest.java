@@ -22,6 +22,7 @@
  *								Bug 425031 - [1.8] nondeterministic inference for GenericsRegressionTest.test283353
  *								Bug 430686 - [1.8][compiler] Generics: erroneously reports 'method not applicable for the arguments'
  *								Bug 430759 - [1.8][compiler] SourceTypeBinding cannot be cast to ParameterizedTypeBinding
+ *								Bug 431408 - Java 8 (1.8) generics bug
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -4685,6 +4686,35 @@ public void testBug430759() {
 			"	    }\n" + 
 			"	}, Long.class);\n" + 
 			"    }\n" + 
+			"}\n"
+		});
+}
+public void testBug431408() {
+	runConformTest(
+		new String[] {
+			"EclipseJava8Generics.java",
+			"public class EclipseJava8Generics {\n" + 
+			"\n" + 
+			"  public interface Foo<V> {\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static class FooBar<V, T extends Foo<V>> {\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static class BaseClass {\n" + 
+			"    protected <V> FooBar<V, ? extends Foo<V>> doSomething() {\n" + 
+			"      return null;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static class DerivedClass extends BaseClass {\n" + 
+			"    @Override\n" + 
+			"    protected <V> FooBar<V, ? extends Foo<V>> doSomething() {\n" + 
+			"      //Eclipse 4.3.2 with Java 8 can't compile the next line \n" + 
+			"      FooBar<V, ? extends Foo<V>> prop = super.doSomething();\n" + 
+			"      return prop;\n" + 
+			"    }\n" + 
+			"  }\n" + 
 			"}\n"
 		});
 }
