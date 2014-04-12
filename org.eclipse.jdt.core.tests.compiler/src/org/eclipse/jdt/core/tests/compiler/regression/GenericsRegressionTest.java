@@ -4718,5 +4718,45 @@ public void testBug431408() {
 			"}\n"
 		});
 }
+
+public void testBug431581() {
+	runNegativeTest(
+		new String[] {
+			"BugEclipse.java",
+			"public class BugEclipse\n" + 
+			"{\n" + 
+			"  static Dog dog = new Dog();\n" + 
+			"  public static void main(String[] args)\n" + 
+			"  {\n" + 
+			"    System.out.println(\"bug compile eclipse\");\n" + 
+			"    Cat cat = getDog(); // <- error here, eclipse compile this line but the execution print ClassCastException\n" + 
+			"  }\n" + 
+			"  public static <T extends Dog> T getDog()\n" + 
+			"  {\n" + 
+			"    return (T) dog;\n" + 
+			"  }\n" + 
+			"  static class Cat {\n" + 
+			"  }\n" + 
+			"  static class Dog {\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in BugEclipse.java (at line 7)\n" + 
+		"	Cat cat = getDog(); // <- error here, eclipse compile this line but the execution print ClassCastException\n" + 
+		(this.complianceLevel < ClassFileConstants.JDK1_8	?
+		"	          ^^^^^^\n" + 
+		"Bound mismatch: The generic method getDog() of type BugEclipse is not applicable for the arguments (). The inferred type BugEclipse.Cat&BugEclipse.Dog is not a valid substitute for the bounded parameter <T extends BugEclipse.Dog>\n"
+		: 
+		"	          ^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from BugEclipse.Dog to BugEclipse.Cat\n"
+		) +
+		"----------\n" + 
+		"2. WARNING in BugEclipse.java (at line 11)\n" + 
+		"	return (T) dog;\n" + 
+		"	       ^^^^^^^\n" + 
+		"Type safety: Unchecked cast from BugEclipse.Dog to T\n" + 
+		"----------\n");
+}
 }
 

@@ -30,6 +30,7 @@
  *								Bug 427199 - [1.8][resource] avoid resource leak warnings on Streams that have no resource
  *								Bug 418743 - [1.8][null] contradictory annotations on invocation of generic method not reported
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
+ *								Bug 431581 - Eclipse compiles what it should not
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -2051,5 +2052,29 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 		return this.singleAbstractMethod[index];
 	}
 	return this.singleAbstractMethod[index] = samProblemBinding;
+}
+
+// See JLS 4.9 bullet 1
+public static boolean isConsistentIntersection(TypeBinding[] intersectingTypes) {
+	TypeBinding[] ci = new TypeBinding[intersectingTypes.length];
+	for (int i = 0; i < ci.length; i++) {
+		TypeBinding current = intersectingTypes[i];
+		ci[i] = (current.isClass() || current.isArrayType())
+					? current : current.superclass();
+	}
+	TypeBinding mostSpecific = ci[0];
+	for (int i = 1; i < ci.length; i++) {
+		TypeBinding current = ci[i];
+		// when invoked during type inference we only want to check inconsistency among real types:
+		if (current.isTypeVariable() || current.isWildcard() || !current.isProperType(true))
+			continue;
+		if (mostSpecific.isSubtypeOf(current))
+			continue;
+		else if (current.isSubtypeOf(mostSpecific))
+			mostSpecific = current;
+		else
+			return false;
+	}
+	return true;
 }
 }

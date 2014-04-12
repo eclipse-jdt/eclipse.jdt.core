@@ -30,25 +30,15 @@ public class CaptureBinding18 extends CaptureBinding {
 		if (upperBounds.length > 0)
 			this.firstBound = upperBounds[0];
 		int numReferenceInterfaces = 0;
+		if (!isConsistentIntersection(upperBounds))
+			return false;
 		for (int i = 0; i < upperBounds.length; i++) {
 			TypeBinding aBound = upperBounds[i];
-			if (!aBound.isWildcard() && !aBound.isTypeVariable() && aBound.isProperType(true)) {
-				// check for inconsistency between any two real types:
-				for (int j = 0; j < upperBounds.length; j++) {
-					if (i == j) continue;
-					TypeBinding otherBound = upperBounds[j];
-					if (!otherBound.isWildcard() && !otherBound.isTypeVariable() && otherBound.isProperType(true))
-						if (aBound.erasure().isCompatibleWith(otherBound.erasure()))
-							if (!aBound.isCompatibleWith(otherBound))
-								return false;
-				}
-			}
 			if (aBound instanceof ReferenceBinding) {
 				if (this.superclass == null && aBound.isClass())
-					this.superclass = (ReferenceBinding) upperBounds[i];
+					this.superclass = (ReferenceBinding) aBound;
 				else if (aBound.isInterface())
 					numReferenceInterfaces++;
-				// TODO: what about additional super classes?? (see isCompatibleWith)
 			}
 		}
 		this.superInterfaces = new ReferenceBinding[numReferenceInterfaces];
