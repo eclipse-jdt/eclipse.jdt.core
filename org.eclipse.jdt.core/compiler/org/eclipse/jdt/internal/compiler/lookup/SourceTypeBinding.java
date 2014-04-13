@@ -31,6 +31,7 @@
  *								Bug 426048 - [1.8] NPE in TypeVariableBinding.internalBoundCheck when parentheses are not balanced
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
+ *								Bug 432348 - [1.8] Internal compiler error (NPE) after upgrade to 1.8
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *      Till Brychcy - Contributions for
@@ -1730,9 +1731,10 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 			if (sourceLevel >= ClassFileConstants.JDK1_8) {
 				Annotation [] annotations = fieldDecl.annotations;
 				if (annotations != null && annotations.length != 0) {
-					ASTNode.copySE8AnnotationsToType(initializationScope, field, fieldDecl.annotations);
+					ASTNode.copySE8AnnotationsToType(initializationScope, field, annotations,
+							fieldDecl.getKind() != AbstractVariableDeclaration.ENUM_CONSTANT); // type annotation is illegal on enum constant
 				}
-				Annotation.isTypeUseCompatible(fieldDecl.type, this.scope, fieldDecl.annotations);
+				Annotation.isTypeUseCompatible(fieldDecl.type, this.scope, annotations);
 			}
 			// apply null default:
 			if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
@@ -1922,7 +1924,7 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 				if (sourceLevel >= ClassFileConstants.JDK1_8 && !method.isVoidMethod()) {
 					Annotation [] annotations = methodDecl.annotations;
 					if (annotations != null && annotations.length != 0) {
-						ASTNode.copySE8AnnotationsToType(methodDecl.scope, method, methodDecl.annotations);
+						ASTNode.copySE8AnnotationsToType(methodDecl.scope, method, methodDecl.annotations, true);
 					}
 					Annotation.isTypeUseCompatible(returnType, this.scope, methodDecl.annotations);
 				}

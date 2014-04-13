@@ -7102,4 +7102,36 @@ public void testBug430084() {
 		"Return type for the method is missing\n" +
 		"----------\n");
 }
+public void testBug432348() {
+	String sourceString =
+		"import org.eclipse.jdt.annotation.NonNull;\n" + 
+		"import java.lang.annotation.*;\n" +
+		"\n" +
+		"@Target(ElementType.FIELD)\n" +
+		"@interface Marker {}\n" + 
+		"public enum E {\n" + 
+		"	@Marker @NonNull A, B, C\n" + 
+		"}\n";
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		runConformTestWithLibs(
+			new String[] {
+				"E.java",
+				sourceString
+			},
+			getCompilerOptions(),
+			"");
+	} else {
+		runNegativeTestWithLibs(
+			new String[] {
+				"E.java",
+				sourceString
+			},
+			"----------\n" + 
+			"1. ERROR in E.java (at line 7)\n" + 
+			"	@Marker @NonNull A, B, C\n" + 
+			"	        ^^^^^^^^\n" + 
+			"Syntax error, type annotations are illegal here\n" + 
+			"----------\n");
+	}
+}
 }
