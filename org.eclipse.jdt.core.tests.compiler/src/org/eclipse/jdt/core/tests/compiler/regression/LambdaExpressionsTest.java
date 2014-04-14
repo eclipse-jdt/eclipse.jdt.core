@@ -4096,7 +4096,65 @@ public void test430310c() {
 			},
 			"OK");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432619, [1.8] Bogus error from method reference: "should be accessed in a static way"
+public void test432619() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.function.BiConsumer;\n" +
+			"public interface X<E extends Exception> {\n" +
+			"	static void foo() {\n" +
+			"	    BiConsumer<double[][], Double> biConsumer2 = Re2::accumulate;\n" +
+			"	}\n" +
+			"	static class Re2 {\n" +
+			"	    static void accumulate(double[][] container, Double value) {}\n" +
+			"	}\n" +
+			"   public static void main(String [] args) {\n" +
+			"       System.out.println(\"OK\");\n" +
+			"   }\n" +
+			"}\n"
+		},
+		"OK");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432619, [1.8] Bogus error from method reference: "should be accessed in a static way"
+public void test432619a() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"StreamInterface.java",
+			"import java.util.Map;\n" +
+			"import java.util.stream.Collector;\n" +
+			"public interface StreamInterface<E extends Exception> {\n" +
+			"	static class DoubleCo {\n" +
+			"		private static class Re2 {\n" +
+			"			static <K, E extends Exception> Map<K, double[]> internalToMapToList2() {\n" +
+			"				Collector<Double, double[][], double[][]> toContainer1 = Collector.of(\n" +
+			"				//The method supply() from the type StreamInterface.DoubleCo.Re2 should be accessed in a static way\n" +
+			"				  StreamInterface.DoubleCo.Re2::supply,\n" +
+			"				  //The method accumulate(double[][], Double) from the type StreamInterface.DoubleCo.Re2 should be accessed in a static way\n" +
+			"				  StreamInterface.DoubleCo.Re2::accumulate,\n" +
+			"				  //The method combine(double[][], double[][]) from the type StreamInterface.DoubleCo.Re2 should be accessed in a static way\n" +
+			"				  StreamInterface.DoubleCo.Re2::combine);\n" +
+			"				Collector<Double, double[][], double[][]> toContainer2 =\n" +
+			"				//All 3 from above:\n" +
+			"				  Collector.of(DoubleCo.Re2::supply, DoubleCo.Re2::accumulate, DoubleCo.Re2::combine);\n" +
+			"				return null;\n" +
+			"			}\n" +
+			"			private static double[][] supply() {\n" +
+			"				return new double[64][];\n" +
+			"			}\n" +
+			"			private static void accumulate(double[][] container, Double value) {}\n" +
+			"			private static double[][] combine(double[][] container, double[][] containerRight) {\n" +
+			"				return new double[container.length + containerRight.length][];\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"     public static void main(String [] args) {\n" +
+			"         System.out.println(\"OK\");\n" +
+			"     }\n" +
+			"}\n"
+		},
+		"OK");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
