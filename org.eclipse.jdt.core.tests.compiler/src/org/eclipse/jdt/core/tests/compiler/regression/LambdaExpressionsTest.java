@@ -4197,6 +4197,21 @@ public void test432520() throws Exception {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432625, [1.8] VerifyError with lambdas and wildcards  
+public void test432625() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.stream.Stream;\n" +
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        Stream<?> stream = Stream.of(\"A\");\n" +
+			"        stream.map(x -> (String) x);\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
