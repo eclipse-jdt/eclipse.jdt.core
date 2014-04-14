@@ -4155,6 +4155,27 @@ public void test432619a() throws Exception {
 		},
 		"OK");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432682, [1.8][compiler] Type mismatch error with lambda expression
+public void _test432682() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Optional;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Optional<String> userName = Optional.of(\"sa\");\n" +
+			"		Optional<String> password = Optional.of(\"sa\");\n" +
+			"		boolean isValid = userName.flatMap(u -> {\n" +
+			"			return password.map(p -> {\n" +
+			"				return u.equals(\"sa\") && p.equals(\"sa\");\n" +
+			"			});\n" +
+			"		}).orElse(false);\n" +
+			"		System.out.println(isValid);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"OK");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
