@@ -4176,6 +4176,27 @@ public void _test432682() throws Exception {
 		},
 		"OK");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432520, compiler "duplicate method" bug with lamdas and generic interfaces 
+public void test432520() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void withProvider(Provider<String> provider) { }\n" +
+			"	public static void main(String [] args) {\n" +
+			"		withProvider(() -> \"user\");\n" +
+			"	}\n" +
+			"}\n" +
+			"interface ParentProvider<T> {\n" +
+			"	T get();\n" +
+			"}\n" +
+			"// if you remove the extends clause everything works fine\n" +
+			"interface Provider<T> extends ParentProvider<T> {\n" +
+			"	T get();\n" +
+			"}\n"
+		},
+		"");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
