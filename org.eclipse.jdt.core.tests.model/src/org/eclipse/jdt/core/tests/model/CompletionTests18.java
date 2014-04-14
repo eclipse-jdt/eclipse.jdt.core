@@ -1415,4 +1415,101 @@ public void test402081d() throws JavaModelException {
 			"longMethodName[METHOD_IMPORT]{longMethodName, Ltest.Y;, (Ljava.lang.String;)Ljava.lang.String;, longMethodName, (x), 35}",
 			requestor.getResults());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=431402, [assist] NPE in AssistParser.triggerRecoveryUponLambdaClosure:483 using Content Assist
+public void test431402() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/X.java",
+				"import java.util.function.Predicate;\n" +
+				"public class X {\n" +
+				"	private static void writeIt(Object list) {\n" +
+				"		list = replace(s -> true);\n" +
+				"		Object asList = null;\n" +
+				"		if(Boolean.TRUE) {\n" +
+				"			Object s = removeAll(asli);\n" +
+				"		}\n" +
+				"	}\n" +
+				"	private static Object replace(Predicate<String> tester) { return tester; }\n" +
+				"	Object removeAll(Object o1) { return o1; }\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "asli";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"asList[LOCAL_VARIABLE_REF]{asList, null, Ljava.lang.Object;, asList, null, 47}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432527, Content Assist crashes sometimes using JDK8 
+public void test432527() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+						"/Completion/src/test/X.java",
+						"import java.util.LinkedList;\n" +
+						"import java.util.List;\n" +
+						"public class X {\n" +
+						"	private Map	map;\n" +
+						"	public X() {\n" +
+						"		map = new Map();\n" +
+						"	}\n" +
+						"	public LinkedList<Node> getPath(int xFrom, int yFrom, int xTo, int yTo) {\n" +
+						"		LinkedList<Node> result = new LinkedList<>();\n" +
+						"		Node node = null;\n" +
+						"		int[] nodeCoords = null;\n" +
+						"		boolean nodeAdded = false;\n" +
+						"		if (nodeCoords != null) {\n" +
+						"			// something\n" +
+						"		}\n" +
+						"		else {\n" +
+						"			node = map.getGraph()\n" +
+						"					.getNodes()\n" +
+						"					.stream()\n" +
+						"					.filter((n) -> (n.x() / 100) == (xTo / 100) && (n.y() / 100) == (yTo / 100))\n" +
+						"					.min((n1, n2) -> (int) Math.round(Math.sqrt(Math.pow(n1.x() - xTo, 2) + Math.pow(n1.y() - yTo, 2)) - Math.sqrt(Math.pow(n2.x() - xTo, 2) + Math.pow(n2.y() - yTo, 2))))\n" +
+						"					.get();\n" +
+						"			nodeAdded = true;\n" +
+						"		}\n" +
+						"		if (nodeAdded) {\n" +
+						"			 /*here*/remov\n" +
+						"		}\n" +
+						"		return result;\n" +
+						"	}\n" +
+						"	\n" +
+						"	private void removeNodeFromGraph(Node node) {\n" +
+						"		map.getGraph().removeNode(node.id());\n" +
+						"	}\n" +
+						"	\n" +
+						"	\n" +
+						"	public class Map {\n" +
+						"		Graph graph = new Graph();\n" +
+						"		\n" +
+						"		public Graph getGraph() {return graph;}\n" +
+						"	}\n" +
+						"	\n" +
+						"	public class Graph {\n" +
+						"		List<Node> nodes;\n" +
+						"		\n" +
+						"		public List<Node> getNodes() {return nodes;}\n" +
+						"		public void addNode(Node node) {nodes.add(node);}\n" +
+						"		public void removeNode(Node node) {nodes.remove(node);}\n" +
+						"		public void removeNode(int id) {nodes.remove(nodes.stream().filter(node -> id == node.id()).findFirst());}\n" +
+						"	}\n" +
+						"	public class Node {\n" +
+						"		public int id() {return hashCode();}\n" +
+						"		public int x() {return 0;}\n" +
+						"		public int y() {return 0;}\n" +
+						"	}\n" +
+						"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "/*here*/remov";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"removeNodeFromGraph[METHOD_REF]{removeNodeFromGraph(), Ltest.X;, (Ltest.X$Node;)V, removeNodeFromGraph, (node), 27}",
+			requestor.getResults());
+}
 }
