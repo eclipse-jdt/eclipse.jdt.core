@@ -589,6 +589,12 @@ public abstract class Annotation extends Expression {
 				StringBuffer targetBuffer = new StringBuffer();
 				void check(long targetMask, char[] targetName) {
 					if ((containerAnnotationTypeTargets & targetMask & ~targets) != 0) {
+						 // if targetMask equals TagBits.AnnotationForType implies
+						 // TagBits.AnnotationForType is part of containerAnnotationTypeTargets
+						if (targetMask == TagBits.AnnotationForType &&
+								(targets & TagBits.AnnotationForTypeUse) != 0) {
+							return;
+						}
 						add(targetName);
 					}
 				}

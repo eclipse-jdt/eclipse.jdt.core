@@ -4439,4 +4439,48 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			true,
 			customOptions);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419827,  [1.8] Annotation with TYPE_USE as target is not allowed to use container with target TYPE
+	public void test419827a() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.lang.annotation.ElementType;\n" +
+					"import java.lang.annotation.Repeatable;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"\n" +
+					"@Target({ElementType.TYPE_USE})\n" +
+					"@Repeatable(FooContainer.class)\n" +
+					"@interface Foo {}\n" +
+					"@Target({ElementType.TYPE, ElementType.TYPE_USE})\n" +
+					"@interface FooContainer {\n" +
+					"	Foo[] value();\n" +
+					"}\n" +
+					"public class X{}\n"
+				},
+				"",
+				true);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419827,  [1.8] Annotation with TYPE_USE as target is not allowed to use container with target TYPE
+	// Although the target of FooContainer is different from that of Foo, Foo container cannot be used in any place where
+	// Foo can't be used.
+	public void test419827b() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.lang.annotation.ElementType;\n" +
+					"import java.lang.annotation.Repeatable;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"\n" +
+					"@Target({ElementType.TYPE_USE})\n" +
+					"@Repeatable(FooContainer.class)\n" +
+					"@interface Foo {}\n" +
+					"@Target({ElementType.TYPE})\n" +
+					"@interface FooContainer {\n" +
+					"	Foo[] value();\n" +
+					"}\n" +
+					"public class X{}\n"
+				},
+				"",
+				true);
+	}
 }
