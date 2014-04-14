@@ -8027,7 +8027,7 @@ public void test425512cd() throws Exception {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	I i = (int [] & I) (i) -> {};\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"	       ^^^^^^\n" + 
 		"Arrays are not allowed in intersection cast operator\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 7)\n" + 
@@ -8054,7 +8054,7 @@ public void test425512ce() throws Exception {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	I i = (int [] & Serializable) (i) -> {};\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"	       ^^^^^^\n" + 
 		"Arrays are not allowed in intersection cast operator\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 7)\n" + 
