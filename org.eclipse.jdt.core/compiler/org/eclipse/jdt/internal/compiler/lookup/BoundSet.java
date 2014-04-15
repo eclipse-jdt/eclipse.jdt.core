@@ -233,11 +233,17 @@ class BoundSet {
 		 * which only happens if null annotations are enabled in the first place.
 		 */
 		private void useNullHints(long nullHints, TypeBinding[] boundTypes, LookupEnvironment environment) {
-			AnnotationBinding[] annot = environment.nullAnnotationsFromTagBits(nullHints);
-			if (annot != null) {
-				// only get here if exactly one of @NonNull or @Nullable was hinted; now apply this hint:
+			if (nullHints == TagBits.AnnotationNullMASK) {
+				// on contradiction remove null type annotations
 				for (int i = 0; i < boundTypes.length; i++)
-					boundTypes[i] = environment.createAnnotatedType(boundTypes[i], annot);
+					boundTypes[i] = boundTypes[i].unannotated();
+			} else {
+				AnnotationBinding[] annot = environment.nullAnnotationsFromTagBits(nullHints);
+				if (annot != null) {
+					// only get here if exactly one of @NonNull or @Nullable was hinted; now apply this hint:
+					for (int i = 0; i < boundTypes.length; i++)
+						boundTypes[i] = environment.createAnnotatedType(boundTypes[i], annot);
+				}
 			}
 		}
 		TypeBinding combineAndUseNullHints(TypeBinding type, long nullHints, LookupEnvironment environment) {
@@ -259,6 +265,8 @@ class BoundSet {
 				while(it.hasNext())
 					nullHints |= it.next().nullHints;
 			}
+			if (nullHints == TagBits.AnnotationNullMASK) // on contradiction remove null type annotations
+				return type.unannotated();
 			AnnotationBinding[] annot = environment.nullAnnotationsFromTagBits(nullHints);
 			if (annot != null)
 				// only get here if exactly one of @NonNull or @Nullable was hinted; now apply this hint:

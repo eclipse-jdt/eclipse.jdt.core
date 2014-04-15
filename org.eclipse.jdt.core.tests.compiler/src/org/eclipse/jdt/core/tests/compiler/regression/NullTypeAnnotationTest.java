@@ -2606,8 +2606,10 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
-	// conflicting annotations from type variable application and type variable substitution
+	// conflicting annotations from type variable application and type variable substitution -> exclude null annotations from inference
 	public void testNullTypeInference3() {
+		Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 		runNegativeTestWithLibs(
 			new String[] {
 				"Generics.java",
@@ -2624,16 +2626,16 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	}\n" + 
 				"}\n"
 			},
-			getCompilerOptions(),
+			compilerOptions,
 			"----------\n" + 
 			"1. ERROR in Generics.java (at line 6)\n" + 
 			"	@NonNull String s = m(in);\n" + 
-			"	                      ^^\n" + 
-			"Contradictory null annotations: method was inferred as \'@NonNull String m(@NonNull @Nullable String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+			"	                    ^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull String\'\n" + 
 			"----------\n");
 	}
 
-	// conflicting annotations from type variable application and type variable substitution
+	// conflicting annotations from type variable application and type variable substitution -> exclude null annotations from inference
 	public void testNullTypeInference3b() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -2657,12 +2659,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. ERROR in Generics.java (at line 7)\n" + 
 			"	@NonNull String s1 = m1(in);\n" + 
 			"	                     ^^^^^^\n" + 
-			"Contradictory null annotations: method was inferred as \'@NonNull @Nullable String m1(@NonNull @Nullable String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+			"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
 			"----------\n" + 
 			"2. ERROR in Generics.java (at line 8)\n" + 
 			"	@NonNull String s2 = m2(in);\n" + 
 			"	                     ^^^^^^\n" + 
-			"Contradictory null annotations: method was inferred as \'@NonNull @Nullable String m2(@NonNull String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+			"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
 			"----------\n");
 	}
 
@@ -4902,4 +4904,32 @@ public void testBug431269() {
 		"Type mismatch: cannot convert from QField<R,Long> to QField<R,String>\n" + 
 		"----------\n");
 }
+// was inferring null type annotations too aggressively
+public void testBug432223() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	String val;\n" +
+			"	public static @NonNull <T> T assertNotNull(@Nullable T object) {\n" + 
+			"		return assertNotNull(null, object);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static @NonNull <T> T assertNotNull(@Nullable String message, @Nullable T object) {\n" + 
+			"		if (object == null) {\n" + 
+			"			throw new NullPointerException(message);\n" + 
+			"		}\n" + 
+			"		return object;\n" + 
+			"	}\n" +
+			"	void test(@Nullable X x) {\n" +
+			"		@NonNull X safe = assertNotNull(x);\n" +
+			"		System.out.println(safe.val);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+
 }
