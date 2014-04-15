@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11627,7 +11627,7 @@ public void test208() {
 			"\n"+ 
 			"}\n"
 		},
-		this.complianceLevel <= ClassFileConstants.JDK1_5 ? "Annotation was found" : "Annotation was not found");
+		"Annotation was found");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=288658, make sure a bridge method
 // is generated when a public method is inherited from a non-public class into a
@@ -11665,7 +11665,7 @@ public void test208a() {
 			"\n"+ 
 			"}\n"
 		},
-		this.complianceLevel <= ClassFileConstants.JDK1_5 ? "Annotation was found" : "Annotation was not found");
+		"Annotation was found");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=322001
 public void test209() {
@@ -13712,7 +13712,7 @@ public void test288658() {
 			"\n"+ 
 			"}\n"
 		},
-		this.complianceLevel <= ClassFileConstants.JDK1_5 ? "Annotation was found" : "Annotation was not found");
+		"Annotation was found");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=288658, make sure a bridge method
 // is generated when a public method is inherited from a non-public class into a
@@ -13751,7 +13751,7 @@ public void test288658a() {
 			"\n"+ 
 			"}\n"
 		},
-		this.complianceLevel <= ClassFileConstants.JDK1_5 ? "Annotation was found" : "Annotation was not found");
+		"Annotation was found");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=354229
 public void test354229() {

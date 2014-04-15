@@ -3312,6 +3312,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		if (this.targetJDK >= ClassFileConstants.JDK1_4) {
 			AbstractMethodDeclaration methodDeclaration = methodBinding.sourceMethod();
+			if (methodBinding instanceof SyntheticMethodBinding) {
+				SyntheticMethodBinding syntheticMethod = (SyntheticMethodBinding) methodBinding;
+				if (syntheticMethod.purpose == SyntheticMethodBinding.SuperMethodAccess && CharOperation.equals(syntheticMethod.selector, syntheticMethod.targetMethod.selector))
+					methodDeclaration = ((SyntheticMethodBinding)methodBinding).targetMethod.sourceMethod();
+			}
 			if (methodDeclaration != null) {
 				Annotation[] annotations = methodDeclaration.annotations;
 				if (annotations != null) {
