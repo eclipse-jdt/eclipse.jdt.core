@@ -39,6 +39,12 @@ import java.lang.annotation.Target;
  * <li>Nullness cannot be determined, because other program elements are involved for which
  *     null annotations are lacking.</li>
  * </ol>
+ * <p>
+ * <b>Note:</b> Since org.eclipse.jdt.annotation 2.0.0, the
+ * <code>@Target</code> is <code>{TYPE_USE}</code>. For the old API, see
+ * <a href="http://help.eclipse.org/kepler/topic/org.eclipse.jdt.doc.isv/reference/api/org/eclipse/jdt/annotation/NonNull.html">
+ * <code>@NonNull</code> in 1.1.0</a>.
+ * </p>
  * @since 1.0
  */
 @Documented

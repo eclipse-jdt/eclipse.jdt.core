@@ -46,6 +46,12 @@ import java.lang.annotation.Target;
  * Note that for applying an annotation to a package, a file by the name
  * <code>package-info.java</code> is used.
  * </p>
+ * <p>
+ * <b>Note:</b> Since org.eclipse.jdt.annotation 2.0.0, this annotation also applies to field and local variable declarations.
+ * For the old API, see
+ * <a href="http://help.eclipse.org/kepler/topic/org.eclipse.jdt.doc.isv/reference/api/org/eclipse/jdt/annotation/NonNullByDefault.html">
+ * <code>@NonNullByDefault</code> in 1.1.0</a>.
+ * </p>
  * @since 1.0
  */
 @Documented
@@ -54,6 +60,7 @@ import java.lang.annotation.Target;
 public @interface NonNullByDefault {
 	/**
 	 * Specifies the set of locations within the annotated declaration that should be affected by the nonnull default.
+	 * @return the locations, or an empty array to cancel any null defaults from enclosing scopes
 	 * @since 2.0
 	 */
 	DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD, TYPE_BOUND, TYPE_ARGUMENT };
