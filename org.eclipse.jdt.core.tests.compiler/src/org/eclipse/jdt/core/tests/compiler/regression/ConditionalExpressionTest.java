@@ -537,4 +537,28 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 				},
 				"");
 	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432487,  NullPointerException during compilation using jdk1.8.0
+	public void testBug432487() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class Y {\n" +
+				"	String f() {\n" +
+				"		return \"\";\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X {\n" +
+				"void f(String x) {}\n" +
+				"	void bar(Y y) {\n" +
+				"		f(y.f2() == 1 ? null : y.f());\n" +
+				"	}\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	f(y.f2() == 1 ? null : y.f());\n" +
+			"	    ^^\n" +
+			"The method f2() is undefined for the type Y\n" +
+			"----------\n");
+	}
 }
