@@ -191,7 +191,6 @@ public class BuilderTests extends TestBase
 				"Problem : FooEvent cannot be resolved to a type [ resource : </" + _projectName + "/src/test295948/FooImpl.java> range : <52,60> category : <40> severity : <2>]");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=407841
-	@SuppressWarnings("restriction")
 	public void testBbug407841() throws Throwable {
 		int old = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
 		try {
