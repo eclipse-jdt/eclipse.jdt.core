@@ -2683,7 +2683,7 @@ public void test0057() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	public default void foo() { System.out.println(); }\n" + 
-			"	                           ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	                    ^^^^^\n" + 
 			"Default methods are allowed only at source level 1.8 or above\n" + 
 			"----------\n";
 
@@ -3033,10 +3033,14 @@ public void testBug399773() {
 
 	String expectedProblemLog =
 			"----------\n" + 
-			"1. ERROR in X.java\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	default void doitalso () {}\n" + 
+			"	             ^^^^^^^^^^^\n" + 
 			"Default methods are allowed only at source level 1.8 or above\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	default void doitalso () {}\n" + 
+			"	             ^^^^^^^^^^^\n" + 
 			"Default methods are allowed only at source level 1.8 or above\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 10)\n" + 
@@ -3145,12 +3149,12 @@ public void testBug399780() {
 			"1. ERROR in I.java (at line 2)\n" + 
 			"	public static void foo1() { System.out.println(); }\n" + 
 			"	                   ^^^^^^\n" + 
-			"Illegal modifier for the interface method foo1; only public & abstract are permitted\n" + 
+			"Static methods are allowed in interfaces only at source level 1.8 or above\n" + 
 			"----------\n" + 
 			"2. ERROR in I.java (at line 2)\n" + 
 			"	public static void foo1() { System.out.println(); }\n" + 
-			"	                           ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Static methods are allowed in interfaces only at source level 1.8 or above\n" + 
+			"	                   ^^^^^^\n" + 
+			"Illegal modifier for the interface method foo1; only public & abstract are permitted\n" + 
 			"----------\n" + 
 			"3. ERROR in I.java (at line 3)\n" + 
 			"	public static void foo2();\n" + 
@@ -3165,6 +3169,7 @@ public void testBug399780() {
 
 	runComplianceParserTest(
 		testFiles,
+		expectedProblemLog,
 		expectedProblemLog,
 		expectedProblemLog,
 		expectedProblemLog,
@@ -3418,5 +3423,61 @@ public void test429110() {
 			"	                               ^^^^^^^^\n" + 
 			"Syntax error, type annotations are available only when source level is at least 1.8\n" + 
 			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=421477: [1.8][compiler] strange error message for default method in class
+public void test421477() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  default void f() {\n" +
+				"  }\n" +
+				"  default X() {}\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	default void f() {\n" +
+			"	             ^^^\n" +
+			(this.complianceLevel >= ClassFileConstants.JDK1_8 ?
+			"Default methods are allowed only in interfaces.\n" :
+			"Illegal modifier for the method f; only public, protected, private, abstract, static, final, synchronized, native & strictfp are permitted\n")	+
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	default X() {}\n" +
+			"	        ^\n" +
+			"Syntax error on token \"X\", Identifier expected after this token\n" +
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=428605: [1.8] Error highlighting can be improved for default methods
+public void test428605() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface X {\n" +
+				"       default void f() {\n" +
+				"       }\n" +
+				"       static void g() {\n" +
+				"       }\n" +
+				"} \n"
+			},
+			(this.complianceLevel < ClassFileConstants.JDK1_8 ?
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	default void f() {\n" +
+			"	             ^^^\n" +
+			"Default methods are allowed only at source level 1.8 or above\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	static void g() {\n" +
+			"	            ^^^\n" +
+			"Static methods are allowed in interfaces only at source level 1.8 or above\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 4)\n" +
+			"	static void g() {\n" +
+			"	            ^^^\n" +
+			"Illegal modifier for the interface method g; only public & abstract are permitted\n" +
+			"----------\n" :
+			""));
 }
 }

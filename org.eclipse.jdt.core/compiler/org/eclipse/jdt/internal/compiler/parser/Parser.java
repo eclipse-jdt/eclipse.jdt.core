@@ -4948,7 +4948,11 @@ protected void consumeMethodDeclaration(boolean isNotAbstract, boolean isDefault
 	md.bodyEnd = this.endPosition;
 	md.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 	if (isDefaultMethod && !this.tolerateDefaultClassMethods) {
-		problemReporter().defaultModifierIllegallySpecified(md.bodyStart, this.endPosition);
+		if (this.options.sourceLevel >= ClassFileConstants.JDK1_8) {
+			problemReporter().defaultModifierIllegallySpecified(md.sourceStart, md.sourceEnd);
+		} else {
+			problemReporter().illegalModifierForMethod(md);
+		}
 	}
 }
 protected void consumeMethodHeader() {
