@@ -526,4 +526,38 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			deleteProject(projectName);
 		}
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=431716
+	public void test431716() throws CoreException {
+		String projectName = "Bug431716";
+		try {
+			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+			project.open(null);
+			String fileContent = 
+					"public interface X<T> {\n" +
+					"    default void asIntStream() {\n" +
+					"    	mapToInt((long l) -> (int) l);" +
+					"    }\n" +
+					"	default void mapToInt(ToIntFunction<? super T> mapper) {}\n" +
+					"interface ToIntFunction<T> {\n" +
+					"	int applyAsInt(T value);\n" +
+					"}\n";
+			String fileName = "/" + projectName + "/src/X.java";
+			createFile(fileName, fileContent);
+			
+			ICompilationUnit unit = getCompilationUnit(fileName);
+			int start = fileContent.indexOf("l)");
+			IJavaElement[] elements = unit.codeSelect(start, 1);
+			assertEquals("Incorrect java element", IJavaElement.LOCAL_VARIABLE, elements[0].getElementType());
+			String mem = elements[0].getHandleIdentifier();
+			String expected = "=Bug431716/src<{X.java[X~asIntStream@l!72!77!77!77!J!0!true";
+			assertEquals("Incorrect memento", expected, mem);
+			IMethod parent = (IMethod) elements[0].getParent();
+			mem = parent.getHandleIdentifier();
+			expected = "=Bug431716/src<{X.java[X~asIntStream";
+			assertEquals("Incorrect memento", expected, mem);
+		}
+		finally {
+			deleteProject(projectName);
+		}
+	}
 }
