@@ -7809,6 +7809,10 @@ public void typeMismatchError(TypeBinding actualType, TypeBinding expectedType, 
 			expectedType = expectedType.erasure();
 	}
 	if (actualType != null && (actualType.tagBits & TagBits.HasMissingType) != 0) { // improve secondary error
+		if (location instanceof Annotation) {
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=376977
+			return; // Already reported, don't report a secondary error
+		}
 		this.handle(
 				IProblem.UndefinedType,
 				new String[] {new String(actualType.leafComponentType().readableName())},
