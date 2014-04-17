@@ -6358,4 +6358,62 @@ public void testBug418011() throws CoreException {
 		deleteProject("P");
 	}
 }
+// Content Assist / Quick Fix import suggestion for nested annotations with argument list
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=376977
+public void testBug376977() throws CoreException {
+	Hashtable oldOptions = JavaCore.getOptions();
+	
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+		
+		refresh(p);
+		
+		waitUntilIndexesReady();
+		
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/myannotations/Nested.java",
+				"package myannotations;\n"+
+				"public @interface Nested {\n" +
+				"}");
+
+		this.workingCopies[1] = getWorkingCopy(
+				"/P/src/myannotations/Outer.java",
+				"package myannotations;\n"+
+				"public @interface Outer {\n" +
+				"	Nested[] nest();\n" +
+				"}");
+
+		this.workingCopies[2] = getWorkingCopy(
+				"/P/src/mymyclass/Outer.java",
+				"package mymyclass;\n"+
+				"import myannotations.Outer;\n"+
+				"import myannotations.Nested;\n"+
+				"@Outer(nest= {@Nested()})\n" +
+				"public class MyClass {\n" +
+				"}");
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+
+	    String str = this.workingCopies[2].getSource();
+	    String completeBehind = "nest= {@Nes";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+	    
+	    assertResults(
+			"Nested[TYPE_REF]{Nested, myannotations, Lmyannotations.Nested;, null, null, 47}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+		
+		JavaCore.setOptions(oldOptions);
+	}
+}
 }
