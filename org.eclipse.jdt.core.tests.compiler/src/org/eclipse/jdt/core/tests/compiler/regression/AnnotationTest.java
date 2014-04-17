@@ -10698,4 +10698,38 @@ public void testBug386356_2() {
 			
 		});
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=376977
+public void test376977() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+		return;
+	}
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import p.Outer;\n" +
+			"@Outer(nest= {@Nested()})\n" +
+			"public class X {}",
+			"p/Outer.java",
+			"package p;\n" + 
+			"public @interface Outer {\n" + 
+			"   Nested[] nest();" + 
+			"}",
+			"p/Nested.java",
+			"package p;\n" + 
+			"public @interface Nested {\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	@Outer(nest= {@Nested()})\n" + 
+		"	               ^^^^^^\n" + 
+		"Nested cannot be resolved to a type\n" + 
+		"----------\n",
+		null,
+		true,
+		null,
+		false,
+		false,
+		false);
+}
 }

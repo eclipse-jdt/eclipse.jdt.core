@@ -2464,7 +2464,14 @@ public final class CompletionEngine
 	private void completionOnMarkerAnnotationName(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
 		CompletionOnMarkerAnnotationName annot = (CompletionOnMarkerAnnotationName) astNode;
 
-		CompletionOnAnnotationOfType fakeType = (CompletionOnAnnotationOfType)scope.parent.referenceContext();
+		// When completion is inside lambda body, the fake type cannot be attached to the lambda.
+		ReferenceContext referenceContext = scope.parent.referenceContext();
+		CompletionOnAnnotationOfType fakeType;
+		if (referenceContext instanceof CompletionOnAnnotationOfType) {
+			fakeType = (CompletionOnAnnotationOfType) referenceContext;
+		} else {
+			fakeType = new CompletionOnAnnotationOfType(CompletionParser.FAKE_TYPE_NAME, scope.referenceCompilationUnit().compilationResult, annot);
+		}
 		if (fakeType.annotations[0] == annot) {
 			// When the completion is inside a method body the annotation cannot be accuratly attached to the correct node by completion recovery.
 			// So 'targetedElement' is not computed in this case.
