@@ -8093,6 +8093,7 @@ protected void consumeReferenceExpressionTypeForm(boolean isPrimitive) { // actu
 	int sourceEnd;
 
 	sourceEnd = (int) this.identifierPositionStack[this.identifierPtr];
+	referenceExpression.nameSourceStart = (int) (this.identifierPositionStack[this.identifierPtr] >>> 32);
 	selector = this.identifierStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
 	
@@ -8133,6 +8134,7 @@ protected void consumeReferenceExpressionPrimaryForm() {
 	int sourceEnd;
 
 	sourceEnd = (int) this.identifierPositionStack[this.identifierPtr];
+	referenceExpression.nameSourceStart = (int) (this.identifierPositionStack[this.identifierPtr] >>> 32);
 	selector = this.identifierStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
 
@@ -8157,6 +8159,7 @@ protected void consumeReferenceExpressionSuperForm() {
 	int sourceEnd;
 
 	sourceEnd = (int) this.identifierPositionStack[this.identifierPtr];
+	referenceExpression.nameSourceStart = (int) (this.identifierPositionStack[this.identifierPtr] >>> 32);
 	selector = this.identifierStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
 
@@ -8196,6 +8199,7 @@ protected void consumeReferenceExpressionGenericTypeForm() {
 	int sourceEnd;
 
 	sourceEnd = (int) this.identifierPositionStack[this.identifierPtr];
+	referenceExpression.nameSourceStart = (int) (this.identifierPositionStack[this.identifierPtr] >>> 32);
 	selector = this.identifierStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
 

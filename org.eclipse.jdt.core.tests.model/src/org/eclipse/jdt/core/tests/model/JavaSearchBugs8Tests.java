@@ -1813,7 +1813,7 @@ public void testBug400904_0001() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {"I"});
 	search(method, REFERENCES, EXACT_RULE);
 	assertSearchResults(
-			"src/b400904/X.java void b400904.X.doit() [super::foo] EXACT_MATCH"
+			"src/b400904/X.java void b400904.X.doit() [foo] EXACT_MATCH"
 	);	
 }
 
@@ -1842,7 +1842,7 @@ public void testBug400904_0001a() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {"I"});
 	search(method, SUPER_REFERENCE);
 	assertSearchResults(
-			"src/b400904/X.java void b400904.X.doit() [super::foo] EXACT_MATCH"
+			"src/b400904/X.java void b400904.X.doit() [foo] EXACT_MATCH"
 	);	
 }
 
@@ -1878,7 +1878,7 @@ public void testBug400904_0002() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {"I"});
 	search(method, REFERENCES, EXACT_RULE);
 	assertSearchResults(
-			"src/b400904/X.java void b400904.X.doit() [super::<String>foo] EXACT_MATCH"
+			"src/b400904/X.java void b400904.X.doit() [foo] EXACT_MATCH"
 	);	
 }
 
@@ -1916,7 +1916,7 @@ public void testBug400904_0003() throws CoreException {
 	IMethod method = type.getMethod("foo", null);
 	search(method, REFERENCES, EXACT_RULE);
 	assertSearchResults(
-			"src/b400904/X.java b400904.X.i [X :: foo] EXACT_MATCH\n" + 
+			"src/b400904/X.java b400904.X.i [foo] EXACT_MATCH\n" + 
 			"src/b400904/X.java void b400904.X.main() [foo()] EXACT_MATCH"
 	);	
 }
@@ -1950,7 +1950,7 @@ public void testBug400904_0004() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {"I"});
 	search(method, REFERENCES, EXACT_RULE);
 	assertSearchResults(
-			"src/b400904/X.java void b400904.X.main(String[]) [Y::<String>foo] EXACT_MATCH"
+			"src/b400904/X.java void b400904.X.main(String[]) [foo] EXACT_MATCH"
 	);	
 }
 
@@ -1985,7 +1985,7 @@ public void testBug400904_0005() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {"I"});
 	search(method, REFERENCES, EXACT_RULE);
 	assertSearchResults(
-			"src/b400904/X.java void b400904.X.main(String[]) [Y.Z::foo] EXACT_MATCH"
+			"src/b400904/X.java void b400904.X.main(String[]) [foo] EXACT_MATCH"
 	);	
 }
 
@@ -2020,7 +2020,7 @@ public void testBug400904_0006() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {"I"});
 	search(method, REFERENCES, EXACT_RULE);
 	assertSearchResults(
-			"src/b400904/X.java void b400904.X.main(String[]) [Y.Z::<String>foo] EXACT_MATCH"
+			"src/b400904/X.java void b400904.X.main(String[]) [foo] EXACT_MATCH"
 	);	
 }
 
@@ -2053,7 +2053,7 @@ public void testBug400904_0007() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {"I"});
 	search(method, REFERENCES, EXACT_RULE);
 	assertSearchResults(
-			"src/b400904/X.java void b400904.X.main(String[]) [new Y()::foo] EXACT_MATCH"
+			"src/b400904/X.java void b400904.X.main(String[]) [foo] EXACT_MATCH"
 	);	
 }
 
@@ -2086,7 +2086,7 @@ public void testBug400904_0008() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {"I"});
 	search(method, REFERENCES, EXACT_RULE);
 	assertSearchResults(
-			"src/b400904/X.java void b400904.X.main(String[]) [new Y()::<String>foo] EXACT_MATCH"
+			"src/b400904/X.java void b400904.X.main(String[]) [foo] EXACT_MATCH"
 	);	
 }
 
@@ -2125,7 +2125,7 @@ public void testBug400904_0009() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {"I"});
 	search(method, REFERENCES, EXACT_RULE);
 	assertSearchResults(
-			"src/b400904/X.java void b400904.X.main(String[]) [Y<String>::foo] EXACT_MATCH"
+			"src/b400904/X.java void b400904.X.main(String[]) [foo] EXACT_MATCH"
 	);
 }
 
@@ -2165,7 +2165,7 @@ public void testBug400904_0010() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {"I"});
 	search(method, REFERENCES, EXACT_RULE);
 	assertSearchResults(
-			"src/b400904/X.java void b400904.X.main(String[]) [Y<String>::<String>foo] EXACT_MATCH"
+			"src/b400904/X.java void b400904.X.main(String[]) [foo] EXACT_MATCH"
 	);
 }
 
@@ -2203,7 +2203,7 @@ public void testBug400904_0011() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {"I"});
 	search(method, REFERENCES, EXACT_RULE);
 	assertSearchResults(
-			"src/b400904/X.java void b400904.X.main(String[]) [Y<String>.Z::foo] EXACT_MATCH"
+			"src/b400904/X.java void b400904.X.main(String[]) [foo] EXACT_MATCH"
 	);
 }
 
@@ -2241,7 +2241,7 @@ public void testBug400904_0012() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {"I"});
 	search(method, REFERENCES, EXACT_RULE);
 	assertSearchResults(
-			"src/b400904/X.java void b400904.X.main(String[]) [Y<String>.Z::<String>foo] EXACT_MATCH"
+			"src/b400904/X.java void b400904.X.main(String[]) [foo] EXACT_MATCH"
 	);
 }
 
@@ -2278,7 +2278,7 @@ public void testBug400904_0013() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {"I"});
 	search(method, REFERENCES, ERASURE_RULE);
 	assertSearchResults(
-			"src/b400904/X.java void b400904.X.main(String[]) [Y<String>.Z<String>::foo] EXACT_MATCH"
+			"src/b400904/X.java void b400904.X.main(String[]) [foo] EXACT_MATCH"
 	);
 }
 
@@ -2315,7 +2315,7 @@ public void testBug400904_0014() throws CoreException {
 	IMethod method = type.getMethod("foo", new String[] {"I"});
 	search(method, REFERENCES, EXACT_RULE);
 	assertSearchResults(
-			"src/b400904/X.java void b400904.X.main(String[]) [Y<String>.Z<String>::<String>foo] EXACT_MATCH"
+			"src/b400904/X.java void b400904.X.main(String[]) [foo] EXACT_MATCH"
 	);
 }
 
@@ -2679,7 +2679,7 @@ public void testBug400905_0008() throws CoreException {
 		);
 		IMethod method = getCompilationUnit("/P/src/Y.java").getType("Y").getMethod("goo", new String[0]);
 		search(method, REFERENCES, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaProject[] {project}), this.resultCollector);
-		assertSearchResults("src/X.java void X.main(String[]) [Y::goo] EXACT_MATCH");
+		assertSearchResults("src/X.java void X.main(String[]) [goo] EXACT_MATCH");
 	}
 	finally {
 		deleteProject("P");
@@ -2747,8 +2747,8 @@ public void testBug400905_0010() throws CoreException {
 		);
 		IMethod method = getCompilationUnit("/P/src/Y.java").getType("Y").getMethod("goo", new String[0]);
 		search(method, REFERENCES, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaProject[] {project}), this.resultCollector);
-		assertSearchResults("src/J.java void J.main(String[]) [Y::goo] EXACT_MATCH\n" + 
-				"src/J.java void J.foo() [Y::goo] EXACT_MATCH");
+		assertSearchResults("src/J.java void J.main(String[]) [goo] EXACT_MATCH\n" + 
+				"src/J.java void J.foo() [goo] EXACT_MATCH");
 	}
 	finally {
 		deleteProject("P");
@@ -3401,7 +3401,7 @@ public void testBug400905_0025() throws CoreException {
 	);
 	
 	search(this.workingCopies[0].getType("Y").getMethod("goo", new String[] { "I" }), THIS_REFERENCE);
-	assertSearchResults("src/test/Test.java void test.X.main(String[]) [this::goo] EXACT_MATCH");
+	assertSearchResults("src/test/Test.java void test.X.main(String[]) [goo] EXACT_MATCH");
 }
 public void testBug400905_0026() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -3421,7 +3421,7 @@ public void testBug400905_0026() throws CoreException {
 	);
 	
 	search(this.workingCopies[0].getType("Y").getMethod("goo", new String[] { "I" }), SUPER_REFERENCE);
-	assertSearchResults("src/test/Test.java void test.X.main(String[]) [super::goo] EXACT_MATCH");
+	assertSearchResults("src/test/Test.java void test.X.main(String[]) [goo] EXACT_MATCH");
 }
 public void testBug400905_0027() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -3463,7 +3463,7 @@ public void testBug400905_0028() throws CoreException {
 	);
 	
 	search(this.workingCopies[0].getType("Y").getType("Z").getMethod("goo", new String[] { "I" }), THIS_REFERENCE | SUPER_REFERENCE | QUALIFIED_REFERENCE);
-	assertSearchResults("src/test/Test.java void test.X.main(String[]) [Y.Z::goo] EXACT_MATCH");
+	assertSearchResults("src/test/Test.java void test.X.main(String[]) [goo] EXACT_MATCH");
 }
 public void testBug400905_0029() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -3485,8 +3485,8 @@ public void testBug400905_0029() throws CoreException {
 	);
 	
 	search(this.workingCopies[0].getType("Y").getType("Z").getMethod("goo", new String[] { "I" }), REFERENCES, EXACT_RULE);
-	assertSearchResults("src/test/Test.java test.Y$Z.i [Z::goo] EXACT_MATCH\n" + 
-			"src/test/Test.java void test.X.main(String[]) [Y.Z::goo] EXACT_MATCH");
+	assertSearchResults("src/test/Test.java test.Y$Z.i [goo] EXACT_MATCH\n" + 
+			"src/test/Test.java void test.X.main(String[]) [goo] EXACT_MATCH");
 }
 public void testBug400905_0030() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -3729,7 +3729,7 @@ public void test430159c() throws CoreException {
 			null);
 	assertSearchResults(
 		"src/b429498/X.java void b429498.I.doit() [doit] EXACT_MATCH\n" + 
-		"src/b429498/X.java b429498.X.i [X :: foo] EXACT_MATCH\n" + 
+		"src/b429498/X.java b429498.X.i [foo] EXACT_MATCH\n" + 
 		"src/b429498/X.java void b429498.X.foo() [foo] EXACT_MATCH"
 	);	
 }
