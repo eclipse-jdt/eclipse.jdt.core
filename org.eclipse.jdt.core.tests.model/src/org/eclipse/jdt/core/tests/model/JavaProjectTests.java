@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,7 +43,7 @@ static {
 //	TESTS_NAMES = new String[] { "testBug351697" };
 }
 public static Test suite() {
-	TestSuite suite = (TestSuite) buildModelTestSuite(JavaProjectTests.class);
+	TestSuite suite = (TestSuite) buildModelTestSuite(JavaProjectTests.class, ALPHABETICAL_SORT);
 
 	// The following test must be at the end as it deletes a package and this would have side effects
 	// on other tests
