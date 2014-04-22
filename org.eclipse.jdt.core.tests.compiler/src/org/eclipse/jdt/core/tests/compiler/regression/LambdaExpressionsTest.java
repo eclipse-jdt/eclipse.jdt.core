@@ -4212,6 +4212,86 @@ public void test432625() throws Exception {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430766, [1.8] Internal compiler error.
+public void test430766() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" +
+				"import java.util.Comparator;\n" +
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"	static class Person {\n" +
+			    "		private String email;\n" +
+			    "		public Person(String email) {\n" +
+			    "			this.email = email;\n" +
+			    "		}\n" +
+			    "		public String getEmail() {\n" +
+			    "			return email;" +
+			    "		}\n" +
+			    "	}\n" +
+			    "	public static void main(String[] args) {\n" +
+			    "		List<Person> persons = new ArrayList<Person>();\n" +
+			    "		persons.add(new Person(\"joe.smith@gmail.com\"));\n" +
+			    "		persons.add(new Person(\"alice.smith@gmail.com\"));\n" +
+			    "		persons.sort(Comparator.comparing(Comparator.nullsLast(Person::getEmail)));\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 17)\n" + 
+			"	persons.sort(Comparator.comparing(Comparator.nullsLast(Person::getEmail)));\n" + 
+			"	                                             ^^^^^^^^^\n" + 
+			"The method nullsLast(Comparator<? super T>) in the type Comparator is not applicable for the arguments (Person::getEmail)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 17)\n" + 
+			"	persons.sort(Comparator.comparing(Comparator.nullsLast(Person::getEmail)));\n" + 
+			"	                                                       ^^^^^^^^^^^^^^^^\n" + 
+			"The type X.Person does not define getEmail(T, T) that is applicable here\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430766, [1.8] Internal compiler error.
+public void test430766a() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" +
+				"import java.util.Comparator;\n" +
+				"import java.util.List;\n" +
+				"import java.io.Serializable;\n" +
+				"public class X {\n" +
+				"	static class Person {\n" +
+			    "		private String email;\n" +
+			    "		public Person(String email) {\n" +
+			    "			this.email = email;\n" +
+			    "		}\n" +
+			    "		public String getEmail() {\n" +
+			    "			return email;" +
+			    "		}\n" +
+			    "	public static <T extends Runnable,V extends Serializable> int isRunnable(T first, V second) {\n" +
+		        "		return (second instanceof Runnable) ? 1 : 0;\n" +
+		        "	}\n" +
+			    "	}\n" +
+			    "	public static void main(String[] args) {\n" +
+			    "		List<Person> persons = new ArrayList<Person>();\n" +
+			    "		persons.add(new Person(\"joe.smith@gmail.com\"));\n" +
+			    "		persons.add(new Person(\"alice.smith@gmail.com\"));\n" +
+			    "		persons.sort(Comparator.comparing(Comparator.nullsLast(Person::<Runnable>isRunnable)));\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 21)\n" + 
+			"	persons.sort(Comparator.comparing(Comparator.nullsLast(Person::<Runnable>isRunnable)));\n" + 
+			"	                                             ^^^^^^^^^\n" + 
+			"The method nullsLast(Comparator<? super T>) in the type Comparator is not applicable for the arguments (Person::<Runnable>isRunnable)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 21)\n" + 
+			"	persons.sort(Comparator.comparing(Comparator.nullsLast(Person::<Runnable>isRunnable)));\n" + 
+			"	                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type X.Person does not define isRunnable(T, T) that is applicable here\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
