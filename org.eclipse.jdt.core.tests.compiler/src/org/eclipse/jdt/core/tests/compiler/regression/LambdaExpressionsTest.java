@@ -4292,6 +4292,29 @@ public void test430766a() {
 			"The type X.Person does not define isRunnable(T, T) that is applicable here\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=431190, [1.8] VerifyError when using a method reference
+public void test431190() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"Java8VerifyError.java",
+			"public class Java8VerifyError {\n" +
+			"    public static class Foo {\n" +
+			"        public Object get() {\n" +
+			"            return new Object();\n" +
+			"        }\n" +
+			"    }\n" +
+			"    @FunctionalInterface\n" +
+			"    public static interface Provider<T> {\n" +
+			"        public T get();\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        Provider<Foo> f = () -> new Foo();\n" +
+			"        Provider<Provider<Object>> meta = () -> f.get()::get;\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

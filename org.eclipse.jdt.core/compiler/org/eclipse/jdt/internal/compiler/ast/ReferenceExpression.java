@@ -358,6 +358,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     		this.lhs.bits |= ASTNode.IgnoreRawTypeCheck;
 
     		lhsType = this.lhs.resolveType(scope);
+    		this.lhs.computeConversion(scope, lhsType, lhsType);
     		if (this.typeArguments != null) {
     			int length = this.typeArguments.length;
     			this.typeArgumentsHaveErrors = compilerOptions.sourceLevel < ClassFileConstants.JDK1_5;
@@ -397,7 +398,6 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			lhsType = lhsType.closestMatch();	// improve resolving experience
     	if (!lhsType.isValidBinding()) 
 			return this.resolvedType = null;	// nope, no useful type found
-		
 		final TypeBinding[] descriptorParameters = this.descriptor != null ? this.descriptor.parameters : Binding.NO_PARAMETERS;
 		if (lhsType.isBaseType()) {
 			scope.problemReporter().errorNoMethodFor(this.lhs, lhsType, this.selector, descriptorParameters);
