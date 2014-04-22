@@ -5103,5 +5103,34 @@ public void testBug432223() {
 		getCompilerOptions(),
 		"");
 }
-
+public void testBug432977() {
+	runConformTestWithLibs(
+		new String[] {
+			"Bar.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" + 
+			"public class Bar {\n" + 
+			"	private String prop = \"\";\n" + 
+			"\n" + 
+			"	public String getProp() {\n" + 
+			"		return prop;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+	runConformTestWithLibs(
+		new String[] {
+			"Fu.java",
+			"public class Fu {\n" + 
+			"	private Bar fubar = new Bar();\n" + 
+			"	\n" + 
+			"	public void method() {\n" + 
+			"		fubar.getProp().equals(\"\");\n" + 
+			"	}	\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 }
