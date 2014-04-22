@@ -32,11 +32,13 @@ public class LambdaExpression extends SourceType {
 	protected int sourceEnd;
 	protected int arrowPosition;
 	protected String interphase;
+	String resolvedTypeName;
 	
 	
 	// Construction from AST node
 	public LambdaExpression(JavaElement parent, org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression) {
-		super(parent, new String("Lambda(") + new String(lambdaExpression.resolvedType.sourceName()) + ')'); //$NON-NLS-1$
+		super(parent, new String(CharOperation.NO_CHAR));
+		this.resolvedTypeName = new String(lambdaExpression.resolvedType.sourceName());
 		this.sourceStart = lambdaExpression.sourceStart;
 		this.sourceEnd = lambdaExpression.sourceEnd;
 		this.arrowPosition = lambdaExpression.arrowPosition;
@@ -47,8 +49,9 @@ public class LambdaExpression extends SourceType {
 	}
 	
 	// Construction from memento
-	public LambdaExpression(JavaElement parent, String name, String interphase, int sourceStart, int sourceEnd, int arrowPosition) {
-		super(parent, name);
+	public LambdaExpression(JavaElement parent, String resolvedTypeName, String interphase, int sourceStart, int sourceEnd, int arrowPosition) {
+		super(parent, new String(CharOperation.NO_CHAR));
+		this.resolvedTypeName = resolvedTypeName;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
 		this.arrowPosition = arrowPosition;
@@ -58,8 +61,9 @@ public class LambdaExpression extends SourceType {
 	}
 	
 	// Construction from subtypes.
-	public LambdaExpression(JavaElement parent, String name, String interphase, int sourceStart, int sourceEnd, int arrowPosition, LambdaMethod lambdaMethod) {
-		super(parent, name);
+	public LambdaExpression(JavaElement parent, String resolvedTypeName, String interphase, int sourceStart, int sourceEnd, int arrowPosition, LambdaMethod lambdaMethod) {
+		super(parent, new String(CharOperation.NO_CHAR));
+		this.resolvedTypeName = resolvedTypeName;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
 		this.arrowPosition = arrowPosition;
@@ -136,7 +140,7 @@ public class LambdaExpression extends SourceType {
 		if (serializeParent) 
 			((JavaElement)getParent()).getHandleMemento(buff);
 		appendEscapedDelimiter(buff, getHandleMementoDelimiter());
-		escapeMementoName(buff, this.name);
+		escapeMementoName(buff, this.resolvedTypeName);
 		appendEscapedDelimiter(buff, JEM_STRING);
 		escapeMementoName(buff, this.interphase);
 		buff.append(JEM_COUNT);
@@ -209,6 +213,27 @@ public class LambdaExpression extends SourceType {
 		return this.lambdaMethod;
 	}
 	
+	@Override
+	public boolean isLambda() {
+		return true;
+	}
+
+	@Override
+	public boolean isAnonymous() {
+		return false;
+	}
+
+	public void toStringName(StringBuffer buffer) {
+		super.toStringName(buffer);
+		buffer.append("Lambda("); //$NON-NLS-1$
+		buffer.append(this.resolvedTypeName);
+		buffer.append(')');
+		if (this.occurrenceCount > 1) {
+			buffer.append("#"); //$NON-NLS-1$
+			buffer.append(this.occurrenceCount);
+		}
+	}
+
 	@Override
 	public IJavaElement getPrimaryElement(boolean checkOwner) {
 		if (checkOwner) {

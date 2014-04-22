@@ -1042,4 +1042,8 @@ public JavadocContents getJavadocContents(IProgressMonitor monitor) throws JavaM
 	}
 	return javadocContents;
 }
+@Override
+public boolean isLambda() {
+	return false;
+}
 }

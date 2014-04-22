@@ -517,7 +517,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			assertEquals("Incorrect java element", IJavaElement.LOCAL_VARIABLE, elements[0].getElementType());
 			IType lambda = (IType) elements[0].getParent().getParent();
 			String mem = lambda.getHandleIdentifier();
-			String expected = "=\\(\\[Bug430136\\])/src<{X.java[MyFunction~compose~QMyFunction\\<-QV;+QT;>;=)Lambda\\(MyFunction)=\"LMyFunction\\<TV;TR;>;!148!174!151=&apply!1=\"TV;=\"v=\"TR;=\"LX\\~MyFunction\\<LX\\~MyFunction;:1TV;LX\\~MyFunction;:TR;>;.apply\\(TV;)TR;@v!148!148!148!148!Ljava\\/lang\\/Object;!0!true=)";
+			String expected = "=\\(\\[Bug430136\\])/src<{X.java[MyFunction~compose~QMyFunction\\<-QV;+QT;>;=)MyFunction=\"LMyFunction\\<TV;TR;>;!148!174!151=&apply!1=\"TV;=\"v=\"TR;=\"LX\\~MyFunction\\<LX\\~MyFunction;:1TV;LX\\~MyFunction;:TR;>;.apply\\(TV;)TR;@v!148!148!148!148!Ljava\\/lang\\/Object;!0!true=)";
 			assertEquals("Incorrect memento", expected, mem);
 			IJavaElement result = JavaCore.create(expected);
 			assertEquals("Incorrect element created", lambda, result);
@@ -555,6 +555,33 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			mem = parent.getHandleIdentifier();
 			expected = "=Bug431716/src<{X.java[X~asIntStream";
 			assertEquals("Incorrect memento", expected, mem);
+		}
+		finally {
+			deleteProject(projectName);
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430195
+	public void test430195() throws CoreException {
+		String projectName = "Bug430195";
+		try {
+			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+			project.open(null);
+			String fileContent = 
+					"interface MyFunction<T, R> {\n" +
+					"    R apply(T t);\n" +
+					"    default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {\n" +
+					"        return v -> apply(before.apply(v));\n" +
+					"    }\n" +
+					"}\n";
+			String fileName = "/" + projectName + "/src/X.java";
+			createFile(fileName, fileContent);
+			
+			ICompilationUnit unit = getCompilationUnit(fileName);
+			int start = fileContent.indexOf("v");
+			IJavaElement[] elements = unit.codeSelect(start, 1);
+			assertEquals("Incorrect java element", IJavaElement.LOCAL_VARIABLE, elements[0].getElementType());
+			IType lambda = (IType) elements[0].getParent().getParent();
+			assertEquals("Incorrect qualified type name", "MyFunction$1", lambda.getTypeQualifiedName());
 		}
 		finally {
 			deleteProject(projectName);

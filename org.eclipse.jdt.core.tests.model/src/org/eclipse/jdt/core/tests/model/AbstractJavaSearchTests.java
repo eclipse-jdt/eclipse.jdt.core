@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -525,8 +525,15 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 				this.line.append(":");
 			}
 			String typeName = type.getElementName();
-			if (typeName.length() == 0) {
+			boolean anonymous = false;
+			try {
+				anonymous = type.isAnonymous();
+			} catch(JavaModelException jme) {
+			}
+			if (anonymous) {
 				this.line.append("<anonymous>");
+			} else if (type.isLambda()) {
+				((LambdaExpression) type).toStringName(this.line);
 			} else {
 				this.line.append(typeName);
 			}
