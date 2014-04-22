@@ -48,6 +48,7 @@
  *								Bug 416190 - [1.8][null] detect incompatible overrides due to null type annotations
  *								Bug 392245 - [1.8][compiler][null] Define whether / how @NonNullByDefault applies to TYPE_USE locations
  *								Bug 390889 - [1.8][compiler] Evaluate options to support 1.7- projects against 1.8 JRE.
+ *								Bug 430150 - [1.8][null] stricter checking against type variables
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -389,6 +390,8 @@ public static int getIrritant(int problemID) {
 		case IProblem.CannotImplementIncompatibleNullness:
 		case IProblem.ConflictingNullAnnotations:
 		case IProblem.ConflictingInheritedNullAnnotations:
+		case IProblem.NullNotCompatibleToFreeTypeVariable:
+		case IProblem.NullityMismatchAgainstFreeTypeVariable:
 		case IProblem.NullityMismatchingTypeAnnotation:
 		case IProblem.NullityMismatchingTypeAnnotationSuperHint:
 		case IProblem.NullityMismatchTypeArgument:
@@ -9150,20 +9153,27 @@ public void nullityMismatch(Expression expression, TypeBinding providedType, Typ
 		nullityMismatchingTypeAnnotation(expression, providedType, requiredType, NullAnnotationMatching.NULL_ANNOTATIONS_UNCHECKED);
 }
 public void nullityMismatchIsNull(Expression expression, TypeBinding requiredType) {
+	int problemId = IProblem.RequiredNonNullButProvidedNull;
+	if (requiredType.isTypeVariable() && !requiredType.hasNullTypeAnnotations())
+		problemId = IProblem.NullNotCompatibleToFreeTypeVariable;
 	if (requiredType instanceof CaptureBinding) {
 		CaptureBinding capture = (CaptureBinding) requiredType;
 		if (capture.wildcard != null)
 			requiredType = capture.wildcard;
 	}
-	int problemId = IProblem.RequiredNonNullButProvidedNull;
 	String[] arguments;
 	String[] argumentsShort;
 	if (this.options.sourceLevel < ClassFileConstants.JDK1_8) {
 		arguments      = new String[] { annotatedTypeName(requiredType, this.options.nonNullAnnotationName) };
 		argumentsShort = new String[] { shortAnnotatedTypeName(requiredType, this.options.nonNullAnnotationName) };
 	} else {
-		arguments      = new String[] { new String(requiredType.nullAnnotatedReadableName(this.options, false)) };
-		argumentsShort = new String[] { new String(requiredType.nullAnnotatedReadableName(this.options, true)) };
+		if (problemId == IProblem.NullNotCompatibleToFreeTypeVariable) {
+			arguments      = new String[] { new String(requiredType.sourceName()) }; // don't show any bounds
+			argumentsShort = new String[] { new String(requiredType.sourceName()) };
+		} else {
+			arguments      = new String[] { new String(requiredType.nullAnnotatedReadableName(this.options, false)) };
+			argumentsShort = new String[] { new String(requiredType.nullAnnotatedReadableName(this.options, true))  };			
+		}
 	}
 	this.handle(problemId, arguments, argumentsShort, expression.sourceStart, expression.sourceEnd);
 }
@@ -9695,23 +9705,47 @@ public void nullityMismatchingTypeAnnotation(Expression expression, TypeBinding 
 	String[] shortArguments;
 		
 	int problemId = 0;
+	String superHint = null;
+	String superHintShort = null;
 	if (status.superTypeHint != null) {
 		problemId = (status.isUnchecked()
 			? IProblem.NullityUncheckedTypeAnnotationDetailSuperHint
 			: IProblem.NullityMismatchingTypeAnnotationSuperHint);
-		arguments      = new String[] { null, null, status.superTypeHintName(this.options, false) };
-		shortArguments = new String[] { null, null, status.superTypeHintName(this.options, true) };
+		superHint = status.superTypeHintName(this.options, false);
+		superHintShort = status.superTypeHintName(this.options, true);
 	} else {
 		problemId = (status.isUnchecked()
 			? IProblem.NullityUncheckedTypeAnnotationDetail
-			: IProblem.NullityMismatchingTypeAnnotation);
-		arguments      = new String[2];
-		shortArguments = new String[2];
+			: (requiredType.isTypeVariable() && !requiredType.hasNullTypeAnnotations())
+				? IProblem.NullityMismatchAgainstFreeTypeVariable
+				: IProblem.NullityMismatchingTypeAnnotation);
+		if (problemId == IProblem.NullityMismatchAgainstFreeTypeVariable) {
+			arguments      = new String[] { null, null, new String(requiredType.sourceName()) }; // don't show bounds here
+			shortArguments = new String[] { null, null, new String(requiredType.sourceName()) };
+		} else {
+			arguments      = new String[2];
+			shortArguments = new String[2];
+		}
 	}
-	arguments[0] = String.valueOf(requiredType.nullAnnotatedReadableName(this.options, false));
-	arguments[1] = String.valueOf(providedType.nullAnnotatedReadableName(this.options, false));
-	shortArguments[0] = String.valueOf(requiredType.nullAnnotatedReadableName(this.options, true));
-	shortArguments[1] = String.valueOf(providedType.nullAnnotatedReadableName(this.options, true));
+	String requiredName;
+	String requiredNameShort;
+	if (problemId == IProblem.NullityMismatchAgainstFreeTypeVariable) {
+		requiredName		= new String(requiredType.sourceName()); // don't show bounds here
+		requiredNameShort 	= new String(requiredType.sourceName()); // don't show bounds here
+	} else {
+		requiredName 		= new String(requiredType.nullAnnotatedReadableName(this.options, false));
+		requiredNameShort 	= new String(requiredType.nullAnnotatedReadableName(this.options, true));
+	}
+	String providedName		 = String.valueOf(providedType.nullAnnotatedReadableName(this.options, false));
+	String providedNameShort = String.valueOf(providedType.nullAnnotatedReadableName(this.options, true));
+	// assemble arguments:
+	if (superHint != null) {
+		arguments 		= new String[] { requiredName, providedName, superHint };
+		shortArguments 	= new String[] { requiredNameShort, providedNameShort, superHintShort };
+	} else {
+		arguments 		= new String[] { requiredName, providedName };
+		shortArguments 	= new String[] { requiredNameShort, providedNameShort };
+	}
 	this.handle(problemId, arguments, shortArguments, expression.sourceStart, expression.sourceEnd);
 }
 

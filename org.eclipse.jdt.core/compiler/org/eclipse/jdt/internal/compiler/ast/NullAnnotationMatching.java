@@ -121,6 +121,8 @@ public class NullAnnotationMatching {
 		int severity = 0;
 		TypeBinding superTypeHint = null;
 		NullAnnotationMatching okStatus = NullAnnotationMatching.NULL_ANNOTATIONS_OK;
+		if (areSameTypes(requiredType, providedType)) // for type variable identity (and as shortcut for others)
+			return okStatus;
 		if (requiredType instanceof ArrayBinding) {
 			long[] requiredDimsTagBits = ((ArrayBinding)requiredType).nullTagBitsPerDimension;
 			if (requiredDimsTagBits != null) {
@@ -145,7 +147,7 @@ public class NullAnnotationMatching {
 						return NullAnnotationMatching.NULL_ANNOTATIONS_MISMATCH;
 				}
 			}
-		} else if (requiredType.hasNullTypeAnnotations() || providedType.hasNullTypeAnnotations()) {
+		} else if (requiredType.hasNullTypeAnnotations() || providedType.hasNullTypeAnnotations() || requiredType.isTypeVariable()) {
 			long requiredBits = requiredNullTagBits(requiredType);
 			if (requiredBits != TagBits.AnnotationNullable // nullable lhs accepts everything, ...
 					|| nullStatus == -1) // only at detail/recursion even nullable must be matched exactly
@@ -184,6 +186,17 @@ public class NullAnnotationMatching {
 		return new NullAnnotationMatching(severity, nullStatus, superTypeHint);
 	}
 
+	/** Are both types identical wrt the unannotated type and any null type annotations? Only unstructured types are considered. */
+	protected static boolean areSameTypes(TypeBinding requiredType, TypeBinding providedType) {
+		if (requiredType == providedType)  //$IDENTITY-COMPARISON$ // short cut for really-really-same types
+			return true;
+		if (requiredType.isParameterizedType() || requiredType.isArrayType())
+			return false; // not analysing details here
+		if (TypeBinding.notEquals(requiredType, providedType))
+			return false;
+		return (requiredType.tagBits & TagBits.AnnotationNullMASK) == (providedType.tagBits & TagBits.AnnotationNullMASK);
+	}
+
 	// interpreting 'type' as a required type, compute the required null bits
 	// we inspect the main type plus bounds of type variables and wildcards
 	static long requiredNullTagBits(TypeBinding type) {
@@ -213,22 +226,17 @@ public class NullAnnotationMatching {
 		} 
 		
 		if (type.isTypeVariable()) {
-			// assume we must require @NonNull, unless: (1) lower @Nullable bound, or (2) no nullness specified
-			TypeVariableBinding typeVariable = (TypeVariableBinding)type;
-			boolean haveNullBits = false;
+			// assume we must require @NonNull, unless lower @Nullable bound
+			// (annotation directly on the TV has already been checked above)
 			if (type.isCapture()) {
 				TypeBinding lowerBound = ((CaptureBinding) type).lowerBound;
 				if (lowerBound != null) {
 					tagBits = lowerBound.tagBits & TagBits.AnnotationNullMASK;
 					if (tagBits == TagBits.AnnotationNullable)
-						return TagBits.AnnotationNullable; // (1) type cannot require @NonNull
-					haveNullBits = tagBits != 0;
+						return TagBits.AnnotationNullable; // type cannot require @NonNull
 				}
 			}
-			if (typeVariable.firstBound != null)
-				haveNullBits |= (typeVariable.firstBound.tagBits & TagBits.AnnotationNullMASK) != 0;
-			if (haveNullBits)
-				return TagBits.AnnotationNonNull; // could require @NonNull (unless (2) unspecified nullness)
+			return TagBits.AnnotationNonNull; // instantiation could require @NonNull
 		}
 
 		return 0;
