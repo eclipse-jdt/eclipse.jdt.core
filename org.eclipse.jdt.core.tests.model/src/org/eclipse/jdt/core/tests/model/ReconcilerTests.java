@@ -417,11 +417,11 @@ public void testAccessRestriction4() throws CoreException {
 		setUpWorkingCopy("/P3/src/Y.java", "public class Y extends p.X {}");
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" +
-			"1. ERROR in /P3/src/Y.java (at line 1)\n" +
-			"	public class Y extends p.X {}\n" +
-			"	                       ^^^\n" +
-			"Access restriction: The type X is not accessible due to restriction on required project P1\n" +
+			"----------\n" + 
+			"1. ERROR in /P3/src/Y.java (at line 1)\n" + 
+			"	public class Y extends p.X {}\n" + 
+			"	                       ^^^\n" + 
+			"Access restriction: The type \'X\' is not API (restriction on required project \'P1\')\n" + 
 			"----------\n"
 		);
 	} finally {
@@ -458,11 +458,11 @@ public void testAccessRestriction5() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" +
-			"1. ERROR in /P2/src/Y.java (at line 1)\n" +
-			"	public class Y extends p.X {}\n" +
-			"	                       ^^^\n" +
-			"Access restriction: The type X is not accessible due to restriction on required project P1\n" +
+			"----------\n" + 
+			"1. ERROR in /P2/src/Y.java (at line 1)\n" + 
+			"	public class Y extends p.X {}\n" + 
+			"	                       ^^^\n" + 
+			"Access restriction: The type \'X\' is not API (restriction on required project \'P1\')\n" + 
 			"----------\n"
 		);
 
@@ -1676,11 +1676,11 @@ public void testExcludePartOfAnotherProject1() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" +
-			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" +
-			"	public class X extends p.internal.Y {\n" +
-			"	                       ^^^^^^^^^^^^\n" +
-			"Access restriction: The type Y is not accessible due to restriction on required project P\n" +
+			"----------\n" + 
+			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
+			"	public class X extends p.internal.Y {\n" + 
+			"	                       ^^^^^^^^^^^^\n" + 
+			"Access restriction: The type \'Y\' is not API (restriction on required project \'P\')\n" + 
 			"----------\n"
 		);
 	} finally {
@@ -1880,11 +1880,11 @@ public void testIncludePartOfAnotherProject2() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" +
-			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" +
-			"	public class X extends p.internal.Y {\n" +
-			"	                       ^^^^^^^^^^^^\n" +
-			"Access restriction: The type Y is not accessible due to restriction on required project P\n" +
+			"----------\n" + 
+			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
+			"	public class X extends p.internal.Y {\n" + 
+			"	                       ^^^^^^^^^^^^\n" + 
+			"Access restriction: The type \'Y\' is not API (restriction on required project \'P\')\n" + 
 			"----------\n"
 		);
 	} finally {
@@ -2005,11 +2005,11 @@ public void testIgnoreIfBetterNonAccessibleRule2() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" +
-			"1. WARNING in /Reconciler/src/p1/X.java (at line 2)\n" +
-			"	public class X extends p.internal.Y {\n" +
-			"	                       ^^^^^^^^^^^^\n" +
-			"Discouraged access: The type Y is not accessible due to restriction on required project P2\n" +
+			"----------\n" + 
+			"1. WARNING in /Reconciler/src/p1/X.java (at line 2)\n" + 
+			"	public class X extends p.internal.Y {\n" + 
+			"	                       ^^^^^^^^^^^^\n" + 
+			"Discouraged access: The type \'Y\' is not API (restriction on required project \'P2\')\n" + 
 			"----------\n"
 		);
 	} finally {
@@ -2050,11 +2050,11 @@ public void testIgnoreIfBetterNonAccessibleRule3() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" +
-			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" +
-			"	public class X extends p.internal.Y {\n" +
-			"	                       ^^^^^^^^^^^^\n" +
-			"Access restriction: The type Y is not accessible due to restriction on required project P1\n" +
+			"----------\n" + 
+			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
+			"	public class X extends p.internal.Y {\n" + 
+			"	                       ^^^^^^^^^^^^\n" + 
+			"Access restriction: The type \'Y\' is not API (restriction on required project \'P1\')\n" + 
 			"----------\n"
 		);
 	} finally {
@@ -2087,11 +2087,11 @@ public void testIgnoreIfBetterNonAccessibleRule4() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" +
-			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" +
-			"	public class X extends p.internal.Y {\n" +
-			"	                       ^^^^^^^^^^^^\n" +
-			"Access restriction: The type Y is not accessible due to restriction on required project P1\n" +
+			"----------\n" + 
+			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
+			"	public class X extends p.internal.Y {\n" + 
+			"	                       ^^^^^^^^^^^^\n" + 
+			"Access restriction: The type \'Y\' is not API (restriction on required project \'P1\')\n" + 
 			"----------\n"
 		);
 	} finally {

@@ -1449,23 +1449,23 @@ public void test009(){
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-		"	Warn warn;\n" +
-		"	^^^^\n" +
-		"Discouraged access: The type Warn is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-		"	KO ko;\n" +
-		"	^^\n" +
-		"Access restriction: The type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
-		"----------\n" +
-		"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n" +
-		"3 problems (1 error, 2 warnings)\n",
+        "----------\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+        "	Warn warn;\n" + 
+        "	^^^^\n" + 
+        "Discouraged access: The type \'Warn\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
+        "----------\n" + 
+        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+        "	KO ko;\n" + 
+        "	^^\n" + 
+        "Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
+        "----------\n" + 
+        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
+        "	Zork z;\n" + 
+        "	^^^^\n" + 
+        "Zork cannot be resolved to a type\n" + 
+        "----------\n" + 
+        "3 problems (1 error, 2 warnings)\n",
         true);
 }
 // command line - no user classpath nor bootclasspath
@@ -2423,21 +2423,21 @@ public void test019(){
 	        + " -d \"" + OUTPUT_DIR + "\"",
 	        "",
 			"----------\n" +
-			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-			"	Warn warn;\n" +
-			"	^^^^\n" +
-			"Discouraged access: The type Warn is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
-			"----------\n" +
-			"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-			"	KO ko;\n" +
-			"	^^\n" +
-			"Access restriction: The type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
-			"----------\n" +
-			"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-			"	Zork z;\n" +
-			"	^^^^\n" +
-			"Zork cannot be resolved to a type\n" +
-			"----------\n" +
+			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+			"	Warn warn;\n" + 
+			"	^^^^\n" + 
+			"Discouraged access: The type \'Warn\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
+			"----------\n" + 
+			"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+			"	KO ko;\n" + 
+			"	^^\n" + 
+			"Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
+			"----------\n" + 
+			"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
 			"3 problems (1 error, 2 warnings)\n",
 	        true);
 	}
@@ -2724,22 +2724,22 @@ public void test027(){
         //               generated, once able to avoid console echoing
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" +
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-        "	Warn warn;\n" +
-        "	^^^^\n" +
-		"Discouraged access: The type Warn is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/p1\n" +
-		"----------\n" +
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-		"	KO ko;\n" +
-		"	^^\n" +
-		"Access restriction: The type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
-        "----------\n" +
-        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-        "	Zork z;\n" +
-        "	^^^^\n" +
-        "Zork cannot be resolved to a type\n" +
-        "----------\n" +
+        "----------\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+        "	Warn warn;\n" + 
+        "	^^^^\n" + 
+        "Discouraged access: The type \'Warn\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/p1\')\n" + 
+        "----------\n" + 
+        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+        "	KO ko;\n" + 
+        "	^^\n" + 
+        "Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
+        "----------\n" + 
+        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
+        "	Zork z;\n" + 
+        "	^^^^\n" + 
+        "Zork cannot be resolved to a type\n" + 
+        "----------\n" + 
         "3 problems (1 error, 2 warnings)\n",
         true);
 }
@@ -3313,12 +3313,12 @@ public void test036(){
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + File.separator + "bin2/\"",
         "",
-        "----------\n" +
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 2)\n" +
-        "	public class Y extends p.X {\n" +
-        "	                       ^^^\n" +
-        "Discouraged access: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" +
-        "----------\n" +
+        "----------\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 2)\n" + 
+        "	public class Y extends p.X {\n" + 
+        "	                       ^^^\n" + 
+        "Discouraged access: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" + 
+        "----------\n" + 
         "1 problem (1 warning)\n",
         false);
 }
@@ -3391,33 +3391,33 @@ public void test039(){
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + File.separator + "bin2/\"",
         "",
-        "----------\n" +
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" +
-        "	X x1;\n" +
-        "	^\n" +
-        "Discouraged access: The type X<T> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" +
-        "----------\n" +
-        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" +
-        "	X x1;\n" +
-        "	^\n" +
-        "X is a raw type. References to generic type X<T> should be parameterized\n" +
-        "----------\n" +
-        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" +
-        "	X<String> x2 = new X<String>();\n" +
-        "	^\n" +
-        "Discouraged access: The type X<String> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" +
-        "----------\n" +
-        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" +
-        "	X<String> x2 = new X<String>();\n" +
-        "	               ^^^^^^^^^^^^^^^\n" +
-        "Discouraged access: The constructor X<String>() is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" +
-        "----------\n" +
-        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" +
-        "	X<String> x2 = new X<String>();\n" +
-        "	                   ^\n" +
-        "Discouraged access: The type X<String> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" +
-        "----------\n" +
-        "5 problems (5 warnings)\n",
+        "----------\n" + 
+       "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" + 
+       "	X x1;\n" + 
+       "	^\n" + 
+       "Discouraged access: The type \'X<T>\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" + 
+       "----------\n" + 
+       "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" + 
+       "	X x1;\n" + 
+       "	^\n" + 
+       "X is a raw type. References to generic type X<T> should be parameterized\n" + 
+       "----------\n" + 
+       "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" + 
+       "	X<String> x2 = new X<String>();\n" + 
+       "	^\n" + 
+       "Discouraged access: The type \'X<String>\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" + 
+       "----------\n" + 
+       "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" + 
+       "	X<String> x2 = new X<String>();\n" + 
+       "	               ^^^^^^^^^^^^^^^\n" + 
+       "Discouraged access: The constructor \'X<String>()\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" + 
+       "----------\n" + 
+       "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" + 
+       "	X<String> x2 = new X<String>();\n" + 
+       "	                   ^\n" + 
+       "Discouraged access: The type \'X<String>\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" + 
+       "----------\n" + 
+       "5 problems (5 warnings)\n",
         false);
 }
 
@@ -3459,13 +3459,13 @@ public void test040(){
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" +
-		"	p.Z z;\n" +
-		"	^^^\n" +
-		"Access restriction: The type Z is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+        "----------\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" + 
+        "	p.Z z;\n" + 
+        "	^^^\n" + 
+        "Access restriction: The type \'Z\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
+        "----------\n" + 
+        "1 problem (1 warning)\n",
         false);
 }
 
@@ -3508,13 +3508,13 @@ public void test041(){
         + " -warn:-discouraged -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" +
-		"	p.Z z;\n" +
-		"	^^^\n" +
-		"Access restriction: The type Z is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+        "----------\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" + 
+        "	p.Z z;\n" + 
+        "	^^^\n" + 
+        "Access restriction: The type \'Z\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
+        "----------\n" + 
+        "1 problem (1 warning)\n",
         false);
 }
 
@@ -3557,13 +3557,13 @@ public void test042(){
         + " -warn:-forbidden -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)\n" +
-		"	p.X x;\n" +
-		"	^^^\n" +
-		"Discouraged access: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
-		"----------\n" +
-		"1 problem (1 warning)\n",
+        "----------\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)\n" + 
+        "	p.X x;\n" + 
+        "	^^^\n" + 
+        "Discouraged access: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
+        "----------\n" + 
+        "1 problem (1 warning)\n",
         false);
 }
 
@@ -3766,17 +3766,17 @@ public void test048(){
         + " -warn:+discouraged,forbidden,deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" +
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 2)\n" +
-        "	@SuppressWarnings(\"deprecation\")\n" +
-        "	                  ^^^^^^^^^^^^^\n" +
-        "Unnecessary @SuppressWarnings(\"deprecation\")\n" +
-        "----------\n" +
-        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" +
-        "	p.X x;\n" +
-        "	^^^\n" +
-        "Discouraged access: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
-        "----------\n" +
+        "----------\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 2)\n" + 
+        "	@SuppressWarnings(\"deprecation\")\n" + 
+        "	                  ^^^^^^^^^^^^^\n" + 
+        "Unnecessary @SuppressWarnings(\"deprecation\")\n" + 
+        "----------\n" + 
+        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" + 
+        "	p.X x;\n" + 
+        "	^^^\n" + 
+        "Discouraged access: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
+        "----------\n" + 
         "2 problems (2 warnings)\n",
         false);
 }
@@ -4533,12 +4533,12 @@ public void test073_per_source_output_directory(){
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\"" +
         	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" +
-		"	X f;\n" +
-		"	^\n" +
-		"Access restriction: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/src1\n" +
-		"----------\n" +
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" + 
+		"	X f;\n" + 
+		"	^\n" + 
+		"Access restriction: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/src1\')\n" + 
+		"----------\n" + 
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -4722,12 +4722,12 @@ public void test079_per_source_output_directory(){
         + " -classpath \"" + OUTPUT_DIR + File.separator + source1 + "\"" +
         	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" +
-		"	X f;\n" +
-		"	^\n" +
-		"Access restriction: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/src1\n" +
-		"----------\n" +
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" + 
+		"	X f;\n" + 
+		"	^\n" + 
+		"Access restriction: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/src1\')\n" + 
+		"----------\n" + 
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -4916,12 +4916,12 @@ public void test085_per_source_output_directory(){
         	"\"" + OUTPUT_DIR + File.separator + source1 + "\"" +
         	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" +
-		"	X f;\n" +
-		"	^\n" +
-		"Access restriction: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/src1\n" +
-		"----------\n" +
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" + 
+		"	X f;\n" + 
+		"	^\n" + 
+		"Access restriction: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/src1\')\n" + 
+		"----------\n" + 
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -6205,37 +6205,37 @@ public void test148_access_restrictions(){
   + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
   + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
   "",
-  "----------\n" +
-  "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-  "	KO ko;\n" +
-  "	^^\n" +
-  "Access restriction: The type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
-  "----------\n" +
-  "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-  "	ko = new KO();\n" +
-  "	     ^^^^^^^^\n" +
-  "Access restriction: The constructor KO() is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
-  "----------\n" +
-  "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
-  "	ko = new KO();\n" +
-  "	         ^^\n" +
-  "Access restriction: The type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
-  "----------\n" +
-  "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
-  "	ko.bar();\n" +
-  "	^^^^^^^^\n" +
-  "Access restriction: The method bar() from the type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
-  "----------\n" +
-  "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
-  "	if (ko.m) {}\n" +
-  "	       ^\n" +
-  "Access restriction: The field m from the type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
-  "----------\n" +
-  "6. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" +
-  "	Zork z;\n" +
-  "	^^^^\n" +
-  "Zork cannot be resolved to a type\n" +
-  "----------\n" +
+  "----------\n" + 
+  "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+  "	KO ko;\n" + 
+  "	^^\n" + 
+  "Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
+  "----------\n" + 
+  "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+  "	ko = new KO();\n" + 
+  "	     ^^^^^^^^\n" + 
+  "Access restriction: The constructor \'KO()\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
+  "----------\n" + 
+  "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+  "	ko = new KO();\n" + 
+  "	         ^^\n" + 
+  "Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
+  "----------\n" + 
+  "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+  "	ko.bar();\n" + 
+  "	^^^^^^^^\n" + 
+  "Access restriction: The method \'KO.bar()\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
+  "----------\n" + 
+  "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
+  "	if (ko.m) {}\n" + 
+  "	       ^\n" + 
+  "Access restriction: The field \'KO.m\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
+  "----------\n" + 
+  "6. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" + 
+  "	Zork z;\n" + 
+  "	^^^^\n" + 
+  "Zork cannot be resolved to a type\n" + 
+  "----------\n" + 
   "6 problems (1 error, 5 warnings)\n",
   true);
 }
@@ -10181,12 +10181,12 @@ public void test251_jar_ref_in_jar(){
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
-		"	A a;\n" +
-		"	^\n" +
-		"Discouraged access: The type A is not accessible due to restriction on classpath entry ---LIB_DIR_PLACEHOLDER---/lib3.jar\n" +
-		"----------\n" +
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" + 
+		"	A a;\n" + 
+		"	^\n" + 
+		"Discouraged access: The type \'A\' is not API (restriction on classpath entry \'---LIB_DIR_PLACEHOLDER---/lib3.jar\')\n" + 
+		"----------\n" + 
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -10342,12 +10342,12 @@ public void test256_jar_ref_in_jar(){
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
-		"	A a;\n" +
-		"	^\n" +
-		"Discouraged access: The type A is not accessible due to restriction on classpath entry ---LIB_DIR_PLACEHOLDER---/lib3.jar\n" +
-		"----------\n" +
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" + 
+		"	A a;\n" + 
+		"	^\n" + 
+		"Discouraged access: The type \'A\' is not API (restriction on classpath entry \'---LIB_DIR_PLACEHOLDER---/lib3.jar\')\n" + 
+		"----------\n" + 
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -11493,12 +11493,12 @@ public void test293(){
 		+ " -proceedOnError -referenceInfo -err:+discouraged"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"----------\n" +
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
-		"	A a;\n" +
-		"	^\n" +
-		"Discouraged access: The type A is not accessible due to restriction on classpath entry ---LIB_DIR_PLACEHOLDER---/lib3.jar\n" +
-		"----------\n" +
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" + 
+		"	A a;\n" + 
+		"	^\n" + 
+		"Discouraged access: The type \'A\' is not API (restriction on classpath entry \'---LIB_DIR_PLACEHOLDER---/lib3.jar\')\n" + 
+		"----------\n" + 
 		"1 problem (1 error)\n",
 		true);
 }
