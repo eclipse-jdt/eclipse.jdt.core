@@ -863,7 +863,7 @@ protected IJavaElement findLocalElement(int pos, MethodScope scope) {
 		IJavaElement parent = findLocalElement(pos, scope.enclosingMethodScope());
 		LambdaExpression expression = (LambdaExpression) scope.originalReferenceContext();
 		if (expression != null && expression.resolvedType != null && expression.resolvedType.isValidBinding()) {
-			org.eclipse.jdt.internal.core.LambdaExpression lambdaElement = new org.eclipse.jdt.internal.core.LambdaExpression((JavaElement) parent, expression);
+			org.eclipse.jdt.internal.core.LambdaExpression lambdaElement = LambdaFactory.createLambdaExpression((JavaElement) parent, expression);
 			return lambdaElement.getMethod();
 		}
 		return parent;

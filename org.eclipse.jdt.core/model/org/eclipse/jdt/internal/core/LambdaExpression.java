@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
@@ -36,7 +37,7 @@ public class LambdaExpression extends SourceType {
 	
 	
 	// Construction from AST node
-	public LambdaExpression(JavaElement parent, org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression) {
+	LambdaExpression(JavaElement parent, org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression) {
 		super(parent, new String(CharOperation.NO_CHAR));
 		this.resolvedTypeName = new String(lambdaExpression.resolvedType.sourceName());
 		this.sourceStart = lambdaExpression.sourceStart;
@@ -44,12 +45,12 @@ public class LambdaExpression extends SourceType {
 		this.arrowPosition = lambdaExpression.arrowPosition;
 		this.interphase = new String(CharOperation.replaceOnCopy(lambdaExpression.resolvedType.genericTypeSignature(), '/', '.'));
 		this.elementInfo = makeTypeElementInfo(this, this.interphase, this.sourceStart, this.sourceEnd, this.arrowPosition); 
-		this.lambdaMethod = LambdaMethod.make(this, lambdaExpression);
+		this.lambdaMethod = LambdaFactory.createLambdaMethod(this, lambdaExpression);
 		this.elementInfo.children = new IJavaElement[] { this.lambdaMethod };
 	}
 	
 	// Construction from memento
-	public LambdaExpression(JavaElement parent, String resolvedTypeName, String interphase, int sourceStart, int sourceEnd, int arrowPosition) {
+	LambdaExpression(JavaElement parent, String resolvedTypeName, String interphase, int sourceStart, int sourceEnd, int arrowPosition) {
 		super(parent, new String(CharOperation.NO_CHAR));
 		this.resolvedTypeName = resolvedTypeName;
 		this.sourceStart = sourceStart;
@@ -61,7 +62,7 @@ public class LambdaExpression extends SourceType {
 	}
 	
 	// Construction from subtypes.
-	public LambdaExpression(JavaElement parent, String resolvedTypeName, String interphase, int sourceStart, int sourceEnd, int arrowPosition, LambdaMethod lambdaMethod) {
+	LambdaExpression(JavaElement parent, String resolvedTypeName, String interphase, int sourceStart, int sourceEnd, int arrowPosition, LambdaMethod lambdaMethod) {
 		super(parent, new String(CharOperation.NO_CHAR));
 		this.resolvedTypeName = resolvedTypeName;
 		this.sourceStart = sourceStart;
@@ -108,9 +109,9 @@ public class LambdaExpression extends SourceType {
 			LambdaExpression that = (LambdaExpression) o;
 			if (this.sourceStart != that.sourceStart)
 				return false;
-			CompilationUnit thisCU = (CompilationUnit) this.getCompilationUnit();
-			CompilationUnit thatCU = (CompilationUnit) that.getCompilationUnit();
-			return thisCU.getElementName().equals(thatCU.getElementName()) && thisCU.parent.equals(thatCU.parent);
+			ITypeRoot thisTR = this.getTypeRoot();
+			ITypeRoot thatTR = that.getTypeRoot();
+			return thisTR.getElementName().equals(thatTR.getElementName()) && thisTR.getParent().equals(thatTR.getParent());
 		}
 		return false;
 	}
@@ -176,7 +177,7 @@ public class LambdaExpression extends SourceType {
 		String returnType = memento.nextToken();
 		if (!memento.hasMoreTokens() || memento.nextToken().charAt(0) != JEM_STRING) return this;
 		String key = memento.nextToken();
-		this.lambdaMethod = LambdaMethod.make(this, selector, key, this.sourceStart, this.sourceEnd, this.arrowPosition, parameterTypes, parameterNames, returnType);
+		this.lambdaMethod = LambdaFactory.createLambdaMethod(this, selector, key, this.sourceStart, this.sourceEnd, this.arrowPosition, parameterTypes, parameterNames, returnType);
 		ILocalVariable [] parameters = new ILocalVariable[length];
 		for (int i = 0; i < length; i++) {
 			parameters[i] = (ILocalVariable) this.lambdaMethod.getHandleFromMemento(memento, workingCopyOwner);

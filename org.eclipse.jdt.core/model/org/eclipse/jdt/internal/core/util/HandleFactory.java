@@ -212,7 +212,8 @@ public class HandleFactory {
 					LambdaExpression expression = (LambdaExpression) scope.originalReferenceContext();
 					if (expression.resolvedType != null && expression.resolvedType.isValidBinding() && 
 							!(expression.descriptor instanceof ProblemMethodBinding)) { // chain in lambda element only if resolved properly.
-						newElement = new org.eclipse.jdt.internal.core.LambdaExpression((JavaElement) parentElement, expression).getMethod();
+						//newElement = new org.eclipse.jdt.internal.core.SourceLambdaExpression((JavaElement) parentElement, expression).getMethod();
+						newElement = LambdaFactory.createLambdaExpression((JavaElement) parentElement, expression).getMethod();
 						knownScopes.put(scope, newElement);
 						return newElement;
 					}
