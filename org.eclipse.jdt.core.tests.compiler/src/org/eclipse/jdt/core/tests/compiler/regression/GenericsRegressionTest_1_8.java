@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 GK Software AG, IBM Corporation.
+ * Copyright (c) 2013, 2014 GK Software AG, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
+ *     IBM Corporation - additional tests     
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -2925,5 +2926,31 @@ public void testBug430759() {
 			"  }\n" + 
 			"}\n"
 		});
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=431577 [1.8][bytecode] Bad type on operand stack (different than Bug 429733)
+public void testBug431577() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.function.Function;\n" + 
+			"import java.util.function.IntFunction;\n" + 
+			"public class Test<R> {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"	new Test<>().test((Integer i) -> null);\n" + 
+			"	}\n" + 
+			"	<T> void test(Function<T, R> f) {\n" + 
+			"	}\n" + 
+			"	void test(int i, IntFunction<R> f) {\n" + 
+			"		new State<>(new Val<>(i));\n" + 
+			"	}\n" + 
+			"	static class State<R> {\n" + 
+			"		State(Val<?> o) {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	static class Val<T> {\n" + 
+			"		Val(T t) {}\n" + 
+			"	}\n" + 
+			"}"
+	});
 }
 }

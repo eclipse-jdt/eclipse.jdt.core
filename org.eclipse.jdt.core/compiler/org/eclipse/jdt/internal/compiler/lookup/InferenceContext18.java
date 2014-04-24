@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 GK Software AG.
+ * Copyright (c) 2013, 2014 GK Software AG, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
+ *     IBM Corporation - Bug fixes
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1498,6 +1499,8 @@ public class InferenceContext18 {
 								ASTNode.resolvePolyExpressionArguments(invocation, innerBinding, this.scope);
 							}
 						}
+					} else if(method instanceof ParameterizedMethodBinding){
+						expression.checkAgainstFinalTargetType(targetType, this.scope);
 					}
 				} else {
 					expression.setExpectedType(targetType);
