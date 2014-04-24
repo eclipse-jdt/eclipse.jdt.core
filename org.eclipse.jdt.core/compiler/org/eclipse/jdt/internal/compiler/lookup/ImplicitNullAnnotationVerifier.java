@@ -167,7 +167,10 @@ public class ImplicitNullAnnotationVerifier {
 			return;
 
 		// superclass:
-		collectOverriddenMethods(original, selector, suggestedParameterLength, currentType.superclass(), ifcsSeen, result);
+		ReferenceBinding superclass = currentType.superclass();
+		if (superclass == null)
+			return; // pseudo root of inheritance, happens in eval contexts
+		collectOverriddenMethods(original, selector, suggestedParameterLength, superclass, ifcsSeen, result);
 
 		// superInterfaces:
 		ReferenceBinding[] superInterfaces = currentType.superInterfaces();
