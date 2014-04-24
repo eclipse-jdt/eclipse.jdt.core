@@ -11,10 +11,14 @@
 
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.Map;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.eval.IEvaluationContext;
 
 public class CompletionTests18 extends AbstractJavaModelCompletionTests {
 
@@ -1511,5 +1515,22 @@ public void test432527() throws JavaModelException {
 		assertResults(
 				"removeNodeFromGraph[METHOD_REF]{removeNodeFromGraph(), Ltest.X;, (Ltest.X$Node;)V, removeNodeFromGraph, (node), 27}",
 			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=430441,  [compiler] NPE in ImplicitNullAnnotationVerifier.collectOverriddenMethods from Content Assist in a .jpage file
+public void test430441() throws JavaModelException {
+	String str = "String str = \"foo\";\n" +
+			"str.";
+	String completeBehind = "str";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length() + 1;
+	IJavaProject javaProject = getJavaProject("Completion");
+
+	Map options = javaProject.getOptions(true);
+	options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
+	javaProject.setOptions(options);
+
+	IEvaluationContext context = javaProject.newEvaluationContext();
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	context.codeComplete(str, cursorLocation, requestor);
 }
 }
