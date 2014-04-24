@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.search.TypeReferenceMatch;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.AndPattern;
+import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 
 /**
  * Non-regression tests for bugs fixed in Java Search engine.
@@ -45,7 +46,7 @@ public class JavaSearchBugs8Tests extends AbstractJavaSearchTests {
 
 	static {
 //	 org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
-//	TESTS_NAMES = new String[] {"testBug400905_0002"};
+//	TESTS_NAMES = new String[] {"testBug429012"};
 }
 
 public JavaSearchBugs8Tests(String name) {
@@ -160,6 +161,25 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("test430159b"));
 	suite.addTest(new JavaSearchBugs8Tests("test430159c"));
 	suite.addTest(new JavaSearchBugs8Tests("test430159d"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0001"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0002"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0003"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0004"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0005"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0006"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0007"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0008"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0009"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0010"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0011"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0012"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0013"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0014"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0015"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0016"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0017"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0018"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0019"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -3769,6 +3789,656 @@ public void test430159d() throws CoreException {
 			null);
 	assertSearchResults(""
 	);
+}
+/**
+ * @bug 429012
+ * @test tests search for Reference expression - super:: form, without type arguments
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
+ * 
+ */
+public void testBug429012_0001() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
+			"interface I {\n" +
+			"    void foo(int x);\n" +
+			"}\n" +
+			"public class X extends Y {\n" +
+			"    public static void main(String [] args) {\n" +
+			"	new X().doit();\n" +
+			"    }\n" +
+			"    void doit() {\n" +
+			"        I i = super::foo;\n" +
+			"        i.foo(10); \n" +
+			"    }\n" +
+			"}\n" +
+			"class Y {\n" +
+			"    public void foo(int x) {\n" +
+			"	System.out.println(x);\n" +
+			"    }\n" +
+			"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Y");
+	IMethod method = type.getMethod("foo", new String[] {"I"});
+	search(method, METHOD_REFERENCE_EXPRESSION, EXACT_RULE);
+	assertSearchResults(
+			"src/b429012/X.java void b429012.X.doit() [foo] EXACT_MATCH"
+	);	
+}
+
+/**
+ * @bug 429012
+ * @test tests search for Reference expression - super:: form, with type arguments
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
+ * 
+ */
+public void testBug429012_0002() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
+			"interface I {\n" +
+			"    void foo(int x);\n" +
+			"}\n" +
+			"public class X extends Y {\n" +
+			"    public static void main(String [] args) {\n" +
+			"	new X().doit();\n" +
+			"    }\n" +
+			"    void doit() {\n" +
+			"        I i = super::<String>foo;\n" +
+			"        i.foo(10); \n" +
+			"    }\n" +
+			"}\n" +
+			"class Y {\n" +
+			"    public void foo(int x) {\n" +
+			"	System.out.println(x);\n" +
+			"    }\n" +
+			"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Y");
+	IMethod method = type.getMethod("foo", new String[] {"I"});
+	search(method, METHOD_REFERENCE_EXPRESSION, EXACT_RULE);
+	assertSearchResults(
+			"src/b429012/X.java void b429012.X.doit() [foo] EXACT_MATCH"
+	);	
+}
+
+/**
+ * @bug 429012
+ * @test tests search for Reference expression - SimpleName:: form, without type arguments.
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
+ * 
+ */
+public void testBug429012_0003() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
+			"interface I {\n" +
+			"	public void doit();\n" +
+			"}\n" +
+			"class Y {\n" + 
+			"	Y() {}\n" +
+			"	Y(int i) {}\n" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			"    X(int i) {} \n" +
+			"   static void foo() {}\n" +
+			"   static void foo(int i) {}\n" +
+			"	I i = X :: foo;\n" +
+			"	I j = Y :: new;\n" +
+			"   public static void main() { \n" +
+			"     Y y = new Y(); \n" +
+			"     foo(); \n" +
+			"   }\n" +
+			"}\n"
+	);
+	IType type = this.workingCopies[0].getType("X");
+	IMethod method = type.getMethod("foo", null);
+	search(method, METHOD_REFERENCE_EXPRESSION, EXACT_RULE);
+	assertSearchResults(
+			"src/b429012/X.java b429012.X.i [foo] EXACT_MATCH"
+	);	
+}
+
+/**
+ * @bug 429012
+ * @test tests search for Reference expression - SimpleName:: form, with type arguments.
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
+ * 
+ */
+public void testBug429012_0004() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
+			"interface I {\n" +
+			"    void foo(int x);\n" +
+			"}\n" +
+			"public class X  {\n" +
+			"    public static void main(String [] args) {\n" +
+			"        I i = Y::<String>foo;\n" +
+			"        i.foo(10); \n" +
+			"    }\n" +
+			"}\n" +
+			"class Y {\n" +
+			"    public static void foo(int x) {\n" +
+			"	System.out.println(x);\n" +
+			"    }\n" +
+			"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Y");
+	IMethod method = type.getMethod("foo", new String[] {"I"});
+	search(method, METHOD_REFERENCE_EXPRESSION, EXACT_RULE);
+	assertSearchResults(
+			"src/b429012/X.java void b429012.X.main(String[]) [foo] EXACT_MATCH"
+	);	
+}
+
+/**
+ * @bug 429012
+ * @test tests search for Reference expression - QualifiedName:: form, without type arguments.
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
+ * 
+ */
+public void testBug429012_0005() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
+			"interface I {\n" +
+			"    void foo(int x);\n" +
+			"}\n" +
+			"public class X  {\n" +
+			"    public static void main(String [] args) {\n" +
+			"        I i = Y.Z::foo;\n" +
+			"        i.foo(10); \n" +
+			"    }\n" +
+			"}\n" +
+			"class Y {\n" +
+			"    static class Z {\n" +
+			"        public static void foo(int x) {\n" +
+			"	    System.out.println(x);\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Y").getType("Z");
+	IMethod method = type.getMethod("foo", new String[] {"I"});
+	search(method, METHOD_REFERENCE_EXPRESSION, EXACT_RULE);
+	assertSearchResults(
+			"src/b429012/X.java void b429012.X.main(String[]) [foo] EXACT_MATCH"
+	);	
+}
+
+/**
+ * @bug 429012
+ * @test tests search for Reference expression - QualifiedName:: form, with type arguments.
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
+ * 
+ */
+public void testBug429012_0006() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
+			"interface I {\n" +
+			"    void foo(int x);\n" +
+			"}\n" +
+			"public class X  {\n" +
+			"    public static void main(String [] args) {\n" +
+			"        I i = Y.Z::<String>foo;\n" +
+			"        i.foo(10); \n" +
+			"    }\n" +
+			"}\n" +
+			"class Y {\n" +
+			"    static class Z {\n" +
+			"        public static void foo(int x) {\n" +
+			"	    System.out.println(x);\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Y").getType("Z");
+	IMethod method = type.getMethod("foo", new String[] {"I"});
+	search(method, METHOD_REFERENCE_EXPRESSION, EXACT_RULE);
+	assertSearchResults(
+			"src/b429012/X.java void b429012.X.main(String[]) [foo] EXACT_MATCH"
+	);	
+}
+
+/**
+ * @bug 429012
+ * @test tests search for Reference expression - Primary:: form, without type arguments.
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
+ * 
+ */
+public void testBug429012_0007() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
+			"interface I {\n" +
+			"    void foo(int x);\n" +
+			"}\n" +
+			"public class X  {\n" +
+			"    public static void main(String [] args) {\n" +
+			"        I i = new Y()::foo;\n" +
+			"        i.foo(10); \n" +
+			"    }\n" +
+			"}\n" +
+			"class Y {\n" +
+			"        void foo(int x) {\n" +
+			"	    System.out.println(x);\n" +
+			"        }\n" +
+			"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Y");
+	IMethod method = type.getMethod("foo", new String[] {"I"});
+	search(method, METHOD_REFERENCE_EXPRESSION, EXACT_RULE);
+	assertSearchResults(
+			"src/b429012/X.java void b429012.X.main(String[]) [foo] EXACT_MATCH"
+	);	
+}
+
+/**
+ * @bug 429012
+ * @test tests search for Reference expression - Primary:: form, with type arguments.
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
+ * 
+ */
+public void testBug429012_0008() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
+			"interface I {\n" +
+			"    void foo(int x);\n" +
+			"}\n" +
+			"public class X  {\n" +
+			"    public static void main(String [] args) {\n" +
+			"        I i = new Y()::<String>foo;\n" +
+			"        i.foo(10); \n" +
+			"    }\n" +
+			"}\n" +
+			"class Y {\n" +
+			"        void foo(int x) {\n" +
+			"	    System.out.println(x);\n" +
+			"        }\n" +
+			"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Y");
+	IMethod method = type.getMethod("foo", new String[] {"I"});
+	search(method, METHOD_REFERENCE_EXPRESSION, EXACT_RULE);
+	assertSearchResults(
+			"src/b429012/X.java void b429012.X.main(String[]) [foo] EXACT_MATCH"
+	);	
+}
+
+/**
+ * @bug 429012
+ * @test tests search for Reference expression - X<T>:: form, without type arguments
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
+ * 
+ */
+public void testBug429012_0009() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
+			"interface I {\n" + 
+			"  void foo(Y<String> y, int x);\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    I i = Y<String>::foo;\n" + 
+			"    i.foo(new Y<String>(), 10);\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y<T> {\n" + 
+			"  Y() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"  void foo(int x) {\n" + 
+			"    System.out.println(x);\n" + 
+			"  }\n" + 
+			"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Y");
+	IMethod method = type.getMethod("foo", new String[] {"I"});
+	search(method, METHOD_REFERENCE_EXPRESSION, EXACT_RULE);
+	assertSearchResults(
+			"src/b429012/X.java void b429012.X.main(String[]) [foo] EXACT_MATCH"
+	);
+}
+
+
+/**
+ * @bug 429012
+ * @test tests search for Reference expression - X<T>:: form, with type arguments
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
+ * 
+ */
+public void testBug429012_0010() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
+			"interface I {\n" + 
+			"  void foo(Y<String> y, int x);\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    I i = Y<String>::<String>foo;\n" + 
+			"    i.foo(new Y<String>(), 10);\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y<T> {\n" + 
+			"  Y() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"  void foo(int x) {\n" + 
+			"    System.out.println(x);\n" + 
+			"  }\n" + 
+			"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Y");
+	IMethod method = type.getMethod("foo", new String[] {"I"});
+	search(method, METHOD_REFERENCE_EXPRESSION, EXACT_RULE);
+	assertSearchResults(
+			"src/b429012/X.java void b429012.X.main(String[]) [foo] EXACT_MATCH"
+	);
+}
+
+/**
+ * @bug 429012
+ * @test tests search for Reference expression - X<T>.Name :: form, without type arguments
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
+ * 
+ */
+public void testBug429012_0011() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
+			"interface I {\n" +
+				"    void foo(Y<String>.Z z, int x);\n" +
+			"}\n" +
+			"public class X  {\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"    public static void main(String [] args) {\n" +
+			"        I i = Y<String>.Z::foo;\n" +
+			"        i.foo(new Y<String>().new Z(), 10); \n" +
+			"    }\n" +
+			"}\n" +
+			"class Y<T> {\n" +
+			"    class Z {\n" +
+			"        void foo(int x) {\n" +
+			"	    System.out.println(x);\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n" +
+			"\n"
+	);
+	IType type = this.workingCopies[0].getType("Y");
+	type = type.getType("Z");
+	IMethod method = type.getMethod("foo", new String[] {"I"});
+	search(method, METHOD_REFERENCE_EXPRESSION, EXACT_RULE);
+	assertSearchResults(
+			"src/b429012/X.java void b429012.X.main(String[]) [foo] EXACT_MATCH"
+	);
+}
+
+/**
+ * @bug 429012
+ * @test tests search for Reference expression - X<T>.Name :: form, with type arguments
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
+ * 
+ */
+public void testBug429012_0012() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
+			"interface I {\n" +
+				"    void foo(Y<String>.Z z, int x);\n" +
+			"}\n" +
+			"public class X  {\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"    public static void main(String [] args) {\n" +
+			"        I i = Y<String>.Z::<String>foo;\n" +
+			"        i.foo(new Y<String>().new Z(), 10); \n" +
+			"    }\n" +
+			"}\n" +
+			"class Y<T> {\n" +
+			"    class Z {\n" +
+			"        void foo(int x) {\n" +
+			"	    System.out.println(x);\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n" +
+			"\n"
+	);
+	IType type = this.workingCopies[0].getType("Y");
+	type = type.getType("Z");
+	IMethod method = type.getMethod("foo", new String[] {"I"});
+	search(method, METHOD_REFERENCE_EXPRESSION, EXACT_RULE);
+	assertSearchResults(
+			"src/b429012/X.java void b429012.X.main(String[]) [foo] EXACT_MATCH"
+	);
+}
+
+/**
+ * @bug 429012
+ * @test tests search for Reference expression - X<T>.Y<K> :: form, without type arguments
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
+ * 
+ */
+public void testBug429012_0013() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
+			"interface I {\n" +
+				"    void foo(Y<String>.Z<String> z, int x);\n" +
+			"}\n" +
+			"public class X  {\n" +
+			"    public static void main(String [] args) {\n" +
+			"        I i = Y<String>.Z<String>::foo;\n" +
+			"        i.foo(new Y<String>().new Z<String>(), 10); \n" +
+			"    }\n" +
+			"}\n" +
+			"class Y<T> {\n" +
+			"    class Z<K> {\n" +
+			"        void foo(int x) {\n" +
+			"	    System.out.println(x);\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n" +
+			"\n"
+	);
+	IType type = this.workingCopies[0].getType("Y");
+	type = type.getType("Z");
+	IMethod method = type.getMethod("foo", new String[] {"I"});
+	search(method, METHOD_REFERENCE_EXPRESSION, ERASURE_RULE);
+	assertSearchResults(
+			"src/b429012/X.java void b429012.X.main(String[]) [foo] EXACT_MATCH"
+	);
+}
+
+/**
+ * @bug 429012
+ * @test tests search for Reference expression - X<T>.Y<K> :: form, with type arguments
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
+ * 
+ */
+public void testBug429012_0014() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
+			"interface I {\n" +
+				"    void foo(Y<String>.Z<String> z, int x);\n" +
+			"}\n" +
+			"public class X  {\n" +
+			"    public static void main(String [] args) {\n" +
+			"        I i = Y<String>.Z<String>::<String>foo;\n" +
+			"        i.foo(new Y<String>().new Z<String>(), 10); \n" +
+			"    }\n" +
+			"}\n" +
+			"class Y<T> {\n" +
+			"    class Z<K> {\n" +
+			"        void foo(int x) {\n" +
+			"	    System.out.println(x);\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n" +
+			"\n"
+	);
+	IType type = this.workingCopies[0].getType("Y");
+	type = type.getType("Z");
+	IMethod method = type.getMethod("foo", new String[] {"I"});
+	search(method, METHOD_REFERENCE_EXPRESSION, EXACT_RULE);
+	assertSearchResults(
+			"src/b429012/X.java void b429012.X.main(String[]) [foo] EXACT_MATCH"
+	);
+}
+
+/**
+ * @bug 429012
+ * @test tests search for Reference expression - X<T>.Y<K> :: new form, with type arguments
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
+ * 
+ */
+public void testBug429012_0015() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
+			"interface I {\n" +
+				"    void foo(Y<String> y);\n" +
+			"}\n" +
+			"public class X  {\n" +
+			"    public static void main(String [] args) {\n" +
+			"        I i = Y<String>.Z<String>::<String>new;\n" +
+			"        i.foo(new Y<String>()); \n" +
+			"    }\n" +
+			"}\n" +
+			"class Y<T> {\n" +
+			"    class Z<K> {\n" +
+			"        Z(Y<String> y) {\n" +
+			"            System.out.println(\"Y<T>.Z<K>::new\");\n" +
+			"        }\n" +
+			"        Z1(Y<String> y) {\n" +
+			"            System.out.println(\"Y<T>.Z<K>::new\");\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n"
+	);
+	IType type = this.workingCopies[0].getType("Y");
+	type = type.getType("Z");
+	IMethod method = type.getMethod("Z", new String[] {"QY<QString;>;"});
+	search(method, METHOD_REFERENCE_EXPRESSION, EXACT_RULE);
+	assertSearchResults(
+			"src/b429012/X.java void b429012.X.main(String[]) [Y<String>.Z<String>::<String>new] EXACT_MATCH"
+	);
+}// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012, [1.8][search] Add finegrain (limitTo) option for method reference expressions
+public void testBug429012_0016() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429498/X.java",
+			"interface I {\n" +
+			"	public void doit();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"   static void foo() {}\n" +
+			"   static void foo(int i) {}\n" +
+			"	I i = X :: foo;\n" +
+			"   static void bar() {foo();}\n" +
+			"}\n"
+	);
+	String str = this.workingCopies[0].getSource();
+	String selection = "foo";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(elements[0], METHOD_REFERENCE_EXPRESSION, ERASURE_RULE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(
+		"src/b429498/X.java b429498.X.i [foo] EXACT_MATCH"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012, [1.8][search] Add finegrain (limitTo) option for method reference expressions
+public void testBug429012_0017() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
+			"interface I { \n" +
+			"	int thrice(int p);\n" +
+			"}\n" +
+			"class Y {\n" +
+			"	int goo(int x) { return 3 * x; } \n" +
+			"}\n" +
+			"public class X extends Y {\n" +
+			"	public void main(String[] args) { \n" +
+			"		I i = this::goo;\n" +
+			"       i = super::goo;\n" +
+			"	}\n" +
+			"}\n"
+	);
+
+	search(this.workingCopies[0].getType("Y").getMethod("goo", new String[] { "I" }), METHOD_REFERENCE_EXPRESSION);
+	assertSearchResults(
+		"src/test/Test.java void test.X.main(String[]) [goo] EXACT_MATCH\n" + 
+		"src/test/Test.java void test.X.main(String[]) [goo] EXACT_MATCH"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012, [1.8][search] Add finegrain (limitTo) option for method reference expressions
+public void testBug429012_0018() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
+			"interface I { \n" +
+			"	int thrice(int p);\n" +
+			"}\n" +
+			"class Y {\n" +
+			"	int goo(int x) { return 3 * x; } \n" +
+			"}\n" +
+			"public class X extends Y {\n" +
+			"	public void main(String[] args) { \n" +
+			"		I i = this::goo;\n" +
+			"       i = super::goo;\n" +
+			"	}\n" +
+			"}\n"
+	);
+
+	search(this.workingCopies[0].getType("Y").getMethod("goo", new String[] { "I" }), THIS_REFERENCE | METHOD_REFERENCE_EXPRESSION);
+	assertSearchResults(
+		"src/test/Test.java void test.X.main(String[]) [goo] EXACT_MATCH\n" +
+		"src/test/Test.java void test.X.main(String[]) [goo] EXACT_MATCH"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012, [1.8][search] Add finegrain (limitTo) option for method reference expressions
+public void testBug429012_0019() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
+			"interface I { \n" +
+			"	int thrice(int p);\n" +
+			"}\n" +
+			"class Y {\n" +
+			"	static class Z {\n" +
+			"		static int goo(int x) { return 3 * x; }   \n" +
+			"		I i = Z::goo;\n" +
+			"   }\n" +
+			"}\n" +
+			"public class X extends Y.Z {\n" +
+			"	public void main(String[] args) { \n" +
+			"		I i = Y.Z::goo;\n" +
+			"	}\n" +
+			"}\n"
+	);
+
+	search(this.workingCopies[0].getType("Y").getType("Z").getMethod("goo", new String[] { "I" }), METHOD_REFERENCE_EXPRESSION);
+	assertSearchResults(
+		"src/test/Test.java test.Y$Z.i [goo] EXACT_MATCH\n" + 
+		"src/test/Test.java void test.X.main(String[]) [goo] EXACT_MATCH"
+);
 }
 // Add new tests in JavaSearchBugs8Tests
 }
