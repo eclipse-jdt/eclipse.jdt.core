@@ -7059,4 +7059,26 @@ public void test189() {
 		true, // flush
 		options);
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=433060 [1.8][compiler] enum E<T>{I;} causes NPE in AllocationExpression.checkTypeArgumentRedundancy
+public void test433060() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_REDUNDANT_TYPE_ARGUMENTS, JavaCore.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public enum X<T> {\n" + 
+			"	OBJ;\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public enum X<T> {\n" + 
+		"	              ^\n" + 
+		"Syntax error, enum declaration cannot have type parameters\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
 }
