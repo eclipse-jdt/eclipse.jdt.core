@@ -2075,6 +2075,15 @@ public class ClassFile implements TypeConstants, TypeIds {
 				startLineIndexes);
 	}
 
+	private void completeArgumentAnnotationInfo(Argument[] arguments, List allAnnotationContexts) {
+		for (int i = 0, max = arguments.length; i < max; i++) {
+			Argument argument = arguments[i];
+			if ((argument.bits & ASTNode.HasTypeAnnotations) != 0) {
+				argument.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_FORMAL_PARAMETER, i, allAnnotationContexts);
+			}
+		}
+	}
+
 	/**
 	 * INTERNAL USE-ONLY
 	 * Complete the creation of a method info by setting up the number of attributes at the right offset.
@@ -2096,12 +2105,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				if ((methodDeclaration.bits & ASTNode.HasTypeAnnotations) != 0) {
 					Argument[] arguments = methodDeclaration.arguments;
 					if (arguments != null) {
-						for (int i = 0, max = arguments.length; i < max; i++) {
-							Argument argument = arguments[i];
-							if ((argument.bits & ASTNode.HasTypeAnnotations) != 0) {
-								argument.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_FORMAL_PARAMETER, i, allTypeAnnotationContexts);
-							}
-						}
+						completeArgumentAnnotationInfo(arguments, allTypeAnnotationContexts);
 					}
 					Receiver receiver = methodDeclaration.receiver;
 					if (receiver != null && (receiver.type.bits & ASTNode.HasTypeAnnotations) != 0) {
@@ -2134,6 +2138,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 							typeParameter.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER, i, allTypeAnnotationContexts);
 						}
 					}
+				}
+			} else if (binding.sourceLambda() != null) { // SyntheticMethodBinding, purpose : LambdaMethod.
+				LambdaExpression lambda = binding.sourceLambda();
+				if ((lambda.bits & ASTNode.HasTypeAnnotations) != 0) {
+					if (lambda.arguments != null)
+						completeArgumentAnnotationInfo(lambda.arguments, allTypeAnnotationContexts);
 				}
 			}
 			int size = allTypeAnnotationContexts.size();
@@ -3988,9 +3998,15 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 		}
 		if (targetParameters != Binding.NO_PARAMETERS) {
-			for (int i = 0, max = targetParameters.length; i < max; i++) {
-				if (methodDeclaration != null && methodDeclaration.arguments != null && methodDeclaration.arguments.length > i && methodDeclaration.arguments[i] != null) {
-					Argument argument = methodDeclaration.arguments[i];
+			Argument[] arguments = null;
+			if (methodDeclaration != null && methodDeclaration.arguments != null) {
+				arguments = methodDeclaration.arguments;
+			} else if (binding.sourceLambda() != null) { // SyntheticMethodBinding, purpose : LambdaMethod.
+				arguments = binding.sourceLambda().arguments;
+			}
+			for (int i = 0, max = targetParameters.length, argumentsLength = arguments != null ? arguments.length : 0; i < max; i++) {
+				if (argumentsLength > i && arguments[i] != null) {
+					Argument argument = arguments[i];
 					length = writeArgumentName(argument.name, argument.binding.modifiers, length);
 				} else {
 					length = writeArgumentName(null, ClassFileConstants.AccSynthetic, length);

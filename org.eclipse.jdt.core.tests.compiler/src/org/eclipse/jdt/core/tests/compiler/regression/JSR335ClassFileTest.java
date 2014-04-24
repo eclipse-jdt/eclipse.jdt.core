@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Jesper Steen Moller and others.
+ * Copyright (c) 2013, 2014 Jesper Steen Moller, IBM and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2801,14 +2801,14 @@ public void test430015a() throws IOException, ClassFormatException {
 		String expectedOutput =
 				"  // Method descriptor #28 (I)V\n" + 
 				"  // Stack: 0, Locals: 1\n" + 
-				"  private static synthetic void lambda$0(int <anonymous>);\n" + 
+				"  private static synthetic void lambda$0(int i);\n" + 
 				"    0  return\n" + 
 				"      Line numbers:\n" + 
 				"        [pc: 0, line: 7]\n" + 
 				"      Local variable table:\n" + 
 				"        [pc: 0, pc: 1] local: i index: 0 type: int\n" + 
 				"      Method Parameters:\n" + 
-				"        synthetic <anonymous>\n" + 
+				"        i\n" + 
 				"\n";
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
@@ -3039,6 +3039,51 @@ public void test430035() throws IOException, ClassFormatException {
 						"Bootstrap methods:\n" + 
 						"  0 : # 98 arguments: {#99,#102,#103,#104,#105,#106,#107}\n" + 
 						"}";
+
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430571,  [1.8][compiler] Lambda parameter names and annotations don't make it to class files.
+public void test430571() throws IOException, ClassFormatException {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_MethodParametersAttribute, CompilerOptions.GENERATE);
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import java.lang.annotation.Retention;\n" +
+				"import java.lang.annotation.RetentionPolicy;\n" +
+				"\n" +
+				"@Retention(RetentionPolicy.CLASS)\n" +
+				"@Target(ElementType.TYPE_USE) @interface A {}\n" +
+				"\n" +
+				"interface I { int foo(int x); }\n" +
+				"\n" +
+				"class X {\n" +
+				"  	I x = (@A int x) -> x + 1;\n" +
+				"}"
+			}, customOptions);
+
+		String expectedOutput =
+				"  // Method descriptor #23 (I)I\n" +
+				"  // Stack: 2, Locals: 1\n" +
+				"  private static synthetic int lambda$0(int x);\n" +
+				"    0  iload_0 [x]\n" +
+				"    1  iconst_1\n" +
+				"    2  iadd\n" +
+				"    3  ireturn\n" +
+				"      Line numbers:\n" +
+				"        [pc: 0, line: 12]\n" +
+				"      Local variable table:\n" +
+				"        [pc: 0, pc: 4] local: x index: 0 type: int\n" +
+				"      Method Parameters:\n" + // Method Parameters
+				"        x\n" + // <---
+				"    RuntimeInvisibleTypeAnnotations: \n" + // Annotations
+				"      #26 @A(\n" + // <---
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" +
+				"        method parameter index = 0\n" +
+				"      )";
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
