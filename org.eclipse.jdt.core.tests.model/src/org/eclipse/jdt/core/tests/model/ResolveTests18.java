@@ -719,7 +719,7 @@ public void test0024() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"xyz [in foo(int) [in Lambda(I) [in foo() [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"xyz [in foo(int) [in <lambda #1> [in foo() [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements
 	);
 }
@@ -744,7 +744,7 @@ public void test0025() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"abc [in foo(int) [in Lambda(I) [in foo() [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"abc [in foo(int) [in <lambda #1> [in foo() [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements
 	);
 }
@@ -767,7 +767,7 @@ public void test0026() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"abc [in foo(int) [in Lambda(I) [in i [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"abc [in foo(int) [in <lambda #1> [in i [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements
 	);
 }
@@ -795,7 +795,7 @@ public void test0027() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"abc [in doit(I) [in Lambda(I) [in doit(I) [in Lambda(I) [in doit(I) [in Lambda(I) [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]]]",
+		"abc [in doit(I) [in <lambda #1> [in doit(I) [in <lambda #1> [in doit(I) [in <lambda #1> [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]]]",
 		elements
 	);
 }
@@ -823,7 +823,7 @@ public void test0028() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"xyz [in doit(I) [in Lambda(I) [in doit(I) [in Lambda(I) [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]",
+		"xyz [in doit(I) [in <lambda #1> [in doit(I) [in <lambda #1> [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]",
 		elements
 	);
 }
@@ -889,7 +889,7 @@ public void test0030() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"zyx [in doit(I) [in Lambda(I) [in doit(I) [in Lambda(I) [in fx [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]",
+		"zyx [in doit(I) [in <lambda #1> [in doit(I) [in <lambda #1> [in fx [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]",
 		elements
 	);
 }
@@ -922,7 +922,7 @@ public void test0031() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"xyz [in doit(I) [in Lambda(I) [in doit(I) [in Lambda(I) [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]",
+		"xyz [in doit(I) [in <lambda #1> [in doit(I) [in <lambda #1> [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]",
 		elements
 	);
 }
@@ -957,7 +957,7 @@ public void test0032() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"hij [in doit(I) [in Lambda(I) [in doit(I) [in Lambda(I) [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]",
+		"hij [in doit(I) [in <lambda #1> [in doit(I) [in <lambda #1> [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]",
 		elements
 	);
 }
@@ -993,7 +993,7 @@ public void test0033() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"hij [in doit(I) [in Lambda(I) [in doit(I) [in Lambda(I) [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]",
+		"hij [in doit(I) [in <lambda #1> [in doit(I) [in <lambda #1> [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]",
 		elements
 	);
 }
@@ -1432,7 +1432,7 @@ public void testFieldInit() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"first [in foo(int, int) [in Lambda(I) [in i [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"first [in foo(int, int) [in <lambda #1> [in i [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements
 	);
 }
@@ -1455,7 +1455,7 @@ public void test422468() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"first [in foo(X, java.lang.Object) [in Lambda(I) [in i [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"first [in foo(X, java.lang.Object) [in <lambda #1> [in i [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements
 	);
 }
@@ -1478,7 +1478,7 @@ public void test422468a() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"second [in foo(X, java.lang.Object) [in Lambda(I) [in i [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"second [in foo(X, java.lang.Object) [in <lambda #1> [in i [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements
 	);
 }
@@ -1504,7 +1504,7 @@ public void test422468b() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"y [in foo(I) [in Lambda(I) [in foo(I) [in Lambda(I) [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]",
+		"y [in foo(I) [in <lambda #1> [in foo(I) [in <lambda #1> [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]",
 		elements
 	);
 }
@@ -1530,7 +1530,7 @@ public void test422468c() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"y [in foo(I) [in Lambda(I) [in foo(I) [in Lambda(I) [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]",
+		"y [in foo(I) [in <lambda #1> [in foo(I) [in <lambda #1> [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]",
 		elements
 	);
 }
@@ -1594,7 +1594,7 @@ public void test422468e() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"q [in foo(java.lang.String, int) [in Lambda(K) [in foo(java.lang.String, java.lang.String) [in Lambda(J) [in foo(java.lang.String, java.lang.String) [in Lambda(I) [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]]]",
+		"q [in foo(java.lang.String, int) [in <lambda #1> [in foo(java.lang.String, java.lang.String) [in <lambda #1> [in foo(java.lang.String, java.lang.String) [in <lambda #1> [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]]]",
 		elements
 	);
 }
@@ -1629,7 +1629,7 @@ public void testParser() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"x [in foo(java.lang.String, java.lang.Integer) [in Lambda(I) [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"x [in foo(java.lang.String, java.lang.Integer) [in <lambda #1> [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements
 	);
 }
@@ -1788,7 +1788,7 @@ public void test424198() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"v1 [in apply(java.lang.String) [in Lambda(Function) [in processJar(Path) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"v1 [in apply(java.lang.String) [in <lambda #1> [in processJar(Path) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements,
 		true
 	);
@@ -1853,7 +1853,7 @@ public void test424198a() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"v2 [in apply(? extends java.lang.String) [in Lambda(Function) [in processJar(Path) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"v2 [in apply(? extends java.lang.String) [in <lambda #1> [in processJar(Path) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements,
 		true
 	);
@@ -1918,7 +1918,7 @@ public void test424198b() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"s1 [in accept(? extends java.lang.String) [in Lambda(Consumer) [in withWildcard(Stream<? extends String>) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"s1 [in accept(? extends java.lang.String) [in <lambda #1> [in withWildcard(Stream<? extends String>) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements,
 		true
 	);
@@ -1983,7 +1983,7 @@ public void test424198c() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"s2 [in accept(java.lang.String) [in Lambda(Consumer) [in withoutWildcard(Stream<String>) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"s2 [in accept(java.lang.String) [in <lambda #1> [in withoutWildcard(Stream<String>) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements,
 		true
 	);
@@ -2298,7 +2298,7 @@ public void test429845() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"ex [in foo() [in Lambda(FI) [in fun1(int) [in C1 [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"ex [in foo() [in <lambda #1> [in fun1(int) [in C1 [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements, true
 	);
 }
@@ -2337,7 +2337,7 @@ public void test429948() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"xxx [in run() [in Lambda(Runnable) [in get() [in Lambda(Supplier) [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]",
+		"xxx [in run() [in <lambda #1> [in get() [in <lambda #1> [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]",
 		elements, true
 	);
 }
@@ -2392,7 +2392,7 @@ public void test429812() throws CoreException {
 	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
 	assertElementsEqual(
 			"Unexpected elements",
-			"x [in get(java.util.List<U>, int) [in Lambda(Getter) [in foo(List<U>) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+			"x [in get(java.util.List<U>, int) [in <lambda #1> [in foo(List<U>) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 			elements, true
 			);
 	IMethod lambda = (IMethod) elements[0].getParent();
@@ -2422,14 +2422,14 @@ public void test430136() throws CoreException {
 	IMethod lambda = (IMethod) elements[0].getParent();
 	String memento = lambda.getHandleIdentifier();
 	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Getter=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=&", 
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=&", 
 			memento);
 	IJavaElement result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", lambda, result);
 	LambdaExpression expression = (LambdaExpression) lambda.getParent();
 	memento = expression.getHandleIdentifier();
 	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Getter=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=)", 
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=)", 
 			memento);
 	result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", expression, result);
@@ -2439,14 +2439,14 @@ public void test430136() throws CoreException {
 	lambda = (IMethod) elements[0].getParent();
 	memento = lambda.getHandleIdentifier();
 	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Getter=\"LGetter\\<TU;>;!180!197!188=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!181!181!181!181!Ljava\\/util\\/List;!0!true@i!184!184!184!184!I!0!true=&", 
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!180!197!188=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!181!181!181!181!Ljava\\/util\\/List;!0!true@i!184!184!184!184!I!0!true=&", 
 			memento);
 	result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", lambda, result);
 	expression = (LambdaExpression) lambda.getParent();
 	memento = expression.getHandleIdentifier();
 	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Getter=\"LGetter\\<TU;>;!180!197!188=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!181!181!181!181!Ljava\\/util\\/List;!0!true@i!184!184!184!184!I!0!true=)", 
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!180!197!188=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!181!181!181!181!Ljava\\/util\\/List;!0!true@i!184!184!184!184!I!0!true=)", 
 			memento);
 	result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", expression, result);
@@ -2474,7 +2474,7 @@ public void test430307() throws CoreException {
 	ILocalVariable local = (ILocalVariable) elements[0];
 	String memento = local.getHandleIdentifier();
 	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Getter=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=&@x!145!145!145!145!Ljava.util.List\\<LU;>;!0!true", 
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=&@x!145!145!145!145!Ljava.util.List\\<LU;>;!0!true", 
 			memento);
 	IJavaElement result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", local, result);
@@ -2484,7 +2484,7 @@ public void test430307() throws CoreException {
 	IMethod lambda = (IMethod) elements[0].getParent();
 	memento = lambda.getHandleIdentifier();
 	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Getter=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=&", 
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=&", 
 			memento);
 	result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", lambda, result);
@@ -2492,7 +2492,7 @@ public void test430307() throws CoreException {
 	LambdaExpression expression = (LambdaExpression) lambda.getParent();
 	memento = expression.getHandleIdentifier();
 	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)Getter=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=)", 
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=)", 
 			memento);
 	LambdaExpression recreatedType = (LambdaExpression) JavaCore.create(memento);
 	assertEquals("Java elements should be equal", expression, recreatedType);
@@ -2524,9 +2524,9 @@ public void test430307a() throws JavaModelException {
 	String memento = local.getHandleIdentifier();
 		assertEquals(
 				"Incorrect memento string",
-				"=Resolve/src<{X.java[X~main~\\[QString;=)I=\"LI;!103!169!110=&doit!1=\"LI;=\"pqr=\"LI;=\"LX\\~I;.doit\\(LI;)"
-				+ "LI;@pqr!104!106!104!106!LI;!0!true=&=)I=\"LI;!124!164!131=&doit!1=\"LI;=\"xyz=\"LI;=\"LX\\~I;.doit\\(LI;)"
-				+ "LI;@xyz!125!127!125!127!LI;!0!true=&=)I=\"LI;!146!157!153=&doit!1=\"LI;=\"abc=\"LI;=\"LX\\~I;.doit\\(LI;)"
+				"=Resolve/src<{X.java[X~main~\\[QString;=)=\"LI;!103!169!110=&doit!1=\"LI;=\"pqr=\"LI;=\"LX\\~I;.doit\\(LI;)"
+				+ "LI;@pqr!104!106!104!106!LI;!0!true=&=)=\"LI;!124!164!131=&doit!1=\"LI;=\"xyz=\"LI;=\"LX\\~I;.doit\\(LI;)"
+				+ "LI;@xyz!125!127!125!127!LI;!0!true=&=)=\"LI;!146!157!153=&doit!1=\"LI;=\"abc=\"LI;=\"LX\\~I;.doit\\(LI;)"
 				+ "LI;@abc!147!149!147!149!LI;!0!true=&@abc!147!149!147!149!LI;!0!true",
 				memento);
 	IJavaElement result = JavaCore.create(memento);
@@ -2543,8 +2543,8 @@ public void test430307a() throws JavaModelException {
 	local = (ILocalVariable) elements[0];
 	memento = local.getHandleIdentifier();
 	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~main~\\[QString;=)I=\"LI;!103!169!110=&doit!1=\"LI;=\"pqr=\"LI;=\"LX\\~I;.doit\\(LI;)"
-			+ "LI;@pqr!104!106!104!106!LI;!0!true=&=)I=\"LI;!124!164!131=&doit!1=\"LI;=\"xyz=\"LI;=\"LX\\~I;.doit\\(LI;)"
+			"=Resolve/src<{X.java[X~main~\\[QString;=)=\"LI;!103!169!110=&doit!1=\"LI;=\"pqr=\"LI;=\"LX\\~I;.doit\\(LI;)"
+			+ "LI;@pqr!104!106!104!106!LI;!0!true=&=)=\"LI;!124!164!131=&doit!1=\"LI;=\"xyz=\"LI;=\"LX\\~I;.doit\\(LI;)"
 			+ "LI;@xyz!125!127!125!127!LI;!0!true=&@xyz!125!127!125!127!LI;!0!true", 
 			memento);
 	result = JavaCore.create(memento);
@@ -2561,7 +2561,7 @@ public void test430307a() throws JavaModelException {
 	local = (ILocalVariable) elements[0];
 	memento = local.getHandleIdentifier();
 	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~main~\\[QString;=)I=\"LI;!103!169!110=&doit!1=\"LI;=\"pqr=\"LI;=\"LX\\~I;.doit\\(LI;)"
+			"=Resolve/src<{X.java[X~main~\\[QString;=)=\"LI;!103!169!110=&doit!1=\"LI;=\"pqr=\"LI;=\"LX\\~I;.doit\\(LI;)"
 			+ "LI;@pqr!104!106!104!106!LI;!0!true=&@pqr!104!106!104!106!LI;!0!true", 
 			memento);
 	result = JavaCore.create(memento);

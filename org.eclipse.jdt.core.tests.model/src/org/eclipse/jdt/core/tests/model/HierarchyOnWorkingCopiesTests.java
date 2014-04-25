@@ -344,9 +344,9 @@ public void test400905b() throws CoreException, IOException {
 							"Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]\n" + 
 							"Super types:\n" + 
 							"Sub types:\n" + 
-							"  Lambda(I) [in i [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
-							"  Lambda(I) [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
-							"  Lambda(I) [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n",
+							"  <lambda #1> [in i [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
+							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
+							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n",
 				h);
 		} finally {
 			primaryCu.discardWorkingCopy();
@@ -410,12 +410,12 @@ public void test429435() throws CoreException, IOException {
 					"Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]\n" + 
 							"Super types:\n" + 
 							"Sub types:\n" + 
-							"  Lambda(I) [in doit() [in <anonymous #1> [in doit() [in Lambda(I) [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]\n" + 
-							"  Lambda(I) [in doit() [in Lambda(I) [in doit() [in Lambda(I) [in doit() [in Lambda(I) [in doit() [in Lambda(I) [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]]]]]\n" + 
-							"  Lambda(I) [in doit() [in Lambda(I) [in doit() [in Lambda(I) [in doit() [in Lambda(I) [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]]]\n" + 
-							"  Lambda(I) [in doit() [in Lambda(I) [in doit() [in Lambda(I) [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]\n" + 
-							"  Lambda(I) [in doit() [in Lambda(I) [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]\n" + 
-							"  Lambda(I) [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
+							"  <lambda #1> [in doit() [in <anonymous #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]\n" + 
+							"  <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]]]]]\n" + 
+							"  <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]]]\n" + 
+							"  <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]\n" + 
+							"  <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]\n" + 
+							"  <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
 							"  Y [in [Working copy] A.java [in x.y [in src [in P]]]]\n",
 				h);
 		} finally {
@@ -466,10 +466,10 @@ public void test429537() throws CoreException, IOException {
 							"Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]\n" + 
 							"Super types:\n" + 
 							"Sub types:\n" + 
-							"  Lambda(I) [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
-							"  Lambda(I) [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
-							"  Lambda(I) [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
-							"  Lambda(I) [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n",
+							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
+							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
+							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
+							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n",
 				h);
 		} finally {
 			primaryCu.discardWorkingCopy();

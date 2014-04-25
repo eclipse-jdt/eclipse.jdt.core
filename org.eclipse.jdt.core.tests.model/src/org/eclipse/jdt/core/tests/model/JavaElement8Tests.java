@@ -268,8 +268,8 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 					"Focus: Runnable [in X.java [in <default> [in src [in Bug429966]]]]\n" + 
 					"Super types:\n" + 
 					"Sub types:\n" + 
-					"  Lambda(Runnable) [in get() [in Lambda(Supplier) [in main(String[]) [in X [in X.java [in <default> [in src [in Bug429966]]]]]]]]\n" + 
-					"  Lambda(Runnable) [in run() [in Lambda(Runnable) [in get() [in Lambda(Supplier) [in main(String[]) [in X [in X.java [in <default> [in src [in Bug429966]]]]]]]]]]\n",
+					"  <lambda #1> [in get() [in <lambda #1> [in main(String[]) [in X [in X.java [in <default> [in src [in Bug429966]]]]]]]]\n" + 
+					"  <lambda #1> [in run() [in <lambda #1> [in get() [in <lambda #1> [in main(String[]) [in X [in X.java [in <default> [in src [in Bug429966]]]]]]]]]]\n",
 					h);
 		}
 		finally {
@@ -361,7 +361,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			ICompilationUnit unit = getCompilationUnit(fileName);
 			int start = fileContent.indexOf("v");
 			IJavaElement[] elements = unit.codeSelect(start, 1);
-			assertElementEquals("Wrong element", "v [in apply(V) [in Lambda(MyFunction) [in compose(MyFunction<? super V,? extends T>) [in MyFunction [in X.java [in <default> [in src [in Bug429966]]]]]]]]", elements[0]);
+			assertElementEquals("Wrong element", "v [in apply(V) [in <lambda #1> [in compose(MyFunction<? super V,? extends T>) [in MyFunction [in X.java [in <default> [in src [in Bug429966]]]]]]]]", elements[0]);
 		}
 		finally {
 			deleteProject(projectName);
@@ -386,7 +386,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			ICompilationUnit unit = getCompilationUnit(fileName);
 			int start = fileContent.indexOf("v");
 			IJavaElement[] elements = unit.codeSelect(start, 1);
-			assertElementEquals("Wrong element", "v [in apply(V) [in Lambda(MyFunction) [in compose(MyFunction<? super V,? extends T>) [in MyFunction [in X.java [in <default> [in src [in Bug429966]]]]]]]]", elements[0]);
+			assertElementEquals("Wrong element", "v [in apply(V) [in <lambda #1> [in compose(MyFunction<? super V,? extends T>) [in MyFunction [in X.java [in <default> [in src [in Bug429966]]]]]]]]", elements[0]);
 		}
 		finally {
 			deleteProject(projectName);
@@ -422,7 +422,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IPackageFragment packageFragment = packageFragmentRoots[2].getPackageFragment("");
 			IClassFile classFile = packageFragment.getClassFile("IntPredicate.class");
 			IJavaElement[] elements = classFile.codeSelect(128, 5);
-			assertElementEquals("Wrong element", "value [in test(int) [in Lambda(IntPredicate) [in and(IntPredicate) [in IntPredicate [in IntPredicate.class [in <default> [in Elements.jar [in Bug430033]]]]]]]]", elements[0]);
+			assertElementEquals("Wrong element", "value [in test(int) [in <lambda #1> [in and(IntPredicate) [in IntPredicate [in IntPredicate.class [in <default> [in Elements.jar [in Bug430033]]]]]]]]", elements[0]);
 		}
 		finally {
 			if (project != null) {
@@ -456,7 +456,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 							"Super types:\n" + 
 							"Sub types:\n" + 
 							"  J [in X.java [in <default> [in src [in Bug430141]]]]\n" + 
-							"    Lambda(J) [in main(String[]) [in X [in X.java [in <default> [in src [in Bug430141]]]]]]\n",
+							"    <lambda #1> [in main(String[]) [in X [in X.java [in <default> [in src [in Bug430141]]]]]]\n",
 					h);
 		}
 		finally {
@@ -488,7 +488,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 							"Super types:\n" + 
 							"  I [in X.java [in <default> [in src [in Bug430141]]]]\n" + 
 							"Sub types:\n" + 
-							"  Lambda(J) [in main(String[]) [in X [in X.java [in <default> [in src [in Bug430141]]]]]]\n",
+							"  <lambda #1> [in main(String[]) [in X [in X.java [in <default> [in src [in Bug430141]]]]]]\n",
 					h);
 		}
 		finally {
@@ -517,7 +517,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			assertEquals("Incorrect java element", IJavaElement.LOCAL_VARIABLE, elements[0].getElementType());
 			IType lambda = (IType) elements[0].getParent().getParent();
 			String mem = lambda.getHandleIdentifier();
-			String expected = "=\\(\\[Bug430136\\])/src<{X.java[MyFunction~compose~QMyFunction\\<-QV;+QT;>;=)MyFunction=\"LMyFunction\\<TV;TR;>;!148!174!151=&apply!1=\"TV;=\"v=\"TR;=\"LX\\~MyFunction\\<LX\\~MyFunction;:1TV;LX\\~MyFunction;:TR;>;.apply\\(TV;)TR;@v!148!148!148!148!Ljava\\/lang\\/Object;!0!true=)";
+			String expected = "=\\(\\[Bug430136\\])/src<{X.java[MyFunction~compose~QMyFunction\\<-QV;+QT;>;=)=\"LMyFunction\\<TV;TR;>;!148!174!151=&apply!1=\"TV;=\"v=\"TR;=\"LX\\~MyFunction\\<LX\\~MyFunction;:1TV;LX\\~MyFunction;:TR;>;.apply\\(TV;)TR;@v!148!148!148!148!Ljava\\/lang\\/Object;!0!true=)";
 			assertEquals("Incorrect memento", expected, mem);
 			IJavaElement result = JavaCore.create(expected);
 			assertEquals("Incorrect element created", lambda, result);

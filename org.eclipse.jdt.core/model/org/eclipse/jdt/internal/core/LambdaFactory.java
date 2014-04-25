@@ -27,11 +27,11 @@ public class LambdaFactory {
 		}
 	}
 
-	public static LambdaExpression createLambdaExpression(JavaElement parent, String name, String interphase, int sourceStart, int sourceEnd, int arrowPosition) {
+	public static LambdaExpression createLambdaExpression(JavaElement parent, String interphase, int sourceStart, int sourceEnd, int arrowPosition) {
 		if (isBinaryMember(parent)){
-			return new BinaryLambdaExpression(parent, name, interphase, sourceStart, sourceEnd, arrowPosition);
+			return new BinaryLambdaExpression(parent, interphase, sourceStart, sourceEnd, arrowPosition);
 		} else {
-			return new LambdaExpression(parent, name, interphase, sourceStart, sourceEnd, arrowPosition);
+			return new LambdaExpression(parent, interphase, sourceStart, sourceEnd, arrowPosition);
 		}
 	}
 

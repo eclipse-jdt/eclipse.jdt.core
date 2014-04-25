@@ -33,13 +33,11 @@ public class LambdaExpression extends SourceType {
 	protected int sourceEnd;
 	protected int arrowPosition;
 	protected String interphase;
-	String resolvedTypeName;
 	
 	
 	// Construction from AST node
 	LambdaExpression(JavaElement parent, org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression) {
 		super(parent, new String(CharOperation.NO_CHAR));
-		this.resolvedTypeName = new String(lambdaExpression.resolvedType.sourceName());
 		this.sourceStart = lambdaExpression.sourceStart;
 		this.sourceEnd = lambdaExpression.sourceEnd;
 		this.arrowPosition = lambdaExpression.arrowPosition;
@@ -50,9 +48,8 @@ public class LambdaExpression extends SourceType {
 	}
 	
 	// Construction from memento
-	LambdaExpression(JavaElement parent, String resolvedTypeName, String interphase, int sourceStart, int sourceEnd, int arrowPosition) {
+	LambdaExpression(JavaElement parent, String interphase, int sourceStart, int sourceEnd, int arrowPosition) {
 		super(parent, new String(CharOperation.NO_CHAR));
-		this.resolvedTypeName = resolvedTypeName;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
 		this.arrowPosition = arrowPosition;
@@ -62,9 +59,8 @@ public class LambdaExpression extends SourceType {
 	}
 	
 	// Construction from subtypes.
-	LambdaExpression(JavaElement parent, String resolvedTypeName, String interphase, int sourceStart, int sourceEnd, int arrowPosition, LambdaMethod lambdaMethod) {
+	LambdaExpression(JavaElement parent, String interphase, int sourceStart, int sourceEnd, int arrowPosition, LambdaMethod lambdaMethod) {
 		super(parent, new String(CharOperation.NO_CHAR));
-		this.resolvedTypeName = resolvedTypeName;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
 		this.arrowPosition = arrowPosition;
@@ -141,7 +137,6 @@ public class LambdaExpression extends SourceType {
 		if (serializeParent) 
 			((JavaElement)getParent()).getHandleMemento(buff);
 		appendEscapedDelimiter(buff, getHandleMementoDelimiter());
-		escapeMementoName(buff, this.resolvedTypeName);
 		appendEscapedDelimiter(buff, JEM_STRING);
 		escapeMementoName(buff, this.interphase);
 		buff.append(JEM_COUNT);
@@ -226,13 +221,9 @@ public class LambdaExpression extends SourceType {
 
 	public void toStringName(StringBuffer buffer) {
 		super.toStringName(buffer);
-		buffer.append("Lambda("); //$NON-NLS-1$
-		buffer.append(this.resolvedTypeName);
-		buffer.append(')');
-		if (this.occurrenceCount > 1) {
-			buffer.append("#"); //$NON-NLS-1$
-			buffer.append(this.occurrenceCount);
-		}
+		buffer.append("<lambda #"); //$NON-NLS-1$
+		buffer.append(this.occurrenceCount);
+		buffer.append(">"); //$NON-NLS-1$
 	}
 
 	@Override

@@ -19,12 +19,12 @@ public class BinaryLambdaExpression extends LambdaExpression {
 		super(parent, lambdaExpression);
 	}
 
-	BinaryLambdaExpression(JavaElement parent, String name, String interphase, int sourceStart, int sourceEnd, int arrowPosition) {
-		super(parent, name, interphase, sourceStart, sourceEnd, arrowPosition);
+	BinaryLambdaExpression(JavaElement parent, String interphase, int sourceStart, int sourceEnd, int arrowPosition) {
+		super(parent, interphase, sourceStart, sourceEnd, arrowPosition);
 	}
 
-	BinaryLambdaExpression(JavaElement parent, String name, String interphase, int sourceStart, int sourceEnd, int arrowPosition, LambdaMethod lambdaMethod) {
-		super(parent, name, interphase, sourceStart, sourceEnd, arrowPosition, lambdaMethod);
+	BinaryLambdaExpression(JavaElement parent, String interphase, int sourceStart, int sourceEnd, int arrowPosition, LambdaMethod lambdaMethod) {
+		super(parent, interphase, sourceStart, sourceEnd, arrowPosition, lambdaMethod);
 	}
 
 	/*
