@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 IBM Corporation and others.
+ * Copyright (c) 2005, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *    Jesper Steen Moller - Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.model;
 
@@ -35,7 +36,6 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationHolder;
 import org.eclipse.jdt.internal.compiler.lookup.AptBinaryLocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
@@ -143,49 +143,29 @@ public class ExecutableElementImpl extends ElementImpl implements
 				}
 			} else {
 				// binary method
-				boolean isEnumConstructor = binding.isConstructor()
-						&& binding.declaringClass.isEnum()
-						&& binding.declaringClass.isBinaryBinding()
-						&& ((binding.modifiers & ExtraCompilerModifiers.AccGenericSignature) == 0);
 				AnnotationBinding[][] parameterAnnotationBindings = null;
 				AnnotationHolder annotationHolder = binding.declaringClass.retrieveAnnotationHolder(binding, false);
 				if (annotationHolder != null) {
 					parameterAnnotationBindings = annotationHolder.getParameterAnnotations();
 				}
 				// we need to filter the synthetic arguments
-				if (isEnumConstructor) {
-					if (length == 2) {
-						// the two arguments are only the two synthetic arguments
-						return Collections.emptyList();
-					}
-					for (int i = 2; i < length; i++) {
-						TypeBinding typeBinding = binding.parameters[i];
-						StringBuilder builder = new StringBuilder("arg");//$NON-NLS-1$
-						builder.append(i - 2);
-						VariableElement param = new VariableElementImpl(_env,
-								new AptBinaryLocalVariableBinding(
-										String.valueOf(builder).toCharArray(),
-										typeBinding,
-										0,
-										null,
-										binding));
-						params.add(param);
-					}
-				} else {
-					int i = 0;
-					for (TypeBinding typeBinding : binding.parameters) {
-						StringBuilder builder = new StringBuilder("arg");//$NON-NLS-1$
+				int i = 0;
+				for (TypeBinding typeBinding : binding.parameters) {
+					char name[] = binding.parameterNames.length > i ? binding.parameterNames[i] : null;
+					if (name == null) {
+ 						StringBuilder builder = new StringBuilder("arg");//$NON-NLS-1$
 						builder.append(i);
-						VariableElement param = new VariableElementImpl(_env,
-								new AptBinaryLocalVariableBinding(
-										String.valueOf(builder).toCharArray(),
-										typeBinding,
-										0,
-										parameterAnnotationBindings != null ? parameterAnnotationBindings[i] : null,
-										binding));
-						params.add(param);
-						i++;
+						name = String.valueOf(builder).toCharArray();
 					}
+					VariableElement param = new VariableElementImpl(_env,
+							new AptBinaryLocalVariableBinding(
+									name,
+									typeBinding,
+									0,
+									parameterAnnotationBindings != null ? parameterAnnotationBindings[i] : null,
+									binding));
+					params.add(param);
+					i++;
 				}
 			}
 			return Collections.unmodifiableList(params);

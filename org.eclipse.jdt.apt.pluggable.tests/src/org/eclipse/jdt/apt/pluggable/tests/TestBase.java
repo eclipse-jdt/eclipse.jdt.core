@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 BEA Systems, Inc. and others.
+ * Copyright (c) 2007, 2014 BEA Systems, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     BEA Systems, Inc. - initial API and implementation
+ *    Jesper Steen Moller - Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *******************************************************************************/
 package org.eclipse.jdt.apt.pluggable.tests;
 
@@ -20,8 +21,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
-import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer.FactoryType;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.BuilderTests;
@@ -31,6 +32,7 @@ public class TestBase extends BuilderTests
 {
 
 	protected static final String JAVA_16_COMPLIANCE = "1.6";
+	protected static final String JAVA_18_COMPLIANCE = "1.8";
 	
 	protected String _projectName;
 	protected static int _projectSerial = 0; // used to create unique project names, to avoid resource deletion problems
@@ -78,6 +80,32 @@ public class TestBase extends BuilderTests
 		env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		final IJavaProject javaProj = env.getJavaProject(projectPath);
+		addAnnotationJar(javaProj);
+		return javaProj;
+	}
+
+	/**
+	 * Create a java project with java libraries and test annotations on classpath
+	 * (compiler level is 1.8). Use "src" as source folder and "bin" as output folder. APT
+	 * is not enabled.
+	 *
+	 * @param projectName
+	 * @return a java project that has been added to the current workspace.
+	 * @throws Exception
+	 */
+	protected static IJavaProject createJava8Project(final String projectName) throws Exception {
+		// Note, make sure this is run only with a JRE 8 and above.
+		IPath projectPath = env.addProject(projectName, JAVA_18_COMPLIANCE);
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		final IJavaProject javaProj = env.getJavaProject(projectPath);
+		javaProj.getProject().getFolder("prebuilt").create(true, true, null);
+		javaProj.getProject().getFolder("prebuilt").getFolder("p").create(true, true, null);
+		env.addClassFolder(projectPath, projectPath.append("prebuilt"), true);
 		addAnnotationJar(javaProj);
 		return javaProj;
 	}

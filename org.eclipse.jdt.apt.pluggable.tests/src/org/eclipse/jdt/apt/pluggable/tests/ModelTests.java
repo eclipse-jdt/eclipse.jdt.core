@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 Walter Harley and others
+ * Copyright (c) 2008, 2014 Walter Harley and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,14 +11,21 @@
 
 package org.eclipse.jdt.apt.pluggable.tests;
 
+import javax.lang.model.SourceVersion;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.pluggable.tests.processors.modeltester.ModelTester8Proc;
 import org.eclipse.jdt.apt.pluggable.tests.processors.modeltester.ModelTesterProc;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
  * Basic tests for the typesystem model interfaces in the IDE.
@@ -81,4 +88,74 @@ public class ModelTests extends TestBase
 		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());
 		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}	
+
+	/**
+	 * Call ModelTester8Proc.testMethodParameters(), which checks the type of a method
+	 */
+	public void testMethodParameters() throws Throwable {
+		if (!canRunJava8()) {
+			return;
+		}
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJava8Project(_projectName);
+		jproj.setOption(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
+		jproj.setOption(CompilerOptions.OPTION_MethodParametersAttribute, CompilerOptions.GENERATE);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+
+		env.addClass(projPath.append("src"),
+				ModelTester8Proc.TEST_METHOD_PARAMETERS_TYPE1_PKG,
+				ModelTester8Proc.TEST_METHOD_PARAMETERS_TYPE1_CLASS,
+				ModelTester8Proc.TEST_METHOD_PARAMETERS_TYPE1_SOURCE);
+		env.addClass(projPath.append("src"),
+				ModelTester8Proc.TEST_METHOD_PARAMETERS_TYPE2_PKG,
+				ModelTester8Proc.TEST_METHOD_PARAMETERS_TYPE2_CLASS,
+				ModelTester8Proc.TEST_METHOD_PARAMETERS_TYPE2_SOURCE);
+		fullBuild();
+		expectingNoProblems();
+		assertFalse("Processor ran too early", ProcessorTestStatus.processorRan());
+
+		keepBinaryOnly(jproj,
+				ModelTester8Proc.TEST_METHOD_PARAMETERS_TYPE1_PKG,
+				ModelTester8Proc.TEST_METHOD_PARAMETERS_TYPE1_CLASS);
+
+		keepBinaryOnly(jproj,
+				ModelTester8Proc.TEST_METHOD_PARAMETERS_TYPE2_PKG,
+				ModelTester8Proc.TEST_METHOD_PARAMETERS_TYPE2_CLASS);
+
+		fullBuild();
+
+		env.addClass(projPath.append("src"),
+				ModelTester8Proc.TEST_METHOD_PARAMETERS_TYPE3_PKG,
+				ModelTester8Proc.TEST_METHOD_PARAMETERS_TYPE3_CLASS,
+				ModelTester8Proc.TEST_METHOD_PARAMETERS_TYPE3_SOURCE);
+
+		AptConfig.setEnabled(jproj, true);
+
+		fullBuild();
+		expectingNoProblems();
+		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());
+		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
+	}
+
+	private void keepBinaryOnly(IJavaProject jproj, String packageName, String className) throws CoreException {
+		IFile realSourceFile = jproj.getProject().getFolder("src").getFolder(packageName).getFile(className + ".java");
+		IFile compiledClassFile = jproj.getProject().getFolder("bin").getFolder(packageName).getFile(className + ".class");
+		assertTrue("No compiled class for " + packageName + "." + className + ": ",compiledClassFile.exists());
+		IFile prebuiltClassFile = jproj.getProject().getFolder("prebuilt").getFolder(packageName).getFile(className + ".class");
+		assertFalse("Compiled class already in src: ",prebuiltClassFile.exists());
+		compiledClassFile.copy(prebuiltClassFile.getFullPath(), true, new NullProgressMonitor());
+		assertTrue("Compiled class not copied to src",prebuiltClassFile.exists());
+		realSourceFile.delete(true, new NullProgressMonitor());
+		assertFalse("Still source?: ", realSourceFile.exists());
+	}
+	public boolean canRunJava8() {
+		try {
+			SourceVersion.valueOf("RELEASE_8");
+		} catch(IllegalArgumentException iae) {
+			return false;
+		}
+		return true;
+	}
 }
