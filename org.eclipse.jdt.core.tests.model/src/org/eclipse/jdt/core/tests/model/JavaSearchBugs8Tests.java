@@ -179,7 +179,6 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0016"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0017"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0018"));
-	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0019"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -3805,7 +3804,8 @@ public void testBug429012_0001() throws CoreException {
 			"}\n" +
 			"public class X extends Y {\n" +
 			"    public static void main(String [] args) {\n" +
-			"	new X().doit();\n" +
+			"		new X().doit();\n" +
+			"		new X().foo(0);\n" +
 			"    }\n" +
 			"    void doit() {\n" +
 			"        I i = super::foo;\n" +
@@ -3841,7 +3841,8 @@ public void testBug429012_0002() throws CoreException {
 			"}\n" +
 			"public class X extends Y {\n" +
 			"    public static void main(String [] args) {\n" +
-			"	new X().doit();\n" +
+			"		new X().doit();\n" +
+			"		new X().foo(0);\n" +
 			"    }\n" +
 			"    void doit() {\n" +
 			"        I i = super::<String>foo;\n" +
@@ -3916,6 +3917,7 @@ public void testBug429012_0004() throws CoreException {
 			"public class X  {\n" +
 			"    public static void main(String [] args) {\n" +
 			"        I i = Y::<String>foo;\n" +
+			"        new Y().foo(0);\n" +
 			"        i.foo(10); \n" +
 			"    }\n" +
 			"}\n" +
@@ -3949,6 +3951,7 @@ public void testBug429012_0005() throws CoreException {
 			"public class X  {\n" +
 			"    public static void main(String [] args) {\n" +
 			"        I i = Y.Z::foo;\n" +
+			"        Y.Z.foo(0);\n" +
 			"        i.foo(10); \n" +
 			"    }\n" +
 			"}\n" +
@@ -3984,6 +3987,7 @@ public void testBug429012_0006() throws CoreException {
 			"public class X  {\n" +
 			"    public static void main(String [] args) {\n" +
 			"        I i = Y.Z::<String>foo;\n" +
+			"        Y.Z.foo(0);\n" +
 			"        i.foo(10); \n" +
 			"    }\n" +
 			"}\n" +
@@ -4019,6 +4023,7 @@ public void testBug429012_0007() throws CoreException {
 			"public class X  {\n" +
 			"    public static void main(String [] args) {\n" +
 			"        I i = new Y()::foo;\n" +
+			"        new Y().foo(0);\n" +
 			"        i.foo(10); \n" +
 			"    }\n" +
 			"}\n" +
@@ -4052,6 +4057,7 @@ public void testBug429012_0008() throws CoreException {
 			"public class X  {\n" +
 			"    public static void main(String [] args) {\n" +
 			"        I i = new Y()::<String>foo;\n" +
+			"        new Y().foo(0);\n" +
 			"        i.foo(10); \n" +
 			"    }\n" +
 			"}\n" +
@@ -4088,6 +4094,7 @@ public void testBug429012_0009() throws CoreException {
 			"  }\n" + 
 			"  public static void main(String[] args) {\n" + 
 			"    I i = Y<String>::foo;\n" + 
+			"    new Y<String>().foo(0);\n" +
 			"    i.foo(new Y<String>(), 10);\n" + 
 			"  }\n" + 
 			"}\n" + 
@@ -4128,6 +4135,7 @@ public void testBug429012_0010() throws CoreException {
 			"  }\n" + 
 			"  public static void main(String[] args) {\n" + 
 			"    I i = Y<String>::<String>foo;\n" + 
+			"    new Y<String>().foo(0);\n" +
 			"    i.foo(new Y<String>(), 10);\n" + 
 			"  }\n" + 
 			"}\n" + 
@@ -4164,6 +4172,7 @@ public void testBug429012_0011() throws CoreException {
 			"public class X  {\n" +
 			"	@SuppressWarnings(\"unused\")\n" +
 			"    public static void main(String [] args) {\n" +
+			"        new Y<String>().new Z().foo(0);\n" +
 			"        I i = Y<String>.Z::foo;\n" +
 			"        i.foo(new Y<String>().new Z(), 10); \n" +
 			"    }\n" +
@@ -4203,6 +4212,7 @@ public void testBug429012_0012() throws CoreException {
 			"	@SuppressWarnings(\"unused\")\n" +
 			"    public static void main(String [] args) {\n" +
 			"        I i = Y<String>.Z::<String>foo;\n" +
+			"        new Y<String>().new Z().foo(0);\n" +
 			"        i.foo(new Y<String>().new Z(), 10); \n" +
 			"    }\n" +
 			"}\n" +
@@ -4240,6 +4250,7 @@ public void testBug429012_0013() throws CoreException {
 			"public class X  {\n" +
 			"    public static void main(String [] args) {\n" +
 			"        I i = Y<String>.Z<String>::foo;\n" +
+			"        new Y<String>().new Z<String>().foo(0);\n" +
 			"        i.foo(new Y<String>().new Z<String>(), 10); \n" +
 			"    }\n" +
 			"}\n" +
@@ -4277,6 +4288,7 @@ public void testBug429012_0014() throws CoreException {
 			"public class X  {\n" +
 			"    public static void main(String [] args) {\n" +
 			"        I i = Y<String>.Z<String>::<String>foo;\n" +
+			"        new Y<String>().new Z<String>().foo(0);\n" +
 			"        i.foo(new Y<String>().new Z<String>(), 10); \n" +
 			"    }\n" +
 			"}\n" +
@@ -4308,32 +4320,29 @@ public void testBug429012_0014() throws CoreException {
 public void testBug429012_0015() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429012/X.java",
-			"interface I {\n" +
-				"    void foo(Y<String> y);\n" +
-			"}\n" +
-			"public class X  {\n" +
-			"    public static void main(String [] args) {\n" +
-			"        I i = Y<String>.Z<String>::<String>new;\n" +
-			"        i.foo(new Y<String>()); \n" +
-			"    }\n" +
-			"}\n" +
-			"class Y<T> {\n" +
-			"    class Z<K> {\n" +
-			"        Z(Y<String> y) {\n" +
-			"            System.out.println(\"Y<T>.Z<K>::new\");\n" +
-			"        }\n" +
-			"        Z1(Y<String> y) {\n" +
-			"            System.out.println(\"Y<T>.Z<K>::new\");\n" +
-			"        }\n" +
-			"    }\n" +
+			"interface I<T> {\n"+
+			"    T get();\n"+
+			"}\n"+
+			"/**\n"+
+			" * @see Y#Y()\n"+
+			" */\n"+
+			"public class X  {\n"+
+			"    public static void main(String [] args) {\n"+
+			"        I<Y<String>> s = Y<String>::<Integer>new;\n"+
+			"        s.get().equals(new Y<String>()); \n"+
+			"    }\n"+
+			"}\n"+
+			"class Y<E> {\n"+
+			"    <T> Y() {\n"+
+			"        System.out.println(\"Y<E>::<T>new\");\n"+
+			"    }\n"+
 			"}\n"
 	);
 	IType type = this.workingCopies[0].getType("Y");
-	type = type.getType("Z");
-	IMethod method = type.getMethod("Z", new String[] {"QY<QString;>;"});
-	search(method, METHOD_REFERENCE_EXPRESSION, EXACT_RULE);
+	IMethod method = type.getMethod("Y", new String[] {});
+	search(method, METHOD_REFERENCE_EXPRESSION, ERASURE_RULE);
 	assertSearchResults(
-			"src/b429012/X.java void b429012.X.main(String[]) [Y<String>.Z<String>::<String>new] EXACT_MATCH"
+			"src/b429012/X.java void b429012.X.main(String[]) [Y<String>::<Integer>new] EXACT_MATCH"
 	);
 }// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012, [1.8][search] Add finegrain (limitTo) option for method reference expressions
 public void testBug429012_0016() throws CoreException {
@@ -4380,6 +4389,7 @@ public void testBug429012_0017() throws CoreException {
 			"	public void main(String[] args) { \n" +
 			"		I i = this::goo;\n" +
 			"       i = super::goo;\n" +
+			"       new Y().goo(0);\n" +
 			"	}\n" +
 			"}\n"
 	);
@@ -4398,30 +4408,6 @@ public void testBug429012_0018() throws CoreException {
 			"	int thrice(int p);\n" +
 			"}\n" +
 			"class Y {\n" +
-			"	int goo(int x) { return 3 * x; } \n" +
-			"}\n" +
-			"public class X extends Y {\n" +
-			"	public void main(String[] args) { \n" +
-			"		I i = this::goo;\n" +
-			"       i = super::goo;\n" +
-			"	}\n" +
-			"}\n"
-	);
-
-	search(this.workingCopies[0].getType("Y").getMethod("goo", new String[] { "I" }), THIS_REFERENCE | METHOD_REFERENCE_EXPRESSION);
-	assertSearchResults(
-		"src/test/Test.java void test.X.main(String[]) [goo] EXACT_MATCH\n" +
-		"src/test/Test.java void test.X.main(String[]) [goo] EXACT_MATCH"
-	);
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012, [1.8][search] Add finegrain (limitTo) option for method reference expressions
-public void testBug429012_0019() throws CoreException {
-	this.workingCopies = new ICompilationUnit[1];
-	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
-			"interface I { \n" +
-			"	int thrice(int p);\n" +
-			"}\n" +
-			"class Y {\n" +
 			"	static class Z {\n" +
 			"		static int goo(int x) { return 3 * x; }   \n" +
 			"		I i = Z::goo;\n" +
@@ -4430,6 +4416,7 @@ public void testBug429012_0019() throws CoreException {
 			"public class X extends Y.Z {\n" +
 			"	public void main(String[] args) { \n" +
 			"		I i = Y.Z::goo;\n" +
+			"       Y.Z.goo(0);\n" +
 			"	}\n" +
 			"}\n"
 	);
