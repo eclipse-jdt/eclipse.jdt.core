@@ -148,7 +148,12 @@ public void test001() throws Exception {
 		"    [inner class info: #41 java/lang/invoke/MethodHandles$Lookup, outer class info: #43 java/lang/invoke/MethodHandles\n" + 
 		"     inner name: #45 Lookup, accessflags: 25 public static final]\n" + 
 		"Bootstrap methods:\n" + 
-		"  0 : # 31 arguments: {#32,#38,#39}\n" + 
+		"  0 : # 31 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" + 
+		"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+		"	Method arguments:\n" + 
+		"		#32 ()V\n" + 
+		"		#38 invokestatic java/lang/Thread.yield:()V\n" + 
+		"		#39 ()V\n" + 
 		"}";
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
@@ -251,7 +256,12 @@ public void test002() throws Exception {
 			"    [inner class info: #42 java/lang/invoke/MethodHandles$Lookup, outer class info: #44 java/lang/invoke/MethodHandles\n" + 
 			"     inner name: #46 Lookup, accessflags: 25 public static final]\n" + 
 			"Bootstrap methods:\n" + 
-			"  0 : # 31 arguments: {#33,#39,#40}\n" + 
+			"  0 : # 31 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup" + 
+			";Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#33 (Ljava/lang/Object;)V\n" + 
+			"		#39 invokestatic Main.printIt:(Ljava/lang/Object;)V\n" + 
+			"		#40 (Ljava/lang/Object;)V\n" + 
 			"}";
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
@@ -354,7 +364,12 @@ public void test003() throws Exception {
 			"    [inner class info: #41 java/lang/invoke/MethodHandles$Lookup, outer class info: #43 java/lang/invoke/MethodHandles\n" + 
 			"     inner name: #45 Lookup, accessflags: 25 public static final]\n" + 
 			"Bootstrap methods:\n" + 
-			"  0 : # 31 arguments: {#33,#38,#39}\n" + 
+			"  0 : # 31 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" + 
+			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#33 (Ljava/lang/Object;)Ljava/lang/String;\n" + 
+			"		#38 java/lang/Object.toString:()Ljava/lang/String;\n" + 
+			"		#39 (Ljava/lang/Object;)Ljava/lang/String;\n" + 
 			"}";
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
@@ -470,7 +485,12 @@ public void test004() throws Exception {
 			"    [inner class info: #48 java/lang/invoke/MethodHandles$Lookup, outer class info: #50 java/lang/invoke/MethodHandles\n" + 
 			"     inner name: #52 Lookup, accessflags: 25 public static final]\n" + 
 			"Bootstrap methods:\n" + 
-			"  0 : # 37 arguments: {#39,#45,#46}\n" + 
+			"  0 : # 37 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" + 
+			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#39 ()Ljava/lang/String;\n" + 
+			"		#45 java/lang/String.toString:()Ljava/lang/String;\n" + 
+			"		#46 ()Ljava/lang/String;\n" + 
 			"}";
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
@@ -575,7 +595,12 @@ public void test005() throws Exception {
 			"    [inner class info: #41 java/lang/invoke/MethodHandles$Lookup, outer class info: #43 java/lang/invoke/MethodHandles\n" + 
 			"     inner name: #45 Lookup, accessflags: 25 public static final]\n" + 
 			"Bootstrap methods:\n" + 
-			"  0 : # 32 arguments: {#34,#38,#39}\n" + 
+			"  0 : # 32 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" + 
+			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#34 ()LMain;\n" + 
+			"		#38 Main.<init>:()V\n" + 
+			"		#39 ()LMain;\n" + 
 			"}", "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void test006() throws Exception {
@@ -690,7 +715,12 @@ public void test006() throws Exception {
 			"    [inner class info: #46 java/lang/invoke/MethodHandles$Lookup, outer class info: #48 java/lang/invoke/MethodHandles\n" + 
 			"     inner name: #50 Lookup, accessflags: 25 public static final]\n" + 
 			"Bootstrap methods:\n" + 
-			"  0 : # 34 arguments: {#36,#42,#44}\n" + 
+			"  0 : # 34 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" + 
+			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#36 (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;\n" + 
+			"		#42 Main.<init>:(Ljava/lang/String;Ljava/lang/String;)V\n" + 
+			"		#44 (Ljava/lang/String;Ljava/lang/String;)LMain;\n" + 
 			"}";
 	verifyClassFile(expected, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
@@ -809,7 +839,12 @@ public void test007() throws Exception {
 			"    [inner class info: #53 java/lang/invoke/MethodHandles$Lookup, outer class info: #55 java/lang/invoke/MethodHandles\n" + 
 			"     inner name: #57 Lookup, accessflags: 25 public static final]\n" + 
 			"Bootstrap methods:\n" + 
-			"  0 : # 46 arguments: {#47,#50,#51}\n" + 
+			"  0 : # 46 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" + 
+			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#47 ()V\n" + 
+			"		#50 invokestatic X.lambda$0:()V\n" + 
+			"		#51 ()V\n" + 
 			"}";
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
@@ -926,7 +961,12 @@ public void test007a() throws Exception {
 			"    [inner class info: #53 java/lang/invoke/MethodHandles$Lookup, outer class info: #55 java/lang/invoke/MethodHandles\n" + 
 			"     inner name: #57 Lookup, accessflags: 25 public static final]\n" + 
 			"Bootstrap methods:\n" + 
-			"  0 : # 46 arguments: {#47,#50,#51}\n" + 
+			"  0 : # 46 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" + 
+			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#47 ()V\n" + 
+			"		#50 invokestatic X.lambda$0:()V\n" + 
+			"		#51 ()V\n" + 
 			"}";
 	
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
@@ -1034,7 +1074,12 @@ public void test008() throws Exception {
 			"    [inner class info: #45 java/lang/invoke/MethodHandles$Lookup, outer class info: #47 java/lang/invoke/MethodHandles\n" + 
 			"     inner name: #49 Lookup, accessflags: 25 public static final]\n" + 
 			"Bootstrap methods:\n" + 
-			"  0 : # 37 arguments: {#39,#42,#43}\n" + 
+			"  0 : # 37 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" + 
+			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#39 ()Ljava/lang/Object;\n" + 
+			"		#42 invokestatic X.lambda$0:()Ljava/lang/String;\n" + 
+			"		#43 ()Ljava/lang/String;\n" + 
 			"}"
 ;
 
@@ -1178,7 +1223,12 @@ public void test009() throws Exception {
 			"    [inner class info: #65 java/lang/invoke/MethodHandles$Lookup, outer class info: #67 java/lang/invoke/MethodHandles\n" + 
 			"     inner name: #69 Lookup, accessflags: 25 public static final]\n" + 
 			"Bootstrap methods:\n" + 
-			"  0 : # 57 arguments: {#59,#62,#63}\n" + 
+			"  0 : # 57 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" + 
+			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#59 (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;\n" + 
+			"		#62 invokestatic X.lambda$0:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;\n" + 
+			"		#63 (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;\n" + 
 			"}";
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
@@ -1340,7 +1390,12 @@ public void test010() throws Exception {
 			"    [inner class info: #70 java/lang/invoke/MethodHandles$Lookup, outer class info: #72 java/lang/invoke/MethodHandles\n" + 
 			"     inner name: #74 Lookup, accessflags: 25 public static final]\n" + 
 			"Bootstrap methods:\n" + 
-			"  0 : # 61 arguments: {#63,#66,#68}\n" + 
+			"  0 : # 61 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" + 
+			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#63 (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;\n" + 
+			"		#66 invokestatic X.lambda$0:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;\n" + 
+			"		#68 (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;\n" + 
 			"}"
 ;
 
@@ -1503,7 +1558,12 @@ public void test011() throws Exception {
 			"    [inner class info: #70 java/lang/invoke/MethodHandles$Lookup, outer class info: #72 java/lang/invoke/MethodHandles\n" + 
 			"     inner name: #74 Lookup, accessflags: 25 public static final]\n" + 
 			"Bootstrap methods:\n" + 
-			"  0 : # 61 arguments: {#63,#66,#68}\n" + 
+			"  0 : # 61 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" + 
+			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#63 (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;\n" + 
+			"		#66 invokestatic X.lambda$0:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;\n" + 
+			"		#68 (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;\n" + 
 			"}";
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
@@ -1661,7 +1721,12 @@ public void test012() throws Exception {
 			"    [inner class info: #51 java/lang/invoke/MethodHandles$Lookup, outer class info: #53 java/lang/invoke/MethodHandles\n" + 
 			"     inner name: #55 Lookup, accessflags: 25 public static final]\n" + 
 			"Bootstrap methods:\n" + 
-			"  0 : # 43 arguments: {#45,#48,#49}\n" + 
+			"  0 : # 43 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" + 
+			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#45 (Ljava/lang/Object;Ljava/lang/Object;)V\n" + 
+			"		#48 invokestatic X.lambda$0:([Ljava/lang/String;IILjava/lang/Object;Ljava/lang/Object;)V\n" + 
+			"		#49 (Ljava/lang/Object;Ljava/lang/Object;)V\n" + 
 			"}"
 ;
 
@@ -1793,7 +1858,12 @@ public void test013() throws Exception {
 			"    [inner class info: #47 java/lang/invoke/MethodHandles$Lookup, outer class info: #49 java/lang/invoke/MethodHandles\n" + 
 			"     inner name: #51 Lookup, accessflags: 25 public static final]\n" + 
 			"Bootstrap methods:\n" + 
-			"  0 : # 40 arguments: {#41,#44,#45}\n" + 
+			"  0 : # 40 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" + 
+			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#41 (Ljava/lang/Object;Ljava/lang/Object;)V\n" + 
+			"		#44 invokestatic X.lambda$0:(Ljava/lang/Object;Ljava/lang/Object;)V\n" + 
+			"		#45 (Ljava/lang/Object;Ljava/lang/Object;)V\n" + 
 			"}";
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
@@ -1988,8 +2058,18 @@ public void test014() throws Exception {
 			"    [inner class info: #62 java/lang/invoke/MethodHandles$Lookup, outer class info: #64 java/lang/invoke/MethodHandles\n" + 
 			"     inner name: #66 Lookup, accessflags: 25 public static final]\n" + 
 			"Bootstrap methods:\n" + 
-			"  0 : # 50 arguments: {#51,#54,#55},\n" + 
-			"  1 : # 50 arguments: {#56,#59,#60}\n" + 
+			"  0 : # 50 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;" + 
+			"Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#51 (Ljava/lang/Object;Ljava/lang/Object;)V\n" + 
+			"		#54 invokestatic X.lambda$0:(Ljava/lang/Object;Ljava/lang/Object;)V\n" + 
+			"		#55 (Ljava/lang/Object;Ljava/lang/Object;)V,\n" + 
+			"  1 : # 50 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;" + 
+			"Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#56 (Ljava/lang/Object;Ljava/lang/Object;)V\n" + 
+			"		#59 invokestatic X.lambda$1:([Ljava/lang/String;IILjava/lang/Object;Ljava/lang/Object;)V\n" + 
+			"		#60 (Ljava/lang/Object;Ljava/lang/Object;)V\n" + 
 			"}";
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
@@ -2218,7 +2298,13 @@ public void test015() throws Exception {
 			"    [inner class info: #97 java/lang/invoke/MethodHandles$Lookup, outer class info: #99 java/lang/invoke/MethodHandles\n" + 
 			"     inner name: #101 Lookup, accessflags: 25 public static final]\n" + 
 			"Bootstrap methods:\n" + 
-			"  0 : # 89 arguments: {#90,#93,#94,#95}\n" + 
+			"  0 : # 89 invokestatic java/lang/invoke/LambdaMetafactory.altMetafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" + 
+			"Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#90 ()V\n" + 
+			"		#93 invokestatic X.lambda$0:()V\n" + 
+			"		#94 ()V\n" + 
+			"		#95 1\n" + 
 			"}";
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
@@ -2390,7 +2476,12 @@ public void test016() throws Exception {
 			"     inner name: #76 Lookup, accessflags: 25 public static final]\n" + 
 			"  Enclosing Method: #53  #55 X.foo()V\n" + 
 			"Bootstrap methods:\n" + 
-			"  0 : # 64 arguments: {#65,#68,#69}\n" + 
+			"  0 : # 64 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;" + 
+			"Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#65 ()V\n" + 
+			"		#68 invokestatic X$1Y.lambda$0:()V\n" + 
+			"		#69 ()V\n" + 
 			"}";
 
 	verifyClassFile(expectedOutput, "X$1Y.class", ClassFileBytesDisassembler.SYSTEM);
@@ -2562,7 +2653,12 @@ public void test017() throws Exception {
 			"     inner name: #76 Lookup, accessflags: 25 public static final]\n" + 
 			"  Enclosing Method: #53  #55 X.foo()V\n" + 
 			"Bootstrap methods:\n" + 
-			"  0 : # 64 arguments: {#65,#68,#69}\n" + 
+			"  0 : # 64 invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;" + 
+			"Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n" + 
+			"	Method arguments:\n" + 
+			"		#65 ()V\n" + 
+			"		#68 invokestatic X$1Y.lambda$0:()V\n" + 
+			"		#69 ()V\n" + 
 			"}";
 
 	verifyClassFile(expectedOutput, "X$1Y.class", ClassFileBytesDisassembler.SYSTEM);
@@ -3037,7 +3133,15 @@ public void test430035() throws IOException, ClassFormatException {
 						"    [inner class info: #109 java/lang/invoke/MethodHandles$Lookup, outer class info: #111 java/lang/invoke/MethodHandles\n" + 
 						"     inner name: #113 Lookup, accessflags: 25 public static final]\n" + 
 						"Bootstrap methods:\n" + 
-						"  0 : # 98 arguments: {#99,#102,#103,#104,#105,#106,#107}\n" + 
+						"  0 : # 98 invokestatic java/lang/invoke/LambdaMetafactory.altMetafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;\n" + 
+						"	Method arguments:\n" + 
+						"		#99 (Ljava/lang/String;Ljava/lang/String;)V\n" + 
+						"		#102 invokestatic X.lambda$0:(Ljava/lang/String;Ljava/lang/String;)V\n" + 
+						"		#103 (Ljava/lang/String;Ljava/lang/String;)V\n" + 
+						"		#104 4\n" + 
+						"		#105 2\n" + 
+						"		#106 (Ljava/lang/String;Ljava/lang/Object;)V\n" + 
+						"		#107 (Ljava/lang/Object;Ljava/lang/String;)V\n" + 
 						"}";
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
