@@ -5182,6 +5182,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP_TABLE;
 			if (this.targetJDK >= ClassFileConstants.JDK1_8) {
 				this.produceAttributes |= ClassFileConstants.ATTR_TYPE_ANNOTATION;
+				if (options.produceMethodParameters) {
+					this.produceAttributes |= ClassFileConstants.ATTR_METHOD_PARAMETERS;
+				}
 			}
 		} else if (this.targetJDK == ClassFileConstants.CLDC_1_1) {
 			this.targetJDK = ClassFileConstants.JDK1_1; // put back 45.3
