@@ -2671,7 +2671,7 @@ public void test080() {
 		"3. ERROR in X.java (at line 8)\n" +
 		"	ArrayList list = args == null ? new C1(): new C2();\n" +
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Incompatible conditional operand types C1 and C2\n" +
+		"Incompatible conditional operand types X.C1 and X.C2\n" +
 		"----------\n");
 }
 public void test081() {
