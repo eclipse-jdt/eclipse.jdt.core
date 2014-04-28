@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -603,5 +603,30 @@ public class BasicBuildTests extends BuilderTests {
 		fullBuild(projectPath);
 		expectingNoProblems();
 		assertEquals("Incorrect value", 0, previous);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425420
+	public void testBug425420() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$
+		// don't env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		IPath path = env.addClass(root, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"class X {\n" +
+			"  void test() {\n" +
+			"	int x = 0;\n" +
+			"	int y = 0 >= 0 ? x : \"\"; \n" +
+			"  }\n" +
+			"}");
+
+		fullBuild(projectPath);
+		expectingProblemsFor(
+				path,
+				"Problem : The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files [ resource : </Project/src/X.java> range : <0,1> category : <10> severity : <2>]"
+			);
 	}
 }

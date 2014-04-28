@@ -2231,8 +2231,8 @@ public void finalVariableBound(TypeVariableBinding typeVariable, TypeReference t
 	if (severity == ProblemSeverities.Ignore) return;
 	this.handle(
 		IProblem.FinalBoundForTypeVariable,
-		new String[] { new String(typeVariable.sourceName), new String(typeRef.resolvedType.readableName())},
-		new String[] { new String(typeVariable.sourceName), new String(typeRef.resolvedType.shortReadableName())},
+		new String[] { new String(typeVariable.sourceName()), new String(typeRef.resolvedType.readableName())},
+		new String[] { new String(typeVariable.sourceName()), new String(typeRef.resolvedType.shortReadableName())},
 		severity,
 		typeRef.sourceStart,
 		typeRef.sourceEnd);
@@ -3579,7 +3579,7 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 				        new String(shownConstructor.declaringClass.readableName()),
 				        typesAsString(invocationArguments, false),
 				        new String(inferredTypeArgument.readableName()),
-				        new String(typeParameter.sourceName),
+				        new String(typeParameter.sourceName()),
 				        parameterBoundAsString(typeParameter, false) },
 				new String[] {
 				        new String(shownConstructor.declaringClass.sourceName()),
@@ -3587,7 +3587,7 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 				        new String(shownConstructor.declaringClass.shortReadableName()),
 				        typesAsString(invocationArguments, true),
 				        new String(inferredTypeArgument.shortReadableName()),
-				        new String(typeParameter.sourceName),
+				        new String(typeParameter.sourceName()),
 				        parameterBoundAsString(typeParameter, true) },
 				sourceStart,
 				sourceEnd);
@@ -4127,7 +4127,7 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 				        new String(shownMethod.declaringClass.readableName()),
 				        typesAsString(invocationArguments, false),
 				        new String(inferredTypeArgument.readableName()),
-				        new String(typeParameter.sourceName),
+				        new String(typeParameter.sourceName()),
 				        parameterBoundAsString(typeParameter, false) },
 				new String[] {
 				        new String(shownMethod.selector),
@@ -4135,7 +4135,7 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 				        new String(shownMethod.declaringClass.shortReadableName()),
 				        typesAsString(invocationArguments, true),
 				        new String(inferredTypeArgument.shortReadableName()),
-				        new String(typeParameter.sourceName),
+				        new String(typeParameter.sourceName()),
 				        parameterBoundAsString(typeParameter, true) },
 				(int) (messageSend.nameSourcePosition >>> 32),
 				(int) messageSend.nameSourcePosition);
@@ -4956,7 +4956,7 @@ public void javadocInvalidConstructor(Statement statement, MethodBinding targetC
 				        new String(shownConstructor.declaringClass.readableName()),
 				        typesAsString(invocationArguments, false),
 				        new String(inferredTypeArgument.readableName()),
-				        new String(typeParameter.sourceName),
+				        new String(typeParameter.sourceName()),
 				        parameterBoundAsString(typeParameter, false) },
 				new String[] {
 				        new String(shownConstructor.declaringClass.sourceName()),
@@ -4964,7 +4964,7 @@ public void javadocInvalidConstructor(Statement statement, MethodBinding targetC
 				        new String(shownConstructor.declaringClass.shortReadableName()),
 				        typesAsString(invocationArguments, true),
 				        new String(inferredTypeArgument.shortReadableName()),
-				        new String(typeParameter.sourceName),
+				        new String(typeParameter.sourceName()),
 				        parameterBoundAsString(typeParameter, true) },
 				severity,
 				sourceStart,
@@ -5188,7 +5188,7 @@ public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, 
 				        new String(shownMethod.declaringClass.readableName()),
 				        typesAsString(invocationArguments, false),
 				        new String(inferredTypeArgument.readableName()),
-				        new String(typeParameter.sourceName),
+				        new String(typeParameter.sourceName()),
 				        parameterBoundAsString(typeParameter, false) },
 				new String[] {
 				        new String(shownMethod.selector),
@@ -5196,7 +5196,7 @@ public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, 
 				        new String(shownMethod.declaringClass.shortReadableName()),
 				        typesAsString(invocationArguments, true),
 				        new String(inferredTypeArgument.shortReadableName()),
-				        new String(typeParameter.sourceName),
+				        new String(typeParameter.sourceName()),
 				        parameterBoundAsString(typeParameter, true) },
 				severity,
 				(int) (messageSend.nameSourcePosition >>> 32),
@@ -7861,8 +7861,8 @@ public void typeMismatchError(TypeBinding typeArgument, TypeVariableBinding type
 	if (location == null) { // binary case
 		this.handle(
 			IProblem.TypeArgumentMismatch,
-			new String[] { new String(typeArgument.readableName()), new String(genericType.readableName()), new String(typeParameter.sourceName), parameterBoundAsString(typeParameter, false) },
-			new String[] { new String(typeArgument.shortReadableName()), new String(genericType.shortReadableName()), new String(typeParameter.sourceName), parameterBoundAsString(typeParameter, true) },
+			new String[] { new String(typeArgument.readableName()), new String(genericType.readableName()), new String(typeParameter.sourceName()), parameterBoundAsString(typeParameter, false) },
+			new String[] { new String(typeArgument.shortReadableName()), new String(genericType.shortReadableName()), new String(typeParameter.sourceName()), parameterBoundAsString(typeParameter, true) },
 			ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
 			0,
 			0);
@@ -7870,8 +7870,8 @@ public void typeMismatchError(TypeBinding typeArgument, TypeVariableBinding type
     }
 	this.handle(
 		IProblem.TypeArgumentMismatch,
-		new String[] { new String(typeArgument.readableName()), new String(genericType.readableName()), new String(typeParameter.sourceName), parameterBoundAsString(typeParameter, false) },
-		new String[] { new String(typeArgument.shortReadableName()), new String(genericType.shortReadableName()), new String(typeParameter.sourceName), parameterBoundAsString(typeParameter, true) },
+		new String[] { new String(typeArgument.readableName()), new String(genericType.readableName()), new String(typeParameter.sourceName()), parameterBoundAsString(typeParameter, false) },
+		new String[] { new String(typeArgument.shortReadableName()), new String(genericType.shortReadableName()), new String(typeParameter.sourceName()), parameterBoundAsString(typeParameter, true) },
 		location.sourceStart,
 		location.sourceEnd);
 }
