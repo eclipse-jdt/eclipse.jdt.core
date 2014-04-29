@@ -3014,4 +3014,39 @@ public void testBug432110() {
 			"    }\n" + 
 			"}\n"});
 }
+public void testBug433158() {
+	runNegativeTest(
+		new String[] {
+			"CollectorsMaps.java",
+			"\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Map;\n" + 
+			"import static java.util.stream.Collectors.*;\n" + 
+			"\n" + 
+			"public class CollectorsMaps {/*Q*/\n" + 
+			"	private static class Pair<L, R> {\n" + 
+			"		public final L lhs; public final R rhs;\n" + 
+			"		public Pair(L lhs, R rhs) { this.lhs = lhs; this.rhs = rhs; }\n" + 
+			"		public R rhs() { return rhs; }\n" + 
+			"		public L lhs() { return lhs; }\n" + 
+			"		public <N> Pair<N, R> keepingRhs(N newLhs) { return new Pair<>(newLhs, rhs); }\n" + 
+			"		/*E*/}\n" + 
+			"\n" + 
+			"	static Map<String, List<String>> invert(Map<String, List<String>> packages) {\n" + 
+			"		return packages.entrySet().stream().map(e -> new Pair<>(e.getValue(), e.getKey())).flatMap(\n" + 
+			"			//The method collect(Collector<? super Object,A,R>) in the type Stream<Object>\n" + 
+			"			//is not applicable for the arguments \n" + 
+			"			//(Collector<CollectorsMaps.Pair<String,String>,capture#3-of ?,Map<String,List<String>>>)\n" + 
+			"		  p -> p.lhs.stream().map(p::keepingRhs)).collect(\n" + 
+			"		  groupingBy(Pair<String, String>::lhs, mapping(Pair<String, String>::rhs, toList())));\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in CollectorsMaps.java (at line 20)\n" + 
+		"	p -> p.lhs.stream().map(p::keepingRhs)).collect(\n" + 
+		"	                                        ^^^^^^^\n" + 
+		"The method collect(Collector<? super Object,A,R>) in the type Stream<Object> is not applicable for the arguments (Collector<CollectorsMaps.Pair<String,String>,capture#3-of ?,Map<String,List<String>>>)\n" + 
+		"----------\n");
+}
 }
