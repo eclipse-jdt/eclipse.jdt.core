@@ -5133,4 +5133,28 @@ public void testBug432977() {
 		getCompilerOptions(),
 		"");
 }
+public void testBug433586() {
+	runConformTestWithLibs(
+		new String[] {
+			"NullConversionWarning.java",
+			"import java.util.function.Consumer;\n" + 
+			"public class NullConversionWarning<T> {\n" + 
+			"\n" + 
+			"	public Consumer<T> peek2(Consumer<? super T> action) {\n" + 
+			"		// Null type safety: parameter 1 provided via\n" + 
+			"		// method descriptor Consumer<T>.accept(T) needs\n" + 
+			"		// unchecked conversion to conform to 'capture#of ? super T'\n" + 
+			"		Consumer<T> action2 = action::accept;\n" + 
+			"		return action2;\n" + 
+			"	}\n" +
+			"	void foo(Consumer<? super T> action, T t) {\n" + 
+			"	  Consumer<T> action2 = t2 -> action.accept(t2);\n" + 
+			"	  action.accept(t);\n" + 
+			"	  action2.accept(t);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 }

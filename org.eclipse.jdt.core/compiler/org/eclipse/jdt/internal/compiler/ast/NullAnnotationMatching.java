@@ -192,8 +192,15 @@ public class NullAnnotationMatching {
 			return true;
 		if (requiredType.isParameterizedType() || requiredType.isArrayType())
 			return false; // not analysing details here
-		if (TypeBinding.notEquals(requiredType, providedType))
+		if (TypeBinding.notEquals(requiredType, providedType)) {
+			if (requiredType instanceof CaptureBinding) {
+				// when providing the lower bound of the required type where definitely fine:
+				TypeBinding lowerBound = ((CaptureBinding)requiredType).lowerBound;
+				if (lowerBound != null && areSameTypes(lowerBound, providedType))
+					return true;
+			}
 			return false;
+		}
 		return (requiredType.tagBits & TagBits.AnnotationNullMASK) == (providedType.tagBits & TagBits.AnnotationNullMASK);
 	}
 
