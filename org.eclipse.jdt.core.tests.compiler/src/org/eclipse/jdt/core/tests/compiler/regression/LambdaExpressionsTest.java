@@ -4360,6 +4360,52 @@ public void test431514a() {
 			"}"
 	});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432531 [1.8] VerifyError with anonymous subclass inside of lambda expression in the superclass constructor call
+public void test432531() {
+	this.runConformTest(
+		new String[] {
+			"Y.java", 
+			"import java.util.function.Supplier;\n" + 
+			"class E {\n" + 
+			"	E(Supplier<Object> factory) { }\n" + 
+			"}\n" + 
+			"public class Y extends E {\n" + 
+			"	Y() {\n" + 
+			"		super(() -> new Object() {\n" + 
+			"		});\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new Y();\n" + 
+			"	}\n" + 
+			"}"
+	});
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432531 [1.8] VerifyError with anonymous subclass inside of lambda expression in the superclass constructor call
+public void test432531a() {
+	this.runConformTest(
+		new String[] {
+			"Y.java", 
+			"import java.util.function.Supplier;\n" + 
+			"class E {\n" + 
+			"	E(Supplier<Object> factory) { }\n" + 
+			"}\n" + 
+			"public class Y extends E {\n" + 
+			"	Y() {\n" + 
+			"		super( () -> {\n" + 
+			"			class Z extends E {\n" + 
+			"				Z() {\n" + 
+			"					super(() -> new Object());\n" + 
+			"				}\n" + 
+			"			}\n" + 
+			"			return new Z();\n" + 
+			"			});\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new Y();\n" + 
+			"	}\n" + 
+			"}"
+	});
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
