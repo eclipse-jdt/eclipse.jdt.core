@@ -2953,4 +2953,65 @@ public void testBug431577() {
 			"}"
 	});
 }
+public void testBug432110() {
+	runConformTest(
+		new String[] {
+			"Bug.java",
+			"import java.util.List;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"\n" + 
+			"class Bug\n" + 
+			"{\n" + 
+			"    // fully inline\n" + 
+			"    // compiles successfully\n" + 
+			"    Stream<? extends Integer> flatten1(\n" + 
+			"        final Stream<List<Integer>> input)\n" + 
+			"    {\n" + 
+			"        return input.flatMap(item -> item.stream().map(value -> value));\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    // lambda using braces\n" + 
+			"    // compiles with error in eclipse, successfully with javac\n" + 
+			"    Stream<? extends Integer> flatten2(\n" + 
+			"        final Stream<List<Integer>> input)\n" + 
+			"    {\n" + 
+			"        return input.flatMap(item -> {\n" + 
+			"            return item.stream().map(value -> value);\n" + 
+			"        });\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    // without map step\n" + 
+			"    // compiles successfully\n" + 
+			"    Stream<? extends Integer> flatten3(\n" + 
+			"        final Stream<List<Integer>> input)\n" + 
+			"    {\n" + 
+			"        return input.flatMap(item -> {\n" + 
+			"            return item.stream();\n" + 
+			"        });\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    // with map step, but not inline\n" + 
+			"    // compiles successfully\n" + 
+			"    Stream<? extends Integer> flatten4(\n" + 
+			"        final Stream<List<Integer>> input)\n" + 
+			"    {\n" + 
+			"        return input.flatMap(item -> {\n" + 
+			"            final Function<? super Integer, ? extends Integer> mapper = value -> value;\n" + 
+			"            return item.stream().map(mapper);\n" + 
+			"        });\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    // with map step, but outer lambda is not inline\n" + 
+			"    // compiles successfully\n" + 
+			"    Stream<? extends Integer> flatten5(\n" + 
+			"        final Stream<List<Integer>> input)\n" + 
+			"    {\n" + 
+			"        final Function<? super List<Integer>, ? extends Stream<? extends Integer>> func = item -> {\n" + 
+			"            return item.stream().map(value -> value);\n" + 
+			"        };\n" + 
+			"        return input.flatMap(func);\n" + 
+			"    }\n" + 
+			"}\n"});
+}
 }

@@ -30,6 +30,7 @@
  *							Bug 428786 - [1.8][compiler] Inference needs to compute the "ground target type" when reducing a lambda compatibility constraint
  *							Bug 428980 - [1.8][null] simple expression as lambda body doesn't leverage null annotation on argument
  *							Bug 429430 - [1.8] Lambdas and method reference infer wrong exception type with generics (RuntimeException instead of IOException)
+ *							Bug 432110 - [1.8][compiler] nested lambda type incorrectly inferred vs javac
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -844,6 +845,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			if (this.body instanceof Block) {
 				if (copy.returnsVoid) {
 					copy.shapeAnalysisComplete = true;
+				} else {
+					copy.valueCompatible = this.returnsValue;
 				}
 			} else {
 				copy.voidCompatible = ((Expression) this.body).statementExpression();
