@@ -7204,4 +7204,94 @@ public void testBug403674a() {
 			) +
 			"----------\n");
 }
+// original test
+public void testBug422796() {
+	runConformTestWithLibs(
+		new String[] {
+			"NullExprTest.java",
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"@NonNullByDefault\n" + 
+			"public class NullExprTest {\n" + 
+			"	\n" + 
+			"	private @Nullable Boolean b() { return null; }\n" + 
+			"	\n" + 
+			"	public void testBoolean() {\n" + 
+			"		Boolean b1 = b();\n" + 
+			"		boolean b = b1 == null || \n" + 
+			"				b1; // <-- Previously bugggy: reported potential NPE (*)\n" + 
+			"		assertTrue(b);\n" + 
+			"	}\n" +
+			"	static void assertTrue(boolean b) {}\n" + 
+			"\n" + 
+			"}"
+		},
+		getCompilerOptions(),
+		"");
+}
+// inverted logic:
+public void testBug422796a() {
+	runConformTestWithLibs(
+		new String[] {
+			"NullExprTest.java",
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"@NonNullByDefault\n" + 
+			"public class NullExprTest {\n" + 
+			"	\n" + 
+			"	private @Nullable Boolean b() { return null; }\n" + 
+			"	\n" + 
+			"	public void testBoolean() {\n" + 
+			"		Boolean b1 = b();\n" + 
+			"		boolean b = b1 != null && \n" + 
+			"				b1; // <-- Previously bugggy: reported potential NPE (*)\n" + 
+			"		assertTrue(b);\n" + 
+			"	}\n" +
+			"	static void assertTrue(boolean b) {}\n" + 
+			"\n" + 
+			"}"
+		},
+		getCompilerOptions(),
+		"");
+}
+// negative tests:
+public void testBug422796b() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"NullExprTest.java",
+			"public class NullExprTest {\n" + 
+			"	\n" + 
+			"	private Boolean b() { return null; }\n" + 
+			"	\n" + 
+			"	public void testBoolean1() {\n" + 
+			"		Boolean b1 = b();\n" + 
+			"		boolean b = b1 == null && \n" + 
+			"				b1; // <-- definite NPE (*)\n" + 
+			"		assertTrue(b);\n" + 
+			"	}\n" +
+			"	public void testBoolean2(boolean x) {\n" + 
+			"		Boolean b1 = b();\n" + 
+			"		boolean b = (b1 == null || x) && \n" + 
+			"				b1; // <-- potential NPE (*)\n" + 
+			"		assertTrue(b);\n" + 
+			"	}\n" +
+			"	static void assertTrue(boolean b) {}\n" + 
+			"\n" + 
+			"}"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in NullExprTest.java (at line 8)\n" + 
+		"	b1; // <-- definite NPE (*)\n" + 
+		"	^^\n" + 
+		"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
+		"----------\n" + 
+		"2. ERROR in NullExprTest.java (at line 14)\n" + 
+		"	b1; // <-- potential NPE (*)\n" + 
+		"	^^\n" + 
+		"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" + 
+		"----------\n");
+}
 }
