@@ -4315,6 +4315,51 @@ public void test431190() throws Exception {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=431514 [1.8] Incorrect compilation error in lambda expression
+public void test431514() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"class X {\n" + 
+				"	void fun1(int x) {\n" + 
+				"		class Local {\n" + 
+				"			FI test= () -> {\n" + 
+				"				try {\n" + 
+				"				} catch (Exception e) {\n" +
+				"					int x;\n" +
+				"				};\n" + 
+				"			};\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface FI {\n" + 
+				"	void foo();\n" + 
+				"}"
+		});
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=431514 [1.8] Incorrect compilation error in lambda expression
+public void test431514a() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"	void fun1(int x) {\n" + 
+			"		class Local {\n" + 
+			"			class L1 { }\n" + 
+			"			int y;\n" + 
+			"			FI test= () -> {\n" + 
+			"				class L1 { } \n" + 
+			"				int y; \n" + 
+			"			};\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"}\n" + 
+			"interface FI {\n" + 
+			"	void foo();\n" + 
+			"}"
+	});
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

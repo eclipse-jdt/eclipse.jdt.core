@@ -9041,6 +9041,32 @@ public void test424154b() throws Exception {
 		"Lambda expression's parameter x is expected to be of type int\n" +
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=431514 [1.8] Incorrect compilation error in lambda expression
+public void test431514() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.function.Supplier;\n" + 
+			"public class X {\n" + 
+			"	public void foo() {\n" + 
+			"		class Z {\n" + 
+			"			public Supplier<Object> get() {\n" + 
+			"				return () -> {\n" + 
+			"					class Z { }\n" + 
+			"					return new Z();\n" + 
+			"				};\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	class Z { }\n" +
+		"	      ^\n" +
+		"The nested type Z cannot hide an enclosing type\n" +
+		"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
