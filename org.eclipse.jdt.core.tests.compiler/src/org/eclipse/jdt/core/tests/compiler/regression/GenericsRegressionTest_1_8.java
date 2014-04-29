@@ -3049,4 +3049,71 @@ public void testBug433158() {
 		"The method collect(Collector<? super Object,A,R>) in the type Stream<Object> is not applicable for the arguments (Collector<CollectorsMaps.Pair<String,String>,capture#3-of ?,Map<String,List<String>>>)\n" + 
 		"----------\n");
 }
+public void _testBug432626() {
+	runConformTest(
+		new String[] {
+			"StreamInterface2.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.HashMap;\n" + 
+			"import java.util.Map;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.function.Supplier;\n" + 
+			"import java.util.stream.Collector;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"\n" + 
+			"public interface StreamInterface2 {\n" + 
+			"\n" + 
+			"	static <T, E extends Exception, K> Map<K, ArrayList<T>> terminalAsMapToList(\n" + 
+			"	  Function<? super T, ? extends K> classifier,\n" + 
+			"	  Supplier<Stream<T>> supplier,\n" + 
+			"	  Class<E> classOfE) throws E {\n" + 
+			"		return terminalAsCollected(classOfE, Collectors.groupingBy(\n" + 
+			"			  classifier,\n" + 
+			"			  //This is OK:\n" + 
+			"			  //Redundant specification of type arguments <K, ArrayList<T>>\n" + 
+			"			  () -> new HashMap<K, ArrayList<T>>(),\n" + 
+			"			  Collector.<T, ArrayList<T>> of(\n" + 
+			"			    () -> new ArrayList<>(),\n" + 
+			"			    (left, value) -> left.add(value),\n" + 
+			"			    (left, right) -> combined(left, right))), supplier);\n" + 
+			"	}\n" + 
+			"	static <T, E extends Exception, K> Map<K, ArrayList<T>> terminalAsMapToList2(\n" + 
+			"	  Function<? super T, ? extends K> classifier,\n" + 
+			"	  Supplier<Stream<T>> supplier,\n" + 
+			"	  Class<E> classOfE) throws E {\n" + 
+			"		//After removing type arguments, ECJ shows error, javac doesn't:\n" + 
+			"		//Type mismatch: cannot convert from HashMap<capture#2-of ? extends K,ArrayList<T>> to Map<K,ArrayList<T>>\n" + 
+			"		return terminalAsCollected(classOfE, Collectors.groupingBy(\n" + 
+			"			  classifier,\n" + 
+			"			  () -> new HashMap<>(),\n" + 
+			"			  Collector.<T, ArrayList<T>> of(\n" + 
+			"			    () -> new ArrayList<>(),\n" + 
+			"			    (left, value) -> left.add(value),\n" + 
+			"			    (left, right) -> combined(left, right))), supplier);\n" + 
+			"	}\n" + 
+			"	static <E extends Exception, T, M> M terminalAsCollected(\n" + 
+			"	  Class<E> classOfE,\n" + 
+			"	  Collector<T, ?, M> collector,\n" + 
+			"	  Supplier<Stream<T>> supplier) throws E {\n" + 
+			"		try(Stream<T> s = supplier.get()) {\n" + 
+			"			return s.collect(collector);\n" + 
+			"		} catch(RuntimeException e) {\n" + 
+			"			throw unwrapCause(classOfE, e);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	static <E extends Exception> E unwrapCause(Class<E> classOfE, RuntimeException e) throws E {\n" + 
+			"		Throwable cause = e.getCause();\n" + 
+			"		if(classOfE.isInstance(cause) == false) {\n" + 
+			"			throw e;\n" + 
+			"		}\n" + 
+			"		throw classOfE.cast(cause);\n" + 
+			"	}\n" + 
+			"	static <T> ArrayList<T> combined(ArrayList<T> left, ArrayList<T> right) {\n" + 
+			"		left.addAll(right);\n" + 
+			"		return left;\n" + 
+			"	}\n" +
+			"}\n"
+		});
+}
 }
