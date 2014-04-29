@@ -10,6 +10,7 @@
  *     Till Brychcy <register.eclipse@brychcy.de> - Contribution for
  *								Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
  *								Bug 415269 - [compiler][null] NonNullByDefault is not always inherited to nested classes
+ *     IBM Corporation - additional tests
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -7133,5 +7134,74 @@ public void testBug432348() {
 			"Syntax error, type annotations are illegal here\n" + 
 			"----------\n");
 	}
+}
+// Bug 403674 - [compiler][null] Switching on @Nullable enum value does not trigger "Potential null pointer access" warning
+// String value being used in switch condition.
+public void testBug403674() {
+	Map options = getCompilerOptions();
+	runNegativeTestWithLibs(
+			new String[]{
+				"X.java",
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"public class X {\n" +
+				"   public static void main(String[] args) {\n" +
+				"      // Correctly flagged as \"Potential null pointer access.\"\n" +
+				"      switch (computeStringValue()) {}\n" +
+				"   }\n" +
+				"   private static @Nullable String computeStringValue() { return null; }\n" +
+				"}\n"
+			},
+			options,
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	switch (computeStringValue()) {}\n" +
+			"	        ^^^^^^^^^^^^^^^^^^^^\n" +
+			(this.complianceLevel < ClassFileConstants.JDK1_7
+			?
+			"Cannot switch on a value of type String for source level below 1.7. " +
+			"Only convertible int values or enum variables are permitted\n"
+			:
+			"Potential null pointer access: The method computeStringValue() may return null\n"
+			) +
+			"----------\n");
+}
+// Bug 403674 - [compiler][null] Switching on @Nullable enum value does not trigger "Potential null pointer access" warning
+// Enum value being used in switch condition.
+public void testBug403674a() {
+	Map options = getCompilerOptions();
+	runNegativeTestWithLibs(
+			new String[]{
+				"X.java",
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"public class X {\n" +
+				"   private enum EnumValue{}\n" +
+				"   public static void main(String[] args) {\n" +
+				"      // Before Fix: Not flagged.\n" +
+				"      switch (computeEnumValue()) {}\n" +
+				"      @Nullable EnumValue value = computeEnumValue();\n" +
+				"      // Correctly flagged as \"Potential null pointer access.\"\n" +
+				"      // Before Fix: Not flagged.\n" +
+				"      switch (value) {}\n" +
+				"   }\n" +
+				"   private static @Nullable EnumValue computeEnumValue() { return null; }\n" +
+				"}\n"
+			},
+			options,
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	switch (computeEnumValue()) {}\n" +
+			"	        ^^^^^^^^^^^^^^^^^^\n" +
+			"Potential null pointer access: The method computeEnumValue() may return null\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 10)\n" +
+			"	switch (value) {}\n" +
+			"	        ^^^^^\n" +
+			(this.complianceLevel < ClassFileConstants.JDK1_8
+			?
+			"Potential null pointer access: The variable value may be null at this location\n"
+			:
+			"Potential null pointer access: this expression has a '@Nullable' type\n"
+			) +
+			"----------\n");
 }
 }
