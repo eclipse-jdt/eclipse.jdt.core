@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Terry Parker <tparker@google.com> - Bug 418092
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -97,6 +98,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		suite.addTest(new AttachedJavadocTests("testBug398272"));
 		suite.addTest(new AttachedJavadocTests("testBug426058"));
 		suite.addTest(new AttachedJavadocTests("testBug403154"));
+		suite.addTest(new AttachedJavadocTests("testBug418092"));
 		return suite;
 	}
 
@@ -1328,4 +1330,33 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			this.project.setRawClasspath(oldClasspath, null);
 		}
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418092
+	// Correctly parse Javadoc for methods that have parameterized annotations.
+	public void testBug418092() throws JavaModelException {
+		try {
+			IClasspathAttribute attribute =
+					JavaCore.newClasspathAttribute(
+							IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME,
+							"jar:platform:/resource/AttachedJavadocProject/bug418092_doc.zip!/");
+			IClasspathEntry newEntry = JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/bug418092.jar"), null, null, null, new IClasspathAttribute[] {attribute}, true);
+			this.project.setRawClasspath(new IClasspathEntry[]{newEntry}, null);
+			this.project.getResolvedClasspath(false);
+
+			IPackageFragmentRoot jarRoot = this.project.getPackageFragmentRoot(getFile("/AttachedJavadocProject/bug418092.jar"));
+			final IType type = jarRoot.getPackageFragment("p1.p2").getClassFile("Annot3.class").getType();
+			assertNotNull(type);
+			IMethod method = type.getMethod("filter", new String[] {"I", "I"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			assertTrue(method.exists());
+			String javadoc = method.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
+			assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
+			String[] paramNames = method.getParameterNames();
+			assertNotNull(paramNames);
+			assertEquals("Wrong size", 2, paramNames.length); //$NON-NLS-1$
+			assertEquals("Wrong name for first param", "p1", paramNames[0]); //$NON-NLS-1$ //$NON-NLS-2$
+			assertEquals("Wrong name for second param", "p2", paramNames[1]); //$NON-NLS-1$ //$NON-NLS-2$
+		} catch (IndexOutOfBoundsException e) {
+			assertTrue("Should not happen", false);
+		}
+	}
 }
+
