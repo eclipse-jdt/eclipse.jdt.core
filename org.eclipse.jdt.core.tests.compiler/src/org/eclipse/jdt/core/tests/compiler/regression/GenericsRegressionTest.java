@@ -26,6 +26,7 @@
  *								Bug 432603 - [compile][1.7] ecj reports an Error while javac doesn't
  *								Bug 399527 - Type inference problem
  *								Bug 434570 - Generic type mismatch for parametrized class annotation attribute with inner class
+ *								Bug 434044 - Java 8 generics thinks single method is ambiguous
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -5174,6 +5175,39 @@ public void testBug434630_comment7() {
 			"		}\n" + 
 			"		\n" + 
 			"	}\n" + 
+			"}\n"
+		});
+}
+public void testBug434044() {
+	runConformTest(
+		new String[] {
+			"EclipseJava8Generics.java",
+			"public class EclipseJava8Generics {\n" + 
+			"\n" + 
+			"  public interface Foo<V> {\n" + 
+			"    public V doFoo();\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static class FooBar<V, T extends Foo<V>> {\n" + 
+			"    public T getBar() {\n" + 
+			"      return null;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static class Factory {\n" + 
+			"\n" + 
+			"    public static <V, T extends Foo<V>> FooBar<V, T> createFooBar() {\n" + 
+			"      return null;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static void test() {\n" + 
+			"    final FooBar<?, ? extends Foo<?>> typedProperty = Factory.createFooBar();\n" + 
+			"    //TODO Eclipse Bug 434044\n" + 
+			"    final Object propertyValue = typedProperty.getBar().doFoo();\n" + 
+			"\n" + 
+			"  }\n" + 
+			"\n" + 
 			"}\n"
 		});
 }
