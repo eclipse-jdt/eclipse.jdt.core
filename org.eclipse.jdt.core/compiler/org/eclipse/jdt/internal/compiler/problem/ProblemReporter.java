@@ -9154,7 +9154,8 @@ public void nullityMismatch(Expression expression, TypeBinding providedType, Typ
 }
 public void nullityMismatchIsNull(Expression expression, TypeBinding requiredType) {
 	int problemId = IProblem.RequiredNonNullButProvidedNull;
-	if (requiredType.isTypeVariable() && !requiredType.hasNullTypeAnnotations())
+	boolean below18 = this.options.sourceLevel < ClassFileConstants.JDK1_8;
+	if (!below18 && requiredType.isTypeVariable() && !requiredType.hasNullTypeAnnotations())
 		problemId = IProblem.NullNotCompatibleToFreeTypeVariable;
 	if (requiredType instanceof CaptureBinding) {
 		CaptureBinding capture = (CaptureBinding) requiredType;
@@ -9163,7 +9164,7 @@ public void nullityMismatchIsNull(Expression expression, TypeBinding requiredTyp
 	}
 	String[] arguments;
 	String[] argumentsShort;
-	if (this.options.sourceLevel < ClassFileConstants.JDK1_8) {
+	if (below18) {
 		arguments      = new String[] { annotatedTypeName(requiredType, this.options.nonNullAnnotationName) };
 		argumentsShort = new String[] { shortAnnotatedTypeName(requiredType, this.options.nonNullAnnotationName) };
 	} else {

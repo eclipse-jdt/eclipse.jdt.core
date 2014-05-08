@@ -281,7 +281,13 @@ public class ImplicitNullAnnotationVerifier {
 					}
 				}
 				if (useTypeAnnotations) {
-					if (NullAnnotationMatching.analyse(inheritedMethod.returnType, currentMethod.returnType, 0, true).isAnyMismatch()) {
+					TypeBinding substituteReturnType = null; // for TVB identity checks inside NullAnnotationMatching.analyze()
+					TypeVariableBinding[] typeVariables = inheritedMethod.typeVariables;
+					if (typeVariables != null && currentMethod.returnType.id != TypeIds.T_void) {
+						ParameterizedGenericMethodBinding substitute = this.environment.createParameterizedGenericMethod(currentMethod, typeVariables);
+						substituteReturnType = substitute.returnType;
+					}
+					if (NullAnnotationMatching.analyse(inheritedMethod.returnType, currentMethod.returnType, substituteReturnType, 0, true).isAnyMismatch()) {
 						scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod, useTypeAnnotations);
 						return;
 					}
@@ -290,6 +296,15 @@ public class ImplicitNullAnnotationVerifier {
 		}
 
 		// parameters:
+		TypeBinding[] substituteParameters = null; // for TVB identity checks inside NullAnnotationMatching.analyze()
+		if (shouldComplain) {
+			TypeVariableBinding[] typeVariables = currentMethod.typeVariables;
+			if (typeVariables != Binding.NO_TYPE_VARIABLES) {
+				ParameterizedGenericMethodBinding substitute = this.environment.createParameterizedGenericMethod(inheritedMethod, typeVariables);
+				substituteParameters = substitute.parameters;
+			}
+		}
+
 		Argument[] currentArguments = srcMethod == null ? null : srcMethod.arguments;
 
 		int length = 0;
@@ -388,7 +403,8 @@ public class ImplicitNullAnnotationVerifier {
 					}
 				} 
 				if (useTypeAnnotations) {
-					if (NullAnnotationMatching.analyse(currentMethod.parameters[i], inheritedMethod.parameters[i], 0, true).isAnyMismatch()) {
+					TypeBinding substituteParameter = substituteParameters != null ? substituteParameters[i] : null;
+					if (NullAnnotationMatching.analyse(currentMethod.parameters[i], inheritedMethod.parameters[i], substituteParameter, 0, true).isAnyMismatch()) {
 						scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod, false);
 					}
 				}

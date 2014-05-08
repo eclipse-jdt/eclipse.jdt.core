@@ -7294,4 +7294,146 @@ public void testBug422796b() {
 		"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" + 
 		"----------\n");
 }
+public void testBug434374() {
+	runConformTestWithLibs(
+		new String[] {
+			"bal/AdapterService.java",
+			"/*******************************************************************************\n" + 
+			" * Copyright (c) 2013 BestSolution.at and others.\n" + 
+			" * All rights reserved. This program and the accompanying materials\n" + 
+			" * are made available under the terms of the Eclipse Public License v1.0\n" + 
+			" * which accompanies this distribution, and is available at\n" + 
+			" * http://www.eclipse.org/legal/epl-v10.html\n" + 
+			" *\n" + 
+			" * Contributors:\n" + 
+			" *     Tom Schindl <tom.schindl@bestsolution.at> - initial API and implementation\n" + 
+			" *******************************************************************************/\n" + 
+			"package bal;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"public interface AdapterService {\n" + 
+			"	public boolean canAdapt(@Nullable Object sourceObject, @NonNull Class<?> targetType);\n" + 
+			"\n" + 
+			"	@Nullable\n" + 
+			"	public <A> A adapt(@Nullable Object sourceObject, @NonNull Class<A> targetType, ValueAccess... valueAccesses);\n" + 
+			"\n" + 
+			"	public interface ValueAccess {\n" + 
+			"		@Nullable\n" + 
+			"		public <O> O getValue(@NonNull String key);\n" + 
+			"\n" + 
+			"		@Nullable\n" + 
+			"		public <O> O getValue(@NonNull Class<O> key);\n" + 
+			"	}\n" + 
+			"}\n",
+			"bal/AdapterServiceImpl.java",
+			"/*******************************************************************************\n" + 
+			" * Copyright (c) 2013 BestSolution.at and others.\n" + 
+			" * All rights reserved. This program and the accompanying materials\n" + 
+			" * are made available under the terms of the Eclipse Public License v1.0\n" + 
+			" * which accompanies this distribution, and is available at\n" + 
+			" * http://www.eclipse.org/legal/epl-v10.html\n" + 
+			" *\n" + 
+			" * Contributors:\n" + 
+			" *     Tom Schindl <tom.schindl@bestsolution.at> - initial API and implementation\n" + 
+			" *******************************************************************************/\n" + 
+			"package bal;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"public class AdapterServiceImpl implements AdapterService {\n" + 
+			"\n" + 
+			(this.complianceLevel >= ClassFileConstants.JDK1_6
+			? "	@Override\n"
+			: "") +
+			"	public boolean canAdapt(@Nullable Object sourceObject, @NonNull Class<?> targetType) {\n" + 
+			"		return false;\n" + 
+			"	}\n" + 
+			"\n" + 
+			(this.complianceLevel >= ClassFileConstants.JDK1_6
+			? "	@Override\n"
+			: "") +
+			"	@Nullable\n" + 
+			"	public <A> A adapt(@Nullable Object sourceObject, @NonNull Class<A> targetType, ValueAccess... valueAccesses) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+// test return type compatibility
+public void testBug434374a() {
+	runConformTestWithLibs(
+		new String[] {
+			"bug434374/AdapterService.java",
+			"package bug434374;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"public interface AdapterService {\n" + 
+			"	public @NonNull <A> Class<A> getClassOfA(A object);\n" + 
+			"\n" + 
+			"}\n",
+			"bug434374/AdapterServiceImpl.java",
+			"package bug434374;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"\n" + 
+			"public class AdapterServiceImpl implements AdapterService {\n" + 
+			"\n" +
+			(this.complianceLevel >= ClassFileConstants.JDK1_6
+			? "	@Override\n"
+			: "") +
+			"	@NonNull\n" + 
+			"	public <A> Class<A> getClassOfA(A object) {\n" + 
+			"		throw new RuntimeException();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+// original (broken) test (second part):
+public void testBug434374b() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"bal/TestGeneric.java",
+			"package bal;\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"\n" + 
+			"public class TestGeneric<T> {\n" + 
+			"	@NonNull\n" + 
+			"	public T test() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in bal\\TestGeneric.java (at line 7)\n" + 
+		"	return null;\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull T\' but the provided value is null\n" + 
+		"----------\n");
+}
+// rectified test:
+public void testBug434374c() {
+	runConformTestWithLibs(
+		new String[] {
+			"bal/TestGeneric.java",
+			"package bal;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"public class TestGeneric<T> {\n" + 
+			"	public @Nullable T test() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 }

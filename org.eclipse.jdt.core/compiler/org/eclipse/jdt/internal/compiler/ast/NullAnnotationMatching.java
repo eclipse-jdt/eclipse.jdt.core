@@ -15,6 +15,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
@@ -114,14 +115,23 @@ public class NullAnnotationMatching {
 	 * @return a status object representing the severity of mismatching plus optionally a supertype hint
 	 */
 	public static NullAnnotationMatching analyse(TypeBinding requiredType, TypeBinding providedType, int nullStatus) {
-		return analyse(requiredType, providedType, nullStatus, false);
+		return analyse(requiredType, providedType, null, nullStatus, false);
 	}
-	// additional parameter strict: if true we do not tolerate incompatibly missing annotations on type parameters (for overriding analysis)
-	public static NullAnnotationMatching analyse(TypeBinding requiredType, TypeBinding providedType, int nullStatus, boolean strict) {
+	/**
+	 * Find any mismatches between the two given types, which are caused by null type annotations.
+	 * @param requiredType
+	 * @param providedType
+	 * @param providedSubstitute in inheritance situations this maps the providedType into the realm of the subclass, needed for TVB identity checks.
+	 * 		Pass null if not interested in these added checks.
+	 * @param nullStatus we are only interested in NULL or NON_NULL, -1 indicates that we are in a recursion, where flow info is ignored
+	 * @param strict if true we do not tolerate incompatibly missing annotations on type parameters (for overriding analysis)
+	 * @return a status object representing the severity of mismatching plus optionally a supertype hint
+	 */
+	public static NullAnnotationMatching analyse(TypeBinding requiredType, TypeBinding providedType, TypeBinding providedSubstitute, int nullStatus, boolean strict) {
 		int severity = 0;
 		TypeBinding superTypeHint = null;
 		NullAnnotationMatching okStatus = NullAnnotationMatching.NULL_ANNOTATIONS_OK;
-		if (areSameTypes(requiredType, providedType)) // for type variable identity (and as shortcut for others)
+		if (areSameTypes(requiredType, providedType, providedSubstitute)) // for type variable identity (and as shortcut for others)
 			return okStatus;
 		if (requiredType instanceof ArrayBinding) {
 			long[] requiredDimsTagBits = ((ArrayBinding)requiredType).nullTagBitsPerDimension;
@@ -164,9 +174,11 @@ public class NullAnnotationMatching {
 				if (requiredType.isParameterizedType()  && providedSuper instanceof ParameterizedTypeBinding) { // TODO(stephan): handle providedType.isRaw()
 					TypeBinding[] requiredArguments = ((ParameterizedTypeBinding) requiredType).arguments;
 					TypeBinding[] providedArguments = ((ParameterizedTypeBinding) providedSuper).arguments;
+					TypeBinding[] providedSubstitutes = (providedSubstitute instanceof ParameterizedTypeBinding) ? ((ParameterizedTypeBinding)providedSubstitute).arguments : null;
 					if (requiredArguments != null && providedArguments != null && requiredArguments.length == providedArguments.length) {
 						for (int i = 0; i < requiredArguments.length; i++) {
-							NullAnnotationMatching status = analyse(requiredArguments[i], providedArguments[i], -1, strict);
+							TypeBinding providedArgSubstitute = providedSubstitutes != null ? providedSubstitutes[i] : null;
+							NullAnnotationMatching status = analyse(requiredArguments[i], providedArguments[i], providedArgSubstitute, -1, strict);
 							severity = Math.max(severity, status.severity);
 							if (severity == 2)
 								return new NullAnnotationMatching(severity, nullStatus, superTypeHint);
@@ -176,7 +188,8 @@ public class NullAnnotationMatching {
 				TypeBinding requiredEnclosing = requiredType.enclosingType();
 				TypeBinding providedEnclosing = providedType.enclosingType();
 				if (requiredEnclosing != null && providedEnclosing != null) {
-					NullAnnotationMatching status = analyse(requiredEnclosing, providedEnclosing, -1, strict);
+					TypeBinding providedEnclSubstitute = providedSubstitute != null ? providedSubstitute.enclosingType() : null;
+					NullAnnotationMatching status = analyse(requiredEnclosing, providedEnclosing, providedEnclSubstitute, -1, strict);
 					severity = Math.max(severity, status.severity);
 				}
 			}
@@ -187,7 +200,7 @@ public class NullAnnotationMatching {
 	}
 
 	/** Are both types identical wrt the unannotated type and any null type annotations? Only unstructured types are considered. */
-	protected static boolean areSameTypes(TypeBinding requiredType, TypeBinding providedType) {
+	protected static boolean areSameTypes(TypeBinding requiredType, TypeBinding providedType, TypeBinding providedSubstitute) {
 		if (requiredType == providedType)  //$IDENTITY-COMPARISON$ // short cut for really-really-same types
 			return true;
 		if (requiredType.isParameterizedType() || requiredType.isArrayType())
@@ -196,8 +209,10 @@ public class NullAnnotationMatching {
 			if (requiredType instanceof CaptureBinding) {
 				// when providing the lower bound of the required type where definitely fine:
 				TypeBinding lowerBound = ((CaptureBinding)requiredType).lowerBound;
-				if (lowerBound != null && areSameTypes(lowerBound, providedType))
+				if (lowerBound != null && areSameTypes(lowerBound, providedType, providedSubstitute))
 					return true;
+			} else if (requiredType.kind() == Binding.TYPE_PARAMETER && requiredType == providedSubstitute) { //$IDENTITY-COMPARISON$
+				return true;
 			}
 			return false;
 		}
