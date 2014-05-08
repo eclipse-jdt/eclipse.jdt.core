@@ -191,7 +191,7 @@ public class BuilderTests extends TestBase
 				"Problem : FooEvent cannot be resolved to a type [ resource : </" + _projectName + "/src/test295948/FooImpl.java> range : <52,60> category : <40> severity : <2>]");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=407841
-	public void testBbug407841() throws Throwable {
+	public void testBug407841() throws Throwable {
 		int old = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
 		try {
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE =1;
@@ -209,6 +209,18 @@ public class BuilderTests extends TestBase
 		} finally {
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = old;
 		}
+	}
+	
+	public void testBug387956() throws Exception {
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJavaProject(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IdeTestUtils.copyResources(proj, "targets/bug387956", "src/targets/bug387956");
+
+		AptConfig.setEnabled(jproj, true);
+		fullBuild();
+		expectingNoProblems();
 	}
 	
 }

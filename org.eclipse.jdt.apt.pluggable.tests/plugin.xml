@@ -40,6 +40,9 @@
          <java6processor
                class="org.eclipse.jdt.apt.pluggable.tests.processors.modeltester.ModelTester8Proc">
          </java6processor>
+         <java6processor
+               class="org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug387956Processor">
+         </java6processor>
       </java6processors>
    </extension>
 </plugin>
