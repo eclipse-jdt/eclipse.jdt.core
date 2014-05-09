@@ -4362,4 +4362,29 @@ public void testBug432051() throws JavaModelException {
 		assertTrue("Test Failed", false);
 	}
 }
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=426977
+ * 
+ * @throws JavaModelException
+ */
+public void testBug426977() throws JavaModelException {
+	String contents =
+			"package com.test.todo;\r\n"+
+			"import java.lang.annotation.ElementType;\r\n"+
+			"import java.lang.annotation.Target;\r\n"+
+			"public class Test {\r\n"+
+			"	static void m() {}\r\n"+
+			"	new Runnable() {\r\n"+
+			"		public void run(R) {}\r\n"+
+			"	};\r\n"+
+			"}\r\n"+
+			"@Target(ElementType.TYPE_USE)\r\n"+
+			"@interface TU { }";
+	this.workingCopy = getWorkingCopy("/Converter18/src/com/test/todo/Test.java", true/*computeProblems*/);
+	try {
+		buildAST(AST.JLS8, contents, this.workingCopy, false, true, true);
+	} catch (ClassCastException e) {
+		assertTrue("Test Failed", false);
+	}
+}
 }
