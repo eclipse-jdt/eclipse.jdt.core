@@ -4384,7 +4384,7 @@ public void testBug426977() throws JavaModelException {
 	try {
 		buildAST(AST.JLS8, contents, this.workingCopy, false, true, true);
 	} catch (ClassCastException e) {
-		assertTrue("Test Failed", false);
+		fail(e.getMessage());
 	}
 }
 }
