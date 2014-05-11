@@ -25,6 +25,7 @@
  *								Bug 431408 - Java 8 (1.8) generics bug
  *								Bug 432603 - [compile][1.7] ecj reports an Error while javac doesn't
  *								Bug 399527 - Type inference problem
+ *								Bug 434570 - Generic type mismatch for parametrized class annotation attribute with inner class
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -4951,6 +4952,133 @@ public void testBug399527_comment1() {
 				"TypeInferenceProblemMin.java",
 				sourceString
 			});
+}
+public void testBug434570() {
+	runConformTest(
+		new String[] {
+			"example/Example.java",
+			"package example;\n" + 
+			"\n" + 
+			"import example.Example.Config;\n" + 
+			"import example.Example.CustomInitializer;\n" + 
+			"\n" + 
+			"@Config(initializers = CustomInitializer.class)\n" + 
+			"public class Example {\n" + 
+			"\n" + 
+			"	static interface Context {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	static interface ConfigurableContext extends Context {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	static abstract class AbstractContext implements ConfigurableContext {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	static class GenericContext extends AbstractContext {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	static interface Initializer<C extends ConfigurableContext> {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	static @interface Config {\n" + 
+			"		Class<? extends Initializer<? extends ConfigurableContext>>[] initializers() default {};\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	static class CustomInitializer implements Initializer<GenericContext> {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	@Config(initializers = CustomInitializer.class)\n" + 
+			"	static class CompilationSuccess {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n"
+		});
+}
+public void testBug434630() {
+	runConformTest(
+		new String[] {
+			"Foo.java",
+			"interface Provider<T> {}\n" +
+			"@interface ProvidedBy {\n" +
+			"	Class<? extends Provider<?>> value();" +
+			"}\n" + 
+			"\n" + 
+			"@ProvidedBy(Foo.SomeProvider.class)\n" + 
+			"public interface Foo {\n" + 
+			"	\n" + 
+			"	public static class SomeProvider implements Provider<Foo> {\n" + 
+			"\n" + 
+			"		public Foo get() {\n" + 
+			"			return null;\n" + 
+			"		}\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
+public void _testBug434570_comment3() {
+	runConformTest(
+		new String[] {
+			"TestWontCompile.java",
+			"import org.bug.AnnotationWithClassParameter;\n" + 
+			"import org.bug.CustomHandler;\n" + 
+			"import org.bug.Handler;\n" + 
+			"\n" + 
+			"\n" + 
+			"@AnnotationWithClassParameter(CustomHandler.class)\n" + 
+			"public class TestWontCompile extends ATest<Object> {\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Class<? extends Handler<?>> h = CustomHandler.class;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n",
+			"ATest.java",
+			"public abstract class ATest<T> {\n" + 
+			"\n" + 
+			"}\n",
+			"org/bug/Item.java",
+			"package org.bug;\n" + 
+			"\n" + 
+			"public interface Item {\n" + 
+			"\n" + 
+			"}\n",
+			"org/bug/CustomItem.java",
+			"package org.bug;\n" + 
+			"\n" + 
+			"public class CustomItem implements Item {\n" + 
+			"\n" + 
+			"}\n",
+			"org/bug/Handler.java",
+			"package org.bug;\n" + 
+			"\n" + 
+			"public abstract class Handler<T extends Item> {\n" + 
+			"\n" + 
+			"}\n",
+			"org/bug/CustomHandler.java",
+			"package org.bug;\n" + 
+			"\n" + 
+			"public class CustomHandler extends Handler<CustomItem> {\n" + 
+			"\n" + 
+			"}\n",
+			"org/bug/AnnotationWithClassParameter.java",
+			"package org.bug;\n" + 
+			"\n" + 
+			"import java.lang.annotation.Documented;\n" + 
+			"import java.lang.annotation.ElementType;\n" + 
+			"import java.lang.annotation.Retention;\n" + 
+			"import java.lang.annotation.RetentionPolicy;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target(ElementType.TYPE)\n" + 
+			"@Retention(RetentionPolicy.RUNTIME)\n" + 
+			"@Documented\n" + 
+			"public @interface AnnotationWithClassParameter {\n" + 
+			"	\n" + 
+			"	Class<? extends Handler<?>> value();\n" + 
+			"\n" + 
+			"}\n"
+		});
 }
 }
 
