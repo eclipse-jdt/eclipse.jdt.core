@@ -23,7 +23,8 @@
  *								Bug 430686 - [1.8][compiler] Generics: erroneously reports 'method not applicable for the arguments'
  *								Bug 430759 - [1.8][compiler] SourceTypeBinding cannot be cast to ParameterizedTypeBinding
  *								Bug 431408 - Java 8 (1.8) generics bug
- *								Bug 432603 - [compile][1.7] ecj reports an Error while javac doesn't 
+ *								Bug 432603 - [compile][1.7] ecj reports an Error while javac doesn't
+ *								Bug 399527 - Type inference problem
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -4822,6 +4823,134 @@ public void testBug432603a() {
 			"    }\n" + 
 			"}\n"
 		});
+}
+public void testBug399527() {
+	runNegativeTest(
+		new String[] {
+			"TypeInferenceProblem.java",
+			"\n" + 
+			"public class TypeInferenceProblem {\n" + 
+			"  interface HeaderAccess<T> {\n" + 
+			"    T getHeader();\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  interface IExpectationSetters<T> {\n" + 
+			"    IExpectationSetters<T> andReturn(T value);\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  static class MocksControl implements IExpectationSetters<Object> {\n" + 
+			"    public IExpectationSetters<Object> andReturn(Object value) {\n" + 
+			"      return null;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  @SuppressWarnings(\"unchecked\")\n" + 
+			"  public static <T> IExpectationSetters<T> expect(final T value) {\n" + 
+			"    return (IExpectationSetters<T>) new MocksControl();\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  private HeaderAccess<Object> mockHeaderAccess;\n" + 
+			"  private HeaderAccess<?> unboundedMockHeaderAccess;\n" + 
+			"\n" + 
+			"  public void test() {\n" + 
+			"    // No error\n" + 
+			"    expect(mockHeaderAccess.getHeader()).andReturn(new Object());\n" + 
+			"    /*\n" + 
+			"     * Error: The method andReturn(capture#1-of ?) in the type\n" + 
+			"     * TypeInferenceProblem.IExpectationSetters<capture#1-of ?> \n" + 
+			"     * is not applicable for the arguments (Object)\n" + 
+			"     */\n" + 
+			"    expect(unboundedMockHeaderAccess.getHeader()).andReturn(new Object());\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in TypeInferenceProblem.java (at line 33)\n" + 
+		"	expect(unboundedMockHeaderAccess.getHeader()).andReturn(new Object());\n" + 
+		"	                                              ^^^^^^^^^\n" + 
+		"The method andReturn(capture#1-of ?) in the type TypeInferenceProblem.IExpectationSetters<capture#1-of ?> is not applicable for the arguments (Object)\n" + 
+		"----------\n");
+}
+public void testBug399527_corrected() {
+	runConformTest(
+		new String[] {
+			"TypeInferenceProblem.java",
+			"\n" + 
+			"public class TypeInferenceProblem {\n" + 
+			"  interface HeaderAccess<T> {\n" + 
+			"    T getHeader();\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  interface IExpectationSetters<T> {\n" + 
+			"    IExpectationSetters<T> andReturn(T value);\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  static class MocksControl implements IExpectationSetters<Object> {\n" + 
+			"    public IExpectationSetters<Object> andReturn(Object value) {\n" + 
+			"      return null;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  @SuppressWarnings(\"unchecked\")\n" + 
+			"  public static <T> IExpectationSetters<T> expect(final T value) {\n" + 
+			"    return (IExpectationSetters<T>) new MocksControl();\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  private HeaderAccess<Object> mockHeaderAccess;\n" + 
+			"  private HeaderAccess<?> unboundedMockHeaderAccess;\n" + 
+			"\n" + 
+			"  public void test() {\n" + 
+			"    // No error\n" + 
+			"    expect(mockHeaderAccess.getHeader()).andReturn(new Object());\n" + 
+			"    this.<Object>expect(unboundedMockHeaderAccess.getHeader()).andReturn(new Object());\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
+public void testBug399527_comment1() {
+	String sourceString =
+			"public class TypeInferenceProblemMin {\n" + 
+			"  interface HeaderAccess<T> {\n" + 
+			"    T getHeader();\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  interface IExpectationSetters<T> {\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static <T> IExpectationSetters<T> expect(final T value) {\n" + 
+			"	  return null;\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  private HeaderAccess<?> unboundedMockHeaderAccess;\n" + 
+			"  \n" + 
+			"  public void test() {\n" + 
+			"    // no error:\n" + 
+			"    Object header = unboundedMockHeaderAccess.getHeader();\n" + 
+			"    IExpectationSetters<Object> exp1 = expect(header);\n" + 
+			"\n" + 
+			"    // Type mismatch: cannot convert from TypeInferenceProblemMin.IExpectationSetters<capture#2-of ?> to TypeInferenceProblemMin.IExpectationSetters<Object>\n" + 
+			"    IExpectationSetters<Object> exp2 = expect(unboundedMockHeaderAccess.getHeader());\n" + 
+			"  }\n" + 
+			"}\n";
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		runNegativeTest(
+			new String[] {
+				"TypeInferenceProblemMin.java",
+				sourceString
+			},
+			"----------\n" + 
+			"1. ERROR in TypeInferenceProblemMin.java (at line 21)\n" + 
+			"	IExpectationSetters<Object> exp2 = expect(unboundedMockHeaderAccess.getHeader());\n" + 
+			"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from TypeInferenceProblemMin.IExpectationSetters<capture#2-of ?> to TypeInferenceProblemMin.IExpectationSetters<Object>\n" + 
+			"----------\n");
+	else
+		// conform due to target typing
+		runConformTest(
+			new String[] {
+				"TypeInferenceProblemMin.java",
+				sourceString
+			});
 }
 }
 
