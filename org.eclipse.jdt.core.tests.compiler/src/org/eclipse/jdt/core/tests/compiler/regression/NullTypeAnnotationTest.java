@@ -3220,6 +3220,47 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"Null type safety (type annotations): The expression of type \'X<String>\' needs unchecked conversion to conform to \'X<@Nullable String>\'\n" + 
 			"----------\n");
 	}
+
+	// introduce unrelated method lookup before the bogus one
+	public void testBug416182a() { 
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"import org.eclipse.jdt.annotation.Nullable;\n" + 
+				"\n" + 
+				"public class X<T> {\n" +
+				"	T foo(@NonNull T t) {\n" + 
+				"		return t;\n" + 
+				"	}\n" +
+				"	void foo() {}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X<@Nullable String> xs = new X<String>();\n" +
+				"		xs.foo();\n" + 
+				"		xs.foo(null);\n" + 
+				"	}\n" + 
+				"	\n" +
+				"	public void test(X<String> x) {\n" + 
+				"		X<@Nullable String> xs = x;\n" + 
+				"		xs.bar(null);\n" + 
+				"	}\n" + 
+				"	public void bar(T t) {}\n" + 
+				"\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	xs.foo(null);\n" + 
+			"	^^^^^^^^^^^^\n" + 
+			"Contradictory null annotations: method was inferred as \'@Nullable String foo(@NonNull @Nullable String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 16)\n" + 
+			"	X<@Nullable String> xs = x;\n" + 
+			"	                         ^\n" + 
+			"Null type safety (type annotations): The expression of type \'X<String>\' needs unchecked conversion to conform to \'X<@Nullable String>\'\n" + 
+			"----------\n");
+	}
 	
 	public void testBug416183() {
 		runConformTestWithLibs(
@@ -5156,5 +5197,34 @@ public void testBug433586() {
 		},
 		getCompilerOptions(),
 		"");
+}
+// NPE without the fix.
+public void testBug433478() {
+	runNegativeTestWithLibs(
+            new String[] {
+                "X.java",
+                "import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+                "import org.eclipse.jdt.annotation.Nullable;\n" +
+                "\n" +
+                "@NonNullByDefault class Y { }\n" +
+                "\n" +
+                "interface I<T> {\n" +
+                "       @Nullable T foo();\n" +
+                "}\n" +
+                "\n" +
+                "@NonNullByDefault \n" +
+                "class X implements I<Y> {\n" +
+                "       @Override\n" +
+                "       public Y foo() {\n" +
+                "               return null;\n" +
+                "       }\n" +
+                "}\n"
+            },
+            "----------\n" + 
+    		"1. ERROR in X.java (at line 14)\n" + 
+    		"	return null;\n" + 
+    		"	       ^^^^\n" + 
+    		"Null type mismatch: required \'@NonNull Y\' but the provided value is null\n" + 
+    		"----------\n");
 }
 }
