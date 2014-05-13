@@ -23,6 +23,7 @@
  *								Bug 430686 - [1.8][compiler] Generics: erroneously reports 'method not applicable for the arguments'
  *								Bug 430759 - [1.8][compiler] SourceTypeBinding cannot be cast to ParameterizedTypeBinding
  *								Bug 431408 - Java 8 (1.8) generics bug
+ *								Bug 432603 - [compile][1.7] ecj reports an Error while javac doesn't 
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -4757,6 +4758,70 @@ public void testBug431581() {
 		"	       ^^^^^^^\n" + 
 		"Type safety: Unchecked cast from BugEclipse.Dog to T\n" + 
 		"----------\n");
+}
+public void testBug432603() {
+	runNegativeTest(
+		new String[] {
+			"Test.java",
+			"import java.util.Map;\n" + 
+			"import java.util.Map.Entry;\n" + 
+			"\n" + 
+			"abstract class Optional<T> {\n" +
+			"	public static <T> Optional<T> fromNullable(T t) { return null; }\n" +
+			"	abstract Optional<T> or(Optional<? extends T> secondChoice);\n" + 
+			"	abstract T or(Supplier<? extends T> supplier);\n" + 
+			"	abstract T or(T defaultValue);\n" +
+			"}\n" + 
+			"\n" +
+			"interface Supplier<T> { T get(); }\n" +
+			"\n" + 
+			"public class Test {\n" + 
+			"\n" + 
+			"    private static final Object NO_VALUE = new Object();\n" + 
+			"\n" + 
+			"    public void method(Map<String, ?> map) {\n" + 
+			"        for (Entry<String, ?> entry : map.entrySet()) {\n" + 
+			"            Optional.fromNullable(entry.getValue()).or(NO_VALUE);\n" + 
+			"//                                                  ^^ error here\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 19)\n" + 
+		"	Optional.fromNullable(entry.getValue()).or(NO_VALUE);\n" + 
+		"	                                        ^^\n" + 
+		"The method or(Optional<? extends capture#2-of ?>) in the type Optional<capture#2-of ?> is not applicable for the arguments (Object)\n" + 
+		"----------\n");
+}
+public void testBug432603a() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.Map;\n" + 
+			"import java.util.Map.Entry;\n" + 
+			"\n" + 
+			"abstract class Optional<T> {\n" +
+			"	public static <T> Optional<T> fromNullable(T t) { return null; }\n" +
+			"	abstract Optional<T> or(Optional<? extends T> secondChoice);\n" + 
+			"	abstract T or(Supplier<? extends T> supplier);\n" + 
+			"	abstract T or(T defaultValue);\n" +
+			"}\n" + 
+			"\n" +
+			"interface Supplier<T> { T get(); }\n" +
+			"\n" + 
+			"public class Test {\n" + 
+			"\n" + 
+			"    private static final Object NO_VALUE = new Object();\n" + 
+			"\n" + 
+			"    public void method(Map<String, ?> map) {\n" + 
+			"        for (Entry<String, ?> entry : map.entrySet()) {\n" + 
+			"            Optional.<Object>fromNullable(entry.getValue()).or(NO_VALUE);\n" + 
+			"//                                                  ^^ error here\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		});
 }
 }
 
