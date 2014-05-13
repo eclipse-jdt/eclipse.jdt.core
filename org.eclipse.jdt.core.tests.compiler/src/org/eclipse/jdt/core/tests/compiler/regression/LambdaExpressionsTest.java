@@ -4406,6 +4406,34 @@ public void test432531a() {
 			"}"
 	});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=434297 [1.8] NPE in LamdaExpression.analyseCode with lamda expression nested in a conditional expression
+public void test434297() {
+	this.runConformTest(
+		new String[] {
+			"X.java", 
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Collection;\n" + 
+			"import java.util.Collections;\n" + 
+			"import java.util.Comparator;\n" + 
+			"import java.util.List;\n" + 
+			"public class X {\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"  }\n" + 
+			"  public void bla() {\n" + 
+			"    boolean b = Boolean.TRUE.booleanValue();\n" + 
+			"    List<String> c1 = new ArrayList<>();\n" + 
+			"    Collections.sort(c1, b ? null : new Bar(new ArrayList<>(),Comparator.nullsLast((a,e) -> {return 0;})));\n" + 
+			"  }\n" + 
+			"  private static class Bar implements Comparator<String>{\n" + 
+			"	  public <T> Bar(Collection<T> col, Comparator<T> comp) { }\n" + 
+			"	@Override\n" + 
+			"	public int compare(String o1, String o2) {\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"  }\n" + 
+			"}"
+	});
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
