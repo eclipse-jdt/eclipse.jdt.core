@@ -282,7 +282,7 @@ public class ImplicitNullAnnotationVerifier {
 				}
 				if (useTypeAnnotations) {
 					TypeBinding substituteReturnType = null; // for TVB identity checks inside NullAnnotationMatching.analyze()
-					TypeVariableBinding[] typeVariables = inheritedMethod.typeVariables;
+					TypeVariableBinding[] typeVariables = inheritedMethod.original().typeVariables;
 					if (typeVariables != null && currentMethod.returnType.id != TypeIds.T_void) {
 						ParameterizedGenericMethodBinding substitute = this.environment.createParameterizedGenericMethod(currentMethod, typeVariables);
 						substituteReturnType = substitute.returnType;
@@ -298,7 +298,7 @@ public class ImplicitNullAnnotationVerifier {
 		// parameters:
 		TypeBinding[] substituteParameters = null; // for TVB identity checks inside NullAnnotationMatching.analyze()
 		if (shouldComplain) {
-			TypeVariableBinding[] typeVariables = currentMethod.typeVariables;
+			TypeVariableBinding[] typeVariables = currentMethod.original().typeVariables;
 			if (typeVariables != Binding.NO_TYPE_VARIABLES) {
 				ParameterizedGenericMethodBinding substitute = this.environment.createParameterizedGenericMethod(inheritedMethod, typeVariables);
 				substituteParameters = substitute.parameters;

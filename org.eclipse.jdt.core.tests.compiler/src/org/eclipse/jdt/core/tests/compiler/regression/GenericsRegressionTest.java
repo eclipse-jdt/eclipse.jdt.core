@@ -27,6 +27,7 @@
  *								Bug 399527 - Type inference problem
  *								Bug 434570 - Generic type mismatch for parametrized class annotation attribute with inner class
  *								Bug 434044 - Java 8 generics thinks single method is ambiguous
+ *								Bug 434793 - [1.8][null][compiler] AIOOBE in ParameterizedGenericMethodBinding.substitute when inlining a method
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -5210,6 +5211,25 @@ public void testBug434044() {
 			"\n" + 
 			"}\n"
 		});
+}
+public void testBug434793() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+	runConformTest(
+		new String[] {
+			"Outer.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class Outer {\n" + 
+			"	private static class SingletonList<E>\n" +
+			"				 extends AbstractList<E>\n" +
+			"				 implements java.util.RandomAccess, java.io.Serializable {\n" +
+			"		public E get(int i) { throw new RuntimeException(); }\n" +
+			"		public int size() { return 0; }\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		options);
 }
 }
 
