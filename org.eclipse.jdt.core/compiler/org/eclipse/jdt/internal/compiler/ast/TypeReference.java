@@ -16,6 +16,7 @@
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *								Bug 427163 - [1.8][null] bogus error "Contradictory null specification" on varags
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
+ *								Bug 434570 - Generic type mismatch for parametrized class annotation attribute with inner class
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
@@ -623,7 +624,8 @@ protected void resolveAnnotations(Scope scope, int location) {
 			}
 		}
 	}
-	if (this.resolvedType != null
+	if (scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled
+			&& this.resolvedType != null
 			&& (this.resolvedType.tagBits & TagBits.AnnotationNullMASK) == 0
 			&& !this.resolvedType.isTypeVariable()
 			&& !this.resolvedType.isWildcard()

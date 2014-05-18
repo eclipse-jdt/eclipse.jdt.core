@@ -4897,6 +4897,7 @@ public abstract class Scope {
 	}
 
 	public void deferBoundCheck(TypeReference typeRef) {
+		// TODO: use dynamic binding rather than explicit type check
 		if (this.kind == CLASS_SCOPE) {
 			ClassScope classScope = (ClassScope) this;
 			if (classScope.deferredBoundChecks == null) {

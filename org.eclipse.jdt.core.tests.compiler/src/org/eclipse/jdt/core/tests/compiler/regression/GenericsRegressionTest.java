@@ -5016,7 +5016,7 @@ public void testBug434630() {
 			"}\n"
 		});
 }
-public void _testBug434570_comment3() {
+public void testBug434570_comment3() {
 	runConformTest(
 		new String[] {
 			"TestWontCompile.java",
@@ -5077,6 +5077,103 @@ public void _testBug434570_comment3() {
 			"	\n" + 
 			"	Class<? extends Handler<?>> value();\n" + 
 			"\n" + 
+			"}\n"
+		});
+}
+// same test but with null annotations analysis enabled
+public void testBug434570_comment3b() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+	runConformTest(
+		new String[] {
+			"TestWontCompile.java",
+			"import org.bug.AnnotationWithClassParameter;\n" + 
+			"import org.bug.CustomHandler;\n" + 
+			"import org.bug.Handler;\n" + 
+			"\n" + 
+			"\n" + 
+			"@AnnotationWithClassParameter(CustomHandler.class)\n" + 
+			"public class TestWontCompile extends ATest<Object> {\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Class<? extends Handler<?>> h = CustomHandler.class;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n",
+			"ATest.java",
+			"public abstract class ATest<T> {\n" + 
+			"\n" + 
+			"}\n",
+			"org/bug/Item.java",
+			"package org.bug;\n" + 
+			"\n" + 
+			"public interface Item {\n" + 
+			"\n" + 
+			"}\n",
+			"org/bug/CustomItem.java",
+			"package org.bug;\n" + 
+			"\n" + 
+			"public class CustomItem implements Item {\n" + 
+			"\n" + 
+			"}\n",
+			"org/bug/Handler.java",
+			"package org.bug;\n" + 
+			"\n" + 
+			"public abstract class Handler<T extends Item> {\n" + 
+			"\n" + 
+			"}\n",
+			"org/bug/CustomHandler.java",
+			"package org.bug;\n" + 
+			"\n" + 
+			"public class CustomHandler extends Handler<CustomItem> {\n" + 
+			"\n" + 
+			"}\n",
+			"org/bug/AnnotationWithClassParameter.java",
+			"package org.bug;\n" + 
+			"\n" + 
+			"import java.lang.annotation.Documented;\n" + 
+			"import java.lang.annotation.ElementType;\n" + 
+			"import java.lang.annotation.Retention;\n" + 
+			"import java.lang.annotation.RetentionPolicy;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target(ElementType.TYPE)\n" + 
+			"@Retention(RetentionPolicy.RUNTIME)\n" + 
+			"@Documented\n" + 
+			"public @interface AnnotationWithClassParameter {\n" + 
+			"	\n" + 
+			"	Class<? extends Handler<?>> value();\n" + 
+			"\n" + 
+			"}\n"
+		},
+		options);
+}
+public void testBug434630_comment7() {
+	runConformTest(
+		new String[] {
+			"test/FooImpl.java",
+			"package test;\n" + 
+			"\n" + 
+			"public class FooImpl implements Foo {\n" + 
+			"\n" + 
+			"}\n",
+			"test/Foo.java",
+			"package test;\n" +
+			"interface Provider<T> {}\n" +
+			"@interface ProvidedBy {\n" +
+			"	Class<? extends Provider<?>> value();" +
+			"}\n" + 
+			"\n" + 
+			"@ProvidedBy(Foo.SomeProvider.class)\n" + 
+			"public interface Foo {\n" + 
+			"	\n" + 
+			"	public static class SomeProvider implements Provider<Foo> {\n" + 
+			"\n" + 
+			"		public Foo get() {\n" + 
+			"			return null;\n" + 
+			"		}\n" + 
+			"		\n" + 
+			"	}\n" + 
 			"}\n"
 		});
 }

@@ -10,6 +10,7 @@
  *     Erling Ellingsen -  patch for bug 125570
  *     Stephan Herrmann - Contribution for
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
+ *								Bug 434570 - Generic type mismatch for parametrized class annotation attribute with inner class
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -43,18 +44,20 @@ public class CompilationUnitScope extends Scope {
 	
 	private ImportBinding[] tempImports;	// to keep a record of resolved imports while traversing all in faultInImports()
 	
-		/**
-		 * Flag that should be set during annotation traversal or similar runs
-		 * to prevent caching of failures regarding imports of yet to be generated classes.
-		 */
-		public boolean suppressImportErrors;
-		
-		/**
-		 * Skips import caching if unresolved imports were
-		 * found last time.
-		 */
-		private boolean skipCachingImports;
+	/**
+	 * Flag that should be set during annotation traversal or similar runs
+	 * to prevent caching of failures regarding imports of yet to be generated classes.
+	 */
+	public boolean suppressImportErrors;
 	
+	/**
+	 * Skips import caching if unresolved imports were
+	 * found last time.
+	 */
+	private boolean skipCachingImports;
+
+	boolean connectingHierarchy;
+
 public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment environment) {
 	super(COMPILATION_UNIT_SCOPE, null);
 	this.environment = environment;
@@ -314,8 +317,13 @@ public char[] computeConstantPoolName(LocalTypeBinding localType) {
 }
 
 void connectTypeHierarchy() {
-	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
-		this.topLevelTypes[i].scope.connectTypeHierarchy();
+	this.connectingHierarchy = true;
+	try {
+		for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
+			this.topLevelTypes[i].scope.connectTypeHierarchy();
+	} finally {
+		this.connectingHierarchy = false;
+	}
 }
 void faultInImports() {
 	boolean unresolvedFound = false;
