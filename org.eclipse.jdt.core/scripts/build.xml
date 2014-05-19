@@ -33,6 +33,7 @@
 			<fileset dir="${output}" />
 			<fileset dir="${basedir}">
 				<include name="about.html"/>
+				<include name="ecj.1"/>
 				<include name="**/*.rsc"/>
 				<include name="**/readableNames.props"/>
 				<include name="META-INF/**"/>
