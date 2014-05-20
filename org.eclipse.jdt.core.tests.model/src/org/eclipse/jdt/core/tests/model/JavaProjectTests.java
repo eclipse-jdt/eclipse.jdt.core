@@ -402,7 +402,8 @@ public void testAddZIPArchive6() throws Exception {
  * the project.
  * (Regression test for PR #1G58NB8)
  */
-public void testAddNonJavaResourcePackageFragmentRoot() throws JavaModelException, CoreException {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423280.
+public void _testAddNonJavaResourcePackageFragmentRoot() throws JavaModelException, CoreException {
 	// get resources of source package fragment root at project level
 	IPackageFragmentRoot root = getPackageFragmentRoot("JavaProjectTests", "");
 	Object[] resources = root.getNonJavaResources();
