@@ -12,17 +12,22 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.io.IOException;
 import java.util.List;
 
 import junit.framework.Test;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.ResolvedBinaryMethod;
 
 public class ASTConverter18Test extends ConverterTestSetup {
 
@@ -4385,6 +4390,258 @@ public void testBug426977() throws JavaModelException {
 		buildAST(AST.JLS8, contents, this.workingCopy, false, true, true);
 	} catch (ClassCastException e) {
 		fail(e.getMessage());
+	}
+}
+
+//Bug 406805 - [1.8] Parameter names for enum constructor not available
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406805
+public void test406805() throws CoreException, IOException {
+	String contents1 =
+			"package test406805;\n" +
+			"public class X {\n" +
+			"}";
+	createFolder("/Converter18/src/test406805");
+	createFile("/Converter18/src/test406805/X.java", contents1);
+	this.workingCopy = getWorkingCopy(
+			"/Converter18/src/test406805/X.java",
+			contents1,
+			true
+		);
+
+	String jarName = "getParameters.jar";
+	String srcName = "getParameters_src.zip";
+	final IJavaProject javaProject = this.workingCopy.getJavaProject();
+	try {
+	String[] contents = new String[] {
+		"TestEnum.java",
+		"package test406805;\n" +
+		"public enum TestEnum {\n" +
+		"	FirstValue(\"Zonk\") {\n" +
+		"		@Override\n" +
+		"		public String toString() {\n" +
+		"			return super.toString();\n" +
+		"		}\n" +
+		"	},\n" +
+		"	SecondValue(\"Bla\");\n" +
+		"	String string;\n" +
+		"	TestEnum(String string) {\n" +
+		"		this.string = string;\n" +
+		"	}\n" +
+		"}"
+	};
+	addLibrary(javaProject, jarName, srcName, contents, JavaCore.VERSION_1_8);
+
+	ASTParser parser = ASTParser.newParser(AST.JLS8);
+	parser.setIgnoreMethodBodies(true);
+	parser.setProject(javaProject);
+	IType type = javaProject.findType("test406805.TestEnum");
+	IBinding[] bindings = parser.createBindings(new IJavaElement[] { type }, null);
+	ITypeBinding typeBinding = (ITypeBinding) bindings[0];
+	IMethodBinding[] methods = typeBinding.getDeclaredMethods();
+
+	for (int i = 0, length = methods.length; i < length; i++) {
+		IMethodBinding method = methods[i];
+		if (method.isConstructor()) {
+			ResolvedBinaryMethod bm = (ResolvedBinaryMethod) method.getJavaElement();
+			assertTrue(bm.getParameterNames().length == 1);
+			assertEquals(bm.getParameterNames()[0], "string");
+			assertEquals(bm.getParameterTypes()[0], "Ljava.lang.String;");
+		}
+	}
+	} finally {
+		removeLibrary(javaProject, jarName, srcName);
+	}
+}
+
+//Bug 406805 - [1.8] Parameter names for enum constructor not available
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=406805
+//Nested Enum Constructor
+public void test406805a() throws CoreException, IOException {
+	String contents1 =
+			"package test406805;\n" +
+			"public class X {\n" +
+			"}";
+	createFolder("/Converter18/src/test406805a");
+	createFile("/Converter18/src/test406805a/X.java", contents1);
+	this.workingCopy = getWorkingCopy(
+			"/Converter18/src/test406805a/X.java",
+			contents1,
+			true
+		);
+
+	String jarName = "getParameters.jar";
+	String srcName = "getParameters_src.zip";
+	final IJavaProject javaProject = this.workingCopy.getJavaProject();
+	try {
+	String[] contents = new String[] {
+		"NestedTestEnum.java",
+		"package test406805a;\n" +
+		"public class NestedTestEnum {\n" +
+		"	public enum TestEnum {\n" +
+		"		FirstValue(\"Zonk\") {\n" +
+		"			@Override\n" +
+		"			public String toString() {\n" +
+		"				return super.toString();\n" +
+		"			}\n" +
+		"		},\n" +
+		"	SecondValue(\"Bla\");\n" +
+		"	String string;\n" +
+		"	TestEnum(String string) {\n" +
+		"		this.string = string;\n" +
+		"	}\n" +
+		"}\n" +
+		"}"
+	};
+	addLibrary(javaProject, jarName, srcName, contents, JavaCore.VERSION_1_8, null);
+
+	ASTParser parser = ASTParser.newParser(AST.JLS8);
+	parser.setIgnoreMethodBodies(true);
+	parser.setProject(javaProject);
+	IType type = javaProject.findType("test406805a.NestedTestEnum");
+	IBinding[] bindings = parser.createBindings(new IJavaElement[] { type }, null);
+	ITypeBinding typeBinding = (ITypeBinding) bindings[0];
+
+	typeBinding = typeBinding.getDeclaredTypes()[0];
+	IMethodBinding[] methods = typeBinding.getDeclaredMethods();
+
+	for (int i = 0, length = methods.length; i < length; i++) {
+		IMethodBinding method = methods[i];
+		if (method.isConstructor()) {
+			ResolvedBinaryMethod bm = (ResolvedBinaryMethod) method.getJavaElement();
+			assertTrue(bm.getParameterNames().length == 1);
+		}
+	}
+	} finally {
+		removeLibrary(javaProject, jarName, srcName);
+	}
+}
+
+//Bug 406805 - [1.8] Parameter names for enum constructor not available
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=406805
+//Parameterized enum constructor.
+public void test406805b() throws CoreException, IOException {
+	String contents1 =
+			"package test406805b;\n" +
+			"public class X {\n" +
+			"}";
+	createFolder("/Converter18/src/test406805b");
+	createFile("/Converter18/src/test406805b/X.java", contents1);
+	this.workingCopy = getWorkingCopy(
+			"/Converter18/src/test406805b/X.java",
+			contents1,
+			true
+		);
+
+	String jarName = "getParameters.jar";
+	String srcName = "getParameters_src.zip";
+	final IJavaProject javaProject = this.workingCopy.getJavaProject();
+	try {
+	String[] contents = new String[] {
+		"TestEnum.java",
+		"package test406805b;\n" +
+		"interface A<T> {}\n" +
+		"\n" +
+		"class Y {\n" +
+		"	static A<String> A1;\n" +
+		"}\n" +
+		"public enum TestEnum implements A<String> {\n" +
+		" FirstValue(Y.A1);\n" +
+		"  A<String> xyzabcdef;\n" +
+		"  TestEnum(A<String> abcdefghi) {\n" +
+		"	this.xyzabcdef = abcdefghi;\n" +
+		"  }\n" +
+		" int SecondValue() { return 0;}\n" +
+		"}\n"
+	};
+	addLibrary(javaProject, jarName, srcName, contents, JavaCore.VERSION_1_8);
+
+	ASTParser parser = ASTParser.newParser(AST.JLS8);
+	parser.setIgnoreMethodBodies(true);
+	parser.setProject(javaProject);
+	IType type = javaProject.findType("test406805b.TestEnum");
+	IBinding[] bindings = parser.createBindings(new IJavaElement[] { type }, null);
+	ITypeBinding typeBinding = (ITypeBinding) bindings[0];
+	IMethodBinding[] methods = typeBinding.getDeclaredMethods();
+
+	for (int i = 0, length = methods.length; i < length; i++) {
+		IMethodBinding method = methods[i];
+		if (method.isConstructor()) {
+			ResolvedBinaryMethod bm = (ResolvedBinaryMethod) method.getJavaElement();
+			assertTrue(bm.getParameterNames().length == 1);
+		}
+	}
+	} finally {
+		removeLibrary(javaProject, jarName, srcName);
+	}
+}
+//Bug 406805 - [1.8] Parameter names for enum constructor not available
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=406805
+//Testing types and names of parameters.
+public void test406805d() throws CoreException, IOException {
+	String contents1 =
+			"package test406805;\n" +
+			"public class X {\n" +
+			"}";
+	createFolder("/Converter18/src/test406805d");
+	createFile("/Converter18/src/test406805d/X.java", contents1);
+	this.workingCopy = getWorkingCopy(
+			"/Converter18/src/test406805d/X.java",
+			contents1,
+			true
+		);
+
+	String jarName = "getParameters.jar";
+	String srcName = "getParameters_src.zip";
+	final IJavaProject javaProject = this.workingCopy.getJavaProject();
+	try {
+	String[] contents = new String[] {
+		"NestedTestEnum.java",
+		"package test406805d;\n" +
+		"public class NestedTestEnum {\n" +
+		"	public enum TestEnum {\n" +
+		"		FirstValue(\"Zonk\", 1) {\n" +
+		"			@Override\n" +
+		"			public String toString() {\n" +
+		"				return super.toString();\n" +
+		"			}\n" +
+		"		},\n" +
+		"	SecondValue(\"Bla\", 2);\n" +
+		"	String string;\n" +
+		"   int xyz;\n" +
+		"	TestEnum(String string, int xyz) {\n" +
+		"		this.string = string;\n" +
+		"       this.xyz = xyz;\n" +
+		"	}\n" +
+		"}\n" +
+		"}"
+	};
+	addLibrary(javaProject, jarName, srcName, contents, JavaCore.VERSION_1_8, null);
+
+	ASTParser parser = ASTParser.newParser(AST.JLS8);
+	parser.setIgnoreMethodBodies(true);
+	parser.setProject(javaProject);
+	IType type = javaProject.findType("test406805d.NestedTestEnum");
+	IBinding[] bindings = parser.createBindings(new IJavaElement[] { type }, null);
+	ITypeBinding typeBinding = (ITypeBinding) bindings[0];
+
+	typeBinding = typeBinding.getDeclaredTypes()[0];
+	IMethodBinding[] methods = typeBinding.getDeclaredMethods();
+
+	for (int i = 0, length = methods.length; i < length; i++) {
+		IMethodBinding method = methods[i];
+		if (method.isConstructor()) {
+			ResolvedBinaryMethod bm = (ResolvedBinaryMethod) method.getJavaElement();
+			String[] parameterNames = bm.getParameterNames();
+			assertTrue(parameterNames.length == 2);
+			assertEquals(parameterNames[0], "string");
+			assertEquals(parameterNames[1], "xyz");
+			String[] parameterTypes = bm.getParameterTypes();
+			assertEquals(parameterTypes[0], "Ljava.lang.String;");
+			assertEquals(parameterTypes[1], "I");
+		}
+	}
+	} finally {
+		removeLibrary(javaProject, jarName, srcName);
 	}
 }
 }
