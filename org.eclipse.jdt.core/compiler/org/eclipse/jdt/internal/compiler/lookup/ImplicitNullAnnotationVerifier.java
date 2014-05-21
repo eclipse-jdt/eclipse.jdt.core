@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
+import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching.CheckMode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -287,7 +288,7 @@ public class ImplicitNullAnnotationVerifier {
 						ParameterizedGenericMethodBinding substitute = this.environment.createParameterizedGenericMethod(currentMethod, typeVariables);
 						substituteReturnType = substitute.returnType;
 					}
-					if (NullAnnotationMatching.analyse(inheritedMethod.returnType, currentMethod.returnType, substituteReturnType, 0, true).isAnyMismatch()) {
+					if (NullAnnotationMatching.analyse(inheritedMethod.returnType, currentMethod.returnType, substituteReturnType, 0, CheckMode.OVERRIDE).isAnyMismatch()) {
 						scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod, useTypeAnnotations);
 						return;
 					}
@@ -404,7 +405,7 @@ public class ImplicitNullAnnotationVerifier {
 				} 
 				if (useTypeAnnotations) {
 					TypeBinding substituteParameter = substituteParameters != null ? substituteParameters[i] : null;
-					if (NullAnnotationMatching.analyse(currentMethod.parameters[i], inheritedMethod.parameters[i], substituteParameter, 0, true).isAnyMismatch()) {
+					if (NullAnnotationMatching.analyse(currentMethod.parameters[i], inheritedMethod.parameters[i], substituteParameter, 0, CheckMode.OVERRIDE).isAnyMismatch()) {
 						scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod, false);
 					}
 				}
