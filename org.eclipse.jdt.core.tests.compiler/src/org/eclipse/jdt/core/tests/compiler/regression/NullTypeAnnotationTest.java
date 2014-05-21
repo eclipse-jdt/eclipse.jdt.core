@@ -3757,6 +3757,26 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"Null type mismatch (type annotations): required \'T\' but this expression has type \'@Nullable T\', where 'T' is a free type variable\n" + 
 			"----------\n");
 	}
+	// https://bugs.eclipse.org/433906
+	public void testTypeVariable5() {
+		runConformTestWithLibs(
+			new String[] {
+				"ExFunction.java",
+				"@FunctionalInterface\n" + 
+				"public interface ExFunction<T, R, E extends Exception> {\n" + 
+				"	R apply(T t1) throws E;\n" + 
+				"\n" + 
+				"	default <V>  ExFunction<V, R, E> compose(ExFunction<? super V, ? extends T, E> before) {\n" + 
+				"		java.util.Objects.requireNonNull(before);\n" + 
+				"		//warning on before.apply(v):\n" + 
+				"		//Null type safety (type annotations): The expression of type 'capture#of ? extends T' needs unchecked conversion to conform to 'T'\n" + 
+				"		return (V v) -> apply(before.apply(v));\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"");
+	}
 	public void testSE7AnnotationCopy() { // we were dropping annotations here, but null analysis worked already since the tagbits were not "dropped", just the same capturing in a test
 		runNegativeTestWithLibs(
 			new String[] {

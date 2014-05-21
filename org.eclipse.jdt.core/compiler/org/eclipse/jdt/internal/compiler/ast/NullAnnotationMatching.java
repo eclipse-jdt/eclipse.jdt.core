@@ -131,8 +131,11 @@ public class NullAnnotationMatching {
 		int severity = 0;
 		TypeBinding superTypeHint = null;
 		NullAnnotationMatching okStatus = NullAnnotationMatching.NULL_ANNOTATIONS_OK;
-		if (areSameTypes(requiredType, providedType, providedSubstitute)) // for type variable identity (and as shortcut for others)
+		if (areSameTypes(requiredType, providedType, providedSubstitute)) {
+			if ((requiredType.tagBits & TagBits.AnnotationNonNull) != 0)
+				return NullAnnotationMatching.NULL_ANNOTATIONS_OK_NONNULL;
 			return okStatus;
+		}
 		if (requiredType instanceof ArrayBinding) {
 			long[] requiredDimsTagBits = ((ArrayBinding)requiredType).nullTagBitsPerDimension;
 			if (requiredDimsTagBits != null) {
@@ -199,7 +202,7 @@ public class NullAnnotationMatching {
 		return new NullAnnotationMatching(severity, nullStatus, superTypeHint);
 	}
 
-	/** Are both types identical wrt the unannotated type and any null type annotations? Only unstructured types are considered. */
+	/** Are both types identical wrt the unannotated type and any null type annotations? Only unstructured types and captures are considered. */
 	protected static boolean areSameTypes(TypeBinding requiredType, TypeBinding providedType, TypeBinding providedSubstitute) {
 		if (requiredType == providedType)  //$IDENTITY-COMPARISON$ // short cut for really-really-same types
 			return true;
@@ -207,12 +210,17 @@ public class NullAnnotationMatching {
 			return false; // not analysing details here
 		if (TypeBinding.notEquals(requiredType, providedType)) {
 			if (requiredType instanceof CaptureBinding) {
-				// when providing the lower bound of the required type where definitely fine:
+				// when providing exactly the lower bound of the required type we're definitely fine:
 				TypeBinding lowerBound = ((CaptureBinding)requiredType).lowerBound;
 				if (lowerBound != null && areSameTypes(lowerBound, providedType, providedSubstitute))
 					return true;
 			} else if (requiredType.kind() == Binding.TYPE_PARAMETER && requiredType == providedSubstitute) { //$IDENTITY-COMPARISON$
 				return true;
+			} else if (providedType instanceof CaptureBinding) {
+				// when requiring exactly the upper bound of the provided type we're fine, too:
+				TypeBinding upperBound = ((CaptureBinding)providedType).upperBound();
+				if (upperBound != null && areSameTypes(requiredType, upperBound, providedSubstitute))
+					return true;
 			}
 			return false;
 		}
