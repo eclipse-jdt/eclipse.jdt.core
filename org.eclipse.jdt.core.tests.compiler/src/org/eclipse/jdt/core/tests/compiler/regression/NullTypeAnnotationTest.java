@@ -5227,4 +5227,49 @@ public void testBug433478() {
     		"Null type mismatch: required \'@NonNull Y\' but the provided value is null\n" + 
     		"----------\n");
 }
+// https://bugs.eclipse.org/434899
+public void testTypeVariable6() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Assert.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Assert {\n" + 
+			"	public static void caller() {\n" + 
+			"		assertNotNull(\"not null\");	// Compiler error\n" + 
+			"		assertNotNull(null);		// Compiler error\n" + 
+			"	}\n" + 
+			"	private static @NonNull <T> T assertNotNull(@Nullable T object) {\n" + 
+			"		return object; // this IS bogus\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in Assert.java (at line 8)\n" + 
+		"	return object; // this IS bogus\n" + 
+		"	       ^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull T\' but this expression has type \'@Nullable T\'\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/434899 - variant which has always worked
+public void testTypeVariable6a() {
+	runConformTestWithLibs(
+		new String[] {
+			"Assert.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Assert {\n" + 
+			"	public static Object caller() {\n" + 
+			"		@NonNull Object result = assertNotNull(\"not null\");\n" + 
+			"		result = assertNotNull(null);\n" +
+			"		return result;\n" + 
+			"	}\n" + 
+			"	private static @NonNull <T> T assertNotNull(@Nullable T object) {\n" +
+			"		if (object == null) throw new NullPointerException();\n" + 
+			"		return object;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 }
