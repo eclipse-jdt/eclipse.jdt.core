@@ -5292,4 +5292,133 @@ public void testTypeVariable6a() {
 		getCompilerOptions(),
 		"");
 }
+public void testBug434600() {
+	runConformTestWithLibs(
+		new String[] {
+			"bug/Main.java",
+			"package bug;\n" +
+			"public class Main {\n" + 
+			"	public static void main(final String[] args) {\n" + 
+			"		System.out.println(\"Hello World\");\n" + 
+			"	}\n" + 
+			"}\n",
+			"bug/package-info.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"package bug;\n",
+			"bug/ExpressionNode.java",
+			"package bug;\n" + 
+			"\n" + 
+			"public interface ExpressionNode extends CopyableNode<ExpressionNode> {\n" + 
+			"	\n" + 
+			"}\n",
+			"bug/ExtendedNode.java",
+			"package bug;\n" + 
+			"\n" + 
+			"public interface ExtendedNode {\n" + 
+			"	\n" + 
+			"}\n",
+			"bug/CopyableNode.java",
+			"package bug;\n" + 
+			"\n" + 
+			"public interface CopyableNode<T extends ExtendedNode> extends ExtendedNode {\n" + 
+			"	\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"",
+		"Hello World");
+}
+public void testBug434600a() {
+	runConformTestWithLibs(
+		new String[] {
+			"I.java",
+			"import java.util.*;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface I<S, T extends @Nullable List<@NonNull List<S>>> {\n" +
+			"}\n",
+			"C.java",
+			"import java.util.*;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class C implements I<@Nullable String, @Nullable ArrayList<@NonNull List<@Nullable String>>> {}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug434600a_qualified() {
+	runConformTestWithLibs(
+		new String[] {
+			"p/I.java",
+			"package p;\n" +
+			"import java.util.*;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public interface I<S, T extends @Nullable List<@NonNull List<S>>> {\n" +
+			"}\n",
+			"C.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class C implements p.I<java.lang.@Nullable String, java.util.@Nullable ArrayList<java.util.@NonNull List<java.lang.@Nullable String>>> {}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug434600b() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"I.java",
+			"import java.util.*;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface I<S, T extends @Nullable List<@NonNull List<S>>> {\n" +
+			"}\n",
+			"C.java",
+			"import java.util.*;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class C implements I<@Nullable String, ArrayList<@NonNull List<@Nullable String>>> {}\n" +
+			"class C1 {\n" +
+			"	I<String, @Nullable ArrayList<@Nullable List<String>>> field;\n" +
+			"}\n" +
+			"class C2 implements I<@NonNull String, @Nullable ArrayList<@NonNull List<@Nullable String>>> {}\n" // FIXME: cross checking for contradictory substitution for 'S' NYI
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in C.java (at line 3)\n" + 
+		"	public class C implements I<@Nullable String, ArrayList<@NonNull List<@Nullable String>>> {}\n" + 
+		"	                                              ^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'ArrayList<@NonNull List<@Nullable String>>\' is not a valid substitute for the type parameter \'T extends @Nullable List<@NonNull List<S>>\'\n" + 
+		"----------\n" + 
+		"2. ERROR in C.java (at line 5)\n" + 
+		"	I<String, @Nullable ArrayList<@Nullable List<String>>> field;\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable ArrayList<@Nullable List<String>>\' is not a valid substitute for the type parameter \'T extends @Nullable List<@NonNull List<S>>\'\n" + 
+		"----------\n");
+}
+public void testBug434600b_qualified() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"p/I.java",
+			"package p;\n" +
+			"import java.util.*;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public interface I<S, T extends @Nullable List<@NonNull List<S>>> {\n" +
+			"}\n",
+			"C.java",
+			"import java.util.*;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class C implements p.I<@Nullable String, ArrayList<@NonNull List<@Nullable String>>> {}\n" +
+			"class C1 {\n" +
+			"	p.I<String, @Nullable ArrayList<@Nullable List<String>>> field;\n" +
+			"}\n" +
+			"class C2 implements p.I<@NonNull String, @Nullable ArrayList<@NonNull List<@Nullable String>>> {}\n" // FIXME: cross checking for contradictory substitution for 'S' NYI
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in C.java (at line 3)\n" + 
+		"	public class C implements p.I<@Nullable String, ArrayList<@NonNull List<@Nullable String>>> {}\n" + 
+		"	                                                ^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'ArrayList<@NonNull List<@Nullable String>>\' is not a valid substitute for the type parameter \'T extends @Nullable List<@NonNull List<S>>\'\n" + 
+		"----------\n" + 
+		"2. ERROR in C.java (at line 5)\n" + 
+		"	p.I<String, @Nullable ArrayList<@Nullable List<String>>> field;\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable ArrayList<@Nullable List<String>>\' is not a valid substitute for the type parameter \'T extends @Nullable List<@NonNull List<S>>\'\n" + 
+		"----------\n");
+}
 }
