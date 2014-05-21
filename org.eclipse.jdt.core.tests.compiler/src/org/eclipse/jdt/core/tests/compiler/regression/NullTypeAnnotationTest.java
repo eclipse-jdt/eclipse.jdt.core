@@ -1088,12 +1088,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"1. ERROR in Y1.java (at line 4)\n" + 
 				"	X1<@Nullable String> maybeStrings;\n" + 
 				"	   ^^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'T\' which is constrained as \'@NonNull\'\n" + 
+				"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'@NonNull T extends Object\'\n" + 
 				"----------\n" + 
 				"2. ERROR in Y1.java (at line 6)\n" + 
 				"	x.<@NonNull Object>foo(new Object());\n" + 
 				"	   ^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type \'@NonNull Object\' is not a valid substitute for the type parameter \'S\' which is constrained as \'@Nullable\'\n" + 
+				"Null constraint mismatch: The type \'@NonNull Object\' is not a valid substitute for the type parameter \'@Nullable S extends Object\'\n" + 
 				"----------\n");
 	}
 
@@ -1159,17 +1159,17 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"1. ERROR in Y1.java (at line 5)\n" + 
 				"	X1<@Nullable String> maybeStrings;\n" + 
 				"	   ^^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'T\' which is constrained as \'@NonNull\'\n" + 
+				"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'@NonNull T extends @NonNull Object\'\n" + 
 				"----------\n" + 
 				"2. ERROR in Y1.java (at line 6)\n" + 
 				"	X2<@NonNull String> strings;\n" + 
 				"	   ^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'W\' which is constrained as \'@Nullable\'\n" + 
+				"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'@Nullable W extends Object\'\n" + 
 				"----------\n" + 
 				"3. ERROR in Y1.java (at line 8)\n" + 
 				"	x.<Y1, @NonNull Object>foo(this, new Object());\n" + 
 				"	       ^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type '@NonNull Object' is not a valid substitute for the type parameter 'V' which is constrained as '@Nullable'\n" + 
+				"Null constraint mismatch: The type \'@NonNull Object\' is not a valid substitute for the type parameter \'@Nullable V extends @Nullable Object'\n" + 
 				"----------\n"
 				);
 	}
@@ -1235,17 +1235,17 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"1. ERROR in Y1.java (at line 3)\n" + 
 				"	p.X1<java.lang.@Nullable String> maybeStrings;\n" + 
 				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'T\' which is constrained as \'@NonNull\'\n" + 
+				"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'@NonNull T extends @NonNull Object\'\n" + 
 				"----------\n" + 
 				"2. ERROR in Y1.java (at line 4)\n" + 
 				"	p.X2<java.lang.@NonNull String> strings;\n" + 
 				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'W\' which is constrained as \'@Nullable\'\n" + 
+				"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'@Nullable W extends Object\'\n" + 
 				"----------\n" + 
 				"3. ERROR in Y1.java (at line 6)\n" + 
 				"	x.<Y1, java.lang.@NonNull Object>foo(this, new Object());\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type '@NonNull Object' is not a valid substitute for the type parameter 'V' which is constrained as '@Nullable'\n" + 
+				"Null constraint mismatch: The type \'@NonNull Object\' is not a valid substitute for the type parameter \'@Nullable V extends @Nullable Object\'\n" + 
 				"----------\n"
 				);
 	}
@@ -1289,7 +1289,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"1. ERROR in Y1.java (at line 5)\n" + 
 				"	x.<@NonNull Y1, @NonNull Object>foo(this, new Object())\n" + 
 				"	                ^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type '@NonNull Object' is not a valid substitute for the type parameter 'V' which is constrained as '@Nullable'\n" + 
+				"Null constraint mismatch: The type \'@NonNull Object\' is not a valid substitute for the type parameter \'@Nullable V extends @Nullable Object\'\n" + 
 				"----------\n" + 
 				"2. ERROR in Y1.java (at line 6)\n" + 
 				"	.get(0).put(null, null);\n" + 
