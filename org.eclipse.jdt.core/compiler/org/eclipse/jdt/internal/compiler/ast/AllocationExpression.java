@@ -725,6 +725,10 @@ public MethodBinding binding(TypeBinding targetType, boolean reportErrors, Scope
 	return this.binding;
 }
 public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType, Scope scope) {
+	if (this.binding == null && this.suspendedResolutionState != null && !this.suspendedResolutionState.hasReportedError) {
+		// Attempt to resolve half resolved diamond
+		resolvePart2(this.suspendedResolutionState);
+	}
 	// confer MessageSend.checkAgainstFinalTargetType(,,):
 	if (this.binding instanceof ParameterizedGenericMethodBinding) {
 		InferenceContext18 ctx = getInferenceContext((ParameterizedMethodBinding) this.binding);

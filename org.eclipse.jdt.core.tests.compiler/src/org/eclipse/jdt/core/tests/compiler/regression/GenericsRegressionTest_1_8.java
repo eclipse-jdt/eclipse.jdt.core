@@ -3116,4 +3116,68 @@ public void _testBug432626() {
 			"}\n"
 		});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=433825 [1.8][compiler] Internal compiler error: NullPointerException in AllocationExpression#resolvePart3
+public void testBug433825() {
+	this.runConformTest(
+		new String[] {
+			"X.java", 
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Collection;\n" + 
+			"import java.util.List;\n" + 
+			"public class X {\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"  }\n" + 
+			"  public void bla() {\n" + 
+			"    boolean b = Boolean.TRUE.booleanValue();\n" + 
+			"    List<String> c1 = new ArrayList<>();\n" + 
+			"    new Bar(b ? c1 : new ArrayList<>()); // this line crashes ecj (4.4 I20140429-0800), but not ecj (eclipse 3.8.2) and javac\n" + 
+			"  }\n" + 
+			"  private static class Bar {\n" + 
+			"	  public Bar(Collection<?> col) { }\n" + 
+			"  }\n" + 
+			"}"
+	});
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=433825 [1.8][compiler] Internal compiler error: NullPointerException in AllocationExpression#resolvePart3
+public void testBug433825a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Collection;\n" + 
+			"import java.util.List;\n" + 
+			"public class X {\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"  }\n" + 
+			"  public void bla() {\n" + 
+			"    boolean b = Boolean.TRUE.booleanValue();\n" + 
+			"    new Bar(b ? 0 : new ArrayList<>());\n" + 
+			"  }\n" + 
+			"  private static class Bar {\n" + 
+			"	  public Bar(Collection<String> col) { }\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	new Bar(b ? 0 : new ArrayList<>());\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The constructor X.Bar((b ? 0 : new ArrayList<>())) is undefined\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	new Bar(b ? 0 : new ArrayList<>());\n" + 
+		"	            ^\n" + 
+		"Type mismatch: cannot convert from int to Collection<String>\n" + 
+		"----------\n" +
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	new Bar(b ? 0 : new ArrayList<>());\n" + 
+		"	                ^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from ArrayList<Object> to Collection<String>\n" + 
+		"----------\n" +
+		"4. WARNING in X.java (at line 12)\n" + 
+		"	public Bar(Collection<String> col) { }\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The constructor X.Bar(Collection<String>) is never used locally\n" + 
+		"----------\n");
+}
 }
