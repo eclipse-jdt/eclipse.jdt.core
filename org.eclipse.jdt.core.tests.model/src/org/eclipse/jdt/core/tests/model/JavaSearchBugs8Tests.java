@@ -179,6 +179,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0016"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0017"));
 	suite.addTest(new JavaSearchBugs8Tests("testBug429012_0018"));
+	suite.addTest(new JavaSearchBugs8Tests("testBug431716"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -4426,6 +4427,47 @@ public void testBug429012_0018() throws CoreException {
 		"src/test/Test.java test.Y$Z.i [goo] EXACT_MATCH\n" + 
 		"src/test/Test.java void test.X.main(String[]) [goo] EXACT_MATCH"
 );
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=31716, [1.8][compiler] NPE when creating LambdaMethod element for lambda expressions with errors 
+public void testBug431716() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+			"interface ToLongFunction<T> {\n" +
+			"    long applyAsLong(T value);\n" +
+			"}\n" +
+			"interface ToIntFunction<T> {\n" +
+			"    int applyAsInt(T value);\n" +
+			"}\n" +
+			"interface Stream<T>  {\n" +
+			"   int mapToInt(ToIntFunction<? super T> mapper);\n" +
+			"}\n" +
+			"\n" +
+			"public interface X<T> {\n" +
+			"\n" +
+			"	public static <T> ToLongFunction<? super T> toLongFunction() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	default void asIntStream(Stream<T> makerget) {\n" +
+			"		makerget.mapToInt((long l) -> (int) l);\n" +
+			"		// trying to inline this method results causes NPE\n" +
+			"		/* here */toLongFunction();\n" +
+			"	}\n" +
+			"}\n"
+	);
+	
+	String str = this.workingCopies[0].getSource();
+	String selection = "/* here */toLongFunction";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(elements[0], REFERENCES, EXACT_RULE | ERASURE_RULE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
 }
 // Add new tests in JavaSearchBugs8Tests
 }
