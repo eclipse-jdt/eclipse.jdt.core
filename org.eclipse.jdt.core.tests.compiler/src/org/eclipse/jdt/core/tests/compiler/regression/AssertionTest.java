@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
+
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 import junit.framework.Test;
 
@@ -616,5 +618,22 @@ public class AssertionTest extends AbstractRegressionTest {
 			"	                   ^\n" + 
 			"The local variable i may not have been initialized\n" + 
 			"----------\n");
+	}
+	public void test023() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_8)
+			return;
+		this.runConformTest(new String[] {"X.java", 
+				"interface Foo {\n" +
+				"  default Object test(Object a) {\n" +
+				"    assert a != null; // triggers creation of bogus synthetic field\n" +
+				"    return a;\n" +
+				"  }\n" +
+				"}\n" +
+				"public class X implements Foo {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X().test(\"\");\n" +
+				"		System.out.println(\"Hello\");\n" +
+				"	}\n" +
+				"}\n"}, "Hello");
 	}
 }

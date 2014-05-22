@@ -7081,4 +7081,39 @@ public void test433060() {
 		true,
 		options);
 }
+public void test434442() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	this.runConformTest(new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	public enum Letter {\n" +
+			"  		A, B;\n" +
+			"	}\n" +
+			"  public default void test(Letter letter) {\n" +
+			"    switch (letter) {\n" +
+			"      case A:\n" +
+			"        System.out.println(\"A\");\n" +
+			"        break;\n" +
+			"      case B:\n" +
+			"        System.out.println(\"B\");\n" +
+			"        break;\n" +
+			"    }\n" +
+			"  }\n" +
+			"}\n" +
+			"\n" +
+			"public class X implements I {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	  try{\n" +
+			"		  X x = new X();\n" +
+			"		  x.test(Letter.A);\n" +
+			"	  }\n" +
+			"    catch (Exception e) {\n" +
+			"      e.printStackTrace();\n" +
+			"    }\n" +
+			"  }\n" +
+			"} \n" +
+			"\n"
+	});
+}
 }
