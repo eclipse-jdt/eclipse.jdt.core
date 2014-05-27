@@ -725,7 +725,10 @@ public MethodBinding binding(TypeBinding targetType, boolean reportErrors, Scope
 	return this.binding;
 }
 public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType, Scope scope) {
-	if (this.binding == null && this.suspendedResolutionState != null && !this.suspendedResolutionState.hasReportedError) {
+	this.typeExpected = targetType;
+	boolean needsUpdate = this.binding == null || 																// not yet resolved
+			(this.resolvedType != null && targetType != null && !this.resolvedType.isCompatibleWith(targetType));	// previous attempt was wrong
+	if (needsUpdate && this.suspendedResolutionState != null && !this.suspendedResolutionState.hasReportedError) {
 		// Attempt to resolve half resolved diamond
 		resolvePart2(this.suspendedResolutionState);
 	}

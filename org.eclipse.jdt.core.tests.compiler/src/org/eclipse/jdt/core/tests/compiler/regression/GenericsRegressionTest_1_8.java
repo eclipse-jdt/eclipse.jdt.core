@@ -3168,16 +3168,33 @@ public void testBug433825a() {
 		"	new Bar(b ? 0 : new ArrayList<>());\n" + 
 		"	            ^\n" + 
 		"Type mismatch: cannot convert from int to Collection<String>\n" + 
-		"----------\n" +
-		"3. ERROR in X.java (at line 9)\n" + 
-		"	new Bar(b ? 0 : new ArrayList<>());\n" + 
-		"	                ^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from ArrayList<Object> to Collection<String>\n" + 
-		"----------\n" +
-		"4. WARNING in X.java (at line 12)\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 12)\n" + 
 		"	public Bar(Collection<String> col) { }\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The constructor X.Bar(Collection<String>) is never used locally\n" + 
 		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435462 [1.8] NPE in codegen with nested conditional and allocation expressions
+public void testBug435462() {
+	this.runConformTest(
+		new String[] {
+			"X.java", 
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Collection;\n" + 
+			"import java.util.List;\n" + 
+			"public class X {\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"  }\n" + 
+			"  public void bla() {\n" + 
+			"    boolean b = Boolean.TRUE.booleanValue();\n" + 
+			"    List<String> c1 = new ArrayList<>();\n" + 
+			"    new Bar(b ? new ArrayList<>(b ? new ArrayList<>() : c1) : c1);\n" + 
+			"  }\n" + 
+			"  private static class Bar {\n" + 
+			"	  public Bar(Collection<?> col) { }\n" + 
+			"  }\n" + 
+			"}"
+	});
 }
 }
