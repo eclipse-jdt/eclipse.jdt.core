@@ -48,7 +48,7 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "testBug427438c3" };
+//		TESTS_NAMES = new String[] { "testBug435643" };
 //		TESTS_NUMBERS = new int[] { 1465 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
@@ -5230,6 +5230,50 @@ public void testBug434793() {
 			"}\n"
 		},
 		options);
+}
+public void testBug435643() {
+	runConformTest(
+		new String[] {
+			"test/Main.java",
+			"package test;\n" + 
+			"abstract class ASTNode<T extends ASTNode> implements Iterable<T> {\n" + 
+			"	public T getChild(int i) { return null; }\n" + 
+			"} \n" + 
+			"abstract class List<T extends ASTNode> extends ASTNode<T> { }\n" + 
+			"class Joiner {\n" + 
+			"	  public static Joiner on(String separator) {\n" + 
+			"	    return null;\n" + 
+			"	  }\n" + 
+			"	  String join(Iterable<?> parts) {\n" + 
+			"		  return \"\";\n" + 
+			"	  }\n" + 
+			"}\n" + 
+			"class AstFunctions {\n" + 
+			"	  public static <T extends ASTNode<?>> Function<T, String> prettyPrint() {\n" + 
+			"		  return null;\n" + 
+			"	  }\n" + 
+			"}\n" + 
+			"class Iterables {\n" + 
+			"	public static <F, T> Iterable<T> transform(final Iterable<F> fromIterable,\n" + 
+			"		      final Function<? super F, ? extends T> function) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface Function<F, T> {\n" + 
+			"	 T apply(F input);\n" + 
+			"}\n" + 
+			"public class Main {\n" + 
+			"\n" + 
+			"	  String test(ASTNode<?> node, ASTNode rawNode) {\n" + 
+			"		rawNode.getChild(0); \n" + 
+			"	    \n" + 
+			"        @SuppressWarnings(\"unchecked\")\n" + 
+			"        List<? extends ASTNode<?>> list = (List<? extends ASTNode<?>>) node;\n" + 
+			"        return Joiner.on(\", \").join(Iterables.transform(list, AstFunctions.prettyPrint()));\n" + 
+			"	  }\n" + 
+			"\n" + 
+			"}\n"
+		});
 }
 }
 
