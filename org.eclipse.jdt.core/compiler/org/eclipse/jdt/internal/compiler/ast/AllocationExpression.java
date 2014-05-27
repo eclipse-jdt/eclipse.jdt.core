@@ -730,13 +730,18 @@ public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType, Scope sco
 		resolvePart2(this.suspendedResolutionState);
 	}
 	// confer MessageSend.checkAgainstFinalTargetType(,,):
-	if (this.binding instanceof ParameterizedGenericMethodBinding) {
+	if (this.binding instanceof ParameterizedMethodBinding) {
 		InferenceContext18 ctx = getInferenceContext((ParameterizedMethodBinding) this.binding);
 		if (ctx != null && ctx.stepCompleted < InferenceContext18.TYPE_INFERRED) {
 			this.typeExpected = targetType;
-			MethodBinding updatedBinding = ctx.inferInvocationType(this, (ParameterizedGenericMethodBinding) this.binding);
-			if (updateBindings(updatedBinding, targetType)) {
-				ASTNode.resolvePolyExpressionArguments(this, updatedBinding, scope);
+			if (this.binding instanceof ParameterizedGenericMethodBinding) {
+				MethodBinding updatedBinding = ctx.inferInvocationType(this,
+						(ParameterizedGenericMethodBinding) this.binding);
+				if (updateBindings(updatedBinding, targetType)) {
+					ASTNode.resolvePolyExpressionArguments(this, updatedBinding, scope);
+				}
+			} else {
+				ctx.rebindInnerPolies(this.binding, this);
 			}
 		}
 	}
