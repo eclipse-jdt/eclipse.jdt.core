@@ -5421,4 +5421,23 @@ public void testBug434600b_qualified() {
 		"Null constraint mismatch: The type \'@Nullable ArrayList<@Nullable List<String>>\' is not a valid substitute for the type parameter \'T extends @Nullable List<@NonNull List<S>>\'\n" + 
 		"----------\n");
 }
+public void testBug435399() {
+	runConformTestWithLibs(
+		new String[] {
+			"bug/Bug1.java",
+			"package bug;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"public class Bug1 {\n" + 
+			"    public static <T> void method(@Nullable T value, T defaultValue) {\n" + 
+			"    }\n" + 
+			"    public void invoke() {\n" + 
+			"        method(Integer.valueOf(1), Boolean.TRUE);\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 }
