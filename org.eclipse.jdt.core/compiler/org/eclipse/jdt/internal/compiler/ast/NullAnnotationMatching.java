@@ -137,100 +137,106 @@ public class NullAnnotationMatching {
 	 * @return a status object representing the severity of mismatching plus optionally a supertype hint
 	 */
 	public static NullAnnotationMatching analyse(TypeBinding requiredType, TypeBinding providedType, TypeBinding providedSubstitute, int nullStatus, CheckMode mode) {
-		int severity = 0;
-		TypeBinding superTypeHint = null;
-		NullAnnotationMatching okStatus = NullAnnotationMatching.NULL_ANNOTATIONS_OK;
-		if (areSameTypes(requiredType, providedType, providedSubstitute)) {
-			if ((requiredType.tagBits & TagBits.AnnotationNonNull) != 0)
-				return NullAnnotationMatching.NULL_ANNOTATIONS_OK_NONNULL;
-			return okStatus;
-		}
-		if (mode == CheckMode.BOUND_CHECK && requiredType instanceof TypeVariableBinding) {
-			// during bound check against a type variable check the provided type against all upper bounds:
-			TypeBinding superClass = requiredType.superclass();
-			if (superClass != null && superClass.hasNullTypeAnnotations()) {
-				NullAnnotationMatching status = analyse(superClass, providedType, null, nullStatus, mode);
-				severity = Math.max(severity, status.severity);
-				if (severity == 2)
-					return new NullAnnotationMatching(severity, nullStatus, superTypeHint);
+		try {
+			if (!requiredType.enterRecursiveFunction())
+				return NullAnnotationMatching.NULL_ANNOTATIONS_OK;
+			int severity = 0;
+			TypeBinding superTypeHint = null;
+			NullAnnotationMatching okStatus = NullAnnotationMatching.NULL_ANNOTATIONS_OK;
+			if (areSameTypes(requiredType, providedType, providedSubstitute)) {
+				if ((requiredType.tagBits & TagBits.AnnotationNonNull) != 0)
+					return NullAnnotationMatching.NULL_ANNOTATIONS_OK_NONNULL;
+				return okStatus;
 			}
-			TypeBinding[] superInterfaces = requiredType.superInterfaces();
-			if (superInterfaces != null) {
-				for (int i = 0; i < superInterfaces.length; i++) {
-					if (superInterfaces[i].hasNullTypeAnnotations()) {
-						NullAnnotationMatching status = analyse(superInterfaces[i], providedType, null, nullStatus, mode);
-						severity = Math.max(severity, status.severity);
-						if (severity == 2)
-							return new NullAnnotationMatching(severity, nullStatus, superTypeHint);						
-					}
+			if (mode == CheckMode.BOUND_CHECK && requiredType instanceof TypeVariableBinding) {
+				// during bound check against a type variable check the provided type against all upper bounds:
+				TypeBinding superClass = requiredType.superclass();
+				if (superClass != null && superClass.hasNullTypeAnnotations()) {
+					NullAnnotationMatching status = analyse(superClass, providedType, null, nullStatus, mode);
+					severity = Math.max(severity, status.severity);
+					if (severity == 2)
+						return new NullAnnotationMatching(severity, nullStatus, superTypeHint);
 				}
-			}
-		}
-		if (requiredType instanceof ArrayBinding) {
-			long[] requiredDimsTagBits = ((ArrayBinding)requiredType).nullTagBitsPerDimension;
-			if (requiredDimsTagBits != null) {
-				int dims = requiredType.dimensions();
-				if (requiredType.dimensions() == providedType.dimensions()) {
-					long[] providedDimsTagBits = ((ArrayBinding)providedType).nullTagBitsPerDimension;
-					if (providedDimsTagBits == null) {
-						severity = 1; // required is annotated, provided not, need unchecked conversion
-					} else {
-						for (int i=0; i<=dims; i++) {
-							long requiredBits = validNullTagBits(requiredDimsTagBits[i]);
-							long providedBits = validNullTagBits(providedDimsTagBits[i]);
-							if (i > 0)
-								nullStatus = -1; // don't use beyond the outermost dimension
-							severity = Math.max(severity, computeNullProblemSeverity(requiredBits, providedBits, nullStatus, mode == CheckMode.OVERRIDE));
-							if (severity == 2)
-								return NullAnnotationMatching.NULL_ANNOTATIONS_MISMATCH;
-						}
-					}
-				} else if (providedType.id == TypeIds.T_null) {
-					if (dims > 0 && requiredDimsTagBits[0] == TagBits.AnnotationNonNull)
-						return NullAnnotationMatching.NULL_ANNOTATIONS_MISMATCH;
-				}
-			}
-		} else if (requiredType.hasNullTypeAnnotations() || providedType.hasNullTypeAnnotations() || requiredType.isTypeVariable()) {
-			long requiredBits = requiredNullTagBits(requiredType, mode);
-			if (requiredBits != TagBits.AnnotationNullable // nullable lhs accepts everything, ...
-					|| nullStatus == -1) // only at detail/recursion even nullable must be matched exactly
-			{
-				long providedBits = providedNullTagBits(providedType);
-				int s = computeNullProblemSeverity(requiredBits, providedBits, nullStatus, mode == CheckMode.OVERRIDE && nullStatus == -1);
-				severity = Math.max(severity, s);
-				if (severity == 0 && (providedBits & TagBits.AnnotationNonNull) != 0)
-					okStatus = NullAnnotationMatching.NULL_ANNOTATIONS_OK_NONNULL;
-			}
-			if (severity < 2) {
-				TypeBinding providedSuper = providedType.findSuperTypeOriginatingFrom(requiredType);
-				if (providedSuper != providedType) //$IDENTITY-COMPARISON$
-					superTypeHint = providedSuper;
-				if (requiredType.isParameterizedType()  && providedSuper instanceof ParameterizedTypeBinding) { // TODO(stephan): handle providedType.isRaw()
-					TypeBinding[] requiredArguments = ((ParameterizedTypeBinding) requiredType).arguments;
-					TypeBinding[] providedArguments = ((ParameterizedTypeBinding) providedSuper).arguments;
-					TypeBinding[] providedSubstitutes = (providedSubstitute instanceof ParameterizedTypeBinding) ? ((ParameterizedTypeBinding)providedSubstitute).arguments : null;
-					if (requiredArguments != null && providedArguments != null && requiredArguments.length == providedArguments.length) {
-						for (int i = 0; i < requiredArguments.length; i++) {
-							TypeBinding providedArgSubstitute = providedSubstitutes != null ? providedSubstitutes[i] : null;
-							NullAnnotationMatching status = analyse(requiredArguments[i], providedArguments[i], providedArgSubstitute, -1, mode);
+				TypeBinding[] superInterfaces = requiredType.superInterfaces();
+				if (superInterfaces != null) {
+					for (int i = 0; i < superInterfaces.length; i++) {
+						if (superInterfaces[i].hasNullTypeAnnotations()) {
+							NullAnnotationMatching status = analyse(superInterfaces[i], providedType, null, nullStatus, mode);
 							severity = Math.max(severity, status.severity);
 							if (severity == 2)
-								return new NullAnnotationMatching(severity, nullStatus, superTypeHint);
+								return new NullAnnotationMatching(severity, nullStatus, superTypeHint);						
 						}
 					}
 				}
-				TypeBinding requiredEnclosing = requiredType.enclosingType();
-				TypeBinding providedEnclosing = providedType.enclosingType();
-				if (requiredEnclosing != null && providedEnclosing != null) {
-					TypeBinding providedEnclSubstitute = providedSubstitute != null ? providedSubstitute.enclosingType() : null;
-					NullAnnotationMatching status = analyse(requiredEnclosing, providedEnclosing, providedEnclSubstitute, -1, mode);
-					severity = Math.max(severity, status.severity);
+			}
+			if (requiredType instanceof ArrayBinding) {
+				long[] requiredDimsTagBits = ((ArrayBinding)requiredType).nullTagBitsPerDimension;
+				if (requiredDimsTagBits != null) {
+					int dims = requiredType.dimensions();
+					if (requiredType.dimensions() == providedType.dimensions()) {
+						long[] providedDimsTagBits = ((ArrayBinding)providedType).nullTagBitsPerDimension;
+						if (providedDimsTagBits == null) {
+							severity = 1; // required is annotated, provided not, need unchecked conversion
+						} else {
+							for (int i=0; i<=dims; i++) {
+								long requiredBits = validNullTagBits(requiredDimsTagBits[i]);
+								long providedBits = validNullTagBits(providedDimsTagBits[i]);
+								if (i > 0)
+									nullStatus = -1; // don't use beyond the outermost dimension
+								severity = Math.max(severity, computeNullProblemSeverity(requiredBits, providedBits, nullStatus, mode == CheckMode.OVERRIDE));
+								if (severity == 2)
+									return NullAnnotationMatching.NULL_ANNOTATIONS_MISMATCH;
+							}
+						}
+					} else if (providedType.id == TypeIds.T_null) {
+						if (dims > 0 && requiredDimsTagBits[0] == TagBits.AnnotationNonNull)
+							return NullAnnotationMatching.NULL_ANNOTATIONS_MISMATCH;
+					}
+				}
+			} else if (requiredType.hasNullTypeAnnotations() || providedType.hasNullTypeAnnotations() || requiredType.isTypeVariable()) {
+				long requiredBits = requiredNullTagBits(requiredType, mode);
+				if (requiredBits != TagBits.AnnotationNullable // nullable lhs accepts everything, ...
+						|| nullStatus == -1) // only at detail/recursion even nullable must be matched exactly
+				{
+					long providedBits = providedNullTagBits(providedType);
+					int s = computeNullProblemSeverity(requiredBits, providedBits, nullStatus, mode == CheckMode.OVERRIDE && nullStatus == -1);
+					severity = Math.max(severity, s);
+					if (severity == 0 && (providedBits & TagBits.AnnotationNonNull) != 0)
+						okStatus = NullAnnotationMatching.NULL_ANNOTATIONS_OK_NONNULL;
+				}
+				if (severity < 2) {
+					TypeBinding providedSuper = providedType.findSuperTypeOriginatingFrom(requiredType);
+					if (providedSuper != providedType) //$IDENTITY-COMPARISON$
+						superTypeHint = providedSuper;
+					if (requiredType.isParameterizedType()  && providedSuper instanceof ParameterizedTypeBinding) { // TODO(stephan): handle providedType.isRaw()
+						TypeBinding[] requiredArguments = ((ParameterizedTypeBinding) requiredType).arguments;
+						TypeBinding[] providedArguments = ((ParameterizedTypeBinding) providedSuper).arguments;
+						TypeBinding[] providedSubstitutes = (providedSubstitute instanceof ParameterizedTypeBinding) ? ((ParameterizedTypeBinding)providedSubstitute).arguments : null;
+						if (requiredArguments != null && providedArguments != null && requiredArguments.length == providedArguments.length) {
+							for (int i = 0; i < requiredArguments.length; i++) {
+								TypeBinding providedArgSubstitute = providedSubstitutes != null ? providedSubstitutes[i] : null;
+								NullAnnotationMatching status = analyse(requiredArguments[i], providedArguments[i], providedArgSubstitute, -1, mode);
+								severity = Math.max(severity, status.severity);
+								if (severity == 2)
+									return new NullAnnotationMatching(severity, nullStatus, superTypeHint);
+							}
+						}
+					}
+					TypeBinding requiredEnclosing = requiredType.enclosingType();
+					TypeBinding providedEnclosing = providedType.enclosingType();
+					if (requiredEnclosing != null && providedEnclosing != null) {
+						TypeBinding providedEnclSubstitute = providedSubstitute != null ? providedSubstitute.enclosingType() : null;
+						NullAnnotationMatching status = analyse(requiredEnclosing, providedEnclosing, providedEnclSubstitute, -1, mode);
+						severity = Math.max(severity, status.severity);
+					}
 				}
 			}
+			if (severity == 0)
+				return okStatus;
+			return new NullAnnotationMatching(severity, nullStatus, superTypeHint);
+		} finally {
+			requiredType.exitRecursiveFunction();
 		}
-		if (severity == 0)
-			return okStatus;
-		return new NullAnnotationMatching(severity, nullStatus, superTypeHint);
 	}
 
 	/** Are both types identical wrt the unannotated type and any null type annotations? Only unstructured types and captures are considered. */

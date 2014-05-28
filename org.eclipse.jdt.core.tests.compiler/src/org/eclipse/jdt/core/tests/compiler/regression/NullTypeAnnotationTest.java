@@ -5440,4 +5440,71 @@ public void testBug435399() {
 		getCompilerOptions(),
 		"");
 }
+public void testBug435962() {
+	runConformTestWithLibs(
+		new String[] {
+			"interfaces/CopyableNode.java",
+			"package interfaces;\n" + 
+			"public interface CopyableNode<T extends ExtendedNode> extends ExtendedNode {\n" + 
+			"	public T deepCopy();\n" + 
+			"}\n",
+			"interfaces/package-info.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"package interfaces;\n",
+			"interfaces/ExtendedNode.java",
+			"package interfaces;\n" + 
+			"import java.util.ArrayList;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"public interface ExtendedNode {\n" + 
+			"	ExtendedNode getParent();\n" + 
+			"	void setParent(ExtendedNode newParent);\n" + 
+			"	int numChildren();\n" + 
+			"	void mutateNode(ExtendedNode root);\n" + 
+			"	void getAllNodes(ArrayList<ExtendedNode> array);\n" + 
+			"	ExtendedNode getNode(int nodeIndex);\n" + 
+			"	<N extends ExtendedNode> void getNodesOfType(Class<N> desiredType,\n" + 
+			"			ArrayList<N> array);\n" + 
+			"	<N extends ExtendedNode> @Nullable N getRandomNodeOfType(\n" + 
+			"			Class<N> desiredType, ExtendedNode root, ExtendedNode caller);\n" + 
+			"}\n",
+			"interfaces/ValueNode.java",
+			"package interfaces;\n" + 
+			"public interface ValueNode extends ExtendedNode {\n" + 
+			"}\n",
+			"framework/package-info.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"package framework;\n",
+			"framework/BinaryOpNode.java",
+			"package framework;\n" + 
+			"\n" + 
+			"import interfaces.CopyableNode;\n" + 
+			"import interfaces.ValueNode;\n" + 
+			"public abstract class BinaryOpNode<T extends ValueNode & CopyableNode<T>, O>\n" + 
+			"		extends EqualBinaryNode<T> implements ValueNode {\n" + 
+			"	@SuppressWarnings(\"unused\") private O op;\n" + 
+			"	\n" + 
+			"	protected BinaryOpNode(final T left, final O op, final T right) {\n" + 
+			"		super(left, right);\n" + 
+			"		this.op = op;\n" + 
+			"	}\n" + 
+			"}\n",
+			"framework/EqualBinaryNode.java",
+			"package framework;\n" + 
+			"\n" + 
+			"import interfaces.CopyableNode;\n" + 
+			"import interfaces.ExtendedNode;\n" + 
+			"public abstract class EqualBinaryNode<T extends ExtendedNode & CopyableNode<T>>\n" + 
+			"		implements ExtendedNode {\n" + 
+			"	protected T left;\n" + 
+			"	protected T right;\n" + 
+			"	\n" + 
+			"	protected EqualBinaryNode(final T left, final T right) {\n" + 
+			"		this.left = left;\n" + 
+			"		this.right = right;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 }
