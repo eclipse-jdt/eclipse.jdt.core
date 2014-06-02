@@ -33022,14 +33022,11 @@ public void test0992() {
 			"	^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Type safety: The method add(Object) belongs to the raw type Collection. References to generic type Collection<E> should be parameterized\n" +
 			"----------\n" +
-			(this.complianceLevel < ClassFileConstants.JDK1_8 ?
 			"4. WARNING in X.java (at line 6)\n" +
 			"	this.add(null);\n" +
 			"	^^^^^^^^^^^^^^\n" +
 			"Type safety: The method add(Object) belongs to the raw type Collection. References to generic type Collection<E> should be parameterized\n" +
-			"----------\n"
-			: // 1.8 picks the non-raw version as being more specific(?)
-			""));
+			"----------\n");
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142897

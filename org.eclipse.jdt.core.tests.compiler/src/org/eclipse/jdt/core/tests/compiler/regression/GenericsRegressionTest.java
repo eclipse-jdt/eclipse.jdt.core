@@ -5212,6 +5212,82 @@ public void testBug434044() {
 			"}\n"
 		});
 }
+public void testBug434044_comment20() {
+	runConformTest(
+		new String[] {
+			"EclipseJava8Generics.java",
+			"public class EclipseJava8Generics {\n" + 
+			"\n" + 
+			"  public interface Foo<V> {\n" + 
+			"    public V doFoo();\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static class FooBar<V, T extends Foo<V>> {\n" + 
+			"    public T getBar() {\n" + 
+			"      return null;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static abstract class AbstractFoo<V> implements Foo<V> {\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static class Factory {\n" + 
+			"    public static <V, T extends AbstractFoo<V>> FooBar<V, T> createFooBar() {\n" + 
+			"      return null;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static void test() {\n" + 
+			"    final FooBar<?, ? extends AbstractFoo<?>> typedProperty = Factory.createFooBar();\n" + 
+			"    //TODO Eclipse Bug 434044 still exists\n" + 
+			"    final Object propertyValue = typedProperty.getBar().doFoo();\n" + 
+			"  }\n" + 
+			"\n" + 
+			"}\n"
+		});
+}
+public void testBug434044_comment36() {
+	runNegativeTest(
+		new String[] {
+			"EclipseJava8Generics.java",
+			"public class EclipseJava8Generics {\n" + 
+			"\n" + 
+			"  public interface Nasty {\n" + 
+			"    public Object doFoo(Integer a);\n" + 
+			"  }\n" + 
+			"  public interface Foo<V> {\n" + 
+			"    public V doFoo(String a);\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static class FooBar<V, T extends Foo<V>> {\n" + 
+			"    public T getBar() {\n" + 
+			"      return null;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static abstract class AbstractFoo<V> implements Foo<V>, Nasty {\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static class Factory {\n" + 
+			"    public static <V, T extends AbstractFoo<V>> FooBar<V, T> createFooBar() {\n" + 
+			"      return null;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static void test() {\n" + 
+			"    final FooBar<?, ? extends AbstractFoo<?>> typedProperty = Factory.createFooBar();\n" + 
+			"    //TODO Eclipse Bug 434044 still exists\n" + 
+			"    final Object propertyValue = typedProperty.getBar().doFoo(null);\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in EclipseJava8Generics.java (at line 28)\n" + 
+		"	final Object propertyValue = typedProperty.getBar().doFoo(null);\n" + 
+		"	                                                    ^^^^^\n" + 
+		"The method doFoo(String) is ambiguous for the type capture#2-of ? extends EclipseJava8Generics.AbstractFoo<?>\n" + 
+		"----------\n");
+}
 public void testBug434793() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
