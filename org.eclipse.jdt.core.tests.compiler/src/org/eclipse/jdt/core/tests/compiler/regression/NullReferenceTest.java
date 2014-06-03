@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 IBM Corporation and others.
+ * Copyright (c) 2005, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,7 @@
  *							bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *							bug 384380 - False positive on a « Potential null pointer access » after a continue
  *							bug 406384 - Internal error with I20130413
+ *							Bug 364326 - [compiler][null] NullPointerException is not found by compiler. FindBugs finds that one
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -16693,6 +16694,47 @@ public void testBug345305_14() {
 		"Potential null pointer access: The variable s may be null at this location\n" + 
 		"----------\n");
 }
+
+// Bug 364326 - [compiler][null] NullPointerException is not found by compiler. FindBugs finds that one
+public void testBug364326() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // employs auto-unboxing
+	runNegativeTest(
+		new String[] {
+			"NPE_OnBoxing.java",
+			"\n" + 
+			"public class NPE_OnBoxing\n" + 
+			"{\n" + 
+			"    private interface IValue\n" + 
+			"    {\n" + 
+			"        boolean isSomething();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private final IValue m_Value;\n" + 
+			"\n" + 
+			"    public NPE_OnBoxing()\n" + 
+			"    {\n" + 
+			"        m_Value = null;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public boolean isSomething()\n" + 
+			"    {\n" + 
+			"        return m_Value != null ? m_Value.isSomething() : null;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static void main(final String [] args)\n" + 
+			"    {\n" + 
+			"        new NPE_OnBoxing().isSomething();\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in NPE_OnBoxing.java (at line 18)\n" + 
+		"	return m_Value != null ? m_Value.isSomething() : null;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" + 
+		"----------\n");
+}
+
 // Bug 401088 - [compiler][null] Wrong warning "Redundant null check" inside nested try statement
 public void testBug401088() {
 	runConformTest(
