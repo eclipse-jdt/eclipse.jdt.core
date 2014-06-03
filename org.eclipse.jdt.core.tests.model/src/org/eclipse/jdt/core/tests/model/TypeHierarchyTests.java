@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2703,4 +2703,50 @@ public void testBug393192() throws CoreException {
 		if (prj != null)
 			deleteProject(prj);
 	}	
-}}
+}
+public void testBug436155() throws CoreException, IOException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		createFolder("/P/abc/p");
+		addLibrary(project, "lib.jar", "libsrc.zip", new String[] {
+			"p/I.java",
+			"package p;\n" +
+			"public abstract class I {}",
+			"p/I2.java",
+			"package p;\n" +
+			"public abstract class I2 extends I {}",
+			"p/Text.java",
+			"package p;\n"+
+			"public class Text extends I2 {}",
+		}, "1.4");
+		
+		createFolder("/P/src/q");
+		String source = "package q;\n" +
+				"import p.Text;\n" +
+				"class A {\n" +
+				"	Text text = null;\n" +
+				"}\n";
+		createFile("/P/src/q/A.java", source);
+		
+		int start = source.lastIndexOf("Text");
+		ICompilationUnit unit = getCompilationUnit("P", "src", "q", "A.java");
+		unit.becomeWorkingCopy(null);
+        unit.getBuffer().setContents(source);
+        unit.makeConsistent(null);
+
+		IJavaElement[] elements = unit.codeSelect(start, "Text".length());
+		IType focus = (IType) elements[0];
+		ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
+		assertHierarchyEquals(
+				"Focus: Text [in Text.class [in p [in lib.jar [in P]]]]\n" + 
+				"Super types:\n" + 
+				"  I2 [in I2.class [in p [in lib.jar [in P]]]]\n" + 
+				"    I [in I.class [in p [in lib.jar [in P]]]]\n" + 
+				"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+				"Sub types:\n",
+			hierarchy);
+	} finally {
+		deleteProject("P");
+	}
+}
+}
