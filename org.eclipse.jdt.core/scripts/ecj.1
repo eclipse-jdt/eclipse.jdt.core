@@ -403,6 +403,8 @@ Selective debug info
 Not specifying this option is equivalent to setting \-g:lines,source.  
 .IP "\-preserveAllLocals" 
 Explicitly request the compiler to preserve all local variables (for debug purpose). If omitted, the compiler will remove unused locals. 
+.IP "\-parameters" 
+Explicitly request the compiler to preserve information about the formal parameters of a method (such as their names) to be accessed from reflection libraries, annotation processing, code weaving, and in the debugger. This option is supported from target level 1.8 and later.
 Annotation processing options (require a 1.6 VM or above and are used only if the compliance is 1.6) 
 .IP "\-Akey[=value]" 
 Annotation processors options that are passed to annotation processors. key is made of identifiers separated by dots 
