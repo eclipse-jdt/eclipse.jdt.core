@@ -4644,4 +4644,65 @@ public void test406805d() throws CoreException, IOException {
 		removeLibrary(javaProject, jarName, srcName);
 	}
 }
+
+//Bug 436347 - Regression: NegativeArraySizeException at org.eclipse.jdt.internal.core.ClassFileInfo.generateMethodInfos
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=436347
+//Enum constructor with no parameters.
+public void test436347() throws CoreException, IOException {
+	String contents1 =
+			"package test436347;\n" +
+			"public class X {\n" +
+			"}";
+	createFolder("/Converter18/src/test436347");
+	createFile("/Converter18/src/test436347/X.java", contents1);
+	this.workingCopy = getWorkingCopy(
+			"/Converter18/src/test436347/X.java",
+			contents1,
+			true
+		);
+
+	String jarName = "getParameters.jar";
+	String srcName = "getParameters_src.zip";
+	final IJavaProject javaProject = this.workingCopy.getJavaProject();
+	try {
+	String[] contents = new String[] {
+		"TestEnum.java",
+		"package test436347;\n" +
+		"public enum TestEnum {\n" +
+		"	FirstValue() {\n" +
+		"		@Override\n" +
+		"		public String toString() {\n" +
+		"			return super.toString();\n" +
+		"		}\n" +
+		"	},\n" +
+		"	SecondValue();\n" +
+		"	TestEnum() {\n" +
+		"		return;\n" +
+		"	}\n" +
+		"}"
+	};
+	addLibrary(javaProject, jarName, srcName, contents, JavaCore.VERSION_1_8);
+
+	ASTParser parser = ASTParser.newParser(AST.JLS8);
+	parser.setIgnoreMethodBodies(true);
+	parser.setProject(javaProject);
+	IType type = javaProject.findType("test436347.TestEnum");
+	IBinding[] bindings = parser.createBindings(new IJavaElement[] { type }, null);
+	ITypeBinding typeBinding = (ITypeBinding) bindings[0];
+	IMethodBinding[] methods = typeBinding.getDeclaredMethods();
+
+	for (int i = 0, length = methods.length; i < length; i++) {
+		IMethodBinding method = methods[i];
+		if (method.isConstructor()) {
+			ResolvedBinaryMethod bm = (ResolvedBinaryMethod) method.getJavaElement();
+			assertTrue(bm.getParameterNames().length == 0);
+			assertTrue(bm.getParameterTypes().length == 0);
+		}
+	}
+	} finally {
+		removeLibrary(javaProject, jarName, srcName);
+	}
+}
+
+
 }

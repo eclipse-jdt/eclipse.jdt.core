@@ -270,7 +270,8 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
 			if (isEnum && isConstructor) {
 				pNames = Signature.getParameterTypes(new String(signature));
 				int length = pNames.length - 2;
-				System.arraycopy(pNames, 2, pNames = new String[length], 0, length);
+				if (length >= 0) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=436347
+					System.arraycopy(pNames, 2, pNames = new String[length], 0, length);
 			}
 		}
 		String selector = new String(methodInfo.getSelector());
