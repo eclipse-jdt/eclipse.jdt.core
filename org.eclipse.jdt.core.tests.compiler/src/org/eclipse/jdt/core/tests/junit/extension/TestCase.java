@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.junit.extension;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -36,6 +37,7 @@ import junit.framework.TestSuite;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.test.OrderedTestSuite;
 import org.eclipse.test.internal.performance.PerformanceMeterFactory;
 import org.eclipse.test.performance.Performance;
 import org.eclipse.test.performance.PerformanceTestCase;
@@ -52,6 +54,7 @@ public class TestCase extends PerformanceTestCase {
 	public static final int ALPHA_REVERSE_SORT = 2;
 	public static final int RANDOM_ORDER_JDT = 3;
 	public static final int RANDOM_ORDER_TIME = 4;
+	public static final int BYTECODE_DECLARATION_ORDER = 5;
 
 	/**
 	 * Expected tests order while building tests list for test suites.
@@ -60,10 +63,11 @@ public class TestCase extends PerformanceTestCase {
 	 * User may use following different values:
 	 * 	<ul>
 	 *			<li>{@link #NO_ORDER}: none (this is the default)</li>
-	 *			<li>{@link #ALPHABETICAL_SORT}: alphabetical order (ie. ascending)</li>
-	 *			<li>{@link #ALPHA_REVERSE_SORT}: alpha reverse order (ie. descending )</li>
+	 *			<li>{@link #ALPHABETICAL_SORT}: alphabetical order (i.e. ascending)</li>
+	 *			<li>{@link #ALPHA_REVERSE_SORT}: alpha reverse order (i.e. descending)</li>
 	 *			<li>{@link #RANDOM_ORDER_JDT}: random order using JDT/Core current version as seed</li>
 	 *			<li>{@link #RANDOM_ORDER_TIME}: random order using current time as seed (used time value is displayed in console)</li>
+	 *			<li>{@link #BYTECODE_DECLARATION_ORDER}: bytecode declaration order (same as source declaration order if compiled with ECJ)</li>
 	 *			<li>other values: random order using given <code>long</code> value as seed</li>
 	 * 	</ul>
 	 * This value is initialized with <code>"ordering"</code> system property.
@@ -109,6 +113,10 @@ public class TestCase extends PerformanceTestCase {
 					case RANDOM_ORDER_TIME:
 						ordering = System.currentTimeMillis();
 						System.err.println("Note that tests will be run in random order using seed="+ordering+" (ie. current time)");
+						break;
+					case BYTECODE_DECLARATION_ORDER:
+						ordering = kind;
+						System.err.println("Note that tests will be run in bytecode declaration order...");
 						break;
 					default:
 						ordering = seed;
@@ -609,6 +617,17 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth,
 		Collections.sort(names, Collections.reverseOrder());
 	} else if (ordering == ALPHABETICAL_SORT) {
 		Collections.sort(names);
+	} else if (ordering == BYTECODE_DECLARATION_ORDER) {
+		try {
+			List bytecodeOrderedTestNames = OrderedTestSuite.getBytecodeOrderedTestNames(evaluationTestClass);
+			bytecodeOrderedTestNames.retainAll(names);
+			if (bytecodeOrderedTestNames.size() != names.size()) {
+				System.err.println("not all test names found in bytecode: " + evaluationTestClass.getName());
+			}
+			names = bytecodeOrderedTestNames;
+		} catch (IOException e) {
+			System.err.println("suite failed to detect test order: " + evaluationTestClass.getName());
+		}
 	} else if (ordering != NO_ORDER) {
 		Collections.shuffle(names, new Random(ordering));
 	}

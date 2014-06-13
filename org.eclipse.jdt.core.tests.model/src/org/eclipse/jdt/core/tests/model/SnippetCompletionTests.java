@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,21 +37,6 @@ public void tearDownSuite() throws Exception {
 
 public static Test suite() {
 	return buildModelTestSuite(SnippetCompletionTests.class);
-	/*
-	TestSuite suite = new Suite(SnippetCompletionTests.class.getName());
-
-	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFile"));
-	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForCompilationUnit"));
-	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileWithSource"));
-	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForCompilationUnitWithoutSource"));
-	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileInInnerClass"));
-	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileInInterface"));
-	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileInInterface2"));
-	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileWithDollar"));
-	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistInsideNumber"));
-
-	return suite;
-	*/
 }
 protected void assertResults(String expected, String actual) {
 	try {
