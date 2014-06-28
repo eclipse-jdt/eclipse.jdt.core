@@ -5292,6 +5292,195 @@ public void testTypeVariable6a() {
 		getCompilerOptions(),
 		"");
 }
+// NPE reported in https://bugs.eclipse.org/bugs/show_bug.cgi?id=438458#c5
+public void testTypeVariable18() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import java.util.*;\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"interface Lib1 {\n" + 
+			"    <T extends Collection<?>> T constrainedTypeParameter(@NonNull T in);\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"  @NonNull Collection<?> test4(Lib1 lib, @Nullable Collection<String> in) {\n" + 
+			"    return lib.constrainedTypeParameter(in);\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in Test.java (at line 10)\n" + 
+		"	return lib.constrainedTypeParameter(in);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'Collection<String>\' needs unchecked conversion to conform to \'@NonNull Collection<?>\'\n" + 
+		"----------\n" + 
+		"2. ERROR in Test.java (at line 10)\n" + 
+		"	return lib.constrainedTypeParameter(in);\n" + 
+		"	                                    ^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Collection<String>\' but this expression has type \'@Nullable Collection<String>\'\n" + 
+		"----------\n");
+}
+public void testTypeVariable18raw() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import java.util.*;\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"interface Lib1 {\n" + 
+			"    <T extends Collection<?>> T constrainedTypeParameter(@NonNull T in);\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class Test {\n" +
+			"  @SuppressWarnings(\"rawtypes\")\n" + 
+			"  @NonNull Collection test4(Lib1 lib, @Nullable Collection in) {\n" + 
+			"    return lib.constrainedTypeParameter(in);\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in Test.java (at line 11)\n" + 
+		"	return lib.constrainedTypeParameter(in);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'Collection\' needs unchecked conversion to conform to \'@NonNull Collection\'\n" + 
+		"----------\n" + 
+		"2. ERROR in Test.java (at line 11)\n" + 
+		"	return lib.constrainedTypeParameter(in);\n" + 
+		"	                                    ^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Collection\' but this expression has type \'@Nullable Collection\'\n" + 
+		"----------\n");
+}
+// top-level annotation is overridden at use-site, details remain - parameterized type
+public void testTypeVariable19() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"interface I<T,U extends List<T>> {\n" +
+			"	U get0();\n" +
+			"	@Nullable U get1();\n" + 
+			"	@NonNull U get2();\n" + 
+			"}\n" + 
+			"class X {\n" + 
+			"	static String test (I<@Nullable String, @NonNull ArrayList<@Nullable String>> i1,\n" +
+			"						I<@NonNull String, @Nullable ArrayList<@NonNull String>> i2, int s) {\n" +
+			"		switch(s) {\n" +
+			"			case 0 : return i1.get0().get(0).toUpperCase(); // problem at detail\n" + 
+			"			case 1 : return i1.get1().get(0).toUpperCase(); // 2 problems\n" + 
+			"			case 2 : return i1.get2().get(0).toUpperCase(); // problem at detail\n" + 
+			"			case 3 : return i2.get0().get(0).toUpperCase(); // problem at top\n" + 
+			"			case 4 : return i2.get1().get(0).toUpperCase(); // problem at top\n" + 
+			"			case 5 : return i2.get2().get(0).toUpperCase(); // OK\n" +
+			"			default : return \"\";" +
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 15)\n" + 
+		"	case 0 : return i1.get0().get(0).toUpperCase(); // problem at detail\n" + 
+		"	                ^^^^^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: The method get(int) may return null\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 16)\n" + 
+		"	case 1 : return i1.get1().get(0).toUpperCase(); // 2 problems\n" + 
+		"	                ^^^^^^^^^\n" + 
+		"Potential null pointer access: The method get1() may return null\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 16)\n" + 
+		"	case 1 : return i1.get1().get(0).toUpperCase(); // 2 problems\n" + 
+		"	                ^^^^^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: The method get(int) may return null\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 17)\n" + 
+		"	case 2 : return i1.get2().get(0).toUpperCase(); // problem at detail\n" + 
+		"	                ^^^^^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: The method get(int) may return null\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 18)\n" + 
+		"	case 3 : return i2.get0().get(0).toUpperCase(); // problem at top\n" + 
+		"	                ^^^^^^^^^\n" + 
+		"Potential null pointer access: The method get0() may return null\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 19)\n" + 
+		"	case 4 : return i2.get1().get(0).toUpperCase(); // problem at top\n" + 
+		"	                ^^^^^^^^^\n" + 
+		"Potential null pointer access: The method get1() may return null\n" + 
+		"----------\n");
+}
+// top-level annotation is overridden at use-site, array with anotations on dimensions
+public void testTypeVariable19a() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"interface I1<T> {\n" + 
+			"	T @Nullable[] get0();\n" + 
+			"	@Nullable T @NonNull[] get1();\n" + 
+			"	@Nullable T @Nullable[] get2();\n" + 
+			"}\n" + 
+			"interface I2<T> {\n" + 
+			"	T @NonNull[] get0();\n" + 
+			"	@NonNull T @NonNull[] get1();\n" + 
+			"	@NonNull T @Nullable[] get2();\n" + 
+			"}\n" + 
+			"class X {\n" + 
+			"	static String test (I1<@NonNull String> i1, I2<@Nullable String> i2, int s) {\n" +
+			"		switch (s) {\n" + 
+			"			case 0: return i1.get0()[0].toUpperCase(); // problem on array\n" + 
+			"			case 1: return i1.get1()[0].toUpperCase(); // problem on element\n" + 
+			"			case 2: return i1.get2()[0].toUpperCase(); // 2 problems\n" +
+			"			case 3: return i2.get0()[0].toUpperCase(); // problem on element\n" + 
+			"			case 4: return i2.get1()[0].toUpperCase(); // OK\n" + 
+			"			case 5: return i2.get2()[0].toUpperCase(); // problem on array\n" +
+			"			default: return \"\";\n" +
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 16)\n" + 
+		"	case 0: return i1.get0()[0].toUpperCase(); // problem on array\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Potential null pointer access: The method get0() may return null\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 17)\n" + 
+		"	case 1: return i1.get1()[0].toUpperCase(); // problem on element\n" + 
+		"	               ^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: array element may be null\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 18)\n" + 
+		"	case 2: return i1.get2()[0].toUpperCase(); // 2 problems\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Potential null pointer access: The method get2() may return null\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 18)\n" + 
+		"	case 2: return i1.get2()[0].toUpperCase(); // 2 problems\n" + 
+		"	               ^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: array element may be null\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 19)\n" + 
+		"	case 3: return i2.get0()[0].toUpperCase(); // problem on element\n" + 
+		"	               ^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: array element may be null\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 21)\n" + 
+		"	case 5: return i2.get2()[0].toUpperCase(); // problem on array\n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Potential null pointer access: The method get2() may return null\n" + 
+		"----------\n");
+}
 public void testBug434600() {
 	runConformTestWithLibs(
 		new String[] {

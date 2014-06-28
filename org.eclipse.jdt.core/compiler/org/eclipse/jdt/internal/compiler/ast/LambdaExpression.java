@@ -31,6 +31,7 @@
  *							Bug 428980 - [1.8][null] simple expression as lambda body doesn't leverage null annotation on argument
  *							Bug 429430 - [1.8] Lambdas and method reference infer wrong exception type with generics (RuntimeException instead of IOException)
  *							Bug 432110 - [1.8][compiler] nested lambda type incorrectly inferred vs javac
+ *							Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -507,7 +508,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			int length = this.binding.parameters.length;
 			for (int i=0; i<length; i++) {
 				if (!this.scope.validateNullAnnotation(this.binding.returnType.tagBits, this.arguments[i].type, this.arguments[i].annotations))
-					this.binding.returnType = this.binding.returnType.unannotated();
+					this.binding.returnType = this.binding.returnType.unannotated(true);
 			}
 		}
 	}

@@ -23,6 +23,7 @@
  *								Bug 431269 - [1.8][compiler][null] StackOverflow in nullAnnotatedReadableName
  *								Bug 431408 - Java 8 (1.8) generics bug
  *								Bug 435962 - [RC2] StackOverFlowError when building
+ *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -773,9 +774,19 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    return readableName;
 	}
 
-	// May still carry declaration site annotations.
-	public TypeBinding unannotated() {
-		return this.hasTypeAnnotations() ? this.environment.getUnannotatedType(this) : this;
+	public TypeBinding unannotated(boolean removeOnlyNullAnnotations) {
+		if (!hasTypeAnnotations())
+			return this;
+		if (removeOnlyNullAnnotations && !hasNullTypeAnnotations())
+			return this;
+		TypeBinding unannotated = this.environment.getUnannotatedType(this);
+		if (removeOnlyNullAnnotations) {
+			AnnotationBinding[] newAnnotations = this.environment.filterNullTypeAnnotations(this.typeAnnotations);
+			if (newAnnotations.length > 0)
+				return this.environment.createAnnotatedType(unannotated, newAnnotations);
+			// FIXME: selectively keep type annotations on bounds
+		}
+		return unannotated; 
 	}
 	/**
 	 * Upper bound doesn't perform erasure
