@@ -236,7 +236,7 @@ class BoundSet {
 			if (nullHints == TagBits.AnnotationNullMASK) {
 				// on contradiction remove null type annotations
 				for (int i = 0; i < boundTypes.length; i++)
-					boundTypes[i] = boundTypes[i].unannotated();
+					boundTypes[i] = boundTypes[i].unannotated(true);
 			} else {
 				AnnotationBinding[] annot = environment.nullAnnotationsFromTagBits(nullHints);
 				if (annot != null) {
@@ -266,7 +266,7 @@ class BoundSet {
 					nullHints |= it.next().nullHints;
 			}
 			if (nullHints == TagBits.AnnotationNullMASK) // on contradiction remove null type annotations
-				return type.unannotated();
+				return type.unannotated(true);
 			AnnotationBinding[] annot = environment.nullAnnotationsFromTagBits(nullHints);
 			if (annot != null)
 				// only get here if exactly one of @NonNull or @Nullable was hinted; now apply this hint:
@@ -286,7 +286,7 @@ class BoundSet {
 					// adjust 'type' to fit the newBits
 					AnnotationBinding[] annot = environment.nullAnnotationsFromTagBits(newBits);
 					if (annot != null)
-						type = environment.createAnnotatedType(type.unannotated(), annot);
+						type = environment.createAnnotatedType(type.unannotated(true), annot);
 				}
 			}
 			this.instantiation = type;
