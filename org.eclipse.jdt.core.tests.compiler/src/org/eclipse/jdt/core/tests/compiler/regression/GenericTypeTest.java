@@ -51874,4 +51874,44 @@ public void testBug401783() {
 				"}\n"
 			});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=433989
+public void testBug433989() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"class A<V> {\n" + 
+			"    public static class Container {\n" + 
+			"        public static class In<T> {\n" + 
+			"            public static class Inner<U> {}\n" + 
+			"        }\n" + 
+			"        public static <X> void doit() {\n" + 
+			"            new In.Inner<X>();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=433989
+public void testBug433989a() {
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"class A<V> {\n" + 
+			"	public static class Nested {\n" + 
+			"		public class In<U> {\n" + 
+			"			public class Inner<V> {}\n" + 
+			"		}\n" + 
+			"		public <X> void create() {\n" + 
+			"			new In.Inner<X>();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 7)\n" + 
+		"	new In.Inner<X>();\n" + 
+		"	    ^^\n" + 
+		"The member type A.Nested.In must be parameterized, since it is qualified with a parameterized type\n" + 
+		"----------\n");
+}
 }

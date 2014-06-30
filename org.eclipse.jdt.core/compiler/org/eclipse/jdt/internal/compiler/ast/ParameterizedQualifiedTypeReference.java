@@ -323,7 +323,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					if (((ClassScope) scope).detectHierarchyCycle(currentOriginal, this))
 						return null;
 				if (currentOriginal.isGenericType()) {
-	   			    if (typeIsConsistent && qualifyingType != null && qualifyingType.isParameterizedType()) {
+	   			    if (typeIsConsistent && qualifyingType != null && qualifyingType.isParameterizedType() && !currentOriginal.isStatic()) {
 						scope.problemReporter().parameterizedMemberTypeMissingArguments(this, scope.environment().createParameterizedType(currentOriginal, null, qualifyingType), i);
 						typeIsConsistent = false;
 					}
