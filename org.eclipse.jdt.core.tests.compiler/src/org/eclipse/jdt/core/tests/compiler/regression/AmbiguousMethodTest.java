@@ -4464,4 +4464,37 @@ public void testBug426521() {
 		"The method m(List<Object>, Object) is ambiguous for the type Test\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428845
+public void testBug428845() {
+	runNegativeTest(
+			new String[] {
+				"AmbiguousTest.java",
+				"import java.io.File;\n" + 
+				"public class AmbiguousTest {\n" + 
+				"  static interface IInterface {\n" + 
+				"    public void method(File file);\n" + 
+				"  }\n" + 
+				"  static abstract class AbstractClass implements IInterface {\n" + 
+				"    public void method(File file) {\n" + 
+				"      System.err.println(\"file\");\n" + 
+				"    }\n" + 
+				"    public void method(String string) {\n" + 
+				"      System.err.println(\"string\");\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"  private static AbstractClass newAbstractClass() {\n" + 
+				"    return new AbstractClass() {};\n" + 
+				"  }\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    newAbstractClass().method(null);\n" + 
+				"  }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in AmbiguousTest.java (at line 18)\n" + 
+			"	newAbstractClass().method(null);\n" + 
+			"	                   ^^^^^^\n" + 
+			"The method method(File) is ambiguous for the type AmbiguousTest.AbstractClass\n" + 
+			"----------\n");
+}
 }

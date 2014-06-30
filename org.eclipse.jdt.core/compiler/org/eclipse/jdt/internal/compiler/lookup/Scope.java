@@ -1276,7 +1276,7 @@ public abstract class Scope {
 									continue; // can skip this method since concreteMatch overrides it
 							}
 						}
-						if (sourceLevel18) {
+						if (sourceLevel18 || !(compatibleMethod.isVarargs() && compatibleMethod instanceof ParameterizedGenericMethodBinding)) {
 							for (int j = 0; j < startFoundSize; j++) {
 								MethodBinding classMethod = (MethodBinding) found.elementAt(j);
 								if (classMethod != null && methodVerifier.areMethodsCompatible(classMethod, compatibleMethod))
