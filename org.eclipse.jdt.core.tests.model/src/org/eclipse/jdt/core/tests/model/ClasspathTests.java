@@ -4067,7 +4067,7 @@ public void testInvalidSourceFolder() throws CoreException {
  * missing its .classpath file multiple times.
  * (regression test for bug 39877 Rebuild All generates extra "Unable to read classpath" entry.)
  */
-public void testMissingClasspath() throws CoreException {
+public void _testMissingClasspath() throws CoreException {
 	try {
 		IJavaProject javaProject = createJavaProject("P");
 		IProject project = javaProject.getProject();
