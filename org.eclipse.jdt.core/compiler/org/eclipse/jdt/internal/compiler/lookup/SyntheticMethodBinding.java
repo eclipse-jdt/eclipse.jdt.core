@@ -359,7 +359,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.lambda = lambda;
 	    this.declaringClass = declaringClass;
 	    this.selector = lambdaName;
-	    this.modifiers = lambda.binding.modifiers;
+	    this.modifiers = lambda.binding.modifiers & ~ExtraCompilerModifiers.AccGenericSignature;
 		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved) | (lambda.binding.tagBits & TagBits.HasParameterAnnotations);
 	    this.returnType = lambda.binding.returnType;
 	    this.parameters = lambda.binding.parameters;
