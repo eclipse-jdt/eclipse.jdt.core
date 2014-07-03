@@ -11,7 +11,7 @@
  *								bug 342671 - ClassCastException: org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding cannot be cast to org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
  *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 415043 - [1.8][null] Follow-up re null type annotations after bug 392099
- *								Bug 416181 – [1.8][compiler][null] Invalid assignment is not rejected by the compiler
+ *								Bug 416181 - [1.8][compiler][null] Invalid assignment is not rejected by the compiler
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
  *								Bug 434600 - Incorrect null analysis error reporting on type parameters
  *        Andy Clement - Contributions for

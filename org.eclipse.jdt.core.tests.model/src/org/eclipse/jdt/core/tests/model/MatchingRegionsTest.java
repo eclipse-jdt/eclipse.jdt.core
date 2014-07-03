@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1506,14 +1506,14 @@ public void test0323() {
 // bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=271284
 public void test0324() {
 	String name = "IOException";
-	int[] regions = SearchPattern.getMatchingRegions("IOö",  name, SearchPattern.R_CAMELCASE_MATCH);
+	int[] regions = SearchPattern.getMatchingRegions("IOÃ¶",  name, SearchPattern.R_CAMELCASE_MATCH);
 	assertNull("Unexpected regions", regions);
 }
 public void test0325() {
-	String name = "IOExceptiön";
-	int[] regions = SearchPattern.getMatchingRegions("IOExceptiö",  name, SearchPattern.R_CAMELCASE_MATCH);
+	String name = "IOExceptiÃ¶n";
+	int[] regions = SearchPattern.getMatchingRegions("IOExceptiÃ¶",  name, SearchPattern.R_CAMELCASE_MATCH);
 	assertEquals("Unexpected regions length", 2, regions.length);
-	assertEquals("Unexpected matching regions", "[IOExceptiö]n", printRegions(name, regions));
+	assertEquals("Unexpected matching regions", "[IOExceptiÃ¶]n", printRegions(name, regions));
 }
 
 }

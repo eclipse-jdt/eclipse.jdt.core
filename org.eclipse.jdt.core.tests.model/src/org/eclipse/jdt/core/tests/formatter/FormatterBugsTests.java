@@ -5986,7 +5986,7 @@ public void testBug304529e() {
 }
 
 /**
- * @bug 309706: [formatter] doesn´t work when code has three semicolons side by side
+ * @bug 309706: [formatter] doesn't work when code has three semicolons side by side
  * @test Verify that formatter does get puzzled by three consecutive semicolons
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=309706"
  */

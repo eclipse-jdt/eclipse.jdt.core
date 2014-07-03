@@ -32,7 +32,7 @@
  *							bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *							bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *							bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
- *							bug 384380 - False positive on a « Potential null pointer access » after a continue
+ *							bug 384380 - False positive on a "Potential null pointer access" after a continue
  *							bug 406384 - Internal error with I20130413
  *							Bug 364326 - [compiler][null] NullPointerException is not found by compiler. FindBugs finds that one
  *******************************************************************************/
@@ -16036,7 +16036,7 @@ public void testBug360328d() {
 		"",/* expected error */
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
-// Bug 384380 - False positive on a « Potential null pointer access » after a continue
+// Bug 384380 - False positive on a "Potential null pointer access" after a continue
 // original test case
 public void testBug384380() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
@@ -16073,7 +16073,7 @@ public void testBug384380() {
 			"");
 	}
 }
-// Bug 384380 - False positive on a « Potential null pointer access » after a continue
+// Bug 384380 - False positive on a "Potential null pointer access" after a continue
 // variant with a finally block
 public void testBug384380_a() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {

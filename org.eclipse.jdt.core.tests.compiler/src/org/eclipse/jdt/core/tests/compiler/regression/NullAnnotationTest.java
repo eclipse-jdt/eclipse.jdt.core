@@ -643,7 +643,7 @@ public void test_nonnull_parameter_016() {
 		this.LIBS,
 		true /* shouldFlush*/);
 }
-// Bug 367203 - [compiler][null] detect assigning null to nonnull argument
+// Bug 367203 - [compiler][null] detect assigning null to nonnull argument
 public void test_nonnull_argument_001() {
 	runNegativeTestWithLibs(
 			new String[] {
@@ -670,7 +670,7 @@ public void test_nonnull_argument_001() {
 			"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 			"----------\n");
 }
-// Bug 367203 - [compiler][null] detect assigning null to nonnull argument
+// Bug 367203 - [compiler][null] detect assigning null to nonnull argument
 public void test_nonnull_argument_002() {
 	runNegativeTestWithLibs(
 			new String[] {

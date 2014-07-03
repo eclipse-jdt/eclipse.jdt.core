@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8828,9 +8828,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			"/**\r\n" + 
 			" * Mensagens SMTP tem o seguinte formato:\r\n" + 
 			" * <pre>\r\n" + 
-			" * resposta de uma linha só:\r\n" + 
+			" * resposta de uma linha sÃ³:\r\n" + 
 			" *  nnn [SP] lalalal [CR] [LF]\r\n" + 
-			" * resposta de várias linhas:\r\n" + 
+			" * resposta de vÃ¡rias linhas:\r\n" + 
 			" *  nnn [-] lalalalal [CR] [LF]\r\n" + 
 			" *  nnn [-] lalalalal [CR] [LF]\r\n" + 
 			" *  ...\r\n" + 
@@ -8842,9 +8842,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			" * Mensagens SMTP tem o seguinte formato:\n" + 
 			" * \n" + 
 			" * <pre>\n" + 
-			" * resposta de uma linha só:\n" + 
+			" * resposta de uma linha sÃ³:\n" + 
 			" *  nnn [SP] lalalal [CR] [LF]\n" + 
-			" * resposta de várias linhas:\n" + 
+			" * resposta de vÃ¡rias linhas:\n" + 
 			" *  nnn [-] lalalalal [CR] [LF]\n" + 
 			" *  nnn [-] lalalalal [CR] [LF]\n" + 
 			" *  ...\n" + 
