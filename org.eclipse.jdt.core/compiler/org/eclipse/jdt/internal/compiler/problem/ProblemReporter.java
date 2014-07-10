@@ -226,6 +226,7 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.UnusedLocalVariable;
 
 		case IProblem.ArgumentIsNeverUsed :
+		case IProblem.ExceptionParameterIsNeverUsed:
 			return CompilerOptions.UnusedArgument;
 
 		case IProblem.NoImplicitStringConversionForCharArrayExpression :
@@ -8484,6 +8485,18 @@ public void unusedArgument(LocalDeclaration localDecl) {
 		severity,
 		localDecl.sourceStart,
 		localDecl.sourceEnd);
+}
+public void unusedExceptionParameter(LocalDeclaration exceptionParameter) {
+	int severity = computeSeverity(IProblem.ExceptionParameterIsNeverUsed);
+	if (severity == ProblemSeverities.Ignore) return;
+	String[] arguments = new String[] {new String(exceptionParameter.name)};
+	this.handle(
+		IProblem.ExceptionParameterIsNeverUsed,
+		arguments,
+		arguments,
+		severity,
+		exceptionParameter.sourceStart,
+		exceptionParameter.sourceEnd);
 }
 public void unusedDeclaredThrownException(ReferenceBinding exceptionType, AbstractMethodDeclaration method, ASTNode location) {
 	boolean isConstructor = method.isConstructor();

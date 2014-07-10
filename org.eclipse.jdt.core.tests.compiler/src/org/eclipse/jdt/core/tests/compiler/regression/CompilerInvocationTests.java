@@ -489,6 +489,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("EnumConstantsCannotBeSurroundedByParenthesis", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("EnumStaticFieldInInInitializerContext", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("EnumSwitchCannotTargetField", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("ExceptionParameterIsNeverUsed", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("ExceptionTypeAmbiguous", DEPRECATED);
 		expectedProblemAttributes.put("ExceptionTypeInheritedNameHidesEnclosingName", DEPRECATED);
 		expectedProblemAttributes.put("ExceptionTypeInternalNameProvided", DEPRECATED);
@@ -1308,6 +1309,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("EnumConstantsCannotBeSurroundedByParenthesis", SKIP);
 		expectedProblemAttributes.put("EnumStaticFieldInInInitializerContext", SKIP);
 		expectedProblemAttributes.put("EnumSwitchCannotTargetField", SKIP);
+		expectedProblemAttributes.put("ExceptionParameterIsNeverUsed", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_PARAMETER));
 		expectedProblemAttributes.put("ExceptionTypeAmbiguous", SKIP);
 		expectedProblemAttributes.put("ExceptionTypeInheritedNameHidesEnclosingName", SKIP);
 		expectedProblemAttributes.put("ExceptionTypeInternalNameProvided", SKIP);

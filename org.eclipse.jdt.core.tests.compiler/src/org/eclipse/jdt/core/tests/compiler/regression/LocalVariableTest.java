@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2011 IBM Corporation and others.
+ * Copyright (c) 2005, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -713,6 +713,146 @@ public void test020() {
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=412119, Optional warning for unused throwable variable in catch block
+//No error message for exception parameter not being used.
+public void test412119a() {
+	runConformTest(new String[] {
+			"p/X.java",
+			"package p;\n" +
+			"class X {\n" +
+			"	\n" +
+			"	void somethingDangerous() {}\n" +
+			"	void foo() {\n" +
+			"		try {\n" +
+			"			somethingDangerous();\n" +
+			"		} catch(Exception e) {\n" +
+			"			throw new RuntimeException();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n",
+		});
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=412119, Optional warning for unused throwable variable in catch block
+//Error message for exception parameter not being used.
+public void test412119b() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.ERROR);
+	this.runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"class X {\n" +
+				"	void somethingDangerous() {}\n" +
+				"	void foo() {\n" +
+				"		try {\n" +
+				"			somethingDangerous();\n" +
+				"		} catch(Exception e) {\n" +
+				"				throw new RuntimeException();\n" +
+				"		}\n" +
+				"		try {\n" +
+				"			somethingDangerous();\n" +
+
+				// Exception thrown under a true boolean expression
+				"		} catch(Exception e1) {\n" +
+				"				if (true)\n" +
+				"					throw new RuntimeException(e1);\n" +
+				"		}\n" +
+
+				// Catch clause parameter used.
+				"		try {\n" +
+				"			somethingDangerous();\n" +
+				"		} catch(Exception e2) {\n" +
+				"			throw new RuntimeException(e2);\n" +
+				"		}\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in p\\X.java (at line 7)\n" +
+			"	} catch(Exception e) {\n" +
+			"	                  ^\n" +
+			"The value of the exception parameter e is not used\n" +
+			"----------\n",
+			null,
+			true,
+			options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=412119, Optional warning for unused throwable variable in catch block
+//Multi-catch parameters.
+public void test412119c() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.ERROR);
+	this.runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"class X {\n" +
+				"class Z2 extends Exception {\n" +
+				"	private static final long serialVersionUID = 1L;}\n" +
+				"class Z1 extends Exception {\n" +
+				"	private static final long serialVersionUID = 1L;}\n" +
+				"	void somethingDangerous(int x, int y) throws Z1, Z2 {\n" +
+				"		if (x < 1)\n" +
+				"			throw new Z1();\n" +
+				"		if (y > 1) \n" +
+				"			throw new Z2();\n" +
+				"	}\n" +
+				"	void foo(int x, int y) {\n" +
+				"		try {\n" +
+				"			somethingDangerous(x, y);\n" +
+				"		} catch(Z2|Z1 z) {\n" +
+				"			throw new RuntimeException();\n" +
+				"		}\n" +
+				"		try {\n" +
+				"			somethingDangerous(x, y);\n" +
+				"		} catch(Z2|Z1 z2) {\n" +
+				"			throw new RuntimeException(z2);\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in p\\X.java (at line 16)\n" +
+			"	} catch(Z2|Z1 z) {\n" +
+			"	              ^\n" +
+			"The value of the exception parameter z is not used\n" +
+			"----------\n",
+			null,
+			true,
+			options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=412119, Optional warning for unused throwable variable in catch block
+//Suppress Warnings.
+public void test412119d() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"class X {\n" +
+				"	@SuppressWarnings(\"unused\")\n" +
+				"	void foo(int x) {}\n" +
+				"	void somethingDangerous() {}\n" +
+				"	@SuppressWarnings(\"unused\")\n" +
+				"	void foo3() {\n" +
+				"		try {\n" +
+				"			somethingDangerous();\n" +
+				"		} catch(Exception e) {\n" +
+				"			throw new RuntimeException();\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"" ,
+			null,
+			true,
+			options);
 }
 public static Class testClass() {
 	return LocalVariableTest.class;

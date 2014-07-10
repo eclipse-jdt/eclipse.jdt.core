@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -811,6 +811,7 @@ public void testWarningTokens() {
 	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.UnusedImport));
 	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.LocalVariableIsNeverUsed));
 	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.ArgumentIsNeverUsed));
+	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.ExceptionParameterIsNeverUsed));
 	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.UnusedPrivateConstructor));
 	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.UnusedPrivateMethod));
 	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.UnusedPrivateField));
