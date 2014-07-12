@@ -11,14 +11,21 @@
 package org.eclipse.jdt.core.tests.builder;
 
 import java.io.File;
+import java.io.IOException;
 
 import junit.framework.Test;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.osgi.framework.Bundle;
 
 public class IncrementalTests18 extends BuilderTests {
 	
@@ -28,6 +35,21 @@ public class IncrementalTests18 extends BuilderTests {
 
 	public static Test suite() {
 		return AbstractCompilerTest.buildMinimalComplianceTestSuite(IncrementalTests18.class, AbstractCompilerTest.F_1_8);
+	}
+
+	private void setupProjectForNullAnnotations() throws IOException, JavaModelException {
+		// add the org.eclipse.jdt.annotation library (bin/ folder or jar) to the project:
+		Bundle[] bundles = Platform.getBundles("org.eclipse.jdt.annotation","[2.0.0,3.0.0)");
+		File bundleFile = FileLocator.getBundleFile(bundles[0]);
+		String annotationsLib = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
+		IJavaProject javaProject = env.getJavaProject("Project");
+		IClasspathEntry[] rawClasspath = javaProject.getRawClasspath();
+		int len = rawClasspath.length;
+		System.arraycopy(rawClasspath, 0, rawClasspath = new IClasspathEntry[len+1], 0, len);
+		rawClasspath[len] = JavaCore.newLibraryEntry(new Path(annotationsLib), null, null);
+		javaProject.setRawClasspath(rawClasspath, null);
+
+		javaProject.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423122, [1.8] Missing incremental build dependency from lambda expression to functional interface.
@@ -337,4 +359,45 @@ public class IncrementalTests18 extends BuilderTests {
 		incrementalBuild(projectPath);
 		expectingNoProblems();
 	}	
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435544, [compiler][null] Enum constants not recognised as being NonNull (take2)
+	public void test435544() throws JavaModelException, IOException {
+		IPath projectPath = env.addProject("Project", "1.8");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		setupProjectForNullAnnotations();
+		env.addClass(root, "p", "Y",
+				"package p;	\n" +
+				 "public enum Y {\n" +
+				 "	A,\n" +
+				 "	B\n" +
+				 "}\n" +
+				 "\n"
+		);
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(root, "p", "X",
+				"package p;	\n" +
+				"import org.eclipse.jdt.annotation.NonNull;\n" +
+				"public class X {\n" +
+				"	@NonNull\n" +
+				"	public Y y = Y.A; // warning without fix\n" +
+				"	void foo(@NonNull Y y) {}\n" +
+				"   void bar() {\n" +
+				"		foo(Y.A); // warning without fix\n" +
+				"   }\n" +
+				"}\n"
+		);
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+	}
 }
