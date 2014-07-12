@@ -1466,6 +1466,12 @@ SimpleLookupTable storedAnnotations(boolean forceInitialize) {
 //pre: null annotation analysis is enabled
 private void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBinding, boolean isEnum) {
 	if (!isPrototype()) throw new IllegalStateException();
+
+	if (isEnum && (field.getModifiers() & ClassFileConstants.AccEnum) != 0) {
+		fieldBinding.tagBits |= TagBits.AnnotationNonNull;
+		return; // we know it's nonnull, no need to look for null *annotations* on enum constants.
+	}
+
 	if (this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
 		TypeBinding fieldType = fieldBinding.type;
 		if (fieldType != null
@@ -1508,11 +1514,6 @@ private void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBi
 	}
 	if (!explicitNullness && (this.tagBits & TagBits.AnnotationNonNullByDefault) != 0) {
 		fieldBinding.tagBits |= TagBits.AnnotationNonNull;
-	}
-	if (isEnum) {
-		if ((field.getModifiers() & ClassFileConstants.AccEnum) != 0) {
-			fieldBinding.tagBits |= TagBits.AnnotationNonNull;
-		}
 	}
 }
 
