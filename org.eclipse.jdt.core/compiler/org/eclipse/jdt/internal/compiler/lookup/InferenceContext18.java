@@ -354,7 +354,7 @@ public class InferenceContext18 {
 			TypeBinding parameter = parameters[i];
 			for (int j = 0; j < thrownExceptions.length; j++) {
 				if (TypeBinding.equalsEquals(parameter, thrownExceptions[j])) {
-					this.currentBounds.inThrows.add(variables[i]);
+					this.currentBounds.inThrows.add(variables[i].prototype());
 					break;
 				}
 			}
@@ -949,7 +949,7 @@ public class InferenceContext18 {
 							} else {
 								TypeBinding[] upperBounds = tmpBoundSet.upperBounds(variable, true/*onlyProper*/);
 								// check exception bounds:
-								if (tmpBoundSet.inThrows.contains(variable) && tmpBoundSet.hasOnlyTrivialExceptionBounds(variable, upperBounds)) {
+								if (tmpBoundSet.inThrows.contains(variable.prototype()) && tmpBoundSet.hasOnlyTrivialExceptionBounds(variable, upperBounds)) {
 									TypeBinding runtimeException = this.scope.getType(TypeConstants.JAVA_LANG_RUNTIMEEXCEPTION, 3);
 									tmpBoundSet.addBound(new TypeBound(variable, runtimeException, ReductionResult.SAME), this.environment);
 								} else {
@@ -996,7 +996,7 @@ public class InferenceContext18 {
 						}
 						public TypeBinding substitute(TypeVariableBinding typeVariable) {
 							for (int j = 0; j < numVars; j++)
-								if (variables[j] == typeVariable) //$IDENTITY-COMPARISON$ InferenceVariable does not participate in type annotation encoding
+								if (TypeBinding.equalsEquals(variables[j], typeVariable))
 									return zs[j];
 							return typeVariable;
 						}
@@ -1028,7 +1028,7 @@ public class InferenceContext18 {
 							ParameterizedTypeBinding key = captureKeys.next();
 							int len = key.arguments.length;
 							for (int i = 0; i < len; i++) {
-								if (key.arguments[i] == variable) { //$IDENTITY-COMPARISON$
+								if (TypeBinding.equalsEquals(key.arguments[i], variable)) {
 									toRemove.add(key);
 									break;
 								}
@@ -1126,7 +1126,7 @@ public class InferenceContext18 {
 		if (!variableSet.add(currentVariable)) return true; // already present
 		for (int j = 0; j < this.inferenceVariables.length; j++) {
 			InferenceVariable nextVariable = this.inferenceVariables[j];
-			if (nextVariable == currentVariable) continue; //$IDENTITY-COMPARISON$ Inference variables
+			if (TypeBinding.equalsEquals(nextVariable, currentVariable)) continue;
 			if (boundSet.dependsOnResolutionOf(currentVariable, nextVariable))
 				if (!addDependencies(boundSet, variableSet, nextVariable, min))
 					return false; // abort traversal: no improvement

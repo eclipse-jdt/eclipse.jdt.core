@@ -22,6 +22,7 @@ public class InferenceVariable extends TypeVariableBinding {
 	InvocationSite site;
 	TypeBinding typeParameter;
 	long nullHints;
+	private InferenceVariable prototype;
 	
 	public InferenceVariable(TypeBinding typeParameter, int variableRank, InvocationSite site, LookupEnvironment environment, ReferenceBinding object) {
 		super(CharOperation.concat(typeParameter.shortReadableName(), Integer.toString(variableRank).toCharArray(), '#'), 
@@ -40,6 +41,20 @@ public class InferenceVariable extends TypeVariableBinding {
 			}
 		}
 		this.superclass = object;
+		this.prototype = this;
+	}
+	
+	@Override
+	public TypeBinding clone(TypeBinding enclosingType) {
+		InferenceVariable clone = new InferenceVariable(this.typeParameter, this.rank, this.site, this.environment, this.superclass);
+		clone.tagBits = this.tagBits;
+		clone.nullHints = this.nullHints;
+		clone.prototype = this;
+		return clone;
+	}
+
+	public InferenceVariable prototype() {
+		return this.prototype;
 	}
 
 	public char[] constantPoolName() {
@@ -62,7 +77,7 @@ public class InferenceVariable extends TypeVariableBinding {
 	}
 
 	TypeBinding substituteInferenceVariable(InferenceVariable var, TypeBinding substituteType) {
-		if (this == var) //$IDENTITY-COMPARISON$ InferenceVariable
+		if (TypeBinding.equalsEquals(this, var))
 			return substituteType;
 		return this;
 	}

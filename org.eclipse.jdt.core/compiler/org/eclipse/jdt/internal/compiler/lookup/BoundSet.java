@@ -116,6 +116,7 @@ class BoundSet {
 			InferenceContext18.sortTypes(rights);
 			return rights;
 		}
+		// pre: beta is a prototype
 		public boolean hasDependency(InferenceVariable beta) {
 			if (this.superBounds != null && hasDependency(this.superBounds, beta))
 				return true;
@@ -131,11 +132,12 @@ class BoundSet {
 			}
 			return false;
 		}
+		// pre: var is a prototype
 		private boolean hasDependency(Set<TypeBound> someBounds, InferenceVariable var) {
 			Iterator<TypeBound> bIt = someBounds.iterator();
 			while (bIt.hasNext()) {
 				TypeBound bound = bIt.next();
-				if (bound.right == var || bound.right.mentionsAny(new TypeBinding[] {var}, -1)) //$IDENTITY-COMPARISON$ InferenceVariable
+				if (TypeBinding.equalsEquals(bound.right, var) || bound.right.mentionsAny(new TypeBinding[] {var}, -1))
 					return true;
 			}
 			return false;
@@ -355,19 +357,20 @@ class BoundSet {
 	}
 
 	public void addBound(TypeBound bound, LookupEnvironment environment) {
-		ThreeSets three = this.boundsPerVariable.get(bound.left);
+		InferenceVariable variable = bound.left.prototype();
+		ThreeSets three = this.boundsPerVariable.get(variable);
 		if (three == null)
-			this.boundsPerVariable.put(bound.left, (three = new ThreeSets()));
+			this.boundsPerVariable.put(variable, (three = new ThreeSets()));
 		three.addBound(bound);
 		// check if this makes the inference variable instantiated:
 		TypeBinding typeBinding = bound.right;
 		if (bound.relation == ReductionResult.SAME && typeBinding.isProperType(true))
-			three.setInstantiation(typeBinding, bound.left, environment);
+			three.setInstantiation(typeBinding, variable, environment);
 		if (bound.right instanceof InferenceVariable) {
 			// for a dependency between two IVs make a note about the inverse bound.
 			// this should be needed to determine IV dependencies independent of direction.
 			// TODO: so far no test could be identified which actually needs it ...
-			InferenceVariable rightIV = (InferenceVariable) bound.right;
+			InferenceVariable rightIV = (InferenceVariable) bound.right.prototype();
 			three = this.boundsPerVariable.get(rightIV);
 			if (three == null)
 				this.boundsPerVariable.put(rightIV, (three = new ThreeSets()));
@@ -387,14 +390,14 @@ class BoundSet {
 	}
 
 	public boolean isInstantiated(InferenceVariable inferenceVariable) {
-		ThreeSets three = this.boundsPerVariable.get(inferenceVariable);
+		ThreeSets three = this.boundsPerVariable.get(inferenceVariable.prototype());
 		if (three != null)
 			return three.instantiation != null;
 		return false;
 	}
 
 	public TypeBinding getInstantiation(InferenceVariable inferenceVariable, LookupEnvironment environment) {
-		ThreeSets three = this.boundsPerVariable.get(inferenceVariable);
+		ThreeSets three = this.boundsPerVariable.get(inferenceVariable.prototype());
 		if (three != null) {
 			TypeBinding instantiation = three.instantiation;
 			if (environment != null && environment.globalOptions.isAnnotationBasedNullAnalysisEnabled 
@@ -531,7 +534,7 @@ class BoundSet {
 					if (ai instanceof WildcardBinding) {
 						WildcardBinding wildcardBinding = (WildcardBinding)ai;
 						TypeBinding t = wildcardBinding.bound;
-						ThreeSets three = this.boundsPerVariable.get(alpha);
+						ThreeSets three = this.boundsPerVariable.get(alpha.prototype());
 						if (three != null) {
 							Iterator<TypeBound> it;
 							if (three.sameBounds != null) {
@@ -617,7 +620,7 @@ class BoundSet {
 	private ConstraintTypeFormula combineSameSame(TypeBound boundS, TypeBound boundT) {
 		
 		// α = S and α = T imply ⟨S = T⟩
-		if (boundS.left == boundT.left) //$IDENTITY-COMPARISON$ InferenceVariable
+		if (TypeBinding.equalsEquals(boundS.left, boundT.left))
 			return ConstraintTypeFormula.create(boundS.right, boundT.right, ReductionResult.SAME, boundS.isSoft||boundT.isSoft);
 
 		// match against more shapes:
@@ -649,25 +652,25 @@ class BoundSet {
 		//  α = S and T <: α imply ⟨T <: S⟩
 		InferenceVariable alpha = boundS.left;
 		TypeBinding s = boundS.right;
-		if (alpha == boundT.left) //$IDENTITY-COMPARISON$ InferenceVariable
+		if (TypeBinding.equalsEquals(alpha,boundT.left))
 			return ConstraintTypeFormula.create(s, boundT.right, boundT.relation, boundT.isSoft||boundS.isSoft);
-		if (alpha == boundT.right) //$IDENTITY-COMPARISON$ InferenceVariable
+		if (TypeBinding.equalsEquals(alpha, boundT.right))
 			return ConstraintTypeFormula.create(boundT.right, s, boundT.relation, boundT.isSoft||boundS.isSoft);
 
 		if (boundS.right instanceof InferenceVariable) {
 			// reverse:
 			alpha = (InferenceVariable) boundS.right;
 			s = boundS.left;
-			if (alpha == boundT.left) //$IDENTITY-COMPARISON$ InferenceVariable
+			if (TypeBinding.equalsEquals(alpha, boundT.left))
 				return ConstraintTypeFormula.create(s, boundT.right, boundT.relation, boundT.isSoft||boundS.isSoft);
-			if (alpha == boundT.right) //$IDENTITY-COMPARISON$ InferenceVariable
+			if (TypeBinding.equalsEquals(alpha, boundT.right))
 				return ConstraintTypeFormula.create(boundT.right, s, boundT.relation, boundT.isSoft||boundS.isSoft);			
 		}
 		
 		//  α = U and S <: T imply ⟨S[α:=U] <: T[α:=U]⟩ 
 		TypeBinding u = boundS.right;
 		if (u.isProperType(true)) {
-			TypeBinding left = (alpha == boundT.left) ? u : boundT.left; //$IDENTITY-COMPARISON$ InferenceVariable
+			TypeBinding left = (TypeBinding.equalsEquals(alpha, boundT.left)) ? u : boundT.left;
 			TypeBinding right = boundT.right.substituteInferenceVariable(alpha, u);
 			return ConstraintTypeFormula.create(left, right, boundT.relation, boundT.isSoft||boundS.isSoft);
 		}
@@ -677,13 +680,13 @@ class BoundSet {
 	private ConstraintTypeFormula combineSuperAndSub(TypeBound boundS, TypeBound boundT) {
 		//  permutations of: S <: α and α <: T imply ⟨S <: T⟩
 		InferenceVariable alpha = boundS.left;
-		if (alpha == boundT.left) //$IDENTITY-COMPARISON$ InferenceVariable
+		if (TypeBinding.equalsEquals(alpha, boundT.left))
 			//  α >: S and α <: T imply ⟨S <: T⟩
 			return ConstraintTypeFormula.create(boundS.right, boundT.right, ReductionResult.SUBTYPE, boundT.isSoft||boundS.isSoft);
 		if (boundS.right instanceof InferenceVariable) {
 			// try reverse:
 			alpha = (InferenceVariable) boundS.right;
-			if (alpha == boundT.right) //$IDENTITY-COMPARISON$ InferenceVariable
+			if (TypeBinding.equalsEquals(alpha, boundT.right))
 				// S :> α and T <: α  imply ⟨S :> T⟩
 				return ConstraintTypeFormula.create(boundS.left, boundT.left, ReductionResult.SUPERTYPE, boundT.isSoft||boundS.isSoft);
 		}
@@ -692,10 +695,10 @@ class BoundSet {
 	
 	private ConstraintTypeFormula combineEqualSupers(TypeBound boundS, TypeBound boundT) {
 		//  more permutations of: S <: α and α <: T imply ⟨S <: T⟩
-		if (boundS.left == boundT.right) //$IDENTITY-COMPARISON$ InferenceVariable
+		if (TypeBinding.equalsEquals(boundS.left, boundT.right))
 			// came in as: α REL S and T REL α imply ⟨T REL S⟩ 
 			return ConstraintTypeFormula.create(boundT.left, boundS.right, boundS.relation, boundT.isSoft||boundS.isSoft);
-		if (boundS.right == boundT.left) //$IDENTITY-COMPARISON$ InferenceVariable
+		if (TypeBinding.equalsEquals(boundS.right, boundT.left))
 			// came in as: S REL α and α REL T imply ⟨S REL T⟩ 
 			return ConstraintTypeFormula.create(boundS.left, boundT.right, boundS.relation, boundT.isSoft||boundS.isSoft);
 		return null;
@@ -710,7 +713,7 @@ class BoundSet {
 		 */
 		if (boundS.relation != ReductionResult.SUBTYPE || boundT.relation != ReductionResult.SUBTYPE)
 			return null;
-		if (boundS.left != boundT.left) //$IDENTITY-COMPARISON$ InferenceVariable
+		if (TypeBinding.notEquals(boundS.left, boundT.left))
 			return null;
 		TypeBinding[] supers = superTypesWithCommonGenericType(boundS.right, boundT.right);
 		if (supers != null)
@@ -776,13 +779,15 @@ class BoundSet {
 	 * Does this bound set define a direct dependency between the two given inference variables? 
 	 */
 	public boolean dependsOnResolutionOf(InferenceVariable alpha, InferenceVariable beta) {
+		alpha = alpha.prototype();
+		beta = beta.prototype();
 		Iterator<Map.Entry<ParameterizedTypeBinding, ParameterizedTypeBinding>> captureIter = this.captures.entrySet().iterator();
 		boolean betaIsInCaptureLhs = false;
 		while (captureIter.hasNext()) { // TODO: optimization: consider separate index structure (by IV)
 			Entry<ParameterizedTypeBinding, ParameterizedTypeBinding> entry = captureIter.next();
 			ParameterizedTypeBinding g = entry.getKey();
 			for (int i = 0; i < g.arguments.length; i++) {
-				if (g.arguments[i] == alpha) { //$IDENTITY-COMPARISON$ InferenceVariable
+				if (TypeBinding.equalsEquals(g.arguments[i], alpha)) {
 					// An inference variable α appearing on the left-hand side of a bound of the form G<..., α, ...> = capture(G<...>)
 					// depends on the resolution of every other inference variable mentioned in this bound (on both sides of the = sign).
 					ParameterizedTypeBinding captured = entry.getValue();
@@ -790,7 +795,7 @@ class BoundSet {
 						return true;
 					if (g.mentionsAny(new TypeBinding[]{beta}, i)) // exclude itself 
 						return true;
-				} else if (g.arguments[i] == beta) { //$IDENTITY-COMPARISON$ InferenceVariable
+				} else if (TypeBinding.equalsEquals(g.arguments[i], beta)) {
 					betaIsInCaptureLhs = true;
 				}
 			}
@@ -840,7 +845,7 @@ class BoundSet {
 	 * Answer all upper bounds for the given inference variable as defined by any bounds in this set. 
 	 */
 	public TypeBinding[] upperBounds(InferenceVariable variable, boolean onlyProper) {
-		ThreeSets three = this.boundsPerVariable.get(variable);
+		ThreeSets three = this.boundsPerVariable.get(variable.prototype());
 		if (three == null || three.subBounds == null)
 			return Binding.NO_TYPES;
 		return three.upperBounds(onlyProper, variable);
@@ -853,7 +858,7 @@ class BoundSet {
 	 * Answer all lower bounds for the given inference variable as defined by any bounds in this set. 
 	 */
 	TypeBinding[] lowerBounds(InferenceVariable variable, boolean onlyProper) {
-		ThreeSets three = this.boundsPerVariable.get(variable);
+		ThreeSets three = this.boundsPerVariable.get(variable.prototype());
 		if (three == null || three.superBounds == null)
 			return Binding.NO_TYPES;
 		return three.lowerBounds(onlyProper, variable);
@@ -881,7 +886,7 @@ class BoundSet {
 	}
 
 	public TypeBinding findWrapperTypeBound(InferenceVariable variable) {
-		ThreeSets three = this.boundsPerVariable.get(variable);
+		ThreeSets three = this.boundsPerVariable.get(variable.prototype());
 		if (three == null) return null;
 		return three.findSingleWrapperType();
 	}
@@ -892,7 +897,7 @@ class BoundSet {
 		// i) B2 contains a bound of one of the forms α = S or S <: α, where S is a wildcard-parameterized type, or ...
 		if (targetType.isBaseType()) return false;
 		if (InferenceContext18.parameterizedWithWildcard(targetType) != null) return false;
-		ThreeSets ts = this.boundsPerVariable.get(alpha);
+		ThreeSets ts = this.boundsPerVariable.get(alpha.prototype());
 		if (ts.sameBounds != null) {
 			Iterator<TypeBound> bounds = ts.sameBounds.iterator();
 			while (bounds.hasNext()) {
@@ -933,7 +938,7 @@ class BoundSet {
 		//   where there exists no type of the form G<...> that is a supertype of S, but the raw type G is a supertype of S.
 		if (!targetType.isParameterizedType()) return false;
 		TypeBinding g = targetType.original();
-		ThreeSets ts = this.boundsPerVariable.get(alpha);
+		ThreeSets ts = this.boundsPerVariable.get(alpha.prototype());
 		Iterator<TypeBound> boundIterator;
 		if (ts.sameBounds != null) {
 			boundIterator = ts.sameBounds.iterator();

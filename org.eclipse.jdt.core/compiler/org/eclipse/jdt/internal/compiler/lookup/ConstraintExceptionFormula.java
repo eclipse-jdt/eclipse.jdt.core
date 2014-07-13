@@ -104,7 +104,7 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 				result.add(ConstraintTypeFormula.create(ePrime[i], e[j], SUBTYPE));
 		}				
 		for (int j = 0; j < n; j++)
-			inferenceContext.currentBounds.inThrows.add(e[j]);
+			inferenceContext.currentBounds.inThrows.add(e[j].prototype());
 		return result.toArray(new ConstraintFormula[result.size()]);
 	}
 
