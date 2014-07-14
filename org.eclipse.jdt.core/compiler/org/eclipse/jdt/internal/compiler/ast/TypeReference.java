@@ -19,6 +19,7 @@
  *								Bug 434570 - Generic type mismatch for parametrized class annotation attribute with inner class
  *								Bug 434600 - Incorrect null analysis error reporting on type parameters
  *								Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
+ *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
@@ -657,7 +658,7 @@ protected void checkNullConstraints(Scope scope, TypeReference[] typeArguments) 
 		TypeVariableBinding[] typeVariables = this.resolvedType.original().typeVariables();
 		for (int i = 0; i < typeArguments.length; i++) {
 			TypeReference arg = typeArguments[i];
-			if (arg.resolvedType != null && arg.resolvedType.hasNullTypeAnnotations())
+			if (arg.resolvedType != null)
 				arg.checkNullConstraints(scope, typeVariables, i);
 		}
 	}
