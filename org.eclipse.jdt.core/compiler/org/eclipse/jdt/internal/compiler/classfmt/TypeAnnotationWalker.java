@@ -41,7 +41,7 @@ public class TypeAnnotationWalker {
 		public TypeAnnotationWalker toTypeBound(short boundIndex) { return this; }
 		public TypeAnnotationWalker toTypeParameter(boolean isClassTypeParameter, int rank) { return this; }
 		public TypeAnnotationWalker toNextDetail(int detailKind) { return this; }
-		public IBinaryAnnotation[] getAnnotationsAtCursor() { return NO_ANNOTATIONS; }
+		public IBinaryAnnotation[] getAnnotationsAtCursor(int currentTypeId) { return NO_ANNOTATIONS; }
 	};
 	
 	final protected IBinaryTypeAnnotation[] typeAnnotations;	// the actual material we're managing here
@@ -298,7 +298,7 @@ public class TypeAnnotationWalker {
 	 * Retrieve the type annotations at the current position
 	 * reached by invocations of toXYZ() methods.
 	 */
-	public IBinaryAnnotation[] getAnnotationsAtCursor() {
+	public IBinaryAnnotation[] getAnnotationsAtCursor(int currentTypeId) {
 		int length = this.typeAnnotations.length;
 		IBinaryAnnotation[] filtered = new IBinaryAnnotation[length];
 		long ptr = 1;
