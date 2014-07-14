@@ -2084,7 +2084,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"import org.eclipse.jdt.annotation.*;\n" + 
 				"\n" + 
 				"abstract public class X<@Nullable Y> implements Map<@Nullable String,Y> {\n" + 
-				"	void foo(X<Object> x) {\n" + 
+				"	void foo(X<@Nullable Object> x) {\n" + 
 				"		Map<@Nullable String, @Nullable Object> m1 = x; // OK\n" + 
 				"		Map<@Nullable String, @NonNull Object> m2 = x; // NOK\n" + 
 				"	}\n" + 
@@ -2095,7 +2095,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	Map<@Nullable String, @NonNull Object> m2 = x; // NOK\n" + 
 			"	                                            ^\n" + 
-			"Null type mismatch (type annotations): required \'Map<@Nullable String,@NonNull Object>\' but this expression has type \'X<Object>\', corresponding supertype is \'Map<@Nullable String,@Nullable Object>\'\n" + 
+			"Null type mismatch (type annotations): required \'Map<@Nullable String,@NonNull Object>\' but this expression has type \'X<@Nullable Object>\', corresponding supertype is \'Map<@Nullable String,@Nullable Object>\'\n" + 
 			"----------\n");
 	}
 
@@ -5027,14 +5027,19 @@ public void testDefault06_bin() {
 			"Y.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"public class Y {\n" +
-			"	void test(X.Inner<Number> inum) {\n" +
+			"	void test(X.Inner<Number> inum) { // illegal substitution\n" +
 			"		@NonNull Number nnn = inum.process(null); // ERR on argument\n" +
 			"	}\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
 		"----------\n" + 
-		"1. ERROR in Y.java (at line 4)\n" + 
+		"1. ERROR in Y.java (at line 3)\n" + 
+		"	void test(X.Inner<Number> inum) { // illegal substitution\n" + 
+		"	                  ^^^^^^\n" + 
+		"Null constraint mismatch: The type \'Number\' is not a valid substitute for the type parameter \'@NonNull T extends Object\'\n" + 
+		"----------\n" + 
+		"2. ERROR in Y.java (at line 4)\n" + 
 		"	@NonNull Number nnn = inum.process(null); // ERR on argument\n" + 
 		"	                                   ^^^^\n" + 
 		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
@@ -5291,6 +5296,92 @@ public void testTypeVariable6a() {
 		},
 		getCompilerOptions(),
 		"");
+}
+// Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables 
+// - type parameter with explicit nullness, cannot infer otherwise
+public void testTypeVariable7() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface I1 <@NonNull T> { T get(); }\n" +
+			"public class X {\n" +
+			"	<U> U m(I1<U> in) { return in.get(); }\n" +
+			"	public void test(I1<@NonNull String> in) {\n" +
+			"		@NonNull String s = m(in);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	<U> U m(I1<U> in) { return in.get(); }\n" + 
+		"	           ^\n" + 
+		"Null constraint mismatch: The type \'U\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+		"----------\n");
+}
+// Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables 
+// - type parameter with explicit nullness, nullness must not spoil inference
+public void testTypeVariable7a() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.WARNING); // allow ignoring bad substitution
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface I1 <@NonNull T> { T get(); }\n" +
+			"public class X {\n" +
+			"	<U> U m(I1<U> in) { return in.get(); }\n" +
+			"	public void test1() {\n" +
+			"		@Nullable String s = m(() -> \"OK\");\n" +
+			"		System.out.println(s);\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X().test1();\n" +
+			"	}\n" +
+			"}\n"
+		},
+		compilerOptions,
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	<U> U m(I1<U> in) { return in.get(); }\n" + 
+		"	           ^\n" + 
+		"Null constraint mismatch: The type \'U\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+		"----------\n",
+		"OK");
+}
+// Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables 
+// - type parameter with explicit nullness, nullness must not spoil inference
+public void testTypeVariable7err() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface I1 <@Nullable T> { T get(); }\n" +
+			"public class X {\n" +
+			"	<U> U m(I1<U> in) { return in.get(); }\n" +
+			"	public void test1() {\n" +
+			"		@NonNull String s = m(() -> \"\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	<U> U m(I1<U> in) { return in.get(); }\n" + 
+		"	           ^\n" + 
+		"Null constraint mismatch: The type \'U\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	<U> U m(I1<U> in) { return in.get(); }\n" + 
+		"	                           ^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'U\' but this expression has type \'@Nullable U\', where \'U\' is a free type variable\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 6)\n" + 
+		"	@NonNull String s = m(() -> \"\");\n" + 
+		"	                    ^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull String\'\n" + 
+		"----------\n");
 }
 public void testBug434600() {
 	runConformTestWithLibs(
