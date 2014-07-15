@@ -908,14 +908,21 @@ public class WildcardBinding extends ReferenceBinding {
 	}
 	@Override
 	public boolean mentionsAny(TypeBinding[] parameters, int idx) {
-		if (super.mentionsAny(parameters, idx))
-			return true;
-		if (this.bound != null && 	this.bound.mentionsAny(parameters, -1))
-			return true;
-		if (this.otherBounds != null) {
-			for (int i = 0, length = this.otherBounds.length; i < length; i++)
-				if (this.otherBounds[i].mentionsAny(parameters, -1))
-					return true;
+		if (this.inRecursiveFunction)
+			return false;
+		this.inRecursiveFunction = true;
+		try {
+			if (super.mentionsAny(parameters, idx))
+				return true;
+			if (this.bound != null && 	this.bound.mentionsAny(parameters, -1))
+				return true;
+			if (this.otherBounds != null) {
+				for (int i = 0, length = this.otherBounds.length; i < length; i++)
+					if (this.otherBounds[i].mentionsAny(parameters, -1))
+						return true;
+			}
+		} finally {
+			this.inRecursiveFunction = false;
 		}
 		return false;
 	}
