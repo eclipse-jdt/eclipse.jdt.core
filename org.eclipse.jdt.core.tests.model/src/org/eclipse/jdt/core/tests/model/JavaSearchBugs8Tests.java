@@ -4469,6 +4469,89 @@ public void testBug431716() throws CoreException {
 			this.resultCollector,
 			null);
 }
+/**
+ * @bug 432541:  Stack Overflow in Java Search - type inference issue?
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=432541"
+ */
+public void testBug432541() throws CoreException {
+this.workingCopies = new ICompilationUnit[8];
+this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Constants.java",
+		"final class Constants {\n" +
+		"    static final String BUG_NAME =  \"BUG 432541\";\n" +
+		"}\n"	
+	);
+this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/Constants.java",
+		"package test;\n" +
+		"public class Constants { public static final String ANY_NAMESPACE_ANY = \"UNRELATED\";}"
+		);
+this.workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/Context.java",
+		"package test;\n" +
+		"public abstract class Context <  DESCRIPTOR extends Descriptor<?, ?>> {}"
+		);
+this.workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/CoreObjectBuilder.java",
+		"package test;\n" +
+		"public abstract class CoreObjectBuilder {}\n"
+		);
+this.workingCopies[4] = getWorkingCopy("/JavaSearchBugs/src/Descriptor.java",
+		"package test;\n" +
+		"\n" +
+		"public interface Descriptor <UNMARSHAL_RECORD extends UnmarshalRecord, OBJECT_BUILDER extends CoreObjectBuilder> {\n" +
+		"	public default OBJECT_BUILDER getObjectBuilder() { return null; }\n" +
+		"}\n"
+		);
+this.workingCopies[5] = getWorkingCopy("/JavaSearchBugs/src/Unmarshaller.java",
+		"package test;\n" +
+		"\n" +
+		"public abstract class Unmarshaller<CONTEXT extends Context, DESCRIPTOR extends Descriptor> {\n" +
+		"   public CONTEXT getContext() {\n" +
+		"	   return null;\n" +
+		"   }\n" +
+		"}\n"
+		);
+this.workingCopies[6] = getWorkingCopy("/JavaSearchBugs/src/UnmarshalRecord.java",
+		"package test;\n" +
+		"\n" +
+		"public interface UnmarshalRecord<UNMARSHALLER extends Unmarshaller> {\n" +
+		"    public UNMARSHALLER getUnmarshaller();\n" +
+		"    public default void setAttrs() {}\n" +
+		"}\n"
+		);
+this.workingCopies[7] = getWorkingCopy("/JavaSearchBugs/src/XMLRelationshipMappingNodeValue.java",
+		"package test;\n" +
+		"interface CMap<UNMARSHALLER extends Unmarshaller> {\n" +
+		"    Object convertToValue( UNMARSHALLER unmarshaller);\n" +
+		"}\n" +
+		"public abstract class XMLRelationshipMappingNodeValue {\n" +
+		"	public void processChild(Descriptor xmlDescriptor, UnmarshalRecord unmarshalRecord) {\n" +
+		"		if (Constants.ANY_NAMESPACE_ANY.toCharArray().length > 0) {\n" +
+		"			Descriptor d1 = (Descriptor) xmlDescriptor.getObjectBuilder();\n" +
+		"		}\n" +
+		"	}\n" +
+		"	protected Descriptor findReferenceDescriptor(UnmarshalRecord unmarshalRecord, Descriptor descriptor) {\n" +
+		"		if (Constants.ANY_NAMESPACE_ANY.toCharArray().length > 0) {\n" +
+		"			Context xmlContext = unmarshalRecord.getUnmarshaller().getContext();			\n" +
+		"		}\n" +
+		"		return null;\n" +
+		"	}\n" +
+		"	\n" +
+		"	protected void endElementProcessText(UnmarshalRecord unmarshalRecord, CMap converter) {\n" +
+		"		if (Constants.ANY_NAMESPACE_ANY.toCharArray().length > 0) {\n" +
+		"			converter.convertToValue(unmarshalRecord.getUnmarshaller());\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n"
+		);
+SearchPattern pattern = SearchPattern.createPattern(
+		"Constants",
+		TYPE,
+		REFERENCES,
+		EXACT_RULE);
+new SearchEngine(this.workingCopies).search(pattern,
+new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+getJavaSearchWorkingCopiesScope(),
+this.resultCollector,
+null);
+}
 // Add new tests in JavaSearchBugs8Tests
 }
 
