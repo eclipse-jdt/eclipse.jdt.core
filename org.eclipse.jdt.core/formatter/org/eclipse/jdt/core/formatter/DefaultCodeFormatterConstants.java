@@ -3625,7 +3625,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to specify the length of the page. Beyond this length, the formatter will try to split the code
 	 *     - option id:         "org.eclipse.jdt.core.formatter.lineSplit"
 	 *     - possible values:   "&lt;n&gt;", where n is zero or a positive integer
-	 *     - default:           "80"
+	 *     - default:           "120"
 	 * </pre>
 	 * @since 3.0
 	 */
@@ -4036,7 +4036,9 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static Map getEclipse21Settings() {
-		return DefaultCodeFormatterOptions.getDefaultSettings().getMap();
+		DefaultCodeFormatterOptions options = DefaultCodeFormatterOptions.getDefaultSettings();
+		options.page_width = 80; // changed with bug 356841
+		return options.getMap();
 	}
 
 	/**

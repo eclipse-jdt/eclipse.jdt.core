@@ -2041,9 +2041,9 @@ public class DefaultCodeFormatterOptions {
 			try {
 				this.page_width = Integer.parseInt((String) pageWidthOption);
 			} catch (NumberFormatException e) {
-				this.page_width = 80;
+				this.page_width = 120;
 			} catch(ClassCastException e) {
-				this.page_width = 80;
+				this.page_width = 120;
 			}
 		}
 		final Object useTabOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR);
@@ -2474,7 +2474,7 @@ public class DefaultCodeFormatterOptions {
 		this.join_wrapped_lines = true;
 		this.put_empty_statement_on_new_line = false;
 		this.tab_size = 4;
-		this.page_width = 80;
+		this.page_width = 120;
 		this.tab_char = TAB; // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=49081
 		this.use_tabs_only_for_leading_indentations = false;
 		this.wrap_before_binary_operator = true;
@@ -2765,7 +2765,7 @@ public class DefaultCodeFormatterOptions {
 		this.join_wrapped_lines = true;
 		this.put_empty_statement_on_new_line = true;
 		this.tab_size = 8;
-		this.page_width = 80;
+		this.page_width = 120;
 		this.tab_char = MIXED;
 		this.use_tabs_only_for_leading_indentations = false;
 		this.wrap_before_binary_operator = true;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -160,6 +160,7 @@ public class JavaDocTestCase extends MultiLineTestCase {
 				" * }\n" +
 				" * </pre>\n" +
 				" */";
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "80"); //$NON-NLS-1$
 		String result= testFormat(input);
 		assertEquals(expected, result);
 	}
@@ -189,6 +190,7 @@ public class JavaDocTestCase extends MultiLineTestCase {
 				" * }\n" +
 				" * </Pre>\n" +
 				" */";
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "80"); //$NON-NLS-1$
 		String result= testFormat(input);
 		assertEquals(expected, result);
 	}
@@ -218,6 +220,7 @@ public class JavaDocTestCase extends MultiLineTestCase {
 				" * }\n" +
 				" * </PRE>\n" +
 				" */";
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "80"); //$NON-NLS-1$
 		String result= testFormat(input);
 		assertEquals(expected, result);
 	}

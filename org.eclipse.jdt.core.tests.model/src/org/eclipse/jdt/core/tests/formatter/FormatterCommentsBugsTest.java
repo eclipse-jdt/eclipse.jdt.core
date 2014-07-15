@@ -850,6 +850,7 @@ public void testBug232466a() throws JavaModelException {
 }
 public void testBug232466b() throws JavaModelException {
 	this.formatterPrefs.comment_line_length = 40;
+	setPageWidth80();
 	formatUnit("bugs.b232466", "X02.java");
 }
 
@@ -1993,6 +1994,7 @@ public void testBug234583i() throws JavaModelException {
 }
 // duplicate https://bugs.eclipse.org/bugs/show_bug.cgi?id=239447
 public void testBug234583_Bug239447() throws JavaModelException {
+	setPageWidth80();
 	String source = 
 		"public class Bug239447 {\n" + 
 		"	private static final String CONTENT = \"test.ObjectB {\\n\"\n" + 
@@ -2834,6 +2836,7 @@ public void testBug238210() throws JavaModelException {
 }
 // possible side effects detected while running massive tests
 public void testBug238210_X01() throws JavaModelException {
+	setPageWidth80();
 	String source = 
 		"package eclipse30;\n" + 
 		"\n" + 
@@ -6017,6 +6020,7 @@ public void testBug280255b() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=280616"
  */
 public void testBug280616() throws JavaModelException {
+	setPageWidth80();
 	String source = 
 		"public interface X {\n" + 
 		"/**\n" + 

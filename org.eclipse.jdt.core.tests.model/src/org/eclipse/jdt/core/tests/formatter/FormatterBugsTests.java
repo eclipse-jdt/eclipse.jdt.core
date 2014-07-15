@@ -780,6 +780,7 @@ public void testBug059891_03b() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146175
 public void testBug059891_146175() throws JavaModelException {
+	setPageWidth80();
 	String source =
 		"public class FormatterDemo {\n" + 
 		"\n" + 
@@ -876,6 +877,7 @@ public void testBug059891_164093_02() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=203588
 public void testBug059891_203588() throws JavaModelException {
+	setPageWidth80();
 	String source =
 		"public class Test {\n" + 
 		"public void a()\n" + 
@@ -899,6 +901,7 @@ public void testBug059891_203588() throws JavaModelException {
 }
 // wksp1
 public void testBug059891_wksp1_01() throws JavaModelException {
+	setPageWidth80();
 	String source =
 		"public class X01 {\n" + 
 		"	private void reportError(String name) throws ParseError {\n" + 
@@ -916,6 +919,7 @@ public void testBug059891_wksp1_01() throws JavaModelException {
 	);
 }
 public void testBug059891_wksp1_02() throws JavaModelException {
+	setPageWidth80();
 	String source =
 		"public class X02 {\n" + 
 		"	private void parseBuildFile(Project project) {\n" + 
@@ -951,6 +955,7 @@ public void testBug059891_wksp1_02() throws JavaModelException {
 	);
 }
 public void testBug059891_wksp1_03() throws JavaModelException {
+	setPageWidth80();
 	String source =
 		"public class X03 {\n" + 
 		"\n" + 
@@ -990,6 +995,7 @@ public void testBug059891_wksp1_04() throws JavaModelException {
 	);
 }
 public void testBug059891_wksp1_05() throws JavaModelException {
+	setPageWidth80();
 	String source =
 		"public class X05 {\n" + 
 		"void foo() {\n" + 
@@ -1012,6 +1018,7 @@ public void testBug059891_wksp1_05() throws JavaModelException {
 }
 // TODO Improve this formatting as it let the message send argument in one line over the max width
 public void testBug059891_wksp1_06() throws JavaModelException {
+	setPageWidth80();
 	String source =
 		"public class X06 {\n" + 
 		"	public void launch() {\n" + 
@@ -1040,6 +1047,7 @@ public void testBug059891_wksp1_06() throws JavaModelException {
 	);
 }
 public void testBug059891_wksp1_07() throws JavaModelException {
+	setPageWidth80();
 	String source =
 		"public class X07 {\n" + 
 		"	void foo() {\n" + 
@@ -1065,6 +1073,7 @@ public void testBug059891_wksp1_07() throws JavaModelException {
 	);
 }
 public void testBug059891_wksp1_08() throws JavaModelException {
+	setPageWidth80();
 	String source =
 		"public class X08 {\n" + 
 		"	public void foo() {\n" + 
@@ -1090,6 +1099,7 @@ public void testBug059891_wksp1_08() throws JavaModelException {
 	);
 }
 public void testBug059891_wksp1_09() throws JavaModelException {
+	setPageWidth80();
 	String source =
 		"public class X09 {\n" + 
 		"	void foo() {\n" + 
@@ -1112,6 +1122,7 @@ public void testBug059891_wksp1_09() throws JavaModelException {
 	);
 }
 public void testBug059891_wksp1_10() throws JavaModelException {
+	setPageWidth80();
 	String source =
 		"public class X10 {\n" + 
 		"	void foo() {\n" + 
@@ -1137,6 +1148,7 @@ public void testBug059891_wksp1_10() throws JavaModelException {
 	);
 }
 public void testBug059891_wksp1_11() throws JavaModelException {
+	setPageWidth80();
 	String source =
 		"public class X11 {\n" + 
 		"	private void antFileNotFound() {\n" + 
@@ -1154,6 +1166,7 @@ public void testBug059891_wksp1_11() throws JavaModelException {
 	);
 }
 public void testBug059891_wksp1_12() throws JavaModelException {
+	setPageWidth80();
 	String source =
 		"public class X12 {\n" + 
 		"	void foo() {\n" + 
@@ -1662,6 +1675,7 @@ public void testBug208541() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=203588"
  */
 public void testBug203588() throws JavaModelException {
+	setPageWidth80();
 	String source =
 		"public class Test {\n" +
 		"void foo() {\n" +
@@ -1935,6 +1949,7 @@ public void testBug281655a() throws JavaModelException {
 }
 public void testBug281655b() throws JavaModelException {
 	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_COMPACT_SPLIT;
+	setPageWidth80();
 	String source =
 		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\", \n" + 
 		"        activationConfig = { \n" + 
@@ -1960,6 +1975,7 @@ public void testBug281655b() throws JavaModelException {
 }
 public void testBug281655c() throws JavaModelException {
 	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_COMPACT_FIRST_BREAK_SPLIT;
+	setPageWidth80();
 	String source =
 		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\", \n" + 
 		"        activationConfig = { \n" + 
@@ -1985,6 +2001,7 @@ public void testBug281655c() throws JavaModelException {
 }
 public void testBug281655d() throws JavaModelException {
 	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_ONE_PER_LINE_SPLIT;
+	setPageWidth80();
 	String source =
 		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\", \n" + 
 		"        activationConfig = { \n" + 
@@ -2011,6 +2028,7 @@ public void testBug281655d() throws JavaModelException {
 }
 public void testBug281655e() throws JavaModelException {
 	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_NEXT_SHIFTED_SPLIT;
+	setPageWidth80();
 	String source =
 		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\", \n" + 
 		"        activationConfig = { \n" + 
@@ -2037,6 +2055,7 @@ public void testBug281655e() throws JavaModelException {
 }
 public void testBug281655f() throws JavaModelException {
 	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_NEXT_PER_LINE_SPLIT;
+	setPageWidth80();
 	String source =
 		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\", \n" + 
 		"        activationConfig = { \n" + 
@@ -2067,6 +2086,7 @@ public void testBug281655f() throws JavaModelException {
  */
 public void testBug282030() throws JavaModelException {
 	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_COMPACT_SPLIT;
+	setPageWidth80();
 	String source =
 		"@DeclareParents(value =\n" + 
 		"\"com.apress.springrecipes.calculator.ArithmeticCalculatorImpl\", defaultImpl =\n" + 
@@ -2094,6 +2114,7 @@ public void testBug282030a() throws JavaModelException {
 }
 public void testBug282030b() throws JavaModelException {
 	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_COMPACT_SPLIT;
+	setPageWidth80();
 	String source =
 		"@MyAnnot(value1 = \"this is an example\", value2 = \"of an annotation\", value3 = \"with several arguments\", value4 = \"which may need to be wrapped\")\n" + 
 		"public class Test {\n" + 
@@ -2108,6 +2129,7 @@ public void testBug282030b() throws JavaModelException {
 }
 public void testBug282030c() throws JavaModelException {
 	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_COMPACT_FIRST_BREAK_SPLIT;
+	setPageWidth80();
 	String source =
 		"@MyAnnot(value1 = \"this is an example\", value2 = \"of an annotation\", value3 = \"with several arguments\", value4 = \"which may need to be wrapped\")\n" + 
 		"public class Test {\n" + 
@@ -2196,6 +2218,7 @@ public void testBug282030g2() throws JavaModelException {
 }
 public void testBug282030h1() throws JavaModelException {
 	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_ONE_PER_LINE_SPLIT;
+	setPageWidth80();
 	String source =
 		"@MyAnnot1(name = \"sample1\", \n" + 
 		"                value = { \n" + 
@@ -2281,6 +2304,7 @@ public void testBug283467() throws JavaModelException {
  */
 public void testBug284789() throws JavaModelException {
 	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_COMPACT_SPLIT;
+	setPageWidth80();
 	String source =
 		"public class Test {\n" + 
 		"public synchronized List<FantasticallyWonderfulContainer<FantasticallyWonderfulClass>> getMeTheFantasticContainer() {\n" + 
@@ -2315,6 +2339,7 @@ public void testBug284789_01a() throws JavaModelException {
 }
 public void testBug284789_01b() throws JavaModelException {
 	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_COMPACT_SPLIT;
+	setPageWidth80();
 	String source =
 		"class X01 {\n" + 
 		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name() {\n" + 
@@ -2332,6 +2357,7 @@ public void testBug284789_01b() throws JavaModelException {
 }
 public void testBug284789_01c() throws JavaModelException {
 	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_COMPACT_FIRST_BREAK_SPLIT;
+	setPageWidth80();
 	String source =
 		"class X01 {\n" + 
 		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name() {\n" + 
@@ -2349,6 +2375,7 @@ public void testBug284789_01c() throws JavaModelException {
 }
 public void testBug284789_01d() throws JavaModelException {
 	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_ONE_PER_LINE_SPLIT;
+	setPageWidth80();
 	String source =
 		"class X01 {\n" + 
 		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name() {\n" + 
@@ -2367,6 +2394,7 @@ public void testBug284789_01d() throws JavaModelException {
 }
 public void testBug284789_01e() throws JavaModelException {
 	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
+	setPageWidth80();
 	String source =
 		"class X01 {\n" + 
 		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name() {\n" + 
@@ -2385,6 +2413,7 @@ public void testBug284789_01e() throws JavaModelException {
 }
 public void testBug284789_01f() throws JavaModelException {
 	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_NEXT_PER_LINE_SPLIT;
+	setPageWidth80();
 	String source =
 		"class X01 {\n" + 
 		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name() {\n" + 
@@ -2402,6 +2431,7 @@ public void testBug284789_01f() throws JavaModelException {
 }
 public void testBug284789_02a() throws JavaModelException {
 	// default is no wrapping for method declaration
+	setPageWidth80();
 	String source =
 		"class X02 {\n" + 
 		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name(String first, String second, String third) {\n" + 
@@ -2420,6 +2450,7 @@ public void testBug284789_02a() throws JavaModelException {
 public void testBug284789_02b() throws JavaModelException {
 	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_COMPACT_SPLIT;
 	this.formatterPrefs.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+	setPageWidth80();
 	String source =
 		"class X02 {\n" + 
 		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name(String first, String second, String third) {\n" + 
@@ -2439,6 +2470,7 @@ public void testBug284789_02b() throws JavaModelException {
 public void testBug284789_02c() throws JavaModelException {
 	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_COMPACT_FIRST_BREAK_SPLIT;
 	this.formatterPrefs.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_FIRST_BREAK_SPLIT;
+	setPageWidth80();
 	String source =
 		"class X02 {\n" + 
 		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name(String first, String second, String third) {\n" + 
@@ -2458,6 +2490,7 @@ public void testBug284789_02c() throws JavaModelException {
 public void testBug284789_02d() throws JavaModelException {
 	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_ONE_PER_LINE_SPLIT;
 	this.formatterPrefs.alignment_for_parameters_in_method_declaration = Alignment.M_ONE_PER_LINE_SPLIT;
+	setPageWidth80();
 	String source =
 		"class X02 {\n" + 
 		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name(String first, String second, String third) {\n" + 
@@ -2480,6 +2513,7 @@ public void testBug284789_02d() throws JavaModelException {
 public void testBug284789_02e() throws JavaModelException {
 	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
 	this.formatterPrefs.alignment_for_parameters_in_method_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
+	setPageWidth80();
 	String source =
 		"class X02 {\n" + 
 		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name(String first, String second, String third) {\n" + 
@@ -2502,6 +2536,7 @@ public void testBug284789_02e() throws JavaModelException {
 public void testBug284789_02f() throws JavaModelException {
 	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_NEXT_PER_LINE_SPLIT;
 	this.formatterPrefs.alignment_for_parameters_in_method_declaration = Alignment.M_NEXT_PER_LINE_SPLIT;
+	setPageWidth80();
 	String source =
 		"class X02 {\n" + 
 		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name(String first, String second, String third) {\n" + 
@@ -2801,6 +2836,7 @@ public void testBug286601_massive_01() {
 public void testBug286601_massive_02() {
 	this.formatterPrefs.join_wrapped_lines = false;
 	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	setPageWidth80();
 	String source =
 		"package massive;\n" + 
 		"\n" + 
@@ -2851,6 +2887,7 @@ public void testBug286601_massive_02() {
 }
 public void testBug286601_massive_03() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package massive;\n" + 
 		"\n" + 
@@ -2903,6 +2940,7 @@ public void testBug286601_massive_03() {
 public void testBug286601_wksp_03b() {
 	this.formatterPrefs.join_wrapped_lines = false;
 	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	setPageWidth80();
 	String source =
 		"package massive;\n" + 
 		"\n" + 
@@ -2966,6 +3004,7 @@ public void testBug286601_wksp_03b() {
  */
 public void testBug286668() throws JavaModelException {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"public class Test {\n" +
 		"\n" +
@@ -3358,6 +3397,7 @@ public void testBug290905f() throws JavaModelException {
  */
 public void testBug293240() {
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	setPageWidth80();
 	String source =
 		"public class Test {\n" +
 		"  public static <A, B> Function<A, B> forMap(\n" +
@@ -3469,6 +3509,7 @@ public void testBug293300_wkps1_02() {
 	);
 }
 public void testBug293300_wkps1_03() {
+	setPageWidth80();
 	String source = 
 		"package wksp1;\n" + 
 		"\n" + 
@@ -5364,6 +5405,7 @@ public void testBug264112_w26_S2() {
 	);
 }
 public void testBug264112_wksp1_01() {
+	setPageWidth80();
 	String source = 
 		"package wksp1;\n" + 
 		"\n" + 
@@ -5451,6 +5493,7 @@ public void testBug264112_wksp1_02() {
 	);
 }
 public void testBug264112_wksp2_01() {
+	setPageWidth80();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -6699,6 +6742,7 @@ public void testBug313524_03b() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146175
 public void testBug313524_146175() throws JavaModelException {
 	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	setPageWidth80();
 	String source =
 		"public class FormatterDemo {\n" + 
 		"\n" + 
@@ -6798,6 +6842,7 @@ public void testBug313524_164093_02() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=203588
 public void testBug313524_203588() throws JavaModelException {
 	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	setPageWidth80();
 	String source =
 		"public class Test {\n" + 
 		"public void a()\n" + 
@@ -6823,6 +6868,7 @@ public void testBug313524_203588() throws JavaModelException {
 // wksp1
 public void testBug313524_wksp1_01() throws JavaModelException {
 	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	setPageWidth80();
 	String source =
 		"public class X01 {\n" + 
 		"	private void reportError(String name) throws ParseError {\n" + 
@@ -6840,6 +6886,7 @@ public void testBug313524_wksp1_01() throws JavaModelException {
 }
 public void testBug313524_wksp1_02() throws JavaModelException {
 	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	setPageWidth80();
 	String source =
 		"public class X02 {\n" + 
 		"	private void parseBuildFile(Project project) {\n" + 
@@ -6876,6 +6923,7 @@ public void testBug313524_wksp1_02() throws JavaModelException {
 }
 public void testBug313524_wksp1_03() throws JavaModelException {
 	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	setPageWidth80();
 	String source =
 		"public class X03 {\n" + 
 		"\n" + 
@@ -6895,6 +6943,7 @@ public void testBug313524_wksp1_03() throws JavaModelException {
 }
 public void testBug313524_wksp1_04() throws JavaModelException {
 	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	setPageWidth80();
 	String source =
 		"public class X04 {\n" + 
 		"	void foo() {\n" + 
@@ -6936,6 +6985,7 @@ public void testBug313524_wksp1_05() throws JavaModelException {
 // TODO Improve this formatting as it let the message send argument in one line over the max width
 public void testBug313524_wksp1_06() throws JavaModelException {
 	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	setPageWidth80();
 	String source =
 		"public class X06 {\n" + 
 		"	public void launch() {\n" + 
@@ -6965,6 +7015,7 @@ public void testBug313524_wksp1_06() throws JavaModelException {
 }
 public void testBug313524_wksp1_07() throws JavaModelException {
 	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	setPageWidth80();
 	String source =
 		"public class X07 {\n" + 
 		"	void foo() {\n" + 
@@ -6991,6 +7042,7 @@ public void testBug313524_wksp1_07() throws JavaModelException {
 }
 public void testBug313524_wksp1_08() throws JavaModelException {
 	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	setPageWidth80();
 	String source =
 		"public class X08 {\n" + 
 		"	public void foo() {\n" + 
@@ -7017,6 +7069,7 @@ public void testBug313524_wksp1_08() throws JavaModelException {
 }
 public void testBug313524_wksp1_09() throws JavaModelException {
 	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	setPageWidth80();
 	String source =
 		"public class X09 {\n" + 
 		"	void foo() {\n" + 
@@ -7040,6 +7093,7 @@ public void testBug313524_wksp1_09() throws JavaModelException {
 }
 public void testBug313524_wksp1_10() throws JavaModelException {
 	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	setPageWidth80();
 	String source =
 		"public class X10 {\n" + 
 		"	void foo() {\n" + 
@@ -7066,6 +7120,7 @@ public void testBug313524_wksp1_10() throws JavaModelException {
 }
 public void testBug313524_wksp1_11() throws JavaModelException {
 	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	setPageWidth80();
 	String source =
 		"public class X11 {\n" + 
 		"	private void antFileNotFound() {\n" + 
@@ -7083,6 +7138,7 @@ public void testBug313524_wksp1_11() throws JavaModelException {
 }
 public void testBug313524_wksp1_12() throws JavaModelException {
 	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	setPageWidth80();
 	String source =
 		"public class X12 {\n" + 
 		"	void foo() {\n" + 
@@ -7622,6 +7678,7 @@ public void testBug330313d() {
 	);
 }
 public void testBug330313_regression_187a() {
+	setPageWidth80();
 	String source =
 		"import java.io.File;\n" + 
 		"\n" + 
@@ -7649,6 +7706,7 @@ public void testBug330313_regression_187a() {
 	);
 }
 public void testBug330313_regression_187b() {
+	setPageWidth80();
 	String source =
 		"import java.io.File;\n" + 
 		"\n" + 
@@ -7764,6 +7822,7 @@ public void testBug330313_wksp1_02_njl() {
 }
 public void testBug330313_wksp1_03_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -7914,6 +7973,7 @@ public void testBug330313_wksp1_05_njl() {
 public void testBug330313_wksp1_06_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
 	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8184,6 +8244,7 @@ public void testBug330313_wksp1_11_njl() {
 }
 // rg.eclipse.ant.ui/Ant Editor/org/eclipse/ant/internal/ui/editor/formatter/XmlFormatter.java
 public void testBug330313_wksp1_12() {
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8239,6 +8300,7 @@ public void testBug330313_wksp1_12() {
 }
 public void testBug330313_wksp1_12_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8294,6 +8356,7 @@ public void testBug330313_wksp1_12_njl() {
 }
 // Test case extracted from org.eclipse.ant.ui/org/eclipse/core/internal/dtree/NodeInfo.java
 public void testBug330313_wksp1_13() {
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8318,6 +8381,7 @@ public void testBug330313_wksp1_13() {
 }
 public void testBug330313_wksp1_13_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8342,6 +8406,7 @@ public void testBug330313_wksp1_13_njl() {
 }
 // Test case extracted from org.eclipse.jdt.core/org/eclipse/jdt/internal/compiler/ast/SingleNameReference.java
 public void testBug330313_wksp1_14() {
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8415,6 +8480,7 @@ public void testBug330313_wksp1_14_njl() {
 // Test case extracted from org.eclipse.jdt.core/org/eclipse/jdt/internal/compiler/ast/SingleNameReference.java
 public void testBug330313_wksp1_15_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8468,6 +8534,7 @@ public void testBug330313_wksp1_15_njl() {
 }
 // Test case 1941_1 (extracted from org.eclipse.jdt.core/org/eclipse/jdt/internal/compiler/ast/Parser.java)
 public void testBug330313_wksp1_16() {
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8507,6 +8574,7 @@ public void testBug330313_wksp1_16() {
 }
 public void testBug330313_wksp1_16_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8608,6 +8676,7 @@ public void testBug330313_wksp1_18_njl() {
 }
 public void testBug330313_wksp1_19_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8643,6 +8712,7 @@ public void testBug330313_wksp1_19_njl() {
 // Test case extracted from org.eclipse.debug.ui/ui/org/eclipse/debug/ui/AbstractDebugView.java
 public void testBug330313_wksp1_20_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8681,6 +8751,7 @@ public void testBug330313_wksp1_20_njl() {
 // Test case extracted from org.apache.lucene/src/org/apache/lucene/demo/html/Entities.java
 public void testBug330313_wksp1_21_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8703,6 +8774,7 @@ public void testBug330313_wksp1_21_njl() {
 // Test case extracted from differences noticed with patch v27.txt
 public void testBug330313_wksp1_22_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8857,6 +8929,7 @@ public void testBug330313_wksp1_27_njl() {
 }
 public void testBug330313_wksp1_28_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8907,6 +8980,7 @@ public void testBug330313_wksp1_28_njl() {
 }
 public void testBug330313_wksp1_29_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8930,6 +9004,7 @@ public void testBug330313_wksp1_29_njl() {
 }
 public void testBug330313_wksp1_30_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8955,6 +9030,7 @@ public void testBug330313_wksp1_30_njl() {
 }
 public void testBug330313_wksp1_31_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8991,6 +9067,7 @@ public void testBug330313_wksp1_31_njl() {
 }
 public void testBug330313_wksp1_32_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -9014,6 +9091,7 @@ public void testBug330313_wksp1_32_njl() {
 }
 // Test case extracted from differences noticed with patch v29.txt
 public void testBug330313_wksp1_33() {
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -9079,6 +9157,7 @@ public void testBug330313_wksp1_33_njl() {
 }
 public void testBug330313_wksp1_34_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -9114,6 +9193,7 @@ public void testBug330313_wksp1_34_njl() {
 // Test case extracted from differences noticed with patch v30.txt
 public void testBug330313_wksp1_35_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -9144,6 +9224,7 @@ public void testBug330313_wksp1_35_njl() {
 // Test case extracted from differences noticed with patch v32.txt
 public void testBug330313_wksp1_36_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -9170,6 +9251,7 @@ public void testBug330313_wksp1_36_njl() {
 }
 public void testBug330313_wksp1_37_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -9266,6 +9348,7 @@ public void testBug330313_wksp1_39_njl() {
 }
 public void testBug330313_wksp1_40_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -9467,6 +9550,7 @@ public void testBug330313_wksp1_44_njl() {
 }
 public void testBug330313_wksp1_45_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -9500,6 +9584,7 @@ public void testBug330313_wksp1_45_njl() {
 }
 public void testBug330313_wksp1_46_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -9628,6 +9713,7 @@ public void testBug330313_wksp1_48_njl() {
 }
 public void testBug330313_wksp1_49_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -9706,6 +9792,7 @@ public void testBug330313_wksp1_50_njl() {
 }
 public void testBug330313_wksp1_51_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -9806,6 +9893,7 @@ public void testBug330313_wksp1_51_njl() {
 }
 public void testBug330313_wksp1_52_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
+	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -10104,6 +10192,7 @@ public void testBug330313_b286601_04() {
 	this.formatterPrefs.join_wrapped_lines = false;
 	this.formatterPrefs.alignment_for_expressions_in_array_initializer = Alignment.M_ONE_PER_LINE_SPLIT;
 	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	setPageWidth80();
 	String source =
 		"package b286601;\n" + 
 		"\n" + 
@@ -10186,6 +10275,7 @@ public void testBug330313_b286601_05() {
 	this.formatterPrefs.join_wrapped_lines = false;
 	this.formatterPrefs.alignment_for_expressions_in_array_initializer = Alignment.M_ONE_PER_LINE_SPLIT;
 	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	setPageWidth80();
 	String source =
 		"package b286601;\n" + 
 		"\n" + 
@@ -10232,6 +10322,7 @@ public void testBug330313_b286601_06() {
 	this.formatterPrefs.join_wrapped_lines = false;
 	this.formatterPrefs.alignment_for_expressions_in_array_initializer = Alignment.M_ONE_PER_LINE_SPLIT;
 	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	setPageWidth80();
 	String source =
 		"package b286601;\n" + 
 		"\n" + 
@@ -10281,6 +10372,7 @@ public void testBug330313_b286601_07() {
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
 	this.formatterPrefs.alignment_for_expressions_in_array_initializer = Alignment.M_ONE_PER_LINE_SPLIT;
 	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	setPageWidth80();
 	String source =
 		"package b286601;\n" + 
 		"\n" + 
@@ -10321,6 +10413,7 @@ public void testBug330313_b286601_08() {
 	this.formatterPrefs.join_wrapped_lines = false;
 	this.formatterPrefs.alignment_for_expressions_in_array_initializer = Alignment.M_ONE_PER_LINE_SPLIT;
 	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	setPageWidth80();
 	String source =
 		"package b286601;\n" + 
 		"\n" + 
@@ -10459,6 +10552,33 @@ public void testBug282988() throws Exception {
 		"		buffer.putLong(0);     // backlink to previous version of this object\n" +
 		"		buffer.putInt(1);      // version identifier\n" +
 		"		buffer.flip();         // prepare to write\n" +
+		"	}\n" +
+		"}\n"
+    );
+}
+public void testBug356851() throws Exception {
+	String source =
+		"public class X {\n" +
+		"	public X LongMethodName(X x) {\n" +
+		"		return x;\n" +
+		"	}\n" +
+		"	public static void main(String[] args) {\n" +
+		"		X x = new X();\n" +
+		"		x = new X().LongMethodName(x).LongMethodName(x).LongMethodName(x).LongMethodName(x).LongMethodName(x).LongMethodName(x).LongMethodName(x).LongMethodName(x).LongMethodName(x);\n" +
+		"		System.out.println(x.hashCode());\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class X {\n" +
+		"	public X LongMethodName(X x) {\n" +
+		"		return x;\n" +
+		"	}\n" +
+		"\n" +
+		"	public static void main(String[] args) {\n" +
+		"		X x = new X();\n" +
+		"		x = new X().LongMethodName(x).LongMethodName(x).LongMethodName(x).LongMethodName(x).LongMethodName(x)\n" +
+		"				.LongMethodName(x).LongMethodName(x).LongMethodName(x).LongMethodName(x);\n" +
+		"		System.out.println(x.hashCode());\n" +
 		"	}\n" +
 		"}\n"
     );

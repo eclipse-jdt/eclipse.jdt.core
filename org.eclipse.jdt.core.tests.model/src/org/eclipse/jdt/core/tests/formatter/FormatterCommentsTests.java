@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -907,12 +907,14 @@ public void testBlockComments10() throws JavaModelException {
 	formatUnit("comments.block", "X10.java");
 }
 public void testBlockComments11() throws JavaModelException {
+	setPageWidth80();
 	formatUnit("comments.block", "X11.java");
 }
 public void testBlockComments12() throws JavaModelException {
 	formatUnit("comments.block", "X12.java");
 }
 public void testBlockComments13() throws JavaModelException {
+	setPageWidth80();
 	String source =
 		"package test.comments.block;\r\n" + 
 		"\r\n" + 
@@ -943,6 +945,7 @@ public void testBlockComments13() throws JavaModelException {
 	);
 }
 public void testBlockComments14() throws JavaModelException {
+	setPageWidth80();
 	formatUnit("comments.block", "X14.java");
 }
 public void testBlockComments15() throws JavaModelException {
@@ -952,6 +955,7 @@ public void testBlockComments16() throws JavaModelException {
 	formatUnit("comments.block", "X16.java");
 }
 public void testBlockComments17() throws JavaModelException {
+	setPageWidth80();
 	formatUnit("comments.block", "X17.java");
 }
 public void testBlockComments18() throws JavaModelException {
