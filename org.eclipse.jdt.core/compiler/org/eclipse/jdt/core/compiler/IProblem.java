@@ -456,7 +456,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.10 */
 	int NonStaticOrAlienTypeReceiver = MethodRelated + 84;
 
-	/** @since 3.10 */
+	/** @since 3.11 */
 	int ExceptionParameterIsNeverUsed = Internal + 85;
 
 	// variable hiding
