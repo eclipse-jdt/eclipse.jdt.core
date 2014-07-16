@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 IBM Corporation and others.
+ * Copyright (c) 2011, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7055,7 +7055,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 				false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		assertProblemsSize(unit, 1, "Type mismatch: cannot convert from Test to Annotation");
+		assertProblemsSize(unit, 1, "Test is not an annotation type");
 		node = getASTNode(unit, 0, 0);
 		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
 		FieldDeclaration declaration = (FieldDeclaration) node;

@@ -322,7 +322,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	@Object\n" +
 			"	 ^^^^^^\n" +
-			"Type mismatch: cannot convert from Object to Annotation\n" +
+			"Object is not an annotation type\n" +
 			"----------\n");
 	}
 

@@ -402,6 +402,8 @@ void setSourceStart(int sourceStart);
 	int NonStaticContextForEnumMemberType = Internal + 32;
 	/** @since 3.3 */
 	int TypeHidingType = TypeRelated + 33;
+	/** @since 3.11 */
+	int NotAnnoationType = TypeRelated + 34;
 
 	// variables
 	int UndefinedName = Internal + FieldRelated + 50;

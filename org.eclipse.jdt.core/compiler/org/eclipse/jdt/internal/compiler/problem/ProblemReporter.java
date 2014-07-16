@@ -7806,6 +7806,14 @@ public void typeHiding(TypeParameter typeParam, Binding hidden) {
 		typeParam.sourceStart,
 		typeParam.sourceEnd);
 }
+public void notAnnotationType(TypeBinding actualType, ASTNode location) {
+	this.handle(
+			IProblem.NotAnnoationType,
+			new String[] {new String(actualType.leafComponentType().readableName())},
+			new String[] {new String(actualType.leafComponentType().shortReadableName())},
+			location.sourceStart,
+			location.sourceEnd);
+}
 public void typeMismatchError(TypeBinding actualType, TypeBinding expectedType, ASTNode location, ASTNode expectingLocation) {
 	if (this.options.sourceLevel < ClassFileConstants.JDK1_5) { // don't expose type variable names, complain on erased types
 		if (actualType instanceof TypeVariableBinding)

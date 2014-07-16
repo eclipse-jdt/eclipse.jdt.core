@@ -832,6 +832,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("NonStaticFieldFromStaticInvocation", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("NonStaticOrAlienTypeReceiver", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("NonStaticTypeFromStaticInvocation", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("NotAnnoationType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("NotVisibleConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("NotVisibleConstructorInDefaultConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("NotVisibleConstructorInImplicitConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -1652,6 +1653,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("NonStaticFieldFromStaticInvocation", SKIP);
 		expectedProblemAttributes.put("NonStaticOrAlienTypeReceiver", SKIP);
 		expectedProblemAttributes.put("NonStaticTypeFromStaticInvocation", SKIP);
+		expectedProblemAttributes.put("NotAnnoationType", SKIP);
 		expectedProblemAttributes.put("NotVisibleConstructor", SKIP);
 		expectedProblemAttributes.put("NotVisibleConstructorInDefaultConstructor", SKIP);
 		expectedProblemAttributes.put("NotVisibleConstructorInImplicitConstructorCall", SKIP);

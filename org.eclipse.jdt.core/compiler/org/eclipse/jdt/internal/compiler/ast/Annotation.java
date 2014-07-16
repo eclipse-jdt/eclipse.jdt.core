@@ -797,7 +797,7 @@ public abstract class Annotation extends Expression {
 		this.resolvedType = typeBinding;
 		// ensure type refers to an annotation type
 		if (!typeBinding.isAnnotationType() && typeBinding.isValidBinding()) {
-			scope.problemReporter().typeMismatchError(typeBinding, scope.getJavaLangAnnotationAnnotation(), this.type, null);
+			scope.problemReporter().notAnnotationType(typeBinding, this.type);
 			return null;
 		}
 
