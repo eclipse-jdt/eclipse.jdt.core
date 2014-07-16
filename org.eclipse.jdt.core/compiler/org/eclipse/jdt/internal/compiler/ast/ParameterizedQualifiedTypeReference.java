@@ -14,6 +14,7 @@
  *								Bug 416181 - [1.8][compiler][null] Invalid assignment is not rejected by the compiler
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
  *								Bug 434600 - Incorrect null analysis error reporting on type parameters
+ *								Bug 435570 - [1.8][null] @NonNullByDefault illegally tries to affect "throws E"
  *        Andy Clement - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -97,6 +98,24 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	public boolean isParameterizedTypeReference() {
 		return true;
 	}
+
+	@Override
+    public boolean hasNullTypeAnnotation() {
+    	if (super.hasNullTypeAnnotation())
+    		return true;
+    	if (this.resolvedType != null && !this.resolvedType.hasNullTypeAnnotations())
+    		return false; // shortcut
+    	if (this.typeArguments != null) {
+    		for (int i = 0; i < this.typeArguments.length; i++) {
+    			TypeReference[] arguments = this.typeArguments[i];
+    			for (int j = 0; j < arguments.length; j++) {				
+    				if (arguments[i].hasNullTypeAnnotation())
+    					return true;
+				}
+			}
+    	}
+    	return false;
+    }
 
 	/**
 	 * @return char[][]

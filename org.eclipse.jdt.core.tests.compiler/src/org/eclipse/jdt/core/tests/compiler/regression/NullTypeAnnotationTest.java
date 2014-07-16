@@ -5383,6 +5383,19 @@ public void testTypeVariable7err() {
 		"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull String\'\n" + 
 		"----------\n");
 }
+//Bug 435570 - [1.8][null] @NonNullByDefault illegally tries to affect "throws E"
+public void testTypeVariable8() {
+	runConformTestWithLibs(
+		new String[] {
+			"Test.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"public class Test<E extends Exception> {\n" + 
+			"	void test() throws E {}\n" + // was: Nullness annotations are not applicable at this location
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 // Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
 public void testTypeVariable10() {
 	runConformTestWithLibs(

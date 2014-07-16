@@ -20,6 +20,7 @@
  *								Bug 434600 - Incorrect null analysis error reporting on type parameters
  *								Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
+ *								Bug 435570 - [1.8][null] @NonNullByDefault illegally tries to affect "throws E"
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
@@ -688,6 +689,26 @@ public Annotation findAnnotation(long nullTagBits) {
 		}
 	}
 	return null;
+}
+public boolean hasNullTypeAnnotation() {
+	if (this.annotations != null) {
+		Annotation[] innerAnnotations = this.annotations[this.annotations.length-1];
+		if (containsNullAnnotation(innerAnnotations))
+			return true;
+	}
+	return false;
+}
+public static boolean containsNullAnnotation(Annotation[] annotations) {
+	if (annotations != null) {
+		for (int i = 0; i < annotations.length; i++) {
+			if (annotations[i] != null 
+					&& annotations[i].resolvedType != null 
+					&& (annotations[i].resolvedType.id == TypeIds.T_ConfiguredAnnotationNonNull
+						|| annotations[i].resolvedType.id == TypeIds.T_ConfiguredAnnotationNullable))
+				return true;
+		}
+	}
+	return false;	
 }
 public TypeReference[] getTypeReferences() {
 	return new TypeReference [] { this };

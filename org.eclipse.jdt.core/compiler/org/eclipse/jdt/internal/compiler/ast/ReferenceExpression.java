@@ -26,6 +26,7 @@
  *							Bug 428264 - [1.8] method reference of generic class causes problems (wrong inference result or NPE)
  *							Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *							Bug 426537 - [1.8][inference] Eclipse compiler thinks I<? super J> is compatible with I<J<?>> - raw type J involved
+ *							Bug 435570 - [1.8][null] @NonNullByDefault illegally tries to affect "throws E"
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contribution for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -409,7 +410,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			return this.resolvedType = null;
 		}
 		
-		if (this.lhs instanceof TypeReference && lhsType.hasNullTypeAnnotations()) {
+		if (this.lhs instanceof TypeReference && ((TypeReference)this.lhs).hasNullTypeAnnotation()) {
 			scope.problemReporter().nullAnnotationUnsupportedLocation((TypeReference) this.lhs);
 		}
 

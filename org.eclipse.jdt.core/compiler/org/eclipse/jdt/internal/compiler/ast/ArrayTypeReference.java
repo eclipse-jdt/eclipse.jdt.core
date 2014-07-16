@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
+ *								Bug 435570 - [1.8][null] @NonNullByDefault illegally tries to affect "throws E"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -178,5 +179,21 @@ public class ArrayTypeReference extends SingleTypeReference {
 	protected TypeBinding internalResolveType(Scope scope, int location) {
 		TypeBinding internalResolveType = super.internalResolveType(scope, location);
 		return internalResolveType;
+	}
+	
+	@Override
+	public boolean hasNullTypeAnnotation() {
+    	if (super.hasNullTypeAnnotation())
+    		return true;
+    	if (this.resolvedType != null && !this.resolvedType.hasNullTypeAnnotations())
+    		return false; // shortcut
+    	if (this.annotationsOnDimensions != null) {
+    		for (int i = 0; i < this.annotationsOnDimensions.length; i++) {
+				Annotation[] innerAnnotations = this.annotationsOnDimensions[i];
+				if (containsNullAnnotation(innerAnnotations))
+					return true;
+			}
+    	}
+    	return false;
 	}
 }

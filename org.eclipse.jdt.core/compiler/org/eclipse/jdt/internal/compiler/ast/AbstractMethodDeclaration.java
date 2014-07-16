@@ -21,6 +21,7 @@
  *								Bug 403216 - [1.8][null] TypeReference#captureTypeAnnotations treats type annotations as type argument annotations
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
+ *								Bug 435570 - [1.8][null] @NonNullByDefault illegally tries to affect "throws E"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -585,7 +586,7 @@ public abstract class AbstractMethodDeclaration
 			this.scope.problemReporter().illegalTypeForExplicitThis(this.receiver, enclosingReceiver);
 		}
 
-		if (resolvedReceiverType.hasNullTypeAnnotations()) {
+		if (this.receiver.type.hasNullTypeAnnotation()) {
 			this.scope.problemReporter().nullAnnotationUnsupportedLocation(this.receiver.type);
 		}
 	}
