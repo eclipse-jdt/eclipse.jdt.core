@@ -17,6 +17,7 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
+ *								Bug 438012 - [1.8][null] Bogus Warning: The nullness annotation is redundant with a default that applies to this location
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *								bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
@@ -169,6 +170,12 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			Annotation annotation = this.annotations[i];
 			annotation.traverse(collector, (BlockScope) null);
 		}
+	}
+	
+	public boolean hasNullTypeAnnotation() {
+		// parser associates SE8 annotations to the declaration
+		return TypeReference.containsNullAnnotation(this.annotations) || 
+				(this.returnType != null && this.returnType.hasNullTypeAnnotation()); // just in case
 	}
 
 	public boolean isDefaultMethod() {

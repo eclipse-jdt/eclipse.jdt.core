@@ -5396,6 +5396,23 @@ public void testTypeVariable8() {
 		getCompilerOptions(),
 		"");
 }
+// Bug 438012 - Bogus Warning: The nullness annotation is redundant with a default that applies to this location
+public void testTypeVariable9() {
+	runConformTestWithLibs(
+		new String[] {
+			"Bar.java",
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import static org.eclipse.jdt.annotation.DefaultLocation.*;\n" + 
+			"\n" + 
+			"@NonNullByDefault({ PARAMETER, RETURN_TYPE, FIELD, TYPE_BOUND, TYPE_ARGUMENT, TYPE_PARAMETER })\n" + 
+			"interface Bar<V> {\n" + 
+			"    V getV(V in);\n" + 
+			"    void setV(V v);\n" + 
+			"}"
+		},
+		getCompilerOptions(),
+		"");
+}
 // Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
 public void testTypeVariable10() {
 	runConformTestWithLibs(
