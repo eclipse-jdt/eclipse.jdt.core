@@ -11106,4 +11106,72 @@ public void test376977() throws Exception {
 		false,
 		false);
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=438437 - [1.8][compiler] Annotations
+// on enum constants interpreted only as type annotations if the annotation type
+// specifies ElementType.TYPE_USE in @Target along with others.
+public void test438437() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"@Target({ElementType.TYPE_USE, ElementType.FIELD})\n" +
+			"@interface TUF {} \n" +
+			"@Target({ElementType.FIELD})\n" +
+			"@interface F {} \n" +
+			"@Target({ElementType.TYPE_USE})\n" +
+			"@interface TU1 {} \n" +
+			"@Target({ElementType.LOCAL_VARIABLE})\n" +
+			"@interface LV {} \n" +
+			"@Target({ElementType.TYPE_USE})\n" +
+			"@interface TU2 {} \n" +
+			"class Y {}\n" +
+			"public enum X {\n" +
+			"	@TUF E1,\n" + // Error without the fix.
+			"	@F E2,\n" +
+			"	@TU1 E3,\n" + // Error is reported as no type exists for the Enum.
+			"	@LV E4,\n" +
+			"	@TUF @TU1 @F E5,\n" +
+			"	@TUF @TU1 @F @TU2 E6;\n" +
+			"	@TUF Y y11;\n" +
+			"	@F Y y12;\n" +
+			"	@TU1 Y y13;\n" + // No error reported as type exists.
+			"	@LV Y y14;\n" +
+			"}\n" ,
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 17)\n" +
+		"	@TU1 E3,\n" +
+		"	^^^^\n" +
+		"Syntax error, type annotations are illegal here\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 18)\n" +
+		"	@LV E4,\n" +
+		"	^^^\n" +
+		"The annotation @LV is disallowed for this location\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 19)\n" +
+		"	@TUF @TU1 @F E5,\n" +
+		"	     ^^^^\n" +
+		"Syntax error, type annotations are illegal here\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 20)\n" +
+		"	@TUF @TU1 @F @TU2 E6;\n" +
+		"	     ^^^^\n" +
+		"Syntax error, type annotations are illegal here\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 20)\n" +
+		"	@TUF @TU1 @F @TU2 E6;\n" +
+		"	             ^^^^\n" +
+		"Syntax error, type annotations are illegal here\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 24)\n" +
+		"	@LV Y y14;\n" +
+		"	^^^\n" +
+		"The annotation @LV is disallowed for this location\n" +
+		"----------\n");
+}
 }

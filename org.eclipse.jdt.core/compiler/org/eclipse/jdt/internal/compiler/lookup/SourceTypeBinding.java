@@ -1732,7 +1732,7 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 				Annotation [] annotations = fieldDecl.annotations;
 				if (annotations != null && annotations.length != 0) {
 					ASTNode.copySE8AnnotationsToType(initializationScope, field, annotations,
-							fieldDecl.getKind() != AbstractVariableDeclaration.ENUM_CONSTANT); // type annotation is illegal on enum constant
+							fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT); // type annotation is illegal on enum constant
 				}
 				Annotation.isTypeUseCompatible(fieldDecl.type, this.scope, annotations);
 			}
@@ -1924,7 +1924,7 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 				if (sourceLevel >= ClassFileConstants.JDK1_8 && !method.isVoidMethod()) {
 					Annotation [] annotations = methodDecl.annotations;
 					if (annotations != null && annotations.length != 0) {
-						ASTNode.copySE8AnnotationsToType(methodDecl.scope, method, methodDecl.annotations, true);
+						ASTNode.copySE8AnnotationsToType(methodDecl.scope, method, methodDecl.annotations, false);
 					}
 					Annotation.isTypeUseCompatible(returnType, this.scope, methodDecl.annotations);
 				}
