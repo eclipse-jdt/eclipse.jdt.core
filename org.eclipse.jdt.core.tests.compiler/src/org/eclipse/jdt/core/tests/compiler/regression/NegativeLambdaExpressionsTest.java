@@ -9067,6 +9067,32 @@ public void test431514() {
 		"The nested type Z cannot hide an enclosing type\n" +
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=439707 [1.8][compiler] Lambda can be passed illegally to invisible method argument 
+public void test439707() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        T2.run(() -> {});\n" +
+			"    }\n" +
+			"}\n",
+			"T2.java",
+			"public class T2 {\n" +
+			"    public static void run(InvisibleInterface i) {\n" +
+			"    }\n" +
+			"    private interface InvisibleInterface {\n" +
+			"        void run();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	T2.run(() -> {});\n" + 
+		"	       ^^^^^\n" + 
+		"The type T2.InvisibleInterface from the descriptor computed for the target context is not visible here.  \n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

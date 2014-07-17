@@ -264,14 +264,14 @@ public abstract class FunctionalExpression extends Expression {
 		VisibilityInspector inspector = new VisibilityInspector(this, scope, shouldChatter);
 		
 		boolean status = true;
-		
 		if (!inspector.visible(sam.returnType))
 			status = false;
 		if (!inspector.visible(sam.parameters))
 			status = false;
 		if (!inspector.visible(sam.thrownExceptions))
 			status = false;
-		
+		if (!inspector.visible(sam.declaringClass))
+			status = false;
 		return status;
 	}
 
