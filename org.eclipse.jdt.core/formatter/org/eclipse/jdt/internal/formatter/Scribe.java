@@ -1138,14 +1138,17 @@ public class Scribe implements IJavaDocTagConstants {
 		if (linesCount > length) {
 			System.arraycopy(this.newEmptyLines, 0, this.newEmptyLines = new String[linesCount+10], 0, length);
 		}
-		String newLineString = this.newEmptyLines[linesCount-1];
-		if (newLineString == null) {
-			this.tempBuffer.setLength(0);
-			for (int j=0; j<linesCount; j++) {
-				this.tempBuffer.append(this.lineSeparator);
+		String newLineString = Util.EMPTY_STRING;
+		if (linesCount > 0) {
+			newLineString = this.newEmptyLines[linesCount-1];
+			if (newLineString == null) {
+				this.tempBuffer.setLength(0);
+				for (int j=0; j<linesCount; j++) {
+					this.tempBuffer.append(this.lineSeparator);
+				}
+				newLineString = this.tempBuffer.toString();
+				this.newEmptyLines[linesCount-1] = newLineString;
 			}
-			newLineString = this.tempBuffer.toString();
-			this.newEmptyLines[linesCount-1] = newLineString;
 		}
 		return newLineString;
 	}

@@ -10583,4 +10583,55 @@ public void testBug356851() throws Exception {
 		"}\n"
     );
 }
+/**
+ * @bug 437639: [formatter] ArrayIndexOutOfBoundsException while formatting source code
+ * @test test that the AIOOB is not generated 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=437639"
+ */
+public void testBug437639() throws Exception {
+	this.formatterPrefs.blank_lines_between_import_groups = 0;
+	String source =
+		"package com.test;\n" +
+		"\n" +
+		"import java.math.BigDecimal;\n" +
+		"import java.math.BigInteger;\n" +
+		"import java.util.ArrayList;\n" +
+		"\n" +
+		"\n" +
+		"\n" +
+		"//import java.util.Arrays;\n" +
+		"import java.util.Date;\n" +
+		"import java.util.List;\n" +
+		"\n" +
+		"public class Test {\n" +
+		"\n" +
+		"	public static void main(String[] args) {\n" +
+		"		BigDecimal big = new BigDecimal(1);\n" +
+		"		BigInteger bigI = 	new BigInteger(\"1\");\n" +
+		"		Date d = new Date();\n" +
+		"		List list = new ArrayList<>();\n" +
+		"	}\n" +
+		"}\n"
+		;
+	formatSource(source,
+		"package com.test;\n" +
+		"\n" +
+		"import java.math.BigDecimal;\n" +
+		"import java.math.BigInteger;\n" +
+		"import java.util.ArrayList;\n" +
+		"//import java.util.Arrays;\n" +
+		"import java.util.Date;\n" +
+		"import java.util.List;\n" +
+		"\n" +
+		"public class Test {\n" +
+		"\n" +
+		"	public static void main(String[] args) {\n" +
+		"		BigDecimal big = new BigDecimal(1);\n" +
+		"		BigInteger bigI = 	new BigInteger(\"1\");\n" +
+		"		Date d = new Date();\n" +
+		"		List list = new ArrayList<>();\n" +
+		"	}\n" +
+		"}\n"
+    );
+}
 }
