@@ -4505,6 +4505,32 @@ public void test436542() throws Exception {
 	IClassFileAttribute signature = org.eclipse.jdt.internal.core.util.Util.getAttribute(lambdaMethod, IAttributeNamesConstants.SIGNATURE);
 	assertNull("Found generic signature for lambda method", signature);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=439515 [1.8] ECJ reports error at method reference to overloaded instance method
+public void _test439515() {
+	this.runConformTest(
+		new String[] {
+			"X.java", 
+			"interface Fun<T, R> {\n" +
+			"	R apply(T arg);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	int size() {\n" +
+			"		return -1;\n" +
+			"	}\n" +
+			"	int size(Object arg) {\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"	int size(X arg) {\n" +
+			"		return 1;\n" +
+			"	}\n" +
+			"	public static void main(String args[]) {\n" +
+			"		Fun<X, Integer> f1 = X::size;\n" +
+			"		System.out.println(f1.apply(new X()));\n" +
+			"	}\n" +
+			"}\n"
+	    },
+	    "-1");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
