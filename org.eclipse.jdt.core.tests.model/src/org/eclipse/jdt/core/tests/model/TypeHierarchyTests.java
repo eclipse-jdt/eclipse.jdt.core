@@ -2749,4 +2749,65 @@ public void testBug436155() throws CoreException, IOException {
 		deleteProject("P");
 	}
 }
+public void testBug436139() throws CoreException, IOException {
+	IJavaProject prj = null;
+	try {
+		prj = createJavaProject("Bug436139", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
+		createFolder("/Bug436139/src/p1");
+		String iSource = "package p1;\n" +
+				"public interface I {\n" +
+				"    void foo(A<B> x);\n" +
+				"}";
+		createFile("/Bug436139/src/p1/I.java", iSource);
+		createFile("/Bug436139/src/p1/A.java", "package p1;\n" +"public class A<T> {}");
+		createFile("/Bug436139/src/p1/B.java", "package p1;\n" +"public class B {}");
+
+		
+		createFolder("/Bug436139/src/p2");
+		String source = "package p2;\n" +
+				"import p1.*;\n" +
+				"\n" +
+				"@SuppressWarnings(\"unused\")\n" +
+				"public class X {\n" +
+				"\n" +
+				"	private Object patternChanged(A<B> x1) {\n" +
+				"\n" +
+				"		I f1 = new I() {\n" +
+				"			public void foo(A<B> x) {}\n" +
+				"		};\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"\n" +
+				"	private void someOtherMethod() {\n" +
+				"		I f2 = (x) -> {	patternChanged(x);};\n" +
+				"\n" +
+				"		I f3 = new I() {\n" +
+				"			public void foo(A<B> x) {}\n" +
+				"		};\n" +
+				"	}\n" +
+				"}\n";
+		createFile("/Bug436139/src/p2/X.java", source);
+
+		int start = iSource.lastIndexOf("I");
+		ICompilationUnit unit = getCompilationUnit("Bug436139", "src", "p1", "I.java");
+		unit.becomeWorkingCopy(null);
+        unit.getBuffer().setContents(iSource);
+        unit.makeConsistent(null);
+
+		IJavaElement[] elements = unit.codeSelect(start, "I".length());
+		IType focus = (IType) elements[0];
+		ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
+		assertHierarchyEquals(
+				"Focus: I [in [Working copy] I.java [in p1 [in src [in Bug436139]]]]\n" + 
+				"Super types:\n" + 
+				"Sub types:\n" + 
+				"  <anonymous #1> [in patternChanged(A<B>) [in X [in X.java [in p2 [in src [in Bug436139]]]]]]\n" + 
+				"  <anonymous #1> [in someOtherMethod() [in X [in X.java [in p2 [in src [in Bug436139]]]]]]\n" +
+				"  <lambda #1> [in someOtherMethod() [in X [in X.java [in p2 [in src [in Bug436139]]]]]]\n",
+				hierarchy);
+	} finally {
+		if (prj != null)
+			deleteProject(prj);
+	}
+}
 }

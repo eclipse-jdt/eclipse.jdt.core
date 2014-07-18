@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,9 +52,25 @@ public void addAll(IType[] newElements) {
 	this.size += newElements.length;
 }
 public boolean contains(IType element) {
-	for (int i = this.size; --i >= 0;)
-		if (element.equals(this.elements[i]))
+	for (int i = this.size; --i >= 0;) {
+		/* Note: When creating new subtypes of RST, need to check whether this code
+		 * which gives special treatment to lambda needs modification or not - refer to bug 436139
+		 * An alternate could have been the following:
+		 * if (element.equals(this.elements[i) && this.elements[i].equals(element)) return true;
+		 * but the above has the issue of repeating the steps in most of the cases.
+		 */
+		IType firstElement = null;
+		IType secondElement = null;
+		if (element.isLambda()) {
+			firstElement = element;
+			secondElement = elements[i];
+		} else {
+			firstElement = elements[i];
+			secondElement = element;
+		}
+		if (firstElement.equals(secondElement))
 			return true;
+	}
 	return false;
 }
 public TypeVector copy() {
