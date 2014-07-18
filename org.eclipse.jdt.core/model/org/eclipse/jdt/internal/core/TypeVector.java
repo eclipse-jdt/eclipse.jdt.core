@@ -63,9 +63,9 @@ public boolean contains(IType element) {
 		IType secondElement = null;
 		if (element.isLambda()) {
 			firstElement = element;
-			secondElement = elements[i];
+			secondElement = this.elements[i];
 		} else {
-			firstElement = elements[i];
+			firstElement = this.elements[i];
 			secondElement = element;
 		}
 		if (firstElement.equals(secondElement))
