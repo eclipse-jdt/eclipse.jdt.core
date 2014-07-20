@@ -24,6 +24,7 @@
  *								Bug 431408 - Java 8 (1.8) generics bug
  *								Bug 435962 - [RC2] StackOverFlowError when building
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
+ *								Bug 438250 - [1.8][null] NPE trying to report bogus null annotation conflict
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -806,11 +807,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 				if (nullTagBits == 0L) {
 					nullTagBits |= superNullTagBits;
 				} else if (superNullTagBits != nullTagBits) {
-					// not finding either bound or ann should be considered a compiler bug
-					TypeReference bound = findBound(this.firstBound, parameter);
-					Annotation ann = bound.findAnnotation(superNullTagBits);
-					scope.problemReporter().contradictoryNullAnnotationsOnBounds(ann, nullTagBits);
-					this.tagBits &= ~TagBits.AnnotationNullMASK;
+					this.firstBound = nullMismatchOnBound(parameter, this.firstBound, superNullTagBits, nullTagBits, scope);
 				}
 			}
 		}	
@@ -824,11 +821,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 					if (nullTagBits == 0L) {
 						nullTagBits |= superNullTagBits;
 					} else if (superNullTagBits != nullTagBits) {
-						// not finding either bound or ann should be considered a compiler bug
-						TypeReference bound = findBound(this.firstBound, parameter);
-						Annotation ann = bound.findAnnotation(superNullTagBits);
-						scope.problemReporter().contradictoryNullAnnotationsOnBounds(ann, nullTagBits);
-						this.tagBits &= ~TagBits.AnnotationNullMASK;
+						interfaces[i] = (ReferenceBinding) nullMismatchOnBound(parameter, resolveType, superNullTagBits, nullTagBits, scope);
 					}
 				}
 				interfaces[i] = resolveType;
@@ -836,6 +829,20 @@ public class TypeVariableBinding extends ReferenceBinding {
 		}
 		if (nullTagBits != 0)
 			this.tagBits |= nullTagBits | TagBits.HasNullTypeAnnotation;
+	}
+	private TypeBinding nullMismatchOnBound(TypeParameter parameter, TypeBinding boundType, long superNullTagBits, long nullTagBits, Scope scope) {
+		// not finding bound should be considered a compiler bug
+		TypeReference bound = findBound(boundType, parameter);
+		Annotation ann = bound.findAnnotation(superNullTagBits);
+		if (ann != null) {
+			// explicit annotation: error
+			scope.problemReporter().contradictoryNullAnnotationsOnBounds(ann, nullTagBits);
+			this.tagBits &= ~TagBits.AnnotationNullMASK;
+		} else {
+			// implicit annotation: let the new one override
+			return boundType.unannotated(true);
+		}
+		return boundType;
 	}
 	private TypeReference findBound(TypeBinding bound, TypeParameter parameter) {
 		if (parameter.type != null && TypeBinding.equalsEquals(parameter.type.resolvedType, bound))

@@ -5464,6 +5464,19 @@ public void testTypeVariable11() {
 		"The explicit type bound \'Object\' is not affected by the nullness default for DefaultLocation.TYPE_BOUND.\n" + 
 		"----------\n");
 }
+// Bug 438250 - [1.8][null] NPE trying to report bogus null annotation conflict
+public void testTypeVariable13() {
+	runConformTestWithLibs(
+		new String[] {
+			"FooBar.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault(org.eclipse.jdt.annotation.DefaultLocation.TYPE_BOUND)\n" + 
+			"public interface FooBar {\n" + 
+			"    <@org.eclipse.jdt.annotation.Nullable R extends Runnable> R foobar(R r);\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 public void testBug434600() {
 	runConformTestWithLibs(
 		new String[] {
