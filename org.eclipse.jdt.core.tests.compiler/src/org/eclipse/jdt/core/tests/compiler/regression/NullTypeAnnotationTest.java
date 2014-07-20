@@ -5488,6 +5488,34 @@ public void testTypeVariable10() {
 		"");
 }
 // Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
+// Problem 1 from: Bug 438971 - [1.8][null] @NonNullByDefault/@Nullable on parameter of generic interface
+public void testTypeVariable10a() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class X<T> {\n" +
+			"	void test(@Nullable T t) {}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+	runConformTestWithLibs(
+		false, 
+		new String[] {
+			"Y.java",
+			"public class Y {\n" +
+			"	void foo(X<String> xs) {\n" +
+			"		xs.test(\"OK\");\n" + // was: Contradictory null annotations: method was inferred as  ...
+			"		xs.test(null);\n" + // was: Contradictory null annotations: method was inferred as  ...
+			"	}\n" +
+			"}\n"
+		}, 
+		getCompilerOptions(), 
+		"");
+}
+// Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
 // warning for explicit "<T extends Object>"
 public void testTypeVariable11() {
 	runNegativeTestWithLibs(
