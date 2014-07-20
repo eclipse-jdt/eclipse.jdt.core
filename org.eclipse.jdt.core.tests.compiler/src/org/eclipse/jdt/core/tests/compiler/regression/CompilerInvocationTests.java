@@ -33,6 +33,7 @@
  *								Bug 424637 - [1.8][compiler][null] AIOOB in ReferenceExpression.resolveType with a method reference to Files::walk
  *								Bug 418743 - [1.8][null] contradictory annotations on invocation of generic method not reported
  *								Bug 430150 - [1.8][null] stricter checking against type variables
+ *								Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
  *     Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -592,6 +593,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalVisibilityModifierCombinationForMemberType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalVisibilityModifierCombinationForMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalVisibilityModifierForInterfaceMemberType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("ImplicitObjectBoundNoNullDefault", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ImportAmbiguous", DEPRECATED);
 		expectedProblemAttributes.put("ImportInheritedNameHidesEnclosingName", DEPRECATED);
 		expectedProblemAttributes.put("ImportInternalNameProvided", DEPRECATED);
@@ -1413,6 +1415,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IllegalVisibilityModifierCombinationForMemberType", SKIP);
 		expectedProblemAttributes.put("IllegalVisibilityModifierCombinationForMethod", SKIP);
 		expectedProblemAttributes.put("IllegalVisibilityModifierForInterfaceMemberType", SKIP);
+		expectedProblemAttributes.put("ImplicitObjectBoundNoNullDefault", SKIP);
 		expectedProblemAttributes.put("ImportAmbiguous", SKIP);
 		expectedProblemAttributes.put("ImportInheritedNameHidesEnclosingName", SKIP);
 		expectedProblemAttributes.put("ImportInternalNameProvided", SKIP);

@@ -192,6 +192,7 @@
  *									NonNullDefaultDetailIsNotEvaluated
  *									NullNotCompatibleToFreeTypeVariable
  *									NullityMismatchAgainstFreeTypeVariable
+ *									ImplicitObjectBoundNoNullDefault
  *      Jesper S Moller  - added the following constants
  *									TargetTypeNotAFunctionalInterface
  *									OuterLocalMustBeEffectivelyFinal
@@ -1790,6 +1791,9 @@ void setSourceStart(int sourceStart);
 	int NullNotCompatibleToFreeTypeVariable = 969;
 	/** @since 3.10 */
 	int NullityMismatchAgainstFreeTypeVariable = 970;
+	/** @since 3.11 */
+	int ImplicitObjectBoundNoNullDefault = 971;
+
 
 	// Java 8 work
 	/** @since 3.10 */

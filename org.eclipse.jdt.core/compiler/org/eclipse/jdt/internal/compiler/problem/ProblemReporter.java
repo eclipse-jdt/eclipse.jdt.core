@@ -50,6 +50,7 @@
  *								Bug 390889 - [1.8][compiler] Evaluate options to support 1.7- projects against 1.8 JRE.
  *								Bug 430150 - [1.8][null] stricter checking against type variables
  *								Bug 434600 - Incorrect null analysis error reporting on type parameters
+ *								Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -9787,6 +9788,13 @@ public void nullityMismatchTypeArgument(TypeBinding typeVariable, TypeBinding ty
 			shortArguments, 
 			location.sourceStart, 
 			location.sourceEnd);
+}
+
+public void implicitObjectBoundNoNullDefault(TypeReference reference) {
+	this.handle(IProblem.ImplicitObjectBoundNoNullDefault,
+			NoArgument, NoArgument,
+			ProblemSeverities.Warning,
+			reference.sourceStart, reference.sourceEnd);
 }
 
 public void dereferencingNullableExpression(Expression expression) {

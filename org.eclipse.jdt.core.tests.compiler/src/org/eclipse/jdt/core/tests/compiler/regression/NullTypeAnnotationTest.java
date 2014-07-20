@@ -5408,6 +5408,32 @@ public void testTypeVariable10() {
 		getCompilerOptions(), 
 		"");
 }
+// Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
+// warning for explicit "<T extends Object>"
+public void testTypeVariable11() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.DefaultLocation;\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault({DefaultLocation.TYPE_BOUND})\n" + // not: PARAMETER
+			"public class X<T extends Object> {\n" +
+			"	void test(T t) {}\n" +
+			"}\n",
+			"Y.java",
+			"public class Y {\n" +
+			"	void foo(X<@org.eclipse.jdt.annotation.Nullable String> xs) {\n" +
+			"		xs.test(null);\n" +
+			"	}\n" +
+			"}\n"
+		}, 
+		getCompilerOptions(), 
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	public class X<T extends Object> {\n" + 
+		"	                         ^^^^^^\n" + 
+		"The explicit type bound \'Object\' is not affected by the nullness default for DefaultLocation.TYPE_BOUND.\n" + 
+		"----------\n");
+}
 public void testBug434600() {
 	runConformTestWithLibs(
 		new String[] {
