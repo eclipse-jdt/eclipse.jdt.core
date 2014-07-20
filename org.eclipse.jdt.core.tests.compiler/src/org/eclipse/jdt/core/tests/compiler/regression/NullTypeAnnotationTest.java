@@ -3209,12 +3209,17 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			},
 			getCompilerOptions(),
 			"----------\n" + 
-			"1. ERROR in X.java (at line 10)\n" + 
-			"	xs.foo(null);\n" + 
-			"	^^^^^^^^^^^^\n" + 
-			"Contradictory null annotations: method was inferred as \'@Nullable String foo(@NonNull @Nullable String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+			"1. WARNING in X.java (at line 9)\n" + 
+			"	X<@Nullable String> xs = new X<String>();\n" + 
+			"	                         ^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'X<String>\' needs unchecked conversion to conform to \'X<@Nullable String>\'\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 14)\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	xs.foo(null);\n" + 
+			"	       ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 14)\n" + 
 			"	X<@Nullable String> xs = x;\n" + 
 			"	                         ^\n" + 
 			"Null type safety (type annotations): The expression of type \'X<String>\' needs unchecked conversion to conform to \'X<@Nullable String>\'\n" + 
@@ -3250,18 +3255,62 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			},
 			getCompilerOptions(),
 			"----------\n" + 
-			"1. ERROR in X.java (at line 12)\n" + 
-			"	xs.foo(null);\n" + 
-			"	^^^^^^^^^^^^\n" + 
-			"Contradictory null annotations: method was inferred as \'@Nullable String foo(@NonNull @Nullable String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+			"1. WARNING in X.java (at line 10)\n" + 
+			"	X<@Nullable String> xs = new X<String>();\n" + 
+			"	                         ^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'X<String>\' needs unchecked conversion to conform to \'X<@Nullable String>\'\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 16)\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	xs.foo(null);\n" + 
+			"	       ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 16)\n" + 
 			"	X<@Nullable String> xs = x;\n" + 
 			"	                         ^\n" + 
 			"Null type safety (type annotations): The expression of type \'X<String>\' needs unchecked conversion to conform to \'X<@Nullable String>\'\n" + 
 			"----------\n");
 	}
 	
+	// avoid extra warning by use of diamond.
+	public void testBug416182b() { 
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"import org.eclipse.jdt.annotation.Nullable;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"	T foo(@NonNull T t) {\n" + 
+				"		return t;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X<@Nullable String> xs = new X<>();\n" + 
+				"		xs.foo(null);\n" + 
+				"	}\n" + 
+				"	\n" +
+				"	public void test(X<String> x) {\n" + 
+				"		X<@Nullable String> xs = x;\n" + 
+				"		xs.bar(null);\n" + 
+				"	}\n" + 
+				"	public void bar(T t) {}\n" + 
+				"\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	xs.foo(null);\n" + 
+			"	       ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 14)\n" + 
+			"	X<@Nullable String> xs = x;\n" + 
+			"	                         ^\n" + 
+			"Null type safety (type annotations): The expression of type \'X<String>\' needs unchecked conversion to conform to \'X<@Nullable String>\'\n" + 
+			"----------\n");
+	}
+
 	public void testBug416183() {
 		runConformTestWithLibs(
 			new String[] {
@@ -5286,6 +5335,28 @@ public void testTypeVariable6a() {
 			"	private static @NonNull <T> T assertNotNull(@Nullable T object) {\n" +
 			"		if (object == null) throw new NullPointerException();\n" + 
 			"		return object;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+// Bug 438179 - [1.8][null] 'Contradictory null annotations' error on type variable with explicit null-annotation.
+public void testTypeVariable12() {
+	runConformTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" + 
+			"public class Test {\n" + 
+			"	private Fu<String> fu = new Fu<>();\n" + 
+			"	public void foo() {\n" + 
+			"		fu.method();   // 'Contradictory null annotations' error\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Fu<T> {\n" + 
+			"	@Nullable T method() {\n" + 
+			"		return null;\n" + 
 			"	}\n" + 
 			"}\n"
 		},
