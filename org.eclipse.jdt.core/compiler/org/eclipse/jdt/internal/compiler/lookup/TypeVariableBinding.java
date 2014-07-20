@@ -25,6 +25,7 @@
  *								Bug 435962 - [RC2] StackOverFlowError when building
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *								Bug 438250 - [1.8][null] NPE trying to report bogus null annotation conflict
+ *								Bug 438179 - [1.8][null] 'Contradictory null annotations' error on type variable with explicit null-annotation.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -900,5 +901,35 @@ public class TypeVariableBinding extends ReferenceBinding {
 			}
 		}
 		return superInterfaces;
+	}
+
+	public TypeBinding combineTypeAnnotations(TypeBinding substitute) {
+		if (hasTypeAnnotations()) {
+			// may need to merge annotations from the original variable and from substitution:
+			if (hasRelevantTypeUseNullAnnotations()) {
+				// explicit type use null annotation overrides any annots on type parameter and concrete type arguments
+				substitute = substitute.unannotated(true);
+			}
+			if (this.typeAnnotations != Binding.NO_ANNOTATIONS)
+				return this.environment.createAnnotatedType(substitute, this.typeAnnotations);
+			// annots on originalVariable not relevant, and substitute has annots, keep substitute unmodified:
+		}
+		return substitute;
+	}
+
+	private boolean hasRelevantTypeUseNullAnnotations() {
+		TypeVariableBinding[] parameters;
+		if (this.declaringElement instanceof ReferenceBinding) {
+			parameters = ((ReferenceBinding)this.declaringElement).original().typeVariables();
+		} else if (this.declaringElement instanceof MethodBinding) {
+			parameters = ((MethodBinding)this.declaringElement).original().typeVariables;
+		} else {
+			throw new IllegalStateException("Unexpected declaring element:"+String.valueOf(this.declaringElement.readableName())); //$NON-NLS-1$
+		}
+		TypeVariableBinding parameter = parameters[this.rank];
+		// recognize explicit annots by their effect on null tag bits, if there's no effect, then the annot is not considered relevant
+		long currentNullBits = this.tagBits & TagBits.AnnotationNullMASK;
+		long declarationNullBits = parameter.tagBits & TagBits.AnnotationNullMASK;
+		return (currentNullBits & ~declarationNullBits) != 0;
 	}
 }
