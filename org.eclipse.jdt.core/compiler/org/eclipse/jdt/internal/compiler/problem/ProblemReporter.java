@@ -51,6 +51,7 @@
  *								Bug 430150 - [1.8][null] stricter checking against type variables
  *								Bug 434600 - Incorrect null analysis error reporting on type parameters
  *								Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
+ *								Bug 438467 - [compiler][null] Better error position for "The method _ cannot implement the corresponding method _ due to incompatible nullness constraints"
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -9292,7 +9293,28 @@ public void parameterLackingNonnullAnnotation(Argument argument, ReferenceBindin
 		sourceStart,
 		sourceEnd);
 }
+public void illegalParameterRedefinition(Argument argument, ReferenceBinding declaringClass, TypeBinding inheritedParameter) {
+	int sourceStart = argument.type.sourceStart;
+	if (argument.annotations != null) {
+		for (int i=0; i<argument.annotations.length; i++) {
+			Annotation annotation = argument.annotations[i];
+			if (   annotation.resolvedType.id == TypeIds.T_ConfiguredAnnotationNullable
+				|| annotation.resolvedType.id == TypeIds.T_ConfiguredAnnotationNonNull)
+			{
+				sourceStart = annotation.sourceStart;
+				break;
+			}
+		}
+	}
+	this.handle(
+		IProblem.IllegalParameterNullityRedefinition, 
+		new String[] { new String(argument.name), new String(declaringClass.readableName()), new String(inheritedParameter.nullAnnotatedReadableName(this.options, false)) },
+		new String[] { new String(argument.name), new String(declaringClass.shortReadableName()), new String(inheritedParameter.nullAnnotatedReadableName(this.options, true))  },
+		sourceStart,
+		argument.type.sourceEnd);
+}
 public void illegalReturnRedefinition(AbstractMethodDeclaration abstractMethodDecl, MethodBinding inheritedMethod, char[][] nonNullAnnotationName) {
+	// nonNullAnnotationName is not used in 1.8-mode
 	MethodDeclaration methodDecl = (MethodDeclaration) abstractMethodDecl;
 	StringBuffer methodSignature = new StringBuffer();
 	methodSignature
@@ -9311,12 +9333,31 @@ public void illegalReturnRedefinition(AbstractMethodDeclaration abstractMethodDe
 	if (annotation != null) {
 		sourceStart = annotation.sourceStart;
 	}
+	TypeBinding inheritedReturnType = inheritedMethod.returnType;
+	String[] arguments;
+	String[] argumentsShort;
+	if (this.options.complianceLevel < ClassFileConstants.JDK1_8) {
+		StringBuilder returnType = new StringBuilder();
+		returnType.append('@').append(CharOperation.concatWith(nonNullAnnotationName, '.'));
+		returnType.append(' ').append(inheritedReturnType.readableName());
+		arguments = new String[] { methodSignature.toString(), returnType.toString() };
+		
+		returnType = new StringBuilder();
+		returnType.append('@').append(nonNullAnnotationName[nonNullAnnotationName.length-1]);
+		returnType.append(' ').append(inheritedReturnType.shortReadableName());
+		argumentsShort = new String[] { shortSignature.toString(), returnType.toString() };
+	} else {
+		arguments = new String[] { methodSignature.toString(), 
+									String.valueOf(inheritedReturnType.nullAnnotatedReadableName(this.options, false))};
+		argumentsShort = new String[] { shortSignature.toString(),
+									String.valueOf(inheritedReturnType.nullAnnotatedReadableName(this.options, true))};
+	}
 	this.handle(
-		IProblem.IllegalReturnNullityRedefinition, 
-		new String[] { methodSignature.toString(), CharOperation.toString(nonNullAnnotationName)},
-		new String[] { shortSignature.toString(), new String(nonNullAnnotationName[nonNullAnnotationName.length-1])},
-		sourceStart,
-		methodDecl.returnType.sourceEnd);
+			IProblem.IllegalReturnNullityRedefinition, 
+			arguments,
+			argumentsShort,
+			sourceStart,
+			methodDecl.returnType.sourceEnd);
 }
 public void referenceExpressionArgumentNullityMismatch(ReferenceExpression location, TypeBinding requiredType, TypeBinding providedType,
 		MethodBinding descriptorMethod, int idx, NullAnnotationMatching status) {

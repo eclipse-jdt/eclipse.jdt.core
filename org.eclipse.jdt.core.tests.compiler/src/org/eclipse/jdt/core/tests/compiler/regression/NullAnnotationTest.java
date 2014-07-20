@@ -941,7 +941,7 @@ public void test_parameter_specification_inheritance_005() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	@Nullable Object getObject() { return null; }\n" +
 		"	^^^^^^^^^^^^^^^^\n" +
-		"The return type is incompatible with the @NonNull return from Lib.getObject()\n" +
+		"The return type is incompatible with '@NonNull Object' returned from Lib.getObject() (mismatching null constraints)\n" +
 		"----------\n");
 }
 
@@ -993,7 +993,7 @@ public void test_parameter_specification_inheritance_007() {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	Object getObject() { return null; }\n" +
 		"	^^^^^^\n" +
-		"The return type is incompatible with the @NonNull return from Lib.getObject()\n" +
+		"The return type is incompatible with '@NonNull Object' returned from Lib.getObject() (mismatching null constraints)\n" +
 		"----------\n");
 }
 //a method body violates the @NonNull return specification (repeated from super)
@@ -1230,7 +1230,7 @@ public void test_parameter_specification_inheritance_013() {
 		"1. ERROR in p1\\Y.java (at line 5)\n" +
 		"	public @Nullable String getString(String s1, @NonNull String s2, @NonNull String s3) {\n" +
 		"	       ^^^^^^^^^^^^^^^^\n" +
-		"The return type is incompatible with the @NonNull return from IY.getString(String, String, String)\n" +
+		"The return type is incompatible with '@NonNull String' returned from IY.getString(String, String, String) (mismatching null constraints)\n" +
 		// no problem regarding s1: widening @NonNull to unannotated
 		"----------\n" +
 		"2. ERROR in p1\\Y.java (at line 5)\n" +
@@ -2249,7 +2249,7 @@ public void test_illegal_annotation_007() {
 		"2. ERROR in p\\Test.java (at line 9)\n" + 
 		"	@org public Object foo() {\n" + 
 		"	            ^^^^^^\n" + 
-		"The return type is incompatible with the @NonNull return from TestInt.foo()\n" + 
+		"The return type is incompatible with '@NonNull Object' returned from TestInt.foo() (mismatching null constraints)\n" + 
 		"----------\n");
 }
 
@@ -2306,7 +2306,7 @@ public void test_default_nullness_002() {
 		"1. ERROR in Y.java (at line 5)\n" +
 		"	@Nullable Object getObject(Object o) {\n" +
 		"	^^^^^^^^^^^^^^^^\n" +
-		"The return type is incompatible with the @NonNull return from X.getObject(Object)\n" +
+		"The return type is incompatible with '@NonNull Object' returned from X.getObject(Object) (mismatching null constraints)\n" +
 		"----------\n" +
 		// additional error:
 		"2. ERROR in Y.java (at line 5)\n" +
@@ -2350,7 +2350,7 @@ public void test_default_nullness_003() {
 		"1. ERROR in p2\\Y.java (at line 5)\n" +
 		"	protected @Nullable Object getObject(@Nullable Object o) {\n" +
 		"	          ^^^^^^^^^^^^^^^^\n" +
-		"The return type is incompatible with the @NonNull return from X.getObject(Object)\n" +
+		"The return type is incompatible with '@NonNull Object' returned from X.getObject(Object) (mismatching null constraints)\n" +
 		"----------\n" +
 		"2. ERROR in p2\\Y.java (at line 6)\n" +
 		"	bar(o);\n" +
@@ -2402,7 +2402,7 @@ public void test_default_nullness_003a() {
 		"1. ERROR in p2\\Y.java (at line 5)\n" +
 		"	protected @Nullable Object getObject(@Nullable Object o) {\n" +
 		"	          ^^^^^^^^^^^^^^^^\n" +
-		"The return type is incompatible with the @NonNull return from X.getObject(Object)\n" +
+		"The return type is incompatible with '@NonNull Object' returned from X.getObject(Object) (mismatching null constraints)\n" +
 		"----------\n" +
 		"2. ERROR in p2\\Y.java (at line 6)\n" +
 		"	bar(o);\n" +
@@ -2465,7 +2465,7 @@ public void test_default_nullness_003b() {
 		"1. ERROR in p2\\Y.java (at line 5)\n" +
 		"	protected @Nullable Object getObject(@Nullable Object o) {\n" +
 		"	          ^^^^^^^^^^^^^^^^\n" +
-		"The return type is incompatible with the @NonNull return from X.getObject(Object)\n" +
+		"The return type is incompatible with '@NonNull Object' returned from X.getObject(Object) (mismatching null constraints)\n" +
 		"----------\n" +
 		"2. ERROR in p2\\Y.java (at line 6)\n" +
 		"	bar(o);\n" +
@@ -2522,7 +2522,7 @@ public void test_default_nullness_003c() {
 		"1. ERROR in p2\\Y.java (at line 5)\n" + 
 		"	protected @Nullable Object getObject(@Nullable Object o) {\n" + 
 		"	          ^^^^^^^^^^^^^^^^\n" + 
-		"The return type is incompatible with the @NonNull return from X.getObject(Object)\n" + 
+		"The return type is incompatible with '@NonNull Object' returned from X.getObject(Object) (mismatching null constraints)\n" + 
 		"----------\n" + 
 		"2. ERROR in p2\\Y.java (at line 6)\n" + 
 		"	bar(o);\n" + 

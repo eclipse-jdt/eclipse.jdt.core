@@ -312,7 +312,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. ERROR in B.java (at line 5)\n" + 
 			"	public @Nullable Object foo(@NonNull String l) {\n" + 
 			"	       ^^^^^^^^^^^^^^^^\n" + 
-			"The return type is incompatible with the @NonNull return from A<Object>.I<String>.foo(String)\n" + 
+			"The return type is incompatible with '@NonNull Object' returned from A<Object>.I<String>.foo(String) (mismatching null constraints)\n" + 
 			"----------\n" + 
 			"2. ERROR in B.java (at line 5)\n" + 
 			"	public @Nullable Object foo(@NonNull String l) {\n" + 
@@ -2911,20 +2911,20 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			},
 			options,
 			"----------\n" + 
-			"1. ERROR in X.java (at line 12)\n" + 
-			"	class Z extends X {\n" + 
-			"	      ^\n" + 
-			"The method foo1(List<@NonNull X>) from Z cannot implement the corresponding method from X due to incompatible nullness constraints\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
+			"	@Override void foo1(List<@NonNull X> xy) {}\n" + 
+			"	                    ^^^^\n" + 
+			"Illegal redefinition of parameter xy, inherited method from X declares this parameter as \'List<X>\' (mismatching null constraints)\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 12)\n" + 
-			"	class Z extends X {\n" + 
-			"	      ^\n" + 
-			"The method foo2(List<X>) from Z cannot implement the corresponding method from X due to incompatible nullness constraints\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
+			"	@Override void foo2(List<X> lx) {}\n" + 
+			"	                    ^^^^\n" + 
+			"Illegal redefinition of parameter lx, inherited method from X declares this parameter as \'List<@NonNull X>\' (mismatching null constraints)\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 12)\n" + 
-			"	class Z extends X {\n" + 
-			"	      ^\n" + 
-			"The method foo3(List<X>) from Z cannot implement the corresponding method from X due to incompatible nullness constraints\n" + 
+			"3. ERROR in X.java (at line 15)\n" + 
+			"	@Override void foo3(List<X> lx) {}\n" + 
+			"	                    ^^^^\n" + 
+			"Illegal redefinition of parameter lx, inherited method from X declares this parameter as \'List<@Nullable X>\' (mismatching null constraints)\n" + 
 			"----------\n");
 	}
 
@@ -2971,20 +2971,20 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			},
 			getCompilerOptions(),
 			"----------\n" + 
-			"1. ERROR in X.java (at line 18)\n" + 
-			"	abstract class Z extends X {\n" + 
-			"	               ^\n" + 
-			"The method List<@NonNull X> foo1() from Z cannot implement the corresponding method from X due to incompatible nullness constraints\n" + 
+			"1. ERROR in X.java (at line 20)\n" + 
+			"	List<@NonNull X> foo1() {\n" + 
+			"	^^^^\n" + 
+			"The return type is incompatible with \'List<X>\' returned from X.foo1() (mismatching null constraints)\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 18)\n" + 
-			"	abstract class Z extends X {\n" + 
-			"	               ^\n" + 
-			"The method List<@NonNull X> foo2() from Z cannot implement the corresponding method from X due to incompatible nullness constraints\n" + 
+			"2. ERROR in X.java (at line 24)\n" + 
+			"	List<@NonNull X> foo2() {\n" + 
+			"	^^^^\n" + 
+			"The return type is incompatible with \'List<@Nullable X>\' returned from X.foo2() (mismatching null constraints)\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 18)\n" + 
-			"	abstract class Z extends X {\n" + 
-			"	               ^\n" + 
-			"The method @NonNull List<X> foo3() from Z cannot implement the corresponding method from X due to incompatible nullness constraints\n" + 
+			"3. ERROR in X.java (at line 28)\n" + 
+			"	@NonNull List<X> foo3() {\n" + 
+			"	         ^^^^\n" + 
+			"The return type is incompatible with \'@NonNull List<@NonNull X>\' returned from X.foo3() (mismatching null constraints)\n" + 
 			"----------\n");
 	}
 
@@ -5575,6 +5575,97 @@ public void testTypeVariable13() {
 		},
 		getCompilerOptions(),
 		"");
+}
+// Bug 438469 - [null] How-to use null type annotations with generic methods from interfaces in some library you only have as binary JAR?
+public void testTypeVariable14() {
+	runConformTestWithLibs(
+		new String[] {
+			"ITest.java",
+			"interface ITest {\n" + 
+			"	<T> T foo(T arg); // or arg Class<T> or TypeToken<T> + return TypeAdapter<T>, etc.\n" + 
+			"}"
+		},
+		getCompilerOptions(),
+		"");
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
+	runConformTestWithLibs(
+		false,
+		new String[] {
+			"Test.java",
+			"class Test implements ITest {\n" + 
+			"	@Override\n" + 
+			"	@SuppressWarnings(\"null\")\n" +
+			"	public <T> @org.eclipse.jdt.annotation.Nullable T foo(T arg) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		options,
+		"");
+}
+// Bug 438467 - [compiler][null] Better error position for "The method _ cannot implement the corresponding method _ due to incompatible nullness constraints"
+public void testTypeVariable15() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"ITest.java",
+			"interface ITest {\n" + 
+			"	<T> T foo(T arg); // or arg Class<T> or TypeToken<T> + return TypeAdapter<T>, etc.\n" + 
+			"}",
+			"Test.java",
+			"class Test implements ITest {\n" + 
+			"	@Override\n" + 
+			"	public <T> @org.eclipse.jdt.annotation.Nullable T foo(T arg) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n",
+			"Test2.java",
+			"class Test2 implements ITest {\n" + 
+			"	@Override\n" + 
+			"	public <T> T foo(@org.eclipse.jdt.annotation.NonNull T arg) {\n" + 
+			"		return arg;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 3)\n" + 
+		"	public <T> @org.eclipse.jdt.annotation.Nullable T foo(T arg) {\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The return type is incompatible with 'T' returned from ITest.foo(T) (mismatching null constraints)\n" + 
+		"----------\n" +
+		"----------\n" + 
+		"1. ERROR in Test2.java (at line 3)\n" + 
+		"	public <T> T foo(@org.eclipse.jdt.annotation.NonNull T arg) {\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Illegal redefinition of parameter arg, inherited method from ITest does not constrain this parameter\n" + 
+		"----------\n");
+}
+// Bug 438467 - [compiler][null] Better error position for "The method _ cannot implement the corresponding method _ due to incompatible nullness constraints"
+public void testTypeVariable15a() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"ITest.java",
+			"import java.util.List;\n" +
+			"interface ITest {\n" + 
+			"	<T> T foo(List<T> arg); // or arg Class<T> or TypeToken<T> + return TypeAdapter<T>, etc.\n" + 
+			"}",
+			"Test.java",
+			"import java.util.List;\n" +
+			"class Test implements ITest {\n" + 
+			"	@Override\n" + 
+			"	public <T> T foo(List<@org.eclipse.jdt.annotation.NonNull T> arg) {\n" + 
+			"		return arg.get(0);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 4)\n" + 
+		"	public <T> T foo(List<@org.eclipse.jdt.annotation.NonNull T> arg) {\n" + 
+		"	                 ^^^^\n" + 
+		"Illegal redefinition of parameter arg, inherited method from ITest declares this parameter as \'List<T>\' (mismatching null constraints)\n" + 
+		"----------\n");
 }
 public void testBug434600() {
 	runConformTestWithLibs(

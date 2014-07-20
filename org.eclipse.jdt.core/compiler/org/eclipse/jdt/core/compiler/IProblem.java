@@ -193,6 +193,7 @@
  *									NullNotCompatibleToFreeTypeVariable
  *									NullityMismatchAgainstFreeTypeVariable
  *									ImplicitObjectBoundNoNullDefault
+ *									IllegalParameterNullityRedefinition
  *      Jesper S Moller  - added the following constants
  *									TargetTypeNotAFunctionalInterface
  *									OuterLocalMustBeEffectivelyFinal
@@ -1793,6 +1794,8 @@ void setSourceStart(int sourceStart);
 	int NullityMismatchAgainstFreeTypeVariable = 970;
 	/** @since 3.11 */
 	int ImplicitObjectBoundNoNullDefault = 971;
+	/** @since 3.11 */
+	int IllegalParameterNullityRedefinition = MethodRelated + 972;
 
 
 	// Java 8 work

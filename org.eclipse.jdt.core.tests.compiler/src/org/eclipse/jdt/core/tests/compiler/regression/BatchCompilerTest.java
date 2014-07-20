@@ -12636,7 +12636,7 @@ public void test313_warn_options() {
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
 		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
 		"	^^^^^^^^^^^^^^^^\n" + 
-		"The return type is incompatible with the @NonNull return from X.foo(Object, Object)\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.foo(Object, Object) (mismatching null constraints)\n" +
 		"----------\n" + 
 		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
 		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
@@ -12685,7 +12685,7 @@ public void test314_warn_options() {
 		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
 		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
 		"	^^^^^^^^^^^^^^^^\n" + 
-		"The return type is incompatible with the @NonNull return from X.foo(Object, Object)\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.foo(Object, Object) (mismatching null constraints)\n" +
 		"----------\n" + 
 		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
 		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
@@ -13677,7 +13677,7 @@ public void testBug375366c() throws IOException {
 			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
 			"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
 			"	^^^^^^^^^^^^^^^^\n" + 
-			"The return type is incompatible with the @NonNull return from X.foo(Object, Object)\n" + 
+			"The return type is incompatible with \'@NonNull Object\' returned from X.foo(Object, Object) (mismatching null constraints)\n" + 
 			"----------\n" + 
 			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
 			"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
@@ -13731,7 +13731,7 @@ public void testBug375366d() throws IOException {
 			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" +
 			"	@Nullable Object foo(Object o, Object o2) { return null; }\n" +
 			"	^^^^^^^^^^^^^^^^\n" +
-			"The return type is incompatible with the @NonNull return from X.foo(Object, Object)\n" +
+			"The return type is incompatible with \'@NonNull Object\' returned from X.foo(Object, Object) (mismatching null constraints)\n" + 
 			"----------\n" +
 			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" +
 			"	@Nullable Object foo(Object o, Object o2) { return null; }\n" +

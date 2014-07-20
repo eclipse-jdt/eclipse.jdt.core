@@ -289,7 +289,10 @@ public class ImplicitNullAnnotationVerifier {
 						substituteReturnType = substitute.returnType;
 					}
 					if (NullAnnotationMatching.analyse(inheritedMethod.returnType, currentMethod.returnType, substituteReturnType, 0, CheckMode.OVERRIDE).isAnyMismatch()) {
-						scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod, useTypeAnnotations);
+						if (srcMethod != null)
+							scope.problemReporter().illegalReturnRedefinition(srcMethod, inheritedMethod, null);
+						else
+							scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod, useTypeAnnotations);
 						return;
 					}
 				}
@@ -404,9 +407,13 @@ public class ImplicitNullAnnotationVerifier {
 					}
 				} 
 				if (useTypeAnnotations) {
+					TypeBinding inheritedParameter = inheritedMethod.parameters[i];
 					TypeBinding substituteParameter = substituteParameters != null ? substituteParameters[i] : null;
-					if (NullAnnotationMatching.analyse(currentMethod.parameters[i], inheritedMethod.parameters[i], substituteParameter, 0, CheckMode.OVERRIDE).isAnyMismatch()) {
-						scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod, false);
+					if (NullAnnotationMatching.analyse(currentMethod.parameters[i], inheritedParameter, substituteParameter, 0, CheckMode.OVERRIDE).isAnyMismatch()) {
+						if (currentArgument != null)
+							scope.problemReporter().illegalParameterRedefinition(currentArgument, inheritedMethod.declaringClass, inheritedParameter);
+						else
+							scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod, false);
 					}
 				}
 			}
