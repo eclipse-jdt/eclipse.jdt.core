@@ -4531,6 +4531,34 @@ public void _test439515() {
 	    },
 	    "-1");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=438534 Java8 java.lang.Method.getGeneric* methods fail with java.lang.reflect.GenericSignatureFormatError: Signature Parse error: Expected Field Type Signature
+public void test438534() {
+	this.runConformTest(
+		new String[] {
+			"ByteCodeTest.java", 
+			"import java.lang.reflect.Method;\n" + 
+			"import java.security.AccessController;\n" + 
+			"import java.security.PrivilegedAction;\n" + 
+			"import java.util.Collections;\n" + 
+			"import java.util.Comparator;\n" + 
+			"public class ByteCodeTest {\n" + 
+			"  public static class BrokenByteCode {\n" + 
+			"    public void hello() {\n" + 
+			"      Collections.sort(Collections.<String> emptyList(), Comparator.comparing((String data) -> data.length()));\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    for (Method method : AccessController.doPrivileged((PrivilegedAction<Method[]>) () -> BrokenByteCode.class.getDeclaredMethods())) {\n" + 
+			"      method.getGenericExceptionTypes();\n" + 
+			"      method.getGenericParameterTypes();\n" + 
+			"      method.getGenericReturnType();\n" + 
+			"    }\n" + 
+			"    System.out.println(\"SUCCESS\");\n" +
+			"  }\n" + 
+			"}\n"
+	    },
+	    "SUCCESS");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
