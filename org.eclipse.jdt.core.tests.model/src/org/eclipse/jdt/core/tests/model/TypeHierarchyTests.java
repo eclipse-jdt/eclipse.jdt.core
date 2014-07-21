@@ -2729,12 +2729,10 @@ public void testBug436155() throws CoreException, IOException {
 		createFile("/P/src/q/A.java", source);
 		
 		int start = source.lastIndexOf("Text");
-		ICompilationUnit unit = getCompilationUnit("P", "src", "q", "A.java");
-		unit.becomeWorkingCopy(null);
-        unit.getBuffer().setContents(source);
-        unit.makeConsistent(null);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("P/src/q/A.java", source);
 
-		IJavaElement[] elements = unit.codeSelect(start, "Text".length());
+		IJavaElement[] elements = this.workingCopies[0].codeSelect(start, "Text".length());
 		IType focus = (IType) elements[0];
 		ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
 		assertHierarchyEquals(
@@ -2751,7 +2749,6 @@ public void testBug436155() throws CoreException, IOException {
 }
 public void testBug436139() throws CoreException, IOException {
 	IJavaProject prj = null;
-	ICompilationUnit unit = null;
 	try {
 		prj = createJavaProject("Bug436139", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
 		createFolder("/Bug436139/src/p1");
@@ -2790,12 +2787,10 @@ public void testBug436139() throws CoreException, IOException {
 		createFile("/Bug436139/src/p2/X.java", source);
 
 		int start = iSource.lastIndexOf("I");
-		unit = getCompilationUnit("Bug436139", "src", "p1", "I.java");
-		unit.becomeWorkingCopy(null);
-        unit.getBuffer().setContents(iSource);
-        unit.makeConsistent(null);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Bug436139/src/p1/I.java", iSource);
 
-		IJavaElement[] elements = unit.codeSelect(start, "I".length());
+		IJavaElement[] elements = this.workingCopies[0].codeSelect(start, "I".length());
 		IType focus = (IType) elements[0];
 		ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
 		assertHierarchyEquals(
@@ -2809,7 +2804,6 @@ public void testBug436139() throws CoreException, IOException {
 	} finally {
 		if (prj != null)
 			deleteProject(prj);
-		unit.discardWorkingCopy();
 	}
 }
 }
