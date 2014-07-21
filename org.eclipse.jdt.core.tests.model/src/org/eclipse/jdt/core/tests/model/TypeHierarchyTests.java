@@ -2751,6 +2751,7 @@ public void testBug436155() throws CoreException, IOException {
 }
 public void testBug436139() throws CoreException, IOException {
 	IJavaProject prj = null;
+	ICompilationUnit unit = null;
 	try {
 		prj = createJavaProject("Bug436139", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
 		createFolder("/Bug436139/src/p1");
@@ -2789,7 +2790,7 @@ public void testBug436139() throws CoreException, IOException {
 		createFile("/Bug436139/src/p2/X.java", source);
 
 		int start = iSource.lastIndexOf("I");
-		ICompilationUnit unit = getCompilationUnit("Bug436139", "src", "p1", "I.java");
+		unit = getCompilationUnit("Bug436139", "src", "p1", "I.java");
 		unit.becomeWorkingCopy(null);
         unit.getBuffer().setContents(iSource);
         unit.makeConsistent(null);
@@ -2808,6 +2809,7 @@ public void testBug436139() throws CoreException, IOException {
 	} finally {
 		if (prj != null)
 			deleteProject(prj);
+		unit.discardWorkingCopy();
 	}
 }
 }
