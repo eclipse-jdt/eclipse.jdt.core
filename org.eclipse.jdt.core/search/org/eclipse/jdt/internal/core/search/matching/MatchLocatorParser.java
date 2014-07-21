@@ -377,7 +377,9 @@ protected void consumeMarkerAnnotation(boolean isTypeAnnotation) {
 }
 protected void consumeMemberValuePair() {
 	super.consumeMemberValuePair();
-	this.patternLocator.match((MemberValuePair) this.astStack[this.astPtr], this.nodeSet);
+	if ((this.patternFineGrain & ~IJavaSearchConstants.METHOD_REFERENCE_EXPRESSION) != 0) {
+		this.patternLocator.match((MemberValuePair) this.astStack[this.astPtr], this.nodeSet);
+	}
 }
 
 protected void consumeMethodHeaderName(boolean isAnnotationMethod) {

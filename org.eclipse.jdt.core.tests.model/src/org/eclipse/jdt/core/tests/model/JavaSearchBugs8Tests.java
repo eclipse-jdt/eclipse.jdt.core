@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.ReferenceMatch;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -4424,6 +4425,55 @@ new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=435480
+//[1.8][search] search in method reference expressions finds annotation element name
+public void testBug435480_0001() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+			"import java.lang.annotation.*;\n" +
+					"@Documented\n" +
+					"@Retention(RetentionPolicy.RUNTIME)\n" +
+					"@Target(value={})\n" +
+					"public @interface Ann1 {\n" +
+					"}"
+	);
+
+	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern("*", IMPLEMENTORS, IJavaSearchConstants.METHOD_REFERENCE_EXPRESSION, EXACT_RULE );
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults("");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=435480
+//[1.8][search] search in method reference expressions finds annotation element name
+public void testBug435480_0002() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		createFile("/P/src/X.java", 
+				"import java.lang.annotation.*;\n" +
+				"@Documented\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@Target(value={})\n" +
+				"public @interface Ann1 {\n" +
+				"}\n");
+		MethodPattern pattern = (MethodPattern) SearchPattern.createPattern("*", IMPLEMENTORS, IJavaSearchConstants.METHOD_REFERENCE_EXPRESSION, EXACT_RULE );
+
+		int mask = IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		new SearchEngine(this.workingCopies).search(pattern,
+				new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+				scope,
+				this.resultCollector,
+				null);
+		assertSearchResults("");
+	} finally {
+		deleteProject("P");
+	}
 }
 // Add new tests in JavaSearchBugs8Tests
 }
