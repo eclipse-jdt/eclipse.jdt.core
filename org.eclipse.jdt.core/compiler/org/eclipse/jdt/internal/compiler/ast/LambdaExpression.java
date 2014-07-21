@@ -333,9 +333,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 					}
 				}
 
-				TypeBinding leafType = parameterType.leafComponentType();
-				if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
-					this.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 				newParameters[i] = argument.bind(this.scope, parameterType, false);				
 				if (argument.annotations != null) {
 					this.binding.tagBits |= TagBits.HasParameterAnnotations;
@@ -371,7 +368,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			if ((exception.tagBits & TagBits.HasMissingType) != 0) {
 				this.binding.tagBits |= TagBits.HasMissingType;
 			}
-			this.binding.modifiers |= (exception.modifiers & ExtraCompilerModifiers.AccGenericSignature);
 		}
 		
 		TypeBinding returnType = this.binding.returnType;
@@ -379,9 +375,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			if ((returnType.tagBits & TagBits.HasMissingType) != 0) {
 				this.binding.tagBits |= TagBits.HasMissingType;
 			}
-			TypeBinding leafType = returnType.leafComponentType();
-			if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
-				this.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 		} // TODO (stephan): else? (can that happen?)
 
 		if (haveDescriptor && !buggyArguments && blockScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
