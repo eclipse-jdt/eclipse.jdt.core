@@ -29,6 +29,7 @@
  *								Bug 428352 - [1.8][compiler] Resolution errors don't always surface
  *								Bug 427163 - [1.8][null] bogus error "Contradictory null specification" on varags
  *								Bug 432348 - [1.8] Internal compiler error (NPE) after upgrade to 1.8
+ *								Bug 440143 - [1.8][null] one more case of contradictory null annotations regarding type variables
  *     Jesper S Moller - Contributions for
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -1111,7 +1112,12 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		// for arrays: @T X[] SE7 associates @T to the type, but in SE8 it affects the leaf component type
 		long prevNullBits = existingType.leafComponentType().tagBits & TagBits.AnnotationNullMASK;
 		if (se8nullBits != 0 && prevNullBits != se8nullBits && ((prevNullBits | se8nullBits) == TagBits.AnnotationNullMASK)) {
-			scope.problemReporter().contradictoryNullAnnotations(se8NullAnnotation);
+			if (existingType instanceof TypeVariableBinding) {
+				// let type-use annotations override annotations on the type parameter declaration
+				existingType = existingType.unannotated(true);
+			} else {
+				scope.problemReporter().contradictoryNullAnnotations(se8NullAnnotation);
+			}
 		}
 		TypeBinding oldLeafType = (unionRef == null) ? existingType.leafComponentType() : unionRef.resolvedType;
 		AnnotationBinding [][] goodies = new AnnotationBinding[typeRef.getAnnotatableLevels()][];

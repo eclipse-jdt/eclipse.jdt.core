@@ -3051,45 +3051,30 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	@NonNull T bar1(@NonNull T t) {\n" +
 				"		return t;\n" +
 				"	}\n" + 
-				"	@NonNull T bar2(@Nullable T t) { // argument: contradiction (1)\n" +
-				"		return t;\n" +
+				"	@NonNull T bar2(@Nullable T t) { // argument: no contradiction (1)\n" +
+				"		return t; // mismatch (1)\n" +
 				"	}\n" + 
-				"	@Nullable T bar3(T t) { // return type: contradiction (2)\n" +
-				"		@Nullable T l = t; // local: contradiction (3)\n" +
+				"	@Nullable T bar3(T t) { // return type: no contradiction (2)\n" +
+				"		@Nullable T l = t; // local: no contradiction (3)\n" +
 				"		return l;\n" +
 				"	}\n" +
 				"	class Inner {\n" +
-				"		@Nullable T f; // field: contradiction (4)\n" +
+				"		@Nullable T f; // field: no contradiction (4)\n" +
 				"	}\n" + 
 				"	T bar3() {\n" +
-				"		return null;\n" +
+				"		return null; // mismatch (2)\n" +
 				"	}\n" + 
 				"}\n"
 			},
 			getCompilerOptions(),
 			"----------\n" + 
-			"1. ERROR in X.java (at line 11)\n" + 
-			"	@NonNull T bar2(@Nullable T t) { // argument: contradiction (1)\n" + 
-			"	                ^^^^^^^^^\n" + 
-			"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	return t; // mismatch (1)\n" + 
+			"	       ^\n" + 
+			"Null type mismatch (type annotations): required \'@NonNull T\' but this expression has type \'@Nullable T\'\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 14)\n" + 
-			"	@Nullable T bar3(T t) { // return type: contradiction (2)\n" + 
-			"	^^^^^^^^^\n" + 
-			"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 15)\n" + 
-			"	@Nullable T l = t; // local: contradiction (3)\n" + 
-			"	^^^^^^^^^\n" + 
-			"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 19)\n" + 
-			"	@Nullable T f; // field: contradiction (4)\n" + 
-			"	^^^^^^^^^\n" + 
-			"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 22)\n" + 
-			"	return null;\n" + 
+			"2. ERROR in X.java (at line 22)\n" + 
+			"	return null; // mismatch (2)\n" + 
 			"	       ^^^^\n" + 
 			"Null type mismatch: required \'@NonNull T\' but the provided value is null\n" + 
 			"----------\n");
@@ -5751,6 +5736,65 @@ public void testTypeVariable16b() {
 			"	      ^^^^\n" + 
 			"Null type mismatch: required \'@NonNull Y\' but the provided value is null\n" + 
 			"----------\n");
+}
+// Bug 440143 - [1.8][null] one more case of contradictory null annotations regarding type variables
+public void testTypeVariable17() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Test7.java",
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"public class Test7<@Nullable E> {\n" + 
+			"	E e;\n" + 
+			"\n" + 
+			"	@Nullable\n" + 
+			"	E test() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	@NonNull\n" + 
+			"	E getNotNull() {\n" + 
+			"		if (e == null)\n" + 
+			"			throw new NullPointerException();\n" + 
+			"		return e;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in Test7.java (at line 15)\n" + 
+		"	return e;\n" + 
+		"	       ^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull E\' but this expression has type \'@Nullable E\'\n" + 
+		"----------\n");
+}
+// Bug 440143 - [1.8][null] one more case of contradictory null annotations regarding type variables
+// use local variable to avoid the null type mismatch
+public void testTypeVariable17a() {
+	runConformTestWithLibs(
+		new String[] {
+			"Test7.java",
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"public class Test7<@Nullable E> {\n" + 
+			"	E e;\n" + 
+			"\n" + 
+			"	@Nullable\n" + 
+			"	E test() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	@NonNull\n" + 
+			"	E getNotNull() {\n" +
+			"		E el = e;\n" + 
+			"		if (el == null)\n" + 
+			"			throw new NullPointerException();\n" + 
+			"		return el;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
 }
 public void testBug434600() {
 	runConformTestWithLibs(

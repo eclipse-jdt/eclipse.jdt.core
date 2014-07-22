@@ -26,6 +26,7 @@
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *								Bug 438250 - [1.8][null] NPE trying to report bogus null annotation conflict
  *								Bug 438179 - [1.8][null] 'Contradictory null annotations' error on type variable with explicit null-annotation.
+ *								Bug 440143 - [1.8][null] one more case of contradictory null annotations regarding type variables
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -701,7 +702,16 @@ public class TypeVariableBinding extends ReferenceBinding {
 	}
 	
 	public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
-		this.environment.getUnannotatedType(this); // exposes original TVB/capture to type system for id stamping purposes.
+		if (getClass() == TypeVariableBinding.class) {
+			// TVB only: if the declaration already carries type annotations,
+			// clone the unannotated binding first to ensure TypeSystem.getUnnanotatedType() will see it at position 0:
+			TypeBinding unannotated = clone(null);
+			this.environment.getUnannotatedType(unannotated); // register unannotated
+			this.id = unannotated.id; // transfer fresh id
+			this.environment.typeSystem.cacheDerivedType(this, unannotated, this); // register this
+		} else {
+			this.environment.getUnannotatedType(this); // exposes original TVB/capture to type system for id stamping purposes.
+		}
 		super.setTypeAnnotations(annotations, evalNullAnnotations);
 	}
 	/**
