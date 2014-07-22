@@ -28,6 +28,7 @@
  *								Bug 390889 - [1.8][compiler] Evaluate options to support 1.7- projects against 1.8 JRE.
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *								Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
+ *								Bug 434602 - Possible error with inferred null annotations leading to contradictory null annotations
  *    Jesper Steen Moller - Contributions for
  *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -767,9 +768,9 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 	if (use15specifics)
 		result.tagBits |= method.getTagBits();
 	result.typeVariables = typeVars;
-	// fixup the declaring element of the type variable
+	// fixup the declaring element of all type variables
 	for (int i = 0, length = typeVars.length; i < length; i++)
-		typeVars[i].declaringElement = result;
+		this.environment.typeSystem.fixTypeVariableDeclaringElement(typeVars[i], result);
 
 	return result;
 }

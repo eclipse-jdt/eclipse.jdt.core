@@ -5667,6 +5667,91 @@ public void testTypeVariable15a() {
 		"Illegal redefinition of parameter arg, inherited method from ITest declares this parameter as \'List<T>\' (mismatching null constraints)\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=434602
+// Possible error with inferred null annotations leading to contradictory null annotations
+public void testTypeVariable16() {
+	runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"\n" +
+				"class Y { void doit() {} }\n" +
+				"@NonNullByDefault\n" +
+				"class X {\n" +
+				"	void foo() {\n" +
+				"		X x = new X();\n" +
+				"		Y y = x.bar(); // Error: Contradictory null annotations before the fix\n" +
+				"		y.doit(); // check that @Nullable from bar's declaration has effect on 'y'\n" +
+				"	}\n" +
+				"\n" +
+				"	public <T extends Y> @Nullable T bar() {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	y.doit(); // check that @Nullable from bar's declaration has effect on 'y'\n" + 
+			"	^\n" + 
+			"Potential null pointer access: The variable y may be null at this location\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=434602
+// Possible error with inferred null annotations leading to contradictory null annotations
+// Method part of parameterized class.
+public void testTypeVariable16a() {
+	runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"\n" +
+				"class Y {}\n" +
+				"@NonNullByDefault\n" +
+				"public class X <T> {\n" +
+				"	void foo() {\n" +
+				"		X<Y> x = new X<Y>();\n" +
+				"		x.bar(); // Error: Contradictory null annotations before the fix\n" +
+				"	}\n" +
+				"\n" +
+				"	public @Nullable T bar() {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}\n"
+			},
+			getCompilerOptions(),
+			"");
+}
+public void testTypeVariable16b() {
+	runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"import org.eclipse.jdt.annotation.NonNull;\n" +
+				"\n" +
+				"class Y {}\n" +
+				"class Y2 extends Y {}\n" +
+				"\n" +
+				"class X {\n" +
+				"	void foo() {\n" +
+				"		X x = new X();\n" +
+				"		x.bar(null); // null arg is illegal\n" +
+				"	}\n" +
+				"	public <T extends @NonNull Y> @Nullable T bar(T t) {\n" +
+				"		return null; // OK\n" +
+				"	}\n" +
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	x.bar(null); // null arg is illegal\n" + 
+			"	      ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull Y\' but the provided value is null\n" + 
+			"----------\n");
+}
 public void testBug434600() {
 	runConformTestWithLibs(
 		new String[] {

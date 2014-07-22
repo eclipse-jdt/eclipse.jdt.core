@@ -19,6 +19,7 @@
  *								Bug 418743 - [1.8][null] contradictory annotations on invocation of generic method not reported
  *								Bug 416182 - [1.8][compiler][null] Contradictory null annotations not rejected
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
+ *								Bug 434602 - Possible error with inferred null annotations leading to contradictory null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -739,7 +740,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
         // check this variable can be substituted given parameterized type
         if (originalVariable.rank < length && TypeBinding.equalsEquals(variables[originalVariable.rank], originalVariable)) {
         	TypeBinding substitute = this.typeArguments[originalVariable.rank];
-        	return originalVariable.hasTypeAnnotations() ? this.environment.createAnnotatedType(substitute, originalVariable.getTypeAnnotations()) : substitute;
+        	return originalVariable.combineTypeAnnotations(substitute);
         }
 	    return originalVariable;
 	}

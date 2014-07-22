@@ -26,6 +26,7 @@
  *								Bug 424624 - [1.8][null] if a static-object with annotation @NonNull is used, a warning is shown
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *								Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
+ *								Bug 434602 - Possible error with inferred null annotations leading to contradictory null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -62,7 +63,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private int lastCompletedUnitIndex = -1;
 	private int lastUnitIndex = -1;
 
-	private TypeSystem typeSystem;
+	TypeSystem typeSystem;
 	
 	public INameEnvironment nameEnvironment;
 	public CompilerOptions globalOptions;

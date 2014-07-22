@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 434602 - Possible error with inferred null annotations leading to contradictory null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -375,5 +377,21 @@ public class TypeSystem {
 			return derivedType;
 		}
 		return cacheDerivedType(keyType, new IntersectionCastTypeBinding(intersectingTypes, this.environment));
+	}
+	
+	/**
+	 * If a TVB was created with a dummy declaring element and needs to be fixed now,
+	 * make sure that this update affects all early clones, too.
+	 */
+	public void fixTypeVariableDeclaringElement(TypeVariableBinding var, Binding declaringElement) {
+		int id = var.id;
+		if (id < this.typeid && this.types[id] != null) {
+			for (TypeBinding t : this.types[id]) {
+				if (t instanceof TypeVariableBinding)
+					((TypeVariableBinding)t).declaringElement = declaringElement;
+			}
+		} else {
+			var.declaringElement = declaringElement;
+		}
 	}
 }
