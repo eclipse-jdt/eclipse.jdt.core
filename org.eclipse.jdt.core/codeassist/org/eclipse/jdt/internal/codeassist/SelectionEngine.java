@@ -557,6 +557,17 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						case '"':
 						case '\'':
 							break lineLoop;
+						case '-':
+							if (source[nextCharacterPosition] == '>') {
+								nextCharacterPosition--; // nextCharacterPosition = currentPosition
+								break lineLoop;
+							}
+							break;
+						case ':':
+							if (source[nextCharacterPosition] == ':') {
+								nextCharacterPosition--; // nextCharacterPosition = currentPosition
+								break lineLoop;
+							}
 					}
 					currentPosition--;
 				}
@@ -584,6 +595,15 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							 	while(scanner.getNextCharAsJavaIdentifierPart()){/*empty*/}
 							 	scanner.eofPosition = temp;
 							}
+							lastIdentifierStart = scanner.startPosition;
+							lastIdentifierEnd = scanner.currentPosition - 1;
+							lastIdentifier = scanner.getCurrentTokenSource();
+							break isolateLastName;
+						}
+						break;
+					case TerminalTokens.TokenNameARROW:
+					case TerminalTokens.TokenNameCOLON_COLON:
+						if (scanner.startPosition <= selectionStart && selectionStart <= scanner.currentPosition) {
 							lastIdentifierStart = scanner.startPosition;
 							lastIdentifierEnd = scanner.currentPosition - 1;
 							lastIdentifier = scanner.getCurrentTokenSource();
