@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -313,15 +314,13 @@ public class AnnotationProcessorFactoryLoader {
     	_project2Java6Factories.clear();
     	// Need to close the iterative classloaders
     	for (ClassLoader cl : _iterativeLoaders.values()) {
-    		if (cl instanceof JarClassLoader)
-    			((JarClassLoader)cl).close();
+    		tryToCloseClassLoader(cl);
     	}
     	_iterativeLoaders.clear();
     	_container2Project.clear();
     	
     	for (ClassLoader cl : _batchLoaders.values()) {
-    		if (cl instanceof JarClassLoader)
-    			((JarClassLoader)cl).close();
+    		tryToCloseClassLoader(cl);
     	}
     	_batchLoaders.clear();
     	
@@ -365,7 +364,7 @@ public class AnnotationProcessorFactoryLoader {
     	}
 
     	ClassLoader c = _batchLoaders.remove(javaProj);
-    	if (c instanceof JarClassLoader) ((JarClassLoader)c).close();
+    	tryToCloseClassLoader(c);
     }
     
     /**
@@ -647,11 +646,10 @@ public class AnnotationProcessorFactoryLoader {
 		_project2Java5Factories.remove(jproj);
 		_project2Java6Factories.remove(jproj);
 		ClassLoader c = _iterativeLoaders.remove(jproj);
-		if (c instanceof JarClassLoader)
-			((JarClassLoader)c).close();
+		tryToCloseClassLoader(c);
 		
 		ClassLoader cl = _batchLoaders.remove(jproj);
-		if (cl instanceof JarClassLoader) ((JarClassLoader)cl).close();
+		tryToCloseClassLoader(cl);
 		
 		removeProjectFromResourceMap(jproj);
 	}
@@ -807,5 +805,15 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		URL[] urlArray = urls.toArray(new URL[urls.size()]);
 		return new URLClassLoader(urlArray, parentCL);
+	}
+
+	private static void tryToCloseClassLoader(ClassLoader classLoader) {
+		if (classLoader instanceof Closeable) {
+			try {
+				((Closeable) classLoader).close();
+			} catch (IOException e) {
+				AptPlugin.log(e, "Unable to close class loader."); //$NON-NLS-1$
+			}
+		}
 	}
 }
