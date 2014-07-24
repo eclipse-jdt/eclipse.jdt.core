@@ -28,6 +28,7 @@
  *								Bug 434570 - Generic type mismatch for parametrized class annotation attribute with inner class
  *								Bug 434044 - Java 8 generics thinks single method is ambiguous
  *								Bug 434793 - [1.8][null][compiler] AIOOBE in ParameterizedGenericMethodBinding.substitute when inlining a method
+ *								Bug 438337 - StackOverflow after update from Kepler to Luna 
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -5348,6 +5349,50 @@ public void testBug435643() {
 			"        return Joiner.on(\", \").join(Iterables.transform(list, AstFunctions.prettyPrint()));\n" + 
 			"	  }\n" + 
 			"\n" + 
+			"}\n"
+		});
+}
+public void testBug438337comment5() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" +
+			"	void test() {\n" +
+			"		I18nResource<?> i18nResource = null;\n" +
+			"	}\n" +
+			"}\n",
+			"I18nResource.java",
+			"public interface I18nResource<E extends Internationalized<? extends I18nResource<E>>> extends BusinessObject {}\n",
+			"Internationalized.java",
+			"public interface Internationalized<E extends I18nResource<? extends Internationalized<E>>>\n" + 
+			"    extends BusinessObject {}\n",
+			"BusinessObject.java",
+			"public interface BusinessObject {}\n"
+		});
+}
+public void testBug438337comment3() {
+	runConformTest(
+		new String[] {
+			"PermissionDrivenPresenter.java",
+			"public abstract class PermissionDrivenPresenter<V extends BaseView<? extends Presenter<V>>> extends BasePresenter<V> {\n" + 
+			"\n" + 
+			"    public void updatePermissions() {\n" + 
+			"        getView().setReadOnly(true);\n" + 
+			"    }\n" + 
+			"}\n",
+			"View.java",
+			"public interface View<P extends Presenter<? extends View<P>>> { }\n",
+			"Presenter.java",
+			"public interface Presenter<V extends View<? extends Presenter<V>>> { }\n",
+			"BaseView.java",
+			"public abstract class BaseView<P extends Presenter<? extends View<P>>> implements View<P> {\n" +
+			"	void setReadOnly(boolean f) {}\n" +
+			"}\n",
+			"BasePresenter.java",
+			"public abstract class BasePresenter<V extends View<? extends Presenter<V>>> implements Presenter<V> {\n" + 
+			"    public V getView() {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
 			"}\n"
 		});
 }
