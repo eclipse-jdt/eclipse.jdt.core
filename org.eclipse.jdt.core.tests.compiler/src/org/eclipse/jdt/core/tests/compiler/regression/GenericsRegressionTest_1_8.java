@@ -3197,4 +3197,23 @@ public void testBug435462() {
 			"}"
 	});
 }
+public void testBug437007() {
+	runConformTest(
+		new String[] {
+			"ExecutorTests.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class ExecutorTests {\n" + 
+			"    List<Runnable> tasks = Arrays.asList(\n" + 
+			"            () -> {\n" + 
+			"                System.out.println(\"task1 start\");\n" + 
+			"            }\n" + 
+			"    );\n" + 
+			"\n" + 
+			"    public void executeInSync(){\n" + 
+			"        tasks.stream().forEach(Runnable::run);\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }
