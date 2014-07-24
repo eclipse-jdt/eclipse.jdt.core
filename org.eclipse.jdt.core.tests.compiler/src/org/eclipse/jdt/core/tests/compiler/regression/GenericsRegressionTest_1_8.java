@@ -3216,4 +3216,23 @@ public void testBug437007() {
 			"}\n"
 		});
 }
+public void testBug435689() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.function.*;\n" +
+			"class Foo<T> {\n" + 
+			"  <U> void apply(Function<T, Consumer<U>> bar) {}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Bar {\n" + 
+			"  void setBar(String bar){}\n" + 
+			"}\n" +
+			"public class Test {\n" +
+			"	void test() {\n" +
+			"		new Foo<Bar>().apply(bar -> bar::setBar);\n" + 
+			"	}\n" +
+			"}\n"
+		});
+}
 }
