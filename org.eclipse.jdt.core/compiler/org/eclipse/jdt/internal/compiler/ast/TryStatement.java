@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1145,6 +1145,8 @@ protected void verifyDuplicationAndOrder(int length, TypeBinding[] argumentTypes
 		int totalCount = 0;
 		ReferenceBinding[][] allExceptionTypes = new ReferenceBinding[length][];
 		for (int i = 0; i < length; i++) {
+			if (argumentTypes[i] instanceof ArrayBinding)
+				continue;
 			ReferenceBinding currentExceptionType = (ReferenceBinding) argumentTypes[i];
 			TypeReference catchArgumentType = this.catchArguments[i].type;
 			if ((catchArgumentType.bits & ASTNode.IsUnionType) != 0) {
@@ -1165,6 +1167,7 @@ protected void verifyDuplicationAndOrder(int length, TypeBinding[] argumentTypes
 		this.caughtExceptionsCatchBlocks  = new int[totalCount];
 		for (int i = 0, l = 0; i < length; i++) {
 			ReferenceBinding[] currentExceptions = allExceptionTypes[i];
+			if (currentExceptions == null) continue;
 			loop: for (int j = 0, max = currentExceptions.length; j < max; j++) {
 				ReferenceBinding exception = currentExceptions[j];
 				this.caughtExceptionTypes[l] = exception;
@@ -1172,6 +1175,7 @@ protected void verifyDuplicationAndOrder(int length, TypeBinding[] argumentTypes
 				// now iterate over all previous exceptions
 				for (int k = 0; k < i; k++) {
 					ReferenceBinding[] exceptions = allExceptionTypes[k];
+					if (exceptions == null) continue;
 					for (int n = 0, max2 = exceptions.length; n < max2; n++) {
 						ReferenceBinding currentException = exceptions[n];
 						if (exception.isCompatibleWith(currentException)) {
@@ -1192,6 +1196,8 @@ protected void verifyDuplicationAndOrder(int length, TypeBinding[] argumentTypes
 	} else {
 		this.caughtExceptionTypes = new ReferenceBinding[length];
 		for (int i = 0; i < length; i++) {
+			if (argumentTypes[i] instanceof ArrayBinding)
+				continue;
 			this.caughtExceptionTypes[i] = (ReferenceBinding) argumentTypes[i];
 			for (int j = 0; j < i; j++) {
 				if (this.caughtExceptionTypes[i].isCompatibleWith(argumentTypes[j])) {
