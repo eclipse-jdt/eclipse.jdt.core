@@ -8,6 +8,7 @@
  * Contributors:
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
+ *                          Bug 439889 - [1.8][compiler] [lambda] Deserializing lambda fails with IllegalArgumentException: "Invalid lambda deserialization"
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1233,6 +1234,85 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 				"1234",
 				null,true,
 				new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=439889 - [1.8][compiler] [lambda] Deserializing lambda fails with IllegalArgumentException: "Invalid lambda deserialization"
+	public void test439889() throws Exception {
+		this.runConformTest(
+				new String[]{
+					"SerializationTest.java",
+					"import java.io.*;\n"+
+					"\n"+
+					"public class SerializationTest implements Serializable {\n"+
+					"	interface SerializableRunnable extends Runnable, Serializable {\n"+
+					"	}\n"+
+					"\n"+
+					"	SerializableRunnable runnable;\n"+
+					"\n"+
+					"	public SerializationTest() {\n"+
+					"		final SerializationTest self = this;\n"+
+					"		// runnable = () -> self.doSomething();\n"+
+					"		runnable = () -> this.doSomething();\n"+ // results in this method handle: #166 invokespecial SerializationTest.lambda$0:()V
+					"       }\n"+
+					"\n"+
+					"	public void doSomething() {\n"+
+					"		System.out.println(\"Hello,world!\");\n"+
+					"	}\n"+
+					"\n"+
+					"	public static void main(String[] args) throws Exception {\n"+
+					"		final ByteArrayOutputStream buffer = new ByteArrayOutputStream();\n"+
+					"		try (ObjectOutputStream out = new ObjectOutputStream(buffer) ) {\n"+
+					"			out.writeObject(new SerializationTest());\n"+
+					"		}\n"+
+					"		try (ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream(buffer.toByteArray()))) {\n"+
+					"			final SerializationTest s = (SerializationTest) in.readObject();\n"+
+					"			s.doSomething();\n"+
+					"		}\n"+
+					"	}\n"+
+					"}\n"
+					},
+					"Hello,world!",
+					null,true,
+					new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
+	}
+	
+	public void test439889_2() throws Exception {
+		this.runConformTest(
+				new String[]{
+					"SerializationTest.java",
+					"import java.io.*;\n"+
+					"\n"+
+					"public class SerializationTest implements Serializable {\n"+
+					"	interface SerializableRunnable extends Runnable, Serializable {\n"+
+					"	}\n"+
+					"\n"+
+					"	SerializableRunnable runnable;\n"+
+					"\n"+
+					"	public SerializationTest() {\n"+
+					"		final SerializationTest self = this;\n"+
+					"		runnable = () -> self.doSomething();\n"+ // results in this method handle: #168 invokestatic SerializationTest.lambda$0:(LSerializationTest;)V
+					"		// runnable = () -> this.doSomething();\n"+
+					"       }\n"+
+					"\n"+
+					"	public void doSomething() {\n"+
+					"		System.out.println(\"Hello,world!\");\n"+
+					"	}\n"+
+					"\n"+
+					"	public static void main(String[] args) throws Exception {\n"+
+					"		final ByteArrayOutputStream buffer = new ByteArrayOutputStream();\n"+
+					"		try (ObjectOutputStream out = new ObjectOutputStream(buffer) ) {\n"+
+					"			out.writeObject(new SerializationTest());\n"+
+					"		}\n"+
+					"		try (ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream(buffer.toByteArray()))) {\n"+
+					"			final SerializationTest s = (SerializationTest) in.readObject();\n"+
+					"			s.doSomething();\n"+
+					"		}\n"+
+					"	}\n"+
+					"}\n"
+					},
+					"Hello,world!",
+					null,true,
+					new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
 	// ---
 	
