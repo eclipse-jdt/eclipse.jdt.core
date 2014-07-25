@@ -5767,6 +5767,23 @@ public void testBug435962() {
 		getCompilerOptions(),
 		"");
 }
+public void testBug440462() {
+	runConformTestWithLibs(
+		new String[]{
+			"CompilerError.java",
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"import java.util.*;\n" + 
+			"@NonNullByDefault\n" + 
+			"public class CompilerError {\n" + 
+			"\n" + 
+			"    List<@Nullable ? extends Integer> list = new ArrayList<@Nullable Integer>();\n" + // FIXME: should be able to use diamond!
+			"\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 public void testBug439298_comment2() {
 	runConformTestWithLibs(
 		new String[] {
