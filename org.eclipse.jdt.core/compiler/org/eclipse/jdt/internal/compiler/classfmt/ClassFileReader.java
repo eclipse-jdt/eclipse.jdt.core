@@ -62,7 +62,7 @@ public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 	private char[][][] missingTypeNames;
 	private int enclosingNameAndTypeIndex;
 	private char[] enclosingMethod;
-	private IExternalAnnotationProvider annotationProvider;
+	private ExternalAnnotationProvider annotationProvider;
 
 private static String printTypeModifiers(int modifiers) {
 	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
@@ -426,9 +426,8 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 
 /** Create and remember a provider for external annotations using the given text file. */
 public void setExternalAnnotationProvider(String externalAnnotationDir) {
-	File annotFile = new File(externalAnnotationDir+File.separatorChar+String.valueOf(getName())+IExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX);
 	try {
-		this.annotationProvider = new ExternalAnnotationProvider(annotFile);
+		this.annotationProvider = new ExternalAnnotationProvider(externalAnnotationDir, String.valueOf(getName()));
 	} catch (FileNotFoundException e) {
 		// silent
 	} catch (IOException e) {

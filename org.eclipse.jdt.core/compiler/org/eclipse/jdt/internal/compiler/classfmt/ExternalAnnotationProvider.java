@@ -22,18 +22,19 @@ import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
-import org.eclipse.jdt.internal.compiler.env.IExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 
-public class ExternalAnnotationProvider implements IExternalAnnotationProvider {
+public class ExternalAnnotationProvider {
+
+	public static final String ANNOTATION_FILE_SUFFIX = ".eea"; //$NON-NLS-1$ // FIXME(SH): define file extension
 
 	private File annotationSource;
 	private Map<String,String> methodAnnotationSources;
 	
-	public ExternalAnnotationProvider(File annotationSource) throws IOException {
-		if (!annotationSource.exists()) throw new FileNotFoundException(annotationSource.getAbsolutePath());
-		this.annotationSource = annotationSource;
+	public ExternalAnnotationProvider(String baseDir, String typeName) throws IOException {
+		this.annotationSource = new File(baseDir+File.separatorChar+typeName+ANNOTATION_FILE_SUFFIX);
+		if (!this.annotationSource.exists()) throw new FileNotFoundException(this.annotationSource.getAbsolutePath());
 		this.methodAnnotationSources = new HashMap<String, String>();
 		initialize();
 	}
@@ -55,7 +56,6 @@ public class ExternalAnnotationProvider implements IExternalAnnotationProvider {
 		}
 	}
 
-	@Override
 	public ITypeAnnotationWalker forMethod(char[] selector, char[] signature, LookupEnvironment environment) {
 		String source = this.methodAnnotationSources.get(String.valueOf(CharOperation.concat(selector, signature)));
 		if (source != null)
