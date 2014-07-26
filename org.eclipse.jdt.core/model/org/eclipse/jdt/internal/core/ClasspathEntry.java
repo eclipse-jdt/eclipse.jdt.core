@@ -343,8 +343,11 @@ public class ClasspathEntry implements IClasspathEntry {
 	 */
 	public ClasspathEntry combineWith(ClasspathEntry referringEntry) {
 		if (referringEntry == null) return this;
-		if (referringEntry.isExported() || referringEntry.getAccessRuleSet() != null ) {
+		if (referringEntry.isExported() || referringEntry.getAccessRuleSet() != null || referringEntry.getExternalAnnotationPath() != null) {
 			boolean combine = this.entryKind == CPE_SOURCE || referringEntry.combineAccessRules();
+			IPath externalAnnotations = referringEntry.getExternalAnnotationPath(); // give precedence to this one
+			if (externalAnnotations == null)
+				externalAnnotations = getExternalAnnotationPath();
 			return new ClasspathEntry(
 								getContentKind(),
 								getEntryKind(),
@@ -353,7 +356,7 @@ public class ClasspathEntry implements IClasspathEntry {
 								this.exclusionPatterns,
 								getSourceAttachmentPath(),
 								getSourceAttachmentRootPath(),
-								getExternalAnnotationPath(),
+								externalAnnotations,
 								getOutputLocation(),
 								referringEntry.isExported() || this.isExported, // duplicate container entry for tagging it as exported
 								combine(referringEntry.getAccessRules(), getAccessRules(), combine),

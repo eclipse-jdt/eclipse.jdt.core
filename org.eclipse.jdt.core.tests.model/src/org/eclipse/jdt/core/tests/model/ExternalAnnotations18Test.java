@@ -11,10 +11,14 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Hashtable;
 import java.util.Map;
+
+import junit.framework.Test;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -36,8 +40,6 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.osgi.framework.Bundle;
 
-import junit.framework.Test;
-
 public class ExternalAnnotations18Test extends ModifyingResourceTests {
 
 	private IJavaProject project;
@@ -53,7 +55,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	static {
 		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //		TESTS_PREFIX = "testClasspathDuplicateExtraAttribute";
-//		TESTS_NAMES = new String[] {"test2"};
+//		TESTS_NAMES = new String[] {"test3"};
 //		TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //		TESTS_RANGE = new int[] { 21, 38 };
 	}
@@ -70,8 +72,15 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		Bundle[] bundles = org.eclipse.jdt.core.tests.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", "[2.0.0,3.0.0)");
 		File bundleFile = FileLocator.getBundleFile(bundles[0]);
 		this.ANNOTATION_LIB = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
+	}
+	
+	public String getSourceWorkspacePath() {
+		// we read individual projects from within this folder:
+		return super.getSourceWorkspacePath()+"/ExternalAnnotations18";
+	}
 
-		this.project = setUpJavaProject("ExternalAnnotations18", "1.8"); //$NON-NLS-1$
+	void setupJavaProject(String name) throws CoreException, IOException {
+		this.project = setUpJavaProject(name, "1.8"); //$NON-NLS-1$
 		addLibraryEntry(this.project, this.ANNOTATION_LIB, false);
 		Map options = this.project.getOptions(true);
 		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
@@ -91,7 +100,12 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		}
 		assertEquals("Wrong value", 1, count); //$NON-NLS-1$
 		assertNotNull("Should not be null", this.root); //$NON-NLS-1$
-
+	}
+	
+	protected void tearDown() throws Exception {
+		this.project.getProject().delete(true, true, null);
+		this.project = null;
+		super.tearDown();
 	}
 	
 	// TODO: using this copy from AttachedJavadocTests test also programmatically setting the external annotation location:
@@ -120,20 +134,48 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		}
 		this.project.setRawClasspath(entries, null);
 	}
-	
-	/** Perform full build. */
-	public void test1() throws CoreException, InterruptedException {
-		this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
-		IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+
+	private void assertNoMarkers(IMarker[] markers) throws CoreException {
+		for (int i = 0; i < markers.length; i++)
+			System.err.println("Unexpected marker: "+markers[i].getAttributes().entrySet());
 		assertEquals("Number of markers", 0, markers.length);
 	}
 	
-	/** Reconcile an individual CU. */ // FIXME: needs more capability in SearchableNameEnvironment
-	public void test2() throws CoreException, InterruptedException {
+	private void assertNoProblems(IProblem[] problems) throws CoreException {
+		for (int i = 0; i < problems.length; i++)
+			System.err.println("Unexpected marker: "+problems[i]);
+		assertEquals("Number of markers", 0, problems.length);
+	}
+
+	/** Perform full build. */
+	public void test1FullBuild() throws Exception {
+		setupJavaProject("Test1");
+		this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+		assertNoMarkers(markers);
+	}
+
+	/** Reconcile an individual CU. */
+	public void test1Reconcile() throws Exception {
+		setupJavaProject("Test1");
 		IPackageFragment fragment = this.root.getPackageFragment("test1");
 		ICompilationUnit unit = fragment.getCompilationUnit("Test1.java").getWorkingCopy(new NullProgressMonitor());
 		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
-		assertEquals("Number of problems", 0, problems.length);
+		assertNoProblems(problems);
+	}
+
+	/** Project with real JRE8. */
+	public void test2() throws Exception {
+		Hashtable options = JavaCore.getOptions();
+		try {
+			setupJavaProject("Test2");
+			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+			assertNoMarkers(markers);
+		} finally {
+			// project using a full JRE container initializes global options to 1.8 -- must reset now:
+			JavaCore.setOptions(options);
+		}
 	}
 }

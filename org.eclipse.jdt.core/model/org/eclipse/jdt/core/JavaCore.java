@@ -4452,6 +4452,92 @@ public final class JavaCore extends Plugin {
 			IAccessRule[] accessRules,
 			IClasspathAttribute[] extraAttributes,
 			boolean isExported) {
+		return newContainerEntry(containerPath, accessRules, null, extraAttributes, isExported);
+	}
+
+	/**
+	 * Creates and returns a new classpath entry of kind <code>CPE_CONTAINER</code>
+	 * for the given path. The path of the container will be used during resolution so as to map this
+	 * container entry to a set of other classpath entries the container is acting for.
+	 * <p>
+	 * A container entry allows to express indirect references to a set of libraries, projects and variable entries,
+	 * which can be interpreted differently for each Java project where it is used.
+	 * A classpath container entry can be resolved using <code>JavaCore.getResolvedClasspathContainer</code>,
+	 * and updated with <code>JavaCore.classpathContainerChanged</code>
+	 * </p>
+	 * <p>
+	 * A container is exclusively resolved by a <code>ClasspathContainerInitializer</code> registered onto the
+	 * extension point "org.eclipse.jdt.core.classpathContainerInitializer".
+	 * </p>
+	 * <p>
+	 * A container path must be formed of at least one segment, where:
+	 * </p>
+	 * <ul>
+	 * <li> the first segment is a unique ID identifying the target container, there must be a container initializer registered
+	 * 	onto this ID through the extension point  "org.eclipse.jdt.core.classpathContainerInitializer". </li>
+	 * <li> the remaining segments will be passed onto the initializer, and can be used as additional
+	 * 	hints during the initialization phase. </li>
+	 * </ul>
+	 * <p>
+	 * Example of an ClasspathContainerInitializer for a classpath container denoting a default JDK container:
+	 * </p>
+	 * <pre>
+	 * containerEntry = JavaCore.newContainerEntry(new Path("MyProvidedJDK/default"));
+	 *
+	 * &lt;extension
+	 *    point="org.eclipse.jdt.core.classpathContainerInitializer"&gt;
+	 *    &lt;containerInitializer
+	 *       id="MyProvidedJDK"
+	 *       class="com.example.MyInitializer"/&gt;
+	 * </pre>
+	 * <p>
+	 * The access rules determine the set of accessible source and class files
+	 * in the container. If the list of access rules is empty, then all files
+	 * in this container are accessible.
+	 * See {@link IAccessRule} for a detailed description of access
+	 * rules. Note that if an entry defined by the container defines access rules,
+	 * then these access rules are combined with the given access rules.
+	 * The given access rules are considered first, then the entry's access rules are
+	 * considered.
+	 * </p>
+	 * <p>
+	 * The <code>extraAttributes</code> list contains name/value pairs that must be persisted with
+	 * this entry. If no extra attributes are provided, an empty array must be passed in.<br>
+	 * Note that this list should not contain any duplicate name.
+	 * </p>
+	 * <p>
+	 * The <code>isExported</code> flag indicates whether this entry is contributed to dependent
+	 * projects. If not exported, dependent projects will not see any of the classes from this entry.
+	 * If exported, dependent projects will concatenate the accessible files patterns of this entry with the
+	 * accessible files patterns of the projects, and they will concatenate the non accessible files patterns of this entry
+	 * with the non accessible files patterns of the project.
+	 * </p>
+	 * <p>
+	 * Note that this operation does not attempt to validate classpath containers
+	 * or access the resources at the given paths.
+	 * </p>
+	 *
+	 * @param containerPath the path identifying the container, it must be formed of at least
+	 * 	one segment (ID+hints)
+	 * @param accessRules the possibly empty list of access rules for this entry
+	 * @param externalAnnotationPath the location where external annotations are found for annotation based null analysis
+	 * @param extraAttributes the possibly empty list of extra attributes to persist with this entry
+	 * @param isExported a boolean indicating whether this entry is contributed to dependent
+	 *    projects in addition to the output location
+	 * @return a new container classpath entry
+	 *
+	 * @see JavaCore#getClasspathContainer(IPath, IJavaProject)
+	 * @see JavaCore#setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
+	 * @see JavaCore#newContainerEntry(IPath, boolean)
+	 * @see JavaCore#newAccessRule(IPath, int)
+	 * @since 3.11
+	 */
+	public static IClasspathEntry newContainerEntry(
+			IPath containerPath,
+			IAccessRule[] accessRules,
+			IPath externalAnnotationPath,
+			IClasspathAttribute[] extraAttributes,
+			boolean isExported) {
 
 		if (containerPath == null) {
 			throw new ClasspathEntry.AssertionFailedException("Container path cannot be null"); //$NON-NLS-1$
@@ -4472,7 +4558,7 @@ public final class JavaCore extends Plugin {
 			ClasspathEntry.EXCLUDE_NONE, // exclusion patterns
 			null, // source attachment
 			null, // source attachment root
-			null, // external annotation path
+			externalAnnotationPath,
 			null, // specific output folder
 			isExported,
 			accessRules,
