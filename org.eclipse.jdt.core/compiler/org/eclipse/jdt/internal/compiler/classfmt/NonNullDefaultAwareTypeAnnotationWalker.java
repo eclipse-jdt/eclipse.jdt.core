@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
+import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
@@ -101,21 +102,21 @@ public class NonNullDefaultAwareTypeAnnotationWalker extends TypeAnnotationWalke
 	}
 	
 	@Override
-	public TypeAnnotationWalker toMethodParameter(short index) {
+	public ITypeAnnotationWalker toMethodParameter(short index) {
 		// don't set nextIsDefaultLocation, because signature-level nullness is handled by ImplicitNullAnnotationVerifier
 		if (this.isEmpty) return restrict(this.matches, this.pathPtr);
 		return super.toMethodParameter(index);
 	}
 
 	@Override
-	public TypeAnnotationWalker toMethodReturn() {
+	public ITypeAnnotationWalker toMethodReturn() {
 		// don't set nextIsDefaultLocation, because signature-level nullness is handled by ImplicitNullAnnotationVerifier
 		if (this.isEmpty) return restrict(this.matches, this.pathPtr);
 		return super.toMethodReturn();
 	}
 
 	@Override
-	public TypeAnnotationWalker toTypeBound(short boundIndex) {
+	public ITypeAnnotationWalker toTypeBound(short boundIndex) {
 		this.nextIsDefaultLocation = (this.defaultNullness & Binding.DefaultLocationTypeBound) != 0;
 		this.nextIsTypeBound = true;
 		if (this.isEmpty) return restrict(this.matches, this.pathPtr);
@@ -123,7 +124,7 @@ public class NonNullDefaultAwareTypeAnnotationWalker extends TypeAnnotationWalke
 	}
 
 	@Override
-	public TypeAnnotationWalker toTypeParameterBounds(boolean isClassTypeParameter, int parameterRank) {
+	public ITypeAnnotationWalker toTypeParameterBounds(boolean isClassTypeParameter, int parameterRank) {
 		this.nextIsDefaultLocation = (this.defaultNullness & Binding.DefaultLocationTypeBound) != 0;
 		this.nextIsTypeBound = true;
 		if (this.isEmpty) return restrict(this.matches, this.pathPtr);
@@ -131,7 +132,7 @@ public class NonNullDefaultAwareTypeAnnotationWalker extends TypeAnnotationWalke
 	}
 
 	@Override
-	public TypeAnnotationWalker toTypeArgument(int rank) {
+	public ITypeAnnotationWalker toTypeArgument(int rank) {
 		this.nextIsDefaultLocation = (this.defaultNullness & Binding.DefaultLocationTypeArgument) != 0;
 		this.nextIsTypeBound = false;
 		if (this.isEmpty) return restrict(this.matches, this.pathPtr);
@@ -139,7 +140,7 @@ public class NonNullDefaultAwareTypeAnnotationWalker extends TypeAnnotationWalke
 	}
 
 	@Override
-	public TypeAnnotationWalker toTypeParameter(boolean isClassTypeParameter, int rank) {
+	public ITypeAnnotationWalker toTypeParameter(boolean isClassTypeParameter, int rank) {
 		this.nextIsDefaultLocation = (this.defaultNullness & Binding.DefaultLocationTypeParameter) != 0;
 		this.nextIsTypeBound = false;
 		if (this.isEmpty) return restrict(this.matches, this.pathPtr);

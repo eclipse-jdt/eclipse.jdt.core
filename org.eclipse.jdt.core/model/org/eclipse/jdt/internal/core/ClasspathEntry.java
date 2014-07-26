@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@
  *     IBM Corporation - initial API and implementation
  *     Terry Parker <tparker@google.com> - DeltaProcessor misses state changes in archive files, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=357425
  *     Thirumala Reddy Mutchukota <thirumala@google.com> - Avoid optional library classpath entries validation - https://bugs.eclipse.org/bugs/show_bug.cgi?id=412882
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -86,6 +88,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	public static final String TAG_OUTPUT = "output"; //$NON-NLS-1$
 	public static final String TAG_KIND = "kind"; //$NON-NLS-1$
 	public static final String TAG_PATH = "path"; //$NON-NLS-1$
+	public static final String TAG_ANNOTATION_PATH = "annotationpath"; //$NON-NLS-1$
 	public static final String TAG_SOURCEPATH = "sourcepath"; //$NON-NLS-1$
 	public static final String TAG_ROOTPATH = "rootpath"; //$NON-NLS-1$
 	public static final String TAG_EXPORTED = "exported"; //$NON-NLS-1$
@@ -138,6 +141,8 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * 	an actual <code>IClasspathContainer</code>.</li>
 	 */
 	public IPath path;
+
+	private IPath externalAnnotationPath;
 
 	/**
 	 * Patterns allowing to include/exclude portions of the resource tree denoted by this entry path.
@@ -239,6 +244,7 @@ public class ClasspathEntry implements IClasspathEntry {
 			IPath[] exclusionPatterns,
 			IPath sourceAttachmentPath,
 			IPath sourceAttachmentRootPath,
+			IPath externalAnnotationPath,
 			IPath specificOutputLocation,
 			boolean isExported,
 			IAccessRule[] accessRules,
@@ -252,6 +258,7 @@ public class ClasspathEntry implements IClasspathEntry {
 				exclusionPatterns, 
 				sourceAttachmentPath, 
 				sourceAttachmentRootPath, 
+				externalAnnotationPath,
 				specificOutputLocation,
 				null,
 				isExported,
@@ -271,6 +278,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		IPath[] exclusionPatterns,
 		IPath sourceAttachmentPath,
 		IPath sourceAttachmentRootPath,
+		IPath externalAnnotationPath,
 		IPath specificOutputLocation,
 		IClasspathEntry referencingEntry,
 		boolean isExported,
@@ -321,6 +329,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	    }
 		this.sourceAttachmentPath = sourceAttachmentPath;
 		this.sourceAttachmentRootPath = sourceAttachmentRootPath;
+		this.externalAnnotationPath = externalAnnotationPath;
 		this.specificOutputLocation = specificOutputLocation;
 		this.isExported = isExported;
 	}
@@ -344,6 +353,7 @@ public class ClasspathEntry implements IClasspathEntry {
 								this.exclusionPatterns,
 								getSourceAttachmentPath(),
 								getSourceAttachmentRootPath(),
+								getExternalAnnotationPath(),
 								getOutputLocation(),
 								referringEntry.isExported() || this.isExported, // duplicate container entry for tagging it as exported
 								combine(referringEntry.getAccessRules(), getAccessRules(), combine),
@@ -566,6 +576,9 @@ public class ClasspathEntry implements IClasspathEntry {
 		if (this.sourceAttachmentRootPath != null) {
 			parameters.put(TAG_ROOTPATH, String.valueOf(this.sourceAttachmentRootPath));
 		}
+		if (this.externalAnnotationPath != null) {
+			parameters.put(TAG_ANNOTATION_PATH, String.valueOf(this.externalAnnotationPath));
+		}
 		if (this.isExported) {
 			parameters.put(TAG_EXPORTED, "true");//$NON-NLS-1$
 		}
@@ -678,6 +691,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		boolean[] foundChildren = new boolean[children.getLength()];
 		String kindAttr = removeAttribute(TAG_KIND, attributes);
 		String pathAttr = removeAttribute(TAG_PATH, attributes);
+		String annotationPathAttr = removeAttribute(TAG_ANNOTATION_PATH, attributes);
 
 		// ensure path is absolute
 		IPath path = new Path(pathAttr);
@@ -685,6 +699,12 @@ public class ClasspathEntry implements IClasspathEntry {
 		if (kind != IClasspathEntry.CPE_VARIABLE && kind != IClasspathEntry.CPE_CONTAINER && !path.isAbsolute()) {
 			if (!(path.segmentCount() > 0 && path.segment(0).equals(ClasspathEntry.DOT_DOT))) {
 				path = projectPath.append(path);
+			}
+		}
+		IPath annotationPath = annotationPathAttr.isEmpty() ? null : new Path(annotationPathAttr);
+		if (annotationPath != null && !annotationPath.isAbsolute()) {
+			if (!(annotationPath.segmentCount() > 0 && annotationPath.segment(0).equals(ClasspathEntry.DOT_DOT))) {
+				annotationPath = project.getProject().getLocation().append(annotationPath);
 			}
 		}
 		// source attachment info (optional)
@@ -772,6 +792,7 @@ public class ClasspathEntry implements IClasspathEntry {
 												ClasspathEntry.EXCLUDE_NONE, // exclusion patterns
 												null, // source attachment
 												null, // source attachment root
+												null, // external annotation path
 												null, // specific output folder
 												isExported,
 												accessRules,
@@ -843,6 +864,7 @@ public class ClasspathEntry implements IClasspathEntry {
 												EXCLUDE_NONE,
 												null, // source attachment
 												null, // source attachment root
+												null, // external annotation path
 												null, // custom output location
 												false,
 												null, // no access rules
@@ -860,6 +882,8 @@ public class ClasspathEntry implements IClasspathEntry {
 			unknownElements.put(path, unknownXmlElements);
 		}
 
+		if (entry instanceof ClasspathEntry && kind != ClasspathEntry.K_OUTPUT && annotationPath != null)
+			((ClasspathEntry)entry).externalAnnotationPath = annotationPath;
 		return entry;
 	}
 	
@@ -1245,6 +1269,13 @@ public class ClasspathEntry implements IClasspathEntry {
 		return this.sourceAttachmentRootPath;
 	}
 
+	/**
+	 * @see IClasspathEntry
+	 */
+	public IPath getExternalAnnotationPath() {
+		return this.externalAnnotationPath;
+	}
+
 
 	public IClasspathEntry getReferencingEntry() {
 		return this.referencingEntry;
@@ -1394,6 +1425,11 @@ public class ClasspathEntry implements IClasspathEntry {
 			buffer.append(getSourceAttachmentRootPath());
 			buffer.append(']');
 		}
+		if (getExternalAnnotationPath() != null) {
+			buffer.append("[annotationPath:"); //$NON-NLS-1$
+			buffer.append(getExternalAnnotationPath());
+			buffer.append(']');
+		}
 		buffer.append("[isExported:"); //$NON-NLS-1$
 		buffer.append(this.isExported);
 		buffer.append(']');
@@ -1460,6 +1496,7 @@ public class ClasspathEntry implements IClasspathEntry {
 							this.exclusionPatterns,
 							getSourceAttachmentPath(),
 							getSourceAttachmentRootPath(),
+							getExternalAnnotationPath(),
 							getOutputLocation(),
 							this.getReferencingEntry(),
 							this.isExported,
@@ -1486,6 +1523,7 @@ public class ClasspathEntry implements IClasspathEntry {
 					paths[i],
 					this.inclusionPatterns,
 					this.exclusionPatterns,
+					null,
 					null,
 					null,
 					getOutputLocation(),

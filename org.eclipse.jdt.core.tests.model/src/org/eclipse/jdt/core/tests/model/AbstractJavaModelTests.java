@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -2840,6 +2842,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 							new Path(newJclLibString),
 							new Path(newJclSrcString),
 							entry.getSourceAttachmentRootPath(),
+							entry.getExternalAnnotationPath(),
 							entry.getAccessRules(),
 							new IClasspathAttribute[0],
 							entry.isExported());

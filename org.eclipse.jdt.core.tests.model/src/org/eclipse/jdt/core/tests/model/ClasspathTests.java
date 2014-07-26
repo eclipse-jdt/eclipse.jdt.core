@@ -9,7 +9,10 @@
  *     IBM Corporation - initial API and implementation
  *     Terry Parker <tparker@google.com> - DeltaProcessor misses state changes in archive files, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=357425,
  *     									   Fup of 357425: ensure all reported regressions are witnessed by tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=361922
- *     Thirumala Reddy Mutchukota <thirumala@google.com> - Contribution to bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=411423
+ *     Thirumala Reddy Mutchukota <thirumala@google.com> - Contribution for
+ *     							Bug 411423 - JavaProject.resolveClasspath is spending more than 90% time on ExternalFoldersManager.isExternalFolderPath
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -5842,6 +5845,7 @@ public void testBug55992a() throws CoreException {
 			ClasspathEntry.INCLUDE_ALL,
 			ClasspathEntry.EXCLUDE_NONE,
 			new Path("TEST_SRC"),
+			null,
 			null,
 			null, // specific output folder
 			false,

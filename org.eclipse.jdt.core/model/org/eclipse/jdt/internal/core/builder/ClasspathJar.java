@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,12 +8,21 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tal Lev-Ami - added package cache for zip files
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
@@ -23,12 +32,10 @@ import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
 
-import java.io.*;
-import java.util.*;
-import java.util.zip.*;
-
 @SuppressWarnings("rawtypes")
 public class ClasspathJar extends ClasspathLocation {
+
+private static final String ANNOTATION_FILE_SUFFIX = ".eea"; //$NON-NLS-1$ // FIXME(SH): define file extension
 
 static class PackageCacheEntry {
 	long lastModified;
@@ -85,8 +92,9 @@ long lastModified;
 boolean closeZipFileAtEnd;
 SimpleSet knownPackageNames;
 AccessRuleSet accessRuleSet;
+String externalAnnotationDir;
 
-ClasspathJar(IFile resource, AccessRuleSet accessRuleSet) {
+ClasspathJar(IFile resource, AccessRuleSet accessRuleSet, IPath externalAnnotationPath) {
 	this.resource = resource;
 	try {
 		java.net.URI location = resource.getLocationURI();
@@ -102,22 +110,28 @@ ClasspathJar(IFile resource, AccessRuleSet accessRuleSet) {
 	this.zipFile = null;
 	this.knownPackageNames = null;
 	this.accessRuleSet = accessRuleSet;
+	if (externalAnnotationPath != null)
+		this.externalAnnotationDir = externalAnnotationPath.toString();
 }
 
-ClasspathJar(String zipFilename, long lastModified, AccessRuleSet accessRuleSet) {
+ClasspathJar(String zipFilename, long lastModified, AccessRuleSet accessRuleSet, IPath externalAnnotationPath) {
 	this.zipFilename = zipFilename;
 	this.lastModified = lastModified;
 	this.zipFile = null;
 	this.knownPackageNames = null;
 	this.accessRuleSet = accessRuleSet;
+	if (externalAnnotationPath != null)
+		this.externalAnnotationDir = externalAnnotationPath.toString();
 }
 
-public ClasspathJar(ZipFile zipFile, AccessRuleSet accessRuleSet) {
+public ClasspathJar(ZipFile zipFile, AccessRuleSet accessRuleSet, IPath externalAnnotationPath) {
 	this.zipFilename = zipFile.getName();
 	this.zipFile = zipFile;
 	this.closeZipFileAtEnd = false;
 	this.knownPackageNames = null;
 	this.accessRuleSet = accessRuleSet;
+	if (externalAnnotationPath != null)
+		this.externalAnnotationDir = externalAnnotationPath.toString();
 }
 
 public void cleanup() {
@@ -148,6 +162,8 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	try {
 		ClassFileReader reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		if (reader != null) {
+			if (this.externalAnnotationDir != null)
+				setExternalAnnotationProvider(reader);
 			if (this.accessRuleSet == null)
 				return new NameEnvironmentAnswer(reader, null);
 			String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
@@ -157,6 +173,18 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	} catch (ClassFormatException e) { // treat as if class file is missing
 	}
 	return null;
+}
+
+private void setExternalAnnotationProvider(ClassFileReader reader) {
+	File annotFile = new File(this.externalAnnotationDir+File.separatorChar+String.valueOf(reader.getName())+ANNOTATION_FILE_SUFFIX);
+	if (annotFile.exists()) {
+		try {
+			reader.setAnnotationProvider(annotFile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
 
 public IPath getProjectRelativePath() {

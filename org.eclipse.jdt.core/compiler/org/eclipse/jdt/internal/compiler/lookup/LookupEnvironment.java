@@ -27,6 +27,7 @@
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *								Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
  *								Bug 434602 - Possible error with inferred null annotations leading to contradictory null annotations
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -41,7 +42,6 @@ import org.eclipse.jdt.internal.compiler.ClassFilePool;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.classfmt.TypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
@@ -1164,7 +1164,7 @@ public ReferenceBinding getType(char[][] compoundName) {
 }
 
 private TypeBinding[] getTypeArgumentsFromSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType, ReferenceBinding genericType,
-		char[][][] missingTypeNames, TypeAnnotationWalker walker)
+		char[][][] missingTypeNames, ITypeAnnotationWalker walker)
 {
 	java.util.ArrayList args = new java.util.ArrayList(2);
 	int rank = 0;
@@ -1217,7 +1217,7 @@ private ReferenceBinding getTypeFromCompoundName(char[][] compoundName, boolean 
 *
 * NOTE: Does NOT answer base types nor array types!
 */
-ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int end, boolean isParameterized, char[][][] missingTypeNames, TypeAnnotationWalker walker) {
+ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int end, boolean isParameterized, char[][][] missingTypeNames, ITypeAnnotationWalker walker) {
 	if (end == -1)
 		end = signature.length;
 	char[][] compoundName = CharOperation.splitOn('/', signature, start, end);
@@ -1231,14 +1231,14 @@ ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int en
 		}
 	}
 	ReferenceBinding binding = getTypeFromCompoundName(compoundName, isParameterized, wasMissingType);
-	if (walker != TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER) {
+	if (walker != ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER) {
 		binding = (ReferenceBinding) annotateType(binding, walker, missingTypeNames);
 	}
 	return binding;
 }
 
 ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int end, boolean isParameterized, char[][][] missingTypeNames) {
-	return getTypeFromConstantPoolName(signature, start, end, isParameterized, missingTypeNames, TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER);
+	return getTypeFromConstantPoolName(signature, start, end, isParameterized, missingTypeNames, ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER);
 }
 
 /* Answer the type corresponding to the signature from the binary file.
@@ -1248,7 +1248,7 @@ ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int en
 * NOTE: Does answer base types & array types.
 */
 TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean isParameterized, TypeBinding enclosingType, 
-		char[][][] missingTypeNames, TypeAnnotationWalker walker)
+		char[][][] missingTypeNames, ITypeAnnotationWalker walker)
 {
 	int dimension = 0;
 	while (signature[start] == '[') {
@@ -1257,7 +1257,7 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean i
 	}
 	// annotations on dimensions?
 	AnnotationBinding [][] annotationsOnDimensions = null;
-	if (dimension > 0 && walker != TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER) {
+	if (dimension > 0 && walker != ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER) {
 		for (int i = 0; i < dimension; i++) {
 			AnnotationBinding [] annotations = BinaryTypeBinding.createAnnotations(walker.getAnnotationsAtCursor(0), this, missingTypeNames);
 			if (annotations != Binding.NO_ANNOTATIONS) { 
@@ -1317,7 +1317,7 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean i
 		return binding;
 	}
 	
-	if (walker != TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER) {
+	if (walker != ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER) {
 		binding = annotateType(binding, walker, missingTypeNames);
 	}
 	
@@ -1327,7 +1327,7 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean i
 	return binding;
 }
 
-private TypeBinding annotateType(TypeBinding binding, TypeAnnotationWalker walker, char[][][] missingTypeNames) {
+private TypeBinding annotateType(TypeBinding binding, ITypeAnnotationWalker walker, char[][][] missingTypeNames) {
 	int depth = binding.depth() + 1;
 	if (depth > 1) {
 		// need to count non-static nesting levels, resolved binding required for precision
@@ -1373,7 +1373,7 @@ boolean qualifiedNameMatchesSignature(char[][] name, char[] signature) {
 }
 
 public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType, 
-		char[][][] missingTypeNames, TypeAnnotationWalker walker) 
+		char[][][] missingTypeNames, ITypeAnnotationWalker walker) 
 {
 	// TypeVariableSignature = 'T' Identifier ';'
 	// ArrayTypeSignature = '[' TypeSignature
@@ -1387,7 +1387,7 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 	}
 	// annotations on dimensions?
 	AnnotationBinding [][] annotationsOnDimensions = null;
-	if (dimension > 0 && walker != TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER) {
+	if (dimension > 0 && walker != ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER) {
 		for (int i = 0; i < dimension; i++) {
 			AnnotationBinding [] annotations = BinaryTypeBinding.createAnnotations(walker.getAnnotationsAtCursor(0), this, missingTypeNames);
 			if (annotations != Binding.NO_ANNOTATIONS) { 
@@ -1461,7 +1461,7 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 	return dimension == 0 ? (TypeBinding) parameterizedType : createArrayType(parameterizedType, dimension, AnnotatableTypeSystem.flattenedAnnotations(annotationsOnDimensions));
 }
 
-private TypeBinding getTypeFromTypeVariable(TypeVariableBinding typeVariableBinding, int dimension, AnnotationBinding [][] annotationsOnDimensions, TypeAnnotationWalker walker, char [][][] missingTypeNames) {
+private TypeBinding getTypeFromTypeVariable(TypeVariableBinding typeVariableBinding, int dimension, AnnotationBinding [][] annotationsOnDimensions, ITypeAnnotationWalker walker, char [][][] missingTypeNames) {
 	AnnotationBinding [] annotations = BinaryTypeBinding.createAnnotations(walker.getAnnotationsAtCursor(0), this, missingTypeNames);
 	if (annotations != null && annotations != Binding.NO_ANNOTATIONS)
 		typeVariableBinding = (TypeVariableBinding) createAnnotatedType(typeVariableBinding, new AnnotationBinding [][] { annotations });
@@ -1479,7 +1479,7 @@ TypeBinding getTypeFromVariantTypeSignature(
 		ReferenceBinding genericType,
 		int rank,
 		char[][][] missingTypeNames,
-		TypeAnnotationWalker walker) {
+		ITypeAnnotationWalker walker) {
 	// VariantTypeSignature = '-' TypeSignature
 	//   or '+' TypeSignature
 	//   or TypeSignature

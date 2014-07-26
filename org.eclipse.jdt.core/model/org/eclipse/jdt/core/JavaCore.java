@@ -98,6 +98,8 @@
  *									COMPILER_INHERIT_NULL_ANNOTATIONS
  *									COMPILER_PB_NONNULL_PARAMETER_ANNOTATION_DROPPED
  *									COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *     Jesper S Moller   - Contributions for bug 381345 : [1.8] Take care of the Java 8 major version
  *                       - added the following constants:
  *									COMPILER_CODEGEN_METHOD_PARAMETERS_ATTR
@@ -4470,6 +4472,7 @@ public final class JavaCore extends Plugin {
 			ClasspathEntry.EXCLUDE_NONE, // exclusion patterns
 			null, // source attachment
 			null, // source attachment root
+			null, // external annotation path
 			null, // specific output folder
 			isExported,
 			accessRules,
@@ -4653,6 +4656,86 @@ public final class JavaCore extends Plugin {
 			IAccessRule[] accessRules,
 			IClasspathAttribute[] extraAttributes,
 			boolean isExported) {
+		return newLibraryEntry(path, sourceAttachmentPath, sourceAttachmentRootPath, null, accessRules, extraAttributes, isExported);
+	}
+
+	/**
+	 * Creates and returns a new classpath entry of kind <code>CPE_LIBRARY</code> for the JAR or folder
+	 * identified by the given absolute path. This specifies that all package fragments within the root
+	 * will have children of type <code>IClassFile</code>.
+	 * <p>
+	 * A library entry is used to denote a prerequisite JAR or root folder containing binaries.
+	 * The target JAR can either be defined internally to the workspace (absolute path relative
+	 * to the workspace root), or externally to the workspace (absolute path in the file system).
+	 * The target root folder can also be defined internally to the workspace (absolute path relative
+	 * to the workspace root), or - since 3.4 - externally to the workspace (absolute path in the file system).
+	 * Since 3.5, the path to the library can also be relative to the project using ".." as the first segment. 
+	 * </p>
+	 * <p>
+	 * e.g. Here are some examples of binary path usage
+	 * </p>
+	 *	<ul>
+	 *	<li><code> "c:\jdk1.2.2\jre\lib\rt.jar" </code> - reference to an external JAR on Windows</li>
+	 *	<li><code> "/Project/someLib.jar" </code> - reference to an internal JAR on Windows or Linux</li>
+	 *	<li><code> "/Project/classes/" </code> - reference to an internal binary folder on Windows or Linux</li>
+	 *	<li><code> "/home/usr/classes" </code> - reference to an external binary folder on Linux</li>
+	 *	<li><code> "../../lib/someLib.jar" </code> - reference to an external JAR that is a sibling of the workspace on either platform</li>
+	 * </ul>
+	 * Note that on non-Windows platform, a path <code>"/some/lib.jar"</code> is ambiguous.
+	 * It can be a path to an external JAR (its file system path being <code>"/some/lib.jar"</code>)
+	 * or it can be a path to an internal JAR (<code>"some"</code> being a project in the workspace).
+	 * Such an ambiguity is solved when the classpath entry is used (e.g. in {@link IJavaProject#getPackageFragmentRoots()}).
+	 * If the resource <code>"lib.jar"</code> exists in project <code>"some"</code>, then it is considered an
+	 * internal JAR. Otherwise it is an external JAR.
+	 * <p>Also note that this operation does not attempt to validate or access the
+	 * resources at the given paths.
+	 * </p><p>
+	 * The access rules determine the set of accessible class files
+	 * in the library. If the list of access rules is empty then all files
+	 * in this library are accessible.
+	 * See {@link IAccessRule} for a detailed description of access
+	 * rules.
+	 * </p>
+	 * <p>
+	 * The <code>extraAttributes</code> list contains name/value pairs that must be persisted with
+	 * this entry. If no extra attributes are provided, an empty array must be passed in.<br>
+	 * Note that this list should not contain any duplicate name.
+	 * </p>
+	 * <p>
+	 * The <code>isExported</code> flag indicates whether this entry is contributed to dependent
+	 * projects. If not exported, dependent projects will not see any of the classes from this entry.
+	 * If exported, dependent projects will concatenate the accessible files patterns of this entry with the
+	 * accessible files patterns of the projects, and they will concatenate the non accessible files patterns of this entry
+	 * with the non accessible files patterns of the project.
+	 * </p>
+	 * <p>
+	 * Since 3.5, if the library is a ZIP archive, the "Class-Path" clause (if any) in the "META-INF/MANIFEST.MF" is read
+	 * and referenced ZIP archives are added to the {@link IJavaProject#getResolvedClasspath(boolean) resolved classpath}.
+	 * </p>
+	 *
+	 * @param path the path to the library
+	 * @param sourceAttachmentPath the absolute path of the corresponding source archive or folder,
+	 *    or <code>null</code> if none. Note, since 3.0, an empty path is allowed to denote no source attachment.
+	 *   and will be automatically converted to <code>null</code>. Since 3.4, this path can also denote a path external
+	 *   to the workspace.
+	 * @param sourceAttachmentRootPath the location of the root of the source files within the source archive or folder
+	 *    or <code>null</code> if this location should be automatically detected.
+	 * @param externalAnnotationPath the location where external annotations are found for annotation based null analysis
+	 * @param accessRules the possibly empty list of access rules for this entry
+	 * @param extraAttributes the possibly empty list of extra attributes to persist with this entry
+	 * @param isExported indicates whether this entry is contributed to dependent
+	 * 	  projects in addition to the output location
+	 * @return a new library classpath entry
+	 * @since 3.11
+	 */
+	public static IClasspathEntry newLibraryEntry(
+			IPath path,
+			IPath sourceAttachmentPath,
+			IPath sourceAttachmentRootPath,
+			IPath externalAnnotationPath,
+			IAccessRule[] accessRules,
+			IClasspathAttribute[] extraAttributes,
+			boolean isExported) {
 
 		if (path == null) throw new ClasspathEntry.AssertionFailedException("Library path cannot be null"); //$NON-NLS-1$
 		if (accessRules == null) {
@@ -4680,6 +4763,7 @@ public final class JavaCore extends Plugin {
 			ClasspathEntry.EXCLUDE_NONE, // exclusion patterns
 			sourceAttachmentPath,
 			sourceAttachmentRootPath,
+			externalAnnotationPath,
 			null, // specific output folder
 			isExported,
 			accessRules,
@@ -4800,6 +4884,7 @@ public final class JavaCore extends Plugin {
 			ClasspathEntry.EXCLUDE_NONE, // exclusion patterns
 			null, // source attachment
 			null, // source attachment root
+			null, // external annotation path
 			null, // specific output folder
 			isExported,
 			accessRules,
@@ -5011,6 +5096,7 @@ public final class JavaCore extends Plugin {
 			exclusionPatterns,
 			null, // source attachment
 			null, // source attachment root
+			null, // external annotation path
 			specificOutputLocation, // custom output location
 			false,
 			null,
@@ -5145,6 +5231,80 @@ public final class JavaCore extends Plugin {
 			IAccessRule[] accessRules,
 			IClasspathAttribute[] extraAttributes,
 			boolean isExported) {
+		return newVariableEntry(variablePath, variableSourceAttachmentPath, variableSourceAttachmentRootPath, null, accessRules, extraAttributes, isExported);
+	}
+
+	/**
+	 * Creates and returns a new classpath entry of kind <code>CPE_VARIABLE</code>
+	 * for the given path. The first segment of the path is the name of a classpath variable.
+	 * The trailing segments of the path will be appended to resolved variable path.
+	 * <p>
+	 * A variable entry allows to express indirect references on a classpath to other projects or libraries,
+	 * depending on what the classpath variable is referring.
+	 * </p>
+	 * <p>
+	 * It is possible to register an automatic initializer (<code>ClasspathVariableInitializer</code>),
+	 * which will be invoked through the extension point "org.eclipse.jdt.core.classpathVariableInitializer".
+	 * After resolution, a classpath variable entry may either correspond to a project or a library entry.
+	 * </p>
+	 * <p>
+	 * e.g. Here are some examples of variable path usage
+	 * </p>
+	 * <ul>
+	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is
+	 *		bound to "c:/jars/jdtcore.jar". The resolved classpath entry is denoting the library "c:\jars\jdtcore.jar"</li>
+	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is
+	 *		bound to "/Project_JDTCORE". The resolved classpath entry is denoting the project "/Project_JDTCORE"</li>
+	 * <li> "PLUGINS/com.example/example.jar" where variable <code>PLUGINS</code>
+	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:\eclipse\plugins\com.example\example.jar"</li>
+	 * </ul>
+	 * <p>
+	 * The access rules determine the set of accessible class files
+	 * in the project or library. If the list of access rules is empty then all files
+	 * in this project or library are accessible.
+	 * See {@link IAccessRule} for a detailed description of access rules.
+	 * </p>
+	 * <p>
+	 * The <code>extraAttributes</code> list contains name/value pairs that must be persisted with
+	 * this entry. If no extra attributes are provided, an empty array must be passed in.<br>
+	 * Note that this list should not contain any duplicate name.
+	 * </p>
+	 * <p>
+	 * The <code>isExported</code> flag indicates whether this entry is contributed to dependent
+	 * projects. If not exported, dependent projects will not see any of the classes from this entry.
+	 * If exported, dependent projects will concatenate the accessible files patterns of this entry with the
+	 * accessible files patterns of the projects, and they will concatenate the non accessible files patterns of this entry
+	 * with the non accessible files patterns of the project.
+	 * </p>
+	 * <p>
+	 * Note that this operation does not attempt to validate classpath variables
+	 * or access the resources at the given paths.
+	 * </p>
+	 *
+	 * @param variablePath the path of the binary archive; first segment is the
+	 *   name of a classpath variable
+	 * @param variableSourceAttachmentPath the path of the corresponding source archive,
+	 *    or <code>null</code> if none; if present, the first segment is the
+	 *    name of a classpath variable (not necessarily the same variable
+	 *    as the one that begins <code>variablePath</code>)
+	 * @param variableSourceAttachmentRootPath the location of the root of the source files within the source archive
+	 *    or <code>null</code> if <code>variableSourceAttachmentPath</code> is also <code>null</code>
+	 * @param externalAnnotationPath the location where external annotations are found for annotation based null analysis
+	 * @param accessRules the possibly empty list of access rules for this entry
+	 * @param extraAttributes the possibly empty list of extra attributes to persist with this entry
+	 * @param isExported indicates whether this entry is contributed to dependent
+	 * 	  projects in addition to the output location
+	 * @return a new variable classpath entry
+	 * @since 3.11
+	 */
+	public static IClasspathEntry newVariableEntry(
+			IPath variablePath,
+			IPath variableSourceAttachmentPath,
+			IPath variableSourceAttachmentRootPath,
+			IPath externalAnnotationPath, 
+			IAccessRule[] accessRules, 
+			IClasspathAttribute[] extraAttributes,
+			boolean isExported) {
 
 		if (variablePath == null) throw new ClasspathEntry.AssertionFailedException("Variable path cannot be null"); //$NON-NLS-1$
 		if (variablePath.segmentCount() < 1) {
@@ -5165,13 +5325,14 @@ public final class JavaCore extends Plugin {
 			ClasspathEntry.EXCLUDE_NONE, // exclusion patterns
 			variableSourceAttachmentPath, // source attachment
 			variableSourceAttachmentRootPath, // source attachment root
+			externalAnnotationPath,
 			null, // specific output folder
 			isExported,
 			accessRules,
 			false, // no access rules to combine
 			extraAttributes);
 	}
-	
+
 	/**
 	 * Returns an array of classpath entries that are referenced directly or indirectly 
 	 * by a given classpath entry. For the entry kind {@link IClasspathEntry#CPE_LIBRARY}, 

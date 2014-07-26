@@ -1,0 +1,4 @@
+class <T:>Collection
+
+get(I)TT;=(I)T0T;
+iterator()Ljava.util.Iterator<TT;>;=iterator()L1java.util.Iterator<TT;>;
