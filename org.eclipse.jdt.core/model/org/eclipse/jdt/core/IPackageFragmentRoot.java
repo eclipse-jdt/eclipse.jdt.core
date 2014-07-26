@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,8 @@
  *     IBM Corporation - added NO_RESOURCE_MODIFICATION
  *     IBM Corporation - added REPLACE
  *     IBM Corporation - added ORIGINATING_PROJECT_CLASSPATH
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -349,6 +351,19 @@ public interface IPackageFragmentRoot
 	 */
 	IPath getSourceAttachmentRootPath() throws JavaModelException;
 
+	/**
+	 * Returns the absolute path to the location where external annotations can be
+	 * found to support annotation based null analysis involving 3rd party libraries.
+	 * 
+	 * @return the absolute path to the corresponding external annotations,
+	 *   or <code>null</code> if this package fragment root's binary archive
+	 *   has no corresponding external annotations, or if this package fragment root
+	 *   is not a binary archive
+	 * @exception JavaModelException if this operation fails
+	 * @since 3.11
+	 */
+	IPath getExternalAnnotationPath() throws JavaModelException;
+	
 	/**
 	 * Returns whether this package fragment root's underlying
 	 * resource is a binary archive (a JAR or zip file).

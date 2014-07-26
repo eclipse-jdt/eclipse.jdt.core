@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -625,6 +627,44 @@ public IPath getSourceAttachmentPath() throws JavaModelException {
 		return sourceAttachmentPath;
 	}
 
+	return null;
+}
+
+/**
+ * @see IPackageFragmentRoot
+ */
+public IPath getExternalAnnotationPath() throws JavaModelException {
+	if (getKind() != K_BINARY) return null;
+
+	// partially modeled after getSourceAttachmentPath()
+/*
+	// 1) look source attachment property (set iff attachSource(...) was called
+	IPath path = getPath();
+	String serverPathString= Util.getSourceAttachmentProperty(path);
+	if (serverPathString != null) {
+		int index= serverPathString.lastIndexOf(ATTACHMENT_PROPERTY_DELIMITER);
+		if (index < 0) {
+			// no root path specified
+			return new Path(serverPathString);
+		} else {
+			String serverSourcePathString= serverPathString.substring(0, index);
+			return new Path(serverSourcePathString);
+		}
+	}
+*/
+	
+	// 2) look at classpath entry
+	IClasspathEntry entry = ((JavaProject) getParent()).getClasspathEntryFor(getPath());
+	IPath externalAnnotationPath;
+	if (entry != null && (externalAnnotationPath = entry.getExternalAnnotationPath()) != null)
+		return externalAnnotationPath;
+/*
+	// 3) look for a recommendation
+	entry = findSourceAttachmentRecommendation();
+	if (entry != null && (externalAnnotationPath = entry.getSourceAttachmentPath()) != null) {
+		return externalAnnotationPath;
+	}
+*/
 	return null;
 }
 

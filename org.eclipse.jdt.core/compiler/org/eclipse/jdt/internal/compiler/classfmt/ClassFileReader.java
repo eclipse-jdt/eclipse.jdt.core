@@ -16,10 +16,12 @@
 package org.eclipse.jdt.internal.compiler.classfmt;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
@@ -401,9 +403,38 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 	}
 }
 
+/**
+ * @param classFileBytes byte[]
+ * 		Actual bytes of a .class file
+ *
+ * @param fileName char[]
+ * 		Actual name of the file that contains the bytes, can be null
+ *
+ * @param fullyInitialize boolean
+ * 		Flag to fully initialize the new object
+ * 
+ * @param externalAnnotationPath
+ * 		Path to external annotations as used for null analysis
+ * 
+ * @exception ClassFormatException
+ */
+public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInitialize, IPath externalAnnotationPath) throws ClassFormatException {
+	this(classFileBytes, fileName, fullyInitialize);
+	if (externalAnnotationPath != null)
+		setExternalAnnotationProvider(externalAnnotationPath.toString());
+}
+
 /** Create and remember a provider for external annotations using the given text file. */
-public void setAnnotationProvider(File annotFile) throws IOException {
-	this.annotationProvider = new ExternalAnnotationProvider(annotFile);
+public void setExternalAnnotationProvider(String externalAnnotationDir) {
+	File annotFile = new File(externalAnnotationDir+File.separatorChar+String.valueOf(getName())+IExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX);
+	try {
+		this.annotationProvider = new ExternalAnnotationProvider(annotFile);
+	} catch (FileNotFoundException e) {
+		// silent
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
 }
 
 /** If a provider for external annotations has been registered try to retrieve an annotation walker for the given method. */

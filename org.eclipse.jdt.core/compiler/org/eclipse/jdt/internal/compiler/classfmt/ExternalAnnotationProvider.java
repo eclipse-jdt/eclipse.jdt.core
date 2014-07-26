@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.classfmt;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ public class ExternalAnnotationProvider implements IExternalAnnotationProvider {
 	private Map<String,String> methodAnnotationSources;
 	
 	public ExternalAnnotationProvider(File annotationSource) throws IOException {
+		if (!annotationSource.exists()) throw new FileNotFoundException(annotationSource.getAbsolutePath());
 		this.annotationSource = annotationSource;
 		this.methodAnnotationSources = new HashMap<String, String>();
 		initialize();

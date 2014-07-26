@@ -53,7 +53,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	static {
 		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //		TESTS_PREFIX = "testClasspathDuplicateExtraAttribute";
-//		TESTS_NAMES = new String[] {"testClasspathValidation42"};
+//		TESTS_NAMES = new String[] {"test2"};
 //		TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //		TESTS_RANGE = new int[] { 21, 38 };
 	}
@@ -129,7 +129,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	}
 	
 	/** Reconcile an individual CU. */ // FIXME: needs more capability in SearchableNameEnvironment
-	public void _test2() throws CoreException, InterruptedException {
+	public void test2() throws CoreException, InterruptedException {
 		IPackageFragment fragment = this.root.getPackageFragment("test1");
 		ICompilationUnit unit = fragment.getCompilationUnit("Test1.java").getWorkingCopy(new NullProgressMonitor());
 		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());

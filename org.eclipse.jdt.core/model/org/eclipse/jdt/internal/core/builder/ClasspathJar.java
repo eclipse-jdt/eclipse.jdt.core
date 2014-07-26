@@ -35,8 +35,6 @@ import org.eclipse.jdt.internal.core.util.Util;
 @SuppressWarnings("rawtypes")
 public class ClasspathJar extends ClasspathLocation {
 
-private static final String ANNOTATION_FILE_SUFFIX = ".eea"; //$NON-NLS-1$ // FIXME(SH): define file extension
-
 static class PackageCacheEntry {
 	long lastModified;
 	long fileSize;
@@ -163,7 +161,7 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 		ClassFileReader reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		if (reader != null) {
 			if (this.externalAnnotationDir != null)
-				setExternalAnnotationProvider(reader);
+				reader.setExternalAnnotationProvider(this.externalAnnotationDir);
 			if (this.accessRuleSet == null)
 				return new NameEnvironmentAnswer(reader, null);
 			String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
@@ -173,18 +171,6 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	} catch (ClassFormatException e) { // treat as if class file is missing
 	}
 	return null;
-}
-
-private void setExternalAnnotationProvider(ClassFileReader reader) {
-	File annotFile = new File(this.externalAnnotationDir+File.separatorChar+String.valueOf(reader.getName())+ANNOTATION_FILE_SUFFIX);
-	if (annotFile.exists()) {
-		try {
-			reader.setAnnotationProvider(annotFile);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 }
 
 public IPath getProjectRelativePath() {

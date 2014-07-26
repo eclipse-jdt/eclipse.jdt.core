@@ -15,6 +15,8 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 /** An instance of of this type answers external annotations for the methods and fields of a given class. */
 public interface IExternalAnnotationProvider {
 	
+	String ANNOTATION_FILE_SUFFIX = ".eea"; //$NON-NLS-1$ // FIXME(SH): define file extension
+
 	ITypeAnnotationWalker forMethod(char[] selector, char[] signature, LookupEnvironment environment);
 
 }
