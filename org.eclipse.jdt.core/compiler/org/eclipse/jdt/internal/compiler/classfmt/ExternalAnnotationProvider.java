@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.SignatureWrapper;
 
 public class ExternalAnnotationProvider {
 
@@ -83,7 +84,10 @@ public class ExternalAnnotationProvider {
 		};
 
 		char[] source;
+		SignatureWrapper wrapper;
 		int pos;
+		int prevParamStart;
+		int prevTypeArgStart;
 		LookupEnvironment environment;
 
 		MethodAnnotationWalker(char[] source, int pos, LookupEnvironment environment) {
@@ -91,6 +95,24 @@ public class ExternalAnnotationProvider {
 			this.source = source;
 			this.pos = pos;
 			this.environment = environment;
+		}
+		
+		SignatureWrapper wrapperWithStart(int start) {
+			if (this.wrapper == null)
+				this.wrapper = new SignatureWrapper(this.source);
+			this.wrapper.start = start;
+			return this.wrapper;
+		}
+
+		int typeEnd(int start) {
+			while (this.source[start] == '[') {
+				start++;
+				char an = this.source[start];
+				if (an == '0' || an == '1')
+					start++;
+			}
+			int end = wrapperWithStart(start).computeEnd();
+			return end;
 		}
 
 		@Override
@@ -128,7 +150,15 @@ public class ExternalAnnotationProvider {
 
 		@Override
 		public ITypeAnnotationWalker toMethodParameter(short index) {
-			return this;
+			if (index == 0) {
+				int start = CharOperation.indexOf('(', this.source) + 1;
+				this.prevParamStart = start;
+				return new MethodAnnotationWalker(this.source, start, this.environment);
+			}
+			int end = typeEnd(this.prevParamStart);
+			end++;
+		    this.prevParamStart = end;
+		    return new MethodAnnotationWalker(this.source, end, this.environment);
 		}
 
 		@Override
@@ -138,12 +168,36 @@ public class ExternalAnnotationProvider {
 
 		@Override
 		public ITypeAnnotationWalker toTypeArgument(int rank) {
-			return this;
+			if (rank == 0) {
+				int start = CharOperation.indexOf('<', this.source, this.pos) + 1;
+				this.prevTypeArgStart = start;
+				return new MethodAnnotationWalker(this.source, start, this.environment);
+			}
+			int next = this.prevTypeArgStart;
+			switch (this.source[next]) {
+				case '*': 
+					break;
+				case '-': 
+				case '+':
+					next++;
+					//$FALL-THROUGH$
+				default:
+					next = wrapperWithStart(next).computeEnd();
+			}
+			next++;
+		    this.prevTypeArgStart = next;
+		    return new MethodAnnotationWalker(this.source, next,	this.environment);
 		}
 
 		@Override
 		public ITypeAnnotationWalker toWildcardBound() {
-			return this;
+			switch (this.source[this.pos]) {
+				case '-': 
+				case '+':
+					return new MethodAnnotationWalker(this.source, this.pos+1, this.environment);
+				default: // includes unbounded '*'
+					return ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER;
+			}			
 		}
 
 		@Override

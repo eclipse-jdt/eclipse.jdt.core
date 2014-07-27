@@ -178,4 +178,20 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			JavaCore.setOptions(options);
 		}
 	}
+
+	/** Project with real JRE8.
+	 * More interesting work with generics
+	 */
+	public void test3() throws Exception {
+		Hashtable options = JavaCore.getOptions();
+		try {
+			setupJavaProject("Test3");
+			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+			assertNoMarkers(markers);
+		} finally {
+			// project using a full JRE container initializes global options to 1.8 -- must reset now:
+			JavaCore.setOptions(options);
+		}
+	}
 }
