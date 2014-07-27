@@ -1,5 +1,11 @@
-class <K:V:>Map
+class <K:V:>java/util/Map
 
-get(Ljava/lang/Object;)TV;=get(Ljava/lang/Object;)T0V;
-put(TK;TV;)TV;=put(TK;TV;)T0V;
-remove(Ljava/lang/Object;)TV;=remove(Ljava/lang/Object;)T0V;
+get
+ (Ljava/lang/Object;)TV;
+ (Ljava/lang/Object;)T0V;
+put
+ (TK;TV;)TV;
+ (TK;TV;)T0V;
+remove
+ (Ljava/lang/Object;)TV;
+ (Ljava/lang/Object;)T0V;

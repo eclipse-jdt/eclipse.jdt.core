@@ -10,14 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
@@ -37,20 +38,42 @@ public class ExternalAnnotationProvider {
 		this.annotationSource = new File(baseDir+File.separatorChar+typeName+ANNOTATION_FILE_SUFFIX);
 		if (!this.annotationSource.exists()) throw new FileNotFoundException(this.annotationSource.getAbsolutePath());
 		this.methodAnnotationSources = new HashMap<String, String>();
-		initialize();
+		initialize(typeName);
 	}
 	
-	private void initialize() throws IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(this.annotationSource)));
+	private void initialize(String typeName) throws IOException {
+		LineNumberReader reader = new LineNumberReader(new InputStreamReader(new FileInputStream(this.annotationSource)));
 		try {
 			String line = reader.readLine();
 			if (!line.startsWith("class ")) // TODO properly evaluate class header //$NON-NLS-1$
 				throw new IOException("missing class header in annotation file"); //$NON-NLS-1$
+			if (!line.endsWith(typeName))
+				throw new IOException("mismatching class name in annotation file, expected "+typeName+", but header said "+line); //$NON-NLS-1$ //$NON-NLS-2$
 			while ((line = reader.readLine()) != null) {
 				if (line.isEmpty()) continue;
-				int pos=line.indexOf('=');
-				if (pos == -1) throw new IOException("Illegal format for annotation file, missing '='"); //$NON-NLS-1$
-				this.methodAnnotationSources.put(line.substring(0, pos), line.substring(pos+1));
+				String rawSig = null, annotSig = null;
+				// selector:
+				String selector = line;
+				int errLine = -1;
+				try {
+					// raw signature:
+					line = reader.readLine();
+					if (line.charAt(0) == ' ')
+						rawSig = line.substring(1);
+					else
+						errLine = reader.getLineNumber();
+					// annotated signature:
+					line = reader.readLine();
+					if (line.charAt(0) == ' ')
+						annotSig = line.substring(1);
+				} catch (Exception ex) {
+					// continue to escalate below
+				}
+				if (rawSig == null || annotSig == null) {
+					if (errLine == -1) errLine = reader.getLineNumber();
+					throw new IOException("Illegal format for annotation file at line "+errLine); //$NON-NLS-1$
+				}
+				this.methodAnnotationSources.put(selector+rawSig, annotSig);
 			}
 		} finally {
 			reader.close();
@@ -64,6 +87,15 @@ public class ExternalAnnotationProvider {
 		return ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER;
 	}
 	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("External Annotations from "+this.annotationSource.getAbsolutePath()).append('\n'); //$NON-NLS-1$
+		sb.append("Methods:\n"); //$NON-NLS-1$
+		for (Entry<String,String> e : this.methodAnnotationSources.entrySet())
+			sb.append('\t').append(e.getKey()).append('\n');
+		return sb.toString();
+	}
+
 	abstract class SingleMarkerAnnotation implements IBinaryAnnotation {
 		@Override
 		public IBinaryElementValuePair[] getElementValuePairs() {

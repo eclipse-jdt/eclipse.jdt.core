@@ -1,4 +1,5 @@
-class <T:R:>Function
+class <T:R:>java/util/function/Function
 
-compose<V:Ljava/lang/Object;>(Ljava/util/function/Function<-TV;+TT;>;)Ljava/util/function/Function<TV;TR;>;=<V:Ljava/lang/Object;>(Ljava/util/function/Function<-TV;+T0T;>;)Ljava/util/function/Function<TV;TR;>;
-compose<V:Ljava/lang/Object;>(Ljava/util/function/Function<-TV;+TT;>;)Ljava/util/function/Function<TV;TR;>;=<V:>(LA1<-TV;+T0T;>;)LR<TV;TR;>;
+compose
+ <V:Ljava/lang/Object;>(Ljava/util/function/Function<-TV;+TT;>;)Ljava/util/function/Function<TV;TR;>;
+ <V:Ljava/lang/Object;>(Ljava/util/function/Function<-TV;+T0T;>;)Ljava/util/function/Function<TV;TR;>;
