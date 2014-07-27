@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,28 +7,22 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for
- *								Bug 365992 - [builder] [null] Change of nullness for a parameter doesn't trigger a build for the files that call the method
- *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
+ *     Stephan Herrmann - Contribution for bug 365992 - [builder] [null] Change of nullness for a parameter doesn't trigger a build for the files that call the method
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
- *         						bug 407191 - [1.8] Binary access support for type annotations
+ *         bug 407191 - [1.8] Binary access support for type annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -62,7 +56,6 @@ public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 	private char[][][] missingTypeNames;
 	private int enclosingNameAndTypeIndex;
 	private char[] enclosingMethod;
-	private ExternalAnnotationProvider annotationProvider;
 
 private static String printTypeModifiers(int modifiers) {
 	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
@@ -401,47 +394,6 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 			ClassFormatException.ErrTruncatedInput,
 			readOffset);
 	}
-}
-
-/**
- * @param classFileBytes byte[]
- * 		Actual bytes of a .class file
- *
- * @param fileName char[]
- * 		Actual name of the file that contains the bytes, can be null
- *
- * @param fullyInitialize boolean
- * 		Flag to fully initialize the new object
- * 
- * @param externalAnnotationPath
- * 		Path to external annotations as used for null analysis
- * 
- * @exception ClassFormatException
- */
-public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInitialize, IPath externalAnnotationPath) throws ClassFormatException {
-	this(classFileBytes, fileName, fullyInitialize);
-	if (externalAnnotationPath != null)
-		setExternalAnnotationProvider(externalAnnotationPath.toString());
-}
-
-/** Create and remember a provider for external annotations using the given text file. */
-public void setExternalAnnotationProvider(String externalAnnotationDir) {
-	try {
-		this.annotationProvider = new ExternalAnnotationProvider(externalAnnotationDir, String.valueOf(getName()));
-	} catch (FileNotFoundException e) {
-		// silent
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-}
-
-/** If a provider for external annotations has been registered try to retrieve an annotation walker for the given method. */
-public ITypeAnnotationWalker getAnnotationsForMethod(IBinaryMethod method, char[] methodSignature, LookupEnvironment environment) {
-	if (this.annotationProvider != null) {
-		return this.annotationProvider.forMethod(method.isConstructor() ? TypeConstants.INIT : method.getSelector(), methodSignature, environment);
-	}
-	return ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER;
 }
 
 /**

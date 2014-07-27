@@ -7,8 +7,6 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for
- *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
@@ -97,10 +95,9 @@ private void computeClasspathLocations(IWorkspaceRoot workspaceRoot, JavaProject
 		PackageFragmentRoot root = (PackageFragmentRoot) roots[i];
 		IPath path = root.getPath();
 		try {
-			ClasspathEntry classpathEntry = (ClasspathEntry) root.getRawClasspathEntry();
 			if (root.isArchive()) {
 				ZipFile zipFile = manager.getZipFile(path);
-				cpLocations[index++] = new ClasspathJar(zipFile, classpathEntry.getAccessRuleSet(), classpathEntry.getExternalAnnotationPath());
+				cpLocations[index++] = new ClasspathJar(zipFile, ((ClasspathEntry) root.getRawClasspathEntry()).getAccessRuleSet());
 			} else {
 				Object target = JavaModel.getTarget(path, true);
 				if (target == null) {
@@ -110,7 +107,7 @@ private void computeClasspathLocations(IWorkspaceRoot workspaceRoot, JavaProject
 				} else if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
 					cpLocations[index++] = new ClasspathSourceDirectory((IContainer)target, root.fullExclusionPatternChars(), root.fullInclusionPatternChars());
 				} else {
-					cpLocations[index++] = ClasspathLocation.forBinaryFolder((IContainer) target, false, classpathEntry.getAccessRuleSet());
+					cpLocations[index++] = ClasspathLocation.forBinaryFolder((IContainer) target, false, ((ClasspathEntry) root.getRawClasspathEntry()).getAccessRuleSet());
 				}
 			}
 		} catch (CoreException e1) {

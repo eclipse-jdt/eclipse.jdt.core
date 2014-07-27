@@ -193,8 +193,6 @@ private static Class[] getAllTestClasses() {
 		
 		// Tests regarding null-annotations:
 		NullAnnotationModelTests.class,
-		ExternalAnnotations18Test.class,
-
 		// Java model changes related to Java 8
 		JavaElement8Tests.class,
 	};

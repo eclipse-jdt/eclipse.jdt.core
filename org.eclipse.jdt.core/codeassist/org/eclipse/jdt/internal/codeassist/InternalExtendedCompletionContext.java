@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 IBM Corporation and others.
+ * Copyright (c) 2008, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,7 +9,6 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								Bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
- *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
@@ -39,7 +38,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
+import org.eclipse.jdt.internal.compiler.classfmt.TypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -339,7 +338,7 @@ public class InternalExtendedCompletionContext {
 
 			SignatureWrapper wrapper = new SignatureWrapper(replacePackagesDot(typeSignature.toCharArray()));
 			// FIXME(stephan): do we interpret type annotations here?
-			assignableTypeBinding = this.lookupEnvironment.getTypeFromTypeSignature(wrapper, typeVariables, this.assistScope.enclosingClassScope().referenceContext.binding, null, ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER);
+			assignableTypeBinding = this.lookupEnvironment.getTypeFromTypeSignature(wrapper, typeVariables, this.assistScope.enclosingClassScope().referenceContext.binding, null, TypeAnnotationWalker.EMPTY_ANNOTATION_WALKER);
 			assignableTypeBinding = BinaryTypeBinding.resolveType(assignableTypeBinding, this.lookupEnvironment, true);
 		} catch (AbortCompilation e) {
 			assignableTypeBinding = null;

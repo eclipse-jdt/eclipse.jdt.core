@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,8 +7,6 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for
- *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -474,11 +472,4 @@ public interface IClasspathEntry {
 	 * @deprecated Use {@link JavaCore#getResolvedClasspathEntry(IClasspathEntry)} instead
 	 */
 	IClasspathEntry getResolvedEntry();
-
-	/**
-	 * Returns the location where external annotation files can be found to assist
-	 * annotation based null analysis of 3rd party libraries.
-	 * @since 3.11
-	 */
-	IPath getExternalAnnotationPath();
 }
