@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,6 +59,7 @@ public class JarIndexLocation extends IndexLocation {
 		try {
 			if (this.jarFile == null) {
 				JarURLConnection connection = (JarURLConnection) this.localUrl.openConnection();
+				connection.setUseCaches(false);
 				JarFile file = connection.getJarFile();
 				if (file == null)
 					return false;
@@ -81,6 +82,7 @@ public class JarIndexLocation extends IndexLocation {
 	InputStream getInputStream() throws IOException {
 		if (this.jarFile == null) {
 			JarURLConnection connection = (JarURLConnection) this.localUrl.openConnection();
+			connection.setUseCaches(false);
 			this.jarFile = connection.getJarFile();
 			this.jarEntry = connection.getJarEntry();
 		}
