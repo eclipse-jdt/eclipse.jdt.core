@@ -755,6 +755,7 @@ this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
 		"import java.lang.annotation.ElementType;\n" +
 		"import java.lang.annotation.Target;\n" +
+		"import java.util.Map;\n" +
 		"public class X {\n" +
 		"	void foo(Map<@Marker ? super @Marker Object, @Marker ? extends @Marker String> m){}\n" +
 		"   void goo(Map<@Marker ? extends @Marker Object, @Marker ? super @Marker String> m){}\n" +
@@ -1415,8 +1416,8 @@ this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
 		"public class X {\n" +
 		"    Object o = (@Marker X) null;\n" +
 		"    Object p = (@Marker X @Marker []) null;\n" +
-		"    Object q = (@Marker java. @Marker util. @Marker List<@Marker String> []) null;\n" +
-		"    Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" +
+		"    Object q = (java.util. @Marker List<@Marker String> []) null;\n" +
+		"    Object r = (java.util.Map.@Marker Entry @Marker []) null;\n" +
 		"}\n" +
  		"@Target(ElementType.TYPE_USE)\n" +	
 		"@interface Marker {}\n"
@@ -1437,13 +1438,6 @@ assertSearchResults(
 		"src/b400899/X.java b400899.X.p [Marker] EXACT_MATCH\n" + 
 		"src/b400899/X.java b400899.X.q [Marker] EXACT_MATCH\n" + 
 		"src/b400899/X.java b400899.X.q [Marker] EXACT_MATCH\n" + 
-		"src/b400899/X.java b400899.X.q [Marker] EXACT_MATCH\n" + 
-		"src/b400899/X.java b400899.X.q [Marker] EXACT_MATCH\n" + 
-		"src/b400899/X.java b400899.X.r [Marker] EXACT_MATCH\n" + 
-		"src/b400899/X.java b400899.X.r [Marker] EXACT_MATCH\n" + 
-		"src/b400899/X.java b400899.X.r [Marker] EXACT_MATCH\n" + 
-		"src/b400899/X.java b400899.X.r [Marker] EXACT_MATCH\n" + 
-		"src/b400899/X.java b400899.X.r [Marker] EXACT_MATCH\n" + 
 		"src/b400899/X.java b400899.X.r [Marker] EXACT_MATCH\n" + 
 		"src/b400899/X.java b400899.X.r [Marker] EXACT_MATCH"
 );	
