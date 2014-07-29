@@ -21,7 +21,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug428198b" };
+//	TESTS_NAMES = new String[] { "testBug434483" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -3389,5 +3389,26 @@ public void testBug435767() {
 		"	                                                                  ^^^^^^^^\n" + 
 		"The method getValue(String) in the type DummyClass is not applicable for the arguments (Object)\n" + 
 		"----------\n");
+}
+public void testBug434483() {
+	runConformTest(
+		new String[] {
+			"Foo.java",
+			"import java.util.*;\n" +
+			"public class Foo {\n" + 
+			"	\n" + 
+			"  // Similar to Guava's newLinkedList()\n" + 
+			"  public static <E> LinkedList<E> newLinkedList() {\n" + 
+			"    return new LinkedList<E>();\n" + 
+			"  }\n" + 
+			"	\n" + 
+			"  private final ThreadLocal<Queue<String>> brokenQueue = ThreadLocal.withInitial(Foo::newLinkedList);\n" + 
+			"	\n" + 
+			"  private final ThreadLocal<Queue<String>> workingQueue1 = ThreadLocal.withInitial(Foo::<String>newLinkedList);\n" + 
+			"	\n" + 
+			"  private final ThreadLocal<Queue<String>> workingQueue2 = ThreadLocal.withInitial(() -> Foo.<String>newLinkedList());\n" + 
+			"\n" + 
+			"}\n"
+		});
 }
 }

@@ -295,18 +295,19 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			if (r.id == TypeIds.T_void)
 				return TRUE;
 			// ignore parameterization of resolve result and do a fresh start:
-			MethodBinding original = compileTimeDecl.original();
+			MethodBinding original = compileTimeDecl.shallowOriginal();
+			TypeBinding compileTypeReturn = original.isConstructor() ? original.declaringClass : original.returnType;
 			if (reference.typeArguments == null
-					&& ((original.typeVariables() != Binding.NO_TYPE_VARIABLES && r.mentionsAny(original.typeVariables(), -1))
+					&& ((original.typeVariables() != Binding.NO_TYPE_VARIABLES && compileTypeReturn.mentionsAny(original.typeVariables(), -1))
 						|| (original.isConstructor() && original.declaringClass.typeVariables() != Binding.NO_TYPE_VARIABLES)))
 							// not checking r.mentionsAny for constructors, because A::new resolves to the raw type
 							// whereas in fact the type of all expressions of this shape depends on their type variable (if any)
 			{
-				SuspendedInferenceRecord prevInvocation = inferenceContext.enterPolyInvocation(reference, null/*no invocation arguments available*/);
+				SuspendedInferenceRecord prevInvocation = inferenceContext.enterPolyInvocation(reference, reference.createPseudoExpressions(functionType.parameters));
 
 				// Invocation Applicability Inference: 18.5.1 & Invocation Type Inference: 18.5.2
 				try {
-					inferInvocationApplicability(inferenceContext, original, functionType.parameters, original.isConstructor()/*mimic a diamond?*/, inferenceContext.inferenceKind);
+					inferInvocationApplicability(inferenceContext, original, functionType.parameters, original.isConstructor()/*mimic a diamond?*/, reference.inferenceKind);
 					if (!inferPolyInvocationType(inferenceContext, reference, r, original))
 						return FALSE;
 					if (!original.isConstructor() 
