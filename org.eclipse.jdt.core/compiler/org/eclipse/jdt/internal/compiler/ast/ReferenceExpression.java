@@ -27,6 +27,8 @@
  *							Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *							Bug 426537 - [1.8][inference] Eclipse compiler thinks I<? super J> is compatible with I<J<?>> - raw type J involved
  *							Bug 435689 - [1.8][inference] Type inference not occurring with lambda expression and method reference
+ *							Bug 438383 - [1.8][null] Bogus warning: Null type safety at method return type
+ *							Bug 434483 - [1.8][compiler][inference] Type inference not picked up with method reference
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contribution for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -85,7 +87,9 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	private int depth;
 	private MethodBinding exactMethodBinding; // != null ==> exact method reference.
 	private boolean receiverPrecedesParameters = false;
+	private TypeBinding[] freeParameters; // descriptor parameters as used for method lookup - may or may not include the receiver
 	protected boolean trialResolution = false;
+	public int inferenceKind; // TODO: define life-cycle: when to re-initialize? How long to keep value?
 	
 	public ReferenceExpression() {
 		super();
@@ -472,6 +476,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         // 15.28.1
         final boolean isMethodReference = isMethodReference();
         this.depth = 0;
+        this.freeParameters = descriptorParameters;
         MethodBinding someMethod = isMethodReference ? scope.getMethod(this.receiverType, this.selector, descriptorParameters, this) :
         											       scope.getConstructor((ReferenceBinding) this.receiverType, descriptorParameters, this);
         int someMethodDepth = this.depth, anotherMethodDepth = 0;
@@ -510,6 +515,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         			System.arraycopy(descriptorParameters, 1, parameters, 0, parametersLength - 1);
         		}
         		this.depth = 0;
+        		this.freeParameters = parameters;
         		anotherMethod = scope.getMethod(typeToSearch, this.selector, parameters, this);
         		anotherMethodDepth = this.depth;
         		this.depth = 0;
@@ -587,6 +593,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         	scope.problemReporter().unhandledException(methodExceptions[i], this);
         }
         if (scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
+        	// TODO: simplify by using this.freeParameters?
         	int len;
         	int expectedlen = this.binding.parameters.length;
         	int providedLen = this.descriptor.parameters.length;
@@ -620,6 +627,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         		}
         	}
         }
+        this.freeParameters = null; // not used after method lookup
         
     	if (checkInvocationArguments(scope, null, this.receiverType, this.binding, null, descriptorParameters, false, this))
     		this.bits |= ASTNode.Unchecked;
@@ -689,6 +697,18 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		}
 	}
 
+	public MethodBinding prepareForInferenceResult(Scope scope) {
+		try {
+			setExpressionContext(INVOCATION_CONTEXT);
+			this.binding = null;
+			this.trialResolution = true;
+			resolveType(this.enclosingScope);
+			return this.binding;
+		} finally {
+			this.trialResolution = false;
+		}
+	}
+
 	public boolean isConstructorReference() {
 		return CharOperation.equals(this.selector,  ConstantPool.Init);
 	}
@@ -713,7 +733,11 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	}
 
 	public InferenceContext18 freshInferenceContext(Scope scope) {
-		return null; // subject to inference only as an argument to an outer invocation
+		if (this.expressionContext != ExpressionContext.VANILLA_CONTEXT) {
+			Expression[] arguments = createPseudoExpressions(this.freeParameters);
+			return new InferenceContext18(scope, arguments, this);
+		}
+		return null; // shouldn't happen, actually
 	}
 
 	public boolean isSuperAccess() {
@@ -773,9 +797,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	}
 
 	public Expression[] createPseudoExpressions(TypeBinding[] p) {
-		if (this.descriptor == null)
-			return null;
-		// from 15.28.1: 
+		// from 15.13.1: 
 		// ... the reference is treated as if it were an invocation with argument expressions of types P1..Pn
 		// ... the reference is treated as if it were an invocation with argument expressions of types P2..Pn
 		// (the different sets of types are passed from our resolveType to scope.getMethod(..), see someMethod, anotherMethod)

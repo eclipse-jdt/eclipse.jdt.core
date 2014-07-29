@@ -19,6 +19,7 @@
  *								Bug 424286 - [1.8] Update type inference to spec version 0.9.1
  *								Bug 426676 - [1.8][compiler] Wrong generic method type inferred from lambda expression
  *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
+ *								Bug 434483 - [1.8][compiler][inference] Type inference not picked up with method reference
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -50488,12 +50489,16 @@ public void test1444() {
 			"	                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked cast from Iterator to Iterator<String>\n" + 
 			"----------\n" + 
+			(this.complianceLevel < ClassFileConstants.JDK1_8 ?
 			"5. WARNING in X.java (at line 22)\n" + 
 			"	asString = X.<String> asArray((Iterator<String>) getIterator(), String.class);\n" + 
 			"	                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from Iterator to Iterator<String>\n" + 
 			"----------\n" + 
-			"6. ERROR in X.java (at line 38)\n" + 
+			"6. ERROR in X.java (at line 38)\n"
+			: // secondary error no longer reported at 1.8+
+			"5. ERROR in X.java (at line 38)\n"
+			) +
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 

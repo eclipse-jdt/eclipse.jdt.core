@@ -43,6 +43,7 @@
  *								Bug 429424 - [1.8][inference] Problem inferring type of method's parameter
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
  *								Bug 434570 - Generic type mismatch for parametrized class annotation attribute with inner class
+ *								Bug 434483 - [1.8][compiler][inference] Type inference not picked up with method reference
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -5141,7 +5142,7 @@ public abstract class Scope {
 	}
 
 	/**
-	 * Given a selected applibable method, check if it has an unfinished InferenceContext18 associated.
+	 * Given a selected applicable method, check if it has an unfinished InferenceContext18 associated.
 	 * If so perform the outstanding Invocation Type Inference and return the improved method,
 	 * otherwise return the applicable method unchanged.
 	 */
@@ -5157,6 +5158,11 @@ public abstract class Scope {
 			} else {
 				ASTNode.resolvePolyExpressionArguments(invocation, applicable, argumentTypes, this);
 			}
+		} else if (invocationSite instanceof ReferenceExpression) {
+			if (applicable instanceof ParameterizedGenericMethodBinding)
+				applicable = applicable.shallowOriginal();
+			if (applicable.typeVariables() != Binding.NO_TYPE_VARIABLES)
+				return ParameterizedGenericMethodBinding.computeCompatibleMethod(applicable, argumentTypes, this, invocationSite, FULL_INFERENCE);
 		}
 		return applicable;
 	}
