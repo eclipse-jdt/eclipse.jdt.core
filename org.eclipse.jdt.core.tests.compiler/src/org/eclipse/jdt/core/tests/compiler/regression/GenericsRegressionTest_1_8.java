@@ -3235,4 +3235,68 @@ public void testBug435689() {
 			"}\n"
 		});
 }
+public void testBug433845() {
+	runNegativeTest(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" + 
+			"\n" + 
+			"\n" + 
+			"public abstract class Test {\n" + 
+			"	public interface MUIElement {\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private interface Listener<W extends WWidget<?>> {\n" + 
+			"		public void call(Event<W> event);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static class Event<W extends WWidget<?>> {\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public interface WWidget<M extends MUIElement> {\n" + 
+			"		public void set(Listener<? extends WWidget<M>> handler);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static abstract class A<M extends MUIElement, W extends WWidget<M>> {\n" + 
+			"		\n" + 
+			"		public final W createWidget(final M element) {\n" + 
+			"			W w = get(); \n" + 
+			"			// works\n" + 
+			"			w.set((Event<W>e) -> call(e));\n" + 
+			"			// fails\n" + 
+			"			w.set(this::call);\n" + 
+			"			// fails\n" + 
+			"			w.set((e) -> call(e));\n" + 
+			"			return w;\n" + 
+			"		}\n" + 
+			"		\n" + 
+			"		private W get() {\n" + 
+			"			return null;\n" + 
+			"		}\n" + 
+			"		\n" + 
+			"		private void call(Event<W> event) {\n" + 
+			"			\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in test\\Test.java (at line 28)\n" + 
+		"	w.set(this::call);\n" + 
+		"	  ^^^\n" + 
+		"The method set(Test.Listener<? extends Test.WWidget<M>>) in the type Test.WWidget<M> is not applicable for the arguments (this::call)\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\Test.java (at line 28)\n" + 
+		"	w.set(this::call);\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The type Test.A<M,W> does not define call(Test.Event<Test.WWidget<M>>) that is applicable here\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\Test.java (at line 30)\n" + 
+		"	w.set((e) -> call(e));\n" + 
+		"	             ^^^^\n" + 
+		"The method call(Test.Event<W>) in the type Test.A<M,W> is not applicable for the arguments (Test.Event<Test.WWidget<M>>)\n" + 
+		"----------\n");
+}
 }
