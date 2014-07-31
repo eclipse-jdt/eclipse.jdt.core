@@ -4559,6 +4559,51 @@ public void test438534() {
 	    },
 	    "SUCCESS");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=440152 [codegen]"Missing code implementation in the compiler" on cascaded inner class references
+public void test440152() {
+	this.runConformTest(
+		new String[] {
+			"Foo.java",
+			"import java.util.function.Function;\n" + 
+			"interface Foo {void alpha(Bar pBar);}\n" + 
+			"class Bar {Object bravo() {return null;}}\n" + 
+			"class Test {\n" + 
+			"  Test(Function pFunction) {\n" + 
+			"    class Baz {public Baz(Object pObj) {pFunction.apply(pObj);}}\n" + 
+			"    delta(pBar -> charlie(new Baz(pBar.bravo())));\n" + 
+			"  }\n" + 
+			"  void charlie(Object pRemovals) {}\n" + 
+			"  void delta(Foo pListener) {}\n" + 
+			"}"
+	});
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=440152 [codegen]"Missing code implementation in the compiler" on cascaded inner class references
+public void test440152a() {
+	this.runConformTest(
+		new String[] {
+			"Foo.java",
+			"import java.util.function.Function;\n" + 
+			"interface Foo {void alpha(Bar pBar);}\n" + 
+			"class Bar {Object bravo() {return null;}}\n" + 
+			"class Test {\n" + 
+			"	Test(Function pFunction) {\n" + 
+			"	    class Baz {\n" + 
+			"	    	public Baz(Object pObj) {\n" + 
+			"	    	}\n" + 
+			"	    	class NestedBaz extends Baz {\n" + 
+			"	    		NestedBaz(Object pObj) {\n" + 
+			"	    			super(pObj);\n" + 
+			"	    			pFunction.apply(pObj);\n" + 
+			"	    		}\n" + 
+			"	    	}\n" + 
+			"	    	}\n" + 
+			"	    delta(pBar -> charlie(new Baz(pBar).new NestedBaz(pBar.bravo())));\n" + 
+			"	  }\n" + 
+			"	  void charlie(Object pRemovals) {}\n" + 
+			"	  void delta(Foo pListener) {}\n" + 
+			"}\n"
+	});
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
