@@ -3299,4 +3299,40 @@ public void testBug433845() {
 		"The method call(Test.Event<W>) in the type Test.A<M,W> is not applicable for the arguments (Test.Event<Test.WWidget<M>>)\n" + 
 		"----------\n");
 }
+public void testBug435187() {
+	runNegativeTest(
+		new String[] {
+			"ExtractLocalLambda.java",
+			"\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Map;\n" + 
+			"import java.util.Map.Entry;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.stream.Collector;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"\n" + 
+			"public class ExtractLocalLambda {\n" + 
+			"	static Stream<Entry<List<String>, String>> map;\n" + 
+			"	static Collector<Entry<String, String>, ?, Map<String, List<String>>> groupingBy;\n" + 
+			"	private static Stream<String> stream(Entry<List<String>, String> p) {		return null;	}\n" + 
+			"	private static Entry<String, String> keep(Entry<List<String>, String> p, String leftHS2) {		return null;	}\n" + 
+			"\n" + 
+			"	static Map<String, List<String>> beforeRefactoring() {\n" + 
+			"		// Extract local variable from the parameter to flatMap:\n" + 
+			"		return map.flatMap(\n" + 
+			"				p -> stream(p).map(leftHS -> {\n" + 
+			"					String leftHS2 = leftHS;\n" + 
+			"					return keep(p, leftHS2);\n" + 
+			"				})\n" + 
+			"		).collect(groupingBy);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in ExtractLocalLambda.java (at line 22)\n" + 
+		"	).collect(groupingBy);\n" + 
+		"	  ^^^^^^^\n" + 
+		"The method collect(Collector<? super Object,A,R>) in the type Stream<Object> is not applicable for the arguments (Collector<Map.Entry<String,String>,capture#1-of ?,Map<String,List<String>>>)\n" + 
+		"----------\n");
+}
 }
