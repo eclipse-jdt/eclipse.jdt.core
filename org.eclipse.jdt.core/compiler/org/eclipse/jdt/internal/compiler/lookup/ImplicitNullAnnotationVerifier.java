@@ -76,8 +76,11 @@ public class ImplicitNullAnnotationVerifier {
 				return;
 			}
 			long sourceLevel = scope.compilerOptions().sourceLevel;
-			boolean needToApplyNonNullDefault = currentMethod.hasNonNullDefaultFor(Binding.DefaultLocationParameter|Binding.DefaultLocationReturnType,
-																					sourceLevel >= ClassFileConstants.JDK1_8);
+			boolean needToApplyReturnNonNullDefault =
+					currentMethod.hasNonNullDefaultFor(Binding.DefaultLocationReturnType, sourceLevel >= ClassFileConstants.JDK1_8);
+			boolean needToApplyParameterNonNullDefault =
+					currentMethod.hasNonNullDefaultFor(Binding.DefaultLocationParameter, sourceLevel >= ClassFileConstants.JDK1_8);
+			boolean needToApplyNonNullDefault = needToApplyReturnNonNullDefault | needToApplyParameterNonNullDefault;
 			// compatibility & inheritance do not consider constructors / static methods:
 			boolean isInstanceMethod = !currentMethod.isConstructor() && !currentMethod.isStatic();
 			complain &= isInstanceMethod;
@@ -110,7 +113,7 @@ public class ImplicitNullAnnotationVerifier {
 						// recurse to prepare currentSuper
 						checkImplicitNullAnnotations(currentSuper, null, false, scope); // TODO (stephan) complain=true if currentSuper is source method??
 					}
-					checkNullSpecInheritance(currentMethod, srcMethod, needToApplyNonNullDefault, complain, currentSuper, scope, inheritedNonNullnessInfos);
+					checkNullSpecInheritance(currentMethod, srcMethod, needToApplyReturnNonNullDefault, needToApplyParameterNonNullDefault, complain, currentSuper, scope, inheritedNonNullnessInfos);
 					needToApplyNonNullDefault = false;
 				}
 				
@@ -206,7 +209,8 @@ public class ImplicitNullAnnotationVerifier {
 	 * The main algorithm in this class.
 	 * @param currentMethod focus method
 	 * @param srcMethod AST of 'currentMethod' if present
-	 * @param hasNonNullDefault is a @NonNull default applicable at the site of currentMethod?
+	 * @param hasReturnNonNullDefault is a @NonNull default applicable for the return type of currentMethod?
+	 * @param hasParameterNonNullDefault is a @NonNull default applicable for parameters of currentMethod?
 	 * @param shouldComplain should we report any errors found? 
 	 *   (see also comment about flows into this method, below).
 	 * @param inheritedMethod one overridden method from a super type
@@ -216,7 +220,7 @@ public class ImplicitNullAnnotationVerifier {
 	 *   Index position 0 is used for the return type, positions i+1 for argument i.
 	 */
 	void checkNullSpecInheritance(MethodBinding currentMethod, AbstractMethodDeclaration srcMethod, 
-			boolean hasNonNullDefault, boolean shouldComplain,
+			boolean hasReturnNonNullDefault, boolean hasParameterNonNullDefault, boolean shouldComplain,
 			MethodBinding inheritedMethod, Scope scope, InheritedNonNullnessInfo[] inheritedNonNullnessInfos) 
 	{
 		// Note that basically two different flows lead into this method:
@@ -247,7 +251,7 @@ public class ImplicitNullAnnotationVerifier {
 				// unspecified, may fill in either from super or from default
 				if (shouldInherit) {
 					if (inheritedNullnessBits != 0) {
-						if (hasNonNullDefault) {
+						if (hasReturnNonNullDefault) {
 							// both inheritance and default: check for conflict?
 							if (shouldComplain && inheritedNullnessBits == TagBits.AnnotationNullable)
 								scope.problemReporter().conflictingNullAnnotations(currentMethod, ((MethodDeclaration) srcMethod).returnType, inheritedMethod);
@@ -263,7 +267,7 @@ public class ImplicitNullAnnotationVerifier {
 						break returnType; // compatible by construction, skip complain phase below
 					}
 				}
-				if (hasNonNullDefault) { // conflict with inheritance already checked
+				if (hasReturnNonNullDefault) { // conflict with inheritance already checked
 					currentNullnessBits = TagBits.AnnotationNonNull;
 					applyReturnNullBits(currentMethod, currentNullnessBits);
 				}
@@ -333,7 +337,7 @@ public class ImplicitNullAnnotationVerifier {
 				// unspecified, may fill in either from super or from default
 				if (inheritedNonNullNess != null) {
 					if (shouldInherit) {
-						if (hasNonNullDefault) {
+						if (hasParameterNonNullDefault) {
 							// both inheritance and default: check for conflict?
 							if (shouldComplain
 									&& inheritedNonNullNess == Boolean.FALSE
@@ -356,7 +360,7 @@ public class ImplicitNullAnnotationVerifier {
 						continue; // compatible by construction, skip complain phase below
 					}
 				}
-				if (hasNonNullDefault) { // conflict with inheritance already checked
+				if (hasParameterNonNullDefault) { // conflict with inheritance already checked
 					currentNonNullNess = Boolean.TRUE;
 					if (!useTypeAnnotations)
 						recordArgNonNullness(currentMethod, length, i, currentArgument, Boolean.TRUE);

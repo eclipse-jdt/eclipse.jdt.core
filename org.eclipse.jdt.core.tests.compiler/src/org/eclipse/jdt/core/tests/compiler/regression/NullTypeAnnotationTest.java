@@ -6028,4 +6028,35 @@ public void testBug440462() {
 		getCompilerOptions(),
 		"");
 }
+public void testBug440773() {
+	runConformTestWithLibs(
+		new String[] {
+			"CountingComparator.java",
+			"import java.util.Comparator;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"\n" + 
+			"@NonNullByDefault\n" + 
+			"public class CountingComparator<T> implements Comparator<T> {\n" + 
+			"\n" + 
+			"    private int m_accessCount = 0;\n" + 
+			"\n" + 
+			"    private final Comparator<T> m_wrapped;\n" + 
+			"\n" + 
+			"    public CountingComparator(final Comparator<T> wrapped) {\n" + 
+			"        m_wrapped = wrapped;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    @Override\n" + 
+			"    @NonNullByDefault(DefaultLocation.RETURN_TYPE)\n" + 
+			"    public int compare(final T element1, final T element2) {\n" + 
+			"        m_accessCount++;\n" + 
+			"        return m_wrapped.compare(element1, element2);\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 }
