@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.IntersectionCastTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
@@ -683,6 +684,10 @@ class TypeBinding implements ITypeBinding {
 				buffer = new StringBuffer(elementType.getName());
 				buffer.append(brackets);
 				return String.valueOf(buffer);
+
+			case Binding.INTERSECTION_CAST_TYPE :
+				// just use the first bound for now (same kludge as in IntersectionCastTypeBinding#constantPoolName())
+				return new String(((IntersectionCastTypeBinding) this.binding).getIntersectingTypes()[0].sourceName());
 
 			default :
 				if (isPrimitive() || isNullType()) {

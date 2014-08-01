@@ -4827,4 +4827,36 @@ public void testBug433879d() throws JavaModelException {
 		fail(e.getMessage());
 	}
 }
+public void testBug432175() throws JavaModelException {
+	this.workingCopy = getWorkingCopy("/Converter18/src/testBug432175/X.java",
+			true/* resolve */);
+	String contents = "package testBug432175;\n" +
+			"interface Collection <T> {}\n" +
+			"class Collections {\n" +
+			"    public static final <T> T emptyList() {  return null; }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    public static <T extends Number & Comparable<?>> void method2(Collection<T> coll) {}\n" +
+			"\n" +
+			"    public static void main(String[] args) {\n" +
+			"        method2(Collections.emptyList());\n" +
+			"    }\n" +
+			"}\n" ;
+
+	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+	TypeDeclaration typeDeclaration = (TypeDeclaration) getASTNode(cu, 2);
+	MethodDeclaration [] methods =  typeDeclaration.getMethods();
+
+	{
+		MethodDeclaration method = methods[1];
+		ExpressionStatement expressionStatement = (ExpressionStatement) method.getBody().statements().get(0);
+		MethodInvocation methodInvocation = (MethodInvocation) expressionStatement.getExpression();
+		methodInvocation = (MethodInvocation) methodInvocation.arguments().get(0);
+		ITypeBinding typeBinding = methodInvocation.resolveTypeBinding();
+		typeBinding = typeBinding.getTypeArguments()[0];
+		String res = typeBinding.getTypeDeclaration().getName();
+		this.ast.newSimpleType(this.ast.newName(res));
+	}
+}
+
 }
