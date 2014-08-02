@@ -6117,4 +6117,42 @@ public void testBug439298_comment4() {
 		getCompilerOptions(),
 		"");
 }
+// this code raised: java.lang.IllegalArgumentException: Type doesn't have its own method?
+// at org.eclipse.jdt.internal.compiler.lookup.SyntheticFactoryMethodBinding.applyTypeArgumentsOnConstructor(SyntheticFactoryMethodBinding.java:40)
+public void testBug440764() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Extract.java",
+			"import java.util.Comparator;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"@NonNullByDefault({ DefaultLocation.TYPE_PARAMETER })\n" + 
+			"public class Extract<T> implements Comparator<@NonNull T>  {\n" + // FIXME: annot on 'T' shouldn't be needed
+			"	public Extract(Comparator<T> wrapped) {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	@Override\n" + 
+			"	public int compare(T o1, T o2) {\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	void test(final Comparator<@Nullable Integer> c) {\n" + 
+			"		new Extract<>(c).compare(1, null);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in Extract.java (at line 16)\n" + 
+		"	new Extract<>(c).compare(1, null);\n" + 
+		"	              ^\n" + 
+		"Null type mismatch (type annotations): required \'Comparator<@NonNull Integer>\' but this expression has type \'Comparator<@Nullable Integer>\'\n" + 
+		"----------\n" + 
+		"2. ERROR in Extract.java (at line 16)\n" + 
+		"	new Extract<>(c).compare(1, null);\n" + 
+		"	                            ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Integer\' but the provided value is null\n" + 
+		"----------\n");
+}
 }
