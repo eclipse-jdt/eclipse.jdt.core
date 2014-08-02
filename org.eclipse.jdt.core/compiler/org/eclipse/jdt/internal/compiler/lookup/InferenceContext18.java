@@ -330,22 +330,26 @@ public class InferenceContext18 {
 	public InferenceVariable[] addTypeVariableSubstitutions(TypeBinding[] typeVariables) {
 		int len2 = typeVariables.length;
 		InferenceVariable[] newVariables = new InferenceVariable[len2];
+		InferenceVariable[] toAdd = new InferenceVariable[len2];
+		int numToAdd = 0;
 		for (int i = 0; i < typeVariables.length; i++) {
 			if (typeVariables[i] instanceof InferenceVariable)
 				newVariables[i] = (InferenceVariable) typeVariables[i]; // prevent double substitution of an already-substituted inferenceVariable
 			else
-				newVariables[i] = new InferenceVariable(typeVariables[i], this.variableCount++, this.currentInvocation, this.environment, this.object);
+				toAdd[numToAdd++] =
+					newVariables[i] = new InferenceVariable(typeVariables[i], this.variableCount++, this.currentInvocation, this.environment, this.object);
 		}
-
-		int start = 0;
-		if (this.inferenceVariables != null) {
-			int len1 = this.inferenceVariables.length;
-			System.arraycopy(this.inferenceVariables, 0, this.inferenceVariables = new InferenceVariable[len1+len2], 0, len1);
-			start = len1;
-		} else {
-			this.inferenceVariables = new InferenceVariable[len2];
+		if (numToAdd > 0) {
+			int start = 0;
+			if (this.inferenceVariables != null) {
+				int len1 = this.inferenceVariables.length;
+				System.arraycopy(this.inferenceVariables, 0, this.inferenceVariables = new InferenceVariable[len1+numToAdd], 0, len1);
+				start = len1;
+			} else {
+				this.inferenceVariables = new InferenceVariable[numToAdd];
+			}
+			System.arraycopy(toAdd, 0, this.inferenceVariables, start, numToAdd);
 		}
-		System.arraycopy(newVariables, 0, this.inferenceVariables, start, len2);
 		return newVariables;
 	}
 
@@ -413,7 +417,8 @@ public class InferenceContext18 {
 				}
 				InferenceVariable[] variablesArray = allInputs.toArray(new InferenceVariable[allInputs.size()]);
 				//   ... is resolved
-				this.currentBounds.incorporate(this);
+				if (!this.currentBounds.incorporate(this))
+					return null;
 				BoundSet solution = resolve(variablesArray);
 				// in rare cases resolving just one set of variables doesn't suffice,
 				// don't bother with finding the necessary superset, just resolve all:

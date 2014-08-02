@@ -3335,4 +3335,59 @@ public void testBug435187() {
 		"The method collect(Collector<? super Object,A,R>) in the type Stream<Object> is not applicable for the arguments (Collector<Map.Entry<String,String>,capture#1-of ?,Map<String,List<String>>>)\n" + 
 		"----------\n");
 }
+public void testBug435767() {
+	runNegativeTest(
+		new String[] {
+			"DummyClass.java",
+			"import java.util.*;\n" +
+			"import java.util.function.*;\n" +
+			"import java.util.stream.*;\n" +
+			"public class DummyClass {\n" + 
+			"\n" + 
+			"	public void method() {\n" + 
+			"\n" + 
+			"		// Cases where there is no error\n" + 
+			"		final Supplier<Set<String>> suppliers = this.memoize(() -> new HashSet<>());\n" + 
+			"\n" + 
+			"		final Supplier<Map<Object, Object>> noMemoize = () -> suppliers.get().stream()\n" + 
+			"				.filter(path -> path.startsWith(\"\"))\n" + 
+			"				.collect(Collectors.toMap(path -> this.getKey(path), path -> this.getValue(path)));\n" + 
+			"\n" + 
+			"		// Case where there is errors.\n" + 
+			"		final Supplier<Map<Object, Object>> memoize = this.memoize(() -> suppliers.get().stream()\n" + 
+			"				.filter(path -> path.startsWith(\"\"))\n" + 
+			"				.collect(Collectors.toMap(path -> this.getKey(path), path -> this.getValue(path))));\n" + 
+			"\n" + 
+			"		// Error message are : Description\n" + 
+			"		// Resource	Path	Location	Type\n" + 
+			"		// The method getKey(String) in the type DummyClass is not applicable for the arguments (Object)	DummyClass.java line 23	Java Problem\n" + 
+			"		// The method getValue(String) in the type DummyClass is not applicable for the arguments (Object)	DummyClass.java line 23	Java Problem\n" + 
+			"\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private <T> Supplier<T> memoize(final Supplier<T> delegate) {\n" + 
+			"		return delegate;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private Object getKey(final String path) {\n" + 
+			"		return path;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private Object getValue(final String path) {\n" + 
+			"		return path;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in DummyClass.java (at line 18)\n" + 
+		"	.collect(Collectors.toMap(path -> this.getKey(path), path -> this.getValue(path))));\n" + 
+		"	                                       ^^^^^^\n" + 
+		"The method getKey(String) in the type DummyClass is not applicable for the arguments (Object)\n" + 
+		"----------\n" + 
+		"2. ERROR in DummyClass.java (at line 18)\n" + 
+		"	.collect(Collectors.toMap(path -> this.getKey(path), path -> this.getValue(path))));\n" + 
+		"	                                                                  ^^^^^^^^\n" + 
+		"The method getValue(String) in the type DummyClass is not applicable for the arguments (Object)\n" + 
+		"----------\n");
+}
 }
