@@ -19,6 +19,7 @@
  *								Bug 428019 - [1.8][compiler] Type inference failure with nested generic invocation.
  *								Bug 435962 - [RC2] StackOverFlowError when building
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
+ *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -941,6 +942,10 @@ public class WildcardBinding extends ReferenceBinding {
 		} finally {
 			this.inRecursiveFunction = false;
 		}
+		return false;
+	}
+
+	public boolean acceptsNonNullDefault() {
 		return false;
 	}
 }

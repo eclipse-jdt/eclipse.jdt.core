@@ -21,6 +21,7 @@
  *								Bug 426792 - [1.8][inference][impl] generify new type inference engine
  *								Bug 428019 - [1.8][compiler] Type inference failure with nested generic invocation.
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
+ *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -471,5 +472,8 @@ public TypeBinding uncapture(Scope scope) {
 	TypeBinding leafType = this.leafComponentType.uncapture(scope);
 	return scope.environment().createArrayType(leafType, this.dimensions, this.typeAnnotations);
 }
-
+@Override
+public boolean acceptsNonNullDefault() {
+	return true;
+}
 }

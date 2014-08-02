@@ -25,6 +25,7 @@
  *								Bug 428019 - [1.8][compiler] Type inference failure with nested generic invocation.
  *								Bug 435962 - [RC2] StackOverFlowError when building
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
+ *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -682,6 +683,13 @@ public boolean isParameterizedType() {
  */
 public boolean hasNullTypeAnnotations() {
 	return (this.tagBits & TagBits.HasNullTypeAnnotation) != 0;
+}
+/**
+ * Used to implement this sentence from o.e.j.annotation.DefaultLocation:
+ * "Wildcards and the use of type variables are always excluded from NonNullByDefault."
+ */
+public boolean acceptsNonNullDefault() {
+	return false;
 }
 
 public boolean isIntersectionCastType() {

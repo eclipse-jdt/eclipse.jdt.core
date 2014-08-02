@@ -27,6 +27,7 @@
  *								Bug 438250 - [1.8][null] NPE trying to report bogus null annotation conflict
  *								Bug 438179 - [1.8][null] 'Contradictory null annotations' error on type variable with explicit null-annotation.
  *								Bug 440143 - [1.8][null] one more case of contradictory null annotations regarding type variables
+ *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -941,5 +942,9 @@ public class TypeVariableBinding extends ReferenceBinding {
 		long currentNullBits = this.tagBits & TagBits.AnnotationNullMASK;
 		long declarationNullBits = parameter.tagBits & TagBits.AnnotationNullMASK;
 		return (currentNullBits & ~declarationNullBits) != 0;
+	}
+
+	public boolean acceptsNonNullDefault() {
+		return false;
 	}
 }

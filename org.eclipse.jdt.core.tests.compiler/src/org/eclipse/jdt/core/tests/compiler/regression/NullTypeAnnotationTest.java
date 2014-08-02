@@ -5987,7 +5987,7 @@ public void testBug435962() {
 			"		extends EqualBinaryNode<T> implements ValueNode {\n" + 
 			"	@SuppressWarnings(\"unused\") private O op;\n" + 
 			"	\n" + 
-			"	protected BinaryOpNode(final T left, final O op, final T right) {\n" + 
+			"	protected BinaryOpNode(final T left, @org.eclipse.jdt.annotation.NonNull final O op, final T right) {\n" + 
 			"		super(left, right);\n" + 
 			"		this.op = op;\n" + 
 			"	}\n" + 
@@ -6153,6 +6153,62 @@ public void testBug440764() {
 		"	new Extract<>(c).compare(1, null);\n" + 
 		"	                            ^^^^\n" + 
 		"Null type mismatch: required \'@NonNull Integer\' but the provided value is null\n" + 
+		"----------\n");
+}
+public void testBug440759a() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class X<T> {\n" +
+			"	T test(T t) {\n" +
+			"		@NonNull T localT = t; // err#1\n" +
+			"		return null; // err must mention free type variable, not @NonNull\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	@NonNull T localT = t; // err#1\n" + 
+		"	                    ^\n" + 
+		"Null type safety (type annotations): The expression of type \'T\' needs unchecked conversion to conform to \'@NonNull T\'\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	return null; // err must mention free type variable, not @NonNull\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch (type annotations): \'null\' is not compatible to the free type variable \'T\'\n" + 
+		"----------\n");
+}
+// involves overriding, work done in ImplicitNullAnnotationVerifier.checkNullSpecInheritance()
+public void testBug440759b() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface Y<T> {\n" +
+			"	T test(T t);\n" +
+			"}\n" +
+			"@NonNullByDefault\n" +
+			"public class X<T> implements Y<T> {\n" +
+			"	public T test(T t) {\n" +
+			"		@NonNull T localT = t; // err#1\n" +
+			"		return null; // err must mention free type variable, not @NonNull\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	@NonNull T localT = t; // err#1\n" + 
+		"	                    ^\n" + 
+		"Null type safety (type annotations): The expression of type \'T\' needs unchecked conversion to conform to \'@NonNull T\'\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	return null; // err must mention free type variable, not @NonNull\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch (type annotations): \'null\' is not compatible to the free type variable \'T\'\n" + 
 		"----------\n");
 }
 }

@@ -267,7 +267,7 @@ public class ImplicitNullAnnotationVerifier {
 						break returnType; // compatible by construction, skip complain phase below
 					}
 				}
-				if (hasReturnNonNullDefault) { // conflict with inheritance already checked
+				if (hasReturnNonNullDefault && currentMethod.returnType.acceptsNonNullDefault()) { // conflict with inheritance already checked
 					currentNullnessBits = TagBits.AnnotationNonNull;
 					applyReturnNullBits(currentMethod, currentNullnessBits);
 				}
@@ -364,8 +364,10 @@ public class ImplicitNullAnnotationVerifier {
 					currentNonNullNess = Boolean.TRUE;
 					if (!useTypeAnnotations)
 						recordArgNonNullness(currentMethod, length, i, currentArgument, Boolean.TRUE);
-					else
+					else if (currentMethod.parameters[i].acceptsNonNullDefault())
 						recordArgNonNullness18(currentMethod, i, currentArgument, Boolean.TRUE, this.environment);
+					else
+						currentNonNullNess = null; // cancel if parameter doesn't accept the default
 				}
 			}
 			if (shouldComplain) {

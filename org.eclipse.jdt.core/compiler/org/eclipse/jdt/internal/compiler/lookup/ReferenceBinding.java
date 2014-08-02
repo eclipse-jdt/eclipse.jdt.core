@@ -31,6 +31,7 @@
  *								Bug 418743 - [1.8][null] contradictory annotations on invocation of generic method not reported
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
  *								Bug 431581 - Eclipse compiles what it should not
+ *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -1121,6 +1122,10 @@ boolean hasNonNullDefaultFor(int location, boolean useTypeAnnotations) {
 
 int getNullDefault() {
 	return 0;
+}
+
+public boolean acceptsNonNullDefault() {
+	return true;
 }
 
 public final boolean hasRestrictedAccess() {

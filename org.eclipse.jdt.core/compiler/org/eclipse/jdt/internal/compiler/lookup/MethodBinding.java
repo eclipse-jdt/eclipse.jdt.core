@@ -21,6 +21,7 @@
  *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
  *								Bug 438012 - [1.8][null] Bogus Warning: The nullness annotation is redundant with a default that applies to this location
+ *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
  *     Jesper Steen Moller - Contributions for
  *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *******************************************************************************/
@@ -518,7 +519,7 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 		int length = this.parameters.length;
 		for (int i = 0; i < length; i++) {
 			TypeBinding parameter = this.parameters[i];
-			if (parameter.isBaseType())
+			if (!parameter.acceptsNonNullDefault())
 				continue;
 			long existing = parameter.tagBits & TagBits.AnnotationNullMASK;
 			if (existing == 0L) {
@@ -537,7 +538,7 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 			this.tagBits |= TagBits.HasParameterAnnotations;
 	}
 	if (this.returnType != null && hasNonNullDefaultFor(DefaultLocationReturnType, true)) {
-		if (!this.returnType.isBaseType() && (this.returnType.tagBits & TagBits.AnnotationNullMASK) == 0) {
+		if (this.returnType.acceptsNonNullDefault() && (this.returnType.tagBits & TagBits.AnnotationNullMASK) == 0) {
 			this.returnType = env.createAnnotatedType(this.returnType, new AnnotationBinding[]{env.getNonNullAnnotation()});
 		} else if (sourceMethod instanceof MethodDeclaration && (this.returnType.tagBits & TagBits.AnnotationNonNull) != 0 
 						&& ((MethodDeclaration)sourceMethod).hasNullTypeAnnotation()) {
