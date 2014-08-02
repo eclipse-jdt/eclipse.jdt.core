@@ -5825,4 +5825,48 @@ public void testBug439298_comment4() {
 		getCompilerOptions(),
 		"");
 }
+// this code raised: java.lang.IllegalArgumentException: Type doesn't have its own method?
+// at org.eclipse.jdt.internal.compiler.lookup.SyntheticFactoryMethodBinding.applyTypeArgumentsOnConstructor(SyntheticFactoryMethodBinding.java:40)
+public void testBug440764() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Extract.java",
+			"import java.util.Comparator;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"@NonNullByDefault({ DefaultLocation.TYPE_PARAMETER })\n" + 
+			"public class Extract<T> implements Comparator<@NonNull T>  {\n" + // FIXME: annot on 'T' shouldn't be needed
+			"	public Extract(Comparator<T> wrapped) {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	@Override\n" + 
+			"	public int compare(T o1, T o2) {\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	void test(final Comparator<@Nullable Integer> c) {\n" + 
+			"		new Extract<>(c).compare(1, null);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		// Note: these exact errors are not intended, in 4.5 we report better errors via Bug 434602
+		"----------\n" + 
+		"1. ERROR in Extract.java (at line 16)\n" + 
+		"	new Extract<>(c).compare(1, null);\n" + 
+		"	^^^^^^^^^^^^^^^^\n" + 
+		"Contradictory null annotations: method was inferred as \'Extract<@NonNull @Nullable Integer> <factory>(Comparator<@NonNull @Nullable Integer>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"----------\n" + 
+		"2. ERROR in Extract.java (at line 16)\n" + 
+		"	new Extract<>(c).compare(1, null);\n" + 
+		"	^^^^^^^^^^^^^^^^\n" + 
+		"Contradictory null annotations: method was inferred as \'void <init>(Comparator<@NonNull @Nullable Integer>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"----------\n" + 
+		"3. ERROR in Extract.java (at line 16)\n" + 
+		"	new Extract<>(c).compare(1, null);\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Contradictory null annotations: method was inferred as \'int compare(@NonNull @Nullable Integer, @NonNull @Nullable Integer)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"----------\n");
+}
 }
