@@ -6211,4 +6211,23 @@ public void testBug440759b() {
 		"Null type mismatch (type annotations): \'null\' is not compatible to the free type variable \'T\'\n" + 
 		"----------\n");
 }
+public void testBug438383() {
+	runConformTestWithLibs(
+		new String[] {
+			"Foo.java",
+			"import java.util.*;\n" + 
+			"import java.util.function.Supplier;\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"\n" + 
+			"@NonNullByDefault public class Foo {\n" + 
+			"    static void foo(Supplier<List<?>> f) { }\n" + 
+			"    \n" + 
+			"    static void test() {\n" + 
+			"        foo(ArrayList::new);\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 }

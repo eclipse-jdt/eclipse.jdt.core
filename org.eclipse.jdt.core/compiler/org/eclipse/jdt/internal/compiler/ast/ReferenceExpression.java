@@ -28,6 +28,7 @@
  *							Bug 426537 - [1.8][inference] Eclipse compiler thinks I<? super J> is compatible with I<J<?>> - raw type J involved
  *							Bug 435570 - [1.8][null] @NonNullByDefault illegally tries to affect "throws E"
  *							Bug 435689 - [1.8][inference] Type inference not occurring with lambda expression and method reference
+ *							Bug 438383 - [1.8][null] Bogus warning: Null type safety at method return type
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contribution for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -605,7 +606,8 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     				scope.problemReporter().referenceExpressionArgumentNullityMismatch(this, bindingParameter, descriptorParameter, this.descriptor, i, annotationStatus);
     			}
     		}
-        	if ((this.descriptor.returnType.tagBits & TagBits.AnnotationNonNull) != 0) {
+        	if (!this.binding.isConstructor() && (this.descriptor.returnType.tagBits & TagBits.AnnotationNonNull) != 0) {
+        		// since constructors never return null we don't have to check those anyway.
         		if ((this.binding.returnType.tagBits & TagBits.AnnotationNonNull) == 0) {
         			char[][] providedAnnotationName = ((this.binding.returnType.tagBits & TagBits.AnnotationNullable) != 0) ?
         					scope.environment().getNullableAnnotationName() : null;
