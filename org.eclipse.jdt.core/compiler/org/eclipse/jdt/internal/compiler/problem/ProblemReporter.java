@@ -52,6 +52,7 @@
  *								Bug 434600 - Incorrect null analysis error reporting on type parameters
  *								Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
  *								Bug 438467 - [compiler][null] Better error position for "The method _ cannot implement the corresponding method _ due to incompatible nullness constraints"
+ *								Bug 439298 - [null] "Missing code implementation in the compiler" when using @NonNullByDefault in package-info.java
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -3707,6 +3708,10 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 				        (problemConstructor.returnType != null ? String.valueOf(problemConstructor.returnType.shortReadableName()) : "<unknown>")}, //$NON-NLS-1$
 				statement.sourceStart,
 				statement.sourceEnd);
+			return;
+		case ProblemReasons.ContradictoryNullAnnotations:
+			problemConstructor = (ProblemMethodBinding) targetConstructor;
+			contradictoryNullAnnotationsInferred(problemConstructor.closestMatch, statement);
 			return;
 		case ProblemReasons.NoError : // 0
 		default :

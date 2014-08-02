@@ -6059,4 +6059,62 @@ public void testBug440773() {
 		getCompilerOptions(),
 		"");
 }
+public void testBug439298_comment2() {
+	runConformTestWithLibs(
+		new String[] {
+			"Extract.java",
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"class R<T> {\n" + 
+			"	R(@Nullable T t) {}\n" + 
+			"}\n" + 
+			"class A {}\n" + 
+			"@NonNullByDefault\n" + 
+			"public class Extract {\n" + 
+			"	R<A> test() {\n" + 
+			"		return new R<A>(null);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug439298_comment3() {
+	runConformTestWithLibs(
+		new String[] {
+			"Extract.java",
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"class R<T> {\n" + 
+			"	R(@Nullable T t) {}\n" + 
+			"}\n" + 
+			"class A {}\n" + 
+			"public class Extract {\n" + 
+			"	R<A> test() {\n" + 
+			"		return new R<@NonNull A>(null);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug439298_comment4() {
+	runConformTestWithLibs(
+		new String[] {
+			"Extract.java",
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"class R<T> {\n" + 
+			"    R(@Nullable T t) {}\n" + 
+			"}\n" + 
+			"class A {}\n" + 
+			"public class Extract {\n" + 
+			"    R<@NonNull A> test() {\n" + 
+			"        return new R<>(null);\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 }
