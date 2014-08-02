@@ -664,7 +664,7 @@ protected void checkNullConstraints(Scope scope, TypeReference[] typeArguments) 
 		}
 	}
 }
-/** Check whether this type reference conforms to all null constraints defined for any of the given type variables. */
+/** Check whether this type reference conforms to the null constraints defined for the corresponding type variable. */
 protected void checkNullConstraints(Scope scope, TypeBinding[] variables, int rank) {
 	if (variables != null && variables.length > rank) {
 		TypeBinding variable = variables[rank];
