@@ -50,6 +50,7 @@
  *								Bug 390889 - [1.8][compiler] Evaluate options to support 1.7- projects against 1.8 JRE.
  *								Bug 430150 - [1.8][null] stricter checking against type variables
  *								Bug 434600 - Incorrect null analysis error reporting on type parameters
+ *								Bug 439298 - [null] "Missing code implementation in the compiler" when using @NonNullByDefault in package-info.java
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -3704,6 +3705,10 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 				        (problemConstructor.returnType != null ? String.valueOf(problemConstructor.returnType.shortReadableName()) : "<unknown>")}, //$NON-NLS-1$
 				statement.sourceStart,
 				statement.sourceEnd);
+			return;
+		case ProblemReasons.ContradictoryNullAnnotations:
+			problemConstructor = (ProblemMethodBinding) targetConstructor;
+			contradictoryNullAnnotationsInferred(problemConstructor.closestMatch, statement);
 			return;
 		case ProblemReasons.NoError : // 0
 		default :
