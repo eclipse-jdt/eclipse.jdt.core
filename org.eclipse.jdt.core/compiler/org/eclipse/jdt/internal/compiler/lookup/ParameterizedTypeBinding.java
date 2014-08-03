@@ -880,17 +880,22 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			return this;
 		if (removeOnlyNullAnnotations && !hasNullTypeAnnotations())
 			return this;
-		ReferenceBinding unannotatedType = (ReferenceBinding) this.environment.getUnannotatedType(this);
 		if (removeOnlyNullAnnotations) {
+			ReferenceBinding unannotatedGenericType = (ReferenceBinding) this.environment.getUnannotatedType(this.type);
 			AnnotationBinding[] newAnnotations = this.environment.filterNullTypeAnnotations(this.typeAnnotations);
-			TypeBinding[] newArguments = new TypeBinding[this.arguments.length];
-			for (int i = 0; i < this.arguments.length; i++) {
-				newArguments[i] = this.arguments[i].unannotated(removeOnlyNullAnnotations);
+			TypeBinding[] newArguments = null;
+			if (this.arguments != null) {
+				newArguments = new TypeBinding[this.arguments.length];
+				for (int i = 0; i < this.arguments.length; i++) {
+					newArguments[i] = this.arguments[i].unannotated(removeOnlyNullAnnotations);
+				}
 			}
-			ReferenceBinding newEnclosing = (ReferenceBinding)this.enclosingType.unannotated(removeOnlyNullAnnotations);
-			return this.environment.createParameterizedType(unannotatedType, newArguments, newEnclosing, newAnnotations);
+			ReferenceBinding newEnclosing = null;
+			if (this.enclosingType != null)
+				newEnclosing = (ReferenceBinding)this.enclosingType.unannotated(removeOnlyNullAnnotations);
+			return this.environment.createParameterizedType(unannotatedGenericType, newArguments, newEnclosing, newAnnotations);
 		}
-		return unannotatedType;
+		return this.environment.getUnannotatedType(this);
 	}
 
 	public int kind() {

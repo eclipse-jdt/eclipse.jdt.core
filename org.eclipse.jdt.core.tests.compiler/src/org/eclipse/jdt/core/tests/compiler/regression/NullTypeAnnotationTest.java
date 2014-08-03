@@ -5834,6 +5834,68 @@ public void testTypeVariable17a() {
 		getCompilerOptions(),
 		"");
 }
+// NPE reported in https://bugs.eclipse.org/bugs/show_bug.cgi?id=438458#c5
+public void testTypeVariable18() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import java.util.*;\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"interface Lib1 {\n" + 
+			"    <T extends Collection<?>> T constrainedTypeParameter(@NonNull T in);\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"  @NonNull Collection<?> test4(Lib1 lib, @Nullable Collection<String> in) {\n" + 
+			"    return lib.constrainedTypeParameter(in);\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in Test.java (at line 10)\n" + 
+		"	return lib.constrainedTypeParameter(in);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'Collection<String>\' needs unchecked conversion to conform to \'@NonNull Collection<?>\'\n" + 
+		"----------\n" + 
+		"2. ERROR in Test.java (at line 10)\n" + 
+		"	return lib.constrainedTypeParameter(in);\n" + 
+		"	                                    ^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Collection<String>\' but this expression has type \'@Nullable Collection<String>\'\n" + 
+		"----------\n");
+}
+public void testTypeVariable18raw() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import java.util.*;\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"interface Lib1 {\n" + 
+			"    <T extends Collection<?>> T constrainedTypeParameter(@NonNull T in);\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class Test {\n" +
+			"  @SuppressWarnings(\"rawtypes\")\n" + 
+			"  @NonNull Collection test4(Lib1 lib, @Nullable Collection in) {\n" + 
+			"    return lib.constrainedTypeParameter(in);\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in Test.java (at line 11)\n" + 
+		"	return lib.constrainedTypeParameter(in);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'Collection\' needs unchecked conversion to conform to \'@NonNull Collection\'\n" + 
+		"----------\n" + 
+		"2. ERROR in Test.java (at line 11)\n" + 
+		"	return lib.constrainedTypeParameter(in);\n" + 
+		"	                                    ^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Collection\' but this expression has type \'@Nullable Collection\'\n" + 
+		"----------\n");
+}
 public void testBug434600() {
 	runConformTestWithLibs(
 		new String[] {
