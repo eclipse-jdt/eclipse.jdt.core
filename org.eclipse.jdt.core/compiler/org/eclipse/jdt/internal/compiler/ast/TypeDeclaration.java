@@ -778,8 +778,8 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 		ReferenceBinding superclassBinding = (ReferenceBinding)nestedType.superclass.erasure();
 		if (superclassBinding.enclosingType() != null && !superclassBinding.isStatic()) {
 			if (!superclassBinding.isLocalType()
-					|| ((NestedTypeBinding)superclassBinding).getSyntheticField(superclassBinding.enclosingType(), true) != null){
-
+					|| ((NestedTypeBinding)superclassBinding).getSyntheticField(superclassBinding.enclosingType(), true) != null
+					|| superclassBinding.isMemberType()){
 				nestedType.addSyntheticArgument(superclassBinding.enclosingType());
 			}
 		}

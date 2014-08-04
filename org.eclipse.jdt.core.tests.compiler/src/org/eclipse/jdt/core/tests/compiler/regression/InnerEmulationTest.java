@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2013 IBM Corporation and others.
+ * Copyright (c) 2006, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -6943,7 +6943,51 @@ public void test175() throws Exception {
 			},
 			"Enclosing,Context,Context");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435419 Instantiating needs outer constructor
+public void test176() {
+	this.runConformTest(
+		new String[] {
+			"Demo.java",
+			"import java.util.ArrayList;\n" + 
+			"public class Demo {\n" + 
+			"        static class ExprFactoryList extends ArrayList {\n" + 
+			"                class Expr {}\n" + 
+			"                class Expr2 extends Expr {}\n" + 
+			"        }\n" + 
+			"        final static ExprFactoryList arith =  new ExprFactoryList() {\n" + 
+			"                {\n" + 
+			"                        add(new Object() {public Expr generate() {return new Expr() {};} }); // OK\n" + 
+			"                        add(new Object() {public Expr generate() {return new Expr2() {};} }); // Ok\n" + 
+			"                }\n" + 
+			"        };\n" + 
+			"        final static ExprFactoryList statementFactory =  new ExprFactoryList() {\n" + 
+			"                class Statement extends Expr {}\n" + 
+			"                void m() {\n" + 
+			"                        add(new Object() {\n" + 
+			"                                public void generate() {\n" + 
+			"                                        new Statement(){}; // OK\n" + 
+			"                                }\n" + 
+			"                        });\n" + 
+			"                }\n" + 
+			"                {\n" + 
+			"                        add (new Statement()); // OK\n" + 
+			"                        add(new Object() {\n" + 
+			"                                public void generate() {\n" + 
+			"                                        new Statement(); // OK\n" + 
+			"                                        new Statement(){}; // cannot compile\n" + 
+			"                                }\n" + 
+			"                        });\n" + 
+			"                }\n" + 
+			"        };\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"        	Demo demo = new Demo();\n" + 
+			"        	System.out.println(\"SUCCESS\");\n" + 
+			"        }\n" + 
+			"       \n" + 
+			"}"	
+		},
+		"SUCCESS");
+}
 public static Class testClass() {
 	return InnerEmulationTest.class;
 }
