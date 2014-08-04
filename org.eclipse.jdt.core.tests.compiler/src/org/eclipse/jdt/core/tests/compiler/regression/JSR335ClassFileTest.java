@@ -3191,6 +3191,40 @@ public void test430571() throws IOException, ClassFormatException {
 
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435869, [1.8][compiler]AIOOB with annotated intersection cast
+public void test435869() throws IOException, ClassFormatException {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.io.Serializable;\n" +
+				"\n" +
+				"public class X {\n" +
+				"      Object o = (@Marker1 @Marker2 Serializable & I & @Marker3 @Marker1 J) () -> {};\n" +
+				"      public void foo(Object o) {\n" +
+				"    	   Serializable oo = (Serializable & @Marker3 @Marker1 @Marker2 I & J) o;\n" +
+				"          I i = (@Marker1 @Marker2 Serializable & I & @Marker3 @Marker1 J) () -> {};\n" +
+				"      }\n" +
+				"}\n" +
+				"interface I {\n" +
+				"  public void foo(); \n" +
+				"}\n" +
+				"interface J {\n" +
+				"  public void foo();\n" +
+				"  public void bar();\n" +
+				"}\n" +
+				"interface K {\n" +
+				"  public void foo();\n" +
+				"  public void bar();\n" +
+				"}\n" +
+				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
+				"@interface Marker1 {}\n" +
+				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
+				"@interface Marker2 {}\n" +
+				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
+				"@interface Marker3 {}\n"
+	});
+}
 public static Class testClass() {
 	return JSR335ClassFileTest.class;
 }

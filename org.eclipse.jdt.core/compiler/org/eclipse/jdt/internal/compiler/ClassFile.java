@@ -2885,7 +2885,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// functional expressions, we know the size ahead of time - this less general
 		// than the full invokedynamic scope, but fine for Java 8
 		
-		int exSize = 10 * numberOfBootstraps + 8;
+		final int contentsEntries = 10;
+		int exSize = contentsEntries * numberOfBootstraps + 8;
 		if (exSize + localContentsOffset >= this.contents.length) {
 			resizeContents(exSize);
 		}
@@ -2919,8 +2920,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 					// 2 for bridge count then 2 per bridge method type.
 					extraSpace += (2 + 2 * bridges.length);
 				}
-				if (extraSpace + localContentsOffset >= this.contents.length) {
-					resizeContents(extraSpace);
+				if (extraSpace + contentsEntries + localContentsOffset >= this.contents.length) {
+					resizeContents(extraSpace + contentsEntries);
 				} 
 				
 				if (indexForAltMetaFactory == 0) {
