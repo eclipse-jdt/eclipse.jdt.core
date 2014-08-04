@@ -3465,4 +3465,24 @@ public class VarargsTest extends AbstractComparableTest {
 			"The method foo(A...) of type B is not applicable as the formal varargs element type A is not accessible here\n" + 
 			"----------\n"); // check and adjust,
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=436474, [codegen]Problem with varargs and List.toString
+	public void test436474() {
+		runConformTest(
+			new String[] {
+				"Scratch.java",
+				"import java.util.Arrays;\n" + 
+				"import java.util.List;\n" + 
+				"public class Scratch {\n" + 
+				"    public static void vararg(String... strs) {\n" + 
+				"    	System.out.println(strs[0]);\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        List<String> l = Arrays.asList(\"a\");\n" + 
+				"        vararg(l.toArray(new String[0]));\n" + 
+				"    }\n" + 
+				"}",
+			},
+			"a");
+	}
 }
