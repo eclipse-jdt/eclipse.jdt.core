@@ -248,6 +248,7 @@ private void cacheDocumentNames() throws IOException {
 		throw e;
 	} finally {
 		stream.close();
+		this.indexLocation.close();
 		this.streamBuffer = null;
 		BUFFER_READ_SIZE = DEFAULT_BUFFER_SIZE;
 	}
@@ -394,6 +395,7 @@ void initialize(boolean reuseExistingFile) throws IOException {
 				}
 			} finally {
 				stream.close();
+				this.indexLocation.close();
 			}
 			return;
 		}
@@ -595,6 +597,7 @@ private synchronized String[] readAllDocumentNames() throws IOException {
 		return docNames;
 	} finally {
 		stream.close();
+		this.indexLocation.close();
 		this.streamBuffer = null;
 	}
 }
@@ -683,6 +686,7 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 		throw ioe;
 	} finally {
 		stream.close();
+		this.indexLocation.close();
 	}
 
 	if (matchingWords != null && count > 0) {
@@ -699,6 +703,7 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 			throw ioe;
 		} finally {
 			stream.close();
+			this.indexLocation.close();
 		}
 	}
 	this.streamBuffer = null;
@@ -752,6 +757,7 @@ synchronized String readDocumentName(int docNumber) throws IOException {
 			throw ioe;
 		} finally {
 			file.close();
+			this.indexLocation.close();
 		}
 		int numberOfNames = isLastChunk ? this.sizeOfLastChunk : CHUNK_SIZE;
 		chunk = new String[numberOfNames];
@@ -781,6 +787,7 @@ synchronized int[] readDocumentNumbers(Object arrayOffset) throws IOException {
 		return readStreamDocumentArray(stream, readStreamInt(stream));
 	} finally {
 		stream.close();
+		this.indexLocation.close();
 		this.streamBuffer = null;
 	}
 }
