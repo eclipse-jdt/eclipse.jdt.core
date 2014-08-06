@@ -7815,7 +7815,7 @@ public void typeHiding(TypeParameter typeParam, Binding hidden) {
 }
 public void notAnnotationType(TypeBinding actualType, ASTNode location) {
 	this.handle(
-			IProblem.NotAnnoationType,
+			IProblem.NotAnnotationType,
 			new String[] {new String(actualType.leafComponentType().readableName())},
 			new String[] {new String(actualType.leafComponentType().shortReadableName())},
 			location.sourceStart,
