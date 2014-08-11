@@ -4703,6 +4703,21 @@ public void test436347() throws CoreException, IOException {
 		removeLibrary(javaProject, jarName, srcName);
 	}
 }
-
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=435348, [1.8][compiler] NPE in JDT Core during AST creation
+// NPE without fix
+public void testBug435348() throws JavaModelException {
+	this.workingCopy = getWorkingCopy("/Converter18/src/testBug435348/X.java",
+		true/* resolve */);
+	String contents = "package testBug435348;\n" +
+		"class Y {}\n" +
+		"class Z{}\n" +
+		"class X {\n" +
+		"  void bar2(@ Z z) {}\n" +
+		"  //        ^  Illegal @ \n" +
+		"  static  {\n" +
+		"        bar(new Y() {});\n" +
+		"  }\n" +
+		"}\n";
+	buildAST(contents, this.workingCopy, false);
+}
 }
