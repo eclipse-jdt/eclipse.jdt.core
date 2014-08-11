@@ -2658,4 +2658,83 @@ public void test439234() throws JavaModelException {
 		elements
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=440731, [1.8] Hover, F3 doesn't work for method reference in method invocation
+public void test440731() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"class Y {\n" +
+			"	public void fooY() {return;}\n" +
+			"	public void bar(I2 i) {return;}\n" +
+			"	public void bar(I i) {return;}   \n" +
+			"}\n" +
+			"class fooY() {}\n" +
+			"interface I { void fooI(Y y); }\n" +
+			"interface I2 { void fooI2(int n);}\n" +
+			"public class X {\n" +
+			"	void foo() {\n" +
+			"		I i = Y::fooY; // works\n" +
+			"	}\n" +
+			"}");
+
+	String str = this.wc.getSource();
+	String selection = "fooY";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements;
+
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"fooY() [in Y [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"class Y {\n" +
+			"	public void fooY() {return;}\n" +
+			"	public void bar(I2 i) {return;}\n" +
+			"	public void bar(I i) {return;}   \n" +
+			"}\n" +
+			// [1]: Why class fooY {} ?
+			"class fooY{}\n" +
+			"interface I { void fooI(Y y); }\n" +
+			"interface I2 { void fooI2(int n);}\n" +
+			"public class X {\n" +
+			"	void foo() {\n" +
+			"		Y y = new Y();\n" +
+			"		y.bar(Y::fooY);\n" +
+			"	}\n" +
+			"}");
+	str = this.wc.getSource();
+	selection = "::";
+	//y.bar(Y::fooY)
+	//       ^^
+	start = str.lastIndexOf(selection);
+	length = selection.length();
+
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"fooI(Y) [in I [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]",
+		elements);
+
+	// [1] The reason for having the class fooY {} as part of the test case:
+	// Without the fix we resolve to the type fooY (class) and not the method fooY()
+	// declared in class Y. Please see Comment 4.
+
+	selection = "fooY";
+	//y.bar(Y::fooY)
+	//         ^^^^
+
+	start = str.lastIndexOf(selection);
+	length = selection.length();
+
+	// Unable to find element without fix.
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"fooY() [in Y [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]",
+		elements);
+}
 }
