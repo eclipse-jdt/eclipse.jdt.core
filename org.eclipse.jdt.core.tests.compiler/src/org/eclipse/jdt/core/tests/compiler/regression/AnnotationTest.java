@@ -11174,4 +11174,57 @@ public void test438437() {
 		"The annotation @LV is disallowed for this location\n" +
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=434556,  Broken class file generated for incorrect annotation usage
+public void test434556() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+		return;
+	}
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"import java.lang.annotation.Retention;\n" + 
+			"import java.lang.annotation.RetentionPolicy;\n" + 
+			"@Retention(RetentionPolicy.RUNTIME)\n" + 
+			"@interface C {\n" + 
+			"	int i();\n" + 
+			"}\n" + 
+			"public class A {\n" + 
+			"  @C(b={},i=42)\n" + 
+			"  public void xxx() {}\n" + 
+			"  public static void main(String []argv) throws Exception {\n" + 
+			"	System.out.println(A.class.getDeclaredMethod(\"xxx\").getAnnotations()[0]);  \n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 8)\n" + 
+		"	@C(b={},i=42)\n" + 
+		"	   ^\n" + 
+		"The attribute b is undefined for the annotation type C\n" + 
+		"----------\n",
+		null,
+		true,
+		null,
+		true, // generate output
+		false,
+		false);
+
+	String expectedOutput = "@C(i=(int) 42)\n" + 
+			"  public void xxx();\n" + 
+			"     0  new java.lang.Error [20]\n" + 
+			"     3  dup\n" + 
+			"     4  ldc <String \"Unresolved compilation problem: \\n\\tThe attribute b is undefined for the annotation type C\\n\"> [22]\n" + 
+			"     6  invokespecial java.lang.Error(java.lang.String) [24]\n" + 
+			"     9  athrow\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 10] local: this index: 0 type: A\n" + 
+			"  \n";
+	try {
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"A.class", "A", expectedOutput, ClassFileBytesDisassembler.DETAILED);
+	} catch(org.eclipse.jdt.core.util.ClassFormatException cfe) {
+		fail("Error reading classfile");
+	}
+}
 }

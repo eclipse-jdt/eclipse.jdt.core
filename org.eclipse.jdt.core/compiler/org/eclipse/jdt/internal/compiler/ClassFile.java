@@ -20,6 +20,7 @@
  *                          Bug 415399 - [1.8][compiler] Type annotations on constructor results dropped by the code generator
  *                          Bug 415470 - [1.8][compiler] Type annotations on class declaration go vanishing
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
+ *                          Bug 434556 - Broken class file generated for incorrect annotation usage
  *     Stephan Herrmann - Contribution for
  *							Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *******************************************************************************/
@@ -2324,9 +2325,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 			MemberValuePair[] memberValuePairs = normalAnnotation.memberValuePairs;
 			int memberValuePairOffset = this.contentsOffset;
 			if (memberValuePairs != null) {
+				int memberValuePairsCount = 0;
+				int memberValuePairsLengthPosition = this.contentsOffset;
+				this.contentsOffset += 2; // leave space to fill in the pair count later
+				int resetPosition = this.contentsOffset;
 				final int memberValuePairsLength = memberValuePairs.length;
-				this.contents[this.contentsOffset++] = (byte) (memberValuePairsLength >> 8);
-				this.contents[this.contentsOffset++] = (byte) memberValuePairsLength;
 				loop: for (int i = 0; i < memberValuePairsLength; i++) {
 					MemberValuePair memberValuePair = memberValuePairs[i];
 					if (this.contentsOffset + 2 >= this.contents.length) {
@@ -2337,7 +2340,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					this.contents[this.contentsOffset++] = (byte) elementNameIndex;
 					MethodBinding methodBinding = memberValuePair.binding;
 					if (methodBinding == null) {
-						this.contentsOffset = startingContentsOffset;
+						this.contentsOffset = resetPosition;
 					} else {
 						try {
 							generateElementValue(memberValuePair.value, methodBinding.returnType, memberValuePairOffset);
@@ -2347,13 +2350,17 @@ public class ClassFile implements TypeConstants, TypeIds {
 								this.contents[this.contentsOffset++] = 0;
 								break loop;
 							}
+							memberValuePairsCount++;
+							resetPosition = this.contentsOffset;
 						} catch(ClassCastException e) {
-							this.contentsOffset = startingContentsOffset;
+							this.contentsOffset = resetPosition;
 						} catch(ShouldNotImplement e) {
-							this.contentsOffset = startingContentsOffset;
+							this.contentsOffset = resetPosition;
 						}
 					}
 				}
+				this.contents[memberValuePairsLengthPosition++] = (byte) (memberValuePairsCount >> 8);
+				this.contents[memberValuePairsLengthPosition++] = (byte) memberValuePairsCount;
 			} else {
 				this.contents[this.contentsOffset++] = 0;
 				this.contents[this.contentsOffset++] = 0;
