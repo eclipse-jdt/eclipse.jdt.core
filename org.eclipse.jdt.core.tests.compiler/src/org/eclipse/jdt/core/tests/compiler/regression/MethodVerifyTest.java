@@ -14079,4 +14079,39 @@ public void testBug426546() {
 		},
 		"CCC");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=438812, Missing bridge methods in indirect child classes with ECJ 3.10.0
+public void testBug438812() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"import java.util.Collection;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public interface A {\n" + 
+			"    Iterable getIterable();\n" + 
+			"}\n" + 
+			"\n" + 
+			"class B implements A {\n" + 
+			"    public Collection getIterable() { return null; }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class C extends B {\n" + 
+			"    public List getIterable() { return null; }\n" + 
+			"}",
+		},
+		"");
+	String expectedOutput = "  public bridge synthetic java.lang.Iterable getIterable();";
+
+	File f = new File(OUTPUT_DIR + File.separator + "C.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
 }
