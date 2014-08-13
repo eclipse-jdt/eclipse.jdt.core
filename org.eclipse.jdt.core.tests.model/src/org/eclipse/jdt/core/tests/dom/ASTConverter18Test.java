@@ -4876,4 +4876,32 @@ public void testBug435348() throws JavaModelException {
 	buildAST(contents, this.workingCopy, false);
 }
 
+public void testBug432614() throws JavaModelException {
+	this.workingCopy = getWorkingCopy("/Converter18/src/testBug432614/X.java", true);
+	String contents = "package testBug432614;\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"public class X {\n" +
+			"	FI fi1= (@T2 int i) -> {};\n" +
+			"}\n" +
+			"interface FI {\n" +
+			"	void foo(@T1 int iii);\n" +
+			"}\n" +
+			"@Target(ElementType.TYPE_USE) @interface T1 {}\n" +
+			"@Target(ElementType.TYPE_USE) @interface T2 {}";
+	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
+	FieldDeclaration fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(0);
+	VariableDeclarationFragment fragment = (VariableDeclarationFragment)fieldDeclaration.fragments().get(0);
+	Expression expression = fragment.getInitializer();
+	assertTrue(expression instanceof LambdaExpression);
+	LambdaExpression lambdaExpression = (LambdaExpression)expression;
+	assertEquals("(@T2 int i) -> {\n}\n", lambdaExpression.toString());
+	assertTrue(lambdaExpression.parameters().size() == 1);
+	IMethodBinding binding = lambdaExpression.resolveMethodBinding();
+	ITypeBinding[] params = binding.getParameterTypes();
+	assertEquals("Incorrect no of parameters", 1, params.length);
+	ITypeBinding thatParam = params[0];
+	assertEquals("Incorrect param", "@T2 int", thatParam.toString());
+}
 }

@@ -1197,9 +1197,16 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	public MethodBinding getMethodBinding() {
 		if (this.actualMethodBinding == null) {
 			if (this.binding != null) {
-				this.actualMethodBinding = new MethodBinding(this.binding.modifiers, this.binding.selector, this.binding.returnType, 
-						this.binding instanceof SyntheticMethodBinding ? this.descriptor.parameters : this.binding.parameters,  // retain any faults in parameter list.
-								this.binding.thrownExceptions, this.binding.declaringClass);
+				// Get rid of the synthetic arguments added via addSyntheticArgument()
+				TypeBinding[] newParams = null;
+				if (this.binding instanceof SyntheticMethodBinding && this.outerLocalVariables.length > 0) {
+					newParams = new TypeBinding[this.binding.parameters.length - this.outerLocalVariables.length];
+					System.arraycopy(this.binding.parameters, this.outerLocalVariables.length, newParams, 0, newParams.length);
+				} else {
+					newParams = this.binding.parameters;
+				}
+				this.actualMethodBinding = new MethodBinding(this.binding.modifiers, this.binding.selector,
+						this.binding.returnType, newParams, this.binding.thrownExceptions, this.binding.declaringClass);
 				this.actualMethodBinding.tagBits = this.binding.tagBits;
 			} else {
 				this.actualMethodBinding = new ProblemMethodBinding(CharOperation.NO_CHAR, null, ProblemReasons.NoSuchSingleAbstractMethod);
