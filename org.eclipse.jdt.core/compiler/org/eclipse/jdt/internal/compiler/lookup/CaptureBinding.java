@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contribution for
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 429384 - [1.8][null] implement conformance rules for null-annotated lower / upper type bounds
+ *								Bug 441797 - [1.8] synchronize type annotations on capture and its wildcard
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -38,7 +39,15 @@ public class CaptureBinding extends TypeVariableBinding {
 		this.captureID = captureID;
 		this.tagBits |= TagBits.HasCapturedWildcard;
 		if (wildcard.hasTypeAnnotations()) {
-			setTypeAnnotations(wildcard.getTypeAnnotations(), wildcard.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
+			// register an unannoted version before adding the annotated wildcard:
+			CaptureBinding unannotated = (CaptureBinding) clone(null);
+			unannotated.wildcard = (WildcardBinding) this.wildcard.unannotated();
+			this.environment.getUnannotatedType(unannotated);
+			this.id = unannotated.id; // transfer fresh id
+			// now register this annotated type:
+			this.environment.typeSystem.cacheDerivedType(this, unannotated, this);
+			// propagate from wildcard to capture - use super version, because our own method propagates type annotations in the opposite direction:
+			super.setTypeAnnotations(wildcard.getTypeAnnotations(), wildcard.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
 			if (wildcard.hasNullTypeAnnotations())
 				this.tagBits |= TagBits.HasNullTypeAnnotation;
 		}
@@ -295,7 +304,7 @@ public class CaptureBinding extends TypeVariableBinding {
 			try {
 				if (this.wildcard != null) {
 					nameBuffer.append("of "); //$NON-NLS-1$
-					nameBuffer.append(this.wildcard.nullAnnotatedReadableName(options, shortNames));
+					nameBuffer.append(this.wildcard.withoutToplevelNullAnnotation().nullAnnotatedReadableName(options, shortNames));
 				} else if (this.lowerBound != null) {
 					nameBuffer.append(" super "); //$NON-NLS-1$
 					nameBuffer.append(this.lowerBound.nullAnnotatedReadableName(options, shortNames));
@@ -314,6 +323,39 @@ public class CaptureBinding extends TypeVariableBinding {
 		char[] readableName = new char[nameLength];
 		nameBuffer.getChars(0, nameLength, readableName, 0);
 	    return readableName;
+	}
+
+	@Override
+	public TypeBinding withoutToplevelNullAnnotation() {
+		if (!hasNullTypeAnnotations())
+			return this;
+		if (this.wildcard != null && this.wildcard.hasNullTypeAnnotations()) {
+			WildcardBinding newWildcard = (WildcardBinding) this.wildcard.withoutToplevelNullAnnotation();
+			if (newWildcard != this.wildcard) { //$IDENTITY-COMPARISON$	
+				
+				CaptureBinding newCapture = (CaptureBinding) this.environment.getUnannotatedType(this).clone(null);
+				if (newWildcard.hasTypeAnnotations())
+					newCapture.tagBits |= TagBits.HasTypeAnnotations;
+				newCapture.wildcard = newWildcard;
+				
+				// manually transfer the following two, because we are not in a context where we can call initializeBounds():
+				newCapture.superclass = this.superclass;
+				newCapture.superInterfaces = this.superInterfaces;
+
+				AnnotationBinding[] newAnnotations = this.environment.filterNullTypeAnnotations(this.typeAnnotations);
+				return this.environment.createAnnotatedType(newCapture, newAnnotations);
+			}
+		}
+		return super.withoutToplevelNullAnnotation();
+	}
+
+	@Override
+	public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
+		super.setTypeAnnotations(annotations, evalNullAnnotations);
+		if (annotations != Binding.NO_ANNOTATIONS && this.wildcard != null) {
+			// keep annotations in sync, propagate from capture to its wildcard:
+			this.wildcard = (WildcardBinding) this.wildcard.environment.createAnnotatedType(this.wildcard, annotations);
+		}
 	}
 
 	@Override

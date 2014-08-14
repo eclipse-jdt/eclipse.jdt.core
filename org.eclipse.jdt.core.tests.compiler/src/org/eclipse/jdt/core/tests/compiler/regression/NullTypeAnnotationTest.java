@@ -3969,7 +3969,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. ERROR in X.java (at line 17)\n" + 
 			"	getAdd(lx);\n" + 
 			"	       ^^\n" + 
-			"Contradictory null annotations: method was inferred as \'void getAdd(List<@NonNull @Nullable capture#of @Nullable ? extends X>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+			"Null type mismatch (type annotations): required \'List<@NonNull capture#of ? extends X>\' but this expression has type \'List<@Nullable capture#of ? extends X>\'\n" + 
 			"----------\n");		
 	}
 	public void testLocalArrays() {
@@ -6418,7 +6418,7 @@ public void testBug441693() {
 		"");
 }
 public void testBug441693other() {
-	runConformTestWithLibs(
+	runNegativeTestWithLibs(
 		new String[] {
 			"Foo.java",
 			"import org.eclipse.jdt.annotation.NonNull;\n" + 
@@ -6439,12 +6439,17 @@ public void testBug441693other() {
 			"    @NonNull Foo testWild1(@Nullable List<? extends @NonNull Foo> foos) {\n" +
 			"        return requireNonNull(foos).get(0);\n" +
 			"    }\n" + 
-//			"    @NonNull Foo testWild2(@Nullable List<@Nullable ? extends List<@NonNull Foo>> foos) {\n" +
-//			"        return requireNonNull(foos.get(0)).get(0);\n" +
-//			"    }\n" + 
+			"    @NonNull Foo testWild2(@Nullable List<@Nullable ? extends List<@NonNull Foo>> foos) {\n" +
+			"        return requireNonNull(foos.get(0)).get(0);\n" +
+			"    }\n" + 
 			"}\n"
 		},
 		getCompilerOptions(),
-		"");
+		"----------\n" + 
+		"1. ERROR in Foo.java (at line 20)\n" + 
+		"	return requireNonNull(foos.get(0)).get(0);\n" + 
+		"	                      ^^^^\n" + 
+		"Potential null pointer access: this expression has a \'@Nullable\' type\n" + 
+		"----------\n");
 }
 }
