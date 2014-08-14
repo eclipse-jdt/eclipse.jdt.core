@@ -26,7 +26,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testNullTypeInference3b" };
+//			TESTS_NAMES = new String[] { "testBug441693other" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -6389,6 +6389,59 @@ public void testBug435841() {
 			"		String @NonNull[] nonnull = new String[0];\n" + 
 			"		return nonnull;  // Compiler error: required 'String @Nullable[]' but this expression has type 'String @NonNull[]'\n" + 
 			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug441693() {
+	runConformTestWithLibs(
+		new String[] {
+			"Foo.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"@NonNullByDefault({})\n" + 
+			"public abstract class Foo {\n" + 
+			"    \n" + 
+			"    abstract <T> @NonNull T requireNonNull(@Nullable T obj);\n" + 
+			"    \n" + 
+			"    @NonNull Iterable<@NonNull String> iterable;\n" + 
+			"    \n" + 
+			"    Foo(@Nullable Iterable<@NonNull String> iterable) {\n" + 
+			"        this.iterable = requireNonNull(iterable); // (*)\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug441693other() {
+	runConformTestWithLibs(
+		new String[] {
+			"Foo.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"import java.util.*;\n" + 
+			"\n" + 
+			"@NonNullByDefault({})\n" + 
+			"public abstract class Foo {\n" + 
+			"    \n" + 
+			"    abstract <T> @NonNull T requireNonNull(@Nullable T obj);\n" + 
+			"    \n" + 
+			"    @NonNull String @NonNull[] array;\n" + 
+			"    \n" + 
+			"    Foo(@NonNull String @Nullable[] arr) {\n" + 
+			"        this.array = requireNonNull(arr); // (*)\n" + 
+			"    }\n" +
+			"    @NonNull Foo testWild1(@Nullable List<? extends @NonNull Foo> foos) {\n" +
+			"        return requireNonNull(foos).get(0);\n" +
+			"    }\n" + 
+//			"    @NonNull Foo testWild2(@Nullable List<@Nullable ? extends List<@NonNull Foo>> foos) {\n" +
+//			"        return requireNonNull(foos.get(0)).get(0);\n" +
+//			"    }\n" + 
 			"}\n"
 		},
 		getCompilerOptions(),

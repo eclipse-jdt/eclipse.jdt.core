@@ -26,6 +26,7 @@
  *								Bug 435962 - [RC2] StackOverFlowError when building
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
+ *								Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -1402,17 +1403,24 @@ public TypeBinding original() {
 		case Binding.PARAMETERIZED_TYPE :
 		case Binding.RAW_TYPE :
 		case Binding.ARRAY_TYPE :
-			return erasure().unannotated(false);
+			return erasure().unannotated();
 		default :
-			return this.unannotated(false);
+			return this.unannotated();
 	}
 }
 
 /** 
  * Return this type minus its type annotations
- * @param removeOnlyNullAnnotations if true only null type annotations are removed, otherwise all type annotations.
  */
-public TypeBinding unannotated(boolean removeOnlyNullAnnotations) {
+public TypeBinding unannotated() {
+	return this;
+}
+
+/**
+ * Return this type minus its toplevel null annotations. Any annotations on type arguments or
+ * bounds are retained. 
+ */
+public TypeBinding withoutToplevelNullAnnotation() {
 	return this;
 }
 

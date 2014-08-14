@@ -27,7 +27,7 @@ public class NullTypeBinding extends BaseTypeBinding {
 		return; // reject misguided attempt.
 	}
 	
-	public TypeBinding unannotated(boolean removeOnlyNullAnnotations) {
+	public TypeBinding unannotated() {
 		return this;
 	}
 }

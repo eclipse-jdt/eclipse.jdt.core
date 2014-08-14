@@ -14,6 +14,7 @@
  *							Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *							Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
  *							Bug 440462 - [null][compiler]NPE in EJC for erroneous null annotations
+ *							Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -77,7 +78,7 @@ public class Wildcard extends SingleTypeReference {
 			if (((boundType.tagBits | this.resolvedType.tagBits) & TagBits.AnnotationNullMASK) == TagBits.AnnotationNullMASK) { // are both set?
 				Annotation annotation = this.bound.findAnnotation(boundType.tagBits & TagBits.AnnotationNullMASK);
 				if (annotation == null) { // false alarm, implicit annotation is no conflict, but should be removed:
-					TypeBinding newBound = boundType.unannotated(true);
+					TypeBinding newBound = boundType.withoutToplevelNullAnnotation();
 					((WildcardBinding)this.resolvedType).bound = newBound;
 					this.bound.resolvedType = newBound;
 				} else {

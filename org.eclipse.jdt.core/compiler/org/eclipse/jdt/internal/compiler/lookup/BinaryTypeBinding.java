@@ -29,6 +29,7 @@
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *								Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
  *								Bug 434602 - Possible error with inferred null annotations leading to contradictory null annotations
+ *								Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
  *    Jesper Steen Moller - Contributions for
  *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -1920,17 +1921,17 @@ public String toString() {
 	return buffer.toString();
 }
 
-public TypeBinding unannotated(boolean removeOnlyNullAnnotations) {
-	if (removeOnlyNullAnnotations) {
-		if (!hasNullTypeAnnotations())
-			return this;
-		AnnotationBinding[] newAnnotations = this.environment.filterNullTypeAnnotations(this.typeAnnotations);
-		if (newAnnotations.length > 0)
-			return this.environment.createAnnotatedType(this.prototype, newAnnotations);
-	}
+public TypeBinding unannotated() {
 	return this.prototype;
 }
-
+public TypeBinding withoutToplevelNullAnnotation() {
+	if (!hasNullTypeAnnotations())
+		return this;
+	AnnotationBinding[] newAnnotations = this.environment.filterNullTypeAnnotations(this.typeAnnotations);
+	if (newAnnotations.length > 0)
+		return this.environment.createAnnotatedType(this.prototype, newAnnotations);
+	return this.prototype;
+}
 MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't resolve types
 	
 	if (!isPrototype())

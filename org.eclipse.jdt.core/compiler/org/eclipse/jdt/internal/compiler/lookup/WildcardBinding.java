@@ -20,6 +20,7 @@
  *								Bug 435962 - [RC2] StackOverFlowError when building
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
+ *								Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -885,24 +886,16 @@ public class WildcardBinding extends ReferenceBinding {
 		return this.typeVariable;
 	}
 
-	public TypeBinding unannotated(boolean removeOnlyNullAnnotations) {
-		if (!hasTypeAnnotations())
+	public TypeBinding unannotated() {
+		return this.hasTypeAnnotations() ? this.environment.getUnannotatedType(this) : this;
+	}
+
+	@Override
+	public TypeBinding withoutToplevelNullAnnotation() {
+		if (!hasNullTypeAnnotations())
 			return this;
-		if (removeOnlyNullAnnotations && !hasNullTypeAnnotations())
-			return this;
-		ReferenceBinding unannotatedGenericType = (ReferenceBinding) this.genericType.unannotated(removeOnlyNullAnnotations);
-		if (removeOnlyNullAnnotations) {
-			// cf. structure of uncapture():
-			TypeBinding unannotatedBound = this.bound != null ? this.bound.unannotated(removeOnlyNullAnnotations) : null;
-			int length = 0;
-			TypeBinding [] unannotatedOtherBounds = this.otherBounds == null ? null : new TypeBinding[length = this.otherBounds.length];
-			for (int i = 0; i < length; i++) {
-				unannotatedOtherBounds[i] = this.otherBounds[i] == null ? null : this.otherBounds[i].unannotated(removeOnlyNullAnnotations);
-			}
-			AnnotationBinding[] newAnnotations = this.environment.filterNullTypeAnnotations(getTypeAnnotations());
-			return this.environment.createWildcard(unannotatedGenericType, this.rank, unannotatedBound, unannotatedOtherBounds, this.boundKind, newAnnotations);			
-		}
-		return unannotatedGenericType;
+		AnnotationBinding[] newAnnotations = this.environment.filterNullTypeAnnotations(getTypeAnnotations());
+		return this.environment.createWildcard(this.genericType, this.rank, this.bound, this.otherBounds, this.boundKind, newAnnotations);			
 	}
 	@Override
 	public TypeBinding uncapture(Scope scope) {

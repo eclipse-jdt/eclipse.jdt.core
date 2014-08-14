@@ -22,6 +22,7 @@
  *								Bug 428019 - [1.8][compiler] Type inference failure with nested generic invocation.
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
+ *								Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -453,17 +454,15 @@ public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceB
 public String toString() {
 	return this.leafComponentType != null ? debugName() : "NULL TYPE ARRAY"; //$NON-NLS-1$
 }
-public TypeBinding unannotated(boolean removeOnlyNullAnnotations) {
-	if (!hasTypeAnnotations())
+public TypeBinding unannotated() {
+	return this.hasTypeAnnotations() ? this.environment.getUnannotatedType(this) : this;
+}
+@Override
+public TypeBinding withoutToplevelNullAnnotation() {
+	if (!hasNullTypeAnnotations())
 		return this;
-	if (removeOnlyNullAnnotations) {
-		if (!hasNullTypeAnnotations())
-			return this;
-		AnnotationBinding[] newAnnotations = this.environment.filterNullTypeAnnotations(this.typeAnnotations);
-		if (newAnnotations.length > 0)
-			return this.environment.createArrayType(this.leafComponentType.unannotated(false), this.dimensions, newAnnotations);
-	}
-	return this.environment.getUnannotatedType(this);
+	AnnotationBinding[] newAnnotations = this.environment.filterNullTypeAnnotations(this.typeAnnotations);
+	return this.environment.createArrayType(this.leafComponentType, this.dimensions, newAnnotations);
 }
 @Override
 public TypeBinding uncapture(Scope scope) {

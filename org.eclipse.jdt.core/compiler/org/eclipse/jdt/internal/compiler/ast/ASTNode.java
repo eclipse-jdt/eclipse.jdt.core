@@ -30,6 +30,7 @@
  *								Bug 427163 - [1.8][null] bogus error "Contradictory null specification" on varags
  *								Bug 432348 - [1.8] Internal compiler error (NPE) after upgrade to 1.8
  *								Bug 440143 - [1.8][null] one more case of contradictory null annotations regarding type variables
+ *								Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
  *     Jesper S Moller - Contributions for
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -1114,7 +1115,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		if (se8nullBits != 0 && prevNullBits != se8nullBits && ((prevNullBits | se8nullBits) == TagBits.AnnotationNullMASK)) {
 			if (existingType instanceof TypeVariableBinding) {
 				// let type-use annotations override annotations on the type parameter declaration
-				existingType = existingType.unannotated(true);
+				existingType = existingType.withoutToplevelNullAnnotation();
 			} else {
 				scope.problemReporter().contradictoryNullAnnotations(se8NullAnnotation);
 			}

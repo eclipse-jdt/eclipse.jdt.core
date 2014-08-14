@@ -14,6 +14,7 @@
  *								Bug 423504 - [1.8] Implement "18.5.3 Functional Interface Parameterization Inference"
  *								Bug 425783 - An internal error occurred during: "Requesting Java AST from selection". java.lang.StackOverflowError
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
+ *								Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -80,20 +81,13 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		return new RawTypeBinding(this.actualType(), (ReferenceBinding) outerType, this.environment);
 	}
 
-	public TypeBinding unannotated(boolean removeOnlyNullAnnotations) {
-		if (!hasTypeAnnotations())
+	@Override
+	public TypeBinding withoutToplevelNullAnnotation() {
+		if (!hasNullTypeAnnotations())
 			return this;
-		if (removeOnlyNullAnnotations && !hasNullTypeAnnotations())
-			return this;
-		if (removeOnlyNullAnnotations) {
-			ReferenceBinding unannotatedGenericType = (ReferenceBinding) this.environment.getUnannotatedType(this.genericType());
-			AnnotationBinding[] newAnnotations = this.environment.filterNullTypeAnnotations(this.typeAnnotations);
-			ReferenceBinding newEnclosing = null;
-			if (this.enclosingType() != null)
-				newEnclosing = (ReferenceBinding)this.enclosingType().unannotated(removeOnlyNullAnnotations);
-			return this.environment.createRawType(unannotatedGenericType, newEnclosing, newAnnotations);
-		}
-		return this.environment.getUnannotatedType(this);
+		ReferenceBinding unannotatedGenericType = (ReferenceBinding) this.environment.getUnannotatedType(this.genericType());
+		AnnotationBinding[] newAnnotations = this.environment.filterNullTypeAnnotations(this.typeAnnotations);
+		return this.environment.createRawType(unannotatedGenericType, this.enclosingType(), newAnnotations);
 	}
 
 	/**

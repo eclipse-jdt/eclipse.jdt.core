@@ -173,7 +173,7 @@ public class BaseTypeBinding extends TypeBinding {
 		super.setTypeAnnotations(annotations, false); // never set nullTagBits on base types
 	}
 
-	public TypeBinding unannotated(boolean removeOnlyNullAnnotations) {
+	public TypeBinding unannotated() {
 		if (!this.hasTypeAnnotations())
 			return this;
 		switch (this.id) {

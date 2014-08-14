@@ -28,6 +28,7 @@
  *								Bug 438179 - [1.8][null] 'Contradictory null annotations' error on type variable with explicit null-annotation.
  *								Bug 440143 - [1.8][null] one more case of contradictory null annotations regarding type variables
  *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
+ *								Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -787,18 +788,18 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    return readableName;
 	}
 
-	public TypeBinding unannotated(boolean removeOnlyNullAnnotations) {
-		if (!hasTypeAnnotations())
-			return this;
-		if (removeOnlyNullAnnotations && !hasNullTypeAnnotations())
+	public TypeBinding unannotated() {
+		return this.hasTypeAnnotations() ? this.environment.getUnannotatedType(this) : this;
+	}
+
+	@Override
+	public TypeBinding withoutToplevelNullAnnotation() {
+		if (!hasNullTypeAnnotations())
 			return this;
 		TypeBinding unannotated = this.environment.getUnannotatedType(this);
-		if (removeOnlyNullAnnotations) {
-			AnnotationBinding[] newAnnotations = this.environment.filterNullTypeAnnotations(this.typeAnnotations);
-			if (newAnnotations.length > 0)
-				return this.environment.createAnnotatedType(unannotated, newAnnotations);
-			// FIXME: selectively keep type annotations on bounds
-		}
+		AnnotationBinding[] newAnnotations = this.environment.filterNullTypeAnnotations(this.typeAnnotations);
+		if (newAnnotations.length > 0)
+			return this.environment.createAnnotatedType(unannotated, newAnnotations);
 		return unannotated; 
 	}
 	/**
@@ -852,7 +853,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 			this.tagBits &= ~TagBits.AnnotationNullMASK;
 		} else {
 			// implicit annotation: let the new one override
-			return boundType.unannotated(true);
+			return boundType.withoutToplevelNullAnnotation();
 		}
 		return boundType;
 	}
@@ -919,7 +920,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 			// may need to merge annotations from the original variable and from substitution:
 			if (hasRelevantTypeUseNullAnnotations()) {
 				// explicit type use null annotation overrides any annots on type parameter and concrete type arguments
-				substitute = substitute.unannotated(true);
+				substitute = substitute.withoutToplevelNullAnnotation();
 			}
 			if (this.typeAnnotations != Binding.NO_ANNOTATIONS)
 				return this.environment.createAnnotatedType(substitute, this.typeAnnotations);

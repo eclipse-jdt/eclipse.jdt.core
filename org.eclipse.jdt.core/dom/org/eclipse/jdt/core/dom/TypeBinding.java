@@ -468,7 +468,7 @@ class TypeBinding implements ITypeBinding {
 	public ITypeBinding getTypeDeclaration() {
 		if (this.binding instanceof ParameterizedTypeBinding)
 			return this.resolver.getTypeBinding(((ParameterizedTypeBinding)this.binding).genericType());
-		return this.resolver.getTypeBinding(this.binding.unannotated(false));
+		return this.resolver.getTypeBinding(this.binding.unannotated());
 	}
 	
 	/* (non-Javadoc)
@@ -1132,7 +1132,7 @@ class TypeBinding implements ITypeBinding {
 			return false;
 		}
 		org.eclipse.jdt.internal.compiler.lookup.TypeBinding otherBinding = ((TypeBinding) other).binding;
-		if (org.eclipse.jdt.internal.compiler.lookup.TypeBinding.equalsEquals(otherBinding.unannotated(false), this.binding.unannotated(false))) {
+		if (org.eclipse.jdt.internal.compiler.lookup.TypeBinding.equalsEquals(otherBinding.unannotated(), this.binding.unannotated())) {
 			return true;
 		}
 		// check return type
