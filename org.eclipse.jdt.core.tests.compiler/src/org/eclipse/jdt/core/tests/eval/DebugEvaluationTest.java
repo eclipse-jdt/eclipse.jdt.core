@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -574,9 +574,27 @@ public void test012() throws Exception {
 	DebugRequestor requestor = new DebugRequestor();
 	char[] snippet = "date = new java.util.Date();".toCharArray();
 	evaluate(stackFrame, requestor, snippet);
+	EvaluationResult[] results = requestor.results;
+	System.out.println("\nDebugEvaluationTests:test012: Results (1):");
+	for(int i = 0; i < results.length; i++) {
+		EvaluationResult r = results[i];
+		if (r == null) continue;
+		System.out.println("\t[" + i + "] Evaluation Type: "+ r.getEvaluationType() + 
+				" Value Type: " + new String(r.getValueTypeName()) + 
+				" Value: " + new String(r.getValueDisplayString()));
+	}
 	requestor = new DebugRequestor();
 	snippet = "return date.after(cal.getGregorianChange());".toCharArray();
 	evaluate(stackFrame, requestor, snippet);
+	results = requestor.results;
+	System.out.println("\nDebugEvaluationTests:test012: Results (2):");
+	for(int i = 0; i < results.length; i++) {
+		EvaluationResult r = results[i];
+		if (r == null) continue;
+		System.out.println("\t[" + i + "] Evaluation Type: "+ r.getEvaluationType() + 
+				" Value Type: " + new String(r.getValueTypeName()) + 
+				" Value: " + new String(r.getValueDisplayString()));
+	}
 	assertTrue("Should get one result but got " + requestor.resultIndex+1, requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
 	assertTrue("Code snippet should not have problems", !result.hasProblems());
