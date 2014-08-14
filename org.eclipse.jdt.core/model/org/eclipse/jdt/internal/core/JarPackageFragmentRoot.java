@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Terry Parker <tparker@google.com> - Bug 441726 - JDT performance regression due to bug 410207
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -59,12 +60,20 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 * does not have an associated <code>IResource</code>.
 	 */
 	protected JarPackageFragmentRoot(IPath externalJarPath, JavaProject project) {
+		this(null, project, Util.getJdkLevel(JavaModel.getTarget(externalJarPath, true)));
+	}
+
+	/**
+	 * Constructs a package fragment root which is the root of the Java package directory hierarchy
+	 * based on a JAR file that is not contained in a <code>IJavaProject</code> and
+	 * does not have an associated <code>IResource</code>.
+	 */
+	public JarPackageFragmentRoot(IPath externalJarPath, JavaProject project, long complianceLevel) {
 		super(null, project);
 		this.jarPath = externalJarPath;
-		Object file = JavaModel.getTarget(getPath(), true);
-		long level = Util.getJdkLevel(file);
-		this.complianceLevel = CompilerOptions.versionFromJdkLevel(level);
+		this.complianceLevel = CompilerOptions.versionFromJdkLevel(complianceLevel);
 	}
+
 	/**
 	 * Constructs a package fragment root which is the root of the Java package directory hierarchy
 	 * based on a JAR file.

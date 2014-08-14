@@ -10,6 +10,7 @@
  *     Terry Parker <tparker@google.com> - DeltaProcessor exhibits O(N^2) behavior, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=354332
  *     Terry Parker <tparker@google.com> - DeltaProcessor misses state changes in archive files, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=357425
  *     Terry Parker <tparker@google.com> - [performance] Low hit rates in JavaModel caches - https://bugs.eclipse.org/421165
+ *     Terry Parker <tparker@google.com> - Bug 441726 - JDT performance regression due to bug 410207
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -988,8 +989,9 @@ public class DeltaProcessor {
 							if (this.state.getExternalLibTimeStamps().remove(entryPath) != null /* file was known*/
 									&& this.state.roots.get(entryPath) != null /* and it was on the classpath*/) {
 								externalArchivesStatus.put(entryPath, EXTERNAL_JAR_REMOVED);
-								// the jar was physically removed: remove the index
+								// the jar was physically removed: remove the index and from the language level cache
 								this.manager.indexManager.removeIndex(entryPath);
+								this.manager.removeFromLanguageLevelsCache(entryPath);
 							}
 
 						} else if (targetLibrary instanceof File){ // external JAR
@@ -1004,12 +1006,15 @@ public class DeltaProcessor {
 								if (newTimeStamp == 0){ // file doesn't exist
 									externalArchivesStatus.put(entryPath, EXTERNAL_JAR_REMOVED);
 									this.state.getExternalLibTimeStamps().remove(entryPath);
-									// remove the index
+									// remove the index and from the language level cache
 									this.manager.indexManager.removeIndex(entryPath);
+									this.manager.removeFromLanguageLevelsCache(entryPath);
 
 								} else if (oldTimestamp.longValue() != newTimeStamp){
 									externalArchivesStatus.put(entryPath, EXTERNAL_JAR_CHANGED);
 									this.state.getExternalLibTimeStamps().put(entryPath, new Long(newTimeStamp));
+									// remove from the language level cache so it can be recalculated
+									this.manager.removeFromLanguageLevelsCache(entryPath);
 									// first remove the index so that it is forced to be re-indexed
 									this.manager.indexManager.removeIndex(entryPath);
 									// then index the jar

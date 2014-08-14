@@ -14,6 +14,7 @@
  *     Terry Parker <tparker@google.com> - DeltaProcessor misses state changes in archive files, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=357425
  *     Thirumala Reddy Mutchukota <thirumala@google.com> - Contribution to bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=411423
  *     Terry Parker <tparker@google.com> - [performance] Low hit rates in JavaModel caches - https://bugs.eclipse.org/421165
+ *     Terry Parker <tparker@google.com> - Bug 441726 - JDT performance regression due to bug 410207
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -93,6 +94,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String INVALID_ARCHIVES_CACHE = "invalidArchivesCache";  //$NON-NLS-1$
 	private static final String EXTERNAL_FILES_CACHE = "externalFilesCache";  //$NON-NLS-1$
 	private static final String ASSUMED_EXTERNAL_FILES_CACHE = "assumedExternalFilesCache";  //$NON-NLS-1$
+	private static final String JAR_LANGUAGE_LEVEL_CACHE = "jarLanguageLevelCache";  //$NON-NLS-1$
 
 	/**
 	 * Define a zip cache object.
@@ -1462,6 +1464,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	private Set assumedExternalFiles;
 
+	/*
+	 * A map of jar IPaths to the language level of each jar.
+	 */
+	private Map<IPath, Long> jarLanguageLevels;
+
 	/**
 	 * Update the classpath variable cache
 	 */
@@ -1598,6 +1605,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.invalidArchives = loadClasspathListCache(INVALID_ARCHIVES_CACHE);
 			this.externalFiles = loadClasspathListCache(EXTERNAL_FILES_CACHE);
 			this.assumedExternalFiles = loadClasspathListCache(ASSUMED_EXTERNAL_FILES_CACHE);
+			this.jarLanguageLevels = loadJarLanguageLevelsCache();
 			String includeContainerReferencedLib = System.getProperty(RESOLVE_REFERENCED_LIBRARIES_FOR_CONTAINERS);
 			this.resolveReferencedLibrariesForContainers = TRUE.equalsIgnoreCase(includeContainerReferencedLib);
 		}
@@ -1637,6 +1645,38 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 		if(this.externalFiles != null) {
 			this.externalFiles.add(path);
+		}
+	}
+
+	/**
+	 * Returns a language level for a jar or {@code null} if the jar's language level isn't cached.
+	 */
+	public Long getJarLanguageLevel(IPath path) {
+		if (this.jarLanguageLevels != null) {
+			return this.jarLanguageLevels.get(path);
+		}
+		return null;
+	}
+
+	/**
+	 * Adds a jar to the language levels cache.
+	 */
+	public void addToJarLanguageLevelsCache(IPath path, Long languageLevel) {
+		// unlikely to be null
+		if (this.jarLanguageLevels == null) {
+			this.jarLanguageLevels = Collections.synchronizedMap(new HashMap());
+		}
+		if (this.jarLanguageLevels != null) {
+			this.jarLanguageLevels.put(path, languageLevel);
+		}
+	}
+
+	/**
+	 * Removes a jar from the language levels cache.
+	 */
+	public void removeFromLanguageLevelsCache(IPath path) {
+		if (this.jarLanguageLevels != null) {
+			this.jarLanguageLevels.remove(path);
 		}
 	}
 
@@ -3186,7 +3226,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	
 	private Set loadClasspathListCache(String cacheName) {
 		Set pathCache = new HashSet();
-		File cacheFile = getClasspathListFile(cacheName);
+		File cacheFile = getClasspathCacheFile(cacheName);
 		DataInputStream in = null;
 		try {
 			in = new DataInputStream(new BufferedInputStream(new FileInputStream(cacheFile)));
@@ -3209,11 +3249,67 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 		return Collections.synchronizedSet(pathCache);
 	}
-	
-	private File getClasspathListFile(String fileName) {
-		return JavaCore.getPlugin().getStateLocation().append(fileName).toFile(); 
+
+	private Map<IPath, Long> loadJarLanguageLevelsCache() {
+		Map<IPath, Long> pathCache = new HashMap<IPath, Long>();
+		File cacheFile = getClasspathCacheFile(JAR_LANGUAGE_LEVEL_CACHE);
+		DataInputStream in = null;
+		try {
+			in = new DataInputStream(new BufferedInputStream(new FileInputStream(cacheFile)));
+			int size = in.readInt();
+			while (size-- > 0) {
+				IPath path = Path.fromPortableString(in.readUTF());
+				long complianceLevel = in.readLong();
+				pathCache.put(path, complianceLevel);
+			}
+		} catch (IOException e) {
+			if (cacheFile.exists())
+				Util.log(e, "Unable to read JavaModelManager " + JAR_LANGUAGE_LEVEL_CACHE + " file"); //$NON-NLS-1$ //$NON-NLS-2$
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					// nothing we can do: ignore
+				}
+			}
+		}
+		return Collections.synchronizedMap(pathCache);
 	}
-	
+
+	private void saveJarLanguageLevelsCache() throws CoreException {
+		File file = getClasspathCacheFile(JAR_LANGUAGE_LEVEL_CACHE);
+		DataOutputStream out = null;
+		try {
+			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+			synchronized (this.jarLanguageLevels) {
+				out.writeInt(this.jarLanguageLevels.size());
+				for (Map.Entry<IPath, Long> entry : this.jarLanguageLevels.entrySet()) {
+					IPath path = entry.getKey();
+					Long level = entry.getValue();
+					out.writeUTF(path.toPortableString());
+					out.writeLong(level);
+				}
+			}
+		} catch (IOException e) {
+			IStatus status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, IStatus.ERROR, "Problems while saving non-chaining jar cache", e); //$NON-NLS-1$
+			throw new CoreException(status);
+		} finally {
+			if (out != null) {
+				try {
+					out.close();
+				} catch (IOException e) {
+					// Attempt to remove the invalid file.
+					file.delete();
+				}
+			}
+		}
+	}
+
+	private File getClasspathCacheFile(String fileName) {
+		return JavaCore.getPlugin().getStateLocation().append(fileName).toFile();
+	}
+
 	private Set getNonChainingJarsCache() throws CoreException {
 		// Even if there is one entry in the cache, just return it. It may not be 
 		// the complete cache, but avoid going through all the projects to populate the cache.
@@ -3994,6 +4090,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.externalFiles.clear();
 		if (this.assumedExternalFiles != null)
 			this.assumedExternalFiles.clear();
+		if (this.jarLanguageLevels != null)
+			this.jarLanguageLevels.clear();
 	}
 
 	/*
@@ -4068,7 +4166,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	private void saveClasspathListCache(String cacheName) throws CoreException {
-		File file = getClasspathListFile(cacheName);
+		File file = getClasspathCacheFile(cacheName);
 		DataOutputStream out = null;
 		try {
 			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
@@ -4344,6 +4442,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				saveClasspathListCache(INVALID_ARCHIVES_CACHE);
 				saveClasspathListCache(EXTERNAL_FILES_CACHE);
 				saveClasspathListCache(ASSUMED_EXTERNAL_FILES_CACHE);
+				saveJarLanguageLevelsCache();
 	
 				// will need delta since this save (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38658)
 				context.needDelta();

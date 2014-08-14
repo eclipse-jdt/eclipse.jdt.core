@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Terry Parker <tparker@google.com> - Bug 441726 - JDT performance regression due to bug 410207
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
@@ -27,6 +28,8 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -217,6 +220,7 @@ class AddJarFileToIndex extends IndexRequest {
 				if ((indexLocation = index.getIndexLocation()) != null) {
 					indexPath = new Path(indexLocation.getCanonicalFilePath());
 				}
+				Long languageLevel = JavaModelManager.getJavaModelManager().getJarLanguageLevel(zipFilePath);
 				for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 					if (this.isCancelled) {
 						if (JobManager.VERBOSE)
@@ -233,6 +237,17 @@ class AddJarFileToIndex extends IndexRequest {
 						final byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
 						JavaSearchDocument entryDocument = new JavaSearchDocument(ze, zipFilePath, classFileBytes, participant);
 						this.manager.indexDocument(entryDocument, participant, index, indexPath);
+						// Update the language level cache value for this jar, since we've already done the expensive IO.
+						if (languageLevel == null) {
+							try {
+								languageLevel = new ClassFileReader(classFileBytes, null).getVersion();
+								JavaModelManager.getJavaModelManager().addToJarLanguageLevelsCache(zipFilePath, languageLevel);
+							} catch (ClassFormatException e1) {
+								// If we have trouble reading a class, stop trying to find this jar's language level.
+								// Set the local languageLevel variable to a dummy value but don't add it to the cache.
+								languageLevel = Long.MIN_VALUE;
+							}
+						}
 					}
 				}
 				if(this.forceIndexUpdate) {
