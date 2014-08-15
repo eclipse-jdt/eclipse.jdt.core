@@ -26,3 +26,4 @@ Bundle-Activator: org.eclipse.jdt.apt.core.internal.AptPlugin
 Bundle-Vendor: %providerName
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
+Import-Package: com.sun.mirror.type

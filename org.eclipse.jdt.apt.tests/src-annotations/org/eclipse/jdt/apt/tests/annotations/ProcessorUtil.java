@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 BEA Systems, Inc.
+ * Copyright (c) 2014 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
+ *    het@google.com - Bug 441790
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.tests.annotations;
@@ -104,6 +105,6 @@ public final class ProcessorUtil
 			return sb.toString();
 		}
 		// boxed primitive or String
-		return value.toString();
+		return v.toString();
 	}
 }

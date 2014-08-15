@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 BEA Systems, Inc.
+ * Copyright (c) 2005, 2014 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,13 +7,17 @@
  *
  * Contributors:
  *    tyeung@bea.com - initial API and implementation
+ *    het@google.com - Bug 441790
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.core.internal.declaration;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.sun.mirror.declaration.AnnotationValue;
+import com.sun.mirror.declaration.EnumConstantDeclaration;
+import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.SourcePosition;
 
 import org.eclipse.core.resources.IFile;
@@ -190,5 +194,36 @@ public class AnnotationValueImpl implements EclipseMirrorObject, AnnotationValue
 		return _env;
 	}
 	
-	public String toString(){ return _value == null ? "" : _value.toString();  } //$NON-NLS-1$
+	public String toString() {
+		if (_value == null) {
+			return "null"; //$NON-NLS-1$
+		} else if (_value instanceof String) {
+			return "\"" + _value + "\""; //$NON-NLS-1$ //$NON-NLS-2$
+		} else if (_value instanceof Character) {
+			return "'" + _value.toString() + "'"; //$NON-NLS-1$ //$NON-NLS-2$
+		} else if (_value instanceof EnumConstantDeclaration) {
+			EnumConstantDeclaration enumDecl = (EnumConstantDeclaration) _value;
+			return enumDecl.getDeclaringType().toString() + "." + enumDecl.getSimpleName(); //$NON-NLS-1$
+		} else if (_value instanceof Collection) {
+			// It must be Collection<AnnotationValue>
+			@SuppressWarnings("unchecked")
+			Collection<AnnotationValue> values = (Collection<AnnotationValue>) _value;
+			StringBuilder sb = new StringBuilder();
+			sb.append('{');
+			boolean first = true;
+			for (AnnotationValue annoValue : values) {
+				if (!first) {
+					sb.append(", "); //$NON-NLS-1$
+				}
+				first = false;
+				sb.append(annoValue.toString());
+			}
+			sb.append('}');
+			return sb.toString();
+		} else if (_value instanceof TypeMirror) {
+			return _value.toString() + ".class"; //$NON-NLS-1$
+		} else {
+			return _value.toString();
+		}
+	}
 }

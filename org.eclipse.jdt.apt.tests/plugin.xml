@@ -82,6 +82,7 @@
 	      <factory class="org.eclipse.jdt.apt.tests.annotations.generic.GenericFactory"/>
 	      <factory class="org.eclipse.jdt.apt.tests.annotations.pause.PauseAnnotationProcessorFactory"/>
 	      <factory class="org.eclipse.jdt.apt.tests.annotations.listener.ListenerAnnotationProcessorFactory"/>
+	      <factory class="org.eclipse.jdt.apt.tests.annotations.annotationvalue.AnnotationValueProcessorFactory"/>
 	   </factories>
    </extension>
 

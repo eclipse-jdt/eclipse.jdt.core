@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 IBM Corporation and others.
+ * Copyright (c) 2005, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,10 +7,12 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     het@google.com - Bug 441790
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -257,9 +259,35 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 
 	@Override
 	public String toString() {
-		if (null == _value) {
+		if (_value == null) {
 			return "null"; //$NON-NLS-1$
+		} else if (_value instanceof String) {
+			return "\"" + _value + "\""; //$NON-NLS-1$ //$NON-NLS-2$
+		} else if (_value instanceof Character) {
+			return "'" + _value.toString() + "'"; //$NON-NLS-1$ //$NON-NLS-2$
+		} else if (_value instanceof VariableElement) {
+			VariableElement enumDecl = (VariableElement) _value;
+			return enumDecl.asType().toString() + "." + enumDecl.getSimpleName(); //$NON-NLS-1$
+		} else if (_value instanceof Collection) {
+			// It must be Collection<AnnotationValue>
+			@SuppressWarnings("unchecked")
+			Collection<AnnotationValue> values = (Collection<AnnotationValue>) _value;
+			StringBuilder sb = new StringBuilder();
+			sb.append('{');
+			boolean first = true;
+			for (AnnotationValue annoValue : values) {
+				if (!first) {
+					sb.append(", "); //$NON-NLS-1$
+				}
+				first = false;
+				sb.append(annoValue.toString());
+			}
+			sb.append('}');
+			return sb.toString();
+		} else if (_value instanceof TypeMirror) {
+			return _value.toString() + ".class"; //$NON-NLS-1$
+		} else {
+			return _value.toString();
 		}
-		return _value.toString();
 	}
 }

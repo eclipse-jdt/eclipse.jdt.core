@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 BEA Systems, Inc. and others 
+ * Copyright (c) 2005, 2014 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    sbandow@bea.com - initial API and implementation
- *    
+ *    het@google.com  - Bug 441790
  *******************************************************************************/
 //TODO AnnotationMirror.ElementValues()
 //TODO AnnotationMirror.getPosition()
@@ -50,7 +50,7 @@ import com.sun.mirror.type.ReferenceType;
 import com.sun.mirror.util.SourcePosition;
 
 public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
-	
+
 	public MirrorDeclarationTestAnnotationProcessor(AnnotationProcessorEnvironment env) {
 		super(env);
 	}
@@ -83,36 +83,36 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 			t.printStackTrace();
 		}
 	}
-	
-	
+
+
 	/**
 	 * Tests for:
 	 * Annotation Mirror
 	 * AnnotationTypeDeclaration
 	 * AnnotationTypeElementDeclaration
 	 * AnnotationValue
-	 * 
+	 *
 	 * @param testClass TypeDeclaration
-	 * 
+	 *
 	 */
 	private void testAnnotationImplementations(TypeDeclaration testClass) {
-		
+
 		//AnnotationMirror tests
 		Collection<AnnotationMirror> annoMirrors = testClass.getAnnotationMirrors();
 		ProcessorTestStatus.assertEquals("Number of annotation mirrors", 1, annoMirrors.size());
-		
+
         AnnotationMirror annoMirror = annoMirrors.iterator().next();
-        ProcessorTestStatus.assertTrue("Annotation mirror contents", annoMirror.toString().startsWith("@MirrorDeclarationTestAnnotation"));
-        
+        ProcessorTestStatus.assertTrue("Annotation mirror contents", annoMirror.toString().startsWith("@org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorDeclarationTestAnnotation"));
+
         AnnotationType annoType = annoMirror.getAnnotationType();
         ProcessorTestStatus.assertTrue("AnnotationType name", annoType.toString().endsWith("mirrortest.MirrorDeclarationTestAnnotation"));
-        
+
 
         //AnnotationTypeDeclaration tests
         AnnotationTypeDeclaration annoTypeDecl = annoType.getDeclaration();
         ProcessorTestStatus.assertEquals("AnnotationTypeDeclaration same as AnnotationType", annoType, annoTypeDecl);
-        
-        
+
+
         //AnnotationTypeElementDeclaration and AnnotationValue tests
         Collection<AnnotationTypeElementDeclaration> elementDeclarations = annoTypeDecl.getMethods();
         ProcessorTestStatus.assertEquals("Number of methods on annotation", 2, elementDeclarations.size());
@@ -124,7 +124,7 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
         		elementString = ated;
                 SourcePosition posAted = ated.getPosition();
                 ProcessorTestStatus.assertTrue("position should be null", posAted == null); // the anno is declared in binary - no AST.
-        	}        		
+        	}
         	if(ated.toString().startsWith("i"))
         		elementInt = ated;
         }
@@ -137,19 +137,19 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
         AnnotationValue valueInt = elementInt.getDefaultValue();
         ProcessorTestStatus.assertEquals("", "bob", valueString.getValue());
         ProcessorTestStatus.assertEquals("", new Integer(3), valueInt.getValue());
-        ProcessorTestStatus.assertEquals("", "bob", valueString.toString());
+        ProcessorTestStatus.assertEquals("", "\"bob\"", valueString.toString());
         ProcessorTestStatus.assertEquals("", "3", valueInt.toString());
 	}
-	
+
 	/**
 	 * Tests for:
 	 * ClassDeclaration
 	 * ConstructorDeclaration
-	 * 
+	 *
 	 * @param testClass
 	 */
 	private void testClassDeclaration(ClassDeclaration testClassDec) {
-			
+
 		//ClassDeclaration tests
 		Collection<ConstructorDeclaration> constructDecls = testClassDec.getConstructors();
 		ProcessorTestStatus.assertEquals("Number of constructors", 2, constructDecls.size());
@@ -164,7 +164,7 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 		}
 		ProcessorTestStatus.assertTrue("constructor with no args", constructNoArg != null);
 		ProcessorTestStatus.assertTrue("constructor with one (int) arg", constructIntArg != null);
-		
+
 		Collection<MethodDeclaration> methodDecls = testClassDec.getMethods();
 		ProcessorTestStatus.assertEquals("Number of methods", 5, methodDecls.size());
 
@@ -174,23 +174,22 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 			annotationMirrors.addAll(mirrors);
 		}
 		ProcessorTestStatus.assertEquals("Wrong size for annotation mirrors", 3, annotationMirrors.size());
-		
+
 		MethodDeclaration methodDecl = methodDecls.iterator().next();
 		ProcessorTestStatus.assertTrue("method declaration exists", methodDecl != null);
-		
+
 		ClassType superClass = testClassDec.getSuperclass();
 		ProcessorTestStatus.assertEquals("Object is only super", "java.lang.Object", superClass.toString());
 	}
-	
+
 	/**
 	 * Tests for:
 	 * EnumConstantDeclaration
-	 * EnumDeclaration 
-	 * 
+	 * EnumDeclaration
+	 *
 	 * @param testClass
 	 */
 	private void testEnumImplementations(TypeDeclaration testClass) {
-		
 		//EnumDeclaration tests
 		Collection<TypeDeclaration> nestedTypes = testClass.getNestedTypes();
 		EnumDeclaration enumDecl = null;
@@ -212,14 +211,13 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 		}
 		ProcessorTestStatus.assertTrue("enum constant \"aardvark\" exists", enumConstAardvark != null);
 		ProcessorTestStatus.assertTrue("enum constant \"anteater\" exists", enumConstAnteater != null);
-		
+
 		//EnumConstantDeclaration tests
 		EnumDeclaration declaringTypeAardvark = enumConstAardvark.getDeclaringType();
 		EnumDeclaration declaringTypeAnteater = enumConstAnteater.getDeclaringType();
 		ProcessorTestStatus.assertEquals("Declaring type is EnumDec", "mirrortestpackage.DeclarationTestClass.EnumDec", declaringTypeAardvark.toString());
 		ProcessorTestStatus.assertEquals("Declaring type is EnumDec", "mirrortestpackage.DeclarationTestClass.EnumDec", declaringTypeAnteater.toString());
-		
-		
+
 		//Modifier tests
 		Modifier[] valuesArray = Modifier.values();
 		int valuesArrayLength = valuesArray.length;
@@ -238,15 +236,14 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 		ProcessorTestStatus.assertEquals("Modifier.VOLATILE", "volatile", Modifier.VOLATILE.toString());
 		ProcessorTestStatus.assertEquals("Modifier.valueOf(\"PUBLIC\")", Modifier.PUBLIC, Modifier.valueOf("PUBLIC"));
 	}
-	
+
 	/**
 	 * Tests for:
 	 * FieldDeclaration
-	 * 
+	 *
 	 * @param testClassDec
 	 */
 	private void testFieldDeclaration(ClassDeclaration testClassDec) {
-		
 		//FieldDeclaration tests
 		Collection<FieldDeclaration> fieldDecls = testClassDec.getFields();
 		ProcessorTestStatus.assertEquals("Number of fields", 4, fieldDecls.size());
@@ -281,16 +278,15 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 		ProcessorTestStatus.assertEquals("Field gc constant value is null", null, fieldGC.getConstantValue());
 		ProcessorTestStatus.assertEquals("Field gc type is java.util.GregorianCalendar", "java.util.GregorianCalendar", fieldGC.getType().toString());
 	}
-	
+
 	/**
 	 * Tests for:
 	 * MethodDeclaration
 	 * ParameterDeclaration
-	 * 
+	 *
 	 * @param testClassDec
 	 */
 	private void testMethodDeclaration(ClassDeclaration testClassDec) {
-		
 		//Tests for MethodDeclaration
 		Collection<MethodDeclaration> methodDecls = testClassDec.getMethods();
 		MethodDeclaration methodDec = null;
@@ -305,7 +301,7 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 
 		Collection<ReferenceType> thrownTypes = methodDec.getThrownTypes();
 		ProcessorTestStatus.assertEquals("Number of types thrown", 1, thrownTypes.size());
-		
+
 		ReferenceType thrownType = thrownTypes.iterator().next();
 		ProcessorTestStatus.assertEquals("methodDec throws Exception", "java.lang.Exception", thrownType.toString());
 		ProcessorTestStatus.assertTrue("methodDec is varargs", methodDec.isVarArgs());
@@ -313,7 +309,7 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 		ProcessorTestStatus.assertEquals("Number of types thrown", 0, methodDecNoArg.getThrownTypes().size());
 		ProcessorTestStatus.assertTrue("methodDecNoArg is not varargs", !methodDecNoArg.isVarArgs());
 
-		
+
 		//Tests for ParameterDeclaration
 		Collection<ParameterDeclaration> paramDecls = methodDec.getParameters();
 		ParameterDeclaration paramDeclInt = null;

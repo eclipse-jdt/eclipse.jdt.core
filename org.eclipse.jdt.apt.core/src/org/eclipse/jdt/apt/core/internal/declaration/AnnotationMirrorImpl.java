@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 BEA Systems, Inc.
+ * Copyright (c) 2005, 2014 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    tyeung@bea.com - initial API and implementation
+ *    het@google.com - Bug 441790
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.core.internal.declaration;
@@ -15,6 +16,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
@@ -34,6 +36,7 @@ import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 
 import com.sun.mirror.declaration.AnnotationMirror;
+import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
 import com.sun.mirror.declaration.AnnotationValue;
 import com.sun.mirror.type.AnnotationType;
@@ -50,7 +53,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
     /** the declaration that is annotated by this annotation or the annotation element declaration
      *  if this is (part of) a default value*/
     private final EclipseDeclarationImpl _annotated;
-    
+
     public AnnotationMirrorImpl(IAnnotationBinding annotationAstNode, EclipseDeclarationImpl decl, BaseProcessorEnv env)
     {
 		_domAnnotation = annotationAstNode;
@@ -59,9 +62,9 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
         assert _domAnnotation != null : "annotation node missing."; //$NON-NLS-1$
         assert _annotated   != null : "missing the declaration that is annotated with this annotation."; //$NON-NLS-1$
     }
-	
+
     public AnnotationType getAnnotationType()
-    {		
+    {
         final ITypeBinding binding = _domAnnotation.getAnnotationType();
         if( binding == null || binding.isRecovered() ){
         	final ASTNode node = _annotated.getCompilationUnit().findDeclaringNode(_domAnnotation);
@@ -74,7 +77,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
         	return Factory.createErrorAnnotationType(name);
         }
         else
-        	return (AnnotationType)Factory.createReferenceType(binding, _env);        
+        	return (AnnotationType)Factory.createReferenceType(binding, _env);
     }
 
     public Map<AnnotationTypeElementDeclaration, AnnotationValue> getElementValues()
@@ -83,20 +86,20 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
 		if (pairs.length == 0) {
 			return Collections.emptyMap();
 		}
-		
+
 		final Map<AnnotationTypeElementDeclaration, AnnotationValue> result =
 			new LinkedHashMap<AnnotationTypeElementDeclaration, AnnotationValue>(pairs.length * 4 / 3 + 1 );
 		for( IMemberValuePairBinding pair : pairs ){
 			 final String name = pair.getName();
              if( name == null ) continue;
-             IMethodBinding elementMethod = pair.getMethodBinding();            
-             if( elementMethod != null ){           
+             IMethodBinding elementMethod = pair.getMethodBinding();
+             if( elementMethod != null ){
                  final EclipseDeclarationImpl mirrorDecl = Factory.createDeclaration(elementMethod, _env);
                  if( mirrorDecl != null && mirrorDecl.kind() == EclipseMirrorObject.MirrorKind.ANNOTATION_ELEMENT  )
                  {
-                	 final AnnotationTypeElementDeclaration elementDecl = 
+                	 final AnnotationTypeElementDeclaration elementDecl =
                 		 (AnnotationTypeElementDeclaration)mirrorDecl;
-                	 final AnnotationValue annoValue = 
+                	 final AnnotationValue annoValue =
     					 Factory.createAnnotationMemberValue(pair.getValue(), name, this, _env, elementDecl.getReturnType());
                 	 if( annoValue != null )
                 		 result.put( elementDecl, annoValue);
@@ -115,23 +118,43 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
 			org.eclipse.jdt.core.dom.ASTNode astNode = annotation.getTypeName();
 			if( astNode == null )
 				astNode = annotation;
-			
-			final int offset = astNode.getStartPosition();			
+
+			final int offset = astNode.getStartPosition();
 			return new SourcePositionImpl(astNode.getStartPosition(),
 										  astNode.getLength(),
 						                  unit.getLineNumber(offset),
-						                  unit.getColumnNumber(offset), 
+						                  unit.getColumnNumber(offset),
 						                  _annotated);
 		}
 		return null;
     }
 
-    public String toString()
+    @Override
+	public String toString()
     {
-		return _domAnnotation.toString();			
+    	AnnotationTypeDeclaration decl = getAnnotationType().getDeclaration();
+    	StringBuilder sb = new StringBuilder();
+    	sb.append('@');
+    	sb.append(decl.getQualifiedName());
+    	Map<AnnotationTypeElementDeclaration, AnnotationValue> values = getElementValues();
+		if (!values.isEmpty()) {
+			sb.append('(');
+			boolean first = true;
+			for (Entry<AnnotationTypeElementDeclaration, AnnotationValue> e : values.entrySet()) {
+				if (!first) {
+					sb.append(", "); //$NON-NLS-1$
+				}
+				first = false;
+				sb.append(e.getKey().getSimpleName());
+				sb.append(" = "); //$NON-NLS-1$
+				sb.append(e.getValue().toString());
+			}
+			sb.append(')');
+		}
+		return sb.toString();
     }
 
-    /**
+	/**
      * @return the type(s) of the member value named <code>membername</code>.
      * If the value is a class literal, then return the type binding corresponding to the type requested.
      * Otherwise, return the type of the expression.
@@ -142,26 +165,26 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
     {
         if( membername == null ) return null;
 		final IMemberValuePairBinding[] declaredPairs = _domAnnotation.getDeclaredMemberValuePairs();
-		for( IMemberValuePairBinding pair : declaredPairs ){			
+		for( IMemberValuePairBinding pair : declaredPairs ){
 			if( membername.equals(pair.getName()) ){
 				final Object value = pair.getValue();
 				return getValueTypeBinding(value, pair.getMethodBinding().getReturnType());
 			}
 		}
-      
+
         // didn't find it in the ast, check the default values.
         final IMethodBinding binding = getMethodBinding(membername);
 		if(binding == null ) return null;
 		final Object defaultValue = binding.getDefaultValue();
-		if( defaultValue != null )		
+		if( defaultValue != null )
 			return getValueTypeBinding(defaultValue, binding.getReturnType() );
 		else
-			return null;		
+			return null;
     }
-	
+
 	private ITypeBinding[] getValueTypeBinding(Object value, final ITypeBinding resolvedType)
 	{
-		if( value == null ) return null;		
+		if( value == null ) return null;
 		if( resolvedType.isPrimitive() ||  resolvedType.isAnnotation() || value instanceof String )
 			return new ITypeBinding[]{ resolvedType };
 		else if( resolvedType.isArray() ){
@@ -173,14 +196,14 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
 				result[i] = t == null ? null : t[0];
 			}
 			return result;
-		}		 
+		}
 		else if( value instanceof IVariableBinding )
 			return new ITypeBinding[]{ ( (IVariableBinding)value ).getDeclaringClass() };
 		else if( value instanceof ITypeBinding )
 			return new ITypeBinding[]{ (ITypeBinding)value };
 		else
 			throw new IllegalStateException("value = " + value + " resolvedType = " + resolvedType ); //$NON-NLS-1$ //$NON-NLS-2$
-		
+
 	}
 
     /**
@@ -191,12 +214,12 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
     {
 		if( memberName == null ) return null;
 		final IMemberValuePairBinding[] declaredPairs = _domAnnotation.getDeclaredMemberValuePairs();
-		for( IMemberValuePairBinding pair : declaredPairs ){			
+		for( IMemberValuePairBinding pair : declaredPairs ){
 			if( memberName.equals(pair.getName()) ){
-				return pair.getValue();				
+				return pair.getValue();
 			}
 		}
-      
+
         // didn't find it in the ast, check the default values.
         final IMethodBinding binding = getMethodBinding(memberName);
 		if(binding == null ) return null;
@@ -219,29 +242,29 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
         }
         return null;
     }
-    
+
     public IAnnotationBinding getResolvedAnnotaion(){return _domAnnotation; }
 
-    
+
 
     public MirrorKind kind(){ return MirrorKind.ANNOTATION_MIRROR; }
 
     boolean isFromSource()
-	{  
-		return _annotated.isFromSource();		
+	{
+		return _annotated.isFromSource();
 	}
 
     org.eclipse.jdt.core.dom.Annotation getAstNode()
-	{ 
+	{
 		if( isFromSource() ){
 			final CompilationUnit unit = _annotated.getCompilationUnit();
 			final ASTNode node = unit.findDeclaringNode(_domAnnotation);
 			if( node instanceof org.eclipse.jdt.core.dom.Annotation )
-				return (org.eclipse.jdt.core.dom.Annotation)node;			
-		}	
+				return (org.eclipse.jdt.core.dom.Annotation)node;
+		}
 		return null;
     }
-	
+
 	ASTNode getASTNodeForElement(String name)
 	{
 		if( name == null ) return null;
@@ -268,20 +291,22 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
     CompilationUnit getCompilationUnit() { return _annotated.getCompilationUnit(); }
 
 	public BaseProcessorEnv getEnvironment(){ return _env; }
-	
+
 	public IFile getResource()
 	{ 	return _annotated.getResource(); }
-	
+
 	public EclipseDeclarationImpl getAnnotatedDeclaration(){ return _annotated; }
 
-    public boolean equals(Object obj){
+    @Override
+	public boolean equals(Object obj){
         if( obj instanceof AnnotationMirrorImpl ){
             return ((AnnotationMirrorImpl)obj)._domAnnotation == _domAnnotation;
         }
         return false;
     }
 
-    public int hashCode(){
+    @Override
+	public int hashCode(){
         return _domAnnotation.hashCode();
     }
 }

@@ -11,3 +11,4 @@ org.eclipse.jdt.compiler.apt.tests.processors.typemirror.TypeMirrorProc
 org.eclipse.jdt.compiler.apt.tests.processors.typeutils.TypeUtilsProc
 org.eclipse.jdt.compiler.apt.tests.processors.negative.NegativeModelProc
 org.eclipse.jdt.compiler.apt.tests.processors.inherited.ArgsConstructorProcessor
+org.eclipse.jdt.compiler.apt.tests.processors.annotationmirror.AnnotationMirrorProc

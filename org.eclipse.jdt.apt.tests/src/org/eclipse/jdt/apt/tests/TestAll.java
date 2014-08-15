@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2014 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
+ *    het@google.com - Bug 441790
  *******************************************************************************/
 
 
@@ -35,6 +36,7 @@ public class TestAll extends TestCase {
 		
 		suite.addTest(AptReconcileTests.suite());
 		suite.addTest(AptBuilderTests.suite() );
+		suite.addTest(AnnotationValueTests.suite());
 		suite.addTest(APITests.suite());
 		suite.addTest(MirrorTests.suite());
 		suite.addTest(ReadAnnotationTests.suite());
