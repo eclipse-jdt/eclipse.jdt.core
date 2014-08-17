@@ -14,6 +14,7 @@
  *								bug 265744 - Enum switch should warn about missing default
  *								bug 374605 - Unreasonable warning for enum-based switch statements
  *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
+ *								Bug 441208 - [1.8][null]SuppressWarnings("null") does not suppress / marked Unnecessary
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.impl;
@@ -131,7 +132,8 @@ public class IrritantSet {
 			.set(CompilerOptions.NullAnnotationInferenceConflict)
 			.set(CompilerOptions.NullUncheckedConversion)
 			.set(CompilerOptions.RedundantNullAnnotation)
-			.set(CompilerOptions.NonnullParameterAnnotationDropped);
+			.set(CompilerOptions.NonnullParameterAnnotationDropped)
+			.set(CompilerOptions.MissingNonNullByDefaultAnnotation);
 
 		RESTRICTION.set(CompilerOptions.DiscouragedReference);
 		STATIC_ACCESS.set(CompilerOptions.NonStaticAccessToStatic);

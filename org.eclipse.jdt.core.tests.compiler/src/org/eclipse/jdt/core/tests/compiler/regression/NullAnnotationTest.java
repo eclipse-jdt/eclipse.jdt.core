@@ -3001,6 +3001,47 @@ public void test_default_nullness_017() {
 		"----------\n");
 }
 
+// package case
+public void test_nullness_default_018() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.WARNING);
+	customOptions.put(JavaCore.COMPILER_PB_UNUSED_WARNING_TOKEN, JavaCore.ERROR);
+	runConformTestWithLibs(
+		new String[] {
+			"pack/NullWarn.java",
+			"package pack;\n" +
+			"@SuppressWarnings(\"null\")\n" + 
+			"public class NullWarn {\n" + 
+			"\n" + 
+			"    // Some code\n" + 
+			"\n" + 
+			"}\n"
+		},
+		customOptions,
+		"");
+	
+}
+
+// type case (inside default package)
+public void test_nullness_default_018b() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.WARNING);
+	customOptions.put(JavaCore.COMPILER_PB_UNUSED_WARNING_TOKEN, JavaCore.ERROR);
+	runConformTestWithLibs(
+		new String[] {
+			"NullWarn.java",
+			"@SuppressWarnings(\"null\")\n" + 
+			"public class NullWarn {\n" + 
+			"\n" + 
+			"    // Some code\n" + 
+			"\n" + 
+			"}\n"
+		},
+		customOptions,
+		"");
+	
+}
+
 // redundant default annotations - class vs. inner class
 public void test_redundant_annotation_01() {
 	Map customOptions = getCompilerOptions();
