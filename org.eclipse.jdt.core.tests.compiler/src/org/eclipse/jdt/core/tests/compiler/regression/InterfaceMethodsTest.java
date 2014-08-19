@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 GK Software AG, IBM Corporation and others.
+ * Copyright (c) 2013, 2014 GK Software AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2618,5 +2618,27 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			},
 			"Anonymous class value: 6.0\n" + 
 			"Lambda expression value: 6.0");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=438471, Java 1.8 functional interface rejected if it extends an interface which overrides another interface's method
+	public void test438471() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"Bar.java",
+				"@FunctionalInterface\n" +
+				"public interface Bar extends Overridden {\n" + 
+					"	void foo();\n" + 
+					"	@Override\n" + 
+					"	default void close() {\n" + 
+					"		System.out.println(\"bar\");\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"\n" + 
+					"interface Overridden extends AutoCloseable {\n" + 
+					"	// Works without this overridden method\n" + 
+					"	@Override\n" + 
+					"	void close();\n" + 
+					"}"
+			},
+			"");
 	}
 }
