@@ -104,31 +104,20 @@ public class AnnotatableTypeSystem extends TypeSystem {
 		
 		if (genericType.hasTypeAnnotations())   // @NonNull (List<String>) and not (@NonNull List)<String>
 			throw new IllegalStateException();
-
-		ParameterizedTypeBinding nakedType = null;
-		TypeBinding[] derivedTypes = getDerivedTypes(genericType);
-		for (int i = 0, length = derivedTypes.length; i < length; i++) {
-			TypeBinding derivedType = derivedTypes[i];
-			if (derivedType == null)
-				break;
-			if (!derivedType.isParameterizedType() || derivedType.actualType() != genericType) //$IDENTITY-COMPARISON$
-				continue;
-			if (derivedType.enclosingType() != enclosingType || !Util.effectivelyEqual(derivedType.typeArguments(), typeArguments)) //$IDENTITY-COMPARISON$
-				continue;
-			if (Util.effectivelyEqual(annotations, derivedType.getTypeAnnotations()))
-				return (ParameterizedTypeBinding) derivedType;
-			if (!derivedType.hasTypeAnnotations())
-				nakedType = (ParameterizedTypeBinding) derivedType;
-		}
-		if (nakedType == null)
-			nakedType = super.getParameterizedType(genericType, typeArguments, enclosingType);
+		
+		ParameterizedTypeBinding parameterizedType = this.parameterizedTypes.get(genericType, typeArguments, enclosingType, annotations);
+		if (parameterizedType != null)
+			return parameterizedType;
+		
+		ParameterizedTypeBinding nakedType = super.getParameterizedType(genericType, typeArguments, enclosingType);
 		
 		if (!haveTypeAnnotations(genericType, enclosingType, typeArguments, annotations))
 			return nakedType;
 		
-		TypeBinding parameterizedType = new ParameterizedTypeBinding(genericType, typeArguments, enclosingType, this.environment);
+		parameterizedType = new ParameterizedTypeBinding(genericType, typeArguments, enclosingType, this.environment);
 		parameterizedType.id = nakedType.id;
 		parameterizedType.setTypeAnnotations(annotations, this.isAnnotationBasedNullAnalysisEnabled);
+		this.parameterizedTypes.put(genericType, typeArguments, enclosingType, parameterizedType);
 		return (ParameterizedTypeBinding) cacheDerivedType(genericType, nakedType, parameterizedType);
 	}
 	
@@ -284,6 +273,9 @@ public class AnnotatableTypeSystem extends TypeSystem {
 	   Likewise so the bindings for @Readonly List<@NonNull String> != @Readonly List<@Nullable String> != @Readonly List<@Interned String> 
 	*/
 	private TypeBinding getAnnotatedType(TypeBinding type, TypeBinding enclosingType, AnnotationBinding[] annotations) {
+		if (type.kind() == Binding.PARAMETERIZED_TYPE) {
+			return getParameterizedType(type.actualType(), type.typeArguments(), (ReferenceBinding) enclosingType, annotations);
+		}
 		TypeBinding nakedType = null;
 		TypeBinding[] derivedTypes = getDerivedTypes(type);
 		for (int i = 0, length = derivedTypes.length; i < length; i++) {
@@ -296,10 +288,6 @@ public class AnnotatableTypeSystem extends TypeSystem {
 			switch(type.kind()) {
 				case Binding.ARRAY_TYPE:
 					if (!derivedType.isArrayType() || derivedType.dimensions() != type.dimensions() || derivedType.leafComponentType() != type.leafComponentType()) //$IDENTITY-COMPARISON$
-						continue;
-					break;
-				case Binding.PARAMETERIZED_TYPE:
-					if (!derivedType.isParameterizedType() || derivedType.actualType() != type.actualType()) //$IDENTITY-COMPARISON$
 						continue;
 					break;
 				case Binding.RAW_TYPE:
@@ -315,7 +303,6 @@ public class AnnotatableTypeSystem extends TypeSystem {
 				default:
 					switch(derivedType.kind()) {
 						case Binding.ARRAY_TYPE:
-						case Binding.PARAMETERIZED_TYPE:
 						case Binding.RAW_TYPE:
 						case Binding.WILDCARD_TYPE:
 						case Binding.INTERSECTION_CAST_TYPE:
@@ -347,7 +334,6 @@ public class AnnotatableTypeSystem extends TypeSystem {
 			case Binding.ARRAY_TYPE:
 				keyType = type.leafComponentType();
 				break;
-			case Binding.PARAMETERIZED_TYPE:
 			case Binding.RAW_TYPE:
 			case Binding.WILDCARD_TYPE:
 				keyType = type.actualType();

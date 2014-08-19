@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.HashMap;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -55,8 +57,98 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 */
 public class TypeSystem {
 	
+	public final class HashedParameterizedTypes {
+		
+		private final class TypeParameterization {
+			
+			private ReferenceBinding genericType;   // unannotated.
+			private TypeBinding [] typeArguments;   // unannotated.
+			private ReferenceBinding enclosingType; // unannotated
+			
+			public TypeParameterization(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType) {
+				this.genericType = genericType;
+				this.typeArguments = typeArguments;
+				this.enclosingType = enclosingType;
+			}
+			
+			public boolean equals(Object other) {
+				TypeParameterization that = (TypeParameterization) other;  // homogeneous container. 
+				return this.genericType == that.genericType && this.enclosingType == that.enclosingType && Util.effectivelyEqual(this.typeArguments, that.typeArguments); //$IDENTITY-COMPARISON$
+			}
+			
+			public int hashCode() {
+				int hashCode = this.genericType.hashCode() + 13 * (this.enclosingType != null ? this.enclosingType.hashCode() : 0);
+				for (int i = 0, length = this.typeArguments == null ? 0 : this.typeArguments.length; i < length; i++) {
+					hashCode += (i + 1) * this.typeArguments[i].id * this.typeArguments[i].hashCode();
+				}
+				return hashCode;
+			}
+		}
+		
+		HashMap<TypeParameterization, ParameterizedTypeBinding []> hashedParameterizedTypes = new HashMap<TypeParameterization, ParameterizedTypeBinding[]>(256);
+
+		ParameterizedTypeBinding get(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType, AnnotationBinding[] annotations) {
+			
+			ReferenceBinding unannotatedGenericType = (ReferenceBinding) getUnannotatedType(genericType);
+			int typeArgumentsLength = typeArguments == null ? 0: typeArguments.length;
+			TypeBinding [] unannotatedTypeArguments = typeArguments == null ? null : new TypeBinding[typeArgumentsLength];
+			for (int i = 0; i < typeArgumentsLength; i++) {
+				unannotatedTypeArguments[i] = getUnannotatedType(typeArguments[i]);
+			}
+			ReferenceBinding unannotatedEnclosingType = enclosingType == null ? null : (ReferenceBinding) getUnannotatedType(enclosingType);
+			
+			TypeParameterization typeParameterization = new TypeParameterization(unannotatedGenericType, unannotatedTypeArguments, unannotatedEnclosingType);
+			ReferenceBinding genericTypeToMatch = unannotatedGenericType, enclosingTypeToMatch = unannotatedEnclosingType;
+			TypeBinding [] typeArgumentsToMatch = unannotatedTypeArguments;
+			if (TypeSystem.this instanceof AnnotatableTypeSystem) {
+				genericTypeToMatch = genericType;
+				enclosingTypeToMatch = enclosingType;
+				typeArgumentsToMatch = typeArguments;
+			}
+			ParameterizedTypeBinding [] parameterizedTypeBindings = this.hashedParameterizedTypes.get(typeParameterization);
+			for (int i = 0, length = parameterizedTypeBindings == null ? 0 : parameterizedTypeBindings.length; i < length; i++) {
+				ParameterizedTypeBinding parameterizedType = parameterizedTypeBindings[i];
+				if (parameterizedType.actualType() != genericTypeToMatch) { //$IDENTITY-COMPARISON$
+					continue;
+				}
+				if (parameterizedType.enclosingType() != enclosingTypeToMatch //$IDENTITY-COMPARISON$
+						|| !Util.effectivelyEqual(parameterizedType.typeArguments(), typeArgumentsToMatch)) 
+					continue;
+				if (Util.effectivelyEqual(annotations, parameterizedType.getTypeAnnotations()))
+					return parameterizedType;
+			}
+
+			return null;
+		}
+
+		void put (ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType, ParameterizedTypeBinding parameterizedType)  {
+			ReferenceBinding unannotatedGenericType = (ReferenceBinding) getUnannotatedType(genericType);
+			int typeArgumentsLength = typeArguments == null ? 0: typeArguments.length;
+			TypeBinding [] unannotatedTypeArguments = typeArguments == null ? null : new TypeBinding[typeArgumentsLength];
+			for (int i = 0; i < typeArgumentsLength; i++) {
+				unannotatedTypeArguments[i] = getUnannotatedType(typeArguments[i]);
+			}
+			ReferenceBinding unannotatedEnclosingType = enclosingType == null ? null : (ReferenceBinding) getUnannotatedType(enclosingType);
+			
+			TypeParameterization typeParameterization = new TypeParameterization(unannotatedGenericType, unannotatedTypeArguments, unannotatedEnclosingType);
+			
+			ParameterizedTypeBinding [] parameterizedTypeBindings = this.hashedParameterizedTypes.get(typeParameterization);
+			int slot;
+			if (parameterizedTypeBindings == null) {
+				slot = 0;
+				parameterizedTypeBindings = new ParameterizedTypeBinding[1];
+			} else { 
+				slot = parameterizedTypeBindings.length;
+				System.arraycopy(parameterizedTypeBindings, 0, parameterizedTypeBindings = new ParameterizedTypeBinding[slot + 1], 0, slot);
+			}
+			parameterizedTypeBindings[slot] = parameterizedType;
+			this.hashedParameterizedTypes.put(typeParameterization, parameterizedTypeBindings);
+		}
+	}	
+	
 	private int typeid = TypeIds.T_LastWellKnownTypeId;
 	private TypeBinding [][] types; 
+	protected HashedParameterizedTypes parameterizedTypes;  // auxiliary fast lookup table for parameterized types.
 	private SimpleLookupTable annotationTypes; // cannot store in types, since AnnotationBinding is not a TypeBinding and we don't want types to operate at Binding level.
 	private LookupEnvironment environment;
 	
@@ -65,6 +157,7 @@ public class TypeSystem {
 		this.annotationTypes = new SimpleLookupTable(16);
 		this.typeid = TypeIds.T_LastWellKnownTypeId;
 		this.types = new TypeBinding[TypeIds.T_LastWellKnownTypeId * 2][]; 
+		this.parameterizedTypes = new HashedParameterizedTypes();
 	}
 
 	// Given a type, answer its unannotated aka naked prototype. This is also a convenient way to "register" a type with TypeSystem and have it id stamped.
@@ -151,32 +244,21 @@ public class TypeSystem {
 			unannotatedTypeArguments[i] = getUnannotatedType(typeArguments[i]);
 		}
 		ReferenceBinding unannotatedEnclosingType = enclosingType == null ? null : (ReferenceBinding) getUnannotatedType(enclosingType);
-		
-		TypeBinding[] derivedTypes = this.types[unannotatedGenericType.id];
-		int i, length = derivedTypes.length;
-		for (i = 0 ; i < length; i++) {
-			TypeBinding derivedType = derivedTypes[i];
-			if (derivedType == null) 
-				break;
-			if (!derivedType.isParameterizedType() || derivedType.actualType() != unannotatedGenericType || derivedType.hasTypeAnnotations()) //$IDENTITY-COMPARISON$
-				continue;
-			if (derivedType.enclosingType() == unannotatedEnclosingType && Util.effectivelyEqual(derivedType.typeArguments(), unannotatedTypeArguments)) //$IDENTITY-COMPARISON$
-				return (ParameterizedTypeBinding) derivedType;
-		}
 
-		if (i == length) {
-			System.arraycopy(derivedTypes, 0, derivedTypes = new TypeBinding[length * 2], 0, length);
-			this.types[unannotatedGenericType.id] = derivedTypes;
-		}
-		TypeBinding parameterizedType = derivedTypes[i] = new ParameterizedTypeBinding(unannotatedGenericType, unannotatedTypeArguments, unannotatedEnclosingType, this.environment);
-	
+		ParameterizedTypeBinding parameterizedType = this.parameterizedTypes.get(unannotatedGenericType, unannotatedTypeArguments, unannotatedEnclosingType, Binding.NO_ANNOTATIONS);
+		if (parameterizedType != null) 
+			return parameterizedType;
+
+		parameterizedType = new ParameterizedTypeBinding(unannotatedGenericType, unannotatedTypeArguments, unannotatedEnclosingType, this.environment);
+		cacheDerivedType(unannotatedGenericType, parameterizedType);
+		this.parameterizedTypes.put(genericType, typeArguments, enclosingType, parameterizedType);
 		int typesLength = this.types.length;
 		if (this.typeid == typesLength)
 			System.arraycopy(this.types, 0, this.types = new TypeBinding[typesLength * 2][], 0, typesLength);
 		this.types[this.typeid] = new TypeBinding[1];
 		return (ParameterizedTypeBinding) (this.types[parameterizedType.id = this.typeid++][0] = parameterizedType);
 	}
-	
+
 	public ParameterizedTypeBinding getParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType, AnnotationBinding[] annotations) {
 		return getParameterizedType(genericType, typeArguments, enclosingType);
 	}
@@ -277,10 +359,20 @@ public class TypeSystem {
 			throw new IllegalStateException();
 		
 		TypeBinding[] derivedTypes = this.types[keyType.id];
-		int i = 0, length = derivedTypes.length;
-		while (i < length && derivedTypes[i] != null) {
-			i++;
-		}
+		// binary search for the *earliest* slot with a null reference. By design and construction, a null value will never be followed by a valid derived type.
+		int first, last,length = derivedTypes.length;
+		first = 0; last = length;
+		int i = (first + last) / 2;
+		do {
+			  if (derivedTypes[i] == null) {
+				  if (i == first || i > 0 && derivedTypes[i - 1] != null)
+					  break;
+				  last = i - 1;
+			  } else { 
+				  first = i + 1;
+			  }
+			  i = (first + last) / 2;
+		} while (i < length && first <= last);
 		if (i == length) {
 			System.arraycopy(derivedTypes, 0, derivedTypes = new TypeBinding[length * 2], 0, length);
 			this.types[keyType.id] = derivedTypes;
