@@ -5692,4 +5692,106 @@ public void testBug410207d() throws Exception {
 		deleteProjects(new String[] { "Lib", "P" });
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=440592, Cannot easily launch application in case of certain usage of lambda expressions
+public void testBug440592() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_FULL"}, "bin", "1.8", true);
+		createFile(
+				"/P/src/BugTest.java",
+				"public class BugTest {\n" +
+				"	public void baz(InterfaceForBugTest arg) {\n" +
+				"	}\n" +
+				"	public void bar() {\n" +
+				"		baz(InterfaceForBugTest.instance); \n" +
+				"	}\n" +
+				"	public Runnable returningLambda() { \n" +
+				"		return () -> {\n" +
+				"		};\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"	}\n" +
+				"}\n"
+		);
+		createFile(
+				"/P/src/InterfaceForBugTest.java",
+				"public interface InterfaceForBugTest {\n" +
+				"	public static InterfaceForBugTest creator1(Runnable simpleInstance){\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"	public static void methodWithAnonymousImplementation() {\n" +
+				"		new InterfaceForBugTest() {\n" +
+				"			@Override\n" +
+				"			public void fun1() {\n" +
+				"			}\n" +
+				"			@Override\n" +
+				"			public void fun2() {\n" +
+				"			}\n" +
+				"			@Override\n" +
+				"			public void fun3() {\n" +
+				"			}\n" +
+				"			@Override\n" +
+				"			public void fun4() {\n" +
+				"			}\n" +
+				"			@Override\n" +
+				"			public void fun5() {\n" +
+				"			}\n" +
+				"		};\n" +
+				"	} \n" +
+				"	public static void methodWithAnonymousImplementation2() {\n" +
+				"		new InterfaceForBugTest() {\n" +
+				"			@Override\n" +
+				"			public void fun1() {\n" +
+				"			}\n" +
+				"			@Override\n" +
+				"			public void fun2() {\n" +
+				"			}\n" +
+				"			@Override\n" +
+				"			public void fun3() {\n" +
+				"			}\n" +
+				"			@Override\n" +
+				"			public void fun4() {\n" +
+				"			}\n" +
+				"			@Override\n" +
+				"			public void fun5() {\n" +
+				"			}\n" +
+				"		};\n" +
+				"	}\n" +
+				"	public static InterfaceForBugTest instance = creator1(() -> {\n" +
+				"	});\n" +
+				"	void fun1();\n" +
+				"	void fun2();\n" +
+				"	void fun3();\n" +
+				"	void fun4();\n" +
+				"	void fun5();\n" +
+				"}\n"
+
+		);
+		getProject("P").build(IncrementalProjectBuilder.FULL_BUILD, null);
+		setUpWorkingCopy(
+				"/P/src/BugTest.java",
+				"public class BugTest {\n" +
+				"	public void baz(InterfaceForBugTest arg) {\n" +
+				"	}\n" +
+				"	public void bar() {\n" +
+				"		baz(InterfaceForBugTest.instance); \n" +
+				"	}\n" +
+				"	public Runnable returningLambda() { \n" +
+				"		return () -> {\n"  +
+				"		};\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"	}\n" +
+				"}\n"
+		);
+		this.problemRequestor.reset();
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
+		assertProblems(
+				"Unexpected problems",
+				"----------\n" +
+				"----------\n"
+		);
+	} finally {
+		deleteProjects(new String[] { "P" });
+	}
+}
 }

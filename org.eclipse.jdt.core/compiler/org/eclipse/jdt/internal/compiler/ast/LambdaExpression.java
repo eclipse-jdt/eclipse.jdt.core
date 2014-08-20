@@ -53,6 +53,7 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
@@ -115,6 +116,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	private ReferenceBinding classType;
 	public int ordinal;
 	private Set thrownExceptions;
+	public char[] text;  // source representation of the lambda.
 	private static final SyntheticArgumentBinding [] NO_SYNTHETIC_ARGUMENTS = new SyntheticArgumentBinding[0];
 	private static final Block NO_BODY = new Block(0, true);
 
@@ -937,8 +939,9 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 
 	LambdaExpression copy() {
 		final Parser parser = new Parser(this.enclosingScope.problemReporter(), false);
-		final char[] source = this.compilationResult.getCompilationUnit().getContents();
-		LambdaExpression copy =  (LambdaExpression) parser.parseLambdaExpression(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1, 
+		final ICompilationUnit compilationUnit = this.compilationResult.getCompilationUnit();
+		char[] source = compilationUnit != null ? compilationUnit.getContents() : this.text;
+		LambdaExpression copy =  (LambdaExpression) parser.parseLambdaExpression(source, compilationUnit != null ? this.sourceStart : 0, this.sourceEnd - this.sourceStart + 1, 
 										this.enclosingScope.referenceCompilationUnit(), false /* record line separators */);
 
 		if (copy != null) { // ==> syntax errors == null
