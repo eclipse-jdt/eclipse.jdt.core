@@ -32,6 +32,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -5415,6 +5416,27 @@ public void test416480() {
 		  "}\n" 
       },
       "CCE");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422832, Class file triggers StackOverflowError when creating type hierarchy
+public void testBug422832() {
+	String path = getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator +
+			"Bug422832ClassFile" + File.separator + "aspose.pdf.jar";
+	String[] libs = getDefaultClassPaths();
+	int len = libs.length;
+	System.arraycopy(libs, 0, libs = new String[len+1], 0, len);
+	libs[len] = path;
+	runNegativeTest(
+			new String[] {
+					"ExampleClass.java",
+					"public class ExampleClass extends aspose.b.a.a {}\n",
+			},
+			"----------\n" +
+			"1. ERROR in ExampleClass.java (at line 1)\n" +
+			"	public class ExampleClass extends aspose.b.a.a {}\n" +
+			"	             ^^^^^^^^^^^^\n" +
+			"The hierarchy of the type ExampleClass is inconsistent\n" +
+			"----------\n",
+			libs, false);
 }
 }
 

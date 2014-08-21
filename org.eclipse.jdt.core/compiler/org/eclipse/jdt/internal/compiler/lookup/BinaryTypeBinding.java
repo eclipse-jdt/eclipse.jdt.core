@@ -1802,6 +1802,13 @@ public ReferenceBinding[] superInterfaces() {
 			this.environment.mayTolerateMissingType = true; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=360164
 			try {
 				this.superInterfaces[i].superclass();
+				if (this.superInterfaces[i].isParameterizedType()) {
+					ReferenceBinding superType = this.superInterfaces[i].actualType();
+					if (TypeBinding.equalsEquals(superType, this)) {
+						this.tagBits |= TagBits.HierarchyHasProblems;
+						continue;
+					}
+				}
 				this.superInterfaces[i].superInterfaces();
 			} finally {
 				this.environment.mayTolerateMissingType = wasToleratingMissingTypeProcessingAnnotations;
