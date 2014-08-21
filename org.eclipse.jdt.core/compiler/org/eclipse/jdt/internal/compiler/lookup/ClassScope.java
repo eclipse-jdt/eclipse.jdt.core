@@ -1203,7 +1203,7 @@ public class ClassScope extends Scope {
 			// force its superclass & superinterfaces to be found... 2 possibilities exist - the source type is included in the hierarchy of:
 			//		- a binary type... this case MUST be caught & reported here
 			//		- another source type... this case is reported against the other source type
-			if ((superType.tagBits & TagBits.HierarchyHasProblems) != 0) {
+			if (superType.problemId() != ProblemReasons.NotFound && (superType.tagBits & TagBits.HierarchyHasProblems) != 0) { 
 				sourceType.tagBits |= TagBits.HierarchyHasProblems;
 				problemReporter().hierarchyHasProblems(sourceType);
 				return true;
