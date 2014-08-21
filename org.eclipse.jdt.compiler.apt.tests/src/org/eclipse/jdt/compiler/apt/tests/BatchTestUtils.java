@@ -97,7 +97,19 @@ public class BatchTestUtils {
 	public static void compileTree(JavaCompiler compiler, List<String> options, File targetFolder) {
 		compileTree(compiler, options, targetFolder, false);
 	}
+	
+	public static void compileTree(JavaCompiler compiler, List<String> options, File targetFolder, 
+			DiagnosticListener<? super JavaFileObject> listener) {
+		compileTree(compiler, options, targetFolder, false, listener);
+	}
+
 	public static void compileTree(JavaCompiler compiler, List<String> options, File targetFolder, boolean useJLS8Processors) {
+		compileTree(compiler, options, targetFolder, useJLS8Processors, null);
+	}
+
+	public static void compileTree(JavaCompiler compiler, List<String> options,
+			File targetFolder, boolean useJLS8Processors,
+			DiagnosticListener<? super JavaFileObject> listener) {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
 		// create new list containing inputfile
@@ -113,7 +125,7 @@ public class BatchTestUtils {
 		options.add(_tmpGenFolderName);
 		addProcessorPaths(options, useJLS8Processors);
 		options.add("-XprintRounds");
-		CompilationTask task = compiler.getTask(printWriter, manager, null, options, null, units);
+		CompilationTask task = compiler.getTask(printWriter, manager, listener, options, null, units);
 		Boolean result = task.call();
 
 		if (!result.booleanValue()) {

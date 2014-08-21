@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
@@ -127,6 +129,12 @@ public class ModelTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, VISITORPROC);
 	}
+	
+	public void testReportedProblemsWithDiagnosticListener() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, ELEMENTPROC, 
+				"The method staticMethod() from the type targets.jsr199.F is never used locally\n");
+	}
 
 	/**
 	 * Test functionality by running a particular processor against the types in
@@ -146,6 +154,24 @@ public class ModelTests extends TestCase {
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.
 		assertEquals("succeeded", System.getProperty(processorClass));
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private void internalTest(JavaCompiler compiler, String processorClass, String errors) throws IOException {
+		System.clearProperty(processorClass);
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "jsr199");
+		BatchTestUtils.copyResources("targets/jsr199", targetFolder);
+
+		List<String> options = new ArrayList<String>();
+		options.add("-A" + processorClass);
+		final StringBuffer reported = new StringBuffer();
+		BatchTestUtils.compileTree(compiler, options, targetFolder, new DiagnosticListener () {
+			@Override
+			public void report(Diagnostic diag) {
+				reported.append(diag.getMessage(null)).append("\n");
+			}});
+
+		assertEquals(errors, reported.toString());
 	}
 
 	@Override

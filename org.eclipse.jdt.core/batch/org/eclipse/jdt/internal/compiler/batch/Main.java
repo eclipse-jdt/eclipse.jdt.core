@@ -1668,7 +1668,6 @@ private boolean checkVMVersion(long minimalSupportedVersion) {
  *  Low-level API performing the actual compilation
  */
 public boolean compile(String[] argv) {
-
 	// decode command line arguments
 	try {
 		configure(argv);
@@ -2972,26 +2971,7 @@ public String extractDestinationPathFromSourceFile(CompilationResult result) {
  * Answer the component to which will be handed back compilation results from the compiler
  */
 public ICompilerRequestor getBatchRequestor() {
-	return new ICompilerRequestor() {
-		int lineDelta = 0;
-		public void acceptResult(CompilationResult compilationResult) {
-			if (compilationResult.lineSeparatorPositions != null) {
-				int unitLineCount = compilationResult.lineSeparatorPositions.length;
-				this.lineDelta += unitLineCount;
-				if (Main.this.showProgress && this.lineDelta > 2000) {
-					// in -log mode, dump a dot every 2000 lines compiled
-					Main.this.logger.logProgress();
-					this.lineDelta = 0;
-				}
-			}
-			Main.this.logger.startLoggingSource(compilationResult);
-			if (compilationResult.hasProblems() || compilationResult.hasTasks()) {
-				Main.this.logger.logProblems(compilationResult.getAllProblems(), compilationResult.compilationUnit.getContents(), Main.this);
-			}
-			outputClassFiles(compilationResult);
-			Main.this.logger.endLoggingSource();
-		}
-	};
+    return new BatchCompilerRequestor(this);
 }
 /*
  *  Build the set of compilation source units

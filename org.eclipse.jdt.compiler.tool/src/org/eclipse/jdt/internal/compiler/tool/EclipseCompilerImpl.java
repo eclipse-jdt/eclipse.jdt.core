@@ -35,16 +35,15 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.CompilationProgress;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
-import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
-import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
+import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
-import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
@@ -156,155 +155,11 @@ public class EclipseCompilerImpl extends Main {
 	}
 
 	@Override
-	public IProblemFactory getProblemFactory() {
-		return new DefaultProblemFactory() {
-			@Override
-			public CategorizedProblem createProblem(
-					final char[] originatingFileName,
-					final int problemId,
-					final String[] problemArguments,
-					final String[] messageArguments,
-					final int severity,
-					final int startPosition,
-					final int endPosition,
-					final int lineNumber,
-					final int columnNumber) {
-
-				DiagnosticListener<? super JavaFileObject> diagListener = EclipseCompilerImpl.this.diagnosticListener;
-				if (diagListener != null) {
-					diagListener.report(new Diagnostic<JavaFileObject>() {
-						@Override
-						public String getCode() {
-							return Integer.toString(problemId);
-						}
-						@Override
-						public long getColumnNumber() {
-							return columnNumber;
-						}
-						@Override
-						public long getEndPosition() {
-							return endPosition;
-						}
-						@Override
-						public Kind getKind() {
-							if ((severity & ProblemSeverities.Error) != 0) {
-								return Diagnostic.Kind.ERROR;
-							}
-							if ((severity & ProblemSeverities.Optional) != 0) {
-								return Diagnostic.Kind.WARNING;
-							}
-							if ((severity & ProblemSeverities.Warning) != 0) {
-								return Diagnostic.Kind.MANDATORY_WARNING;
-							}
-							return Diagnostic.Kind.OTHER;
-						}
-						@Override
-						public long getLineNumber() {
-							return lineNumber;
-						}
-						@Override
-						public String getMessage(Locale locale) {
-							if (locale != null) {
-								setLocale(locale);
-							}
-							return getLocalizedMessage(problemId, problemArguments);
-						}
-						@Override
-						public long getPosition() {
-							return startPosition;
-						}
-						@Override
-						public JavaFileObject getSource() {
-							File f = new File(new String(originatingFileName));
-							if (f.exists()) {
-								return new EclipseFileObject(null, f.toURI(), JavaFileObject.Kind.SOURCE, null);
-							}
-							return null;
-						}
-						@Override
-						public long getStartPosition() {
-							return startPosition;
-						}
-					});
-				}
-				return super.createProblem(originatingFileName, problemId, problemArguments, messageArguments, severity, startPosition, endPosition, lineNumber, columnNumber);
-			}
-			@Override
-			public CategorizedProblem createProblem(
-					final char[] originatingFileName,
-					final int problemId,
-					final String[] problemArguments,
-					final int elaborationID,
-					final String[] messageArguments,
-					final int severity,
-					final int startPosition,
-					final int endPosition,
-					final int lineNumber,
-					final int columnNumber) {
-
-				DiagnosticListener<? super JavaFileObject> diagListener = EclipseCompilerImpl.this.diagnosticListener;
-				if (diagListener != null) {
-					diagListener.report(new Diagnostic<JavaFileObject>() {
-						@Override
-						public String getCode() {
-							return Integer.toString(problemId);
-						}
-						@Override
-						public long getColumnNumber() {
-							return columnNumber;
-						}
-						@Override
-						public long getEndPosition() {
-							return endPosition;
-						}
-						@Override
-						public Kind getKind() {
-							if ((severity & ProblemSeverities.Error) != 0) {
-								return Diagnostic.Kind.ERROR;
-							}
-							if ((severity & ProblemSeverities.Optional) != 0) {
-								return Diagnostic.Kind.WARNING;
-							}
-							if ((severity & ProblemSeverities.Warning) != 0) {
-								return Diagnostic.Kind.MANDATORY_WARNING;
-							}
-							return Diagnostic.Kind.OTHER;
-						}
-						@Override
-						public long getLineNumber() {
-							return lineNumber;
-						}
-						@Override
-						public String getMessage(Locale locale) {
-							if (locale != null) {
-								setLocale(locale);
-							}
-							return getLocalizedMessage(problemId, problemArguments);
-						}
-						@Override
-						public long getPosition() {
-							return startPosition;
-						}
-						@Override
-						public JavaFileObject getSource() {
-							File f = new File(new String(originatingFileName));
-							if (f.exists()) {
-								return new EclipseFileObject(null, f.toURI(), JavaFileObject.Kind.SOURCE, null);
-							}
-							return null;
-						}
-						@Override
-						public long getStartPosition() {
-							return startPosition;
-						}
-					});
-				}
-				return super.createProblem(originatingFileName, problemId, problemArguments, elaborationID, messageArguments, severity, startPosition, endPosition, lineNumber, columnNumber);
-			}
-		};
+    public ICompilerRequestor getBatchRequestor() {
+        return new EclipseCompilerRequestor(this, this.diagnosticListener, (DefaultProblemFactory) getProblemFactory());
 	}
 
-	@Override
+						@Override
 	protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit, Map customDefaultOptions, CompilationProgress compilationProgress) {
 		super.initialize(outWriter, errWriter, systemExit, customDefaultOptions, compilationProgress);
 		this.javaFileObjectMap = new HashMap<CompilationUnit, JavaFileObject>();
