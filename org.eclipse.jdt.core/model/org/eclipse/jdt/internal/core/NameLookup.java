@@ -1174,6 +1174,12 @@ public class NameLookup implements SuffixConstants {
 		 */
 		ICompilationUnit cu = (ICompilationUnit) type.getParent();
 		String cuName = cu.getElementName().substring(0, cu.getElementName().lastIndexOf('.'));
+		/*
+		 * Secondary types along with primary types have their parent as the compilation unit.
+		 * The names of the primary type would match with their compilation unit.
+		 */
+		if (!cuName.equals(type.getElementName()))
+			return false;
 		if (partialMatch) {
 			return cuName.regionMatches(0, name, 0, name.length());
 		} else {

@@ -1002,6 +1002,9 @@ public void test405026b() throws CoreException, IOException {
 		itype = nameLookup.findType("test13outer", packageFragments[0], true, NameLookup.ACCEPT_ALL, false, false);
 		assertNull(itype);
 
+		itype = nameLookup.findType("test1", packageFragments[0], true, NameLookup.ACCEPT_ALL, false, false);
+		assertEquals("test13", itype.getElementName());
+
 		answer = nameLookup.findType("test13out", "p", true, NameLookup.ACCEPT_ALL, /* considerSecondaryTypes */ true, true, false, null);
 		assertEquals("test13outer", answer.type.getElementName());
 	} finally {
