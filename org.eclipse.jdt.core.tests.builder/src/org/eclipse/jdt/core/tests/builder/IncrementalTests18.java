@@ -36,7 +36,7 @@ public class IncrementalTests18 extends BuilderTests {
 	public static Test suite() {
 		return AbstractCompilerTest.buildMinimalComplianceTestSuite(IncrementalTests18.class, AbstractCompilerTest.F_1_8);
 	}
-
+	
 	private void setupProjectForNullAnnotations() throws IOException, JavaModelException {
 		// add the org.eclipse.jdt.annotation library (bin/ folder or jar) to the project:
 		Bundle[] bundles = Platform.getBundles("org.eclipse.jdt.annotation","[2.0.0,3.0.0)");
@@ -396,6 +396,45 @@ public class IncrementalTests18 extends BuilderTests {
 				"   }\n" +
 				"}\n"
 		);
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=442452,  [compiler][regression] Bogus error: The interface Comparable cannot be implemented more than once with different arguments
+	public void testBug442452() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.8");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		env.addClass(projectPath, "", "Entity", //$NON-NLS-1$ //$NON-NLS-2$
+				"public class Entity implements IEntity<Entity> {\n" +
+				"	public int compareTo(IBasicItem o) {\n" +
+				"		return 0;\n" +
+				"	}\n" +
+				"}\n"); //$NON-NLS-1$
+
+		env.addClass(projectPath, "", "IEntity", //$NON-NLS-1$ //$NON-NLS-2$
+				"public interface IEntity<T extends IEntity<T>> extends IBasicItem {\n" +
+				"}\n"); //$NON-NLS-1$
+		
+		env.addClass(projectPath, "", "IBasicItem", //$NON-NLS-1$ //$NON-NLS-2$
+				"public interface IBasicItem extends Comparable<IBasicItem> {\n" +
+				"}\n"); //$NON-NLS-1$
+		
+		env.addClass(projectPath, "", "IAdvancedItem", //$NON-NLS-1$ //$NON-NLS-2$
+				"public interface IAdvancedItem extends Comparable<IBasicItem> {\n" +
+				"}\n"); //$NON-NLS-1$
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(projectPath, "", "Entity", //$NON-NLS-1$ //$NON-NLS-2$
+				"public class Entity implements IEntity<Entity>, IAdvancedItem {\n" +
+				"	public int compareTo(IBasicItem o) {\n" +
+				"		return 0;\n" +
+				"	}\n" +
+				"}\n"); //$NON-NLS-1$
 
 		incrementalBuild(projectPath);
 		expectingNoProblems();

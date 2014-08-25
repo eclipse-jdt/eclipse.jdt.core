@@ -54,7 +54,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
  */
 public class ParameterizedTypeBinding extends ReferenceBinding implements Substitution {
 
-	private ReferenceBinding type; // must ensure the type is resolved
+	protected ReferenceBinding type; // must ensure the type is resolved
 	public TypeBinding[] arguments;
 	public LookupEnvironment environment;
 	public char[] genericTypeSignature;
@@ -63,7 +63,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public FieldBinding[] fields;
 	public ReferenceBinding[] memberTypes;
 	public MethodBinding[] methods;
-	private ReferenceBinding enclosingType;
+	protected ReferenceBinding enclosingType;
 
 	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] arguments,  ReferenceBinding enclosingType, LookupEnvironment environment){
 		this.environment = environment;
