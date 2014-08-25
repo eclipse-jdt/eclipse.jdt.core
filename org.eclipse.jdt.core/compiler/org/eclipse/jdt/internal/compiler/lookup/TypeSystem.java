@@ -59,33 +59,27 @@ public class TypeSystem {
 	
 	public final class HashedParameterizedTypes {
 		
-		private final class TypeParameterization {
-			
-			private ReferenceBinding genericType;   // unannotated.
-			private TypeBinding [] typeArguments;   // unannotated.
-			private ReferenceBinding enclosingType; // unannotated
-			
-			public TypeParameterization(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType) {
-				this.genericType = genericType;
-				this.typeArguments = typeArguments;
-				this.enclosingType = enclosingType;
+		private final class InternalParameterizedTypeBinding extends ParameterizedTypeBinding {
+						
+			public InternalParameterizedTypeBinding(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType, LookupEnvironment environment) {
+				super(genericType, typeArguments, enclosingType, environment);
 			}
 			
 			public boolean equals(Object other) {
-				TypeParameterization that = (TypeParameterization) other;  // homogeneous container. 
-				return this.genericType == that.genericType && this.enclosingType == that.enclosingType && Util.effectivelyEqual(this.typeArguments, that.typeArguments); //$IDENTITY-COMPARISON$
+				ParameterizedTypeBinding that = (ParameterizedTypeBinding) other;  // homogeneous container. 
+				return this.type == that.type && this.enclosingType == that.enclosingType && Util.effectivelyEqual(this.arguments, that.arguments); //$IDENTITY-COMPARISON$
 			}
 			
 			public int hashCode() {
-				int hashCode = this.genericType.hashCode() + 13 * (this.enclosingType != null ? this.enclosingType.hashCode() : 0);
-				for (int i = 0, length = this.typeArguments == null ? 0 : this.typeArguments.length; i < length; i++) {
-					hashCode += (i + 1) * this.typeArguments[i].id * this.typeArguments[i].hashCode();
+				int hashCode = this.type.hashCode() + 13 * (this.enclosingType != null ? this.enclosingType.hashCode() : 0);
+				for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
+					hashCode += (i + 1) * this.arguments[i].id * this.arguments[i].hashCode();
 				}
 				return hashCode;
 			}
 		}
 		
-		HashMap<TypeParameterization, ParameterizedTypeBinding []> hashedParameterizedTypes = new HashMap<TypeParameterization, ParameterizedTypeBinding[]>(256);
+		HashMap<ParameterizedTypeBinding, ParameterizedTypeBinding []> hashedParameterizedTypes = new HashMap<ParameterizedTypeBinding, ParameterizedTypeBinding[]>(256);
 
 		ParameterizedTypeBinding get(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType, AnnotationBinding[] annotations) {
 			
@@ -97,7 +91,7 @@ public class TypeSystem {
 			}
 			ReferenceBinding unannotatedEnclosingType = enclosingType == null ? null : (ReferenceBinding) getUnannotatedType(enclosingType);
 			
-			TypeParameterization typeParameterization = new TypeParameterization(unannotatedGenericType, unannotatedTypeArguments, unannotatedEnclosingType);
+			ParameterizedTypeBinding typeParameterization = new InternalParameterizedTypeBinding(unannotatedGenericType, unannotatedTypeArguments, unannotatedEnclosingType, TypeSystem.this.environment);
 			ReferenceBinding genericTypeToMatch = unannotatedGenericType, enclosingTypeToMatch = unannotatedEnclosingType;
 			TypeBinding [] typeArgumentsToMatch = unannotatedTypeArguments;
 			if (TypeSystem.this instanceof AnnotatableTypeSystem) {
@@ -130,7 +124,7 @@ public class TypeSystem {
 			}
 			ReferenceBinding unannotatedEnclosingType = enclosingType == null ? null : (ReferenceBinding) getUnannotatedType(enclosingType);
 			
-			TypeParameterization typeParameterization = new TypeParameterization(unannotatedGenericType, unannotatedTypeArguments, unannotatedEnclosingType);
+			ParameterizedTypeBinding typeParameterization = new InternalParameterizedTypeBinding(unannotatedGenericType, unannotatedTypeArguments, unannotatedEnclosingType, TypeSystem.this.environment);
 			
 			ParameterizedTypeBinding [] parameterizedTypeBindings = this.hashedParameterizedTypes.get(typeParameterization);
 			int slot;
@@ -150,7 +144,7 @@ public class TypeSystem {
 	private TypeBinding [][] types; 
 	protected HashedParameterizedTypes parameterizedTypes;  // auxiliary fast lookup table for parameterized types.
 	private SimpleLookupTable annotationTypes; // cannot store in types, since AnnotationBinding is not a TypeBinding and we don't want types to operate at Binding level.
-	private LookupEnvironment environment;
+	LookupEnvironment environment;
 	
 	public TypeSystem(LookupEnvironment environment) {
 		this.environment = environment;
