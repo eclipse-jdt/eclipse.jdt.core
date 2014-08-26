@@ -11,9 +11,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -2523,5 +2527,118 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 					"}"
 			},
 			"");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=436350, [1.8][compiler] Missing bridge method in interface results in AbstractMethodError
+	public void test436350() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public static void main(String [] args) {\n" +
+				"    }\n" +
+				"}\n" +
+				"interface GenericInterface<T> {\n" +
+				"	T reduce(Integer i);\n" +
+				"}\n" +
+				"interface DoubleInterface extends GenericInterface<Double> {\n" +
+				"	default Double reduce(Integer i) {\n" +
+				"		return 0.0;\n" +
+				"	}\n" +
+				"	double reduce(String s);\n" +
+				"}\n", // =================
+			},
+			"");
+		// 	ensure bridge methods are generated in interfaces.
+		String expectedOutput =
+				"  public bridge synthetic java.lang.Object reduce(java.lang.Integer arg0);\n" + 
+				"    0  aload_0 [this]\n" + 
+				"    1  aload_1 [arg0]\n" + 
+				"    2  invokeinterface DoubleInterface.reduce(java.lang.Integer) : java.lang.Double [24] [nargs: 2]\n" + 
+				"    7  areturn\n";
+
+		File f = new File(OUTPUT_DIR + File.separator + "DoubleInterface.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=436350, [1.8][compiler] Missing bridge method in interface results in AbstractMethodError
+	public void test436350a() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Iterator;\n" +
+				"import java.util.PrimitiveIterator;\n" +
+				"import java.util.PrimitiveIterator.OfDouble;\n" +
+				"/**\n" +
+				" * @author Tobias Grasl\n" +
+				" */\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		final double[] doubles = new double[]{1,2,3};\n" +
+				"		OfDouble doubleIterator = new DoubleArrayIterator(doubles);\n" +
+				"		Double value = new Reducer<Double>().reduce(doubleIterator, new DoubleInterface() {\n" +
+				"			@Override\n" +
+				"			public double reduce(OfDouble iterator_) {\n" +
+				"				double sum = 0;\n" +
+				"				while(iterator_.hasNext()) {\n" +
+				"					sum += iterator_.nextDouble();\n" +
+				"				}\n" +
+				"				return sum;\n" +
+				"			}\n" +
+				"		});\n" +
+				"		System.out.println(\"Anonymous class value: \"+value);\n" +
+				"		doubleIterator = new DoubleArrayIterator(doubles);\n" +
+				"		value = new Reducer<Double>().reduce(doubleIterator, (DoubleInterface) iterator_ -> {\n" +
+				"			double sum = 0;\n" +
+				"			while(iterator_.hasNext()) {\n" +
+				"				sum += iterator_.nextDouble();\n" +
+				"			}\n" +
+				"			return sum;\n" +
+				"		});\n" +
+				"		System.out.println(\"Lambda expression value: \"+value);\n" +
+				"	}\n" +
+				"	private static class DoubleArrayIterator implements PrimitiveIterator.OfDouble {\n" +
+				"		int index = 0;\n" +
+				"		private double[] _doubles;\n" +
+				"		public DoubleArrayIterator(double[] doubles_) {\n" +
+				"			_doubles = doubles_;\n" +
+				"		}\n" +
+				"		@Override\n" +
+				"		public boolean hasNext() {\n" +
+				"			return index < _doubles.length;\n" +
+				"		}\n" +
+				"		@Override\n" +
+				"		public double nextDouble() {\n" +
+				"			return _doubles[index++];\n" +
+				"		}\n" +
+				"	};\n" +
+				"	interface GenericInterface<T> {\n" +
+				"		T reduce(Iterator<T> iterator_);\n" +
+				"	}\n" +
+				"	interface DoubleInterface extends GenericInterface<Double> {\n" +
+				"		default Double reduce(Iterator<Double> iterator_) {\n" +
+				"			if(iterator_ instanceof PrimitiveIterator.OfDouble) {\n" +
+				"				return reduce((PrimitiveIterator.OfDouble)iterator_);\n" +
+				"			}\n" +
+				"			return Double.NaN;\n" +
+				"		};\n" +
+				"		double reduce(PrimitiveIterator.OfDouble iterator_);\n" +
+				"	}\n" +
+				"	static class Reducer<T> {\n" +
+				"		T reduce(Iterator<T> iterator_, GenericInterface<T> reduction_) {\n" +
+				"			return reduction_.reduce(iterator_);\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n", // =================
+			},
+			"Anonymous class value: 6.0\n" + 
+			"Lambda expression value: 6.0");
 	}
 }
