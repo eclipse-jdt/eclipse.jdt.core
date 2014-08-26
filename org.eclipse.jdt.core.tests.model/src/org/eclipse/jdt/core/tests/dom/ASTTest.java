@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1736,6 +1736,11 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		x.setEscapedValue("\"'\"");
 		assertEquals("", "\"'\"", x.getEscapedValue());
 		assertEquals("", "'", x.getLiteralValue());
+		
+		// test for bug 442614
+		x.setLiteralValue("\0041");
+		assertEquals("", "\"\\u00041\"", x.getEscapedValue());
+		assertEquals("", "\u00041", x.getLiteralValue());
 	}
 
 	public void testStringLiteralUnicode() {
@@ -1874,23 +1879,27 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		x.setCharValue('\r');
 		assertTrue(x.getEscapedValue().equals("\'\\r\'")); //$NON-NLS-1$
 		x.setCharValue('\"');
-		assertTrue(x.getEscapedValue().equals("\'\\\"\'")); //$NON-NLS-1$
+		assertTrue(x.getEscapedValue().equals("\'\"\'")); //$NON-NLS-1$
 		x.setCharValue('\0');
-		assertTrue(x.getEscapedValue().equals("\'\\0\'")); //$NON-NLS-1$
+		assertTrue(x.getEscapedValue().equals("\'\\u0000\'")); //$NON-NLS-1$
 		x.setCharValue('\1');
-		assertTrue(x.getEscapedValue().equals("\'\\1\'")); //$NON-NLS-1$
+		assertTrue(x.getEscapedValue().equals("\'\\u0001\'")); //$NON-NLS-1$
 		x.setCharValue('\2');
-		assertTrue(x.getEscapedValue().equals("\'\\2\'")); //$NON-NLS-1$
+		assertTrue(x.getEscapedValue().equals("\'\\u0002\'")); //$NON-NLS-1$
 		x.setCharValue('\3');
-		assertTrue(x.getEscapedValue().equals("\'\\3\'")); //$NON-NLS-1$
+		assertTrue(x.getEscapedValue().equals("\'\\u0003\'")); //$NON-NLS-1$
 		x.setCharValue('\4');
-		assertTrue(x.getEscapedValue().equals("\'\\4\'")); //$NON-NLS-1$
+		assertTrue(x.getEscapedValue().equals("\'\\u0004\'")); //$NON-NLS-1$
 		x.setCharValue('\5');
-		assertTrue(x.getEscapedValue().equals("\'\\5\'")); //$NON-NLS-1$
+		assertTrue(x.getEscapedValue().equals("\'\\u0005\'")); //$NON-NLS-1$
 		x.setCharValue('\6');
-		assertTrue(x.getEscapedValue().equals("\'\\6\'")); //$NON-NLS-1$
+		assertTrue(x.getEscapedValue().equals("\'\\u0006\'")); //$NON-NLS-1$
 		x.setCharValue('\7');
-		assertTrue(x.getEscapedValue().equals("\'\\7\'")); //$NON-NLS-1$
+		assertTrue(x.getEscapedValue().equals("\'\\u0007\'")); //$NON-NLS-1$
+		x.setCharValue('\33');
+		assertTrue(x.getEscapedValue().equals("\'\\u001b\'")); //$NON-NLS-1$
+		x.setCharValue('\41');
+		assertTrue(x.getEscapedValue().equals("\'!\'")); //$NON-NLS-1$
 	}
 
 	public void testNumberLiteral() {

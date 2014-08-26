@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * Character literal nodes.
@@ -316,58 +317,7 @@ public class CharacterLiteral extends Expression {
 		StringBuffer b = new StringBuffer(3);
 
 		b.append('\''); // opening delimiter
-		switch(value) {
-			case '\b' :
-				b.append("\\b"); //$NON-NLS-1$
-				break;
-			case '\t' :
-				b.append("\\t"); //$NON-NLS-1$
-				break;
-			case '\n' :
-				b.append("\\n"); //$NON-NLS-1$
-				break;
-			case '\f' :
-				b.append("\\f"); //$NON-NLS-1$
-				break;
-			case '\r' :
-				b.append("\\r"); //$NON-NLS-1$
-				break;
-			case '\"':
-				b.append("\\\""); //$NON-NLS-1$
-				break;
-			case '\'':
-				b.append("\\\'"); //$NON-NLS-1$
-				break;
-			case '\\':
-				b.append("\\\\"); //$NON-NLS-1$
-				break;
-			case '\0' :
-				b.append("\\0"); //$NON-NLS-1$
-				break;
-			case '\1' :
-				b.append("\\1"); //$NON-NLS-1$
-				break;
-			case '\2' :
-				b.append("\\2"); //$NON-NLS-1$
-				break;
-			case '\3' :
-				b.append("\\3"); //$NON-NLS-1$
-				break;
-			case '\4' :
-				b.append("\\4"); //$NON-NLS-1$
-				break;
-			case '\5' :
-				b.append("\\5"); //$NON-NLS-1$
-				break;
-			case '\6' :
-				b.append("\\6"); //$NON-NLS-1$
-				break;
-			case '\7' :
-				b.append("\\7"); //$NON-NLS-1$
-				break;
-			default:
-				b.append(value);
-		}
+		Util.appendEscapedChar(b, value, false);
 		b.append('\''); // closing delimiter
 		setEscapedValue(b.toString());
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1573,4 +1573,52 @@ public class Util implements SuffixConstants {
 		}
 		return true;
 	}
+	
+	public static void appendEscapedChar(StringBuffer buffer, char c, boolean stringLiteral) {
+		switch (c) {
+			case '\b' :
+				buffer.append("\\b"); //$NON-NLS-1$
+				break;
+			case '\t' :
+				buffer.append("\\t"); //$NON-NLS-1$
+				break;
+			case '\n' :
+				buffer.append("\\n"); //$NON-NLS-1$
+				break;
+			case '\f' :
+				buffer.append("\\f"); //$NON-NLS-1$
+				break;
+			case '\r' :
+				buffer.append("\\r"); //$NON-NLS-1$
+				break;
+			case '\"':
+				if (stringLiteral) {
+					buffer.append("\\\""); //$NON-NLS-1$
+				} else {
+					buffer.append(c);
+				}
+				break;
+			case '\'':
+				if (stringLiteral) {
+					buffer.append(c);
+				} else {
+					buffer.append("\\\'"); //$NON-NLS-1$
+				}
+				break;
+			case '\\':
+				buffer.append("\\\\"); //$NON-NLS-1$
+				break;
+			default:
+				if (c >= 0x20) {
+					buffer.append(c);
+				} else if (c >= 0x10) {
+					buffer.append("\\u00").append(Integer.toHexString(c)); //$NON-NLS-1$
+				} else if (c >= 0) {
+					buffer.append("\\u000").append(Integer.toHexString(c)); //$NON-NLS-1$
+				} else {
+					buffer.append(c);
+				}
+		}
+	}
+
 }

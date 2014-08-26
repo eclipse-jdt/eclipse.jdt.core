@@ -183,55 +183,13 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0, max = chars.length; i < max; i++) {
 			char c = chars[i];
-			escapeChar(buffer, c);
+			org.eclipse.jdt.internal.compiler.util.Util.appendEscapedChar(buffer, c, true);
 		}
 		return buffer.toString();
 	}
 
 	private static void escapeChar(StringBuffer buffer, char c) {
-		switch(c) {
-			case '\b' :
-				buffer.append("\\b"); //$NON-NLS-1$
-				break;
-			case '\t' :
-				buffer.append("\\t"); //$NON-NLS-1$
-				break;
-			case '\n' :
-				buffer.append("\\n"); //$NON-NLS-1$
-				break;
-			case '\f' :
-				buffer.append("\\f"); //$NON-NLS-1$
-				break;
-			case '\r' :
-				buffer.append("\\r"); //$NON-NLS-1$
-				break;
-			case '\0' :
-				buffer.append("\\0"); //$NON-NLS-1$
-				break;
-			case '\1' :
-				buffer.append("\\1"); //$NON-NLS-1$
-				break;
-			case '\2' :
-				buffer.append("\\2"); //$NON-NLS-1$
-				break;
-			case '\3' :
-				buffer.append("\\3"); //$NON-NLS-1$
-				break;
-			case '\4' :
-				buffer.append("\\4"); //$NON-NLS-1$
-				break;
-			case '\5' :
-				buffer.append("\\5"); //$NON-NLS-1$
-				break;
-			case '\6' :
-				buffer.append("\\6"); //$NON-NLS-1$
-				break;
-			case '\7' :
-				buffer.append("\\7"); //$NON-NLS-1$
-				break;
-			default:
-				buffer.append(c);
-		}
+		org.eclipse.jdt.internal.compiler.util.Util.appendEscapedChar(buffer, c, false);
 	}
 
 	static String decodeStringValue(String s) {
