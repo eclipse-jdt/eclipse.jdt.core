@@ -6579,4 +6579,33 @@ public void testBug441693other() {
 		"Potential null pointer access: this expression has a \'@Nullable\' type\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=439158, [1.8][compiler][null] Adding null annotation to return type causes IllegalStateException and sometimes InvocationTargetException
+public void testBug439158() {
+	runConformTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import java.util.Collection;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Set;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"	class X {\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static <C extends Collection<?>, A extends C, B extends C>\n" + 
+			"			@Nullable A transform(B arg) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		List<X> list = null;\n" + 
+			"		Set<X> result = transform(list);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 }

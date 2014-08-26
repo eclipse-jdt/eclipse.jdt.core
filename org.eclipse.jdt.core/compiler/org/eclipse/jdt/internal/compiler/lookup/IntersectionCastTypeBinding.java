@@ -38,6 +38,20 @@ public class IntersectionCastTypeBinding extends ReferenceBinding {
 		}
 	}
 	
+	private IntersectionCastTypeBinding(IntersectionCastTypeBinding prototype) {
+		this.intersectingTypes = prototype.intersectingTypes;
+		this.length = prototype.length;
+		if (!this.intersectingTypes[0].isClass()) {
+			this.javaLangObject = prototype.javaLangObject;
+			this.modifiers |= ClassFileConstants.AccInterface;
+		}
+	}
+	
+	@Override
+	public TypeBinding clone(TypeBinding enclosingType) {
+		return new IntersectionCastTypeBinding(this);
+	}
+	
 	public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcards) {
 		int index = replaceWildcards ? 0 : 1;
 		if (this.singleAbstractMethod != null) {
