@@ -290,6 +290,7 @@ public class AnnotatableTypeSystem extends TypeSystem {
 					if (!derivedType.isRawType() || derivedType.actualType() != type.actualType()) //$IDENTITY-COMPARISON$
 						continue;
 					break;
+				case Binding.INTERSECTION_TYPE:
 				case Binding.WILDCARD_TYPE:
 					if (!derivedType.isWildcard() || derivedType.actualType() != type.actualType() || derivedType.rank() != type.rank() || derivedType.boundKind() != type.boundKind()) //$IDENTITY-COMPARISON$
 						continue;
