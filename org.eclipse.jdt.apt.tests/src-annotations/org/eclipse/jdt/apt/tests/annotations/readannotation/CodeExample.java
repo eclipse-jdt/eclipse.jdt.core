@@ -10,17 +10,18 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests.annotations.readannotation;
 
+
 public class CodeExample {
-	
+
 	public static final String PACKAGE_QUESTION = "question";
-	
+
 	public static final String ANNOTATION_TEST_CLASS = "AnnotationTest";
-	public static final String ANNOTATION_TEST_CODE = 
+	public static final String ANNOTATION_TEST_CODE =
 			"package question;\n" +
 	        "\n" +
 	        "@Deprecated\n" +
 	        "@RTVisibleAnno(anno=@SimpleAnnotation(\"test\"), clazzes={})\n" +
-	        "@RTInvisibleAnno(\"question\")\n" +        
+	        "@RTInvisibleAnno(\"question\")\n" +
 	        "public interface AnnotationTest{\n" +
 	        "\n" +
 	        "    @RTVisibleAnno(name = \"Foundation\",\n" +
@@ -34,7 +35,7 @@ public class CodeExample {
 	        "                   shortValue = 3,    \n"    +
 	        "                   colors ={ Color.RED, Color.BLUE }, \n"    +
 	        "                   anno = @SimpleAnnotation(\"core\"),\n"    +
-	        "                   simpleAnnos = {@SimpleAnnotation(\"org\"),    \n" + 
+	        "                   simpleAnnos = {@SimpleAnnotation(\"org\"),    \n" +
 			"              	                   @SimpleAnnotation(\"eclipse\"),\n" +
 			"        		                   @SimpleAnnotation(\"jdt\") },  \n" +
 			"                   clazzes = {Object.class, String.class},\n " +
@@ -48,7 +49,7 @@ public class CodeExample {
 	    	"\n" +
 	    	"    @RTVisibleAnno(anno=@SimpleAnnotation(\"field\"), clazzes={})\n " +
 	    	"    @RTInvisibleAnno(\"2\") \n " +
-	    	"    public int field2 = 2; \n" +	
+	    	"    public int field2 = 2; \n" +
 	    	"\n" +
 	    	"    @RTInvisibleAnno(\"3\") \n" +
 	    	"    public int field3 = 3; \n"  +
@@ -82,35 +83,41 @@ public class CodeExample {
 	    	"   				   int p2); \n" +
 	    	"\n" +
 	    	"   public int method6(int p0, int p1, int p2); \n" +
+	    	"\n" +
+	    	"   @RTVisibleAnno(name = \"I'm \\\"special\\\": \\t\\\\\\n\",\n" +
+	    	"		          charValue = '\\'',\n" +
+	    	"		          clazzes = {},\n" +
+	    	"		          anno = @SimpleAnnotation(\"\"))\n" +
+	    	"   public int method7();" +
 	    	"\n }";
 
 	public static final String COLOR_CLASS = "Color";
-	public static final String COLOR_CODE = 
+	public static final String COLOR_CODE =
 		"package question;\n" +
 		"\n" +
-		"public enum Color { RED, WHITE, BLUE; } ";				
-	
+		"public enum Color { RED, WHITE, BLUE; } ";
+
 	public static final String PACKAGE_INFO_CLASS = "package-info";
-	public static final String PACKAGE_INFO_CODE = 
+	public static final String PACKAGE_INFO_CODE =
 		"@Deprecated package question; ";
-	
+
 	public static final String RTINVISIBLE_CLASS = "RTInvisibleAnno";
-	public static final String RTINVISIBLE_ANNOTATION_CODE = 
+	public static final String RTINVISIBLE_ANNOTATION_CODE =
 		"package question;  \n" +
 		"\n" +
-		"   public @interface RTInvisibleAnno{  \n" +		
+		"   public @interface RTInvisibleAnno{  \n" +
 		"   	String value(); \n" +
 		"   }";
-	
+
 	public static final String RTVISIBLE_CLASS = "RTVisibleAnno";
-	public static final String RTVISIBLE_ANNOTATION_CODE = 
+	public static final String RTVISIBLE_ANNOTATION_CODE =
 		"package question; \n" +
 		"\n" +
 		"import java.lang.annotation.*; \n" +
 		"\n" +
 		"@Retention(value=RetentionPolicy.RUNTIME) \n" +
 		"public @interface RTVisibleAnno  \n" +
-		"{	\n" +	
+		"{	\n" +
 		"	String name() default \"eclipse\"; \n" +
 		"	boolean boolValue() default true; \n" +
 		"	byte byteValue() default 0x0001; \n" +
@@ -126,9 +133,9 @@ public class CodeExample {
 		"	Class<?>[] clazzes(); \n" +
 		"	Class<?> clazz() default java.lang.String.class; \n" +
 		"\n }";
-	
+
 	public static final String SIMPLE_ANNOTATION_CLASS = "SimpleAnnotation";
-	public static final String SIMPLE_ANNOTATION_CODE = 
+	public static final String SIMPLE_ANNOTATION_CODE =
 		"package question; \n" +
 		"\n" +
 		"import java.lang.annotation.Retention; \n" +
@@ -136,27 +143,27 @@ public class CodeExample {
 		"\n" +
 		"@Retention(value=RetentionPolicy.RUNTIME) \n" +
 		"public @interface SimpleAnnotation { \n" +
-		"\n" +	
+		"\n" +
 		"	String value(); \n" +
 		"}";
-	
+
 	public static final String PACKAGE_TRIGGER = "trigger";
 	public static final String TRIGGER_CLASS = "Trigger";
-	public static final String TRIGGER_CODE = 
+	public static final String TRIGGER_CODE =
 		"package trigger; \n" +
 		"\n" +
 		"@MyMarkerAnnotation \n" +
 		"public class Trigger {}";
-	
+
 	public static final String MYMARKERANNOTATION_CLASS = "MyMarkerAnnotation";
-	public static final String MYMARKERANNOTATION_CODE = 
+	public static final String MYMARKERANNOTATION_CODE =
 		"package trigger; \n" +
-		"\n" +		
+		"\n" +
 		"public @interface MyMarkerAnnotation {}";
-	
+
 	public static final String PACKAGE_NOTYPES = "notypes";
 	public static final String PACKAGE_INFO_NOTYPES_CLASS = "package-info";
-	public static final String PACKAGE_INFO_NOTYPES_CODE = 
+	public static final String PACKAGE_INFO_NOTYPES_CODE =
 		"@question.SimpleAnnotation(\"foo\") package notypes;\n";
-	
+
 }

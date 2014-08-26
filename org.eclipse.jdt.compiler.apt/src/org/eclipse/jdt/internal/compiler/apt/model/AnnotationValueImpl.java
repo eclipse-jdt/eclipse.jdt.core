@@ -35,27 +35,28 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class AnnotationValueImpl implements AnnotationValue, TypeIds {
-	
+
 	/*
-	 * Additions to T_* constants in TypeIds. 
+	 * Additions to T_* constants in TypeIds.
 	 */
 	private static final int T_AnnotationMirror = -1;
 	private static final int T_EnumConstant = -2;
 	private static final int T_ClassObject = -3;
 	private static final int T_ArrayType = -4;
-	
+
 	private final BaseProcessingEnvImpl _env;
-	
+
 	/**
 	 * The annotation value, as it would be returned by
 	 * {@link #getValue()}.  For instance, an Integer (for an int
 	 * constant), a VariableElement (for an enum constant), or
-	 * a List<AnnotationValueImpl> containing multiple such (for an array type).  
+	 * a List<AnnotationValueImpl> containing multiple such (for an array type).
 	 */
 	private final Object _value;
-	
+
 	/**
 	 * The type stored in _value, represented as a T_* value from {@link TypeIds}
 	 * or one of the additional T_* values defined in this class.
@@ -110,7 +111,7 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 			_kind = kind[0];
 		}
 	}
-	
+
 	/**
 	 * Convert the JDT representation of a single constant into its javax.lang.model
 	 * representation.  For instance, convert a StringConstant into a String, or
@@ -185,7 +186,7 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 		} else if (type.isEnum()) {
 			if (value instanceof FieldBinding) {
 				kind[0] = T_EnumConstant;
-				return (VariableElement) _env.getFactory().newElement((FieldBinding) value);
+				return _env.getFactory().newElement((FieldBinding) value);
 			} else {
 				kind[0] = TypeIds.T_JavaLangString;
 				return "<error>"; //$NON-NLS-1$
@@ -262,9 +263,20 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 		if (_value == null) {
 			return "null"; //$NON-NLS-1$
 		} else if (_value instanceof String) {
-			return "\"" + _value + "\""; //$NON-NLS-1$ //$NON-NLS-2$
+			String value = (String) _value;
+			StringBuffer sb = new StringBuffer();
+			sb.append('"');
+			for (int i = 0; i < value.length(); i++) {
+				Util.appendEscapedChar(sb, value.charAt(i), true);
+			}
+			sb.append('"');
+			return sb.toString();
 		} else if (_value instanceof Character) {
-			return "'" + _value.toString() + "'"; //$NON-NLS-1$ //$NON-NLS-2$
+			StringBuffer sb = new StringBuffer();
+			sb.append('\'');
+			Util.appendEscapedChar(sb, ((Character) _value).charValue(), false);
+			sb.append('\'');
+			return sb.toString();
 		} else if (_value instanceof VariableElement) {
 			VariableElement enumDecl = (VariableElement) _value;
 			return enumDecl.asType().toString() + "." + enumDecl.getSimpleName(); //$NON-NLS-1$

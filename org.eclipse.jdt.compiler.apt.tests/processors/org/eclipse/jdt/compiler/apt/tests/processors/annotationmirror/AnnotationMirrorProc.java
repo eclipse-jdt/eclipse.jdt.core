@@ -49,6 +49,10 @@ public class AnnotationMirrorProc extends BaseProcessor {
 			return false;
 		}
 
+		if (!examineEscaping()) {
+			return false;
+		}
+
 		reportSuccess();
 		return false;
 	}
@@ -62,7 +66,7 @@ public class AnnotationMirrorProc extends BaseProcessor {
 	private boolean examineToString() {
 		TypeElement annotatedElement = _elementUtils.getTypeElement("targets.model.pc.AnnotatedWithManyTypes.Annotated");
 		if (null == annotatedElement || annotatedElement.getKind() != ElementKind.CLASS) {
-			reportError("examineGetAnnotation: couldn't get AnnotatedWithManyTypes.Annotated element");
+			reportError("examineToString: couldn't get AnnotatedWithManyTypes.Annotated element");
 			return false;
 		}
 		final String badValue = "examineToString: unexpected value for ";
@@ -150,6 +154,27 @@ public class AnnotationMirrorProc extends BaseProcessor {
 		AnnotationMirror annoArrayAnnoChar = annoMirrors.get(16);
 		if (null == annoArrayAnnoChar || !annoArrayAnnoChar.toString().equals("@org.eclipse.jdt.compiler.apt.tests.annotations.TypedAnnos.AnnoArrayAnnoChar(value = {@org.eclipse.jdt.compiler.apt.tests.annotations.TypedAnnos.AnnoChar(value = 'y'), @org.eclipse.jdt.compiler.apt.tests.annotations.TypedAnnos.AnnoChar(value = 'z')})")) {
 			reportError(badValue + "AnnoArrayAnnoChar");
+			return false;
+		}
+		return true;
+	}
+
+	private boolean examineEscaping() {
+		TypeElement annotatedElement = _elementUtils.getTypeElement("targets.model.pc.K");
+		if (null == annotatedElement || annotatedElement.getKind() != ElementKind.CLASS) {
+			reportError("examineEscaping: couldn't get K element");
+			return false;
+		}
+		final String badValue = "examineEscaping: unexpected value for ";
+		List<? extends AnnotationMirror> annoMirrors = annotatedElement.getAnnotationMirrors();
+		AnnotationMirror annoString = annoMirrors.get(0);
+		if (null == annoString || !annoString.toString().equals("@org.eclipse.jdt.compiler.apt.tests.annotations.TypedAnnos.AnnoString(value = \"I'm \\\"special\\\": \\t\\\\\\n\")")) {
+			reportError(badValue + "AnnoString");
+			return false;
+		}
+		AnnotationMirror annoChar = annoMirrors.get(1);
+		if (null == annoChar || !annoChar.toString().equals("@org.eclipse.jdt.compiler.apt.tests.annotations.TypedAnnos.AnnoChar(value = '\\'')")) {
+			reportError(badValue + "AnnoChar");
 			return false;
 		}
 		return true;
