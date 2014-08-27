@@ -420,9 +420,15 @@ public class TypeSystem {
 	public void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
 		final int unresolvedTypeId = unresolvedType.id;
 		if (unresolvedTypeId != TypeIds.NoId) {
-			if (this.types[unresolvedTypeId] != null && this.types[unresolvedTypeId][0] == unresolvedType) { //$IDENTITY-COMPARISON$
-				resolvedType.id = unresolvedTypeId;
-				this.types[unresolvedTypeId][0] = resolvedType;
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432977
+			TypeBinding[] derivedTypes = this.types[unresolvedTypeId];
+			for (int i = 0, length = derivedTypes == null ? 0 : derivedTypes.length; i < length; i++) {
+				if (derivedTypes[i] == null)
+					break;
+				if (derivedTypes[i] == unresolvedType) { //$IDENTITY-COMPARISON$
+					resolvedType.id = unresolvedTypeId;
+					derivedTypes[i] = resolvedType;
+				}
 			}
 		}
 		if (this.annotationTypes.get(unresolvedType) != null) { // update the key

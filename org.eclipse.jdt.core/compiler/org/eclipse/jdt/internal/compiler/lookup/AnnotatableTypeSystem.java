@@ -309,9 +309,6 @@ public class AnnotatableTypeSystem extends TypeSystem {
 					break;
 			}
 			if (Util.effectivelyEqual(derivedType.getTypeAnnotations(), annotations)) {
-				// point-fix for https://bugs.eclipse.org/432977
-				if (!type.isUnresolvedType() && derivedType.isUnresolvedType())
-					return ((UnresolvedReferenceBinding)derivedType).resolve(this.environment, false);
 				return derivedType;
 			}
 			if (!derivedType.hasTypeAnnotations())
