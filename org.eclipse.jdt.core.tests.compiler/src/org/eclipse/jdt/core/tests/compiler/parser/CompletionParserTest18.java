@@ -1651,4 +1651,60 @@ public void test402081() { // initializer block
 				expectedReplacedSource,
 				"diet ast");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430656, [1.8][content assist] Content assist does not work for method reference argument
+public void test430656() {
+	String string = 
+			"import java.util.ArrayList;\n" +
+			"import java.util.Collections;\n" +
+			"import java.util.Comparator;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	public void bar() {\n" +
+		"		List<Person> people = new ArrayList<>();\n" +
+			"		Collections.sort(people, Comparator.comparing(Person::get)); \n" +
+			"	}\n" +
+			"}\n" +
+			"class Person {\n" +
+			"	String getLastName() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n";
+
+			String completeBehind = "get";
+			int cursorLocation = string.indexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompletionOnReferenceExpressionName:Person::get>";
+			String expectedParentNodeToString = "Comparator.comparing(<CompletionOnReferenceExpressionName:Person::get>)";
+			String completionIdentifier = "get";
+			String expectedReplacedSource = "Person::get";
+			String expectedUnitDisplayString =
+					"import java.util.ArrayList;\n" + 
+					"import java.util.Collections;\n" + 
+					"import java.util.Comparator;\n" + 
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"  public void bar() {\n" + 
+					"    List<Person> people;\n" + 
+					"    Comparator.comparing(<CompletionOnReferenceExpressionName:Person::get>);\n" + 
+					"  }\n" + 
+					"}\n" + 
+					"class Person {\n" + 
+					"  Person() {\n" + 
+					"  }\n" + 
+					"  String getLastName() {\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
 }
