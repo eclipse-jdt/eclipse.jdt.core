@@ -1533,4 +1533,35 @@ public void test430441() throws JavaModelException {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	context.codeComplete(str, cursorLocation, requestor);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430656, [1.8][content assist] Content assist does not work for method reference argument 
+public void test430656() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/X.java",
+				"import java.util.ArrayList;\n" +
+				"import java.util.Collections;\n" +
+				"import java.util.Comparator;\n" +
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"	public void bar() {\n" +
+				"		List<Person> people = new ArrayList<>();\n" +
+				"		Collections.sort(people, Comparator.comparing(Person::get)); \n" +
+				"	}\n" +
+				"}\n" +
+				"class Person {\n" +
+				"	String getLastName() {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "get";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"getClass[METHOD_IMPORT]{getClass, Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 35}\n" +
+			"getLastName[METHOD_IMPORT]{getLastName, Ltest.Person;, ()Ljava.lang.String;, getLastName, null, 35}",
+			requestor.getResults());
+}
 }
