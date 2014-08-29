@@ -1833,4 +1833,8 @@ void setSourceStart(int sourceStart);
 
 	/** @since 3.10 */
 	int GenericInferenceError = 1100; 	// FIXME: This is just a stop-gap measure, be more specific via https://bugs.eclipse.org/404675
+	
+	/** @deprecated - problem is no longer generated (implementation issue has been resolved)
+	 * @since 3.10 */
+	int LambdaShapeComputationError = 1101;
 }
