@@ -186,6 +186,8 @@ public class TypeSystem {
 
 	/* Note: parameters will not have type type annotations if lookup environment directly uses TypeSystem as its typeSystem. When ATS is used however
 	   they may be annotated and we need to materialize the unannotated versions and work on them.
+	   
+	   See ArrayBinding.swapUnresolved for further special case handling if incoming leafType is a URB that would resolve to a raw type later.
 	*/ 
 	public ArrayBinding getArrayType(TypeBinding leafType, int dimensions) {
 		TypeBinding unannotatedLeafType = getUnannotatedType(leafType);
