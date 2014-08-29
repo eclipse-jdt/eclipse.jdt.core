@@ -482,5 +482,48 @@ public void test429537() throws CoreException, IOException {
 	}
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=442534, Eclipse's Run button does not work.
+public void test442534() throws CoreException, IOException {
+
+	IJavaProject project = null;
+	try {
+		project = this.createJavaProject(
+				"Bug442534",
+				new String[] {"src"},
+				new String[] {this.getExternalJCLPathString(), "lib"},
+				"bin");
+		project.setOption(JavaCore.COMPILER_COMPLIANCE, "1.8");
+		project.setOption(JavaCore.COMPILER_SOURCE, "1.8");
+
+		this.createFolder("Bug442534/src/q");
+		this.createFile("Bug442534/src/X.java",
+				"import q.*;\n" +
+				"public final class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(e -> { if (new Object() instanceof Y);});\n" +
+				"	};\n" +
+				"	static void foo(I i) {\n" +
+				"		return;\n" +
+				"	}\n" +
+				"}\n" +
+				"interface I {\n" +
+				"	void foo(int x);\n" +
+				"}\n");
+
+		this.createFile("Bug442534/src/q/Y.java",
+				"package q;\n" +
+				"public class Y {\n" +
+				"}\n");
+
+		this.createFile("Bug442534/src/q/package-info.java",
+				"package q;\n"
+				);
+
+		project.findType("X").newSupertypeHierarchy(null);
+	} finally {
+		if (project != null)
+			this.deleteProject(project);
+	}
+}
 }
 
