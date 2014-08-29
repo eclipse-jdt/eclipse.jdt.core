@@ -60,6 +60,9 @@ public class AnnotatableTypeSystem extends TypeSystem {
 	
 	/* This method replaces the version that used to sit in LE. The parameter `annotations' is a flattened sequence of annotations, 
 	   where each dimension's annotations end with a sentinel null. Leaf type can be an already annotated type.
+	   
+	   See ArrayBinding.swapUnresolved for further special case handling if incoming leafType is a URB that would resolve to a raw 
+	   type later.
 	*/
 	public ArrayBinding getArrayType(TypeBinding leafType, int dimensions, AnnotationBinding [] annotations) {
 		
