@@ -4628,7 +4628,33 @@ public void test432110() {
 			"}\n",
 		}, 
 		"OK");
-	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=441929, [1.8][compiler] @SuppressWarnings("unchecked") not accepted on local variable
+public void test441929() {
+	this.runNegativeTest(
+		new String[] {
+			"Y.java",
+			"public class Y {\n" +
+			"    @FunctionalInterface\n" +
+			"    interface X {\n" +
+			"        public void x();\n" +
+			"    }\n" +
+			"    public void z(X x) {\n" +
+			"    }\n" +
+			"    public <T> void test() {\n" +
+			"        z(() -> {\n" +
+			"            try {\n" +
+			"                @SuppressWarnings(\"unchecked\")   // (1)\n" +
+			"                Class<? extends T> klass = (Class<? extends T>) Class.forName(\"java.lang.Object\");   // (2)\n" +
+			"                System.out.println(klass.getName());\n" +
+			"            } catch (Exception e) {\n" +
+			"                e.printStackTrace();\n" +
+			"            }\n" +
+			"        });\n" +
+			"    }\n" +
+			"}\n",
+		}, 
+		"");
 }
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
