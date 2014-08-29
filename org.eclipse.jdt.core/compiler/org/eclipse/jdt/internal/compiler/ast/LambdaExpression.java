@@ -448,8 +448,14 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 									 new ExceptionHandlingFlowContext(null, this, Binding.NO_EXCEPTIONS, null, this.scope, FlowInfo.DEAD_END), 
 									 UnconditionalFlowInfo.fakeInitializedFlowInfo(this.scope.outerMostMethodScope().analysisIndex, this.scope.referenceType().maxFieldCount)) == FlowInfo.DEAD_END;
 		} catch (RuntimeException e) {
-			this.scope.problemReporter().lambdaShapeComputationError(this);
-			return this.valueCompatible;
+			/* See https://bugs.eclipse.org/bugs/show_bug.cgi?id=432110 for an example of where the flow analysis can result in run time error.
+			   We can recover and do the right thing by falling back on the results of the structural analysis done already and be right 99.99%
+			   of the time. Strictly speaking void/value compatibility is not a structural property. { throw NPE(); } is value compatible despite
+			   structurally there not being a return statement. Likewise { if (x) return value; } is not value compatible despite there being a
+			   return statement. We will miss the former case, but that is mostly pedantic. We would misclassify the latter case *here*, but it
+			   would be caught elsewhere, so it should all wash out in the end. 
+			*/ 
+			return this.original.valueCompatible;
 		}
 	}
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, final FlowInfo flowInfo) {
@@ -841,8 +847,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			if (this.body instanceof Block) {
 				if (copy.returnsVoid) {
 					copy.shapeAnalysisComplete = true;
-				} else {
-					copy.valueCompatible = this.returnsValue;
 				}
 			} else {
 				copy.voidCompatible = ((Expression) this.body).statementExpression();

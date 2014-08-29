@@ -4550,35 +4550,30 @@ public void test440152a() {
 			"}\n"
 	});
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=441907, [1.8][compiler] Eclipse 4.4.x compiler generics bugs with streams and lambdas 
-public void test441907() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432110,  [1.8][compiler] nested lambda type incorrectly inferred vs javac
+public void test432110() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.*;\n" +
-			"import java.util.function.Predicate;\n" +
-			"import java.util.stream.Stream;\n" +
-			"public class X {\n" +
-			"  public static class FooBar<V> {\n" +
-			"  }\n" +
-			"  public interface FooBarred {\n" +
-			"    public <V> boolean hasFooBar(final FooBar<V> fooBar);\n" +
-			"  }\n" +
-			"  public interface Widget extends FooBarred {\n" +
-			"  }\n" +
-			"  public static void test() {\n" +
-			"    Set<FooBar<?>> foobars = new HashSet<>();\n" +
-			"    Set<Widget> widgets = new HashSet<>();\n" +
-			"    Stream<X.FooBar<?>> s = null;\n" +
-			"    FooBarred fb = null;\n" +
-			"    fb.hasFooBar((FooBar<?>) null);\n" +
-			"    boolean anyWidgetHasFooBar = widgets.stream().anyMatch(\n" +
-			"        widget -> foobars.stream().anyMatch(widget::hasFooBar)\n" +
-			"        );\n" +
-			"  }\n" +
-			"}\n"
-		},
-		"");
+			"import java.util.function.Function;\n" +
+			"public interface X {\n" +
+			"    default void test() {\n" +
+			"        testee().flatMap(_warning_ -> {\n" +
+			"            return result().map(s -> 0);\n" +
+			"        });\n" +
+			"    }\n" +
+			"    Either<Integer, Integer> testee();\n" +
+			"    Either<Integer, String> result();\n" +
+			"    static interface Either<L, R> {\n" +
+			"        <U> Either<L, U> flatMap(Function<? super R, Either<L, U>> mapper);\n" +
+			"        <U> Either<L, U> map(Function<? super R, U> mapper);\n" +
+			"    }\n" +
+			"    public static void main(String [] args) {\n" +
+			"        System.out.println(\"OK\");\n" +
+			"    }\n" +
+			"}\n",
+		}, 
+		"OK");
 }
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
