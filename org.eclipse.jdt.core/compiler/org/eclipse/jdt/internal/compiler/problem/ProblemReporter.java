@@ -1563,8 +1563,6 @@ public int computeSeverity(int problemID){
 			return ProblemSeverities.Warning;
 		case IProblem.IllegalUseOfUnderscoreAsAnIdentifier:
 			return this.underScoreIsLambdaParameter ? ProblemSeverities.Error : ProblemSeverities.Warning;
-		case IProblem.LambdaShapeComputationError:
-			return ProblemSeverities.InternalError;
 	}
 	int irritant = getIrritant(problemID);
 	if (irritant != 0) {
@@ -10180,14 +10178,5 @@ public void uninternedIdentityComparison(EqualExpression expr, TypeBinding lhs, 
 			},
 			expr.sourceStart,
 			expr.sourceEnd);
-}
-
-public void lambdaShapeComputationError(LambdaExpression expression) {
-	this.handle(
-			IProblem.LambdaShapeComputationError,
-			NoArgument,
-			NoArgument,
-			expression.sourceStart,
-			expression.diagnosticsSourceEnd());
 }
 }
