@@ -10,7 +10,6 @@
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
  *     						Bug 320618 - inconsistent initialization of classpath container backed by external class folder
  *     						Bug 346010 - [model] strange initialization dependency in OptionTests
- *     Terry Parker <tparker@google.com> - Bug 441726 - JDT performance regression due to bug 410207
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -617,7 +616,7 @@ public class JavaProject
 				} else if (target instanceof File) {
 					// external target
 					if (JavaModel.isFile(target)) {
-						root = getJarPackageFragmentRoot(entryPath);
+						root = new JarPackageFragmentRoot(entryPath, this);
 					} else if (((File) target).isDirectory()) {
 						root = new ExternalPackageFragmentRoot(entryPath, this);
 					}
@@ -1834,16 +1833,7 @@ public class JavaProject
 		IFolder linkedFolder = JavaModelManager.getExternalManager().getFolder(externalLibraryPath);
 		if (linkedFolder != null)
 			return new ExternalPackageFragmentRoot(linkedFolder, externalLibraryPath, this);
-		return getJarPackageFragmentRoot(externalLibraryPath);
-	}
-
-	private JarPackageFragmentRoot getJarPackageFragmentRoot(IPath externalLibraryPath) {
-		Long languageLevel = JavaModelManager.getJavaModelManager().getJarLanguageLevel(externalLibraryPath);
-		if (languageLevel == null) {
-			languageLevel = Util.getJdkLevel(JavaModel.getTarget(externalLibraryPath, true));
-			JavaModelManager.getJavaModelManager().addToJarLanguageLevelsCache(externalLibraryPath, languageLevel);
-		}
-		return new JarPackageFragmentRoot(externalLibraryPath, this, languageLevel);
+		return new JarPackageFragmentRoot(externalLibraryPath, this);
 	}
 
 	/**
