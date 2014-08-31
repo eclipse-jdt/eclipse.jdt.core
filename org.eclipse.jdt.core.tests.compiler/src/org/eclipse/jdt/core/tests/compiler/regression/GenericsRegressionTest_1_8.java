@@ -3256,4 +3256,34 @@ public void testBug434483() {
 			"}\n"
 		});
 }
+public void testBug441734() {
+	runConformTest(
+		new String[] {
+			"Example.java",
+			"import java.util.*;\n" +
+			"import java.util.function.*;\n" +
+			"class Example {\n" + 
+			"    void foo(Iterable<Number> x) { }\n" + 
+			"\n" + 
+			"    <T> void bar(Consumer<Iterable<T>> f) { }\n" + 
+			"\n" + 
+			"    void test() {\n" + 
+			"        //call 1: lambda w/argument type - OK\n" + 
+			"        bar((Iterable<Number> x) -> foo(x));\n" + 
+			"\n" + 
+			"        //call 2: lambda w/explicit type - OK\n" + 
+			"        this.<Number> bar(x -> foo(x));\n" + 
+			"\n" + 
+			"        //call 3: method ref w/explicit type - OK\n" + 
+			"        this.<Number> bar(this::foo);\n" + 
+			"\n" + 
+			"        //call 4: lambda w/implicit type - correctly(?) fails*\n" + 
+			"        //bar(x -> foo(x));\n" + 
+			"\n" + 
+			"        //call 5: method ref w/implicit type - BUG!\n" + 
+			"        bar(this::foo); // errors!\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }
