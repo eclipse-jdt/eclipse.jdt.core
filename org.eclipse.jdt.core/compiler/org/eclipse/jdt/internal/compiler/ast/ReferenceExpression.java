@@ -426,11 +426,11 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			scope.problemReporter().nullAnnotationUnsupportedLocation((TypeReference) this.lhs);
 		}
 
-		/* 15.28: "It is a compile-time error if a method reference of the form super :: NonWildTypeArgumentsopt Identifier or of the form 
-		   TypeName . super :: NonWildTypeArgumentsopt Identifier occurs in a static context.": This is nop since the primary when it resolves
+		/* 15.13: "If a method reference expression has the form super :: [TypeArguments] Identifier or TypeName . super :: [TypeArguments] Identifier,
+		   it is a compile-time error if the expression occurs in a static context. ": This is nop since the primary when it resolves
 		   itself will complain automatically.
 		
-		   15.28: "The immediately enclosing instance of an inner class instance (15.9.2) must be provided for a constructor reference by a lexically 
+		   15.13: "The immediately enclosing instance of an inner class instance (15.9.2) must be provided for a constructor reference by a lexically 
 		   enclosing instance of this (8.1.3)", we will actually implement this check in code generation. Emulation path computation will fail if there
 		   is no suitable enclosing instance. While this could be pulled up to here, leaving it to code generation is more consistent with Java 5,6,7 
 		   modus operandi.
@@ -474,7 +474,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         if (this.descriptor == null || !this.descriptor.isValidBinding())
         	return this.resolvedType =  null;
         
-        // 15.28.1
+        // 15.13.1
         final boolean isMethodReference = isMethodReference();
         this.depth = 0;
         this.freeParameters = descriptorParameters;
@@ -816,7 +816,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 				&& this.resolvedType != null && this.resolvedType.isValidBinding()) {
 			return this.resolvedType.isCompatibleWith(left, scope);
 		}
-		// 15.28.2
+		// 15.13.2
 		left = left.uncapture(this.enclosingScope);
 		final MethodBinding sam = left.getSingleAbstractMethod(this.enclosingScope, true);
 		if (sam == null || !sam.isValidBinding())
