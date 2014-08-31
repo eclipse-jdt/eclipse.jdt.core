@@ -254,7 +254,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 		MethodBinding functionType = t.getSingleAbstractMethod(inferenceContext.scope, true);
 		if (functionType == null)
 			return FALSE;
-		// potentially-applicable method for the method reference when targeting T (15.28.1),
+		// potentially-applicable method for the method reference when targeting T (15.13.1),
 		MethodBinding potentiallyApplicable = reference.findCompileTimeMethodTargeting(t, inferenceContext.scope);
 		if (potentiallyApplicable == null)
 			return FALSE;
@@ -285,7 +285,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			for (int i = 0; i < n; i++)
 				if (!functionType.parameters[i].isProperType(true))
 					return FALSE;
-			// Otherwise, a search for a compile-time declaration is performed, as defined in 15.28.1....
+			// Otherwise, a search for a compile-time declaration is performed, as defined in 15.13.1....
 			// Note: we currently don't distinguish search for a potentially-applicable method from searching the compiler-time declaration,
 			// hence reusing the method binding from above
 			MethodBinding compileTimeDecl = potentiallyApplicable;

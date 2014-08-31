@@ -2329,7 +2329,7 @@ public abstract class Scope {
 		private static final long serialVersionUID = -7996779527641476028L;
 	}
 	
-	// For exact method references. 15.28.1
+	// For exact method references. 15.13.1
 	private MethodBinding getExactMethod(TypeBinding receiverType, TypeBinding type, char[] selector, InvocationSite invocationSite, MethodBinding candidate) {
 
 		if (type == null)
@@ -2365,7 +2365,7 @@ public abstract class Scope {
 		return candidate;
 	}
 		
-	// For exact method references. 15.28.1
+	// For exact method references. 15.13.1
 	public MethodBinding getExactMethod(TypeBinding receiverType, char[] selector, InvocationSite invocationSite) {
 		if (receiverType == null || !receiverType.isValidBinding() || receiverType.isBaseType())
 			return null;
@@ -2402,7 +2402,7 @@ public abstract class Scope {
 		return exactMethod;
 	}
 		
-	// For exact constructor references. 15.28.1
+	// For exact constructor references. 15.13.1
 	public MethodBinding getExactConstructor(TypeBinding receiverType, InvocationSite invocationSite) {
 		if (receiverType == null || !receiverType.isValidBinding() || !receiverType.canBeInstantiated() || receiverType.isBaseType())
 			return null;
