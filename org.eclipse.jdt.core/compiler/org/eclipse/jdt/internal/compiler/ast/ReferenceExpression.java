@@ -30,6 +30,7 @@
  *							Bug 435689 - [1.8][inference] Type inference not occurring with lambda expression and method reference
  *							Bug 438383 - [1.8][null] Bogus warning: Null type safety at method return type
  *							Bug 434483 - [1.8][compiler][inference] Type inference not picked up with method reference
+ *							Bug 441734 - [1.8][inference] Generic method with nested parameterized type argument fails on method reference
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contribution for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -89,7 +90,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	private MethodBinding exactMethodBinding; // != null ==> exact method reference.
 	private boolean receiverPrecedesParameters = false;
 	private TypeBinding[] freeParameters; // descriptor parameters as used for method lookup - may or may not include the receiver
-	protected boolean trialResolution = false;
+	public boolean trialResolution = false;
 	public int inferenceKind; // TODO: define life-cycle: when to re-initialize? How long to keep value?
 	
 	public ReferenceExpression() {
