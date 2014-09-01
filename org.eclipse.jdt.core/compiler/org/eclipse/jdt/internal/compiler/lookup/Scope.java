@@ -1298,7 +1298,8 @@ public abstract class Scope {
 			}
 			// 1.8: Give inference a chance to perform outstanding tasks (18.5.2):
 			concreteMatch = inferInvocationType(invocationSite, concreteMatch, argumentTypes);
-			compilationUnitScope().recordTypeReferences(concreteMatch.thrownExceptions);
+			if (concreteMatch != null)
+				compilationUnitScope().recordTypeReferences(concreteMatch.thrownExceptions);
 			return concreteMatch;
 		}
 		// no need to check for visibility - interface methods are public
@@ -1770,7 +1771,7 @@ public abstract class Scope {
 								return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, compatibleMethod);
 // ==== 1.8: Finalize type inference of generic methods: ====
 							MethodBinding improved = inferInvocationType(invocationSite, compatibleMethod, argumentTypes);
-							if (improved.isValidBinding()) {
+							if (improved != null && improved.isValidBinding()) {
 								compatibleMethod = improved;
 							} else {
 								problemMethod = improved;
@@ -1886,7 +1887,8 @@ public abstract class Scope {
 					return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, candidates[0]);
 				// 1.8: Give inference a chance to perform outstanding tasks (18.5.2):
 				candidate = inferInvocationType(invocationSite, candidates[0], argumentTypes);
-				unitScope.recordTypeReferences(candidate.thrownExceptions);
+				if (candidate != null)
+					unitScope.recordTypeReferences(candidate.thrownExceptions);
 				return candidate;
 			default :
 				break;
@@ -4403,7 +4405,8 @@ public abstract class Scope {
 			return new ProblemMethodBinding(visible[0].selector, argumentTypes, ProblemReasons.NotFound);
 		} else if (compatibleCount == 1) {
 			MethodBinding candidate = inferInvocationType(invocationSite, visible[0], argumentTypes);
-			compilationUnitScope().recordTypeReferences(candidate.thrownExceptions);
+			if (candidate != null)
+				compilationUnitScope().recordTypeReferences(candidate.thrownExceptions);
 			return candidate;
 		}
 		if (compatibleCount != visibleSize) {
@@ -4467,7 +4470,8 @@ public abstract class Scope {
 				return new ProblemMethodBinding(visible[0], visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
 			} else if (count == 1) {
 				MethodBinding candidate = inferInvocationType(invocationSite, moreSpecific[0], argumentTypes);
-				compilationUnitScope().recordTypeReferences(candidate.thrownExceptions);
+				if (candidate != null)
+					compilationUnitScope().recordTypeReferences(candidate.thrownExceptions);
 				return candidate;
 			} else {
 				visibleSize = count;
@@ -4544,7 +4548,8 @@ public abstract class Scope {
 					if (moreSpecific[i] != null) {
 						// 1.8: Give inference a chance to perform outstanding tasks (18.5.2):
 						MethodBinding candidate = inferInvocationType(invocationSite, visible[i], argumentTypes);
-						compilationUnitScope().recordTypeReferences(candidate.thrownExceptions);
+						if (candidate != null)
+							compilationUnitScope().recordTypeReferences(candidate.thrownExceptions);
 						return candidate;
 					}
 				}

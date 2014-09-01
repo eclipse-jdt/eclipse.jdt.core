@@ -9093,6 +9093,34 @@ public void test439707() {
 		"The type T2.InvisibleInterface from the descriptor computed for the target context is not visible here.  \n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=442983, [1.8] NPE in Scope.findDefaultAbstractMethod 
+public void test442983() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.function.Function;\n" +
+			"class CL<T> {\n" +
+			"	<F> String method1(CL<T> ie) {\n" +
+			"		return \"b\";\n" +
+			"	}\n" +
+			"	public void bar() {		\n" +
+			"		Function<CL<Integer>, String> v5 = CL::method1;\n" +
+			"		v5 = t -> t.method1();	\n" +
+			"	}	\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	Function<CL<Integer>, String> v5 = CL::method1;\n" + 
+		"	                                   ^^^^^^^^^^^\n" + 
+		"The type CL does not define method1(CL<Integer>) that is applicable here\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	v5 = t -> t.method1();	\n" + 
+		"	            ^^^^^^^\n" + 
+		"The method method1(CL<Integer>) in the type CL<Integer> is not applicable for the arguments ()\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
