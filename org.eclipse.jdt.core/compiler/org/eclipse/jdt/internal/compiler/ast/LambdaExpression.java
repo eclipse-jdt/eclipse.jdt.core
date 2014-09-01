@@ -734,10 +734,9 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 						this.shapeAnalysisComplete = true;
 					}
 				} else {
-					this.voidCompatible = ((Expression) this.body).statementExpression();
-					// TODO: in getResolvedCopyForInferenceTargeting() we need to check if the expression
-					//        *could* also produce a value and set valueCompatible accordingly.
-					//        Is that needed also here?
+					final Expression expressionBody = (Expression) this.body;
+					this.voidCompatible = expressionBody.statementExpression();
+					this.valueCompatible = expressionBody.resolvedType != TypeBinding.VOID;
 					this.shapeAnalysisComplete = true;
 				}
 				// Do not proceed with data/control flow analysis if resolve encountered errors.
@@ -776,9 +775,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if (sam.parameters.length != this.arguments.length)
 			return false;
 
-		if (!isPertinentToApplicability(left, null))  // This check should happen after return type check below, but for buggy javac compatibility we have left it in.
-			return true;
-
 		if (sam.returnType.id == TypeIds.T_void) {
 			if (!this.voidCompatible)
 				return false;
@@ -786,6 +782,10 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			if (!this.valueCompatible)
 				return false;
 		}
+
+		if (!isPertinentToApplicability(left, null))
+			return true;
+
 		Expression [] returnExpressions = this.resultExpressions;
 		for (int i = 0, length = returnExpressions.length; i < length; i++) {
 			if (returnExpressions[i] instanceof FunctionalExpression) { // don't want to use the resolvedType - polluted from some other overload resolution candidate

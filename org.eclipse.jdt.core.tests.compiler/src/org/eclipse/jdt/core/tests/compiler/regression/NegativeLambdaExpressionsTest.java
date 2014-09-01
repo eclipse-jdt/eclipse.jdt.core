@@ -5062,7 +5062,7 @@ this.runNegativeTest(
 				"	public static void main(String[] args) {\n" +
 				"		new X().foo(()->{ return \"\";});\n" +
 				"		new X().foo(()-> 10);\n" +
-				"		new X().foo((s)->{});\n" +    // error not reported here, since analyzeCode does not get to run.
+				"		new X().foo((s)->{});\n" +
 				"		new X().foo((s)->{ return;});\n" +
 				"		new X().foo((s)->{ return \"\";});\n" +
 				"		new X().foo((s)-> \"hello\");\n" +
@@ -5092,10 +5092,25 @@ this.runNegativeTest(
 				"	                 ^^\n" + 
 				"Void methods cannot return a value\n" + 
 				"----------\n" + 
-				"5. ERROR in X.java (at line 18)\n" + 
+				"5. ERROR in X.java (at line 17)\n" + 
+				"	new X().foo((s)->{});\n" + 
+				"	        ^^^\n" + 
+				"The method foo(I) in the type X is not applicable for the arguments ((<no type> s) -> {})\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 17)\n" + 
+				"	new X().foo((s)->{});\n" + 
+				"	            ^^^^^\n" + 
+				"Lambda expression\'s signature does not match the signature of the functional interface method foo()\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 18)\n" + 
 				"	new X().foo((s)->{ return;});\n" + 
-				"	                   ^^^^^^^\n" + 
-				"This method must return a result of type String\n" + 
+				"	        ^^^\n" + 
+				"The method foo(I) in the type X is not applicable for the arguments ((<no type> s) -> {})\n" + 
+				"----------\n" + 
+				"8. ERROR in X.java (at line 18)\n" + 
+				"	new X().foo((s)->{ return;});\n" + 
+				"	            ^^^^^\n" + 
+				"Lambda expression\'s signature does not match the signature of the functional interface method foo()\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
@@ -5766,58 +5781,48 @@ public void test401939b() {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 14)\n" + 
 				"	goo((x) -> { while (FALSE) throw new Exception(); });\n" + 
-				"	    ^^^^^^\n" + 
-				"This method must return a result of type String\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 14)\n" + 
-				"	goo((x) -> { while (FALSE) throw new Exception(); });\n" + 
-				"	                           ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Unreachable code\n" + 
+				"2. ERROR in X.java (at line 15)\n" + 
+				"	goo((x) -> { while (TRUE) throw new Exception(); });\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
 				"----------\n" + 
-				"3. ERROR in X.java (at line 17)\n" + 
-				"	goo((x) -> { while (POI) throw new Exception(); });\n" + 
-				"	    ^^^^^^\n" + 
-				"This method must return a result of type String\n" + 
+				"3. ERROR in X.java (at line 16)\n" + 
+				"	goo((x) -> { while (NIJAM) throw new Exception(); });\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
 				"----------\n" + 
 				"4. ERROR in X.java (at line 17)\n" + 
 				"	goo((x) -> { while (POI) throw new Exception(); });\n" + 
-				"	                         ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Unreachable code\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
 				"----------\n" + 
-				"5. WARNING in X.java (at line 18)\n" + 
+				"5. ERROR in X.java (at line 18)\n" + 
 				"	goo((x) -> { if (TRUE) throw new Exception(); else throw new Exception(); });\n" + 
-				"	                                                   ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
 				"----------\n" + 
 				"6. ERROR in X.java (at line 19)\n" + 
 				"	goo((x) -> { if (TRUE) throw new Exception(); });\n" + 
-				"	    ^^^^^^\n" + 
-				"This method must return a result of type String\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
 				"----------\n" + 
-				"7. WARNING in X.java (at line 20)\n" + 
+				"7. ERROR in X.java (at line 20)\n" + 
 				"	goo((x) -> { if (true) throw new Exception(); else throw new Exception(); });\n" + 
-				"	                                                   ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
 				"----------\n" + 
-				"8. WARNING in X.java (at line 20)\n" + 
-				"	goo((x) -> { if (true) throw new Exception(); else throw new Exception(); });\n" + 
-				"	                                                   ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Dead code\n" + 
-				"----------\n" + 
-				"9. WARNING in X.java (at line 21)\n" + 
+				"8. ERROR in X.java (at line 21)\n" + 
 				"	goo((x) -> { if (false) throw new Exception(); else throw new Exception(); });\n" + 
-				"	                        ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Dead code\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
 				"----------\n" + 
-				"10. WARNING in X.java (at line 21)\n" + 
-				"	goo((x) -> { if (false) throw new Exception(); else throw new Exception(); });\n" + 
-				"	                                                    ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" + 
-				"----------\n" + 
-				"11. ERROR in X.java (at line 22)\n" + 
+				"9. ERROR in X.java (at line 22)\n" + 
 				"	goo((x) -> { while (BLANK) throw new Exception(); });\n" + 
-				"	    ^^^^^^\n" + 
-				"This method must return a result of type String\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
@@ -5841,6 +5846,11 @@ public void test401939c() {
 				"	goo((x) -> { if (x) return null; });\n" + 
 				"	                 ^\n" + 
 				"Type mismatch: cannot convert from String to boolean\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 9)\n" + 
+				"	goo((x) -> {});\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
@@ -5861,8 +5871,8 @@ public void test401939ca() {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 8)\n" + 
 				"	goo((x) -> {});\n" + 
-				"	    ^^^^^^\n" + 
-				"This method must return a result of type String\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
@@ -5883,8 +5893,8 @@ public void test401939d() {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 8)\n" + 
 				"	goo((x) -> { if (x) return null; });\n" + 
-				"	    ^^^^^^\n" + 
-				"This method must return a result of type String\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
@@ -5904,6 +5914,11 @@ public void test401939e() {
 				"}\n",			},
 				"----------\n" + 
 				"1. ERROR in X.java (at line 8)\n" + 
+				"	goo((x) -> { return null; });\n" + 
+				"	^^^\n" + 
+				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\n" + 
 				"	goo((x) -> { return null; });\n" + 
 				"	             ^^^^^^^^^^^^\n" + 
 				"Void methods cannot return a value\n" + 
@@ -5979,11 +5994,6 @@ public void test402219a() {
 				"}\n",			},
 				"----------\n" + 
 				"1. ERROR in X.java (at line 11)\n" + 
-				"	new X().goo((p1, p2) -> {});\n" + 
-				"	        ^^^\n" + 
-				"The method goo(I) is ambiguous for the type X\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 11)\n" + 
 				"	new X().goo((p1, p2) -> {});\n" + 
 				"	                        ^^\n" + 
 				"Empty block should be documented\n" + 
@@ -7506,17 +7516,7 @@ public void test422489b() { // interfaces and methods order changed, triggers NP
 					"    }\n" +
 					"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 13)\n" + 
-			"	goo((x, y) -> { return x[0] += 1; });\n" + 
-			"	^^^\n" + 
-			"The method goo(J) is ambiguous for the type X\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 13)\n" + 
-			"	goo((x, y) -> { return x[0] += 1; });\n" + 
-			"	                       ^^^^\n" + 
-			"The type of the expression must be an array type but it resolved to int\n" + 
-			"----------\n"
+			""
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422489, [1.8][compiler] NPE in CompoundAssignment.analyseCode when creating AST for java.util.stream.Collectors
