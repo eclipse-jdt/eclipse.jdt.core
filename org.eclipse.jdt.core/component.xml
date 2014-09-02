@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2005, 2009 IBM Corporation and others.
+    Copyright (c) 2005, 2014 IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -152,7 +152,7 @@
    <type name="ForStatement" instantiate="false"/>
    <type name="IAnnotationBinding" instantiate="false" implement="false"/>
    <type name="IBinding" instantiate="false" implement="false"/>
-   <type name="IDocElement" reference="false"/>
+   <type name="IDocElement" instantiate="false"/>
    <type name="IExtendedModifier" instantiate="false"/>
    <type name="IfStatement" instantiate="false"/>
    <type name="IMemberValuePairBinding" instantiate="false" implement="false"/>
