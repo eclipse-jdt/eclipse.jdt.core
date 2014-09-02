@@ -69,8 +69,15 @@ public class TypeSystem {
 
 	// Given a type, answer its unannotated aka naked prototype. This is also a convenient way to "register" a type with TypeSystem and have it id stamped.
 	public final TypeBinding getUnannotatedType(TypeBinding type) {
-		if (type.isUnresolvedType() && CharOperation.indexOf('$', type.sourceName()) > 0)
-			type = BinaryTypeBinding.resolveType(type, this.environment, true); // to ensure unique id assignment (when enclosing type is parameterized, inner type is also) 
+		if (type.isUnresolvedType() && CharOperation.indexOf('$', type.sourceName()) > 0) {
+			boolean mayTolerateMissingType = this.environment.mayTolerateMissingType;
+			this.environment.mayTolerateMissingType = true;
+			try {
+				type = BinaryTypeBinding.resolveType(type, this.environment, true); // to ensure unique id assignment (when enclosing type is parameterized, inner type is also) 
+			} finally {
+				this.environment.mayTolerateMissingType = mayTolerateMissingType;
+			}
+		}
 		if (type.id == TypeIds.NoId) {
 			if (type.hasTypeAnnotations())
 				throw new IllegalStateException();
