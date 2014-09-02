@@ -130,4 +130,50 @@ public void test424110a() throws JavaModelException {
 			expectedReplacedSource,
 			testName);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430572, [1.8] CCE on hovering over 'super' in lambda expression
+public void test430572() throws JavaModelException {
+	String string = 
+			"@FunctionalInterface\n" +
+			"interface FI {\n" +
+			"	default int getID() {\n" +
+			"		return 11;\n" +
+			"	}\n" +
+			"	void print();\n" +
+			"}\n" +
+			"class T {\n" +
+			"	FI f2 = () -> System.out.println(super.toString());\n" +
+			"}\n";
+
+	String selection = "super";
+
+	String expectedCompletionNodeToString = "<SelectOnSuper:super>";
+
+	String completionIdentifier = "super";
+	String expectedUnitDisplayString =
+					"@FunctionalInterface interface FI {\n" + 
+					"  default int getID() {\n" + 
+					"  }\n" + 
+					"  void print();\n" + 
+					"}\n" + 
+					"class T {\n" + 
+					"  FI f2 = () -> System.out.println(<SelectOnSuper:super>.toString());\n" + 
+					"  T() {\n" + 
+					"  }\n" + 
+					"}\n";
+	String expectedReplacedSource = "super";
+	String testName = "<select>";
+
+	int selectionStart = string.indexOf(selection);
+	int selectionEnd = selectionStart + selection.length() - 1;
+
+	this.checkDietParse(
+			string.toCharArray(),
+			selectionStart,
+			selectionEnd,
+			expectedCompletionNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			testName);
+}
 }

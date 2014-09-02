@@ -52,6 +52,7 @@ import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.SuperReference;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
+import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -885,6 +886,18 @@ protected void consumeMethodInvocationName() {
 		}
 	} else {
 		super.consumeMethodInvocationName();
+		if (requireExtendedRecovery()) {
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430572, compensate for the hacks elsewhere where super/this gets treated as identifier. See getUnspecifiedReference
+			if (this.astPtr >= 0 && this.astStack[this.astPtr] == this.assistNode && this.assistNode instanceof ThisReference) {
+				MessageSend messageSend = (MessageSend) this.expressionStack[this.expressionPtr];
+				if (messageSend.receiver instanceof SingleNameReference) {
+					SingleNameReference snr = (SingleNameReference) messageSend.receiver;
+					if (snr.token == CharOperation.NO_CHAR) { // dummy reference created by getUnspecifiedReference ???
+						messageSend.receiver = (Expression) this.astStack[this.astPtr--];
+					}
+				}
+			}
+		}
 		return;
 	}
 
