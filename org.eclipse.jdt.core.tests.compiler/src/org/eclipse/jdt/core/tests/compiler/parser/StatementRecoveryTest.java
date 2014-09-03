@@ -3877,4 +3877,68 @@ public void test0047() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+public void testBug430336() {
+
+	String s =
+		"package test1;\n" + 
+		"import java.util.Collection;\n" + 
+		"public class E {\n" + 
+		"    void foo(Collection collection) {\n" + 
+		"        collection\n" + 
+		"    }\n" + 
+		"}\n";
+
+	String expectedDietUnitToString =
+		"package test1;\n" + 
+		"import java.util.Collection;\n" + 
+		"public class E {\n" + 
+		"  public E() {\n" + 
+		"  }\n" + 
+		"  void foo(Collection collection) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+
+	String expectedDietPlusBodyUnitToString =
+		"package test1;\n" + 
+		"import java.util.Collection;\n" + 
+		"public class E {\n" + 
+		"  public E() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo(Collection collection) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
+		"package test1;\n" + 
+		"import java.util.Collection;\n" + 
+		"public class E {\n" + 
+		"  public E() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo(Collection collection) {\n" +
+		"    collection = $missing$;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString =
+		expectedDietUnitToString;
+
+	String expectedFullWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietWithStatementRecoveryUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyWithStatementRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedFullWithStatementRecoveryUnitToString,
+		testName);
+}
 }
