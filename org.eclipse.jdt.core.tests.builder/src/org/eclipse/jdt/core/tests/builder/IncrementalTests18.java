@@ -439,4 +439,61 @@ public class IncrementalTests18 extends BuilderTests {
 		incrementalBuild(projectPath);
 		expectingNoProblems();
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=442755,
+	// [compiler] NPE at ProblemHandler.handle
+	public void testBug442755() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.8");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.setOutputFolder(projectPath, "bin");
+		env.addClass(projectPath, "", "Z",
+			"public interface Z <X1 extends X, Y1 extends Y> {}\n");
+		fullBuild(projectPath);
+		expectingProblemsFor(
+			projectPath,
+			"Problem : X cannot be resolved to a type [ resource : </Project/Z.java>" +
+			" range : <31,32> category : <40> severity : <2>]\n" +
+			"Problem : Y cannot be resolved to a type [ resource : </Project/Z.java>" +
+			" range : <45,46> category : <40> severity : <2>]");
+		env.addClass(projectPath, "", "Unmarshaller", //$NON-NLS-1$ //$NON-NLS-2$
+			"public abstract class Unmarshaller<CONTEXT extends Context, DESCRIPTOR extends Z> {\n" +
+			"	public CONTEXT getContext() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n");
+		incrementalBuild(projectPath);
+		expectingProblemsFor(
+			projectPath,
+			"Problem : The project was not built since its build path is incomplete." +
+			" Cannot find the class file for Y. Fix the build path then try building" +
+			" this project [ resource : </Project> range : <-1,-1> category : <10> severity : <2>]\n" +
+			"Problem : The type Y cannot be resolved. It is indirectly referenced from" +
+			" required .class files [ resource : </Project/Unmarshaller.java> range : <0,1> category : <10> severity : <2>]");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=442755,
+	// [compiler] NPE at ProblemHandler.handle
+	// Simplified test case.
+	public void testBug442755a() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.8");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.setOutputFolder(projectPath, "bin");
+		env.addClass(projectPath, "", "Z",
+			"public class Z <Y2 extends Y> {}\n");
+		fullBuild(projectPath);
+		expectingProblemsFor(
+				projectPath,
+				"Problem : Y cannot be resolved to a type [ resource : " +
+				"</Project/Z.java> range : <27,28> category : <40> severity : <2>]");
+		env.addClass(projectPath, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
+				"public class X <Z> {}\n");
+		incrementalBuild(projectPath);
+		expectingProblemsFor(
+			projectPath,
+			"Problem : The project was not built since its build path is incomplete." +
+			" Cannot find the class file for Y. Fix the build path then try building" +
+			" this project [ resource : </Project> range : <-1,-1> category : <10> severity : <2>]\n" +
+			"Problem : The type Y cannot be resolved. It is indirectly referenced from" +
+			" required .class files [ resource : </Project/X.java> range : <0,1> category : <10> severity : <2>]");
+	}
 }
