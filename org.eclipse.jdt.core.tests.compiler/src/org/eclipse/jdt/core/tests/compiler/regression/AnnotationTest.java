@@ -11227,4 +11227,34 @@ public void test434556() throws Exception {
 		fail("Error reading classfile");
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=433747, [compiler] TYPE Annotation allowed in package-info instead of only PACKAGE
+public void test433747() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+		return;
+	}
+	this.runNegativeTest(
+		new String[] {
+			"p/package-info.java",
+			"@PackageAnnot(\"p\")\n" +
+			"package p;\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"@Target(ElementType.TYPE)\n" +
+			"@interface PackageAnnot {\n" +
+			"	String value();\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in p\\package-info.java (at line 1)\n" + 
+		"	@PackageAnnot(\"p\")\n" + 
+		"	^^^^^^^^^^^^^\n" + 
+		"The annotation @PackageAnnot is disallowed for this location\n" + 
+		"----------\n",
+		null,
+		true,
+		null,
+		true, // generate output
+		false,
+		false);
+	}
 }
