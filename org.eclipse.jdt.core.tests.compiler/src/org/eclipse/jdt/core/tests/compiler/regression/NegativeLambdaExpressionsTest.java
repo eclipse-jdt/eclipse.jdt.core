@@ -9121,6 +9121,26 @@ public void test442983() {
 		"The method method1(CL<Integer>) in the type CL<Integer> is not applicable for the arguments ()\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=438945, [1.8] NullPointerException InferenceContext18.checkExpression in java 8 with generics, primitives, and overloading
+public void _test438945() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.function.ToIntFunction;\n" +
+			"import java.util.function.ToLongFunction;\n" +
+			"public class X {\n" +
+			"    public static void error() {\n" +
+			"        test(X::works);\n" +
+			"        test(X::broken);\n" +
+			"    }\n" +
+			"    private static <T> void test(ToLongFunction<T> func) {}\n" +
+			"    private static <T> void test(ToIntFunction<T> func) {}\n" +
+			"    private static int broken(Object o) { return 0; }\n" +
+			"    private static long works(Object o) { return 0; } \n" +
+			"}\n"
+		},
+		"");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
