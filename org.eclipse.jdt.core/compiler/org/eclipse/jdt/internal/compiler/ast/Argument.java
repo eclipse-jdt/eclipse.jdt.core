@@ -53,6 +53,11 @@ public class Argument extends LocalDeclaration {
 		}
 		this.bits |= (IsLocalDeclarationReachable | IsArgument | IsTypeElided);
 	}
+	
+	@Override
+	public boolean isRecoveredFromLoneIdentifier() {
+		return false;
+	}
 
 	public TypeBinding createBinding(MethodScope scope, TypeBinding typeBinding) {
 		if (this.binding == null) {

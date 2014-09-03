@@ -4813,13 +4813,58 @@ protected void consumeLocalVariableDeclaration() {
 	this.variablesCounter[this.nestedType] = 0;
 }
 protected void consumeLocalVariableDeclarationStatement() {
+	
+	int variableDeclaratorsCounter = this.astLengthStack[this.astLengthPtr];
+	if (variableDeclaratorsCounter == 1) {
+		LocalDeclaration localDeclaration = (LocalDeclaration) this.astStack[this.astPtr];
+		if (localDeclaration.isRecoveredFromLoneIdentifier()) {
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430336, [1.8][compiler] Bad syntax error recovery: Lonely identifier should be variable name, not type
+			// Mutate foo $missing; into foo = $missing$; 
+			Expression left;
+			if (localDeclaration.type instanceof QualifiedTypeReference) {
+				QualifiedTypeReference qtr = (QualifiedTypeReference) localDeclaration.type;
+				left = new QualifiedNameReference(qtr.tokens, qtr.sourcePositions, 0, 0);
+			} else {
+				left = new SingleNameReference(localDeclaration.type.getLastToken(), 0L);
+			}
+			left.sourceStart = localDeclaration.type.sourceStart;
+			left.sourceEnd = localDeclaration.type.sourceEnd;
+			
+			Expression right = new SingleNameReference(localDeclaration.name, 0L);
+			right.sourceStart = localDeclaration.sourceStart;
+			right.sourceEnd = localDeclaration.sourceEnd;
+			
+			Assignment assignment = new Assignment(left, right, 0);
+			int end = this.endStatementPosition;
+			assignment.sourceEnd = (end == localDeclaration.sourceEnd) ? ++end : end; 
+			assignment.statementEnd = end;
+			this.astStack[this.astPtr] = assignment;
+			
+			// also massage recovery scanner data.
+			if (this.recoveryScanner != null) {
+				RecoveryScannerData data = this.recoveryScanner.getData();
+				int position = data.insertedTokensPtr;
+				while (position > 0) {
+					if (data.insertedTokensPosition[position] != data.insertedTokensPosition[position - 1])
+						break;
+					position--;
+				}
+				this.recoveryScanner.insertTokenAhead(TerminalTokens.TokenNameEQUAL, position);
+			}
+			
+			if (this.currentElement != null) {
+				this.lastCheckPoint = assignment.sourceEnd + 1;
+				this.currentElement = this.currentElement.add(assignment, 0);
+			}
+			return;
+		}
+	}
 	// LocalVariableDeclarationStatement ::= LocalVariableDeclaration ';'
 	// see blockReal in case of change: duplicated code
 	// increment the amount of declared variables for this block
 	this.realBlockStack[this.realBlockPtr]++;
 
 	// update source end to include the semi-colon
-	int variableDeclaratorsCounter = this.astLengthStack[this.astLengthPtr];
 	for (int i = variableDeclaratorsCounter - 1; i >= 0; i--) {
 		LocalDeclaration localDeclaration = (LocalDeclaration) this.astStack[this.astPtr - i];
 		localDeclaration.declarationSourceEnd = this.endStatementPosition;

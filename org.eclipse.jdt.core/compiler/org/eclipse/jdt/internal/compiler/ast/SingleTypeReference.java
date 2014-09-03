@@ -67,6 +67,20 @@ public class SingleTypeReference extends TypeReference {
 		return new char[][] { this.token };
 	}
 
+	@Override
+	public boolean isBaseTypeReference() {
+		return this.token == BYTE    ||
+			   this.token == SHORT   ||
+			   this.token == INT     ||
+			   this.token == LONG    ||
+			   this.token == FLOAT   ||
+			   this.token == DOUBLE  ||
+			   this.token == CHAR    ||
+			   this.token == BOOLEAN ||
+			   this.token == NULL    ||
+			   this.token == VOID;	    
+	}
+	
 	public StringBuffer printExpression(int indent, StringBuffer output){
 		if (this.annotations != null && this.annotations[0] != null) {
 			printAnnotations(this.annotations[0], output);

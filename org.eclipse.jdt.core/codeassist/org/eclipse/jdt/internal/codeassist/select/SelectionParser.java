@@ -787,7 +787,7 @@ protected void consumeLocalVariableDeclarationStatement() {
 	super.consumeLocalVariableDeclarationStatement();
 
 	// force to restart in recovery mode if the declaration contains the selection
-	if (!this.diet) {
+	if (!this.diet && this.astStack[this.astPtr] instanceof LocalDeclaration) {
 		LocalDeclaration localDeclaration = (LocalDeclaration) this.astStack[this.astPtr];
 		if ((this.selectionStart >= localDeclaration.sourceStart)
 				&&  (this.selectionEnd <= localDeclaration.sourceEnd)) {

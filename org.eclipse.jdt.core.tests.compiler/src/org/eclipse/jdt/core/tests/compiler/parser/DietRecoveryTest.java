@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4642,14 +4642,14 @@ public void test75() {
 		"        super();\n" +
 		"      }\n" +
 		"      int hello() {\n" +
-		"        fo $missing$;\n" +
+		"        fo = $missing$;\n" +
 		"      }\n" +
 		"      int world() {\n" +
 		"      }\n" +
 		"      void foo() {\n" +
 		"      }\n" +
 		"    }\n" +
-		"    ba $missing$;\n" +
+		"    ba = $missing$;\n" +
 		"  }\n" +
 		"}\n";
 
@@ -4844,7 +4844,7 @@ public void test77() {
 		"    else\n" +
 		"        if ((depth > 1))\n" +
 		"            {\n" +
-		"              sol $missing$;\n" +
+		"              sol = $missing$;\n" +
 		"            }\n" +
 		"        else\n" +
 		"            ;\n" +
@@ -5999,7 +5999,7 @@ public void test99() {
 		"    restricts breakpoint;\n" +
 		"    given thread;\n" +
 		"    any other;\n" +
-		"    specified $missing$;\n" +
+		"    specified = $missing$;\n" +
 		"  }\n" +
 		"  public void removeThreadFilter(IJavaThread thread) {\n" +
 		"    removes the;\n" +
@@ -6008,7 +6008,7 @@ public void test99() {
 		"    request as;\n" +
 		"    does not;\n" +
 		"    the removal;\n" +
-		"    thread $missing$;\n" +
+		"    thread = $missing$;\n" +
 		"  }\n" +
 		"  public IJavaThread[] getThreadFilters() {\n" +
 		"    return the;\n" +

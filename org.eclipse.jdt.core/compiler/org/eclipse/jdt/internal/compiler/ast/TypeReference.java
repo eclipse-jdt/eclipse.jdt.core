@@ -713,4 +713,8 @@ public static boolean containsNullAnnotation(Annotation[] annotations) {
 public TypeReference[] getTypeReferences() {
 	return new TypeReference [] { this };
 }
+
+public boolean isBaseTypeReference() {
+	return false;
+}
 }

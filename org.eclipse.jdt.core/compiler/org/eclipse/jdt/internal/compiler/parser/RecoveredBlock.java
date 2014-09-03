@@ -95,6 +95,9 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
  */
 public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanceValue, boolean delegatedByParent) {
 
+	if (localDeclaration.isRecoveredFromLoneIdentifier()) {
+		return this; // skip, the local will be mutated into an assignment and added later, see Parser.consumeLocalVariableDeclarationStatement
+	}
 	/* local variables inside method can only be final and non void */
 /*
 	char[][] localTypeName;

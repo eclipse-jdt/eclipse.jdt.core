@@ -93,6 +93,16 @@ public class RecoveryScanner extends Scanner {
 		this.data.insertedTokensPosition[this.data.insertedTokensPtr] = position;
 		this.data.insertedTokenUsed[this.data.insertedTokensPtr] = false;
 	}
+	
+	public void insertTokenAhead(int token, int index) {
+		if(!this.record) return;
+
+		int length = this.data.insertedTokens[index].length;
+		int [] tokens = new int [length + 1];
+		System.arraycopy(this.data.insertedTokens[index], 0, tokens, 1, length);
+		tokens[0] = token;
+		this.data.insertedTokens[index] = tokens;
+	}
 
 	public void replaceTokens(int token, int start, int end) {
 		replaceTokens(new int []{token}, start, end);

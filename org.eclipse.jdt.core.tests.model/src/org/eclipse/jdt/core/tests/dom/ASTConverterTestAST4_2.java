@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 IBM Corporation and others.
+ * Copyright (c) 2011, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7574,7 +7574,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=129330
 	 */
-	public void _test0642() throws JavaModelException {
+	public void test0642() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
 			String contents =
@@ -7592,7 +7592,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 				true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
-			assertProblemsSize(unit, 1, "Syntax error, insert \"AssignmentOperator Expression\" to complete Expression");
+			assertProblemsSize(unit, 1, "Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration");
 			node = getASTNode(unit, 0, 0, 0);
 			assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 			assertTrue("Not recovered", isRecovered(node));
