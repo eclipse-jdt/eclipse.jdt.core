@@ -561,7 +561,7 @@ public void test011() throws Exception {
 /**
  * Set local variable 'date'.
  */
-public void test012() throws Exception {
+public void _test012() throws Exception {
 	String userCode =
 		"java.util.GregorianCalendar cal = new java.util.GregorianCalendar();\n" +
 		"java.util.Date date = cal.getGregorianChange();\n" +
