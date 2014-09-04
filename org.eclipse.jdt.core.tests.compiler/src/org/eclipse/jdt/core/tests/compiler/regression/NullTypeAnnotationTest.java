@@ -6608,4 +6608,52 @@ public void testBug439158() {
 		getCompilerOptions(),
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=434579, [1.8][compiler][null] Annotation-based null analysis causes incorrect type errors
+public void testBug434579() {
+	Map options = getCompilerOptions();
+	runConformTestWithLibs(
+		new String[] {
+			"AbstractNode.java",
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+		    "@NonNullByDefault\n" +
+			"interface ExtendedNode {\n" +
+			"	ExtendedNode getParent();\n" +
+			"	void setParent(ExtendedNode newParent);\n" +
+			"}\n" +
+			"@NonNullByDefault\n" +
+			"public class AbstractNode implements ExtendedNode {\n" +
+			"	private ExtendedNode parent;\n" +
+			"	protected AbstractNode() {\n" +
+			"		parent = this;\n" +
+			"	}\n" +
+			"	@Override\n" +
+			"	public ExtendedNode getParent() {\n" +
+			"		return parent;\n" +
+			"	}\n" +
+			"	@Override\n" +
+			"	public void setParent(final ExtendedNode newParent) {\n" +
+			"		parent = newParent;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		options,
+		"");
+	runConformTestWithLibs(
+		new String[] {
+			"UnequalBinaryNode.java",
+			"public class UnequalBinaryNode<L extends ExtendedNode, R extends ExtendedNode>\n" +
+			"		extends AbstractNode {\n" +
+			"	private L left;\n" +
+			"	private R right;\n" +
+			"	public UnequalBinaryNode(final L initialLeft, final R initialRight) {\n" +
+			"		left = initialLeft;\n" +
+			"		right = initialRight;\n" +
+			"		left.setParent(this);\n" +
+			"		right.setParent(this); // error on this line without fix\n" +
+			"	}\n" +
+			"}\n"
+		},
+		options,
+		"");
+}
 }
