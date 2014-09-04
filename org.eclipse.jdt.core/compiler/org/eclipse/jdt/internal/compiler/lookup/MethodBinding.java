@@ -22,6 +22,7 @@
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
  *								Bug 438012 - [1.8][null] Bogus Warning: The nullness annotation is redundant with a default that applies to this location
  *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
+ *								Bug 443347 - [1.8][null] @NonNullByDefault should not affect constructor arguments of an anonymous instantiation
  *     Jesper Steen Moller - Contributions for
  *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *******************************************************************************/
@@ -1262,6 +1263,8 @@ public TypeVariableBinding[] typeVariables() {
 }
 //pre: null annotation analysis is enabled
 public boolean hasNonNullDefaultFor(int location, boolean useTypeAnnotations) {
+	if ((this.modifiers & ExtraCompilerModifiers.AccIsDefaultConstructor) != 0)
+		return false;
 	if (useTypeAnnotations) {
 		if (this.defaultNullness != 0)
 			return (this.defaultNullness & location) != 0;
