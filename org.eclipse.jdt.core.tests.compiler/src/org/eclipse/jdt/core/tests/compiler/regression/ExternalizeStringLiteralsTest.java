@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -780,6 +781,31 @@ public void test023() {
 		false,
 		false,
 		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=443456, [1.8][compiler][lambda] $NON-NLS$ in lambda statement used as argument does not work
+public void test443456() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.concurrent.Callable;\n" +
+			"public class X {\n" +
+			"    Callable<String> c;\n" +
+			"    void setC(Callable<String> c) {\n" +
+			"        this.c = c;\n" +
+			"    }\n" +
+			"    X() {\n" +
+			"        setC(() -> \"ee\"); //$NON-NLS-1$\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"",
+		null,
+		true,
+		customOptions);
 }
 public static Class testClass() {
 	return ExternalizeStringLiteralsTest.class;
