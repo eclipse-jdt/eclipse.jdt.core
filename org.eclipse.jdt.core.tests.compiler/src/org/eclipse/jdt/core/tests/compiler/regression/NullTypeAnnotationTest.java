@@ -6656,4 +6656,68 @@ public void testBug434579() {
 		options,
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=434582,
+//[1.8][compiler][null] @Nullable annotation in type parameter causes NullPointerException in JDT core
+public void testBug434582() {
+	runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+				"@NonNullByDefault\n" +
+				"class ProgramNode {}\n" +
+				"@NonNullByDefault\n" +
+				"interface ConcreteNodeVisitor<R, P> {\n" +
+				"	R visit(ProgramNode node, P extraParameter);\n" +
+				"}\n" +
+				"public class X implements\n" +
+				"		ConcreteNodeVisitor<Boolean, @Nullable Object> {\n" +
+				"	public Boolean visit(ProgramNode node, Object extraParameter) {\n" +
+				"		return Boolean.FALSE;\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 11)\n" +
+			"	public Boolean visit(ProgramNode node, Object extraParameter) {\n" +
+			"	                     ^^^^^^^^^^^\n" +
+			"Missing non-null annotation: inherited method from ConcreteNodeVisitor<Boolean,Object> specifies this parameter as @NonNull\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 11)\n" +
+			"	public Boolean visit(ProgramNode node, Object extraParameter) {\n" +
+			"	                                       ^^^^^^\n" +
+			"Missing nullable annotation: inherited method from ConcreteNodeVisitor<Boolean,Object> specifies this parameter as @Nullable\n" +
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=434582,
+//[1.8][compiler][null] @Nullable annotation in type parameter causes NullPointerException in JDT core
+public void testBug434582a() {
+	runNegativeTestWithLibs(
+		new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+				"@NonNullByDefault\n" +
+				"class ProgramNode {}\n" +
+				"@NonNullByDefault\n" +
+				"interface ConcreteNodeVisitor<R, P> {\n" +
+				"	void visit(ProgramNode node, P extraParameter);\n" +
+				"}\n" +
+				"public class X implements\n" +
+				"		ConcreteNodeVisitor<Boolean, @Nullable Object> {\n" +
+				"	public void visit(ProgramNode node, Object extraParameter) {}\n" +
+				"}\n"
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 11)\n" +
+			"	public void visit(ProgramNode node, Object extraParameter) {}\n" +
+			"	                  ^^^^^^^^^^^\n" +
+			"Missing non-null annotation: inherited method from ConcreteNodeVisitor<Boolean,Object> specifies this parameter as @NonNull\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 11)\n" +
+			"	public void visit(ProgramNode node, Object extraParameter) {}\n" +
+			"	                                    ^^^^^^\n" +
+			"Missing nullable annotation: inherited method from ConcreteNodeVisitor<Boolean,Object> specifies this parameter as @Nullable\n" +
+			"----------\n");
+}
 }
