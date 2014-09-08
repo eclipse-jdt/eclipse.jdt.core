@@ -26718,6 +26718,8 @@ public void test0824() throws Exception {
 	}
 }
 public void test0825() throws Exception {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -26747,51 +26749,53 @@ public void test0825() throws Exception {
 		"");
 	// 	ensure proper declaring class for #run() invocation
 	String expectedOutput =
-		"  // Method descriptor #17 (Ljava/io/Serializable;)V\n" +
-		"  // Signature: (TT;)V\n" +
-		"  // Stack: 2, Locals: 5\n" +
-		"  void foo(java.io.Serializable t);\n" +
-		"     0  aload_1 [t]\n" +
-		"     1  astore_2 [r1]\n" +
-		"     2  aload_0 [this]\n" +
-		"     3  ifnonnull 10\n" +
-		"     6  aload_1 [t]\n" +
-		"     7  goto 11\n" +
-		"    10  aload_1 [t]\n" +
-		"    11  astore_3 [r2]\n" +
-		"    12  aload_1 [t]\n" +
-		"    13  astore 4 [r3]\n" +
-		"    15  aload_0 [this]\n" +
-		"    16  aload_1 [t]\n" +
-		"    17  invokevirtual X.bar(java.lang.Runnable) : void [20]\n" +
-		"    20  aload_0 [this]\n" +
-		"    21  aload_0 [this]\n" +
-		"    22  ifnonnull 29\n" +
-		"    25  aload_1 [t]\n" +
-		"    26  goto 30\n" +
-		"    29  aload_1 [t]\n" +
-		"    30  invokevirtual X.bar(java.lang.Runnable) : void [20]\n" +
-		"    33  aload_0 [this]\n" +
-		"    34  aload_1 [t]\n" +
-		"    35  invokevirtual X.bar(java.lang.Runnable) : void [20]\n" +
-		"    38  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 5]\n" +
-		"        [pc: 2, line: 6]\n" +
-		"        [pc: 12, line: 7]\n" +
-		"        [pc: 15, line: 9]\n" +
-		"        [pc: 20, line: 10]\n" +
-		"        [pc: 33, line: 11]\n" +
-		"        [pc: 38, line: 12]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 39] local: this index: 0 type: X\n" +
-		"        [pc: 0, pc: 39] local: t index: 1 type: java.io.Serializable\n" +
-		"        [pc: 2, pc: 39] local: r1 index: 2 type: java.lang.Runnable\n" +
-		"        [pc: 12, pc: 39] local: r2 index: 3 type: java.lang.Runnable\n" +
-		"        [pc: 15, pc: 39] local: r3 index: 4 type: java.lang.Runnable\n" +
-		"      Local variable type table:\n" +
-		"        [pc: 0, pc: 39] local: this index: 0 type: X<T,V>\n" +
-		"        [pc: 0, pc: 39] local: t index: 1 type: T\n";
+		"  // Method descriptor #17 (Ljava/io/Serializable;)V\n" + 
+		"  // Signature: (TT;)V\n" + 
+		"  // Stack: 2, Locals: 5\n" + 
+		"  void foo(java.io.Serializable t);\n" + 
+		"     0  aload_1 [t]\n" + 
+		"     1  checkcast java.lang.Runnable [20]\n" + 
+		"     4  astore_2 [r1]\n" + 
+		"     5  aload_0 [this]\n" + 
+		"     6  ifnonnull 13\n" + 
+		"     9  aload_1 [t]\n" + 
+		"    10  goto 14\n" + 
+		"    13  aload_1 [t]\n" + 
+		"    14  astore_3 [r2]\n" + 
+		"    15  aload_1 [t]\n" + 
+		"    16  astore 4 [r3]\n" + 
+		"    18  aload_0 [this]\n" + 
+		"    19  aload_1 [t]\n" + 
+		"    20  checkcast java.lang.Runnable [20]\n" + 
+		"    23  invokevirtual X.bar(java.lang.Runnable) : void [22]\n" + 
+		"    26  aload_0 [this]\n" + 
+		"    27  aload_0 [this]\n" + 
+		"    28  ifnonnull 35\n" + 
+		"    31  aload_1 [t]\n" + 
+		"    32  goto 36\n" + 
+		"    35  aload_1 [t]\n" + 
+		"    36  invokevirtual X.bar(java.lang.Runnable) : void [22]\n" + 
+		"    39  aload_0 [this]\n" + 
+		"    40  aload_1 [t]\n" + 
+		"    41  invokevirtual X.bar(java.lang.Runnable) : void [22]\n" + 
+		"    44  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 5]\n" + 
+		"        [pc: 5, line: 6]\n" + 
+		"        [pc: 15, line: 7]\n" + 
+		"        [pc: 18, line: 9]\n" + 
+		"        [pc: 26, line: 10]\n" + 
+		"        [pc: 39, line: 11]\n" + 
+		"        [pc: 44, line: 12]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 45] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 45] local: t index: 1 type: java.io.Serializable\n" + 
+		"        [pc: 5, pc: 45] local: r1 index: 2 type: java.lang.Runnable\n" + 
+		"        [pc: 15, pc: 45] local: r2 index: 3 type: java.lang.Runnable\n" + 
+		"        [pc: 18, pc: 45] local: r3 index: 4 type: java.lang.Runnable\n" + 
+		"      Local variable type table:\n" + 
+		"        [pc: 0, pc: 45] local: this index: 0 type: X<T,V>\n" + 
+		"        [pc: 0, pc: 45] local: t index: 1 type: T\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);

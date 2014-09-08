@@ -1813,36 +1813,37 @@ public void test036() throws Exception {
 		},
 		"ab");
 	String expectedOutput =
-		"  // Method descriptor #37 (Ljava/lang/Runnable;)V\n" +
-		"  // Signature: <T::Ljava/lang/Runnable;:Ljava/lang/Iterable<Ljava/lang/String;>;>(TT;)V\n" +
-		"  // Stack: 2, Locals: 4\n" +
-		"  public void foo(java.lang.Runnable t);\n" +
-		"     0  aload_1 [t]\n" +
-		"     1  invokeinterface java.lang.Iterable.iterator() : java.util.Iterator [39] [nargs: 1]\n" +
-		"     6  astore_3\n" +
-		"     7  goto 27\n" +
-		"    10  aload_3\n" +
-		"    11  invokeinterface java.util.Iterator.next() : java.lang.Object [43] [nargs: 1]\n" +
-		"    16  checkcast java.lang.String [18]\n" +
-		"    19  astore_2 [s]\n" +
-		"    20  getstatic java.lang.System.out : java.io.PrintStream [49]\n" +
-		"    23  aload_2 [s]\n" +
-		"    24  invokevirtual java.io.PrintStream.print(java.lang.String) : void [55]\n" +
-		"    27  aload_3\n" +
-		"    28  invokeinterface java.util.Iterator.hasNext() : boolean [61] [nargs: 1]\n" +
-		"    33  ifne 10\n" +
-		"    36  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 7]\n" +
-		"        [pc: 20, line: 8]\n" +
-		"        [pc: 27, line: 7]\n" +
-		"        [pc: 36, line: 9]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 37] local: this index: 0 type: X\n" +
-		"        [pc: 0, pc: 37] local: t index: 1 type: java.lang.Runnable\n" +
-		"        [pc: 20, pc: 27] local: s index: 2 type: java.lang.String\n" +
-		"      Local variable type table:\n" +
-		"        [pc: 0, pc: 37] local: t index: 1 type: T\n";
+		"  // Method descriptor #37 (Ljava/lang/Runnable;)V\n" + 
+		"  // Signature: <T::Ljava/lang/Runnable;:Ljava/lang/Iterable<Ljava/lang/String;>;>(TT;)V\n" + 
+		"  // Stack: 2, Locals: 4\n" + 
+		"  public void foo(java.lang.Runnable t);\n" + 
+		"     0  aload_1 [t]\n" + 
+		"     1  checkcast java.lang.Iterable [5]\n" + 
+		"     4  invokeinterface java.lang.Iterable.iterator() : java.util.Iterator [39] [nargs: 1]\n" + 
+		"     9  astore_3\n" + 
+		"    10  goto 30\n" + 
+		"    13  aload_3\n" + 
+		"    14  invokeinterface java.util.Iterator.next() : java.lang.Object [43] [nargs: 1]\n" + 
+		"    19  checkcast java.lang.String [18]\n" + 
+		"    22  astore_2 [s]\n" + 
+		"    23  getstatic java.lang.System.out : java.io.PrintStream [49]\n" + 
+		"    26  aload_2 [s]\n" + 
+		"    27  invokevirtual java.io.PrintStream.print(java.lang.String) : void [55]\n" + 
+		"    30  aload_3\n" + 
+		"    31  invokeinterface java.util.Iterator.hasNext() : boolean [61] [nargs: 1]\n" + 
+		"    36  ifne 13\n" + 
+		"    39  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 7]\n" + 
+		"        [pc: 23, line: 8]\n" + 
+		"        [pc: 30, line: 7]\n" + 
+		"        [pc: 39, line: 9]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 40] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 40] local: t index: 1 type: java.lang.Runnable\n" + 
+		"        [pc: 23, pc: 30] local: s index: 2 type: java.lang.String\n" + 
+		"      Local variable type table:\n" + 
+		"        [pc: 0, pc: 40] local: t index: 1 type: T\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
