@@ -1015,6 +1015,7 @@ private boolean haltOnSyntaxError = false;
 private boolean tolerateDefaultClassMethods = false;
 private boolean processingLambdaParameterList = false;
 private boolean expectTypeAnnotation = false;
+private boolean reparsingLambdaExpression = false;
 
 public Parser () {
 	// Caveat Emptor: For inheritance purposes and then only in very special needs. Only minimal state is initialized !
@@ -8974,6 +8975,7 @@ protected void consumeToken(int type) {
 		case TokenNameStringLiteral :
 			StringLiteral stringLiteral;
 			if (this.recordStringLiterals &&
+					!this.reparsingLambdaExpression &&
 					this.checkExternalizeStrings &&
 					this.lastPosistion < this.scanner.currentPosition &&
 					!this.statementRecoveryActivated) {
@@ -11544,6 +11546,7 @@ public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int lengt
 
 public Expression parseLambdaExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit, boolean recordLineSeparators) {
 	this.haltOnSyntaxError = true; // unexposed/unshared object, no threading concerns.
+	this.reparsingLambdaExpression = true;
 	return parseExpression(source, offset, length, unit, recordLineSeparators);
 }
 
