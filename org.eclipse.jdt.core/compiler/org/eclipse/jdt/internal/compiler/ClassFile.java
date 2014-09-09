@@ -2259,7 +2259,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				LocalVariableBinding localVariable = annotationContext.variableBinding;
 				int actualSize = 0;
 				int initializationCount = localVariable.initializationCount;
-				actualSize += 6 * initializationCount;
+				actualSize += 2 /* for number of entries */ + (6 * initializationCount);
 				// reserve enough space
 				if (this.contentsOffset + actualSize >= this.contents.length) {
 					resizeContents(actualSize);
