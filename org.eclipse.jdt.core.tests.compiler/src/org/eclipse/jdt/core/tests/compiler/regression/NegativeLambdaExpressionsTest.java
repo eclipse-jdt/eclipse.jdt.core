@@ -9141,6 +9141,31 @@ public void _test438945() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=440643, Eclipse compiler doesn't like method references with overloaded varargs method
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=439515, [1.8] ECJ reports error at method reference to overloaded instance method
+public void _test440643() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"@FunctionalInterface\n" +
+			"interface Accumalator<E> {\n" +
+			"  void acum(Container<E> container, E data);\n" +
+			"}\n" +
+			"interface Container<E> {\n" +
+			"  public void add(E data);\n" +
+			"  @SuppressWarnings(\"unchecked\")\n" +
+			"  public void add(E...data);\n" +
+			"}\n" +
+			"class Binding<E> {\n" +
+			"  private final Accumalator<E> function;\n" +
+			"  \n" +
+			"  public Binding() {\n" +
+			"    function = Container::add;\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

@@ -4506,6 +4506,7 @@ public void test436542() throws Exception {
 	assertNull("Found generic signature for lambda method", signature);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=439515 [1.8] ECJ reports error at method reference to overloaded instance method
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=440643, Eclipse compiler doesn't like method references with overloaded varargs method
 public void _test439515() {
 	this.runConformTest(
 		new String[] {
