@@ -1707,4 +1707,84 @@ public void test430656() {
 				expectedReplacedSource,
 				"diet ast");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=438952, [1.8][content assist] StackOverflowError at org.eclipse.jdt.internal.compiler.ast.SingleTypeReference.traverse(SingleTypeReference.java:108) 
+// FIXME: Recovered parse tree isn't quite correct, but is harmless.
+public void test438952() {
+	String string = 
+			"import java.util.function.Supplier;\n" +
+			"class SO {\n" +
+			"	{\n" +
+			"		int\n" +
+			"		Supplier<SO> m6 = SO::new;\n" +
+			"		m6 = () -> new SO() {\n" +
+			"			void test() {\n" +
+			"				/* here */                            \n" +
+			"			}\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n";
+
+			String completeBehind = "/* here */";
+			int cursorLocation = string.indexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:>";
+			String expectedParentNodeToString = "<NONE>";
+			String completionIdentifier = "";
+			String expectedReplacedSource = "";
+			String expectedUnitDisplayString =
+					"import java.util.function.Supplier;\n" + 
+					"class SO {\n" + 
+					"  {\n" + 
+					"    int Supplier;\n" + 
+					"    new SO() {\n" + 
+					"      {\n" + 
+					"      }\n" + 
+					"      void test() {\n" + 
+					"        {\n" + 
+					"          {\n" + 
+					"            <CompleteOnName:>;\n" + 
+					"          }\n" + 
+					"        }\n" + 
+					"      }\n" + 
+					"      void test() {\n" + 
+					"        {\n" + 
+					"          {\n" + 
+					"            <CompleteOnName:>;\n" + 
+					"          }\n" + 
+					"        }\n" + 
+					"      }\n" + 
+					"    };\n" + 
+					"    m6 = () -> new SO() {\n" + 
+					"  {\n" + 
+					"  }\n" + 
+					"  void test() {\n" + 
+					"    {\n" + 
+					"      {\n" + 
+					"        <CompleteOnName:>;\n" + 
+					"      }\n" + 
+					"    }\n" + 
+					"  }\n" + 
+					"  void test() {\n" + 
+					"    {\n" + 
+					"      {\n" + 
+					"        <CompleteOnName:>;\n" + 
+					"      }\n" + 
+					"    }\n" + 
+					"  }\n" + 
+					"};\n" + 
+					"  }\n" + 
+					"  SO() {\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
 }

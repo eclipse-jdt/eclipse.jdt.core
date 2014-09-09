@@ -485,7 +485,14 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 					}
 				}
 			}
-			this.currentElement.add(statement, 0);
+			while (this.currentElement != null) {
+				ASTNode tree = this.currentElement.parseTree();
+				if (tree.sourceStart < statement.sourceStart) {
+					this.currentElement.add(statement, 0);
+					break;
+				}
+				this.currentElement = this.currentElement.parent;
+			}
 		}
 	}
 	this.snapShot = null;
