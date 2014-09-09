@@ -2803,6 +2803,10 @@ public final class CompletionEngine
 			
 			TypeBinding receiverType = (TypeBinding) qualifiedBinding;
 			if (receiverType != null && receiverType instanceof ReferenceBinding) {
+				if (!(receiverType.isInterface() || this.requestor.isIgnored(CompletionProposal.KEYWORD))) {
+					this.assistNodeIsConstructor = true;
+					findKeywords(this.completionToken, new char[][] { Keywords.NEW }, false, false);
+				}
 				findMethods(
 						this.completionToken,
 						referenceExpression.resolvedTypeArguments,
@@ -8180,6 +8184,9 @@ public final class CompletionEngine
 				if(CharOperation.equals(choices[i], Keywords.TRUE) || CharOperation.equals(choices[i], Keywords.FALSE)) {
 					relevance += computeRelevanceForExpectingType(TypeBinding.BOOLEAN);
 					relevance += computeRelevanceForQualification(false);
+				}
+				if (CharOperation.equals(choices[i], Keywords.NEW)) {
+					relevance += computeRelevanceForConstructor();
 				}
 				this.noProposal = false;
 				if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {

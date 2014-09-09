@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
+import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 
 public class CompletionTests18 extends AbstractJavaModelCompletionTests {
 
@@ -1563,5 +1564,61 @@ public void test430656() throws JavaModelException {
 			"getClass[METHOD_IMPORT]{getClass, Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 35}\n" +
 			"getLastName[METHOD_IMPORT]{getLastName, Ltest.Person;, ()Ljava.lang.String;, getLastName, null, 35}",
 			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=433178
+public void test433178() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"    String foo(String x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    public  String longMethodName(String x) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"    void foo() {\n" +
+			"    	X x = new X();\n" +
+			"    	I i = x::ne\n" +
+			"       System.out.println();\n" +
+			"    }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ne";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("new[KEYWORD]{new, null, null, null, null, new, null, [180, 185], " + 
+											(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_RESOLVED + RelevanceConstants.R_INTERESTING + RelevanceConstants.R_NON_RESTRICTED
+											+ RelevanceConstants.R_CASE + RelevanceConstants.R_CONSTRUCTOR) + "}", requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=433178
+public void test433178a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"    String foo(String x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    public  String longMethodName(String x) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"    void foo() {\n" +
+			"    	X x = new X();\n" +
+			"    	I i = I::ne\n" +
+			"       System.out.println();\n" +
+			"    }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ne";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("", requestor.getResults());
 }
 }
