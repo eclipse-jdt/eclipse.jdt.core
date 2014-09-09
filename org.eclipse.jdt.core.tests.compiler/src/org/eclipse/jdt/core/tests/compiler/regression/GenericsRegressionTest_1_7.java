@@ -2638,6 +2638,45 @@ public void test428220a() {
 		"The public type HashMap must be defined in its own file\n" + 
 		"----------\n", null, true, customOptions);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=442929, [1.8][compiler] ClassCastException during runtime where is no cast 
+public void test442929() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		shouldNotThrow();\n" +
+			"	}\n" +
+			"	static void shouldNotThrow() {\n" +
+			"		final String[] array = { \"\" };\n" +
+			"		final String[] expected = { \"\" };\n" +
+			"		// throws\n" +
+			"       try {\n" +
+			"		    assertThat(op(array, \"\")).isEqualTo(expected);\n" +
+			"       } catch (ClassCastException c) {\n" +
+			"           System.out.println(\"Expected CCE\");\n" +
+			"       }\n" +
+			"	}\n" +
+			"	static <T> T[] op(T[] array, T element) {\n" +
+			"		return asArray(element);\n" +
+			"	}\n" +
+			"	@SafeVarargs\n" +
+			"	static <T> T[] asArray(T... elements) {\n" +
+			"		return elements;\n" +
+			"	}\n" +
+			"	static <T> ObjectArrayAssert<T> assertThat(T actual) {\n" +
+			"		return new ObjectArrayAssert<>(actual);\n" +
+			"	}\n" +
+			"	static class ObjectArrayAssert<T> {\n" +
+			"		ObjectArrayAssert(T actual) {\n" +
+			"		}\n" +
+			"		void isEqualTo(T expected) {\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n",
+		},
+		"Expected CCE");
+}
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
 }
