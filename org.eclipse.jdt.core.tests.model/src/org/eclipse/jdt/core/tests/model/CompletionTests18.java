@@ -1590,7 +1590,7 @@ public void test433178() throws JavaModelException {
 	String completeBehind = "ne";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("new[KEYWORD]{new, null, null, null, null, new, null, [180, 185], " + 
+	assertResults("new[KEYWORD]{new, null, null, null, null, new, null, [183, 185], " + 
 											(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_RESOLVED + RelevanceConstants.R_INTERESTING + RelevanceConstants.R_NON_RESTRICTED
 											+ RelevanceConstants.R_CASE + RelevanceConstants.R_CONSTRUCTOR) + "}", requestor.getResults());
 }

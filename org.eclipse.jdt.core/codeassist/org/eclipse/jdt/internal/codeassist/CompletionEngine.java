@@ -2805,6 +2805,7 @@ public final class CompletionEngine
 			if (receiverType != null && receiverType instanceof ReferenceBinding) {
 				if (!(receiverType.isInterface() || this.requestor.isIgnored(CompletionProposal.KEYWORD))) {
 					this.assistNodeIsConstructor = true;
+					setSourceAndTokenRange(referenceExpression.nameSourceStart, referenceExpression.sourceEnd);
 					findKeywords(this.completionToken, new char[][] { Keywords.NEW }, false, false);
 				}
 				findMethods(
