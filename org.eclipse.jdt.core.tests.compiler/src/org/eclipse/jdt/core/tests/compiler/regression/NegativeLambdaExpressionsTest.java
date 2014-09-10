@@ -9238,6 +9238,55 @@ public void test440643b() {
 		"Ambiguous method reference: both size() and size(Object) from the type X are eligible\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435397, [1.8][compiler] Ambiguous method while using Lambdas
+public void test435397() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.function.Function;\n" +
+			"interface B {}\n" +
+			"interface Config {}\n" +
+			"interface M {\n" +
+			"  void configure(B binder);\n" +
+			"}\n" +
+			"class M2 implements M {\n" +
+			"  public M2(final Config conf) {\n" +
+			"  }\n" +
+			"  public M2() {\n" +
+			"  }\n" +
+			"@Override\n" +
+			"  public void configure(final B binder) {\n" +
+			"  }\n" +
+			"}\n" +
+			"// BootModule\n" +
+			"class BaseModule implements M {\n" +
+			"  // eager module creation\n" +
+			"  public BaseModule module(final M m) {\n" +
+			"    return this;\n" +
+			"  }\n" +
+			"  // lazy module creation\n" +
+			"  public BaseModule module(final Function<Config, M> cons) {\n" +
+			"    return this;\n" +
+			"  }\n" +
+			"  @Override\n" +
+			"  public void configure(final B binder) {\n" +
+			"  }\n" +
+			"}\n" +
+			"// Client with error\n" +
+			"class M1 extends BaseModule {\n" +
+			"  public static void main(final String[] args) {\n" +
+			"    new M1().module((c) -> new M2());\n" +
+			"       // The method module(M) is ambiguous for the type M1\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 33)\n" + 
+		"	new M1().module((c) -> new M2());\n" + 
+		"	         ^^^^^^\n" + 
+		"The method module(M) is ambiguous for the type M1\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
