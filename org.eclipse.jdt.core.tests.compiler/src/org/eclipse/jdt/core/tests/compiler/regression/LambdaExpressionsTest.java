@@ -4684,6 +4684,28 @@ public void test441929() {
 		}, 
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=437781, [1.8][compiler] Eclipse accepts code rejected by javac because of ambiguous method reference
+public void test437781() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.function.Consumer;\n" +
+			"import java.util.function.Function;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X().visit( System.out::println );\n" +
+			"	}\n" +
+			"	public boolean visit(Function<Integer, Boolean> func) {\n" +
+			"		System.out.println(\"Function\");\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public void visit(Consumer<Integer> func) {\n" +
+			"		System.out.println(\"Consumer\");\n" +
+			"	}	\n" +
+			"}\n"
+		},
+		"Consumer");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
