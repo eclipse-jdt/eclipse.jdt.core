@@ -9143,7 +9143,10 @@ public void _test438945() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=440643, Eclipse compiler doesn't like method references with overloaded varargs method
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=439515, [1.8] ECJ reports error at method reference to overloaded instance method
-public void _test440643() {
+public void test440643() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -9164,7 +9167,76 @@ public void _test440643() {
 			"  }\n" +
 			"}\n"
 		},
-		"");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	private final Accumalator<E> function;\n" + 
+		"	                             ^^^^^^^^\n" + 
+		"The value of the field Binding<E>.function is not used\n" + 
+		"----------\n",
+		null,
+		false,
+		options);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=440643, Eclipse compiler doesn't like method references with overloaded varargs method
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=439515, [1.8] ECJ reports error at method reference to overloaded instance method
+public void test440643a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface Fun<T, R> {\n" +
+			"	R apply(T arg);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static int size() {\n" +
+			"		return -1;\n" +
+			"	}\n" +
+			"	static int size(Object arg) {\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"	int size(X arg) {\n" +
+			"		return 1;\n" +
+			"	}\n" +
+			"	public static void main(String args[]) {\n" +
+			"		Fun<X, Integer> f1 = X::size;\n" +
+			"		System.out.println(f1.apply(new X()));\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 15)\n" + 
+		"	Fun<X, Integer> f1 = X::size;\n" + 
+		"	                     ^^^^^^^\n" + 
+		"Cannot make a static reference to the non-static method size(X) from the type X\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=440643, Eclipse compiler doesn't like method references with overloaded varargs method
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=439515, [1.8] ECJ reports error at method reference to overloaded instance method
+public void test440643b() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface Fun<T, R> {\n" +
+			"	R apply(T arg);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	int size() {\n" +
+			"		return -1;\n" +
+			"	}\n" +
+			"	static int size(Object arg) {\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"	public static void main(String args[]) {\n" +
+			"		Fun<X, Integer> f1 = X::size;\n" +
+			"		System.out.println(f1.apply(new X()));\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	Fun<X, Integer> f1 = X::size;\n" + 
+		"	                     ^^^^^^^\n" + 
+		"Ambiguous method reference: both size() and size(Object) from the type X are eligible\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
