@@ -6416,4 +6416,32 @@ public void testBug376977() throws CoreException {
 		JavaCore.setOptions(oldOptions);
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=442868
+public void test442868() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.List;\n" +
+			"abstract class Other {\n" +
+			"	public abstract void m(String s, Object l, Object o);\n" +
+			"}\n" +
+			"public class Weird {\n" +
+			"	private static void weird() {\n" +
+			"		new Other() {\n" +
+			"			@Override\n" +
+			"			public void m(String s, Obj l, Object o) {\n" +
+			"			}\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Obj";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, null, null, [218, 224], " +
+			(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_RESOLVED + RelevanceConstants.R_INTERESTING + RelevanceConstants.R_NON_RESTRICTED
+			+ RelevanceConstants.R_CASE + RelevanceConstants.R_UNQUALIFIED) + "}", requestor.getResults());
+}
 }

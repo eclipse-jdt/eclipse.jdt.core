@@ -258,7 +258,12 @@ public RecoveredElement buildInitialRecoveryState(){
 					this.lastCheckPoint = local.initialization.sourceEnd + 1;
 				}
 			} else {
-				element = element.add(local, 0);
+				if (!local.isArgument()) {
+					element = element.add(local, 0);
+				} else {
+					// Bug 442868 - For arguments, let the method continue to be the current element.
+					element.add(local, 0);
+				}
 				this.lastCheckPoint = local.declarationSourceEnd + 1;
 			}
 			continue;

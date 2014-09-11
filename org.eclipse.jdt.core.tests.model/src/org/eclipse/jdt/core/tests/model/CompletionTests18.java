@@ -1593,7 +1593,7 @@ public void test433178() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("new[KEYWORD]{new, null, null, null, null, new, null, [183, 185], " + 
 											(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_RESOLVED + RelevanceConstants.R_INTERESTING + RelevanceConstants.R_NON_RESTRICTED
-											+ RelevanceConstants.R_CASE + RelevanceConstants.R_CONSTRUCTOR) + "}", requestor.getResults());
+											+ RelevanceConstants.R_CASE + RelevanceConstants.R_UNQUALIFIED) + "}", requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=433178
 public void test433178a() throws JavaModelException {

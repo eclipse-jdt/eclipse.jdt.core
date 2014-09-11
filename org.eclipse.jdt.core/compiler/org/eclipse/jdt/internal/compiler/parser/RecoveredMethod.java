@@ -74,6 +74,9 @@ public RecoveredMethod(AbstractMethodDeclaration methodDeclaration, RecoveredEle
  * Record a nested block declaration
  */
 public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValue) {
+	return this.add(nestedBlockDeclaration, bracketBalanceValue, false);
+}
+public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValue, boolean isArgument) {
 	/* default behavior is to delegate recording to parent if any,
 	do not consider elements passed the known end (if set)
 	it must be belonging to an enclosing element
@@ -89,7 +92,7 @@ public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValu
 				}
 	}
 	/* consider that if the opening brace was not found, it is there */
-	if (!this.foundOpeningBrace){
+	if (!this.foundOpeningBrace && !isArgument){
 		this.foundOpeningBrace = true;
 		this.bracketBalance++;
 	}
@@ -174,7 +177,7 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 	if (this.methodBody == null){
 		Block block = new Block(0);
 		block.sourceStart = this.methodDeclaration.bodyStart;
-		RecoveredElement currentBlock = this.add(block, 1);
+		RecoveredElement currentBlock = this.add(block, 1, localDeclaration.isArgument());
 		if (this.bracketBalance > 0){
 			for (int i = 0; i < this.bracketBalance - 1; i++){
 				currentBlock = currentBlock.add(new Block(0), 1);
