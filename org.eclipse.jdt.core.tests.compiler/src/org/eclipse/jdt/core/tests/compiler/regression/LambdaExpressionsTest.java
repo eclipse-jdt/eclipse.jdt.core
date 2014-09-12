@@ -4731,6 +4731,45 @@ public void _test441907() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=443889, [1.8][compiler] Lambdas get compiled to duplicate methods
+public void test443889() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.function.BiConsumer;\n" +
+			"import java.util.function.Consumer;\n" +
+			"public class X {\n" +
+			"    public interface CurryBiConsumer<T, U> extends BiConsumer<T, U> {\n" +
+			"        default public CurryConsumer<U> curryFirst(T t) {\n" +
+			"            return (u) -> accept(t, u);\n" +
+			"        }\n" +
+			"        default public CurryConsumer<T> currySecond(U u) {\n" +
+			"            return (t) -> accept(t, u);\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public interface CurryConsumer<T> extends Consumer<T> {\n" +
+			"        default public Runnable curry(T t) {\n" +
+			"            return () -> accept(t);\n" +
+			"        }\n" +
+			"    }\n" +
+			"    static void execute(Runnable r) {\n" +
+			"        System.out.println(\"BEFORE\");\n" +
+			"        r.run();\n" +
+			"        System.out.println(\"AFTER\");\n" +
+			"    }\n" +
+			"    static void display(String str, int count) {\n" +
+			"        System.out.println(\"DISP: \" + str + \" \" + count);\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        CurryBiConsumer<String, Integer> bc = X::display;\n" +
+			"        execute(bc.curryFirst(\"Salomon\").curry(42));\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"BEFORE\n" + 
+		"DISP: Salomon 42\n" + 
+		"AFTER");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
