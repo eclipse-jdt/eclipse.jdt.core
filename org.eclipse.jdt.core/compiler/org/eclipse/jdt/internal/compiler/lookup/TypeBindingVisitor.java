@@ -49,6 +49,10 @@ public class TypeBindingVisitor {
 	public boolean visit(RawTypeBinding rawTypeBinding) {
 		return true;  // continue traversal.
 	}
+	
+	public boolean visit(PolyTypeBinding polyTypeBinding) {
+		return true;  // continue traversal.
+	}
 
 	public static void visit(TypeBindingVisitor visitor, ReferenceBinding[] types) {
 		for (int i = 0, length = types == null ? 0 : types.length; i < length; i++) {
@@ -128,6 +132,10 @@ public class TypeBindingVisitor {
 				IntersectionCastTypeBinding intersectionCastTypeBinding = (IntersectionCastTypeBinding) type;
 				if (visitor.visit(intersectionCastTypeBinding))
 					visit(visitor, intersectionCastTypeBinding.intersectingTypes);
+				break;
+				
+			case Binding.POLY_TYPE:
+				visitor.visit((PolyTypeBinding) type);
 				break;
 				
 			default:

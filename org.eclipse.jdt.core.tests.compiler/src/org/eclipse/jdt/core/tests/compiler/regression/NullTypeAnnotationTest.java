@@ -16,6 +16,7 @@ import java.util.Map;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.util.Util;
 
 public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
@@ -6719,5 +6720,42 @@ public void testBug434582a() {
 			"	                                    ^^^^^^\n" +
 			"Missing nullable annotation: inherited method from ConcreteNodeVisitor<Boolean,Object> specifies this parameter as @Nullable\n" +
 			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=443467, [1.8][null]InternalError: Unexpected binding type
+public void test443467() throws Exception {
+	String jreDirectory = Util.getJREDirectory();
+	String jfxJar = Util.toNativePath(jreDirectory + "/lib/ext/jfxrt.jar");
+	this.runNegativeTestWithExtraLibs(
+		new String[] {
+			"BuildIdeMain.java",
+			"import java.nio.file.Path;\n" +
+			"import java.time.Instant;\n" +
+			"import java.util.HashMap;\n" +
+			"import java.util.stream.Stream;\n" +
+			"import javafx.util.Pair;\n" +
+			"\n" +
+			"public class BuildIdeMain {\n" +
+			"static void writeUpdates(Stream<Path> filter2, HashMap<Path, Pair<byte[], Instant>> ideFiles, HashMap<Path, Path> updateToFile) {\n" +
+			"   filter2.map(p -> new Pair<>(updateToFile.get(p), p->ideFiles.get(p)));\n" +
+			"}\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in BuildIdeMain.java (at line 9)\n" + 
+		"	filter2.map(p -> new Pair<>(updateToFile.get(p), p->ideFiles.get(p)));\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The constructor Pair<Path,Object>(Path, (<no type> p) -> {}) is undefined\n" + 
+		"----------\n" + 
+		"2. ERROR in BuildIdeMain.java (at line 9)\n" + 
+		"	filter2.map(p -> new Pair<>(updateToFile.get(p), p->ideFiles.get(p)));\n" + 
+		"	                                                 ^^^^^^^^^^^^^^^^^^\n" + 
+		"The target type of this expression must be a functional interface\n" + 
+		"----------\n" + 
+		"3. ERROR in BuildIdeMain.java (at line 9)\n" + 
+		"	filter2.map(p -> new Pair<>(updateToFile.get(p), p->ideFiles.get(p)));\n" + 
+		"	                                                 ^^^^^^^^^^^^^^^^^^\n" + 
+		"The target type of this expression must be a functional interface\n" + 
+		"----------\n",
+		new String[]{jfxJar});
 }
 }
