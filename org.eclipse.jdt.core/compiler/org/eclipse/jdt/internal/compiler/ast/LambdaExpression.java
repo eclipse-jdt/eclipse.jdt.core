@@ -710,7 +710,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		    }
 		}
 		if (this.body instanceof Expression) {
-			this.voidCompatible = ((Expression) this.body).statementExpression();
+			// When completion is still in progress, it is not possible to ask if the expression constitutes a statement expression. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219
+			this.voidCompatible = /* ((Expression) this.body).statementExpression(); */ true;
 			this.valueCompatible = true;
 		} else {
 			// We need to be a bit tolerant/fuzzy here: the code is being written "just now", if we are too pedantic, selection/completion will break;
@@ -736,14 +737,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				if (copy == null) {
 					if (this.assistNode) {
 						analyzeShape(); // not on terra firma here !
-// FIXME: we don't yet have the same, should we compute it here & now?
-//						if (sam.returnType.id == TypeIds.T_void) {
-//							if (!this.voidCompatible)
-//								return false;
-//						} else {
-//							if (!this.valueCompatible)
-//								return false;
-//						}
+						break shapeAnalysis;
 					}
 					return !isPertinentToApplicability(left, null);
 				}
@@ -759,7 +753,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 					}
 				} else {
 					final Expression expressionBody = (Expression) this.body;
-					this.voidCompatible = expressionBody.statementExpression();
+					this.voidCompatible = this.assistNode ? true : expressionBody.statementExpression();
 					this.valueCompatible = expressionBody.resolvedType != TypeBinding.VOID;
 					this.shapeAnalysisComplete = true;
 				}
