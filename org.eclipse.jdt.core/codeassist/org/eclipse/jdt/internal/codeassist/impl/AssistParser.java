@@ -48,6 +48,7 @@ import org.eclipse.jdt.internal.compiler.parser.RecoveredBlock;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredElement;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredField;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredInitializer;
+import org.eclipse.jdt.internal.compiler.parser.RecoveredLocalVariable;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredMethod;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredStatement;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
@@ -464,7 +465,7 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 	}
 	
 	if (lambdaClosed && this.currentElement != null) {
-		this.restartRecovery = true;
+			this.restartRecovery = true;
 		if (!(statement instanceof AbstractVariableDeclaration)) { // added already as part of standard recovery since these contribute a name to the scope prevailing at the cursor.
 			/* See if CompletionParser.attachOrphanCompletionNode has already added bits and pieces of AST to the recovery tree. If so, we want to
 			   replace those fragments with the fuller statement that provides target type for the lambda that got closed just now. There is prior
@@ -475,23 +476,35 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 			ASTNode enclosingNode = this.enclosingNode();
 			if (assistNodeParent != null || enclosingNode != null) {
 				RecoveredBlock recoveredBlock = (RecoveredBlock) (this.currentElement instanceof RecoveredBlock ? this.currentElement : 
-													(this.currentElement.parent instanceof RecoveredBlock) ? this.currentElement.parent : null);
+					(this.currentElement.parent instanceof RecoveredBlock) ? this.currentElement.parent : null);
 				if (recoveredBlock != null) {
 					RecoveredStatement recoveredStatement = recoveredBlock.statementCount > 0 ? recoveredBlock.statements[recoveredBlock.statementCount - 1] : null;
 					ASTNode parseTree = recoveredStatement != null ? recoveredStatement.updatedStatement(0, new HashSet()) : null;
-					if (parseTree != null && (parseTree == assistNodeParent || parseTree == enclosingNode)) {
-						recoveredBlock.statements[--recoveredBlock.statementCount] = null;
-						this.currentElement = recoveredBlock;
+					if (parseTree != null) {
+						if (parseTree == assistNodeParent || parseTree == enclosingNode) {
+							recoveredBlock.statements[--recoveredBlock.statementCount] = null;
+							this.currentElement = recoveredBlock;
+						} else if (recoveredStatement instanceof RecoveredLocalVariable && statement instanceof Expression) {
+							RecoveredLocalVariable local = (RecoveredLocalVariable) recoveredStatement;
+							if (local.localDeclaration.initialization == assistNodeParent || local.localDeclaration.initialization == enclosingNode) {
+								local.localDeclaration.initialization = (Expression) statement;
+								local.localDeclaration.declarationSourceEnd = statement.sourceEnd;
+								local.localDeclaration.declarationEnd = statement.sourceEnd;
+								statement = null;
+							}
+						}
 					}
 				}
 			}
-			while (this.currentElement != null) {
-				ASTNode tree = this.currentElement.parseTree();
-				if (tree.sourceStart < statement.sourceStart) {
-					this.currentElement.add(statement, 0);
-					break;
+			if (statement != null) {
+				while (this.currentElement != null) {
+					ASTNode tree = this.currentElement.parseTree();
+					if (tree.sourceStart < statement.sourceStart) {
+						this.currentElement.add(statement, 0);
+						break;
+					}
+					this.currentElement = this.currentElement.parent;
 				}
-				this.currentElement = this.currentElement.parent;
 			}
 		}
 	}

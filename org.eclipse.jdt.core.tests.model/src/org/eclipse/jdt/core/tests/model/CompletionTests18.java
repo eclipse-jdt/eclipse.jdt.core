@@ -1791,7 +1791,7 @@ public void test435219f() throws JavaModelException {
 			"get[METHOD_REF]{get(), Ljava.util.Optional<Ljava.lang.Double;>;, ()Ljava.lang.Double;, null, null, get, null, [391, 392], 55}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
-public void _test435219g() throws JavaModelException {
+public void test435219g() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
@@ -1812,7 +1812,8 @@ public void _test435219g() throws JavaModelException {
 	String completeBehind = "dou";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [391, 392], 35}\n" +
-			"get[METHOD_REF]{get(), Ljava.util.Optional<Ljava.lang.Double;>;, ()Ljava.lang.Double;, null, null, get, null, [391, 392], 55}", requestor.getResults());
+	assertResults("doubleToLongBits[METHOD_REF]{doubleToLongBits(), Ljava.lang.Double;, (D)J, null, null, doubleToLongBits, (arg0), [376, 379], 54}\n" +
+				  "doubleToRawLongBits[METHOD_REF]{doubleToRawLongBits(), Ljava.lang.Double;, (D)J, null, null, doubleToRawLongBits, (arg0), [376, 379], 54}\n" +
+				  "doubleValue[METHOD_REF]{doubleValue(), Ljava.lang.Double;, ()D, null, null, doubleValue, null, [376, 379], 65}", requestor.getResults());
 }
 }

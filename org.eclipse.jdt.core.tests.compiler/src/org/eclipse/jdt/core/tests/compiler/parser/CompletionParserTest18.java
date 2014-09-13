@@ -1787,4 +1787,47 @@ public void test438952() {
 				expectedReplacedSource,
 				"diet ast");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+public void test435219() {
+			String string = 
+				"import java.util.Arrays;\n" +
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		List<Integer> costBeforeTax = Arrays.asList(100, 200, 300);\n" +
+				"		   double bill = costBeforeTax.stream().map((cost) -> cost + 0.19 * cost)\n" +
+				"		        //                        .y                   .n             .y\n" +
+				"		      .reduce((sum, cost) -> sum.doubleValue() + cost.dou\n" +
+				"	}\n" +
+				"}\n";
+
+			String completeBehind = "dou";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:cost.dou>";
+			String expectedParentNodeToString = "(sum.doubleValue() + <CompleteOnName:cost.dou>)";
+			String completionIdentifier = "dou";
+			String expectedReplacedSource = "cost.dou";
+			String expectedUnitDisplayString =
+					"import java.util.Arrays;\n" + 
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"    List<Integer> costBeforeTax;\n" + 
+					"    double bill = costBeforeTax.stream().map((<no type> cost) -> (cost + (0.19 * cost))).reduce((<no type> sum, <no type> cost) -> (sum.doubleValue() + <CompleteOnName:cost.dou>));\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
 }
