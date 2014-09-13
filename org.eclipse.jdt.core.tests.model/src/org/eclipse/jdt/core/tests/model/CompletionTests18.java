@@ -1621,4 +1621,225 @@ public void test433178a() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("", requestor.getResults());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+public void test435219() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new Thread(()->System.o);\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "System.o";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("out[FIELD_REF]{out, Ljava.lang.System;, Ljava.io.PrintStream;, null, null, out, null, [83, 84], 26}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+public void test435219a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new Thread(()->System.out.p);\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "System.out.p";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("print[METHOD_REF]{print(), Ljava.io.PrintStream;, (C)V, null, null, print, (arg0), [87, 88], 35}\n" +
+			"print[METHOD_REF]{print(), Ljava.io.PrintStream;, (D)V, null, null, print, (arg0), [87, 88], 35}\n" +
+			"print[METHOD_REF]{print(), Ljava.io.PrintStream;, (F)V, null, null, print, (arg0), [87, 88], 35}\n" +
+			"print[METHOD_REF]{print(), Ljava.io.PrintStream;, (I)V, null, null, print, (arg0), [87, 88], 35}\n" +
+			"print[METHOD_REF]{print(), Ljava.io.PrintStream;, (J)V, null, null, print, (arg0), [87, 88], 35}\n" +
+			"print[METHOD_REF]{print(), Ljava.io.PrintStream;, (Ljava.lang.Object;)V, null, null, print, (arg0), [87, 88], 35}\n" +
+			"print[METHOD_REF]{print(), Ljava.io.PrintStream;, (Ljava.lang.String;)V, null, null, print, (arg0), [87, 88], 35}\n" +
+			"print[METHOD_REF]{print(), Ljava.io.PrintStream;, (Z)V, null, null, print, (arg0), [87, 88], 35}\n" +
+			"print[METHOD_REF]{print(), Ljava.io.PrintStream;, ([C)V, null, null, print, (arg0), [87, 88], 35}\n" +
+			"printf[METHOD_REF]{printf(), Ljava.io.PrintStream;, (Ljava.lang.String;[Ljava.lang.Object;)Ljava.io.PrintStream;, null, null, printf, (arg0, arg1), [87, 88], 35}\n" +
+			"printf[METHOD_REF]{printf(), Ljava.io.PrintStream;, (Ljava.util.Locale;Ljava.lang.String;[Ljava.lang.Object;)Ljava.io.PrintStream;, null, null, printf, (arg0, arg1, arg2), [87, 88], 35}\n" +
+			"println[METHOD_REF]{println(), Ljava.io.PrintStream;, ()V, null, null, println, null, [87, 88], 35}\n" +
+			"println[METHOD_REF]{println(), Ljava.io.PrintStream;, (C)V, null, null, println, (arg0), [87, 88], 35}\n" +
+			"println[METHOD_REF]{println(), Ljava.io.PrintStream;, (D)V, null, null, println, (arg0), [87, 88], 35}\n" +
+			"println[METHOD_REF]{println(), Ljava.io.PrintStream;, (F)V, null, null, println, (arg0), [87, 88], 35}\n" +
+			"println[METHOD_REF]{println(), Ljava.io.PrintStream;, (I)V, null, null, println, (arg0), [87, 88], 35}\n" +
+			"println[METHOD_REF]{println(), Ljava.io.PrintStream;, (J)V, null, null, println, (arg0), [87, 88], 35}\n" +
+			"println[METHOD_REF]{println(), Ljava.io.PrintStream;, (Ljava.lang.Object;)V, null, null, println, (arg0), [87, 88], 35}\n" +
+			"println[METHOD_REF]{println(), Ljava.io.PrintStream;, (Ljava.lang.String;)V, null, null, println, (arg0), [87, 88], 35}\n" +
+			"println[METHOD_REF]{println(), Ljava.io.PrintStream;, (Z)V, null, null, println, (arg0), [87, 88], 35}\n" +
+			"println[METHOD_REF]{println(), Ljava.io.PrintStream;, ([C)V, null, null, println, (arg0), [87, 88], 35}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+public void test435219b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new Thread(()->System.out.println(\"foo\")).st);\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "st";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("start[METHOD_REF]{start(), Ljava.lang.Thread;, ()V, null, null, start, null, [103, 105], 35}\n" +
+			"stop[METHOD_REF]{stop(), Ljava.lang.Thread;, ()V, null, null, stop, null, [103, 105], 35}\n" +
+			"stop[METHOD_REF]{stop(), Ljava.lang.Thread;, (Ljava.lang.Throwable;)V, null, null, stop, (arg0), [103, 105], 35}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+public void test435219c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		List<Integer> list = Arrays.asList(1, 2, 3);\n" +
+			"		list.stream().map((x) -> x * x.h);\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "x.h";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("hashCode[METHOD_REF]{hashCode(), Ljava.lang.Integer;, (I)I, null, null, hashCode, (arg0), [187, 188], 54}\n" +
+			"highestOneBit[METHOD_REF]{highestOneBit(), Ljava.lang.Integer;, (I)I, null, null, highestOneBit, (arg0), [187, 188], 54}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Integer;, ()I, null, null, hashCode, null, [187, 188], 65}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+public void test435219d() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		List<Integer> list = Arrays.asList(1, 2, 3);\n" +
+			"		list.stream().map((x) -> x * x.hashCode()).forEach(System.out::pri);\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "pri";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (C)V, null, null, print, null, [219, 222], 30}\n" +
+			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (D)V, null, null, print, null, [219, 222], 30}\n" +
+			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (F)V, null, null, print, null, [219, 222], 30}\n" +
+			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (I)V, null, null, print, null, [219, 222], 30}\n" +
+			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (J)V, null, null, print, null, [219, 222], 30}\n" +
+			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (Ljava.lang.Object;)V, null, null, print, null, [219, 222], 30}\n" +
+			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (Ljava.lang.String;)V, null, null, print, null, [219, 222], 30}\n" +
+			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (Z)V, null, null, print, null, [219, 222], 30}\n" +
+			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, ([C)V, null, null, print, null, [219, 222], 30}\n" +
+			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, ()V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (C)V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (D)V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (F)V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (I)V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (J)V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (Ljava.lang.Object;)V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (Ljava.lang.String;)V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (Z)V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, ([C)V, null, null, println, null, [219, 222], 30}\n" +
+			"printf[METHOD_IMPORT]{printf, Ljava.io.PrintStream;, (Ljava.lang.String;[Ljava.lang.Object;)Ljava.io.PrintStream;, null, null, printf, null, [219, 222], 35}\n" +
+			"printf[METHOD_IMPORT]{printf, Ljava.io.PrintStream;, (Ljava.util.Locale;Ljava.lang.String;[Ljava.lang.Object;)Ljava.io.PrintStream;, null, null, printf, null, [219, 222], 35}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+public void test435219e() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		List<Integer> costBeforeTax = Arrays.asList(100, 200, 300);\n" +
+			"		   double bill = costBeforeTax.stream().map((cost) -> cost + 0.19 * cost)\n" +
+			"		        //                        .y                   .n             .y\n" +
+			"		      .reduce((sum, cost) -> sum.dou\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "dou";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("doubleToLongBits[METHOD_REF]{doubleToLongBits(), Ljava.lang.Double;, (D)J, null, null, doubleToLongBits, (arg0), [355, 358], 24}\n" +
+			"doubleToRawLongBits[METHOD_REF]{doubleToRawLongBits(), Ljava.lang.Double;, (D)J, null, null, doubleToRawLongBits, (arg0), [355, 358], 24}\n" +
+			"doubleValue[METHOD_REF]{doubleValue(), Ljava.lang.Double;, ()D, null, null, doubleValue, null, [355, 358], 35}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+public void test435219f() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		List<Integer> costBeforeTax = Arrays.asList(100, 200, 300);\n" +
+			"		   double bill = costBeforeTax.stream().map((cost) -> cost + 0.19 * cost)\n" +
+			"		        //                        .y                   .n             .y\n" +
+			"		      .reduce((sum, cost) -> sum.doubleValue() + cost.doubleValue()).g\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "g";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [391, 392], 35}\n" +
+			"get[METHOD_REF]{get(), Ljava.util.Optional<Ljava.lang.Double;>;, ()Ljava.lang.Double;, null, null, get, null, [391, 392], 55}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+public void _test435219g() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		List<Integer> costBeforeTax = Arrays.asList(100, 200, 300);\n" +
+			"		   double bill = costBeforeTax.stream().map((cost) -> cost + 0.19 * cost)\n" +
+			"		        //                        .y                   .n             .y\n" +
+			"		      .reduce((sum, cost) -> sum.doubleValue() + cost.dou\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "dou";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [391, 392], 35}\n" +
+			"get[METHOD_REF]{get(), Ljava.util.Optional<Ljava.lang.Double;>;, ()Ljava.lang.Double;, null, null, get, null, [391, 392], 55}", requestor.getResults());
+}
 }
