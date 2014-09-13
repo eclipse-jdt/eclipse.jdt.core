@@ -1740,36 +1740,20 @@ public void test438952() {
 					"      {\n" + 
 					"      }\n" + 
 					"      void test() {\n" + 
-					"        {\n" + 
-					"          {\n" + 
-					"            <CompleteOnName:>;\n" + 
-					"          }\n" + 
-					"        }\n" + 
+					"        <CompleteOnName:>;\n" + 
 					"      }\n" + 
 					"      void test() {\n" + 
-					"        {\n" + 
-					"          {\n" + 
-					"            <CompleteOnName:>;\n" + 
-					"          }\n" + 
-					"        }\n" + 
+					"        <CompleteOnName:>;\n" + 
 					"      }\n" + 
 					"    };\n" + 
 					"    m6 = () -> new SO() {\n" + 
 					"  {\n" + 
 					"  }\n" + 
 					"  void test() {\n" + 
-					"    {\n" + 
-					"      {\n" + 
-					"        <CompleteOnName:>;\n" + 
-					"      }\n" + 
-					"    }\n" + 
+					"    <CompleteOnName:>;\n" + 
 					"  }\n" + 
 					"  void test() {\n" + 
-					"    {\n" + 
-					"      {\n" + 
-					"        <CompleteOnName:>;\n" + 
-					"      }\n" + 
-					"    }\n" + 
+					"    <CompleteOnName:>;\n" + 
 					"  }\n" + 
 					"};\n" + 
 					"  }\n" + 
@@ -1817,6 +1801,47 @@ public void test435219() {
 					"  public static void main(String[] args) {\n" + 
 					"    List<Integer> costBeforeTax;\n" + 
 					"    double bill = costBeforeTax.stream().map((<no type> cost) -> (cost + (0.19 * cost))).reduce((<no type> sum, <no type> cost) -> (sum.doubleValue() + <CompleteOnName:cost.dou>));\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435682, [1.8] content assist not working inside lambda expression
+public void test435682() {
+			String string = 
+					"import java.util.Arrays;\n" +
+					"import java.util.List;\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		List<String> words = Arrays.asList(\"hi\", \"hello\", \"hola\", \"bye\", \"goodbye\");\n" +
+					"		List<String> list1 = words.stream().map(so -> so.).collect(Collectors.toList());\n" +
+					"	}\n" +
+					"}\n";
+
+			String completeBehind = "so.";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:so.>";
+			String expectedParentNodeToString = "<NONE>";
+			String completionIdentifier = "";
+			String expectedReplacedSource = "so.";
+			String expectedUnitDisplayString =
+					"import java.util.Arrays;\n" + 
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"    List<String> words;\n" + 
+					"    List<String> list1 = words.stream().map((<no type> so) -> <CompleteOnName:so.>);\n" + 
 					"  }\n" + 
 					"}\n";
 
