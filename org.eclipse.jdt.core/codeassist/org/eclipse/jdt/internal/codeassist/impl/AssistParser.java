@@ -465,28 +465,27 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 	}
 	
 	if (lambdaClosed && this.currentElement != null) {
-			this.restartRecovery = true;
+		this.restartRecovery = true;
 		if (!(statement instanceof AbstractVariableDeclaration)) { // added already as part of standard recovery since these contribute a name to the scope prevailing at the cursor.
 			/* See if CompletionParser.attachOrphanCompletionNode has already added bits and pieces of AST to the recovery tree. If so, we want to
 			   replace those fragments with the fuller statement that provides target type for the lambda that got closed just now. There is prior
 			   art/precedent in the Java 7 world to this: Search for recoveredBlock.statements[--recoveredBlock.statementCount] = null;
 			   See also that this concern does not arise in the case of field/local initialization since the initializer is replaced with full tree by consumeExitVariableWithInitialization.
 			*/
-			ASTNode assistNodeParent = this.assistNodeParent();
-			ASTNode enclosingNode = this.enclosingNode();
-			if (assistNodeParent != null || enclosingNode != null) {
-				RecoveredBlock recoveredBlock = (RecoveredBlock) (this.currentElement instanceof RecoveredBlock ? this.currentElement : 
-					(this.currentElement.parent instanceof RecoveredBlock) ? this.currentElement.parent : null);
-				if (recoveredBlock != null) {
-					RecoveredStatement recoveredStatement = recoveredBlock.statementCount > 0 ? recoveredBlock.statements[recoveredBlock.statementCount - 1] : null;
-					ASTNode parseTree = recoveredStatement != null ? recoveredStatement.updatedStatement(0, new HashSet()) : null;
-					if (parseTree != null) {
-						if (parseTree == assistNodeParent || parseTree == enclosingNode) {
-							recoveredBlock.statements[--recoveredBlock.statementCount] = null;
-							this.currentElement = recoveredBlock;
-						} else if (recoveredStatement instanceof RecoveredLocalVariable && statement instanceof Expression) {
-							RecoveredLocalVariable local = (RecoveredLocalVariable) recoveredStatement;
-							if (local.localDeclaration.initialization == assistNodeParent || local.localDeclaration.initialization == enclosingNode) {
+			RecoveredBlock recoveredBlock = (RecoveredBlock) (this.currentElement instanceof RecoveredBlock ? this.currentElement : 
+				(this.currentElement.parent instanceof RecoveredBlock) ? this.currentElement.parent : null);
+			if (recoveredBlock != null) {
+				RecoveredStatement recoveredStatement = recoveredBlock.statementCount > 0 ? recoveredBlock.statements[recoveredBlock.statementCount - 1] : null;
+				ASTNode parseTree = recoveredStatement != null ? recoveredStatement.updatedStatement(0, new HashSet()) : null;
+				if (parseTree != null) {
+					if ((parseTree.sourceStart == 0 || parseTree.sourceEnd == 0) || (parseTree.sourceStart >= statementStart && parseTree.sourceEnd <= statementEnd)) {
+						recoveredBlock.statements[--recoveredBlock.statementCount] = null;
+						this.currentElement = recoveredBlock;
+					} else if (recoveredStatement instanceof RecoveredLocalVariable && statement instanceof Expression) {
+						RecoveredLocalVariable local = (RecoveredLocalVariable) recoveredStatement;
+						if (local.localDeclaration != null && local.localDeclaration.initialization != null) {
+							if ((local.localDeclaration.initialization.sourceStart == 0 || local.localDeclaration.initialization.sourceEnd == 0) || 
+							        (local.localDeclaration.initialization.sourceStart >= statementStart && local.localDeclaration.initialization.sourceEnd <= statementEnd) ){
 								local.localDeclaration.initialization = (Expression) statement;
 								local.localDeclaration.declarationSourceEnd = statement.sourceEnd;
 								local.localDeclaration.declarationEnd = statement.sourceEnd;
@@ -496,6 +495,7 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 					}
 				}
 			}
+			
 			if (statement != null) {
 				while (this.currentElement != null) {
 					ASTNode tree = this.currentElement.parseTree();
