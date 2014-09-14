@@ -24,6 +24,8 @@ import org.eclipse.jdt.internal.compiler.apt.model.TypeElementImpl;
 import org.eclipse.jdt.internal.compiler.apt.model.VariableElementImpl;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
+import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
@@ -144,12 +146,7 @@ public class BaseMessagerImpl {
 		}
 		if (a != null && elementAnnotations != null) {
 			AnnotationBinding annotationBinding = ((AnnotationMirrorImpl) a)._binding;
-			Annotation annotation = null;
-			for (int i = 0; annotation == null && i < elementAnnotations.length; i++) {
-				if (annotationBinding == elementAnnotations[i].getCompilerAnnotation()) {
-					annotation = elementAnnotations[i];
-				}
-			}
+			Annotation annotation = findAnnotation(elementAnnotations, annotationBinding);
 			if (annotation != null) {
 				startPosition = annotation.sourceStart;
 				endPosition = annotation.sourceEnd;
@@ -204,6 +201,44 @@ public class BaseMessagerImpl {
 				endPosition,
 				lineNumber,
 				columnNumber);
+	}
+
+	private static Annotation findAnnotation(Annotation[] elementAnnotations, AnnotationBinding annotationBinding) {
+		for (int i = 0; i < elementAnnotations.length; i++) {
+			Annotation annotation = findAnnotation(elementAnnotations[i], annotationBinding);
+			if (annotation != null) {
+				return annotation;
+			}
+		}
+		return null;
+	}
+
+	private static Annotation findAnnotation(Annotation elementAnnotation, AnnotationBinding annotationBinding) {
+		if (annotationBinding == elementAnnotation.getCompilerAnnotation()) {
+			return elementAnnotation;
+		}
+
+		MemberValuePair[] memberValuePairs = elementAnnotation.memberValuePairs();
+		for (MemberValuePair mvp : memberValuePairs) {
+			Expression v = mvp.value;
+			if (v instanceof Annotation) {
+				Annotation a = findAnnotation((Annotation) v, annotationBinding);
+				if (a != null) {
+					return a;
+				}
+			} else if (v instanceof ArrayInitializer) {
+				Expression[] expressions = ((ArrayInitializer) v).expressions;
+				for (Expression e : expressions) {
+					if (e instanceof Annotation) {
+						Annotation a = findAnnotation((Annotation) e, annotationBinding);
+						if (a != null) {
+							return a;
+						}
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	public BaseMessagerImpl() {
