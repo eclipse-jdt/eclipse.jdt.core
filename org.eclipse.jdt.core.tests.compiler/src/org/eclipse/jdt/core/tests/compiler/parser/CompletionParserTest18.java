@@ -1855,4 +1855,48 @@ public void test435682() {
 				expectedReplacedSource,
 				"diet ast");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667, [1.8][content assist] no proposals around lambda as a field
+public void test430667() {
+			String string = 
+					"interface D_FI {\n" +
+					"	void print(String value, int n);\n" +
+					"}\n" +
+					"class D_DemoRefactorings {\n" +
+					"	\n" +
+					"	D_FI fi1= (String value, int n) -> {\n" +
+					"		for (int j = 0; j < n; j++) {\n" +
+					"			System.out.println(value); 			\n" +
+					"		}\n" +
+					"	};\n" +
+					"	D_F\n" +
+					"}\n";
+
+			String completeBehind = "D_F";
+			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnType:D_F>";
+			String expectedParentNodeToString = "<NONE>";
+			String completionIdentifier = "D_F";
+			String expectedReplacedSource = "D_F";
+			String expectedUnitDisplayString =
+					"interface D_FI {\n" + 
+					"  void print(String value, int n);\n" + 
+					"}\n" + 
+					"class D_DemoRefactorings {\n" + 
+					"  D_FI fi1;\n" + 
+					"  <CompleteOnType:D_F>;\n" + 
+					"  D_DemoRefactorings() {\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
 }

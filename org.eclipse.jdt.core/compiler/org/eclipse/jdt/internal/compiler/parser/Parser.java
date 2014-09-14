@@ -7957,6 +7957,7 @@ protected void consumeLambdaHeader() {
 	this.processingLambdaParameterList = false;
 	if (this.currentElement != null) {
 		this.lastCheckPoint = arrowPosition + 1; // we don't want the typed formal parameters to be processed by recovery.
+		this.currentElement.lambdaNestLevel++;
 	}
 }
 protected void consumeLambdaExpression() {
@@ -7992,6 +7993,7 @@ protected void consumeLambdaExpression() {
 	pushOnExpressionStack(lexp);
 	if (this.currentElement != null) {
 		this.lastCheckPoint = body.sourceEnd + 1;
+		this.currentElement.lambdaNestLevel --;
 	}
 	this.referenceContext.compilationResult().hasFunctionalTypes = true;
 	markEnclosingMemberWithLocalOrFunctionalType(LocalTypeKind.LAMBDA);
