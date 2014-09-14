@@ -7570,4 +7570,35 @@ public void testBug443347c() {
 		: "Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n") +
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=444024, Type mismatch error in annotation generics assignment which happens "sometimes"
+public void _test444024() {
+		this.runConformTest(
+		   new String[] {
+			   "ViewpointOrganisationEntity.java",
+			   "abstract public class ViewpointOrganisationEntity<T> {\n" +
+			   "}\n",
+			   "MetaCombo.java",
+			   "public @interface MetaCombo {\n" +
+			   "	Class< ? extends IComboDataSet< ? >> dataSet();\n" +
+			   "}\n",
+			   "IComboDataSet.java",
+			   "public interface IComboDataSet<T> {\n" +
+			   "}\n",
+			   "ContractantTypeLister.java",
+			   "public class ContractantTypeLister implements IComboDataSet<ContractantType> {\n" +
+			   "}\n",
+			   "ContractantType.java",
+			   "@MetaCombo(dataSet = ContractantTypeLister.class)\n" +
+			   "public class ContractantType extends ViewpointOrganisationEntity<Long>  {\n" +
+			   "}\n",
+		       "Contractant.java",
+		       "public class Contractant extends ViewpointOrganisationEntity<Long> {\n" +
+			   "	@MetaCombo(dataSet = ContractantTypeLister.class)\n" +
+			   "	public ContractantType getContractantType() {\n" +
+			   "		return null;\n" +
+			   "	}\n" +
+			   "}\n",
+		   },
+		   "");
+}
 }
