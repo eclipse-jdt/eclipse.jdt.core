@@ -463,7 +463,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 						flowContext,
 						this,
 						this.binding.thrownExceptions,
-						null,
+						flowContext.getInitializationContext(),
 						this.scope,
 						FlowInfo.DEAD_END);
 
