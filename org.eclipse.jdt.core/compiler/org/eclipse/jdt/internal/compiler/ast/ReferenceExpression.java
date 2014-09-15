@@ -406,7 +406,13 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			lhsType = lhsType.closestMatch();	// improve resolving experience
     	if (!lhsType.isValidBinding()) 
 			return this.resolvedType = null;	// nope, no useful type found
-		final TypeBinding[] descriptorParameters = this.descriptor != null ? this.descriptor.parameters : Binding.NO_PARAMETERS;
+    	
+    	// Convert parameters into argument expressions for look up.
+		TypeBinding[] descriptorParameters = this.descriptor != null && this.descriptor.parameters != null && this.descriptor.parameters.length > 0 ? 
+															new TypeBinding[this.descriptor.parameters.length] : Binding.NO_PARAMETERS;
+		for (int i = 0, length = descriptorParameters.length; i < length; i++)
+			descriptorParameters[i] = this.descriptor.parameters[i].capture(scope, this.sourceEnd);
+		
 		if (lhsType.isBaseType()) {
 			scope.problemReporter().errorNoMethodFor(this.lhs, lhsType, this.selector, descriptorParameters);
 			return this.resolvedType = null;
