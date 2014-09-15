@@ -9331,6 +9331,35 @@ public void test433458() {
 		"The blank final field mComparator1 may not have been initialized\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=433458, [1.8][compiler] Eclipse accepts lambda expression with potentially uninitialized arguments
+public void test433458a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"class X {\n" +
+			"	final int x;\n" +
+			"	X() {\n" +
+			"		I i = () -> {\n" +
+			"			x = 20;\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	X() {\n" + 
+		"	^^^\n" + 
+		"The blank final field x may not have been initialized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	x = 20;\n" + 
+		"	^\n" + 
+		"The final field X.x cannot be assigned\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
