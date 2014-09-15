@@ -12,6 +12,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.Map;
+
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -1913,5 +1914,33 @@ public void test430667() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("D_F[POTENTIAL_METHOD_DECLARATION]{D_F, LD_DemoRefactorings;, ()V, null, null, D_F, null, [195, 198], 14}\n" +
 				  "D_FI[TYPE_REF]{D_FI, , LD_FI;, null, null, null, null, [195, 198], 27}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=443932, [1.8][code complete] method reference proposals not applied when caret inside method name
+public void test443932() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.function.IntFunction;\n" +
+			"public class X {\n" +
+			"	IntFunction<String> ts= Integer::toString;\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "to";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("toBinaryString[METHOD_IMPORT]{toBinaryString, Ljava.lang.Integer;, (I)Ljava.lang.String;, null, null, toBinaryString, null, [90, 98], 24}\n" +
+			"toHexString[METHOD_IMPORT]{toHexString, Ljava.lang.Integer;, (I)Ljava.lang.String;, null, null, toHexString, null, [90, 98], 24}\n" +
+			"toOctalString[METHOD_IMPORT]{toOctalString, Ljava.lang.Integer;, (I)Ljava.lang.String;, null, null, toOctalString, null, [90, 98], 24}\n" +
+			"toString[METHOD_IMPORT]{toString, Ljava.lang.Integer;, (I)Ljava.lang.String;, null, null, toString, null, [90, 98], 24}\n" +
+			"toString[METHOD_IMPORT]{toString, Ljava.lang.Integer;, (II)Ljava.lang.String;, null, null, toString, null, [90, 98], 24}\n" +
+			"toUnsignedLong[METHOD_IMPORT]{toUnsignedLong, Ljava.lang.Integer;, (I)J, null, null, toUnsignedLong, null, [90, 98], 24}\n" +
+			"toUnsignedString[METHOD_IMPORT]{toUnsignedString, Ljava.lang.Integer;, (I)Ljava.lang.String;, null, null, toUnsignedString, null, [90, 98], 24}\n" +
+			"toUnsignedString[METHOD_IMPORT]{toUnsignedString, Ljava.lang.Integer;, (II)Ljava.lang.String;, null, null, toUnsignedString, null, [90, 98], 24}\n" +
+			"toString[METHOD_IMPORT]{toString, Ljava.lang.Integer;, ()Ljava.lang.String;, null, null, toString, null, [90, 98], 35}", requestor.getResults());
+	assertTrue(str.substring(90, 98).equals("toString"));
+	
 }
 }

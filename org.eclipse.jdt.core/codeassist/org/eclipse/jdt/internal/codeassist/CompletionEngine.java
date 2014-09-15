@@ -8747,10 +8747,7 @@ public final class CompletionEngine
 					}
 					proposal.setCompletion(completion);
 					proposal.setFlags(method.modifiers);
-					if (completionOnReferenceExpressionName)
-						proposal.setReplaceRange(this.endPosition - this.offset - methodLength, this.endPosition - this.offset);
-					else 
-						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
 					if(parameterNames != null) proposal.setParameterNames(parameterNames);
