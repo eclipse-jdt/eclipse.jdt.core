@@ -6971,7 +6971,6 @@ public void test412284c() {
 				"  }\n" +
 				"}\n"
 		},
-
 		"----------\n" + 
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	X(){\n" + 
@@ -6981,9 +6980,19 @@ public void test412284c() {
 		"2. ERROR in X.java (at line 7)\n" + 
 		"	t += 3;\n" + 
 		"	^\n" + 
+		"The blank final field t may not have been initialized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	t += 3;\n" + 
+		"	^\n" + 
 		"The final field X.t cannot be assigned\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 9)\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
+		"	t += 4;\n" + 
+		"	^\n" + 
+		"The blank final field t may not have been initialized\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 9)\n" + 
 		"	t += 4;\n" + 
 		"	^\n" + 
 		"The final field X.t cannot be assigned\n" + 
@@ -9285,6 +9294,41 @@ public void test435397() {
 		"	new M1().module((c) -> new M2());\n" + 
 		"	         ^^^^^^\n" + 
 		"The method module(M) is ambiguous for the type M1\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=433458, [1.8][compiler] Eclipse accepts lambda expression with potentially uninitialized arguments
+public void test433458() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Comparator;\n" +
+			"public class X {\n" +
+			"    final Comparator mComparator1;\n" +
+			//"    Comparator mComparator2 = mComparator1;\n" +
+			"    Comparator mComparator2 = (pObj1, pObj2) -> mComparator1.compare(pObj1, pObj2);\n" +
+			"    X() {mComparator1 = Comparator.naturalOrder();}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	final Comparator mComparator1;\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"Comparator is a raw type. References to generic type Comparator<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	Comparator mComparator2 = (pObj1, pObj2) -> mComparator1.compare(pObj1, pObj2);\n" + 
+		"	^^^^^^^^^^\n" + 
+		"Comparator is a raw type. References to generic type Comparator<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 4)\n" + 
+		"	Comparator mComparator2 = (pObj1, pObj2) -> mComparator1.compare(pObj1, pObj2);\n" + 
+		"	                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method compare(Object, Object) belongs to the raw type Comparator. References to generic type Comparator<T> should be parameterized\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
+		"	Comparator mComparator2 = (pObj1, pObj2) -> mComparator1.compare(pObj1, pObj2);\n" + 
+		"	                                            ^^^^^^^^^^^^\n" + 
+		"The blank final field mComparator1 may not have been initialized\n" + 
 		"----------\n");
 }
 public static Class testClass() {
