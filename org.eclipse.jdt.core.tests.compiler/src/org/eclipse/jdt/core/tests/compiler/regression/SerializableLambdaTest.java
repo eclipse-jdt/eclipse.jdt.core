@@ -10,8 +10,10 @@
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *                          Bug 439889 - [1.8][compiler] [lambda] Deserializing lambda fails with IllegalArgumentException: "Invalid lambda deserialization"
  *                          Bug 442416 - $deserializeLambda$ missing cases for nested lambdas
+ *                          Bug 442418 - $deserializeLambda$ off-by-one error when deserializing the captured arguments of a lambda that also capture this
  *        Olivier Tardieu tardieu@us.ibm.com - Contributions for
  *                          Bug 442416 - $deserializeLambda$ missing cases for nested lambdas
+ *                          Bug 442418 - $deserializeLambda$ off-by-one error when deserializing the captured arguments of a lambda that also capture this
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1363,6 +1365,48 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 					"}\n",
 				},
 				"Hello,world!",
+				null,true,
+				new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
+	}
+	
+	public void testBindingThis_442418() throws Exception {
+		this.runConformTest(
+				new String[]{
+					"Foo.java",
+					"import java.io.*;\n"+
+					"public class Foo implements Serializable {\n"+
+					"   static byte[] toSer(Object o) {\n"+
+					"       try {\n"+
+					"			final ByteArrayOutputStream buffer = new ByteArrayOutputStream();\n"+
+					"			try (ObjectOutputStream out = new ObjectOutputStream(buffer) ) {\n"+
+					"				out.writeObject(o);\n"+
+					"			}\n"+
+					"			return buffer.toByteArray();\n"+
+					"		} catch (Exception e) {e.printStackTrace();return null;}\n"+
+					"	}\n"+
+					"	static Object fromSer(byte[] bs) {\n"+
+					"	try {\n"+
+					"			try (ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream(bs))) {\n"+
+					"				final Object s = in.readObject();\n"+
+					"				return s;\n"+
+					"			}\n"+
+					"       } catch (Exception e) {e.printStackTrace();return null;}\n"+
+					"   }\n"+
+					"		void m(int i) {\n"+
+					"			System.out.println(i);\n"+
+					"		}\n"+
+					"		void n(int i) {\n"+
+					"			Runnable lambda = (java.io.Serializable & Runnable) () -> { this.m(i); };\n"+
+					"			byte[] bs = toSer(lambda);\n"+
+					"			Runnable r = (Runnable)fromSer(bs);\n"+
+					"			r.run();\n"+
+					"		}\n"+
+					"	public static void main(String[] args) throws Exception {\n"+
+					"		new Foo().n(42);\n"+
+					"	}\n"+
+					"}\n",
+				},
+				"42",
 				null,true,
 				new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}

@@ -19,6 +19,8 @@
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
  *                          Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
+ *        Olivier Tardieu (tardieu@us.ibm.com) - Contributions for
+ *                          Bug 442418 - $deserializeLambda$ off-by-one error when deserializing the captured arguments of a lambda that also capture this
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
@@ -2707,7 +2709,7 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 		SyntheticArgumentBinding[] outerLocalVariables = lambdaEx.outerLocalVariables;
 		for (int p=0,max=outerLocalVariables.length;p<max;p++) {
 			aload_0();
-			loadInt(p);
+			loadInt(index);
 			invoke(Opcodes.OPC_invokevirtual, 1, 1, ConstantPool.JavaLangInvokeSerializedLambdaConstantPoolName, 
 					ConstantPool.GetCapturedArg, ConstantPool.GetCapturedArgSignature);
 			TypeBinding varType = outerLocalVariables[p].type;
