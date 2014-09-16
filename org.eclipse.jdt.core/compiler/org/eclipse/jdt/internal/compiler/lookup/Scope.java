@@ -1241,7 +1241,7 @@ public abstract class Scope {
 		InvocationSite invocationSite,
 		ReferenceBinding classHierarchyStart,
 		ObjectVector found,
-		MethodBinding concreteMatch) {
+		MethodBinding [] concreteMatches) {
 
 		int startFoundSize = found.size;
 		final boolean sourceLevel18 = this.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8;
@@ -1251,10 +1251,14 @@ public abstract class Scope {
 			findMethodInSuperInterfaces(currentType, selector, found, visitedTypes, invocationSite);
 			currentType = currentType.superclass();
 		}
-		MethodBinding[] candidates = null;
-		int candidatesCount = 0;
-		MethodBinding problemMethod = null;
+		
+		int candidatesCount = concreteMatches == null ? 0 : concreteMatches.length;
 		int foundSize = found.size;
+		MethodBinding[] candidates = new MethodBinding[foundSize - startFoundSize + candidatesCount];
+		if (concreteMatches != null)
+			System.arraycopy(concreteMatches, 0, candidates, 0, candidatesCount);
+		
+		MethodBinding problemMethod = null;
 		if (foundSize > startFoundSize) {
 			// argument type compatibility check
 			final MethodVerifier methodVerifier = environment().methodVerifier();
@@ -1264,9 +1268,11 @@ public abstract class Scope {
 				MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite, APPLICABILITY);
 				if (compatibleMethod != null) {
 					if (compatibleMethod.isValidBinding()) {
-						if (concreteMatch != null) {
-							if (methodVerifier.areMethodsCompatible(concreteMatch, compatibleMethod))
-								continue; // can skip this method since concreteMatch overrides it
+						if (concreteMatches != null) {
+							for (int j = 0, length = concreteMatches.length; j < length; j++) {
+								if (methodVerifier.areMethodsCompatible(concreteMatches[j], compatibleMethod))
+									continue; // can skip this method since concreteMatch overrides it
+							}
 						}
 						if (sourceLevel18) {
 							for (int j = 0; j < startFoundSize; j++) {
@@ -1275,11 +1281,6 @@ public abstract class Scope {
 									continue next; // can skip this method since classMethod overrides it
 							}
 						}
-						if (candidatesCount == 0) {
-							candidates = new MethodBinding[foundSize - startFoundSize + 1];
-							if (concreteMatch != null)
-								candidates[candidatesCount++] = concreteMatch;
-						}
 						candidates[candidatesCount++] = compatibleMethod;
 					} else if (problemMethod == null) {
 						problemMethod = compatibleMethod;
@@ -1287,13 +1288,13 @@ public abstract class Scope {
 				}
 			}
 		}
-
+		MethodBinding concreteMatch = null;
 		if (candidatesCount < 2) {
-			if (concreteMatch == null) {
+			if (concreteMatches == null) {
 				if (candidatesCount == 0)
 					return problemMethod; // can be null
-				concreteMatch = candidates[0];
 			}
+			concreteMatch = candidates[0];
 			// 1.8: Give inference a chance to perform outstanding tasks (18.5.2):
 			concreteMatch = inferInvocationType(invocationSite, concreteMatch, argumentTypes);
 			if (concreteMatch != null)
@@ -1766,7 +1767,7 @@ public abstract class Scope {
 						if (foundSize == 1 && compatibleMethod.canBeSeenBy(receiverType, invocationSite, this)) {
 							// return the single visible match now
 							if (searchForDefaultAbstractMethod)
-								return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, compatibleMethod);
+								return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, new MethodBinding [] {compatibleMethod});
 // ==== 1.8: Finalize type inference of generic methods: ====
 							MethodBinding improved = inferInvocationType(invocationSite, compatibleMethod, argumentTypes);
 							if (improved != null && improved.isValidBinding()) {
@@ -1872,6 +1873,7 @@ public abstract class Scope {
 				visiblesCount++;
 			}
 		}
+		
 		switch (visiblesCount) {
 			case 0 :
 				MethodBinding interfaceMethod =
@@ -1882,7 +1884,7 @@ public abstract class Scope {
 						candidate.isStatic() && candidate.declaringClass.isInterface() ? ProblemReasons.NonStaticOrAlienTypeReceiver : ProblemReasons.NotVisible);
 			case 1 :
 				if (searchForDefaultAbstractMethod)
-					return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, candidates[0]);
+					return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, new MethodBinding [] { candidates[0] });
 				// 1.8: Give inference a chance to perform outstanding tasks (18.5.2):
 				candidate = inferInvocationType(invocationSite, candidates[0], argumentTypes);
 				if (candidate != null)
@@ -1929,18 +1931,10 @@ public abstract class Scope {
 			if (staticCount > 1)
 				return mostSpecificMethodBinding(staticCandidates, staticCount, argumentTypes, invocationSite, receiverType);
 		}
-
-		MethodBinding mostSpecificMethod = mostSpecificMethodBinding(candidates, visiblesCount, argumentTypes, invocationSite, receiverType);
-		if (searchForDefaultAbstractMethod) { // search interfaces for a better match
-			if (mostSpecificMethod.isValidBinding())
-				// see if there is a better match in the interfaces - see AutoBoxingTest 99, LookupTest#81
-				return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, mostSpecificMethod);
-			// see if there is a match in the interfaces - see LookupTest#84
-			MethodBinding interfaceMethod = findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, null);
-			if (interfaceMethod != null && interfaceMethod.isValidBinding() /* else return the same error as before */)
-				return interfaceMethod;
-		}
-		return mostSpecificMethod;
+		if (visiblesCount != candidates.length)
+			System.arraycopy(candidates, 0, candidates = new MethodBinding[visiblesCount], 0, visiblesCount);
+		return searchForDefaultAbstractMethod ? findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, candidates)
+											  : mostSpecificMethodBinding(candidates, visiblesCount, argumentTypes, invocationSite, receiverType);
 	}
 
 	// Internal use only

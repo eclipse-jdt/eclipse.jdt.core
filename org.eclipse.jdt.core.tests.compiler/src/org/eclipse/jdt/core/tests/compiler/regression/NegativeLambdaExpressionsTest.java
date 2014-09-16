@@ -9111,6 +9111,137 @@ public void test433458() {
 		"The blank final field mComparator1 may not have been initialized\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=433588, [1.8][compiler] ECJ compiles an ambiguous call in the presence of an unrelated unused method.
+public void test433588() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"import java.nio.file.Files;\n" +
+			"import java.nio.file.Paths;\n" +
+			"import java.util.function.Consumer;\n" +
+			"import java.util.stream.Stream;\n" +
+			"public class X {\n" +
+			"	private interface StreamyBase<T, E extends Exception> {\n" +
+			"		@SuppressWarnings(\"unused\")\n" +
+			"		default void forEachOrdered(Consumer<? super T> action) throws E {}\n" +
+			"	}\n" +
+			"	abstract private static class AbstractStream<T, E extends Exception, STREAM, SELF extends AbstractStream<T, E, STREAM, SELF, CONSUMER>, CONSUMER> implements StreamyBase<T, E> {\n" +
+			"		@SuppressWarnings(\"unused\")\n" +
+			"		public void forEachOrdered(CONSUMER action) throws E {}\n" +
+			"		// remove this method with a warning about it being unused:\n" +
+			"		public final @SafeVarargs void forEachOrdered(Consumer<? super T> action, Consumer<? super T>... actions) throws E {}\n" +
+			"	}\n" +
+			"	private static class UnStream<T> extends AbstractStream<T, RuntimeException, Stream<T>, UnStream<T>, Consumer<? super T>> {}\n" +
+			"	private static class IOStream<T> extends AbstractStream<T, IOException, Stream<T>, IOStream<T>, IOConsumer<? super T>> {}\n" +
+			"	@FunctionalInterface\n" +
+			"	private interface ExConsumer<T, E extends Exception> {\n" +
+			"		void accept(T t1) throws E;\n" +
+			"	}\n" +
+			"	@FunctionalInterface\n" +
+			"	private interface IOConsumer<T> extends ExConsumer<T, IOException> {}\n" +
+			"	public static void tests1(IOStream<String> lines1, UnStream<String> lines2) throws IOException {\n" +
+			"		IOConsumer<? super String> action = s -> Files.isHidden(Paths.get(s));\n" +
+			"		Consumer<? super String> action2 = s -> System.out.println(s);\n" +
+			"		// After removal these two become ambiguous:\n" +
+			"		lines1.forEachOrdered(s -> Files.isHidden(Paths.get(s)));\n" +
+			"		lines1.forEachOrdered(s -> System.out.println(s));\n" +
+			"		lines1.forEachOrdered(action);\n" +
+			"		lines1.forEachOrdered(action2);\n" +
+			"		lines2.forEachOrdered(action2);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 15)\n" + 
+		"	public final @SafeVarargs void forEachOrdered(Consumer<? super T> action, Consumer<? super T>... actions) throws E {}\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method forEachOrdered(Consumer<? super T>, Consumer<? super T>...) from the type X.AbstractStream<T,E,STREAM,SELF,CONSUMER> is never used locally\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 17)\n" + 
+		"	private static class UnStream<T> extends AbstractStream<T, RuntimeException, Stream<T>, UnStream<T>, Consumer<? super T>> {}\n" + 
+		"	                     ^^^^^^^^\n" + 
+		"Access to enclosing constructor X.AbstractStream<T,E,STREAM,SELF,CONSUMER>() is emulated by a synthetic accessor method\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 18)\n" + 
+		"	private static class IOStream<T> extends AbstractStream<T, IOException, Stream<T>, IOStream<T>, IOConsumer<? super T>> {}\n" + 
+		"	                     ^^^^^^^^\n" + 
+		"Access to enclosing constructor X.AbstractStream<T,E,STREAM,SELF,CONSUMER>() is emulated by a synthetic accessor method\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 29)\n" + 
+		"	lines1.forEachOrdered(s -> Files.isHidden(Paths.get(s)));\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"The method forEachOrdered(X.IOConsumer<? super String>) is ambiguous for the type X.IOStream<String>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 30)\n" + 
+		"	lines1.forEachOrdered(s -> System.out.println(s));\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"The method forEachOrdered(X.IOConsumer<? super String>) is ambiguous for the type X.IOStream<String>\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=433588, [1.8][compiler] ECJ compiles an ambiguous call in the presence of an unrelated unused method.
+public void test433588a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"import java.nio.file.Files;\n" +
+			"import java.nio.file.Paths;\n" +
+			"import java.util.function.Consumer;\n" +
+			"import java.util.stream.Stream;\n" +
+			"public class X {\n" +
+			"	private interface StreamyBase<T, E extends Exception> {\n" +
+			"		@SuppressWarnings(\"unused\")\n" +
+			"		default void forEachOrdered(Consumer<? super T> action) throws E {}\n" +
+			"	}\n" +
+			"	abstract private static class AbstractStream<T, E extends Exception, STREAM, SELF extends AbstractStream<T, E, STREAM, SELF, CONSUMER>, CONSUMER> implements StreamyBase<T, E> {\n" +
+			"		@SuppressWarnings(\"unused\")\n" +
+			"		public void forEachOrdered(CONSUMER action) throws E {}\n" +
+			"		// remove this method with a warning about it being unused:\n" +
+			"		// public final @SafeVarargs void forEachOrdered(Consumer<? super T> action, Consumer<? super T>... actions) throws E {}\n" +
+			"	}\n" +
+			"	private static class UnStream<T> extends AbstractStream<T, RuntimeException, Stream<T>, UnStream<T>, Consumer<? super T>> {}\n" +
+			"	private static class IOStream<T> extends AbstractStream<T, IOException, Stream<T>, IOStream<T>, IOConsumer<? super T>> {}\n" +
+			"	@FunctionalInterface\n" +
+			"	private interface ExConsumer<T, E extends Exception> {\n" +
+			"		void accept(T t1) throws E;\n" +
+			"	}\n" +
+			"	@FunctionalInterface\n" +
+			"	private interface IOConsumer<T> extends ExConsumer<T, IOException> {}\n" +
+			"	public static void tests1(IOStream<String> lines1, UnStream<String> lines2) throws IOException {\n" +
+			"		IOConsumer<? super String> action = s -> Files.isHidden(Paths.get(s));\n" +
+			"		Consumer<? super String> action2 = s -> System.out.println(s);\n" +
+			"		// After removal these two become ambiguous:\n" +
+			"		lines1.forEachOrdered(s -> Files.isHidden(Paths.get(s)));\n" +
+			"		lines1.forEachOrdered(s -> System.out.println(s));\n" +
+			"		lines1.forEachOrdered(action);\n" +
+			"		lines1.forEachOrdered(action2);\n" +
+			"		lines2.forEachOrdered(action2);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 17)\n" + 
+		"	private static class UnStream<T> extends AbstractStream<T, RuntimeException, Stream<T>, UnStream<T>, Consumer<? super T>> {}\n" + 
+		"	                     ^^^^^^^^\n" + 
+		"Access to enclosing constructor X.AbstractStream<T,E,STREAM,SELF,CONSUMER>() is emulated by a synthetic accessor method\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 18)\n" + 
+		"	private static class IOStream<T> extends AbstractStream<T, IOException, Stream<T>, IOStream<T>, IOConsumer<? super T>> {}\n" + 
+		"	                     ^^^^^^^^\n" + 
+		"Access to enclosing constructor X.AbstractStream<T,E,STREAM,SELF,CONSUMER>() is emulated by a synthetic accessor method\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 29)\n" + 
+		"	lines1.forEachOrdered(s -> Files.isHidden(Paths.get(s)));\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"The method forEachOrdered(X.IOConsumer<? super String>) is ambiguous for the type X.IOStream<String>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 30)\n" + 
+		"	lines1.forEachOrdered(s -> System.out.println(s));\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"The method forEachOrdered(X.IOConsumer<? super String>) is ambiguous for the type X.IOStream<String>\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
