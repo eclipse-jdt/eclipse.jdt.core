@@ -9131,7 +9131,7 @@ public void test442983() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=438945, [1.8] NullPointerException InferenceContext18.checkExpression in java 8 with generics, primitives, and overloading
-public void _test438945() {
+public void test438945() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",

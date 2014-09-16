@@ -792,19 +792,19 @@ public class InferenceContext18 {
 			}
 			return reduceAndIncorporate(ConstraintTypeFormula.create(r1, r2, ReductionResult.SUBTYPE));
 		} else if (expri instanceof ReferenceExpression && ((ReferenceExpression)expri).isExactMethodReference()) {
+			ReferenceExpression reference = (ReferenceExpression) expri;
 			for (int i = 0; i < u.length; i++) {
-				ReferenceExpression reference = (ReferenceExpression) expri;
 				if (!reduceAndIncorporate(ConstraintTypeFormula.create(u[i], v[i], ReductionResult.SAME)))
 					return false;
-				if (r2.id == TypeIds.T_void)
-					return true;
-				MethodBinding method = reference.findCompileTimeMethodTargeting(null, this.scope); // TODO directly access exactMethodBinding!
-				TypeBinding returnType = method.isConstructor() ? method.declaringClass : method.returnType;
-				if (r1.isPrimitiveType() && !r2.isPrimitiveType() && returnType.isPrimitiveType()) 
-					return true;
-				if (r2.isPrimitiveType() && !r1.isPrimitiveType() && !returnType.isPrimitiveType())
-					return true;
 			}
+			if (r2.id == TypeIds.T_void)
+				return true;
+			MethodBinding method = reference.getExactMethod();
+			TypeBinding returnType = method.isConstructor() ? method.declaringClass : method.returnType;
+			if (r1.isPrimitiveType() && !r2.isPrimitiveType() && returnType.isPrimitiveType()) 
+				return true;
+			if (r2.isPrimitiveType() && !r1.isPrimitiveType() && !returnType.isPrimitiveType())
+				return true;
 			return reduceAndIncorporate(ConstraintTypeFormula.create(r1, r2, ReductionResult.SUBTYPE));
 		} else if (expri instanceof ConditionalExpression) {
 			ConditionalExpression cond = (ConditionalExpression) expri;
