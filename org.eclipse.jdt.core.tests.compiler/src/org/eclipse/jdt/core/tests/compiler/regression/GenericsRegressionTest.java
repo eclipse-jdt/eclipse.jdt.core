@@ -5469,5 +5469,21 @@ public void test444024() {
 		   },
 		   "");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=440019, [1.8][compiler] Type mismatch error with autoboxing/scalar types (works with 1.6)
+public void test440019() {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_7)
+		this.runConformTest(
+		   new String[] {
+			   "A.java",
+			   "public class A {\n" +
+			   "  <T> T get(String name, T defaultValue) { return defaultValue; }\n" +
+			   "  void x() {\n" +
+			   "    long a1 = get(\"key\", 0);\n" +
+			   "    long a3 = get(\"key\", 0L);\n" +
+			   "  }\n" +
+			   "}\n",
+		   },
+		   "");
+}
 }
 
