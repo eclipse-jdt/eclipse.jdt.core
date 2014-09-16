@@ -30,6 +30,7 @@
  *							Bug 438383 - [1.8][null] Bogus warning: Null type safety at method return type
  *							Bug 434483 - [1.8][compiler][inference] Type inference not picked up with method reference
  *							Bug 441734 - [1.8][inference] Generic method with nested parameterized type argument fails on method reference
+ *							Bug 438945 - [1.8] NullPointerException InferenceContext18.checkExpression in java 8 with generics, primitives, and overloading
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contribution for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -716,6 +717,10 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	
 	public boolean isExactMethodReference() {
 		return this.exactMethodBinding != null;
+	}
+	
+	public MethodBinding getExactMethod() {
+		return this.exactMethodBinding;
 	}
 	
 	public boolean isMethodReference() {

@@ -9076,6 +9076,54 @@ public void test431514() {
 		"The nested type Z cannot hide an enclosing type\n" +
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=442983, [1.8] NPE in Scope.findDefaultAbstractMethod 
+public void test442983() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.function.Function;\n" +
+			"class CL<T> {\n" +
+			"	<F> String method1(CL<T> ie) {\n" +
+			"		return \"b\";\n" +
+			"	}\n" +
+			"	public void bar() {		\n" +
+			"		Function<CL<Integer>, String> v5 = CL::method1;\n" +
+			"		v5 = t -> t.method1();	\n" +
+			"	}	\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	Function<CL<Integer>, String> v5 = CL::method1;\n" + 
+		"	                                   ^^^^^^^^^^^\n" + 
+		"The type CL does not define method1(CL<Integer>) that is applicable here\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	v5 = t -> t.method1();	\n" + 
+		"	            ^^^^^^^\n" + 
+		"The method method1(CL<Integer>) in the type CL<Integer> is not applicable for the arguments ()\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=438945, [1.8] NullPointerException InferenceContext18.checkExpression in java 8 with generics, primitives, and overloading
+public void test438945() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.function.ToIntFunction;\n" +
+			"import java.util.function.ToLongFunction;\n" +
+			"public class X {\n" +
+			"    public static void error() {\n" +
+			"        test(X::works);\n" +
+			"        test(X::broken);\n" +
+			"    }\n" +
+			"    private static <T> void test(ToLongFunction<T> func) {}\n" +
+			"    private static <T> void test(ToIntFunction<T> func) {}\n" +
+			"    private static int broken(Object o) { return 0; }\n" +
+			"    private static long works(Object o) { return 0; } \n" +
+			"}\n"
+		},
+		"");
+}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=433458, [1.8][compiler] Eclipse accepts lambda expression with potentially uninitialized arguments
 public void test433458() {
 	this.runNegativeTest(
@@ -9241,26 +9289,6 @@ public void test433588a() {
 		"	       ^^^^^^^^^^^^^^\n" + 
 		"The method forEachOrdered(X.IOConsumer<? super String>) is ambiguous for the type X.IOStream<String>\n" + 
 		"----------\n");
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=438945, [1.8] NullPointerException InferenceContext18.checkExpression in java 8 with generics, primitives, and overloading
-public void _test438945() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"import java.util.function.ToIntFunction;\n" +
-			"import java.util.function.ToLongFunction;\n" +
-			"public class X {\n" +
-			"    public static void error() {\n" +
-			"        test(X::works);\n" +
-			"        test(X::broken);\n" +
-			"    }\n" +
-			"    private static <T> void test(ToLongFunction<T> func) {}\n" +
-			"    private static <T> void test(ToIntFunction<T> func) {}\n" +
-			"    private static int broken(Object o) { return 0; }\n" +
-			"    private static long works(Object o) { return 0; } \n" +
-			"}\n"
-		},
-		"");
 }
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
