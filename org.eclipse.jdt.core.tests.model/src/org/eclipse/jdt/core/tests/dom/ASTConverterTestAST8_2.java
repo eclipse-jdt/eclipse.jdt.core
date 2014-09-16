@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 IBM Corporation and others.
+ * Copyright (c) 2011, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10775,6 +10775,32 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			if (workingCopy != null) {
 				workingCopy.discardWorkingCopy();
 			}
+		}
+	}
+	/**
+	 * @deprecated
+	 * @throws JavaModelException
+	 */
+	public void testBug443942() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "org.eclipse.swt.internal.gtk", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		try {
+			ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor() {
+                public boolean isActive() {
+                    return false;
+                }
+			};
+			sourceUnit.becomeWorkingCopy(pbRequestor, null);
+			sourceUnit.getBuffer().setContents(
+				"package org.eclipse.swt.internal.gtk;\n" +
+				"public class X {\n" +
+				"  public static final native long /*int*/ realpath(byte[] path, byte[] realPath);\n" +
+				"}"
+			);
+			// TODO improve test for AST.JLS8
+			CompilationUnit unit = sourceUnit.reconcile(AST.JLS8, false, null, null);
+			assertEquals("Unexpected well known type", null, unit.getAST().resolveWellKnownType("void"));
+		} finally {
+			sourceUnit.discardWorkingCopy();
 		}
 	}
 }
