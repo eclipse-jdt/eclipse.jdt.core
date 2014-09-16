@@ -9,6 +9,9 @@
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *                          Bug 439889 - [1.8][compiler] [lambda] Deserializing lambda fails with IllegalArgumentException: "Invalid lambda deserialization"
+ *                          Bug 442416 - $deserializeLambda$ missing cases for nested lambdas
+ *        Olivier Tardieu tardieu@us.ibm.com - Contributions for
+ *                          Bug 442416 - $deserializeLambda$ missing cases for nested lambdas
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1314,6 +1317,56 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 					null,true,
 					new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
+	
+	public void testNestedLambdas_442416() throws Exception {
+		this.runConformTest(
+				new String[]{
+					"Foo.java",
+					"import java.io.*;\n"+
+					"public class Foo {\n"+
+					"   static byte[] toSer(Object o) {\n"+
+					"       try {\n"+
+					"			final ByteArrayOutputStream buffer = new ByteArrayOutputStream();\n"+
+					"			try (ObjectOutputStream out = new ObjectOutputStream(buffer) ) {\n"+
+					"				out.writeObject(o);\n"+
+					"			}\n"+
+					"			return buffer.toByteArray();\n"+
+					"       } catch (Exception e) {e.printStackTrace();return null;}\n"+
+					"   }\n"+
+					"   static Object fromSer(byte[] bs) {\n"+
+					"       try {\n"+
+					"			try (ObjectInputStream in = new ObjectInputStream( new ByteArrayInputStream(bs))) {\n"+
+					"				final Object s = in.readObject();\n"+
+					"				return s;\n"+
+					"			}\n"+
+					"       } catch (Exception e) {e.printStackTrace();return null;}\n"+
+					"   }\n"+
+					"	public static void main(String[] args) throws Exception {\n"+
+					"       Runnable nested1,nested2;\n"+
+					"		Runnable lambda0 = (java.io.Serializable & Runnable) () -> {\n"+
+					"			Runnable lambda1 = (java.io.Serializable & Runnable) () -> {\n"+
+					"				Runnable lambda2 = (java.io.Serializable & Runnable) () -> {\n"+
+					"					System.out.println(\"Hello,world!\");\n"+
+					"				};\n"+
+					"       		byte[] bs = toSer(lambda2);\n"+
+					"				Runnable r = (Runnable)fromSer(bs);\n"+
+					"       		r.run();\n"+
+					"			};\n"+
+					"       	byte[] bs = toSer(lambda1);\n"+
+					"			Runnable r = (Runnable)fromSer(bs);\n"+
+					"       	r.run();\n"+
+					"		};\n"+
+					"       byte[] bs = toSer(lambda0);\n"+
+					"		Runnable r = (Runnable)fromSer(bs);\n"+
+					"       r.run();\n"+
+					"	}\n"+
+					"}\n",
+				},
+				"Hello,world!",
+				null,true,
+				new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
+	}
+	
 	// ---
 	
 	private void checkExpected(String expected, String actual) {
