@@ -5177,14 +5177,15 @@ protected void updateRecoveryState() {
 	/* expose parser state to recovery state */
 	this.currentElement.updateFromParserState();
 
-	/* may be able to retrieve completionNode as an orphan, and then attach it */
-	completionIdentifierCheck();
-	// attachOrphanCompletionNode pops various stacks to construct astNodeParent and enclosingNode. This does not gel well with extended recovery.
+	// completionIdentifierCheck && attachOrphanCompletionNode pops various stacks to construct astNodeParent and enclosingNode. This does not gel well with extended recovery.
 	CommitRollbackParser parser = null;
 	if (lastIndexOfElement(K_LAMBDA_EXPRESSION_DELIMITER) >= 0) {
 		parser = createSnapShotParser();
 		parser.copyState(this);
 	}
+	
+	/* may be able to retrieve completionNode as an orphan, and then attach it */
+	completionIdentifierCheck();
 	attachOrphanCompletionNode();
 	if (parser != null)
 		this.copyState(parser);

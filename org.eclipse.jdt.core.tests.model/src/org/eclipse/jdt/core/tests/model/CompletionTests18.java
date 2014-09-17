@@ -2155,4 +2155,44 @@ public void test435219l() throws JavaModelException {
 			"doubleToRawLongBits[METHOD_REF]{doubleToRawLongBits(), Ljava.lang.Double;, (D)J, null, null, doubleToRawLongBits, (arg0), [256, 259], 54}\n" +
 			"doubleValue[METHOD_REF]{doubleValue(), Ljava.lang.Double;, ()D, null, null, doubleValue, null, [256, 259], 65}", requestor.getResults());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435281, [1.8][code assist] No import or completion proposal for anonymous class inside lambda
+public void test435281() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/FI1.java",
+			"package p4a;\n" +
+			"@FunctionalInterface\n" +
+			"public interface FI1<R> {\n" +
+			"    public R foo1();\n" +
+			"}\n");
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/FI2.java",
+			"package p4a;\n" +
+			"@FunctionalInterface\n" +
+			"public interface FI2 {\n" +
+			"    public void foo2();\n" +
+			"}\n");
+
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/Test.java",
+			"package p4b;\n" +
+			"import p4a.FI1;\n" +
+			"public class Test {\n" +
+			"	{\n" +
+			"                new FI2() {};\n" +
+			"		FI1 fi1 = () -> new FI2() {\n" +
+			"		    @Override\n" +
+			"		    public void foo2() {}\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[2].getSource();
+	String completeBehind = "FI2";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("FI2[TYPE_REF]{p4a.FI2, p4a, Lp4a.FI2;, null, null, null, null, [104, 107], 28}", requestor.getResults());
+}
 }
