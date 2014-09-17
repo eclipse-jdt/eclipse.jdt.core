@@ -1887,4 +1887,59 @@ public void test430667() throws JavaModelException {
 	assertResults("D_F[POTENTIAL_METHOD_DECLARATION]{D_F, LD_DemoRefactorings;, ()V, null, null, D_F, null, [195, 198], 14}\n" +
 				  "D_FI[TYPE_REF]{D_FI, , LD_FI;, null, null, null, null, [195, 198], 27}", requestor.getResults());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667, [1.8][content assist] no proposals around lambda as a field 
+public void test430667a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"class D_DemoRefactorings {\n" +
+			"	\n" +
+			"	D_FI fi1= (String value, int n) -> {\n" +
+			"		for (int j = 0; j < n; j++) {\n" +
+			"			System.out.println(value); 			\n" +
+			"		}\n" +
+			"	};\n" +
+			"	/*HERE*/D_F\n" +
+			"}\n" +
+			"interface D_FI {\n" +
+			"	void print(String value, int n);\n" +
+			"}\n"
+			);
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/*HERE*/D_F";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("D_F[POTENTIAL_METHOD_DECLARATION]{D_F, LD_DemoRefactorings;, ()V, null, null, D_F, null, [150, 153], 14}\n" +
+			"D_FI[TYPE_REF]{D_FI, , LD_FI;, null, null, null, null, [150, 153], 27}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667, [1.8][content assist] no proposals around lambda as a field 
+public void test430667b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"class D_DemoRefactorings {\n" +
+			"	/*HERE*/D_F\n" +
+			"	D_FI fi1= (String value, int n) -> {\n" +
+			"		for (int j = 0; j < n; j++) {\n" +
+			"			System.out.println(value); 			\n" +
+			"		}\n" +
+			"	};\n" +
+			"}\n" +
+			"interface D_FI {\n" +
+			"	void print(String value, int n);\n" +
+			"}\n"
+			);
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/*HERE*/D_F";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("D_F[POTENTIAL_METHOD_DECLARATION]{D_F, LD_DemoRefactorings;, ()V, null, null, D_F, null, [36, 39], 14}\n" +
+			"D_FI[TYPE_REF]{D_FI, , LD_FI;, null, null, null, null, [36, 39], 27}", requestor.getResults());
+}
 }

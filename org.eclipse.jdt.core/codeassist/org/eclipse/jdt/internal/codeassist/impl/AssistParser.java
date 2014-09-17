@@ -1408,6 +1408,15 @@ protected boolean isIndirectlyInsideLambdaExpression(){
 	}
 	return false;
 }
+protected boolean isIndirectlyInsideLambdaBlock(){
+	int i = this.elementPtr;
+	while (i > -1) {
+		if (this.elementKindStack[i] == K_LAMBDA_EXPRESSION_DELIMITER && this.elementInfoStack[i] == BLOCK_BODY)
+			return true;
+		i--;
+	}
+	return false;
+}
 protected boolean isIndirectlyInsideType(){
 	int i = this.elementPtr;
 	while(i > -1) {
