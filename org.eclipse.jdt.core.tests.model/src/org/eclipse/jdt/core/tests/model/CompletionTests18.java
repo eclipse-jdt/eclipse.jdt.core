@@ -2195,4 +2195,32 @@ public void test435281() throws JavaModelException {
 	this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("FI2[TYPE_REF]{p4a.FI2, p4a, Lp4a.FI2;, null, null, null, null, [104, 107], 28}", requestor.getResults());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=431811, content assist should propose keyword 'super' after type name
+public void test431811() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/FI1.java",
+			"interface Intf {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X implements Intf {\n" +
+			"    class Inner {\n" +
+			"        {\n" +
+			"            X.super.hashCode();\n" +
+			"        }\n" +
+			"    }\n" +
+			"    @Override\n" +
+			"    public void foo() {\n" +
+			"        Intf.su;\n" +
+			"    }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "su";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("super[KEYWORD]{super, null, null, null, null, super, null, [192, 194], 26}", requestor.getResults());
+}
 }

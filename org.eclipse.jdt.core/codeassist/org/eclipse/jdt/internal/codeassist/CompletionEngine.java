@@ -9301,7 +9301,7 @@ public final class CompletionEngine
 				((scope instanceof MethodScope && !((MethodScope)scope).isStatic)
 				|| ((methodScope = scope.enclosingMethodScope()) != null && !methodScope.isStatic))) {
 			if (token.length > 0) {
-				findKeywords(token, new char[][]{Keywords.THIS}, true, false);
+				findKeywords(token, new char[][]{Keywords.THIS, Keywords.SUPER}, true, false);
 			} else {
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForResolution();
