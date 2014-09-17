@@ -1843,7 +1843,7 @@ public void test435682() {
 					"  }\n" + 
 					"  public static void main(String[] args) {\n" + 
 					"    List<String> words;\n" + 
-					"    List<String> list1 = words.stream().map((<no type> so) -> <CompleteOnName:so.>);\n" + 
+					"    List<String> list1 = words.stream().map((<no type> so) -> <CompleteOnName:so.>).collect(Collectors.toList());\n" + 
 					"  }\n" + 
 					"}\n";
 
@@ -2018,6 +2018,43 @@ public void test430667c() {
 					"  <clinit>() {\n" + 
 					"  }\n" + 
 					"  static int two() {\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667, [1.8][content assist] no proposals around lambda as a field
+public void test430667d() {
+			String string = 
+					"import java.util.Arrays;\n" +
+					"import java.util.List;\n" +
+					"public class X {\n" +
+					"		List<Integer> list = Arrays.asList(1, 2, 3);\n" +
+					"		Object o = list.stream().map((x) -> x * x.hashCode()).forEach(System.out::pri);\n" +
+					"}\n";
+					
+			String completeBehind = "pri";
+			int cursorLocation = string.indexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompletionOnReferenceExpressionName:System.out::pri>";
+			String expectedParentNodeToString = "list.stream().map((<no type> x) -> (x * x.hashCode())).forEach(<CompletionOnReferenceExpressionName:System.out::pri>)";
+			String completionIdentifier = "pri";
+			String expectedReplacedSource = "System.out::pri";
+			String expectedUnitDisplayString =
+					"import java.util.Arrays;\n" + 
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"  List<Integer> list;\n" + 
+					"  Object o = list.stream().map((<no type> x) -> (x * x.hashCode())).forEach(<CompletionOnReferenceExpressionName:System.out::pri>);\n" + 
+					"  public X() {\n" + 
 					"  }\n" + 
 					"}\n";
 

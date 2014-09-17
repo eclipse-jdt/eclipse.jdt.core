@@ -2604,8 +2604,12 @@ protected void consumeExitVariableWithInitialization() {
 	} else if (this.assistNode != null && this.assistNode == variable.initialization) {
 			this.assistNodeParent = variable;
 	}
-	if (triggerRecoveryUponLambdaClosure(variable, false) && !isInsideMethod()) {
-		popElement(K_FIELD_INITIALIZER_DELIMITER);
+	if (triggerRecoveryUponLambdaClosure(variable, false)) {
+		if (this.currentElement != null) {
+			this.restartRecovery = true;
+		}
+		if (!isInsideMethod())
+			popElement(K_FIELD_INITIALIZER_DELIMITER);
 	}
 }
 protected void consumeExitVariableWithoutInitialization() {

@@ -464,8 +464,7 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 		}
 	}
 	
-	if (lambdaClosed && this.currentElement != null) {
-		this.restartRecovery = true;
+	if (lambdaClosed && this.currentElement != null && !(this.currentElement instanceof RecoveredField)) {
 		if (!(statement instanceof AbstractVariableDeclaration)) { // added already as part of standard recovery since these contribute a name to the scope prevailing at the cursor.
 			/* See if CompletionParser.attachOrphanCompletionNode has already added bits and pieces of AST to the recovery tree. If so, we want to
 			   replace those fragments with the fuller statement that provides target type for the lambda that got closed just now. There is prior
@@ -523,17 +522,22 @@ protected boolean isAssistParser() {
 }
 protected void consumeBlockStatement() {
 	super.consumeBlockStatement();
-	triggerRecoveryUponLambdaClosure((Statement) this.astStack[this.astPtr], true);
+	if (triggerRecoveryUponLambdaClosure((Statement) this.astStack[this.astPtr], true) && this.currentElement != null)
+		this.restartRecovery = true;
 }
 protected void consumeBlockStatements() {
 	super.consumeBlockStatements();
-	triggerRecoveryUponLambdaClosure((Statement) this.astStack[this.astPtr], true);
+	if (triggerRecoveryUponLambdaClosure((Statement) this.astStack[this.astPtr], true) && this.currentElement != null) {
+		this.restartRecovery = true;
+	}
 }
 protected void consumeFieldDeclaration() {
 	super.consumeFieldDeclaration();
 	if (triggerRecoveryUponLambdaClosure((Statement) this.astStack[this.astPtr], true)) {
 		if (this.currentElement instanceof RecoveredType)
 			popUntilElement(K_TYPE_DELIMITER);
+		if (this.currentElement != null)
+			this.restartRecovery = true;
 	}
 }
 protected void consumeForceNoDiet() {
