@@ -2604,7 +2604,9 @@ protected void consumeExitVariableWithInitialization() {
 	} else if (this.assistNode != null && this.assistNode == variable.initialization) {
 			this.assistNodeParent = variable;
 	}
-	triggerRecoveryUponLambdaClosure(variable, false);
+	if (triggerRecoveryUponLambdaClosure(variable, false) && !isInsideMethod()) {
+		popElement(K_FIELD_INITIALIZER_DELIMITER);
+	}
 }
 protected void consumeExitVariableWithoutInitialization() {
 	// ExitVariableWithoutInitialization ::= $empty
@@ -3537,6 +3539,7 @@ protected void consumeToken(int token) {
 	if (token == TokenNameIdentifier
 			&& this.identifierStack[this.identifierPtr] == assistIdentifier()
 			&& this.currentElement == null
+			&& (!isIndirectlyInsideLambdaExpression() || isIndirectlyInsideLambdaBlock())
 			&& isIndirectlyInsideFieldInitialization()) {
 		this.scanner.eofPosition = this.cursorLocation < Integer.MAX_VALUE ? this.cursorLocation+1 : this.cursorLocation;
 	}
