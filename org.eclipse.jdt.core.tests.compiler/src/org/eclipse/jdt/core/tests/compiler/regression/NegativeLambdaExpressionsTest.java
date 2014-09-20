@@ -9560,6 +9560,69 @@ public void test432531a() {
 	"No enclosing instance of type Y is available due to some intermediate constructor invocation\n" + 
 	"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432605, [1.8] Incorrect error "The type ArrayList<T> does not define add(ArrayList<T>, Object) that is applicable here"
+public void _test432605() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"import java.util.ArrayList;\n" +
+			"import java.util.HashMap;\n" +
+			"import java.util.function.Function;\n" +
+			"import java.util.function.Supplier;\n" +
+			"import java.util.stream.Collector;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"import java.util.stream.Stream;\n" +
+			"public class X {\n" +
+			"static <T, E extends Exception, K, L, M> M terminalAsMapToList(\n" +
+			"    Function<? super T, ? extends K> classifier,\n" +
+			"    Function<HashMap<K, L>, M> intoMap,\n" +
+			"    Function<ArrayList<T>, L> intoList,\n" +
+			"    Supplier<Stream<T>> supplier,\n" +
+			"    Class<E> classOfE) throws E {\n" +
+			"  	return terminalAsCollected(\n" +
+			"  	  classOfE,\n" +
+			"  	  Collectors.collectingAndThen(\n" +
+			"  	    Collectors.groupingBy(\n" +
+			"  	      classifier,\n" +
+			"  	      HashMap<K, L>::new,\n" +
+			"  	      Collectors.collectingAndThen(\n" +
+			"  	      	// The type ArrayList<T> does not define add(ArrayList<T>, Object) that is applicable here\n" +
+			"  	      	// from ArrayList<T>::add:\n" +
+			"  	        Collector.of(ArrayList<T>::new, ArrayList<T>::add, (ArrayList<T> left, ArrayList<T> right) -> { \n" +
+			"  		        left.addAll(right);\n" +
+			"  		        return left;\n" +
+			"  	        }),\n" +
+			"  	        intoList)),\n" +
+			"  	    intoMap),\n" +
+			"  	  supplier);\n" +
+			"  }\n" +
+			"	static <E extends Exception, T, M> M terminalAsCollected(\n" +
+			"    Class<E> class1,\n" +
+			"    Collector<T, ?, M> collector,\n" +
+			"    Supplier<Stream<T>> supplier) throws E {\n" +
+			"  	try(Stream<T> s = supplier.get()) {\n" +
+			"  		return s.collect(collector);\n" +
+			"  	} catch(RuntimeException e) {\n" +
+			"  		throw unwrapCause(class1, e);\n" +
+			"  	}\n" +
+			"  }\n" +
+			"	static <E extends Exception> E unwrapCause(Class<E> classOfE, RuntimeException e) throws E {\n" +
+			"		Throwable cause = e.getCause();\n" +
+			"		if(classOfE.isInstance(cause) == false) {\n" +
+			"			throw e;\n" +
+			"		}\n" +
+			"		throw classOfE.cast(cause);\n" +
+			"}\n" +
+			"}\n"
+	},
+	"----------\n" + 
+	"1. ERROR in Y.java (at line 7)\n" + 
+	"	super( () -> {\n" + 
+	"	       ^^^^^\n" + 
+	"No enclosing instance of type Y is available due to some intermediate constructor invocation\n" + 
+	"----------\n");
+}
+
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
