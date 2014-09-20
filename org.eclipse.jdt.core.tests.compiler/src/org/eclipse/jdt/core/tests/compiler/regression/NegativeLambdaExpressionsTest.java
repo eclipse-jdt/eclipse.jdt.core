@@ -9640,6 +9640,30 @@ public void test444665() {
 	"Cannot invoke get(int) on the array type int[]\n" + 
 	"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=442446, [1.8][compiler] compiler unable to infer lambda's generic argument types
+public void _test442446() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"import java.util.Collection;\n" +
+			"import java.util.Map;\n" +
+			"import java.util.function.Function;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"public class X {\n" +
+			"  X(Collection<Object> pCollection) {\n" +
+			"    this(\n" +
+			"      pCollection.stream().collect(\n" +
+			"        Collectors.toMap(\n" +
+			"          Function.identity(), pElement -> 1, (pInt1, pInt2) -> pInt1 + pInt2\n" +
+			"        )\n" +
+			"      )\n" +
+			"    );\n" +
+			"  }\n" +
+			"  X(Map<Object,Integer> pMap) {}\n" +
+			"}\n" 
+	},
+	"");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
