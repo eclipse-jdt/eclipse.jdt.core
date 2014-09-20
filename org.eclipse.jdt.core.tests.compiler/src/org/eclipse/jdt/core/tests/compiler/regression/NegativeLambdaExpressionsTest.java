@@ -9622,7 +9622,24 @@ public void _test432605() {
 	"No enclosing instance of type Y is available due to some intermediate constructor invocation\n" + 
 	"----------\n");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=444665, Internal compiler error: java.lang.NullPointerException at org.eclipse.jdt.internal.compiler.problem.ProblemReporter.invalidMethod 
+public void test444665() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"public class X {\n" +
+			"    static void foo(java.util.Map<Long, Long> map) {\n" +
+			"        java.util.function.Consumer<int[]> c = array -> map.compute(array.get(0), (k, v) -> null);\n" +
+			"    }\n" +
+			"}\n"
+	},
+	"----------\n" + 
+	"1. ERROR in X.java (at line 3)\n" + 
+	"	java.util.function.Consumer<int[]> c = array -> map.compute(array.get(0), (k, v) -> null);\n" + 
+	"	                                                            ^^^^^^^^^^^^\n" + 
+	"Cannot invoke get(int) on the array type int[]\n" + 
+	"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

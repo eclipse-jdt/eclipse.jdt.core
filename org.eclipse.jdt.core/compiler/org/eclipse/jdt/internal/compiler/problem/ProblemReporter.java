@@ -4024,6 +4024,8 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 	int id = IProblem.UndefinedMethod; //default...
     MethodBinding shownMethod = method;
 	switch (method.problemId()) {
+		case ProblemReasons.NoSuchMethodOnArray :
+			return; // secondary error.
 		case ProblemReasons.NotFound :
 			if ((method.declaringClass.tagBits & TagBits.HasMissingType) != 0) {
 				this.handle(

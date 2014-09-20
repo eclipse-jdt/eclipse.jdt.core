@@ -1975,7 +1975,7 @@ public abstract class Scope {
 		}
 		methodBinding = findMethod(object, selector, argumentTypes, invocationSite, false);
 		if (methodBinding == null)
-			return new ProblemMethodBinding(selector, argumentTypes, ProblemReasons.NotFound);
+			return new ProblemMethodBinding(selector, argumentTypes, ProblemReasons.NoSuchMethodOnArray);
 		return methodBinding;
 	}
 
