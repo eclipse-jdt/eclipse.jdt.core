@@ -4680,31 +4680,6 @@ public void test437781() {
 		},
 		"Consumer");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=441907, [1.8][compiler] Eclipse 4.4.x compiler generics bugs with streams and lambdas
-public void _test441907() {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"import java.util.*;\n" +
-			"public class X {\n" +
-			"  public static class FooBar<V> {\n" +
-			"  }\n" +
-			"  public interface FooBarred {\n" +
-			"    public <V> boolean hasFooBar(final FooBar<V> fooBar);\n" +
-			"  }\n" +
-			"  public interface Widget extends FooBarred {\n" +
-			"  }\n" +
-			"  public static void test() {\n" +
-			"    Set<FooBar<?>> foobars = new HashSet<>();\n" +
-			"    Set<Widget> widgets = new HashSet<>();\n" +
-			"    boolean anyWidgetHasFooBar = widgets.stream().anyMatch(\n" +
-			"        widget -> foobars.stream().anyMatch(widget::hasFooBar)\n" +
-			"        );\n" +
-			"  }\n" +
-			"}\n"
-		},
-		"");
-}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=443889, [1.8][compiler] Lambdas get compiled to duplicate methods
 public void test443889() {
 	this.runConformTest(
