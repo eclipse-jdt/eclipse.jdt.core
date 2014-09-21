@@ -1382,12 +1382,15 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return this.fields;
 	}
 	public MethodBinding getSingleAbstractMethod(final Scope scope, boolean replaceWildcards) {
-		int index = replaceWildcards ? 0 : 1;
+		return getSingleAbstractMethod(scope, replaceWildcards, -1 /* do not capture */);
+	}	
+	public MethodBinding getSingleAbstractMethod(final Scope scope, boolean replaceWildcards, int capturePosition) {
+		int index = replaceWildcards ? capturePosition < 0 ? 0 : 1 : 2; // capturePosition >= 0 IFF replaceWildcard == true
 		if (this.singleAbstractMethod != null) {
 			if (this.singleAbstractMethod[index] != null)
-			return this.singleAbstractMethod[index];
+				return this.singleAbstractMethod[index];
 		} else {
-			this.singleAbstractMethod = new MethodBinding[2];
+			this.singleAbstractMethod = new MethodBinding[3];
 		}
 		if (!isValidBinding())
 			return null;
@@ -1404,6 +1407,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				return this.singleAbstractMethod[index] = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NotAWellFormedParameterizedType);
 		} else if (types == null) {
 			types = NO_TYPES;
+		}
+		if (capturePosition >= 0) { 
+			// caller is going to require the sam's parameters to be treated as argument expressions, post substitution capture will lose identity, where substitution results in fan out
+			// capture first and then substitute.
+			for (int i = 0, length = types.length; i < length; i++) {
+				types[i] = types[i].capture(scope, 0);
+			}
 		}
 		declaringType = scope.environment().createParameterizedType(genericType, types, genericType.enclosingType());
 		TypeVariableBinding [] typeParameters = genericType.typeVariables();
@@ -1490,20 +1500,5 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			}
 		}
 		return types;
-	}
-	static boolean typeParametersMentioned(TypeBinding upperBound) {
-		class MentionListener extends TypeBindingVisitor {
-			private boolean typeParametersMentioned = false;
-			public boolean visit(TypeVariableBinding typeVariable) {
-				this.typeParametersMentioned = true;
-				return false;
-			}
-			public boolean typeParametersMentioned() {
-				return this.typeParametersMentioned;
-			}
-		}
-		MentionListener mentionListener = new MentionListener();
-		TypeBindingVisitor.visit(mentionListener, upperBound);
-		return mentionListener.typeParametersMentioned();
 	}
 }

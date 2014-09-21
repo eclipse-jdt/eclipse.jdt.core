@@ -9664,6 +9664,49 @@ public void _test442446() {
 	},
 	"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432759,  [1.8][compiler] Some differences between Javac and ECJ regarding wildcards and static methods
+public void test432759() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"import java.util.function.BinaryOperator;\n" +
+			"import java.util.function.Consumer;\n" +
+			"\n" +
+			"/*Q*/\n" +
+			"@FunctionalInterface interface Subsumer<T> {	void accept(T t);\n" +
+			"  default                                 Subsumer<T> andThe1(                  Subsumer<? super T> afterT) { return (T t) -> {      accept(t); afterT.accept(t); }; }\n" +
+			"  default                                 Subsumer<T> andThe2(Subsumer<T> this, Subsumer<? super T> afterT) { return (T t) -> { this.accept(t); afterT.accept(t); }; }\n" +
+			"  static <U>                              Subsumer<U> andThe3(Subsumer<U> tihs, Subsumer<? super U> afterU) { return (U u) -> { tihs.accept(u); afterU.accept(u); }; }\n" +
+			"  static <S extends ISSUPER_S, ISSUPER_S> Subsumer<S> andThe4(Subsumer<S> tihs, Subsumer<ISSUPER_S> afterS) { return (S s) -> { tihs.accept(s); afterS.accept(s); }; }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static <T extends ISSUPER_T, ISSUPER_T> void method() {\n" +
+			"		BinaryOperator<Consumer<? super T>> attempt_X_0 = Consumer::andThen;\n" +
+			"		BinaryOperator<Subsumer<? super T>> attempt_X_1 = Subsumer::andThe1;\n" +
+			"		BinaryOperator<Subsumer<? super T>> attempt_X_2 = Subsumer::andThe2;\n" +
+			"		BinaryOperator<Subsumer<? super T>> attempt_X_3 = Subsumer::andThe3;\n" +
+			"		BinaryOperator<Subsumer<? super T>> attempt_X_4 = Subsumer::andThe4;\n" +
+			"		BinaryOperator<Consumer<ISSUPER_T>> attempt_n_0 = Consumer::andThen;\n" +
+			"		BinaryOperator<Subsumer<ISSUPER_T>> attempt_n_1 = Subsumer::andThe1;\n" +
+			"		BinaryOperator<Subsumer<ISSUPER_T>> attempt_n_2 = Subsumer::andThe2;\n" +
+			"		BinaryOperator<Subsumer<ISSUPER_T>> attempt_n_3 = Subsumer::andThe3;\n" +
+			"		BinaryOperator<Subsumer<ISSUPER_T>> attempt_n_4 = Subsumer::andThe4;\n" +
+			"		// Summary:\n" +
+			"		// ECJ error #1, javac no error\n" +
+			"		// ECJ error #2, javac no error\n" +
+			"		// ECJ error #3, javac no error\n" +
+			"		// ECJ error #4, javac error #1\n" +
+			"		// ECJ error #5, javac error #2\n" +
+			"		// ECJ no error, javac no error\n" +
+			"		// ECJ no error, javac no error\n" +
+			"		// ECJ no error, javac no error\n" +
+			"		// ECJ no error, javac no error\n" +
+			"		// ECJ no error, javac no error\n" +
+			"	}\n" +
+			"}\n" 
+	},
+	"");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

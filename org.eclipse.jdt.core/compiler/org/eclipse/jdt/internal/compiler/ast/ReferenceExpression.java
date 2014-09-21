@@ -60,6 +60,7 @@ import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.IntersectionCastTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -409,10 +410,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			return this.resolvedType = null;	// nope, no useful type found
     	
     	// Convert parameters into argument expressions for look up.
-		TypeBinding[] descriptorParameters = this.descriptor != null && this.descriptor.parameters != null && this.descriptor.parameters.length > 0 ? 
-															new TypeBinding[this.descriptor.parameters.length] : Binding.NO_PARAMETERS;
-		for (int i = 0, length = descriptorParameters.length; i < length; i++)
-			descriptorParameters[i] = this.descriptor.parameters[i].capture(scope, this.sourceEnd);
+		TypeBinding[] descriptorParameters = descriptorParametersAsArgumentExpressions();
 		
 		if (lhsType.isBaseType()) {
 			scope.problemReporter().errorNoMethodFor(this.lhs, lhsType, this.selector, descriptorParameters);
@@ -440,8 +438,19 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		
 		// handle the special case of array construction first.
 		this.receiverType = lhsType;
+		
+		this.haveReceiver = true;
+		if (this.lhs instanceof NameReference) {
+			if ((this.lhs.bits & ASTNode.RestrictiveFlagMASK) == Binding.TYPE) {
+				this.haveReceiver = false;
+			}
+		} else if (this.lhs instanceof TypeReference) {
+			this.haveReceiver = false;
+		}
+		
 		if (!this.haveReceiver && !this.lhs.isSuper() && !this.isArrayConstructorReference())
 			this.receiverType = lhsType.capture(scope, this.sourceEnd);
+		
 		final int parametersLength = descriptorParameters.length;
         if (isConstructorReference() && lhsType.isArrayType()) {
         	final TypeBinding leafComponentType = lhsType.leafComponentType();
@@ -460,15 +469,6 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         	this.binding = this.exactMethodBinding = scope.getExactConstructor(lhsType, this);
         	return this.resolvedType;
         }
-		
-		this.haveReceiver = true;
-		if (this.lhs instanceof NameReference) {
-			if ((this.lhs.bits & ASTNode.RestrictiveFlagMASK) == Binding.TYPE) {
-				this.haveReceiver = false;
-			}
-		} else if (this.lhs instanceof TypeReference) {
-			this.haveReceiver = false;
-		}
 
 		/* For Reference expressions unlike other call sites, we always have a receiver _type_ since LHS of :: cannot be empty. 
 		   LHS's resolved type == actual receiver type. All code below only when a valid descriptor is available.
@@ -666,6 +666,25 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     	return this.resolvedType; // Phew !
 	}
 
+	private TypeBinding[] descriptorParametersAsArgumentExpressions() {
+		
+		if (this.descriptor == null || this.descriptor.parameters == null || this.descriptor.parameters.length == 0)
+			return Binding.NO_PARAMETERS;
+		
+		/* 15.13.1, " ... method reference is treated as if it were an invocation with argument expressions of types P1, ..., Pn;"
+		   This implies/requires wildcard capture. This creates interesting complications, we can't just take the descriptor parameters
+		   and apply captures - where a single wildcard type got "fanned out" and propagated into multiple locations through type variable
+		   substitutions, we will end up creating distinct captures defeating the very idea of capture. We need to first capture and then
+		   fan out. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=432759.
+		*/
+		if (this.expectedType.isParameterizedType()) {
+			ParameterizedTypeBinding type = (ParameterizedTypeBinding) this.expectedType;
+			MethodBinding method = type.getSingleAbstractMethod(this.enclosingScope, true, this.sourceEnd);
+			return method.parameters;
+		} 
+		return this.descriptor.parameters;
+	}
+
 	/** During inference: Try to find an applicable method binding without causing undesired side-effects. */
 	public MethodBinding findCompileTimeMethodTargeting(TypeBinding targetType, Scope scope) {
 		MethodBinding targetMethod = internalResolveTentatively(targetType, scope);
@@ -823,7 +842,6 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			return this.resolvedType.isCompatibleWith(left, scope);
 		}
 		// 15.13.2
-		left = left.uncapture(this.enclosingScope);
 		final MethodBinding sam = left.getSingleAbstractMethod(this.enclosingScope, true);
 		if (sam == null || !sam.isValidBinding())
 			return false;
