@@ -10189,4 +10189,10 @@ public void uninternedIdentityComparison(EqualExpression expr, TypeBinding lhs, 
 			expr.sourceStart,
 			expr.sourceEnd);
 }
+public void invalidTypeArguments(TypeReference[] typeReference) {
+	this.handle(IProblem.InvalidTypeArguments,
+			NoArgument, NoArgument,
+			typeReference[0].sourceStart,
+			typeReference[typeReference.length - 1].sourceEnd);
+}
 }

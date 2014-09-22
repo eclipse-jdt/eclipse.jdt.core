@@ -3480,4 +3480,30 @@ public void test428605() {
 			"----------\n" :
 			""));
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=440285
+// [1.8] Compiler allows array creation reference with type arguments
+public void testBug440285() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	runNegativeTest(new String [] {
+		"X.java",
+		"import java.util.function.Function;\n" +
+		"class Y{}\n" +
+		"class Z{}\n" +
+		"public class X {\n" +
+		"	Function<Integer, int[]> m1 = int[]::<Y, Z>new;\n" +
+		"	Function<Integer, int[]> m2 = int[]::<Y>new;\n" +
+		"}",},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	Function<Integer, int[]> m1 = int[]::<Y, Z>new;\n" + 
+		"	                                      ^^^^\n" + 
+		"Type arguments are not allowed here\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	Function<Integer, int[]> m2 = int[]::<Y>new;\n" + 
+		"	                                      ^\n" + 
+		"Type arguments are not allowed here\n" + 
+		"----------\n");
+}
 }

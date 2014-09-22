@@ -466,6 +466,12 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         		scope.problemReporter().constructedArrayIncompatible(this, lhsType, this.descriptor.returnType);
         		return this.resolvedType = null;
         	}
+
+            if (this.typeArguments != null) {
+                scope.problemReporter().invalidTypeArguments(this.typeArguments);
+                return this.resolvedType = null;
+            }
+
         	this.binding = this.exactMethodBinding = scope.getExactConstructor(lhsType, this);
         	return this.resolvedType;
         }
