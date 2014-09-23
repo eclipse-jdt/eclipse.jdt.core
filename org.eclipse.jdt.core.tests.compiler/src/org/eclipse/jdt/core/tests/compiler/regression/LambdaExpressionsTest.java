@@ -4797,6 +4797,40 @@ public void test444772() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=444803, [1.8][compiler] Exception in thread "main" java.lang.VerifyError: Bad local variable type
+public void test444803() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.Collection;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"    X abc = null;\n" +
+			"    public static void main(String[] args) {\n" +
+			"        new X();\n" +
+			"    }\n" +
+			"    private void doSth() {\n" +
+			"        final List<String> l = new ArrayList<>();\n" +
+			"        try {\n" +
+			"            System.out.println(\"ok\");\n" +
+			//"            Runnable r = () -> abc.terminateInstances(abc.withInstanceIds(l));\n" +
+			"        } finally {\n" +
+			"            Runnable r = () -> abc.terminateInstances(abc.withInstanceIds(l));\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public void terminateInstances(X abc) {\n" +
+			"    }\n" +
+			"    public X withInstanceIds(Collection<String> arg0) {\n" +
+			"    	return null;\n" +
+			"    }\n" +
+			"}\n" +
+			"interface FI {\n" +
+			"	public void foo(Collection<String> arg0);\n" +
+			"}\n"
+		},
+		"");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

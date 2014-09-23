@@ -177,6 +177,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			this.binding.modifiers |= ClassFileConstants.AccStatic;
 		}
 		SourceTypeBinding sourceType = currentScope.enclosingSourceType();
+		boolean firstSpill = !(this.binding instanceof SyntheticMethodBinding);
 		this.binding = sourceType.addSyntheticMethod(this);
 		int pc = codeStream.position;
 		StringBuffer signature = new StringBuffer();
@@ -187,7 +188,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		}
 		for (int i = 0, length = this.outerLocalVariables == null ? 0 : this.outerLocalVariables.length; i < length; i++) {
 			SyntheticArgumentBinding syntheticArgument = this.outerLocalVariables[i];
-			if (this.shouldCaptureInstance) {
+			if (this.shouldCaptureInstance && firstSpill) { // finally block handling results in extra spills, avoid side effect.
 				syntheticArgument.resolvedPosition++;
 			}
 			signature.append(syntheticArgument.type.signature());
