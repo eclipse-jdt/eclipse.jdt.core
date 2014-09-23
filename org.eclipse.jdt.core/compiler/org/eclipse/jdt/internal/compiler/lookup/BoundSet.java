@@ -359,6 +359,10 @@ class BoundSet {
 	}
 
 	public void addBound(TypeBound bound, LookupEnvironment environment) {
+		if (bound.relation == ReductionResult.SUBTYPE && bound.right.id == TypeIds.T_JavaLangObject)
+			return;
+		if (bound.left == bound.right) //$IDENTITY-COMPARISON$
+			return;
 		InferenceVariable variable = bound.left.prototype();
 		ThreeSets three = this.boundsPerVariable.get(variable);
 		if (three == null)
@@ -908,6 +912,8 @@ class BoundSet {
 		if (targetType.isBaseType()) return false;
 		if (InferenceContext18.parameterizedWithWildcard(targetType) != null) return false;
 		ThreeSets ts = this.boundsPerVariable.get(alpha.prototype());
+		if (ts == null)
+			return false;
 		if (ts.sameBounds != null) {
 			Iterator<TypeBound> bounds = ts.sameBounds.iterator();
 			while (bounds.hasNext()) {
@@ -949,6 +955,8 @@ class BoundSet {
 		if (!targetType.isParameterizedType()) return false;
 		TypeBinding g = targetType.original();
 		ThreeSets ts = this.boundsPerVariable.get(alpha.prototype());
+		if (ts == null)
+			return false;
 		Iterator<TypeBound> boundIterator;
 		if (ts.sameBounds != null) {
 			boundIterator = ts.sameBounds.iterator();
