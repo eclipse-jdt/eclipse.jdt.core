@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2013 IBM Corporation and others.
+ * Copyright (c) 2004, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -50,7 +50,7 @@ import org.eclipse.text.edits.TextEditGroup;
  * translates these descriptions into text edits that can then be applied to
  * the original source. The key thing is that this is all done without actually
  * modifying the original AST, which has the virtue of allowing one to entertain
- * several alternate sets of changes on the same AST (e.g., for calculating
+ * several alternate sets of changes on the same AST (e.g., for calculating multiple
  * quick fix proposals). The rewrite infrastructure tries to generate minimal
  * text changes, preserve existing comments and indentation, and follow code
  * formatter settings.
@@ -84,9 +84,14 @@ import org.eclipse.text.edits.TextEditGroup;
  * // are new source range for "class X {}" in document.get()
  * </pre>
  * <p>
- * If you are sure never have to explore multiple alternate changes and you never need
+ * If you are sure you never have to explore multiple alternate changes and you never need
  * to create {@link #createCopyTarget(ASTNode) copies} or {@link #createStringPlaceholder(String, int) string placeholders},
  * then you can also try {@link CompilationUnit#recordModifications()} instead.
+ * </p>
+ * <p>
+ * <code>ASTRewrite</code> cannot rewrite (non-Javadoc) comments from
+ * {@link CompilationUnit#getCommentList()}, since those comment nodes
+ * are not part of the normal node hierarchy.
  * </p>
  * <p>
  * This class is not intended to be subclassed.
