@@ -2719,7 +2719,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// conflicting annotations from type variable application and type variable substitution
-	public void testNullTypeInference3c() { 
+	public void _testNullTypeInference3c() { 
 		runNegativeTestWithLibs(
 			new String[] {
 				"Generics.java",

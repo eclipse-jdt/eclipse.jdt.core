@@ -3441,4 +3441,967 @@ public void testBug441734() {
 			"}\n"
 		});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=442245, [1.8][compiler?] These source files lead eclipse to hang (even just on copy/paste)
+public void testBug442245() {
+	runConformTest(
+		new String[] {
+			"test/Pattern.java",
+			"package test;\n" +
+			"import test.Tuples.Tuple;\n" +
+			"import test.Tuples.Tuple1;\n" +
+			"import test.Tuples.Tuple10;\n" +
+			"import test.Tuples.Tuple11;\n" +
+			"import test.Tuples.Tuple12;\n" +
+			"import test.Tuples.Tuple13;\n" +
+			"import test.Tuples.Tuple2;\n" +
+			"import test.Tuples.Tuple3;\n" +
+			"import test.Tuples.Tuple4;\n" +
+			"import test.Tuples.Tuple5;\n" +
+			"import test.Tuples.Tuple6;\n" +
+			"import test.Tuples.Tuple7;\n" +
+			"import test.Tuples.Tuple8;\n" +
+			"import test.Tuples.Tuple9;\n" +
+			"\n" +
+			"public interface Pattern<R extends Tuple> {\n" +
+			"\n" +
+			"	boolean isApplicable(Object o);\n" +
+			"\n" +
+			"	R apply(Object o);\n" +
+			"\n" +
+			"	static <T, R extends Tuple> Pattern<R> of(Decomposition<T, R> decomposition, R prototype) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T, E1> Pattern<Tuple1<E1>> of(Decomposition<T, Tuple1<E1>> decomposition, E1 e1) {\n" +
+			"		return Pattern.of(decomposition, Tuples.of(e1));\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T, E1, E2> Pattern<Tuple2<E1, E2>> of(Decomposition<T, Tuple2<E1, E2>> decomposition, E1 e1, E2 e2) {\n" +
+			"		return Pattern.of(decomposition, Tuples.of(e1, e2));\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T, E1, E2, E3> Pattern<Tuple3<E1, E2, E3>> of(Decomposition<T, Tuple3<E1, E2, E3>> decomposition, E1 e1,\n" +
+			"			E2 e2, E3 e3) {\n" +
+			"		return Pattern.of(decomposition, Tuples.of(e1, e2, e3));\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T, E1, E2, E3, E4> Pattern<Tuple4<E1, E2, E3, E4>> of(\n" +
+			"			Decomposition<T, Tuple4<E1, E2, E3, E4>> decomposition, E1 e1, E2 e2, E3 e3, E4 e4) {\n" +
+			"		return Pattern.of(decomposition, Tuples.of(e1, e2, e3, e4));\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T, E1, E2, E3, E4, E5> Pattern<Tuple5<E1, E2, E3, E4, E5>> of(\n" +
+			"			Decomposition<T, Tuple5<E1, E2, E3, E4, E5>> decomposition, E1 e1, E2 e2, E3 e3, E4 e4, E5 e5) {\n" +
+			"		return Pattern.of(decomposition, Tuples.of(e1, e2, e3, e4, e5));\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T, E1, E2, E3, E4, E5, E6> Pattern<Tuple6<E1, E2, E3, E4, E5, E6>> of(\n" +
+			"			Decomposition<T, Tuple6<E1, E2, E3, E4, E5, E6>> decomposition, E1 e1, E2 e2, E3 e3, E4 e4, E5 e5, E6 e6) {\n" +
+			"		return Pattern.of(decomposition, Tuples.of(e1, e2, e3, e4, e5, e6));\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T, E1, E2, E3, E4, E5, E6, E7> Pattern<Tuple7<E1, E2, E3, E4, E5, E6, E7>> of(\n" +
+			"			Decomposition<T, Tuple7<E1, E2, E3, E4, E5, E6, E7>> decomposition, E1 e1, E2 e2, E3 e3, E4 e4, E5 e5,\n" +
+			"			E6 e6, E7 e7) {\n" +
+			"		return Pattern.of(decomposition, Tuples.of(e1, e2, e3, e4, e5, e6, e7));\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T, E1, E2, E3, E4, E5, E6, E7, E8> Pattern<Tuple8<E1, E2, E3, E4, E5, E6, E7, E8>> of(\n" +
+			"			Decomposition<T, Tuple8<E1, E2, E3, E4, E5, E6, E7, E8>> decomposition, E1 e1, E2 e2, E3 e3, E4 e4, E5 e5,\n" +
+			"			E6 e6, E7 e7, E8 e8) {\n" +
+			"		return Pattern.of(decomposition, Tuples.of(e1, e2, e3, e4, e5, e6, e7, e8));\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T, E1, E2, E3, E4, E5, E6, E7, E8, E9> Pattern<Tuple9<E1, E2, E3, E4, E5, E6, E7, E8, E9>> of(\n" +
+			"			Decomposition<T, Tuple9<E1, E2, E3, E4, E5, E6, E7, E8, E9>> decomposition, E1 e1, E2 e2, E3 e3, E4 e4,\n" +
+			"			E5 e5, E6 e6, E7 e7, E8 e8, E9 e9) {\n" +
+			"		return Pattern.of(decomposition, Tuples.of(e1, e2, e3, e4, e5, e6, e7, e8, e9));\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10> Pattern<Tuple10<E1, E2, E3, E4, E5, E6, E7, E8, E9, E10>> of(\n" +
+			"			Decomposition<T, Tuple10<E1, E2, E3, E4, E5, E6, E7, E8, E9, E10>> decomposition, E1 e1, E2 e2, E3 e3,\n" +
+			"			E4 e4, E5 e5, E6 e6, E7 e7, E8 e8, E9 e9, E10 e10) {\n" +
+			"		return Pattern.of(decomposition, Tuples.of(e1, e2, e3, e4, e5, e6, e7, e8, e9, e10));\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11> Pattern<Tuple11<E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11>> of(\n" +
+			"			Decomposition<T, Tuple11<E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11>> decomposition, E1 e1, E2 e2, E3 e3,\n" +
+			"			E4 e4, E5 e5, E6 e6, E7 e7, E8 e8, E9 e9, E10 e10, E11 e11) {\n" +
+			"		return Pattern.of(decomposition, Tuples.of(e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11));\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12> Pattern<Tuple12<E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12>> of(\n" +
+			"			Decomposition<T, Tuple12<E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12>> decomposition, E1 e1, E2 e2,\n" +
+			"			E3 e3, E4 e4, E5 e5, E6 e6, E7 e7, E8 e8, E9 e9, E10 e10, E11 e11, E12 e12) {\n" +
+			"		return Pattern.of(decomposition, Tuples.of(e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12));\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13> Pattern<Tuple13<E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13>> of(\n" +
+			"			Decomposition<T, Tuple13<E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13>> decomposition, E1 e1,\n" +
+			"			E2 e2, E3 e3, E4 e4, E5 e5, E6 e6, E7 e7, E8 e8, E9 e9, E10 e10, E11 e11, E12 e12, E13 e13) {\n" +
+			"		return Pattern.of(decomposition, Tuples.of(e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12, e13));\n" +
+			"	}\n" +
+			"\n" +
+			"	static interface Decomposition<T, R extends Tuple> {\n" +
+			"\n" +
+			"		R apply(T t);\n" +
+			"	}\n" +
+			"}\n",
+			"test/Tuples.java", 
+			"package test;\n"+
+			"\n"+
+			"import java.io.Serializable;\n"+
+			"import java.util.Objects;\n"+
+			"import java.util.stream.Collectors;\n"+
+			"import java.util.stream.Stream;\n"+
+			"\n"+
+			"public final class Tuples {\n"+
+			"\n"+
+			"	private Tuples() {\n"+
+			"		throw new AssertionError(Tuples.class.getName() + \" is not intended to be instantiated.\");\n"+
+			"	}\n"+
+			"\n"+
+			"	public static Tuple0 of() {\n"+
+			"		return Tuple0.instance();\n"+
+			"	}\n"+
+			"\n"+
+			"	public static <T> Tuple1<T> of(T t) {\n"+
+			"		return new Tuple1<>(t);\n"+
+			"	}\n"+
+			"\n"+
+			"	public static <T1, T2> Tuple2<T1, T2> of(T1 t1, T2 t2) {\n"+
+			"		return new Tuple2<>(t1, t2);\n"+
+			"	}\n"+
+			"\n"+
+			"	public static <T1, T2, T3> Tuple3<T1, T2, T3> of(T1 t1, T2 t2, T3 t3) {\n"+
+			"		return new Tuple3<>(t1, t2, t3);\n"+
+			"	}\n"+
+			"\n"+
+			"	public static <T1, T2, T3, T4> Tuple4<T1, T2, T3, T4> of(T1 t1, T2 t2, T3 t3, T4 t4) {\n"+
+			"		return new Tuple4<>(t1, t2, t3, t4);\n"+
+			"	}\n"+
+			"\n"+
+			"	public static <T1, T2, T3, T4, T5> Tuple5<T1, T2, T3, T4, T5> of(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5) {\n"+
+			"		return new Tuple5<>(t1, t2, t3, t4, t5);\n"+
+			"	}\n"+
+			"\n"+
+			"	public static <T1, T2, T3, T4, T5, T6> Tuple6<T1, T2, T3, T4, T5, T6> of(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6) {\n"+
+			"		return new Tuple6<>(t1, t2, t3, t4, t5, t6);\n"+
+			"	}\n"+
+			"\n"+
+			"	public static <T1, T2, T3, T4, T5, T6, T7> Tuple7<T1, T2, T3, T4, T5, T6, T7> of(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5,\n"+
+			"			T6 t6, T7 t7) {\n"+
+			"		return new Tuple7<>(t1, t2, t3, t4, t5, t6, t7);\n"+
+			"	}\n"+
+			"\n"+
+			"	public static <T1, T2, T3, T4, T5, T6, T7, T8> Tuple8<T1, T2, T3, T4, T5, T6, T7, T8> of(T1 t1, T2 t2, T3 t3,\n"+
+			"			T4 t4, T5 t5, T6 t6, T7 t7, T8 t8) {\n"+
+			"		return new Tuple8<>(t1, t2, t3, t4, t5, t6, t7, t8);\n"+
+			"	}\n"+
+			"\n"+
+			"	public static <T1, T2, T3, T4, T5, T6, T7, T8, T9> Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9> of(T1 t1, T2 t2,\n"+
+			"			T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9) {\n"+
+			"		return new Tuple9<>(t1, t2, t3, t4, t5, t6, t7, t8, t9);\n"+
+			"	}\n"+
+			"\n"+
+			"	public static <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> Tuple10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> of(T1 t1,\n"+
+			"			T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, T10 t10) {\n"+
+			"		return new Tuple10<>(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10);\n"+
+			"	}\n"+
+			"\n"+
+			"	public static <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> Tuple11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> of(\n"+
+			"			T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, T10 t10, T11 t11) {\n"+
+			"		return new Tuple11<>(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11);\n"+
+			"	}\n"+
+			"\n"+
+			"	public static <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> Tuple12<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> of(\n"+
+			"			T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, T10 t10, T11 t11, T12 t12) {\n"+
+			"		return new Tuple12<>(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12);\n"+
+			"	}\n"+
+			"\n"+
+			"	public static <T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> Tuple13<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> of(\n"+
+			"			T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, T10 t10, T11 t11, T12 t12, T13 t13) {\n"+
+			"		return new Tuple13<>(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13);\n"+
+			"	}\n"+
+			"\n"+
+			"	private static String stringify(Object... objects) {\n"+
+			"		return Stream\n"+
+			"				.of(objects)\n"+
+			"				.map(o -> (o == null) ? \"null\" : o.toString())\n"+
+			"				.collect(Collectors.joining(\", \", \"(\", \")\"));\n"+
+			"	}\n"+
+			"\n"+
+			"	public static final class Tuple0 implements Tuple, Serializable {\n"+
+			"\n"+
+			"		private static final long serialVersionUID = -8715576573413569748L;\n"+
+			"\n"+
+			"		private static final Tuple0 INSTANCE = new Tuple0();\n"+
+			"\n"+
+			"		private Tuple0() {\n"+
+			"		}\n"+
+			"\n"+
+			"		public static Tuple0 instance() {\n"+
+			"			return INSTANCE;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int arity() {\n"+
+			"			return 0;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public String toString() {\n"+
+			"			return Tuples.stringify();\n"+
+			"		}\n"+
+			"\n"+
+			"		private Object readResolve() {\n"+
+			"			return INSTANCE;\n"+
+			"		}\n"+
+			"	}\n"+
+			"\n"+
+			"	public static final class Tuple1<T> implements Tuple, Serializable {\n"+
+			"\n"+
+			"		private static final long serialVersionUID = -8005498887610699234L;\n"+
+			"\n"+
+			"		public final T _1;\n"+
+			"\n"+
+			"		public Tuple1(T t) {\n"+
+			"			this._1 = t;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int arity() {\n"+
+			"			return 1;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public boolean equals(Object o) {\n"+
+			"			if (o == this) {\n"+
+			"				return true;\n"+
+			"			} else if (o == null || !(o instanceof Tuple1)) {\n"+
+			"				return false;\n"+
+			"			} else {\n"+
+			"				final Tuple1<?> that = (Tuple1<?>) o;\n"+
+			"				return Objects.equals(this._1, that._1);\n"+
+			"			}\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int hashCode() {\n"+
+			"			return Objects.hash(_1);\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public String toString() {\n"+
+			"			return Tuples.stringify(_1);\n"+
+			"		}\n"+
+			"	}\n"+
+			"\n"+
+			"	public static final class Tuple2<T1, T2> implements Tuple, Serializable {\n"+
+			"\n"+
+			"		private static final long serialVersionUID = -1359843718617881431L;\n"+
+			"\n"+
+			"		public final T1 _1;\n"+
+			"		public final T2 _2;\n"+
+			"\n"+
+			"		public Tuple2(T1 t1, T2 t2) {\n"+
+			"			this._1 = t1;\n"+
+			"			this._2 = t2;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int arity() {\n"+
+			"			return 2;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public boolean equals(Object o) {\n"+
+			"			if (o == this) {\n"+
+			"				return true;\n"+
+			"			} else if (o == null || !(o instanceof Tuple2)) {\n"+
+			"				return false;\n"+
+			"			} else {\n"+
+			"				final Tuple2<?, ?> that = (Tuple2<?, ?>) o;\n"+
+			"				return Objects.equals(this._1, that._1) && Objects.equals(this._2, that._2);\n"+
+			"			}\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int hashCode() {\n"+
+			"			return Objects.hash(_1, _2);\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public String toString() {\n"+
+			"			return Tuples.stringify(_1, _2);\n"+
+			"		}\n"+
+			"	}\n"+
+			"\n"+
+			"	public static final class Tuple3<T1, T2, T3> implements Tuple, Serializable {\n"+
+			"\n"+
+			"		private static final long serialVersionUID = 1353320010987934190L;\n"+
+			"\n"+
+			"		public final T1 _1;\n"+
+			"		public final T2 _2;\n"+
+			"		public final T3 _3;\n"+
+			"\n"+
+			"		public Tuple3(T1 t1, T2 t2, T3 t3) {\n"+
+			"			this._1 = t1;\n"+
+			"			this._2 = t2;\n"+
+			"			this._3 = t3;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int arity() {\n"+
+			"			return 3;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public boolean equals(Object o) {\n"+
+			"			if (o == this) {\n"+
+			"				return true;\n"+
+			"			} else if (o == null || !(o instanceof Tuple3)) {\n"+
+			"				return false;\n"+
+			"			} else {\n"+
+			"				final Tuple3<?, ?, ?> that = (Tuple3<?, ?, ?>) o;\n"+
+			"				return Objects.equals(this._1, that._1)\n"+
+			"						&& Objects.equals(this._2, that._2)\n"+
+			"						&& Objects.equals(this._3, that._3);\n"+
+			"			}\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int hashCode() {\n"+
+			"			return Objects.hash(_1, _2, _3);\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public String toString() {\n"+
+			"			return Tuples.stringify(_1, _2, _3);\n"+
+			"		}\n"+
+			"	}\n"+
+			"\n"+
+			"	public static final class Tuple4<T1, T2, T3, T4> implements Tuple, Serializable {\n"+
+			"\n"+
+			"		private static final long serialVersionUID = -835853771811712181L;\n"+
+			"\n"+
+			"		public final T1 _1;\n"+
+			"		public final T2 _2;\n"+
+			"		public final T3 _3;\n"+
+			"		public final T4 _4;\n"+
+			"\n"+
+			"		public Tuple4(T1 t1, T2 t2, T3 t3, T4 t4) {\n"+
+			"			this._1 = t1;\n"+
+			"			this._2 = t2;\n"+
+			"			this._3 = t3;\n"+
+			"			this._4 = t4;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int arity() {\n"+
+			"			return 4;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public boolean equals(Object o) {\n"+
+			"			if (o == this) {\n"+
+			"				return true;\n"+
+			"			} else if (o == null || !(o instanceof Tuple4)) {\n"+
+			"				return false;\n"+
+			"			} else {\n"+
+			"				final Tuple4<?, ?, ?, ?> that = (Tuple4<?, ?, ?, ?>) o;\n"+
+			"				return Objects.equals(this._1, that._1)\n"+
+			"						&& Objects.equals(this._2, that._2)\n"+
+			"						&& Objects.equals(this._3, that._3)\n"+
+			"						&& Objects.equals(this._4, that._4);\n"+
+			"			}\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int hashCode() {\n"+
+			"			return Objects.hash(_1, _2, _3, _4);\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public String toString() {\n"+
+			"			return Tuples.stringify(_1, _2, _3, _4);\n"+
+			"		}\n"+
+			"	}\n"+
+			"\n"+
+			"	public static final class Tuple5<T1, T2, T3, T4, T5> implements Tuple, Serializable {\n"+
+			"\n"+
+			"		private static final long serialVersionUID = 8365094604388856720L;\n"+
+			"\n"+
+			"		public final T1 _1;\n"+
+			"		public final T2 _2;\n"+
+			"		public final T3 _3;\n"+
+			"		public final T4 _4;\n"+
+			"		public final T5 _5;\n"+
+			"\n"+
+			"		public Tuple5(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5) {\n"+
+			"			this._1 = t1;\n"+
+			"			this._2 = t2;\n"+
+			"			this._3 = t3;\n"+
+			"			this._4 = t4;\n"+
+			"			this._5 = t5;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int arity() {\n"+
+			"			return 5;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public boolean equals(Object o) {\n"+
+			"			if (o == this) {\n"+
+			"				return true;\n"+
+			"			} else if (o == null || !(o instanceof Tuple5)) {\n"+
+			"				return false;\n"+
+			"			} else {\n"+
+			"				final Tuple5<?, ?, ?, ?, ?> that = (Tuple5<?, ?, ?, ?, ?>) o;\n"+
+			"				return Objects.equals(this._1, that._1)\n"+
+			"						&& Objects.equals(this._2, that._2)\n"+
+			"						&& Objects.equals(this._3, that._3)\n"+
+			"						&& Objects.equals(this._4, that._4)\n"+
+			"						&& Objects.equals(this._5, that._5);\n"+
+			"			}\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int hashCode() {\n"+
+			"			return Objects.hash(_1, _2, _3, _4, _5);\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public String toString() {\n"+
+			"			return Tuples.stringify(_1, _2, _3, _4, _5);\n"+
+			"		}\n"+
+			"	}\n"+
+			"\n"+
+			"	public static final class Tuple6<T1, T2, T3, T4, T5, T6> implements Tuple, Serializable {\n"+
+			"\n"+
+			"		private static final long serialVersionUID = -5282391675740552818L;\n"+
+			"\n"+
+			"		public final T1 _1;\n"+
+			"		public final T2 _2;\n"+
+			"		public final T3 _3;\n"+
+			"		public final T4 _4;\n"+
+			"		public final T5 _5;\n"+
+			"		public final T6 _6;\n"+
+			"\n"+
+			"		public Tuple6(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6) {\n"+
+			"			this._1 = t1;\n"+
+			"			this._2 = t2;\n"+
+			"			this._3 = t3;\n"+
+			"			this._4 = t4;\n"+
+			"			this._5 = t5;\n"+
+			"			this._6 = t6;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int arity() {\n"+
+			"			return 6;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public boolean equals(Object o) {\n"+
+			"			if (o == this) {\n"+
+			"				return true;\n"+
+			"			} else if (o == null || !(o instanceof Tuple6)) {\n"+
+			"				return false;\n"+
+			"			} else {\n"+
+			"				final Tuple6<?, ?, ?, ?, ?, ?> that = (Tuple6<?, ?, ?, ?, ?, ?>) o;\n"+
+			"				return Objects.equals(this._1, that._1)\n"+
+			"						&& Objects.equals(this._2, that._2)\n"+
+			"						&& Objects.equals(this._3, that._3)\n"+
+			"						&& Objects.equals(this._4, that._4)\n"+
+			"						&& Objects.equals(this._5, that._5)\n"+
+			"						&& Objects.equals(this._6, that._6);\n"+
+			"			}\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int hashCode() {\n"+
+			"			return Objects.hash(_1, _2, _3, _4, _5, _6);\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public String toString() {\n"+
+			"			return Tuples.stringify(_1, _2, _3, _4, _5, _6);\n"+
+			"		}\n"+
+			"	}\n"+
+			"\n"+
+			"	public static final class Tuple7<T1, T2, T3, T4, T5, T6, T7> implements Tuple, Serializable {\n"+
+			"\n"+
+			"		private static final long serialVersionUID = 6913366542759921153L;\n"+
+			"\n"+
+			"		public final T1 _1;\n"+
+			"		public final T2 _2;\n"+
+			"		public final T3 _3;\n"+
+			"		public final T4 _4;\n"+
+			"		public final T5 _5;\n"+
+			"		public final T6 _6;\n"+
+			"		public final T7 _7;\n"+
+			"\n"+
+			"		public Tuple7(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7) {\n"+
+			"			this._1 = t1;\n"+
+			"			this._2 = t2;\n"+
+			"			this._3 = t3;\n"+
+			"			this._4 = t4;\n"+
+			"			this._5 = t5;\n"+
+			"			this._6 = t6;\n"+
+			"			this._7 = t7;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int arity() {\n"+
+			"			return 7;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public boolean equals(Object o) {\n"+
+			"			if (o == this) {\n"+
+			"				return true;\n"+
+			"			} else if (o == null || !(o instanceof Tuple7)) {\n"+
+			"				return false;\n"+
+			"			} else {\n"+
+			"				final Tuple7<?, ?, ?, ?, ?, ?, ?> that = (Tuple7<?, ?, ?, ?, ?, ?, ?>) o;\n"+
+			"				return Objects.equals(this._1, that._1)\n"+
+			"						&& Objects.equals(this._2, that._2)\n"+
+			"						&& Objects.equals(this._3, that._3)\n"+
+			"						&& Objects.equals(this._4, that._4)\n"+
+			"						&& Objects.equals(this._5, that._5)\n"+
+			"						&& Objects.equals(this._6, that._6)\n"+
+			"						&& Objects.equals(this._7, that._7);\n"+
+			"			}\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int hashCode() {\n"+
+			"			return Objects.hash(_1, _2, _3, _4, _5, _6, _7);\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public String toString() {\n"+
+			"			return Tuples.stringify(_1, _2, _3, _4, _5, _6, _7);\n"+
+			"		}\n"+
+			"	}\n"+
+			"\n"+
+			"	public static final class Tuple8<T1, T2, T3, T4, T5, T6, T7, T8> implements Tuple, Serializable {\n"+
+			"\n"+
+			"		private static final long serialVersionUID = 117641715065938183L;\n"+
+			"\n"+
+			"		public final T1 _1;\n"+
+			"		public final T2 _2;\n"+
+			"		public final T3 _3;\n"+
+			"		public final T4 _4;\n"+
+			"		public final T5 _5;\n"+
+			"		public final T6 _6;\n"+
+			"		public final T7 _7;\n"+
+			"		public final T8 _8;\n"+
+			"\n"+
+			"		public Tuple8(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8) {\n"+
+			"			this._1 = t1;\n"+
+			"			this._2 = t2;\n"+
+			"			this._3 = t3;\n"+
+			"			this._4 = t4;\n"+
+			"			this._5 = t5;\n"+
+			"			this._6 = t6;\n"+
+			"			this._7 = t7;\n"+
+			"			this._8 = t8;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int arity() {\n"+
+			"			return 8;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public boolean equals(Object o) {\n"+
+			"			if (o == this) {\n"+
+			"				return true;\n"+
+			"			} else if (o == null || !(o instanceof Tuple8)) {\n"+
+			"				return false;\n"+
+			"			} else {\n"+
+			"				final Tuple8<?, ?, ?, ?, ?, ?, ?, ?> that = (Tuple8<?, ?, ?, ?, ?, ?, ?, ?>) o;\n"+
+			"				return Objects.equals(this._1, that._1)\n"+
+			"						&& Objects.equals(this._2, that._2)\n"+
+			"						&& Objects.equals(this._3, that._3)\n"+
+			"						&& Objects.equals(this._4, that._4)\n"+
+			"						&& Objects.equals(this._5, that._5)\n"+
+			"						&& Objects.equals(this._6, that._6)\n"+
+			"						&& Objects.equals(this._7, that._7)\n"+
+			"						&& Objects.equals(this._8, that._8);\n"+
+			"			}\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int hashCode() {\n"+
+			"			return Objects.hash(_1, _2, _3, _4, _5, _6, _7, _8);\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public String toString() {\n"+
+			"			return Tuples.stringify(_1, _2, _3, _4, _5, _6, _7, _8);\n"+
+			"		}\n"+
+			"	}\n"+
+			"\n"+
+			"	public static final class Tuple9<T1, T2, T3, T4, T5, T6, T7, T8, T9> implements Tuple, Serializable {\n"+
+			"\n"+
+			"		private static final long serialVersionUID = -1578540921124551840L;\n"+
+			"\n"+
+			"		public final T1 _1;\n"+
+			"		public final T2 _2;\n"+
+			"		public final T3 _3;\n"+
+			"		public final T4 _4;\n"+
+			"		public final T5 _5;\n"+
+			"		public final T6 _6;\n"+
+			"		public final T7 _7;\n"+
+			"		public final T8 _8;\n"+
+			"		public final T9 _9;\n"+
+			"\n"+
+			"		public Tuple9(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9) {\n"+
+			"			this._1 = t1;\n"+
+			"			this._2 = t2;\n"+
+			"			this._3 = t3;\n"+
+			"			this._4 = t4;\n"+
+			"			this._5 = t5;\n"+
+			"			this._6 = t6;\n"+
+			"			this._7 = t7;\n"+
+			"			this._8 = t8;\n"+
+			"			this._9 = t9;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int arity() {\n"+
+			"			return 9;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public boolean equals(Object o) {\n"+
+			"			if (o == this) {\n"+
+			"				return true;\n"+
+			"			} else if (o == null || !(o instanceof Tuple9)) {\n"+
+			"				return false;\n"+
+			"			} else {\n"+
+			"				final Tuple9<?, ?, ?, ?, ?, ?, ?, ?, ?> that = (Tuple9<?, ?, ?, ?, ?, ?, ?, ?, ?>) o;\n"+
+			"				return Objects.equals(this._1, that._1)\n"+
+			"						&& Objects.equals(this._2, that._2)\n"+
+			"						&& Objects.equals(this._3, that._3)\n"+
+			"						&& Objects.equals(this._4, that._4)\n"+
+			"						&& Objects.equals(this._5, that._5)\n"+
+			"						&& Objects.equals(this._6, that._6)\n"+
+			"						&& Objects.equals(this._7, that._7)\n"+
+			"						&& Objects.equals(this._8, that._8)\n"+
+			"						&& Objects.equals(this._9, that._9);\n"+
+			"			}\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int hashCode() {\n"+
+			"			return Objects.hash(_1, _2, _3, _4, _5, _6, _7, _8, _9);\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public String toString() {\n"+
+			"			return Tuples.stringify(_1, _2, _3, _4, _5, _6, _7, _8, _9);\n"+
+			"		}\n"+
+			"	}\n"+
+			"\n"+
+			"	public static final class Tuple10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> implements Tuple, Serializable {\n"+
+			"\n"+
+			"		private static final long serialVersionUID = 7991284808329690986L;\n"+
+			"\n"+
+			"		public final T1 _1;\n"+
+			"		public final T2 _2;\n"+
+			"		public final T3 _3;\n"+
+			"		public final T4 _4;\n"+
+			"		public final T5 _5;\n"+
+			"		public final T6 _6;\n"+
+			"		public final T7 _7;\n"+
+			"		public final T8 _8;\n"+
+			"		public final T9 _9;\n"+
+			"		public final T10 _10;\n"+
+			"\n"+
+			"		public Tuple10(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, T10 t10) {\n"+
+			"			this._1 = t1;\n"+
+			"			this._2 = t2;\n"+
+			"			this._3 = t3;\n"+
+			"			this._4 = t4;\n"+
+			"			this._5 = t5;\n"+
+			"			this._6 = t6;\n"+
+			"			this._7 = t7;\n"+
+			"			this._8 = t8;\n"+
+			"			this._9 = t9;\n"+
+			"			this._10 = t10;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int arity() {\n"+
+			"			return 10;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public boolean equals(Object o) {\n"+
+			"			if (o == this) {\n"+
+			"				return true;\n"+
+			"			} else if (o == null || !(o instanceof Tuple10)) {\n"+
+			"				return false;\n"+
+			"			} else {\n"+
+			"				final Tuple10<?, ?, ?, ?, ?, ?, ?, ?, ?, ?> that = (Tuple10<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>) o;\n"+
+			"				return Objects.equals(this._1, that._1)\n"+
+			"						&& Objects.equals(this._2, that._2)\n"+
+			"						&& Objects.equals(this._3, that._3)\n"+
+			"						&& Objects.equals(this._4, that._4)\n"+
+			"						&& Objects.equals(this._5, that._5)\n"+
+			"						&& Objects.equals(this._6, that._6)\n"+
+			"						&& Objects.equals(this._7, that._7)\n"+
+			"						&& Objects.equals(this._8, that._8)\n"+
+			"						&& Objects.equals(this._9, that._9)\n"+
+			"						&& Objects.equals(this._10, that._10);\n"+
+			"			}\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int hashCode() {\n"+
+			"			return Objects.hash(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10);\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public String toString() {\n"+
+			"			return Tuples.stringify(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10);\n"+
+			"		}\n"+
+			"	}\n"+
+			"\n"+
+			"	public static final class Tuple11<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> implements Tuple, Serializable {\n"+
+			"\n"+
+			"		private static final long serialVersionUID = 3493688489700741360L;\n"+
+			"\n"+
+			"		public final T1 _1;\n"+
+			"		public final T2 _2;\n"+
+			"		public final T3 _3;\n"+
+			"		public final T4 _4;\n"+
+			"		public final T5 _5;\n"+
+			"		public final T6 _6;\n"+
+			"		public final T7 _7;\n"+
+			"		public final T8 _8;\n"+
+			"		public final T9 _9;\n"+
+			"		public final T10 _10;\n"+
+			"		public final T11 _11;\n"+
+			"\n"+
+			"		public Tuple11(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, T10 t10, T11 t11) {\n"+
+			"			this._1 = t1;\n"+
+			"			this._2 = t2;\n"+
+			"			this._3 = t3;\n"+
+			"			this._4 = t4;\n"+
+			"			this._5 = t5;\n"+
+			"			this._6 = t6;\n"+
+			"			this._7 = t7;\n"+
+			"			this._8 = t8;\n"+
+			"			this._9 = t9;\n"+
+			"			this._10 = t10;\n"+
+			"			this._11 = t11;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int arity() {\n"+
+			"			return 11;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public boolean equals(Object o) {\n"+
+			"			if (o == this) {\n"+
+			"				return true;\n"+
+			"			} else if (o == null || !(o instanceof Tuple11)) {\n"+
+			"				return false;\n"+
+			"			} else {\n"+
+			"				final Tuple11<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> that = (Tuple11<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?>) o;\n"+
+			"				return Objects.equals(this._1, that._1)\n"+
+			"						&& Objects.equals(this._2, that._2)\n"+
+			"						&& Objects.equals(this._3, that._3)\n"+
+			"						&& Objects.equals(this._4, that._4)\n"+
+			"						&& Objects.equals(this._5, that._5)\n"+
+			"						&& Objects.equals(this._6, that._6)\n"+
+			"						&& Objects.equals(this._7, that._7)\n"+
+			"						&& Objects.equals(this._8, that._8)\n"+
+			"						&& Objects.equals(this._9, that._9)\n"+
+			"						&& Objects.equals(this._10, that._10)\n"+
+			"						&& Objects.equals(this._11, that._11);\n"+
+			"			}\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int hashCode() {\n"+
+			"			return Objects.hash(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11);\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public String toString() {\n"+
+			"			return Tuples.stringify(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11);\n"+
+			"		}\n"+
+			"	}\n"+
+			"\n"+
+			"	public static final class Tuple12<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12> implements Tuple, Serializable {\n"+
+			"\n"+
+			"		private static final long serialVersionUID = -175212910367376967L;\n"+
+			"\n"+
+			"		public final T1 _1;\n"+
+			"		public final T2 _2;\n"+
+			"		public final T3 _3;\n"+
+			"		public final T4 _4;\n"+
+			"		public final T5 _5;\n"+
+			"		public final T6 _6;\n"+
+			"		public final T7 _7;\n"+
+			"		public final T8 _8;\n"+
+			"		public final T9 _9;\n"+
+			"		public final T10 _10;\n"+
+			"		public final T11 _11;\n"+
+			"		public final T12 _12;\n"+
+			"\n"+
+			"		public Tuple12(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, T10 t10, T11 t11, T12 t12) {\n"+
+			"			this._1 = t1;\n"+
+			"			this._2 = t2;\n"+
+			"			this._3 = t3;\n"+
+			"			this._4 = t4;\n"+
+			"			this._5 = t5;\n"+
+			"			this._6 = t6;\n"+
+			"			this._7 = t7;\n"+
+			"			this._8 = t8;\n"+
+			"			this._9 = t9;\n"+
+			"			this._10 = t10;\n"+
+			"			this._11 = t11;\n"+
+			"			this._12 = t12;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int arity() {\n"+
+			"			return 12;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public boolean equals(Object o) {\n"+
+			"			if (o == this) {\n"+
+			"				return true;\n"+
+			"			} else if (o == null || !(o instanceof Tuple12)) {\n"+
+			"				return false;\n"+
+			"			} else {\n"+
+			"				final Tuple12<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> that = (Tuple12<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?>) o;\n"+
+			"				return Objects.equals(this._1, that._1)\n"+
+			"						&& Objects.equals(this._2, that._2)\n"+
+			"						&& Objects.equals(this._3, that._3)\n"+
+			"						&& Objects.equals(this._4, that._4)\n"+
+			"						&& Objects.equals(this._5, that._5)\n"+
+			"						&& Objects.equals(this._6, that._6)\n"+
+			"						&& Objects.equals(this._7, that._7)\n"+
+			"						&& Objects.equals(this._8, that._8)\n"+
+			"						&& Objects.equals(this._9, that._9)\n"+
+			"						&& Objects.equals(this._10, that._10)\n"+
+			"						&& Objects.equals(this._11, that._11)\n"+
+			"						&& Objects.equals(this._12, that._12);\n"+
+			"			}\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int hashCode() {\n"+
+			"			return Objects.hash(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12);\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public String toString() {\n"+
+			"			return Tuples.stringify(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12);\n"+
+			"		}\n"+
+			"	}\n"+
+			"\n"+
+			"	public static final class Tuple13<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13> implements Tuple,\n"+
+			"			Serializable {\n"+
+			"\n"+
+			"		private static final long serialVersionUID = 2027952127515234777L;\n"+
+			"\n"+
+			"		public final T1 _1;\n"+
+			"		public final T2 _2;\n"+
+			"		public final T3 _3;\n"+
+			"		public final T4 _4;\n"+
+			"		public final T5 _5;\n"+
+			"		public final T6 _6;\n"+
+			"		public final T7 _7;\n"+
+			"		public final T8 _8;\n"+
+			"		public final T9 _9;\n"+
+			"		public final T10 _10;\n"+
+			"		public final T11 _11;\n"+
+			"		public final T12 _12;\n"+
+			"		public final T13 _13;\n"+
+			"\n"+
+			"		public Tuple13(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8, T9 t9, T10 t10, T11 t11, T12 t12, T13 t13) {\n"+
+			"			this._1 = t1;\n"+
+			"			this._2 = t2;\n"+
+			"			this._3 = t3;\n"+
+			"			this._4 = t4;\n"+
+			"			this._5 = t5;\n"+
+			"			this._6 = t6;\n"+
+			"			this._7 = t7;\n"+
+			"			this._8 = t8;\n"+
+			"			this._9 = t9;\n"+
+			"			this._10 = t10;\n"+
+			"			this._11 = t11;\n"+
+			"			this._12 = t12;\n"+
+			"			this._13 = t13;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int arity() {\n"+
+			"			return 13;\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public boolean equals(Object o) {\n"+
+			"			if (o == this) {\n"+
+			"				return true;\n"+
+			"			} else if (o == null || !(o instanceof Tuple13)) {\n"+
+			"				return false;\n"+
+			"			} else {\n"+
+			"				final Tuple13<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> that = (Tuple13<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?>) o;\n"+
+			"				return Objects.equals(this._1, that._1)\n"+
+			"						&& Objects.equals(this._2, that._2)\n"+
+			"						&& Objects.equals(this._3, that._3)\n"+
+			"						&& Objects.equals(this._4, that._4)\n"+
+			"						&& Objects.equals(this._5, that._5)\n"+
+			"						&& Objects.equals(this._6, that._6)\n"+
+			"						&& Objects.equals(this._7, that._7)\n"+
+			"						&& Objects.equals(this._8, that._8)\n"+
+			"						&& Objects.equals(this._9, that._9)\n"+
+			"						&& Objects.equals(this._10, that._10)\n"+
+			"						&& Objects.equals(this._11, that._11)\n"+
+			"						&& Objects.equals(this._12, that._12)\n"+
+			"						&& Objects.equals(this._13, that._13);\n"+
+			"			}\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public int hashCode() {\n"+
+			"			return Objects.hash(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13);\n"+
+			"		}\n"+
+			"\n"+
+			"		@Override\n"+
+			"		public String toString() {\n"+
+			"			return Tuples.stringify(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13);\n"+
+			"		}\n"+
+			"	}\n"+
+			"\n"+
+			"	public static interface Tuple {\n"+
+			"\n"+
+			"		int arity();\n"+
+			"\n"+
+			"		@Override\n"+
+			"		boolean equals(Object obj);\n"+
+			"\n"+
+			"		@Override\n"+
+			"		int hashCode();\n"+
+			"\n"+
+			"		@Override\n"+
+			"		String toString();\n"+
+			"	}\n"+
+			"\n"+
+			"}\n"
+		});
+}
 }
