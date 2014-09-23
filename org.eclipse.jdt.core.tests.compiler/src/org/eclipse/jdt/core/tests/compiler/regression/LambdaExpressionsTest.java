@@ -4839,6 +4839,49 @@ public void test444803() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=444785, [1.8] Error in JDT Core during reconcile
+public void test444785() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" +
+			"import java.util.function.Function;\n" +
+			"public interface X {\n" +
+			"	@FunctionalInterface\n" +
+			"	static interface Function1<T1, R> extends Function<T1, R>, Serializable {\n" +
+			"		@Override\n" +
+			"		R apply(T1 t1);\n" +
+			"	}\n" +
+			"	@FunctionalInterface\n" +
+			"	static interface Function6<T1, T2, T3, T4, T5, T6, R> extends Serializable {\n" +
+			"		R apply(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6);\n" +
+			"		default Function1<T1, Function1<T2, Function1<T3, Function1<T4, Function1<T5, Function1<T6, R>>>>>> curried() {\n" +
+			"			return t1 -> t2 -> t3 -> t4 -> t5 -> t6 -> apply(t1, t2, t3, t4, t5, t6);\n" +
+			"		}\n" +
+			"		default Function1<Tuple6<T1, T2, T3, T4, T5, T6>, R> tupled() {\n" +
+			"			return t -> apply(t._1, t._2, t._3, t._4, t._5, t._6);\n" +
+			"		}\n" +
+			"	}\n" +
+			"	static final class Tuple6<T1, T2, T3, T4, T5, T6> {\n" +
+			"		public final T1 _1;\n" +
+			"		public final T2 _2;\n" +
+			"		public final T3 _3;\n" +
+			"		public final T4 _4;\n" +
+			"		public final T5 _5;\n" +
+			"		public final T6 _6;\n" +
+			"		public Tuple6(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6) {\n" +
+			"			this._1 = t1;\n" +
+			"			this._2 = t2;\n" +
+			"			this._3 = t3;\n" +
+			"			this._4 = t4;\n" +
+			"			this._5 = t5;\n" +
+			"			this._6 = t6;\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
