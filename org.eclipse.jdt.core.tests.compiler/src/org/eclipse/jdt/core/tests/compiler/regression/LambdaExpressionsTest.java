@@ -4749,6 +4749,62 @@ public void test441907() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=444773, [1.8][compiler] NullPointerException in LambdaExpression.analyseCode 
+public void test444773() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"import java.util.Optional;\n" +
+			" \n" +
+			"public class X {\n" +
+			"  static class Container {\n" +
+			"    final private String s;\n" +
+			"    public Container(String s) { this.s = s; }\n" +
+			"  }\n" +
+			" \n" +
+			"  public static void main(String[] args) {\n" +
+			"    final List<Container> list = new ArrayList<>();\n" +
+			"    final Optional<String> optStr = Optional.of(\"foo\");\n" +
+			"    list.add(new Container(optStr.orElseThrow(() -> new IllegalStateException()))); // Error here\n" +
+			" \n" +
+			"    // This will work:\n" +
+			"    final String s = optStr.orElseThrow(IllegalStateException::new);\n" +
+			"    list.add(new Container(s));	\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=444772, [1.8][compiler] NullPointerException in ReferenceExpression.shouldGenerateImplicitLambda 
+public void test444772() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"import java.util.Optional;\n" +
+			" \n" +
+			"public class X {\n" +
+			"  static class Container {\n" +
+			"    final private String s;\n" +
+			"    public Container(String s) { this.s = s; }\n" +
+			"  }\n" +
+			" \n" +
+			"  public static void main(String[] args) {\n" +
+			"    final List<Container> list = new ArrayList<>();\n" +
+			"    final Optional<String> optStr = Optional.of(\"foo\");\n" +
+			"    list.add(new Container(optStr.orElseThrow(IllegalStateException::new))); // Error here\n" +
+			" \n" +
+			"    // This will work:\n" +
+			"    final String s = optStr.orElseThrow(IllegalStateException::new);\n" +
+			"    list.add(new Container(s));	\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
