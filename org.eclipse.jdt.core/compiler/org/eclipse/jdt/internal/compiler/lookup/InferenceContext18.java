@@ -400,7 +400,7 @@ public class InferenceContext18 {
 			Set<ConstraintFormula> c = new HashSet<ConstraintFormula>();
 			if (!addConstraintsToC(this.invocationArguments, c, method, this.inferenceKind))
 				return null;
-			// 5. bullet: determine B3 from C
+			// 5. bullet: determine B4 from C
 			while (!c.isEmpty()) {
 				// *
 				Set<ConstraintFormula> bottomSet = findBottomSet(c, allOutputVariables(c));
@@ -520,7 +520,8 @@ public class InferenceContext18 {
 		ParameterizedGenericMethodBinding methodToCheck = method;
 		
 		boolean haveProperTargetType = targetType != null && targetType.isProperType(true);
-		if (haveProperTargetType || !invocation.getExpressionContext().definesTargetType()) {
+		boolean inferredInvocationType = false;
+		if (targetType != null || !invocation.getExpressionContext().definesTargetType()) {
 			MethodBinding original = method.originalMethod;
 			Solution solution = this.solutionsPerTargetType.get(targetType);
 			BoundSet result = solution != null ? solution.bounds : null;
@@ -541,6 +542,7 @@ public class InferenceContext18 {
 						NullAnnotationMatching.checkForContraditions(finalMethod, invocation, this.scope);
 					invocation.registerInferenceContext(finalMethod, this);
 					this.solutionsPerTargetType.put(targetType, new Solution(finalMethod, result));
+					inferredInvocationType = true;
 				}
 			}
 			if (finalMethod != null)
@@ -553,12 +555,11 @@ public class InferenceContext18 {
 		if (problemMethod != null)
 			return problemMethod;
 
-		if (!haveProperTargetType && invocation.getExpressionContext().definesTargetType())
-			return method; // still not ready!
-
-		if (finalMethod != null) {
+		if (inferredInvocationType) {
 			if (rebindInnerPolies(finalMethod, invocation))
 				return finalMethod;
+		} else if (!haveProperTargetType && invocation.getExpressionContext().definesTargetType()) {
+			return method; // still not ready!
 		}
 		return getReturnProblemMethodIfNeeded(targetType, method);
 	}
@@ -591,6 +592,10 @@ public class InferenceContext18 {
 			return this.stepCompleted >= TYPE_INFERRED;
 		else
 			return this.solutionsPerTargetType.containsKey(targetType);
+	}
+	
+	public Solution getResultFor(TypeBinding targetType) {
+		return this.solutionsPerTargetType.get(targetType);
 	}
 
 	public boolean registerSolution(TypeBinding targetType, MethodBinding updatedBinding) {

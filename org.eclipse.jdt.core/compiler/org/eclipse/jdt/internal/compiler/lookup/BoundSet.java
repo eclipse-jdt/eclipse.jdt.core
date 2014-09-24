@@ -389,6 +389,12 @@ class BoundSet {
 		}
 	}
 
+	public void addBounds(BoundSet that, LookupEnvironment environment) {
+		if (that == null || environment == null)
+			return;
+		addBounds(that.flatten(), environment);
+	}
+	
 	private boolean addBounds(TypeBound[] newBounds, LookupEnvironment environment) {
 		boolean hasProperBound = false;
 		for (int i = 0; i < newBounds.length; i++) {

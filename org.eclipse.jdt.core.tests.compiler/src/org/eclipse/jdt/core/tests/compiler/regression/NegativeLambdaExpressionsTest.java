@@ -9707,6 +9707,124 @@ public void test432759() {
 	},
 	"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=439594  [1.8][compiler] nested lambda type incorrectly inferred vs javac
+public void test439594() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"import java.util.function.Function;\n" +
+			"import java.util.function.Predicate;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"import java.util.stream.Stream;\n" +
+			"public class X {\n" +
+			"	protected static interface IListEntry {\n" +
+			"		public <T> T visitRecordsWithResult(Function<Stream<Record>,T> func);		\n" +
+			"	}\n" +
+			"	protected static final class ImmutableRecord {\n" +
+			"		public ImmutableRecord(Record r) { }\n" +
+			"	}\n" +
+			"	protected static final class Record {}\n" +
+			"	public List<ImmutableRecord> compilesWithEclipseAndJavac() \n" +
+			"	{\n" +
+			"		return visitEntriesWithResult( stream -> {\n" +
+			"			return stream.map( entry -> {\n" +
+			"				final List<ImmutableRecord> result1 = entry.visitRecordsWithResult( stream2 -> stream2\n" +
+			"						.filter( somePredicate() )\n" +
+			"						.map( ImmutableRecord::new )\n" +
+			"						.collect( Collectors.toList() )\n" +
+			"					);	\n" +
+			"				return result1;\n" +
+			"			}).flatMap( List::stream ).collect( Collectors.toCollection( ArrayList::new ) );\n" +
+			"		});		\n" +
+			"	}		\n" +
+			"	public List<ImmutableRecord> compilesWithJavacButNotEclipse1() \n" +
+			"	{\n" +
+			"		return visitEntriesWithResult( stream -> {\n" +
+			"			return stream.map( entry -> {\n" +
+			"				return entry.visitRecordsWithResult( stream2 -> stream2\n" +
+			"						.filter( somePredicate() )\n" +
+			"						.map( ImmutableRecord::new )\n" +
+			"						.collect( Collectors.toList() )\n" +
+			"					);	\n" +
+			"			}).flatMap( List::stream ).collect( Collectors.toCollection( ArrayList::new ) );\n" +
+			"		});		\n" +
+			"	}		\n" +
+			"	public List<ImmutableRecord> compilesWithJavacButNotEclipse2() \n" +
+			"	{\n" +
+			"		return visitEntriesWithResult( stream -> {\n" +
+			"			return stream.map( entry -> entry.visitRecordsWithResult( stream2 -> stream2\n" +
+			"						.filter( somePredicate() )\n" +
+			"						.map( ImmutableRecord::new )\n" +
+			"						.collect( Collectors.toList() ) )\n" +
+			"			).flatMap( List::stream ).collect( Collectors.toCollection( ArrayList::new ) );\n" +
+			"		});		\n" +
+			"	}	\n" +
+			"	public List<ImmutableRecord> compilesWithJavacButNotEclipse3() \n" +
+			"	{\n" +
+			"		return visitEntriesWithResult( stream -> stream.map( entry -> entry.visitRecordsWithResult( stream2 -> stream2\n" +
+			"						.filter( somePredicate() )\n" +
+			"						.map( ImmutableRecord::new )\n" +
+			"						.collect( Collectors.toList() ) )\n" +
+			"			)\n" +
+			"			.flatMap( List::stream )\n" +
+			"			.collect( Collectors.toCollection( ArrayList::new ) )\n" +
+			"		);		\n" +
+			"	}	\n" +
+			"	private static Predicate<Record> somePredicate() {\n" +
+			"		return record -> true;\n" +
+			"	}		\n" +
+			"	private <T> T visitEntriesWithResult(Function<Stream<IListEntry>,T> func) {\n" +
+			"		return func.apply( new ArrayList<IListEntry>().stream() );\n" +
+			"	}\n" +
+			"}\n"
+	},
+	"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=433852, [1.8][compiler] Javac rejects type inference results that ECJ accepts
+public void test433852() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"import java.util.Optional;\n" +
+			"import java.util.function.Function;\n" +
+			"import java.util.stream.Stream;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(test(Stream.of(Stream.of(\"3\"))));\n" +
+			"		System.out.println(test2(Stream.of(Stream.of(\"1\")).skip(1)));\n" +
+			"		System.out.println(test31(Stream.of(Stream.of(\"2\")).skip(1)));\n" +
+			"	}\n" +
+			"	static Optional<Stream<Object>> test(Stream<Stream<String>> s31) {\n" +
+			"		return s31.map(s2 -> s2.map(s1 -> Integer.parseInt(s1))).findAny();\n" +
+			"	}\n" +
+			"	static Object test2(Stream<Stream<String>> s3) {\n" +
+			"		return s3.map(s2 -> s2.map(s1 -> Integer.parseInt(s1))).flatMap(Function.identity()).findAny().orElse(\n" +
+			"		  X.class);\n" +
+			"	}\n" +
+			"	static Stream<Object> test31(Stream<Stream<String>> s3) {\n" +
+			"		return s3.map(s2 -> s2.map(s1 -> Integer.parseInt(s1))).findAny().orElse(Stream.of(new Object()));\n" +
+			"	}\n" +
+			"}\n"
+	},
+	"----------\n" + 
+	"1. ERROR in X.java (at line 11)\n" + 
+	"	return s31.map(s2 -> s2.map(s1 -> Integer.parseInt(s1))).findAny();\n" + 
+	"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+	"Type mismatch: cannot convert from Optional<Stream<Integer>> to Optional<Stream<Object>>\n" + 
+	"----------\n" + 
+	"2. ERROR in X.java (at line 14)\n" + 
+	"	return s3.map(s2 -> s2.map(s1 -> Integer.parseInt(s1))).flatMap(Function.identity()).findAny().orElse(\n" + 
+	"	                                                                                               ^^^^^^\n" + 
+	"The method orElse(Integer) in the type Optional<Integer> is not applicable for the arguments (Class<X>)\n" + 
+	"----------\n" + 
+	"3. ERROR in X.java (at line 18)\n" + 
+	"	return s3.map(s2 -> s2.map(s1 -> Integer.parseInt(s1))).findAny().orElse(Stream.of(new Object()));\n" + 
+	"	                                                                  ^^^^^^\n" + 
+	"The method orElse(Stream<Integer>) in the type Optional<Stream<Integer>> is not applicable for the arguments (Stream<Object>)\n" + 
+	"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
