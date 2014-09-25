@@ -302,10 +302,10 @@ class BoundSet {
 	/** 18.1.3 bullet 5: throws α */
 	Set<InferenceVariable> inThrows = new HashSet<InferenceVariable>();
 
-	// avoid attempts to incorporate the same pair of type bounds more than once:
-	private boolean [] incorporatedBounds = new boolean[16];
-	private boolean isIncorporated = true;
-	private int id = 0;
+	private TypeBound [] incorporatedBounds = new TypeBound[0];
+	private TypeBound [] unincorporatedBounds = new TypeBound [1024];
+	private int unincorporatedBoundsCount = 0;
+	private TypeBound [] mostRecentBounds = new TypeBound[4]; // for quick & dirty duplicate elimination.
 	
 	public BoundSet() {}
 	
@@ -352,24 +352,36 @@ class BoundSet {
 		}
 		copy.inThrows.addAll(this.inThrows);
 		copy.captures.putAll(this.captures);
-		copy.isIncorporated = this.isIncorporated;
-		System.arraycopy(this.incorporatedBounds, 0, copy.incorporatedBounds = new boolean[this.incorporatedBounds.length], 0, this.incorporatedBounds.length);
-		copy.id = this.id;
+		System.arraycopy(this.incorporatedBounds, 0, copy.incorporatedBounds = new TypeBound[this.incorporatedBounds.length], 0, this.incorporatedBounds.length);
+		System.arraycopy(this.unincorporatedBounds, 0, copy.unincorporatedBounds = new TypeBound[this.unincorporatedBounds.length], 0, this.unincorporatedBounds.length);
+		copy.unincorporatedBoundsCount = this.unincorporatedBoundsCount;
 		return copy;
 	}
 
 	public void addBound(TypeBound bound, LookupEnvironment environment) {
+		
 		if (bound.relation == ReductionResult.SUBTYPE && bound.right.id == TypeIds.T_JavaLangObject)
 			return;
 		if (bound.left == bound.right) //$IDENTITY-COMPARISON$
 			return;
+		if (bound.equals(this.mostRecentBounds[0]) || bound.equals(this.mostRecentBounds[1]) || bound.equals(this.mostRecentBounds[2]) || bound.equals(this.mostRecentBounds[3])) {
+			return;
+		}
+		
+		this.mostRecentBounds[3] = this.mostRecentBounds[2];
+		this.mostRecentBounds[2] = this.mostRecentBounds[1];
+		this.mostRecentBounds[1] = this.mostRecentBounds[0];
+		this.mostRecentBounds[0] = bound;
+				
 		InferenceVariable variable = bound.left.prototype();
 		ThreeSets three = this.boundsPerVariable.get(variable);
 		if (three == null)
 			this.boundsPerVariable.put(variable, (three = new ThreeSets()));
 		if (three.addBound(bound)) {
-			this.isIncorporated = false;
-			bound.id = this.id++;
+			int unincorporatedBoundsLength = this.unincorporatedBounds.length;
+			if (this.unincorporatedBoundsCount >= unincorporatedBoundsLength)
+				System.arraycopy(this.unincorporatedBounds, 0, this.unincorporatedBounds = new TypeBound[unincorporatedBoundsLength * 2], 0, unincorporatedBoundsLength);
+			this.unincorporatedBounds[this.unincorporatedBoundsCount ++] = bound;
 			// check if this makes the inference variable instantiated:
 			TypeBinding typeBinding = bound.right;
 			if (bound.relation == ReductionResult.SAME && typeBinding.isProperType(true))
@@ -431,7 +443,39 @@ class BoundSet {
 		}
 		return num;
 	}
+	
+	// Driver for the real workhorse - Implements generational incorporation a la generational garbage collector. 
+	boolean incorporate(InferenceContext18 context) throws InferenceFailureException {
+		
+		if (this.unincorporatedBoundsCount == 0 && this.captures.size() == 0)
+			return true;
+		
+		do {
+			TypeBound [] freshBounds;
+			System.arraycopy(this.unincorporatedBounds, 0, freshBounds = new TypeBound[this.unincorporatedBoundsCount], 0, this.unincorporatedBoundsCount);
+			this.unincorporatedBoundsCount = 0;
+			
+			// Pairwise bidirectional compare all bounds from previous generation with the fresh set.
+			if (!incorporate(context, this.incorporatedBounds, freshBounds))
+				return false;
+			// Pairwise bidirectional compare all fresh bounds. 
+			if (!incorporate(context, freshBounds, freshBounds))
+				return false;
 
+			this.captures.clear();
+			
+			// Merge the bounds into one incorporated generation.
+			final int incorporatedLength = this.incorporatedBounds.length;
+			final int unincorporatedLength = freshBounds.length;
+			TypeBound [] aggregate = new TypeBound[incorporatedLength + unincorporatedLength];
+			System.arraycopy(this.incorporatedBounds, 0, aggregate, 0, incorporatedLength);
+			System.arraycopy(freshBounds, 0, aggregate, incorporatedLength, unincorporatedLength);
+			this.incorporatedBounds = aggregate;
+			
+		} while (this.unincorporatedBoundsCount > 0);
+		
+		return true;
+	}
 	/**
 	 * <b>JLS 18.3:</b> Try to infer new constraints from pairs of existing type bounds.
 	 * Each new constraint is first reduced and checked for TRUE or FALSE, which will
@@ -440,28 +484,23 @@ class BoundSet {
 	 * @return false if any constraint resolved to false, true otherwise  
 	 * @throws InferenceFailureException a compile error has been detected during inference
 	 */
-	boolean incorporate(InferenceContext18 context) throws InferenceFailureException {
-		if (this.isIncorporated)
-			return true;
+	boolean incorporate(InferenceContext18 context, TypeBound [] first, TypeBound [] next) throws InferenceFailureException {
 		boolean analyzeNull = context.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled;
-		do {
-			this.isIncorporated = true;
-			// using a flattened copy also allows us to insert more bounds during the process
-			// without disturbing the current round of incorporation:
-			TypeBound[] bounds = flatten();
-			int boundsCount = bounds.length;
-			if (boundsCount < 2)
-				return true;
-			// check each pair:
-			for (int i = 0; i < boundsCount; i++) {
-				TypeBound boundI = bounds[i];
-				final boolean setHasI = boundI.id < this.incorporatedBounds.length && this.incorporatedBounds[boundI.id] == true;
-				for (int j = i+1; j < boundsCount; j++) {
-					TypeBound boundJ = bounds[j];
-					if (setHasI && boundJ.id < this.incorporatedBounds.length && this.incorporatedBounds[boundJ.id] == true)
-						continue;
+		ConstraintTypeFormula [] mostRecentFormulas = new ConstraintTypeFormula[4]; // poor man's cache to toss out duplicates, in pathological cases there are a good quarter million of them.
+		// check each pair, in each way.
+		for (int i = 0, iLength = first.length; i < iLength; i++) {
+			TypeBound boundI = first[i];
+			for (int j = 0, jLength = next.length; j < jLength; j++) {
+				TypeBound boundJ = next[j];
+				int iteration = 1;
+				do {
 					ConstraintTypeFormula newConstraint = null;
 					boolean deriveTypeArgumentConstraints = false;
+					if (iteration == 2) {
+						TypeBound boundX = boundI;
+						boundI = boundJ;
+						boundJ = boundX;
+					}
 					switch (boundI.relation) {
 						case ReductionResult.SAME:
 							switch (boundJ.relation) {
@@ -502,8 +541,23 @@ class BoundSet {
 							}
 					}
 					if (newConstraint != null) {
+						if (newConstraint.left == newConstraint.right) { //$IDENTITY-COMPARISON$
+							newConstraint = null;
+						} else 	if (newConstraint.equalsEquals(mostRecentFormulas[0]) || newConstraint.equalsEquals(mostRecentFormulas[1]) ||
+									newConstraint.equalsEquals(mostRecentFormulas[2]) || newConstraint.equalsEquals(mostRecentFormulas[3])) {
+							newConstraint = null;
+						}
+					}
+					if (newConstraint != null) {
+						// bubble formulas around the cache.
+						mostRecentFormulas[3] = mostRecentFormulas[2];
+						mostRecentFormulas[2] = mostRecentFormulas[1];
+						mostRecentFormulas[1] = mostRecentFormulas[0];
+						mostRecentFormulas[0] = newConstraint;
+					
 						if (!reduceOneConstraint(context, newConstraint))
 							return false;
+						
 						if (analyzeNull) {
 							// not per JLS: if the new constraint relates types where at least one has a null annotations,
 							// record all null tagBits as hints for the final inference solution.
@@ -519,109 +573,107 @@ class BoundSet {
 								return false;
 						}
 					}
-				}
-				if (!setHasI) {
-					int length = this.incorporatedBounds.length;
-					if (boundI.id >= length)
-						System.arraycopy(this.incorporatedBounds, 0, this.incorporatedBounds = new boolean[boundI.id * 2], 0, length);
-					this.incorporatedBounds[boundI.id] = true;
-				}
-			}
-			/* TODO: are we sure this will always terminate? Cf. e.g. (Discussion in 18.3):
-			 *  
-			 *    "The assertion that incorporation reaches a fixed point oversimplifies the matter slightly. ..."
-			 */
-			Iterator<Entry<ParameterizedTypeBinding, ParameterizedTypeBinding>> captIter = this.captures.entrySet().iterator();
-			while (captIter.hasNext()) {
-				Entry<ParameterizedTypeBinding, ParameterizedTypeBinding> capt = captIter.next();
-				ParameterizedTypeBinding gAlpha = capt.getKey();
-				ParameterizedTypeBinding gA = capt.getValue();
-				ReferenceBinding g = (ReferenceBinding) gA.original();
-				final TypeVariableBinding[] parameters = g.typeVariables();
-				// construct theta = [P1:=alpha1,...]
-				final InferenceVariable[] alphas = new InferenceVariable[gAlpha.arguments.length];
-				System.arraycopy(gAlpha.arguments, 0, alphas, 0, alphas.length);
-				InferenceSubstitution theta = new InferenceSubstitution(context.environment, alphas) {
-					@Override
-					protected TypeBinding getP(int i) {
-						return parameters[i];
+					if (iteration == 2) {
+						TypeBound boundX = boundI;
+						boundI = boundJ;
+						boundJ = boundX;
 					}
-				};
-				for (int i = 0, length = parameters.length; i < length; i++) {
-					// A set of bounds on α1, ..., αn, constructed from the declared bounds of P1, ..., Pn as described in 18.1.3, is immediately implied.
-					TypeVariableBinding pi = parameters[i];
-					InferenceVariable alpha = (InferenceVariable) gAlpha.arguments[i];
-					addBounds(pi.getTypeBounds(alpha, theta), context.environment);
+				} while (first != next && ++iteration <= 2);
+			}
+		}
+		/* TODO: are we sure this will always terminate? Cf. e.g. (Discussion in 18.3):
+		 *  
+		 *    "The assertion that incorporation reaches a fixed point oversimplifies the matter slightly. ..."
+		 */
+		Iterator<Entry<ParameterizedTypeBinding, ParameterizedTypeBinding>> captIter = this.captures.entrySet().iterator();
+		while (captIter.hasNext()) {
+			Entry<ParameterizedTypeBinding, ParameterizedTypeBinding> capt = captIter.next();
+			ParameterizedTypeBinding gAlpha = capt.getKey();
+			ParameterizedTypeBinding gA = capt.getValue();
+			ReferenceBinding g = (ReferenceBinding) gA.original();
+			final TypeVariableBinding[] parameters = g.typeVariables();
+			// construct theta = [P1:=alpha1,...]
+			final InferenceVariable[] alphas = new InferenceVariable[gAlpha.arguments.length];
+			System.arraycopy(gAlpha.arguments, 0, alphas, 0, alphas.length);
+			InferenceSubstitution theta = new InferenceSubstitution(context.environment, alphas) {
+				@Override
+				protected TypeBinding getP(int i) {
+					return parameters[i];
+				}
+			};
+			for (int i = 0, length = parameters.length; i < length; i++) {
+				// A set of bounds on α1, ..., αn, constructed from the declared bounds of P1, ..., Pn as described in 18.1.3, is immediately implied.
+				TypeVariableBinding pi = parameters[i];
+				InferenceVariable alpha = (InferenceVariable) gAlpha.arguments[i];
+				addBounds(pi.getTypeBounds(alpha, theta), context.environment);
 
-					TypeBinding ai = gA.arguments[i];
-					if (ai instanceof WildcardBinding) {
-						WildcardBinding wildcardBinding = (WildcardBinding)ai;
-						TypeBinding t = wildcardBinding.bound;
-						ThreeSets three = this.boundsPerVariable.get(alpha.prototype());
-						if (three != null) {
-							Iterator<TypeBound> it;
-							if (three.sameBounds != null) {
-								//  α = R implies false
-								it = three.sameBounds.iterator();
-								while (it.hasNext()) {
-									TypeBound bound = it.next();
-									if (!(bound.right instanceof InferenceVariable))
-										return false;
-								}
+				TypeBinding ai = gA.arguments[i];
+				if (ai instanceof WildcardBinding) {
+					WildcardBinding wildcardBinding = (WildcardBinding)ai;
+					TypeBinding t = wildcardBinding.bound;
+					ThreeSets three = this.boundsPerVariable.get(alpha.prototype());
+					if (three != null) {
+						Iterator<TypeBound> it;
+						if (three.sameBounds != null) {
+							//  α = R implies false
+							it = three.sameBounds.iterator();
+							while (it.hasNext()) {
+								TypeBound bound = it.next();
+								if (!(bound.right instanceof InferenceVariable))
+									return false;
 							}
-							if (three.subBounds != null && pi.firstBound != null) {
-								// If Bi is Object, α <: R implies ⟨T <: R⟩	(extends wildcard)
-								// α <: R implies ⟨θ Bi <: R⟩				(else) 
-								it = three.subBounds.iterator();
-								while (it.hasNext()) {
-									TypeBound bound = it.next();
-									if (!(bound.right instanceof InferenceVariable)) {
-										TypeBinding r = bound.right;
-										TypeBinding bi1 = pi.firstBound;
-										ReferenceBinding[] otherBounds = pi.superInterfaces;
-										TypeBinding bi;
-										if (otherBounds == Binding.NO_SUPERINTERFACES) {
-											bi = bi1;
-										} else {
-											int n = otherBounds.length+1;
-											ReferenceBinding[] allBounds = new ReferenceBinding[n];
-											allBounds[0] = (ReferenceBinding) bi1; // TODO is this safe?
-											System.arraycopy(otherBounds, 0, allBounds, 1, n-1);
-											bi = new IntersectionCastTypeBinding(allBounds, context.environment);
-										}
-										addTypeBoundsFromWildcardBound(context, theta, wildcardBinding.boundKind, t, r, bi);
-//										if (otherBounds != null) {
-//											for (int j = 0; j < otherBounds.length; j++) {
-//												TypeBinding tj = otherBounds[j];
-//												if (TypeBinding.notEquals(tj, t))
-//													addTypeBoundsFromWildcardBound(context, wildcardBinding, tj, r, bij);
-//											}
-//										}
+						}
+						if (three.subBounds != null && pi.firstBound != null) {
+							// If Bi is Object, α <: R implies ⟨T <: R⟩	(extends wildcard)
+							// α <: R implies ⟨θ Bi <: R⟩				(else) 
+							it = three.subBounds.iterator();
+							while (it.hasNext()) {
+								TypeBound bound = it.next();
+								if (!(bound.right instanceof InferenceVariable)) {
+									TypeBinding r = bound.right;
+									TypeBinding bi1 = pi.firstBound;
+									ReferenceBinding[] otherBounds = pi.superInterfaces;
+									TypeBinding bi;
+									if (otherBounds == Binding.NO_SUPERINTERFACES) {
+										bi = bi1;
+									} else {
+										int n = otherBounds.length+1;
+										ReferenceBinding[] allBounds = new ReferenceBinding[n];
+										allBounds[0] = (ReferenceBinding) bi1; // TODO is this safe?
+										System.arraycopy(otherBounds, 0, allBounds, 1, n-1);
+										bi = new IntersectionCastTypeBinding(allBounds, context.environment);
 									}
-								}
-							}
-							if (three.superBounds != null) {
-								//  R <: α implies ⟨R <: T⟩  (super wildcard)
-								//  R <: α implies false	 (else) 
-								it = three.superBounds.iterator();
-								while (it.hasNext()) {
-									TypeBound bound = it.next();
-									if (!(bound.right instanceof InferenceVariable)) {
-										if (wildcardBinding.boundKind == Wildcard.SUPER)
-											reduceOneConstraint(context, ConstraintTypeFormula.create(bound.right, t, ReductionResult.SUBTYPE));
-										else
-											return false;
-									}
+									addTypeBoundsFromWildcardBound(context, theta, wildcardBinding.boundKind, t, r, bi);
+									//										if (otherBounds != null) {
+									//											for (int j = 0; j < otherBounds.length; j++) {
+									//												TypeBinding tj = otherBounds[j];
+									//												if (TypeBinding.notEquals(tj, t))
+									//													addTypeBoundsFromWildcardBound(context, wildcardBinding, tj, r, bij);
+									//											}
+									//										}
 								}
 							}
 						}
-					} else {
-						addBound(new TypeBound(alpha, ai, ReductionResult.SAME), context.environment);
+						if (three.superBounds != null) {
+							//  R <: α implies ⟨R <: T⟩  (super wildcard)
+							//  R <: α implies false	 (else) 
+							it = three.superBounds.iterator();
+							while (it.hasNext()) {
+								TypeBound bound = it.next();
+								if (!(bound.right instanceof InferenceVariable)) {
+									if (wildcardBinding.boundKind == Wildcard.SUPER)
+										reduceOneConstraint(context, ConstraintTypeFormula.create(bound.right, t, ReductionResult.SUBTYPE));
+									else
+										return false;
+								}
+							}
+						}
 					}
+				} else {
+					addBound(new TypeBound(alpha, ai, ReductionResult.SAME), context.environment);
 				}
 			}
-			this.captures.clear();
-		} while (!this.isIncorporated);
+		}
 		return true;
 	}
 

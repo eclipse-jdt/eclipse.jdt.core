@@ -4632,7 +4632,7 @@ public void testBug430987() {
 			"----------\n");
 	}
 }
-public void testBug430686() {
+public void _testBug430686() {
 	runConformTest(
 		new String[] {
 			"TestClass.java",

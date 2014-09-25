@@ -371,6 +371,11 @@ class ConstraintTypeFormula extends ConstraintFormula {
 		return true;
 	}
 
+	public boolean equalsEquals (ConstraintTypeFormula that) {
+		return (that != null && this.relation == that.relation && this.isSoft == that.isSoft && 
+					TypeBinding.equalsEquals(this.left, that.left) && TypeBinding.equalsEquals(this.right, that.right));
+	}
+	
 	public boolean applySubstitution(BoundSet solutionSet, InferenceVariable[] variables) {
 		super.applySubstitution(solutionSet, variables);
 		for (int i=0; i<variables.length; i++) {

@@ -26,11 +26,6 @@ public class TypeBound extends ReductionResult {
 	// here we accumulate null tagBits from any types that have been related to this type bound during incorporation:
 	long nullHints;
 	
-	int id; // assigned by the BoundSet of which this is an element.
-
-	private boolean haveHashCode = false;
-	private int hashCode;
-	
 	static TypeBound createBoundOrDependency(InferenceSubstitution theta, TypeBinding type, InferenceVariable variable) {
         // Part of JLS8 sect 18.1.3:
 		return new TypeBound(variable, theta.substitute(theta, type), SUBTYPE, true);
@@ -64,18 +59,17 @@ public class TypeBound extends ReductionResult {
 	boolean isBound() {
 		return this.right.isProperType(true);
 	}
+	
 	public int hashCode() {
-		if (this.haveHashCode) return this.hashCode;
-		this.haveHashCode = true;
-		return this.hashCode = this.left.hashCode() + this.right.hashCode() + this.relation;
+		return this.left.hashCode() + this.right.hashCode() + this.relation;
 	}
+	
 	public boolean equals(Object obj) {
-		try {
+		if (obj instanceof TypeBound) {
 			TypeBound other = (TypeBound) obj;
 			return (this.relation == other.relation) && TypeBinding.equalsEquals(this.left, other.left) && TypeBinding.equalsEquals(this.right, other.right);
-		} catch (ClassCastException e) {
-			return false;
 		}
+		return false;
 	}
 	
 	// debugging:
