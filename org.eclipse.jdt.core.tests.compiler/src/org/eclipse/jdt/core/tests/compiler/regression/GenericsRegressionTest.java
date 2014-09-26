@@ -5485,5 +5485,29 @@ public void test440019() {
 		   },
 		   "");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=443596, [1.8][compiler] Failure for overload resolution in case of Generics and Varags 
+public void test443596() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7)
+		this.runNegativeTest(
+		   new String[] {
+			   "X.java",
+			   "public final class X {\n" +
+			   "    static interface Predicate<T> { boolean test(T object); }\n" +
+			   "    public static <T> Predicate<T> in(Predicate<? extends T> arg) { return null; }\n" +
+			   "    public static <T> Predicate<T> and(Predicate<? super T>... arg) { return null; }\n" +
+			   "    public static <T> Predicate<T> and(Predicate<? super T> arg0, Predicate<? super T> arg1) { return null; }\n" +
+			   "    static class FilteredCollection<E> {\n" +
+			   "        Predicate<? super E> predicate;\n" +
+			   "        public void error(Predicate<?> arg) { and(predicate, in(arg)); } // no compile\n" +
+			   "    }\n" +
+			   "}\n",
+		   },
+		   "----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	public static <T> Predicate<T> and(Predicate<? super T>... arg) { return null; }\n" + 
+			"	                                                           ^^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter arg\n" + 
+			"----------\n");
+}
 }
 
