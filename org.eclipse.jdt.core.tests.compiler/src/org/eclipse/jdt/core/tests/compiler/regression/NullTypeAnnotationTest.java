@@ -6753,4 +6753,31 @@ public void test443467() throws Exception {
 		"----------\n",
 		new String[]{jfxJar});
 }
+public void testBug445227() {
+	runConformTestWithLibs(
+		new String[] {
+			"Bar.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"class Bar<E extends Bar.Foo<E>> {\n" + 
+			"    final Iterable<E> list;\n" + 
+			"\n" + 
+			"    Bar() {\n" + 
+			"        this((Iterable<E>) emptyList());\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    Bar(Iterable<E> list) { this.list = list; }\n" + 
+			"\n" + 
+			"    private static <X extends Foo<X>> Iterable<X> emptyList() { throw new UnsupportedOperationException(); }\n" + 
+			"\n" + 
+			"    interface Foo<F extends Foo<F>> { }\n" + 
+			"}\n"
+		}, 
+		getCompilerOptions(), 
+		"----------\n" + 
+		"1. WARNING in Bar.java (at line 6)\n" + 
+		"	this((Iterable<E>) emptyList());\n" + 
+		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Iterable<Bar.Foo<Bar.Foo<X>>> to Iterable<E>\n" + 
+		"----------\n");
+}
 }
