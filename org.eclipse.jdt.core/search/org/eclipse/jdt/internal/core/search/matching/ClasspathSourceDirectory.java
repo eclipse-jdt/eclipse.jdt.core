@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -76,7 +76,7 @@ SimpleLookupTable directoryTable(String qualifiedPackageName) {
 			IJavaProject project = JavaCore.create(container.getProject());
 			Map secondaryTypePaths = JavaModelManager.getJavaModelManager().secondaryTypes(project, false, null);
 			if (secondaryTypePaths.size() > 0) {
-				Map typesInPackage = (Map) secondaryTypePaths.get(qualifiedPackageName);
+				Map typesInPackage = (Map) secondaryTypePaths.get(qualifiedPackageName.replace('/', '.'));
 				if (typesInPackage != null && typesInPackage.size() > 0) {
 					for (Iterator j = typesInPackage.keySet().iterator(); j.hasNext();) {
 						String secondaryTypeName = (String) j.next();

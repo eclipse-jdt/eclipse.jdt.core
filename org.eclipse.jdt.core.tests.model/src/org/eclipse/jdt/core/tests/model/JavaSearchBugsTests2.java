@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -1684,6 +1685,55 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			search(method, METHOD, ALL_OCCURRENCES, scope, this.resultCollector);
 
 			assertSearchResults("libStuff.jar int p2.B.test(T) [No source] EXACT_MATCH"); // an NPE was thrown without the fix
+		} finally {
+			deleteProject("P");
+		}
+	}
+	/**
+	 * @bug 423409: [search] Search shows references to fields as potential matches
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=423409"
+	 */
+	public void testBug423409() throws CoreException, JavaModelException {
+		try {
+			IJavaProject p = createJavaProject("P", new String[] { "src" },
+					new String[] {"JCL_LIB"}, "bin");
+			createFolder("/P/src/com/test");
+			createFile("/P/src/com/test/Test2.java",
+					"package com.test;\n" +
+							"\n" +
+							"class Test2 {\n" +
+							"	public static final FI fi/*here*/ = null; // find references of 'fi' via Ctrl+Shift+G\n" +
+							"	\n" +
+							"	{\n" +
+							"		fun1(fi);\n" +
+							"	}\n" +
+							"	\n" +
+							"	private FI fun1(FI x) {\n" +
+							"		System.out.println(fi);\n" +
+							"		return fi;\n" +
+							"	}\n" +
+							"}\n" );
+			createFile("/P/src/com/test/Test1.java",
+					"package com.test;\n" +
+							"\n" +
+							"class Test1 {\n" +
+							"	public static final FI fi = null;\n" +
+							"}\n" );
+			createFile("/P/src/com/test/T.java",
+					"package com.test;\n" +
+							"\n" +
+							"interface FI {\n" +
+							"	int foo(int x);\n" +
+							"}\n");
+			waitUntilIndexesReady();
+			IType type = getCompilationUnit("/P/src/com/test/Test2.java").getType("Test2");
+			IJavaElement field = type.getField("fi");
+			search(field, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+
+			assertSearchResults(
+					"src/com/test/Test2.java com.test.Test2.{} [fi] EXACT_MATCH\n" + 
+					"src/com/test/Test2.java FI com.test.Test2.fun1(FI) [fi] EXACT_MATCH\n" + 
+					"src/com/test/Test2.java FI com.test.Test2.fun1(FI) [fi] EXACT_MATCH");
 		} finally {
 			deleteProject("P");
 		}
