@@ -1695,7 +1695,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	 */
 	public void testBug423409() throws CoreException, JavaModelException {
 		try {
-			IJavaProject p = createJavaProject("P", new String[] { "src" },
+			createJavaProject("P", new String[] { "src" },
 					new String[] {"JCL_LIB"}, "bin");
 			createFolder("/P/src/com/test");
 			createFile("/P/src/com/test/Test2.java",
