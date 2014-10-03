@@ -2520,7 +2520,7 @@ public void testBug429490_comment33() {
             "}\n"
         });
 }
-public void testBug428811() {
+public void _testBug428811() {
 	// perhaps fail is the correct answer? FIXME: validate!
 	runNegativeTest(
 		new String[] {
