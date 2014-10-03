@@ -1794,7 +1794,7 @@ public void test424198() throws JavaModelException {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424198, [1.8][hover] IAE in Signature.createCharArrayTypeSignature when hovering on variable of wildcard type, plus compile errors
-public void test424198a() throws JavaModelException {
+public void _test424198a() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
 			"import java.io.IOException;\n" +
@@ -1859,7 +1859,7 @@ public void test424198a() throws JavaModelException {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424198, [1.8][hover] IAE in Signature.createCharArrayTypeSignature when hovering on variable of wildcard type, plus compile errors
-public void test424198b() throws JavaModelException {
+public void _test424198b() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
 			"import java.io.IOException;\n" +
