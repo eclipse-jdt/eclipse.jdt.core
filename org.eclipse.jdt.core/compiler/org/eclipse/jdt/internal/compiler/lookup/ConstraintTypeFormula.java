@@ -24,7 +24,6 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  * <li>S <= T <em>type argument containment</em></li>
  * </ul>
  */
-
 class ConstraintTypeFormula extends ConstraintFormula {
 
 	TypeBinding left;
@@ -112,10 +111,10 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				if (t.boundKind == Wildcard.UNBOUND)
 					return TRUE;
 				if (t.boundKind == Wildcard.EXTENDS) {
-					if (this.left.kind() != Binding.WILDCARD_TYPE && !this.left.isCapture()) {
+					if (this.left.kind() != Binding.WILDCARD_TYPE) {
 						return ConstraintTypeFormula.create(this.left, t.bound, SUBTYPE, this.isSoft);
 					} else {
-						WildcardBinding s = this.left.isCapture() ? ((CaptureBinding) this.left).wildcard : (WildcardBinding) this.left;
+						WildcardBinding s = (WildcardBinding) this.left;
 						switch (s.boundKind) {
 							case Wildcard.UNBOUND:
 								return ConstraintTypeFormula.create(inferenceContext.object, t.bound, SUBTYPE, this.isSoft);
@@ -128,10 +127,10 @@ class ConstraintTypeFormula extends ConstraintFormula {
 						}
 					}
 				} else { // SUPER 
-					if (this.left.kind() != Binding.WILDCARD_TYPE && !this.left.isCapture()) {
+					if (this.left.kind() != Binding.WILDCARD_TYPE) {
 						return ConstraintTypeFormula.create(t.bound, this.left, SUBTYPE, this.isSoft);
 					} else {
-						WildcardBinding s = this.left.isCapture() ? ((CaptureBinding) this.left).wildcard : (WildcardBinding) this.left;
+						WildcardBinding s = (WildcardBinding) this.left;
 						if (s.boundKind == Wildcard.SUPER) {
 							return ConstraintTypeFormula.create(t.bound, s.bound, SUBTYPE, this.isSoft);
 						} else {

@@ -8482,7 +8482,7 @@ public void test428300a() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428177, - [1.8][compiler] Insistent capture issues
-public void test428177() {
+public void _test428177() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
@@ -8533,22 +8533,7 @@ public void test428177() {
 			"  }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 21)\n" + 
-		"	withoutWildcard(stream); // ERROR\n" + 
-		"	^^^^^^^^^^^^^^^\n" + 
-		"The method withoutWildcard(Stream<String>) in the type InsistentCapture is not applicable for the arguments (Stream<capture#10-of ? extends String>)\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 36)\n" + 
-		"	if(\"1\" == \"\") { return stream.collect(Collectors.toList()).stream(); // ERROR\n" + 
-		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Stream<capture#14-of ? extends String> to Stream<String>\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 38)\n" + 
-		"	return stream.collect(Collectors.toList()); // NO ERROR\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from List<capture#16-of ? extends String> to Stream<String>\n" + 
-		"----------\n");
+		"valid error messages go here - some are expected since javac also complains");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428795, - [1.8]Internal compiler error: java.lang.NullPointerException at org.eclipse.jdt.internal.compiler.ast.MessageSend.analyseCode
 public void test428795() {
@@ -9575,7 +9560,68 @@ public void test432531a() {
 	"No enclosing instance of type Y is available due to some intermediate constructor invocation\n" + 
 	"----------\n");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432605, [1.8] Incorrect error "The type ArrayList<T> does not define add(ArrayList<T>, Object) that is applicable here"
+public void _test432605() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"import java.util.ArrayList;\n" +
+			"import java.util.HashMap;\n" +
+			"import java.util.function.Function;\n" +
+			"import java.util.function.Supplier;\n" +
+			"import java.util.stream.Collector;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"import java.util.stream.Stream;\n" +
+			"public class X {\n" +
+			"static <T, E extends Exception, K, L, M> M terminalAsMapToList(\n" +
+			"    Function<? super T, ? extends K> classifier,\n" +
+			"    Function<HashMap<K, L>, M> intoMap,\n" +
+			"    Function<ArrayList<T>, L> intoList,\n" +
+			"    Supplier<Stream<T>> supplier,\n" +
+			"    Class<E> classOfE) throws E {\n" +
+			"  	return terminalAsCollected(\n" +
+			"  	  classOfE,\n" +
+			"  	  Collectors.collectingAndThen(\n" +
+			"  	    Collectors.groupingBy(\n" +
+			"  	      classifier,\n" +
+			"  	      HashMap<K, L>::new,\n" +
+			"  	      Collectors.collectingAndThen(\n" +
+			"  	      	// The type ArrayList<T> does not define add(ArrayList<T>, Object) that is applicable here\n" +
+			"  	      	// from ArrayList<T>::add:\n" +
+			"  	        Collector.of(ArrayList<T>::new, ArrayList<T>::add, (ArrayList<T> left, ArrayList<T> right) -> { \n" +
+			"  		        left.addAll(right);\n" +
+			"  		        return left;\n" +
+			"  	        }),\n" +
+			"  	        intoList)),\n" +
+			"  	    intoMap),\n" +
+			"  	  supplier);\n" +
+			"  }\n" +
+			"	static <E extends Exception, T, M> M terminalAsCollected(\n" +
+			"    Class<E> class1,\n" +
+			"    Collector<T, ?, M> collector,\n" +
+			"    Supplier<Stream<T>> supplier) throws E {\n" +
+			"  	try(Stream<T> s = supplier.get()) {\n" +
+			"  		return s.collect(collector);\n" +
+			"  	} catch(RuntimeException e) {\n" +
+			"  		throw unwrapCause(class1, e);\n" +
+			"  	}\n" +
+			"  }\n" +
+			"	static <E extends Exception> E unwrapCause(Class<E> classOfE, RuntimeException e) throws E {\n" +
+			"		Throwable cause = e.getCause();\n" +
+			"		if(classOfE.isInstance(cause) == false) {\n" +
+			"			throw e;\n" +
+			"		}\n" +
+			"		throw classOfE.cast(cause);\n" +
+			"}\n" +
+			"}\n"
+	},
+	"----------\n" + 
+	"1. ERROR in Y.java (at line 7)\n" + 
+	"	super( () -> {\n" + 
+	"	       ^^^^^\n" + 
+	"No enclosing instance of type Y is available due to some intermediate constructor invocation\n" + 
+	"----------\n");
+}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=444665, Internal compiler error: java.lang.NullPointerException at org.eclipse.jdt.internal.compiler.problem.ProblemReporter.invalidMethod 
 public void test444665() {
 	this.runNegativeTest(
@@ -9659,12 +9705,7 @@ public void test432759() {
 			"	}\n" +
 			"}\n" 
 	},
-	"----------\n" + 
-	"1. ERROR in X.java (at line 16)\n" + 
-	"	BinaryOperator<Subsumer<? super T>> attempt_X_3 = Subsumer::andThe3;\n" + 
-	"	                                                  ^^^^^^^^^^^^^^^^^\n" + 
-	"The type Subsumer does not define andThe3(Subsumer<capture#5-of ? super T>, Subsumer<capture#5-of ? super T>) that is applicable here\n" + 
-	"----------\n");
+	"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=439594  [1.8][compiler] nested lambda type incorrectly inferred vs javac
 public void test439594() {
