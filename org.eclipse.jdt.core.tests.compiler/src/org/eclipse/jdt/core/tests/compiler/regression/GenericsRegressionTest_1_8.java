@@ -3042,7 +3042,12 @@ public void testBug433158() {
 			"	}\n" + 
 			"}\n"
 		},
-		"");
+		"----------\n" + 
+		"1. ERROR in CollectorsMaps.java (at line 20)\n" + 
+		"	p -> p.lhs.stream().map(p::keepingRhs)).collect(\n" + 
+		"	                                        ^^^^^^^\n" + 
+		"The method collect(Collector<? super Object,A,R>) in the type Stream<Object> is not applicable for the arguments (Collector<CollectorsMaps.Pair<String,String>,capture#3-of ?,Map<String,List<String>>>)\n" + 
+		"----------\n");
 }
 public void _testBug432626() {
 	runConformTest(
@@ -3302,6 +3307,7 @@ public void testBug435187() {
 			"import java.util.List;\n" + 
 			"import java.util.Map;\n" + 
 			"import java.util.Map.Entry;\n" + 
+			"import java.util.function.Function;\n" + 
 			"import java.util.stream.Collector;\n" + 
 			"import java.util.stream.Stream;\n" + 
 			"\n" + 
@@ -3322,7 +3328,12 @@ public void testBug435187() {
 			"	}\n" + 
 			"}\n"
 		},
-		"");
+		"----------\n" + 
+		"1. ERROR in ExtractLocalLambda.java (at line 22)\n" + 
+		"	).collect(groupingBy);\n" + 
+		"	  ^^^^^^^\n" + 
+		"The method collect(Collector<? super Object,A,R>) in the type Stream<Object> is not applicable for the arguments (Collector<Map.Entry<String,String>,capture#1-of ?,Map<String,List<String>>>)\n" + 
+		"----------\n");
 }
 public void testBug435767() {
 	runNegativeTest(
@@ -3367,7 +3378,17 @@ public void testBug435767() {
 			"	}\n" + 
 			"}\n"
 		},
-		"");
+		"----------\n" + 
+		"1. ERROR in DummyClass.java (at line 18)\n" + 
+		"	.collect(Collectors.toMap(path -> this.getKey(path), path -> this.getValue(path))));\n" + 
+		"	                                       ^^^^^^\n" + 
+		"The method getKey(String) in the type DummyClass is not applicable for the arguments (Object)\n" + 
+		"----------\n" + 
+		"2. ERROR in DummyClass.java (at line 18)\n" + 
+		"	.collect(Collectors.toMap(path -> this.getKey(path), path -> this.getValue(path))));\n" + 
+		"	                                                                  ^^^^^^^^\n" + 
+		"The method getValue(String) in the type DummyClass is not applicable for the arguments (Object)\n" + 
+		"----------\n");
 }
 public void testBug434483() {
 	runConformTest(

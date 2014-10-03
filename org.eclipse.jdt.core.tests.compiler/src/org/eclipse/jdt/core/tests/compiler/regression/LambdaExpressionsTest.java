@@ -4163,7 +4163,7 @@ public void test432619a() throws Exception {
 		"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432682, [1.8][compiler] Type mismatch error with lambda expression
-public void test432682() throws Exception {
+public void _test432682() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4181,7 +4181,7 @@ public void test432682() throws Exception {
 			"	}\n" +
 			"}\n"
 		},
-		"true");
+		"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432520, compiler "duplicate method" bug with lamdas and generic interfaces 
 public void test432520() throws Exception {
@@ -4878,53 +4878,6 @@ public void test444785() {
 			"			this._6 = t6;\n" +
 			"		}\n" +
 			"	}\n" +
-			"}\n"
-		},
-		"");
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=442916,  [1.8][inference] Type Inference is broken for CompletableFuture then-methods  
-public void test442916() {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"import static java.util.concurrent.CompletableFuture.completedFuture;\n" +
-			"import java.util.Arrays;\n" +
-			"import java.util.concurrent.CompletableFuture;\n" +
-			"public class X {\n" +
-			"    public static CompletableFuture<Integer> cf(int value) {\n" +
-			"		return completedFuture(value);\n" +
-			"    }\n" +
-			"    public static void main(String[] args) {\n" +
-			"		cf(1).thenCompose((xInt) -> cf(2).thenApply((zInt) -> Arrays.asList(xInt, zInt)))\n" +
-			"		.thenAccept((ints) -> {\n" +
-			"			/* !!!! ints is incorrectly inferred to be an Object, but it is List<Integer> */\n" +
-			"			System.out.println(ints.get(0) + ints.get(1)); // should print 3;\n" +
-			"		});\n" +
-			"	}\n" +
-			"}\n"
-		},
-		"3");
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=442446, [1.8][compiler] compiler unable to infer lambda's generic argument types  
-public void _test442446() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"import java.util.Collection;\n" +
-			"import java.util.Map;\n" +
-			"import java.util.function.Function;\n" +
-			"import java.util.stream.Collectors;\n" +
-			"public class Test {\n" +
-			"  Test(Collection<Object> pCollection) {\n" +
-			"    this(\n" +
-			"      pCollection.stream().collect(\n" +
-			"        Collectors.toMap(\n" +
-			"          Function.identity(), pElement -> 1, (pInt1, pInt2) -> pInt1 + pInt2\n" +
-			"        )\n" +
-			"      )\n" +
-			"    );\n" +
-			"  }\n" +
-			"  Test(Map<Object,Integer> pMap) {}\n" +
 			"}\n"
 		},
 		"");

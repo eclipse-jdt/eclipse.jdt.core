@@ -6750,6 +6750,11 @@ public void test443467() throws Exception {
 		"	filter2.map(p -> new Pair<>(updateToFile.get(p), p->ideFiles.get(p)));\n" + 
 		"	                                                 ^^^^^^^^^^^^^^^^^^\n" + 
 		"The target type of this expression must be a functional interface\n" + 
+		"----------\n" + 
+		"3. ERROR in BuildIdeMain.java (at line 9)\n" + 
+		"	filter2.map(p -> new Pair<>(updateToFile.get(p), p->ideFiles.get(p)));\n" + 
+		"	                                                 ^^^^^^^^^^^^^^^^^^\n" + 
+		"The target type of this expression must be a functional interface\n" + 
 		"----------\n",
 		new String[]{jfxJar});
 }

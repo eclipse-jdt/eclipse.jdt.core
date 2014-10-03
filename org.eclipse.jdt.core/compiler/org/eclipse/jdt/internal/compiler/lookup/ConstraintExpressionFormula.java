@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
-import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18.Solution;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18.SuspendedInferenceRecord;
 
 /**
@@ -127,16 +126,6 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 							if (exprType == null || !exprType.isValidBinding())
 								return FALSE;
 							return ConstraintTypeFormula.create(exprType, this.right, COMPATIBLE, this.isSoft);
-						}
-						/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=432682, 18.2.1, bullet 3, clause 2
-						   "... the constraint reduces to the bound set B3 which would be used to determine the expression's invocation type when targeting T, as defined in §18.5.2."
-						   We are actually using B4 here - to be fixed with https://bugs.eclipse.org/bugs/show_bug.cgi?id=444891
-						*/
-						Solution solution = innerCtx.getResultFor(this.right);
-						if (solution != null) {
-							BoundSet b3 = solution.bounds;
-							inferenceContext.currentBounds.addBounds(b3, inferenceContext.environment);
-							return TRUE;
 						}
 						inferenceContext.inferenceKind = innerCtx.inferenceKind;
 						innerCtx.outerContext = inferenceContext;
