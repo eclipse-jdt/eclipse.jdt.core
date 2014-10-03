@@ -5486,7 +5486,7 @@ public void test440019() {
 		   "");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=443596, [1.8][compiler] Failure for overload resolution in case of Generics and Varags 
-public void test443596() {
+public void _test443596() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_7)
 		this.runNegativeTest(
 		   new String[] {
