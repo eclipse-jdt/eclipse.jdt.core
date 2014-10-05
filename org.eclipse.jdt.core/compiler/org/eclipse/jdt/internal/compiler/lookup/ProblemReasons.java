@@ -44,4 +44,5 @@ public interface ProblemReasons {
 	final int ApplicableMethodOverriddenByInapplicable = 24;
 	final int ContradictoryNullAnnotations = 25;
 	final int NoSuchMethodOnArray = 26;
+	final int InferredAppliableMethodInapplicable = 27; // 18.5.1 ignores arguments not pertinent to applicability. When these are taken into consideration method could fail applicability
 }

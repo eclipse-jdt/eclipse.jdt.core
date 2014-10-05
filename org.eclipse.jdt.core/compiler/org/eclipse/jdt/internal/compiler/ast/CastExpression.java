@@ -281,7 +281,7 @@ private static void checkAlternateBinding(BlockScope scope, Expression receiver,
 			public int sourceEnd() { return 0; }
 			public TypeBinding invocationTargetType() { return invocationSite.invocationTargetType(); }
 			public boolean receiverIsImplicitThis() { return invocationSite.receiverIsImplicitThis();}
-			public InferenceContext18 freshInferenceContext(Scope someScope) { return null; /* suppress inference */ }
+			public InferenceContext18 freshInferenceContext(Scope someScope) { return invocationSite.freshInferenceContext(someScope); }
 			public ExpressionContext getExpressionContext() { return invocationSite.getExpressionContext(); }
 		};
 		MethodBinding bindingIfNoCast;
@@ -580,7 +580,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				this.bits |= ASTNode.DisableUnnecessaryCastCheck; // disable further secondary diagnosis
 			}
 		}
-		this.resolvedType = castType.capture(scope, this.sourceEnd);
+		this.resolvedType = castType.capture(scope, this.type.sourceEnd); // make it unique, a cast expression shares source end with the expression.
 		if (exprContainCast) {
 			checkNeedForCastCast(scope, this);
 		}

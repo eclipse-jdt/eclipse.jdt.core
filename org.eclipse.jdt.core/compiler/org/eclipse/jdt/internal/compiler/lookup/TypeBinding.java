@@ -740,6 +740,11 @@ public boolean isParameterizedWithOwnVariables() {
 public boolean isProperType(boolean admitCapture18) {
 	return true;
 }
+
+public boolean isPolyType() {
+	return false;
+}
+
 /**
  * Substitute all occurrences of 'var' within the current type by 'substituteType.
  * @param var an inference variable (JLS8 18.1.1)

@@ -72,6 +72,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
 import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 import org.osgi.framework.Bundle;
+import java.util.regex.Pattern;
 
 public abstract class AbstractRegressionTest extends AbstractCompilerTest implements StopableTestCase {
 
@@ -878,6 +879,7 @@ protected static class JavacTestOptions {
 	protected boolean createdVerifier;
 	protected INameEnvironment javaClassLib;
 	protected TestVerifier verifier;
+	protected boolean shouldSwallowCaptureId;
 	public AbstractRegressionTest(String name) {
 		super(name);
 	}
@@ -1062,6 +1064,9 @@ protected static class JavacTestOptions {
 	protected void checkCompilerLog(String[] testFiles, Requestor requestor,
 			String[] alternatePlatformIndependantExpectedLogs, Throwable exception) {
 		String computedProblemLog = Util.convertToIndependantLineDelimiter(requestor.problemLog.toString());
+		if (this.shouldSwallowCaptureId)
+			computedProblemLog = Pattern.compile("capture#(\\d+)").matcher(computedProblemLog).replaceAll("capture");
+		  
 		int i;
 		for (i = 0; i < alternatePlatformIndependantExpectedLogs.length; i++) {
 			if (alternatePlatformIndependantExpectedLogs[i].equals(computedProblemLog))

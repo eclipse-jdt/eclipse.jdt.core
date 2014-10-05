@@ -50,23 +50,22 @@ public class JavadocMessageSend extends MessageSend {
 
 		// will check for null after args are resolved
 
-		TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
 		boolean hasArgsTypeVar = false;
 		if (this.arguments != null) {
 			boolean argHasError = false; // typeChecks all arguments
 			int length = this.arguments.length;
-			argumentTypes = new TypeBinding[length];
+			this.argumentTypes = new TypeBinding[length];
 			for (int i = 0; i < length; i++){
 				Expression argument = this.arguments[i];
 				if (scope.kind == Scope.CLASS_SCOPE) {
-					argumentTypes[i] = argument.resolveType((ClassScope)scope);
+					this.argumentTypes[i] = argument.resolveType((ClassScope)scope);
 				} else {
-					argumentTypes[i] = argument.resolveType((BlockScope)scope);
+					this.argumentTypes[i] = argument.resolveType((BlockScope)scope);
 				}
-				if (argumentTypes[i] == null) {
+				if (this.argumentTypes[i] == null) {
 					argHasError = true;
 				} else if (!hasArgsTypeVar) {
-					hasArgsTypeVar = argumentTypes[i].isTypeVariable();
+					hasArgsTypeVar = this.argumentTypes[i].isTypeVariable();
 				}
 			}
 			if (argHasError) {
@@ -86,17 +85,17 @@ public class JavadocMessageSend extends MessageSend {
 
 		// base type cannot receive any message
 		if (this.actualReceiverType.isBaseType()) {
-			scope.problemReporter().javadocErrorNoMethodFor(this, this.actualReceiverType, argumentTypes, scope.getDeclarationModifiers());
+			scope.problemReporter().javadocErrorNoMethodFor(this, this.actualReceiverType, this.argumentTypes, scope.getDeclarationModifiers());
 			return null;
 		}
-		this.binding = scope.getMethod(this.actualReceiverType, this.selector, argumentTypes, this);
+		this.binding = scope.getMethod(this.actualReceiverType, this.selector, this.argumentTypes, this);
 		if (!this.binding.isValidBinding()) {
 			// Try method in enclosing types
 			TypeBinding enclosingTypeBinding = this.actualReceiverType;
 			MethodBinding methodBinding = this.binding;
 			while (!methodBinding.isValidBinding() && (enclosingTypeBinding.isMemberType() || enclosingTypeBinding.isLocalType())) {
 				enclosingTypeBinding = enclosingTypeBinding.enclosingType();
-				methodBinding = scope.getMethod(enclosingTypeBinding, this.selector, argumentTypes, this);
+				methodBinding = scope.getMethod(enclosingTypeBinding, this.selector, this.argumentTypes, this);
 			}
 			if (methodBinding.isValidBinding()) {
 				this.binding = methodBinding;
@@ -105,12 +104,12 @@ public class JavadocMessageSend extends MessageSend {
 				enclosingTypeBinding = this.actualReceiverType;
 				MethodBinding contructorBinding = this.binding;
 				if (!contructorBinding.isValidBinding() && CharOperation.equals(this.selector, enclosingTypeBinding.shortReadableName())) {
-					contructorBinding = scope.getConstructor((ReferenceBinding)enclosingTypeBinding, argumentTypes, this);
+					contructorBinding = scope.getConstructor((ReferenceBinding)enclosingTypeBinding, this.argumentTypes, this);
 				}
 				while (!contructorBinding.isValidBinding() && (enclosingTypeBinding.isMemberType() || enclosingTypeBinding.isLocalType())) {
 					enclosingTypeBinding = enclosingTypeBinding.enclosingType();
 					if (CharOperation.equals(this.selector, enclosingTypeBinding.shortReadableName())) {
-						contructorBinding = scope.getConstructor((ReferenceBinding)enclosingTypeBinding, argumentTypes, this);
+						contructorBinding = scope.getConstructor((ReferenceBinding)enclosingTypeBinding, this.argumentTypes, this);
 					}
 				}
 				if (contructorBinding.isValidBinding()) {
@@ -140,7 +139,7 @@ public class JavadocMessageSend extends MessageSend {
 				if (this.actualReceiverType instanceof ReferenceBinding) {
 					this.binding.declaringClass = (ReferenceBinding) this.actualReceiverType;
 				} else {
-					scope.problemReporter().javadocErrorNoMethodFor(this, this.actualReceiverType, argumentTypes, scope.getDeclarationModifiers());
+					scope.problemReporter().javadocErrorNoMethodFor(this, this.actualReceiverType, this.argumentTypes, scope.getDeclarationModifiers());
 					return null;
 				}
 			}
@@ -152,19 +151,19 @@ public class JavadocMessageSend extends MessageSend {
 			}
 			return this.resolvedType = this.binding == null ? null : this.binding.returnType;
 		} else if (hasArgsTypeVar) {
-			MethodBinding problem = new ProblemMethodBinding(this.binding, this.selector, argumentTypes, ProblemReasons.NotFound);
+			MethodBinding problem = new ProblemMethodBinding(this.binding, this.selector, this.argumentTypes, ProblemReasons.NotFound);
 			scope.problemReporter().javadocInvalidMethod(this, problem, scope.getDeclarationModifiers());
 		} else if (this.binding.isVarargs()) {
-			int length = argumentTypes.length;
-			if (!(this.binding.parameters.length == length && argumentTypes[length-1].isArrayType())) {
-				MethodBinding problem = new ProblemMethodBinding(this.binding, this.selector, argumentTypes, ProblemReasons.NotFound);
+			int length = this.argumentTypes.length;
+			if (!(this.binding.parameters.length == length && this.argumentTypes[length-1].isArrayType())) {
+				MethodBinding problem = new ProblemMethodBinding(this.binding, this.selector, this.argumentTypes, ProblemReasons.NotFound);
 				scope.problemReporter().javadocInvalidMethod(this, problem, scope.getDeclarationModifiers());
 			}
 		} else {
-			int length = argumentTypes.length;
+			int length = this.argumentTypes.length;
 			for (int i=0; i<length; i++) {
-				if (TypeBinding.notEquals(this.binding.parameters[i].erasure(), argumentTypes[i].erasure())) {
-					MethodBinding problem = new ProblemMethodBinding(this.binding, this.selector, argumentTypes, ProblemReasons.NotFound);
+				if (TypeBinding.notEquals(this.binding.parameters[i].erasure(), this.argumentTypes[i].erasure())) {
+					MethodBinding problem = new ProblemMethodBinding(this.binding, this.selector, this.argumentTypes, ProblemReasons.NotFound);
 					scope.problemReporter().javadocInvalidMethod(this, problem, scope.getDeclarationModifiers());
 					break;
 				}

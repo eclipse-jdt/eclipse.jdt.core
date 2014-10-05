@@ -40,6 +40,10 @@ public ProblemMethodBinding(MethodBinding closestMatch, char[] selector, TypeBin
 		this.returnType = closestMatch.returnType;
 	}
 }
+@Override
+public MethodBinding shallowOriginal() {
+	return this.closestMatch == null ? this : this.closestMatch.shallowOriginal();
+}
 /* API
 * Answer the problem id associated with the receiver.
 * NoError if the receiver is a valid binding.

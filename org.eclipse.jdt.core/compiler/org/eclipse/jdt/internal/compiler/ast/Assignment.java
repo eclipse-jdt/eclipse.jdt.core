@@ -193,7 +193,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	this.expression.setExpressionContext(ASSIGNMENT_CONTEXT);
 	this.expression.setExpectedType(lhsType); // needed in case of generic method invocation
 	if (lhsType != null) {
-		this.resolvedType = lhsType.capture(scope, this.sourceEnd);
+		this.resolvedType = lhsType.capture(scope, this.lhs.sourceEnd); // make it unique, `this' shares source end with 'this.expression'.
 	}
 	LocalVariableBinding localVariableBinding = this.lhs.localVariableBinding();
 	if (localVariableBinding != null && (localVariableBinding.isCatchParameter() || localVariableBinding.isParameter())) { 

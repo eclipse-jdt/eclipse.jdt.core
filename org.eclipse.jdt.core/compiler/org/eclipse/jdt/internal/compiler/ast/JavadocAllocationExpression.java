@@ -43,23 +43,23 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		}
 
 		// buffering the arguments' types
-		TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
+		this.argumentTypes = Binding.NO_PARAMETERS;
 		boolean hasTypeVarArgs = false;
 		if (this.arguments != null) {
 			boolean argHasError = false;
 			int length = this.arguments.length;
-			argumentTypes = new TypeBinding[length];
+			this.argumentTypes = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
 				Expression argument = this.arguments[i];
 				if (scope.kind == Scope.CLASS_SCOPE) {
-					argumentTypes[i] = argument.resolveType((ClassScope)scope);
+					this.argumentTypes[i] = argument.resolveType((ClassScope)scope);
 				} else {
-					argumentTypes[i] = argument.resolveType((BlockScope)scope);
+					this.argumentTypes[i] = argument.resolveType((BlockScope)scope);
 				}
-				if (argumentTypes[i] == null) {
+				if (this.argumentTypes[i] == null) {
 					argHasError = true;
 				} else if (!hasTypeVarArgs) {
-					hasTypeVarArgs = argumentTypes[i].isTypeVariable();
+					hasTypeVarArgs = this.argumentTypes[i].isTypeVariable();
 				}
 			}
 			if (argHasError) {
@@ -78,13 +78,13 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		}
 
 		ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
-		this.binding = scope.getConstructor(allocationType, argumentTypes, this);
+		this.binding = scope.getConstructor(allocationType, this.argumentTypes, this);
 		if (!this.binding.isValidBinding()) {
 			ReferenceBinding enclosingTypeBinding = allocationType;
 			MethodBinding contructorBinding = this.binding;
 			while (!contructorBinding.isValidBinding() && (enclosingTypeBinding.isMemberType() || enclosingTypeBinding.isLocalType())) {
 				enclosingTypeBinding = enclosingTypeBinding.enclosingType();
-				contructorBinding = scope.getConstructor(enclosingTypeBinding, argumentTypes, this);
+				contructorBinding = scope.getConstructor(enclosingTypeBinding, this.argumentTypes, this);
 			}
 			if (contructorBinding.isValidBinding()) {
 				this.binding = contructorBinding;
@@ -92,7 +92,7 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		}
 		if (!this.binding.isValidBinding()) {
 			// First try to search a method instead
-			MethodBinding methodBinding = scope.getMethod(this.resolvedType, this.resolvedType.sourceName(), argumentTypes, this);
+			MethodBinding methodBinding = scope.getMethod(this.resolvedType, this.resolvedType.sourceName(), this.argumentTypes, this);
 			if (methodBinding.isValidBinding()) {
 				this.binding = methodBinding;
 			} else {
@@ -103,22 +103,22 @@ public class JavadocAllocationExpression extends AllocationExpression {
 			}
 			return this.resolvedType;
 		} else if (this.binding.isVarargs()) {
-			int length = argumentTypes.length;
-			if (!(this.binding.parameters.length == length && argumentTypes[length-1].isArrayType())) {
-				MethodBinding problem = new ProblemMethodBinding(this.binding, this.binding.selector, argumentTypes, ProblemReasons.NotFound);
+			int length = this.argumentTypes.length;
+			if (!(this.binding.parameters.length == length && this.argumentTypes[length-1].isArrayType())) {
+				MethodBinding problem = new ProblemMethodBinding(this.binding, this.binding.selector, this.argumentTypes, ProblemReasons.NotFound);
 				scope.problemReporter().javadocInvalidConstructor(this, problem, scope.getDeclarationModifiers());
 			}
 		} else if (hasTypeVarArgs) {
-			MethodBinding problem = new ProblemMethodBinding(this.binding, this.binding.selector, argumentTypes, ProblemReasons.NotFound);
+			MethodBinding problem = new ProblemMethodBinding(this.binding, this.binding.selector, this.argumentTypes, ProblemReasons.NotFound);
 			scope.problemReporter().javadocInvalidConstructor(this, problem, scope.getDeclarationModifiers());
 		} else if (this.binding instanceof ParameterizedMethodBinding) {
 			ParameterizedMethodBinding paramMethodBinding = (ParameterizedMethodBinding) this.binding;
 			if (paramMethodBinding.hasSubstitutedParameters()) {
-				int length = argumentTypes.length;
+				int length = this.argumentTypes.length;
 				for (int i=0; i<length; i++) {
-					if (TypeBinding.notEquals(paramMethodBinding.parameters[i], argumentTypes[i]) &&
-							TypeBinding.notEquals(paramMethodBinding.parameters[i].erasure(), argumentTypes[i].erasure())) {
-						MethodBinding problem = new ProblemMethodBinding(this.binding, this.binding.selector, argumentTypes, ProblemReasons.NotFound);
+					if (TypeBinding.notEquals(paramMethodBinding.parameters[i], this.argumentTypes[i]) &&
+							TypeBinding.notEquals(paramMethodBinding.parameters[i].erasure(), this.argumentTypes[i].erasure())) {
+						MethodBinding problem = new ProblemMethodBinding(this.binding, this.binding.selector, this.argumentTypes, ProblemReasons.NotFound);
 						scope.problemReporter().javadocInvalidConstructor(this, problem, scope.getDeclarationModifiers());
 						break;
 					}

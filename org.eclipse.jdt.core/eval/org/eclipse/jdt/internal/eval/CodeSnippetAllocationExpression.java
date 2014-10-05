@@ -24,7 +24,6 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
-import org.eclipse.jdt.internal.compiler.ast.InnerInferenceHelper;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
@@ -185,12 +184,11 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	// buffering the arguments' types
 	boolean argsContainCast = false;
-	TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
+	this.argumentTypes = Binding.NO_PARAMETERS;
 	if (this.arguments != null) {
 		boolean argHasError = false;
 		int length = this.arguments.length;
-		argumentTypes = new TypeBinding[length];
-		TypeBinding argumentType;
+		this.argumentTypes = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
 			Expression argument = this.arguments[i];
 			if (argument instanceof CastExpression) {
@@ -198,12 +196,8 @@ public TypeBinding resolveType(BlockScope scope) {
 				argsContainCast = true;
 			}
 			argument.setExpressionContext(INVOCATION_CONTEXT);
-			if ((argumentType = argumentTypes[i] = argument.resolveType(scope)) == null) {
+			if ((this.argumentTypes[i] = argument.resolveType(scope)) == null) {
 				argHasError = true;
-			}
-			if (argumentType != null && argumentType.kind() == Binding.POLY_TYPE) {
-				if (this.innerInferenceHelper == null)
-					this.innerInferenceHelper = new InnerInferenceHelper();
 			}
 		}
 		if (argHasError) {
@@ -218,7 +212,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		return this.resolvedType;
 	}
 	if (isDiamond) {
-		TypeBinding [] inferredTypes = inferElidedTypes((ParameterizedTypeBinding) this.resolvedType, null, argumentTypes, scope);
+		TypeBinding [] inferredTypes = inferElidedTypes((ParameterizedTypeBinding) this.resolvedType, null, this.argumentTypes, scope);
 		if (inferredTypes == null) {
 			scope.problemReporter().cannotInferElidedTypes(this);
 			return this.resolvedType = null;
@@ -227,7 +221,7 @@ public TypeBinding resolveType(BlockScope scope) {
  	}
 	
 	ReferenceBinding allocatedType = (ReferenceBinding) this.resolvedType;
-	this.binding = findConstructorBinding(scope, this, allocatedType, argumentTypes);
+	this.binding = findConstructorBinding(scope, this, allocatedType, this.argumentTypes);
 
 	if (!this.binding.isValidBinding()) {	
 		if (this.binding instanceof ProblemMethodBinding
@@ -255,7 +249,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				return this.resolvedType;
 			}
 			CodeSnippetScope localScope = new CodeSnippetScope(scope);
-			MethodBinding privateBinding = localScope.getConstructor((ReferenceBinding)this.delegateThis.type, argumentTypes, this);
+			MethodBinding privateBinding = localScope.getConstructor((ReferenceBinding)this.delegateThis.type, this.argumentTypes, this);
 			if (!privateBinding.isValidBinding()) {
 				if (this.binding.declaringClass == null) {
 					this.binding.declaringClass = allocatedType;
@@ -285,14 +279,14 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (this.arguments != null) {
 		for (int i = 0; i < this.arguments.length; i++) {
 			TypeBinding parameterType = this.binding.parameters[i];
-			TypeBinding argumentType = argumentTypes[i];
+			TypeBinding argumentType = this.argumentTypes[i];
 			this.arguments[i].computeConversion(scope, parameterType, argumentType);
 			if (argumentType.needsUncheckedConversion(parameterType)) {
 				scope.problemReporter().unsafeTypeConversion(this.arguments[i], argumentType, parameterType);
 			}
 		}
 		if (argsContainCast) {
-			CastExpression.checkNeedForArgumentCasts(scope, null, allocatedType, this.binding, this.arguments, argumentTypes, this);
+			CastExpression.checkNeedForArgumentCasts(scope, null, allocatedType, this.binding, this.arguments, this.argumentTypes, this);
 		}
 	}
 	if (allocatedType.isRawType() && this.binding.hasSubstitutedParameters()) {

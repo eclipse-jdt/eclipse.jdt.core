@@ -396,10 +396,10 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		}
 
 		// will check for null after args are resolved
-		TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
+		this.argumentTypes = Binding.NO_PARAMETERS;
 		if (this.arguments != null) {
 			int length = this.arguments.length;
-			argumentTypes = new TypeBinding[length];
+			this.argumentTypes = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
 				Expression argument = this.arguments[i];
 				if (argument instanceof CastExpression) {
@@ -407,7 +407,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					argsContainCast = true;
 				}
 				argument.setExpressionContext(INVOCATION_CONTEXT);
-				if ((argumentTypes[i] = argument.resolveType(scope)) == null){
+				if ((this.argumentTypes[i] = argument.resolveType(scope)) == null){
 					hasError = true;
 				}
 				if (sourceLevel >= ClassFileConstants.JDK1_8 && (argument.isPolyExpression() || (argument instanceof Invocation && ((Invocation)argument).usesInference()))) {
@@ -433,7 +433,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					int length = this.arguments  == null ? 0 : this.arguments.length;
 					TypeBinding[] pseudoArgs = new TypeBinding[length];
 					for (int i = length; --i >= 0;) {
-						pseudoArgs[i] = argumentTypes[i] == null ? TypeBinding.NULL : argumentTypes[i]; // replace args with errors with null type
+						pseudoArgs[i] = this.argumentTypes[i] == null ? TypeBinding.NULL : this.argumentTypes[i]; // replace args with errors with null type
 					}
 					this.binding = scope.findMethod(referenceReceiver, TypeConstants.INIT, pseudoArgs, this, false);
 					if (this.binding != null && !this.binding.isValidBinding()) {
@@ -469,7 +469,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				return this.resolvedType = receiverType;
 			}
 			if (isDiamond) {
-				TypeBinding [] inferredTypes = inferElidedTypes((ParameterizedTypeBinding) receiverType, receiverType.enclosingType(), argumentTypes, scope);
+				TypeBinding [] inferredTypes = inferElidedTypes((ParameterizedTypeBinding) receiverType, receiverType.enclosingType(), this.argumentTypes, scope);
 				if (inferredTypes == null) {
 					scope.problemReporter().cannotInferElidedTypes(this);
 					return this.resolvedType = null;
@@ -477,13 +477,13 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				receiverType = this.type.resolvedType = scope.environment().createParameterizedType(((ParameterizedTypeBinding) receiverType).genericType(), inferredTypes, ((ParameterizedTypeBinding) receiverType).enclosingType());
 			}
 			ReferenceBinding allocationType = (ReferenceBinding) receiverType;
-			this.binding = findConstructorBinding(scope, this, allocationType, argumentTypes);
+			this.binding = findConstructorBinding(scope, this, allocationType, this.argumentTypes);
 
 			if (this.binding.isValidBinding()) {	
 				if (isMethodUseDeprecated(this.binding, scope, true)) {
 					scope.problemReporter().deprecatedMethod(this.binding, this);
 				}
-				if (checkInvocationArguments(scope, null, allocationType, this.binding, this.arguments, argumentTypes, argsContainCast, this)) {
+				if (checkInvocationArguments(scope, null, allocationType, this.binding, this.arguments, this.argumentTypes, argsContainCast, this)) {
 					this.bits |= ASTNode.Unchecked;
 				}
 				if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
@@ -504,7 +504,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				scope.problemReporter().missingTypeInConstructor(this, this.binding);
 			}
 			if (!isDiamond && receiverType.isParameterizedTypeWithActualArguments()) {
-		 		checkTypeArgumentRedundancy((ParameterizedTypeBinding)receiverType, receiverType.enclosingType(), argumentTypes , scope);
+		 		checkTypeArgumentRedundancy((ParameterizedTypeBinding)receiverType, receiverType.enclosingType(), this.argumentTypes , scope);
 		 	}
 			// The enclosing instance must be compatible with the innermost enclosing type
 			ReferenceBinding expectedType = this.binding.declaringClass.enclosingType();
@@ -543,7 +543,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		if ((this.resolvedType.tagBits & TagBits.HierarchyHasProblems) != 0) {
 			return null; // stop secondary errors
 		}
-		MethodBinding inheritedBinding = findConstructorBinding(scope, this, anonymousSuperclass, argumentTypes);
+		MethodBinding inheritedBinding = findConstructorBinding(scope, this, anonymousSuperclass, this.argumentTypes);
 			
 		if (!inheritedBinding.isValidBinding()) {
 			if (inheritedBinding.declaringClass == null) {
@@ -571,7 +571,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			this.enclosingInstance.computeConversion(scope, targetEnclosing, enclosingInstanceType);
 		}
 		if (this.arguments != null) {
-			if (checkInvocationArguments(scope, null, anonymousSuperclass, inheritedBinding, this.arguments, argumentTypes, argsContainCast, this)) {
+			if (checkInvocationArguments(scope, null, anonymousSuperclass, inheritedBinding, this.arguments, this.argumentTypes, argsContainCast, this)) {
 				this.bits |= ASTNode.Unchecked;
 			}
 		}

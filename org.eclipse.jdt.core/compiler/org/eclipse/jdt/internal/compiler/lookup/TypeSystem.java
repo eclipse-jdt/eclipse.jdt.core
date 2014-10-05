@@ -15,6 +15,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.HashMap;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -335,6 +336,37 @@ public class TypeSystem {
 			System.arraycopy(this.types, 0, this.types = new TypeBinding[typesLength * 2][], 0, typesLength);
 		this.types[this.typeid] = new TypeBinding[1];
 		return (WildcardBinding) (this.types[wildcard.id = this.typeid++][0] = wildcard);
+	}
+	
+	// No need for an override in ATS, since we are dealing with recaptures here.
+	public final CaptureBinding getCapturedWildcard(WildcardBinding wildcard, ReferenceBinding contextType, int position, ASTNode cud, int id) {
+		
+		WildcardBinding unannotatedWildcard = (WildcardBinding) getUnannotatedType(wildcard);
+		TypeBinding[] derivedTypes = this.types[unannotatedWildcard.id];  // by construction, cachedInfo != null now.
+		int i, length = derivedTypes.length;
+		for (i = 0; i < length; i++) {
+			TypeBinding derivedType = derivedTypes[i];
+			if (derivedType == null) 
+				break;
+			if (!derivedType.isCapture())
+				continue;
+			CaptureBinding prior = (CaptureBinding) derivedType;
+			if (prior.sourceType != contextType || prior.position != position || prior.cud != cud) //$IDENTITY-COMPARISON$
+				continue;
+			return prior;
+		}
+		
+		if (i == length) {
+			System.arraycopy(derivedTypes, 0, derivedTypes = new TypeBinding[length * 2], 0, length);
+			this.types[unannotatedWildcard.id] = derivedTypes;
+		}
+		TypeBinding capture = derivedTypes[i] = new CaptureBinding(wildcard, contextType, position, cud, id);
+	
+		int typesLength = this.types.length;
+		if (this.typeid == typesLength)
+			System.arraycopy(this.types, 0, this.types = new TypeBinding[typesLength * 2][], 0, typesLength);
+		this.types[this.typeid] = new TypeBinding[1];
+		return (CaptureBinding) (this.types[capture.id = this.typeid++][0] = capture);
 	}
 	
 	public WildcardBinding getWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind, AnnotationBinding[] annotations) {

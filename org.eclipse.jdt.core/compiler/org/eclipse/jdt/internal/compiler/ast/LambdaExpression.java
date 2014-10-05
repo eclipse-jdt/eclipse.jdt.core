@@ -734,12 +734,14 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				if (this.body instanceof Block) {
 					if (this.returnsVoid) {
 						this.shapeAnalysisComplete = true;
+						break shapeAnalysis;
 					}
 				} else {
-					final Expression expressionBody = (Expression) this.body;
+					final Expression expressionBody = (Expression) copy.body;
 					this.voidCompatible = this.assistNode ? true : expressionBody.statementExpression();
 					this.valueCompatible = expressionBody.resolvedType != TypeBinding.VOID;
 					this.shapeAnalysisComplete = true;
+					break shapeAnalysis;
 				}
 				// Do not proceed with data/control flow analysis if resolve encountered errors.
 				if (this.hasIgnoredMandatoryErrors || enclosingScopesHaveErrors()) {
