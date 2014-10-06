@@ -286,17 +286,19 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_CODEGEN_METHOD_PARAMETERS_ATTR = PLUGIN_ID + ".compiler.codegen.methodParameters"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Defining Target Java Platform.
-	 * <p>For binary compatibility reason, .class files can be tagged to with certain VM versions and later.</p>
-	 * <p>Note that <code>"1.4"</code> target requires to toggle compliance mode to <code>"1.4"</code>, <code>"1.5"</code> target requires
-	 *    to toggle compliance mode to <code>"1.5"</code>, <code>"1.6"</code> target requires to toggle compliance mode to <code>"1.6"</code> and
-	 *    <code>"1.7"</code> target requires to toggle compliance mode to <code>"1.7"</code>.
-	 *    <code>"cldc1.1"</code> requires the source version to be <code>"1.3"</code> and the compliance version to be <code>"1.4"</code> or lower.</p>
+	 * <p>For binary compatibility reasons, .class files are tagged with a minimal required VM version.</p>
+	 * <p>Note that <code>"1.4"</code> and higher target versions require the compliance mode to be at least as high
+	 *    as the target version. Usually, compliance, target, and source versions are set to the same values.</p>
+	 * <p><code>"cldc1.1"</code> requires the source version to be <code>"1.3"</code> and the compliance version to be <code>"1.4"</code> or lower.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.codegen.targetPlatform"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "cldc1.1" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "cldc1.1" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"1.2"</code></dd>
 	 * </dl>
 	 * @category CompilerOptionID
+	 * @see #COMPILER_COMPLIANCE
+	 * @see #COMPILER_SOURCE
+	 * @see #setComplianceOptions(String, Map)
 	 */
 	public static final String COMPILER_CODEGEN_TARGET_PLATFORM = PLUGIN_ID + ".compiler.codegen.targetPlatform"; //$NON-NLS-1$
 	/**
@@ -1774,32 +1776,37 @@ public final class JavaCore extends Plugin {
 	 *    reserved for assertion support. Also note, than when toggling to 1.4 mode, the target VM
 	 *    level should be set to <code>"1.4"</code> and the compliance mode should be <code>"1.4"</code>.</p>
 	 * <p>Source level 1.5 is necessary to enable generics, autoboxing, covariance, annotations, enumerations
-	 *    enhanced for loop, static imports and varargs. Once toggled, the target VM level should be set to <code>"1.5"</code>
-	 *    and the compliance mode should be <code>"1.5"</code>.</p>
-	 * <p>Source level 1.6 is necessary to enable the computation of stack map tables. Once toggled, the target
-	 *    VM level should be set to <code>"1.6"</code> and the compliance mode should be <code>"1.6"</code>.</p>
-	 * <p>Once the source level 1.7 is toggled, the target VM level should be set to <code>"1.7"</code> and the compliance mode
-	 *    should be <code>"1.7"</code>.</p>
+	 *    enhanced for loop, static imports and varargs.</p>
+	 * <p>In source levels <code>"1.5"</code> and higher, the compliance and target settings should be
+	 *    set to the same version as the source level.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.source"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "1.3", "1.4", "1.5", "1.6", "1.7" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "1.3", "1.4", "1.5", "1.6", "1.7", "1.8" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"1.3"</code></dd>
 	 * </dl>
 	 * @since 2.0
 	 * @category CompilerOptionID
+	 * @see #COMPILER_COMPLIANCE
+	 * @see #COMPILER_CODEGEN_TARGET_PLATFORM
+	 * @see #setComplianceOptions(String, Map)
 	 */
 	public static final String COMPILER_SOURCE = PLUGIN_ID + ".compiler.source"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Setting Compliance Level.
-	 * <p>Select the compliance level for the compiler. In <code>"1.3"</code> mode, source and target settings
-	 *    should not go beyond <code>"1.3"</code> level.</p>
+	 * <p>Select the compliance level for the compiler.
+	 *    {@link #COMPILER_SOURCE} and {@link #COMPILER_CODEGEN_TARGET_PLATFORM} settings cannot be
+	 *    higher than the compiler compliance level. In <code>"1.5"</code> and higher compliance, source and target settings
+	 *    should match the compliance setting.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.compliance"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "1.3", "1.4", "1.5", "1.6", "1.7" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "1.3", "1.4", "1.5", "1.6", "1.7", "1.8" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"1.4"</code></dd>
 	 * </dl>
 	 * @since 2.0
 	 * @category CompilerOptionID
+	 * @see #COMPILER_SOURCE
+	 * @see #COMPILER_CODEGEN_TARGET_PLATFORM
+	 * @see #setComplianceOptions(String, Map)
 	 */
 	public static final String COMPILER_COMPLIANCE = PLUGIN_ID + ".compiler.compliance"; //$NON-NLS-1$
 	/**
@@ -5543,7 +5550,7 @@ public final class JavaCore extends Plugin {
 	 *
 	 * <p>If the given compliance is unknown, the given map is unmodified.</p>
 	 *
-	 * @param compliance the given compliance
+	 * @param compliance the given {@link #COMPILER_COMPLIANCE compliance}
 	 * @param options the given options map
 	 * @since 3.3
 	 */
