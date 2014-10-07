@@ -1030,6 +1030,11 @@ public String toString(int tab) {
 private List trackingVariables; // can be null if no resources are tracked
 /** Used only during analyseCode and only for checking if a resource was closed in a finallyBlock. */
 public FlowInfo finallyInfo;
+public boolean shouldConsultShadowOriginal;
+
+public boolean shouldConsultShadowOriginal() {
+	return this.shouldConsultShadowOriginal;
+}
 /**
  * Register a tracking variable and compute its id.
  */

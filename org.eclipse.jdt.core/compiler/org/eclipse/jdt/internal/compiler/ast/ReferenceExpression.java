@@ -681,6 +681,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		MethodBinding previousBinding = this.binding;
 		MethodBinding previousDescriptor = this.descriptor;
 		TypeBinding previousResolvedType = this.resolvedType;
+		TypeBinding previousExpectedType = this.expectedType;
 		try {
 			setExpressionContext(INVOCATION_CONTEXT);
 			setExpectedType(targetType);
@@ -695,7 +696,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			this.descriptor = previousDescriptor;
 			this.resolvedType = previousResolvedType;
 			setExpressionContext(previousContext);
-			this.expectedType = null; // don't call setExpectedType(null), would NPE
+			this.expectedType = previousExpectedType;
 			this.trialResolution = false;
 		}
 	}
