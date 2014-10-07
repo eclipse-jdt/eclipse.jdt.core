@@ -119,6 +119,7 @@ public class MessageSend extends Expression implements Invocation {
 	private boolean receiverIsType;
 	protected boolean argsContainCast;
 	public TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
+	public boolean argumentsHaveErrors;
 	
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
@@ -615,18 +616,18 @@ public TypeBinding resolveType(BlockScope scope) {
 	// resolve type arguments (for generic constructor call)
 	if (this.typeArguments != null) {
 		int length = this.typeArguments.length;
-		boolean argHasError = sourceLevel < ClassFileConstants.JDK1_5; // typeChecks all arguments
+		this.argumentsHaveErrors = sourceLevel < ClassFileConstants.JDK1_5; // typeChecks all arguments
 		this.genericTypeArguments = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
 			TypeReference typeReference = this.typeArguments[i];
 			if ((this.genericTypeArguments[i] = typeReference.resolveType(scope, true /* check bounds*/)) == null) {
-				argHasError = true;
+				this.argumentsHaveErrors = true;
 			}
-			if (argHasError && typeReference instanceof Wildcard) {
+			if (this.argumentsHaveErrors && typeReference instanceof Wildcard) {
 				scope.problemReporter().illegalUsageOfWildcard(typeReference);
 			}
 		}
-		if (argHasError) {
+		if (this.argumentsHaveErrors) {
 			if (this.arguments != null) { // still attempt to resolve arguments
 				for (int i = 0, max = this.arguments.length; i < max; i++) {
 					this.arguments[i].resolveType(scope);
@@ -637,7 +638,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	// will check for null after args are resolved
 	if (this.arguments != null) {
-		boolean argHasError = false; // typeChecks all arguments
+		this.argumentsHaveErrors = false; // typeChecks all arguments
 		int length = this.arguments.length;
 		this.argumentTypes = new TypeBinding[length];
 		for (int i = 0; i < length; i++){
@@ -650,7 +651,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 			argument.setExpressionContext(INVOCATION_CONTEXT);
 			if ((this.argumentTypes[i] = argument.resolveType(scope)) == null){
-				argHasError = true;
+				this.argumentsHaveErrors = true;
 			}
 			if (sourceLevel >= ClassFileConstants.JDK1_8) {
 				if (argument.isPolyExpression()
@@ -660,7 +661,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				}
 			}
 		}
-		if (argHasError) {
+		if (this.argumentsHaveErrors) {
 			if (this.actualReceiverType instanceof ReferenceBinding) {
 				//  record a best guess, for clients who need hint about possible method match
 				TypeBinding[] pseudoArgs = new TypeBinding[length];

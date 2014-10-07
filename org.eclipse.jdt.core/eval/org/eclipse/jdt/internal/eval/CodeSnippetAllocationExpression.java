@@ -157,14 +157,14 @@ public TypeBinding resolveType(BlockScope scope) {
 	// resolve type arguments (for generic constructor call)
 	if (this.typeArguments != null) {
 		int length = this.typeArguments.length;
-		boolean argHasError = scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5;
+		this.argumentsHaveErrors = scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5;
 		this.genericTypeArguments = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
 			TypeReference typeReference = this.typeArguments[i];
 			if ((this.genericTypeArguments[i] = typeReference.resolveType(scope, true /* check bounds*/)) == null) {
-				argHasError = true;
+				this.argumentsHaveErrors = true;
 			}
-			if (argHasError && typeReference instanceof Wildcard) {
+			if (this.argumentsHaveErrors && typeReference instanceof Wildcard) {
 				scope.problemReporter().illegalUsageOfWildcard(typeReference);
 			}
 		}
@@ -172,7 +172,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().diamondNotWithExplicitTypeArguments(this.typeArguments);
 			return null;
 		}
-		if (argHasError) {
+		if (this.argumentsHaveErrors) {
 			if (this.arguments != null) { // still attempt to resolve arguments
 				for (int i = 0, max = this.arguments.length; i < max; i++) {
 					this.arguments[i].resolveType(scope);
@@ -186,7 +186,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	boolean argsContainCast = false;
 	this.argumentTypes = Binding.NO_PARAMETERS;
 	if (this.arguments != null) {
-		boolean argHasError = false;
+		this.argumentsHaveErrors = false;
 		int length = this.arguments.length;
 		this.argumentTypes = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
@@ -197,10 +197,10 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 			argument.setExpressionContext(INVOCATION_CONTEXT);
 			if ((this.argumentTypes[i] = argument.resolveType(scope)) == null) {
-				argHasError = true;
+				this.argumentsHaveErrors = true;
 			}
 		}
-		if (argHasError) {
+		if (this.argumentsHaveErrors) {
 			return this.resolvedType;
 		}
 	}

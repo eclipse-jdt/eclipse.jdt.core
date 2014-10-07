@@ -526,6 +526,14 @@ public final boolean isBaseType() {
 	return (this.tagBits & TagBits.IsBaseType) != 0;
 }
 
+public boolean isPertinentToApplicability(TypeVariableBinding typeVariable, MethodBinding method) {
+	return true;
+}
+
+public boolean isPertinentToApplicability(TypeBinding argument, MethodBinding method) {
+	return true;
+}
+
 /* Answer true if the receiver is a base type other than void or null
  */
 public final boolean isPrimitiveType() {

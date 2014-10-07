@@ -212,20 +212,20 @@ public TypeBinding resolveType(BlockScope scope) {
 		// resolve type arguments (for generic constructor call)
 		if (this.typeArguments != null) {
 			int length = this.typeArguments.length;
-			boolean argHasError = false; // typeChecks all arguments
+			this.argumentsHaveErrors = false; // typeChecks all arguments
 			this.genericTypeArguments = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
 				if ((this.genericTypeArguments[i] = this.typeArguments[i].resolveType(scope, true /* check bounds*/)) == null) {
-					argHasError = true;
+					this.argumentsHaveErrors = true;
 				}
 			}
-			if (argHasError) {
+			if (this.argumentsHaveErrors) {
 				return null;
 			}
 		}
 		// will check for null after args are resolved
 		if (this.arguments != null) {
-			boolean argHasError = false; // typeChecks all arguments
+			this.argumentsHaveErrors = false; // typeChecks all arguments
 			int length = this.arguments.length;
 			this.argumentTypes = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
@@ -236,9 +236,9 @@ public TypeBinding resolveType(BlockScope scope) {
 				}
 				argument.setExpressionContext(INVOCATION_CONTEXT);
 				if ((this.argumentTypes[i] = this.arguments[i].resolveType(scope)) == null)
-					argHasError = true;
+					this.argumentsHaveErrors = true;
 			}
-			if (argHasError) {
+			if (this.argumentsHaveErrors) {
 				if(this.actualReceiverType instanceof ReferenceBinding) {
 					// record any selector match, for clients who may still need hint about possible method match
 					this.binding = scope.findMethod((ReferenceBinding)this.actualReceiverType, this.selector, new TypeBinding[]{}, this, false);

@@ -52,7 +52,7 @@ public class JavadocMessageSend extends MessageSend {
 
 		boolean hasArgsTypeVar = false;
 		if (this.arguments != null) {
-			boolean argHasError = false; // typeChecks all arguments
+			this.argumentsHaveErrors = false; // typeChecks all arguments
 			int length = this.arguments.length;
 			this.argumentTypes = new TypeBinding[length];
 			for (int i = 0; i < length; i++){
@@ -63,12 +63,12 @@ public class JavadocMessageSend extends MessageSend {
 					this.argumentTypes[i] = argument.resolveType((BlockScope)scope);
 				}
 				if (this.argumentTypes[i] == null) {
-					argHasError = true;
+					this.argumentsHaveErrors = true;
 				} else if (!hasArgsTypeVar) {
 					hasArgsTypeVar = this.argumentTypes[i].isTypeVariable();
 				}
 			}
-			if (argHasError) {
+			if (this.argumentsHaveErrors) {
 				return null;
 			}
 		}
