@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Thirumala Reddy Mutchukota <thirumala@google.com> - Contribution to bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=411423
  *     Terry Parker <tparker@google.com> - [performance] Low hit rates in JavaModel caches - https://bugs.eclipse.org/421165
+ *     Vladimir Piskarev <pisv@1c.ru> - Building large Java element deltas is really slow - https://bugs.eclipse.org/443928
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.performance;
 
@@ -836,6 +837,64 @@ public void testReconcileDuplicates() throws JavaModelException {
 		resetCounters();
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			workingCopy.getBuffer().setContents(contents.append('a').toString());
+			runGc();
+			startMeasuring();
+			workingCopy.reconcile(JLS3_INTERNAL, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
+			stopMeasuring();
+		}
+
+		// Commit
+		commitMeasurements();
+		assertPerformance();
+
+	} finally {
+		if (workingCopy != null)
+			workingCopy.discardWorkingCopy();
+	}
+}
+
+/*
+ * Ensures that the performance of reconcile after deleting lots of members is acceptable
+ * (regression test for bug 443928 Building large Java element deltas is really slow)
+ */
+public void testPerfDeleteLotsOfMembersAndReconcile() throws JavaModelException {
+	tagAsSummary("Reconcile editor change after deleting lots of members", false); // do NOT put in fingerprint
+
+	// build big file contents
+	StringBuffer contents = new StringBuffer();
+	contents.append("public class LotsOfMembers {\n");
+	int fooIndex = 0;
+	while (fooIndex < 15000) { // add 15000 methods
+		contents.append("  void foo");
+		contents.append(fooIndex++);
+		contents.append("() {}\n");
+	}
+	contents.append("}");
+
+	String oldContents = contents.toString(); // initially, 15000 members
+	String newContents = "public class LotsOfMembers {\n}"; // then, no members
+
+	ICompilationUnit workingCopy = null;
+	try {
+		// Setup
+		workingCopy = (ICompilationUnit) JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getFile(new Path("/BigProject/src/LotsOfMembers.java")));
+		workingCopy.becomeWorkingCopy(null);
+
+		// Warm up
+		int warmup = WARMUP_COUNT / 10;
+		for (int i=0; i<warmup; i++) {
+			workingCopy.getBuffer().setContents(oldContents);
+			workingCopy.reconcile(JLS3_INTERNAL, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
+			workingCopy.getBuffer().setContents(newContents);
+			workingCopy.reconcile(JLS3_INTERNAL, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
+		}
+
+		// Measures
+		resetCounters();
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			workingCopy.getBuffer().setContents(oldContents);
+			workingCopy.reconcile(JLS3_INTERNAL, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
+			workingCopy.getBuffer().setContents(newContents);
 			runGc();
 			startMeasuring();
 			workingCopy.reconcile(JLS3_INTERNAL, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);

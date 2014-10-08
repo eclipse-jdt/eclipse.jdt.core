@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,10 +7,13 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Vladimir Piskarev <pisv@1c.ru> - Building large Java element deltas is really slow - https://bugs.eclipse.org/443928
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.jdt.core.IJavaElement;
@@ -67,6 +70,35 @@ public class JavaElementDelta extends SimpleDelta implements IJavaElementDelta {
 	 * Empty array of IJavaElementDelta
 	 */
 	static  IJavaElementDelta[] EMPTY_DELTA= new IJavaElementDelta[] {};
+	
+	/**
+	 * Child index is needed iff affectedChildren.length >= NEED_CHILD_INDEX
+	*/
+	static int NEED_CHILD_INDEX = 3;
+	
+	/**
+	 * On-demand index into affectedChildren
+	 */
+	Map<Key, Integer> childIndex;
+
+	/**
+	 * The delta key
+	 */
+	protected static class Key {
+		public final IJavaElement element;
+
+		public Key(IJavaElement element) {
+			this.element = element;
+		}
+		public int hashCode() {
+			return this.element.hashCode();
+		}
+		public boolean equals(Object obj) {
+			if (!(obj instanceof Key))
+				return false;
+			return equalsAndSameParent(this.element, ((Key) obj).element);
+		}
+	}
 /**
  * Creates the root delta. To create the nested delta
  * hierarchies use the following convenience methods. The root
@@ -107,22 +139,12 @@ protected void addAffectedChild(JavaElementDelta child) {
 		fineGrained();
 	}
 
-	if (this.affectedChildren == null || this.affectedChildren.length == 0) {
-		this.affectedChildren = new IJavaElementDelta[] {child};
-		return;
-	}
-	JavaElementDelta existingChild = null;
-	int existingChildIndex = -1;
-	for (int i = 0; i < this.affectedChildren.length; i++) {
-		if (equalsAndSameParent(this.affectedChildren[i].getElement(), child.getElement())) { // handle case of two jars that can be equals but not in the same project
-			existingChild = (JavaElementDelta)this.affectedChildren[i];
-			existingChildIndex = i;
-			break;
-		}
-	}
-	if (existingChild == null) { //new affected child
-		this.affectedChildren= growAndAddToArray(this.affectedChildren, child);
+	Key childKey = new Key(child.getElement());
+	Integer existingChildIndex = getChildIndex(childKey);
+	if (existingChildIndex == null) { //new affected child
+		addNewChild(child);
 	} else {
+		JavaElementDelta existingChild = (JavaElementDelta) this.affectedChildren[existingChildIndex];
 		switch (existingChild.getKind()) {
 			case ADDED:
 				switch (child.getKind()) {
@@ -130,7 +152,7 @@ protected void addAffectedChild(JavaElementDelta child) {
 					case CHANGED: // child was added then changed -> it is added
 						return;
 					case REMOVED: // child was added then removed -> noop
-						this.affectedChildren = removeAndShrinkArray(this.affectedChildren, existingChildIndex);
+						removeExistingChild(childKey, existingChildIndex);
 						return;
 				}
 				break;
@@ -206,6 +228,15 @@ public void added(IJavaElement element, int flags) {
 	insertDeltaTree(element, addedDelta);
 }
 /**
+ * Adds the new child delta to the collection of affected children.
+ */
+protected void addNewChild(JavaElementDelta child) {
+	this.affectedChildren = growAndAddToArray(this.affectedChildren, child);
+	if (this.childIndex != null) {
+		this.childIndex.put(new Key(child.getElement()), this.affectedChildren.length - 1);
+	}
+}
+/**
  * Adds the child delta to the collection of affected children.  If the
  * child is already in the collection, walk down the hierarchy.
  */
@@ -253,6 +284,13 @@ public void changedAST(CompilationUnit changedAST) {
 	changed(F_AST_AFFECTED);
 }
 /**
+ * Clears the collection of affected children.
+ */
+protected void clearAffectedChildren() {
+	this.affectedChildren = EMPTY_DELTA;
+	this.childIndex = null;
+}
+/**
  * Mark this delta as a content changed delta.
  */
 public void contentChanged() {
@@ -295,7 +333,7 @@ protected JavaElementDelta createDeltaTree(IJavaElement element, JavaElementDelt
 /**
  * Returns whether the two java elements are equals and have the same parent.
  */
-protected boolean equalsAndSameParent(IJavaElement e1, IJavaElement e2) {
+protected static boolean equalsAndSameParent(IJavaElement e1, IJavaElement e2) {
 	IJavaElement parent1;
 	return e1.equals(e2) && ((parent1 = e1.getParent()) != null) && parent1.equals(e2.getParent());
 }
@@ -304,15 +342,24 @@ protected boolean equalsAndSameParent(IJavaElement e1, IJavaElement e2) {
  * in the delta tree, or null, if no delta for the given element is found.
  */
 protected JavaElementDelta find(IJavaElement e) {
-	if (equalsAndSameParent(this.changedElement, e)) { // handle case of two jars that can be equals but not in the same project
+	if (equalsAndSameParent(getElement(), e)) // handle case of two jars that can be equals but not in the same project
 		return this;
-	} else {
-		for (int i = 0; i < this.affectedChildren.length; i++) {
-			JavaElementDelta delta = ((JavaElementDelta)this.affectedChildren[i]).find(e);
-			if (delta != null) {
-				return delta;
-			}
-		}
+	return findDescendant(new Key(e));
+}
+/**
+ * Returns the descendant delta for the given key, or <code>null</code>,
+ * if no delta for the given key is found in the delta tree below this delta.
+ */
+protected JavaElementDelta findDescendant(Key key) {
+	if (this.affectedChildren.length == 0)
+		return null;
+	Integer index = getChildIndex(key);
+	if (index != null)
+		return (JavaElementDelta) this.affectedChildren[index];
+	for (IJavaElementDelta child : this.affectedChildren) {
+		JavaElementDelta delta = ((JavaElementDelta) child).findDescendant(key);
+		if (delta != null)
+			return delta;
 	}
 	return null;
 }
@@ -369,6 +416,28 @@ public IJavaElementDelta[] getChangedChildren() {
 	return getChildrenOfType(CHANGED);
 }
 /**
+ * Returns the index of the delta in the collection of affected children,
+ * or <code>null</code> if the child delta for the given key is not found.
+ */
+protected Integer getChildIndex(Key key) {
+	int length = this.affectedChildren.length;
+	if (length < NEED_CHILD_INDEX) {
+		for (int i = 0; i < length; i++) {
+			if (equalsAndSameParent(key.element, this.affectedChildren[i].getElement())) {
+				return i;
+			}
+		}
+		return null;
+	}
+	if (this.childIndex == null) {
+		this.childIndex = new HashMap<Key, Integer>();
+		for (int i = 0; i < length; i++) {
+			this.childIndex.put(new Key(this.affectedChildren[i].getElement()), i);
+		}
+	}
+	return this.childIndex.get(key);
+}
+/**
  * @see IJavaElementDelta
  */
 protected IJavaElementDelta[] getChildrenOfType(int type) {
@@ -393,22 +462,7 @@ protected IJavaElementDelta[] getChildrenOfType(int type) {
  * delta.
  */
 protected JavaElementDelta getDeltaFor(IJavaElement element) {
-	if (equalsAndSameParent(getElement(), element)) // handle case of two jars that can be equals but not in the same project
-		return this;
-	if (this.affectedChildren.length == 0)
-		return null;
-	int childrenCount = this.affectedChildren.length;
-	for (int i = 0; i < childrenCount; i++) {
-		JavaElementDelta delta = (JavaElementDelta)this.affectedChildren[i];
-		if (equalsAndSameParent(delta.getElement(), element)) { // handle case of two jars that can be equals but not in the same project
-			return delta;
-		} else {
-			delta = delta.getDeltaFor(element);
-			if (delta != null)
-				return delta;
-		}
-	}
-	return null;
+	return find(element);
 }
 /**
  * @see IJavaElementDelta
@@ -503,17 +557,12 @@ public void opened(IJavaElement element) {
  * Removes the child delta from the collection of affected children.
  */
 protected void removeAffectedChild(JavaElementDelta child) {
-	int index = -1;
-	if (this.affectedChildren != null) {
-		for (int i = 0; i < this.affectedChildren.length; i++) {
-			if (equalsAndSameParent(this.affectedChildren[i].getElement(), child.getElement())) { // handle case of two jars that can be equals but not in the same project
-				index = i;
-				break;
-			}
-		}
-	}
-	if (index >= 0) {
-		this.affectedChildren= removeAndShrinkArray(this.affectedChildren, index);
+	if (this.affectedChildren.length == 0)
+		return;
+	Key childKey = new Key(child.getElement());
+	Integer exisingChildIndex = getChildIndex(childKey);
+	if (exisingChildIndex != null) {
+		removeExistingChild(childKey, exisingChildIndex);
 	}
 }
 /**
@@ -545,7 +594,19 @@ public void removed(IJavaElement element, int flags) {
 	if (actualDelta != null) {
 		actualDelta.removed();
 		actualDelta.changeFlags |= flags;
-		actualDelta.affectedChildren = EMPTY_DELTA;
+		actualDelta.clearAffectedChildren();
+	}
+}
+/**
+ * Removes the existing child delta from the collection of affected children.
+ */
+protected void removeExistingChild(Key key, int index) {
+	this.affectedChildren = removeAndShrinkArray(this.affectedChildren, index);
+	if (this.childIndex != null) {
+		if (this.affectedChildren.length < NEED_CHILD_INDEX)
+			this.childIndex = null;
+		else
+			this.childIndex.remove(key);
 	}
 }
 /**
