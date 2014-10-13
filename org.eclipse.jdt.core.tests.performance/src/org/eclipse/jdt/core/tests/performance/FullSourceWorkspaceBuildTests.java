@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -790,5 +790,13 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	public void testBuildGenericType() throws IOException, CoreException {
 		tagAsSummary("Build Generic Type ", false); // do NOT put in fingerprint
 		compile(new String[] {"EclipseVisitorBug.java"}, "", "1.6", false /*no log*/ );	
+	}
+
+	/**
+	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=434326 [compile][generics] Slow compilation of test cases with a significant amount of generics
+	 */
+	public void testBug434326() throws IOException, CoreException {
+		tagAsSummary("Build with Generic Types ", false); // do NOT put in fingerprint
+		compile(new String[] {"GenericsTest.java"}, "", "1.8", false /*no log*/ );	
 	}
 }
