@@ -156,7 +156,9 @@ public class TypeSystem {
 
 	// Given a type, answer its unannotated aka naked prototype. This is also a convenient way to "register" a type with TypeSystem and have it id stamped.
 	public final TypeBinding getUnannotatedType(TypeBinding type) {
+		UnresolvedReferenceBinding urb = null;
 		if (type.isUnresolvedType() && CharOperation.indexOf('$', type.sourceName()) > 0) {
+			urb = (UnresolvedReferenceBinding) type;
 			boolean mayTolerateMissingType = this.environment.mayTolerateMissingType;
 			this.environment.mayTolerateMissingType = true;
 			try {
@@ -172,6 +174,8 @@ public class TypeSystem {
 			if (this.typeid == typesLength)
 				System.arraycopy(this.types, 0, this.types = new TypeBinding[typesLength * 2][], 0, typesLength);
 			this.types[type.id = this.typeid++] = new TypeBinding[4];
+			if (urb != null)
+				urb.id = type.id;
 		} else {
 			TypeBinding nakedType = this.types[type.id] == null ? null : this.types[type.id][0];
 			if (type.hasTypeAnnotations() && nakedType == null)
