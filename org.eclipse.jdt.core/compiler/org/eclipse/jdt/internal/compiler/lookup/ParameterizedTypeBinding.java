@@ -145,7 +145,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		CompilationUnitScope compilationUnitScope = scope.compilationUnitScope();
 		ASTNode cud = compilationUnitScope.referenceContext;
 		long sourceLevel = this.environment.globalOptions.sourceLevel;
-		// A couple of NTAT tests fail with interned captures. The new messages look better and correct. Stephan to validate. 
 		final boolean needUniqueCapture = sourceLevel >= ClassFileConstants.JDK1_8;
 		
 		for (int i = 0; i < length; i++) {
