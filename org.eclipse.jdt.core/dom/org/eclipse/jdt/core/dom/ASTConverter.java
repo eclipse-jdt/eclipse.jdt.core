@@ -613,7 +613,7 @@ class ASTConverter {
 
 			start = retrieveStartBlockPosition(methodHeaderEnd, methodDeclaration.bodyStart);
 			if (start == -1) start = methodDeclaration.bodyStart; // use recovery position for body start
-			end = retrieveRightBrace(methodDeclaration.bodyEnd, declarationSourceEnd);
+			end = retrieveRightBrace(methodDeclaration.bodyEnd + 1, declarationSourceEnd);
 			Block block = null;
 			if (start != -1 && end != -1) {
 				/*
@@ -1556,7 +1556,7 @@ class ASTConverter {
 				if (anonymousType != null) {
 					AnonymousClassDeclaration anonymousClassDeclaration = new AnonymousClassDeclaration(this.ast);
 					int start = retrieveStartBlockPosition(anonymousType.sourceEnd, anonymousType.bodyEnd);
-					int end = retrieveRightBrace(anonymousType.bodyEnd, declarationSourceEnd);
+					int end = retrieveRightBrace(anonymousType.bodyEnd +1, declarationSourceEnd);
 					if (end == -1) end = anonymousType.bodyEnd;
 					anonymousClassDeclaration.setSourceRange(start, end - start + 1);
 					enumConstantDeclaration.setAnonymousClassDeclaration(anonymousClassDeclaration);
@@ -4599,32 +4599,6 @@ class ASTConverter {
 		return -1;
 
 	}
-	/**
-	 * This method is used to retrieve the end position of the block.
-	 * @return int the dimension found, -1 if none
-	 */
-	protected int retrieveEndBlockPosition(int start, int end) {
-		this.scanner.resetTo(start, end);
-		int count = 0;
-		try {
-			int token;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
-				switch(token) {
-					case TerminalTokens.TokenNameLBRACE://110
-						count++;
-						break;
-					case TerminalTokens.TokenNameRBRACE://95
-						count--;
-						if (count == 0) {
-							return this.scanner.currentPosition - 1;
-						}
-				}
-			}
-		} catch(InvalidInputException e) {
-			// ignore
-		}
-		return -1;
-	}
 
 	protected int retrieveSemiColonPosition(Expression node) {
 		int start = node.getStartPosition();
@@ -4862,7 +4836,7 @@ class ASTConverter {
 		return hasTokens ? Integer.MIN_VALUE : pos;
 	}
 
-	protected int retrieveProperRightBracketPosition(int bracketNumber, int start) {
+	protected int retrieveProperRightBracketPosition(int bracketNumber, int start, int end) {
 		this.scanner.resetTo(start, this.compilationUnitSourceLength);
 		try {
 			int token, count = 0, lParentCount = 0, balance = 0;
@@ -4894,6 +4868,10 @@ class ASTConverter {
 			// ignore
 		}
 		return -1;
+	}
+	
+	protected int retrieveProperRightBracketPosition(int bracketNumber, int start) {
+		return retrieveProperRightBracketPosition(bracketNumber, start, this.compilationUnitSourceLength);
 	}
 
 	/**
