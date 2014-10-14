@@ -460,6 +460,7 @@ public class TypeSystem {
 		this.annotationTypes = new SimpleLookupTable(16);
 		this.typeid = TypeIds.T_LastWellKnownTypeId;
 		this.types = new TypeBinding[TypeIds.T_LastWellKnownTypeId * 2][];
+		this.parameterizedTypes = new HashedParameterizedTypes();
 	}
 	
 	public void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
