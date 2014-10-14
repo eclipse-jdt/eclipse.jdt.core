@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								Bug 432977 - [1.8][null] Incorrect 'type is not visible' compiler error 
+ *								Bug 446434 - [1.8][null] Enable interned captures also when analysing null type annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -326,6 +327,10 @@ public class AnnotatableTypeSystem extends TypeSystem {
 		TypeBinding annotatedType = type.clone(enclosingType);
 		annotatedType.id = nakedType.id;
 		annotatedType.setTypeAnnotations(annotations, this.isAnnotationBasedNullAnalysisEnabled);
+		if (this.isAnnotationBasedNullAnalysisEnabled && (annotatedType.tagBits & TagBits.AnnotationNullMASK) == 0) {
+			// propagate nullness unless overridden in 'annotations':
+			annotatedType.tagBits |= type.tagBits & TagBits.AnnotationNullMASK;
+		}
 		TypeBinding keyType;
 		switch (type.kind()) {
 			case Binding.ARRAY_TYPE:

@@ -35,6 +35,7 @@
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *								Bug 438179 - [1.8][null] 'Contradictory null annotations' error on type variable with explicit null-annotation.
  *								Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
+ *								Bug 446434 - [1.8][null] Enable interned captures also when analysing null type annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -145,7 +146,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		ASTNode cud = compilationUnitScope.referenceContext;
 		long sourceLevel = this.environment.globalOptions.sourceLevel;
 		// A couple of NTAT tests fail with interned captures. The new messages look better and correct. Stephan to validate. 
-		final boolean needUniqueCapture = sourceLevel >= ClassFileConstants.JDK1_8 && !this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled;
+		final boolean needUniqueCapture = sourceLevel >= ClassFileConstants.JDK1_8;
 		
 		for (int i = 0; i < length; i++) {
 			TypeBinding argument = originalArguments[i];

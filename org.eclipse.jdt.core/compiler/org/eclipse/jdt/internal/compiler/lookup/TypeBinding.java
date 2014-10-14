@@ -27,6 +27,7 @@
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
  *								Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
+ *								Bug 446434 - [1.8][null] Enable interned captures also when analysing null type annotations
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -98,9 +99,9 @@ public TypeBinding() {
 	super();
 }
 	
-public TypeBinding(TypeBinding prototype) {  // faithfully copy all instance state - clone operation should specialize/override suitably.
+public TypeBinding(TypeBinding prototype) {  // faithfully copy most instance state - clone operation should specialize/override suitably.
 	this.id = prototype.id;
-	this.tagBits = prototype.tagBits;
+	this.tagBits = prototype.tagBits & ~TagBits.AnnotationNullMASK;
 }
 
 /**
