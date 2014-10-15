@@ -322,7 +322,8 @@ private static void checkAlternateBinding(BlockScope scope, Expression receiver,
 
 public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
 	if (TypeBinding.equalsEquals(match, castType)) {
-		if (!isNarrowing && TypeBinding.equalsEquals(match, this.resolvedType.leafComponentType())) { // do not tag as unnecessary when recursing through upper bounds
+		if (!isNarrowing && TypeBinding.equalsEquals(match, this.resolvedType.leafComponentType()) // do not tag as unnecessary when recursing through upper bounds
+				&& !(expressionType.isParameterizedType() && expressionType.isProvablyDistinct(castType))) {
 			tagAsUnnecessaryCast(scope, castType);
 		}
 		return true;

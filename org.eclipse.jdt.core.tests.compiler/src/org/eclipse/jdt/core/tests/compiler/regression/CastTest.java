@@ -3093,6 +3093,28 @@ public void test428522c() throws Exception {
 	}
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=441731 JDT reports unnecessary cast, using the Quickfix to remove it creates syntax error
+public void test441731() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface MUIElement {}\n" + 
+			"interface MUIElementContainer<T extends MUIElement> extends MUIElement{}\n" + 
+			"interface MWindowElement extends MUIElement {}\n" + 
+			"interface MWindow extends MUIElementContainer<MWindowElement> {}\n" + 
+			"public class X {\n" + 
+			"	void test(MUIElementContainer<MUIElement> me) {\n" + 
+			"		if(((MUIElement) me) instanceof MWindow) return;\n" + 
+			"		MWindow mw = (MWindow)((MUIElement)me);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		customOptions);
+}
 public static Class testClass() {
 	return CastTest.class;
 }
