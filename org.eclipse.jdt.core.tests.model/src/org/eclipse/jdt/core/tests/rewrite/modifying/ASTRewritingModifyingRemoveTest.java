@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,9 +18,15 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 	private static final Class THIS = ASTRewritingModifyingRemoveTest.class;
@@ -633,5 +639,234 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 		buf.append("     */\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=446446
+	 */
+	public void testBug446446_001() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("testBug446446_001", false, null);
+		String contents = 
+				"package testBug446446_001;\n"+
+				"public class X {\n " +
+				"    public static void main(String[] args) {\n" +
+				"        X bug = new X(\n" +
+				"                1.0e-3  // some comment\n" +
+				"                , null);\n" +
+				"    }\n" +
+				"\n" +
+				"    X(double d) {\n" +
+				"    }\n" +
+				"}\n";
+
+		StringBuffer buf= new StringBuffer(contents);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot = createCU(cu, false);
+
+		astRoot.recordModifications();
+
+		List types = astRoot.types();
+		TypeDeclaration typeDeclaration = (TypeDeclaration)types.get(0);
+		MethodDeclaration method = (MethodDeclaration) typeDeclaration.bodyDeclarations().get(0);
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) method.getBody().statements().get(0);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+		ClassInstanceCreation instance = (ClassInstanceCreation) fragment.getInitializer();
+		instance.arguments().remove(1);
+
+		String preview = evaluateRewrite(cu, astRoot);
+		String expected = 
+				"package testBug446446_001;\n"+
+				"public class X {\n " +
+				"    public static void main(String[] args) {\n" +
+				"        X bug = new X(\n" +
+				"                1.0e-3  // some comment\n" +
+				");\n" +
+				"    }\n" +
+				"\n" +
+				"    X(double d) {\n" +
+				"    }\n" +
+				"}\n";
+		assertEqualString(preview, expected);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=446446
+	 */
+	public void testBug446446_002() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("testBug446446_002", false, null);
+		String contents = 
+				"package testBug446446_002;\n"+
+				"public class X {\n"+
+				"    public void foo() {\n"+
+				"        if (i == 0) {\n"+
+				"            foo();\n"+
+				"            i++; // comment\n"+
+				"            i++;}"+
+				"    }\n"+
+				"}\n";
+
+		StringBuffer buf= new StringBuffer(contents);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false);
+
+		astRoot.recordModifications();
+
+		List types = astRoot.types();
+		TypeDeclaration typeDeclaration = (TypeDeclaration)types.get(0);
+		MethodDeclaration methodDecl = (MethodDeclaration) typeDeclaration.bodyDeclarations().get(0);
+		List statements= methodDecl.getBody().statements();
+		IfStatement ifStatement= (IfStatement) statements.get(0);
+		Block thenBlock= (Block) ifStatement.getThenStatement();
+		thenBlock.statements().remove(2);
+		String preview = evaluateRewrite(cu, astRoot);
+		String expected = 
+				"package testBug446446_002;\n"+
+				"public class X {\n"+
+				"    public void foo() {\n"+
+				"        if (i == 0) {\n"+
+				"            foo();\n"+
+				"            i++; // comment\n"+
+				"}    }\n"+
+				"}\n";
+		assertEqualString(preview, expected);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=446446
+	 */
+	public void testBug446446_003() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("testBug446446_003", false, null);
+		String contents = 
+				"package testBug446446_003;\n"+
+				"public class X {\n"+
+				"    public void foo() {\n"+
+				"        if (i == 0) {\n"+
+				"            foo();\n"+
+				"            i++; // comment\n"+
+				"            i++;\n"+
+				"        }\n"+
+				"    }\n"+
+				"}\n";
+
+		StringBuffer buf= new StringBuffer(contents);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false);
+
+		astRoot.recordModifications();
+
+		List types = astRoot.types();
+		TypeDeclaration typeDeclaration = (TypeDeclaration)types.get(0);
+		MethodDeclaration methodDecl = (MethodDeclaration) typeDeclaration.bodyDeclarations().get(0);
+		List statements= methodDecl.getBody().statements();
+		IfStatement ifStatement= (IfStatement) statements.get(0);
+		Block thenBlock= (Block) ifStatement.getThenStatement();
+		thenBlock.statements().remove(2);
+		String preview = evaluateRewrite(cu, astRoot);
+		String expected = 
+				"package testBug446446_003;\n"+
+				"public class X {\n"+
+				"    public void foo() {\n"+
+				"        if (i == 0) {\n"+
+				"            foo();\n"+
+				"            i++; // comment\n"+
+				"        }\n"+
+				"    }\n"+
+				"}\n";
+		assertEqualString(preview, expected);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=446446
+	 */
+	public void testBug446446_004() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("testBug446446_004", false, null);
+		String contents = 
+				"package testBug446446_004;\n"+
+				"public class X {\n"+
+				"    public void foo() {\n"+
+				"        if (i == 0) {\n"+
+				"            foo();\n"+
+				"            i++; // comment\n"+
+				"            i++;\n"+
+				"            i++;}\n"+
+				"    }\n"+
+				"}\n";
+
+		StringBuffer buf= new StringBuffer(contents);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false);
+
+		astRoot.recordModifications();
+
+		List types = astRoot.types();
+		TypeDeclaration typeDeclaration = (TypeDeclaration)types.get(0);
+		MethodDeclaration methodDecl = (MethodDeclaration) typeDeclaration.bodyDeclarations().get(0);
+		List statements= methodDecl.getBody().statements();
+		IfStatement ifStatement= (IfStatement) statements.get(0);
+		Block thenBlock= (Block) ifStatement.getThenStatement();
+		thenBlock.statements().remove(2);
+		thenBlock.statements().remove(2);
+		String preview = evaluateRewrite(cu, astRoot);
+		String expected = 
+				"package testBug446446_004;\n"+
+				"public class X {\n"+
+				"    public void foo() {\n"+
+				"        if (i == 0) {\n"+
+				"            foo();\n"+
+				"            i++; // comment\n"+
+				"}\n"+
+				"    }\n"+
+				"}\n";
+		assertEqualString(preview, expected);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=446446
+	 */
+	public void testBug446446_005() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("testBug446446_005", false, null);
+		String contents = 
+				"package testBug446446_005;\n"+
+				"public class X {\n"+
+				"    public void foo() {\n"+
+				"        if (i == 0) {\n"+
+				"            foo();\n"+
+				"            i++; // comment\n"+
+				"            i++;}"+
+				"    }\n"+
+				"}\n";
+
+		StringBuffer buf= new StringBuffer(contents);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false);
+
+		astRoot.recordModifications();
+
+		List types = astRoot.types();
+		TypeDeclaration typeDeclaration = (TypeDeclaration)types.get(0);
+		MethodDeclaration methodDecl = (MethodDeclaration) typeDeclaration.bodyDeclarations().get(0);
+		List statements= methodDecl.getBody().statements();
+		IfStatement ifStatement= (IfStatement) statements.get(0);
+		Block thenBlock= (Block) ifStatement.getThenStatement();
+		thenBlock.statements().remove(2);
+
+		AST ast= astRoot.getAST();
+		PrefixExpression expression= ast.newPrefixExpression();
+		expression.setOperand(ast.newSimpleName("i"));
+		expression.setOperator(PrefixExpression.Operator.DECREMENT);
+		ExpressionStatement newStatement= ast.newExpressionStatement(expression);
+		thenBlock.statements().add(newStatement);
+
+		String preview = evaluateRewrite(cu, astRoot);
+		String expected = 
+				"package testBug446446_005;\n"+
+				"public class X {\n"+
+				"    public void foo() {\n"+
+				"        if (i == 0) {\n"+
+				"            foo();\n"+
+				"            i++; // comment\n"+
+				"            --i;}    }\n"+
+				"}\n";
+		assertEqualString(preview, expected);
 	}
 }
