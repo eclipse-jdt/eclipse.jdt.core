@@ -3465,4 +3465,221 @@ public class VarargsTest extends AbstractComparableTest {
 			"The method foo(A...) of type B is not applicable as the formal varargs element type A is not accessible here\n" + 
 			"----------\n"); // check and adjust,
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=437973, [1.8][compiler] Missing implementation of JLS 15.12.2.5 Third Bullet - Part 2
+	public void test437973() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"class W {}\n" +
+				"class Y extends W {}\n" +
+				"class Z extends Y {}\n" +
+				"class A{}\n" +
+				"public class X {\n" +
+				"	void foo(String format, Object ... args) {\n" +
+				"		System.out.println(\"foo Object Varargs\");\n" +
+				"	}\n" +
+				"	void foo(String ... s) {\n" +
+				"		System.out.println(\"foo String Varargs\");\n" +
+				"	}\n" +
+				"	void foo1(Z ... z) {\n" +
+				"		System.out.println(\"foo1 Z varargs\");\n" +
+				"	}\n" +
+				"	void foo1(Z z, Y ... y) {\n" +
+				"		System.out.println(\"foo1 Y varargs\");\n" +
+				"	}\n" +
+				"	void foo2(Z z, W ... w) {\n" +
+				"		System.out.println(\"foo2 W varargs\");\n" +
+				"	}\n" +
+				"	void foo2(Z z, Y ... y) {\n" +
+				"		System.out.println(\"foo2 Y varargs\");\n" +
+				"	}\n" +
+				"	void foo3(A a, W ... w) {\n" +
+				"		System.out.println(\"foo3 W varargs\");\n" +
+				"	}\n" +
+				"	void foo3(A a, Y ... y) {\n" +
+				"		System.out.println(\"foo3 Y varargs\");\n" +
+				"	}\n" +
+				"	void foo4(W w) {\n" +
+				"		System.out.println(\"foo4 W\");\n" +
+				"	}\n" +
+				"	void foo4(W w, A ... a) {\n" +
+				"		System.out.println(\"foo4 A varargs\");\n" +
+				"	}\n" +
+				"	void foo5(W w) {\n" +
+				"		System.out.println(\"foo5 W\");\n" +
+				"	}\n" +
+				"	void foo5(W ... w) {\n" +
+				"		System.out.println(\"foo5 W varargs\");\n" +
+				"	}\n" +
+				"	void foo6(W ... w) {\n" +
+				"		System.out.println(\"foo6 W varargs\");\n" +
+				"	}\n" +
+				"	void foo6(Y ... y) {\n" +
+				"		System.out.println(\"foo6 Y varargs\");\n" +
+				"	}\n" +
+				"   void foo7(String format, Object ... args) {\n" +
+				"	    System.out.println(\"foo7 Object Varargs\");\n" +
+				"   }\n" +
+				"   void foo8(String ... s) {\n" +
+				"	    System.out.println(\"foo8 String Varargs\");\n" +
+				"   }\n" +
+				"	void bar() {\n" +
+				"		foo(\"f\");\n" +   // Original Test Case : Error without fix
+				"		foo(\"f\", 12);\n" +
+				"		foo1(new Z());\n" +
+				"		foo2(new Z());\n" +
+				"		foo3(new A());\n" +
+				"		foo4(new W());\n" +
+				"		foo5(new W());\n" +
+				"		foo6(new W());\n" +
+				"		foo6(new Y());\n" +
+				"       foo7(\"f\", 12);\n" +
+		        "       foo8(\"f\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		X x = new X();\n" +
+				"		x.bar();\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"foo String Varargs\n" +
+			"foo Object Varargs\n" +
+			"foo1 Z varargs\n" +
+			"foo2 Y varargs\n" +
+			"foo3 Y varargs\n" +
+			"foo4 W\n" +
+			"foo5 W\n" +
+			"foo6 W varargs\n" +
+			"foo6 Y varargs\n" +
+			"foo7 Object Varargs\n" +
+			"foo8 String Varargs");
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=437973, [1.8][compiler] Missing implementation of JLS 15.12.2.5 Third Bullet - Part 2
+	public void test437973a() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_8)
+			return;
+		runConformTest(
+		new String[] {
+			"X.java",
+			"class W {}\n" +
+			"class Y extends W {}\n" +
+			"public class X {\n" +
+			"	void foo(W w, Y ... y) {\n" +
+			"		System.out.println(\"foo Y varargs\");\n" +
+			"   }\n" +
+			"	void foo(W ... w) {\n" +
+			"		System.out.println(\"foo W varargs\");\n" +
+			"   }\n" +
+			"	void bar() {\n" +
+			"		foo(new W(), new W(), new W());\n" +
+
+			//Error with 1.8 without fix for all these three test cases.
+			"		foo(new Y(), new Y(), new Y());\n" +
+			"		foo(new W());\n" +
+			"		foo(new Y());\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		X x = new X();\n" +
+			"		x.bar();\n" +
+			"	}\n" +
+			"}\n"},
+			"foo W varargs\n" +
+			"foo Y varargs\n" +
+			"foo Y varargs\n" +
+			"foo Y varargs");
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=437973, [1.8][compiler] Missing implementation of JLS 15.12.2.5 Third Bullet - Part 2
+	//The parameter of one method is not a subtype of the other.
+	public void test437973b() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_8)
+			return;
+		runNegativeTest(
+		new String[] {
+			"X.java",
+			"class W {}\n" +
+			"class A {}\n" +
+			"public class X {\n" +
+			"    void foo(W ... w) {}\n" +
+			"    void foo(W w, A ... a) {}\n" +
+			"    void bar() {\n" +
+			"        foo(new W()); // 1.8 Error: Ambiguous method error\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {}\n" +
+			"}\n"},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	foo(new W()); // 1.8 Error: Ambiguous method error\n" +
+			"	^^^\n" +
+			"The method foo(W[]) is ambiguous for the type X\n" +
+			"----------\n");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=437973, [1.8][compiler] Missing implementation of JLS 15.12.2.5 Third Bullet - Part 2
+	// Lambda functions
+	public void test437973c() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_8)
+			return;
+		runNegativeTest(
+		new String[] {
+			"X.java",
+			"class W {}\n" +
+			"class Y extends W {}\n" +
+			"class Z extends Y {}\n" +
+			"class A{}\n" +
+			"\n" +
+			"interface I1 {\n" +
+			"	void foo (Y ... y); \n" +
+			"	default void foo (Y y, W ... w) {}\n" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			"	void bar() {\n" +
+			"		I1 i1 = (x) -> {};\n" +
+			"		i1.foo(new Y());\n" +
+			"	}\n" +
+			"}\n"},"");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=437973, [1.8][compiler] Missing implementation of JLS 15.12.2.5 Third Bullet - Part 2
+	// Original Test Case - Comment 0
+	public void test437973d() {
+//		if (this.complianceLevel < ClassFileConstants.JDK1_8)
+//			return;
+		runConformTest(
+		new String[] {
+			"Junk16.java",
+			"public class Junk16 {\n" +
+			"    public static String junk(String format, Object... args) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"    public static String junk(String... s) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        // COMPILE ERROR IN ECLIPSE (none in JDK) WITHOUT FIX\n" +
+			"        junk(\"fred\");\n" +
+			"        //NO COMPILE ERROR\n" +
+			"        junk(\"fred\", 12);\n" +
+			"    }\n" +
+			"}\n" });
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=443596, [1.8][compiler] Failure for overload resolution in case of Generics and Varags
+	public void _test443596() {
+		runConformTest(
+		new String[] {
+			"Collections2.java",
+			"public final class Collections2 {\n" +
+			"    static interface Predicate<T> { boolean test(T object); }\n" +
+			"    public static <T> Predicate<T> in(Predicate<? extends T> arg) { return null; }\n" +
+			"    public static <T> Predicate<T> and(Predicate<? super T>... arg) { return null; }\n" +
+			"    public static <T> Predicate<T> and(Predicate<? super T> arg0, Predicate<? super T> arg1) { return null; }\n" +
+			"    static class FilteredCollection<E> {\n" +
+			"        Predicate<? super E> predicate;\n" +
+			"        public void error(Predicate<?> arg) { and(predicate, in(arg)); } // no compile\n" +
+			"    }\n" +
+			"}\n"});
+	}
 }

@@ -4456,6 +4456,12 @@ public abstract class Scope {
 								continue nextJ;
 							}
 						}
+						if (levelj == VARARGS_COMPATIBLE && levelk == VARARGS_COMPATIBLE) {
+							TypeBinding s = InferenceContext18.getParameter(mbjParameters, argumentTypes.length, true);
+							TypeBinding t = InferenceContext18.getParameter(mbkParameters, argumentTypes.length, true);
+							if (TypeBinding.notEquals(s, t) && t.isSubtypeOf(s))
+								continue nextJ;
+						}
 					}
 				}
 				moreSpecific[count++] = visible[j];
