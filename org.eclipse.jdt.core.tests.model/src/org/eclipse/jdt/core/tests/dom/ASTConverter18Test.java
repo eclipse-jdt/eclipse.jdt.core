@@ -4720,4 +4720,36 @@ public void testBug435348() throws JavaModelException {
 		"}\n";
 	buildAST(contents, this.workingCopy, false);
 }
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=447062
+ * 
+ * @throws JavaModelException
+ */
+public void testBug447062() throws JavaModelException {
+	String contents =
+			"public class X {\n" +
+			"    Runnable foo = () -> {\n" +
+			"    \n" +
+			"    }\n" +
+			"}\n";
+	this.workingCopy = getWorkingCopy("/Converter18/src/test447062/X.java", contents, true/*computeProblems*/);
+	IJavaProject javaProject = this.workingCopy.getJavaProject();
+	class BindingRequestor extends ASTRequestor {
+		ITypeBinding _result = null;
+		public void acceptBinding(String bindingKey, IBinding binding) {
+			if (this._result == null && binding != null && binding.getKind() == IBinding.TYPE)
+				this._result = (ITypeBinding) binding;
+		}
+	}
+	final BindingRequestor requestor = new BindingRequestor();
+	final ASTParser parser = ASTParser.newParser(AST.JLS8);
+	parser.setResolveBindings(false);
+	parser.setProject(javaProject);
+	parser.setIgnoreMethodBodies(true);
+	try {
+		parser.createASTs(new ICompilationUnit[] {this.workingCopy}, new String[0], requestor, null);
+	} catch (IllegalArgumentException e) {
+		assertTrue("Test Failed", false);
+	}
+}
 }

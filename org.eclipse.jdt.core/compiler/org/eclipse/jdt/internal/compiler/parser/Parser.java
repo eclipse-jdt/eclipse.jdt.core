@@ -7969,7 +7969,10 @@ protected void consumeLambdaExpression() {
 	Statement body = (Statement) this.astStack[this.astPtr--];
 	if (body instanceof Block) {
 		if (this.options.ignoreMethodBodies) {
+			Statement oldBody = body;
 			body = new Block(0);
+			body.sourceStart = oldBody.sourceStart;
+			body.sourceEnd = oldBody.sourceEnd;
 		}
 		((Block) body).lambdaBody = true; // for consistency's sakes.
 	}
