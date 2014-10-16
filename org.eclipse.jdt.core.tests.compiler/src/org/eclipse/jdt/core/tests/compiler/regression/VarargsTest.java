@@ -3645,16 +3645,16 @@ public class VarargsTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=437973, [1.8][compiler] Missing implementation of JLS 15.12.2.5 Third Bullet - Part 2
 	// Original Test Case - Comment 0
 	public void test437973d() {
-//		if (this.complianceLevel < ClassFileConstants.JDK1_8)
-//			return;
 		runConformTest(
 		new String[] {
 			"Junk16.java",
 			"public class Junk16 {\n" +
 			"    public static String junk(String format, Object... args) {\n" +
+			"		 System.out.println(\"junk 1\");\n" +
 			"        return null;\n" +
 			"    }\n" +
 			"    public static String junk(String... s) {\n" +
+			"		 System.out.println(\"junk 2\");\n" +
 			"        return null;\n" +
 			"    }\n" +
 			"    public static void main(String[] args) {\n" +
@@ -3663,7 +3663,9 @@ public class VarargsTest extends AbstractComparableTest {
 			"        //NO COMPILE ERROR\n" +
 			"        junk(\"fred\", 12);\n" +
 			"    }\n" +
-			"}\n" });
+			"}\n"},
+			"junk 2\n" +
+			"junk 1");
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=443596, [1.8][compiler] Failure for overload resolution in case of Generics and Varags
