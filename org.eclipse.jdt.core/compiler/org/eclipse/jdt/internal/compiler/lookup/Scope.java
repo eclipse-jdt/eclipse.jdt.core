@@ -4494,6 +4494,7 @@ public abstract class Scope {
 				public boolean receiverIsImplicitThis() { return invocationSite.receiverIsImplicitThis();}
 				public InferenceContext18 freshInferenceContext(Scope scope) { return null; /* no inference when ignoring genericTypeArgs */ }
 				public ExpressionContext getExpressionContext() { return ExpressionContext.VANILLA_CONTEXT; }
+				public boolean isQualifiedSuper() { return invocationSite.isQualifiedSuper(); }
 			};
 			int count = 0;
 			for (int level = 0, max = VARARGS_COMPATIBLE; level <= max; level++) {

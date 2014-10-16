@@ -2641,4 +2641,158 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"Anonymous class value: 6.0\n" + 
 			"Lambda expression value: 6.0");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=437522, [1.8][compiler] Missing compile error in Java 8 mode for Interface.super.field access
+	public void testBug437522() throws Exception {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface T {\n" +
+				"    int f = 0;\n" +
+				"    void foo();\n" +
+				"    default String def() { return \"T.def\"; }\n" +
+				"}\n" +
+				"class S {\n" +
+				"    public static final int f = 0;\n" +
+				"}\n" +
+				"class C extends S implements T {\n" +
+				"    @Override\n" +
+				"    public void foo() {\n" +
+				"        System.out.println(T.super.f); // no error in Java 8 (wrong) without fix\n" +
+				"        System.out.println(T.super.def()); // new JLS8 15.12.1 form (OK)\n" +
+				"        System.out.println(S.super.f); // compile error (correct)\n" +
+				"    }\n" +
+				"}\n" +
+				"class X {\n" +
+				"    T f = new T() {\n" +
+				"        @Override\n" +
+				"        public void foo() {\n" +
+				"            System.out.println(T.super.f); // no error in Java 8 (wrong) without fix\n" +
+				"        }\n" +
+				"    };\n" +
+				"}\n" +
+				"class Y { int f = 1;}\n" +
+				"class Z extends Y {\n" +
+				"	int foo2() { return super.f;}\n" +
+				"	static int foo() { return super.f;}\n" +
+				"}\n" +
+				"interface T2 { int f = 0; }\n" +
+				"class X2  implements T2 {	\n" +
+				"	int i = T2.super.f;\n" +
+				"}\n" +
+				"interface T3 { int f = 0; }\n" +
+				"interface T4 extends T3 { int f = 0; }\n" +
+				"class X3  implements T4 {	\n" +
+				"	int i = T4.super.f;\n" +
+				"}\n" +
+				"interface T5 { int f = 0; }\n" +
+				"class X5 implements T5 {	\n" +
+				"	static int i = T5.super.f;\n" +
+				"}\n" +
+				"interface T6 { int f = 0; }\n" +
+				"class X6 implements T6 {	\n" +
+				"	static int i = T6.super.f;\n" +
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	System.out.println(T.super.f); // no error in Java 8 (wrong) without fix\n" +
+			"	                   ^^^^^^^\n" +
+			"No enclosing instance of the type T is accessible in scope\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 14)\n" +
+			"	System.out.println(S.super.f); // compile error (correct)\n" +
+			"	                   ^^^^^^^\n" +
+			"No enclosing instance of the type S is accessible in scope\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 21)\n" +
+			"	System.out.println(T.super.f); // no error in Java 8 (wrong) without fix\n" +
+			"	                   ^^^^^^^\n" +
+			"No enclosing instance of the type T is accessible in scope\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 28)\n" +
+			"	static int foo() { return super.f;}\n" +
+			"	                          ^^^^^\n" +
+			"Cannot use super in a static context\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 32)\n" +
+			"	int i = T2.super.f;\n" +
+			"	        ^^^^^^^^\n" +
+			"No enclosing instance of the type T2 is accessible in scope\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 37)\n" +
+			"	int i = T4.super.f;\n" +
+			"	        ^^^^^^^^\n" +
+			"No enclosing instance of the type T4 is accessible in scope\n" +
+			"----------\n" +
+			"7. ERROR in X.java (at line 41)\n" +
+			"	static int i = T5.super.f;\n" +
+			"	               ^^^^^^^^\n" +
+			"Cannot use super in a static context\n" +
+			"----------\n" +
+			"8. ERROR in X.java (at line 41)\n" +
+			"	static int i = T5.super.f;\n" +
+			"	               ^^^^^^^^\n" +
+			"No enclosing instance of the type T5 is accessible in scope\n" +
+			"----------\n" +
+			"9. ERROR in X.java (at line 45)\n" +
+			"	static int i = T6.super.f;\n" +
+			"	               ^^^^^^^^\n" +
+			"Cannot use super in a static context\n" +
+			"----------\n" +
+			"10. ERROR in X.java (at line 45)\n" +
+			"	static int i = T6.super.f;\n" +
+			"	               ^^^^^^^^\n" +
+			"No enclosing instance of the type T6 is accessible in scope\n" +
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=437522, [1.8][compiler] Missing compile error in Java 8 mode for Interface.super.field access
+	// Example JLS: 15.11.2-1.
+	public void testBug437522a() throws Exception {
+		runConformTest(
+			true,
+			new String[] {
+				"X.java",
+				"interface I  { int x = 0; }\n" +
+				"class T1 implements I { int x = 1; }\n" +
+				"class T2 extends T1   { int x = 2; }\n" +
+				"class T3 extends T2 {\n" +
+				"    int x = 3;\n" +
+				"    void test() {\n" +
+				"        System.out.println(\"x= \"          + x);\n" +
+				"        System.out.println(\"super.x= \"    + super.x);\n" +
+				"        System.out.println(\"((T2)this).x= \" + ((T2)this).x);\n" +
+				"        System.out.println(\"((T1)this).x= \" + ((T1)this).x);\n" +
+				"        System.out.println(\"((I)this).x= \"  + ((I)this).x);\n" +
+				"    }\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        new T3().test();\n" +
+				"    }\n" +
+				"}\n",
+			},
+			null, null,
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	class T2 extends T1   { int x = 2; }\n" +
+			"	                            ^\n" +
+			"The field T2.x is hiding a field from type T1\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 5)\n" +
+			"	int x = 3;\n" +
+			"	    ^\n" +
+			"The field T3.x is hiding a field from type T2\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 11)\n" +
+			"	System.out.println(\"((I)this).x= \"  + ((I)this).x);\n" +
+			"	                                                ^\n" +
+			"The static field I.x should be accessed in a static way\n" +
+			"----------\n",
+			"x= 3\n" +
+			"super.x= 2\n" +
+			"((T2)this).x= 2\n"	+
+			"((T1)this).x= 1\n" +
+			"((I)this).x= 0",
+			"", JavacTestOptions.DEFAULT);
+	}
 }

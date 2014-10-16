@@ -543,6 +543,11 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return false;
 	}
 
+	public boolean isQualifiedSuper() {
+
+		return false;
+	}
+
 	public boolean isThis() {
 
 		return false;

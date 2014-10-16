@@ -283,6 +283,7 @@ private static void checkAlternateBinding(BlockScope scope, Expression receiver,
 			public boolean receiverIsImplicitThis() { return invocationSite.receiverIsImplicitThis();}
 			public InferenceContext18 freshInferenceContext(Scope someScope) { return invocationSite.freshInferenceContext(someScope); }
 			public ExpressionContext getExpressionContext() { return invocationSite.getExpressionContext(); }
+			public boolean isQualifiedSuper() { return invocationSite.isQualifiedSuper(); }
 		};
 		MethodBinding bindingIfNoCast;
 		if (binding.isConstructor()) {

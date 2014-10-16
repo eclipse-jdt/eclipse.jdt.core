@@ -629,6 +629,7 @@ public final class CompletionEngine
 		public boolean receiverIsImplicitThis() { return false; }
 		public InferenceContext18 freshInferenceContext(Scope scope) { return null; }
 		public ExpressionContext getExpressionContext() { return ExpressionContext.VANILLA_CONTEXT; }
+		public boolean isQualifiedSuper() { return false; }
 	};
 
 	private int foundTypesCount;

@@ -419,6 +419,14 @@ public FieldBinding findField(TypeBinding receiverType, char[] fieldName, Invoca
 		return null;
 	if (!field.isValidBinding())
 		return field; // answer the error field
+
+	if (receiverType.isInterface() && invocationSite.isQualifiedSuper())
+		return new ProblemFieldBinding(
+				field, // closest match
+				field.declaringClass,
+				fieldName,
+				ProblemReasons.NoProperEnclosingInstance);
+
 	if (field.isStatic())
 		return field; // static fields are always accessible
 

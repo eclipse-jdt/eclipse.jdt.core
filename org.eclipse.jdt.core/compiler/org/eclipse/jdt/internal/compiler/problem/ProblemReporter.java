@@ -3814,6 +3814,9 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 		case ProblemReasons.Ambiguous :
 			id = IProblem.AmbiguousField;
 			break;
+		case ProblemReasons.NoProperEnclosingInstance:
+			noSuchEnclosingInstance(fieldRef.actualReceiverType, fieldRef.receiver, false);
+			return;
 		case ProblemReasons.NonStaticReferenceInStaticContext :
 			id = IProblem.NonStaticFieldFromStaticInvocation;
 			break;

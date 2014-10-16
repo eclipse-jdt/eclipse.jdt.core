@@ -1085,4 +1085,8 @@ public InnerInferenceHelper innerInferenceHelper() {
 public InferenceContext18 freshInferenceContext(Scope scope) {
 	return new InferenceContext18(scope, this.arguments, this);
 }
+@Override
+public boolean isQualifiedSuper() {
+	return this.receiver.isQualifiedSuper();
+}
 }

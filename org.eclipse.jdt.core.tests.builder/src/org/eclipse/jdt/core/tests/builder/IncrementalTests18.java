@@ -496,4 +496,33 @@ public class IncrementalTests18 extends BuilderTests {
 			"Problem : The type Y cannot be resolved. It is indirectly referenced from" +
 			" required .class files [ resource : </Project/X.java> range : <0,1> category : <10> severity : <2>]");
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=445049,
+	// [compiler] java.lang.ClassCastException: org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding
+	// cannot be cast to org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding
+	public void test445049() throws JavaModelException, IOException {
+		IPath projectPath = env.addProject("Project", "1.8");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		setupProjectForNullAnnotations();
+		env.addClass(root, "", "I",
+				"public interface I { int f = 0;}");
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(root, "", "X", "class X implements I { int i = I.super.f;}");
+
+		incrementalBuild(projectPath);
+		expectingProblemsFor(
+			projectPath,
+			"Problem : No enclosing instance of the type I is accessible in scope [" +
+			" resource : </Project/src/X.java> range : <31,38> category : <40> severity : <2>]");
+	}
 }
