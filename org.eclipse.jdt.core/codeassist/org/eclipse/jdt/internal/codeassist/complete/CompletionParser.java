@@ -2793,7 +2793,7 @@ protected void consumeInsideCastExpression() {
 	}
 	Expression castType = getTypeReference(this.intStack[this.intPtr--]);
 	if (additionalBoundsLength > 0) {
-		bounds[0] = getTypeReference(this.intStack[this.intPtr--]);
+		bounds[0] = (TypeReference) castType;
 		castType = createIntersectionCastTypeReference(bounds); 
 	}
 	if(isParameterized) {
