@@ -1564,4 +1564,34 @@ public void test430656() throws JavaModelException {
 			"getLastName[METHOD_IMPORT]{getLastName, Ltest.Person;, ()Ljava.lang.String;, getLastName, null, 35}",
 			requestor.getResults());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447774, Auto complete does not work when using lambdas with cast
+public void test447774() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.io.Serializable;\n" +
+			"import java.util.function.Function;\n" +
+			"import java.util.function.Predicate;\n" +
+			"public final class X {\n" +
+			"    public static <T, R> Predicate<T> apply(Predicate<R> predicate, Function<? super T, ? extends R> function) {\n" +
+			"	     syso\n" +
+			"        return (Predicate<T> & Serializable) t -> predicate.test(function.apply(t));\n" +
+			"    }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "syso";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("", requestor.getResults());
+	assertEquals("completion offset=248\n" +
+			"completion range=[244, 247]\n" +
+			"completion token=\"syso\"\n" +
+			"completion token kind=TOKEN_KIND_NAME\n" +
+			"expectedTypesSignatures=null\n" +
+			"expectedTypesKeys=null\n" +
+			"completion token location={STATEMENT_START}", requestor.getContext());
+}
 }
