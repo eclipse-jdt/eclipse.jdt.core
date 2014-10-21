@@ -432,6 +432,9 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
 			this.scope.problemReporter().missingTypeInLambda(this, this.binding);
 		}
+		if (this.shouldCaptureInstance && this.scope.isConstructorCall) {
+			this.scope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);
+		}
 		return this.resolvedType;
 	}
 

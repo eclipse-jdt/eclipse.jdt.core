@@ -5124,6 +5124,7 @@ public abstract class Scope {
 				methodScope = methodScope.enclosingMethodScope();
 			}
 		}
+		MethodBinding enclosingMethod = enclosingType != null ? enclosingType.enclosingMethod() : null;
 		while (methodScope != null) {
 			while (methodScope != null && methodScope.referenceContext instanceof LambdaExpression) {
 				LambdaExpression lambda = (LambdaExpression) methodScope.referenceContext;
@@ -5134,6 +5135,8 @@ public abstract class Scope {
 			if (methodScope != null) {
 				if (methodScope.referenceContext instanceof MethodDeclaration) {
 					MethodDeclaration methodDeclaration = (MethodDeclaration) methodScope.referenceContext;
+					if (methodDeclaration.binding == enclosingMethod)
+						break;
 					methodDeclaration.bits &= ~ASTNode.CanBeStatic;
 				}
 				ClassScope enclosingClassScope = methodScope.enclosingClassScope();

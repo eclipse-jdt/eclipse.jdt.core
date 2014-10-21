@@ -9525,7 +9525,7 @@ public void test433735() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	super( () -> {\n" + 
 		"	       ^^^^^\n" + 
-		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
+		"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432531 [1.8] VerifyError with anonymous subclass inside of lambda expression in the superclass constructor call
@@ -9557,7 +9557,7 @@ public void test432531a() {
 	"1. ERROR in Y.java (at line 7)\n" + 
 	"	super( () -> {\n" + 
 	"	       ^^^^^\n" + 
-	"No enclosing instance of type Y is available due to some intermediate constructor invocation\n" + 
+	"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" + 
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432605, [1.8] Incorrect error "The type ArrayList<T> does not define add(ArrayList<T>, Object) that is applicable here"

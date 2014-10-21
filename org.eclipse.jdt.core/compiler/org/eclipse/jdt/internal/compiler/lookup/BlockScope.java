@@ -121,11 +121,8 @@ public final void addLocalType(TypeDeclaration localType) {
 	MethodScope methodScope = methodScope();
 	while (methodScope != null && methodScope.referenceContext instanceof LambdaExpression) {
 		LambdaExpression lambda = (LambdaExpression) methodScope.referenceContext;
-		if (!lambda.scope.isStatic) {
+		if (!lambda.scope.isStatic && !lambda.scope.isConstructorCall) {
 			lambda.shouldCaptureInstance = true;
-			if (lambda.scope.isConstructorCall) {
-				lambda.scope.problemReporter().noSuchEnclosingInstance(enclosingSourceType(), lambda, true);
-			}
 		}
 		methodScope = methodScope.enclosingMethodScope();
 	}

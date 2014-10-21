@@ -2202,13 +2202,13 @@ public void fieldHiding(FieldDeclaration fieldDecl, Binding hiddenVariable) {
 			nodeSourceEnd(hiddenField, fieldDecl));
 	}
 }
-public void fieldsOrThisBeforeConstructorInvocation(ThisReference reference) {
+public void fieldsOrThisBeforeConstructorInvocation(ASTNode reference) {
 	this.handle(
 		IProblem.ThisSuperDuringConstructorInvocation,
 		NoArgument,
 		NoArgument,
 		reference.sourceStart,
-		reference.sourceEnd);
+		reference instanceof LambdaExpression ? ((LambdaExpression) reference).diagnosticsSourceEnd() : reference.sourceEnd);
 }
 public void finallyMustCompleteNormally(Block finallyBlock) {
 	this.handle(
