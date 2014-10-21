@@ -4882,6 +4882,172 @@ public void test444785() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression) 
+public void test447119() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.reflect.Method;\n" +
+				"import java.lang.reflect.Parameter;\n" +
+				"import java.util.Arrays;\n" +
+				"import java.util.function.Function;\n" +
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"    private static List<String> foo(List<String> x){return x;}\n" +
+				"    public static void main(String[] args) {\n" +
+				"        Function<List<String>,List<String>> f = i -> { return i; };\n" +
+				"        Method[] methods = X.class.getDeclaredMethods();\n" +
+				"        for (Method m : methods) {\n" +
+				"        	if (m.getName().contains(\"lambda\")) {\n" +
+				"        		System.out.println(\"- \" + m.getGenericReturnType() + \" \" + m.getName() + \"(\" + Arrays.asList(m.getGenericParameterTypes()) + \")\");\n" +
+				"        	}\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"- interface java.util.List lambda$0([interface java.util.List])");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression) 
+public void test447119a() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.reflect.Method;\n" +
+				"import java.lang.reflect.Parameter;\n" +
+				"import java.util.Arrays;\n" +
+				"import java.util.function.Function;\n" +
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"    private static List<String> foo(List<String> x){return x;}\n" +
+				"    public static void main(String[] args) {\n" +
+				"        Function<List<String>,List<String>> f = X::foo;\n" +
+				"        Method[] methods = X.class.getDeclaredMethods();\n" +
+				"        for (Method m : methods) {\n" +
+				"        	if (m.getName().contains(\"lambda\")) {\n" +
+				"        		System.out.println(\"- \" + m.getGenericReturnType() + \" \" + m.getName() + \"(\" + Arrays.asList(m.getGenericParameterTypes()) + \")\");\n" +
+				"        	}\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression) 
+public void test447119b() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.reflect.Method;\n" +
+				"import java.lang.reflect.Parameter;\n" +
+				"import java.util.Arrays;\n" +
+				"import java.util.function.Function;\n" +
+				"import java.util.List;\n" +
+				"import java.io.Serializable;" +
+				"public class X {\n" +
+				"    private static interface SerializableFunction<A, R> extends Function<A, R>, Serializable { }" +
+				"    private static List<String> foo(List<String> x){return x;}\n" +
+				"    public static void main(String[] args) {\n" +
+				"        SerializableFunction<List<String>, List<String>> f = i -> { return i; };\n" +
+				"        Method[] methods = X.class.getDeclaredMethods();\n" +
+				"        for (Method m : methods) {\n" +
+				"        	if (m.getName().contains(\"lambda\")) {\n" +
+				"        		System.out.println(\"- \" + m.getGenericReturnType() + \" \" + m.getName() + \"(\" + Arrays.asList(m.getGenericParameterTypes()) + \")\");\n" +
+				"        	}\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"- interface java.util.List lambda$0([interface java.util.List])");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression) 
+public void test447119c() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.reflect.Method;\n" +
+				"import java.lang.reflect.Parameter;\n" +
+				"import java.util.Arrays;\n" +
+				"import java.util.function.Function;\n" +
+				"import java.util.List;\n" +
+				"import java.io.Serializable;" +
+				"public class X {\n" +
+				"    private static interface SerializableFunction<A, R> extends Function<A, R>, Serializable { }" +
+				"    private static List<String> foo(List<String> x){return x;}\n" +
+				"    public static void main(String[] args) {\n" +
+				"        SerializableFunction<List<String>, List<String>> f = X::foo;\n" +
+				"        Method[] methods = X.class.getDeclaredMethods();\n" +
+				"        for (Method m : methods) {\n" +
+				"        	if (m.getName().contains(\"lambda\")) {\n" +
+				"        		System.out.println(\"- \" + m.getGenericReturnType() + \" \" + m.getName() + \"(\" + Arrays.asList(m.getGenericParameterTypes()) + \")\");\n" +
+				"        	}\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"- java.util.List<java.lang.String> lambda$0([java.util.List<java.lang.String>])");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression) 
+public void test447119d() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.ObjectStreamClass;\n" +
+				"import java.io.Serializable;\n" +
+				"import java.lang.invoke.SerializedLambda;\n" +
+				"import java.lang.reflect.Method;\n" +
+				"import java.util.List;\n" +
+				"import java.util.function.Function;\n" +
+				"public class X {\n" +
+				"	private static interface SerializableFunction<A, R> extends Function<A, R>, Serializable { }\n" +
+				"	private static List<String> noop(List<String> l) { return l; }\n" +
+				"	public static void main(String[] args) throws Exception {\n" +
+				"		SerializableFunction<List<String>, List<String>> f = X::noop;\n" +
+				"		Method invokeWriteReplaceMethod = ObjectStreamClass.class.getDeclaredMethod(\"invokeWriteReplace\", Object.class);\n" +
+				"		invokeWriteReplaceMethod.setAccessible(true);\n" +
+				"		SerializedLambda l = (SerializedLambda)invokeWriteReplaceMethod.invoke(ObjectStreamClass.lookupAny(f.getClass()), f);\n" +
+				"		System.out.println(\"Lambda binds to: \" + l.getImplClass() + \".\" + l.getImplMethodName());\n" +
+				"		System.out.println(\"Methods (with generics):\");\n" +
+				"		for(Method m : X.class.getDeclaredMethods()) {\n" +
+				"			if(m.getName().equals(\"main\")) continue;\n" +
+				"			if(m.getName().contains(\"deserializeLambda\")) continue;\n" +
+				"			System.out.println(\"- \" + m.getGenericReturnType() + \" \" + m.getName() + \"(\" + m.getGenericParameterTypes()[0] + \")\");\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"Lambda binds to: X.lambda$0\n" + 
+			"Methods (with generics):\n" + 
+			"- java.util.List<java.lang.String> noop(java.util.List<java.lang.String>)\n" + 
+			"- java.util.List<java.lang.String> lambda$0(java.util.List<java.lang.String>)",
+			null,
+			true,
+			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression) 
+public void test447119e() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.reflect.Method;\n" +
+				"import java.lang.reflect.Parameter;\n" +
+				"import java.util.Arrays;\n" +
+				"import java.util.function.Function;\n" +
+				"import java.util.List;\n" +
+				"public class X implements java.io.Serializable {\n" +
+				"    private static List<String> foo(List<String> x){return x;}\n" +
+				"    public static void main(String[] args) {\n" +
+				"        Function<List<String>,List<String>> f = X::foo;\n" +
+				"        Method[] methods = X.class.getDeclaredMethods();\n" +
+				"        for (Method m : methods) {\n" +
+				"        	if (m.getName().contains(\"lambda\")) {\n" +
+				"        		System.out.println(\"- \" + m.getGenericReturnType() + \" \" + m.getName() + \"(\" + Arrays.asList(m.getGenericParameterTypes()) + \")\");\n" +
+				"        	}\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
