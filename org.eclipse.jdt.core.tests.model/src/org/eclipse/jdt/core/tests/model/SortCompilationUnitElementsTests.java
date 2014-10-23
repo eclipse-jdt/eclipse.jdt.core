@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1608,18 +1608,6 @@ public void test022() throws CoreException {
 			"			return false;\n" +
 			"		\n" +
 			"	/**\n" +
-			"	 * Returns whether a build command with the given trigger should\n" +
-			"	 * be enabled for the given selection.\n" +
-			"	 * @param projects The projects to use to determine enablement\n" +
-			"	 * @param trigger The build trigger (<code>IncrementalProjectBuilder.*_BUILD</code> constants).\n" +
-			"	 * @return <code>true</code> if the action should be enabled, and\n" +
-			"	 * <code>false</code> otherwise.\n" +
-			"	 */\n" +
-			"	public static boolean isEnabled(IProject[] projects, int trigger) {\n" +
-			"		return true;\n" +
-			"	}\n" +
-			"\n" +
-			"	/**\n" +
 			"	 * Returns whether one of the projects has a builder whose trigger setting\n" +
 			"	 * for the given trigger matches the given value.\n" +
 			"	 * \n" +
@@ -1645,6 +1633,18 @@ public void test022() throws CoreException {
 			"			}\n" +
 			"		}\n" +
 			"		return false;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns whether a build command with the given trigger should\n" +
+			"	 * be enabled for the given selection.\n" +
+			"	 * @param projects The projects to use to determine enablement\n" +
+			"	 * @param trigger The build trigger (<code>IncrementalProjectBuilder.*_BUILD</code> constants).\n" +
+			"	 * @return <code>true</code> if the action should be enabled, and\n" +
+			"	 * <code>false</code> otherwise.\n" +
+			"	 */\n" +
+			"	public static boolean isEnabled(IProject[] projects, int trigger) {\n" +
+			"		return true;\n" +
 			"	}\n" +
 			"\n" +
 			"	/**\n" +
@@ -2094,4 +2094,42 @@ public void test034() throws CoreException {
 		}
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=446255
+public void testBug446255() throws CoreException {
+	String fileName = "/P/src/BuildUtilities.java";
+	try {
+		this.createFile(
+			fileName,
+			"public class MainScreen {\n"+
+			"	public MainScreen() {}\n"+
+			"	/**\n"+
+			"	 * m1\n"+
+			"	 */\n"+
+			"	void m1() {}\n"+
+			"	\n"+
+			"		this.m2();\n"+
+			"	}\n"+
+			"	\n"+
+			"	void m2() {}\n"+
+			"}"
+		);
+		String expectedResult =
+			"public class MainScreen {\n"+
+			"	public MainScreen() {}\n"+
+			"	/**\n"+
+			"	 * m1\n"+
+			"	 */\n"+
+			"	void m1() {}\n"+
+			"	\n"+
+			"		this.m2();\n"+
+			"	}\n"+
+			"	\n"+
+			"	void m2() {}\n"+
+			"}";
+		sortUnit(this.getCompilationUnit(fileName), expectedResult);
+	} finally {
+		deleteFile(fileName);
+	}
+}
+
 }

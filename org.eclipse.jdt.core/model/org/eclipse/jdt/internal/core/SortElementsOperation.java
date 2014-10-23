@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -191,56 +191,66 @@ public class SortElementsOperation extends JavaModelOperation {
 		ast.accept(new ASTVisitor() {
 			public boolean visit(org.eclipse.jdt.core.dom.CompilationUnit compilationUnit) {
 				List types = compilationUnit.types();
+				boolean contains_malformed_nodes = false;
 				for (Iterator iter = types.iterator(); iter.hasNext();) {
 					AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) iter.next();
 					typeDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(typeDeclaration.getStartPosition()));
-					compilationUnit.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(typeDeclaration)));
+					contains_malformed_nodes |= Boolean.valueOf(isMalformed(typeDeclaration));
 				}
+				compilationUnit.setProperty(CONTAINS_MALFORMED_NODES, contains_malformed_nodes);
 				return true;
 			}
 			public boolean visit(AnnotationTypeDeclaration annotationTypeDeclaration) {
 				List bodyDeclarations = annotationTypeDeclaration.bodyDeclarations();
+				boolean contains_malformed_nodes = false;
 				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
 					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(bodyDeclaration.getStartPosition()));
-					annotationTypeDeclaration.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(bodyDeclaration)));
+					contains_malformed_nodes |= Boolean.valueOf(isMalformed(bodyDeclaration));
 				}
+				annotationTypeDeclaration.setProperty(CONTAINS_MALFORMED_NODES, contains_malformed_nodes);
 				return true;
 			}
 
 			public boolean visit(AnonymousClassDeclaration anonymousClassDeclaration) {
 				List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
+				boolean contains_malformed_nodes = false;
 				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
 					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(bodyDeclaration.getStartPosition()));
-					anonymousClassDeclaration.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(bodyDeclaration)));
+					contains_malformed_nodes |= Boolean.valueOf(isMalformed(bodyDeclaration));
 				}
+				anonymousClassDeclaration.setProperty(CONTAINS_MALFORMED_NODES, contains_malformed_nodes);
 				return true;
 			}
 
 			public boolean visit(TypeDeclaration typeDeclaration) {
 				List bodyDeclarations = typeDeclaration.bodyDeclarations();
+				boolean contains_malformed_nodes = false;
 				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
 					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(bodyDeclaration.getStartPosition()));
-					typeDeclaration.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(bodyDeclaration)));
+					contains_malformed_nodes |= Boolean.valueOf(isMalformed(bodyDeclaration));
 				}
+				typeDeclaration.setProperty(CONTAINS_MALFORMED_NODES, contains_malformed_nodes);
 				return true;
 			}
 
 			public boolean visit(EnumDeclaration enumDeclaration) {
 				List bodyDeclarations = enumDeclaration.bodyDeclarations();
+				boolean contains_malformed_nodes = false;
 				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
 					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(bodyDeclaration.getStartPosition()));
-					enumDeclaration.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(bodyDeclaration)));
+					contains_malformed_nodes |= Boolean.valueOf(isMalformed(bodyDeclaration));
 				}
 				List enumConstants = enumDeclaration.enumConstants();
 				for (Iterator iter = enumConstants.iterator(); iter.hasNext();) {
 					EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) iter.next();
 					enumConstantDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(enumConstantDeclaration.getStartPosition()));
-					enumDeclaration.setProperty(CONTAINS_MALFORMED_NODES, Boolean.valueOf(isMalformed(enumConstantDeclaration)));
+					contains_malformed_nodes |= Boolean.valueOf(isMalformed(enumConstantDeclaration));
 				}
+				enumDeclaration.setProperty(CONTAINS_MALFORMED_NODES, contains_malformed_nodes);
 				return true;
 			}
 		});
