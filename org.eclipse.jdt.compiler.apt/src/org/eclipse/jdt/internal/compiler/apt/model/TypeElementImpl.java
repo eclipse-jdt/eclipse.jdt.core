@@ -12,6 +12,8 @@ package org.eclipse.jdt.internal.compiler.apt.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -32,17 +34,91 @@ import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class TypeElementImpl extends ElementImpl implements TypeElement {
-	
+
+	/**
+	 * Compares Element instances possibly returned by
+	 * {@link TypeElement#getEnclosedElements()} based on their source location, if available.
+	 *
+	 */
+	private static final class SourceLocationComparator implements Comparator<Element> {
+		private final IdentityHashMap<ElementImpl, Integer> sourceStartCache = new IdentityHashMap<ElementImpl, Integer>();
+
+		@Override
+		public int compare(Element o1, Element o2) {
+			ElementImpl e1 = (ElementImpl) o1;
+			ElementImpl e2 = (ElementImpl) o2;
+
+			return getSourceStart(e1) - getSourceStart(e2);
+		}
+
+		private int getSourceStart(ElementImpl e) {
+			Integer value = sourceStartCache.get(e);
+
+			if (value == null) {
+				value = determineSourceStart(e);
+				sourceStartCache.put(e, value);
+			}
+
+			return value;
+		}
+
+		private int determineSourceStart(ElementImpl e) {
+			switch(e.getKind()) {
+				case ANNOTATION_TYPE :
+				case INTERFACE :
+				case CLASS :
+				case ENUM :
+					TypeElementImpl typeElementImpl = (TypeElementImpl) e;
+					Binding typeBinding = typeElementImpl._binding;
+					if (typeBinding instanceof SourceTypeBinding) {
+						SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) typeBinding;
+						TypeDeclaration typeDeclaration = (TypeDeclaration) sourceTypeBinding.scope.referenceContext();
+						return typeDeclaration.sourceStart;
+					}
+					break;
+				case CONSTRUCTOR :
+				case METHOD :
+					ExecutableElementImpl executableElementImpl = (ExecutableElementImpl) e;
+					Binding binding = executableElementImpl._binding;
+					if (binding instanceof MethodBinding) {
+						MethodBinding methodBinding = (MethodBinding) binding;
+						return methodBinding.sourceStart();
+					}
+					break;
+				case ENUM_CONSTANT :
+				case FIELD :
+					VariableElementImpl variableElementImpl = (VariableElementImpl) e;
+					binding = variableElementImpl._binding;
+					if (binding instanceof FieldBinding) {
+						FieldBinding fieldBinding = (FieldBinding) binding;
+						FieldDeclaration fieldDeclaration = fieldBinding.sourceField();
+						if (fieldDeclaration != null) {
+							return fieldDeclaration.sourceStart;
+						}
+					}
+					break;
+				default:
+					break;
+			}
+
+			return -1;
+		}
+	}
+
 	private final ElementKind _kindHint;
 	
 	/**
@@ -70,7 +146,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	@Override
 	public List<? extends Element> getEnclosedElements() {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
-		List<Element> enclosed = new ArrayList<Element>(binding.fieldCount() + binding.methods().length);
+		List<Element> enclosed = new ArrayList<Element>(binding.fieldCount() + binding.methods().length + binding.memberTypes().length);
 		for (MethodBinding method : binding.methods()) {
 			ExecutableElement executable = new ExecutableElementImpl(_env, method);
 			enclosed.add(executable);
@@ -86,6 +162,9 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 			TypeElement type = new TypeElementImpl(_env, memberType, null);
 			enclosed.add(type);
 		}
+
+		Collections.sort(enclosed, new SourceLocationComparator());
+
 		return Collections.unmodifiableList(enclosed);
 	}
 

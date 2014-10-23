@@ -13,14 +13,17 @@
 
 package org.eclipse.jdt.compiler.apt.tests.processors.elements;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -142,10 +145,60 @@ public class ElementProc extends BaseProcessor {
 			return false;
 		}
 		
+		if(!bug300408()) {
+			return false;
+		}
+		
 		reportSuccess();
 		return false;
 	}
 	
+	/**
+	 * Regression test for Bug 300408, checking if TypeElement.getEnclosedTypes() returns the elements
+	 * in the order as declared in the source
+	 * 
+	 * @return true if all tests passed
+	 */
+	private boolean bug300408() {
+		if (!enclosedElementOrderCorrect(
+				"targets.model.order.Ordered",
+				Arrays.asList(ElementKind.CONSTRUCTOR),
+				"methodB", "field1", "methodA")) {
+
+			return false;
+		}
+		
+		if (!enclosedElementOrderCorrect("targets.model.order.EnumInstances",
+				Arrays.asList(ElementKind.CONSTRUCTOR, ElementKind.METHOD),
+				"A", "G", "U", "D", "I", "N")) {
+
+			return false;
+		}
+
+		return true;
+	}
+
+	private boolean enclosedElementOrderCorrect(String className, Collection<ElementKind> ignoredKinds, String ... expectedOrder) {
+		TypeElement elementOrdered = _elementUtils.getTypeElement(className);
+		List<? extends Element> enclosedElements = elementOrdered.getEnclosedElements();
+
+		List<String> elementNames = new ArrayList<String>(enclosedElements.size());
+		for (Element e : enclosedElements) {
+			if (!ignoredKinds.contains(e.getKind())) {
+				elementNames.add(e.getSimpleName().toString());
+			}
+		}
+
+		List<String> expected = Arrays.asList(expectedOrder);
+
+		if (!elementNames.equals(expected)) {
+			reportError("Unexpected order of elements in class " + className + ". Expected: " + expected + ", but got: " + elementNames);
+			return false;
+		}
+
+		return true;
+	}
+
 	/**
 	 * Collect some elements that will be reused in various tests
 	 * @return true if all tests passed
