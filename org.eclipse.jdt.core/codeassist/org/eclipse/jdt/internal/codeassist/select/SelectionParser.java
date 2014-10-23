@@ -118,8 +118,14 @@ protected void attachOrphanCompletionNode(){
 				this.currentElement = this.currentElement.add(statement, 0);
 			}
 		}
-		if (!isIndirectlyInsideLambdaExpression())
+		if (isIndirectlyInsideLambdaExpression()) {
+			if (this.currentToken == TokenNameLBRACE)
+				this.ignoreNextOpeningBrace = true;
+			else if (this.currentToken == TokenNameRBRACE)
+				this.ignoreNextClosingBrace = true;
+		} else {
 			this.currentToken = 0; // given we are not on an eof, we do not want side effects caused by looked-ahead token
+		}
 	}
 }
 private void buildMoreCompletionContext(Expression expression) {
@@ -552,8 +558,10 @@ protected void consumeEnterAnonymousClassBody(boolean qualified) {
 	if (!this.diet){
 		this.restartRecovery	= true;	// force to restart in recovery mode
 		this.lastIgnoredToken = -1;
-		if (!isIndirectlyInsideLambdaExpression())
-			this.currentToken = 0; // opening brace already taken into account
+		if (isIndirectlyInsideLambdaExpression())
+			this.ignoreNextOpeningBrace = true;
+		else 
+			this.currentToken = 0; // opening brace already taken into account.
 		this.hasReportedError = true;
 	}
 
@@ -563,8 +571,10 @@ protected void consumeEnterAnonymousClassBody(boolean qualified) {
 	if (this.currentElement != null){
 		this.lastCheckPoint = anonymousType.bodyStart;
 		this.currentElement = this.currentElement.add(anonymousType, 0);
-		if (!isIndirectlyInsideLambdaExpression())
-			this.currentToken = 0; // opening brace already taken into account
+		if (isIndirectlyInsideLambdaExpression())
+			this.ignoreNextOpeningBrace = true;
+		else 
+			this.currentToken = 0; // opening brace already taken into account.
 		this.lastIgnoredToken = -1;
 	}
 }
@@ -769,6 +779,8 @@ protected void consumeLambdaExpression() {
 			this.expressionStack[this.expressionPtr] = new SelectionOnLambdaExpression(expression);
 		}
 	}
+	if (!(this.selectionStart >= expression.sourceStart && this.selectionEnd <= expression.sourceEnd))
+		popElement(K_LAMBDA_EXPRESSION_DELIMITER);
 }
 @Override
 protected void consumeReferenceExpression(ReferenceExpression referenceExpression) {

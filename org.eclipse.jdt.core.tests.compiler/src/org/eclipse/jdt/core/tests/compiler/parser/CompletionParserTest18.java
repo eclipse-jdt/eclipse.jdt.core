@@ -1710,7 +1710,6 @@ public void test430656() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=438952, [1.8][content assist] StackOverflowError at org.eclipse.jdt.internal.compiler.ast.SingleTypeReference.traverse(SingleTypeReference.java:108) 
-// FIXME: Recovered parse tree isn't quite correct, but is harmless.
 public void test438952() {
 	String string = 
 			"import java.util.function.Supplier;\n" +
@@ -1738,22 +1737,7 @@ public void test438952() {
 					"class SO {\n" + 
 					"  {\n" + 
 					"    int Supplier;\n" + 
-					"    new SO() {\n" + 
-					"      {\n" + 
-					"      }\n" + 
-					"      void test() {\n" + 
-					"        <CompleteOnName:>;\n" + 
-					"      }\n" + 
-					"      void test() {\n" + 
-					"        <CompleteOnName:>;\n" + 
-					"      }\n" + 
-					"    };\n" + 
 					"    m6 = () -> new SO() {\n" + 
-					"  {\n" + 
-					"  }\n" + 
-					"  void test() {\n" + 
-					"    <CompleteOnName:>;\n" + 
-					"  }\n" + 
 					"  void test() {\n" + 
 					"    <CompleteOnName:>;\n" + 
 					"  }\n" + 
@@ -2067,5 +2051,231 @@ public void test430667d() {
 				completionIdentifier,
 				expectedReplacedSource,
 				"diet ast");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=446765, 
+public void test446765() {
+			String string = 
+					"class Stepper<T> {\n" +
+					"    public interface Step<T> {\n" +
+					"        void run();\n" +
+					"    }\n" +
+					"    public Stepper(Handler<AsyncResult<T>> handler) {}\n" +
+					"\n" +
+					"    @SafeVarargs\n" +
+					"    public final void run(Step<T> ... steps) {}\n" +
+					"}\n" +
+					"interface AsyncResult<T> {}\n" +
+					"interface Handler<E> {\n" +
+					"    void handle(E event);\n" +
+					"}\n" +
+					"class Z {\n" +
+					"    void foo() {}\n" +
+					"}\n" +
+					"interface I {\n" +
+					"    void foo(Z z);\n" +
+					"}\n" +
+					"class Y {\n" +
+					"    void request(I i) {}\n" +
+					"}\n" +
+					"public class X {\n" +
+					"    void test() {\n" +
+					"        new Stepper<Void>(r -> {}) {\n" +
+					"            private void step1() {\n" +
+					"                Y y = new Y();\n" +
+					"                y.request(response -> {\n" +
+					"                    if (response.)\n" +
+					"                });\n" +
+					"            }\n" +
+					"        }.run();        \n" +
+					"    }    \n" +
+					"}\n";
+					
+			String completeBehind = "response.";
+			int cursorLocation = string.indexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompleteOnName:response.>";
+			String expectedParentNodeToString = "if (<CompleteOnName:response.>)\n" + 
+												"    ;";
+			String completionIdentifier = "";
+			String expectedReplacedSource = "response.";
+			String expectedUnitDisplayString =
+					"class Stepper<T> {\n" + 
+					"  public interface Step<T> {\n" + 
+					"    void run();\n" + 
+					"  }\n" + 
+					"  public Stepper(Handler<AsyncResult<T>> handler) {\n" + 
+					"  }\n" + 
+					"  public final @SafeVarargs void run(Step<T>... steps) {\n" + 
+					"  }\n" + 
+					"}\n" + 
+					"interface AsyncResult<T> {\n" + 
+					"}\n" + 
+					"interface Handler<E> {\n" + 
+					"  void handle(E event);\n" + 
+					"}\n" + 
+					"class Z {\n" + 
+					"  Z() {\n" + 
+					"  }\n" + 
+					"  void foo() {\n" + 
+					"  }\n" + 
+					"}\n" + 
+					"interface I {\n" + 
+					"  void foo(Z z);\n" + 
+					"}\n" + 
+					"class Y {\n" + 
+					"  Y() {\n" + 
+					"  }\n" + 
+					"  void request(I i) {\n" + 
+					"  }\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  public X() {\n" + 
+					"  }\n" + 
+					"  void test() {\n" + 
+					"    new Stepper<Void>((<no type> r) -> {\n" + 
+					"}) {\n" + 
+					"      private void step1() {\n" + 
+					"        Y y;\n" + 
+					"        y.request((<no type> response) -> {\n" + 
+					"  <CompleteOnName:response.>;\n" + 
+					"});\n" + 
+					"      }\n" + 
+					"    };\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+public void test428735h()  {
+	String string = 
+			"import java.util.List;\n" +
+			"class Person {\n" +
+			"   String getLastName() { return null; }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"   void test2(List<Person> people) {\n" +
+			"       people.sort((x,y) -> {\n" +
+			"              if (true) return \"\" + x.get); \n" +
+			"              else return \"\";\n" +
+			"   }\n" +
+			"}\n";
+			
+	String completeBehind = "x.get";
+	int cursorLocation = string.indexOf(completeBehind) + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:x.get>";
+	String expectedParentNodeToString = "(\"\" + <CompleteOnName:x.get>)";
+	String completionIdentifier = "get";
+	String expectedReplacedSource = "x.get";
+	String expectedUnitDisplayString =
+			"import java.util.List;\n" + 
+			"class Person {\n" + 
+			"  Person() {\n" + 
+			"  }\n" + 
+			"  String getLastName() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void test2(List<Person> people) {\n" + 
+			"    people.sort((<no type> x, <no type> y) -> {\n" + 
+			"  if (true)\n" + 
+			"      return (\"\" + <CompleteOnName:x.get>);\n" + 
+			"  ;\n" + 
+			"  return \"\";\n" + 
+			"});\n" + 
+			"  }\n" + 
+			"}\n";
+
+	checkMethodParse(
+		string.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"diet ast");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422468, [1.8][assist] Code assist issues with type elided lambda parameters
+public void test422468() { // computing visible elements in lambda scope.
+	String string = 
+			"interface I {\n" +
+			"	void foo(X x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static X xField;\n" +
+			"	static X goo(String s) {\n" +
+			"       return null;\n" +
+			"	}\n" +
+			"	static void goo(I i) {\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"       X xLocal = null;\n" +
+			"       args = null;\n" +
+			"       if (args != null) {\n" +
+			"           xField = null;\n" +
+			"       else \n" +
+			"           xField = null;\n" +
+			"       while (true);\n" +
+			"		goo((xyz) -> {\n" +
+			"           X xLambdaLocal = null;\n" +
+			"			System.out.println(xyz.)\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n";
+	String completeBehind = "xyz.";
+	int cursorLocation = string.indexOf(completeBehind) + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:xyz.>";
+	String expectedParentNodeToString = "System.out.println(<CompleteOnName:xyz.>)";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "xyz.";
+	String expectedUnitDisplayString =
+			"interface I {\n" + 
+			"  void foo(X x);\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"  static X xField;\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  <clinit>() {\n" + 
+			"  }\n" + 
+			"  static X goo(String s) {\n" + 
+			"  }\n" + 
+			"  static void goo(I i) {\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    X xLocal;\n" + 
+			"    {\n" + 
+			"      {\n" + 
+			"        goo((<no type> xyz) -> {\n" + 
+			"  X xLambdaLocal;\n" + 
+			"  System.out.println(<CompleteOnName:xyz.>);\n" + 
+			"});\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n";
+
+	checkMethodParse(
+		string.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"diet ast");
 }
 }

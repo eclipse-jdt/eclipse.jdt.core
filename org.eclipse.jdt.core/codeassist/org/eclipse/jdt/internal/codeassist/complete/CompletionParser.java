@@ -2426,8 +2426,17 @@ protected void consumeEmptyStatement() {
 	   decide whether to call contactNodeLists. See Parser.consumeBlockStatement(s) 
 	*/
 	if (this.shouldStackAssistNode && this.assistNode != null)
-		this.astStack[this.astPtr] = this.assistNode;
+		this.astStack[this.astPtr] = this.assistNodeParent instanceof MessageSend ? this.assistNodeParent : this.assistNode;
 	this.shouldStackAssistNode = false;
+}
+@Override
+protected void consumeBlockStatement() {
+	super.consumeBlockStatement();
+	if (this.shouldStackAssistNode && this.assistNode != null) {
+		Statement stmt = (Statement) this.astStack[this.astPtr];
+		if (stmt.sourceStart <= this.assistNode.sourceStart && stmt.sourceEnd >= this.assistNode.sourceEnd)
+			this.shouldStackAssistNode = false;
+	}
 }
 protected void consumeEnhancedForStatement() {
 	super.consumeEnhancedForStatement();
@@ -2608,8 +2617,6 @@ protected void consumeExitVariableWithInitialization() {
 		if (this.currentElement != null) {
 			this.restartRecovery = true;
 		}
-		if (!isInsideMethod())
-			popElement(K_FIELD_INITIALIZER_DELIMITER);
 	}
 }
 protected void consumeExitVariableWithoutInitialization() {
@@ -3268,6 +3275,13 @@ protected void consumeLabel() {
 	super.consumeLabel();
 	pushOnLabelStack(this.identifierStack[this.identifierPtr]);
 	this.pushOnElementStack(K_LABEL, this.labelPtr);
+}
+@Override
+protected void consumeLambdaExpression() {
+	super.consumeLambdaExpression();
+	Expression expression = this.expressionStack[this.expressionPtr];
+	if (this.assistNode == null || !(this.assistNode.sourceStart >= expression.sourceStart && this.assistNode.sourceEnd <= expression.sourceEnd))
+		popElement(K_LAMBDA_EXPRESSION_DELIMITER);
 }
 protected void consumeMarkerAnnotation(boolean isTypeAnnotation) {
 	if (this.topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_ANNOTATION_NAME_AND_RPAREN &&
@@ -5151,6 +5165,11 @@ public void setAssistIdentifier(char[] assistIdent){
 
 protected void shouldStackAssistNode() {
 	this.shouldStackAssistNode = true;
+}
+
+@Override
+protected boolean assistNodeNeedsStacking() {
+	return this.shouldStackAssistNode;
 }
 
 public  String toString() {

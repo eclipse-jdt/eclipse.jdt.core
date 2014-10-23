@@ -120,7 +120,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	private Set thrownExceptions;
 	public char[] text;  // source representation of the lambda.
 	private static final SyntheticArgumentBinding [] NO_SYNTHETIC_ARGUMENTS = new SyntheticArgumentBinding[0];
-	private static final Block NO_BODY = new Block(0, true);
+	private static final Block NO_BODY = new Block(0);
 
 	public LambdaExpression(CompilationResult compilationResult, boolean assistNode, boolean requiresGenericSignature) {
 		super(compilationResult);
