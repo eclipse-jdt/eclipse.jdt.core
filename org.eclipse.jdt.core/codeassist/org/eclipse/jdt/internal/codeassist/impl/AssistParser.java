@@ -232,7 +232,7 @@ public RecoveredElement buildInitialRecoveryState(){
 					break;
 				}
 				if (this.blockStarts[j] != lastStart){ // avoid multiple block if at same position
-					block = new Block(0, lastNode instanceof LambdaExpression);
+					block = new Block(0);
 					block.sourceStart = lastStart = this.blockStarts[j];
 					element = element.add(block, 1);
 				}
@@ -328,8 +328,11 @@ public RecoveredElement buildInitialRecoveryState(){
 			this.lastCheckPoint = importRef.declarationSourceEnd + 1;
 		}
 	}
-	if (this.currentToken == TokenNameRBRACE && !isIndirectlyInsideLambdaExpression()) {
-		this.currentToken = 0; // closing brace has already been taken care of
+	if (this.currentToken == TokenNameRBRACE) {
+		 if (isIndirectlyInsideLambdaExpression())
+			 this.ignoreNextClosingBrace = true;
+		 else 
+			 this.currentToken = 0; // closing brace has already been taken care of
 	}
 
 	/* might need some extra block (after the last reduced node) */
@@ -339,7 +342,7 @@ public RecoveredElement buildInitialRecoveryState(){
 	for (int j = blockIndex; j <= this.realBlockPtr; j++){
 		if (this.blockStarts[j] >= 0) {
 			if ((this.blockStarts[j] < pos || createLambdaBlock) && (this.blockStarts[j] != lastStart)){ // avoid multiple block if at same position
-				block = new Block(0, createLambdaBlock);
+				block = new Block(0);
 				block.sourceStart = lastStart = this.blockStarts[j];
 				element = element.add(block, 1);
 				createLambdaBlock = false;
@@ -473,14 +476,15 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 			   See also that this concern does not arise in the case of field/local initialization since the initializer is replaced with full tree by consumeExitVariableWithInitialization.
 			*/
 			RecoveredBlock recoveredBlock = (RecoveredBlock) (this.currentElement instanceof RecoveredBlock ? this.currentElement : 
-				(this.currentElement.parent instanceof RecoveredBlock) ? this.currentElement.parent : null);
+				(this.currentElement.parent instanceof RecoveredBlock) ? this.currentElement.parent : 
+					this.currentElement instanceof RecoveredMethod ? ((RecoveredMethod) this.currentElement).methodBody : null);
 			if (recoveredBlock != null) {
 				RecoveredStatement recoveredStatement = recoveredBlock.statementCount > 0 ? recoveredBlock.statements[recoveredBlock.statementCount - 1] : null;
 				ASTNode parseTree = recoveredStatement != null ? recoveredStatement.updatedStatement(0, new HashSet()) : null;
 				if (parseTree != null) {
 					if ((parseTree.sourceStart == 0 || parseTree.sourceEnd == 0) || (parseTree.sourceStart >= statementStart && parseTree.sourceEnd <= statementEnd)) {
-						recoveredBlock.statements[--recoveredBlock.statementCount] = null;
-						this.currentElement = recoveredBlock;
+						recoveredBlock.statements[recoveredBlock.statementCount - 1] = new RecoveredStatement(statement, recoveredBlock, 0);
+						statement = null;
 					} else if (recoveredStatement instanceof RecoveredLocalVariable && statement instanceof Expression) {
 						RecoveredLocalVariable local = (RecoveredLocalVariable) recoveredStatement;
 						if (local.localDeclaration != null && local.localDeclaration.initialization != null) {
@@ -784,6 +788,7 @@ protected void consumeRestoreDiet() {
 	// if we are not in a method (i.e. we were not in a local variable initializer)
 	// then we are exiting a field initializer
 	if (!isInsideMethod()) {
+		popUntilElement(K_FIELD_INITIALIZER_DELIMITER);
 		popElement(K_FIELD_INITIALIZER_DELIMITER);
 	}
 }
@@ -1688,12 +1693,7 @@ protected void popElement(int kind) {
 		return;
 	
 	int stackPointer = this.elementPtr;
-	
-	if (this.elementKindStack[stackPointer] == K_LAMBDA_EXPRESSION_DELIMITER) {
-		if (kind == K_FIELD_INITIALIZER_DELIMITER) // wait until lambda is reduced.
-			return;
-	}
-	
+
 	if (kind != K_LAMBDA_EXPRESSION_DELIMITER) {
 		while (this.elementKindStack[stackPointer] == K_LAMBDA_EXPRESSION_DELIMITER) {
 			stackPointer --;
@@ -1878,6 +1878,8 @@ protected int resumeAfterRecovery() {
 				return mode;
 			// else fall through and RESTART
 		} else {
+			if (this.currentToken == TokenNameLBRACE)
+				this.ignoreNextOpeningBrace = true;  // already accounted for in recovery token check.
 			return RESUME;
 		}
 	}

@@ -1710,7 +1710,6 @@ public void test430656() {
 				"diet ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=438952, [1.8][content assist] StackOverflowError at org.eclipse.jdt.internal.compiler.ast.SingleTypeReference.traverse(SingleTypeReference.java:108) 
-// FIXME: Recovered parse tree isn't quite correct, but is harmless.
 public void test438952() {
 	String string = 
 			"import java.util.function.Supplier;\n" +
@@ -1738,22 +1737,7 @@ public void test438952() {
 					"class SO {\n" + 
 					"  {\n" + 
 					"    int Supplier;\n" + 
-					"    new SO() {\n" + 
-					"      {\n" + 
-					"      }\n" + 
-					"      void test() {\n" + 
-					"        <CompleteOnName:>;\n" + 
-					"      }\n" + 
-					"      void test() {\n" + 
-					"        <CompleteOnName:>;\n" + 
-					"      }\n" + 
-					"    };\n" + 
 					"    m6 = () -> new SO() {\n" + 
-					"  {\n" + 
-					"  }\n" + 
-					"  void test() {\n" + 
-					"    <CompleteOnName:>;\n" + 
-					"  }\n" + 
 					"  void test() {\n" + 
 					"    <CompleteOnName:>;\n" + 
 					"  }\n" + 
@@ -2018,6 +2002,43 @@ public void test430667c() {
 					"  <clinit>() {\n" + 
 					"  }\n" + 
 					"  static int two() {\n" + 
+					"  }\n" + 
+					"}\n";
+
+			checkMethodParse(
+				string.toCharArray(),
+				cursorLocation,
+				expectedCompletionNodeToString,
+				expectedParentNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				"diet ast");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667, [1.8][content assist] no proposals around lambda as a field
+public void test430667d() {
+			String string = 
+					"import java.util.Arrays;\n" +
+					"import java.util.List;\n" +
+					"public class X {\n" +
+					"		List<Integer> list = Arrays.asList(1, 2, 3);\n" +
+					"		Object o = list.stream().map((x) -> x * x.hashCode()).forEach(System.out::pri);\n" +
+					"}\n";
+					
+			String completeBehind = "pri";
+			int cursorLocation = string.indexOf(completeBehind) + completeBehind.length() - 1;
+
+			String expectedCompletionNodeToString = "<CompletionOnReferenceExpressionName:System.out::pri>";
+			String expectedParentNodeToString = "list.stream().map((<no type> x) -> (x * x.hashCode())).forEach(<CompletionOnReferenceExpressionName:System.out::pri>)";
+			String completionIdentifier = "pri";
+			String expectedReplacedSource = "System.out::pri";
+			String expectedUnitDisplayString =
+					"import java.util.Arrays;\n" + 
+					"import java.util.List;\n" + 
+					"public class X {\n" + 
+					"  List<Integer> list;\n" + 
+					"  Object o = list.stream().map((<no type> x) -> (x * x.hashCode())).forEach(<CompletionOnReferenceExpressionName:System.out::pri>);\n" + 
+					"  public X() {\n" + 
 					"  }\n" + 
 					"}\n";
 
