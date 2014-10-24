@@ -274,16 +274,16 @@ class BoundSet {
 		}
 		public void setInstantiation(TypeBinding type, InferenceVariable variable, LookupEnvironment environment) {
 			if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
-				long oldBits = ((this.instantiation != null) ? this.instantiation.tagBits : variable.tagBits)
-								& TagBits.AnnotationNullMASK;
-				long requestedBits = type.tagBits & TagBits.AnnotationNullMASK;
-				long newBits = (oldBits == TagBits.AnnotationNonNull) ? oldBits : requestedBits; // need to preserve @NonNull
-				if (this.instantiation != null && oldBits == newBits) {
-					return; // no update needed
+				long variableBits = variable.tagBits & TagBits.AnnotationNullMASK;
+				long allBits = type.tagBits | variableBits;
+				if (this.instantiation != null)
+					allBits |= this.instantiation.tagBits;
+				allBits &= TagBits.AnnotationNullMASK;
+				if (allBits == TagBits.AnnotationNullMASK) { // contradiction
+					allBits = variableBits;
 				}
-				if (requestedBits != newBits) {
-					// adjust 'type' to fit the newBits
-					AnnotationBinding[] annot = environment.nullAnnotationsFromTagBits(newBits);
+				if (allBits != (type.tagBits & TagBits.AnnotationNullMASK)) {
+					AnnotationBinding[] annot = environment.nullAnnotationsFromTagBits(allBits);
 					if (annot != null)
 						type = environment.createAnnotatedType(type.withoutToplevelNullAnnotation(), annot);
 				}
@@ -364,8 +364,21 @@ class BoundSet {
 			return;
 		if (bound.left == bound.right) //$IDENTITY-COMPARISON$
 			return;
-		if (bound.equals(this.mostRecentBounds[0]) || bound.equals(this.mostRecentBounds[1]) || bound.equals(this.mostRecentBounds[2]) || bound.equals(this.mostRecentBounds[3])) {
-			return;
+		for (int recent = 0; recent < 4; recent++) {
+			if (bound.equals(this.mostRecentBounds[recent])) {
+				if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+					TypeBound existing = this.mostRecentBounds[recent];
+					long boundNullBits = bound.right.tagBits & TagBits.AnnotationNullMASK;
+					long existingNullBits = existing.right.tagBits & TagBits.AnnotationNullMASK;
+					if (boundNullBits != existingNullBits) {
+						if (existingNullBits == 0)
+							existing.right = bound.right;
+						else if (boundNullBits != 0) // combine bits from both sources, even if this creates a contradiction
+							existing.right = environment.createAnnotatedType(existing.right, environment.nullAnnotationsFromTagBits(boundNullBits));
+					}
+				}
+				return;
+			}
 		}
 		
 		this.mostRecentBounds[3] = this.mostRecentBounds[2];

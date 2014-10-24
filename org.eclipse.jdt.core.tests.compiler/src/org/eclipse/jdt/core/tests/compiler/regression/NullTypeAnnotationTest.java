@@ -2719,7 +2719,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	// conflicting annotations from type variable application and type variable substitution
-	public void _testNullTypeInference3c() { 
+	public void testNullTypeInference3c() { 
 		runNegativeTestWithLibs(
 			new String[] {
 				"Generics.java",
@@ -2742,10 +2742,20 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			},
 			getCompilerOptions(),
 			"----------\n" + 
-			"1. ERROR in Generics.java (at line 14)\n" + 
+			"1. WARNING in Generics.java (at line 13)\n" + 
+			"	Collection<@Nullable String> result = map1(inList, f);\n" + 
+			"	                                           ^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'@NonNull List<Object>\' needs unchecked conversion to conform to \'Collection<@NonNull Object>\'\n" + 
+			"----------\n" + 
+			"2. WARNING in Generics.java (at line 14)\n" + 
 			"	map2(inList, f);\n" + 
 			"	     ^^^^^^\n" + 
-			"Contradictory null annotations: method was inferred as \'Collection<@NonNull String> map2(Collection<@NonNull @Nullable Object>, Function<@NonNull @Nullable Object,@NonNull String>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+			"Null type safety (type annotations): The expression of type \'@NonNull List<Object>\' needs unchecked conversion to conform to \'Collection<@Nullable Object>\'\n" + 
+			"----------\n" + 
+			"3. ERROR in Generics.java (at line 14)\n" + 
+			"	map2(inList, f);\n" + 
+			"	             ^\n" + 
+			"Null type mismatch (type annotations): required \'Function<@Nullable Object,@NonNull String>\' but this expression has type \'MyFunc\', corresponding supertype is \'Function<@NonNull Object,@Nullable String>\'\n" + 
 			"----------\n");
 	}
 
