@@ -149,6 +149,48 @@ public void test004() {
 			"}"
 	});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=448724, [1.8] [compiler] Wrong resolution of overloaded method when irrelevant type parameter is present and lambda is used as parameter
+public void test448724() {
+	this.runConformTest(
+		new String[] {
+			"X.java", 
+			"import java.util.concurrent.Callable;\n" +
+			"public class X {\n" +
+			"	public void mismatchRunnableCallable() throws Exception {\n" +
+			"		//Resolves to case1(Runnable) method invocation; lambda with block\n" +
+			"		case1(() -> {\"abc\".length();});\n" +
+			"		//Resolves to case1(Callable) method invocation, resulting in type mismatch; block removed - lambda with expression\n" +
+			"                case1(() -> \"abc\".length());\n" +
+			"	}\n" +
+			"	public void noSuchMismatch() throws Exception {\n" +
+			"		//no difference to case1 \n" +
+			"		case2(() -> {\"abc\".length();});\n" +
+			"		//the only difference to case 1 is the missing irrelevant <T> type parameter. Properly resolves to case2(Runnable) here\n" +
+			"		case2(() -> \"abc\".length());\n" +
+			"	}\n" +
+			"	public void case1(final Runnable r) {\n" +
+			"		System.out.println(\"case1: Runnable\");\n" +
+			"	}\n" +
+			"	public <T> void case1(Callable<Boolean> c) {\n" +
+			"		System.out.println(\"case1: Callable\");\n" +
+			"	}\n" +
+			"	public void case2(final Runnable supplier) {\n" +
+			"		System.out.println(\"case2: Runnable\");\n" +
+			"	}\n" +
+			"	public void case2(Callable<Boolean> conditionEvaluator) {\n" +
+			"		System.out.println(\"case2: Callable\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) throws Exception {\n" +
+			"		new X().mismatchRunnableCallable();\n" +
+			"		new X().noSuchMismatch();\n" +
+			"	}\n" +
+			"}\n"
+	},
+	"case1: Runnable\n" + 
+	"case1: Runnable\n" + 
+	"case2: Runnable\n" + 
+	"case2: Runnable");
+}
 public static Class testClass() {
 	return LambdaRegressionTest.class;
 }
