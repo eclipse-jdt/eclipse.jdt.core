@@ -727,18 +727,6 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		}
 	}
 
-	public MethodBinding prepareForInferenceResult(Scope scope) {
-		try {
-			setExpressionContext(INVOCATION_CONTEXT);
-			this.binding = null;
-			this.trialResolution = true;
-			resolveType(this.enclosingScope);
-			return this.binding;
-		} finally {
-			this.trialResolution = false;
-		}
-	}
-
 	public boolean isConstructorReference() {
 		return CharOperation.equals(this.selector,  ConstantPool.Init);
 	}

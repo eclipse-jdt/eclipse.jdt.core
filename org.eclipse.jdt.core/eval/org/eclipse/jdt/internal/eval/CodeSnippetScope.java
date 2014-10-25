@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -396,7 +396,7 @@ public MethodBinding findMethodForArray(ArrayBinding receiverType, char[] select
 	if (methodBinding == null)
 		return new ProblemMethodBinding(selector, argumentTypes, ProblemReasons.NotFound);
 	if (methodBinding.isValidBinding()) {
-	    MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite, Scope.FULL_INFERENCE);
+	    MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 	    if (compatibleMethod == null)
 			return new ProblemMethodBinding(methodBinding, selector, argumentTypes, ProblemReasons.NotFound);
 	    methodBinding = compatibleMethod;
@@ -542,7 +542,7 @@ public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[]
 	MethodBinding[] compatible = new MethodBinding[methods.length];
 	int compatibleIndex = 0;
 	for (int i = 0, length = methods.length; i < length; i++) {
-	    MethodBinding compatibleMethod = computeCompatibleMethod(methods[i], argumentTypes, invocationSite, Scope.APPLICABILITY);
+	    MethodBinding compatibleMethod = computeCompatibleMethod(methods[i], argumentTypes, invocationSite);
 		if (compatibleMethod != null)
 			compatible[compatibleIndex++] = compatibleMethod;
 	}
@@ -558,8 +558,7 @@ public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[]
 		}
 	}
 	if (visibleIndex == 1) {
-		// 1.8: Give inference a chance to perform outstanding tasks (18.5.2):
-		return inferInvocationType(invocationSite, visible[0], argumentTypes);
+		return visible[0];
 	}
 	if (visibleIndex == 0) {
 		return new ProblemMethodBinding(compatible[0], TypeConstants.INIT, compatible[0].parameters, ProblemReasons.NotVisible);

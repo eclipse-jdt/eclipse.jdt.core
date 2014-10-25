@@ -17,18 +17,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ExpressionContext;
-import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Invocation;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
-import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
-import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18.SuspendedInferenceRecord;
 
 /**
@@ -56,41 +51,8 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 
 	public Object reduce(InferenceContext18 inferenceContext) throws InferenceFailureException {
 		// JLS 18.2.1
-		proper:
 		if (this.right.isProperType(true)) {
-			TypeBinding exprType = this.left.resolvedType;
-			if (exprType == null) {
-				// if we get here for some kinds of poly expressions (incl. ConditionalExpression),
-				// then other ways for checking compatibility are needed:
-                if (this.left instanceof FunctionalExpression) {
-                    if (this.left instanceof LambdaExpression) {
-                        // cf. NegativeLambdaExpressionTest.test412453()
-                        LambdaExpression copy = ((LambdaExpression) this.left).getResolvedCopyForInferenceTargeting(this.right);
-                        return (copy != null && copy.resolvedType != null && copy.resolvedType.isValidBinding()) ? TRUE : FALSE;
-                    }
-                }
-                return this.left.isCompatibleWith(this.right, inferenceContext.scope) ? TRUE : FALSE;
-			} else if (!exprType.isValidBinding()) {
-				return FALSE;
-			}
-			if (isCompatibleWithInLooseInvocationContext(exprType, this.right, inferenceContext)) {
-				return TRUE;
-			} else if (this.left instanceof AllocationExpression && this.left.isPolyExpression()) {
-				// half-resolved diamond has a resolvedType, but that may not be the final word, try one more step of resolution:
-            	MethodBinding binding = ((AllocationExpression) this.left).binding(this.right, false, null);
-            	return (binding != null && binding.declaringClass.isCompatibleWith(this.right, inferenceContext.scope)) ? TRUE : FALSE;
-            } else if (this.left instanceof Invocation && this.left.isPolyExpression()) {
-            	Invocation invoc = (Invocation) this.left;
-            	MethodBinding binding = invoc.binding(this.right, false, null);
-            	if (binding instanceof ParameterizedGenericMethodBinding) {
-            		ParameterizedGenericMethodBinding method = (ParameterizedGenericMethodBinding) binding;
-					InferenceContext18 leftCtx = invoc.getInferenceContext(method);
-            		if (leftCtx.stepCompleted < InferenceContext18.TYPE_INFERRED) {
-            			break proper; // fall through into nested inference below (not explicit in the spec!)
-            		}
-            	}
-            }
-			return FALSE;
+			return this.left.isCompatibleWith(this.right, inferenceContext.scope) || this.left.isBoxingCompatibleWith(this.right, inferenceContext.scope) ? TRUE : FALSE;
 		}
 		if (!canBePolyExpression(this.left)) {
 			TypeBinding exprType = this.left.resolvedType;
@@ -102,7 +64,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			// - parenthesized expression : these are transparent in our AST
 			if (this.left instanceof Invocation) {
 				Invocation invocation = (Invocation) this.left;
-				MethodBinding previousMethod = invocation.binding(this.right, false, null);
+				MethodBinding previousMethod = invocation.binding(this.right, inferenceContext.scope);
 				if (previousMethod == null)  	// can happen, e.g., if inside a copied lambda with ignored errors
 					return null; 				// -> proceed with no new constraints
 				MethodBinding method = previousMethod;
@@ -127,8 +89,11 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 								return FALSE;
 							return ConstraintTypeFormula.create(exprType, this.right, COMPATIBLE, this.isSoft);
 						}
+						if (innerCtx.stepCompleted >= InferenceContext18.TYPE_INFERRED) {
+							// The constraints and initial bounds that would effectively reduce to b3 are already transferred to current context during C Set construction.
+							return TRUE;
+						}
 						inferenceContext.inferenceKind = innerCtx.inferenceKind;
-						innerCtx.outerContext = inferenceContext;
 					}
 					boolean isDiamond = method.isConstructor() && this.left.isPolyExpression(method);
 					inferInvocationApplicability(inferenceContext, method, argumentTypes, isDiamond, inferenceContext.inferenceKind);
@@ -188,13 +153,8 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				}
 				if (functionType.returnType != TypeBinding.VOID) {
 					TypeBinding r = functionType.returnType;
-					Expression[] exprs;
-					if (lambda.body() instanceof Expression) {
-						exprs = new Expression[] {(Expression)lambda.body()};
-					} else {
-						exprs = lambda.resultExpressions();
-					}
-					for (int i = 0; i < exprs.length; i++) {
+					Expression[] exprs = lambda.resultExpressions();
+					for (int i = 0, length = exprs == null ? 0 : exprs.length; i < length; i++) {
 						Expression expr = exprs[i];
 						if (r.isProperType(true) && expr.resolvedType != null) {
 							TypeBinding exprType = expr.resolvedType;
@@ -217,7 +177,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 		return FALSE;
 	}
 
-	public ReferenceBinding findGroundTargetType(InferenceContext18 inferenceContext, BlockScope scope,
+	public static ReferenceBinding findGroundTargetType(InferenceContext18 inferenceContext, BlockScope scope,
 													LambdaExpression lambda, ParameterizedTypeBinding targetTypeWithWildCards)
 	{
 		if (lambda.argumentsTypeElided()) {
@@ -254,11 +214,9 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 		MethodBinding functionType = t.getSingleAbstractMethod(inferenceContext.scope, true);
 		if (functionType == null)
 			return FALSE;
-		// potentially-applicable method for the method reference when targeting T (15.13.1),
-		MethodBinding potentiallyApplicable = reference.findCompileTimeMethodTargeting(t, inferenceContext.scope);
-		if (potentiallyApplicable == null)
-			return FALSE;
+
 		if (reference.isExactMethodReference()) {
+			MethodBinding potentiallyApplicable = reference.getExactMethod(); 
 			List<ConstraintFormula> newConstraints = new ArrayList<ConstraintFormula>();
 			TypeBinding[] p = functionType.parameters;
 			int n = p.length;
@@ -268,6 +226,8 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			if (n == k+1) {
 				newConstraints.add(ConstraintTypeFormula.create(p[0], reference.lhs.resolvedType, COMPATIBLE));
 				offset = 1;
+			} else if (n != k) {
+				return FALSE;
 			}
 			for (int i = offset; i < n; i++)
 				newConstraints.add(ConstraintTypeFormula.create(p[i], pPrime[i-offset], COMPATIBLE));
@@ -276,11 +236,15 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				TypeBinding rAppl = potentiallyApplicable.isConstructor() && !reference.isArrayConstructorReference() ? potentiallyApplicable.declaringClass : potentiallyApplicable.returnType;
 				if (rAppl == TypeBinding.VOID)
 					return FALSE;
-				TypeBinding rPrime = rAppl.capture(inferenceContext.scope, 14); // FIXME capture position??
+				TypeBinding rPrime = rAppl.capture(inferenceContext.scope, reference.sourceEnd);
 				newConstraints.add(ConstraintTypeFormula.create(rPrime, r, COMPATIBLE));
 			}
 			return newConstraints.toArray(new ConstraintFormula[newConstraints.size()]);
 		} else { // inexact
+			MethodBinding potentiallyApplicable = reference.findCompileTimeMethodTargeting(t, inferenceContext.scope); // // potentially-applicable method for the method reference when targeting T (15.13.1),
+			if (potentiallyApplicable == null)
+				return FALSE;
+			
 			int n = functionType.parameters.length;
 			for (int i = 0; i < n; i++)
 				if (!functionType.parameters[i].isProperType(true))
@@ -299,7 +263,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			TypeBinding compileTypeReturn = original.isConstructor() ? original.declaringClass : original.returnType;
 			if (reference.typeArguments == null
 					&& ((original.typeVariables() != Binding.NO_TYPE_VARIABLES && compileTypeReturn.mentionsAny(original.typeVariables(), -1))
-						|| (original.isConstructor() && original.declaringClass.typeVariables() != Binding.NO_TYPE_VARIABLES)))
+						|| (original.isConstructor() && compileTimeDecl.declaringClass.isRawType())))
 							// not checking r.mentionsAny for constructors, because A::new resolves to the raw type
 							// whereas in fact the type of all expressions of this shape depends on their type variable (if any)
 			{
@@ -321,7 +285,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					inferenceContext.resumeSuspendedInference(prevInvocation);
 				}
 			}
-			TypeBinding rPrime = compileTimeDecl.isConstructor() ? compileTimeDecl.declaringClass : compileTimeDecl.returnType;
+			TypeBinding rPrime = compileTimeDecl.isConstructor() ? compileTimeDecl.declaringClass : compileTimeDecl.returnType.capture(inferenceContext.scope, reference.sourceEnd());
 			if (rPrime.id == TypeIds.T_void)
 				return FALSE;
 			return ConstraintTypeFormula.create(rPrime, r, COMPATIBLE, this.isSoft);
@@ -384,7 +348,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				InferenceVariable[] betas = inferenceContext.addTypeVariableSubstitutions(arguments);
 				ParameterizedTypeBinding gbeta = inferenceContext.environment.createParameterizedType(
 						parameterizedType.genericType(), betas, parameterizedType.enclosingType(), parameterizedType.getTypeAnnotations());
-				inferenceContext.currentBounds.captures.put(gbeta, parameterizedType); // established: both types have nonnull arguments
+				inferenceContext.currentBounds.captures.put(gbeta, parameterizedType.capture(inferenceContext.scope, invocationSite.sourceEnd())); // established: both types have nonnull arguments
 				ConstraintTypeFormula newConstraint = ConstraintTypeFormula.create(gbeta, targetType, COMPATIBLE);
 				return inferenceContext.reduceAndIncorporate(newConstraint);
 			}
@@ -404,7 +368,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					BoundSet solution = inferenceContext.solve(new InferenceVariable[]{alpha});
 					if (solution == null)
 						return false;
-					TypeBinding u = solution.getInstantiation(alpha, null).capture(inferenceContext.scope, invocationSite.sourceStart()); // TODO make position unique?
+					TypeBinding u = solution.getInstantiation(alpha, null).capture(inferenceContext.scope, invocationSite.sourceEnd());
 					ConstraintTypeFormula newConstraint = ConstraintTypeFormula.create(u, targetType, COMPATIBLE);
 					return inferenceContext.reduceAndIncorporate(newConstraint);
 				}
@@ -437,17 +401,9 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					// ii)
 					final TypeBinding r = sam.returnType;
 					LambdaExpression resolved = lambda.getResolvedCopyForInferenceTargeting(this.right);
-					Statement body = resolved != null ? resolved.body() : lambda.body();
-					if (body instanceof Expression) {
-						variables.addAll(new ConstraintExpressionFormula((Expression) body, r, COMPATIBLE).inputVariables(context));
-					} else {
-						// TODO: should I use LambdaExpression.resultExpressions? (is currently private).
-						body.traverse(new ASTVisitor() {
-							public boolean visit(ReturnStatement returnStatement, BlockScope scope) {
-								variables.addAll(new ConstraintExpressionFormula(returnStatement.expression, r, COMPATIBLE).inputVariables(context));
-								return false;
-							}
-						}, (BlockScope)null);
+					Expression[] resultExpressions = resolved != null ? resolved.resultExpressions() : null;
+					for (int i = 0, length = resultExpressions == null ? 0 : resultExpressions.length; i < length; i++) {
+						variables.addAll(new ConstraintExpressionFormula(resultExpressions[i], r, COMPATIBLE).inputVariables(context));
 					}
 				}
 				return variables;

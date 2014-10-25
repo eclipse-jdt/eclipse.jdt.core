@@ -74,9 +74,8 @@ public abstract class FunctionalExpression extends Expression {
 		super();
 	}
 	
-	// for lambda's and reference expressions boxing compatibility is same as vanilla compatibility.
 	public boolean isBoxingCompatibleWith(TypeBinding targetType, Scope scope) {
-		return isCompatibleWith(targetType, scope);
+		return false;
 	}
 	
 	public void setCompilationResult(CompilationResult compilationResult) {
@@ -107,19 +106,27 @@ public abstract class FunctionalExpression extends Expression {
 		return true; // always as per introduction of part D, JSR 335
 	}
 
-	public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
-		if (targetType instanceof TypeVariableBinding) {
-			if (method != null) { // when called from type inference
-				if (((TypeVariableBinding)targetType).declaringElement == method)
-					return false;
-				if (method.isConstructor() && ((TypeVariableBinding)targetType).declaringElement == method.declaringClass)
-					return false;
-			} else { // for internal calls
-				TypeVariableBinding typeVariable = (TypeVariableBinding) targetType;
-				if (typeVariable.declaringElement instanceof MethodBinding)
-					return false;
-			}
+	@Override
+	public boolean isFunctionalType() {
+		return true;
+	}
+	
+	public boolean isPertinentToApplicability(TypeVariableBinding typeVariable, MethodBinding method) {
+		if (method != null) { // when called from type inference
+			if (typeVariable.declaringElement == method)
+				return false;
+			if (method.isConstructor() && typeVariable.declaringElement == method.declaringClass)
+				return false;
+		} else { // for internal calls
+			if (typeVariable.declaringElement instanceof MethodBinding)
+				return false;
 		}
+		return true;
+	}
+	
+	public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
+		if (targetType instanceof TypeVariableBinding)
+			return isPertinentToApplicability((TypeVariableBinding) targetType, method);
 		return true;
 	}
 
@@ -203,11 +210,6 @@ public abstract class FunctionalExpression extends Expression {
 				break;
 		}
 		return null;
-	}
-
-	public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType, Scope scope) {
-		targetType = targetType.uncapture(this.enclosingScope);
-		return resolveTypeExpecting(this.enclosingScope, targetType);
 	}
 
 	class VisibilityInspector extends TypeBindingVisitor {

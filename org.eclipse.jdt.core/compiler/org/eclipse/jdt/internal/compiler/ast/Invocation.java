@@ -19,12 +19,8 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 /**
- * Abstraction for invocation AST nodes that can trigger 
- * <ul>
- * <li>Invocation Applicability Inferences (18.5.1), and</li> 
- * <li>Invocation Type Inference (18.5.2).</li>
- * </ul>
- */
+ * Abstraction for invocation AST nodes that can trigger overload resolution possibly involving type inference
+*/
 public interface Invocation extends InvocationSite {
 
 	Expression[] arguments();
@@ -33,57 +29,24 @@ public interface Invocation extends InvocationSite {
 	 * Answer the resolved method binding of this invocation.
 	 * If a target type is given, the invocation gets a chance to do repeated method lookup.
 	 * @param targetType the target type of this invocation or null if not yet known
-	 * @param reportErrors if true then this is the last call, if no valid binding can be answered we should report an error
-	 * @param scope if reportErrors is true then this scope can be used for error reporting
+	 * @param scope the scope to use for lookup.
 	 * 
 	 */
-	MethodBinding binding(TypeBinding targetType, boolean reportErrors, Scope scope);
-
+	MethodBinding binding(TypeBinding targetType, Scope scope);
+	
 	/**
 	 * Register the given inference context, which produced the given method as its intermediate result.
 	 * Later when the same method is selected as the most specific method, the inference context
-	 * for this pair (Invocation x MethodBinding) can be looked up using {@link #getExpressionContext()}
+	 * for this pair (Invocation x MethodBinding) can be looked up using {@link #getInferenceContext(ParameterizedMethodBinding)}
 	 * to continue the type inference.
 	 */
 	void registerInferenceContext(ParameterizedGenericMethodBinding method, InferenceContext18 infCtx18);
-	
+
 	/**
-	 * Retrieve an inference context for the given method which must have been registered
-	 * using {@link #registerInferenceContext(ParameterizedGenericMethodBinding, InferenceContext18)}.
+	 * Retrieve an inference context for the given method.
 	 * @param method an intermediate resolved candidate for this invocation
-	 * return a suspended inference context or null if none was registered for this method.
+	 * return the associated inference context.
 	 */
 	InferenceContext18 getInferenceContext(ParameterizedMethodBinding method);
 
-	/**
-	 * Answer true if this invocation has determined its binding using inference.
-	 */
-	boolean usesInference();
-	
-	/**
-	 * Where the AST node may hold references to the results of Invocation Applicability Inference,
-	 * this method allows to update those references to the result of Invocation Type Inference.
-	 * Note that potentially more than just the method binding is updated.
-	 * @param updatedBinding the final method binding after full inference
-	 * @param targetType the target type used during Invocation Type Inference
-	 * @return true if an update has happened
-	 */
-	boolean updateBindings(MethodBinding updatedBinding, TypeBinding targetType);
-	
-	/**
-	 * Answer whether the current invocation has inner expressions that still need updating after inference.
-	 */
-	boolean innersNeedUpdate();
-
-	/**
-	 * Mark that updating (the need for which is signaled via {@link #innersNeedUpdate()}) has been done.
-	 */
-	void innerUpdateDone();
-
-	/**
-	 * If this invocation has any poly expressions as arguments, this method answers an inference helper 
-	 * that mediates during overload resolution, even if no actual inference happens for this invocation.
-	 */
-	InnerInferenceHelper innerInferenceHelper();
-	
 }

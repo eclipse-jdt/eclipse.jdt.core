@@ -57,7 +57,6 @@ public class ConditionalExpression extends OperatorExpression {
 	private boolean isPolyExpression = false;
 	private TypeBinding originalValueIfTrueType;
 	private TypeBinding originalValueIfFalseType;
-	private BlockScope polyExpressionScope;
 	private boolean use18specifics;
 	public ConditionalExpression(
 		Expression condition,
@@ -464,31 +463,25 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			if (this.valueIfFalse instanceof CastExpression) this.valueIfFalse.bits |= DisableUnnecessaryCastCheck; // will check later on
 			this.originalValueIfFalseType = this.valueIfFalse.resolveType(scope);
 
-			if (isPolyExpression()) {
-				if (this.expectedType == null) {
-					this.polyExpressionScope = scope; // preserve for eventual resolution/error reporting.
-				}
-			}
-
 			if (conditionType == null || this.originalValueIfTrueType == null || this.originalValueIfFalseType == null)
 				return null;
 		} else {
-			/* Not reached as of now as we don't evaluate conditional expressions multiple times, left in for now.
-			   If in future, we change things so control reaches here, a precondition is that this.expectedType is
-			   the final target type.
-			*/
+
 			if (this.originalValueIfTrueType.kind() == Binding.POLY_TYPE)
 				this.originalValueIfTrueType = this.valueIfTrue.resolveType(scope);
 			if (this.originalValueIfFalseType.kind() == Binding.POLY_TYPE)
 				this.originalValueIfFalseType = this.valueIfFalse.resolveType(scope);
+			
+			if (this.originalValueIfTrueType == null || !this.originalValueIfTrueType.isValidBinding())
+				return this.resolvedType = null;
+			if (this.originalValueIfFalseType == null || !this.originalValueIfFalseType.isValidBinding())
+				return this.resolvedType = null;
 		}
 		if (isPolyExpression()) {
 			if (this.expectedType == null) {
-				this.polyExpressionScope = scope; // preserve for eventual resolution/error reporting.
 				return new PolyTypeBinding(this);
 			}
-			computeConversions(scope, this.expectedType);
-			return this.resolvedType = this.expectedType;
+			return this.resolvedType = computeConversions(scope, this.expectedType) ? this.expectedType : null;
 		}
 		TypeBinding valueIfTrueType = this.originalValueIfTrueType;
 		TypeBinding valueIfFalseType = this.originalValueIfFalseType;
@@ -661,7 +654,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		return null;
 	}
 
-	protected void computeConversions(BlockScope scope, TypeBinding targetType) {
+	protected boolean computeConversions(BlockScope scope, TypeBinding targetType) {
+		boolean ok = true;
 		if (this.originalValueIfTrueType != null && this.originalValueIfTrueType.isValidBinding()) {
 			if (this.valueIfTrue.isConstantValueOfTypeAssignableToType(this.originalValueIfTrueType, targetType)
 					|| this.originalValueIfTrueType.isCompatibleWith(targetType)) {
@@ -682,6 +676,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				}
 			} else {
 				scope.problemReporter().typeMismatchError(this.originalValueIfTrueType, targetType, this.valueIfTrue, null);
+				ok = false;
 			}
 		}
 		if (this.originalValueIfFalseType != null && this.originalValueIfFalseType.isValidBinding()) {
@@ -704,8 +699,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				}
 			} else {
 				scope.problemReporter().typeMismatchError(this.originalValueIfFalseType, targetType, this.valueIfFalse, null);
+				ok = false;
 			}
 		}
+		return ok;
 	}
 
 	public void setExpectedType(TypeBinding expectedType) {
@@ -720,21 +717,19 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		return this.expressionContext;
 	}
 	
-	public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType, Scope scope) {
-		// in 1.8 if treated as a poly expression:
-		if (isPolyExpression()) {
-			targetType = targetType.uncapture(this.polyExpressionScope);
-			this.originalValueIfTrueType = this.valueIfTrue.checkAgainstFinalTargetType(targetType, scope);
-			this.originalValueIfFalseType = this.valueIfFalse.checkAgainstFinalTargetType(targetType, scope);
-			computeConversions(this.polyExpressionScope, targetType);
-			this.resolvedType = targetType;
-		}
-		return this.resolvedType;
+	public boolean isPertinentToApplicability(TypeVariableBinding typeVariable, MethodBinding method) {
+		return this.valueIfTrue.isPertinentToApplicability(typeVariable, method) 
+				&& this.valueIfFalse.isPertinentToApplicability(typeVariable, method); // not perfect.
 	}
 	
 	public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
 		return this.valueIfTrue.isPertinentToApplicability(targetType, method) 
 				&& this.valueIfFalse.isPertinentToApplicability(targetType, method);
+	}
+	
+	@Override
+	public boolean isFunctionalType() {
+		return this.valueIfTrue.isFunctionalType() || this.valueIfFalse.isFunctionalType();
 	}
 	
 	public boolean isPolyExpression() throws UnsupportedOperationException {

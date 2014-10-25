@@ -41,6 +41,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION_CONTEXT;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -244,6 +245,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				this.argumentTypes[i] = this.arguments[i].type.resolveType(blockScope, true /* check bounds*/);
 		}
 		if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
+			this.resolvedCopies = new HashMap<TypeBinding, LambdaExpression>();
 			return new PolyTypeBinding(this);
 		} 
 		
@@ -321,11 +323,18 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				expectedSAMType = (ReferenceBinding) this.expectedType;
 			if (expectedSAMType != null)
 				groundType = findGroundTargetType(blockScope, expectedSAMType, argumentsTypeElided);
+			
 			if (groundType != null) {
 				this.descriptor = groundType.getSingleAbstractMethod(blockScope, true);
 				if (!this.descriptor.isValidBinding()) {
 					reportSamProblem(blockScope, this.descriptor);
 				} else {
+					if (groundType != expectedSAMType) { //$IDENTITY-COMPARISON$
+						if (!groundType.isCompatibleWith(expectedSAMType, this.scope)) { // the ground has shifted, are we still on firm grounds ? 
+							blockScope.problemReporter().typeMismatchError(groundType, this.expectedType, this, null); // report deliberately against block scope so as not to blame the lambda.
+							return this.resolvedType = null;
+						}
+					}
 					this.resolvedType = groundType;
 				}
 				// TODO: in which cases do we have to assign this.resolvedType & this.descriptor (with problem bindings) to prevent NPE downstream??
@@ -414,6 +423,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if (this.body instanceof Expression) {
 			Expression expression = (Expression) this.body;
 			new ReturnStatement(expression, expression.sourceStart, expression.sourceEnd, true).resolve(this.scope); // :-) ;-)
+			this.voidCompatible = this.original.voidCompatible = expression.statementExpression();
 		} else {
 			this.body.resolve(this.scope);
 		}
@@ -730,7 +740,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if (!(left instanceof ReferenceBinding))
 			return false;
 
-		left = left.uncapture(this.enclosingScope);
 		shapeAnalysis: if (!this.shapeAnalysisComplete) {
 			IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
 			final CompilerOptions compilerOptions = this.enclosingScope.compilerOptions();
@@ -833,6 +842,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		return true;
 	}
 
+	private HashMap<TypeBinding, LambdaExpression> resolvedCopies;
+	
 	/**
 	 * Get a resolved copy of this lambda for use by type inference, as to avoid spilling any premature
 	 * type results into the original lambda.
@@ -841,12 +852,21 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	 * @return a resolved copy of 'this' or null if significant errors where encountered
 	 */
 	public LambdaExpression getResolvedCopyForInferenceTargeting(TypeBinding targetType) {
+		LambdaExpression lambda = this.resolvedCopies.get(targetType);
+		if (lambda == null) {
+			lambda = getResolvedCopyForInferenceTargeting0(targetType);
+			if (lambda != null) {
+				this.resolvedCopies.put(targetType, lambda);
+			}
+		}
+		return lambda;
+	}
+	
+	public LambdaExpression getResolvedCopyForInferenceTargeting0(TypeBinding targetType) {
 		// note: this is essentially a simplified extract from isCompatibleWith(TypeBinding,Scope).
 		if (this.shapeAnalysisComplete && this.binding != null)
 			return this;
 		
-		targetType = targetType.uncapture(this.enclosingScope);
-		// TODO: caching
 		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
 		final CompilerOptions compilerOptions = this.enclosingScope.compilerOptions();
 		boolean analyzeNPE = compilerOptions.isAnnotationBasedNullAnalysisEnabled;
@@ -968,6 +988,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 
 		if (copy != null) { // ==> syntax errors == null
 			copy.original = this;
+			copy.enclosingScope = this.enclosingScope;
 		}
 		return copy;
 	}
@@ -976,7 +997,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if (this.original == this) // not in overload resolution context.
 			return;
 		if (this.body instanceof Expression) {
-			this.original.valueCompatible = resultType != null && resultType.id != TypeIds.T_void;
+			this.original.valueCompatible = resultType != null && resultType.id == TypeIds.T_void ? false : true;
 			this.original.resultExpressions = new Expression[1];
 			this.original.resultExpressions[0] = expression;
 			return; // void compatibility determined via statementExpression()

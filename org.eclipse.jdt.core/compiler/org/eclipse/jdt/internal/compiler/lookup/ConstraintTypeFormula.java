@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.internal.compiler.ast.Invocation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /**
@@ -311,6 +312,13 @@ class ConstraintTypeFormula extends ConstraintFormula {
 					result[i] = ConstraintTypeFormula.create(subCandidate, intersectingTypes[i], SUBTYPE, this.isSoft);
 				}
 				return result;
+			case Binding.POLY_TYPE:
+				PolyTypeBinding poly = (PolyTypeBinding) superCandidate;
+				Invocation invocation = (Invocation) poly.expression;
+				MethodBinding binding = invocation.binding(subCandidate, scope);
+				if (binding == null || !binding.isValidBinding())
+					return FALSE;
+				return reduceSubType(scope, subCandidate, binding.returnType.capture(scope, invocation.sourceEnd()));
 		}
 		throw new IllegalStateException("Unexpected RHS "+superCandidate); //$NON-NLS-1$
 	}
@@ -347,27 +355,13 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			return true;
 		if (!(cb instanceof ParameterizedTypeBinding)) {
 			// if C is parameterized with its own type variables, there're no more constraints to be created here, otherwise let's fail
-			return isInsignificantParameterized(ca);
+			return ca.isParameterizedWithOwnVariables();
 		}
 		TypeBinding[] bi = ((ParameterizedTypeBinding) cb).arguments;
 		if (cb.isRawType() || bi == null || bi.length == 0)
 			return (this.isSoft && InferenceContext18.SIMULATE_BUG_JDK_8026527) ? true : false; // FALSE would conform to the spec 
 		for (int i = 0; i < ai.length; i++)
 			constraints.add(ConstraintTypeFormula.create(bi[i], ai[i], TYPE_ARGUMENT_CONTAINED, this.isSoft));
-		return true;
-	}
-
-	private boolean isInsignificantParameterized(ParameterizedTypeBinding ca) {
-		TypeVariableBinding[] typeVariables = ca.original().typeVariables();
-		TypeBinding[] typeArguments = ca.arguments;
-		if (typeVariables == null || typeArguments == null)
-			return typeVariables == typeArguments;
-		if (typeVariables.length != typeArguments.length)
-			return false;
-		for (int i = 0; i < typeArguments.length; i++) {
-			if (TypeBinding.notEquals(typeVariables[i], typeArguments[i]))
-				return false;
-		}
 		return true;
 	}
 

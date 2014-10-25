@@ -6750,6 +6750,7 @@ public void test443467() throws Exception {
 			"}\n" +
 			"}\n",
 		},
+		// Note: we used to emit a duplicate message of 2. Fixed.
 		"----------\n" + 
 		"1. ERROR in BuildIdeMain.java (at line 9)\n" + 
 		"	filter2.map(p -> new Pair<>(updateToFile.get(p), p->ideFiles.get(p)));\n" + 
@@ -6757,11 +6758,6 @@ public void test443467() throws Exception {
 		"The constructor Pair<Path,Object>(Path, (<no type> p) -> {}) is undefined\n" + 
 		"----------\n" + 
 		"2. ERROR in BuildIdeMain.java (at line 9)\n" + 
-		"	filter2.map(p -> new Pair<>(updateToFile.get(p), p->ideFiles.get(p)));\n" + 
-		"	                                                 ^^^^^^^^^^^^^^^^^^\n" + 
-		"The target type of this expression must be a functional interface\n" + 
-		"----------\n" + 
-		"3. ERROR in BuildIdeMain.java (at line 9)\n" + 
 		"	filter2.map(p -> new Pair<>(updateToFile.get(p), p->ideFiles.get(p)));\n" + 
 		"	                                                 ^^^^^^^^^^^^^^^^^^\n" + 
 		"The target type of this expression must be a functional interface\n" + 

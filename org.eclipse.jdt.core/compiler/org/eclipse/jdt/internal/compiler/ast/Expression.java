@@ -959,6 +959,10 @@ public Constant optimizedBooleanConstant() {
 	return this.constant;
 }
 
+public boolean isPertinentToApplicability(TypeVariableBinding typeVariable, MethodBinding method) {
+	return true;
+}
+
 public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
 	return true;
 }
@@ -1063,16 +1067,6 @@ public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedTy
 }
 
 /**
- * Once outer contexts have finalized the target type for this expression,
- * perform any checks that might have been delayed previously.
- * @param targetType the final target type (aka expectedType) for this expression.
- * @param scope scope for error reporting
- */
-public TypeBinding checkAgainstFinalTargetType(TypeBinding targetType, Scope scope) {
-	return this.resolvedType; // subclasses may choose to do real stuff here
-}
-
-/**
  * Returns true if the receiver is forced to be of raw type either to satisfy the contract imposed
  * by a super type or because it *is* raw and the current type has no control over it (i.e the rawness
  * originates from some other file.)
@@ -1164,7 +1158,7 @@ public boolean isCompatibleWith(TypeBinding left, Scope scope) {
 }
 
 public boolean isBoxingCompatibleWith(TypeBinding left, Scope scope) {
-	return isBoxingCompatible(this.resolvedType, left, this, scope);
+	return this.resolvedType != null && isBoxingCompatible(this.resolvedType, left, this, scope);
 }
 
 public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t, Scope scope) {
@@ -1249,5 +1243,9 @@ public boolean statementExpression() {
 */
 public VariableBinding nullAnnotatedVariableBinding(boolean supportTypeAnnotations) {
 	return null;
+}
+
+public boolean isFunctionalType() {
+	return false;
 }
 }

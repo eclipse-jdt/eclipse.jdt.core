@@ -51,6 +51,11 @@ public class PolyTypeBinding extends TypeBinding {
 	public boolean isPolyType() {
 		return true;
 	}
+	
+	@Override
+	public boolean isFunctionalType() {
+		return this.expression.isFunctionalType();
+	}
 
 	public char[] qualifiedSourceName() {
 		return readableName();

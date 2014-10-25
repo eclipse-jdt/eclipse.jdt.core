@@ -561,4 +561,24 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 			"The method f2() is undefined for the type Y\n" +
 			"----------\n");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=437444#c113, - Error building JRE8
+	public void test437444_c113() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_8)
+			return;
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X extends Y {\n" +
+						"    public X(Z[] n) {\n" +
+						"        super((n == null) ? null : n.clone());\n" +
+						"    }\n" +
+						"}\n" +
+						"class Y  {\n" +
+						"    public Y(Z[] notifications) {\n" +
+						"    }\n" +
+						"}\n" +
+						"interface Z {}\n",
+				},
+				"");
+	}
 }

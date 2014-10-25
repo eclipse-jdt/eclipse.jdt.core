@@ -39621,11 +39621,24 @@ public void test1142() {
 			"}\n", // =================
 		},
 		// compiler results
+		this.complianceLevel < ClassFileConstants.JDK1_8 ? 
 		"----------\n" + /* expected compiler log */
 		"1. ERROR in X.java (at line 5)\n" +
 		"	return compound(asList(a, b));\n" +
 		"	       ^^^^^^^^\n" +
 		"The method compound(Iterable<? extends Comparator<? super T>>) in the type X is not applicable for the arguments (List<Comparator<? extends Object>>)\n" +
+		"----------\n"
+		// 1.8+ ATM, we generate an extra error due to inner poly expression evaluation.
+		:"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	return compound(asList(a, b));\n" + 
+		"	       ^^^^^^^^\n" + 
+		"The method compound(Iterable<? extends Comparator<? super T>>) in the type X is not applicable for the arguments (List<Comparator<? extends Object>>)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	return compound(asList(a, b));\n" + 
+		"	                ^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<Comparator<? extends Object>> to Iterable<? extends Comparator<? super T>>\n" + 
 		"----------\n",
 		// javac options
 		JavacTestOptions.JavacHasABug.JavacBug6573446 /* javac test options */);
@@ -44265,11 +44278,24 @@ public void test1271() {
 					"	}\n" +
 					"}\n", // =================
 			},
+			this.complianceLevel < ClassFileConstants.JDK1_8 ? 
 			"----------\n" +
 			"1. ERROR in X.java (at line 24)\n" +
 			"	put(Integer.class, combine(FUNC2, FUNC1));\n" +
 			"	^^^\n" +
 			"The method put(Class<E>, X.TO<? super E>) in the type X is not applicable for the arguments (Class<Integer>, X.OO<String,Object>)\n" +
+			"----------\n"
+			: // ATM, in 1.8+ we generate an extra error due to inner poly expression resolution after the target type is known.
+			"----------\n" + 
+			"1. ERROR in X.java (at line 24)\n" + 
+			"	put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+			"	^^^\n" + 
+			"The method put(Class<E>, X.TO<? super E>) in the type X is not applicable for the arguments (Class<Integer>, X.OO<String,Object>)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 24)\n" + 
+			"	put(Integer.class, combine(FUNC2, FUNC1));\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from X.OO<String,Object> to X.TO<? super E>\n" + 
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216686 - variation

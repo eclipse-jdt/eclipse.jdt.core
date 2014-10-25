@@ -9118,11 +9118,12 @@ public void test442983() {
 			"	}	\n" +
 			"}\n"
 		},
+		// Note: new message aligns better with javac 8u20.
 		"----------\n" + 
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	Function<CL<Integer>, String> v5 = CL::method1;\n" + 
 		"	                                   ^^^^^^^^^^^\n" + 
-		"The type CL does not define method1(CL<Integer>) that is applicable here\n" + 
+		"Cannot make a static reference to the non-static method method1(CL) from the type CL\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 8)\n" + 
 		"	v5 = t -> t.method1();	\n" + 
@@ -9641,7 +9642,7 @@ public void test444665() {
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=442446, [1.8][compiler] compiler unable to infer lambda's generic argument types
-public void _test442446() {
+public void test442446() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", 
@@ -9706,6 +9707,72 @@ public void test432759() {
 			"}\n" 
 	},
 	"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=437444#c36,  NPE in broken code
+public void test437444() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		List<Person> roster = new ArrayList<>();\n" +
+			"        Map<String, Person> map = \n" +
+			"            roster\n" +
+			"                .stream()\n" +
+			"                .collect(\n" +
+			"                    Collectors.toMap(\n" +
+			"                        Person::getLast,\n" +
+			"                        Function.identity() \n" +
+			"                    ));\n" +
+			"	}\n" +
+			"}\n" +
+			"class Person {\n" +
+			"}\n" 
+	},
+	"----------\n" + 
+	"1. ERROR in X.java (at line 7)\n" + 
+	"	Map<String, Person> map = \n" + 
+	"	^^^\n" + 
+	"Map cannot be resolved to a type\n" + 
+	"----------\n" + 
+	"2. ERROR in X.java (at line 13)\n" + 
+	"	Function.identity() \n" + 
+	"	^^^^^^^^\n" + 
+	"Function cannot be resolved\n" + 
+	"----------\n");
+}
+// test ground target type with wildcards left in non parameter positions.
+public void testGroundTargetTypeWithWithWildcards() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class A {}\n" +
+			"class B {}\n" +
+			"class C {}\n" +
+			"class Y extends C {}\n" +
+			"interface I<R, S, T> {\n" +
+			"    T m(R r, S s);\n" +
+			"}\n" +
+			"public class X extends A {\n" +
+			"    Object m(I<? extends A, ? extends B, ? extends C> i) {\n" +
+			"    	return m((X x1, X x2) -> { return new Y(); });\n" +
+			"    }\n" +
+			"}\n",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	return m((X x1, X x2) -> { return new Y(); });\n" + 
+		"	       ^\n" + 
+		"The method m(I<? extends A,? extends B,? extends C>) in the type X is not applicable for the arguments ((X x1, X x2) -> {})\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	return m((X x1, X x2) -> { return new Y(); });\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from I<X,X,? extends C> to I<? extends A,? extends B,? extends C>\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;

@@ -23,16 +23,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Invocation;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
-import org.eclipse.jdt.internal.compiler.ast.MessageSend;
-import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
-import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.util.Sorting;
 
@@ -95,41 +91,9 @@ import org.eclipse.jdt.internal.compiler.util.Sorting;
  * <dt>18.5.4 More Specific Method Inference</dt>
  * <dd><em>Not Yet Implemented</em></dd>
  * </dl>
- * For 18.5.1 and 18.5.2 some high-level control is implemented in
- *  {@link ParameterizedGenericMethodBinding#computeCompatibleMethod(MethodBinding, TypeBinding[], Scope, InvocationSite, int)}.
+ * For 18.5.1 and 18.5.2 high-level control is implemented in
+ *  {@link ParameterizedGenericMethodBinding#computeCompatibleMethod(MethodBinding, TypeBinding[], Scope, InvocationSite)}.
  * <h2>Inference Lifecycle</h2>
- * The separation into 18.5.1 and 18.5.2 causes some complexity:
- * <ul>
- * <li>Calling both parts of inference is directly interwoven with overload resolution. See 
- * {@link ParameterizedGenericMethodBinding#computeCompatibleMethod(MethodBinding, TypeBinding[], Scope, InvocationSite, int)
- * 		PGMB#computeCompatibleMethod()} for the basic <b>protocol</b>.</li>
- * <li>Intermediate <b>state</b> regarding inference must be stored between both phases. Inference is performed with different
- *   inputs for each pair of {@link Invocation} x {@link ParameterizedGenericMethodBinding},
- *    see {@link Invocation#registerInferenceContext(ParameterizedGenericMethodBinding, InferenceContext18) Invocation.registerInferenceContext()} and
- *    {@link Invocation#getInferenceContext(ParameterizedMethodBinding) getInferenceContext()}.<br/>
- *    As part of the lifecycle state, each instance of InferenceContext18 remembers the current {@link #inferenceKind}
- *    and {@link #stepCompleted}.</li>
- * <li><b>Nested inference/resolving</b>: If an invocation argument is a poly expression itself, final resolving of the argument can only happened
- *    after Invocation Type Inference regarding the outer invocation. Outer inference must produce the <b>target type</b> that drives
- *    the inner inference / resolving. Two different protocols are applied:
- *    <ul>
- *    <li>If the inner poly expression is an invocation, inner inference is directly incorporated into
- *      the {@link #currentBounds}, see block inside {@link ConstraintExpressionFormula#reduce(InferenceContext18)}.<br/>
- *      In this case the results of the combined inference need to be applied to all contained inner invocations,
- *      which happens in {@link #rebindInnerPolies(BoundSet, TypeBinding[])}, which must be called whenever
- *      18.5.2 finishes.</li>
- *    <li>If the inner poly expression is a functional expression or a conditional expression no inference variables
- *      exist representing the inner. In this case the final target type is pushed into the inner using
- *      {@link Expression#checkAgainstFinalTargetType(TypeBinding, Scope)}, which, too, is called from 
- *      {@link #rebindInnerPolies(BoundSet, TypeBinding[])}.</li>
- *    <li>For recursively pushing target types into arguments of an invocation
- *    	method {@link ASTNode#resolvePolyExpressionArguments(Invocation, MethodBinding, TypeBinding[], Scope)} exists,
- *    	which is called in two situations: (1) for non-generic outer invocations from MessageSend#findMethodBinding() and
- *    	Statement#findConstructorBinding(); (2) for generic outer invocations from {@link #rebindInnerPolies(BoundSet, TypeBinding[])}.</li>
- *    <li>In some situations invocation arguments that are poly invocations need to be resolved in the middle of overload resolution
- *    	to answer {@link Scope#parameterCompatibilityLevel18} (where the outer invocation did not involve any inference).<br/>
- *    </ul>
- *    Pushing inference results into an inner invocation happens using {@link Invocation#updateBindings(MethodBinding,TypeBinding)}.</li>
  * <li>Decision whether or not an invocation is a <b>variable-arity</b> invocation is made by first attempting
  * 		to solve 18.5.1 in mode {@link #CHECK_LOOSE}. Only if that fails, another attempt is made in mode {@link #CHECK_VARARG}.
  * 		Which of these two attempts was successful is stored in {@link #inferenceKind}.
@@ -165,9 +129,6 @@ public class InferenceContext18 {
 	/** The accumulated type bounds etc. */
 	BoundSet currentBounds;
 
-	/** solution of applicability inference, stored for use as fallback, if invocation type inference fails. */
-	BoundSet storedSolution;
-
 	/** For each candidate target type imposed from the outside store the solution of invocation type inference. */
 	Map<TypeBinding,Solution> solutionsPerTargetType = new HashMap<TypeBinding, Solution>();
 
@@ -186,14 +147,6 @@ public class InferenceContext18 {
 	
 	/** Signals whether any type compatibility makes use of unchecked conversion. */
 	public List<ConstraintFormula> constraintsWithUncheckedConversion;
-
-	// ---
-
-	/** Inner poly invocations which have been included in this inference. */
-	List<InvocationSite> innerPolies = new ArrayList<InvocationSite>();
-	/** Link to an outer inference context, used for bundled error reporting. */
-	public InferenceContext18 outerContext;
-	private ArrayList<MethodBinding> problemMethods;
 
 	Scope scope;
 	LookupEnvironment environment;
@@ -372,7 +325,6 @@ public class InferenceContext18 {
 	}
 
 	/** JLS 18.5.2 Invocation Type Inference 
-	 * <p>Callers are responsible for any post-processing (see {@link #rebindInnerPolies(BoundSet, TypeBinding[])}).</p>
 	 * @param b1 "the bound set produced by reduction in order to demonstrate that m is applicable in 18.5.1"
 	 */
 	public BoundSet inferInvocationType(BoundSet b1, TypeBinding expectedType, InvocationSite invocationSite, MethodBinding method)
@@ -398,9 +350,9 @@ public class InferenceContext18 {
 			}
 			// 4. bullet: assemble C:
 			Set<ConstraintFormula> c = new HashSet<ConstraintFormula>();
-			if (!addConstraintsToC(this.invocationArguments, c, method, this.inferenceKind))
+			if (!addConstraintsToC(this.invocationArguments, c, method, this.inferenceKind, false))
 				return null;
-			// 5. bullet: determine B3 from C
+			// 5. bullet: determine B4 from C
 			while (!c.isEmpty()) {
 				// *
 				Set<ConstraintFormula> bottomSet = findBottomSet(c, allOutputVariables(c));
@@ -450,7 +402,7 @@ public class InferenceContext18 {
 		}
 	}
 
-	private boolean addConstraintsToC(Expression[] exprs, Set<ConstraintFormula> c, MethodBinding method, int inferenceKindForMethod) {
+	private boolean addConstraintsToC(Expression[] exprs, Set<ConstraintFormula> c, MethodBinding method, int inferenceKindForMethod, boolean interleaved) throws InferenceFailureException {
 		TypeBinding[] fs;
 		if (exprs != null) {
 			int k = exprs.length;
@@ -471,119 +423,86 @@ public class InferenceContext18 {
 			for (int i = 0; i < k; i++) {
 				TypeBinding fsi = fs[Math.min(i, p-1)];
 				TypeBinding substF = substitute(fsi);
-				if (!addConstraintsToC_OneExpr(exprs[i], c, fsi, substF, method))
+				if (!addConstraintsToC_OneExpr(exprs[i], c, fsi, substF, method, interleaved))
 					return false;
 	        }
 		}
 		return true;
 	}
 
-	private boolean addConstraintsToC_OneExpr(Expression expri, Set<ConstraintFormula> c, TypeBinding fsi, TypeBinding substF, MethodBinding method) {
+	private boolean addConstraintsToC_OneExpr(Expression expri, Set<ConstraintFormula> c, TypeBinding fsi, TypeBinding substF, MethodBinding method, boolean interleaved) throws InferenceFailureException {
+		
+		// See https://bugs.openjdk.java.net/browse/JDK-8052325 for exclusion of poly expressions targeting proper types. CEF.reduce validates 
+		// that they are compatible in a loose invocation context against the target type. They contribute nothing further to solving the formulas.
+		if (substF.isProperType(true))
+			return true;
+		
 		// For all i (1 ≤ i ≤ k), if ei is not pertinent to applicability, the set contains ⟨ei → θ Fi⟩.
 		if (!expri.isPertinentToApplicability(fsi, method)) {
 			c.add(new ConstraintExpressionFormula(expri, substF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT));
 		}
 		if (expri instanceof FunctionalExpression) {
 			c.add(new ConstraintExceptionFormula((FunctionalExpression) expri, substF));
+			if (expri instanceof LambdaExpression) {
+				LambdaExpression lambda = (LambdaExpression) expri;
+				BlockScope skope = lambda.enclosingScope;
+				if (substF.isFunctionalInterface(skope)) { // could be an inference variable.
+					ReferenceBinding t = (ReferenceBinding) substF;
+					ParameterizedTypeBinding withWildCards = InferenceContext18.parameterizedWithWildcard(t);
+					if (withWildCards != null) {
+						t = ConstraintExpressionFormula.findGroundTargetType(this, skope, lambda, withWildCards);
+					}
+					MethodBinding functionType;
+					if (t != null && (functionType = t.getSingleAbstractMethod(skope, true)) != null && (lambda = lambda.getResolvedCopyForInferenceTargeting(t)) != null) {
+						TypeBinding r = functionType.returnType;
+						Expression[] resultExpressions = lambda.resultExpressions();
+						for (int i = 0, length = resultExpressions == null ? 0 : resultExpressions.length; i < length; i++) {
+							Expression resultExpression = resultExpressions[i];
+							if (!addConstraintsToC_OneExpr(resultExpression, c, r.original(), r, method, true))
+								return false;
+						}
+					}
+				}
+			}
 		} else if (expri instanceof Invocation && expri.isPolyExpression()) {
 			Invocation invocation = (Invocation) expri;
-			MethodBinding innerMethod = invocation.binding(null, false, null);
+			MethodBinding innerMethod = invocation.binding(substF, this.scope);
+			if (innerMethod == null)
+				return true; 		  // -> proceed with no new C set elements.
+			
+			if (interleaved) {
+				MethodBinding shallowMethod = innerMethod.shallowOriginal();
+				SuspendedInferenceRecord prevInvocation = enterPolyInvocation(invocation, invocation.arguments());
+				try {
+					Expression[] arguments = invocation.arguments();
+					TypeBinding[] argumentTypes = arguments == null ? Binding.NO_PARAMETERS : new TypeBinding[arguments.length];
+					for (int i = 0; i < argumentTypes.length; i++)
+						argumentTypes[i] = arguments[i].resolvedType;
+					if (innerMethod instanceof ParameterizedGenericMethodBinding) {
+						InferenceContext18 innerCtx = invocation.getInferenceContext((ParameterizedGenericMethodBinding) innerMethod);
+						this.inferenceKind = innerCtx.inferenceKind;
+					}
+					inferInvocationApplicability(shallowMethod, argumentTypes, shallowMethod.isConstructor());
+					if (!ConstraintExpressionFormula.inferPolyInvocationType(this, invocation, substF, shallowMethod))
+						return false;
+				} finally {
+					resumeSuspendedInference(prevInvocation);
+				}
+			}
+			int applicabilityKind = CHECK_LOOSE;  // FIXME, for <> resolving to a non-generic method, this need to be computed.
 			if (innerMethod instanceof ParameterizedGenericMethodBinding) {
 				InferenceContext18 innerCtx = invocation.getInferenceContext((ParameterizedMethodBinding) innerMethod);
-				if (innerCtx != null) { // otherwise innerMethod does not participate in inference
-					return addConstraintsToC(invocation.arguments(), c, innerMethod.genericMethod(), innerCtx.inferenceKind);
+				if (innerCtx != null) {
+					applicabilityKind = innerCtx.inferenceKind;
 				}
 			}
+			return addConstraintsToC(invocation.arguments(), c, innerMethod.genericMethod(), applicabilityKind, interleaved);
 		} else if (expri instanceof ConditionalExpression) {
 			ConditionalExpression ce = (ConditionalExpression) expri;
-			return addConstraintsToC_OneExpr(ce.valueIfTrue, c, fsi, substF, method)
-				 && addConstraintsToC_OneExpr(ce.valueIfFalse, c, fsi, substF, method);
+			return addConstraintsToC_OneExpr(ce.valueIfTrue, c, fsi, substF, method, interleaved)
+					&& addConstraintsToC_OneExpr(ce.valueIfFalse, c, fsi, substF, method, interleaved);
 		}
 		return true;
-	}
-
-	/**
-	 * Simplified API to perform Invocation Type Inference (JLS 18.5.2)
-	 * and perform subsequent steps: bound check, rebinding of inner poly expressions,
-	 * and creating of a problem method binding if needed.
-	 * Should only be called if the inference has not yet finished.
-	 * @param invocation invocation being inferred
-	 * @param argumentTypes arguments being passed into the invocation
-	 * @param method current candidate method binding for this invocation
-	 * @return a valid method binding with updated type parameters,
-	 * 	or a problem method binding signaling either inference failure or a bound mismatch.
-	 */
-	/*@NonNull*/ MethodBinding inferInvocationType(Invocation invocation, TypeBinding[] argumentTypes, ParameterizedGenericMethodBinding method) {
-		// TODO optimize: if outerContext exists and is resolved, we probably don't need to infer again.
-		TypeBinding targetType = invocation.invocationTargetType();
-		ParameterizedGenericMethodBinding finalMethod = null;
-		ParameterizedGenericMethodBinding methodToCheck = method;
-		
-		boolean haveProperTargetType = targetType != null && targetType.isProperType(true);
-		if (haveProperTargetType || !invocation.getExpressionContext().definesTargetType()) {
-			MethodBinding original = method.originalMethod;
-			Solution solution = this.solutionsPerTargetType.get(targetType);
-			BoundSet result = solution != null ? solution.bounds : null;
-			if (result == null) {
-				// start over from a previous candidate but discard its type variable instantiations
-				// TODO: should we retain any instantiations of type variables not owned by the method? 
-				try {
-					result = inferInvocationType(this.currentBounds, targetType, invocation, original);
-				} catch (InferenceFailureException e) {
-					// no solution, but do more checks below
-				}
-			}
-			if (result != null) {
-				TypeBinding[] solutions = getSolutions(original.typeVariables(), invocation, result);
-				if (solutions != null) {
-					finalMethod = this.environment.createParameterizedGenericMethod(original, solutions);
-					if (this.scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled)
-						NullAnnotationMatching.checkForContraditions(finalMethod, invocation, this.scope);
-					invocation.registerInferenceContext(finalMethod, this);
-					this.solutionsPerTargetType.put(targetType, new Solution(finalMethod, result));
-				}
-			}
-			if (finalMethod != null)
-				methodToCheck = finalMethod;
-		} else {
-			finalMethod = method;
-		}
-		
-		MethodBinding problemMethod = methodToCheck.boundCheck18(this.scope, argumentTypes);
-		if (problemMethod != null)
-			return problemMethod;
-
-		if (!haveProperTargetType && invocation.getExpressionContext().definesTargetType())
-			return method; // still not ready!
-
-		if (finalMethod != null) {
-			if (rebindInnerPolies(finalMethod, invocation))
-				return finalMethod;
-		}
-		return getReturnProblemMethodIfNeeded(targetType, method);
-	}
-
-	/**
-	 * Simplified API to perform Invocation Type Inference (JLS 18.5.2)
-	 * and perform subsequent steps: bound check, rebinding of inner poly expressions,
-	 * and creating of a problem method binding if needed.
-	 * Should only be called if the inference has not yet finished.
-	 * Version used for inner invocations, where argument types need to be extracted
-	 * from actual invocation arguments.
-	 * @param invocation invocation being inferred
-	 * @param method current candidate method binding for this invocation
-	 * @return a valid method binding with updated type parameters,
-	 * 	or a problem method binding signaling either inference failure or a bound mismatch.
-	 */
-	public /*@NonNull*/ MethodBinding inferInvocationType(Invocation invocation, ParameterizedGenericMethodBinding method) {
-		TypeBinding[] argumentTypes = null;
-		Expression[] arguments = invocation.arguments();
-		if (arguments != null) {
-			argumentTypes = new TypeBinding[arguments.length];
-			for (int i = 0; i < arguments.length; i++)
-				argumentTypes[i] = arguments[i].resolvedType;
-		}
-		return inferInvocationType(invocation, argumentTypes, method);
 	}
 
 	public boolean hasResultFor(TypeBinding targetType) {
@@ -591,6 +510,10 @@ public class InferenceContext18 {
 			return this.stepCompleted >= TYPE_INFERRED;
 		else
 			return this.solutionsPerTargetType.containsKey(targetType);
+	}
+	
+	public Solution getResultFor(TypeBinding targetType) {
+		return this.solutionsPerTargetType.get(targetType);
 	}
 
 	public boolean registerSolution(TypeBinding targetType, MethodBinding updatedBinding) {
@@ -1366,8 +1289,6 @@ public class InferenceContext18 {
 		this.invocationArguments = innerArguments;
 		this.currentInvocation = invocation;
 		
-		// schedule for re-binding the inner after inference success:
-		this.innerPolies.add(invocation);
 		return record;
 	}
 	
@@ -1395,145 +1316,6 @@ public class InferenceContext18 {
 		this.currentInvocation = record.site;
 		this.invocationArguments = record.invocationArguments;
 		this.inferenceKind = record.inferenceKind;
-	}
-
-	public boolean rebindInnerPolies(MethodBinding method, InvocationSite site) {
-		BoundSet bounds = this.currentBounds;
-		TypeBinding targetType = site.invocationTargetType();
-		if (targetType == null || !targetType.isProperType(true)) {
-			if (!site.getExpressionContext().definesTargetType()) {
-				// in this case we may not yet have the solution(?, get or compute it now:
-				Solution solution = this.solutionsPerTargetType.get(targetType);
-				try {
-					if (solution != null && solution.bounds != null)
-						bounds = solution.bounds;
-					else
-						bounds = inferInvocationType(this.currentBounds, null, site, method.shallowOriginal());
-				} catch (InferenceFailureException e) {
-					return false;
-				}
-				if (bounds == null)
-					return false;
-			}
-		} else {
-			Solution solution = this.solutionsPerTargetType.get(targetType);
-			if (solution != null && solution.bounds != null)
-				bounds = solution.bounds;
-		}
-		rebindInnerPolies(bounds, method.parameters);
-		return true;
-	}
-
-	/**
-	 * After inference has finished, iterate all inner poly expressions (Invocations), that
-	 * have been included in the inference. For each of these update some type information
-	 * from the inference result and perhaps trigger follow-up resolving as needed.
-	 * Similar for poly expressions that did not directly participate in the inference
-	 * but are direct arguments of the current invocation (FunctionalExpression, ConditionalExpression).
-	 */
-	public void rebindInnerPolies(BoundSet bounds, TypeBinding[] parameterTypes) {
-		// This updates all remaining poly expressions that are direct arguments of the current invocation:
-		// (handles FunctionalExpression & ConditionalExpression)
-		if (this.currentInvocation instanceof ReferenceExpression)
-			return; // no inner expressions
-		boolean isVarargs = this.inferenceKind == CHECK_VARARG;
-		acceptPendingPolyArguments(bounds, parameterTypes, isVarargs);
-		// This loops over all poly expressions for which a sub-inference was triggered:
-		// (handles generic invocations)
-		int len = this.innerPolies.size();
-		for (int i = 0; i < len; i++) {
-			Expression inner = (Expression) this.innerPolies.get(i);
-			if (inner instanceof ReferenceExpression) {
-				ReferenceExpression referenceExpression = (ReferenceExpression) inner;
-				MethodBinding compileTimeDecl = referenceExpression.prepareForInferenceResult(this.scope);
-				if	(compileTimeDecl != null) {
-	  				TypeVariableBinding[] variables = compileTimeDecl.typeVariables;
-					if (variables != Binding.NO_TYPE_VARIABLES) {
-						TypeBinding[] arguments = getSolutions(variables, (InvocationSite) inner, bounds);
-						referenceExpression.binding = this.environment.createParameterizedGenericMethod(compileTimeDecl, arguments);
-					}
-				}
-			} else if (inner instanceof Invocation) {
-				Invocation innerMessage = (Invocation) inner;
-				TypeBinding innerTargetType = inner.expectedType(); // may be set from acceptPendingPolyArguments
-				if (innerTargetType != null && !innerTargetType.isProperType(true))
-					innerTargetType = null;
-				MethodBinding binding = innerMessage.binding(innerTargetType, innerTargetType != null, this.scope);
-				if (binding == null)
-					continue;
-				MethodBinding original = binding.shallowOriginal();
-
-				// apply inference results onto the allocation type of inner diamonds:
-				if (original.isConstructor() && inner.isPolyExpression()) {
-					ReferenceBinding declaringClass = original.declaringClass;
-					TypeBinding[] arguments = getSolutions(declaringClass.typeVariables(), innerMessage, bounds);
-					declaringClass = this.environment.createParameterizedType(declaringClass, arguments, declaringClass.enclosingType());
-					original = ((ParameterizedTypeBinding)declaringClass).createParameterizedMethod(original);
-					inner.checkAgainstFinalTargetType(innerTargetType, this.scope);	
-					if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled)
-						NullAnnotationMatching.checkForContraditions(original, innerMessage, this.scope);
-				}
-				
-				// apply results of the combined inference onto the binding of the inner invocation:
-				TypeBinding[] solutions = getSolutions(original.typeVariables(), innerMessage, bounds);
-				if (solutions == null) {
-					if (binding instanceof ParameterizedGenericMethodBinding) {
-						InferenceContext18 innerCtx = innerMessage.getInferenceContext((ParameterizedGenericMethodBinding) binding);
-						if (innerCtx != null && !binding.isValidBinding()) {
-							innerCtx.reportInvalidInvocation(innerMessage, binding);
-						}
-					}
-					continue; // inner inference not requested -> not a problem
-				}
-				ParameterizedGenericMethodBinding innerBinding = this.environment.createParameterizedGenericMethod(original, solutions);
-				
-				if (innerMessage.updateBindings(innerBinding, innerTargetType)) { // only if we are actually improving anything
-					ASTNode.resolvePolyExpressionArguments(innerMessage, innerBinding, this.scope);
-				}
-			}
-		}
-		this.stepCompleted = BINDINGS_UPDATED; // we're done-done
-	}
-
-	private void acceptPendingPolyArguments(BoundSet acceptedResult, TypeBinding[] parameterTypes, boolean isVarArgs) {
-		if (acceptedResult == null || this.invocationArguments == null) return;
-		Substitution substitution = getResultSubstitution(acceptedResult);
-		for (int i = 0; i < this.invocationArguments.length; i++) {
-			TypeBinding targetType = getParameter(parameterTypes, i, isVarArgs);
-			if (!targetType.isProperType(true))
-				targetType = Scope.substitute(substitution, targetType);
-			Expression expression = this.invocationArguments[i];
-			if (expression instanceof Invocation) {
-				Invocation invocation = (Invocation) expression;
-				if (!this.innerPolies.contains(invocation)) {
-					MethodBinding method = invocation.binding(targetType, true, this.scope);
-					if (method instanceof ParameterizedGenericMethodBinding) {
-						ParameterizedGenericMethodBinding previousBinding = (ParameterizedGenericMethodBinding) method;
-						InferenceContext18 innerCtx = invocation.getInferenceContext(previousBinding);
-						if (innerCtx != null) {
-							// we have a non-poly generic invocation, which needs inference but is not connected via innerPolis.
-							// Finish that inner inference now (incl. binding updates):
-							MethodBinding innerBinding = innerCtx.inferInvocationType(invocation, previousBinding);
-							if (!innerBinding.isValidBinding()) {
-								innerCtx.reportInvalidInvocation(invocation, innerBinding);
-							}
-							if (invocation.updateBindings(innerBinding, targetType)) { // only if we are actually improving anything
-								ASTNode.resolvePolyExpressionArguments(invocation, innerBinding, this.scope);
-							}
-						}
-					} else if(method instanceof ParameterizedMethodBinding){
-						expression.checkAgainstFinalTargetType(targetType, this.scope);
-					}
-				} else {
-					expression.setExpectedType(targetType);
-				}
-			} else {
-				if (this.innerPolies.contains(expression)) // may get here for ReferenceExpressions ...
-					expression.setExpectedType(targetType); // ... prepare for final inference via rebindInnerPolies
-				else
-					expression.checkAgainstFinalTargetType(targetType, this.scope);
-			}
-		}
 	}
 
 	private Substitution getResultSubstitution(final BoundSet result) {
@@ -1581,19 +1363,14 @@ public class InferenceContext18 {
 			if (method.returnType.erasure().isCompatibleWith(expectedType))
 				return method; // don't count as problem.
 		}
-		if (expectedType == null)
-			return method; // assume inference failure concerned another expression
-		ProblemMethodBinding problemMethod = new ProblemMethodBinding(method, method.selector, method.parameters, ProblemReasons.ParameterizedMethodExpectedTypeProblem);
+		/* We used to check if expected type is null and if so return method, but that is wrong - it injects an incompatible method into overload resolution.
+		   if we get here with expected type set to null at all, the target context does not define a target type (vanilla context), so inference has done its
+		   best and nothing more to do than to signal error. 
+		 */
+		ProblemMethodBinding problemMethod = new ProblemMethodBinding(method, method.selector, method.parameters, ProblemReasons.InvocationTypeInferenceFailure);
 		problemMethod.returnType = expectedType;
 		problemMethod.inferenceContext = this;
 		return problemMethod;
-	}
-
-	public void reportInvalidInvocation(Invocation invocation, MethodBinding binding) {
-		if (invocation instanceof MessageSend)
-			this.scope.problemReporter().invalidMethod((MessageSend) invocation, binding);
-		else
-			this.scope.problemReporter().invalidConstructor((Statement)invocation, binding);
 	}
 
 	// debugging:
@@ -1633,12 +1410,6 @@ public class InferenceContext18 {
 		if (this.currentBounds != null)
 			buf.append(this.currentBounds.toString());
 		return buf.toString();
-	}
-
-	public void addProblemMethod(ProblemMethodBinding problemMethod) {
-		if (this.problemMethods == null)
-			this.problemMethods = new ArrayList<MethodBinding>();
-		this.problemMethods.add(problemMethod);
 	}
 
 	/**

@@ -40,10 +40,10 @@ public interface ProblemReasons {
 	final int NonStaticOrAlienTypeReceiver = 20;
 	final int AttemptToBypassDirectSuper = 21; // super access within default method
 	final int DefectiveContainerAnnotationType = 22;
-	final int ParameterizedMethodExpectedTypeProblem = 23;
+	final int InvocationTypeInferenceFailure = 23;
 	final int ApplicableMethodOverriddenByInapplicable = 24;
 	final int ContradictoryNullAnnotations = 25;
 	final int NoSuchMethodOnArray = 26;
-	final int InferredAppliableMethodInapplicable = 27; // 18.5.1 ignores arguments not pertinent to applicability. When these are taken into consideration method could fail applicability
+	final int InferredApplicableMethodInapplicable = 27; // 18.5.1 ignores arguments not pertinent to applicability. When these are taken into consideration method could fail applicability
 	final int NoProperEnclosingInstance = 28;
 }

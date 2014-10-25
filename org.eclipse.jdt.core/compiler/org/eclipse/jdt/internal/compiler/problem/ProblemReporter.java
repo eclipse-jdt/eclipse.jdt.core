@@ -150,7 +150,6 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -3692,7 +3691,8 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 				sourceStart,
 				sourceEnd);
 			return;
-		case ProblemReasons.ParameterizedMethodExpectedTypeProblem:
+		case ProblemReasons.InferredApplicableMethodInapplicable:	
+		case ProblemReasons.InvocationTypeInferenceFailure:
 			// FIXME(stephan): construct suitable message (https://bugs.eclipse.org/404675)
 			problemConstructor = (ProblemMethodBinding) targetConstructor;
 			shownConstructor = problemConstructor.closestMatch;
@@ -4227,16 +4227,13 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 				(int) (messageSend.nameSourcePosition >>> 32),
 				(int) messageSend.nameSourcePosition);
 			return;
-		case ProblemReasons.ParameterizedMethodExpectedTypeProblem:
+		case ProblemReasons.InferredApplicableMethodInapplicable:
+		case ProblemReasons.InvocationTypeInferenceFailure:
 			// FIXME(stephan): construct suitable message (https://bugs.eclipse.org/404675)
 			problemMethod = (ProblemMethodBinding) method;
-			InferenceContext18 inferenceContext = problemMethod.inferenceContext;
-			if (inferenceContext != null && inferenceContext.outerContext != null) {
-				// problem relates to a nested inference context, let the outer handle it:
-				inferenceContext.outerContext.addProblemMethod(problemMethod);
-				return;
-			}
 			shownMethod = problemMethod.closestMatch;
+			if (problemMethod.returnType == shownMethod.returnType) //$IDENTITY-COMPARISON$
+				return; // funnily this can happen in a deeply nested call, because the inner lies by stealing its closest match and the outer does not know so. See GRT1_8.testBug430296
 			this.handle(
 				IProblem.TypeMismatch,
 				new String[] {
