@@ -4717,4 +4717,54 @@ public void test434394() {
 		}, 
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=445725,  [1.8][inference] Type inference not occurring with lambda expression and constructor reference
+public void test445725() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.Arrays;\n" +
+			"import java.util.Collection;\n" +
+			"import java.util.function.Function;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"import java.util.stream.Stream;\n" +
+			"public class X {\n" +
+			"/**\n" +
+			"   * Takes a collection, applies a mapper to it, and then passes the result into the finishing\n" +
+			"   * function\n" +
+			"   */\n" +
+			"  public static <FROM, TO, RESULT> RESULT mapped(Collection<FROM> collection,\n" +
+			"                                                 Function<? super FROM, ? extends TO> mapper,\n" +
+			"                                                 Function<? super Collection<TO>, RESULT> finisher)\n" +
+			"  {\n" +
+			"    return mapped(collection.stream(), mapper, finisher);\n" +
+			"  }\n" +
+			"  /**\n" +
+			"   * Takes a stream, applies a mapper to it, and then passes the result into the finishing function\n" +
+			"   */\n" +
+			"  public static <FROM, TO, RESULT> RESULT mapped(Stream<FROM> stream,\n" +
+			"                                                 Function<? super FROM, ? extends TO> mapper,\n" +
+			"                                                 Function<? super Collection<TO>, RESULT> finisher)\n" +
+			"  {\n" +
+			"    return finisher.apply(stream.map(mapper).collect(Collectors.toList()));\n" +
+			"  }\n" +
+			"  public static void example()\n" +
+			"  {\n" +
+			"    mapped(Stream.of(\"1, 2, 3\"), Integer::parseInt, ArrayList<Integer>::new);\n" +
+			"    mapped(Arrays.asList(\"1, 2, 3\"), Integer::parseInt, ArrayList<Integer>::new);\n" +
+			"\n" +
+			"    mapped(Stream.of(\"1, 2, 3\"), Integer::parseInt, IntCollection::new);\n" +
+			"    mapped(Arrays.asList(\"1, 2, 3\"), Integer::parseInt, IntCollection::new);\n" +
+			"  }\n" +
+			"  public static class IntCollection extends ArrayList<Integer>\n" +
+			"  {\n" +
+			"    public IntCollection(Collection<Integer> numbers)\n" +
+			"    {\n" +
+			"      super(numbers);\n" +
+			"    }\n" +
+			"  }\n" +
+			"}\n",
+		}, 
+		"");
+}
 }
