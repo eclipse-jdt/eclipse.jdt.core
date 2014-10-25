@@ -4680,4 +4680,41 @@ public void test437444_c113a() {
 		}, 
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=434394, [1.8] inference fails in some cases when conditional expression is involved
+public void test434394() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.Collections;\n" +
+			"import java.util.Comparator;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"  public void bla() {\n" +
+			"    boolean b = Boolean.TRUE.booleanValue();\n" +
+			"    List<String> c1 = new ArrayList<>();\n" +
+			"    Collections.sort(c1, new Foo(new State<>((b ? new Val<>(\"AAAA\") : new Val<>(\"BBBB\"))))); // Cannot infer type arguments for State\n" +
+			"    Collections.sort(c1,new Foo(b ? new State<>(new Val<>(\"AAAA\")) : new State<>(new Val<>(\"BBBB\")))); // this is fine\n" +
+			"  }\n" +
+			"  static class Foo implements Comparator<String>{\n" +
+			"	  public Foo(State<String> st) {\n" +
+			"		  //\n" +
+			"	  }\n" +
+			"	@Override\n" +
+			"	public int compare(String o1, String o2) {\n" +
+			"		// TODO Auto-generated method stub\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"  }\n" +
+			"	static class State<R> {\n" +
+			"		State(Val<?> o) {\n" +
+			"		}\n" +
+			"	}\n" +
+			"	static class Val<T> {\n" +
+			"		Val(T t) {}\n" +
+			"	}\n" +
+			"}\n",
+		}, 
+		"");
+}
 }
