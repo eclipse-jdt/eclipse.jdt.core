@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
@@ -348,7 +349,21 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				InferenceVariable[] betas = inferenceContext.addTypeVariableSubstitutions(arguments);
 				ParameterizedTypeBinding gbeta = inferenceContext.environment.createParameterizedType(
 						parameterizedType.genericType(), betas, parameterizedType.enclosingType(), parameterizedType.getTypeAnnotations());
-				inferenceContext.currentBounds.captures.put(gbeta, parameterizedType.capture(inferenceContext.scope, invocationSite.sourceEnd())); // established: both types have nonnull arguments
+				inferenceContext.currentBounds.captures.put(gbeta, parameterizedType); // established: both types have nonnull arguments
+				if (InferenceContext18.SHOULD_WORKAROUND_BUG_JDK_8054721) {
+					for (int i = 0, length = arguments.length; i < length;i++) {
+						if (arguments[i].isWildcard() && arguments[i].isProperType(true)) {
+							WildcardBinding wildcard = (WildcardBinding) arguments[i];
+							SourceTypeBinding contextType = inferenceContext.scope.enclosingSourceType();
+							int position = invocationSite.sourceEnd();
+							CompilationUnitScope compilationUnitScope = inferenceContext.scope.compilationUnitScope();
+							ASTNode cud = compilationUnitScope.referenceContext;
+							final int captureID = compilationUnitScope.nextCaptureID();
+							CaptureBinding capture = inferenceContext.environment.createCapturedWildcard(wildcard, contextType, position, cud, captureID);
+							inferenceContext.currentBounds.addBound(new TypeBound(betas[i], capture, SAME), inferenceContext.environment);
+						}
+					}
+				}
 				ConstraintTypeFormula newConstraint = ConstraintTypeFormula.create(gbeta, targetType, COMPATIBLE);
 				return inferenceContext.reduceAndIncorporate(newConstraint);
 			}

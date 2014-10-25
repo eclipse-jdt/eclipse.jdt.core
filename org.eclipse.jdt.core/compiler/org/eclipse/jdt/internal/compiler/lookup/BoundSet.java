@@ -594,9 +594,7 @@ class BoundSet {
 		while (captIter.hasNext()) {
 			Entry<ParameterizedTypeBinding, ParameterizedTypeBinding> capt = captIter.next();
 			ParameterizedTypeBinding gAlpha = capt.getKey();
-			// We come in with capture(gA), we need to work with gA below. It was necessary to establish capture at the call site.
-			ParameterizedTypeBinding cgA = capt.getValue();
-			ParameterizedTypeBinding gA = (ParameterizedTypeBinding) cgA.uncapture(context.scope);
+			ParameterizedTypeBinding gA = capt.getValue();
 			ReferenceBinding g = (ReferenceBinding) gA.original();
 			final TypeVariableBinding[] parameters = g.typeVariables();
 			// construct theta = [P1:=alpha1,...]
@@ -615,7 +613,6 @@ class BoundSet {
 				addBounds(pi.getTypeBounds(alpha, theta), context.environment);
 
 				TypeBinding ai = gA.arguments[i];
-				TypeBinding cai = cgA.arguments[i];
 				if (ai instanceof WildcardBinding) {
 					WildcardBinding wildcardBinding = (WildcardBinding)ai;
 					TypeBinding t = wildcardBinding.bound;
@@ -627,14 +624,11 @@ class BoundSet {
 							it = three.sameBounds.iterator();
 							while (it.hasNext()) {
 								TypeBound bound = it.next();
-								/* With the expected type's declared type being Collector<? super T, A, R> and gAlpha being Collector<T#0,?#1,List<T#0>#2> and cgA being
-								   Collector<T#0,capture#1-of ?,List<T#0>>, without the constraint reduction below - we will never discover A to be capture#1-of ? and
-								   claim A is jlO. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=437444#c24 - #27
-								*/
-								if (!reduceOneConstraint(context, ConstraintTypeFormula.create(bound.right, cai, ReductionResult.SAME)))
-									return false;
-								// Our = reduction transitively adds a new bound that necessitates the check below for capture. 
-								if (!(bound.right instanceof InferenceVariable) && !bound.right.isCapture())
+								if (InferenceContext18.SHOULD_WORKAROUND_BUG_JDK_8054721) {
+									if (bound.right instanceof CaptureBinding)
+										continue;
+								}
+								if (!(bound.right instanceof InferenceVariable))
 									return false;
 							}
 						}

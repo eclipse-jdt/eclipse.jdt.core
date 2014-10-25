@@ -105,6 +105,12 @@ public class InferenceContext18 {
 
 	/** to conform with javac regarding https://bugs.openjdk.java.net/browse/JDK-8026527 */
 	static final boolean SIMULATE_BUG_JDK_8026527 = true;
+	
+	/** Temporary workaround until we know fully what to do with https://bugs.openjdk.java.net/browse/JDK-8054721 
+	 *  It looks likely that we have a bug independent of this JLS bug in that we clear the capture bounds eagerly.
+	*/
+	static final boolean SHOULD_WORKAROUND_BUG_JDK_8054721 = true; // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=437444#c24 onwards
+	
 	/**
 	 * Detail flag to control the extent of {@link #SIMULATE_BUG_JDK_8026527}.
 	 * A setting of 'false' implements the advice from http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000447.html
