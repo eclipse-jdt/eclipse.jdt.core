@@ -30,26 +30,6 @@ abstract class ConstraintFormula extends ReductionResult {
 
 	public abstract Object reduce(InferenceContext18 inferenceContext) throws InferenceFailureException;
 
-	/** 5.3: compatibility check which includes the option of boxing/unboxing. */
-	protected boolean isCompatibleWithInLooseInvocationContext(TypeBinding one, TypeBinding two, InferenceContext18 context) {
-		if (one.isCompatibleWith(two, context.scope))
-			return true;
-		if (one.isBaseType() == two.isBaseType()) // this also protects against comparing null & primitive
-			return false;
-		if (one.isPrimitiveType()) {
-			if (!two.isBaseType()) {
-				TypeBinding boxingType = context.environment.computeBoxingType(one);
-				if (boxingType != one) //$IDENTITY-COMPARISON$ just checking if boxing could help
-					return boxingType.isCompatibleWith(two, context.scope);
-			}
-		} else if (two.isPrimitiveType()) {
-			TypeBinding boxingType = context.environment.computeBoxingType(two);
-			if (boxingType != two) //$IDENTITY-COMPARISON$ just checking if boxing could help
-				return one.isCompatibleWith(boxingType, context.scope);
-		}
-		return false;
-	}
-
 	Collection<InferenceVariable> inputVariables(InferenceContext18 context) {
 		return EMPTY_VARIABLE_LIST;
 	}

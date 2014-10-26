@@ -61,9 +61,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 		case COMPATIBLE:
 			// 18.2.2:
 			if (this.left.isProperType(true) && this.right.isProperType(true)) {
-				if (isCompatibleWithInLooseInvocationContext(this.left, this.right, inferenceContext))
-					return TRUE;
-				return FALSE;
+				return this.left.isCompatibleWith(this.right, inferenceContext.scope) || this.left.isBoxingCompatibleWith(this.right, inferenceContext.scope) ? TRUE : FALSE;
 			}
 			if (this.left.isPrimitiveType()) {
 				TypeBinding sPrime = inferenceContext.environment.computeBoxingType(this.left);

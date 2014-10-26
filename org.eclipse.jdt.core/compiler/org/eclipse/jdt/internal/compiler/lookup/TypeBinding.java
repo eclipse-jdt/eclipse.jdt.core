@@ -612,6 +612,27 @@ public boolean isCompatibleWith(TypeBinding right) {
 // version that allows to capture a type bound using 'scope':
 public abstract boolean isCompatibleWith(TypeBinding right, /*@Nullable*/ Scope scope);
 
+/* Answer true if the receiver type can be assigned to the argument type (right) with boxing/unboxing applied.
+ */
+public boolean isBoxingCompatibleWith(TypeBinding right, /*@NonNull */ Scope scope) {
+	
+	if (right == null)
+		return false;
+
+	if (TypeBinding.equalsEquals(this, right))
+		return true;
+	
+	if (this.isCompatibleWith(right, scope))
+		return true;
+	
+	if (this.isBaseType() != right.isBaseType()) {
+		TypeBinding convertedType = scope.environment().computeBoxingType(this);
+		if (TypeBinding.equalsEquals(convertedType, right) || convertedType.isCompatibleWith(right, scope))
+			return true;
+	}
+	return false;
+}
+
 public boolean isEnum() {
 	return false;
 }

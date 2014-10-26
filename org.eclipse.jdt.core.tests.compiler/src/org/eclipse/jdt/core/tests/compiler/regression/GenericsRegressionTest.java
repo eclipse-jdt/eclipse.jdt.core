@@ -5471,7 +5471,6 @@ public void test444024() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=440019, [1.8][compiler] Type mismatch error with autoboxing/scalar types (works with 1.6)
 public void test440019() {
-	if (this.complianceLevel <= ClassFileConstants.JDK1_7)
 		this.runConformTest(
 		   new String[] {
 			   "A.java",
@@ -5508,6 +5507,45 @@ public void _test443596() {
 			"	                                                           ^^^\n" + 
 			"Type safety: Potential heap pollution via varargs parameter arg\n" + 
 			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=446235, Java8 generics and boxing 
+public void test446235() {
+		this.runConformTest(
+		   new String[] {
+			   "IntegerLongBug.java",
+			   "public class IntegerLongBug {\n" +
+			   "	public static void main(String ar[]) {\n" +
+			   "		Integer number = 1000;\n" +
+			   "		long numberLong = number; //compiles fine\n" +
+			   "		long num = getNumber(5000); // compilation error\n" +
+			   "	}\n" +
+			   "	public static <T> T getNumber(T num) {\n" +
+			   "		return num;\n" +
+			   "	}\n" +
+			   "}\n",
+		   },
+		   "");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=440019, [1.8][compiler] Type mismatch error with autoboxing/scalar types (works with 1.6) 
+public void test440019_c9() {
+		this.runConformTest(
+		   new String[] {
+			   "X.java",
+			   "public class X {\n" +
+			   "    public static final int CORE_POOL_SIZE = 3;\n" +
+			   "    public static final int KEEP_ALIVE_TIME = 60; // seconds\n" +
+			   "    X(final int size, final long ttl){\n" +
+			   "        System.out.println(\"size: \" + size + \" \" + \" ttl: \" + ttl);\n" +
+			   "    }\n" +
+			   "    public static void main(String[] args) {\n" +
+			   "        new X(CORE_POOL_SIZE, get(KEEP_ALIVE_TIME)); // [1]\n" +
+			   "    }\n" +
+			   "    public static <T> T get(T value) {\n" +
+			   "        return value;\n" +
+			   "    }\n" +
+			   "}\n",
+		   },
+		   "size: 3  ttl: 60");
 }
 }
 
