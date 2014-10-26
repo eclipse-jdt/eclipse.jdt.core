@@ -2677,6 +2677,85 @@ public void test442929() {
 		},
 		"Expected CCE");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=448028, [1.8] 1.8 cannot infer type arguments where 1.7 does 
+public void test448028() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);	
+	this.runNegativeTest(
+		   new String[] {
+			   "X.java",
+			   "public class X {\n" +
+			   "\n" +
+			   "  public static interface I {/*empty*/}\n" +
+			   "\n" +
+			   "  public static class C\n" +
+			   "    implements I {/*empty*/}\n" +
+			   "\n" +
+			   "  public static class W<T extends I>\n" +
+			   "    implements I {\n" +
+			   "\n" +
+			   "    // --- problem is triggered only, when there is a vararg-parameter\n" +
+			   "    public W(final T t, final Object... o) {\n" +
+			   "      super();\n" +
+			   "    }\n" +
+			   "  }\n" +
+			   "\n" +
+			   "  // --- needed to trigger problem\n" +
+			   "  public static final <T> T inspect(final T t) {\n" +
+			   "    return t;\n" +
+			   "  }\n" +
+			   "\n" +
+			   "  // --- this compiles ok when having JDK Compilance set to 1.7 !\n" +
+			   "  public static final W<C> err1() {\n" +
+			   "    final C c = new C();\n" +
+			   "    final Object o = new Object();\n" +
+			   "    return inspect(new W<>(c, o)); // - ERROR: Cannot infer type arguments for W<> F.java\n" +
+			   "  }\n" +
+			   "\n" +
+			   "  public static final W<C> wrn1() {\n" +
+			   "    final C c = new C();\n" +
+			   "    final Object o = new Object();\n" +
+			   "    // --- giving the type-parameter yields a warning\n" +
+			   "    // --- comparing that to the error of method err1() it does not make much sense\n" +
+			   "    return inspect(new W<C>(c, o)); // - WARNING: Redundant specification of type arguments <F.C> F.java\n" +
+			   "  }\n" +
+			   "\n" +
+			   "  public static final W<C> ok1() {\n" +
+			   "    final C c = new C();\n" +
+			   "    // --- no extra vararg-paramaeter\n" +
+			   "    return inspect(new W<>(c)); // - OK\n" +
+			   "  }\n" +
+			   "\n" +
+			   "  public static final W<C> ok2() {\n" +
+			   "    final C c = new C();\n" +
+			   "    final Object o = new Object();\n" +
+			   "    // --- no check-method\n" +
+			   "    return new W<>(c, o); // - OK\n" +
+			   "  }\n" +
+			   "\n" +
+			   "  public static final W<C> ok3() {\n" +
+			   "    final C c = new C();\n" +
+			   "    // --- no check-method\n" +
+			   "    return new W<>(c); // - OK\n" +
+			   "  }\n" +
+			   "\n" +
+			   "  public static final W<C> ok4() {\n" +
+			   "    final C c = new C();\n" +
+			   "    final Object o = new Object();\n" +
+			   "    // --- this also compiles (my solution for now)\n" +
+			   "    final W<C> w = new W<>(c, o);\n" +
+			   "    return inspect(w);\n" +
+			   "  }\n" +
+			   "}\n",
+		   },
+		   "----------\n" + 
+			"1. ERROR in X.java (at line 34)\n" + 
+			"	return inspect(new W<C>(c, o)); // - WARNING: Redundant specification of type arguments <F.C> F.java\n" + 
+			"	                   ^\n" + 
+			"Redundant specification of type arguments <X.C>\n" + 
+			"----------\n", 
+			null, false, customOptions);
+}
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
 }

@@ -95,6 +95,8 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 							return TRUE;
 						}
 						inferenceContext.inferenceKind = innerCtx.inferenceKind;
+					} else {
+						inferenceContext.inferenceKind = inferenceContext.getInferenceKind(previousMethod, argumentTypes);
 					}
 					boolean isDiamond = method.isConstructor() && this.left.isPolyExpression(method);
 					inferInvocationApplicability(inferenceContext, method, argumentTypes, isDiamond, inferenceContext.inferenceKind);

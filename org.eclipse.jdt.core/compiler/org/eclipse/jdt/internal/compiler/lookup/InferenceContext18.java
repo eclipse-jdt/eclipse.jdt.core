@@ -476,30 +476,26 @@ public class InferenceContext18 {
 			if (innerMethod == null)
 				return true; 		  // -> proceed with no new C set elements.
 			
+			Expression[] arguments = invocation.arguments();
+			TypeBinding[] argumentTypes = arguments == null ? Binding.NO_PARAMETERS : new TypeBinding[arguments.length];
+			for (int i = 0; i < argumentTypes.length; i++)
+				argumentTypes[i] = arguments[i].resolvedType;
+			int applicabilityKind;
+			InferenceContext18 innerContext = null;
+			if (innerMethod instanceof ParameterizedGenericMethodBinding)
+				 innerContext = invocation.getInferenceContext((ParameterizedGenericMethodBinding) innerMethod);
+			applicabilityKind = innerContext != null ? innerContext.inferenceKind : getInferenceKind(innerMethod, argumentTypes);
+			
 			if (interleaved) {
 				MethodBinding shallowMethod = innerMethod.shallowOriginal();
 				SuspendedInferenceRecord prevInvocation = enterPolyInvocation(invocation, invocation.arguments());
 				try {
-					Expression[] arguments = invocation.arguments();
-					TypeBinding[] argumentTypes = arguments == null ? Binding.NO_PARAMETERS : new TypeBinding[arguments.length];
-					for (int i = 0; i < argumentTypes.length; i++)
-						argumentTypes[i] = arguments[i].resolvedType;
-					if (innerMethod instanceof ParameterizedGenericMethodBinding) {
-						InferenceContext18 innerCtx = invocation.getInferenceContext((ParameterizedGenericMethodBinding) innerMethod);
-						this.inferenceKind = innerCtx.inferenceKind;
-					}
+					this.inferenceKind = applicabilityKind;
 					inferInvocationApplicability(shallowMethod, argumentTypes, shallowMethod.isConstructor());
 					if (!ConstraintExpressionFormula.inferPolyInvocationType(this, invocation, substF, shallowMethod))
 						return false;
 				} finally {
 					resumeSuspendedInference(prevInvocation);
-				}
-			}
-			int applicabilityKind = CHECK_LOOSE;  // FIXME, for <> resolving to a non-generic method, this need to be computed.
-			if (innerMethod instanceof ParameterizedGenericMethodBinding) {
-				InferenceContext18 innerCtx = invocation.getInferenceContext((ParameterizedMethodBinding) innerMethod);
-				if (innerCtx != null) {
-					applicabilityKind = innerCtx.inferenceKind;
 				}
 			}
 			return addConstraintsToC(invocation.arguments(), c, innerMethod.genericMethod(), applicabilityKind, interleaved);
@@ -509,6 +505,18 @@ public class InferenceContext18 {
 					&& addConstraintsToC_OneExpr(ce.valueIfFalse, c, fsi, substF, method, interleaved);
 		}
 		return true;
+	}
+
+	
+	protected int getInferenceKind(MethodBinding nonGenericMethod, TypeBinding[] argumentTypes) {
+		switch (this.scope.parameterCompatibilityLevel(nonGenericMethod, argumentTypes)) {
+			case Scope.AUTOBOX_COMPATIBLE:
+				return CHECK_LOOSE;
+			case Scope.VARARGS_COMPATIBLE:
+				return CHECK_VARARG;
+			default:
+				return CHECK_STRICT;
+		}
 	}
 
 	public boolean hasResultFor(TypeBinding targetType) {
