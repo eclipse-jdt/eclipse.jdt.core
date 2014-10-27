@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@ import java.util.List;
  * <pre>
  * SwitchStatement:
  *		<b>switch</b> <b>(</b> Expression <b>)</b>
- * 			<b>{</b> { SwitchCase | Statement } } <b>}</b>
+ * 			<b>{</b> { SwitchCase | Statement } <b>}</b>
  * SwitchCase:
  *		<b>case</b> Expression  <b>:</b>
  *		<b>default</b> <b>:</b>
