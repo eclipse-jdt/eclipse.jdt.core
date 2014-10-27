@@ -176,14 +176,14 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			if (arguments.length == parameters.length) {
 				infCtx18.inferenceKind = InferenceContext18.CHECK_LOOSE; // TODO: validate if 2 phase checking (strict/loose + vararg) is sufficient.
 				infCtx18.inferInvocationApplicability(originalMethod, arguments, isDiamond);
-				result = infCtx18.solve();
+				result = infCtx18.solve(true);
 			}
 			if (result == null && originalMethod.isVarargs()) {
 				// check for variable-arity applicability
 				infCtx18 = invocationSite.freshInferenceContext(scope); // start over
 				infCtx18.inferenceKind = InferenceContext18.CHECK_VARARG;
 				infCtx18.inferInvocationApplicability(originalMethod, arguments, isDiamond);
-				result = infCtx18.solve();
+				result = infCtx18.solve(true);
 			}
 			if (result == null)
 				return null;
@@ -200,8 +200,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			if (expectedType != null || !invocationSite.getExpressionContext().definesTargetType()) {
 				// ---- 18.5.2 (Invocation type): ----
 				provisionalResult = result;
-				result = infCtx18.currentBounds.copy(); // the result after reduction, without effects of resolve()
-				result = infCtx18.inferInvocationType(result, expectedType, invocationSite, originalMethod);
+				result = infCtx18.inferInvocationType(expectedType, invocationSite, originalMethod);
 				invocationTypeInferred = true;
 				hasReturnProblem |= result == null;
 				if (hasReturnProblem)

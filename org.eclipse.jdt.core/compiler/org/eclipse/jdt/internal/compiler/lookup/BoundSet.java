@@ -422,7 +422,13 @@ class BoundSet {
 		}
 		return hasProperBound;
 	}
-
+	
+	public void addBounds(BoundSet that, LookupEnvironment environment) {
+		if (that == null || environment == null)
+			return;
+		addBounds(that.flatten(), environment);
+	}
+	
 	public boolean isInstantiated(InferenceVariable inferenceVariable) {
 		ThreeSets three = this.boundsPerVariable.get(inferenceVariable.prototype());
 		if (three != null)
@@ -1069,7 +1075,8 @@ class BoundSet {
 	private boolean superOnlyRaw(TypeBinding g, TypeBinding s, LookupEnvironment env) {
 		if (s instanceof InferenceVariable)
 			return false; // inference has no super types
-		if (s.findSuperTypeOriginatingFrom(g) == null)
+		final TypeBinding superType = s.findSuperTypeOriginatingFrom(g);
+		if (superType != null && !superType.isParameterizedType())
 			return s.isCompatibleWith(env.convertToRawType(g, false));
 		return false;
 	}

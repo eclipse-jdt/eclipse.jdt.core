@@ -78,11 +78,11 @@ import org.eclipse.jdt.internal.compiler.util.Sorting;
  * <dt>18.5.1 Invocation Applicability Inference</dt>
  * <dd>{@link #inferInvocationApplicability(MethodBinding, TypeBinding[], boolean)}. Prepare the initial state for
  * 	inference of a generic invocation - no target type used at this point.
- *  Need to call {@link #solve()} afterwards to produce the intermediate result.<br/>
+ *  Need to call {@link #solve(boolean)} with true afterwards to produce the intermediate result.<br/>
  *  Called indirectly from {@link Scope#findMethod(ReferenceBinding, char[], TypeBinding[], InvocationSite, boolean)} et al
  *  to select applicable methods into overload resolution.</dd>
  * <dt>18.5.2 Invocation Type Inference</dt>
- * <dd>{@link InferenceContext18#inferInvocationType(BoundSet, TypeBinding, InvocationSite, MethodBinding)}. After a
+ * <dd>{@link InferenceContext18#inferInvocationType(TypeBinding, InvocationSite, MethodBinding)}. After a
  * 	most specific method has been picked, and given a target type determine the final generic instantiation.
  *  As long as a target type is still unavailable this phase keeps getting deferred.</br>
  *  Different wrappers exist for the convenience of different callers.</dd>
@@ -153,10 +153,12 @@ public class InferenceContext18 {
 	
 	/** Signals whether any type compatibility makes use of unchecked conversion. */
 	public List<ConstraintFormula> constraintsWithUncheckedConversion;
+	public boolean usesUncheckedConversion;
 
 	Scope scope;
 	LookupEnvironment environment;
 	ReferenceBinding object; // java.lang.Object
+	public BoundSet b2;
 	
 	public static final int CHECK_STRICT = 1;
 	public static final int CHECK_LOOSE = 2;
@@ -167,11 +169,13 @@ public class InferenceContext18 {
 		Expression[] invocationArguments;
 		InferenceVariable[] inferenceVariables;
 		int inferenceKind;
-		SuspendedInferenceRecord(InvocationSite site, Expression[] invocationArguments, InferenceVariable[] inferenceVariables, int inferenceKind) {
+		boolean usesUncheckedConversion;
+		SuspendedInferenceRecord(InvocationSite site, Expression[] invocationArguments, InferenceVariable[] inferenceVariables, int inferenceKind, boolean usesUncheckedConversion) {
 			this.site = site;
 			this.invocationArguments = invocationArguments;
 			this.inferenceVariables = inferenceVariables;
 			this.inferenceKind = inferenceKind;
+			this.usesUncheckedConversion = usesUncheckedConversion;
 		}
 	}
 	
@@ -331,17 +335,14 @@ public class InferenceContext18 {
 	}
 
 	/** JLS 18.5.2 Invocation Type Inference 
-	 * @param b1 "the bound set produced by reduction in order to demonstrate that m is applicable in 18.5.1"
 	 */
-	public BoundSet inferInvocationType(BoundSet b1, TypeBinding expectedType, InvocationSite invocationSite, MethodBinding method)
-			throws InferenceFailureException 
+	public BoundSet inferInvocationType(TypeBinding expectedType, InvocationSite invocationSite, MethodBinding method) throws InferenceFailureException 
 	{
 		// not JLS: simply ensure that null hints from the return type have been seen even in standalone contexts:
 		if (expectedType == null && method.returnType != null)
 			substitute(method.returnType); // result is ignore, the only effect is on InferenceVariable.nullHints
-		//
-		BoundSet previous = this.currentBounds.copy();
-		this.currentBounds = b1;
+		
+		this.currentBounds = this.b2.copy();
 		try {
 			// bullets 1&2: definitions only.
 			if (expectedType != null
@@ -397,7 +398,7 @@ public class InferenceContext18 {
 			// 6. bullet: solve
 			BoundSet solution = solve();
 			if (solution == null || !isResolved(solution)) {
-				this.currentBounds = previous; // don't let bounds from unsuccessful attempt leak into subsequent attempts
+				this.currentBounds = this.b2; // don't let bounds from unsuccessful attempt leak into subsequent attempts
 				return null;
 			}
 			// we're done, start reporting:
@@ -782,13 +783,19 @@ public class InferenceContext18 {
 	 * @return a bound set representing the solution, or null if inference failed
 	 * @throws InferenceFailureException a compile error has been detected during inference
 	 */
-	public /*@Nullable*/ BoundSet solve() throws InferenceFailureException {
+	public /*@Nullable*/ BoundSet solve(boolean inferringApplicability) throws InferenceFailureException {
 		if (!reduce())
 			return null;
 		if (!this.currentBounds.incorporate(this))
 			return null;
+		if (inferringApplicability)
+			this.b2 = this.currentBounds.copy(); // Preserve the result after reduction, without effects of resolve() for later use in invocation type inference.
 
 		return resolve(this.inferenceVariables);
+	}
+	
+	public /*@Nullable*/ BoundSet solve() throws InferenceFailureException {
+		return solve(false);
 	}
 	
 	public /*@Nullable*/ BoundSet solve(InferenceVariable[] toResolve) throws InferenceFailureException {
@@ -805,11 +812,14 @@ public class InferenceContext18 {
 	 * @throws InferenceFailureException 
 	 */
 	private boolean reduce() throws InferenceFailureException {
-		if (this.initialConstraints != null) {
-			for (int i = 0; i < this.initialConstraints.length; i++) {
-				if (!this.currentBounds.reduceOneConstraint(this, this.initialConstraints[i]))
-					return false;
-			}
+		// Caution: This can be reentered recursively even as an earlier call is munching through the constraints !
+		for (int i = 0; this.initialConstraints != null && i < this.initialConstraints.length; i++) {
+			final ConstraintFormula currentConstraint = this.initialConstraints[i];
+			if (currentConstraint == null)
+				continue;
+			this.initialConstraints[i] = null;
+			if (!this.currentBounds.reduceOneConstraint(this, currentConstraint))
+				return false;
 		}
 		this.initialConstraints = null;
 		return true;
@@ -1308,19 +1318,20 @@ public class InferenceContext18 {
 	}
 	
 	public SuspendedInferenceRecord enterPolyInvocation(InvocationSite invocation, Expression[] innerArguments) {
-		SuspendedInferenceRecord record = new SuspendedInferenceRecord(this.currentInvocation, this.invocationArguments, this.inferenceVariables, this.inferenceKind);
+		SuspendedInferenceRecord record = new SuspendedInferenceRecord(this.currentInvocation, this.invocationArguments, this.inferenceVariables, this.inferenceKind, this.usesUncheckedConversion);
 		this.inferenceVariables = null;
 		this.invocationArguments = innerArguments;
 		this.currentInvocation = invocation;
-		
+		this.usesUncheckedConversion = false;
 		return record;
 	}
 	
 	public SuspendedInferenceRecord enterLambda(LambdaExpression lambda) {
-		SuspendedInferenceRecord record = new SuspendedInferenceRecord(this.currentInvocation, this.invocationArguments, this.inferenceVariables, this.inferenceKind);
+		SuspendedInferenceRecord record = new SuspendedInferenceRecord(this.currentInvocation, this.invocationArguments, this.inferenceVariables, this.inferenceKind, this.usesUncheckedConversion);
 		this.inferenceVariables = null;
 		this.invocationArguments = null;
 		this.currentInvocation = null;
+		this.usesUncheckedConversion = false;
 		return record;
 	}
 
@@ -1340,6 +1351,7 @@ public class InferenceContext18 {
 		this.currentInvocation = record.site;
 		this.invocationArguments = record.invocationArguments;
 		this.inferenceKind = record.inferenceKind;
+		this.usesUncheckedConversion = record.usesUncheckedConversion;
 	}
 
 	private Substitution getResultSubstitution(final BoundSet result) {
@@ -1472,6 +1484,7 @@ public class InferenceContext18 {
 		if (this.constraintsWithUncheckedConversion == null)
 			this.constraintsWithUncheckedConversion = new ArrayList<ConstraintFormula>();
 		this.constraintsWithUncheckedConversion.add(constraint);
+		this.usesUncheckedConversion = true;
 	}
 	
 	void reportUncheckedConversions(BoundSet solution) {

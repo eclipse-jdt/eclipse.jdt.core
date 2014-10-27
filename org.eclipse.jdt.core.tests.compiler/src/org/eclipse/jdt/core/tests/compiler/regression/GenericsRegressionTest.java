@@ -4571,60 +4571,62 @@ public void testBug430987() {
 			"  }\n" + 
 			"\n" + 
 			"}\n";
-	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
-		runConformTest(
-			new String[] {
-				"X.java",
-				source
-			});
-	} else {
 		runNegativeTest(
 			new String[] {
 				"X.java",
 				source
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
 			"	doSomethingWithFoo( any( Foo.class ), any( Foo.class ) );\n" + 
-			"	^^^^^^^^^^^^^^^^^^\n" + 
-			"The method doSomethingWithFoo(X.Foo<T>, X.Foo<T>) in the type X is not applicable for the arguments (X.Foo, X.Foo)\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation doSomethingWithFoo(X.Foo, X.Foo) of the generic method doSomethingWithFoo(X.Foo<T>, X.Foo<T>) of type X\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 12)\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	doSomethingWithFoo( any( Foo.class ), any( Foo.class ) );\n" + 
+			"	                    ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type X.Foo needs unchecked conversion to conform to X.Foo<Object>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 8)\n" + 
+			"	doSomethingWithFoo( any( Foo.class ), any( Foo.class ) );\n" + 
+			"	                                      ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type X.Foo needs unchecked conversion to conform to X.Foo<Object>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 12)\n" + 
 			"	Foo foo = any( Foo.class );\n" + 
 			"	^^^\n" + 
 			"X.Foo is a raw type. References to generic type X.Foo<T> should be parameterized\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 13)\n" + 
+			"5. WARNING in X.java (at line 13)\n" + 
 			"	doSomethingWithFoo( foo, foo );\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation doSomethingWithFoo(X.Foo, X.Foo) of the generic method doSomethingWithFoo(X.Foo<T>, X.Foo<T>) of type X\n" + 
 			"----------\n" + 
-			"4. WARNING in X.java (at line 13)\n" + 
+			"6. WARNING in X.java (at line 13)\n" + 
 			"	doSomethingWithFoo( foo, foo );\n" + 
 			"	                    ^^^\n" + 
 			"Type safety: The expression of type X.Foo needs unchecked conversion to conform to X.Foo<Object>\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 13)\n" + 
+			"7. WARNING in X.java (at line 13)\n" + 
 			"	doSomethingWithFoo( foo, foo );\n" + 
 			"	                         ^^^\n" + 
 			"Type safety: The expression of type X.Foo needs unchecked conversion to conform to X.Foo<Object>\n" + 
 			"----------\n" + 
-			"6. WARNING in X.java (at line 17)\n" + 
+			"8. WARNING in X.java (at line 17)\n" + 
 			"	this.<Object>doSomethingWithFoo( any( Foo.class ), any( Foo.class ) );\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation doSomethingWithFoo(X.Foo, X.Foo) of the generic method doSomethingWithFoo(X.Foo<T>, X.Foo<T>) of type X\n" + 
 			"----------\n" + 
-			"7. WARNING in X.java (at line 17)\n" + 
+			"9. WARNING in X.java (at line 17)\n" + 
 			"	this.<Object>doSomethingWithFoo( any( Foo.class ), any( Foo.class ) );\n" + 
 			"	                                 ^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The expression of type X.Foo needs unchecked conversion to conform to X.Foo<Object>\n" + 
 			"----------\n" + 
-			"8. WARNING in X.java (at line 17)\n" + 
+			"10. WARNING in X.java (at line 17)\n" + 
 			"	this.<Object>doSomethingWithFoo( any( Foo.class ), any( Foo.class ) );\n" + 
 			"	                                                   ^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The expression of type X.Foo needs unchecked conversion to conform to X.Foo<Object>\n" + 
 			"----------\n");
-	}
 }
 public void _testBug430686() {
 	runConformTest(
@@ -5572,6 +5574,86 @@ public void test446223() {
 			"	private static <X, T extends Interface2<X> & Interface1> void DoNothing() {\n" + 
 			"	                ^\n" + 
 			"The type parameter X is hiding the type X\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=444334,  [1.8][compiler] Compiler generates error instead of warning on unchecked conversion 
+public void test444334() {
+		this.runNegativeTest(
+		   new String[] {
+			   "X.java",
+			   "import java.util.ArrayList;\n" +
+			   "import java.util.List;\n" +
+			   "public class X {\n" +
+			   "    public static void Main(String[] args) {\n" +
+			   "        doSomething(returnClassType(Class.class));\n" +
+			   "        doSomething(returnListType(new ArrayList<List>()));\n" +
+			   "    }\n" +
+			   "    public static <T> void doSomething(Class<T> clazz) {\n" +
+			   "        System.out.println(clazz.getSimpleName());\n" +
+			   "    }\n" +
+			   "    public static <T> T returnClassType(Class<T> clazz) {\n" +
+			   "        return null;\n" +
+			   "    }\n" +
+			   "    public static <T> void doSomething(List<T> list) {\n" +
+			   "        System.out.println(list.getClass().getSimpleName());\n" +
+			   "    }\n" +
+			   "    public static <T> T returnListType(List<T> list) {\n" +
+			   "        return null;\n" +
+			   "    }\n" +
+			   "}\n",
+		   },
+		   "----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	doSomething(returnClassType(Class.class));\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation doSomething(Class) of the generic method doSomething(Class<T>) of type X\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	doSomething(returnClassType(Class.class));\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Object>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
+			"	doSomething(returnListType(new ArrayList<List>()));\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation doSomething(List) of the generic method doSomething(List<T>) of type X\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 6)\n" + 
+			"	doSomething(returnListType(new ArrayList<List>()));\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<Object>\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 6)\n" + 
+			"	doSomething(returnListType(new ArrayList<List>()));\n" + 
+			"	                                         ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=438246, [1.8][compiler] Java 8 static methods compilation error  
+public void test438246() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7)
+			return;
+		this.runNegativeTest(
+		   new String[] {
+			   "Foo.java",
+			   "import java.util.List;\n" +
+			   "public abstract class Foo<C>\n" +
+			   "{\n" +
+			   "  @SuppressWarnings(\"unchecked\")\n" +
+			   "  public static <C> void doit( List<Foo<C>> workers )\n" +
+			   "  {\n" +
+			   "    doit(  workers.toArray( new Foo[workers.size()] ) );\n" +
+			   "  }\n" +
+			   "  public static <C> void doit( Foo<C>... workers )\n" +
+			   "  {\n" +
+			   "  }\n" +
+			   "}\n",
+		   },
+		   "----------\n" + 
+			"1. WARNING in Foo.java (at line 9)\n" + 
+			"	public static <C> void doit( Foo<C>... workers )\n" + 
+			"	                                       ^^^^^^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter workers\n" + 
 			"----------\n");
 }
 }
