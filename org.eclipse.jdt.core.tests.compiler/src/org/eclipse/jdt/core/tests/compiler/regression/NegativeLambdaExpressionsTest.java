@@ -8482,7 +8482,7 @@ public void test428300a() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428177, - [1.8][compiler] Insistent capture issues
-public void _test428177() {
+public void test428177() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
@@ -8533,7 +8533,32 @@ public void _test428177() {
 			"  }\n" +
 			"}\n"
 		},
-		"valid error messages go here - some are expected since javac also complains");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 19)\n" + 
+		"	Stream<String> stream2 = entries.map(toName).distinct(); // ERROR\n" + 
+		"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Stream<capture#7-of ? extends String> to Stream<String>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 20)\n" + 
+		"	withoutWildcard(entries.map(toName).distinct()); // ERROR\n" + 
+		"	^^^^^^^^^^^^^^^\n" + 
+		"The method withoutWildcard(Stream<String>) in the type InsistentCapture is not applicable for the arguments (Stream<capture#9-of ? extends String>)\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 21)\n" + 
+		"	withoutWildcard(stream); // ERROR\n" + 
+		"	^^^^^^^^^^^^^^^\n" + 
+		"The method withoutWildcard(Stream<String>) in the type InsistentCapture is not applicable for the arguments (Stream<capture#10-of ? extends String>)\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 36)\n" + 
+		"	if(\"1\" == \"\") { return stream.collect(Collectors.toList()).stream(); // ERROR\n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Stream<capture#14-of ? extends String> to Stream<String>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 38)\n" + 
+		"	return stream.collect(Collectors.toList()); // NO ERROR\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<capture#19-of ? extends String> to Stream<String>\n" + 
+		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428795, - [1.8]Internal compiler error: java.lang.NullPointerException at org.eclipse.jdt.internal.compiler.ast.MessageSend.analyseCode
 public void test428795() {
