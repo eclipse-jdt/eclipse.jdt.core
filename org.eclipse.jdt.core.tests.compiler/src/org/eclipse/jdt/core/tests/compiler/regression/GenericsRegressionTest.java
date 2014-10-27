@@ -2553,13 +2553,8 @@ public void test283353() {
 			"    K extends EntityKey<I>> {\n" +
 			"  }\n" +
 			"}\n";
-	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
-		this.runConformTest(
-			new String[] { "X.java", source },
-			"");
-	} else {
-		// see https://bugs.eclipse.org/425031
-		runNegativeTest(
+	
+	runNegativeTest(
 			new String[] { "X.java", source },
 			"----------\n" + 
 			"1. WARNING in X.java (at line 3)\n" + 
@@ -2567,12 +2562,11 @@ public void test283353() {
 			"	^^^^^^^^^\n" + 
 			"X.EntityKey is a raw type. References to generic type X.EntityKey<I> should be parameterized\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
 			"	new EntityCondenser().condense(entityKey);  \n" + 
-			"	                      ^^^^^^^^\n" + 
-			"The method condense(K) in the type X.EntityCondenser is not applicable for the arguments (X.EntityKey)\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation condense(X.EntityKey) of the generic method condense(K) of type X.EntityCondenser\n" + 
 			"----------\n");
-	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=347600
 public void test347600() {
@@ -5546,6 +5540,39 @@ public void test440019_c9() {
 			   "}\n",
 		   },
 		   "size: 3  ttl: 60");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=446223, [1.8][compiler] Java8 generics eclipse doesn't compile  
+public void test446223() {
+		this.runNegativeTest(
+		   new String[] {
+			   "X.java",
+			   "public class X {\n" +
+			   "	public static void main(String ar[]) {\n" +
+			   "		System.out.println(\"hi\");\n" +
+			   "		DoNothing();\n" +
+			   "	}\n" +
+			   "	public interface Interface1 {\n" +
+			   "		public void go();\n" +
+			   "	}\n" +
+			   "	public interface Interface2<X> {\n" +
+			   "		public X go2();\n" +
+			   "	}\n" +
+			   "	private static <X, T extends Interface2<X> & Interface1> void DoNothing() {\n" +
+			   "		return;\n" +
+			   "	}\n" +
+			   "}\n",
+		   },
+		   "----------\n" + 
+			"1. WARNING in X.java (at line 9)\n" + 
+			"	public interface Interface2<X> {\n" + 
+			"	                            ^\n" + 
+			"The type parameter X is hiding the type X\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 12)\n" + 
+			"	private static <X, T extends Interface2<X> & Interface1> void DoNothing() {\n" + 
+			"	                ^\n" + 
+			"The type parameter X is hiding the type X\n" + 
+			"----------\n");
 }
 }
 

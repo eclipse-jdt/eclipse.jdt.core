@@ -930,6 +930,7 @@ public class InferenceContext18 {
 					final CaptureBinding18[] zs = new CaptureBinding18[numVars];
 					for (int j = 0; j < numVars; j++)
 						zs[j] = freshCapture(variables[j]);
+					final BoundSet kurrentBoundSet = tmpBoundSet;
 					Substitution theta = new Substitution() {
 						public LookupEnvironment environment() { 
 							return InferenceContext18.this.environment;
@@ -941,6 +942,16 @@ public class InferenceContext18 {
 							for (int j = 0; j < numVars; j++)
 								if (TypeBinding.equalsEquals(variables[j], typeVariable))
 									return zs[j];
+							/* If we have an instantiation, lower it to the instantiation. We don't want downstream abstractions to be confused about multiple versions of bounds without
+							   and with instantiations propagated by incorporation. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=430686. There is no value whatsoever in continuing
+							   to speak in two tongues. Also fixes https://bugs.eclipse.org/bugs/show_bug.cgi?id=425031.
+							*/
+							if (typeVariable instanceof InferenceVariable) {
+								InferenceVariable inferenceVariable = (InferenceVariable) typeVariable;
+								TypeBinding instantiation = kurrentBoundSet.getInstantiation(inferenceVariable, null);
+								if (instantiation != null)
+									return instantiation;
+							}
 							return typeVariable;
 						}
 					};
@@ -950,7 +961,6 @@ public class InferenceContext18 {
 						// add lower bounds:
 						TypeBinding[] lowerBounds = tmpBoundSet.lowerBounds(variable, true/*onlyProper*/);
 						if (lowerBounds != Binding.NO_TYPES) {
-							lowerBounds = Scope.substitute(theta, lowerBounds);
 							TypeBinding lub = this.scope.lowerUpperBound(lowerBounds);
 							if (lub != TypeBinding.VOID && lub != null)
 								zsj.lowerBound = lub;
