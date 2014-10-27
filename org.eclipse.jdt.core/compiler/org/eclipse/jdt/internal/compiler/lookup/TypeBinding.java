@@ -1522,6 +1522,11 @@ public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNull
 	}
 }
 
+// return a name that can be passed to Signature.createTypeSignature
+public char [] signableName() {
+	return readableName();
+}
+
 /**
  * Answer the receiver classfile signature.
  * Arrays & base types do not distinguish between signature() & constantPoolName().

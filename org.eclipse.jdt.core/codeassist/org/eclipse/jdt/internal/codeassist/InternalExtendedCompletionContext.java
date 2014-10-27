@@ -282,7 +282,7 @@ public class InternalExtendedCompletionContext {
 				local.declarationSourceEnd,
 				local.sourceStart,
 				local.sourceEnd,
-				local.type == null ? Signature.createTypeSignature(binding.type.readableName(), true) : Util.typeSignature(local.type),
+				local.type == null ? Signature.createTypeSignature(binding.type.signableName(), true) : Util.typeSignature(local.type),
 				binding.declaration.annotations,
 				local.modifiers,
 				local.getKind() == AbstractVariableDeclaration.PARAMETER);

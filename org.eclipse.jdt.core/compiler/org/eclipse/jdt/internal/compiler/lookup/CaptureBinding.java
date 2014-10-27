@@ -284,6 +284,20 @@ public class CaptureBinding extends TypeVariableBinding {
 		}
 		return super.readableName();
 	}
+	
+	public char[] signableName() {
+		if (this.wildcard != null) {
+			StringBuffer buffer = new StringBuffer(10);
+			buffer
+				.append(TypeConstants.WILDCARD_CAPTURE_SIGNABLE_NAME_SUFFIX)
+				.append(this.wildcard.readableName());
+			int length = buffer.length();
+			char[] name = new char[length];
+			buffer.getChars(0, length, name, 0);
+			return name;
+		}
+		return super.readableName();
+	}
 
 	public char[] shortReadableName() {
 		if (this.wildcard != null) {
