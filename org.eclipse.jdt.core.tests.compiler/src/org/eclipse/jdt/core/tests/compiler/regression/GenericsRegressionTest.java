@@ -5741,5 +5741,25 @@ public void test448795c() {
 		   },
 		   "generic");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=434118, [1.8][compiler] Compilation error on generic capture/type inference   
+public void test434118() {
+		this.runConformTest(
+		   new String[] {
+			   "X.java",
+			   "public class X {\n" +
+			   "    public Object convertFails(Class<?> clazz, String value) {\n" +
+			   "        return Enum.valueOf(clazz.asSubclass(Enum.class), value);\n" +
+			   "    }\n" +
+			   "    public Object convertCompiles(Class<?> clazz, String value) {\n" +
+			   "        return Enum.valueOf(clazz.<Enum>asSubclass(Enum.class), value);\n" +
+			   "    }\n" +
+			   "    public Object convertCompiles2(Class<?> clazz, String value) {\n" +
+			   "        Class<? extends Enum> enumType = clazz.asSubclass(Enum.class);\n" +
+			   "        return Enum.valueOf(enumType, value);\n" +
+			   "    }\n" +
+			   "}\n",
+		   },
+		   "");
+}
 }
 
