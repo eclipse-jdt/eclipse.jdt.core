@@ -4767,4 +4767,29 @@ public void test445725() {
 		}, 
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447767, [1.8][compiler] Spurious method not applicable error due to interaction between overload resolution and type inference
+public void test447767() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	void bar(String t);\n" +
+			"}\n" +
+			"public class X<T> {\n" +
+			"	X(String x) {}\n" +
+			"	X(T x) { \n" +
+			"		System.out.println(\"Here\");\n" +
+			"	}\n" +
+			"	X(T x, String ...strings) {}\n" +
+			"	public void one(X<I> c){}\n" +
+			"	public void two() {\n" +
+			"		one(new X<>((String s) -> { }));\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X(\"\").two();\n" +
+			"	}\n" +
+			"}\n",
+		}, 
+		"Here");
+}
 }

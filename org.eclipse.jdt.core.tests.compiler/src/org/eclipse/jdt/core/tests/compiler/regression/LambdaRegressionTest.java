@@ -191,6 +191,146 @@ public void test448724() {
 	"case2: Runnable\n" + 
 	"case2: Runnable");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447767, [1.8][compiler] Spurious method not applicable error due to interaction between overload resolution and type inference 
+public void test447767() {
+	this.runConformTest(
+		new String[] {
+			"X.java", 
+			"interface I<T, U, V> {\n" +
+			"	T goo(U u, V v);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static <T, U, V> T foo(T t, U u, V v) {\n" +
+			"       System.out.println(\"Wrong!\");\n" +
+			"       return null;\n" +
+			"   }\n" +
+			"	static <T, U, V> V foo(T t, U u, I<T, U, V> i) {\n" +
+			"		System.out.println(\"Right!\");\n" +
+			"       return null;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		String s = goo(foo(\"String\", \"String\", (u, v) -> v));\n" +
+			"	}\n" +
+			"	static <T> T goo(T t) {\n" +
+			"	    return t;	\n" +
+			"	}\n" +
+			"}\n"
+	},
+	"Right!");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447767, [1.8][compiler] Spurious method not applicable error due to interaction between overload resolution and type inference 
+public void test447767a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"interface I<T, U, V> {\n" +
+			"	T goo(U u, V v);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static <T, U, V> T foo(T t, U u, I<T, U, V> i) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		String s = goo(foo(\"String\", \"String\", (u, v) -> v));\n" +
+			"	}\n" +
+			"	static <T> T goo(T t) {\n" +
+			"	    return t;	\n" +
+			"	}\n" +
+			"}\n"
+	},
+	"----------\n" + 
+	"1. ERROR in X.java (at line 9)\n" + 
+	"	String s = goo(foo(\"String\", \"String\", (u, v) -> v));\n" + 
+	"	                                                 ^\n" + 
+	"Type mismatch: cannot convert from Object to String\n" + 
+	"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447767, [1.8][compiler] Spurious method not applicable error due to interaction between overload resolution and type inference 
+public void test447767b() {
+	this.runConformTest(
+		new String[] {
+			"X.java", 
+			"interface I<T, U, V> {\n" +
+			"	T goo(U u, V v);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static String goo(String s, String s2) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	static <T, U, V> V foo(T t, U u, I<T, U, V> i) {\n" +
+			"		System.out.println(\"Right!\");\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		String s = goo(foo(\"String\", \"String\", X::goo));\n" +
+			"	}\n" +
+			"	static <T> T goo(T t) {\n" +
+			"	    return t;	\n" +
+			"	}\n" +
+			"}\n"
+	},
+	"Right!");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447767, [1.8][compiler] Spurious method not applicable error due to interaction between overload resolution and type inference 
+public void test447767c() {
+	this.runConformTest(
+		new String[] {
+			"X.java", 
+			"interface I<T, U, V> {\n" +
+			"	T goo(U u, V v);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static String goo(String s, String s2) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	static <T, U, V> T foo(T t, U u, V v) {\n" +
+			"       System.out.println(\"Wrong!\");\n" +
+			"       return null;\n" +
+			"   }\n" +
+			"	static <T, U, V> V foo(T t, U u, I<T, U, V> i) {\n" +
+			"		System.out.println(\"Right!\");\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		String s = goo(foo(\"String\", \"String\", X::goo));\n" +
+			"	}\n" +
+			"	static <T> T goo(T t) {\n" +
+			"	    return t;	\n" +
+			"	}\n" +
+			"}\n"
+	},
+	"Right!");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447767, [1.8][compiler] Spurious method not applicable error due to interaction between overload resolution and type inference 
+public void test447767d() {
+	this.runConformTest(
+		new String[] {
+			"X.java", 
+			"interface I<T, U, V> {\n" +
+			"	T goo(U u, V v);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static String goo(String s, String s2) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	static <T, U, V> T foo(T t, U u, V v) {\n" +
+			"        System.out.println(\"Wrong!\");\n" +
+			"        return null;\n" +
+			"   }\n" +
+			"	static <T, U, V> V foo(T t, U u, I<T, U, V> i) {\n" +
+			"		System.out.println(\"Right!\");\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		String s = goo(foo(\"String\", \"String\", X::goo));\n" +
+			"	}\n" +
+			"	static <T> T goo(T t) {\n" +
+			"	    return t;	\n" +
+			"	}\n" +
+			"}\n"
+	},
+	"Right!");
+}
 public static Class testClass() {
 	return LambdaRegressionTest.class;
 }

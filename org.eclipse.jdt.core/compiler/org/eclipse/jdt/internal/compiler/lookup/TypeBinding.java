@@ -441,6 +441,16 @@ public TypeBinding findSuperTypeOriginatingFrom(TypeBinding otherType) {
 					}
 				}
 			}
+			break;
+		case Binding.INTERSECTION_CAST_TYPE:
+			IntersectionCastTypeBinding ictb = (IntersectionCastTypeBinding) this;
+			ReferenceBinding[] intersectingTypes = ictb.getIntersectingTypes();
+			for (int i = 0, length = intersectingTypes.length; i < length; i++) {
+				TypeBinding superType = intersectingTypes[i].findSuperTypeOriginatingFrom(otherType);
+				if (superType != null)
+					return superType;
+			}
+			break;
 	}
 	return null;
 }
@@ -1252,6 +1262,12 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 			TypeBinding otherBound = otherWildcard.bound;
 			switch (otherWildcard.boundKind) {
 				case Wildcard.EXTENDS:
+					if (otherBound instanceof IntersectionCastTypeBinding) {
+						TypeBinding [] intersectingTypes = ((IntersectionCastTypeBinding) otherBound).intersectingTypes;
+						for (int i = 0, length = intersectingTypes.length; i < length; i++)
+							if (TypeBinding.equalsEquals(intersectingTypes[i], this))
+								return true;
+					}
 					if (TypeBinding.equalsEquals(otherBound, this))
 						return true; // ? extends T  <=  ? extends ? extends T
 					if (upperBound == null)
@@ -1264,6 +1280,12 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 					return upperBound.isCompatibleWith(otherBound);
 
 				case Wildcard.SUPER:
+					if (otherBound instanceof IntersectionCastTypeBinding) {
+						TypeBinding [] intersectingTypes = ((IntersectionCastTypeBinding) otherBound).intersectingTypes;
+						for (int i = 0, length = intersectingTypes.length; i < length; i++)
+							if (TypeBinding.equalsEquals(intersectingTypes[i], this))
+								return true;
+					}
 					if (TypeBinding.equalsEquals(otherBound, this))
 						return true; // ? super T  <=  ? super ? super T
 					if (lowerBound == null)

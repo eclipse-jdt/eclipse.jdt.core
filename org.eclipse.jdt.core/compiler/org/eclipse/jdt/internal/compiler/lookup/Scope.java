@@ -713,20 +713,20 @@ public abstract class Scope {
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=330435, inference should kick in only at source 1.5+
 		if (typeVariables != Binding.NO_TYPE_VARIABLES && compilerOptions.sourceLevel >= ClassFileConstants.JDK1_5) { // generic method
 			TypeBinding[] newArgs = null;
-			for (int i = 0; i < argLength; i++) {
-				TypeBinding param = i < paramLength ? parameters[i] : parameters[paramLength - 1];
-				if (arguments[i].isBaseType() != param.isBaseType()) {
-					if (newArgs == null) {
-						newArgs = new TypeBinding[argLength];
-						System.arraycopy(arguments, 0, newArgs, 0, argLength);
+			if (compilerOptions.sourceLevel < ClassFileConstants.JDK1_8 || genericTypeArguments != null) { // for 1.8+ inferred calls, we do this inside PGMB.cCM18.
+				for (int i = 0; i < argLength; i++) {
+					TypeBinding param = i < paramLength ? parameters[i] : parameters[paramLength - 1];
+					if (arguments[i].isBaseType() != param.isBaseType()) {
+						if (newArgs == null) {
+							newArgs = new TypeBinding[argLength];
+							System.arraycopy(arguments, 0, newArgs, 0, argLength);
+						}
+						newArgs[i] = environment().computeBoxingType(arguments[i]);
 					}
-					newArgs[i] = environment().computeBoxingType(arguments[i]);
 				}
 			}
 			if (newArgs != null)
 				arguments = newArgs;
-			else  // ensure that computeCompatibleMethod() below can update arguments without harming our caller: (TODO: always copy before the loop? only in 1.8?)
-				System.arraycopy(arguments, 0, arguments=new TypeBinding[argLength], 0, argLength);
 			method = ParameterizedGenericMethodBinding.computeCompatibleMethod(method, arguments, this, invocationSite);
 			if (method == null) return null; // incompatible
 			if (!method.isValidBinding()) return method; // bound check issue is taking precedence
@@ -4232,7 +4232,7 @@ public abstract class Scope {
 		int[] compatibilityLevels = new int[visibleSize];
 		int compatibleCount = 0;
 		for (int i = 0; i < visibleSize; i++)
-			if ((compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argumentTypes)) != NOT_COMPATIBLE) {
+			if ((compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argumentTypes, invocationSite)) != NOT_COMPATIBLE) {
 				if (i != compatibleCount) {
 					visible[compatibleCount] = visible[i];
 					compatibilityLevels[compatibleCount] = compatibilityLevels[i];
@@ -4265,7 +4265,6 @@ public abstract class Scope {
 				int levelj = compatibilityLevels[j];
 				nextK: for (int k = 0; k < visibleSize; k++) {
 					if (j == k) continue;
-					// TODO do we want to check existing inference contexts whether they can tell us better about the used inferenceKind?
 					int levelk = compatibilityLevels[k];
 					if (levelj > -1 && levelk > -1 && levelj != levelk) {
 						if (levelj < levelk)
@@ -4575,6 +4574,51 @@ public abstract class Scope {
 			scope = scope.parent;
 		} while (scope != null);
 		return lastMethodScope; // may answer null if no method around
+	}
+	
+	// Version that just answers based on inference kind (at 1.8+) when available.
+	public int parameterCompatibilityLevel(MethodBinding method, TypeBinding[] arguments, InvocationSite site) {
+		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8 && method instanceof ParameterizedGenericMethodBinding) {
+			int inferenceKind = InferenceContext18.CHECK_UNKNOWN;
+			InferenceContext18 context = null;
+			if (site instanceof Invocation) {
+				Invocation invocation = (Invocation) site;
+				context = invocation.getInferenceContext((ParameterizedGenericMethodBinding) method);
+				if (context != null)
+					inferenceKind = context.inferenceKind;
+			} else if (site instanceof ReferenceExpression) {
+				inferenceKind = ((ReferenceExpression) site).inferenceKind;
+			}
+			/* 1.8+ Post inference compatibility check policy: For non-functional-type arguments, trust inference. For functional type arguments apply compatibility checks as inference
+			   engine may not have checked arguments that are not pertinent to applicability. One complication to deal with is when the generic method's parameter is its own type variable 
+			   and only applicability was inferred and applicability inference instantiated it with jlO due to lack of upper bounds in the bound set.
+			*/
+			if (site instanceof Invocation && context != null) { // this block can be readily seen to be not relevant for reference expressions
+				MethodBinding shallowOriginal = method.shallowOriginal();
+				for (int i = 0, length = arguments.length; i < length; i++) {
+					TypeBinding argument = arguments[i];
+					if (!argument.isFunctionalType())
+						continue;
+					TypeBinding parameter = InferenceContext18.getParameter(method.parameters, i, context.isVarArgs());
+					if (argument.isCompatibleWith(parameter, this))
+						continue;
+					TypeBinding shallowParameter = InferenceContext18.getParameter(shallowOriginal.parameters, i, context.isVarArgs());
+					if (shallowParameter.isPertinentToApplicability(argument, shallowOriginal))
+						return NOT_COMPATIBLE;
+				}
+			}
+			switch (inferenceKind) {
+				case InferenceContext18.CHECK_STRICT:
+					return COMPATIBLE;
+				case InferenceContext18.CHECK_LOOSE:
+					return AUTOBOX_COMPATIBLE;
+				case InferenceContext18.CHECK_VARARG:
+					return VARARGS_COMPATIBLE;
+				default:
+					break;
+				}
+		}
+		return parameterCompatibilityLevel(method, arguments, false);
 	}
 
 	public int parameterCompatibilityLevel(MethodBinding method, TypeBinding[] arguments) {

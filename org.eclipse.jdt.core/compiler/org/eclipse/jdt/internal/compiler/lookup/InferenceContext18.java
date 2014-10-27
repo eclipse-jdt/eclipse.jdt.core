@@ -160,6 +160,7 @@ public class InferenceContext18 {
 	ReferenceBinding object; // java.lang.Object
 	public BoundSet b2;
 	
+	public static final int CHECK_UNKNOWN = 0;
 	public static final int CHECK_STRICT = 1;
 	public static final int CHECK_LOOSE = 2;
 	public static final int CHECK_VARARG = 3;
@@ -233,7 +234,6 @@ public class InferenceContext18 {
 
 	/** JLS 18.5.1: compute bounds from formal and actual parameters. */
 	public void createInitialConstraintsForParameters(TypeBinding[] parameters, boolean checkVararg, TypeBinding varArgsType, MethodBinding method) {
-		// TODO discriminate strict vs. loose invocations
 		if (this.invocationArguments == null)
 			return;
 		int len = checkVararg ? parameters.length - 1 : Math.min(parameters.length, this.invocationArguments.length);
@@ -919,7 +919,7 @@ public class InferenceContext18 {
 											} else if (glbs.length == 1) {
 												glb = glbs[0];
 											} else {
-												IntersectionCastTypeBinding intersection = new IntersectionCastTypeBinding(glbs, this.environment);
+												IntersectionCastTypeBinding intersection = (IntersectionCastTypeBinding) this.environment.createIntersectionCastType(glbs);
 												if (!ReferenceBinding.isConsistentIntersection(intersection.intersectingTypes)) {
 													tmpBoundSet = prevBoundSet; // clean up
 													break variables; // and start over

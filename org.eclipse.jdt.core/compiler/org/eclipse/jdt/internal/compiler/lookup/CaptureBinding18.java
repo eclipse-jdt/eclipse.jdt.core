@@ -92,7 +92,7 @@ public class CaptureBinding18 extends CaptureBinding {
 			}
 			if (!multipleErasures)
 				return erasures[0];
-			return new IntersectionCastTypeBinding(erasures, this.environment);
+			return this.environment.createIntersectionCastType(erasures);
 		}
 		return super.erasure();
 	}

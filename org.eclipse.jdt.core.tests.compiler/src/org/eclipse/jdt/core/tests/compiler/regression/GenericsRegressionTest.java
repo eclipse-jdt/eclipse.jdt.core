@@ -5481,9 +5481,8 @@ public void test440019() {
 		   "");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=443596, [1.8][compiler] Failure for overload resolution in case of Generics and Varags 
-public void _test443596() {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_7)
-		this.runNegativeTest(
+public void test443596() {
+	this.runNegativeTest(
 		   new String[] {
 			   "X.java",
 			   "public final class X {\n" +
@@ -5497,6 +5496,8 @@ public void _test443596() {
 			   "    }\n" +
 			   "}\n",
 		   },
+		   this.complianceLevel < ClassFileConstants.JDK1_7 ?
+		   "" : 	   
 		   "----------\n" + 
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	public static <T> Predicate<T> and(Predicate<? super T>... arg) { return null; }\n" + 
@@ -5655,6 +5656,90 @@ public void test438246() {
 			"	                                       ^^^^^^^\n" + 
 			"Type safety: Potential heap pollution via varargs parameter workers\n" + 
 			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=448795, [1.8][compiler] Inference should discriminate between strict and loose modes   
+public void test448795() {
+		this.runNegativeTest(
+		   new String[] {
+			   "X.java",
+			   "public class X<T> {\n" +
+			   "	static <T> T element(T [] ta) {\n" +
+			   "		return ta[0];\n" +
+			   "	}\n" +
+			   "	public static void main(String[] args) {\n" +
+			   "		int x = element(new int [] { 1234 });\n" +  // check that autoboxing does not kick in for arrays, i.e engine should not slip into loose mode.
+			   "	}\n" +
+			   "}\n",
+		   },
+		   "----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	int x = element(new int [] { 1234 });\n" + 
+			"	        ^^^^^^^\n" + 
+			"The method element(T[]) in the type X<T> is not applicable for the arguments (int[])\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=448795, [1.8][compiler] Inference should discriminate between strict and loose modes   
+public void test448795a() {
+		this.runConformTest(
+		   new String[] {
+			   "X.java",
+			   "public class X<T> {\n" +
+			   "	static <T> T element(int x, T t) {\n" +
+			   "		System.out.println(\"Strict\");\n" +
+			   "		return t;\n" +
+			   "	}\n" +
+			   "	static <T> T element(T t1, T t2) {\n" +
+			   "		System.out.println(\"Loose\");\n" +
+			   "		return t2;\n" +
+			   "	}\n" +
+			   "	public static void main(String[] args) {\n" +
+			   "		int x = element(10, new Integer(20));\n" +
+			   "	}\n" +
+			   "}\n",
+		   },
+		   "Strict");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=448795, [1.8][compiler] Inference should discriminate between strict and loose modes   
+public void test448795b() {
+		this.runConformTest(
+		   new String[] {
+			   "X.java",
+			   "public class X<T> {\n" +
+			   "	static int element(int x, Integer t) {\n" +
+			   "		System.out.println(\"non-generic\");\n" +
+			   "		return t;\n" +
+			   "	}\n" +
+			   "	static <T> T element(int t1, T t2) {\n" +
+			   "		System.out.println(\"generic\");\n" +
+			   "		return t2;\n" +
+			   "	}\n" +
+			   "	public static void main(String[] args) {\n" +
+			   "		int x = element(10, new Integer(20));\n" +
+			   "	}\n" +
+			   "}\n",
+		   },
+		   "non-generic");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=448795, [1.8][compiler] Inference should discriminate between strict and loose modes   
+public void test448795c() {
+		this.runConformTest(
+		   new String[] {
+			   "X.java",
+			   "public class X<T> {\n" +
+			   "	static int element(Integer x, Integer t) {\n" +
+			   "		System.out.println(\"non-generic\");\n" +
+			   "		return t;\n" +
+			   "	}\n" +
+			   "	static <T> T element(int t1, T t2) {\n" +
+			   "		System.out.println(\"generic\");\n" +
+			   "		return t2;\n" +
+			   "	}\n" +
+			   "	public static void main(String[] args) {\n" +
+			   "		int x = element(10, new Integer(20));\n" +
+			   "	}\n" +
+			   "}\n",
+		   },
+		   "generic");
 }
 }
 

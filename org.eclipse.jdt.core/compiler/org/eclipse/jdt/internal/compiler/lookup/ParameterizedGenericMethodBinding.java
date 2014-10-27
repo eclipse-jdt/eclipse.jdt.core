@@ -161,11 +161,25 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		
 		ParameterizedGenericMethodBinding methodSubstitute = null;
 		TypeVariableBinding[] typeVariables = originalMethod.typeVariables;
-		InferenceContext18 infCtx18 = null;
+		InferenceContext18 infCtx18 = invocationSite.freshInferenceContext(scope);
 		TypeBinding[] parameters = originalMethod.parameters;
-		infCtx18 = invocationSite.freshInferenceContext(scope);
 		CompilerOptions compilerOptions = scope.compilerOptions();
 		boolean invocationTypeInferred = false;
+		boolean requireBoxing = false;
+		
+		// See if we should start in loose inference mode.
+		TypeBinding [] argumentsCopy = new TypeBinding[arguments.length];
+		for (int i = 0, length = arguments.length, parametersLength = parameters.length ; i < length; i++) {
+			TypeBinding parameter = i < parametersLength ? parameters[i] : parameters[parametersLength - 1];
+			final TypeBinding argument = arguments[i];
+			if (argument.isPrimitiveType() != parameter.isPrimitiveType()) { // Scope.cCM incorrectly but harmlessly uses isBaseType which answers true for null.
+				argumentsCopy[i] = scope.environment().computeBoxingType(argument);
+				requireBoxing = true; // can't be strict mode, needs at least loose.
+			} else {
+				argumentsCopy[i] = argument;
+			}
+		}
+		arguments = argumentsCopy; // either way, this allows the engine to update arguments without harming the callers. 
 		
 		try {
 			BoundSet provisionalResult = null;
@@ -174,7 +188,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			final boolean isPolyExpression = invocationSite instanceof Expression && ((Expression)invocationSite).isPolyExpression(originalMethod);
 			boolean isDiamond = isPolyExpression && originalMethod.isConstructor();
 			if (arguments.length == parameters.length) {
-				infCtx18.inferenceKind = InferenceContext18.CHECK_LOOSE; // TODO: validate if 2 phase checking (strict/loose + vararg) is sufficient.
+				infCtx18.inferenceKind = requireBoxing ? InferenceContext18.CHECK_LOOSE : InferenceContext18.CHECK_STRICT; // engine may still slip into loose mode and adjust level.
 				infCtx18.inferInvocationApplicability(originalMethod, arguments, isDiamond);
 				result = infCtx18.solve(true);
 			}
