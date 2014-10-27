@@ -190,7 +190,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			if (infCtx18.isResolved(result)) {
 				infCtx18.stepCompleted = InferenceContext18.APPLICABILITY_INFERRED;
 				if (invocationSite instanceof ReferenceExpression)
-					((ReferenceExpression) invocationSite).inferenceKind = infCtx18.inferenceKind;   // CHECK
+					((ReferenceExpression) invocationSite).inferenceKind = infCtx18.inferenceKind;
 			} else {
 				return null;
 			}
@@ -214,7 +214,6 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					if (hasReturnProblem) { // illegally working from the provisional result?
 						MethodBinding problemMethod = infCtx18.getReturnProblemMethodIfNeeded(expectedType, methodSubstitute);
 						if (problemMethod instanceof ProblemMethodBinding) {
-							methodSubstitute = null;
 							return problemMethod;
 						}
 					}
@@ -223,7 +222,6 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 							NullAnnotationMatching.checkForContraditions(methodSubstitute, invocationSite, scope);
 						MethodBinding problemMethod = methodSubstitute.boundCheck18(scope, arguments);
 						if (problemMethod != null) {
-							methodSubstitute = null;
 							return problemMethod;
 						}
 						infCtx18.solutionsPerTargetType.put(expectedType, new Solution(methodSubstitute, result));

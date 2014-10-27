@@ -206,6 +206,11 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		this.arguments = typeArguments;
 	}
 		
+	@Override
+	public ParameterizedTypeBinding capture(Scope scope, int position) {
+		return this;
+	}
+	
 	@Override 
 	public TypeBinding uncapture(Scope scope) {
 		return this;

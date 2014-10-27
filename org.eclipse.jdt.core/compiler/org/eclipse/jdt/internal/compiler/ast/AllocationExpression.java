@@ -556,8 +556,18 @@ public MethodBinding inferConstructorOfElidedParameterizedType(ParameterizedType
 	// Given the allocation type and the arguments to the constructor, see if we can infer the constructor of the elided parameterized type.
 	MethodBinding factory = scope.getStaticFactory(allocationType, enclosingType, argumentTyps, this);
 	if (factory instanceof ParameterizedGenericMethodBinding && factory.isValidBinding()) {
-		SyntheticFactoryMethodBinding original = (SyntheticFactoryMethodBinding) factory.original();
-		return original.applyTypeArgumentsOnConstructor(((ParameterizedTypeBinding)factory.returnType).arguments);
+		SyntheticFactoryMethodBinding sfmb = (SyntheticFactoryMethodBinding) factory.original();
+		TypeVariableBinding[] constructorTypeVariables = sfmb.getConstructor().typeVariables();
+		TypeBinding [] constructorTypeArguments = constructorTypeVariables != null ? new TypeBinding[constructorTypeVariables.length] : Binding.NO_TYPES;
+		if (constructorTypeArguments.length > 0)
+			System.arraycopy(((ParameterizedGenericMethodBinding)factory).typeArguments, sfmb.typeVariables().length - constructorTypeArguments.length , 
+												constructorTypeArguments, 0, constructorTypeArguments.length);
+		MethodBinding constructor = sfmb.applyTypeArgumentsOnConstructor(((ParameterizedTypeBinding)factory.returnType).arguments, constructorTypeArguments);
+		if (constructor instanceof ParameterizedGenericMethodBinding && scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8) {
+			// force an inference context to be established, but avoid tunneling through overload resolution. We know this is the MSMB.
+			return ParameterizedGenericMethodBinding.computeCompatibleMethod18(constructor.shallowOriginal(), argumentTyps, scope, this);
+		}
+		return constructor;
 	}
 	return null;
 }

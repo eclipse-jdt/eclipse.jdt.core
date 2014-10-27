@@ -694,6 +694,14 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 
 	/** During inference: Try to find an applicable method binding without causing undesired side-effects. */
 	public MethodBinding findCompileTimeMethodTargeting(TypeBinding targetType, Scope scope) {
+		if (this.exactMethodBinding != null) {
+			MethodBinding functionType = targetType.getSingleAbstractMethod(scope, true);
+			if (functionType == null)
+				return null;
+			int n = functionType.parameters.length;
+			int k = this.exactMethodBinding.parameters.length;
+			return (n == k || n == k + 1) ? this.exactMethodBinding : null;
+		}
 		MethodBinding targetMethod = internalResolveTentatively(targetType, scope);
 		if (targetMethod == null || !targetMethod.isValidBinding())
 			return null;

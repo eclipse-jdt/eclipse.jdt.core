@@ -29,13 +29,20 @@ public class SyntheticFactoryMethodBinding extends MethodBinding {
 		this.enclosingType = enclosingType;
 	}
 	
-	/** Apply the given type arguments on the (declaring class of the) actual constructor being represented by this factory method. */
-	public ParameterizedMethodBinding applyTypeArgumentsOnConstructor(TypeBinding[] typeArguments) {
+	public MethodBinding getConstructor() {
+		return this.staticFactoryFor;
+	}
+	
+	/** Apply the given type arguments on the (declaring class of the) actual constructor being represented by this factory method and
+	    if method type arguments is not empty materialize the parameterized generic constructor 
+	*/
+	public ParameterizedMethodBinding applyTypeArgumentsOnConstructor(TypeBinding[] typeArguments, TypeBinding[] constructorTypeArguments) {
 		ReferenceBinding parameterizedType = this.environment.createParameterizedType(this.declaringClass, typeArguments,
 																						this.enclosingType);
 		for (MethodBinding parameterizedMethod : parameterizedType.methods()) {
 			if (parameterizedMethod.original() == this.staticFactoryFor)
-				return (ParameterizedMethodBinding) parameterizedMethod;
+				return constructorTypeArguments.length > 0 ? this.environment.createParameterizedGenericMethod(parameterizedMethod, constructorTypeArguments) :
+													         (ParameterizedMethodBinding) parameterizedMethod;
 			if (parameterizedMethod instanceof ProblemMethodBinding) {
 				MethodBinding closestMatch = ((ProblemMethodBinding)parameterizedMethod).closestMatch;
 				if (closestMatch instanceof ParameterizedMethodBinding && closestMatch.original() == this.staticFactoryFor)

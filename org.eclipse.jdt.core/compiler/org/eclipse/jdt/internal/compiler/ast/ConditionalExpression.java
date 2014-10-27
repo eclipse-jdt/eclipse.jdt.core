@@ -719,7 +719,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	
 	public boolean isPertinentToApplicability(TypeVariableBinding typeVariable, MethodBinding method) {
 		return this.valueIfTrue.isPertinentToApplicability(typeVariable, method) 
-				&& this.valueIfFalse.isPertinentToApplicability(typeVariable, method); // not perfect.
+				&& this.valueIfFalse.isPertinentToApplicability(typeVariable, method);
 	}
 	
 	public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
@@ -729,7 +729,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	
 	@Override
 	public boolean isFunctionalType() {
-		return this.valueIfTrue.isFunctionalType() || this.valueIfFalse.isFunctionalType();
+		return this.valueIfTrue.isFunctionalType() || this.valueIfFalse.isFunctionalType(); // Even if only one arm is functional type, this will require a functional interface target
 	}
 	
 	public boolean isPolyExpression() throws UnsupportedOperationException {

@@ -154,7 +154,7 @@ public class InferenceContext18 {
 	/** Signals whether any type compatibility makes use of unchecked conversion. */
 	public List<ConstraintFormula> constraintsWithUncheckedConversion;
 	public boolean usesUncheckedConversion;
-
+	public InferenceContext18 outerContext;
 	Scope scope;
 	LookupEnvironment environment;
 	ReferenceBinding object; // java.lang.Object
@@ -439,11 +439,6 @@ public class InferenceContext18 {
 
 	private boolean addConstraintsToC_OneExpr(Expression expri, Set<ConstraintFormula> c, TypeBinding fsi, TypeBinding substF, MethodBinding method, boolean interleaved) throws InferenceFailureException {
 		
-		// See https://bugs.openjdk.java.net/browse/JDK-8052325 for exclusion of poly expressions targeting proper types. CEF.reduce validates 
-		// that they are compatible in a loose invocation context against the target type. They contribute nothing further to solving the formulas.
-		if (substF.isProperType(true))
-			return true;
-		
 		// For all i (1 ≤ i ≤ k), if ei is not pertinent to applicability, the set contains ⟨ei → θ Fi⟩.
 		if (!expri.isPertinentToApplicability(fsi, method)) {
 			c.add(new ConstraintExpressionFormula(expri, substF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT));
@@ -472,6 +467,10 @@ public class InferenceContext18 {
 				}
 			}
 		} else if (expri instanceof Invocation && expri.isPolyExpression()) {
+			
+			if (substF.isProperType(true)) // https://bugs.openjdk.java.net/browse/JDK-8052325 
+				return true;
+			
 			Invocation invocation = (Invocation) expri;
 			MethodBinding innerMethod = invocation.binding(substF, this.scope);
 			if (innerMethod == null)
@@ -492,6 +491,8 @@ public class InferenceContext18 {
 				SuspendedInferenceRecord prevInvocation = enterPolyInvocation(invocation, invocation.arguments());
 				try {
 					this.inferenceKind = applicabilityKind;
+					if (innerContext != null)
+						innerContext.outerContext = this;
 					inferInvocationApplicability(shallowMethod, argumentTypes, shallowMethod.isConstructor());
 					if (!ConstraintExpressionFormula.inferPolyInvocationType(this, invocation, substF, shallowMethod))
 						return false;

@@ -631,7 +631,7 @@ class BoundSet {
 							while (it.hasNext()) {
 								TypeBound bound = it.next();
 								if (InferenceContext18.SHOULD_WORKAROUND_BUG_JDK_8054721) {
-									if (bound.right instanceof CaptureBinding)
+									if (bound.right instanceof CaptureBinding && bound.right.isProperType(true))
 										continue;
 								}
 								if (!(bound.right instanceof InferenceVariable))
@@ -978,21 +978,6 @@ class BoundSet {
 		if (three == null) return null;
 		return three.findSingleWrapperType();
 	}
-
-	private TypeBinding applyInstantiations(TypeBinding type) {
-		if (type.isProperType(true))
-			return type;
-	
-		Iterator<InferenceVariable> variableIt = this.boundsPerVariable.keySet().iterator();
-		while (variableIt.hasNext()) {
-			InferenceVariable inferenceVariable = variableIt.next();
-			TypeBinding instantiation = getInstantiation(inferenceVariable, null);
-			if (instantiation != null)
-				type = type.substituteInferenceVariable(inferenceVariable, instantiation);
-		}
-		return type;
-	}
-	
 	// this condition is just way too complex to check it in-line:
 	public boolean condition18_5_2_bullet_3_3_1(InferenceVariable alpha, TypeBinding targetType) {
 		// T is a reference type, but is not a wildcard-parameterized type, and either 
@@ -1032,10 +1017,9 @@ class BoundSet {
 						/* HashMap<K#8,V#9> and HashMap<K#8,ArrayList<T>> with an instantiation for V9 = ArrayList<T> already in the 
 						   bound set should not be seen as two different parameterizations of the same generic class or interface.
 						   See https://bugs.eclipse.org/bugs/show_bug.cgi?id=432626 for a test that triggers this condition.
+						   See https://bugs.openjdk.java.net/browse/JDK-8056092: recommendation is to check for proper types.
 						*/
-						supers[0] = applyInstantiations(supers[0]);
-						supers[1] = applyInstantiations(supers[1]);
-						if (!TypeBinding.equalsEquals(supers[0], supers[1]))
+						if (supers[0].isProperType(true) && supers[1].isProperType(true) && !TypeBinding.equalsEquals(supers[0], supers[1]))
 							return true;
 					}
 				}

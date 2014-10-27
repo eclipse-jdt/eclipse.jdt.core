@@ -652,6 +652,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	/**
 	 * After method lookup has produced 'methodBinding' but when poly expressions have been seen as arguments,
 	 * inspect the arguments to trigger another round of resolving with improved target types from the methods parameters.
+	 * If this resolving produces better types for any arguments, update the 'argumentTypes' array in-place as an
+	 * intended side effect that will feed better type information in checkInvocationArguments() and others. 
 	 * @param invocation the outer invocation which is being resolved
 	 * @param method the method produced by lookup (possibly involving type inference).
 	 * @param argumentTypes the argument types as collected from first resolving the invocation arguments and as used for the method lookup.
@@ -674,7 +676,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			TypeBinding parameterType = InferenceContext18.getParameter(parameters, i, variableArity);
 			if (parameterType == null)
 				continue; // not much we can do without a target type, assume it only happens after some resolve error
-			if (argumentTypes[i].isPolyType()) {
+			if (argumentTypes[i] != null && argumentTypes[i].isPolyType()) {
 				argument.setExpectedType(parameterType);
 				TypeBinding updatedArgumentType = argument.resolveType(scope); 
 				if (argument instanceof LambdaExpression) {
