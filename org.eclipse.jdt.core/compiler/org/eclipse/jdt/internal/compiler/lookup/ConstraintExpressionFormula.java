@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
@@ -359,15 +358,11 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 						parameterizedType.genericType(), betas, parameterizedType.enclosingType(), parameterizedType.getTypeAnnotations());
 				inferenceContext.currentBounds.captures.put(gbeta, parameterizedType); // established: both types have nonnull arguments
 				if (InferenceContext18.SHOULD_WORKAROUND_BUG_JDK_8054721) {
-					for (int i = 0, length = arguments.length; i < length;i++) {
-						if (arguments[i].isWildcard() && arguments[i].isProperType(true)) {
-							WildcardBinding wildcard = (WildcardBinding) arguments[i];
-							SourceTypeBinding contextType = inferenceContext.scope.enclosingSourceType();
-							int position = invocationSite.sourceEnd();
-							CompilationUnitScope compilationUnitScope = inferenceContext.scope.compilationUnitScope();
-							ASTNode cud = compilationUnitScope.referenceContext;
-							final int captureID = compilationUnitScope.nextCaptureID();
-							CaptureBinding capture = inferenceContext.environment.createCapturedWildcard(wildcard, contextType, position, cud, captureID);
+					parameterizedType = parameterizedType.capture(inferenceContext.scope, invocationSite.sourceEnd());
+					arguments = parameterizedType.arguments;
+					for (int i = 0, length = arguments.length; i < length; i++) {
+						if (arguments[i].isCapture() && arguments[i].isProperType(true)) {
+							CaptureBinding capture = (CaptureBinding) arguments[i];
 							inferenceContext.currentBounds.addBound(new TypeBound(betas[i], capture, SAME), inferenceContext.environment);
 						}
 					}
