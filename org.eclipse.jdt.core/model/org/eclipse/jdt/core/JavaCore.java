@@ -101,6 +101,7 @@
  *     Jesper S Moller   - Contributions for bug 381345 : [1.8] Take care of the Java 8 major version
  *                       - added the following constants:
  *									COMPILER_CODEGEN_METHOD_PARAMETERS_ATTR
+ *     Harry Terkelsen (het@google.com) - Bug 449262 - Allow the use of third-party Java formatters
  *     
  *******************************************************************************/
 
@@ -2288,6 +2289,19 @@ public final class JavaCore extends Plugin {
 	public static final String TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC = PLUGIN_ID + ".timeoutForParameterNameFromAttachedJavadoc"; //$NON-NLS-1$
 
 	/**
+	 * Core option ID: The ID of the formatter to use in formatting operations.
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.javaFormatter"</code></dd>
+	 * <dt>Default:</dt><dd><code>"org.eclipse.jdt.core.defaultJavaFormatter"</code></dd>
+	 * </dl>
+	 * @see #DEFAULT_JAVA_FORMATTER
+	 * @see #JAVA_FORMATTER_EXTENSION_POINT_ID
+	 * @since 3.11
+	 * @category CoreOptionID
+	 */
+	public static final String JAVA_FORMATTER = PLUGIN_ID + ".javaFormatter"; //$NON-NLS-1$
+
+	/**
 	 * @since 2.0
 	 * @deprecated Use {@link org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants#FORMATTER_BRACE_POSITION_FOR_ANONYMOUS_TYPE_DECLARATION},
 	 * {@link org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants#FORMATTER_BRACE_POSITION_FOR_BLOCK} ,
@@ -2842,6 +2856,23 @@ public final class JavaCore extends Plugin {
 	 * @since 3.2
 	 */
 	public static final String JAVA_SOURCE_CONTENT_TYPE = JavaCore.PLUGIN_ID+".javaSource" ; //$NON-NLS-1$
+
+	/**
+	 * The ID of the Eclipse built-in formatter.
+	 *
+	 * @see #JAVA_FORMATTER
+	 * @see #JAVA_FORMATTER_EXTENSION_POINT_ID
+	 * @since 3.11
+	 */
+	public static final String DEFAULT_JAVA_FORMATTER = PLUGIN_ID + ".defaultJavaFormatter"; //$NON-NLS-1$
+
+	/**
+	 * Name of the extension point for contributing a source code formatter
+	 * @see #JAVA_FORMATTER
+	 * @see #DEFAULT_JAVA_FORMATTER
+	 * @since 3.11
+	 */
+	public static final String JAVA_FORMATTER_EXTENSION_POINT_ID = "javaFormatter" ;  //$NON-NLS-1$
 
 	/**
 	 * Creates the Java core plug-in.

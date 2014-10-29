@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,19 +7,18 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Harry Terkelsen (het@google.com) - Bug 449262 - Allow the use of third-party Java formatters
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
@@ -39,6 +38,14 @@ import org.eclipse.jdt.internal.core.util.ClassFileReader;
 import org.eclipse.jdt.internal.core.util.Disassembler;
 import org.eclipse.jdt.internal.core.util.PublicScanner;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * Factory for creating various compiler tools, such as scanners, parsers and compilers.
@@ -140,7 +147,10 @@ public class ToolFactory {
 	}
 
 	/**
-	 * Create an instance of the built-in code formatter.
+	 * Creates an instance of a code formatter. A code formatter implementation can be contributed via the extension
+	 * point "org.eclipse.jdt.core.javaFormatter". The formatter id specified in the
+	 * "org.eclipse.jdt.core.javaFormatter" is instantiated. If unable to find a registered extension, the factory will
+	 * default to using the default code formatter.
 	 * <p>The given options should at least provide the source level ({@link JavaCore#COMPILER_SOURCE}),
 	 * the  compiler compliance level ({@link JavaCore#COMPILER_COMPLIANCE}) and the target platform
 	 * ({@link JavaCore#COMPILER_CODEGEN_TARGET_PLATFORM}).
@@ -170,6 +180,33 @@ public class ToolFactory {
 			currentOptions.put(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_BLOCK_COMMENTS_ON_FIRST_COLUMN, DefaultCodeFormatterConstants.FALSE);
 			currentOptions.put(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN, DefaultCodeFormatterConstants.FALSE);
 		}
+		String formatterId = (String) options.get(JavaCore.JAVA_FORMATTER);
+		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID,
+				JavaCore.JAVA_FORMATTER_EXTENSION_POINT_ID);
+		if (extension != null) {
+			IExtension[] extensions = extension.getExtensions();
+			for (int i = 0; i < extensions.length; i++) {
+				IConfigurationElement[] configElements = extensions[i].getConfigurationElements();
+				for (int j = 0; j < configElements.length; j++) {
+					String initializerID = configElements[j].getAttribute("id"); //$NON-NLS-1$
+					if (initializerID != null && initializerID.equals(formatterId)) {
+						try {
+							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
+							if (execExt instanceof CodeFormatter) {
+								CodeFormatter formatter = (CodeFormatter) execExt;
+								formatter.setOptions(currentOptions);
+								return formatter;
+							}
+						} catch (CoreException e) {
+							org.eclipse.jdt.internal.core.util.Util.log(e.getStatus());
+							break;
+						}
+					}
+				}
+			}
+		}
+		org.eclipse.jdt.internal.core.util.Util.log(IStatus.WARNING,
+				"Unable to instantiate formatter extension, returning built-in formatter."); //$NON-NLS-1$
 		return new DefaultCodeFormatter(currentOptions);
 	}
 

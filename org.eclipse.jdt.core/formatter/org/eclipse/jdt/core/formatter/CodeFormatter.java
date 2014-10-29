@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Harry Terkelsen (het@google.com) - Bug 449262 - Allow the use of third-party Java formatters
  *******************************************************************************/
 package org.eclipse.jdt.core.formatter;
 
@@ -14,11 +15,12 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.text.edits.TextEdit;
 
+import java.util.Map;
+
 /**
  * Specification for a generic source code formatter.
  *
  * @since 3.0
- * @noextend This class is not intended to be subclassed by clients.
  */
 public abstract class CodeFormatter {
 
@@ -281,5 +283,16 @@ public abstract class CodeFormatter {
 	 */
 	public String createIndentationString(int indentationLevel) {
 		return Util.EMPTY_STRING;
+	}
+
+	/**
+	 * Sets the formatting options for this formatter.
+	 * <p>The default implementation ignores the options.
+	 *
+	 * @param options the options for the formatter
+	 * @since 3.11
+	 */
+	public void setOptions(Map<String, String> options) {
+		// Do nothing by default
 	}
 }

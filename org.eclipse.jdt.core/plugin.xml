@@ -9,6 +9,7 @@
     
     Contributors:
         IBM Corporation - initial API and implementation
+        Harry Terkelsen (het@google.com) - Bug 449262 - Allow the use of third-party Java formatters
  -->
 
 <!-- =================================================================================== -->
@@ -65,6 +66,14 @@
 <extension-point name="%annotationProcessorManagerName" 
 	id="annotationProcessorManager"
 	schema="schema/annotationProcessorManager.exsd"/>
+
+<!-- =================================================================================== -->
+<!-- Extension Point: Java Source Formatter                                              -->
+<!-- =================================================================================== -->
+
+<extension-point name="%javaFormatterName"
+  id="javaFormatter"
+  schema="schema/javaFormatter.exsd"/>
 
 <!-- =================================================================================== -->
 <!-- Extension: Java Nature                                                              -->
@@ -272,6 +281,18 @@
             name="org.eclipse.jdt.core">
       </bundle>
    </component>
+</extension>
+
+<!-- =================================================================================== -->
+<!-- Extension: Java Code Formatter                                                      -->
+<!-- =================================================================================== -->
+<extension
+      point="org.eclipse.jdt.core.javaFormatter">
+   <javaFormatter
+         class="org.eclipse.jdt.internal.formatter.DefaultCodeFormatter"
+         id="org.eclipse.jdt.core.defaultJavaFormatter"
+         name="Eclipse [built-in]">
+   </javaFormatter>
 </extension>
 
 </plugin>

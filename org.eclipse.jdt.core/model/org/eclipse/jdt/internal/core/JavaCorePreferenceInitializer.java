@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Harry Terkelsen (het@google.com) - Bug 449262 - Allow the use of third-party Java formatters
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -73,6 +74,7 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 			defaultOptionsMap.put(optionName, entry.getValue());
 			optionNames.add(optionName);
 		}
+		defaultOptionsMap.put(JavaCore.JAVA_FORMATTER, JavaCore.DEFAULT_JAVA_FORMATTER);
 
 		// CodeAssist settings
 		defaultOptionsMap.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.DISABLED);

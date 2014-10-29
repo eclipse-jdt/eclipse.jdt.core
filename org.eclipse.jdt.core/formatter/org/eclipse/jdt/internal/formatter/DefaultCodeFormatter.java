@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Jesper Steen Moller - Contributions for
  *								bug 404146 - [1.7][compiler] nested try-catch-finally-blocks leads to unrunnable Java byte code
+ *     Harry Terkelsen (het@google.com) - Bug 449262 - Allow the use of third-party Java formatters
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -72,14 +73,13 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	public DefaultCodeFormatter(DefaultCodeFormatterOptions defaultCodeFormatterOptions, Map options) {
-		if (options != null) {
-			this.options = options;
-			this.preferences = new DefaultCodeFormatterOptions(options);
-		} else {
+		if (options == null) {
 			this.options = JavaCore.getOptions();
 			this.preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSettings());
+			setDefaultCompilerOptions();
+		} else {
+			setOptions(options);
 		}
-		this.defaultCompilerOptions = getDefaultCompilerOptions();
 		if (defaultCodeFormatterOptions != null) {
 			this.preferences.set(defaultCodeFormatterOptions.getMap());
 		}
@@ -180,7 +180,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit formatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, IRegion[] regions, boolean includeComments) {
-		ASTNode[] bodyDeclarations = this.codeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), getDefaultCompilerOptions(), true);
+		ASTNode[] bodyDeclarations = this.codeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), this.defaultCompilerOptions, true);
 
 		if (bodyDeclarations == null) {
 			// a problem occurred while parsing the source
@@ -218,7 +218,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			}
 			this.preferences.initial_indentation_level = indentationLevel;
 			if (this.codeSnippetParsingUtil == null) this.codeSnippetParsingUtil = new CodeSnippetParsingUtil();
-			this.codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);
+			this.codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), this.defaultCompilerOptions, true);
 			this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil, true);
 			IRegion coveredRegion = getCoveredRegion(regions);
 			int start = coveredRegion.getOffset();
@@ -230,7 +230,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit formatCompilationUnit(String source, int indentationLevel, String lineSeparator, IRegion[] regions, boolean includeComments) {
-		CompilationUnitDeclaration compilationUnitDeclaration = this.codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);
+		CompilationUnitDeclaration compilationUnitDeclaration = this.codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), this.defaultCompilerOptions, true);
 
 		if (lineSeparator != null) {
 			this.preferences.line_separator = lineSeparator;
@@ -245,7 +245,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit formatExpression(String source, int indentationLevel, String lineSeparator, IRegion[] regions, boolean includeComments) {
-		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), getDefaultCompilerOptions(), true);
+		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), this.defaultCompilerOptions, true);
 
 		if (expression == null) {
 			// a problem occurred while parsing the source
@@ -255,7 +255,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit formatStatements(String source, int indentationLevel, String lineSeparator, IRegion[] regions, boolean includeComments) {
-		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), getDefaultCompilerOptions(), true, false);
+		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), this.defaultCompilerOptions, true, false);
 
 		if (constructorDeclaration.statements == null) {
 			// a problem occured while parsing the source
@@ -280,7 +280,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		return this.newCodeFormatter.scribe.toString();
 	}
 
-	private Map getDefaultCompilerOptions() {
+	private void setDefaultCompilerOptions() {
 		if (this.defaultCompilerOptions ==  null) {
 			Map optionsMap = new HashMap(30);
 			optionsMap.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
@@ -355,7 +355,6 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		} else {
 			this.defaultCompilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
 		}
-		return this.defaultCompilerOptions;
 	}
 
 	private TextEdit internalFormatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, ASTNode[] bodyDeclarations, IRegion[] regions, boolean includeComments) {
@@ -446,19 +445,19 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		PROBING_SCANNER.setSource((char[]) null);
 
 		// probe for expression
-		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), getDefaultCompilerOptions(), true);
+		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), this.defaultCompilerOptions, true);
 		if (expression != null) {
 			return internalFormatExpression(source, indentationLevel, lineSeparator, expression, regions, includeComments);
 		}
 
 		// probe for body declarations (fields, methods, constructors)
-		ASTNode[] bodyDeclarations = this.codeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), getDefaultCompilerOptions(), true);
+		ASTNode[] bodyDeclarations = this.codeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), this.defaultCompilerOptions, true);
 		if (bodyDeclarations != null) {
 			return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, regions, includeComments);
 		}
 
 		// probe for statements
-		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), getDefaultCompilerOptions(), true, false);
+		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), this.defaultCompilerOptions, true, false);
 		if (constructorDeclaration.statements != null) {
 			return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, regions, includeComments);
 		}
@@ -499,5 +498,19 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 
 		return true;
+	}
+
+	@Override
+	public void setOptions(Map<String, String> options) {
+		this.options = options;
+		Map<String, String> formatterPrefs = new HashMap<String, String>(options.size());
+		for (String key : options.keySet()) {
+			Object value = options.get(key);
+			if (value instanceof String) {
+				formatterPrefs.put(key, (String) value);
+			}
+		}
+		this.preferences = new DefaultCodeFormatterOptions(formatterPrefs);
+		setDefaultCompilerOptions();
 	}
 }
