@@ -80,6 +80,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.indexing.IndexRequest;
 import org.eclipse.jdt.internal.core.search.matching.AndPattern;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
+import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
 import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
 
@@ -13426,5 +13427,805 @@ public void testBug400919c() throws CoreException {
 			"src/b400919/X.java b400919.X2 [Marker] EXACT_MATCH" 
 	);	
 }
-// Add new tests in JavaSearchBugsTests2
+/** @bug 431357
+ * [search] Search API got wrong result, when searching for method references, where the parameter is a member type of another type.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=431357"
+ */
+public void testBug431357_001() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+			"interface I { \n" +
+			"    public void query(Foo.InnerKey key);// Search result of method query(Foo.InnerKey) returns the method query(Bar.InnerKey) too \n" +
+			"    public void query(Bar.InnerKey key);\n" +
+			"}\n" +
+			"\n" +
+			"class Foo { \n" +
+			"    static class InnerKey  {}\n" +
+			"}\n" +
+			"class Bar {\n" +
+			"    static class InnerKey {}\n" +
+			"}\n" +
+			"\n" +
+			"class X {\n" +
+			"	public static void foo(I i, Foo.InnerKey key) {\n" +
+			"		i.query(key);\n" +
+			"	}\n" +
+			"	public static void bar(I i, Bar.InnerKey key) {\n" +
+			"		i.query(key);\n" +
+			"	}\n" +
+			"	public static I getInstance() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n"
+	);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "query";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(elements[0], REFERENCES, EXACT_RULE | ERASURE_RULE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(
+			"src/X.java void X.foo(I, Foo.InnerKey) [query(key)] EXACT_MATCH"
+	);
+}
+/** @bug 431357
+ * [search] Search API got wrong result, when searching for method references, where the parameter is a member type of another type.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=431357"
+ */
+public void testBug431357_002() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+			"interface I { \n" +
+			"    public void query(Foo.InnerKey key);// Search result of method query(Foo.InnerKey) returns the method query(Bar.InnerKey) too \n" +
+			"    public void query(Bar.InnerKey key);\n" +
+			"}\n" +
+			"\n" +
+			"class Foo { \n" +
+			"    static class InnerKey  {}\n" +
+			"}\n" +
+			"class Bar {\n" +
+			"    static class InnerKey {}\n" +
+			"}\n" +
+			"\n" +
+			"class X {\n" +
+			"	public static void foo(I i, Foo.InnerKey key) {\n" +
+			"		i.query(key);\n" +
+			"	}\n" +
+			"	public static void bar(I i, Bar.InnerKey key) {\n" +
+			"		i.query(key);\n" +
+			"	}\n" +
+			"	public static I getInstance() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n"
+	);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "query";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(elements[0], ALL_OCCURRENCES, EXACT_RULE  | ERASURE_RULE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults( "src/X.java void I.query(Foo.InnerKey) [query] EXACT_MATCH\n" +
+			"src/X.java void X.foo(I, Foo.InnerKey) [query(key)] EXACT_MATCH"
+	);
+}
+/** @bug 431357
+ * [search] Search API got wrong result, when searching for method references, where the parameter is a member type of another type.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=431357"
+ */
+public void testBug431357_003() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+			"interface I { \n" +
+			"    public void query(Foo.InnerKey key);// Search result of method query(Foo.InnerKey) returns the method query(Bar.InnerKey) too \n" +
+			"    public void query/*here*/(Bar.InnerKey key);\n" +
+			"}\n" +
+			"\n" +
+			"class Foo { \n" +
+			"    static class InnerKey  {}\n" +
+			"}\n" +
+			"class Bar {\n" +
+			"    static class InnerKey {}\n" +
+			"}\n" +
+			"\n" +
+			"class X {\n" +
+			"	public static void foo(I i, Foo.InnerKey key) {\n" +
+			"		i.query(key);\n" +
+			"	}\n" +
+			"	public static void bar(I i, Bar.InnerKey key) {\n" +
+			"		i.query(key);\n" +
+			"	}\n" +
+			"	public static I getInstance() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n"
+	);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "query/*here*/";
+	int start = str.indexOf(selection);
+	int length = "query".length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(elements[0], ALL_OCCURRENCES, EXACT_RULE | ERASURE_RULE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults("src/X.java void I.query(Bar.InnerKey) [query] EXACT_MATCH\n" + 
+			"src/X.java void X.bar(I, Bar.InnerKey) [query(key)] EXACT_MATCH"
+	);
+}
+/** @bug 431357
+ * [search] Search API got wrong result, when searching for method references, where the parameter is a member type of another type.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=431357"
+ */
+public void testBug431357_004() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+			"// --\n" +
+			"interface I { \n" +
+			"    public void query/*here*/(Foo.Key key);// Search result of method query(Foo.Key) returns the method query(Bar.Key) too \n" +
+			"    public void query(Key key);\n" +
+			"}\n" +
+			"\n" +
+			"class Foo { \n" +
+			"	static class Key  {	\n" +
+			"	}\n" +
+			"	public static void foo(I i, Key key) {\n" +
+			"		i.query(key);\n" +
+			"	}\n" +
+			"	\n" +
+			"}\n" +
+			"\n" +
+			"class Key {\n" +
+			"	\n" +
+			"}\n" +
+			"class Bar {\n" +
+			"    \n" +
+			"    public static void bar(I i, Key key) {\n" +
+			"		i.query(key);\n" +
+			"    }\n" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static I getInstance() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n"
+	);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "query/*here*/";
+	int start = str.indexOf(selection);
+	int length = "query".length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(elements[0], ALL_OCCURRENCES, EXACT_RULE | ERASURE_RULE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(
+			"src/X.java void I.query(Foo.Key) [query] EXACT_MATCH\n" + 
+			"src/X.java void Foo.foo(I, Key) [query(key)] EXACT_MATCH"
+	);
+}
+/** @bug 431357
+ * [search] Search API got wrong result, when searching for method references, where the parameter is a member type of another type.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=431357"
+ */
+public void testBug431357_005() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+			"// --\n" +
+			"interface I { \n" +
+			"    public void query(Foo.Key key);// Search result of method query(Foo.Key) returns the method query(Bar.Key) too \n" +
+			"    public void query/*here*/(Key key);\n" +
+			"}\n" +
+			"\n" +
+			"class Foo { \n" +
+			"	static class Key  {	\n" +
+			"	}\n" +
+			"	public static void foo(I i, Key key) {\n" +
+			"		i.query(key);\n" +
+			"	}\n" +
+			"	\n" +
+			"}\n" +
+			"\n" +
+			"class Key {\n" +
+			"	\n" +
+			"}\n" +
+			"class Bar {\n" +
+			"    \n" +
+			"    public static void bar(I i, Key key) {\n" +
+			"		i.query(key);\n" +
+			"    }\n" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static I getInstance() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n"
+	);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "query/*here*/";
+	int start = str.indexOf(selection);
+	int length = "query".length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(elements[0], ALL_OCCURRENCES, EXACT_RULE | ERASURE_RULE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(
+			"src/X.java void I.query(Key) [query] EXACT_MATCH\n" + 
+			"src/X.java void Bar.bar(I, Key) [query(key)] EXACT_MATCH"
+	);
+}
+/** @bug 431357
+ * [search] Search API got wrong result, when searching for method references, where the parameter is a member type of another type.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=431357"
+ */
+public void testBug431357_006() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+			"// --\n" +
+			"interface I { \n" +
+			"    public void query/*here*/(Foo.Key key);// Search result of method query(Foo.Key) returns the method query(Bar.Key) too \n" +
+			"    public void query(Key key);\n" +
+			"    public void query(Bar.Key key);\n" +
+			"}\n" +
+			"\n" +
+			"class Foo { \n" +
+			"	static class Key  {	\n" +
+			"	}\n" +
+			"	public static void foo(I i, Key key) {\n" +
+			"		i.query(key);\n" +
+			"	}\n" +
+			"	\n" +
+			"}\n" +
+			"\n" +
+			"class Key {\n" +
+			"	\n" +
+			"}\n" +
+			"class Bar {\n" +
+			"	static class Key {\n" +
+			"		\n" +
+			"	}    \n" +
+			"    public static void bar(I i, Key key) {\n" +
+			"		i.query(key);\n" +
+			"    }\n" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static I getInstance() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"    public static void bar(I i, Key key) {\n" +
+			"		i.query(key);\n" +
+			"    }\n" +
+			"}\n"
+	);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "query/*here*/";
+	int start = str.indexOf(selection);
+	int length = "query".length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(elements[0], ALL_OCCURRENCES, EXACT_RULE | ERASURE_RULE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(
+			"src/X.java void I.query(Foo.Key) [query] EXACT_MATCH\n" + 
+			"src/X.java void Foo.foo(I, Key) [query(key)] EXACT_MATCH"
+	);
+}
+/** @bug 431357
+ * [search] Search API got wrong result, when searching for method references, where the parameter is a member type of another type.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=431357"
+ */
+public void testBug431357_007() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+			"// --\n" +
+			"interface I { \n" +
+			"    public void query(Foo.Key key);// Search result of method query(Foo.Key) returns the method query(Bar.Key) too \n" +
+			"    public void query/*here*/(Key key);\n" +
+			"    public void query(Bar.Key key);\n" +
+			"}\n" +
+			"\n" +
+			"class Foo { \n" +
+			"	static class Key  {	\n" +
+			"	}\n" +
+			"	public static void foo(I i, Key key) {\n" +
+			"		i.query(key);\n" +
+			"	}\n" +
+			"	\n" +
+			"}\n" +
+			"\n" +
+			"class Key {\n" +
+			"	\n" +
+			"}\n" +
+			"class Bar {\n" +
+			"	static class Key {\n" +
+			"		\n" +
+			"	}    \n" +
+			"    public static void bar(I i, Key key) {\n" +
+			"		i.query(key);\n" +
+			"    }\n" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static I getInstance() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"    public static void bar(I i, Key key) {\n" +
+			"		i.query(key);\n" +
+			"    }\n" +
+			"}\n"
+	);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "query/*here*/";
+	int start = str.indexOf(selection);
+	int length = "query".length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(elements[0], ALL_OCCURRENCES, EXACT_RULE | ERASURE_RULE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(
+			"src/X.java void I.query(Key) [query] EXACT_MATCH\n" + 
+			"src/X.java void X.bar(I, Key) [query(key)] EXACT_MATCH"
+	);
+}
+
+/** @bug 431357
+ * [search] Search API got wrong result, when searching for method references, where the parameter is a member type of another type.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=431357"
+ */
+public void testBug431357_008() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+			"// --\n" +
+			"interface I { \n" +
+			"    public void query(Foo.Key key);// Search result of method query(Foo.Key) returns the method query(Bar.Key) too \n" +
+			"    public void query(Key key);\n" +
+			"    public void query/*here*/(Bar.Key key);\n" +
+			"}\n" +
+			"\n" +
+			"class Foo { \n" +
+			"	static class Key  {	\n" +
+			"	}\n" +
+			"	public static void foo(I i, Key key) {\n" +
+			"		i.query(key);\n" +
+			"	}\n" +
+			"	\n" +
+			"}\n" +
+			"\n" +
+			"class Key {\n" +
+			"	\n" +
+			"}\n" +
+			"class Bar {\n" +
+			"	static class Key {\n" +
+			"		\n" +
+			"	}    \n" +
+			"    public static void bar(I i, Key key) {\n" +
+			"		i.query(key);\n" +
+			"    }\n" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static I getInstance() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"    public static void bar(I i, Key key) {\n" +
+			"		i.query(key);\n" +
+			"    }\n" +
+			"}\n"
+	);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "query/*here*/";
+	int start = str.indexOf(selection);
+	int length = "query".length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(elements[0], ALL_OCCURRENCES, EXACT_RULE | ERASURE_RULE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(
+			"src/X.java void I.query(Bar.Key) [query] EXACT_MATCH\n" + 
+			"src/X.java void Bar.bar(I, Key) [query(key)] EXACT_MATCH"
+	);
+}
+
+/** @bug 431357
+ * [search] Search API got wrong result, when searching for method references, where the parameter is a member type of another type.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=431357"
+ */
+public void testBug431357_009() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"interface MyIF { \n" +
+		"    public void query(Foo.InnerKey fk, Bar.InnerKey bk, String s); \n" +
+		"    public void query/*here*/(Bar.InnerKey fk, Bar.InnerKey bk, String s);\n" +
+		"}\n" +
+		"\n" +
+		"class Foo { \n" +
+		"    static class InnerKey  {    \n" +
+		"    }\n" +
+		"\n" +
+		"}\n" +
+		"\n" +
+		"class Bar {\n" +
+		"    static class InnerKey {\n" +
+		"    }\n" +
+		"    public static void bar(MyIF i, Foo.InnerKey fk, Bar.InnerKey bk) {\n" +
+		"        i.query(fk, bk, \"\");\n" +
+		"    }\n" +
+		"}\n" +
+		"public class X {}\n" 
+	);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "query/*here*/";
+	int start = str.indexOf(selection);
+	int length = "query".length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(elements[0], REFERENCES, EXACT_RULE | ERASURE_RULE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(""
+	);
+}
+
+/** @bug 431357
+ * [search] Search API got wrong result, when searching for method references, where the parameter is a member type of another type.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=431357"
+ */
+public void testBug431357_010() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"interface MyIF { \n" +
+		"    public void query(Foo.InnerKey fk,  String s); \n" +
+		"    public void query/*here*/(Bar.InnerKey fk,  String s);\n" +
+		"}\n" +
+		"\n" +
+		"class Foo { \n" +
+		"    static class InnerKey  {}\n" +
+		"}\n" +
+		"\n" +
+		"class Bar {\n" +
+		"    static class InnerKey {}\n" +
+		"    public static void bar(MyIF i, Foo.InnerKey fk) {\n" +
+		"        i.query(fk, \"\");\n" +
+		"    }\n" +
+		"}\n" +
+		"public class X {}\n"
+	);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "query/*here*/";
+	int start = str.indexOf(selection);
+	int length = "query".length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(elements[0], REFERENCES, EXACT_RULE | ERASURE_RULE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(""
+	);
+}
+
+/** @bug 431357
+ * [search] Search API got wrong result, when searching for method references, where the parameter is a member type of another type.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=431357"
+ */
+public void testBug431357_011() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"interface MyIF { \n" +
+		"   public void query(String s, Foo.InnerKey fk); \n" +
+		"}\n" +
+		"\n" +
+		"class Foo { \n" +
+		"	static class InnerKey  {}\n" +
+		"}\n" +
+		"\n" +
+		"class Bar {\n" +
+		"	static class InnerKey {}\n" +
+		"	public static void bar(MyIF i, Foo.InnerKey fk) {\n" +
+		"		i.query(\"\", fk);\n" +
+		"    }\n" +
+		"}\n" +
+		"public class X {}\n" 
+	);
+
+	String nonExistentPattern = "MyIF.query(String, Bar.InnerKey)";
+	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(nonExistentPattern, IJavaSearchConstants.METHOD, REFERENCES, EXACT_RULE | ERASURE_RULE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(""
+	);
+}
+
+/** @bug 431357
+ * [search] Search API got wrong result, when searching for method references, where the parameter is a member type of another type.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=431357"
+ */
+public void testBug431357_012() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"interface MyIF { \n" +
+		"    public void query/*here*/(Foo.InnerKey fk, Bar.InnerKey bk, String s); \n" +
+		"    public void query(Bar.InnerKey fk, Bar.InnerKey bk, String s);\n" +
+		"}\n" +
+		"\n" +
+		"class Foo { \n" +
+		"	static class InnerKey  {	\n" +
+		"	}\n" +
+		"	\n" +
+		"}\n" +
+		"\n" +
+		"class Bar {\n" +
+		"	static class InnerKey extends Foo.InnerKey {\n" +
+		"	}\n" +
+		"	public static void bar(MyIF i, Foo.InnerKey fk, Bar.InnerKey bk) {\n" +
+		"		i.query(fk, bk, \"\");\n" +
+		"    }\n" +
+		"}\n" +
+		"public class X {}\n" 
+	);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "query/*here*/";
+	int start = str.indexOf(selection);
+	int length = "query".length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(elements[0], ALL_OCCURRENCES, EXACT_RULE | ERASURE_RULE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults("src/X.java void MyIF.query(Foo.InnerKey, Bar.InnerKey, String) [query] EXACT_MATCH\n" + 
+			"src/X.java void Bar.bar(MyIF, Foo.InnerKey, Bar.InnerKey) [query(fk, bk, \"\")] EXACT_MATCH"
+	);
+}
+
+/** @bug 431357
+ * [search] Search API got wrong result, when searching for method references, where the parameter is a member type of another type.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=431357"
+ */
+public void testBug431357_013() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"interface MyIF { \n" +
+		"    public void query/*here*/(Foo.InnerKey key); \n" +
+		"    public void query(Bar.InnerKey key);\n" +
+		"}\n" +
+		"\n" +
+		"class Foo { \n" +
+		"	static class InnerKey  {	\n" +
+		"	}\n" +
+		"	\n" +
+		"}\n" +
+		"\n" +
+		"class Bar {\n" +
+		"	static class InnerKey{}\n" +
+		"}\n" +
+		"public class X {}\n" 
+	);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "query/*here*/";
+	int start = str.indexOf(selection);
+	int length = "query".length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(elements[0], ALL_OCCURRENCES, EXACT_RULE | ERASURE_RULE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults("src/X.java void MyIF.query(Foo.InnerKey) [query] EXACT_MATCH"
+	);
+}
+
+/** @bug 431357
+ * [search] Search API got wrong result, when searching for method references, where the parameter is a member type of another type.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=431357"
+ */
+public void testBug431357_014() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"interface MyIF { \n" +
+		"    public void query/*here*/(Foo.InnerKey key); \n" +
+		"    public void query(Bar.InnerKey key);\n" +
+		"}\n" +
+		"\n" +
+		"class Foo { \n" +
+		"	static class InnerKey  {	\n" +
+		"	}\n" +
+		"	\n" +
+		"}\n" +
+		"\n" +
+		"class Bar {\n" +
+		"	static class InnerKey{}\n" +
+		"}\n" +
+		"public class X {}\n" 
+	);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "query/*here*/";
+	int start = str.indexOf(selection);
+	int length = "query".length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(elements[0], DECLARATIONS, EXACT_RULE | ERASURE_RULE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults("src/X.java void MyIF.query(Foo.InnerKey) [query] EXACT_MATCH");
+}
+
+/** @bug 431357
+ * [search] Search API got wrong result, when searching for method references, where the parameter is a member type of another type.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=431357"
+ */
+public void testBug431357_015() throws CoreException {
+	String folder = "/JavaSearchBugs/src/testBug431357_015";
+	String filename = folder + "/" + "X.java";
+	try {
+		String contents =
+		"package testBug431357_015;\n" +
+		"interface MyIF { \n" +
+		"    public void query/*here*/(Foo.InnerKey key); \n" +
+		"    public void query(Bar.InnerKey key);\n" +
+		"}\n" +
+		"\n" +
+		"class Foo { \n" +
+		"	static class InnerKey  {	\n" +
+		"	}\n" +
+		"	\n" +
+		"}\n" +
+		"\n" +
+		"class Bar {\n" +
+		"	static class InnerKey{}\n" +
+		"}\n" +
+		"public class X {}\n";
+		// create files
+		createFolder(folder);
+		createFile(filename, contents);
+		waitUntilIndexesReady();
+		
+		// search
+		IType[] types = getCompilationUnit(filename).getTypes();
+		IMethod method = types[0].getMethods()[0];
+		search(method, DECLARATIONS | IJavaSearchConstants.IGNORE_DECLARING_TYPE | IJavaSearchConstants.IGNORE_RETURN_TYPE, ERASURE_RULE);
+		assertSearchResults("src/testBug431357_015/X.java void testBug431357_015.MyIF.query(Foo.InnerKey) [query] EXACT_MATCH");
+	}
+	finally {
+		// delete files
+		deleteFolder(folder);
+	}
+}
+
+/** @bug 431357
+ * [search] Search API got wrong result, when searching for method references, where the parameter is a member type of another type.
+ * enable this once 88997 is fixed
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=431357"
+ */
+public void _testBug431357_016() throws CoreException {
+	String folder = "/JavaSearchBugs/src/testBug431357_016";
+	String filename = folder + "/" + "X.java";
+	try {
+		String contents =
+			"package testBug431357_016;\n" +
+			"interface I { \n " +
+			"    public void query(Foo.Key key);\n" +
+			"    public void query/*here*/(Key key);\n " +
+			"}\n " +
+			"\n " +
+			"class Foo { \n " +
+			"	static class Key  {	\n " +
+			"	}\n " +
+			"	public static void foo(I i, Key key) {\n " +
+			"		i.query(key);\n " +
+			"	}\n " +
+			"	\n " +
+			"}\n " +
+			"\n " +
+			"class Key {\n " +
+			"	\n " +
+			"}\n " +
+			"class Bar {\n " +
+			"    \n " +
+			"    public static void bar(I i, Key key) {\n " +
+			"		i.query(key);\n " +
+			"    }\n " +
+			"}\n " +
+			"\n " +
+			"public class X {\n " +
+			"	public static I getInstance() {\n " +
+			"		return null;\n " +
+			"	}\n " +
+			"}\n ";
+		// create files
+		createFolder(folder);
+		createFile(filename, contents);
+		waitUntilIndexesReady();
+		
+		// search
+		IType[] types = getCompilationUnit(filename).getTypes();
+		IMethod method = types[0].getMethods()[1];
+		search(method, DECLARATIONS | IJavaSearchConstants.IGNORE_DECLARING_TYPE | IJavaSearchConstants.IGNORE_RETURN_TYPE, ERASURE_RULE);
+		assertSearchResults("src/testBug431357_016/X.java void testBug431357_016.I.query(Key) [query] EXACT_MATCH");
+	}
+	finally {
+		// delete files
+		deleteFolder(folder);
+	}
+}
+
 }

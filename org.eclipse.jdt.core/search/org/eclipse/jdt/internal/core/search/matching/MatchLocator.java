@@ -14,9 +14,12 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipFile;
 
@@ -953,6 +956,102 @@ public MethodBinding getMethodBinding(MethodPattern methodPattern) {
     }
 	return null;
 }
+
+private List<String> getInverseFullName(char[] qualifier, char[] simpleName) {
+	List <String> result = new ArrayList<String>();
+	if (qualifier != null && qualifier.length > 0) {
+		result.addAll(Arrays.asList(new String(qualifier).split("\\.")));//$NON-NLS-1$
+		Collections.reverse(result);
+	}
+	if (simpleName != null) result.add(0, new String(simpleName));
+	return result;
+}
+
+/** returns the row index which has the highest column entry.
+ * TODO: rewrite this code with list when (if) we move to 1.8 [with FP constructs].
+ */
+private int  getMaxResult(int[][] resultsMap) {
+	int rows = resultsMap.length;
+	int cols = resultsMap[0].length;
+	List <Integer> candidates = new ArrayList<Integer>();
+	candidates.add(0); //default row
+
+	for (int j = 0; j < cols; ++j) {
+		int current = resultsMap[0][j];
+		for (int i = 1; i < rows; ++i) {
+			int tmp = resultsMap[i][j];
+			if (tmp < current) continue;
+			if (tmp > current)  { 
+				current = tmp;
+				candidates.clear();
+			}
+			candidates.add(i);// there is atleast one element always.
+		}
+		if (candidates.size() <= 1) break; // found
+	}
+	return candidates.get(0);
+}
+
+/** apply the function to map the parameter full name to an index 
+ */
+private int mapParameter(List <String> patternParameterFullName, List <String> methodParameterFullName) {
+	int patternLen = patternParameterFullName.size();
+	int methodLen = methodParameterFullName.size();
+	int size = patternLen < methodLen ? patternLen : methodLen;
+	int result = -1;
+	for (int i = 0; i < size; i++) {
+		if (!patternParameterFullName.get(i).equals(methodParameterFullName.get(i))) break;
+		++result;
+	}
+	return patternLen == methodLen && result + 1 == patternLen ? Integer.MAX_VALUE : result;
+}
+/**
+ * returns an array of integers whose elements are matching indices.
+ * As a special case, full match would have max value as the index.
+ */
+private int[] getResultMap(Map<Integer, List<String>> patternMap, Map<Integer, List<String>> methodMap) {
+	int paramLength = methodMap.size();
+	int[] result = new int[paramLength];
+	for (int p = 0; p < paramLength; p++) {
+		result[p] = mapParameter(patternMap.get(p), methodMap.get(p));
+	}
+	return result;
+}
+
+private Map<Integer, List<String>> getSplitNames(char[][] qualifiedNames, char[][] simpleNames) {
+	int paramLength = simpleNames.length;
+	Map <Integer, List<String>> result = new HashMap<Integer, List<String>>();
+	for (int p = 0; p < paramLength; p++) result.put(p, getInverseFullName(qualifiedNames[p], simpleNames[p]));
+	return result;
+}
+
+private Map<Integer, List<String>> getSplitNames(MethodBinding method) {
+	TypeBinding[] methodParameters = method.parameters;
+	int paramLength = methodParameters == null ? 0 : methodParameters.length;
+	Map <Integer, List<String>> result = new HashMap<Integer, List<String>>();
+	for (int p = 0; p < paramLength; p++) result.put(p, getInverseFullName(methodParameters[p].qualifiedSourceName(), null)); // source is part of qualifiedSourceName here);
+	return result;
+}
+
+/**
+ * Selects the most applicable method (though similar but not to be confused with its namesake in jls)
+ * All this machinery for that elusive uncommon case referred in bug 431357.
+ */
+private MethodBinding getMostApplicableMethod(List<MethodBinding> possibleMethods) {
+	int size = possibleMethods.size();
+	MethodBinding result = size != 0 ? possibleMethods.get(0) : null;
+	if (size > 1) {
+		MethodPattern methodPattern =  ((MethodPattern) this.pattern);
+		// can cache but may not be worth since this is not a common case
+		Map<Integer, List<String>> methodPatternReverseNames = getSplitNames(methodPattern.parameterQualifications, methodPattern.parameterSimpleNames);
+		int len = possibleMethods.size();
+		int[][] resultMaps = new int[len][];
+		for (int i = 0; i < len; ++i) resultMaps[i] = getResultMap(methodPatternReverseNames, getSplitNames(possibleMethods.get(i)));
+		result = possibleMethods.get(getMaxResult(resultMaps));
+	}
+	return result;
+}
+
 private MethodBinding getMethodBinding0(MethodPattern methodPattern) {
 	if (this.unitScope == null) return null;
 	// Try to get binding from cache
@@ -969,6 +1068,7 @@ private MethodBinding getMethodBinding0(MethodPattern methodPattern) {
 		typeName = methodPattern.declaringType.getFullyQualifiedName().toCharArray();
 	}
 	TypeBinding declaringTypeBinding = getType(typeName, typeName);
+	MethodBinding result = null;
 	if (declaringTypeBinding != null) {
 		if (declaringTypeBinding.isArrayType()) {
 			declaringTypeBinding = declaringTypeBinding.leafComponentType();
@@ -982,6 +1082,7 @@ private MethodBinding getMethodBinding0(MethodPattern methodPattern) {
 			int methodsLength = methods.length;
 			TypeVariableBinding[] refTypeVariables = referenceBinding.typeVariables();
 			int typeVarLength = refTypeVariables==null ? 0 : refTypeVariables.length;
+			List <MethodBinding> possibleMethods = new ArrayList<MethodBinding>(methodsLength);
 			for (int i=0; i<methodsLength; i++) {
 				TypeBinding[] methodParameters = methods[i].parameters;
 				int paramLength = methodParameters==null ? 0 : methodParameters.length;
@@ -1019,14 +1120,14 @@ private MethodBinding getMethodBinding0(MethodPattern methodPattern) {
 					}
 				}
 				if (found) {
-					this.bindings.put(methodPattern, methods[i]);
-					return methods[i];
+					possibleMethods.add(methods[i]);
 				}
 			}
+			result =  getMostApplicableMethod(possibleMethods);
 		}
 	}
-	this.bindings.put(methodPattern, new ProblemMethodBinding(methodPattern.selector, null, ProblemReasons.NotFound));
-	return null;
+	this.bindings.put(methodPattern, result != null ? result : new ProblemMethodBinding(methodPattern.selector, null, ProblemReasons.NotFound));
+	return result;
 }
 protected boolean hasAlreadyDefinedType(CompilationUnitDeclaration parsedUnit) {
 	CompilationResult result = parsedUnit.compilationResult;

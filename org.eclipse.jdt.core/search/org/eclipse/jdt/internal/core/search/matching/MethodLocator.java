@@ -309,15 +309,25 @@ protected int matchMethod(MethodBinding method, boolean skipImpossibleArg) {
 			return INACCURATE_MATCH;
 		}
 		boolean foundTypeVariable = false;
+		MethodBinding focusMethodBinding = null;
+		boolean checkedFocus = false;
 		// verify each parameter
 		for (int i = 0; i < parameterCount; i++) {
 			TypeBinding argType = method.parameters[i];
 			int newLevel = IMPOSSIBLE_MATCH;
-			if (argType.isMemberType()) {
-				// only compare source name for member type (bug 41018)
-				newLevel = CharOperation.match(this.pattern.parameterSimpleNames[i], argType.sourceName(), this.isCaseSensitive)
-					? ACCURATE_MATCH
-					: IMPOSSIBLE_MATCH;
+			boolean foundLevel = false;
+			if (argType.isMemberType() || this.pattern.parameterQualifications[i] != null) {
+				if (!checkedFocus) {
+					focusMethodBinding = this.matchLocator.getMethodBinding(this.pattern);
+					checkedFocus = true;
+				}
+				if (focusMethodBinding != null) {// textual comparison insufficient
+					TypeBinding[] parameters = focusMethodBinding.parameters;
+					if (parameters.length >= parameterCount) {
+						newLevel = argType.isEquivalentTo((parameters[i])) ? ACCURATE_MATCH : IMPOSSIBLE_MATCH;
+						foundLevel = true;
+					}
+				}
 			} else {
 				// TODO (frederic) use this call to refine accuracy on parameter types
 //				 newLevel = resolveLevelForType(this.pattern.parameterSimpleNames[i], this.pattern.parameterQualifications[i], this.pattern.parametersTypeArguments[i], 0, argType);
@@ -328,7 +338,9 @@ protected int matchMethod(MethodBinding method, boolean skipImpossibleArg) {
 					if (skipImpossibleArg) {
 						// Do not consider match as impossible while finding declarations and source level >= 1.5
 					 	// (see  bugs https://bugs.eclipse.org/bugs/show_bug.cgi?id=79990, 96761, 96763)
-						newLevel = level;
+						if (!foundLevel) {
+							newLevel = level;
+						}
 					} else if (argType.isTypeVariable()) {
 						newLevel = level;
 						foundTypeVariable = true;
@@ -342,7 +354,8 @@ protected int matchMethod(MethodBinding method, boolean skipImpossibleArg) {
 		if (foundTypeVariable) {
 			if (!method.isStatic() && !method.isPrivate()) {
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123836, No point in textually comparing type variables, captures etc with concrete types. 
-				MethodBinding focusMethodBinding = this.matchLocator.getMethodBinding(this.pattern);
+				if (!checkedFocus)
+					focusMethodBinding = this.matchLocator.getMethodBinding(this.pattern);
 				if (focusMethodBinding != null) {
 					if (matchOverriddenMethod(focusMethodBinding.declaringClass, focusMethodBinding, method)) {
 						return ACCURATE_MATCH;
