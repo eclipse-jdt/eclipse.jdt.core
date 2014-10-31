@@ -6858,7 +6858,6 @@ public void test173() throws Exception {
 			"				compare(yourList != null ? yourList : myList, yourList);\n" + 
 			"				return 0;\n" + 
 			"			}\n" + 
-			COMPARATOR_RAW_IMPL_JRE8 +
 			"		};\n" + 
 			"		System.out.println(\"SUCCESS\");\n" + 
 			"	}\n" + 
@@ -6889,7 +6888,6 @@ public void test174() throws Exception {
 			"			private int foo(int i, int j) {\n" + 
 			"				return i - j;\n" + 
 			"			}\n" + 
-			COMPARATOR_RAW_IMPL_JRE8 +
 			"		};\n" + 
 			"		System.out.println(\"SUCCESS\");\n" + 
 			"	}\n" + 

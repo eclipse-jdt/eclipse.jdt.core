@@ -1825,7 +1825,6 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"import java.util.*;\n" + 
 				"public class X extends java.util.AbstractMap {\n" +
 				"	public java.util.Set entrySet() { return null; }\n" +
-				MAP_RAW_IMPL_JRE8 +
 				"}\n"
 			},
 			""
@@ -6900,8 +6899,6 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 				"	public boolean hasNext() {	return false; }\n" +
 				"	public Object next() {	return null; }\n" +
 				"	public void remove() {}\n" +
-				ITERABLE_RAW_IMPL_JRE8 +
-				COLLECTION_AND_LIST_RAW_IMPL_JRE8 +
 				"}\n", // =================
 			},
 			"----------\n" +
@@ -7022,8 +7019,6 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 				"	public boolean hasNext() {	return false; }\n" +
 				"	public Object next() {	return null; }\n" +
 				"	public void remove() {}\n" +
-				ITERABLE_RAW_IMPL_JRE8 +
-				COLLECTION_AND_LIST_RAW_IMPL_JRE8 +
 				"}\n", // =================
 			},
 			"----------\n" +
@@ -7134,8 +7129,6 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 				"	public boolean hasNext() {	return false; }\n" +
 				"	public Object next() {	return null; }\n" +
 				"	public void remove() {}\n" +
-				ITERABLE_RAW_IMPL_JRE8 +
-				COLLECTION_AND_LIST_RAW_IMPL_JRE8 + 
 				"}\n", // =================
 			},
 			"----------\n" +
@@ -11442,7 +11435,6 @@ public void test203() {
 			"		return compare((I) o1, (I) o2);\n" +
 			"	}\n" +
 			"	public int compare(I o1, I o2) { return 0; }\n" +
-			COMPARATOR_RAW_IMPL_JRE8 +
 			"}"
 		},
 		""
@@ -12355,7 +12347,6 @@ public void test331446() {
 			"			public int compare(Object o1, Object o2) {\n" + 
 			"				return 0;\n" + 
 			"			}\n" + 
-			COMPARATOR_RAW_IMPL_JRE8 +
 			"		};\n" + 
 			"		Test.assertEquals(\"Test\", comparator, new ArrayList(), new ArrayList());\n" + 
 			"	}\n" + 
@@ -12426,7 +12417,6 @@ public void test331446a() {
 			"			public int compare(Object o1, Object o2) {\n" + 
 			"				return 0;\n" + 
 			"			}\n" + 
-			COMPARATOR_RAW_IMPL_JRE8 +
 			"		};\n" + 
 			"		Test.assertEquals(\"Test\", comparator, new ArrayList(), new ArrayList());\n" + 
 			"	}\n" + 

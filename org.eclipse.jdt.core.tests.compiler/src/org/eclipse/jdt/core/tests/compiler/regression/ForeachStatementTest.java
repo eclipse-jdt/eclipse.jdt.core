@@ -1106,7 +1106,6 @@ public void test023() {
 				"   public Iterator<String> iterator() {\n" +
 				"        return null;\n" +
 				"    }\n" +
-				ITERABLE_IMPL_JRE8.replaceAll("\\*", "String") +
 				"}\n",
 			},
 			"----------\n" +
@@ -1629,13 +1628,11 @@ public void test034() throws Exception {
 			"	}\n" +
 			"	public void remove() {\n" +
 			"	}\n" +
-			ITERATOR_IMPL_JRE8.replaceAll("\\*", "T") +
 			"}\n" +
 			"class Bar implements Iterable<String> {\n" +
 			"	public Iterator<String> iterator() {\n" +
 			"		return new ArrayIterator<String>(new String[]{\"a\",\"b\"});\n" +
 			"	}\n" +
-			ITERABLE_IMPL_JRE8.replaceAll("\\*", "String") +
 			"}\n",
 		},
 		"ab");
@@ -1724,7 +1721,6 @@ public void test035() throws Exception {
 			"	}\n" +
 			"	public void remove() {\n" +
 			"	}\n" +
-			ITERATOR_IMPL_JRE8.replaceAll("\\*", "T") +
 			"}\n" +
 			"interface IFoo extends Iterable<String> {\n" +
 			"}\n" +
@@ -1732,7 +1728,6 @@ public void test035() throws Exception {
 			"	public Iterator<String> iterator() {\n" +
 			"		return new ArrayIterator<String>(new String[]{\"a\",\"b\"});\n" +
 			"	}\n" +
-			ITERABLE_IMPL_JRE8.replaceAll("\\*", "String") +
 			"}\n",
 		},
 		"ab");
@@ -1808,7 +1803,6 @@ public void test036() throws Exception {
 			"		X x = new X();\n" +
 			"		x.foo(x);\n" +
 			"	}\n" +
-			ITERABLE_IMPL_JRE8.replaceAll("\\*", "String") +
 			"}",
 		},
 		"ab");
@@ -2023,7 +2017,6 @@ public void test039() throws Exception {
 			"				System.out.println(\"remove\");\n" +
 			"				this.iterator.remove();\n" +
 			"			}\n" +
-			ITERATOR_IMPL_JRE8.replaceAll("\\*", "T") +
 			"		}\n" +
 			"		\n" +
 			"        static Set<Object> initForEach()        {\n" +
@@ -2120,7 +2113,6 @@ public void test040() throws Exception {
 			"				System.out.println(\"remove\");\n" +
 			"				this.iterator.remove();\n" +
 			"			}\n" +
-			ITERATOR_IMPL_JRE8.replaceAll("\\*", "T") +
 			"		}\n" +
 			"		\n" +
 			"        static Set<Object> initForEach()        {\n" +

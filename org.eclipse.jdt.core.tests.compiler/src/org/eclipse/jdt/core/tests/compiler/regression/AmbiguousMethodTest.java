@@ -514,7 +514,7 @@ sure, yet neither overrides the other
 						"}\n" +
 						"interface OrderedSet<E> extends List<E>, Set<E> { boolean add(E o); }\n"
 		};
-		if (!IS_JRE_8 || this.complianceLevel < ClassFileConstants.JDK1_8)
+		if (this.complianceLevel < ClassFileConstants.JDK1_8)
 			this.runConformTest(testFiles, "");
 		else
 			this.runNegativeTest(
@@ -538,7 +538,7 @@ sure, yet neither overrides the other
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123943 variant to make it pass on JRE8
 	public void test009a() {
-		if (!IS_JRE_8 || this.complianceLevel < ClassFileConstants.JDK1_8)
+		if (this.complianceLevel < ClassFileConstants.JDK1_8)
 			return;
 		this.runConformTest(
 			new String[] {
