@@ -331,6 +331,34 @@ public void test447767d() {
 	},
 	"Right!");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449410, [1.8][compiler] Eclipse java compiler does not detect a bad return type in lambda expression  
+public void test449410() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"import java.util.Collections;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    Collections.emptyMap()\n" +
+			"        .entrySet()\n" +
+			"        .forEach(entry -> test() ? bad() : returnType());\n" +
+			"  }\n" +
+			"  private static boolean test() {\n" +
+			"    return (System.currentTimeMillis() & 0x1) == 0;\n" +
+			"  }\n" +
+			"  private static void returnType() {\n" +
+			"  }\n" +
+			"  private static void bad() {\n" +
+			"  }\n" +
+			"}\n"
+	},
+	"----------\n" + 
+	"1. ERROR in X.java (at line 6)\n" + 
+	"	.forEach(entry -> test() ? bad() : returnType());\n" + 
+	"	 ^^^^^^^\n" + 
+	"The method forEach(Consumer<? super Map.Entry<Object,Object>>) in the type Iterable<Map.Entry<Object,Object>> is not applicable for the arguments ((<no type> entry) -> {})\n" + 
+	"----------\n");
+}
 public static Class testClass() {
 	return LambdaRegressionTest.class;
 }
