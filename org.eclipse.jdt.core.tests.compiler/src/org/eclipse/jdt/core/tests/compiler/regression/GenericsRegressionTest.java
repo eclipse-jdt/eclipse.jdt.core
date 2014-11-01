@@ -4628,7 +4628,7 @@ public void testBug430987() {
 			"Type safety: The expression of type X.Foo needs unchecked conversion to conform to X.Foo<Object>\n" + 
 			"----------\n");
 }
-public void _testBug430686() {
+public void testBug430686() {
 	runConformTest(
 		new String[] {
 			"TestClass.java",
