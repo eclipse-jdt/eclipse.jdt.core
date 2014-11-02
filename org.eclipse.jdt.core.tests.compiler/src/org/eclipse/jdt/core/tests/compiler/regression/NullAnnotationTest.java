@@ -890,13 +890,15 @@ public void test_parameter_specification_inheritance_003() {
 // a method adds a @NonNull annotation, super interface has no null annotation
 // changing other from unconstrained to @Nullable is OK
 public void test_parameter_specification_inheritance_004() {
-	runConformTest(
+	runConformTestWithLibs(
 		new String[] {
 			"IX.java",
 			"public interface IX {\n" +
 			"    void foo(Object o, Object other);\n" +
 			"}\n"
-		});
+		},
+		getCompilerOptions(),
+		"");
 	runNegativeTestWithLibs(
 		false, // don't flush
 		new String[] {
@@ -947,13 +949,15 @@ public void test_parameter_specification_inheritance_005() {
 
 // super has no constraint for return, sub method confirms the null contract as @Nullable
 public void test_parameter_specification_inheritance_006() {
-	runConformTest(
+	runConformTestWithLibs(
 		new String[] {
 			"Lib.java",
 			"public class Lib {\n" +
 			"    Object getObject() { return null; }\n" +
 			"}\n"
-		});
+		},
+		getCompilerOptions(),
+		"");
 	runConformTestWithLibs(
 		false, // don't flush
 		new String[] {
@@ -2574,6 +2578,7 @@ public void test_default_nullness_005() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
 	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
 	runNegativeTestWithLibs(
 		new String[] {
 	"p1/X.java",
@@ -2589,7 +2594,9 @@ public void test_default_nullness_005() {
 			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 			"package p1;\n",
 	CUSTOM_NONNULL_NAME,
-			CUSTOM_NONNULL_CONTENT
+			CUSTOM_NONNULL_CONTENT,
+	CUSTOM_NULLABLE_NAME,
+			CUSTOM_NULLABLE_CONTENT
 		},
 		customOptions,
 		"----------\n" +
@@ -2605,6 +2612,7 @@ public void test_default_nullness_006() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
 	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
 	runNegativeTestWithLibs(
 		new String[] {
 	"p1/package-info.java",
@@ -2620,7 +2628,9 @@ public void test_default_nullness_006() {
 			"    }\n" +
 			"}\n",
 	CUSTOM_NONNULL_NAME,
-			CUSTOM_NONNULL_CONTENT
+			CUSTOM_NONNULL_CONTENT,
+	CUSTOM_NULLABLE_NAME,
+			CUSTOM_NULLABLE_CONTENT
 		},
 		customOptions,
 		"----------\n" +
@@ -3795,7 +3805,7 @@ public void test_nesting_1() {
 // Test a regression incurred to the OT/J based implementation
 // by the fix in Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
 public void test_constructor_with_nested_class() {
-	runConformTest(
+	runConformTestWithLibs(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -3803,12 +3813,14 @@ public void test_constructor_with_nested_class() {
 			"    final Object o2;\n" +
 			"    public X() {\n" +
 			"         this.o1 = new Object() {\n" +
+			"             @Override\n" +
 			"             public String toString() { return \"O1\"; }\n" +
 			"         };\n" +
 			"         this.o2 = new Object();" +
 			"    }\n" +
 			"}\n"
 		},
+		null,//options
 		"");
 }
 // test analysis disablement, binary type contains annotation
@@ -6500,7 +6512,7 @@ public void testBug413460() {
 
 // missing type in constructor declaration must not cause NPE in QAE#resolveType(..)
 public void testBug415850_a() {
-	this.runNegativeTest(
+	this.runNegativeTestWithLibs(
 			new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X {\n" +
@@ -7600,5 +7612,44 @@ public void _test444024() {
 			   "}\n",
 		   },
 		   "");
+}
+public void testBug435805() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+	options.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+	runNegativeTest(
+		true/*flush*/,
+		new String[] {
+			"org/foo/Nullable.java",
+			"package org.foo;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" + 
+			"public @interface Nullable {}\n",
+			"org/foo/NonNull.java",
+			"package org.foo;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" + 
+			"public @interface NonNull {}\n",
+			"TestNulls.java",
+			"import org.foo.*;\n" + 
+			"\n" + 
+			"public class TestNulls {\n" + 
+			"	public void testCase(@Nullable String theValue) {\n" + 
+			"		int len = theValue.length();					// Is nullable, so should report error here.\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}"
+		},
+		null/*libs*/,
+		options,
+		"----------\n" + 
+		"1. ERROR in TestNulls.java (at line 5)\n" + 
+		"	int len = theValue.length();					// Is nullable, so should report error here.\n" + 
+		"	          ^^^^^^^^\n" + 
+		"Potential null pointer access: The variable theValue may be null at this location\n" + 
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 }

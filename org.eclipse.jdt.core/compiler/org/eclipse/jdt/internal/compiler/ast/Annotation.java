@@ -19,6 +19,7 @@
  *								Bug 424728 - [1.8][null] Unexpected error: The nullness annotation 'XXXX' is not applicable at this location
  *								Bug 392245 - [1.8][compiler][null] Define whether / how @NonNullByDefault applies to TYPE_USE locations
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
+ *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409517 - [1.8][compiler] Type annotation problems on more elaborate array references
@@ -38,6 +39,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
+import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
@@ -394,26 +396,21 @@ public abstract class Annotation extends Expression {
 				// seeing this id implies that null annotation analysis is enabled
 				Object value = null;
 				if (valueAttribute != null) {
-					if (valueAttribute.value instanceof FalseLiteral) {
-						// parameter 'false' means: this annotation cancels any defaults
-						tagBits |= TagBits.AnnotationNullUnspecifiedByDefault;
-						break;
-					} else if (valueAttribute.compilerElementPair != null) {
+					if (valueAttribute.compilerElementPair != null)
 						value = valueAttribute.compilerElementPair.value;
-					}
-				} else if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8) { // fetch default value  - TODO: cache it?
+				} else { // fetch default value  - TODO: cache it?
 					MethodBinding[] methods = annotationType.methods();
-					if (methods != null && methods.length == 1) {
-						Object defaultValue = methods[0].getDefaultValue();
-						if (defaultValue instanceof Object[])
-							value = defaultValue;
-					}
+					if (methods != null && methods.length == 1)
+						value = methods[0].getDefaultValue();
+					else
+						tagBits |= TagBits.AnnotationNonNullByDefault; // custom unconfigurable NNBD
 				}
-				if (value != null) {
-					tagBits |= nullTagBitsFromAnnotationValue(value);
-				} else {
-					// neither explicit value, nor default value from DefaultLocation (1.8)
-					tagBits |= TagBits.AnnotationNonNullByDefault;
+				if (value instanceof BooleanConstant) {
+					// boolean value is used for declaration annotations, signal using the annotation tag bit:
+					tagBits |= ((BooleanConstant)value).booleanValue() ? TagBits.AnnotationNonNullByDefault : TagBits.AnnotationNullUnspecifiedByDefault;
+				} else if (value != null) {
+					// non-boolean value signals type annotations, evaluate from DefaultLocation[] to bitvector a la Binding#NullnessDefaultMASK:
+					tagBits |= nullLocationBitsFromAnnotationValue(value);
 				}
 				break;
 		}
@@ -426,17 +423,17 @@ public abstract class Annotation extends Expression {
 	 * 
 	 * <b>pre:</b> null annotation analysis is enabled
 	 */
-	public static int nullTagBitsFromAnnotationValue(Object value) {
+	public static int nullLocationBitsFromAnnotationValue(Object value) {
 		if (value instanceof Object[]) {
-			if (((Object[]) value).length == 0) {
+			if (((Object[]) value).length == 0) {					// ({})
 				return Binding.NULL_UNSPECIFIED_BY_DEFAULT;
-			} else {
+			} else {												// ({vals...})
 				int bits = 0;
 				for (Object single : (Object[])value)
 					bits |= evaluateDefaultNullnessLocation(single);
 				return bits;
 			}
-		} else {
+		} else {													// (val)
 			return evaluateDefaultNullnessLocation(value);
 		}
 	}
@@ -449,6 +446,8 @@ public abstract class Annotation extends Expression {
 			name = ((EnumConstantSignature) value).getEnumConstantName();
 		} else if (value instanceof ElementValuePair.UnresolvedEnumConstant) {
 			name = ((ElementValuePair.UnresolvedEnumConstant) value).getEnumConstantName();
+		} else if (value instanceof BooleanConstant) {
+			return ((BooleanConstant)value).booleanValue() ? Binding.NONNULL_BY_DEFAULT : Binding.NULL_UNSPECIFIED_BY_DEFAULT;
 		}
 		if (name != null) {
 			switch (name.length) {

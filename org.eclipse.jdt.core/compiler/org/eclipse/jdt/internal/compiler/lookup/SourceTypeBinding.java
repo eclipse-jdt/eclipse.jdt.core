@@ -35,6 +35,7 @@
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *								Bug 435570 - [1.8][null] @NonNullByDefault illegally tries to affect "throws E"
  *								Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
+ *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *      Till Brychcy - Contributions for
@@ -1955,16 +1956,16 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 			long nullTagBits = method.tagBits & TagBits.AnnotationNullMASK;
 			if (nullTagBits != 0) {
 				TypeReference returnTypeRef = ((MethodDeclaration)methodDecl).returnType;
-				if (compilerOptions.sourceLevel < ClassFileConstants.JDK1_8) {
-					if (!this.scope.validateNullAnnotation(nullTagBits, returnTypeRef, methodDecl.annotations))
-						method.tagBits &= ~TagBits.AnnotationNullMASK;
-				} else {
+				if (this.scope.environment().usesNullTypeAnnotations()) {
 					if (nullTagBits != (method.returnType.tagBits & TagBits.AnnotationNullMASK)) {
 						if (!this.scope.validateNullAnnotation(nullTagBits, returnTypeRef, methodDecl.annotations)) {
 							method.returnType.tagBits &= ~TagBits.AnnotationNullMASK;
 						}
 						method.tagBits &= ~TagBits.AnnotationNullMASK;
 					}
+				} else {
+					if (!this.scope.validateNullAnnotation(nullTagBits, returnTypeRef, methodDecl.annotations))
+						method.tagBits &= ~TagBits.AnnotationNullMASK;
 				}
 			}
 		}
@@ -2035,14 +2036,14 @@ private void evaluateNullAnnotations(long annotationTagBits) {
 		}
 	}
 	this.nullnessDefaultInitialized = 1;
-	boolean isJdk18 = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8;
-	if (isJdk18) {
+	boolean usesNullTypeAnnotations = this.scope.environment().usesNullTypeAnnotations();
+	if (usesNullTypeAnnotations) {
 		if (this.defaultNullness != 0) {
 			if (isPackageInfo) {
 				pkg.defaultNullness = this.defaultNullness;
 			} else {
 				TypeDeclaration typeDecl = this.scope.referenceContext;
-				checkRedundantNullnessDefaultRecurse(typeDecl, typeDecl.annotations, this.defaultNullness, isJdk18);
+				checkRedundantNullnessDefaultRecurse(typeDecl, typeDecl.annotations, this.defaultNullness, true);
 			}
 		} else if (isPackageInfo || (isInDefaultPkg && !(this instanceof NestedTypeBinding))) {
 			this.scope.problemReporter().missingNonNullByDefaultAnnotation(this.scope.referenceContext);
@@ -2050,12 +2051,22 @@ private void evaluateNullAnnotations(long annotationTagBits) {
 				pkg.defaultNullness = NULL_UNSPECIFIED_BY_DEFAULT;
 		}
 	} else {
-		// transfer nullness info from tagBits to this.nullnessDefaultAnnotation
+		// transfer nullness info from tagBits to this.defaultNullness
 		int newDefaultNullness = NO_NULL_DEFAULT;
-		if ((annotationTagBits & TagBits.AnnotationNullUnspecifiedByDefault) != 0)
+		if ((annotationTagBits & TagBits.AnnotationNullUnspecifiedByDefault) != 0) {
 			newDefaultNullness = NULL_UNSPECIFIED_BY_DEFAULT;
-		else if ((annotationTagBits & TagBits.AnnotationNonNullByDefault) != 0)
+		} else if ((annotationTagBits & TagBits.AnnotationNonNullByDefault) != 0) {
 			newDefaultNullness = NONNULL_BY_DEFAULT;
+		} else if (this.defaultNullness != 0) {
+			 // NNBD with argument while NN & NU are SE5 annotations, revert to old default & encoding.
+			if (this.defaultNullness == NULL_UNSPECIFIED_BY_DEFAULT) {
+				annotationTagBits = TagBits.AnnotationNullUnspecifiedByDefault;
+				newDefaultNullness = NULL_UNSPECIFIED_BY_DEFAULT;
+			} else {
+				annotationTagBits = TagBits.AnnotationNonNullByDefault;
+				newDefaultNullness = NONNULL_BY_DEFAULT;
+			}
+		}
 		if (newDefaultNullness != NO_NULL_DEFAULT) {
 			if (isPackageInfo) {
 				pkg.defaultNullness = newDefaultNullness;
@@ -2092,17 +2103,17 @@ private void maybeMarkTypeParametersNonNull() {
  * Recursively check if the given annotations are redundant with equal annotations at an enclosing level.
  * @param location fallback location to report the warning against (if we can't blame a specific annotation)
  * @param annotations search these for the annotation that should be blamed in warning messages
- * @param nullBits in 1.7- times these are the annotationTagBits, in 1.8+ the bitvector from {@link Binding#NullnessDefaultMASK}
- * @param isJdk18 toggles the interpretation of 'nullBits'
+ * @param nullBits when using declaration annotations these are the annotationTagBits, for type annotations the bitvector from {@link Binding#NullnessDefaultMASK}
+ * @param useNullTypeAnnotations toggles the interpretation of 'nullBits'
  * 
  * @pre null annotation analysis is enabled
  */
-protected void checkRedundantNullnessDefaultRecurse(ASTNode location, Annotation[] annotations, long nullBits, boolean isJdk18) {
+protected void checkRedundantNullnessDefaultRecurse(ASTNode location, Annotation[] annotations, long nullBits, boolean useNullTypeAnnotations) {
 	
 	if (!isPrototype()) throw new IllegalStateException();
 	
 	if (this.fPackage.defaultNullness != NO_NULL_DEFAULT) {
-		boolean isRedundant = isJdk18
+		boolean isRedundant = useNullTypeAnnotations
 				? this.fPackage.defaultNullness == nullBits
 				: (this.fPackage.defaultNullness == NONNULL_BY_DEFAULT
 						&& ((nullBits & TagBits.AnnotationNonNullByDefault) != 0));
@@ -2114,13 +2125,13 @@ protected void checkRedundantNullnessDefaultRecurse(ASTNode location, Annotation
 }
 
 // return: should caller continue searching?
-protected boolean checkRedundantNullnessDefaultOne(ASTNode location, Annotation[] annotations, long nullBits, boolean isJdk18) {
+protected boolean checkRedundantNullnessDefaultOne(ASTNode location, Annotation[] annotations, long nullBits, boolean useNullTypeAnnotations) {
 	
 	if (!isPrototype()) throw new IllegalStateException();
 	
 	int thisDefault = getNullDefault();
 	if (thisDefault != NO_NULL_DEFAULT) {
-		boolean isRedundant = isJdk18
+		boolean isRedundant = useNullTypeAnnotations
 				? thisDefault == nullBits
 				: (nullBits & TagBits.AnnotationNonNullByDefault) != 0;
 		if (isRedundant) {

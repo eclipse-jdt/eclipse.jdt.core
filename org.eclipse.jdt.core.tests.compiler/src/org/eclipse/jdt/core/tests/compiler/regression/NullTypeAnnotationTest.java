@@ -378,7 +378,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	public void testMissingAnnotationTypes_01() {
-		runNegativeTest(
+		runNegativeTestWithLibs(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -775,7 +775,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	
 	// https://bugs.eclipse.org/403216 - [1.8][null] TypeReference#captureTypeAnnotations treats type annotations as type argument annotations 
 	public void testBug403216_1() {
-		runConformTest(
+		runConformTestWithLibs(
 			new String[] {
 				"Test.java",
 				"import java.lang.annotation.ElementType;\n" + 
@@ -792,7 +792,9 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"@interface A {}\n" + 
 				"@Target(value={ElementType.TYPE_USE})\n" + 
 				"@interface B {}\n"
-			});
+			},
+			null,
+			"");
 	}
 
 	// issue from https://bugs.eclipse.org/bugs/show_bug.cgi?id=403216#c7
@@ -4024,7 +4026,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 		
 		// Without annotations.
-		runConformTest(
+		runConformTestWithLibs(
 				new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -4036,7 +4038,9 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"       System.out.println(\"Done\");\n" +
 					"   }\n" +
 					"}\n"
-				}, 
+				},
+				getCompilerOptions(),
+				"",
 				"Done");
 	}
 	public void testRawType() {
@@ -4077,7 +4081,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=420456, [1.8][null] AIOOB in null analysis code.
 	public void test420456() {
-		runConformTest(
+		runConformTestWithLibs(
 			new String[] {
 				"X.java",
 				"import java.util.Arrays;\n" +
@@ -4089,12 +4093,13 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	}\n" +
 				"}\n"
 			}, 
-			getCompilerOptions(), 
+			getCompilerOptions(),
+			"",
 			"78912345678");		
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422134, [1.8] NPE in NullAnnotationMatching with inlined lambda expression used with a raw type
 	public void test422134() {
-		runNegativeTest(
+		runNegativeTestWithLibs(
 			new String[] {
 				"X.java",
 				"import java.util.ArrayList;\n" +
@@ -4107,6 +4112,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	}\n" +
 				"}\n"
 			},
+			getCompilerOptions(),
 			"----------\n" + 
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	Collections.sort(new ArrayList(), (o1, o2) -> {\n" + 
@@ -4130,15 +4136,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	return o1.compareToIgnoreCase(o1);\n" + 
 			"	          ^^^^^^^^^^^^^^^^^^^\n" + 
 			"The method compareToIgnoreCase(Object) is undefined for the type Object\n" + 
-			"----------\n",
-			null,
-			true,
-			getCompilerOptions());		
+			"----------\n");		
 	}
 
 	// should not try to analyze arguments of a polymorphic method call
 	public void testBug424725() {
-		runConformTest(
+		runConformTestWithLibs(
 			new String[] {
 				"AnnotatedRecordMapper.java",
 				"import java.lang.invoke.MethodHandle;\n" + 
@@ -4157,7 +4160,9 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"    }\n" + 
 				"  }\n" + 
 				"}"
-			});
+			},
+			null,
+			"");
 	}
 
 	public void testBug424727() {
@@ -4247,17 +4252,19 @@ public void testBug424637a() {
 }
 
 public void testBug424637_comment3() {
-	runConformTest(
+	runConformTestWithLibs(
 		new String[] {
 			"VarArgsMethodReferenceTest.java",
 			"import java.util.function.Consumer;\n" + 
 			"public class VarArgsMethodReferenceTest {\n" + 
-			"  @SuppressWarnings(\"unused\") public static void main(String[] argv) {\n" + 
+			"  public static void main(String[] argv) {\n" + 
 			"    Consumer<String> printffer;\n" + 
 			"    printffer = System.out::printf;\n" + 
 			"  }\n" + 
 			"}"
-		});
+		},
+		null,
+		"");
 }
 public void testBug427163() {
 	runConformTestWithLibs(

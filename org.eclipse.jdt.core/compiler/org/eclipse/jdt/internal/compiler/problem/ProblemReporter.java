@@ -53,6 +53,7 @@
  *								Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
  *								Bug 438467 - [compiler][null] Better error position for "The method _ cannot implement the corresponding method _ due to incompatible nullness constraints"
  *								Bug 439298 - [null] "Missing code implementation in the compiler" when using @NonNullByDefault in package-info.java
+ *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -9184,15 +9185,15 @@ public void nullityMismatch(Expression expression, TypeBinding providedType, Typ
 		nullityMismatchPotentiallyNull(expression, requiredType, annotationName);
 		return;
 	}
-	if (this.options.sourceLevel < ClassFileConstants.JDK1_8)
-		nullityMismatchIsUnknown(expression, providedType, requiredType, annotationName);
-	else
+	if (this.options.useNullTypeAnnotations == Boolean.TRUE)
 		nullityMismatchingTypeAnnotation(expression, providedType, requiredType, NullAnnotationMatching.NULL_ANNOTATIONS_UNCHECKED);
+	else
+		nullityMismatchIsUnknown(expression, providedType, requiredType, annotationName);
 }
 public void nullityMismatchIsNull(Expression expression, TypeBinding requiredType) {
 	int problemId = IProblem.RequiredNonNullButProvidedNull;
-	boolean below18 = this.options.sourceLevel < ClassFileConstants.JDK1_8;
-	if (!below18 && requiredType.isTypeVariable() && !requiredType.hasNullTypeAnnotations())
+	boolean useNullTypeAnnotations = this.options.useNullTypeAnnotations == Boolean.TRUE;
+	if (useNullTypeAnnotations && requiredType.isTypeVariable() && !requiredType.hasNullTypeAnnotations())
 		problemId = IProblem.NullNotCompatibleToFreeTypeVariable;
 	if (requiredType instanceof CaptureBinding) {
 		CaptureBinding capture = (CaptureBinding) requiredType;
@@ -9201,7 +9202,7 @@ public void nullityMismatchIsNull(Expression expression, TypeBinding requiredTyp
 	}
 	String[] arguments;
 	String[] argumentsShort;
-	if (below18) {
+	if (!useNullTypeAnnotations) {
 		arguments      = new String[] { annotatedTypeName(requiredType, this.options.nonNullAnnotationName) };
 		argumentsShort = new String[] { shortAnnotatedTypeName(requiredType, this.options.nonNullAnnotationName) };
 	} else {
@@ -9349,7 +9350,7 @@ public void illegalReturnRedefinition(AbstractMethodDeclaration abstractMethodDe
 	TypeBinding inheritedReturnType = inheritedMethod.returnType;
 	String[] arguments;
 	String[] argumentsShort;
-	if (this.options.complianceLevel < ClassFileConstants.JDK1_8) {
+	if (this.options.useNullTypeAnnotations != Boolean.TRUE) {
 		StringBuilder returnType = new StringBuilder();
 		returnType.append('@').append(CharOperation.concatWith(nonNullAnnotationName, '.'));
 		returnType.append(' ').append(inheritedReturnType.readableName());

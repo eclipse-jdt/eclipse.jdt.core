@@ -22,6 +22,7 @@
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *								Bug 435570 - [1.8][null] @NonNullByDefault illegally tries to affect "throws E"
+ *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -97,7 +98,7 @@ public abstract class AbstractMethodDeclaration
 	}
 	// version for invocation from LambdaExpression:
 	static void createArgumentBindings(Argument[] arguments, MethodBinding binding, MethodScope scope) {
-		boolean useTypeAnnotations = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8;
+		boolean useTypeAnnotations = scope.environment().usesNullTypeAnnotations();
 		if (arguments != null && binding != null) {
 			for (int i = 0, length = arguments.length; i < length; i++) {
 				Argument argument = arguments[i];
@@ -525,7 +526,7 @@ public abstract class AbstractMethodDeclaration
 			resolveAnnotations(this.scope, this.annotations, this.binding);
 			
 			long sourceLevel = this.scope.compilerOptions().sourceLevel;
-			validateNullAnnotations(sourceLevel);
+			validateNullAnnotations(this.scope.environment().usesNullTypeAnnotations());
 
 			resolveStatements();
 			// check @Deprecated annotation presence
@@ -644,10 +645,10 @@ public abstract class AbstractMethodDeclaration
 	    return null;
 	}
 
-	void validateNullAnnotations(long sourceLevel) {
+	void validateNullAnnotations(boolean useTypeAnnotations) {
 		if (this.binding == null) return;
 		// null annotations on parameters?
-		if (sourceLevel < ClassFileConstants.JDK1_8) {
+		if (!useTypeAnnotations) {
 			if (this.binding.parameterNonNullness != null) {
 				int length = this.binding.parameters.length;
 				for (int i=0; i<length; i++) {

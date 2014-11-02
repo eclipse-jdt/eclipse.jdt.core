@@ -29,6 +29,7 @@
  *								Bug 418537 - [1.8][null] Fix null type annotation analysis for poly conditional expressions
  *								Bug 428352 - [1.8][compiler] Resolution errors don't always surface
  *								Bug 429430 - [1.8] Lambdas and method reference infer wrong exception type with generics (RuntimeException instead of IOException)
+ *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *        Andy Clement - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
@@ -90,8 +91,7 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 		CompilerOptions compilerOptions = currentScope.compilerOptions();
 		if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_7 && methodBinding.isPolymorphic())
 			return;
-		boolean considerTypeAnnotations = compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8
-				&& compilerOptions.isAnnotationBasedNullAnalysisEnabled;
+		boolean considerTypeAnnotations = currentScope.environment().usesNullTypeAnnotations();
 		boolean hasJDK15NullAnnotations = methodBinding.parameterNonNullness != null;
 		int numParamsToCheck = methodBinding.parameters.length;
 		int varArgPos = -1;

@@ -13,6 +13,7 @@
  *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *								Bug 417758 - [1.8][null] Null safety compromise during array creation.
  *								Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
+ *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -21,7 +22,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.ASSIGNMENT_CONTEXT;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -46,8 +46,7 @@ public class ArrayInitializer extends Expression {
 		if (this.expressions != null) {
 			CompilerOptions compilerOptions = currentScope.compilerOptions();
 			boolean analyseResources = compilerOptions.analyseResourceLeaks;
-			boolean evalNullTypeAnnotations = compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8 
-												&& compilerOptions.isAnnotationBasedNullAnalysisEnabled;
+			boolean evalNullTypeAnnotations = currentScope.environment().usesNullTypeAnnotations();
 			for (int i = 0, max = this.expressions.length; i < max; i++) {
 				flowInfo = this.expressions[i].analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
 

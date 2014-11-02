@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -82,7 +81,7 @@ public class NullAnnotationMatching {
 	{
 		long lhsTagBits = 0L;
 		boolean hasReported = false;
-		if (currentScope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) {
+		if (!currentScope.environment().usesNullTypeAnnotations()) {
 			lhsTagBits = var.tagBits & TagBits.AnnotationNullMASK;
 		} else {
 			if (expression instanceof ConditionalExpression && expression.isPolyExpression()) {

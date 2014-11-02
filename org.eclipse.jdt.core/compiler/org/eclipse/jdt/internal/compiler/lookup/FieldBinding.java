@@ -12,6 +12,7 @@
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
  *								Bug 447088 - [null] @Nullable on fully qualified field type is ignored
+ *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -234,10 +235,10 @@ public void fillInDefaultNonNullness(FieldDeclaration sourceField, Scope scope) 
 		&& (this.tagBits & TagBits.AnnotationNullMASK) == 0 		// declaration annotation?
 		&& (this.type.tagBits & TagBits.AnnotationNullMASK) == 0)	// type annotation? (java.lang.@Nullable String)
 	{
-		if (environment.globalOptions.sourceLevel < ClassFileConstants.JDK1_8)
-			this.tagBits |= TagBits.AnnotationNonNull;
-		else
+		if (environment.usesNullTypeAnnotations())
 			this.type = environment.createAnnotatedType(this.type, new AnnotationBinding[]{environment.getNonNullAnnotation()});
+		else
+			this.tagBits |= TagBits.AnnotationNonNull;
 	} else if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
 		scope.problemReporter().nullAnnotationIsRedundant(sourceField);
 	}
