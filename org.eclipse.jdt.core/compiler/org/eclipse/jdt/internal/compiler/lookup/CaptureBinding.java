@@ -369,11 +369,23 @@ public class CaptureBinding extends TypeVariableBinding {
 
 	@Override
 	TypeBinding substituteInferenceVariable(InferenceVariable var, TypeBinding substituteType) {
-		TypeBinding newWildcard = this.wildcard.substituteInferenceVariable(var, substituteType);
-		if (newWildcard != this.wildcard) {  //$IDENTITY-COMPARISON$
-			CaptureBinding newCapture = new CaptureBinding((WildcardBinding) newWildcard, this.sourceType, this.position, this.cud, this.captureID);
-		    newCapture.id = this.id; // there is no need really to add this to the derived types, just equate the type system ids and the capture ids.
-			return newCapture;
+		TypeBinding substitutedWildcard = this.wildcard.substituteInferenceVariable(var, substituteType);
+		if (substitutedWildcard != this.wildcard) {  //$IDENTITY-COMPARISON$
+			CaptureBinding substitute = (CaptureBinding) clone(enclosingType());
+		    substitute.wildcard = (WildcardBinding) substitutedWildcard;
+		    if (this.lowerBound != null)
+		    	substitute.lowerBound = this.lowerBound.substituteInferenceVariable(var, substituteType);
+		    if (this.firstBound != null)
+		    	substitute.firstBound = this.firstBound.substituteInferenceVariable(var, substituteType);
+		    if (this.superclass != null)
+		    	substitute.superclass = (ReferenceBinding) this.superclass.substituteInferenceVariable(var, substituteType);
+		    if (this.superInterfaces != null) {
+		    	int length = this.superInterfaces.length;
+		    	substitute.superInterfaces = new ReferenceBinding[length];
+		    	for (int i = 0; i < length; i++)
+		    		substitute.superInterfaces[i] = (ReferenceBinding) this.superInterfaces[i].substituteInferenceVariable(var, substituteType);
+		    }
+		    return substitute;
 		}
 		return this;
 	}
