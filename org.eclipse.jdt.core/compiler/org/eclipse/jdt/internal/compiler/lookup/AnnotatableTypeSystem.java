@@ -65,7 +65,15 @@ public class AnnotatableTypeSystem extends TypeSystem {
 	   type later.
 	*/
 	public ArrayBinding getArrayType(TypeBinding leafType, int dimensions, AnnotationBinding [] annotations) {
-		
+		if (leafType instanceof ArrayBinding) { // substitution attempts can cause this, don't create array of arrays.
+			dimensions += leafType.dimensions();
+			AnnotationBinding[] leafAnnotations = leafType.getTypeAnnotations();
+			leafType = leafType.leafComponentType();
+			AnnotationBinding [] allAnnotations = new AnnotationBinding[leafAnnotations.length + annotations.length + 1];
+			System.arraycopy(annotations, 0, allAnnotations, 0, annotations.length);
+			System.arraycopy(leafAnnotations, 0, allAnnotations, annotations.length + 1 /* leave a null */, leafAnnotations.length);
+			annotations = allAnnotations;
+		}
 		ArrayBinding nakedType = null;
 		TypeBinding[] derivedTypes = getDerivedTypes(leafType);
 		for (int i = 0, length = derivedTypes.length; i < length; i++) {

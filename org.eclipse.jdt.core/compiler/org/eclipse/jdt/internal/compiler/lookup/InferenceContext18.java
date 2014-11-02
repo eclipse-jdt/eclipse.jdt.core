@@ -130,8 +130,11 @@ public class InferenceContext18 {
 	InferenceVariable[] inferenceVariables;
 	/** Number of inference variables. */
 	int variableCount = 0;
+
 	/** Constraints that have not yet been reduced and incorporated. */
 	ConstraintFormula[] initialConstraints;
+	ConstraintExpressionFormula[] finalConstraints; // for final revalidation at a "macroscopic" level
+
 	/** The accumulated type bounds etc. */
 	BoundSet currentBounds;
 
@@ -239,13 +242,16 @@ public class InferenceContext18 {
 		int len = checkVararg ? parameters.length - 1 : Math.min(parameters.length, this.invocationArguments.length);
 		int maxConstraints = checkVararg ? this.invocationArguments.length : len;
 		int numConstraints = 0;
+		boolean ownConstraints;
 		if (this.initialConstraints == null) {
 			this.initialConstraints = new ConstraintFormula[maxConstraints];
+			ownConstraints = true;
 		} else {
 			numConstraints = this.initialConstraints.length;
 			maxConstraints += numConstraints;
 			System.arraycopy(this.initialConstraints, 0,
 					this.initialConstraints=new ConstraintFormula[maxConstraints], 0, numConstraints);
+			ownConstraints = false; // these are lifted from a nested poly expression.
 		}
 		for (int i = 0; i < len; i++) {
 			if (this.invocationArguments[i].isPertinentToApplicability(parameters[i], method)) {
@@ -266,6 +272,10 @@ public class InferenceContext18 {
 			this.initialConstraints = ConstraintFormula.NO_CONSTRAINTS;
 		else if (numConstraints < maxConstraints)
 			System.arraycopy(this.initialConstraints, 0, this.initialConstraints = new ConstraintFormula[numConstraints], 0, numConstraints);
+		if (ownConstraints) { // lifted constraints get validated at their own context.
+			final int length = this.initialConstraints.length;
+			System.arraycopy(this.initialConstraints, 0, this.finalConstraints = new ConstraintExpressionFormula[length], 0, length);
+		}
 	}
 
 	private InferenceVariable[] addInitialTypeVariableSubstitutions(TypeBinding[] typeVariables) {
@@ -785,6 +795,7 @@ public class InferenceContext18 {
 	 * @throws InferenceFailureException a compile error has been detected during inference
 	 */
 	public /*@Nullable*/ BoundSet solve(boolean inferringApplicability) throws InferenceFailureException {
+
 		if (!reduce())
 			return null;
 		if (!this.currentBounds.incorporate(this))
@@ -792,7 +803,22 @@ public class InferenceContext18 {
 		if (inferringApplicability)
 			this.b2 = this.currentBounds.copy(); // Preserve the result after reduction, without effects of resolve() for later use in invocation type inference.
 
-		return resolve(this.inferenceVariables);
+		BoundSet solution = resolve(this.inferenceVariables);
+		
+		/* If inferring applicability make a final pass over the initial constraints preserved as final constraints to make sure they hold true at a macroscopic level.
+		   See https://bugs.eclipse.org/bugs/show_bug.cgi?id=426537#c55 onwards.
+		*/
+		if (inferringApplicability && solution != null && this.finalConstraints != null) {
+			for (ConstraintExpressionFormula constraint: this.finalConstraints) {
+				if (constraint.left.isPolyExpression())
+					continue; // avoid redundant re-inference, inner poly's own constraints get validated in its own context & poly invocation type inference proved compatibility against target. 
+				constraint.applySubstitution(solution, this.inferenceVariables);
+				if (!this.currentBounds.reduceOneConstraint(this, constraint)) {
+					return null;
+				}
+			}
+		}
+		return solution;
 	}
 	
 	public /*@Nullable*/ BoundSet solve() throws InferenceFailureException {

@@ -4444,30 +4444,6 @@ public void testBug427957() {
 		"The method sort(T[], I<? super T>) in the type X is not applicable for the arguments (I[], I<I<?>>)\n" + 
 		"----------\n");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427957, [1.8] Type inference incorrect when a wildcard is missing 
-public void testBug427957a() { // verify escape hatch works.
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)  
-		return;
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_PostResolutionRawTypeCompatibilityCheck, CompilerOptions.DISABLED);
-	runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"    <T> void sort(T[] a, I<? super T> c) { }\n" +
-			"    void foo(I[] e, I<I<?>> comp) {\n" +
-			"        sort(e, comp);\n" +
-			"    }\n" +
-			"}\n" +
-			"interface I<T> {}\n"
-		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	void foo(I[] e, I<I<?>> comp) {\n" + 
-		"	         ^\n" + 
-		"I is a raw type. References to generic type I<T> should be parameterized\n" + 
-		"----------\n", null, true, customOptions);
-}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427992,  [1.8] compiler difference to javac involving a raw array
 public void test427992() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_6)

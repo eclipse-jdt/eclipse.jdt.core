@@ -202,6 +202,10 @@ public class TypeSystem {
 	   See ArrayBinding.swapUnresolved for further special case handling if incoming leafType is a URB that would resolve to a raw type later.
 	*/ 
 	public ArrayBinding getArrayType(TypeBinding leafType, int dimensions) {
+		if  (leafType instanceof ArrayBinding) {
+			dimensions += leafType.dimensions();
+			leafType = leafType.leafComponentType();
+		}
 		TypeBinding unannotatedLeafType = getUnannotatedType(leafType);
 		TypeBinding[] derivedTypes = this.types[unannotatedLeafType.id];
 		int i, length = derivedTypes.length;

@@ -6871,4 +6871,25 @@ public void test445669() {
 		"Null type mismatch: required \'@NonNull Z\' but the provided value is null\n" + 
 		"----------\n");
 }
+public void testArrayOfArrays() {
+	this.runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.Arrays;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"   public static void main(String[] args) {\n" +
+			"      String [] @Nullable [] @NonNull [] arr = new String[][][] {};\n" +
+			"      ArrayList<String[][]> al = new ArrayList<String [][]>(Arrays.asList(arr));\n" +
+			"   }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	String [] @Nullable [] @NonNull [] arr = new String[][][] {};\n" + 
+		"	                                         ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'String[][][]\' needs unchecked conversion to conform to \'String [] @Nullable[] @NonNull[]\'\n" + 
+		"----------\n");
+}
 }
