@@ -6892,4 +6892,20 @@ public void testArrayOfArrays() {
 		"Null type safety (type annotations): The expression of type \'String[][][]\' needs unchecked conversion to conform to \'String [] @Nullable[] @NonNull[]\'\n" + 
 		"----------\n");
 }
+public void testBug447088() {
+	runConformTestWithLibs(
+		new String[] {
+			"FullyQualifiedNullable.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class FullyQualifiedNullable {\n" +
+			"	java.lang.@Nullable String text;\n" +
+			"	java.lang.@Nullable String getText() {\n" +
+			"		return text;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		null,
+		"");
+}
 }

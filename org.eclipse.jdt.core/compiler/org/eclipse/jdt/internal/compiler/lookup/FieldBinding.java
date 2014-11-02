@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *								bug 185682 - Increment/decrement operators mark local variables as read
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								Bug 417295 - [1.8[[null] Massage type annotated null analysis to gel well with deep encoded type bindings.
+ *								Bug 447088 - [null] @Nullable on fully qualified field type is ignored
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -230,7 +231,8 @@ public void fillInDefaultNonNullness(FieldDeclaration sourceField, Scope scope) 
 	LookupEnvironment environment = scope.environment();
 	if (   this.type != null
 		&& !this.type.isBaseType()
-		&& (this.tagBits & TagBits.AnnotationNullMASK) == 0)
+		&& (this.tagBits & TagBits.AnnotationNullMASK) == 0 		// declaration annotation?
+		&& (this.type.tagBits & TagBits.AnnotationNullMASK) == 0)	// type annotation? (java.lang.@Nullable String)
 	{
 		if (environment.globalOptions.sourceLevel < ClassFileConstants.JDK1_8)
 			this.tagBits |= TagBits.AnnotationNonNull;
