@@ -2254,4 +2254,71 @@ public void test447774() throws JavaModelException {
 			"expectedTypesKeys=null\n" +
 			"completion token location={STATEMENT_START}", requestor.getContext());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449358, Content assist inside lambda broken in all methods except last 
+public void test449358() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.Optional;\n" +
+			"public class LambdaBug {\n" +
+			"	private final String field = \"final field\";\n" +
+			"	void localmethod1() {\n" +
+			"		Optional.of(\"test\").map(s -> {\n" +
+			"			String local;\n" +
+			"			/*HERE*/localMeth\n" +
+			"			return s;\n" +
+			"		}).get();\n" +
+			"	}\n" +
+			"	void localmethod2() {\n" +
+			"		Optional.of(\"test\").map(s -> {\n" +
+			"			String local;\n" +
+			"			// content assist works there\n" +
+			"			return s;\n" +
+			"		}).get();\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/*HERE*/localMeth";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("localmethod1[METHOD_REF]{localmethod1(), LLambdaBug;, ()V, null, null, localmethod1, null, [181, 190], 17}\n" +
+                  "localmethod2[METHOD_REF]{localmethod2(), LLambdaBug;, ()V, null, null, localmethod2, null, [181, 190], 17}", requestor.getResults());
+	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449358, Content assist inside lambda broken in all methods except last 
+public void test449358a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.Optional;\n" +
+			"public class LambdaBug {\n" +
+			"	private final String field = \"final field\";\n" +
+			"	void localmethod1() {\n" +
+			"		Optional.of(\"test\").map(s -> {\n" +
+			"			String local;\n" +
+			"			return s;\n" +
+			"		}).get();\n" +
+			"	}\n" +
+			"	void localmethod2() {\n" +
+			"		Optional.of(\"test\").map(s -> {\n" +
+			"			String local;\n" +
+			"			/*HERE*/localMeth\n" +
+			"			return s;\n" +
+			"		}).get();\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/*HERE*/localMeth";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("localmethod1[METHOD_REF]{localmethod1(), LLambdaBug;, ()V, null, null, localmethod1, null, [282, 291], 17}\n" +
+				  "localmethod2[METHOD_REF]{localmethod2(), LLambdaBug;, ()V, null, null, localmethod2, null, [282, 291], 17}", requestor.getResults());
+	
+}
 }
