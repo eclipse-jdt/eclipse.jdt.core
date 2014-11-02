@@ -4847,7 +4847,7 @@ public abstract class Scope {
 			currentType = currentType.enclosingType();
 		}
 	
-		MethodBinding[] methods = genericType.getMethods(TypeConstants.INIT, argumentTypes.length);
+		MethodBinding[] methods = allocationType.getMethods(TypeConstants.INIT, argumentTypes.length);
 		MethodBinding [] staticFactories = new MethodBinding[methods.length];
 		int sfi = 0;
 		for (int i = 0, length = methods.length; i < length; i++) {
@@ -4866,7 +4866,7 @@ public abstract class Scope {
 			final int factoryArity = classTypeVariablesArity + methodTypeVariablesArity;
 			final LookupEnvironment environment = environment();
 			
-			MethodBinding staticFactory = new SyntheticFactoryMethodBinding(method, environment, originalEnclosingType);
+			MethodBinding staticFactory = new SyntheticFactoryMethodBinding(method.original(), environment, originalEnclosingType);
 			staticFactory.typeVariables = new TypeVariableBinding[factoryArity];
 			final SimpleLookupTable map = new SimpleLookupTable(factoryArity);
 			

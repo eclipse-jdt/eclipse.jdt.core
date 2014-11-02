@@ -66,9 +66,9 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 		this.resolvedType = ((SingleTypeReference) this.type).resolveTypeEnclosing(scope, (ReferenceBinding) enclosingType);
 		if (isDiamond && (this.resolvedType instanceof ParameterizedTypeBinding)) {
-			TypeBinding [] inferredTypes = inferElidedTypes((ParameterizedTypeBinding) this.resolvedType, null, this.argumentTypes, scope);
+			TypeBinding [] inferredTypes = inferElidedTypes(scope);
 			if (inferredTypes != null) {
-				this.resolvedType = this.type.resolvedType = scope.environment().createParameterizedType(((ParameterizedTypeBinding) this.resolvedType).genericType(), inferredTypes, ((ParameterizedTypeBinding) this.resolvedType).enclosingType());
+				this.resolvedType = this.type.resolvedType = scope.environment().createParameterizedType(((ParameterizedTypeBinding) this.resolvedType).genericType(), inferredTypes, this.resolvedType.enclosingType());
 			} else {
 				// inference failed. Resolved type will be of the form Test<>
 				this.bits |= ASTNode.IsDiamond;
@@ -81,9 +81,9 @@ public TypeBinding resolveType(BlockScope scope) {
 	} else {
 	 	this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);
 	 	if (isDiamond && (this.resolvedType instanceof ParameterizedTypeBinding)) {
-			TypeBinding [] inferredTypes = inferElidedTypes((ParameterizedTypeBinding) this.resolvedType, null, this.argumentTypes, scope);
+			TypeBinding [] inferredTypes = inferElidedTypes(scope);
 			if (inferredTypes != null) {
-				this.resolvedType = this.type.resolvedType = scope.environment().createParameterizedType(((ParameterizedTypeBinding) this.resolvedType).genericType(), inferredTypes, ((ParameterizedTypeBinding) this.resolvedType).enclosingType());
+				this.resolvedType = this.type.resolvedType = scope.environment().createParameterizedType(((ParameterizedTypeBinding) this.resolvedType).genericType(), inferredTypes, this.resolvedType.enclosingType());
 			} else {
 				// inference failed. Resolved type will be of the form Test<>
 				this.bits |= ASTNode.IsDiamond;

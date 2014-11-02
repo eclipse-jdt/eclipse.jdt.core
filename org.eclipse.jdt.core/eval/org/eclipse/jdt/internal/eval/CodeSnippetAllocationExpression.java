@@ -183,7 +183,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 
 	// buffering the arguments' types
-	boolean argsContainCast = false;
 	this.argumentTypes = Binding.NO_PARAMETERS;
 	if (this.arguments != null) {
 		this.argumentsHaveErrors = false;
@@ -193,7 +192,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			Expression argument = this.arguments[i];
 			if (argument instanceof CastExpression) {
 				argument.bits |= DisableUnnecessaryCastCheck; // will check later on
-				argsContainCast = true;
+				this.argsContainCast = true;
 			}
 			argument.setExpressionContext(INVOCATION_CONTEXT);
 			if ((this.argumentTypes[i] = argument.resolveType(scope)) == null) {
@@ -212,7 +211,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		return this.resolvedType;
 	}
 	if (isDiamond) {
-		TypeBinding [] inferredTypes = inferElidedTypes((ParameterizedTypeBinding) this.resolvedType, null, this.argumentTypes, scope);
+		TypeBinding [] inferredTypes = inferElidedTypes(scope);
 		if (inferredTypes == null) {
 			scope.problemReporter().cannotInferElidedTypes(this);
 			return this.resolvedType = null;
@@ -285,7 +284,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				scope.problemReporter().unsafeTypeConversion(this.arguments[i], argumentType, parameterType);
 			}
 		}
-		if (argsContainCast) {
+		if (this.argsContainCast) {
 			CastExpression.checkNeedForArgumentCasts(scope, null, allocatedType, this.binding, this.arguments, this.argumentTypes, this);
 		}
 	}

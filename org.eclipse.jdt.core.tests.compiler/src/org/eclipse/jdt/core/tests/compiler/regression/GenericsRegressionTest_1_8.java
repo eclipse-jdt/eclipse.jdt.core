@@ -467,10 +467,15 @@ public void testBug401850a() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	int i = m(new X<>(\"\"));\n" + 
-		"	          ^^^^^^^^^^^\n" + 
-		"The constructor X<String>(String) is ambiguous\n" + 
+		"1. WARNING in X.java (at line 1)\n" + 
+		"	import java.util.List;\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"The import java.util.List is never used\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 2)\n" + 
+		"	import java.util.ArrayList;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The import java.util.ArrayList is never used\n" + 
 		"----------\n");
 }
 public void testBug401850b() {
@@ -1686,11 +1691,6 @@ public void testBug424930c() {
 		},
 		"----------\n" + 
 		"1. ERROR in X.java (at line 14)\n" + 
-		"	return new X<>(() -> new ArrayDeque<>(dequeCapacity));\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The constructor X<S,Deque<S>>(() -> {}) is undefined\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 14)\n" + 
 		"	return new X<>(() -> new ArrayDeque<>(dequeCapacity));\n" + 
 		"	                                      ^^^^^^^^^^^^^\n" + 
 		"Cannot make a static reference to the non-static field dequeCapacity\n" + 
