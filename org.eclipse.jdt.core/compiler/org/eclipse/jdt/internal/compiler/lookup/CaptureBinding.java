@@ -31,7 +31,7 @@ public class CaptureBinding extends TypeVariableBinding {
 	public int position;
 	public ASTNode cud; // to facilitate recaptures.
 
-	public CaptureBinding(WildcardBinding wildcard, ReferenceBinding sourceType, int position, int captureID) {
+	public CaptureBinding(WildcardBinding wildcard, ReferenceBinding sourceType, int position, ASTNode cud, int captureID) {
 		super(TypeConstants.WILDCARD_CAPTURE_NAME_PREFIX, null, 0, wildcard.environment);
 		this.wildcard = wildcard;
 		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat capture as public
@@ -53,10 +53,6 @@ public class CaptureBinding extends TypeVariableBinding {
 			if (wildcard.hasNullTypeAnnotations())
 				this.tagBits |= TagBits.HasNullTypeAnnotation;
 		}
-	}
-	
-	public CaptureBinding(WildcardBinding wildcard, ReferenceBinding sourceType, int position, ASTNode cud, int captureID) {
-		this(wildcard, sourceType, position, captureID);
 		this.cud = cud;
 	}
 	
@@ -77,6 +73,7 @@ public class CaptureBinding extends TypeVariableBinding {
 		this.captureID = prototype.captureID;
 		this.lowerBound = prototype.lowerBound;
 		this.tagBits |= (prototype.tagBits & TagBits.HasCapturedWildcard);
+		this.cud = prototype.cud;
 	}
 	
 	// Captures may get cloned and annotated during type inference.

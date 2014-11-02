@@ -156,7 +156,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				else if (needUniqueCapture)
 					capturedArguments[i] = this.environment.createCapturedWildcard(wildcard, contextType, position, cud, compilationUnitScope.nextCaptureID());
 				else 
-					capturedArguments[i] = new CaptureBinding(wildcard, contextType, position, compilationUnitScope.nextCaptureID());	
+					capturedArguments[i] = new CaptureBinding(wildcard, contextType, position, cud, compilationUnitScope.nextCaptureID());	
 			} else {
 				capturedArguments[i] = argument;
 			}

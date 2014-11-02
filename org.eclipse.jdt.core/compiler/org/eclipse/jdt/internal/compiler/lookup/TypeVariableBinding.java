@@ -71,6 +71,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.tagBits |= TagBits.HasTypeVariable;
 		this.environment = environment;
 		this.typeBits = TypeIds.BitUninitialized;
+		computeId(environment);
 	}
 	
 	public TypeVariableBinding(TypeVariableBinding prototype) {

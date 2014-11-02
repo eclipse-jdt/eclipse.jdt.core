@@ -652,6 +652,9 @@ public void computeConversion(Scope scope, TypeBinding runtimeType, TypeBinding 
 		TypeBinding boxedType = scope.environment().computeBoxingType(runtimeType);
 		if (TypeBinding.equalsEquals(boxedType, runtimeType)) // Object o = 12;
 			boxedType = compileTimeType;
+		if (boxedType.id >= TypeIds.T_LastWellKnownTypeId) {  // (Comparable & Serializable) 0
+			boxedType = compileTimeType;
+		}
 		this.implicitConversion = TypeIds.BOXING | (boxedType.id << 4) + compileTimeType.id;
 		scope.problemReporter().autoboxing(this, compileTimeType, scope.environment().computeBoxingType(boxedType));
 		return;

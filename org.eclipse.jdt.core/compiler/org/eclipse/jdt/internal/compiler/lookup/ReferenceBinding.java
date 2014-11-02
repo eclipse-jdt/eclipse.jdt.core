@@ -859,6 +859,10 @@ public void computeId() {
 	}
 }
 
+public void computeId(LookupEnvironment environment) {
+	environment.getUnannotatedType(this);
+}
+
 /**
  * p.X<T extends Y & I, U extends Y> {} -> Lp/X<TT;TU;>;
  */

@@ -28,12 +28,10 @@ public class CaptureBinding18 extends CaptureBinding {
 	}
 	
 	private CaptureBinding18(CaptureBinding18 prototype) {
-		this(prototype.sourceType, CharOperation.append(prototype.sourceName, '\''), prototype.originalName, prototype.position, prototype.captureID, prototype.environment);
+		super(prototype);
+		this.sourceName = CharOperation.append(prototype.sourceName, '\'');
+		this.originalName = prototype.originalName;
 		this.upperBounds = prototype.upperBounds;
-		this.firstBound = prototype.firstBound;
-		this.lowerBound = prototype.lowerBound;
-		this.superInterfaces = prototype.superInterfaces;
-		this.superclass = prototype.superclass;
 		this.prototype = prototype.prototype;		
 	}
 
@@ -204,6 +202,11 @@ public class CaptureBinding18 extends CaptureBinding {
 					}
 				}
 			}
+			TypeBinding currentFirstBound = null;
+			if (this.firstBound != null) {
+				currentFirstBound = this.firstBound.substituteInferenceVariable(var, substituteType);
+				haveSubstitution |= TypeBinding.notEquals(this.firstBound, currentFirstBound);
+			}
 			if (haveSubstitution) {
 				final CaptureBinding18 newCapture = (CaptureBinding18) clone(enclosingType());
 				newCapture.tagBits = this.tagBits;
@@ -221,6 +224,8 @@ public class CaptureBinding18 extends CaptureBinding {
 						return CaptureBinding18.this.environment;
 					}
 				};
+				if (currentFirstBound != null)
+					newCapture.firstBound = Scope.substitute(substitution, currentFirstBound);
 				newCapture.superclass = (ReferenceBinding) Scope.substitute(substitution, currentSuperclass);
 				newCapture.superInterfaces = Scope.substitute(substitution, currentSuperInterfaces);
 				newCapture.upperBounds = Scope.substitute(substitution, currentUpperBounds);
