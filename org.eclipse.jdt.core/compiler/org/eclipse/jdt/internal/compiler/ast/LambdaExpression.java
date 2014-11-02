@@ -69,7 +69,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
-import org.eclipse.jdt.internal.compiler.lookup.IntersectionCastTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.IntersectionTypeBinding18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -199,8 +199,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			codeStream.generateOuterAccess(path, this, capturedOuterLocal, currentScope);
 		}
 		signature.append(')');
-		if (this.expectedType instanceof IntersectionCastTypeBinding) {
-			signature.append(((IntersectionCastTypeBinding)this.expectedType).getSAMType(currentScope).signature());
+		if (this.expectedType instanceof IntersectionTypeBinding18) {
+			signature.append(((IntersectionTypeBinding18)this.expectedType).getSAMType(currentScope).signature());
 		} else {
 			signature.append(this.expectedType.signature());
 		}
@@ -317,8 +317,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if (!argumentsTypeElided && !buggyArguments) {
 			ReferenceBinding groundType = null;
 			ReferenceBinding expectedSAMType = null;
-			if (this.expectedType instanceof IntersectionCastTypeBinding)
-				expectedSAMType = (ReferenceBinding) ((IntersectionCastTypeBinding) this.expectedType).getSAMType(blockScope); 
+			if (this.expectedType instanceof IntersectionTypeBinding18)
+				expectedSAMType = (ReferenceBinding) ((IntersectionTypeBinding18) this.expectedType).getSAMType(blockScope); 
 			else if (this.expectedType instanceof ReferenceBinding)
 				expectedSAMType = (ReferenceBinding) this.expectedType;
 			if (expectedSAMType != null)
@@ -427,8 +427,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		} else {
 			this.body.resolve(this.scope);
 		}
-		if (this.expectedType instanceof IntersectionCastTypeBinding) {
-			ReferenceBinding[] intersectingTypes =  ((IntersectionCastTypeBinding)this.expectedType).intersectingTypes;
+		if (this.expectedType instanceof IntersectionTypeBinding18) {
+			ReferenceBinding[] intersectingTypes =  ((IntersectionTypeBinding18)this.expectedType).intersectingTypes;
 			for (int t = 0, max = intersectingTypes.length; t < max; t++) {
 				if (intersectingTypes[t].findSuperTypeOriginatingFrom(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null) {
 					this.isSerializable = true;
@@ -794,8 +794,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		}
 
 		ReferenceBinding expectedSAMType = null;
-		if (left instanceof IntersectionCastTypeBinding)
-			expectedSAMType = (ReferenceBinding) ((IntersectionCastTypeBinding) left).getSAMType(this.enclosingScope); 
+		if (left instanceof IntersectionTypeBinding18)
+			expectedSAMType = (ReferenceBinding) ((IntersectionTypeBinding18) left).getSAMType(this.enclosingScope); 
 		else if (left instanceof ReferenceBinding)
 			expectedSAMType = (ReferenceBinding) left;
 		ReferenceBinding groundTargetType = expectedSAMType != null ? findGroundTargetType(this.enclosingScope, expectedSAMType, argumentsTypeElided()) : null;
@@ -1263,9 +1263,9 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	}
 
 	public TypeBinding[] getMarkerInterfaces() {
-		if (this.expectedType instanceof IntersectionCastTypeBinding) {
+		if (this.expectedType instanceof IntersectionTypeBinding18) {
 			Set markerBindings = new LinkedHashSet();
-			TypeBinding[] intersectionTypes = ((IntersectionCastTypeBinding)this.expectedType).intersectingTypes;
+			TypeBinding[] intersectionTypes = ((IntersectionTypeBinding18)this.expectedType).intersectingTypes;
 			for (int i = 0,max = intersectionTypes.length; i < max; i++) {
 				TypeBinding typeBinding = intersectionTypes[i];
 				MethodBinding methodBinding = typeBinding.getSingleAbstractMethod(this.scope, true);

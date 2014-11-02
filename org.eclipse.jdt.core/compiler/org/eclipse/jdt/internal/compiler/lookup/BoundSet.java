@@ -656,7 +656,7 @@ class BoundSet {
 										ReferenceBinding[] allBounds = new ReferenceBinding[n];
 										allBounds[0] = (ReferenceBinding) bi1; // TODO is this safe?
 										System.arraycopy(otherBounds, 0, allBounds, 1, n-1);
-										bi = context.environment.createIntersectionCastType(allBounds);
+										bi = context.environment.createIntersectionType18(allBounds);
 									}
 									addTypeBoundsFromWildcardBound(context, theta, wildcardBinding.boundKind, t, r, bi);
 									//										if (otherBounds != null) {

@@ -2653,8 +2653,8 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 				ConstantPool.GetFunctionalInterfaceClass, ConstantPool.GetFunctionalInterfaceClassSignature);
 		String functionalInterface = null;
 		final TypeBinding expectedType = lambdaEx.expectedType();
-		if (expectedType instanceof IntersectionCastTypeBinding) {
-			functionalInterface = new String(((IntersectionCastTypeBinding)expectedType).getSAMType(scope).constantPoolName());
+		if (expectedType instanceof IntersectionTypeBinding18) {
+			functionalInterface = new String(((IntersectionTypeBinding18)expectedType).getSAMType(scope).constantPoolName());
 		} else {
 			functionalInterface = new String(expectedType.constantPoolName());
 		}
@@ -2726,8 +2726,8 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 			sig.append(varType.signature());
 		}
 		sig.append(")"); //$NON-NLS-1$
-		if (lambdaEx.resolvedType instanceof IntersectionCastTypeBinding) {
-			sig.append(((IntersectionCastTypeBinding)lambdaEx.resolvedType).getSAMType(scope).signature());
+		if (lambdaEx.resolvedType instanceof IntersectionTypeBinding18) {
+			sig.append(((IntersectionTypeBinding18)lambdaEx.resolvedType).getSAMType(scope).signature());
 		} else {
 			sig.append(lambdaEx.resolvedType.signature());
 		}
@@ -3376,7 +3376,7 @@ public static TypeBinding getConstantPoolDeclaringClass(Scope currentScope, Meth
 						&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(isImplicitThisReceiver && codegenBinding.isStatic()))
 						&& codegenBinding.declaringClass.id != TypeIds.T_JavaLangObject) // no change for Object methods
 					|| !codegenBinding.declaringClass.canBeSeenBy(currentScope)) {
-				if (!actualReceiverType.isIntersectionCastType()) // no constant pool representation. FIXME, visibility issue not handled.
+				if (!actualReceiverType.isIntersectionType18()) // no constant pool representation. FIXME, visibility issue not handled.
 					constantPoolDeclaringClass = actualReceiverType.erasure();
 			}
 		}				

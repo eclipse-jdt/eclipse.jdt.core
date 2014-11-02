@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
-import org.eclipse.jdt.internal.compiler.lookup.IntersectionCastTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.IntersectionTypeBinding18;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
@@ -347,8 +347,8 @@ public abstract class FunctionalExpression extends Expression {
 		}
 		
 		ReferenceBinding functionalType;
-		if (this.expectedType instanceof IntersectionCastTypeBinding) {
-			functionalType = (ReferenceBinding) ((IntersectionCastTypeBinding)this.expectedType).getSAMType(this.enclosingScope);
+		if (this.expectedType instanceof IntersectionTypeBinding18) {
+			functionalType = (ReferenceBinding) ((IntersectionTypeBinding18)this.expectedType).getSAMType(this.enclosingScope);
 		} else {
 			functionalType = (ReferenceBinding) this.expectedType;
 		}

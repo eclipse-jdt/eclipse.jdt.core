@@ -307,8 +307,8 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			case Binding.INTERSECTION_TYPE:
 				superCandidate = ((WildcardBinding) superCandidate).allBounds();
 				//$FALL-THROUGH$
-			case Binding.INTERSECTION_CAST_TYPE:
-				TypeBinding[] intersectingTypes = ((IntersectionCastTypeBinding) superCandidate).intersectingTypes;
+			case Binding.INTERSECTION_TYPE18:
+				TypeBinding[] intersectingTypes = ((IntersectionTypeBinding18) superCandidate).intersectingTypes;
 				ConstraintFormula[] result = new ConstraintFormula[intersectingTypes.length];
 				for (int i = 0; i < intersectingTypes.length; i++) {
 					result[i] = ConstraintTypeFormula.create(subCandidate, intersectingTypes[i], SUBTYPE, this.isSoft);

@@ -678,8 +678,8 @@ public class InferenceContext18 {
 				// "... none of the following is true:" 
 				if (siSuperI(si, funcI) || siSubI(si, funcI))
 					return null;
-				if (si instanceof IntersectionCastTypeBinding) {
-					TypeBinding[] elements = ((IntersectionCastTypeBinding)si).intersectingTypes;
+				if (si instanceof IntersectionTypeBinding18) {
+					TypeBinding[] elements = ((IntersectionTypeBinding18)si).intersectingTypes;
 					checkSuper: {
 						for (int i = 0; i < elements.length; i++)
 							if (!siSuperI(elements[i], funcI))
@@ -945,7 +945,7 @@ public class InferenceContext18 {
 											} else if (glbs.length == 1) {
 												glb = glbs[0];
 											} else {
-												IntersectionCastTypeBinding intersection = (IntersectionCastTypeBinding) this.environment.createIntersectionCastType(glbs);
+												IntersectionTypeBinding18 intersection = (IntersectionTypeBinding18) this.environment.createIntersectionType18(glbs);
 												if (!ReferenceBinding.isConsistentIntersection(intersection.intersectingTypes)) {
 													tmpBoundSet = prevBoundSet; // clean up
 													break variables; // and start over

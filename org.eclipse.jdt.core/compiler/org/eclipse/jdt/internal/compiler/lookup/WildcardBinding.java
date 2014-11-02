@@ -87,7 +87,7 @@ public class WildcardBinding extends ReferenceBinding {
 		} catch (ArrayStoreException ase) {
 			return this.bound;
 		}
-		return this.environment.createIntersectionCastType(allBounds);
+		return this.environment.createIntersectionType18(allBounds);
 	}
 
 	public ReferenceBinding actualType() {

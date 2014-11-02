@@ -437,7 +437,7 @@ public TypeBinding computeBoxingType(TypeBinding type) {
 			break;
 		case Binding.POLY_TYPE:
 			return ((PolyTypeBinding) type).computeBoxingType();
-		case Binding.INTERSECTION_CAST_TYPE:
+		case Binding.INTERSECTION_TYPE18:
 			return computeBoxingType(type.getIntersectingTypes()[0]);
 	}
 	return type;
@@ -674,8 +674,8 @@ public ArrayBinding createArrayType(TypeBinding leafComponentType, int dimension
 	return this.typeSystem.getArrayType(leafComponentType, dimensionCount, annotations);
 }
 
-public TypeBinding createIntersectionCastType(ReferenceBinding[] intersectingTypes) {
-	return this.typeSystem.getIntersectionCastType(intersectingTypes);
+public TypeBinding createIntersectionType18(ReferenceBinding[] intersectingTypes) {
+	return this.typeSystem.getIntersectionType18(intersectingTypes);
 }	
 
 public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {

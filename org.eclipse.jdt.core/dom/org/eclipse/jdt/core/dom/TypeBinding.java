@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.IntersectionCastTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.IntersectionTypeBinding18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
@@ -685,9 +685,9 @@ class TypeBinding implements ITypeBinding {
 				buffer.append(brackets);
 				return String.valueOf(buffer);
 
-			case Binding.INTERSECTION_CAST_TYPE :
-				// just use the first bound for now (same kludge as in IntersectionCastTypeBinding#constantPoolName())
-				return new String(((IntersectionCastTypeBinding) this.binding).getIntersectingTypes()[0].sourceName());
+			case Binding.INTERSECTION_TYPE18 :
+				// just use the first bound for now (same kludge as in IntersectionTypeBinding18#constantPoolName())
+				return new String(((IntersectionTypeBinding18) this.binding).getIntersectingTypes()[0].sourceName());
 
 			default :
 				if (isPrimitive() || isNullType()) {
@@ -711,7 +711,7 @@ class TypeBinding implements ITypeBinding {
 			case Binding.TYPE_PARAMETER : // includes capture scenario
 			case Binding.WILDCARD_TYPE :
 			case Binding.INTERSECTION_TYPE:
-			case Binding.INTERSECTION_CAST_TYPE:
+			case Binding.INTERSECTION_TYPE18:
 				return null;
 		}
 		ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
@@ -808,7 +808,7 @@ class TypeBinding implements ITypeBinding {
 				}
 				return String.valueOf(buffer);
 			default :
-				if (isAnonymous() || this.binding.isLocalType() || this.binding.isIntersectionCastType()) {
+				if (isAnonymous() || this.binding.isLocalType() || this.binding.isIntersectionType18()) {
 					return NO_NAME;
 				}
 				if (isPrimitive() || isNullType()) {

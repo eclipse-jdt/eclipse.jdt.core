@@ -442,9 +442,9 @@ public TypeBinding findSuperTypeOriginatingFrom(TypeBinding otherType) {
 				}
 			}
 			break;
-		case Binding.INTERSECTION_CAST_TYPE:
-			IntersectionCastTypeBinding ictb = (IntersectionCastTypeBinding) this;
-			ReferenceBinding[] intersectingTypes = ictb.getIntersectingTypes();
+		case Binding.INTERSECTION_TYPE18:
+			IntersectionTypeBinding18 itb18 = (IntersectionTypeBinding18) this;
+			ReferenceBinding[] intersectingTypes = itb18.getIntersectingTypes();
 			for (int i = 0, length = intersectingTypes.length; i < length; i++) {
 				TypeBinding superType = intersectingTypes[i].findSuperTypeOriginatingFrom(otherType);
 				if (superType != null)
@@ -740,7 +740,7 @@ public boolean acceptsNonNullDefault() {
 	return false;
 }
 
-public boolean isIntersectionCastType() {
+public boolean isIntersectionType18() {
 	return false;
 }
 
@@ -1262,8 +1262,8 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 			TypeBinding otherBound = otherWildcard.bound;
 			switch (otherWildcard.boundKind) {
 				case Wildcard.EXTENDS:
-					if (otherBound instanceof IntersectionCastTypeBinding) {
-						TypeBinding [] intersectingTypes = ((IntersectionCastTypeBinding) otherBound).intersectingTypes;
+					if (otherBound instanceof IntersectionTypeBinding18) {
+						TypeBinding [] intersectingTypes = ((IntersectionTypeBinding18) otherBound).intersectingTypes;
 						for (int i = 0, length = intersectingTypes.length; i < length; i++)
 							if (TypeBinding.equalsEquals(intersectingTypes[i], this))
 								return true;
@@ -1280,8 +1280,8 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 					return upperBound.isCompatibleWith(otherBound);
 
 				case Wildcard.SUPER:
-					if (otherBound instanceof IntersectionCastTypeBinding) {
-						TypeBinding [] intersectingTypes = ((IntersectionCastTypeBinding) otherBound).intersectingTypes;
+					if (otherBound instanceof IntersectionTypeBinding18) {
+						TypeBinding [] intersectingTypes = ((IntersectionTypeBinding18) otherBound).intersectingTypes;
 						for (int i = 0, length = intersectingTypes.length; i < length; i++)
 							if (TypeBinding.equalsEquals(intersectingTypes[i], this))
 								return true;

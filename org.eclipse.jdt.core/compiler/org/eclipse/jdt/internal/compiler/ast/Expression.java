@@ -302,7 +302,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 		return true;
 	}
 
-	if (castType.isIntersectionCastType()) {
+	if (castType.isIntersectionType18()) {
 		ReferenceBinding [] intersectingTypes = castType.getIntersectingTypes();
 		for (int i = 0, length = intersectingTypes.length; i < length; i++) {
 			if (!checkCastTypesCompatibility(scope, intersectingTypes[i], expressionType, expression))
@@ -382,7 +382,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 			if (bound == null) bound = scope.getJavaLangObject();
 			// recursively on the type variable upper bound
 			return checkCastTypesCompatibility(scope, castType, bound, expression);
-		case Binding.INTERSECTION_CAST_TYPE:
+		case Binding.INTERSECTION_TYPE18:
 			ReferenceBinding [] intersectingTypes = expressionType.getIntersectingTypes();
 			for (int i = 0, length = intersectingTypes.length; i < length; i++) {
 				if (checkCastTypesCompatibility(scope, castType, intersectingTypes[i], expression))

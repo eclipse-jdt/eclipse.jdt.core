@@ -492,7 +492,7 @@ public class TypeSystem {
 		}
 	}
 
-	public final TypeBinding getIntersectionCastType(ReferenceBinding[] intersectingTypes) {
+	public final TypeBinding getIntersectionType18(ReferenceBinding[] intersectingTypes) {
 		int intersectingTypesLength = intersectingTypes == null ? 0 : intersectingTypes.length;
 		if (intersectingTypesLength == 0)
 			return null;
@@ -507,7 +507,7 @@ public class TypeSystem {
 			TypeBinding derivedType = derivedTypes[i];
 			if (derivedType == null) 
 				break;
-			if (!derivedType.isIntersectionCastType())
+			if (!derivedType.isIntersectionType18())
 				continue;
 			ReferenceBinding [] priorIntersectingTypes = derivedType.getIntersectingTypes();
 			if (priorIntersectingTypes.length != intersectingTypesLength)
@@ -518,7 +518,7 @@ public class TypeSystem {
 			}	
 			return derivedType;
 		}
-		return cacheDerivedType(keyType, new IntersectionCastTypeBinding(intersectingTypes, this.environment));
+		return cacheDerivedType(keyType, new IntersectionTypeBinding18(intersectingTypes, this.environment));
 	}
 	
 	/**

@@ -20,7 +20,7 @@ import java.util.Map;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.IntersectionCastTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.IntersectionTypeBinding18;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -127,7 +127,7 @@ public class IntersectionCastTypeReference extends TypeReference {
 			}
 			System.arraycopy(intersectingTypes, 0, intersectingTypes = new ReferenceBinding[typeCount], 0, typeCount);
 		}
-		IntersectionCastTypeBinding intersectionType = (IntersectionCastTypeBinding) scope.environment().createIntersectionCastType(intersectingTypes);
+		IntersectionTypeBinding18 intersectionType = (IntersectionTypeBinding18) scope.environment().createIntersectionType18(intersectingTypes);
 		// check for parameterized interface collisions (when different parameterizations occur)
 		ReferenceBinding itsSuperclass = null;
 		ReferenceBinding[] interfaces = intersectingTypes;

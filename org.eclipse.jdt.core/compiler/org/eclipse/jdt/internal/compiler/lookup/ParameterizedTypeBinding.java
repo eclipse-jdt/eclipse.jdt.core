@@ -1486,7 +1486,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 							try {
 								ReferenceBinding[] refs = new ReferenceBinding[glb.length];
 								System.arraycopy(glb, 0, refs, 0, glb.length); // TODO: if an array type plus more types get here, we get ArrayStoreException!
-								types[i] = this.environment.createIntersectionCastType(refs);
+								types[i] = this.environment.createIntersectionType18(refs);
 							} catch (ArrayStoreException ase) {
 								scope.problemReporter().genericInferenceError("Cannot compute glb of "+Arrays.toString(glb), null); //$NON-NLS-1$
 								return null;
