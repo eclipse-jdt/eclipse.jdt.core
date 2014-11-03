@@ -2356,7 +2356,7 @@ public final class CompletionEngine
 				this.completionToken,
 				null,
 				argTypes,
-				(ReferenceBinding) ((ReferenceBinding) qualifiedBinding).capture(scope, messageSend.receiver.sourceEnd),
+				(ReferenceBinding) ((ReferenceBinding) qualifiedBinding).capture(scope, messageSend.receiver.sourceStart, messageSend.receiver.sourceEnd),
 				scope,
 				new ObjectVector(),
 				false,
@@ -2618,7 +2618,7 @@ public final class CompletionEngine
 
 				findFieldsAndMethods(
 					this.completionToken,
-					((TypeBinding) qualifiedBinding).capture(scope, access.receiver.sourceEnd),
+					((TypeBinding) qualifiedBinding).capture(scope, access.receiver.sourceStart, access.receiver.sourceEnd),
 					scope,
 					fieldsFound,
 					methodsFound,
@@ -2730,7 +2730,7 @@ public final class CompletionEngine
 				this.completionToken,
 				null,
 				argTypes,
-				(ReferenceBinding)((ReferenceBinding) qualifiedBinding).capture(scope, messageSend.receiver.sourceEnd),
+				(ReferenceBinding)((ReferenceBinding) qualifiedBinding).capture(scope, messageSend.receiver.sourceStart, messageSend.receiver.sourceEnd),
 				scope,
 				new ObjectVector(),
 				false,
@@ -2774,7 +2774,7 @@ public final class CompletionEngine
 							this.completionToken,
 							typeArgTypes,
 							null,
-							(ReferenceBinding)receiverType.capture(scope, messageSend.receiver.sourceEnd),
+							(ReferenceBinding)receiverType.capture(scope, messageSend.receiver.sourceStart, messageSend.receiver.sourceEnd),
 							scope,
 							new ObjectVector(),
 							onlyStatic,
@@ -2813,7 +2813,7 @@ public final class CompletionEngine
 						this.completionToken,
 						referenceExpression.resolvedTypeArguments,
 						null,
-						(ReferenceBinding)receiverType.capture(scope, referenceExpression.sourceEnd),
+						(ReferenceBinding)receiverType.capture(scope, referenceExpression.sourceStart, referenceExpression.sourceEnd),
 						scope,
 						new ObjectVector(),
 						onlyStatic,
@@ -3093,7 +3093,7 @@ public final class CompletionEngine
 
 				findFieldsAndMethods(
 						this.completionToken,
-						receiverType.capture(scope, ref.sourceEnd),
+						receiverType.capture(scope, ref.sourceStart, ref.sourceEnd),
 						scope,
 						fieldsFound,
 						methodsFound,
@@ -10069,7 +10069,7 @@ public final class CompletionEngine
 				ReferenceBinding[] superInterfaces = currentType.superInterfaces();
 				if (superInterfaces != null && currentType.isIntersectionType()) {
 					for (int i = 0; i < superInterfaces.length; i++) {
-						superInterfaces[i] = (ReferenceBinding)superInterfaces[i].capture(invocationScope, invocationSite.sourceEnd());
+						superInterfaces[i] = (ReferenceBinding)superInterfaces[i].capture(invocationScope, invocationSite.sourceStart(), invocationSite.sourceEnd());
 					}
 				}
 

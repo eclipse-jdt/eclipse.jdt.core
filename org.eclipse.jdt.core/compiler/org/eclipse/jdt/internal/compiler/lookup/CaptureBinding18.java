@@ -21,8 +21,8 @@ public class CaptureBinding18 extends CaptureBinding {
 	private char[] originalName;
 	private CaptureBinding18 prototype;
 
-	public CaptureBinding18(ReferenceBinding contextType, char[] sourceName, char[] originalName, int position, int captureID, LookupEnvironment environment) {
-		super(contextType, sourceName, position, captureID, environment);
+	public CaptureBinding18(ReferenceBinding contextType, char[] sourceName, char[] originalName, int start, int end, int captureID, LookupEnvironment environment) {
+		super(contextType, sourceName, start, end, captureID, environment);
 		this.originalName = originalName;
 		this.prototype = this;
 	}
@@ -342,7 +342,7 @@ public class CaptureBinding18 extends CaptureBinding {
 	public char[] computeUniqueKey(boolean isLeaf) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(TypeConstants.CAPTURE18);
-		buffer.append('{').append(this.position).append('#').append(this.captureID).append('}');
+		buffer.append('{').append(this.end).append('#').append(this.captureID).append('}');
 		buffer.append(';');
 		int length = buffer.length();
 		char[] uniqueKey = new char[length];

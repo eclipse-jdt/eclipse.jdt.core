@@ -582,7 +582,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				this.bits |= ASTNode.DisableUnnecessaryCastCheck; // disable further secondary diagnosis
 			}
 		}
-		this.resolvedType = castType.capture(scope, this.type.sourceEnd); // make it unique, a cast expression shares source end with the expression.
+		this.resolvedType = castType.capture(scope, this.type.sourceStart, this.type.sourceEnd); // make it unique, a cast expression shares source end with the expression.
 		if (exprContainCast) {
 			checkNeedForCastCast(scope, this);
 		}

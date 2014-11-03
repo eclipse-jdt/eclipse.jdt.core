@@ -1341,7 +1341,7 @@ public abstract class Scope {
 
 			unitScope.recordTypeReference(currentType);
 			currentType.initializeForStaticImports();
-			currentType = (ReferenceBinding) currentType.capture(this, invocationSite == null ? 0 : invocationSite.sourceEnd());
+			currentType = (ReferenceBinding) currentType.capture(this, invocationSite == null ? 0 : invocationSite.sourceStart(), invocationSite == null ? 0 : invocationSite.sourceEnd());
 			if ((field = currentType.getField(fieldName, needResolve)) != null) {
 				if (invisibleFieldsOk) {
 					return field;
@@ -1554,7 +1554,7 @@ public abstract class Scope {
 		MethodVerifier verifier = environment().methodVerifier();
 		while (currentType != null) {
 			unitScope.recordTypeReference(currentType);
-			currentType = (ReferenceBinding) currentType.capture(this, invocationSite == null ? 0 : invocationSite.sourceEnd());
+			currentType = (ReferenceBinding) currentType.capture(this, invocationSite == null ? 0 : invocationSite.sourceStart(), invocationSite == null ? 0 : invocationSite.sourceEnd());
 			MethodBinding[] currentMethods = currentType.getMethods(selector, argumentTypes.length);
 			int currentLength = currentMethods.length;
 			if (currentLength > 0) {
@@ -1839,7 +1839,7 @@ public abstract class Scope {
 					visitedTypes.add(uncaptured);
 				}
 				compilationUnitScope().recordTypeReference(currentType);
-				currentType = (ReferenceBinding) currentType.capture(this, invocationSite == null ? 0 : invocationSite.sourceEnd());
+				currentType = (ReferenceBinding) currentType.capture(this, invocationSite == null ? 0 : invocationSite.sourceStart(), invocationSite == null ? 0 : invocationSite.sourceEnd());
 				MethodBinding[] currentMethods = currentType.getMethods(selector);
 				if (currentMethods.length > 0) {
 					int foundSize = found.size;
@@ -2183,7 +2183,7 @@ public abstract class Scope {
 		
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordTypeReference(type);
-		type = type.capture(this, invocationSite.sourceEnd());
+		type = type.capture(this, invocationSite.sourceStart(), invocationSite.sourceEnd());
 		
 		for (int i = 0, typesLength = typePlusSupertypes.length; i < typesLength; i++) {
 			MethodBinding[] methods = i == 0 ? type.getMethods(selector) : new MethodBinding [] { getExactMethod(receiverType, typePlusSupertypes[i], selector, invocationSite, candidate) };

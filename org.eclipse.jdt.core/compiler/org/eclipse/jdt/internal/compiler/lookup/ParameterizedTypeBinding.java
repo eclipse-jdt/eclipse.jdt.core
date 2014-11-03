@@ -129,9 +129,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 
 	/**
 	 * Perform capture conversion for a parameterized type with wildcard arguments
-	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#capture(Scope,int)
+	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#capture(Scope,int, int)
 	 */
-	public ParameterizedTypeBinding capture(Scope scope, int position) {
+	public ParameterizedTypeBinding capture(Scope scope, int start, int end) {
 		if ((this.tagBits & TagBits.HasDirectWildcard) == 0)
 			return this;
 
@@ -155,9 +155,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				if (wildcard.boundKind == Wildcard.SUPER && wildcard.bound.id == TypeIds.T_JavaLangObject)
 					capturedArguments[i] = wildcard.bound;
 				else if (needUniqueCapture)
-					capturedArguments[i] = this.environment.createCapturedWildcard(wildcard, contextType, position, cud, compilationUnitScope.nextCaptureID());
+					capturedArguments[i] = this.environment.createCapturedWildcard(wildcard, contextType, start, end, cud, compilationUnitScope.nextCaptureID());
 				else 
-					capturedArguments[i] = new CaptureBinding(wildcard, contextType, position, cud, compilationUnitScope.nextCaptureID());	
+					capturedArguments[i] = new CaptureBinding(wildcard, contextType, start, end, cud, compilationUnitScope.nextCaptureID());	
 			} else {
 				capturedArguments[i] = argument;
 			}
@@ -1391,10 +1391,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return this.fields;
 	}
 	public MethodBinding getSingleAbstractMethod(final Scope scope, boolean replaceWildcards) {
-		return getSingleAbstractMethod(scope, replaceWildcards, -1 /* do not capture */);
+		return getSingleAbstractMethod(scope, replaceWildcards, -1, -1 /* do not capture */);
 	}	
-	public MethodBinding getSingleAbstractMethod(final Scope scope, boolean replaceWildcards, int capturePosition) {
-		int index = replaceWildcards ? capturePosition < 0 ? 0 : 1 : 2; // capturePosition >= 0 IFF replaceWildcard == true
+	public MethodBinding getSingleAbstractMethod(final Scope scope, boolean replaceWildcards, int start, int end) {
+		int index = replaceWildcards ? end < 0 ? 0 : 1 : 2; // capturePosition >= 0 IFF replaceWildcard == true
 		if (this.singleAbstractMethod != null) {
 			if (this.singleAbstractMethod[index] != null)
 				return this.singleAbstractMethod[index];
@@ -1417,11 +1417,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		} else if (types == null) {
 			types = NO_TYPES;
 		}
-		if (capturePosition >= 0) { 
+		if (end >= 0) { 
 			// caller is going to require the sam's parameters to be treated as argument expressions, post substitution capture will lose identity, where substitution results in fan out
 			// capture first and then substitute.
 			for (int i = 0, length = types.length; i < length; i++) {
-				types[i] = types[i].capture(scope, 0);
+				types[i] = types[i].capture(scope, start, end);
 			}
 		}
 		declaringType = scope.environment().createParameterizedType(genericType, types, genericType.enclosingType());

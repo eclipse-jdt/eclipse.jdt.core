@@ -926,7 +926,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		if (argumentsTypeElided() || t.findSuperTypeOriginatingFrom(s) != null)
 			return false;
 		
-		s = s.capture(this.enclosingScope, this.sourceEnd);
+		s = s.capture(this.enclosingScope, this.sourceStart, this.sourceEnd);
 		MethodBinding sSam = s.getSingleAbstractMethod(this.enclosingScope, true);
 		if (sSam == null || !sSam.isValidBinding())
 			return false;

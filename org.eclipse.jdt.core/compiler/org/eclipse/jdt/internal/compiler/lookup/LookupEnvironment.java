@@ -1005,8 +1005,8 @@ public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, Ty
 	return this.typeSystem.getWildcard(genericType, rank, bound, otherBounds, boundKind);
 }
 
-public CaptureBinding createCapturedWildcard(WildcardBinding wildcard, ReferenceBinding contextType, int position, ASTNode cud, int id) {
-	return this.typeSystem.getCapturedWildcard(wildcard, contextType, position, cud, id);
+public CaptureBinding createCapturedWildcard(WildcardBinding wildcard, ReferenceBinding contextType, int start, int end, ASTNode cud, int id) {
+	return this.typeSystem.getCapturedWildcard(wildcard, contextType, start, end, cud, id);
 }
 
 public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind, AnnotationBinding [] annotations) {

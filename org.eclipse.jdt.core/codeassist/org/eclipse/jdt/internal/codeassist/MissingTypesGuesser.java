@@ -564,7 +564,7 @@ public class MissingTypesGuesser extends ASTVisitor {
 							missingElementsStarts,
 							missingElementsEnds)) {
 						requestor.accept(
-								guessedType.capture(scope, typeRef.sourceEnd),
+								guessedType.capture(scope, typeRef.sourceStart, typeRef.sourceEnd),
 								missingElements,
 								missingElementsStarts,
 								missingElementsEnds,

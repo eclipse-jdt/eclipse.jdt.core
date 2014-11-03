@@ -450,7 +450,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		}
 		
 		if (!this.haveReceiver && !this.lhs.isSuper() && !this.isArrayConstructorReference())
-			this.receiverType = lhsType.capture(scope, this.sourceEnd);
+			this.receiverType = lhsType.capture(scope, this.sourceStart, this.sourceEnd);
 		
 		final int parametersLength = descriptorParameters.length;
         if (isConstructorReference() && lhsType.isArrayType()) {
@@ -510,7 +510,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         		if (this.receiverType.isRawType()) {
         			TypeBinding superType = potentialReceiver.findSuperTypeOriginatingFrom(this.receiverType);
         			if (superType != null)
-        				typeToSearch = superType.capture(scope, this.sourceEnd);
+        				typeToSearch = superType.capture(scope, this.sourceStart, this.sourceEnd);
         		}
         		TypeBinding [] parameters = Binding.NO_PARAMETERS;
         		if (parametersLength > 1) {
@@ -656,7 +656,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     			} else {
     				returnType = this.binding.returnType;
     				if (returnType != null) {
-    					returnType = returnType.capture(scope, this.sourceEnd);
+    					returnType = returnType.capture(scope, this.sourceStart, this.sourceEnd);
     				}
     			}
     		}
@@ -686,7 +686,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		*/
 		if (this.expectedType.isParameterizedType()) {
 			ParameterizedTypeBinding type = (ParameterizedTypeBinding) this.expectedType;
-			MethodBinding method = type.getSingleAbstractMethod(this.enclosingScope, true, this.sourceEnd);
+			MethodBinding method = type.getSingleAbstractMethod(this.enclosingScope, true, this.sourceStart, this.sourceEnd);
 			return method.parameters;
 		} 
 		return this.descriptor.parameters;
@@ -874,7 +874,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		if (this.exactMethodBinding == null || t.findSuperTypeOriginatingFrom(s) != null)
 			return false;
 		
-		s = s.capture(this.enclosingScope, this.sourceEnd);
+		s = s.capture(this.enclosingScope, this.sourceStart, this.sourceEnd);
 		MethodBinding sSam = s.getSingleAbstractMethod(this.enclosingScope, true);
 		if (sSam == null || !sSam.isValidBinding())
 			return false;

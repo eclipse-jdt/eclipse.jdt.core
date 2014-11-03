@@ -207,7 +207,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	}
 		
 	@Override
-	public ParameterizedTypeBinding capture(Scope scope, int position) {
+	public ParameterizedTypeBinding capture(Scope scope, int start, int end) {
 		return this;
 	}
 	

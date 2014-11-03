@@ -1075,7 +1075,7 @@ class TypeBinding implements ITypeBinding {
 			if (!(type instanceof TypeBinding)) return false;
 			org.eclipse.jdt.internal.compiler.lookup.TypeBinding expressionType = ((TypeBinding) type).binding;
 			// simulate capture in case checked binding did not properly get extracted from a reference
-			expressionType = expressionType.capture(scope, 0);
+			expressionType = expressionType.capture(scope, 0, 0);
 			return TypeBinding.EXPRESSION.checkCastTypesCompatibility(scope, this.binding, expressionType, null);
 		} catch (AbortCompilation e) {
 			// don't surface internal exception to clients

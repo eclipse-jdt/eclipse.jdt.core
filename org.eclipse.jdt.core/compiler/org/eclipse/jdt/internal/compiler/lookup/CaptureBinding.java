@@ -28,16 +28,18 @@ public class CaptureBinding extends TypeVariableBinding {
 
 	/* information to compute unique binding key */
 	public ReferenceBinding sourceType;
-	public int position;
+	public int start;
+	public int end;
 	public ASTNode cud; // to facilitate recaptures.
 
-	public CaptureBinding(WildcardBinding wildcard, ReferenceBinding sourceType, int position, ASTNode cud, int captureID) {
+	public CaptureBinding(WildcardBinding wildcard, ReferenceBinding sourceType, int start, int end, ASTNode cud, int captureID) {
 		super(TypeConstants.WILDCARD_CAPTURE_NAME_PREFIX, null, 0, wildcard.environment);
 		this.wildcard = wildcard;
 		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat capture as public
 		this.fPackage = wildcard.fPackage;
 		this.sourceType = sourceType;
-		this.position = position;
+		this.start = start;
+		this.end = end;
 		this.captureID = captureID;
 		this.tagBits |= TagBits.HasCapturedWildcard;
 		if (wildcard.hasTypeAnnotations()) {
@@ -57,11 +59,12 @@ public class CaptureBinding extends TypeVariableBinding {
 	}
 	
 	// for subclass CaptureBinding18
-	protected CaptureBinding(ReferenceBinding sourceType, char[] sourceName, int position, int captureID, LookupEnvironment environment) {
+	protected CaptureBinding(ReferenceBinding sourceType, char[] sourceName, int start, int end, int captureID, LookupEnvironment environment) {
 		super(sourceName, null, 0, environment);
 		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat capture as public
 		this.sourceType = sourceType;
-		this.position = position;
+		this.start = start;
+		this.end = end;
 		this.captureID = captureID;
 	}
 
@@ -69,7 +72,8 @@ public class CaptureBinding extends TypeVariableBinding {
 		super(prototype);
 		this.wildcard = prototype.wildcard;
 		this.sourceType = prototype.sourceType;
-		this.position = prototype.position;
+		this.start = prototype.start;
+		this.end = prototype.end;
 		this.captureID = prototype.captureID;
 		this.lowerBound = prototype.lowerBound;
 		this.tagBits |= (prototype.tagBits & TagBits.HasCapturedWildcard);
@@ -94,7 +98,7 @@ public class CaptureBinding extends TypeVariableBinding {
 		}
 		buffer.append(TypeConstants.WILDCARD_CAPTURE);
 		buffer.append(this.wildcard.computeUniqueKey(false/*not a leaf*/));
-		buffer.append(this.position);
+		buffer.append(this.end);
 		buffer.append(';');
 		int length = buffer.length();
 		char[] uniqueKey = new char[length];
@@ -141,7 +145,7 @@ public class CaptureBinding extends TypeVariableBinding {
 			switch (this.wildcard.boundKind) {
 				case Wildcard.EXTENDS :
 					// still need to capture bound supertype as well so as not to expose wildcards to the outside (111208)
-					TypeBinding capturedWildcardBound = originalWildcardBound.capture(scope, this.position);
+					TypeBinding capturedWildcardBound = originalWildcardBound.capture(scope, this.start, this.end);
 					if (originalWildcardBound.isInterface()) {
 						this.setSuperClass(scope.getJavaLangObject());
 						this.setSuperInterfaces(new ReferenceBinding[] { (ReferenceBinding) capturedWildcardBound });
@@ -193,7 +197,7 @@ public class CaptureBinding extends TypeVariableBinding {
 		switch (this.wildcard.boundKind) {
 			case Wildcard.EXTENDS :
 				// still need to capture bound supertype as well so as not to expose wildcards to the outside (111208)
-				TypeBinding capturedWildcardBound = originalWildcardBound.capture(scope, this.position);
+				TypeBinding capturedWildcardBound = originalWildcardBound.capture(scope, this.start, this.end);
 				if (originalWildcardBound.isInterface()) {
 					this.setSuperClass(substitutedVariableSuperclass);
 					// merge wildcard bound into variable superinterfaces using glb

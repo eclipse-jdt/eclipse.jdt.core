@@ -1318,7 +1318,7 @@ private boolean isCompatibleWith0(TypeBinding otherType, /*@Nullable*/ Scope cap
 				if (this instanceof TypeVariableBinding && captureScope != null) {
 					TypeVariableBinding typeVariable = (TypeVariableBinding) this;
 					if (typeVariable.firstBound instanceof ParameterizedTypeBinding) {
-						TypeBinding bound = typeVariable.firstBound.capture(captureScope, -1); // no position needed as this capture will never escape this context
+						TypeBinding bound = typeVariable.firstBound.capture(captureScope, -1, -1); // no position needed as this capture will never escape this context
 						return bound.isCompatibleWith(otherReferenceType);
 					}
 				}

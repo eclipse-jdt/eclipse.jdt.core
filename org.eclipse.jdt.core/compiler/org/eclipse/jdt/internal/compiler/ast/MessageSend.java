@@ -696,7 +696,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	
 	TypeBinding methodType = findMethodBinding(scope);
 	if (methodType != null && methodType.isPolyType()) {
-		this.resolvedType = this.binding.returnType.capture(scope, this.sourceEnd);
+		this.resolvedType = this.binding.returnType.capture(scope, this.sourceStart, this.sourceEnd);
 		return methodType;
 	}
 
@@ -835,7 +835,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		} else {
 			returnType = this.binding.returnType;
 			if (returnType != null) {
-				returnType = returnType.capture(scope, this.sourceEnd);
+				returnType = returnType.capture(scope, this.sourceStart, this.sourceEnd);
 			}
 		}
 		this.resolvedType = returnType;
@@ -929,7 +929,7 @@ public boolean isBoxingCompatibleWith(TypeBinding targetType, Scope scope) {
 		MethodBinding method = isPolyExpression() ? ParameterizedGenericMethodBinding.computeCompatibleMethod18(this.binding.shallowOriginal(), this.argumentTypes, scope, this) : this.binding;
 		if (method == null || !method.isValidBinding() || method.returnType == null || !method.returnType.isValidBinding())
 			return false;
-		return super.isBoxingCompatible(method.returnType.capture(scope, this.sourceEnd), targetType, this, scope);
+		return super.isBoxingCompatible(method.returnType.capture(scope, this.sourceStart, this.sourceEnd), targetType, this, scope);
 	} finally {
 		this.expectedType = originalExpectedType;
 	}
@@ -948,7 +948,7 @@ public boolean isCompatibleWith(TypeBinding targetType, final Scope scope) {
 			return false;
 		if (method == scope.environment().arrayClone)
 			returnType = this.actualReceiverType;
-		return returnType != null && returnType.capture(scope, this.sourceEnd).isCompatibleWith(targetType, scope);
+		return returnType != null && returnType.capture(scope, this.sourceStart, this.sourceEnd).isCompatibleWith(targetType, scope);
 	} finally {
 		this.expectedType = originalExpectedType;
 	}

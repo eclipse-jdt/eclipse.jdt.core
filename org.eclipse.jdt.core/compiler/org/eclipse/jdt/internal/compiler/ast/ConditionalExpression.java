@@ -633,7 +633,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			if (commonType != null) {
 				this.valueIfTrue.computeConversion(scope, commonType, this.originalValueIfTrueType);
 				this.valueIfFalse.computeConversion(scope, commonType, this.originalValueIfFalseType);
-				return this.resolvedType = commonType.capture(scope, this.sourceEnd);
+				return this.resolvedType = commonType.capture(scope, this.sourceStart, this.sourceEnd);
 			}
 		} else {
 			// < 1.5 : one operand must be convertible to the other

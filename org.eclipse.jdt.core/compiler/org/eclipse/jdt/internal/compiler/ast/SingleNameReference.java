@@ -1007,7 +1007,7 @@ public TypeBinding resolveType(BlockScope scope) {
 					// perform capture conversion if read access
 					if (variableType != null) {
 						this.resolvedType = variableType = (((this.bits & ASTNode.IsStrictlyAssigned) == 0)
-								? variableType.capture(scope, this.sourceEnd)
+								? variableType.capture(scope, this.sourceStart, this.sourceEnd)
 								: variableType);
 						if ((variableType.tagBits & TagBits.HasMissingType) != 0) {
 							if ((this.bits & Binding.LOCAL) == 0) {

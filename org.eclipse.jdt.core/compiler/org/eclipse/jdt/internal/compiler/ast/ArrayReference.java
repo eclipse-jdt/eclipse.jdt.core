@@ -204,7 +204,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		this.receiver.computeConversion(scope, arrayType, arrayType);
 		if (arrayType.isArrayType()) {
 			TypeBinding elementType = ((ArrayBinding) arrayType).elementsType();
-			this.resolvedType = ((this.bits & ASTNode.IsStrictlyAssigned) == 0) ? elementType.capture(scope, this.sourceEnd) : elementType;
+			this.resolvedType = ((this.bits & ASTNode.IsStrictlyAssigned) == 0) ? elementType.capture(scope, this.sourceStart, this.sourceEnd) : elementType;
 		} else {
 			scope.problemReporter().referenceMustBeArrayTypeAt(arrayType, this);
 		}

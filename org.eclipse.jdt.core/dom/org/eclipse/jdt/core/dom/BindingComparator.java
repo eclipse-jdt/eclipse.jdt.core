@@ -232,7 +232,7 @@ class BindingComparator {
 					}
 					CaptureBinding captureBinding = (CaptureBinding) typeBinding;
 					CaptureBinding captureBinding2 = (CaptureBinding) typeBinding2;
-					if (captureBinding.position == captureBinding2.position) {
+					if (captureBinding.end == captureBinding2.end) {
 						if (visitedTypes.contains(typeBinding)) return true;
 						visitedTypes.add(typeBinding);
 

@@ -347,7 +347,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			if ((this.bits & ASTNode.Unchecked) != 0 && this.genericTypeArguments == null) {
 				returnType = scope.environment().convertToRawType(returnType.erasure(), true);
 			}
-			returnType = returnType.capture(scope, this.sourceEnd);			
+			returnType = returnType.capture(scope, this.sourceStart, this.sourceEnd);			
 		}
 		this.resolvedType = returnType;
 	}

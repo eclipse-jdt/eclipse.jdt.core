@@ -674,7 +674,7 @@ public final Binding getBinding(char[][] compoundName, InvocationSite invocation
 		while (currentIndex < length) {
 			ReferenceBinding typeBinding = (ReferenceBinding) binding;
 			char[] nextName = compoundName[currentIndex++];
-			TypeBinding receiverType = typeBinding.capture(this, invocationSite.sourceEnd());
+			TypeBinding receiverType = typeBinding.capture(this, invocationSite.sourceStart(), invocationSite.sourceEnd());
 			if ((binding = findField(receiverType, nextName, invocationSite, true /*resolve*/)) != null) {
 				if (!binding.isValidBinding()) {
 					return new ProblemFieldBinding(
@@ -717,7 +717,7 @@ public final Binding getBinding(char[][] compoundName, InvocationSite invocation
 				CharOperation.concatWith(CharOperation.subarray(compoundName, 0, currentIndex), '.'),
 				ProblemReasons.NotFound);
 		}
-		TypeBinding receiverType = typeBinding.capture(this, invocationSite.sourceEnd());
+		TypeBinding receiverType = typeBinding.capture(this, invocationSite.sourceStart(), invocationSite.sourceEnd());
 		variableBinding = findField(receiverType, compoundName[currentIndex++], invocationSite, true /*resolve*/);
 		if (variableBinding == null) {
 			return new ProblemFieldBinding(

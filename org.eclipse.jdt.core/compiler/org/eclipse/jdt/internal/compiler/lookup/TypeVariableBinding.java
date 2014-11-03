@@ -96,7 +96,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 			if (argumentType instanceof TypeVariableBinding && scope != null) {
 				TypeBinding bound = ((TypeVariableBinding)argumentType).firstBound;
 				if (bound instanceof ParameterizedTypeBinding) {
-					int code2 = boundCheck(substitution, bound.capture(scope, -1), scope); // no position needed as this capture will never escape this context
+					int code2 = boundCheck(substitution, bound.capture(scope, -1, -1), scope); // no position needed as this capture will never escape this context
 					return Math.min(code, code2);
 				}
 			}

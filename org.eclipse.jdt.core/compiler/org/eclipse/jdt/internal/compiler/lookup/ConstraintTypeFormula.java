@@ -320,7 +320,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				MethodBinding binding = invocation.binding(subCandidate, scope);
 				if (binding == null || !binding.isValidBinding())
 					return FALSE;
-				return reduceSubType(scope, subCandidate, binding.returnType.capture(scope, invocation.sourceEnd()));
+				return reduceSubType(scope, subCandidate, binding.returnType.capture(scope, invocation.sourceStart(), invocation.sourceEnd()));
 		}
 		throw new IllegalStateException("Unexpected RHS "+superCandidate); //$NON-NLS-1$
 	}

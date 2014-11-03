@@ -691,7 +691,7 @@ public class InferenceContext18 {
 							return null; // some element of the intersection is a subinterface of I, or a parameterization of a subinterface of I.	
 				}
 				// all passed, time to do some work:
-				TypeBinding siCapture = si.capture(this.scope, this.captureId++);
+				TypeBinding siCapture = si.capture(this.scope, expri.sourceStart, expri.sourceEnd);
 				MethodBinding sam = siCapture.getSingleAbstractMethod(this.scope, false); // no wildcards should be left needing replacement
 				TypeBinding[] u = sam.parameters;
 				TypeBinding r1 = sam.isConstructor() ? sam.declaringClass : sam.returnType;
@@ -1047,9 +1047,10 @@ public class InferenceContext18 {
 	private CaptureBinding18 freshCapture(InferenceVariable variable) {
 		int id = this.captureId++;
 		char[] sourceName = CharOperation.concat("Z".toCharArray(), '#', String.valueOf(id).toCharArray(), '-', variable.sourceName); //$NON-NLS-1$
-		int position = this.currentInvocation != null ? this.currentInvocation.sourceStart() : 0;
+		int start = this.currentInvocation != null ? this.currentInvocation.sourceStart() : 0;
+		int end = this.currentInvocation != null ? this.currentInvocation.sourceEnd() : 0;
 		return new CaptureBinding18(this.scope.enclosingSourceType(), sourceName, variable.typeParameter.shortReadableName(),
-						position, id, this.environment);
+						start, end, id, this.environment);
 	}
 	// === ===
 	

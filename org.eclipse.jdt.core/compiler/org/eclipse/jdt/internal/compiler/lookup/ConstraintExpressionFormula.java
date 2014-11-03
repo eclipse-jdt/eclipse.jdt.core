@@ -248,7 +248,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				TypeBinding rAppl = potentiallyApplicable.isConstructor() && !reference.isArrayConstructorReference() ? potentiallyApplicable.declaringClass : potentiallyApplicable.returnType;
 				if (rAppl == TypeBinding.VOID)
 					return FALSE;
-				TypeBinding rPrime = rAppl.capture(inferenceContext.scope, reference.sourceEnd);
+				TypeBinding rPrime = rAppl.capture(inferenceContext.scope, reference.sourceStart, reference.sourceEnd);
 				newConstraints.add(ConstraintTypeFormula.create(rPrime, r, COMPATIBLE));
 			}
 			return newConstraints.toArray(new ConstraintFormula[newConstraints.size()]);
@@ -293,7 +293,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					inferenceContext.resumeSuspendedInference(prevInvocation);
 				}
 			}
-			TypeBinding rPrime = compileTimeDecl.isConstructor() ? compileTimeDecl.declaringClass : compileTimeDecl.returnType.capture(inferenceContext.scope, reference.sourceEnd());
+			TypeBinding rPrime = compileTimeDecl.isConstructor() ? compileTimeDecl.declaringClass : compileTimeDecl.returnType.capture(inferenceContext.scope, reference.sourceStart(), reference.sourceEnd());
 			if (rPrime.id == TypeIds.T_void)
 				return FALSE;
 			return ConstraintTypeFormula.create(rPrime, r, COMPATIBLE, this.isSoft);
@@ -358,7 +358,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 						parameterizedType.genericType(), betas, parameterizedType.enclosingType(), parameterizedType.getTypeAnnotations());
 				inferenceContext.currentBounds.captures.put(gbeta, parameterizedType); // established: both types have nonnull arguments
 				if (InferenceContext18.SHOULD_WORKAROUND_BUG_JDK_8054721) {
-					parameterizedType = parameterizedType.capture(inferenceContext.scope, invocationSite.sourceEnd());
+					parameterizedType = parameterizedType.capture(inferenceContext.scope, invocationSite.sourceStart(), invocationSite.sourceEnd());
 					arguments = parameterizedType.arguments;
 					for (int i = 0, length = arguments.length; i < length; i++) {
 						if (arguments[i].isCapture() && arguments[i].isProperType(true)) {
@@ -387,7 +387,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					BoundSet solution = inferenceContext.solve(new InferenceVariable[]{alpha});
 					if (solution == null)
 						return false;
-					TypeBinding u = solution.getInstantiation(alpha, null).capture(inferenceContext.scope, invocationSite.sourceEnd());
+					TypeBinding u = solution.getInstantiation(alpha, null).capture(inferenceContext.scope, invocationSite.sourceStart(), invocationSite.sourceEnd());
 					if (rTheta.dimensions() != 0) {
 						u = inferenceContext.environment.createArrayType(u, rTheta.dimensions());
 					}

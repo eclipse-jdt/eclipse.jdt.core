@@ -184,7 +184,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 					case Binding.TYPE_PARAMETER:
 						if (binding.isCapture()) {
 							CaptureBinding captureBinding = (CaptureBinding) binding;
-							if (captureBinding.position == position && captureBinding.wildcard == wildcardBinding) {
+							if (captureBinding.end == position && captureBinding.wildcard == wildcardBinding) {
 								if (captureBinding instanceof CaptureBinding18) {
 									if (((CaptureBinding18)captureBinding).captureID != capture18id)
 										return false;

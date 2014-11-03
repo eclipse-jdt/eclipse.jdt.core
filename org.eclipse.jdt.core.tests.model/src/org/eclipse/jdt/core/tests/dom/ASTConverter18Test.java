@@ -4316,7 +4316,7 @@ public void testBug425183a() throws JavaModelException {
 	IJavaElement[] elements = this.workingCopy.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"naturalOrder() {key=LBug425183a~Comparator<>;.naturalOrder<T::Ljava/lang/Comparable<-TT;>;>()LComparator<TT;>;%<^{267#0};>} [in Comparator [in [Working copy] Bug425183a.java [in <default> [in src [in Converter18]]]]]",
+		"naturalOrder() {key=LBug425183a~Comparator<>;.naturalOrder<T::Ljava/lang/Comparable<-TT;>;>()LComparator<TT;>;%<^{291#0};>} [in Comparator [in [Working copy] Bug425183a.java [in <default> [in src [in Converter18]]]]]",
 		elements,
 		true
 	);
