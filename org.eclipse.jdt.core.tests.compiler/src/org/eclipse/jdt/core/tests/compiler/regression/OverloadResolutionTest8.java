@@ -2431,4 +2431,99 @@ public void test429985a() {
 			},
 			"hi");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=448801, [1.8][compiler] Scope.mSMB & 15.12.3 Compile-Time Step 3  
+public void test448801() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	private class Y {\n" +
+				"	}\n" +
+				"	public X(Y ...ys) {\n" +
+				"	}\n" +
+				"	public void foo(Y ...ys) {\n" +
+				"	}\n" +
+				"	public void goo() {\n" +
+				"	}\n" +
+				"}\n",
+				"Z.java", 
+				"interface I {\n" +
+				"	static void ifoo() {\n" +
+				"	}\n" +
+				"}\n" +
+				"abstract class ZSuper {\n" +
+				"	void zSuperFoo() {\n" +
+				"	}\n" +
+				"	abstract void goo();\n" +
+				"}\n" +
+				"public class Z extends ZSuper implements I {\n" +
+				"	void goo() {\n" +
+				"		super.zSuperFoo();\n" +
+				"		super.goo();\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		X x = new X();\n" +
+				"		x.foo();\n" +
+				"		System.out.println(x.goo());\n" +
+				"		goo();\n" +
+				"		Z.goo();\n" +
+				"		zoo();\n" +
+				"		new Z().ifoo();\n" +
+				"		super.zSuperFoo();\n" +
+				"	}\n" +
+				"	class ZZ {\n" +
+				"		class ZZZ {\n" +
+				"			void zoo() {\n" +
+				"			}\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Z.java (at line 13)\n" + 
+			"	super.goo();\n" + 
+			"	^^^^^^^^^^^\n" + 
+			"Cannot directly invoke the abstract method goo() for the type ZSuper\n" + 
+			"----------\n" + 
+			"2. ERROR in Z.java (at line 16)\n" + 
+			"	X x = new X();\n" + 
+			"	      ^^^^^^^\n" + 
+			"The constructor X(X.Y...) of type X is not applicable as the formal varargs element type X.Y is not accessible here\n" + 
+			"----------\n" + 
+			"3. ERROR in Z.java (at line 17)\n" + 
+			"	x.foo();\n" + 
+			"	  ^^^\n" + 
+			"The method foo(X.Y...) of type X is not applicable as the formal varargs element type X.Y is not accessible here\n" + 
+			"----------\n" + 
+			"4. ERROR in Z.java (at line 18)\n" + 
+			"	System.out.println(x.goo());\n" + 
+			"	           ^^^^^^^\n" + 
+			"The method println(boolean) in the type PrintStream is not applicable for the arguments (void)\n" + 
+			"----------\n" + 
+			"5. ERROR in Z.java (at line 19)\n" + 
+			"	goo();\n" + 
+			"	^^^\n" + 
+			"Cannot make a static reference to the non-static method goo() from the type Z\n" + 
+			"----------\n" + 
+			"6. ERROR in Z.java (at line 20)\n" + 
+			"	Z.goo();\n" + 
+			"	^^^^^^^\n" + 
+			"Cannot make a static reference to the non-static method goo() from the type Z\n" + 
+			"----------\n" + 
+			"7. ERROR in Z.java (at line 21)\n" + 
+			"	zoo();\n" + 
+			"	^^^\n" + 
+			"The method zoo() is undefined for the type Z\n" + 
+			"----------\n" + 
+			"8. ERROR in Z.java (at line 22)\n" + 
+			"	new Z().ifoo();\n" + 
+			"	        ^^^^\n" + 
+			"The method ifoo() is undefined for the type Z\n" + 
+			"----------\n" + 
+			"9. ERROR in Z.java (at line 23)\n" + 
+			"	super.zSuperFoo();\n" + 
+			"	^^^^^\n" + 
+			"Cannot use super in a static context\n" + 
+			"----------\n");
+}
 }
