@@ -49,6 +49,8 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.*;
 
+import java.util.HashMap;
+
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -77,6 +79,7 @@ public class AllocationExpression extends Expression implements Invocation {
 
 	 // hold on to this context from invocation applicability inference until invocation type inference (per method candidate):
 	private SimpleLookupTable/*<PMB,IC18>*/ inferenceContexts;
+	public HashMap<TypeBinding, MethodBinding> solutionsPerTargetType;
 	public boolean argsContainCast;
 	public TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
 	public boolean argumentsHaveErrors = false;
@@ -518,11 +521,14 @@ public boolean isCompatibleWith(TypeBinding targetType, final Scope scope) {
 	if (isPolyExpression()) {
 		TypeBinding originalExpectedType = this.typeExpected;
 		try {
-			this.typeExpected = targetType;
-			TypeBinding [] inferredTypes = inferElidedTypes(scope);
-			if (inferredTypes == null)
-				return false;
-			allocationType = scope.environment().createParameterizedType(((ParameterizedTypeBinding) this.resolvedType).genericType(), inferredTypes, this.resolvedType.enclosingType());
+			MethodBinding method = this.solutionsPerTargetType != null ? this.solutionsPerTargetType.get(targetType) : null;
+			if (method == null) {
+				this.typeExpected = targetType;
+				method = inferConstructorOfElidedParameterizedType(scope); // caches result already.
+				if (method == null || !method.isValidBinding())
+					return false;
+			}
+			allocationType = method.declaringClass;
 		} finally {
 			this.typeExpected = originalExpectedType;
 		}
@@ -531,7 +537,11 @@ public boolean isCompatibleWith(TypeBinding targetType, final Scope scope) {
 }
 
 public MethodBinding inferConstructorOfElidedParameterizedType(final Scope scope) {
-	
+	if (this.typeExpected != null && this.binding != null) {
+		MethodBinding cached = this.solutionsPerTargetType != null ? this.solutionsPerTargetType.get(this.typeExpected) : null;
+		if (cached != null)
+			return cached;
+	}
 	ReferenceBinding genericType = ((ParameterizedTypeBinding) this.resolvedType).genericType();
 	ReferenceBinding enclosingType = this.resolvedType.enclosingType();
 	ParameterizedTypeBinding allocationType = scope.environment().createParameterizedType(genericType, genericType.typeVariables(), enclosingType);
@@ -549,9 +559,12 @@ public MethodBinding inferConstructorOfElidedParameterizedType(final Scope scope
 												constructorTypeArguments, 0, constructorTypeArguments.length);
 		MethodBinding constructor = sfmb.applyTypeArgumentsOnConstructor(((ParameterizedTypeBinding)factory.returnType).arguments, constructorTypeArguments);
 		if (constructor instanceof ParameterizedGenericMethodBinding && scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8) {
-			// force an inference context to be established, but avoid tunneling through overload resolution. We know this is the MSMB.
-			return ParameterizedGenericMethodBinding.computeCompatibleMethod18(constructor.shallowOriginal(), this.argumentTypes, scope, this);
+			// force an inference context to be established for nested poly allocations (to be able to transfer b2), but avoid tunneling through overload resolution. We know this is the MSMB.
+			if (this.expressionContext == INVOCATION_CONTEXT && this.typeExpected == null)
+				constructor = ParameterizedGenericMethodBinding.computeCompatibleMethod18(constructor.shallowOriginal(), this.argumentTypes, scope, this);
 		}
+		if (this.typeExpected != null)
+			registerResult(this.typeExpected, constructor);
 		return constructor;
 	}
 	return null;
@@ -679,7 +692,7 @@ public boolean statementExpression() {
 }
 
 //-- interface Invocation: --
-public MethodBinding binding(TypeBinding targetType, Scope scope) {
+public MethodBinding binding() {
 	return this.binding;
 }
 public Expression[] arguments() {
@@ -691,6 +704,16 @@ public void registerInferenceContext(ParameterizedGenericMethodBinding method, I
 		this.inferenceContexts = new SimpleLookupTable();
 	this.inferenceContexts.put(method, infCtx18);
 }
+
+@Override
+public void registerResult(TypeBinding targetType, MethodBinding method) {
+	if (method != null && method.isConstructor()) { // ignore the factory.
+		if (this.solutionsPerTargetType == null)
+			this.solutionsPerTargetType = new HashMap<TypeBinding, MethodBinding>();
+		this.solutionsPerTargetType.put(targetType, method);
+	}
+}
+
 public InferenceContext18 getInferenceContext(ParameterizedMethodBinding method) {
 	if (this.inferenceContexts == null)
 		return null;

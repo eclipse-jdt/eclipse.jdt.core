@@ -31,7 +31,6 @@ import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18.Solution;
 
 /**
  * Binding denoting a generic method after type parameter substitutions got performed.
@@ -211,7 +210,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			// Applicability succeeded, proceed to infer invocation type, if possible.
 			TypeBinding expectedType = invocationSite.invocationTargetType();
 			boolean hasReturnProblem = false;
-			if (expectedType != null || !invocationSite.getExpressionContext().definesTargetType()) {
+			if (expectedType != null || !invocationSite.getExpressionContext().definesTargetType() || !isPolyExpression) {
 				// ---- 18.5.2 (Invocation type): ----
 				provisionalResult = result;
 				result = infCtx18.inferInvocationType(expectedType, invocationSite, originalMethod);
@@ -225,6 +224,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				TypeBinding[] solutions = infCtx18.getSolutions(typeVariables, invocationSite, result);
 				if (solutions != null) {
 					methodSubstitute = scope.environment().createParameterizedGenericMethod(originalMethod, solutions);
+					if (invocationSite instanceof Invocation)
+						infCtx18.forwardResults(result, (Invocation) invocationSite, methodSubstitute, expectedType);
 					if (hasReturnProblem) { // illegally working from the provisional result?
 						MethodBinding problemMethod = infCtx18.getReturnProblemMethodIfNeeded(expectedType, methodSubstitute);
 						if (problemMethod instanceof ProblemMethodBinding) {
@@ -238,7 +239,6 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 						if (problemMethod != null) {
 							return problemMethod;
 						}
-						infCtx18.solutionsPerTargetType.put(expectedType, new Solution(methodSubstitute, result));
 					} else {
 						methodSubstitute = new PolyParameterizedGenericMethodBinding(methodSubstitute);
 					}

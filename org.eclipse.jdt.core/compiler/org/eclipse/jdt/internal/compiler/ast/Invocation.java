@@ -15,7 +15,6 @@ import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 /**
@@ -25,14 +24,8 @@ public interface Invocation extends InvocationSite {
 
 	Expression[] arguments();
 
-	/**
-	 * Answer the resolved method binding of this invocation.
-	 * If a target type is given, the invocation gets a chance to do repeated method lookup.
-	 * @param targetType the target type of this invocation or null if not yet known
-	 * @param scope the scope to use for lookup.
-	 * 
-	 */
-	MethodBinding binding(TypeBinding targetType, Scope scope);
+	/** Answer the resolved method binding of this invocation */
+	MethodBinding binding();
 	
 	/**
 	 * Register the given inference context, which produced the given method as its intermediate result.
@@ -48,5 +41,8 @@ public interface Invocation extends InvocationSite {
 	 * return the associated inference context.
 	 */
 	InferenceContext18 getInferenceContext(ParameterizedMethodBinding method);
+
+	/** Record result against target type */
+	void registerResult(TypeBinding targetType, MethodBinding method);
 
 }

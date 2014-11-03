@@ -71,6 +71,9 @@ public abstract class Expression extends Statement {
 
 	public int implicitConversion;
 	public TypeBinding resolvedType;
+	
+	static Expression [] NO_EXPRESSIONS = new Expression[0];
+	
 
 public static final boolean isConstantValueRepresentable(Constant constant, int constantTypeID, int targetTypeID) {
 	//true if there is no loss of precision while casting.
@@ -1242,5 +1245,10 @@ public VariableBinding nullAnnotatedVariableBinding(boolean supportTypeAnnotatio
 
 public boolean isFunctionalType() {
 	return false;
+}
+
+/** Returns contained poly expressions, result could be 0, 1 or more (for conditional expression) */
+public Expression [] getPolyExpressions() {
+	return isPolyExpression() ? new Expression [] { this } : NO_EXPRESSIONS;
 }
 }

@@ -138,9 +138,6 @@ public class InferenceContext18 {
 	/** The accumulated type bounds etc. */
 	BoundSet currentBounds;
 
-	/** For each candidate target type imposed from the outside store the solution of invocation type inference. */
-	Map<TypeBinding,Solution> solutionsPerTargetType = new HashMap<TypeBinding, Solution>();
-
 	/** One of CHECK_STRICT, CHECK_LOOSE, or CHECK_VARARGS. */
 	int inferenceKind;
 	/** Marks how much work has been done so far? Used to avoid performing any of these tasks more than once. */
@@ -151,8 +148,6 @@ public class InferenceContext18 {
 	public static final int APPLICABILITY_INFERRED = 1;
 	/** Invocation Type Inference (18.5.2) has been completed (for some target type). */
 	public static final int TYPE_INFERRED = 2;
-	/** All nested elements have been fully resolved. */
-	public static final int BINDINGS_UPDATED = 3;
 	
 	/** Signals whether any type compatibility makes use of unchecked conversion. */
 	public List<ConstraintFormula> constraintsWithUncheckedConversion;
@@ -183,18 +178,6 @@ public class InferenceContext18 {
 		}
 	}
 	
-	/** Record for a candidate solution of Invocation Type Inference for one specific target type. */
-	static class Solution {
-		TypeBinding resolvedType;
-		MethodBinding method;
-		BoundSet bounds;
-		Solution(MethodBinding method, BoundSet bounds) {
-			this.method = method;
-			this.resolvedType = method.isConstructor() ? method.declaringClass : method.returnType;
-			this.bounds = bounds;
-		}
-	}
-
 	/** Construct an inference context for an invocation (method/constructor). */
 	public InferenceContext18(Scope scope, Expression[] arguments, InvocationSite site) {
 		this.scope = scope;
@@ -482,7 +465,7 @@ public class InferenceContext18 {
 				return true;
 			
 			Invocation invocation = (Invocation) expri;
-			MethodBinding innerMethod = invocation.binding(substF, this.scope);
+			MethodBinding innerMethod = invocation.binding();
 			if (innerMethod == null)
 				return true; 		  // -> proceed with no new C set elements.
 			
@@ -529,26 +512,6 @@ public class InferenceContext18 {
 			default:
 				return CHECK_STRICT;
 		}
-	}
-
-	public boolean hasResultFor(TypeBinding targetType) {
-		if (targetType == null)
-			return this.stepCompleted >= TYPE_INFERRED;
-		else
-			return this.solutionsPerTargetType.containsKey(targetType);
-	}
-	
-	public Solution getResultFor(TypeBinding targetType) {
-		return this.solutionsPerTargetType.get(targetType);
-	}
-
-	public boolean registerSolution(TypeBinding targetType, MethodBinding updatedBinding) {
-		Solution solution = this.solutionsPerTargetType.get(targetType);
-		if (solution != null)
-			return false; // no update
-		this.solutionsPerTargetType.put(targetType, new Solution(updatedBinding, null));
-		this.stepCompleted = Math.max(this.stepCompleted, TYPE_INFERRED);
-		return true;
 	}
 
 	/**
@@ -1444,7 +1407,6 @@ public class InferenceContext18 {
 			case NOT_INFERRED: buf.append(" (initial)");break; //$NON-NLS-1$
 			case APPLICABILITY_INFERRED: buf.append(" (applicability inferred)");break; //$NON-NLS-1$
 			case TYPE_INFERRED: buf.append(" (type inferred)");break; //$NON-NLS-1$
-			case BINDINGS_UPDATED: buf.append(" (bindings updated)");break; //$NON-NLS-1$
 		}
 		switch (this.inferenceKind) {
 			case CHECK_STRICT: buf.append(" (strict)");break; //$NON-NLS-1$
@@ -1547,5 +1509,58 @@ public class InferenceContext18 {
 	// INTERIM: infrastructure for detecting failures caused by specific known incompleteness:
 	public static void missingImplementation(String msg) {
 		throw new UnsupportedOperationException(msg);
+	}
+
+	public void forwardResults(BoundSet result, Invocation invocation, ParameterizedMethodBinding pmb, TypeBinding targetType) {
+		if (targetType != null)
+			invocation.registerResult(targetType, pmb);
+		Expression[] arguments = invocation.arguments();
+		for (int i = 0, length = arguments == null ? 0 : arguments.length; i < length; i++) {
+			Expression [] expressions = arguments[i].getPolyExpressions();
+			for (int j = 0, jLength = expressions.length; j < jLength; j++) {
+				Expression expression = expressions[j];
+				if (!(expression instanceof Invocation))
+					continue;
+				Invocation polyInvocation = (Invocation) expression;
+				MethodBinding binding = polyInvocation.binding();
+				if (binding == null || !binding.isValidBinding())
+					continue;
+				ParameterizedMethodBinding methodSubstitute = null;
+				if (binding instanceof ParameterizedGenericMethodBinding) {
+					MethodBinding shallowOriginal = binding.shallowOriginal();
+					TypeBinding[] solutions = getSolutions(shallowOriginal.typeVariables(), polyInvocation, result);
+					if (solutions == null)  // in CEF.reduce, we lift inner poly expressions into outer context only if their target type has inference variables. 
+						continue;
+					methodSubstitute = this.environment.createParameterizedGenericMethod(shallowOriginal, solutions);
+				} else {
+					if (!binding.isConstructor() || !(binding instanceof ParameterizedMethodBinding))
+						continue; // throw ISE ?
+					MethodBinding shallowOriginal = binding.shallowOriginal();
+					ReferenceBinding genericType = shallowOriginal.declaringClass;
+					TypeBinding[] solutions = getSolutions(genericType.typeVariables(), polyInvocation, result);
+					if (solutions == null)  // in CEF.reduce, we lift inner poly expressions into outer context only if their target type has inference variables. 
+						continue;
+					ParameterizedTypeBinding parameterizedType = this.environment.createParameterizedType(genericType, solutions, binding.declaringClass.enclosingType());
+					for (MethodBinding parameterizedMethod : parameterizedType.methods()) {
+						if (parameterizedMethod.original() == shallowOriginal) {
+							methodSubstitute = (ParameterizedMethodBinding) parameterizedMethod;
+							break;
+						}
+					}
+				}
+				if (methodSubstitute == null || !methodSubstitute.isValidBinding())
+					continue;
+				boolean variableArity = pmb.isVarargs();
+				final TypeBinding[] parameters = pmb.parameters;
+				if (variableArity && parameters.length == arguments.length && i == length - 1) {
+					TypeBinding returnType = methodSubstitute.returnType.capture(this.scope, expression.sourceStart, expression.sourceEnd);
+					if (returnType.isCompatibleWith(parameters[parameters.length - 1], this.scope)) {
+						variableArity = false;
+					}
+				}
+				TypeBinding parameterType = InferenceContext18.getParameter(parameters, i, variableArity);
+				forwardResults(result, polyInvocation, methodSubstitute, parameterType);		
+			}
+		}
 	}
 }

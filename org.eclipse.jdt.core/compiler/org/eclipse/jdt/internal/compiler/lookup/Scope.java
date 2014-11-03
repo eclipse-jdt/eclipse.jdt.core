@@ -4602,10 +4602,15 @@ public abstract class Scope {
 					TypeBinding parameter = InferenceContext18.getParameter(method.parameters, i, context.isVarArgs());
 					if (argument.isCompatibleWith(parameter, this))
 						continue;
-					TypeBinding shallowParameter = InferenceContext18.getParameter(shallowOriginal.parameters, i, context.isVarArgs());
-					if (shallowParameter.isPertinentToApplicability(argument, shallowOriginal))
+					if (context.stepCompleted >= InferenceContext18.TYPE_INFERRED)
 						return NOT_COMPATIBLE;
-					
+					// Next 6 lines have dubious sanction. Needs a rigorous solution.
+					TypeBinding shallowParameter = InferenceContext18.getParameter(shallowOriginal.parameters, i, context.isVarArgs());
+					if (!shallowParameter.isPertinentToApplicability(argument, shallowOriginal))
+						continue;
+					if (((Invocation) site).arguments()[i] instanceof ReferenceExpression)
+						continue;
+					return NOT_COMPATIBLE;
 					/* We ask the inverted question here, because we do want to check compatibility against lambdas and reference expressions that are not pertinent to
 					  applicability on account of being type elided and not being an exact method reference respectively i.e if we call 
 					  argument.isPertinentToApplicability(shallowParameter, shallowOriginal), it will answer true if type elided and we will miss catching incompatibilities.

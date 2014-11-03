@@ -490,11 +490,16 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 	}
 
 	// -- interface Invocation
-	public MethodBinding binding(TypeBinding targetType, Scope scope) {
+	public MethodBinding binding() {
 		return this.binding;
 	}
 
 	public void registerInferenceContext(ParameterizedGenericMethodBinding method, InferenceContext18 infCtx18) {
+		// Nothing to do.
+	}
+	
+	@Override
+	public void registerResult(TypeBinding targetType, MethodBinding method) {
 		// Nothing to do.
 	}
 	

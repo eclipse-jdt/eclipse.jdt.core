@@ -58,6 +58,8 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.*;
 
+import java.util.HashMap;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -117,6 +119,8 @@ public class MessageSend extends Expression implements Invocation {
 
 	 // hold on to this context from invocation applicability inference until invocation type inference (per method candidate):
 	private SimpleLookupTable/*<PGMB,InferenceContext18>*/ inferenceContexts;
+	private HashMap<TypeBinding, MethodBinding> solutionsPerTargetType;
+	
 	private boolean receiverIsType;
 	protected boolean argsContainCast;
 	public TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
@@ -867,19 +871,20 @@ public TypeBinding resolveType(BlockScope scope) {
 
 protected TypeBinding findMethodBinding(BlockScope scope) {
 	
-	
-	this.binding = this.receiver.isImplicitThis() ? 
-			scope.getImplicitMethod(this.selector, this.argumentTypes, this) 
-			: scope.getMethod(this.actualReceiverType, this.selector, this.argumentTypes, this);
+	if (this.expectedType != null && this.binding instanceof PolyParameterizedGenericMethodBinding) {
+		this.binding = this.solutionsPerTargetType.get(this.expectedType);
+	}
+	if (this.binding == null) { // first look up or a "cache miss" somehow.
+		this.binding = this.receiver.isImplicitThis() ? 
+				scope.getImplicitMethod(this.selector, this.argumentTypes, this) 
+				: scope.getMethod(this.actualReceiverType, this.selector, this.argumentTypes, this);
 
-	if (this.binding == null) // can't happen ? I think we always get a problem binding, anyways.
-		return null;
-	
-	if (this.binding instanceof PolyParameterizedGenericMethodBinding)
-		return new PolyTypeBinding(this);
-	
+	    if (this.binding instanceof PolyParameterizedGenericMethodBinding) {
+		    this.solutionsPerTargetType = new HashMap<TypeBinding, MethodBinding>();
+		    return new PolyTypeBinding(this);
+	    }
+	}
 	resolvePolyExpressionArguments(this, this.binding, this.argumentTypes, scope);
-	
 	return this.binding.returnType;
 }
 
@@ -924,9 +929,13 @@ public boolean isBoxingCompatibleWith(TypeBinding targetType, Scope scope) {
 		return false;
 	TypeBinding originalExpectedType = this.expectedType;
 	try {
-		this.expectedType = targetType;
-		// No need to tunnel through overload resolution. this.binding is the MSMB.
-		MethodBinding method = isPolyExpression() ? ParameterizedGenericMethodBinding.computeCompatibleMethod18(this.binding.shallowOriginal(), this.argumentTypes, scope, this) : this.binding;
+		MethodBinding method = this.solutionsPerTargetType != null ? this.solutionsPerTargetType.get(targetType) : null;
+		if (method == null) {
+			this.expectedType = targetType;
+			// No need to tunnel through overload resolution. this.binding is the MSMB.
+			method = isPolyExpression() ? ParameterizedGenericMethodBinding.computeCompatibleMethod18(this.binding.shallowOriginal(), this.argumentTypes, scope, this) : this.binding;
+			registerResult(targetType, method);
+		}
 		if (method == null || !method.isValidBinding() || method.returnType == null || !method.returnType.isValidBinding())
 			return false;
 		return super.isBoxingCompatible(method.returnType.capture(scope, this.sourceStart, this.sourceEnd), targetType, this, scope);
@@ -940,9 +949,13 @@ public boolean isCompatibleWith(TypeBinding targetType, final Scope scope) {
 		return false;
 	TypeBinding originalExpectedType = this.expectedType;
 	try {
-		this.expectedType = targetType;
-		// No need to tunnel through overload resolution. this.binding is the MSMB.
-		MethodBinding method = isPolyExpression() ? ParameterizedGenericMethodBinding.computeCompatibleMethod18(this.binding.shallowOriginal(), this.argumentTypes, scope, this) : this.binding;
+		MethodBinding method = this.solutionsPerTargetType != null ? this.solutionsPerTargetType.get(targetType) : null;
+		if (method == null) {
+			this.expectedType = targetType;
+			// No need to tunnel through overload resolution. this.binding is the MSMB.
+			method = isPolyExpression() ? ParameterizedGenericMethodBinding.computeCompatibleMethod18(this.binding.shallowOriginal(), this.argumentTypes, scope, this) : this.binding;
+			registerResult(targetType, method);
+		}
 		TypeBinding returnType;
 		if (method == null || !method.isValidBinding() || (returnType = method.returnType) == null || !returnType.isValidBinding())
 			return false;
@@ -1017,7 +1030,7 @@ public boolean receiverIsImplicitThis() {
 	return this.receiver.isImplicitThis();
 }
 // -- interface Invocation: --
-public MethodBinding binding(TypeBinding targetType, Scope scope) {
+public MethodBinding binding() {
 	return this.binding;
 }
 
@@ -1026,6 +1039,14 @@ public void registerInferenceContext(ParameterizedGenericMethodBinding method, I
 		this.inferenceContexts = new SimpleLookupTable();
 	this.inferenceContexts.put(method, infCtx18);
 }
+
+@Override
+public void registerResult(TypeBinding targetType, MethodBinding method) {
+	if (this.solutionsPerTargetType == null)
+		this.solutionsPerTargetType = new HashMap<TypeBinding, MethodBinding>();
+	this.solutionsPerTargetType.put(targetType, method);
+}
+
 public InferenceContext18 getInferenceContext(ParameterizedMethodBinding method) {
 	if (this.inferenceContexts == null)
 		return null;

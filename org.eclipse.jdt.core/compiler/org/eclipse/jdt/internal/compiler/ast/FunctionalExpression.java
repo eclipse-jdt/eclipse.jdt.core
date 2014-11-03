@@ -57,7 +57,6 @@ public abstract class FunctionalExpression extends Expression {
 	protected MethodBinding actualMethodBinding;  // void of synthetics.
 	boolean ignoreFurtherInvestigation;
 	protected ExpressionContext expressionContext = VANILLA_CONTEXT;
-	static Expression [] NO_EXPRESSIONS = new Expression[0];
 	protected Expression [] resultExpressions = NO_EXPRESSIONS;
 	public CompilationResult compilationResult;
 	public BlockScope enclosingScope;

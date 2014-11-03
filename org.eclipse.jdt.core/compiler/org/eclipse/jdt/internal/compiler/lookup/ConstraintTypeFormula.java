@@ -317,7 +317,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			case Binding.POLY_TYPE:
 				PolyTypeBinding poly = (PolyTypeBinding) superCandidate;
 				Invocation invocation = (Invocation) poly.expression;
-				MethodBinding binding = invocation.binding(subCandidate, scope);
+				MethodBinding binding = invocation.binding();
 				if (binding == null || !binding.isValidBinding())
 					return FALSE;
 				return reduceSubType(scope, subCandidate, binding.returnType.capture(scope, invocation.sourceStart(), invocation.sourceEnd()));

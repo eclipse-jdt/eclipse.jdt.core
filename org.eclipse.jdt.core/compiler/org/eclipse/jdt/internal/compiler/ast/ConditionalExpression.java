@@ -717,6 +717,20 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		return this.expressionContext;
 	}
 	
+	@Override
+	public Expression[] getPolyExpressions() {
+		Expression [] truePolys = this.valueIfTrue.getPolyExpressions();
+		Expression [] falsePolys = this.valueIfFalse.getPolyExpressions();
+		if (truePolys.length == 0)
+			return falsePolys;
+		if (falsePolys.length == 0)
+			return truePolys;
+		Expression [] allPolys = new Expression [truePolys.length + falsePolys.length];
+		System.arraycopy(truePolys, 0, allPolys, 0, truePolys.length);
+		System.arraycopy(falsePolys, 0, allPolys, truePolys.length, falsePolys.length);
+		return allPolys;
+	}
+	
 	public boolean isPertinentToApplicability(TypeVariableBinding typeVariable, MethodBinding method) {
 		return this.valueIfTrue.isPertinentToApplicability(typeVariable, method) 
 				&& this.valueIfFalse.isPertinentToApplicability(typeVariable, method);
