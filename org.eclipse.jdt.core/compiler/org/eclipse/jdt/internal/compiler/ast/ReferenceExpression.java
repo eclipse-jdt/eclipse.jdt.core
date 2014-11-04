@@ -40,6 +40,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION_CONTEXT;
 
+import java.util.HashMap;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -692,6 +693,8 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		return this.descriptor.parameters;
 	}
 
+	private HashMap<TypeBinding, MethodBinding> declarationPerTargetType;
+
 	/** During inference: Try to find an applicable method binding without causing undesired side-effects. */
 	public MethodBinding findCompileTimeMethodTargeting(TypeBinding targetType, Scope scope) {
 		if (this.exactMethodBinding != null) {
@@ -702,10 +705,21 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			int k = this.exactMethodBinding.parameters.length;
 			return (n == k || n == k + 1) ? this.exactMethodBinding : null;
 		}
-		MethodBinding targetMethod = internalResolveTentatively(targetType, scope);
+		MethodBinding targetMethod = this.declarationPerTargetType != null ? this.declarationPerTargetType.get(targetType) : null;
+		if (targetMethod == null) {
+			targetMethod = internalResolveTentatively(targetType, scope);
+			registerResult(targetType, targetMethod);
+		}
 		if (targetMethod == null || !targetMethod.isValidBinding())
 			return null;
 		return targetMethod;
+	}
+
+	// Cache compile time declaration against various target types, so repeat overload resolution and possibly type inference could be avoided.
+	private void registerResult(TypeBinding targetType, MethodBinding declaration) {
+		if (this.declarationPerTargetType == null)
+			this.declarationPerTargetType = new HashMap<TypeBinding, MethodBinding>();
+		this.declarationPerTargetType.put(targetType, declaration);
 	}
 
 	MethodBinding internalResolveTentatively(TypeBinding targetType, Scope scope) {
@@ -855,7 +869,11 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		try {
 			this.binding = null;
 			this.trialResolution = true;
-			resolveType(this.enclosingScope);
+			this.binding = this.declarationPerTargetType != null ? this.declarationPerTargetType.get(left) : null;
+			if (this.binding == null) {
+				resolveType(this.enclosingScope);
+				registerResult(left, this.binding);
+			}
 		} finally {
 			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 			isCompatible = this.binding != null && this.binding.isValidBinding();

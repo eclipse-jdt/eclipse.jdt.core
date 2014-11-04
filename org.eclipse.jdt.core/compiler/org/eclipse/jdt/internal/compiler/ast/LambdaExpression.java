@@ -245,7 +245,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				this.argumentTypes[i] = this.arguments[i].type.resolveType(blockScope, true /* check bounds*/);
 		}
 		if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
-			this.resolvedCopies = new HashMap<TypeBinding, LambdaExpression>();
 			return new PolyTypeBinding(this);
 		} 
 		
@@ -852,12 +851,12 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	 * @return a resolved copy of 'this' or null if significant errors where encountered
 	 */
 	public LambdaExpression getResolvedCopyForInferenceTargeting(TypeBinding targetType) {
-		LambdaExpression lambda = this.resolvedCopies.get(targetType);
+		LambdaExpression lambda = this.resolvedCopies != null ? this.resolvedCopies.get(targetType) : null;
 		if (lambda == null) {
 			lambda = getResolvedCopyForInferenceTargeting0(targetType);
-			if (lambda != null) {
-				this.resolvedCopies.put(targetType, lambda);
-			}
+			if (this.resolvedCopies == null)
+				this.resolvedCopies = new HashMap<TypeBinding, LambdaExpression>();
+			this.resolvedCopies.put(targetType, lambda);
 		}
 		return lambda;
 	}
