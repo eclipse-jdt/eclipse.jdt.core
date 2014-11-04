@@ -19,6 +19,7 @@
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
  *                          Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
+ *                          Bug 449467 - [1.8][compiler] Invalid lambda deserialization with anonymous class
  *        Olivier Tardieu (tardieu@us.ibm.com) - Contributions for
  *                          Bug 442418 - $deserializeLambda$ off-by-one error when deserializing the captured arguments of a lambda that also capture this
  *******************************************************************************/
@@ -2682,7 +2683,7 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 		aload_0();
 		invoke(Opcodes.OPC_invokevirtual, 1, 1, ConstantPool.JavaLangInvokeSerializedLambdaConstantPoolName, 
 				ConstantPool.GetImplClass, ConstantPool.GetImplClassSignature);
-		ldc(new String(CharOperation.concatWith(mb.declaringClass.compoundName,'/'))); // e.g. "com/foo/X"
+		ldc(new String(mb.declaringClass.constantPoolName())); // e.g. "com/foo/X"
 		invokeObjectEquals();
 		ifeq(errorLabel);
 

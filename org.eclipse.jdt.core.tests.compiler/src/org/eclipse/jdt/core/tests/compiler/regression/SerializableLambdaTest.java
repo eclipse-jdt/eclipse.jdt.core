@@ -11,6 +11,7 @@
  *                          Bug 439889 - [1.8][compiler] [lambda] Deserializing lambda fails with IllegalArgumentException: "Invalid lambda deserialization"
  *                          Bug 442416 - $deserializeLambda$ missing cases for nested lambdas
  *                          Bug 442418 - $deserializeLambda$ off-by-one error when deserializing the captured arguments of a lambda that also capture this
+ *                          Bug 449467 - [1.8][compiler] Invalid lambda deserialization with anonymous class
  *        Olivier Tardieu tardieu@us.ibm.com - Contributions for
  *                          Bug 442416 - $deserializeLambda$ missing cases for nested lambdas
  *                          Bug 442418 - $deserializeLambda$ off-by-one error when deserializing the captured arguments of a lambda that also capture this
@@ -1098,6 +1099,126 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "X.class");
 		checkExpected(expectedOutput,data);
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449467 - [1.8][compiler] Invalid lambda deserialization with anonymous class
+	public void test449467() throws Exception {
+		this.runConformTest(
+				new String[]{
+					"TestClass.java",
+					"import java.io.ByteArrayInputStream;\n"+
+					"import java.io.ByteArrayOutputStream;\n"+
+					"import java.io.ObjectInputStream;\n"+
+					"import java.io.ObjectOutputStream;\n"+
+					"import java.io.Serializable;\n"+
+					"\n"+
+					"public class TestClass implements Serializable {\n"+
+					"  String msg = \"HEY!\";\n"+
+					"  OtherClass other;\n"+
+					"\n"+
+					"  public TestClass(StringBuilder sb) {\n"+
+					"    other = new OtherClass() {\n"+
+					"      {\n"+
+					"        other2 = new OtherClass2((Runnable & Serializable) () -> {\n"+
+					"          sb.length();\n"+
+					"          say();\n"+
+					"        });\n"+
+					"      }\n"+
+					"    };\n"+
+					"  }\n"+
+					"\n"+
+					"  public void say() {\n"+
+					"    System.out.println(msg);\n"+
+					"  }\n"+
+					"\n"+
+					"  public static void main(String[] args) throws Exception {\n"+
+					"    ByteArrayOutputStream buffer = new ByteArrayOutputStream();\n"+
+					"    try (ObjectOutputStream out = new ObjectOutputStream(buffer)) {\n"+
+					"      out.writeObject(new TestClass(new StringBuilder()));\n"+
+					"    }\n"+
+					"    try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {\n"+
+					"      TestClass s = (TestClass) in.readObject();\n"+
+					"      s.say();\n"+
+					"    }\n"+
+					"  }\n"+
+					"}\n"+
+					"\n"+
+					"class OtherClass implements Serializable {\n"+
+					"  OtherClass2 other2;\n"+
+					"}\n"+
+					"\n"+
+					"class OtherClass2 implements Serializable {\n"+
+					"  Runnable runnable;\n"+
+					"\n"+
+					"  public OtherClass2(Runnable runnable) {\n"+
+					"    this.runnable = runnable;\n"+
+					"  }\n"+
+					"}\n"
+					},
+					"HEY!",
+					null,
+					true,
+					new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.		
+	}
+	
+	public void test449467_2() throws Exception {
+		this.runConformTest(
+				new String[]{
+					"com/foo/TestClass.java",
+					"package com.foo;\n"+
+					"import java.io.ByteArrayInputStream;\n"+
+					"import java.io.ByteArrayOutputStream;\n"+
+					"import java.io.ObjectInputStream;\n"+
+					"import java.io.ObjectOutputStream;\n"+
+					"import java.io.Serializable;\n"+
+					"public class TestClass implements Serializable {\n"+
+					"  String msg = \"HEY!\";\n"+
+					"  OtherClass other;\n"+
+					"\n"+
+					"  public TestClass(StringBuilder sb) {\n"+
+					"    other = new OtherClass() {\n"+
+					"      {\n"+
+					"        other2 = new OtherClass2((Runnable & Serializable) () -> {\n"+
+					"          sb.length();\n"+
+					"          say();\n"+
+					"        });\n"+
+					"      }\n"+
+					"    };\n"+
+					"  }\n"+
+					"\n"+
+					"  public void say() {\n"+
+					"    System.out.println(msg);\n"+
+					"  }\n"+
+					"\n"+
+					"  public static void main(String[] args) throws Exception {\n"+
+					"    ByteArrayOutputStream buffer = new ByteArrayOutputStream();\n"+
+					"    try (ObjectOutputStream out = new ObjectOutputStream(buffer)) {\n"+
+					"      out.writeObject(new TestClass(new StringBuilder()));\n"+
+					"    }\n"+
+					"    try (ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {\n"+
+					"      TestClass s = (TestClass) in.readObject();\n"+
+					"      s.say();\n"+
+					"    }\n"+
+					"  }\n"+
+					"}\n"+
+					"\n"+
+					"class OtherClass implements Serializable {\n"+
+					"  OtherClass2 other2;\n"+
+					"}\n"+
+					"\n"+
+					"class OtherClass2 implements Serializable {\n"+
+					"  Runnable runnable;\n"+
+					"\n"+
+					"  public OtherClass2(Runnable runnable) {\n"+
+					"    this.runnable = runnable;\n"+
+					"  }\n"+
+					"}\n"
+					},
+					"HEY!",
+					null,
+					true,
+					new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.		
+	}
+	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428552,  [1.8][compiler][codegen] Serialization does not work for method references
 	public void test428552() throws Exception {
 		this.runConformTest(
