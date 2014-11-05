@@ -403,6 +403,39 @@ public void test449824() {
 	"The method call(X.RightHand<? super X.Target>) is ambiguous for the type X.Concrete<X.Target>\n" + 
 	"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=448954, [1.8][compiler] Suspect error: "The method foo(String, String, X::goo) is undefined for the type X"
+public void test448954() {
+	this.runConformTest(
+		new String[] {
+			"X.java", 
+			"interface I<T, U, V> {\n" +
+			"	T goo(U u, V v);\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static String goo(String s, String s2) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	static <T, U, V> T foo(T t, U u, J j) {\n" +
+			"		System.out.println(\"Wrong!\");\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	static <T, U, V> V foo(T t, U u, I<T, U, V> i) {\n" +
+			"		System.out.println(\"Right!\");\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		String s = goo(foo(\"String\", \"String\", X::goo));\n" +
+			"	}\n" +
+			"	static <T> T goo(T t) {\n" +
+			"		return t;\n" +
+			"	}\n" +
+			"}\n"
+	},
+	"Right!");
+}
 public static Class testClass() {
 	return LambdaRegressionTest.class;
 }

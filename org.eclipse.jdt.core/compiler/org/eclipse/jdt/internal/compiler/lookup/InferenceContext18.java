@@ -237,9 +237,13 @@ public class InferenceContext18 {
 			ownConstraints = false; // these are lifted from a nested poly expression.
 		}
 		for (int i = 0; i < len; i++) {
+			TypeBinding thetaF = substitute(parameters[i]);
 			if (this.invocationArguments[i].isPertinentToApplicability(parameters[i], method)) {
-				TypeBinding thetaF = substitute(parameters[i]);
 				this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT);
+			} else {
+				if (parameters[i].isPertinentToApplicability(this.invocationArguments[i].resolvedType, method))
+					this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.POTENTIALLY_COMPATIBLE);
+				// else we know it is potentially compatible, no need to assert.
 			}
 		}
 		if (checkVararg && varArgsType instanceof ArrayBinding) {
@@ -248,6 +252,10 @@ public class InferenceContext18 {
 			for (int i = len; i < this.invocationArguments.length; i++) {
 				if (this.invocationArguments[i].isPertinentToApplicability(varArgsType, method)) {
 					this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT);
+				} else {
+					if (varArgsType.isPertinentToApplicability(this.invocationArguments[i].resolvedType, method))
+						this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.POTENTIALLY_COMPATIBLE);
+					// else we know it is potentially compatible, no need to assert.
 				}
 			}
 		}

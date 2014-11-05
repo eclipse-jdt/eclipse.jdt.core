@@ -6217,11 +6217,6 @@ public void test402609() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 18)\n" + 
 			"	f(super::foo);\n" + 
-			"	^\n" + 
-			"The method f(I) in the type X is not applicable for the arguments (super::foo)\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 18)\n" + 
-			"	f(super::foo);\n" + 
 			"	  ^^^^^\n" + 
 			"Cannot use super in a static context\n" + 
 			"----------\n");
@@ -6867,6 +6862,11 @@ public void test412453() {
 		},
 		"----------\n" + 
 		"1. ERROR in X.java (at line 13)\n" + 
+		"	final Optional<Integer> min = empty.minBy((a, b) -> a - b);\n" + 
+		"	                                    ^^^^^\n" + 
+		"The method minBy(Function<Integer,C>) in the type Y<Integer> is not applicable for the arguments ((<no type> a, <no type> b) -> {})\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 13)\n" + 
 		"	final Optional<Integer> min = empty.minBy((a, b) -> a - b);\n" + 
 		"	                                          ^^^^^^^^^^^^^^^\n" + 
 		"Lambda expression\'s signature does not match the signature of the functional interface method apply(Integer)\n" + 

@@ -166,6 +166,10 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		boolean invocationTypeInferred = false;
 		boolean requireBoxing = false;
 		
+		if (invocationSite.checkingPotentialCompatibility()) {
+			return scope.environment().createParameterizedGenericMethod(originalMethod, typeVariables);
+		}
+		
 		// See if we should start in loose inference mode.
 		TypeBinding [] argumentsCopy = new TypeBinding[arguments.length];
 		for (int i = 0, length = arguments.length, parametersLength = parameters.length ; i < length; i++) {

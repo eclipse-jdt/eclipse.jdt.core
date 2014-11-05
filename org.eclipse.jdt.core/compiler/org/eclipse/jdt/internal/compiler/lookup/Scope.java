@@ -4228,6 +4228,11 @@ public abstract class Scope {
 	protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize, TypeBinding[] argumentTypes, final InvocationSite invocationSite, ReferenceBinding receiverType) {
 
 		boolean isJdk18 = compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8;
+		if (isJdk18 && invocationSite.checkingPotentialCompatibility()) {
+			if (visibleSize != visible.length)
+				System.arraycopy(visible, 0, visible = new MethodBinding[visibleSize], 0, visibleSize);
+			invocationSite.acceptPotentiallyCompatibleMethods(visible);
+		}
 		// common part for all compliance levels:
 		int[] compatibilityLevels = new int[visibleSize];
 		int compatibleCount = 0;
@@ -4339,6 +4344,8 @@ public abstract class Scope {
 				public InferenceContext18 freshInferenceContext(Scope scope) { return null; /* no inference when ignoring genericTypeArgs */ }
 				public ExpressionContext getExpressionContext() { return ExpressionContext.VANILLA_CONTEXT; }
 				public boolean isQualifiedSuper() { return invocationSite.isQualifiedSuper(); }
+				public boolean checkingPotentialCompatibility() { return false; }
+				public void acceptPotentiallyCompatibleMethods(MethodBinding[] methods) {/* ignore */}
 			};
 			int count = 0;
 			for (int level = 0, max = VARARGS_COMPATIBLE; level <= max; level++) {
@@ -4594,7 +4601,6 @@ public abstract class Scope {
 			   and only applicability was inferred and applicability inference instantiated it with jlO due to lack of upper bounds in the bound set.
 			*/
 			if (site instanceof Invocation && context != null) { // this block can be readily seen to be not relevant for reference expressions
-				MethodBinding shallowOriginal = method.shallowOriginal();
 				for (int i = 0, length = arguments.length; i < length; i++) {
 					TypeBinding argument = arguments[i];
 					if (!argument.isFunctionalType())
@@ -4604,17 +4610,7 @@ public abstract class Scope {
 						continue;
 					if (context.stepCompleted >= InferenceContext18.TYPE_INFERRED)
 						return NOT_COMPATIBLE;
-					// Next 6 lines have dubious sanction. Needs a rigorous solution.
-					TypeBinding shallowParameter = InferenceContext18.getParameter(shallowOriginal.parameters, i, context.isVarArgs());
-					if (!shallowParameter.isPertinentToApplicability(argument, shallowOriginal))
-						continue;
-					if (((Invocation) site).arguments()[i] instanceof ReferenceExpression)
-						continue;
-					return NOT_COMPATIBLE;
-					/* We ask the inverted question here, because we do want to check compatibility against lambdas and reference expressions that are not pertinent to
-					  applicability on account of being type elided and not being an exact method reference respectively i.e if we call 
-					  argument.isPertinentToApplicability(shallowParameter, shallowOriginal), it will answer true if type elided and we will miss catching incompatibilities.
-					*/ 
+					continue; // Engine has already asserted potential compatibility and that is all we can do.
 				}
 			}
 			switch (inferenceKind) {

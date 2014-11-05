@@ -630,6 +630,8 @@ public final class CompletionEngine
 		public InferenceContext18 freshInferenceContext(Scope scope) { return null; }
 		public ExpressionContext getExpressionContext() { return ExpressionContext.VANILLA_CONTEXT; }
 		public boolean isQualifiedSuper() { return false; }
+		public boolean checkingPotentialCompatibility() { return false; }
+		public void acceptPotentiallyCompatibleMethods(MethodBinding[] methods) {/* ignore */}
 	};
 
 	private int foundTypesCount;

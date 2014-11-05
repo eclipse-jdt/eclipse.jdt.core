@@ -1251,4 +1251,8 @@ public boolean isFunctionalType() {
 public Expression [] getPolyExpressions() {
 	return isPolyExpression() ? new Expression [] { this } : NO_EXPRESSIONS;
 }
+
+public boolean isPotentiallyCompatibleWith(TypeBinding targetType, Scope scope) {
+	return isCompatibleWith(targetType, scope); // for all but functional expressions, potential compatibility is the same as compatibility.
+}
 }

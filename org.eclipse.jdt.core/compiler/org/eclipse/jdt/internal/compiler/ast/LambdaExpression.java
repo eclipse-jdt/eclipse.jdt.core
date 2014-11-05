@@ -228,9 +228,6 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	 */
 	public TypeBinding resolveType(BlockScope blockScope) {
 		
-		if (this.resolvedType != null)
-			return this.resolvedType;
-		
 		if (this.expectedType != null && this.original == this) {  // final resolution ? may be not - i.e may be, but only in a non-final universe.
 			this.ordinal = recordFunctionalType(blockScope);
 		}
@@ -245,7 +242,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				this.argumentTypes[i] = this.arguments[i].type.resolveType(blockScope, true /* check bounds*/);
 		}
 		if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
-			return new PolyTypeBinding(this);
+			return this.resolvedType = new PolyTypeBinding(this);
 		} 
 		
 		MethodScope methodScope = blockScope.methodScope();
@@ -700,7 +697,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		return false;
 	}
 		
-	private void analyzeShape() { // simple minded analysis for code assist.
+	private void analyzeShape() { // Simple minded analysis for code assist & potential compatibility.
 		class ShapeComputer extends ASTVisitor {
 			public boolean visit(TypeDeclaration type, BlockScope skope) {
 				return false;
@@ -724,15 +721,52 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		}
 		if (this.body instanceof Expression) {
 			// When completion is still in progress, it is not possible to ask if the expression constitutes a statement expression. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219
-			this.voidCompatible = /* ((Expression) this.body).statementExpression(); */ true;
+			this.voidCompatible = this.assistNode ? true : ((Expression) this.body).statementExpression();
 			this.valueCompatible = true;
 		} else {
-			// We need to be a bit tolerant/fuzzy here: the code is being written "just now", if we are too pedantic, selection/completion will break;
-			this.voidCompatible = true;
-			this.valueCompatible = true;
+			// For code assist, we need to be a bit tolerant/fuzzy here: the code is being written "just now", if we are too pedantic, selection/completion will break;
+			if (this.assistNode) {
+				this.voidCompatible = true;
+				this.valueCompatible = true;
+			}
 			this.body.traverse(new ShapeComputer(), null);
+			Block block = (Block) this.body;
+			// support the idiom that { throw new Exception(); } is value compatible.
+			if (block.statements != null && block.statements.length == 1 && block.statements[0] instanceof ThrowStatement)
+				this.valueCompatible = true;
 		}
-		this.shapeAnalysisComplete = true;
+		if (this.assistNode)
+			this.shapeAnalysisComplete = true;
+	}
+	
+	@Override
+	public boolean isPotentiallyCompatibleWith(TypeBinding targetType, Scope skope) {
+		/* We get here only when the lambda is NOT pertinent to applicability and that too only for type elided lambdas. */
+		
+		/* 15.12.2.1: A lambda expression (§15.27) is potentially compatible with a functional interface type (§9.8) if all of the following are true:
+		       – The arity of the target type's function type is the same as the arity of the lambda expression.
+		       – If the target type's function type has a void return, then the lambda body is either a statement expression (§14.8) or a void-compatible block (§15.27.2).
+		       – If the target type's function type has a (non-void) return type, then the lambda body is either an expression or a value-compatible block (§15.27.2).
+		*/
+		if (!super.isPertinentToApplicability(targetType, null))
+			return true;
+		
+		final MethodBinding sam = targetType.getSingleAbstractMethod(skope, true);
+		if (sam == null || !sam.isValidBinding())
+			return false;
+		
+		if (sam.parameters.length != this.arguments.length)
+			return false;
+		
+		analyzeShape();
+		if (sam.returnType.id == TypeIds.T_void) {
+			if (!this.voidCompatible)
+				return false;
+		} else {
+			if (!this.valueCompatible)
+				return false;
+		}
+		return true;
 	}
 	
 	public boolean isCompatibleWith(TypeBinding left, final Scope someScope) {

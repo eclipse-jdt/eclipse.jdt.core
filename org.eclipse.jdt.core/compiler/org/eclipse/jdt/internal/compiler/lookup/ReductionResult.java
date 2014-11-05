@@ -36,6 +36,7 @@ public abstract class ReductionResult {
 	protected static final int TYPE_ARGUMENT_CONTAINED = 5;
 	protected static final int CAPTURE = 6;
 	static final int EXCEPTIONS_CONTAINED = 7;
+	protected static final int POTENTIALLY_COMPATIBLE = 8;
 	
 	protected TypeBinding right; // note that the LHS differs between sub-classes.
 	protected int relation;
@@ -44,6 +45,7 @@ public abstract class ReductionResult {
 		switch (relation) {
 			case SAME: 			return " = "; //$NON-NLS-1$
 			case COMPATIBLE: 	return " \u2192 "; //$NON-NLS-1$
+			case POTENTIALLY_COMPATIBLE: return " \u2192? "; //$NON-NLS-1$
 			case SUBTYPE: 		return " <: "; //$NON-NLS-1$
 			case SUPERTYPE: 	return " :> "; //$NON-NLS-1$
 			case TYPE_ARGUMENT_CONTAINED:

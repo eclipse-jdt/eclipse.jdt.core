@@ -285,6 +285,8 @@ private static void checkAlternateBinding(BlockScope scope, Expression receiver,
 			public InferenceContext18 freshInferenceContext(Scope someScope) { return invocationSite.freshInferenceContext(someScope); }
 			public ExpressionContext getExpressionContext() { return invocationSite.getExpressionContext(); }
 			public boolean isQualifiedSuper() { return invocationSite.isQualifiedSuper(); }
+			public boolean checkingPotentialCompatibility() { return false; }
+			public void acceptPotentiallyCompatibleMethods(MethodBinding[] methods) {/* ignore */}
 		};
 		MethodBinding bindingIfNoCast;
 		if (binding.isConstructor()) {

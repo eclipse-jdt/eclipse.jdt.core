@@ -50,6 +50,17 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 	}
 
 	public Object reduce(InferenceContext18 inferenceContext) throws InferenceFailureException {
+		
+		if (this.relation == POTENTIALLY_COMPATIBLE) {
+			/* 15.12.2.1: ... The definition of potential applicability goes beyond a basic arity check to also take into account the presence and "shape" of functional interface 
+			   target types. In some cases involving type argument inference, a lambda expression appearing as a method invocation argument cannot be properly typed until after 
+			   overload resolution. These rules allow the form of the lambda expression to still be taken into account, discarding obviously incorrect target types that might 
+			   otherwise cause ambiguity errors.
+			*/
+			
+			return  this.left.isPotentiallyCompatibleWith(this.right, inferenceContext.scope) ? TRUE: FALSE;
+		}
+	
 		// JLS 18.2.1
 		if (this.right.isProperType(true)) {
 			return this.left.isCompatibleWith(this.right, inferenceContext.scope) || this.left.isBoxingCompatibleWith(this.right, inferenceContext.scope) ? TRUE : FALSE;

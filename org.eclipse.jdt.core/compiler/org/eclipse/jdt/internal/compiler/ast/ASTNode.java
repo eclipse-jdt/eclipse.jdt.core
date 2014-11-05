@@ -1159,6 +1159,16 @@ public static void resolveDeprecatedAnnotations(BlockScope scope, Annotation[] a
 	}
 }
 
+	// ---- "default methods" for InvocationSite. Can we move to 1.8 and spare ourselves this ugliness please ?
+	public boolean checkingPotentialCompatibility() {
+		return false;
+	}
+	
+	public void acceptPotentiallyCompatibleMethods(MethodBinding [] methods) {
+		// Discard. Interested subclasses should override and grab these goodies. 
+	}
+	// --- "default methods" for InvocationSite
+	
 	public int sourceStart() {
 		return this.sourceStart;
 	}

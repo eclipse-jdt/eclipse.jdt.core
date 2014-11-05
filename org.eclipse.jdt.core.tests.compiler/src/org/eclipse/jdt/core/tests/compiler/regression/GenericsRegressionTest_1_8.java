@@ -612,7 +612,6 @@ public void testBug424712a() {
 			"    }\n" + 
 			"}\n"
 		},
-		// The extra error with <unknown> reads a bit weird.
 		"----------\n" + 
 		"1. ERROR in X.java (at line 12)\n" + 
 		"	Set<Y> rosterSet = (Set<Y>) foo(null, Set::new);\n" + 
@@ -625,16 +624,6 @@ public void testBug424712a() {
 		"Y cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 12)\n" + 
-		"	Set<Y> rosterSet = (Set<Y>) foo(null, Set::new);\n" + 
-		"	                            ^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Collection<Object> to <unknown>\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 12)\n" + 
-		"	Set<Y> rosterSet = (Set<Y>) foo(null, Set::new);\n" + 
-		"	                                      ^^^^^^^^\n" + 
-		"The target type of this expression must be a functional interface\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 12)\n" + 
 		"	Set<Y> rosterSet = (Set<Y>) foo(null, Set::new);\n" + 
 		"	                                      ^^^\n" + 
 		"Cannot instantiate the type Set\n" + 
@@ -1748,7 +1737,12 @@ public void testBug427164() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in NNLambda.java (at line 13)\n" + 
+		"1. ERROR in NNLambda.java (at line 1)\n" + 
+		"	printem((i) -> {\n" + 
+		"	^^^^^^^\n" + 
+		"The method printem(FInter, INP) in the type NNLambda is not applicable for the arguments (FInter, String)\n" + 
+		"----------\n" + 
+		"2. ERROR in NNLambda.java (at line 13)\n" + 
 		"	Collections.<String>singletonList(\"const\")\n" + 
 		"	                                         ^\n" + 
 		"Syntax error, insert \";\" to complete BlockStatements\n" + 
@@ -2900,15 +2894,18 @@ public void testBug430296() {
 		"----------\n" + 
 		"1. ERROR in AnnotationCollector.java (at line 9)\n" + 
 		"	return persons.collect(Collectors.toMap((Person p) -> p.getLastName(),\n" + 
-		"                                                                Function::identity,\n" + 
-		"                                                        (p1, p2) -> p1));\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Map<String,Object> to Map<String,Person>\n" + 
+		"	                                  ^^^^^\n" + 
+		"The method toMap(Function<? super T,? extends K>, Function<? super T,? extends U>, BinaryOperator<U>) in the type Collectors is not applicable for the arguments ((Person p) -> {}, Function::identity, BinaryOperator<U>)\n" + 
 		"----------\n" + 
-		"2. ERROR in AnnotationCollector.java (at line 10)\n" + 
+		"2. ERROR in AnnotationCollector.java (at line 9)\n" + 
+		"	return persons.collect(Collectors.toMap((Person p) -> p.getLastName(),\n" + 
+		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Function<Person,? extends K> to Function<? super T,? extends K>\n" + 
+		"----------\n" + 
+		"3. ERROR in AnnotationCollector.java (at line 10)\n" + 
 		"	Function::identity,\n" + 
 		"	^^^^^^^^^^^^^^^^^^\n" + 
-		"The type Function does not define identity(Person) that is applicable here\n" + 
+		"The type Function does not define identity(T) that is applicable here\n" + 
 		"----------\n");
 }
 public void testBug430759() {

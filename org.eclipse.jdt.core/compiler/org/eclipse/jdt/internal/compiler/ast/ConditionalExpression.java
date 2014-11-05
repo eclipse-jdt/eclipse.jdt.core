@@ -742,6 +742,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	}
 	
 	@Override
+	public boolean isPotentiallyCompatibleWith(TypeBinding targetType, Scope scope) {
+		return this.valueIfTrue.isPotentiallyCompatibleWith(targetType, scope) 
+				&& this.valueIfFalse.isPotentiallyCompatibleWith(targetType, scope);
+	}
+	
+	@Override
 	public boolean isFunctionalType() {
 		return this.valueIfTrue.isFunctionalType() || this.valueIfFalse.isFunctionalType(); // Even if only one arm is functional type, this will require a functional interface target
 	}

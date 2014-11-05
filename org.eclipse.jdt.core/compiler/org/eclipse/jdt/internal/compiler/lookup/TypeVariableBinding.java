@@ -505,7 +505,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	}
 	
 	public boolean isPertinentToApplicability(TypeBinding argument, MethodBinding method) {
-		return argument.isPertinentToApplicability(this, method);
+		return argument != null && argument.isPertinentToApplicability(this, method);
 	}
 	
 	public boolean isProperType(boolean admitCapture18) {
