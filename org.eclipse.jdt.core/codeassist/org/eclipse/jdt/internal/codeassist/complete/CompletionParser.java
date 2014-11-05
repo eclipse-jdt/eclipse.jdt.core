@@ -4682,7 +4682,7 @@ public void initialize(boolean parsingCompilationUnit) {
 	this.labelPtr = -1;
 	initializeForBlockStatements();
 }
-public void copyState(CommitRollbackParser from) {
+public void copyState(Parser from) {
 
 	super.copyState(from);
 	
@@ -5049,7 +5049,7 @@ public void recoveryTokenCheck() {
 	}
 }
 
-protected CommitRollbackParser createSnapShotParser() {
+protected CompletionParser createSnapShotParser() {
 	return new CompletionParser(this.problemReporter, this.storeSourceEnds);
 }
 /*
@@ -5197,7 +5197,7 @@ protected void updateRecoveryState() {
 	this.currentElement.updateFromParserState();
 
 	// completionIdentifierCheck && attachOrphanCompletionNode pops various stacks to construct astNodeParent and enclosingNode. This does not gel well with extended recovery.
-	CommitRollbackParser parser = null;
+	AssistParser parser = null;
 	if (lastIndexOfElement(K_LAMBDA_EXPRESSION_DELIMITER) >= 0) {
 		parser = createSnapShotParser();
 		parser.copyState(this);

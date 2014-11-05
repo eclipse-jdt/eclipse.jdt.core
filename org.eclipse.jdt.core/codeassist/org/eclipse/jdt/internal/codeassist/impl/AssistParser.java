@@ -17,6 +17,7 @@ package org.eclipse.jdt.internal.codeassist.impl;
 
 import java.util.HashSet;
 
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
@@ -42,7 +43,6 @@ import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
-import org.eclipse.jdt.internal.compiler.parser.CommitRollbackParser;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredBlock;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredElement;
@@ -110,6 +110,9 @@ public abstract class AssistParser extends Parser {
 
 	protected boolean isFirst = false;
 
+	public AssistParser snapShot;
+	private static final int[] RECOVERY_TOKENS = new int [] { TokenNameSEMICOLON, TokenNameRPAREN,};
+
 
 public AssistParser(ProblemReporter problemReporter) {
 	super(problemReporter, true);
@@ -121,7 +124,7 @@ public AssistParser(ProblemReporter problemReporter) {
 
 public abstract char[] assistIdentifier();
 
-public void copyState(CommitRollbackParser from) {
+public void copyState(Parser from) {
 	
 	super.copyState(from);
 
@@ -1871,6 +1874,78 @@ public void recoveryTokenCheck() {
 public void reset(){
 	flushAssistState();
 }
+
+protected void commit() {
+	if (this.snapShot == null) {
+		this.snapShot = createSnapShotParser();
+	}
+	this.snapShot.copyState(this);
+}
+
+protected boolean assistNodeNeedsStacking() {
+	return false;
+}
+
+protected void shouldStackAssistNode() {
+	// Not relevant here.
+}
+
+protected int getNextToken() {
+	try {
+		return this.scanner.getNextToken();
+	} catch (InvalidInputException e) {
+		return TokenNameEOF;
+	}
+}
+
+protected abstract AssistParser createSnapShotParser();
+
+// We get here on real syntax error or syntax error triggered by fake EOF at completion site, never due to triggered recovery.
+protected int fallBackToSpringForward(Statement unused) {
+	int nextToken;
+	int automatonState = automatonState();
+			
+	// If triggered fake EOF at completion site, see if the real next token would have passed muster.
+	if (this.currentToken == TokenNameEOF) {
+		if (this.scanner.eofPosition < this.scanner.source.length) {
+			shouldStackAssistNode();
+			this.scanner.eofPosition = this.scanner.source.length;
+			nextToken = getNextToken();
+			if (automatonWillShift(nextToken, automatonState)) {
+				this.currentToken = nextToken;
+				return RESUME;
+			}
+			this.scanner.ungetToken(nextToken); // spit out what has been bitten more than we can chew.
+		} else {
+			return HALT; // don't know how to proceed.
+		}
+	} else {
+		nextToken = this.currentToken;
+		this.scanner.ungetToken(nextToken);
+		if (nextToken == TokenNameRBRACE)
+			ignoreNextClosingBrace(); // having ungotten it, recoveryTokenCheck will see this again. 
+	}
+	// OK, next token is no good to resume "in place", attempt some local repair. FIXME: need to make sure we don't get stuck keep reducing empty statements !!
+	for (int i = 0, length = RECOVERY_TOKENS.length; i < length; i++) {
+		if (automatonWillShift(RECOVERY_TOKENS[i], automatonState)) {
+			this.currentToken = RECOVERY_TOKENS[i];
+			return RESUME;
+		}
+	}
+	// OK, no in place resumption, no local repair, fast forward to next statement.
+	if (this.snapShot == null)
+		return RESTART;
+
+	this.copyState(this.snapShot);
+	if (assistNodeNeedsStacking()) {
+		this.currentToken = TokenNameSEMICOLON;
+		return RESUME;
+	}
+	this.currentToken = this.scanner.fastForward(unused);
+	return RESUME;
+}
+
+
 /*
  * Reset context so as to resume to regular parse loop
  * If unable to reset for resuming, answers false.

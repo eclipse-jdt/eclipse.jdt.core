@@ -155,7 +155,7 @@ import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class Parser extends CommitRollbackParser implements ConflictedParser, OperatorIds, TypeIds {
+public class Parser implements TerminalTokens, ParserBasicInformation, ConflictedParser, OperatorIds, TypeIds {
 	
 	protected static final int THIS_CALL = ExplicitConstructorCall.This;
 	protected static final int SUPER_CALL = ExplicitConstructorCall.Super;
@@ -231,6 +231,14 @@ public class Parser extends CommitRollbackParser implements ConflictedParser, Op
 		METHOD_REFERENCE,
 		LAMBDA,
 	}
+	
+	// resumeOnSyntaxError codes:
+	protected static final int HALT = 0;     // halt and throw up hands.
+	protected static final int RESTART = 1;  // stacks adjusted, alternate goal from check point.
+	protected static final int RESUME = 2;   // stacks untouched, just continue from where left off.
+	
+	public Scanner scanner;
+	public int currentToken;
 
 	static {
 		try{
@@ -10550,10 +10558,10 @@ public boolean hasLeadingTagComment(char[] commentPrefixTag, int rangeEnd) {
 	return false;
 }
 
-@Override
 protected void ignoreNextClosingBrace() {
 	this.ignoreNextClosingBrace = true;
 }
+
 protected void ignoreExpressionAssignment() {
 	// Assignment ::= InvalidArrayInitializerAssignement
 	// encoded operator would be: this.intStack[this.intPtr]
@@ -12493,9 +12501,9 @@ protected void updateSourcePosition(Expression exp) {
 	exp.sourceEnd = this.intStack[this.intPtr--];
 	exp.sourceStart = this.intStack[this.intPtr--];
 }
-public void copyState(CommitRollbackParser from) {
+public void copyState(Parser from) {
 	
-	Parser parser = (Parser) from;
+	Parser parser = from;
 
 	// Stack pointers.
 	

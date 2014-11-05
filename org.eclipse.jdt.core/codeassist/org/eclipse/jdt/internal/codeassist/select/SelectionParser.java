@@ -59,7 +59,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.parser.CommitRollbackParser;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -1240,7 +1239,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
-protected CommitRollbackParser createSnapShotParser() {
+protected SelectionParser createSnapShotParser() {
 	return new SelectionParser(this.problemReporter);
 }
 public ImportReference createAssistImportReference(char[][] tokens, long[] positions, int mod){
