@@ -26842,7 +26842,7 @@ public void test0825() throws Exception {
 		},
 		"");
 	// 	ensure proper declaring class for #run() invocation
-	String expectedOutput =
+	String expectedOutput = this.complianceLevel < ClassFileConstants.JDK1_8 ? 
 		"  // Method descriptor #17 (Ljava/io/Serializable;)V\n" + 
 		"  // Signature: (TT;)V\n" + 
 		"  // Stack: 2, Locals: 5\n" + 
@@ -26889,7 +26889,59 @@ public void test0825() throws Exception {
 		"        [pc: 18, pc: 45] local: r3 index: 4 type: java.lang.Runnable\n" + 
 		"      Local variable type table:\n" + 
 		"        [pc: 0, pc: 45] local: this index: 0 type: X<T,V>\n" + 
-		"        [pc: 0, pc: 45] local: t index: 1 type: T\n";
+		"        [pc: 0, pc: 45] local: t index: 1 type: T\n" :
+			
+			"  // Method descriptor #17 (Ljava/io/Serializable;)V\n" + 
+			"  // Signature: (TT;)V\n" + 
+			"  // Stack: 2, Locals: 5\n" + 
+			"  void foo(java.io.Serializable t);\n" + 
+			"     0  aload_1 [t]\n" + 
+			"     1  checkcast java.lang.Runnable [20]\n" + 
+			"     4  astore_2 [r1]\n" + 
+			"     5  aload_0 [this]\n" + 
+			"     6  ifnonnull 16\n" + 
+			"     9  aload_1 [t]\n" + 
+			"    10  checkcast java.lang.Runnable [20]\n" + 
+			"    13  goto 20\n" + 
+			"    16  aload_1 [t]\n" + 
+			"    17  checkcast java.lang.Runnable [20]\n" + 
+			"    20  astore_3 [r2]\n" + 
+			"    21  aload_1 [t]\n" + 
+			"    22  astore 4 [r3]\n" + 
+			"    24  aload_0 [this]\n" + 
+			"    25  aload_1 [t]\n" + 
+			"    26  checkcast java.lang.Runnable [20]\n" + 
+			"    29  invokevirtual X.bar(java.lang.Runnable) : void [22]\n" + 
+			"    32  aload_0 [this]\n" + 
+			"    33  aload_0 [this]\n" + 
+			"    34  ifnonnull 44\n" + 
+			"    37  aload_1 [t]\n" + 
+			"    38  checkcast java.lang.Runnable [20]\n" + 
+			"    41  goto 48\n" + 
+			"    44  aload_1 [t]\n" + 
+			"    45  checkcast java.lang.Runnable [20]\n" + 
+			"    48  invokevirtual X.bar(java.lang.Runnable) : void [22]\n" + 
+			"    51  aload_0 [this]\n" + 
+			"    52  aload_1 [t]\n" + 
+			"    53  invokevirtual X.bar(java.lang.Runnable) : void [22]\n" + 
+			"    56  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 5]\n" + 
+			"        [pc: 5, line: 6]\n" + 
+			"        [pc: 21, line: 7]\n" + 
+			"        [pc: 24, line: 9]\n" + 
+			"        [pc: 32, line: 10]\n" + 
+			"        [pc: 51, line: 11]\n" + 
+			"        [pc: 56, line: 12]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 57] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 57] local: t index: 1 type: java.io.Serializable\n" + 
+			"        [pc: 5, pc: 57] local: r1 index: 2 type: java.lang.Runnable\n" + 
+			"        [pc: 21, pc: 57] local: r2 index: 3 type: java.lang.Runnable\n" + 
+			"        [pc: 24, pc: 57] local: r3 index: 4 type: java.lang.Runnable\n" + 
+			"      Local variable type table:\n" + 
+			"        [pc: 0, pc: 57] local: this index: 0 type: X<T,V>\n" + 
+			"        [pc: 0, pc: 57] local: t index: 1 type: T\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -34864,8 +34916,6 @@ public void test1033() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=158519
 // FAIL ERRMSG
 public void test1034() {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
-		return;
 	this.runNegativeTest(
 		new String[] {
 			"ChainedClosure.java",
@@ -34906,12 +34956,19 @@ public void test1034() {
 			"}", // =================
 
 		},
+		this.complianceLevel < ClassFileConstants.JDK1_8 ?
 		"----------\n" +
 		"1. ERROR in ChainedClosure.java (at line 33)\n" +
 		"	return ChainedClosure.getInstance(closure1, closure2);\n" +
 		"	                      ^^^^^^^^^^^\n" +
 		"The method getInstance(Closure<? super I>, Closure<? super I>) in the type ChainedClosure is not applicable for the arguments (Closure<capture#10-of ? super J>, Closure<capture#11-of ? super J>)\n" +
-		"----------\n",
+		"----------\n" :
+			"----------\n" + 
+			"1. ERROR in ChainedClosure.java (at line 33)\n" + 
+			"	return ChainedClosure.getInstance(closure1, closure2);\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Closure<capture#10-of ? super J & capture#11-of ? super J> to Closure<String>\n" + 
+			"----------\n",
 		JavacTestOptions.EclipseHasABug.EclipseBug236370);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158531
@@ -45230,6 +45287,7 @@ public void test1292() {
 					"    }\n" +
 					"}\n", // =================
 			},
+			this.complianceLevel < ClassFileConstants.JDK1_8 ?
 			"----------\n" +
 			"1. ERROR in X.java (at line 6)\n" +
 			"	result.addAll( (List<?>)list );\n" +
@@ -45240,7 +45298,18 @@ public void test1292() {
 			"	List<A> a = moreSpecific(b);\n" +
 			"	            ^^^^^^^^^^^^\n" +
 			"Bound mismatch: The generic method moreSpecific(List<D>) of type X is not applicable for the arguments (List<X.B>). The inferred type X.A is not a valid substitute for the bounded parameter <E extends D>\n" +
-			"----------\n");
+			"----------\n" :
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	result.addAll( (List<?>)list );\n" + 
+				"	       ^^^^^^\n" + 
+				"The method addAll(Collection<? extends E>) in the type List<E> is not applicable for the arguments (List<capture#1-of ?>)\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 14)\n" + 
+				"	List<A> a = moreSpecific(b);\n" + 
+				"	            ^^^^^^^^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from List<X.B> to List<X.A>\n" + 
+				"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220111
 public void test1293() {
