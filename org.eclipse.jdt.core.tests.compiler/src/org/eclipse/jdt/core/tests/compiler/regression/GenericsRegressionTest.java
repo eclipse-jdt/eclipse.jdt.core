@@ -68,54 +68,6 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 		compilerOptions.put(CompilerOptions.OPTION_ReportUnusedTypeParameter,CompilerOptions.IGNORE);
 		return compilerOptions;
 	}
-	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
-	public void _test322531a() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"interface I {}\n" +
-				"public class X {\n" +
-				"    <T extends I> void main(Class<T> clazz) {\n" +
-				"        boolean b = \n" +
-				"            clazz == clazz || \n" +
-				"            X.class == X.class || \n" +
-				"            I.class == I.class || \n" +
-				"            clazz == X.class || \n" +
-				"            X.class == clazz || \n" +
-				"            clazz == I.class || \n" +
-				"            I.class == clazz || \n" +
-				"            I.class == X.class ||\n" +
-				"            X.class == I.class;\n" +
-				"    }\n" +
-				"}\n"
-			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 5)\n" + 
-			"	clazz == clazz || \n" + 
-			"	^^^^^^^^^^^^^^\n" + 
-			"Comparing identical expressions\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 8)\n" + 
-			"	clazz == X.class || \n" + 
-			"	^^^^^^^^^^^^^^^^\n" + 
-			"Incompatible operand types Class<T> and Class<X>\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 9)\n" + 
-			"	X.class == clazz || \n" + 
-			"	^^^^^^^^^^^^^^^^\n" + 
-			"Incompatible operand types Class<X> and Class<T>\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 12)\n" + 
-			"	I.class == X.class ||\n" + 
-			"	^^^^^^^^^^^^^^^^^^\n" + 
-			"Incompatible operand types Class<I> and Class<X>\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 13)\n" + 
-			"	X.class == I.class;\n" + 
-			"	^^^^^^^^^^^^^^^^^^\n" + 
-			"Incompatible operand types Class<X> and Class<I>\n" + 
-			"----------\n");
-	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
 	public void test322531b() {
 		this.runNegativeTest(
@@ -239,59 +191,6 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
-	public void _test322531g() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"interface List<E> {}\n" +
-				"interface I {}\n" +
-				"public class X implements I {\n" +
-				"    void main(List<I> li, X t) {\n" +
-				"        boolean b = I.class == t.getClass();\n" +
-				"	         b = li == t.getList();\n" +
-				"    }\n" +
-				"    \n" +
-				"    List<? extends Object> getList() {\n" +
-				"    	return null;\n" +
-				"    }\n" +
-				"}\n"
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	boolean b = I.class == t.getClass();\n" + 
-			"	            ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Incompatible operand types Class<I> and Class<capture#1-of ? extends X>\n" + 
-			"----------\n");
-	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
-	public void _test322531h() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"interface I {}\n" +
-				"public class X implements I {\n" +
-				"    <T extends I> void main(Class<T> clazz, X t) {\n" +
-				"        boolean b = \n" +
-				"            clazz == t.getClass() || \n" +
-				"            t.getClass() == clazz || \n" +
-				"            I.class == t.getClass() ||\n" +
-				"            t.getClass() == I.class;\n" +
-				"    }\n" +
-				"}\n"
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	I.class == t.getClass() ||\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Incompatible operand types Class<I> and Class<capture#3-of ? extends X>\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 8)\n" + 
-			"	t.getClass() == I.class;\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Incompatible operand types Class<capture#4-of ? extends X> and Class<I>\n" + 
-			"----------\n");
-	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
 	public void test322531i() {
 		this.runNegativeTest(
 			new String[] {
@@ -356,55 +255,6 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 			"Incompatible operand types Class<I> and Class<X>\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
-	public void _test322531j() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"interface I {}\n" +
-				"public class X {\n" +
-				"    <T extends I> void main(Class<T> clazz) {\n" +
-				"        boolean b = \n" +
-				"            clazz != clazz || \n" +
-				"            X.class != X.class || \n" +
-				"            I.class != I.class || \n" +
-				"            clazz != X.class || \n" +
-				"            X.class != clazz || \n" +
-				"            clazz != I.class || \n" +
-				"            I.class != clazz || \n" +
-				"            I.class != X.class ||\n" +
-				"            X.class != I.class;\n" +
-				"    }\n" +
-				"}\n"
-			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 5)\n" + 
-			"	clazz != clazz || \n" + 
-			"	^^^^^^^^^^^^^^\n" + 
-			"Comparing identical expressions\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 8)\n" + 
-			"	clazz != X.class || \n" + 
-			"	^^^^^^^^^^^^^^^^\n" + 
-			"Incompatible operand types Class<T> and Class<X>\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 9)\n" + 
-			"	X.class != clazz || \n" + 
-			"	^^^^^^^^^^^^^^^^\n" + 
-			"Incompatible operand types Class<X> and Class<T>\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 12)\n" + 
-			"	I.class != X.class ||\n" + 
-			"	^^^^^^^^^^^^^^^^^^\n" + 
-			"Incompatible operand types Class<I> and Class<X>\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 13)\n" + 
-			"	X.class != I.class;\n" + 
-			"	^^^^^^^^^^^^^^^^^^\n" + 
-			"Incompatible operand types Class<X> and Class<I>\n" + 
-			"----------\n");
-	}
-
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=282152
 public void test282152() {
     this.runConformTest(
@@ -2760,8 +2610,7 @@ public void test366131b() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375394
-// FAIL ERRMSG
-public void _test375394() {
+public void test375394() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -2772,42 +2621,19 @@ public void _test375394() {
 			"    }\n" +
 			"}\n",
 		},
+		this.complianceLevel < ClassFileConstants.JDK1_8 ?
 		"----------\n" + 
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	return foo(c2,c); \n" + 
 		"	       ^^^\n" + 
 		"Bound mismatch: The generic method foo(C1, C2) of type X is not applicable for the arguments (C2, C1). The inferred type C1 is not a valid substitute for the bounded parameter <C2 extends Collection<Object>>\n" + 
-		"----------\n");
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=375394
-public void test375394a() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7)
-		return;
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"    B<C, ? extends C<C>, ? extends C<C>> b = new B<>();\n" +
-			"}\n" +
-			"class B <T, U extends C<T>, V extends U>{}\n" +
-			"class C<T> {}\n",
-		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	B<C, ? extends C<C>, ? extends C<C>> b = new B<>();\n" + 
-		"	  ^\n" + 
-		"C is a raw type. References to generic type C<T> should be parameterized\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 2)\n" + 
-		"	B<C, ? extends C<C>, ? extends C<C>> b = new B<>();\n" + 
-		"	                 ^\n" + 
-		"C is a raw type. References to generic type C<T> should be parameterized\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 2)\n" + 
-		"	B<C, ? extends C<C>, ? extends C<C>> b = new B<>();\n" + 
-		"	                                 ^\n" + 
-		"C is a raw type. References to generic type C<T> should be parameterized\n" + 
-		"----------\n");
+		"----------\n" : 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	return foo(c2,c); \n" + 
+			"	       ^^^\n" + 
+			"The method foo(C1, C2) in the type X is not applicable for the arguments (C2, C1)\n" + 
+			"----------\n");
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=385780
@@ -3603,105 +3429,6 @@ public void test426633b() {
 				"Type safety: Potential heap pollution via varargs parameter p\n" + 
 				"----------\n" : "");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426633, [1.8][compiler] Compiler generates code that invokes inapplicable method.
-public void test426633c() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return;
-	runNegativeTest(
-		new String[] {
-			"X.java",
-			"interface I {\n" +
-			"	 default <T> void foo (T... p) {}\n" +
-			"}\n" +
-			"abstract class A  {\n" +
-			"	public abstract void foo(Object [] p);\n" +
-			"}\n" +
-			"abstract class B extends A implements I {\n" +
-			"}\n" +
-			"public abstract class X extends B implements I {\n" +
-			"	public static void main(B b) {\n" +
-			"		b.foo(\"hello\", \"world\");\n" +
-			"	}\n" +
-			"}\n"
-		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	default <T> void foo (T... p) {}\n" + 
-		"	                           ^\n" + 
-		"Type safety: Potential heap pollution via varargs parameter p\n" + 
-		"----------\n");
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426633, [1.8][compiler] Compiler generates code that invokes inapplicable method.
-public void test426633d() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return;
-	runNegativeTest(
-		new String[] {
-			"X.java",
-			"interface I {\n" +
-			"	 default <T> void foo (T... p) {}\n" +
-			"}\n" +
-			"abstract class A  {\n" +
-			"	public void foo(Object [] p) {}\n" +
-			"}\n" +
-			"abstract class B extends A implements I {\n" +
-			"}\n" +
-			"public abstract class X extends B implements I {\n" +
-			"	public static void main(B b) {\n" +
-			"		b.foo(\"hello\", \"world\");\n" +
-			"	}\n" +
-			"}\n"
-		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	default <T> void foo (T... p) {}\n" + 
-		"	                           ^\n" + 
-		"Type safety: Potential heap pollution via varargs parameter p\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 7)\n" + 
-		"	abstract class B extends A implements I {\n" + 
-		"	               ^\n" + 
-		"Varargs methods should only override or be overridden by other varargs methods unlike A.foo(Object[]) and I.foo(Object...)\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 9)\n" + 
-		"	public abstract class X extends B implements I {\n" + 
-		"	                      ^\n" + 
-		"Varargs methods should only override or be overridden by other varargs methods unlike A.foo(Object[]) and I.foo(Object...)\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 11)\n" + 
-		"	b.foo(\"hello\", \"world\");\n" + 
-		"	  ^^^\n" + 
-		"The method foo(T...) of type I cannot be invoked as it is overridden by an inapplicable method\n" + 
-		"----------\n");
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426633, [1.8][compiler] Compiler generates code that invokes inapplicable method.
-public void test426633e() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return;
-	runNegativeTest(
-		new String[] {
-			"X.java",
-			"interface I {\n" +
-			"	 default <T> void foo (T... p) {}\n" +
-			"}\n" +
-			"abstract class A  {\n" +
-			"	public void foo(String [] p) {}\n" +
-			"}\n" +
-			"abstract class B extends A implements I {\n" +
-			"}\n" +
-			"public abstract class X extends B implements I {\n" +
-			"	public static void main(B b) {\n" +
-			"		b.foo(\"hello\", \"world\");\n" +
-			"	}\n" +
-			"}\n"
-		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	default <T> void foo (T... p) {}\n" + 
-		"	                           ^\n" + 
-		"Type safety: Potential heap pollution via varargs parameter p\n" + 
-		"----------\n");
-}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=426678, [1.8][compiler] Another issue with vararg type element accessibility
 public void test426678() {
 	runNegativeTest(
@@ -3768,8 +3495,8 @@ public void test426678a() {
 		"PGMB");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421922, [1.8][compiler] Varargs & Overload - Align to JLS8
-public void _test421922() {
-	runConformTest(
+public void test421922() {
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"import p.*;\n" +
@@ -3788,7 +3515,25 @@ public void _test421922() {
 			"    public void foo(Object... o) { System.out.println(\"MB\"); }\n" +
 			"}\n",
 		},
-		"PGMB");
+		this.complianceLevel < ClassFileConstants.JDK1_7 ? 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	new B().foo(null, null);\n" + 
+		"	        ^^^\n" + 
+		"The method foo(T...) of type B is not applicable as the formal varargs element type T is not accessible here\n" + 
+		"----------\n" :
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	new B().foo(null, null);\n" + 
+			"	        ^^^\n" + 
+			"The method foo(T...) of type B is not applicable as the formal varargs element type T is not accessible here\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in p\\B.java (at line 5)\n" + 
+			"	public <T extends A> void foo(T ... o) { System.out.println(\"PGMB\"); }\n" + 
+			"	                                    ^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter o\n" + 
+			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425719, [1.8][compiler] Bogus ambiguous call error from compiler.
 public void test425719() {
@@ -4091,32 +3836,6 @@ public void test427728a() {
 		},
 		"");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427728, [1.8] Type Inference rejects calls requiring boxing/unboxing  
-public void test427728b() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) // uses diamond
-		return;
-	runConformTest(
-		new String[] {
-			"X.java",
-			"import java.util.Collections;\n" +
-			"import java.util.LinkedHashMap;\n" +
-			"import java.util.Map;\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		   Map<X, Integer> map = new LinkedHashMap<>();\n" +
-			"		   map.put(null, X.getInt());\n" +
-			"		   map.put(null, X.getint());\n" +
-			"		}\n" +
-			"		private static <T> int getInt() {\n" +
-			"		   return 0;\n" +
-			"		}\n" +
-			"		private static int getint() {\n" +
-			"			   return 0;\n" +
-			"		}\n" +
-			"}\n"
-		},
-		"");
-}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427736, [1.8][generics] Method not applicable error with identical parameter types  
 public void test427736() {
 	Map customOptions = getCompilerOptions();
@@ -4260,54 +3979,6 @@ public void testBug428366() {
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=429733, [1.8][bytecode] Bad type on operand stack
-public void test429733() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7)
-		return; // uses diamond.
-	runConformTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		test(new Some<>(1.1d));\n" +
-			"	}\n" +
-			"	static <S> void test(Option<S> value) {\n" +
-			"	}\n" +
-			"	static interface Option<T> {\n" +
-			"	}\n" +
-			"	static class Some<T> implements Option<T> {\n" +
-			"		Some(T value) {\n" +
-			"         System.out.println(value);\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
-		},
-		"1.1");
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=429733, [1.8][bytecode] Bad type on operand stack
-public void test429733a() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7)
-		return; // uses diamond.
-	runConformTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		test(new Some<Double>(1.1d));\n" +
-			"	}\n" +
-			"	static <S> void test(Option<S> value) {\n" +
-			"	}\n" +
-			"	static interface Option<T> {\n" +
-			"	}\n" +
-			"	static class Some<T> implements Option<T> {\n" +
-			"		Some(T value) {\n" +
-			"         System.out.println(value);\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n"
-		},
-		"1.1");
 }
 public void test429733b() {
 	runConformTest(
@@ -5608,8 +5279,6 @@ public void test444334() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=438246, [1.8][compiler] Java 8 static methods compilation error  
 public void test438246() {
-		if (this.complianceLevel < ClassFileConstants.JDK1_7)
-			return;
 		this.runNegativeTest(
 		   new String[] {
 			   "Foo.java",
@@ -5626,6 +5295,8 @@ public void test438246() {
 			   "  }\n" +
 			   "}\n",
 		   },
+		   this.complianceLevel < ClassFileConstants.JDK1_7 ?
+		   "" :
 		   "----------\n" + 
 			"1. WARNING in Foo.java (at line 9)\n" + 
 			"	public static <C> void doit( Foo<C>... workers )\n" + 

@@ -2840,6 +2840,102 @@ public void test449619() {
 			"The method foo(X.Y<String>) in the type X is not applicable for the arguments (X.Y<Object>)\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429733, [1.8][bytecode] Bad type on operand stack
+public void test429733() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		test(new Some<>(1.1d));\n" +
+			"	}\n" +
+			"	static <S> void test(Option<S> value) {\n" +
+			"	}\n" +
+			"	static interface Option<T> {\n" +
+			"	}\n" +
+			"	static class Some<T> implements Option<T> {\n" +
+			"		Some(T value) {\n" +
+			"         System.out.println(value);\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"1.1");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429733, [1.8][bytecode] Bad type on operand stack
+public void test429733a() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		test(new Some<Double>(1.1d));\n" +
+			"	}\n" +
+			"	static <S> void test(Option<S> value) {\n" +
+			"	}\n" +
+			"	static interface Option<T> {\n" +
+			"	}\n" +
+			"	static class Some<T> implements Option<T> {\n" +
+			"		Some(T value) {\n" +
+			"         System.out.println(value);\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"1.1");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=375394
+public void test375394a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    B<C, ? extends C<C>, ? extends C<C>> b = new B<>();\n" +
+			"}\n" +
+			"class B <T, U extends C<T>, V extends U>{}\n" +
+			"class C<T> {}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	B<C, ? extends C<C>, ? extends C<C>> b = new B<>();\n" + 
+		"	  ^\n" + 
+		"C is a raw type. References to generic type C<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 2)\n" + 
+		"	B<C, ? extends C<C>, ? extends C<C>> b = new B<>();\n" + 
+		"	                 ^\n" + 
+		"C is a raw type. References to generic type C<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 2)\n" + 
+		"	B<C, ? extends C<C>, ? extends C<C>> b = new B<>();\n" + 
+		"	                                 ^\n" + 
+		"C is a raw type. References to generic type C<T> should be parameterized\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427728, [1.8] Type Inference rejects calls requiring boxing/unboxing  
+public void test427728b() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collections;\n" +
+			"import java.util.LinkedHashMap;\n" +
+			"import java.util.Map;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		   Map<X, Integer> map = new LinkedHashMap<>();\n" +
+			"		   map.put(null, X.getInt());\n" +
+			"		   map.put(null, X.getint());\n" +
+			"		}\n" +
+			"		private static <T> int getInt() {\n" +
+			"		   return 0;\n" +
+			"		}\n" +
+			"		private static int getint() {\n" +
+			"			   return 0;\n" +
+			"		}\n" +
+			"}\n"
+		},
+		"");
+}
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
 }
