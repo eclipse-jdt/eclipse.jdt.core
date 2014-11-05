@@ -902,14 +902,16 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         this.freeParameters = descriptorParameters;
         this.checkingPotentialCompatibility = true;
         try {
-        	MethodBinding compileTimeDeclaration = isMethodReference ? scope.getMethod(this.receiverType, this.selector, descriptorParameters, this) :
-        		scope.getConstructor((ReferenceBinding) this.receiverType, descriptorParameters, this);
+        	MethodBinding compileTimeDeclaration = 
+        			this.exactMethodBinding != null ? this.exactMethodBinding :
+        							isMethodReference ? scope.getMethod(this.receiverType, this.selector, descriptorParameters, this) :
+        												scope.getConstructor((ReferenceBinding) this.receiverType, descriptorParameters, this);
 
         	if (compileTimeDeclaration != null && compileTimeDeclaration.isValidBinding()) // we have the mSMB.
         		this.potentialMethods = new MethodBinding [] { compileTimeDeclaration };
         	else {
         		/* We EITHER have potential methods that are input to Scope.mSMb already captured in this.potentialMethods 
-        	       OR there are no potentially compatible compile time declaration ...
+        	       OR there is no potentially compatible compile time declaration ...
         		 */
         	}
 
@@ -935,13 +937,13 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 
         	System.arraycopy(descriptorParameters, 1, descriptorParameters = new TypeBinding[parametersLength - 1], 0, parametersLength - 1);
         	this.freeParameters = descriptorParameters;
-        	compileTimeDeclaration = scope.getMethod(this.receiverType, this.selector, descriptorParameters, this);
+        	compileTimeDeclaration = this.exactMethodBinding != null ? this.exactMethodBinding : scope.getMethod(this.receiverType, this.selector, descriptorParameters, this);
         
         	if (compileTimeDeclaration != null && compileTimeDeclaration.isValidBinding()) // we have the mSMB.
         		this.potentialMethods = new MethodBinding [] { compileTimeDeclaration };
         	else {
         		/* We EITHER have potential methods that are input to Scope.mSMb already captured in this.potentialMethods 
-              	   OR there are no potentially compatible compile time declaration ...
+              	   OR there is no potentially compatible compile time declaration ...
         		*/
         	}
         	for (int i = 0, length = this.potentialMethods.length; i < length; i++) {
@@ -952,6 +954,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         } finally {
         	this.checkingPotentialCompatibility = false;
         	this.potentialMethods = Binding.NO_METHODS;
+        	this.freeParameters = null; // not used after method lookup
         }
         return false;
 	}

@@ -158,17 +158,18 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 
 	public static MethodBinding computeCompatibleMethod18(MethodBinding originalMethod, TypeBinding[] arguments, final Scope scope, InvocationSite invocationSite) {
 		
-		ParameterizedGenericMethodBinding methodSubstitute = null;
 		TypeVariableBinding[] typeVariables = originalMethod.typeVariables;
+		if (invocationSite.checkingPotentialCompatibility()) {
+			// Not interested in a solution, only that there could potentially be one.
+			return scope.environment().createParameterizedGenericMethod(originalMethod, typeVariables);
+		}
+		
+		ParameterizedGenericMethodBinding methodSubstitute = null;
 		InferenceContext18 infCtx18 = invocationSite.freshInferenceContext(scope);
 		TypeBinding[] parameters = originalMethod.parameters;
 		CompilerOptions compilerOptions = scope.compilerOptions();
 		boolean invocationTypeInferred = false;
 		boolean requireBoxing = false;
-		
-		if (invocationSite.checkingPotentialCompatibility()) {
-			return scope.environment().createParameterizedGenericMethod(originalMethod, typeVariables);
-		}
 		
 		// See if we should start in loose inference mode.
 		TypeBinding [] argumentsCopy = new TypeBinding[arguments.length];
