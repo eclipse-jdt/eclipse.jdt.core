@@ -4022,7 +4022,7 @@ public void invalidFileNameForPackageAnnotations(Annotation annotation) {
 			annotation.sourceEnd);
 }
 
-public void invalidMethod(MessageSend messageSend, MethodBinding method) {
+public void invalidMethod(MessageSend messageSend, MethodBinding method, Scope scope) {
 	if (isRecoveredName(messageSend.selector)) return;
 
 	int id = IProblem.UndefinedMethod; //default...
@@ -4235,13 +4235,14 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 			shownMethod = problemMethod.closestMatch;
 			if (problemMethod.returnType == shownMethod.returnType) //$IDENTITY-COMPARISON$
 				return; // funnily this can happen in a deeply nested call, because the inner lies by stealing its closest match and the outer does not know so. See GRT1_8.testBug430296
+			TypeBinding shownMethodReturnType = shownMethod.returnType.capture(scope, messageSend.sourceStart, messageSend.sourceEnd);
 			this.handle(
 				IProblem.TypeMismatch,
 				new String[] {
-				        String.valueOf(shownMethod.returnType.readableName()),
+				        String.valueOf(shownMethodReturnType.readableName()),
 				        (problemMethod.returnType != null ? String.valueOf(problemMethod.returnType.readableName()) : "<unknown>")}, //$NON-NLS-1$
 				new String[] {
-				        String.valueOf(shownMethod.returnType.shortReadableName()),
+				        String.valueOf(shownMethodReturnType.shortReadableName()),
 				        (problemMethod.returnType != null ? String.valueOf(problemMethod.returnType.shortReadableName()) : "<unknown>")}, //$NON-NLS-1$
 				messageSend.sourceStart,
 				messageSend.sourceEnd);

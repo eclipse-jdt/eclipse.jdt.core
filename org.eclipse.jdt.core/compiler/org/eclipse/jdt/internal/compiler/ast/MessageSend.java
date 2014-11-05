@@ -720,7 +720,7 @@ public TypeBinding resolveType(BlockScope scope) {
 								 declaringClass.isAnonymousType() &&
 								 declaringClass.superclass() instanceof MissingTypeBinding;
 		if (!avoidSecondary)
-			scope.problemReporter().invalidMethod(this, this.binding);
+			scope.problemReporter().invalidMethod(this, this.binding, scope);
 		MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;
 		switch (this.binding.problemId()) {
 			case ProblemReasons.Ambiguous :
