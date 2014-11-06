@@ -383,17 +383,15 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	
 	public TypeBinding resolveType(BlockScope scope) {
 		
-		if (this.expectedType != null && this.original == this) {  // final resolution ? may be not - i.e may be, but only in a non-final universe.
-			recordFunctionalType(scope);
-		}
-		
 		final CompilerOptions compilerOptions = scope.compilerOptions();
 		TypeBinding lhsType;
     	if (this.constant != Constant.NotAConstant) {
     		this.constant = Constant.NotAConstant;
     		this.enclosingScope = scope;
-    		this.lhs.bits |= ASTNode.IgnoreRawTypeCheck;
+    		if (this.original == this)
+    			recordFunctionalType(scope);
 
+    		this.lhs.bits |= ASTNode.IgnoreRawTypeCheck;
     		lhsType = this.lhs.resolveType(scope);
     		this.lhs.computeConversion(scope, lhsType, lhsType);
     		if (this.typeArguments != null) {
@@ -448,9 +446,23 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
     			scope.problemReporter().nullAnnotationUnsupportedLocation((TypeReference) this.lhs);
     		}
 
+    		if (isConstructorReference() && lhsType.isArrayType()) {
+	        	final TypeBinding leafComponentType = lhsType.leafComponentType();
+				if (!leafComponentType.isReifiable()) {
+	        		scope.problemReporter().illegalGenericArray(leafComponentType, this);
+	        		return this.resolvedType = null;
+	        	}
+				if (this.typeArguments != null) {
+	                scope.problemReporter().invalidTypeArguments(this.typeArguments);
+	                return this.resolvedType = null;
+	            }
+	        	this.binding = this.exactMethodBinding = scope.getExactConstructor(lhsType, this);
+	        }
+
 	    	if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
 	    		return this.resolvedType = new PolyTypeBinding(this);
 			}
+
     	} else {
     		lhsType = this.lhs.resolvedType;
     		if (this.typeArgumentsHaveErrors || lhsType == null)
@@ -458,7 +470,13 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
     	}
 
     	super.resolveType(scope);
-		
+
+		/* For Reference expressions unlike other call sites, we always have a receiver _type_ since LHS of :: cannot be empty. 
+		   LHS's resolved type == actual receiver type. All code below only when a valid descriptor is available.
+		*/
+    	if (this.descriptor == null || !this.descriptor.isValidBinding())
+    		return this.resolvedType =  null;
+     
     	// Convert parameters into argument expressions for look up.
 		TypeBinding[] descriptorParameters = descriptorParametersAsArgumentExpressions();
 		
@@ -480,11 +498,6 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		// handle the special case of array construction first.
 		final int parametersLength = descriptorParameters.length;
         if (isConstructorReference() && lhsType.isArrayType()) {
-        	final TypeBinding leafComponentType = lhsType.leafComponentType();
-			if (!leafComponentType.isReifiable()) {
-        		scope.problemReporter().illegalGenericArray(leafComponentType, this);
-        		return this.resolvedType = null;
-        	}
         	if (parametersLength != 1 || scope.parameterCompatibilityLevel(descriptorParameters[0], TypeBinding.INT) == Scope.NOT_COMPATIBLE) {
         		scope.problemReporter().invalidArrayConstructorReference(this, lhsType, descriptorParameters);
         		return this.resolvedType = null;
@@ -493,22 +506,9 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         		scope.problemReporter().constructedArrayIncompatible(this, lhsType, this.descriptor.returnType);
         		return this.resolvedType = null;
         	}
-
-            if (this.typeArguments != null) {
-                scope.problemReporter().invalidTypeArguments(this.typeArguments);
-                return this.resolvedType = null;
-            }
-
-        	this.binding = this.exactMethodBinding = scope.getExactConstructor(lhsType, this);
         	return this.resolvedType;
         }
 
-		/* For Reference expressions unlike other call sites, we always have a receiver _type_ since LHS of :: cannot be empty. 
-		   LHS's resolved type == actual receiver type. All code below only when a valid descriptor is available.
-		 */
-        if (this.descriptor == null || !this.descriptor.isValidBinding())
-        	return this.resolvedType =  null;
-        
         // 15.13.1
         final boolean isMethodReference = isMethodReference();
         this.depth = 0;

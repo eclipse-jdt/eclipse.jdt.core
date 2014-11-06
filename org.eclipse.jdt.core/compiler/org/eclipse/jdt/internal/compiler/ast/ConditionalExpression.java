@@ -464,7 +464,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			if (conditionType == null || this.originalValueIfTrueType == null || this.originalValueIfFalseType == null)
 				return null;
 		} else {
-
 			if (this.originalValueIfTrueType.kind() == Binding.POLY_TYPE)
 				this.originalValueIfTrueType = this.valueIfTrue.resolveType(scope);
 			if (this.originalValueIfFalseType.kind() == Binding.POLY_TYPE)
@@ -477,10 +476,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		}
 		if (isPolyExpression()) {
 			if (this.expectedType == null) {
-				return new PolyTypeBinding(this);
+				return this.resolvedType = new PolyTypeBinding(this);
 			}
 			return this.resolvedType = computeConversions(scope, this.expectedType) ? this.expectedType : null;
 		}
+
 		TypeBinding valueIfTrueType = this.originalValueIfTrueType;
 		TypeBinding valueIfFalseType = this.originalValueIfFalseType;
 		if (use15specifics && TypeBinding.notEquals(valueIfTrueType, valueIfFalseType)) {

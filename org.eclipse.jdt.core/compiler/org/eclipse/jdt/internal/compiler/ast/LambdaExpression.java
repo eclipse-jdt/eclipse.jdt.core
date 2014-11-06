@@ -228,22 +228,23 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	 */
 	public TypeBinding resolveType(BlockScope blockScope) {
 		
-		if (this.expectedType != null && this.original == this) {  // final resolution ? may be not - i.e may be, but only in a non-final universe.
-			this.ordinal = recordFunctionalType(blockScope);
-		}
-		
-		this.constant = Constant.NotAConstant;
-		this.enclosingScope = blockScope;
-		
 		boolean argumentsTypeElided = argumentsTypeElided();
 		int length = this.arguments == null ? 0 : this.arguments.length;
-		if (!argumentsTypeElided) {
-			for (int i = 0; i < length; i++)
-				this.argumentTypes[i] = this.arguments[i].type.resolveType(blockScope, true /* check bounds*/);
+		
+		if (this.constant != Constant.NotAConstant) {
+			this.constant = Constant.NotAConstant;
+			this.enclosingScope = blockScope;
+			if (this.original == this)
+				this.ordinal = recordFunctionalType(blockScope);
+			
+			if (!argumentsTypeElided) {
+				for (int i = 0; i < length; i++)
+					this.argumentTypes[i] = this.arguments[i].type.resolveType(blockScope, true /* check bounds*/);
+			}
+			if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
+				return this.resolvedType = new PolyTypeBinding(this);
+			} 
 		}
-		if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
-			return this.resolvedType = new PolyTypeBinding(this);
-		} 
 		
 		MethodScope methodScope = blockScope.methodScope();
 		this.scope = new MethodScope(blockScope, this, methodScope.isStatic, methodScope.lastVisibleFieldID);

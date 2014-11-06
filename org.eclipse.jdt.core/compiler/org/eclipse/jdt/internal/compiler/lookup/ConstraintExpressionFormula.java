@@ -169,7 +169,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				if (!lambda.argumentsTypeElided()) {
 					Argument[] arguments = lambda.arguments();
 					for (int i = 0; i < parameters.length; i++)
-						result.add(ConstraintTypeFormula.create(parameters[i], arguments[i].type.resolveType(lambda.enclosingScope), SAME));
+						result.add(ConstraintTypeFormula.create(parameters[i], arguments[i].type.resolvedType, SAME));
 					// in addition, ⟨T' <: T⟩:
 					if (lambda.resolvedType != null)
 						result.add(ConstraintTypeFormula.create(lambda.resolvedType, this.right, SUBTYPE));
