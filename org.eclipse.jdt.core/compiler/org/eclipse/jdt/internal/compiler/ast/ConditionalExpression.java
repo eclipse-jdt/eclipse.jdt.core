@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class ConditionalExpression extends OperatorExpression {
+public class ConditionalExpression extends OperatorExpression implements IPolyExpression {
 
 	public Expression condition, valueIfTrue, valueIfFalse;
 	public Constant optimizedBooleanConstant;
@@ -58,10 +58,8 @@ public class ConditionalExpression extends OperatorExpression {
 	private TypeBinding originalValueIfTrueType;
 	private TypeBinding originalValueIfFalseType;
 	private boolean use18specifics;
-	public ConditionalExpression(
-		Expression condition,
-		Expression valueIfTrue,
-		Expression valueIfFalse) {
+
+	public ConditionalExpression(Expression condition, Expression valueIfTrue, Expression valueIfFalse) {
 		this.condition = condition;
 		this.valueIfTrue = valueIfTrue;
 		this.valueIfFalse = valueIfFalse;
@@ -800,11 +798,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		return isPolyExpression() ?
 				this.valueIfTrue.sIsMoreSpecific(s, t, scope) && this.valueIfFalse.sIsMoreSpecific(s, t, scope):
 				false;
-	}
-	
-	public void tagAsEllipsisArgument() {
-		this.valueIfTrue.tagAsEllipsisArgument();
-		this.valueIfFalse.tagAsEllipsisArgument();
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

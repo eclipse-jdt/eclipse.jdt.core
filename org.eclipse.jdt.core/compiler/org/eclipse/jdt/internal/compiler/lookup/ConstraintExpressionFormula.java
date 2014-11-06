@@ -155,7 +155,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					for (int i = 0; i < parameters.length; i++)
 						if (!parameters[i].isProperType(true))
 							return FALSE;
-				lambda = lambda.getResolvedCopyForInferenceTargeting(t);
+				lambda = lambda.resolveExpressionExpecting(t, inferenceContext.scope);
 				if (lambda == null)
 					return FALSE; // not strictly unreduceable, but proceeding with TRUE would likely produce secondary errors
 				if (functionType.returnType == TypeBinding.VOID) {
@@ -238,7 +238,8 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 		if (functionType == null)
 			return FALSE;
 		// potentially-applicable method for the method reference when targeting T (15.13.1),
-		MethodBinding potentiallyApplicable = reference.findCompileTimeMethodTargeting(t, inferenceContext.scope);
+		reference = reference.resolveExpressionExpecting(t, inferenceContext.scope);
+		MethodBinding potentiallyApplicable = reference != null ? reference.binding : null;
 		if (potentiallyApplicable == null)
 			return FALSE;
 		if (reference.isExactMethodReference()) {
@@ -433,7 +434,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				if (sam.returnType != TypeBinding.VOID) {
 					// ii)
 					final TypeBinding r = sam.returnType;
-					LambdaExpression resolved = lambda.getResolvedCopyForInferenceTargeting(this.right);
+					LambdaExpression resolved = lambda.resolveExpressionExpecting(this.right, context.scope);
 					Expression[] resultExpressions = resolved != null ? resolved.resultExpressions() : null;
 					for (int i = 0, length = resultExpressions == null ? 0 : resultExpressions.length; i < length; i++) {
 						variables.addAll(new ConstraintExpressionFormula(resultExpressions[i], r, COMPATIBLE).inputVariables(context));

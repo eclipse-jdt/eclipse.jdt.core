@@ -456,7 +456,7 @@ public class InferenceContext18 {
 						t = ConstraintExpressionFormula.findGroundTargetType(this, skope, lambda, withWildCards);
 					}
 					MethodBinding functionType;
-					if (t != null && (functionType = t.getSingleAbstractMethod(skope, true)) != null && (lambda = lambda.getResolvedCopyForInferenceTargeting(t)) != null) {
+					if (t != null && (functionType = t.getSingleAbstractMethod(skope, true)) != null && (lambda = lambda.resolveExpressionExpecting(t, this.scope)) != null) {
 						TypeBinding r = functionType.returnType;
 						Expression[] resultExpressions = lambda.resultExpressions();
 						for (int i = 0, length = resultExpressions == null ? 0 : resultExpressions.length; i < length; i++) {

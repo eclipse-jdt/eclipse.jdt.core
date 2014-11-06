@@ -622,6 +622,10 @@ public boolean isCompatibleWith(TypeBinding right) {
 // version that allows to capture a type bound using 'scope':
 public abstract boolean isCompatibleWith(TypeBinding right, /*@Nullable*/ Scope scope);
 
+public boolean isPotentiallyCompatibleWith(TypeBinding right, /*@Nullable*/ Scope scope) {
+	return isCompatibleWith(right, scope);
+}
+
 /* Answer true if the receiver type can be assigned to the argument type (right) with boxing/unboxing applied.
  */
 public boolean isBoxingCompatibleWith(TypeBinding right, /*@NonNull */ Scope scope) {

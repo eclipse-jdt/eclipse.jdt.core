@@ -1064,6 +1064,10 @@ public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedTy
 	return expressionType;
 }
 
+public Expression resolveExpressionExpecting(TypeBinding targetType, Scope scope) {
+	return this; // subclasses should implement for a better resolved expression if required.
+}
+
 /**
  * Returns true if the receiver is forced to be of raw type either to satisfy the contract imposed
  * by a super type or because it *is* raw and the current type has no control over it (i.e the rawness
@@ -1161,10 +1165,6 @@ public boolean isBoxingCompatibleWith(TypeBinding left, Scope scope) {
 
 public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t, Scope scope) {
 	return s.isCompatibleWith(t, scope);
-}
-
-public void tagAsEllipsisArgument() {
-	// don't care. Subclasses that are poly expressions in specific contexts should listen in and make note.
 }
 
 public boolean isExactMethodReference() {

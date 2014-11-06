@@ -25,7 +25,7 @@ public class SelectionOnReferenceExpression extends ReferenceExpression {
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
 		TypeBinding resolveType = super.resolveType(scope);
-		if (this.expectedType != null && !this.trialResolution)
+		if (this.expectedType != null && this.original == this)
 			throw new SelectionNodeFound(this.descriptor);
 		return resolveType;
 	}

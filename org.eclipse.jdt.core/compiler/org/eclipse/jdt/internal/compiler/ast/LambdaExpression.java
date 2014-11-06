@@ -96,7 +96,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class LambdaExpression extends FunctionalExpression implements ReferenceContext, ProblemSeverities {
+public class LambdaExpression extends FunctionalExpression implements IPolyExpression, ReferenceContext, ProblemSeverities {
 	public Argument [] arguments;
 	private TypeBinding [] argumentTypes;
 	public int arrowPosition;
@@ -875,7 +875,8 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 		return true;
 	}
 
-	private HashMap<TypeBinding, LambdaExpression> resolvedCopies;
+	private HashMap<TypeBinding, LambdaExpression> copiesPerTargetType;
+	protected Expression [] resultExpressions = NO_EXPRESSIONS;
 	
 	/**
 	 * Get a resolved copy of this lambda for use by type inference, as to avoid spilling any premature
@@ -884,18 +885,18 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 	 * @param targetType the target functional type against which inference is attempted, must be a non-null valid functional type 
 	 * @return a resolved copy of 'this' or null if significant errors where encountered
 	 */
-	public LambdaExpression getResolvedCopyForInferenceTargeting(TypeBinding targetType) {
-		LambdaExpression lambda = this.resolvedCopies != null ? this.resolvedCopies.get(targetType) : null;
+	public LambdaExpression resolveExpressionExpecting(TypeBinding targetType, Scope skope) {
+		LambdaExpression lambda = this.copiesPerTargetType != null ? this.copiesPerTargetType.get(targetType) : null;
 		if (lambda == null) {
-			lambda = getResolvedCopyForInferenceTargeting0(targetType);
-			if (this.resolvedCopies == null)
-				this.resolvedCopies = new HashMap<TypeBinding, LambdaExpression>();
-			this.resolvedCopies.put(targetType, lambda);
+			lambda = getResolvedCopyForInferenceTargeting(targetType);
+			if (this.copiesPerTargetType == null)
+				this.copiesPerTargetType = new HashMap<TypeBinding, LambdaExpression>();
+			this.copiesPerTargetType.put(targetType, lambda);
 		}
 		return lambda;
 	}
 	
-	public LambdaExpression getResolvedCopyForInferenceTargeting0(TypeBinding targetType) {
+	private LambdaExpression getResolvedCopyForInferenceTargeting(TypeBinding targetType) {
 		// note: this is essentially a simplified extract from isCompatibleWith(TypeBinding,Scope).
 		if (this.shapeAnalysisComplete && this.binding != null)
 			return this;

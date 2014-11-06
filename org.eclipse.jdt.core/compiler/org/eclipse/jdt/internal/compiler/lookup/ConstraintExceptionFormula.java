@@ -79,14 +79,14 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 		
 		TypeBinding[] ePrime = null;
 		if (this.left instanceof LambdaExpression) {
-			LambdaExpression lambda = ((LambdaExpression) this.left).getResolvedCopyForInferenceTargeting(this.right);
+			LambdaExpression lambda = ((LambdaExpression) this.left).resolveExpressionExpecting(this.right, inferenceContext.scope);
 			if (lambda == null)
 				return TRUE; // cannot make use of this buggy constraint
 			Set<TypeBinding> ePrimeSet = lambda.getThrownExceptions();
 			ePrime = ePrimeSet.toArray(new TypeBinding[ePrimeSet.size()]);
 		} else {
-			ReferenceExpression referenceExpression = (ReferenceExpression)this.left;
-			MethodBinding method = referenceExpression.findCompileTimeMethodTargeting(this.right, scope);
+			ReferenceExpression referenceExpression = ((ReferenceExpression) this.left).resolveExpressionExpecting(this.right, scope);
+			MethodBinding method = referenceExpression != null ? referenceExpression.binding : null;
 			if (method != null)
 				ePrime = method.thrownExceptions;
 		}

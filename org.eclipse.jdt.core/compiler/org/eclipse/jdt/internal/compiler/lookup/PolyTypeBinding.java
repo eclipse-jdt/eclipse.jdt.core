@@ -43,6 +43,11 @@ public class PolyTypeBinding extends TypeBinding {
 	}
 	
 	@Override
+	public boolean isPotentiallyCompatibleWith(TypeBinding targetType, Scope scope) {
+		return this.expression.isPotentiallyCompatibleWith(targetType, scope);
+	}
+	
+	@Override
 	public boolean isPertinentToApplicability(TypeVariableBinding typeVariable, MethodBinding method) {
 		return this.expression.isPertinentToApplicability(typeVariable, method);
 	}

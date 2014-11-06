@@ -8249,6 +8249,11 @@ protected void consumeReferenceExpression(ReferenceExpression referenceExpressio
 	if (!this.parsingJava8Plus) {
 		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
 	}
+	if (referenceExpression.compilationResult.getCompilationUnit() == null) {
+		// unit built out of model. Stash a textual representation to enable RE.copy().
+		int length = referenceExpression.sourceEnd - referenceExpression.sourceStart + 1;
+		System.arraycopy(this.scanner.getSource(), referenceExpression.sourceStart, referenceExpression.text = new char [length], 0, length); 
+	}
 	this.referenceContext.compilationResult().hasFunctionalTypes = true;
 	markEnclosingMemberWithLocalOrFunctionalType(LocalTypeKind.METHOD_REFERENCE);
 }

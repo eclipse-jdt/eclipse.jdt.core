@@ -62,7 +62,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
-public class AllocationExpression extends Expression implements Invocation {
+public class AllocationExpression extends Expression implements IPolyExpression, Invocation {
 
 	public TypeReference type;
 	public Expression[] arguments;

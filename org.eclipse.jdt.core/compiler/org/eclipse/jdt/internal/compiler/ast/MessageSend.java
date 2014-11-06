@@ -100,7 +100,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
-public class MessageSend extends Expression implements Invocation {
+public class MessageSend extends Expression implements IPolyExpression, Invocation {
 
 	public Expression receiver;
 	public char[] selector;
@@ -598,7 +598,7 @@ public StringBuffer printExpression(int indent, StringBuffer output){
 }
 
 public TypeBinding resolveType(BlockScope scope) {
-	// Answer the signature return type, answers PolyTypeBinding if there is at least one generic overloaded candidate that encoded type variables in return type and there is no target type  
+	// Answer the signature return type, answers PolyTypeBinding if a poly expression and there is no target type  
 	// Base type promotion
 	if (this.constant != Constant.NotAConstant) {
 		this.constant = Constant.NotAConstant;
