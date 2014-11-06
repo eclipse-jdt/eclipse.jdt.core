@@ -2282,11 +2282,13 @@ public abstract class Scope {
 				return null;
 			}
 		}
-		final TypeVariableBinding[] typeVariables = exactConstructor.typeVariables();
-		if (typeVariables != Binding.NO_TYPE_VARIABLES) {
-			if (typeVariables.length != genericTypeArguments.length)
-				return null;
-			exactConstructor = environment().createParameterizedGenericMethod(exactConstructor, genericTypeArguments);
+		if (exactConstructor != null) {
+			final TypeVariableBinding[] typeVariables = exactConstructor.typeVariables();
+			if (typeVariables != Binding.NO_TYPE_VARIABLES) {
+				if (typeVariables.length != genericTypeArguments.length)
+					return null;
+				exactConstructor = environment().createParameterizedGenericMethod(exactConstructor, genericTypeArguments);
+			}
 		}
 		return exactConstructor;
 	}
