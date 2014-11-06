@@ -1150,12 +1150,9 @@ public void initialize(JavaProject project, int possibleMatchSize) throws JavaMo
 
 	SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(this.workingCopies);
 
-	// if only one possible match, a file name environment costs too much,
-	// so use the existing searchable  environment which will populate the java model
-	// only for this possible match and its required types.
-	this.nameEnvironment = possibleMatchSize == 1
-		? (INameEnvironment) searchableEnvironment
-		: (INameEnvironment) new JavaSearchNameEnvironment(project, this.workingCopies);
+	this.nameEnvironment = new JavaSearchNameEnvironment(project, this.workingCopies);
+	if (this.pattern.focus != null)  
+		((JavaSearchNameEnvironment) this.nameEnvironment).addProjectClassPath((JavaProject) this.pattern.focus.getJavaProject());
 
 	// create lookup environment
 	Map map = project.getOptions(true);

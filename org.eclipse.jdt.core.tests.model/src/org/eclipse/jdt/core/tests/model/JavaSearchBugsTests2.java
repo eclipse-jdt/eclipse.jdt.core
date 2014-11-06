@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -1736,6 +1737,61 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					"src/com/test/Test2.java FI com.test.Test2.fun1(FI) [fi] EXACT_MATCH");
 		} finally {
 			deleteProject("P");
+		}
+	}
+	public void testBug381392() throws CoreException {
+		IJavaProject egit = null;
+		IJavaProject jgit = null;
+		try	{
+			jgit = createJavaProject("jgit", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			createFolder("/jgit/base");
+			createFile("/jgit/base/AbstractPlotRenderer.java", 
+					"package base;\n" +
+					"public abstract class AbstractPlotRenderer<TLane extends PlotLane, TColor> {\n"+
+					"	protected abstract TColor laneColor(TLane myLane);\n"+
+					"\n"+
+					"	@SuppressWarnings(\"unused\")\n"+
+					"	protected void paintCommit(final PlotCommit<TLane> commit) {\n"+
+					"		final TLane myLane = commit.getLane();\n"+
+					"		final TColor myColor = laneColor(myLane);\n"+
+					"	}\n"+
+					"}\n");
+			createFile("/jgit/base/PlotCommit.java", 
+					"package base;\n"+
+					"public class PlotCommit<L extends PlotLane> {\n"+
+					"	public L getLane() {\n"+
+					"		return null;\n"+
+					"	}\n"+
+					"}");
+			createFile("/jgit/base/PlotLane.java", 
+					"package base;\n"+
+					"public class PlotLane {\n"+
+					"}");
+			egit = createJavaProject("egit", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			createFolder("/egit/bug");
+			createFile("/egit/bug/SWTPlotLane.java", 
+					"package bug;\n" +
+					"import base.PlotLane;\n" +
+					"public class SWTPlotLane extends PlotLane {}");
+			createFile("/egit/bug/SWTPlotRenderer.java", 
+					"package bug;\n" +
+					"import base.AbstractPlotRenderer;\n" +
+					"class SWTPlotRenderer extends AbstractPlotRenderer<SWTPlotLane, Integer> {\n" +
+					"    @Override\n" +
+					"    protected Integer laneColor(SWTPlotLane myLane) {\n" +
+					"        return 1;\n" +
+					"    }\n" +
+					"}");
+			addClasspathEntry(egit, JavaCore.newProjectEntry(jgit.getPath()));
+			
+			// search
+			IType type  = getCompilationUnit("/egit/bug/SWTPlotRenderer.java").getType("SWTPlotRenderer");
+			IMethod method = type.getMethods()[0];
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("base/AbstractPlotRenderer.java void base.AbstractPlotRenderer.paintCommit(PlotCommit<TLane>) [laneColor(myLane)] EXACT_MATCH");
+		} finally {
+			if (jgit != null) deleteProject(jgit);
+			if (egit != null) deleteProject(egit);
 		}
 	}
 }

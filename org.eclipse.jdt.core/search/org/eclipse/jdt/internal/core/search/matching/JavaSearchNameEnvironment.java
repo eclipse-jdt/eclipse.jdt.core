@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,18 +11,13 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import java.util.HashMap;
-import java.util.zip.ZipFile;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-//import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaModelException;
-//import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
@@ -43,7 +38,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaSearchNameEnvironment implements INameEnvironment, SuffixConstants {
 
-	ClasspathLocation[] locations;
+	LinkedHashSet<ClasspathLocation> locationSet;
 
 	/*
 	 * A map from the fully qualified slash-separated name of the main type (String) to the working copy
@@ -51,7 +46,7 @@ public class JavaSearchNameEnvironment implements INameEnvironment, SuffixConsta
 	HashMap workingCopies;
 
 public JavaSearchNameEnvironment(IJavaProject javaProject, org.eclipse.jdt.core.ICompilationUnit[] copies) {
-	computeClasspathLocations(javaProject.getProject().getWorkspace().getRoot(), (JavaProject) javaProject);
+	this.locationSet = computeClasspathLocations((JavaProject) javaProject);
 	try {
 		int length = copies == null ? 0 : copies.length;
 		this.workingCopies = new HashMap(length);
@@ -72,52 +67,50 @@ public JavaSearchNameEnvironment(IJavaProject javaProject, org.eclipse.jdt.core.
 }
 
 public void cleanup() {
-	for (int i = 0, length = this.locations.length; i < length; i++) {
-		this.locations[i].cleanup();
-	}
+	this.locationSet.clear();
 }
 
-private void computeClasspathLocations(IWorkspaceRoot workspaceRoot, JavaProject javaProject) {
+void addProjectClassPath(JavaProject javaProject) {
+	LinkedHashSet<ClasspathLocation> locations = computeClasspathLocations(javaProject);
+	if (locations != null) this.locationSet.addAll(locations);
+}
+
+private LinkedHashSet<ClasspathLocation> computeClasspathLocations(JavaProject javaProject) {
 
 	IPackageFragmentRoot[] roots = null;
 	try {
 		roots = javaProject.getAllPackageFragmentRoots();
 	} catch (JavaModelException e) {
-		// project doesn't exist
-		this.locations = new ClasspathLocation[0];
-		return;
+		return null;// project doesn't exist
 	}
+	LinkedHashSet<ClasspathLocation> locations = new LinkedHashSet<ClasspathLocation>();
 	int length = roots.length;
-	ClasspathLocation[] cpLocations = new ClasspathLocation[length];
-	int index = 0;
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	for (int i = 0; i < length; i++) {
-		PackageFragmentRoot root = (PackageFragmentRoot) roots[i];
-		IPath path = root.getPath();
-		try {
-			if (root.isArchive()) {
-				ZipFile zipFile = manager.getZipFile(path);
-				cpLocations[index++] = new ClasspathJar(zipFile, ((ClasspathEntry) root.getRawClasspathEntry()).getAccessRuleSet());
-			} else {
-				Object target = JavaModel.getTarget(path, true);
-				if (target == null) {
-					// target doesn't exist any longer
-					// just resize cpLocations
-					System.arraycopy(cpLocations, 0, cpLocations = new ClasspathLocation[cpLocations.length-1], 0, index);
-				} else if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
-					cpLocations[index++] = new ClasspathSourceDirectory((IContainer)target, root.fullExclusionPatternChars(), root.fullInclusionPatternChars());
-				} else {
-					cpLocations[index++] = ClasspathLocation.forBinaryFolder((IContainer) target, false, ((ClasspathEntry) root.getRawClasspathEntry()).getAccessRuleSet());
-				}
-			}
-		} catch (CoreException e1) {
-			// problem opening zip file or getting root kind
-			// consider root corrupt and ignore
-			// just resize cpLocations
-			System.arraycopy(cpLocations, 0, cpLocations = new ClasspathLocation[cpLocations.length-1], 0, index);
-		}
+		ClasspathLocation cp = mapToClassPathLocation(manager, (PackageFragmentRoot) roots[i]);
+		if (cp != null) locations.add(cp);
 	}
-	this.locations = cpLocations;
+	return locations;
+}
+
+private ClasspathLocation mapToClassPathLocation( JavaModelManager manager, PackageFragmentRoot root) {
+	ClasspathLocation cp = null;
+	IPath path = root.getPath();
+	try {
+		if (root.isArchive()) {
+			cp = new ClasspathJar(manager.getZipFile(path), ((ClasspathEntry) root.getRawClasspathEntry()).getAccessRuleSet());
+		} else {
+			Object target = JavaModel.getTarget(path, true);
+			if (target != null) 
+				cp = root.getKind() == IPackageFragmentRoot.K_SOURCE ?
+						new ClasspathSourceDirectory((IContainer)target, root.fullExclusionPatternChars(), root.fullInclusionPatternChars()) :
+							ClasspathLocation.forBinaryFolder((IContainer) target, false, ((ClasspathEntry) root.getRawClasspathEntry()).getAccessRuleSet());
+		}
+	} catch (CoreException e1) {
+		// problem opening zip file or getting root kind
+		// consider root corrupt and ignore
+	}
+	return cp;
 }
 
 private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName) {
@@ -126,8 +119,9 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		sourceFileName = null, qSourceFileName = null,
 		qPackageName = null;
 	NameEnvironmentAnswer suggestedAnswer = null;
-	for (int i = 0, length = this.locations.length; i < length; i++) {
-		ClasspathLocation location = this.locations[i];
+	Iterator <ClasspathLocation> iter = this.locationSet.iterator();
+	while (iter.hasNext()) {
+		ClasspathLocation location = iter.next();
 		NameEnvironmentAnswer answer;
 		if (location instanceof ClasspathSourceDirectory) {
 			if (sourceFileName == null) {
@@ -202,9 +196,10 @@ public boolean isPackage(char[][] compoundName, char[] packageName) {
 }
 
 public boolean isPackage(String qualifiedPackageName) {
-	for (int i = 0, length = this.locations.length; i < length; i++)
-		if (this.locations[i].isPackage(qualifiedPackageName))
-			return true;
+	Iterator<ClasspathLocation> iter = this.locationSet.iterator();
+	while (iter.hasNext()) {
+		if (iter.next().isPackage(qualifiedPackageName)) return true;
+	}
 	return false;
 }
 
