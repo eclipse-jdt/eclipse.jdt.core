@@ -837,6 +837,18 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	}
 
 	private LambdaExpression cachedResolvedCopy(TypeBinding targetType, boolean anyTargetOk) {
+
+		targetType = findGroundTargetType(this.enclosingScope, targetType, argumentsTypeElided());
+		if (targetType == null)
+			return null;
+		
+		MethodBinding sam = targetType.getSingleAbstractMethod(this.enclosingScope, true);
+		if (sam == null || !sam.isValidBinding())
+			return null;
+		
+		if (sam.parameters.length != this.arguments.length)
+			return null;
+		
 		LambdaExpression copy = null;
 		if (this.copiesPerTargetType != null) {
 			copy = this.copiesPerTargetType.get(targetType);
@@ -845,14 +857,6 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			if (anyTargetOk && this.copiesPerTargetType.values().size() > 0)
 				return this.copiesPerTargetType.values().iterator().next();
 		}
-		
-		targetType = findGroundTargetType(this.enclosingScope, targetType, argumentsTypeElided());
-		if (targetType == null)
-			return null;
-		
-		MethodBinding sam = targetType.getSingleAbstractMethod(this.enclosingScope, true);
-		if (sam == null || !sam.isValidBinding())
-			return null;
 		
 		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
 		try {
