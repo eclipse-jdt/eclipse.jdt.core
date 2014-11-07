@@ -775,7 +775,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		
 		LambdaExpression copy = null;
 		try {
-			copy = cachedResolvedCopy(targetType);
+			copy = cachedResolvedCopy(targetType, argumentsTypeElided()); // if argument types are elided, we don't care for result expressions against *this* target, any port in a storm is ok.
 		} catch (CopyFailureException cfe) {
 			if (this.assistNode)
 				return true; // can't type check result expressions, just say yes.
@@ -836,10 +836,15 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		private static final long serialVersionUID = 1L;
 	}
 
-	private LambdaExpression cachedResolvedCopy(TypeBinding targetType) {
-		LambdaExpression copy = this.copiesPerTargetType != null ? this.copiesPerTargetType.get(targetType) : null;
-		if (copy != null)
-			return copy;
+	private LambdaExpression cachedResolvedCopy(TypeBinding targetType, boolean anyTargetOk) {
+		LambdaExpression copy = null;
+		if (this.copiesPerTargetType != null) {
+			copy = this.copiesPerTargetType.get(targetType);
+			if (copy != null)
+				return copy;
+			if (anyTargetOk && this.copiesPerTargetType.values().size() > 0)
+				return this.copiesPerTargetType.values().iterator().next();
+		}
 		
 		targetType = findGroundTargetType(this.enclosingScope, targetType, argumentsTypeElided());
 		if (targetType == null)
@@ -881,7 +886,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	public LambdaExpression resolveExpressionExpecting(TypeBinding targetType, Scope skope) {
 		LambdaExpression copy = null;
 		try {
-			copy = cachedResolvedCopy(targetType);
+			copy = cachedResolvedCopy(targetType, false);
 		} catch (CopyFailureException cfe) {
 			return null;
 		}
@@ -938,7 +943,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if (r1.isCompatibleWith(r2, skope))
 			return true;
 		
-		LambdaExpression copy = cachedResolvedCopy(s);
+		LambdaExpression copy = cachedResolvedCopy(s, true /* any resolved copy is good */);
 		Expression [] returnExpressions = copy.resultExpressions;
 		int returnExpressionsLength = returnExpressions == null ? 0 : returnExpressions.length;
 		
