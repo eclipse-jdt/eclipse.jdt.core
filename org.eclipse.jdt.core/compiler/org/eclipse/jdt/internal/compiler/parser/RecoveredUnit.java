@@ -92,7 +92,9 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 				kind != TypeDeclaration.INTERFACE_DECL &&
 				kind != TypeDeclaration.ANNOTATION_TYPE_DECL) {
 			// the } of the last type can be considered as the end of an initializer
-			Initializer initializer = new Initializer(new Block(0), 0);
+			Block block = new Block(0);
+			block.sourceStart = block.sourceEnd = end;
+			Initializer initializer = new Initializer(block, 0);
 			initializer.bodyStart = end;
 			initializer.bodyEnd = end;
 			initializer.declarationSourceStart = end;
