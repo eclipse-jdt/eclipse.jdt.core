@@ -725,18 +725,9 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		return this.descriptor.parameters;
 	}
 
-	public ReferenceExpression resolveExpressionExpecting(TypeBinding targetType, Scope scope) {
-	
-		if (this.exactMethodBinding != null) { // We may see inference variables in target type.
-			MethodBinding functionType = targetType.getSingleAbstractMethod(scope, true);
-			if (functionType == null)
-				return null;
-			int n = functionType.parameters.length;
-			int k = this.exactMethodBinding.parameters.length;
-			return (n == k || n == k + 1) ? this : null;
-		}
-		
-		// We are guaranteed here that we will not see inference variables in descriptor parameters.
+	// Cache resolved copies against various target types, so repeat overload resolution and possibly type inference could be avoided.
+	private ReferenceExpression cachedResolvedCopy(TypeBinding targetType) {
+
 		ReferenceExpression copy = this.copiesPerTargetType != null ? this.copiesPerTargetType.get(targetType) : null;
 		if (copy != null)
 			return copy;
@@ -750,19 +741,29 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			copy.setExpressionContext(this.expressionContext);
 			copy.setExpectedType(targetType);
 			copy.resolveType(this.enclosingScope);
-			registerCopy(targetType, copy);
-			return copy.resolvedType != null && copy.resolvedType.isValidBinding() && copy.binding != null && copy.binding.isValidBinding() ? copy : null;
+			
+			if (this.copiesPerTargetType == null)
+				this.copiesPerTargetType = new HashMap<TypeBinding, ReferenceExpression>();
+			this.copiesPerTargetType.put(targetType, copy);
+			
+			return copy;
 		} finally {
 			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 		}
 	}
-
-	// Cache resolved copies against various target types, so repeat overload resolution and possibly type inference could be avoided.
-	private ReferenceExpression registerCopy(TypeBinding targetType, ReferenceExpression copy) {
-		if (this.copiesPerTargetType == null)
-			this.copiesPerTargetType = new HashMap<TypeBinding, ReferenceExpression>();
-		this.copiesPerTargetType.put(targetType, copy);
-		return copy;
+	
+	public ReferenceExpression resolveExpressionExpecting(TypeBinding targetType, Scope scope) {
+		if (this.exactMethodBinding != null) { // We may see inference variables in target type.
+			MethodBinding functionType = targetType.getSingleAbstractMethod(scope, true);
+			if (functionType == null)
+				return null;
+			int n = functionType.parameters.length;
+			int k = this.exactMethodBinding.parameters.length;
+			return (n == k || n == k + 1) ? this : null;
+		}
+		// descriptors parameters should be free of inference variables.
+		ReferenceExpression copy = cachedResolvedCopy(targetType); 
+		return copy != null && copy.resolvedType != null && copy.resolvedType.isValidBinding() && copy.binding != null && copy.binding.isValidBinding() ? copy : null;
 	}
 
 	public boolean isConstructorReference() {
@@ -964,28 +965,8 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	}
 	
 	public boolean isCompatibleWith(TypeBinding targetType, Scope scope) {
-		ReferenceExpression copy = this.copiesPerTargetType != null ? this.copiesPerTargetType.get(targetType) : null;
-		if (copy != null)
-			return copy.resolvedType != null && copy.resolvedType.isValidBinding() && copy.binding != null && copy.binding.isValidBinding();
-		
-		// 15.13.2
-		final MethodBinding sam = targetType.getSingleAbstractMethod(this.enclosingScope, true);
-		if (sam == null || !sam.isValidBinding())
-			return false;
-		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
-		try {
-			copy = copy();
-			if (copy == null) { // should never happen even for code assist.
-				return false;
-			}
-			copy.setExpressionContext(this.expressionContext);
-			copy.setExpectedType(targetType);
-			copy.resolveType(this.enclosingScope);
-			registerCopy(targetType, copy);
-			return copy.resolvedType != null && copy.resolvedType.isValidBinding() && copy.binding != null && copy.binding.isValidBinding();
-		} finally {
-			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
-		}
+		ReferenceExpression copy = cachedResolvedCopy(targetType);
+		return copy != null && copy.resolvedType != null && copy.resolvedType.isValidBinding() && copy.binding != null && copy.binding.isValidBinding();
 	}
 	
 	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t, Scope scope) {

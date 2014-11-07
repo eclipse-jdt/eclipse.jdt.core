@@ -2526,4 +2526,60 @@ public void test448801() {
 			"Cannot use super in a static context\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=450415, [1.8][compiler] Failure to resolve overloaded call. 
+public void test450415() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" +
+				"interface I {\n" +
+				"	String foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	List<String> foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    static void goo(I i) {\n" +
+				"    	System.out.println(\"goo(I)\");\n" +
+				"    }\n" +
+				"    static void goo(J j) {\n" +
+				"    	System.out.println(\"goo(J)\");\n" +
+				"    }\n" +
+				"    static <T> List<T> loo() {\n" +
+				"    	return null;\n" +
+				"    }\n" +
+				"    public static void main(String[] args) {\n" +
+				"		goo(()->loo());\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"goo(J)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=450415, [1.8][compiler] Failure to resolve overloaded call.   
+public void test450415a() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	static <T> void foo() {\n" +
+				"		class Y {\n" +
+				"			void goo(T t) {\n" +
+				"				System.out.println(\"T\");\n" +
+				"			}\n" +
+				"			void goo(I i) {\n" +
+				"				System.out.println(\"I\");\n" +
+				"			}\n" +
+				"		}\n" +
+				"		new Y().goo(()->{});\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo();\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"I");
+}
 }

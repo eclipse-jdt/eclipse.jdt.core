@@ -734,7 +734,7 @@ public abstract class Scope {
 				Invocation invocation = (Invocation) invocationSite;
 				InferenceContext18 infCtx = invocation.getInferenceContext((ParameterizedGenericMethodBinding) method);
 				if (infCtx != null)
-					return method; // inference is responsible, no need to recheck, actually we could check functional arguments, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=437444#c125
+					return method; // inference is responsible, no need to recheck.
 			}
 		} else if (genericTypeArguments != null && compilerOptions.complianceLevel < ClassFileConstants.JDK1_7) {
 			if (method instanceof ParameterizedGenericMethodBinding) {
@@ -4598,21 +4598,17 @@ public abstract class Scope {
 			} else if (site instanceof ReferenceExpression) {
 				inferenceKind = ((ReferenceExpression) site).inferenceKind;
 			}
-			/* 1.8+ Post inference compatibility check policy: For non-functional-type arguments, trust inference. For functional type arguments apply compatibility checks as inference
-			   engine may not have checked arguments that are not pertinent to applicability. One complication to deal with is when the generic method's parameter is its own type variable 
-			   and only applicability was inferred and applicability inference instantiated it with jlO due to lack of upper bounds in the bound set.
-			*/
-			if (site instanceof Invocation && context != null) { // this block can be readily seen to be not relevant for reference expressions
+			/* 1.8+ Post inference compatibility check policy: For non-functional-type arguments, trust inference. For functional type arguments apply compatibility checks after inference
+			   has completed to ensure arguments that were not pertinent to applicability which have only seen potential compatibility checks are actually compatible.
+			*/   
+			if (site instanceof Invocation && context != null && context.stepCompleted >= InferenceContext18.TYPE_INFERRED) {
 				for (int i = 0, length = arguments.length; i < length; i++) {
 					TypeBinding argument = arguments[i];
 					if (!argument.isFunctionalType())
 						continue;
 					TypeBinding parameter = InferenceContext18.getParameter(method.parameters, i, context.isVarArgs());
-					if (argument.isCompatibleWith(parameter, this))
-						continue;
-					if (context.stepCompleted >= InferenceContext18.TYPE_INFERRED)
+					if (!argument.isCompatibleWith(parameter, this))
 						return NOT_COMPATIBLE;
-					continue; // Engine has already asserted potential compatibility and that is all we can do.
 				}
 			}
 			switch (inferenceKind) {

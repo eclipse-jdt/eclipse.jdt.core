@@ -537,7 +537,7 @@ public class InferenceContext18 {
 				TypeBinding[] a = targetTypeWithWildCards.arguments; // a is not-null by construction of parameterizedWithWildcard()
 				TypeBinding[] aprime = getFunctionInterfaceArgumentSolutions(a);
 				// TODO If F<A'1, ..., A'm> is a well-formed type, ...
-				return blockScope.environment().createParameterizedType(genericType, aprime, genericType.enclosingType());
+				return blockScope.environment().createParameterizedType(genericType, aprime, targetTypeWithWildCards.enclosingType());
 			}
 		}
 		return targetTypeWithWildCards;

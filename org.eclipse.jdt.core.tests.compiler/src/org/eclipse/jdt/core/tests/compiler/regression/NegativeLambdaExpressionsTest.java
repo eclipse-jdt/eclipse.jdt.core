@@ -5893,8 +5893,8 @@ public void test401939d() {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 8)\n" + 
 				"	goo((x) -> { if (x) return null; });\n" + 
-				"	^^^\n" + 
-				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
+				"	    ^^^^^^\n" + 
+				"This method must return a result of type String\n" + 
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
@@ -9789,11 +9789,6 @@ public void testGroundTargetTypeWithWithWildcards() {
 		}, 
 		"----------\n" + 
 		"1. ERROR in X.java (at line 10)\n" + 
-		"	return m((X x1, X x2) -> { return new Y(); });\n" + 
-		"	       ^\n" + 
-		"The method m(I<? extends A,? extends B,? extends C>) in the type X is not applicable for the arguments ((X x1, X x2) -> {})\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 10)\n" + 
 		"	return m((X x1, X x2) -> { return new Y(); });\n" + 
 		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from I<X,X,? extends C> to I<? extends A,? extends B,? extends C>\n" + 
