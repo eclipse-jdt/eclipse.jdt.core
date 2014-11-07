@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Vladimir Piskarev <pisv@1c.ru> - Thread safety of OpenableElementInfo - https://bugs.eclipse.org/450490
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -20,7 +21,7 @@ public class OpenableElementInfo extends JavaElementInfo {
 	 * object. This is an empty array if this element has
 	 * no children.
 	 */
-	protected IJavaElement[] children = JavaElement.NO_ELEMENTS;
+	protected volatile IJavaElement[] children = JavaElement.NO_ELEMENTS;
 	
 	/**
 	 * Is the structure of this element known
@@ -29,16 +30,19 @@ public class OpenableElementInfo extends JavaElementInfo {
 	protected boolean isStructureKnown = false;
 
 	public void addChild(IJavaElement child) {
-		int length = this.children.length;
+		IJavaElement[] oldChildren = this.children;
+		int length = oldChildren.length;
 		if (length == 0) {
 			this.children = new IJavaElement[] {child};
 		} else {
 			for (int i = 0; i < length; i++) {
-				if (this.children[i].equals(child))
+				if (oldChildren[i].equals(child))
 					return; // already included
 			}
-			System.arraycopy(this.children, 0, this.children = new IJavaElement[length+1], 0, length);
-			this.children[length] = child;
+			IJavaElement[] newChildren = new IJavaElement[length+1];
+			System.arraycopy(oldChildren, 0, newChildren, 0, length);
+			newChildren[length] = child;
+			this.children = newChildren;
 		}
 	}
 
@@ -54,16 +58,16 @@ public class OpenableElementInfo extends JavaElementInfo {
 	}
 
 	public void removeChild(IJavaElement child) {
-		for (int i = 0, length = this.children.length; i < length; i++) {
-			IJavaElement element = this.children[i];
-			if (element.equals(child)) {
+		IJavaElement[] oldChildren = this.children;
+		for (int i = 0, length = oldChildren.length; i < length; i++) {
+			if (oldChildren[i].equals(child)) {
 				if (length == 1) {
 					this.children = JavaElement.NO_ELEMENTS;
 				} else {
 					IJavaElement[] newChildren = new IJavaElement[length-1];
-					System.arraycopy(this.children, 0, newChildren , 0, i);
+					System.arraycopy(oldChildren, 0, newChildren , 0, i);
 					if (i < length-1)
-						System.arraycopy(this.children, i+1, newChildren, i, length-1-i);
+						System.arraycopy(oldChildren, i+1, newChildren, i, length-1-i);
 					this.children = newChildren;
 				}
 				break;
