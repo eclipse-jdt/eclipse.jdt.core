@@ -436,6 +436,26 @@ public void test448954() {
 	},
 	"Right!");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=450380, [1.8][compiler] NPE in Scope.getExactConstructor(..) for bad constructor reference
+public void test450380() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"import java.util.ArrayList;\n" +
+			"import java.util.function.IntFunction;\n" +
+			"public class X {\n" +
+			"    IntFunction<ArrayList<String>> noo() {\n" +
+			"        return System::new;\n" +
+			"    }\n" +
+			"}\n"
+	},
+	"----------\n" + 
+	"1. ERROR in X.java (at line 5)\n" + 
+	"	return System::new;\n" + 
+	"	       ^^^^^^^^^^^\n" + 
+	"The type System does not define System(int) that is applicable here\n" + 
+	"----------\n");
+}
 public static Class testClass() {
 	return LambdaRegressionTest.class;
 }
