@@ -52,25 +52,9 @@ public void addAll(IType[] newElements) {
 	this.size += newElements.length;
 }
 public boolean contains(IType element) {
-	for (int i = this.size; --i >= 0;) {
-		/* Note: When creating new subtypes of RST, need to check whether this code
-		 * which gives special treatment to lambda needs modification or not - refer to bug 436139
-		 * An alternate could have been the following:
-		 * if (element.equals(this.elements[i) && this.elements[i].equals(element)) return true;
-		 * but the above has the issue of repeating the steps in most of the cases.
-		 */
-		IType firstElement = null;
-		IType secondElement = null;
-		if (element.isLambda()) {
-			firstElement = element;
-			secondElement = this.elements[i];
-		} else {
-			firstElement = this.elements[i];
-			secondElement = element;
-		}
-		if (firstElement.equals(secondElement))
+	for (int i = this.size; --i >= 0;) 
+		if (element.equals(this.elements[i]))
 			return true;
-	}
 	return false;
 }
 public TypeVector copy() {
