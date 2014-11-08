@@ -4588,7 +4588,7 @@ public abstract class Scope {
 	// Version that just answers based on inference kind (at 1.8+) when available.
 	public int parameterCompatibilityLevel(MethodBinding method, TypeBinding[] arguments, InvocationSite site) {
 		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8 && method instanceof ParameterizedGenericMethodBinding) {
-			int inferenceKind = InferenceContext18.CHECK_STRICT;
+			int inferenceKind = InferenceContext18.CHECK_UNKNOWN;
 			InferenceContext18 context = null;
 			if (site instanceof Invocation) {
 				Invocation invocation = (Invocation) site;

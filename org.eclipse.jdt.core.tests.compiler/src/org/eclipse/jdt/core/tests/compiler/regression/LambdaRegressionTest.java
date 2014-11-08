@@ -474,6 +474,21 @@ public void test450604() {
 	},
 	"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=450604, [1.8] CCE at InferenceContext18.getParameter line 1377
+public void test450604a() {
+	this.runConformTest(
+		new String[] {
+			"X.java", 
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	public static <T> List<T> of() { return null; }\n" +
+			"	public static @SafeVarargs <T> List<T> of(T... values) { return null; }\n" +
+			"	static void walkAll() {\n" +
+			"		X.<String> of();\n" +
+			"	}\n" +
+			"}\n"
+	});
+}
 public static Class testClass() {
 	return LambdaRegressionTest.class;
 }
