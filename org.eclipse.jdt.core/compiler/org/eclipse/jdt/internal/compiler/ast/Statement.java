@@ -412,16 +412,4 @@ protected MethodBinding findConstructorBinding(BlockScope scope, Invocation site
 	resolvePolyExpressionArguments(site, ctorBinding, argumentTypes, scope);
 	return ctorBinding;
 }
-/**
- * If an exception-throwing statement is resolved within the scope of a lambda, record the exception type(s).
- * It is likely wrong to do this during resolve, should probably use precise flow information.
- */
-protected void recordExceptionsForEnclosingLambda(BlockScope scope, TypeBinding... thrownExceptions) {
-	MethodScope methodScope = scope.methodScope();
-	if (methodScope != null && methodScope.referenceContext instanceof LambdaExpression) {
-		LambdaExpression lambda = (LambdaExpression) methodScope.referenceContext;
-		for (int i = 0; i < thrownExceptions.length; i++)
-			lambda.throwsException(thrownExceptions[i]);
-	}
-}
 }

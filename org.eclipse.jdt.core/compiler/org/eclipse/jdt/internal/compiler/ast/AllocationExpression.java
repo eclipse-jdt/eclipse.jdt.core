@@ -490,7 +490,6 @@ public TypeBinding resolveType(BlockScope scope) {
 		new ImplicitNullAnnotationVerifier(scope.environment(), compilerOptions.inheritNullAnnotations)
 				.checkImplicitNullAnnotations(this.binding, null/*srcMethod*/, false, scope);
 	}
-	recordExceptionsForEnclosingLambda(scope, this.binding.thrownExceptions);
 	return this.resolvedType;
 }
 

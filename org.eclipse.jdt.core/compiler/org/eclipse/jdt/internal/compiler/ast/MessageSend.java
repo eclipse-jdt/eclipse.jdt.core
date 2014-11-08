@@ -863,7 +863,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
 		scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.genericTypeArguments, this.typeArguments);
 	}
-	recordExceptionsForEnclosingLambda(scope, this.binding.thrownExceptions);
 	return (this.resolvedType.tagBits & TagBits.HasMissingType) == 0
 				? this.resolvedType
 				: null;

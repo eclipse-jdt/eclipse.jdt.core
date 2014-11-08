@@ -57,6 +57,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.ExceptionInferenceFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
@@ -482,10 +483,12 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	}
 
 	private void analyzeExceptions() {
+		ExceptionHandlingFlowContext ehfc;
 		try {
 			this.body.analyseCode(this.scope, 
-									 new ExceptionHandlingFlowContext(null, this, Binding.NO_EXCEPTIONS, null, this.scope, FlowInfo.DEAD_END), 
+									 ehfc = new ExceptionInferenceFlowContext(null, this, Binding.NO_EXCEPTIONS, null, this.scope, FlowInfo.DEAD_END), 
 									 UnconditionalFlowInfo.fakeInitializedFlowInfo(this.scope.outerMostMethodScope().analysisIndex, this.scope.referenceType().maxFieldCount));
+			this.thrownExceptions = ehfc.extendedExceptions == null ? Collections.emptySet() : new HashSet<TypeBinding>(ehfc.extendedExceptions);
 		} catch (Exception e) {
 			// drop silently.
 		}
@@ -774,7 +777,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		
 		LambdaExpression copy = null;
 		try {
-			copy = cachedResolvedCopy(targetType, argumentsTypeElided()); // if argument types are elided, we don't care for result expressions against *this* target, any valid target is OK.
+			copy = cachedResolvedCopy(targetType, argumentsTypeElided(), false); // if argument types are elided, we don't care for result expressions against *this* target, any valid target is OK.
 		} catch (CopyFailureException cfe) {
 			if (this.assistNode)
 				return true; // can't type check result expressions, just say yes.
@@ -812,7 +815,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		private static final long serialVersionUID = 1L;
 	}
 
-	private LambdaExpression cachedResolvedCopy(TypeBinding targetType, boolean anyTargetOk) {
+	private LambdaExpression cachedResolvedCopy(TypeBinding targetType, boolean anyTargetOk, boolean requireExceptionAnalysis) {
 
 		targetType = findGroundTargetType(this.enclosingScope, targetType, argumentsTypeElided());
 		if (targetType == null)
@@ -828,30 +831,39 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		LambdaExpression copy = null;
 		if (this.copiesPerTargetType != null) {
 			copy = this.copiesPerTargetType.get(targetType);
-			if (copy != null)
-				return copy;
-			if (anyTargetOk && this.copiesPerTargetType.values().size() > 0)
-				return this.copiesPerTargetType.values().iterator().next();
+			if (copy == null) {
+				if (anyTargetOk && this.copiesPerTargetType.values().size() > 0)
+					copy = this.copiesPerTargetType.values().iterator().next();
+			}
 		}
-		
+		final CompilerOptions compilerOptions = this.enclosingScope.compilerOptions();
+		boolean analyzeNPE = compilerOptions.isAnnotationBasedNullAnalysisEnabled;
 		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
+		compilerOptions.isAnnotationBasedNullAnalysisEnabled = false;
 		try {
-			copy = copy();
-			if (copy == null)
-				throw new CopyFailureException();
-			
-			copy.setExpressionContext(this.expressionContext);
-			copy.setExpectedType(targetType);
-			TypeBinding type = copy.resolveType(this.enclosingScope);
-			if (type == null || !type.isValidBinding())
-				return null;
-	
-			if (this.copiesPerTargetType == null)
-				this.copiesPerTargetType = new HashMap<TypeBinding, LambdaExpression>();
-			this.copiesPerTargetType.put(targetType, copy);
-			
+			if (copy == null) {
+				copy = copy();
+				if (copy == null)
+					throw new CopyFailureException();
+
+				copy.setExpressionContext(this.expressionContext);
+				copy.setExpectedType(targetType);
+				TypeBinding type = copy.resolveType(this.enclosingScope);
+				if (type == null || !type.isValidBinding())
+					return null;
+
+				if (this.copiesPerTargetType == null)
+					this.copiesPerTargetType = new HashMap<TypeBinding, LambdaExpression>();
+				this.copiesPerTargetType.put(targetType, copy);
+			}
+			if (!requireExceptionAnalysis)
+				return copy;
+			if (copy.thrownExceptions == null)
+				if (!copy.hasIgnoredMandatoryErrors && !enclosingScopesHaveErrors())
+					copy.analyzeExceptions();
 			return copy;
 		} finally {
+			compilerOptions.isAnnotationBasedNullAnalysisEnabled = analyzeNPE;
 			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 		}
 	}
@@ -866,29 +878,9 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	public LambdaExpression resolveExpressionExpecting(TypeBinding targetType, Scope skope) {
 		LambdaExpression copy = null;
 		try {
-			copy = cachedResolvedCopy(targetType, false);
+			copy = cachedResolvedCopy(targetType, false, true);
 		} catch (CopyFailureException cfe) {
 			return null;
-		}
-		if (copy == null) {
-			return null;
-		}
-		
-		/* copy is potentially compatible with the target type and has its shape fully computed: i.e value/void compatibility is determined and 
-		   result expressions have been gathered. Proceed with flow analysis to gather precise thrown exceptions. However, we can do this only
-		   if resolve encountered no errors - if it did, we will miss precise exceptions, but that is OK.
-		*/
-		if (!copy.hasIgnoredMandatoryErrors && !enclosingScopesHaveErrors()) {
-			final CompilerOptions compilerOptions = this.enclosingScope.compilerOptions();
-			boolean analyzeNPE = compilerOptions.isAnnotationBasedNullAnalysisEnabled;
-			IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
-			try {
-				compilerOptions.isAnnotationBasedNullAnalysisEnabled = false;
-				copy.analyzeExceptions();
-			} finally {
-				compilerOptions.isAnnotationBasedNullAnalysisEnabled = analyzeNPE;
-				this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
-			}
 		}
 		return copy;
 	}
@@ -923,7 +915,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if (r1.isCompatibleWith(r2, skope))
 			return true;
 		
-		LambdaExpression copy = cachedResolvedCopy(s, true /* any resolved copy is good */);
+		LambdaExpression copy = cachedResolvedCopy(s, true /* any resolved copy is good */, false); // we expect a cached copy - otherwise control won't reach here.
 		Expression [] returnExpressions = copy.resultExpressions;
 		int returnExpressionsLength = returnExpressions == null ? 0 : returnExpressions.length;
 		
@@ -1077,14 +1069,6 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		}
 	}
 	
-	public void throwsException(TypeBinding exceptionType) {
-		if (this.expressionContext != INVOCATION_CONTEXT)
-			return;
-		if (this.thrownExceptions == null)
-			this.thrownExceptions = new HashSet<TypeBinding>();
-		this.thrownExceptions.add(exceptionType);
-	}
-
 	public Set<TypeBinding> getThrownExceptions() {
 		if (this.thrownExceptions == null)
 			return Collections.emptySet();

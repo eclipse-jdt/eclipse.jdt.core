@@ -289,16 +289,18 @@ public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location
 			if (exceptionContext.isMethodContext) {
 				if (raisedException.isUncheckedException(false))
 					return;
+				boolean shouldMergeUnhandledExceptions = exceptionContext instanceof ExceptionInferenceFlowContext;
 
 				// anonymous constructors are allowed to throw any exceptions (their thrown exceptions
 				// clause will be fixed up later as per JLS 8.6).
-				if (exceptionContext.associatedNode instanceof AbstractMethodDeclaration){
+				if (exceptionContext.associatedNode instanceof AbstractMethodDeclaration) {
 					AbstractMethodDeclaration method = (AbstractMethodDeclaration)exceptionContext.associatedNode;
-					if (method.isConstructor() && method.binding.declaringClass.isAnonymousType()){
-
-						exceptionContext.mergeUnhandledException(raisedException);
-						return; // no need to complain, will fix up constructor exceptions
-					}
+					if (method.isConstructor() && method.binding.declaringClass.isAnonymousType())
+						shouldMergeUnhandledExceptions = true;
+				}
+				if (shouldMergeUnhandledExceptions) {
+					exceptionContext.mergeUnhandledException(raisedException);
+					return; // no need to complain, will fix up constructor/lambda exceptions
 				}
 				break; // not handled anywhere, thus jump to error handling
 			}
@@ -431,20 +433,22 @@ public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode locat
 						}
 					}
 				}
+				boolean shouldMergeUnhandledException = exceptionContext instanceof ExceptionInferenceFlowContext;
 				// anonymous constructors are allowed to throw any exceptions (their thrown exceptions
 				// clause will be fixed up later as per JLS 8.6).
-				if (exceptionContext.associatedNode instanceof AbstractMethodDeclaration){
+				if (exceptionContext.associatedNode instanceof AbstractMethodDeclaration) {
 					AbstractMethodDeclaration method = (AbstractMethodDeclaration)exceptionContext.associatedNode;
-					if (method.isConstructor() && method.binding.declaringClass.isAnonymousType()){
-
-						for (int i = 0; i < raisedCount; i++) {
-							TypeBinding raisedException;
-							if ((raisedException = raisedExceptions[i]) != null) {
-								exceptionContext.mergeUnhandledException(raisedException);
-							}
+					if (method.isConstructor() && method.binding.declaringClass.isAnonymousType())
+						shouldMergeUnhandledException = true;
+				}
+				if (shouldMergeUnhandledException) {
+					for (int i = 0; i < raisedCount; i++) {
+						TypeBinding raisedException;
+						if ((raisedException = raisedExceptions[i]) != null) {
+							exceptionContext.mergeUnhandledException(raisedException);
 						}
-						return; // no need to complain, will fix up constructor exceptions
 					}
+					return; // no need to complain, will fix up constructor/lambda exceptions
 				}
 				break; // not handled anywhere, thus jump to error handling
 			}

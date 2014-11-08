@@ -2647,8 +2647,7 @@ public void testBug429430a() {
 		"----------\n");
 }
 // one of two incompatible exceptions is caught
-// FIXME: should be possible to infer X to EmptyStream
-public void _testBug429430b() {
+public void testBug429430b() {
 	runConformTest(
 		new String[] {
 			"Main.java",
@@ -2674,6 +2673,45 @@ public void _testBug429430b() {
 			"  }\n" +
 			"}\n"
 		});
+}
+public void testBug429430b2() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" +
+			"@SuppressWarnings(\"serial\") class EmptyStream extends Exception {}\n" +
+			"public class X {\n" +
+			"  public static interface Closer<T, V extends Exception> {\n" +
+			"    void closeIt(T it) throws V;\n" +
+			"  }\n" +
+			"\n" +
+			"  public static void close( Closer<InputStream, EmptyStream> closer, InputStream it ) throws EmptyStream {\n" +
+			"    closer.closeIt(it);\n" +
+			"  }\n" +
+			"\n" +
+			"  public static void main(String[] args) throws EmptyStream {\n" +
+			"    InputStream in = new ByteArrayInputStream(\"hello\".getBytes());\n" +
+			"    close( x ->  {\n" +
+			"			if (x == null)\n" +
+			"				throw new IOException();\n" +
+			"			else \n" +
+			"				throw new EmptyStream(); \n" +
+			"		},\n" +
+			"		in);\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 16)\n" + 
+		"	throw new IOException();\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unhandled exception type IOException\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 18)\n" + 
+		"	throw new EmptyStream(); \n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" + 
+		"----------\n");
 }
 // ensure type annotation on exception doesn't confuse the inference
 public void testBug429430c() {
