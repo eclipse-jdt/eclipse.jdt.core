@@ -1904,6 +1904,109 @@ public void testDo4() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
 		"----------\n");
 }
+public void testDo5() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	int foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"   static void goo(I i) {\n" +
+			"		System.out.println(\"goo(I)\");\n" +
+			"   }\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			do {\n" +
+			"				break;\n" +
+			"			} while (false);\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	goo(() -> {\n" + 
+		"	^^^\n" + 
+		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
+		"----------\n");
+}
+public void testDo6() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	int foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"   static void goo(I i) {\n" +
+			"		System.out.println(\"goo(I)\");\n" +
+			"   }\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			do {\n" +
+			"				if (args == null) break;\n" +
+			"			} while (false);\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	goo(() -> {\n" + 
+		"	^^^\n" + 
+		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
+		"----------\n");
+}
+public void testDo7() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	int foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"   static void goo(I i) {\n" +
+			"		System.out.println(\"goo(I)\");\n" +
+			"   }\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			do {\n" +
+			"				if (args == null) throw new RuntimeException();\n" +
+			"			} while (false);\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	goo(() -> {\n" + 
+		"	^^^\n" + 
+		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
+		"----------\n");
+}
+public void testDo8() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	int foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"   static void goo(I i) {\n" +
+			"		System.out.println(\"goo(I)\");\n" +
+			"   }\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			do {\n" +
+			"				throw new RuntimeException();\n" +
+			"			} while (false);\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"goo(I)");
+}
 public void testForeach() {
 	this.runNegativeTest(
 		new String[] {

@@ -236,6 +236,8 @@ public boolean doesNotCompleteNormally() {
 	
 	if (isConditionTrue || isConditionOptimizedTrue)
 		return this.action == null || !this.action.breaksOutOfLoop();
+	if (this.action == null || this.action.breaksOutOfLoop())
+		return false;
 	return this.action.doesNotCompleteNormally();
 }
 }
