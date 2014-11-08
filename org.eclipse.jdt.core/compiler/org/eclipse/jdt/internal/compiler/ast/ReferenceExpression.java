@@ -63,6 +63,8 @@ import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.IntersectionTypeBinding18;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -95,12 +97,12 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	private MethodBinding exactMethodBinding; // != null ==> exact method reference.
 	private boolean receiverPrecedesParameters = false;
 	private TypeBinding[] freeParameters; // descriptor parameters as used for method lookup - may or may not include the receiver
-	public int inferenceKind;
 	private boolean checkingPotentialCompatibility;
 	private MethodBinding[] potentialMethods = Binding.NO_METHODS;
 	protected ReferenceExpression original;
 	private HashMap<TypeBinding, ReferenceExpression> copiesPerTargetType;
 	public char[] text; // source representation of the expression.
+	private HashMap<ParameterizedGenericMethodBinding, InferenceContext18> inferenceContexts;
 	
 	public ReferenceExpression() {
 		super();
@@ -513,11 +515,8 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         final boolean isMethodReference = isMethodReference();
         this.depth = 0;
         this.freeParameters = descriptorParameters;
-        this.inferenceKind = InferenceContext18.CHECK_UNKNOWN;
         MethodBinding someMethod = isMethodReference ? scope.getMethod(this.receiverType, this.selector, descriptorParameters, this) :
         											       scope.getConstructor((ReferenceBinding) this.receiverType, descriptorParameters, this);
-        int someMethodInfereceKind = this.inferenceKind;
-        int anotherMethodInferenceKind = this.inferenceKind = InferenceContext18.CHECK_UNKNOWN;
         int someMethodDepth = this.depth, anotherMethodDepth = 0;
     	if (someMethod != null && someMethod.isValidBinding()) {
     		if (someMethod.isStatic() && (this.haveReceiver || this.receiverType.isParameterizedTypeWithActualArguments())) {
@@ -549,7 +548,6 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         		this.depth = 0;
         		this.freeParameters = parameters;
         		anotherMethod = scope.getMethod(typeToSearch, this.selector, parameters, this);
-        		anotherMethodInferenceKind = this.inferenceKind;
         		anotherMethodDepth = this.depth;
         		this.depth = 0;
         	}
@@ -562,7 +560,6 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         
         if (someMethod != null && someMethod.isValidBinding() && (anotherMethod == null || !anotherMethod.isValidBinding() || anotherMethod.isStatic())) {
         	this.binding = someMethod;
-        	this.inferenceKind = someMethodInfereceKind;
         	this.bits &= ~ASTNode.DepthMASK;
         	if (someMethodDepth > 0) {
         		this.bits |= (someMethodDepth & 0xFF) << ASTNode.DepthSHIFT;
@@ -575,7 +572,6 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         	} 
         } else if (anotherMethod != null && anotherMethod.isValidBinding() && (someMethod == null || !someMethod.isValidBinding() || !someMethod.isStatic())) {
         	this.binding = anotherMethod;
-        	this.inferenceKind = anotherMethodInferenceKind;
         	this.receiverPrecedesParameters = true; // 0 is receiver, real parameters start at 1
         	this.bits &= ~ASTNode.DepthMASK;
         	if (anotherMethodDepth > 0) {
@@ -587,7 +583,6 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         	}
         } else {
         	this.binding = null;
-        	this.inferenceKind = InferenceContext18.CHECK_UNKNOWN;
         	this.bits &= ~ASTNode.DepthMASK;
         }
 
@@ -750,6 +745,18 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		} finally {
 			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 		}
+	}
+	
+	public void registerInferenceContext(ParameterizedGenericMethodBinding method, InferenceContext18 context) {
+		if (this.inferenceContexts == null)
+			this.inferenceContexts = new HashMap<ParameterizedGenericMethodBinding, InferenceContext18>();
+		this.inferenceContexts.put(method, context);
+	}
+	
+	public InferenceContext18 getInferenceContext(ParameterizedMethodBinding method) {
+		if (this.inferenceContexts == null)
+			return null;
+		return this.inferenceContexts.get(method);
 	}
 	
 	public ReferenceExpression resolveExpressionExpecting(TypeBinding targetType, Scope scope) {

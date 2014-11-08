@@ -291,7 +291,9 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 
 				// Invocation Applicability Inference: 18.5.1 & Invocation Type Inference: 18.5.2
 				try {
-					inferInvocationApplicability(inferenceContext, original, functionType.parameters, original.isConstructor()/*mimic a diamond?*/, reference.inferenceKind);
+					InferenceContext18 innerContex = reference.getInferenceContext((ParameterizedMethodBinding) compileTimeDecl);
+					int innerInferenceKind = innerContex != null ? innerContex.inferenceKind : InferenceContext18.CHECK_STRICT;
+					inferInvocationApplicability(inferenceContext, original, functionType.parameters, original.isConstructor()/*mimic a diamond?*/, innerInferenceKind);
 					if (!inferPolyInvocationType(inferenceContext, reference, r, original))
 						return FALSE;
 					if (!original.isConstructor() 

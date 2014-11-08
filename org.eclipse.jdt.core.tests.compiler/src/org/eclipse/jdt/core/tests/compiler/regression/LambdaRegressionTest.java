@@ -456,6 +456,24 @@ public void test450380() {
 	"The type System does not define System(int) that is applicable here\n" + 
 	"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=450604, [1.8] CCE at InferenceContext18.getParameter line 1377
+public void test450604() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"import java.io.IOException;\n" +
+			"import java.util.List;\n" +
+			"import java.util.function.Function;\n" +
+			"public class X<T, E extends Exception> {\n" +
+			"	public static <T> List<T> of(T one) { return null; }\n" +
+			"	public @SafeVarargs static <T> List<T> of(T... items) { return null; }\n" +
+			"	public static void printDependencyLoops() throws IOException {\n" +
+			"		Function<? super String, ? extends List<String>> mapping = X::of;\n" +
+			"	}\n" +
+			"}\n"
+	},
+	"");
+}
 public static Class testClass() {
 	return LambdaRegressionTest.class;
 }

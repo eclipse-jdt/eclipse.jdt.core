@@ -4588,7 +4588,7 @@ public abstract class Scope {
 	// Version that just answers based on inference kind (at 1.8+) when available.
 	public int parameterCompatibilityLevel(MethodBinding method, TypeBinding[] arguments, InvocationSite site) {
 		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8 && method instanceof ParameterizedGenericMethodBinding) {
-			int inferenceKind = InferenceContext18.CHECK_UNKNOWN;
+			int inferenceKind = InferenceContext18.CHECK_STRICT;
 			InferenceContext18 context = null;
 			if (site instanceof Invocation) {
 				Invocation invocation = (Invocation) site;
@@ -4596,7 +4596,10 @@ public abstract class Scope {
 				if (context != null)
 					inferenceKind = context.inferenceKind;
 			} else if (site instanceof ReferenceExpression) {
-				inferenceKind = ((ReferenceExpression) site).inferenceKind;
+				ReferenceExpression referenceExpression = (ReferenceExpression) site;
+				context = referenceExpression.getInferenceContext((ParameterizedGenericMethodBinding) method);
+				if (context != null)
+					inferenceKind = context.inferenceKind;
 			}
 			/* 1.8+ Post inference compatibility check policy: For non-functional-type arguments, trust inference. For functional type arguments apply compatibility checks after inference
 			   has completed to ensure arguments that were not pertinent to applicability which have only seen potential compatibility checks are actually compatible.

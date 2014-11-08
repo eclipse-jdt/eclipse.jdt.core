@@ -207,8 +207,6 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				return null;
 			if (infCtx18.isResolved(result)) {
 				infCtx18.stepCompleted = InferenceContext18.APPLICABILITY_INFERRED;
-				if (invocationSite instanceof ReferenceExpression)
-					((ReferenceExpression) invocationSite).inferenceKind = infCtx18.inferenceKind;
 			} else {
 				return null;
 			}
@@ -249,6 +247,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					}
 					if (invocationSite instanceof Invocation)
 						((Invocation) invocationSite).registerInferenceContext(methodSubstitute, infCtx18); // keep context so we can finish later
+					else if (invocationSite instanceof ReferenceExpression)
+						((ReferenceExpression) invocationSite).registerInferenceContext(methodSubstitute, infCtx18); // keep context so we can finish later
 					return methodSubstitute; 
 				}
 			}
