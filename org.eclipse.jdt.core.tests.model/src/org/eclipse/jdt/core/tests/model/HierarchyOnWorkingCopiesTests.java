@@ -25,6 +25,10 @@ import org.eclipse.jdt.core.JavaCore;
 
 public class HierarchyOnWorkingCopiesTests extends WorkingCopyTests {
 
+static {
+//	TESTS_NAMES = new String [] { "test450442" };
+}
+
 public HierarchyOnWorkingCopiesTests(String name) {
 	super(name);
 }
@@ -520,6 +524,66 @@ public void test442534() throws CoreException, IOException {
 				);
 
 		project.findType("X").newSupertypeHierarchy(null);
+	} finally {
+		if (project != null)
+			this.deleteProject(project);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=450442,  [1.8] NPE at HandleFactory.createElement on hover
+public void test450442() throws CoreException, IOException {
+
+	IJavaProject project = null;
+	try {
+		project = this.createJavaProject(
+				"Bug450442",
+				new String[] {"src"},
+				new String[] {this.getExternalJCLPathString(), "lib"},
+				"bin");
+		project.setOption(JavaCore.COMPILER_COMPLIANCE, "1.8");
+		project.setOption(JavaCore.COMPILER_SOURCE, "1.8");
+
+		this.createFile("Bug450442/src/Claxx.java",
+				"import java.util.function.Consumer;\n" +
+				"public class Claxx {\n" +
+				"	void post(Runnable r) {\n" +
+				"		r.run();\n" +
+				"	}\n" +
+				"	void absorb(Consumer<Claxx> c) throws Exception {\n" +
+				"		c.accept(this);\n" +
+				"	}\n" +
+				"	\n" +
+				"	static void execute() {\n" +
+				"		System.out.println(\"exec!\");\n" +
+				"	}\n" +
+				"	static void executeGiven(Object o) {\n" +
+				"		System.out.println(\"exec \" + o);\n" +
+				"	}\n" +
+				"	void executeObject() {\n" +
+				"		System.out.println(\"exec \" + this);\n" +
+				"	}	\n" +
+				"}\n" +
+				"class ClaxxTest {\n" +
+				"	Claxx claxx = new Claxx();\n" +
+				"	\n" +
+				"	void doInBackground() throws Exception {\n" +
+				"		claxx.post(Claxx::execute); \n" +
+				"		absorb(Claxx::executeGiven);\n" +
+				"		post(this::executeObject);\n" +
+				"		\n" +
+				"		absorb(Claxx::executeObject);\n" +
+				"		post(() -> execute());\n" +
+				"		post(() -> executeGiven(this)); // not convertible\n" +
+				"		post(() -> executeObject());\n" +
+				"	}\n" +
+				"}\n");
+
+		ITypeHierarchy h = project.findType("Claxx").newSupertypeHierarchy(null);
+		assertHierarchyEquals(
+				"Focus: Claxx [in Claxx.java [in <default> [in src [in Bug450442]]]]\n" + 
+				"Super types:\n" + 
+				"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+				"Sub types:\n",
+				h);	
 	} finally {
 		if (project != null)
 			this.deleteProject(project);

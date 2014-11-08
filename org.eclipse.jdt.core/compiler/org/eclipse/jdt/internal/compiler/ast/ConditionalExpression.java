@@ -476,7 +476,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		}
 		if (isPolyExpression()) {
 			if (this.expectedType == null) {
-				return this.resolvedType = new PolyTypeBinding(this);
+				return new PolyTypeBinding(this);
 			}
 			return this.resolvedType = computeConversions(scope, this.expectedType) ? this.expectedType : null;
 		}

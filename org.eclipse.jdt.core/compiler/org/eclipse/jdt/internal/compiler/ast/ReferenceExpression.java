@@ -462,7 +462,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	        }
 
 	    	if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
-	    		return this.resolvedType = new PolyTypeBinding(this);
+	    		return new PolyTypeBinding(this);
 			}
 
     	} else {
