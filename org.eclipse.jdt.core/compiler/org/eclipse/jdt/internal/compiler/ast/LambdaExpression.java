@@ -422,6 +422,12 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			new ReturnStatement(expression, expression.sourceStart, expression.sourceEnd, true).resolve(this.scope); // :-) ;-)
 		} else {
 			this.body.resolve(this.scope);
+			/* At this point, shape analysis is complete for ((see returnsExpression(...))
+		       - a lambda with an expression body,
+			   - a lambda with a block body in which we saw a return statement naked or otherwise.
+		    */
+			if (!this.returnsVoid && !this.returnsValue)
+				this.valueCompatible = this.body.doesNotCompleteNormally();
 		}
 		if (this.expectedType instanceof IntersectionTypeBinding18) {
 			ReferenceBinding[] intersectingTypes =  ((IntersectionTypeBinding18)this.expectedType).intersectingTypes;
@@ -441,7 +447,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if (this.shouldCaptureInstance && this.scope.isConstructorCall) {
 			this.scope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);
 		}
-		return this.resolvedType;
+		return argumentsHaveErrors ? this.resolvedType = null : this.resolvedType;
 	}
 
 	private ReferenceBinding findGroundTargetType(BlockScope blockScope, TypeBinding targetType, boolean argumentTypesElided) {
@@ -475,20 +481,13 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		return this.arguments.length > 0 && this.arguments[0].hasElidedType();
 	}
 
-	private boolean doesNotCompleteNormally() {
+	private void analyzeExceptions() {
 		try {
-			return this.body.analyseCode(this.scope, 
+			this.body.analyseCode(this.scope, 
 									 new ExceptionHandlingFlowContext(null, this, Binding.NO_EXCEPTIONS, null, this.scope, FlowInfo.DEAD_END), 
-									 UnconditionalFlowInfo.fakeInitializedFlowInfo(this.scope.outerMostMethodScope().analysisIndex, this.scope.referenceType().maxFieldCount)) == FlowInfo.DEAD_END;
-		} catch (RuntimeException e) {
-			/* See https://bugs.eclipse.org/bugs/show_bug.cgi?id=432110 for an example of where the flow analysis can result in run time error.
-			   We can recover and do the right thing by falling back on the results of the structural analysis done already and be right 99.99%
-			   of the time. Strictly speaking void/value compatibility is not a structural property. { throw NPE(); } is value compatible despite
-			   structurally there not being a return statement. Likewise { if (x) return value; } is not value compatible despite there being a
-			   return statement. We will miss the former case, but that is mostly pedantic. We would misclassify the latter case *here*, but it
-			   would be caught elsewhere, so it should all wash out in the end. 
-			*/ 
-			return this.valueCompatible;
+									 UnconditionalFlowInfo.fakeInitializedFlowInfo(this.scope.outerMostMethodScope().analysisIndex, this.scope.referenceType().maxFieldCount));
+		} catch (Exception e) {
+			// drop silently.
 		}
 	}
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, final FlowInfo flowInfo) {
@@ -713,9 +712,11 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		    	if (returnStatement.expression != null) {
 		    		LambdaExpression.this.valueCompatible = true;
 		    		LambdaExpression.this.voidCompatible = false;
+		    		LambdaExpression.this.returnsValue = true;
 		    	} else {
 		    		LambdaExpression.this.voidCompatible = true;
 		    		LambdaExpression.this.valueCompatible = false;
+		    		LambdaExpression.this.returnsVoid = true;
 		    	}
 		    	return false;
 		    }
@@ -723,7 +724,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if (this.body instanceof Expression) {
 			// When completion is still in progress, it is not possible to ask if the expression constitutes a statement expression. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219
 			this.voidCompatible = this.assistNode ? true : ((Expression) this.body).statementExpression();
-			this.valueCompatible = true;
+			this.valueCompatible = true; // expression could be of type void - we can't determine that as we are working with unresolved expressions, for potential compatibility it is OK.
 		} else {
 			// For code assist, we need to be a bit tolerant/fuzzy here: the code is being written "just now", if we are too pedantic, selection/completion will break;
 			if (this.assistNode) {
@@ -731,10 +732,8 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				this.valueCompatible = true;
 			}
 			this.body.traverse(new ShapeComputer(), null);
-			Block block = (Block) this.body;
-			// support the idiom that { throw new Exception(); } is value compatible.
-			if (block.statements != null && block.statements.length == 1 && block.statements[0] instanceof ThrowStatement)
-				this.valueCompatible = true;
+			if (!this.returnsValue && !this.returnsVoid)
+				this.valueCompatible = this.body.doesNotCompleteNormally();
 		}
 	}
 	
@@ -775,7 +774,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		
 		LambdaExpression copy = null;
 		try {
-			copy = cachedResolvedCopy(targetType, argumentsTypeElided()); // if argument types are elided, we don't care for result expressions against *this* target, any port in a storm is ok.
+			copy = cachedResolvedCopy(targetType, argumentsTypeElided()); // if argument types are elided, we don't care for result expressions against *this* target, any valid target is OK.
 		} catch (CopyFailureException cfe) {
 			if (this.assistNode)
 				return true; // can't type check result expressions, just say yes.
@@ -784,30 +783,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if (copy == null)
 			return false;
 		
-		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
-		final CompilerOptions compilerOptions = this.enclosingScope.compilerOptions();
-		boolean analyzeNPE = compilerOptions.isAnnotationBasedNullAnalysisEnabled;
-		compilerOptions.isAnnotationBasedNullAnalysisEnabled = false;
-		try {
-			/* At this point, shape analysis is complete for ((see returnsExpression(...))
-			       - a lambda with an expression body,
-				   - a lambda with a block body in which we saw a return statement naked or otherwise.
-			*/
-			if (copy.body instanceof Block && !copy.returnsVoid && !copy.returnsValue && !copy.valueCompatible) {
-				// Do not proceed with data/control flow analysis if resolve encountered errors.
-				if (copy.hasIgnoredMandatoryErrors || enclosingScopesHaveErrors()) {
-					if (isPertinentToApplicability(targetType, null))
-						if (copy.arguments.length != 0) // ?? Needs check. 
-							return false;
-				} else {
-					copy.valueCompatible = copy.doesNotCompleteNormally();
-				}
-			}
-		} finally {
-			compilerOptions.isAnnotationBasedNullAnalysisEnabled = analyzeNPE;
-			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
-		}
-
+		// copy here is potentially compatible with the target type and has its shape fully computed: i.e value/void compatibility is determined and result expressions have been gathered.
 		targetType = findGroundTargetType(this.enclosingScope, targetType, argumentsTypeElided());
 		MethodBinding sam = targetType.getSingleAbstractMethod(this.enclosingScope, true);
 		if (sam.returnType.id == TypeIds.T_void) {
@@ -897,22 +873,22 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if (copy == null) {
 			return null;
 		}
-		final CompilerOptions compilerOptions = this.enclosingScope.compilerOptions();
-		boolean analyzeNPE = compilerOptions.isAnnotationBasedNullAnalysisEnabled;
-		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
-		try {
-			compilerOptions.isAnnotationBasedNullAnalysisEnabled = false;
-			// Do not proceed with data/control flow analysis if resolve encountered errors.
-			if (!copy.hasIgnoredMandatoryErrors && !enclosingScopesHaveErrors()) {
-				// value compatibility of block lambda's is the only open question.
-				copy.valueCompatible |= copy.doesNotCompleteNormally();
-			} else {
-				if (!copy.returnsVoid)
-					copy.valueCompatible = true; // optimistically, TODO: is this OK??
+		
+		/* copy is potentially compatible with the target type and has its shape fully computed: i.e value/void compatibility is determined and 
+		   result expressions have been gathered. Proceed with flow analysis to gather precise thrown exceptions. However, we can do this only
+		   if resolve encountered no errors - if it did, we will miss precise exceptions, but that is OK.
+		*/
+		if (!copy.hasIgnoredMandatoryErrors && !enclosingScopesHaveErrors()) {
+			final CompilerOptions compilerOptions = this.enclosingScope.compilerOptions();
+			boolean analyzeNPE = compilerOptions.isAnnotationBasedNullAnalysisEnabled;
+			IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
+			try {
+				compilerOptions.isAnnotationBasedNullAnalysisEnabled = false;
+				copy.analyzeExceptions();
+			} finally {
+				compilerOptions.isAnnotationBasedNullAnalysisEnabled = analyzeNPE;
+				this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 			}
-		} finally {
-			compilerOptions.isAnnotationBasedNullAnalysisEnabled = analyzeNPE;
-			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 		}
 		return copy;
 	}

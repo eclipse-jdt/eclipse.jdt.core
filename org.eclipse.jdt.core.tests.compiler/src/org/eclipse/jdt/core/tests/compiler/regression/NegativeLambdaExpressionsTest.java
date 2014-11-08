@@ -5784,42 +5784,17 @@ public void test401939b() {
 				"	^^^\n" + 
 				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 15)\n" + 
-				"	goo((x) -> { while (TRUE) throw new Exception(); });\n" + 
-				"	^^^\n" + 
-				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 16)\n" + 
-				"	goo((x) -> { while (NIJAM) throw new Exception(); });\n" + 
-				"	^^^\n" + 
-				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
-				"----------\n" + 
-				"4. ERROR in X.java (at line 17)\n" + 
+				"2. ERROR in X.java (at line 17)\n" + 
 				"	goo((x) -> { while (POI) throw new Exception(); });\n" + 
 				"	^^^\n" + 
 				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
 				"----------\n" + 
-				"5. ERROR in X.java (at line 18)\n" + 
-				"	goo((x) -> { if (TRUE) throw new Exception(); else throw new Exception(); });\n" + 
-				"	^^^\n" + 
-				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
-				"----------\n" + 
-				"6. ERROR in X.java (at line 19)\n" + 
+				"3. ERROR in X.java (at line 19)\n" + 
 				"	goo((x) -> { if (TRUE) throw new Exception(); });\n" + 
 				"	^^^\n" + 
 				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
 				"----------\n" + 
-				"7. ERROR in X.java (at line 20)\n" + 
-				"	goo((x) -> { if (true) throw new Exception(); else throw new Exception(); });\n" + 
-				"	^^^\n" + 
-				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
-				"----------\n" + 
-				"8. ERROR in X.java (at line 21)\n" + 
-				"	goo((x) -> { if (false) throw new Exception(); else throw new Exception(); });\n" + 
-				"	^^^\n" + 
-				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 
-				"----------\n" + 
-				"9. ERROR in X.java (at line 22)\n" + 
+				"4. ERROR in X.java (at line 22)\n" + 
 				"	goo((x) -> { while (BLANK) throw new Exception(); });\n" + 
 				"	^^^\n" + 
 				"The method goo(I) in the type X is not applicable for the arguments ((<no type> x) -> {})\n" + 

@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.GenericsRegressionTest_1_7
 import org.eclipse.jdt.core.tests.compiler.regression.GenericsRegressionTest_1_8;
 import org.eclipse.jdt.core.tests.compiler.regression.LambdaExpressionsTest;
 import org.eclipse.jdt.core.tests.compiler.regression.LambdaRegressionTest;
+import org.eclipse.jdt.core.tests.compiler.regression.LambdaShapeTests;
 import org.eclipse.jdt.core.tests.compiler.regression.NegativeLambdaExpressionsTest;
 import org.eclipse.jdt.core.tests.compiler.regression.NullTypeAnnotationTest;
 import org.eclipse.jdt.core.tests.compiler.regression.OverloadResolutionTest8;
@@ -41,6 +42,7 @@ public class RunOnly335CompilerTests extends TestCase {
 			LambdaRegressionTest.class,
 			NegativeLambdaExpressionsTest.class,
 			OverloadResolutionTest8.class,
+			LambdaShapeTests.class,
 			NullTypeAnnotationTest.class, // tests type inference
 		};
 	}

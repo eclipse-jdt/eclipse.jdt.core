@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.JSR308SpecSnippetTests;
 import org.eclipse.jdt.core.tests.compiler.regression.JSR335ClassFileTest;
 import org.eclipse.jdt.core.tests.compiler.regression.LambdaExpressionsTest;
 import org.eclipse.jdt.core.tests.compiler.regression.LambdaRegressionTest;
+import org.eclipse.jdt.core.tests.compiler.regression.LambdaShapeTests;
 import org.eclipse.jdt.core.tests.compiler.regression.MethodParametersAttributeTest;
 import org.eclipse.jdt.core.tests.compiler.regression.NegativeLambdaExpressionsTest;
 import org.eclipse.jdt.core.tests.compiler.regression.NegativeTypeAnnotationTest;
@@ -78,6 +79,7 @@ public class RunOnlyJava8Tests extends TestCase {
 			NegativeLambdaExpressionsTest.class,
 			LambdaExpressionsTest.class,
 			LambdaRegressionTest.class,
+			LambdaShapeTests.class,
 			SerializableLambdaTest.class,
 			OverloadResolutionTest8.class,
 			JSR335ClassFileTest.class,

@@ -170,6 +170,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	flowContext.recordAbruptExit();
 	return FlowInfo.DEAD_END;
 }
+@Override
+public boolean doesNotCompleteNormally() {
+	return true;
+}
 void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
 	int nullStatus = this.expression.nullStatus(flowInfo, flowContext);
 	long tagBits;

@@ -95,4 +95,8 @@ public void traverse(ASTVisitor visitor, BlockScope blockscope) {
 	visitor.visit(this, blockscope);
 	visitor.endVisit(this, blockscope);
 }
+@Override
+public boolean doesNotCompleteNormally() {
+	return true;
+}
 }

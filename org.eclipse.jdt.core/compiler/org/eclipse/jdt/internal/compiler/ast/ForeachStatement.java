@@ -576,4 +576,9 @@ public class ForeachStatement extends Statement {
 		}
 		visitor.endVisit(this, blockScope);
 	}
+
+	@Override
+	public boolean doesNotCompleteNormally() {
+		return false; // may not be entered at all.
+	}
 }

@@ -632,4 +632,23 @@ public class SwitchStatement extends Statement {
 			label.becomeDelegateFor(this.breakLabel);
 		}
 	}
+
+	@Override
+	public boolean doesNotCompleteNormally() {
+		if (this.statements == null || this.statements.length == 0)
+			return false;
+		Statement lastStatement = null;
+		for (int i = 0, length = this.statements.length; i < length; i++) {
+			Statement statement = this.statements[i];
+			if (statement instanceof CaseStatement) {
+				if (lastStatement != null)
+					if (lastStatement instanceof BreakStatement)
+						return false;
+			} else {
+				lastStatement = statement;
+			}
+		}
+		lastStatement = this.statements[this.statements.length - 1];
+		return lastStatement instanceof BreakStatement ? false : lastStatement.doesNotCompleteNormally();
+	}
 }

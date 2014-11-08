@@ -36,6 +36,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
@@ -77,6 +78,10 @@ public abstract class Statement extends ASTNode {
 		return false;
 	}
 public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo);
+
+public boolean doesNotCompleteNormally() {
+	return false;
+}
 
 	public static final int NOT_COMPLAINED = 0;
 	public static final int COMPLAINED_FAKE_REACHABLE = 1;
@@ -201,6 +206,50 @@ private void internalCheckAgainstNullTypeAnnotation(BlockScope scope, TypeBindin
  */
 public void branchChainTo(BranchLabel label) {
 	// do nothing by default
+}
+
+public boolean breaksOutOfLoop() {
+	class LoopVisitor extends ASTVisitor {
+		Statement loopBody;
+		boolean breaks;
+		public LoopVisitor(Statement statement) {
+			this.loopBody = statement;
+			this.breaks = false;
+		}
+		public boolean visit(TypeDeclaration type, BlockScope skope) {
+			return false;
+		}
+		public boolean visit(TypeDeclaration type, ClassScope skope) {
+			return false;
+		}
+		public boolean visit(LambdaExpression lambda, BlockScope skope) {
+			return false;
+		}
+		public boolean visit(WhileStatement whileStatement, BlockScope skope) {
+			return false;
+		}
+		public boolean visit(DoStatement doStatement, BlockScope skope) {
+			return false;
+		}
+		public boolean visit(ForeachStatement foreachStatement, BlockScope skope) {
+			return false;
+		}
+		public boolean visit(ForStatement forStatement, BlockScope skope) {
+			return false;
+		}
+		public boolean visit(SwitchStatement switchStatement, BlockScope skope) {
+			return false;
+		}
+		public boolean visit(BreakStatement breakStatement, BlockScope skope) {
+	    	this.breaks = true;
+	    	return false;
+	    }
+		public boolean breaksOutOfLoop() {
+			this.loopBody.traverse(this, null);
+			return this.breaks;
+		}
+	}
+	return new LoopVisitor(this).breaksOutOfLoop();
 }
 
 // Report an error if necessary (if even more unreachable than previously reported
