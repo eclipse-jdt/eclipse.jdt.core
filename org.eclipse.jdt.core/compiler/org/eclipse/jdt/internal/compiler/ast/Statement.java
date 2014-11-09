@@ -208,13 +208,13 @@ public void branchChainTo(BranchLabel label) {
 	// do nothing by default
 }
 
-public boolean breaksOutOfLoop() {
-	class LoopVisitor extends ASTVisitor {
-		Statement loopBody;
-		boolean breaks;
-		public LoopVisitor(Statement statement) {
-			this.loopBody = statement;
-			this.breaks = false;
+public boolean breaksOut() {
+	class ControlStructureVisitor extends ASTVisitor {
+		Statement body;
+		boolean breaksOut;
+		public ControlStructureVisitor(Statement statement) {
+			this.body = statement;
+			this.breaksOut = false;
 		}
 		public boolean visit(TypeDeclaration type, BlockScope skope) {
 			return false;
@@ -241,15 +241,15 @@ public boolean breaksOutOfLoop() {
 			return false;
 		}
 		public boolean visit(BreakStatement breakStatement, BlockScope skope) {
-	    	this.breaks = true;
+	    	this.breaksOut = true;
 	    	return false;
 	    }
-		public boolean breaksOutOfLoop() {
-			this.loopBody.traverse(this, null);
-			return this.breaks;
+		public boolean breaksOut() {
+			this.body.traverse(this, null);
+			return this.breaksOut;
 		}
 	}
-	return new LoopVisitor(this).breaksOutOfLoop();
+	return new ControlStructureVisitor(this).breaksOut();
 }
 
 // Report an error if necessary (if even more unreachable than previously reported

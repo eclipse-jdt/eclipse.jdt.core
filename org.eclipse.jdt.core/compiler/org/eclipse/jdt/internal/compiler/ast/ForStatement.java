@@ -435,6 +435,6 @@ public class ForStatement extends Statement {
 		cst = this.condition.optimizedBooleanConstant();
 		boolean isConditionOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
 		
-		return (isConditionTrue || isConditionOptimizedTrue) && (this.action == null || !this.action.breaksOutOfLoop());
+		return (isConditionTrue || isConditionOptimizedTrue) && (this.action == null || !this.action.breaksOut());
 	}
 }

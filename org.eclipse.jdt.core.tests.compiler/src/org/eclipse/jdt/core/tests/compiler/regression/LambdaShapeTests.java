@@ -1698,6 +1698,63 @@ public void testSwitch4() {
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
 		"----------\n");
 }
+public void testSwitch5() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			switch (args.length){\n" +
+			"			case 1:\n" +
+			"				if (args == null)\n" +
+			"					break;\n" +
+			"				else\n" +
+			"					break;\n" +
+			"			}\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	goo(() -> {\n" + 
+		"	^^^\n" + 
+		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
+		"----------\n");
+}
+public void testSwitch6() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			switch (args.length){\n" +
+			"			case 1:\n" +
+			"				if (args == null)\n" +
+			"					break;\n" +
+			"           throw new RuntimeException();\n" +
+			"			}\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	goo(() -> {\n" + 
+		"	^^^\n" + 
+		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
+		"----------\n");
+}
 public void testWhileThis() {
 	this.runNegativeTest(
 		new String[] {

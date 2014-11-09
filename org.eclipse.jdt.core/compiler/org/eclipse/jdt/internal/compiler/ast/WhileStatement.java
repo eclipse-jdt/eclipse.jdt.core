@@ -292,6 +292,6 @@ public class WhileStatement extends Statement {
 		boolean isConditionTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
 		cst = this.condition.optimizedBooleanConstant();
 		boolean isConditionOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
-		return (isConditionTrue || isConditionOptimizedTrue) && (this.action == null || !this.action.breaksOutOfLoop());
+		return (isConditionTrue || isConditionOptimizedTrue) && (this.action == null || !this.action.breaksOut());
 	}
 }
