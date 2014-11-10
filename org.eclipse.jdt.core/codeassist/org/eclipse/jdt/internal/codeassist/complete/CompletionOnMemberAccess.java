@@ -73,7 +73,7 @@ public class CompletionOnMemberAccess extends FieldReference {
 			}
 		}
 
-		if (this.actualReceiverType == null || this.actualReceiverType.isBaseType() || !this.actualReceiverType.isValidBinding())
+		if (this.actualReceiverType == null || !this.actualReceiverType.isValidBinding())
 			throw new CompletionNodeFound();
 		else
 			throw new CompletionNodeFound(this, this.actualReceiverType, scope);
