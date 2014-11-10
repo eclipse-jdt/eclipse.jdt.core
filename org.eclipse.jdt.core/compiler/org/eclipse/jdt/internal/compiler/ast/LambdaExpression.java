@@ -231,7 +231,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	public TypeBinding resolveType(BlockScope blockScope) {
 		
 		boolean argumentsTypeElided = argumentsTypeElided();
-		int length = this.arguments == null ? 0 : this.arguments.length;
+		int argumentsLength = this.arguments == null ? 0 : this.arguments.length;
 		
 		if (this.constant != Constant.NotAConstant) {
 			this.constant = Constant.NotAConstant;
@@ -240,7 +240,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				this.ordinal = recordFunctionalType(blockScope);
 			
 			if (!argumentsTypeElided) {
-				for (int i = 0; i < length; i++)
+				for (int i = 0; i < argumentsLength; i++)
 					this.argumentTypes[i] = this.arguments[i].type.resolveType(blockScope, true /* check bounds*/);
 			}
 			if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
@@ -252,7 +252,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		this.scope = new MethodScope(blockScope, this, methodScope.isStatic, methodScope.lastVisibleFieldID);
 		this.scope.isConstructorCall = methodScope.isConstructorCall;
 
-		super.resolveType(blockScope); // compute & capture interface function descriptor in singleAbstractMethod.
+		super.resolveType(blockScope); // compute & capture interface function descriptor.
 		
 		final boolean haveDescriptor = this.descriptor != null;
 		
@@ -269,9 +269,8 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		
 		boolean argumentsHaveErrors = false;
 		if (haveDescriptor) {
-			int descriptorParameterCount = this.descriptor.parameters.length;
-			int lambdaArgumentCount = this.arguments != null ? this.arguments.length : 0;
-            if (descriptorParameterCount != lambdaArgumentCount) {
+			int parametersLength = this.descriptor.parameters.length;
+			if (parametersLength != argumentsLength) {
             	this.scope.problemReporter().lambdaSignatureMismatched(this);
             	if (argumentsTypeElided || this.original != this) // no interest in continuing to error check copy.
             		return this.resolvedType = null; // FUBAR, bail out ...
@@ -282,13 +281,13 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
             }
 		}
 		
-		TypeBinding[] newParameters = new TypeBinding[length];
+		TypeBinding[] newParameters = new TypeBinding[argumentsLength];
 
 		AnnotationBinding [][] parameterAnnotations = null;
-		for (int i = 0; i < length; i++) {
+		for (int i = 0; i < argumentsLength; i++) {
 			Argument argument = this.arguments[i];
 			if (argument.isVarArgs()) {
-				if (i == length - 1) {
+				if (i == argumentsLength - 1) {
 					this.binding.modifiers |= ClassFileConstants.AccVarargs;
 				} else {
 					this.scope.problemReporter().illegalVarargInLambda(argument);
@@ -296,19 +295,19 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				}
 			}
 			
-			TypeBinding parameterType;
+			TypeBinding argumentType;
 			final TypeBinding expectedParameterType = haveDescriptor && i < this.descriptor.parameters.length ? this.descriptor.parameters[i] : null;
-			parameterType = argumentsTypeElided ? expectedParameterType : this.argumentTypes[i];
-			if (parameterType == null) {
+			argumentType = argumentsTypeElided ? expectedParameterType : this.argumentTypes[i];
+			if (argumentType == null) {
 				argumentsHaveErrors = true;
-			} else if (parameterType == TypeBinding.VOID) {
+			} else if (argumentType == TypeBinding.VOID) {
 				this.scope.problemReporter().argumentTypeCannotBeVoid(this, argument);
 				argumentsHaveErrors = true;
 			} else {
-				if (!parameterType.isValidBinding()) {
+				if (!argumentType.isValidBinding()) {
 					this.binding.tagBits |= TagBits.HasUnresolvedArguments;
 				}
-				if ((parameterType.tagBits & TagBits.HasMissingType) != 0) {
+				if ((argumentType.tagBits & TagBits.HasMissingType) != 0) {
 					this.binding.tagBits |= TagBits.HasMissingType;
 				}
 			}
@@ -338,28 +337,28 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				}
 			}
 		}
-		for (int i = 0; i < length; i++) {
+		for (int i = 0; i < argumentsLength; i++) {
 			Argument argument = this.arguments[i];
-			TypeBinding parameterType;
+			TypeBinding argumentType;
 			final TypeBinding expectedParameterType = haveDescriptor && i < this.descriptor.parameters.length ? this.descriptor.parameters[i] : null;
-			parameterType = argumentsTypeElided ? expectedParameterType : this.argumentTypes[i];
-			if (parameterType != null && parameterType != TypeBinding.VOID) {
-				if (haveDescriptor && expectedParameterType != null && parameterType.isValidBinding() && TypeBinding.notEquals(parameterType, expectedParameterType)) {
+			argumentType = argumentsTypeElided ? expectedParameterType : this.argumentTypes[i];
+			if (argumentType != null && argumentType != TypeBinding.VOID) {
+				if (haveDescriptor && expectedParameterType != null && argumentType.isValidBinding() && TypeBinding.notEquals(argumentType, expectedParameterType)) {
 					if (expectedParameterType.isProperType(true)) {
 						this.scope.problemReporter().lambdaParameterTypeMismatched(argument, argument.type, expectedParameterType);
 						this.resolvedType = null; // continue to type check.
 					}
 				}
 				if (this.requiresGenericSignature) {
-					TypeBinding leafType = parameterType.leafComponentType();
+					TypeBinding leafType = argumentType.leafComponentType();
 					if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
 						this.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 				}
-				newParameters[i] = argument.bind(this.scope, parameterType, false);				
+				newParameters[i] = argument.bind(this.scope, argumentType, false);				
 				if (argument.annotations != null) {
 					this.binding.tagBits |= TagBits.HasParameterAnnotations;
 					if (parameterAnnotations == null) {
-						parameterAnnotations = new AnnotationBinding[length][];
+						parameterAnnotations = new AnnotationBinding[argumentsLength][];
 						for (int j = 0; j < i; j++) {
 							parameterAnnotations[j] = Binding.NO_ANNOTATIONS;
 						}
@@ -384,8 +383,8 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		}
 
 		ReferenceBinding [] exceptions = this.binding.thrownExceptions;
-		length = exceptions.length;
-		for (int i = 0; i < length; i++) {
+		int exceptionsLength = exceptions.length;
+		for (int i = 0; i < exceptionsLength; i++) {
 			ReferenceBinding exception = exceptions[i];
 			if ((exception.tagBits & TagBits.HasMissingType) != 0) {
 				this.binding.tagBits |= TagBits.HasMissingType;
