@@ -87,7 +87,10 @@ public class JavadocContents {
 	public String getPackageDoc() throws JavaModelException {
 		if (this.content == null) return null;
 		int[] range = null;
-		int index = CharOperation.indexOf(JavadocConstants.PACKAGE_DESCRIPTION_START, this.content, false, 0);
+		int index = CharOperation.indexOf(JavadocConstants.PACKAGE_DESCRIPTION_START2, this.content, false, 0);
+		if (index == -1) {
+			index = CharOperation.indexOf(JavadocConstants.PACKAGE_DESCRIPTION_START, this.content, false, 0);
+		}
 		if (index == -1) return null;
 		index = CharOperation.indexOf(JavadocConstants.ANCHOR_SUFFIX, this.content, false, index);
 		if (index == -1) return null;
