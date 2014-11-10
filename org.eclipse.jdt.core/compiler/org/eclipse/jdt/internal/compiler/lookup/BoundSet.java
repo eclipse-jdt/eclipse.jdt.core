@@ -503,6 +503,8 @@ class BoundSet {
 			TypeBound boundI = first[i];
 			for (int j = 0, jLength = next.length; j < jLength; j++) {
 				TypeBound boundJ = next[j];
+				if (boundI == boundJ)
+					continue;
 				int iteration = 1;
 				do {
 					ConstraintTypeFormula newConstraint = null;

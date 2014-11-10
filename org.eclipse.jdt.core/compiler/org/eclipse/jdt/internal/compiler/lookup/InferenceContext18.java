@@ -253,7 +253,7 @@ public class InferenceContext18 {
 				if (this.invocationArguments[i].isPertinentToApplicability(varArgsType, method)) {
 					this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT);
 				} else {
-					if (varArgsType.isPertinentToApplicability(this.invocationArguments[i].resolvedType, method))
+					if (varArgsType.isPertinentToApplicability(this.invocationArguments[i], method))
 						this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.POTENTIALLY_COMPATIBLE);
 					// else we know it is potentially compatible, no need to assert.
 				}
