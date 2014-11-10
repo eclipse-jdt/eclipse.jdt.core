@@ -235,9 +235,14 @@ public boolean doesNotCompleteNormally() {
 	boolean isConditionOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
 	
 	if (isConditionTrue || isConditionOptimizedTrue)
-		return this.action == null || !this.action.breaksOut();
-	if (this.action == null || this.action.breaksOut())
+		return this.action == null || !this.action.breaksOut(null);
+	if (this.action == null || this.action.breaksOut(null))
 		return false;
-	return this.action.doesNotCompleteNormally();
+	return this.action.doesNotCompleteNormally() && !this.action.completesByContinue();
+}
+
+@Override
+public boolean completesByContinue() {
+	return this.action.continuesAtOuterLabel();
 }
 }

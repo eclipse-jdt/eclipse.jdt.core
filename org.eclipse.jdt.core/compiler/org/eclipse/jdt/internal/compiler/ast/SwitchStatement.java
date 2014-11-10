@@ -638,9 +638,20 @@ public class SwitchStatement extends Statement {
 		if (this.statements == null || this.statements.length == 0)
 			return false;
 		for (int i = 0, length = this.statements.length; i < length; i++) {
-			if (this.statements[i].breaksOut())
+			if (this.statements[i].breaksOut(null))
 				return false;
 		}
 		return this.statements[this.statements.length - 1].doesNotCompleteNormally();
+	}
+	
+	@Override
+	public boolean completesByContinue() {
+		if (this.statements == null || this.statements.length == 0)
+			return false;
+		for (int i = 0, length = this.statements.length; i < length; i++) {
+			if (this.statements[i].completesByContinue())
+				return true;
+		}
+		return false;
 	}
 }

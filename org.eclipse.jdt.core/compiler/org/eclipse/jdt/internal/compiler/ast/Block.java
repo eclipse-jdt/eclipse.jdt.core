@@ -147,8 +147,17 @@ public void branchChainTo(BranchLabel label) {
 		this.statements[this.statements.length - 1].branchChainTo(label);
 	}
 }
+
+// A block does not complete normally if the last statement which we presume is reachable does not complete normally.
 @Override
 public boolean doesNotCompleteNormally() {
-	return this.statements != null && this.statements.length > 0 && this.statements[this.statements.length - 1].doesNotCompleteNormally();
+	int length = this.statements == null ? 0 : this.statements.length;
+	return length > 0 && this.statements[length - 1].doesNotCompleteNormally();
+}
+
+@Override
+public boolean completesByContinue() {
+	int length = this.statements == null ? 0 : this.statements.length;
+	return length > 0 && this.statements[length - 1].completesByContinue();
 }
 }

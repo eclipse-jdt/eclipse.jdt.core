@@ -2064,6 +2064,553 @@ public void testDo8() {
 		},
 		"goo(I)");
 }
+public void testDo9() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	static void goo(J i) {\n" +
+			"		System.out.println(\"J\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			do {\n" +
+			"				continue;\n" +
+			"			} while (false);\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"J");
+}
+public void testDo10() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			do {\n" +
+			"               if (true) \n" +
+			"				    continue;\n" +
+			"			} while (false);\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	goo(() -> {\n" + 
+		"	^^^\n" + 
+		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
+		"----------\n");
+}
+public void testDo11() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			do {\n" +
+			"               if (true) \n" +
+			"				    continue;\n" +
+			"               else \n" +
+			"                   continue;\n" +
+			"			} while (false);\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	goo(() -> {\n" + 
+		"	^^^\n" + 
+		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
+		"----------\n");
+}
+public void testDo12() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			do {\n" +
+			"               if (true) \n" +
+			"				    continue;\n" +
+			"               else \n" +
+			"                   throw new RuntimeException();\n" +
+			"			} while (false);\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	goo(() -> {\n" + 
+		"	^^^\n" + 
+		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
+		"----------\n");
+}
+public void testDo13() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			do {\n" +
+			"               if (true) \n" +
+			"                   throw new RuntimeException();\n" +
+			"               else \n" +
+			"                   throw new RuntimeException();\n" +
+			"			} while (false);\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"I");
+}
+public void testDo14() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			do {\n" +
+			"               if (true) { \n" +
+			"                   System.out.println();\n" +
+			"				    continue;\n" +
+			"               }\n" +
+			"               else {\n" +
+			"                   continue;\n" +
+			"               }\n" +
+			"			} while (false);\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	goo(() -> {\n" + 
+		"	^^^\n" + 
+		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
+		"----------\n");
+}
+public void testDo15() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			label:\n" +
+			"			do {\n" +
+			"				continue label;\n" +
+			"			} while (false);\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	goo(() -> {\n" + 
+		"	^^^\n" + 
+		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
+		"----------\n");
+}
+public void testDo16() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			do {\n" +
+			"				blah:\n" +
+			"				continue;\n" +
+			"			} while (false);\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	goo(() -> {\n" + 
+		"	^^^\n" + 
+		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
+		"----------\n");
+}
+public void testDo17() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			do {\n" +
+			"				synchronized(args) {\n" +
+			"				    continue;\n" +
+			"               }\n" +
+			"			} while (false);\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	goo(() -> {\n" + 
+		"	^^^\n" + 
+		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
+		"----------\n");
+}
+public void testDo18() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			do {\n" +
+			"				try {\n" +
+			"					continue;\n" +
+			"				} finally {\n" +
+			"					throw new RuntimeException();\n" +
+			"				}\n" +
+			"			} while (false);\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"I");
+}
+public void testDo19() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	static void goo(J i) {\n" +
+			"		System.out.println(\"J\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			do {\n" +
+			"				try {\n" +
+			"					continue;\n" +
+			"				} finally {\n" +
+			"				}\n" +
+			"			} while (false);	\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"J");
+}
+public void testDo20() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	static void goo(J i) {\n" +
+			"		System.out.println(\"J\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			do {\n" +
+			"				switch (args.length){\n" +
+			"				default:\n" +
+			"					continue;\n" +
+			"				}\n" +
+			"			} while (false);	\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"J");
+}
+public void testDo21() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	static void goo(J i) {\n" +
+			"		System.out.println(\"J\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			do {\n" +
+			"				while (true) {\n" +
+			"					continue;\n" +
+			"				}\n" +
+			"			} while (false);	\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"I");
+}
+public void testDo22() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	static void goo(J i) {\n" +
+			"		System.out.println(\"J\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			label:\n" +
+			"			do {\n" +
+			"				while (true) {\n" +
+			"					continue label;\n" +
+			"				}\n" +
+			"			} while (false);	\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"J");
+}
+public void testDo23() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	static void goo(J i) {\n" +
+			"		System.out.println(\"J\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			label:\n" +
+			"			while (true) {\n" +
+			"				while (true) {\n" +
+			"					continue label;\n" +
+			"				}\n" +
+			"			}	\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"I");
+}
+public void testDo24() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	static void goo(J i) {\n" +
+			"		System.out.println(\"J\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			label:\n" +
+			"			do {\n" +
+			"				for (;;) {\n" +
+			"					continue label;\n" +
+			"				}\n" +
+			"			} while (false);	\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"J");
+}
+public void testDo25() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	static void goo(J i) {\n" +
+			"		System.out.println(\"J\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			label:\n" +
+			"			do {\n" +
+			"				do {\n" +
+			"					continue label;\n" +
+			"				} while (true);\n" +
+			"			} while (false);	\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"J");
+}
+public void testDo26() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	static void goo(J i) {\n" +
+			"		System.out.println(\"J\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			do {\n" +
+			"				label:\n" +
+			"					while (true) {\n" +
+			"						continue label;\n" +
+			"					}\n" +
+			"			} while (false);\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"I");
+}
 public void testForeach() {
 	this.runNegativeTest(
 		new String[] {
@@ -2513,6 +3060,165 @@ public void testWhileTrue3() {
 		"	^^^\n" + 
 		"The method goo(I) in the type X is not applicable for the arguments (() -> {})\n" + 
 		"----------\n");
+}
+public void testLabeledStatement() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	static void goo(J i) {\n" +
+			"		System.out.println(\"J\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			label: \n" +
+			"			while (true) {\n" +
+			"				while (true) {\n" +
+			"					break label;\n" +
+			"				}\n" +
+			"			}\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n" 
+		},
+		"J");
+}
+public void testLabeledStatement2() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	static void goo(J i) {\n" +
+			"		System.out.println(\"J\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			outerlabel: \n" +
+			"			label: \n" +
+			"			while (true) {\n" +
+			"				while (true) {\n" +
+			"					break outerlabel;\n" +
+			"				}\n" +
+			"			}\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n" 
+		},
+		"J");
+}
+public void testLabeledStatement3() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	static void goo(J i) {\n" +
+			"		System.out.println(\"J\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			outerlabel: \n" +
+			"			label: \n" +
+			"			while (true) {\n" +
+			"				while (true) {\n" +
+			"					break outerlabel;\n" +
+			"				}\n" +
+			"			}\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n" 
+		},
+		"J");
+}
+public void testLabeledStatement4() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	static void goo(J i) {\n" +
+			"		System.out.println(\"J\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			outerlabel: \n" +
+			"			label: \n" +
+			"			while (true) {\n" +
+			"				while (true) {\n" +
+			"					break label;\n" +
+			"				}\n" +
+			"			}\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n" 
+		},
+		"J");
+}
+public void testLabeledStatement5() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	String foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	static void goo(I i) {\n" +
+			"		System.out.println(\"I\");\n" +
+			"	}\n" +
+			"	static void goo(J i) {\n" +
+			"		System.out.println(\"J\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		goo(() -> {\n" +
+			"			outerlabel: \n" +
+			"			label: \n" +
+			"			while (true) {\n" +
+			"				while (true) {\n" +
+			"					break;\n" +
+			"				}\n" +
+			"			}\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n" 
+		},
+		"I");
 }
 public static Class testClass() {
 	return LambdaShapeTests.class;

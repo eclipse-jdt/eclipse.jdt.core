@@ -292,6 +292,11 @@ public class WhileStatement extends Statement {
 		boolean isConditionTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
 		cst = this.condition.optimizedBooleanConstant();
 		boolean isConditionOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
-		return (isConditionTrue || isConditionOptimizedTrue) && (this.action == null || !this.action.breaksOut());
+		return (isConditionTrue || isConditionOptimizedTrue) && (this.action == null || !this.action.breaksOut(null));
+	}
+	
+	@Override
+	public boolean completesByContinue() {
+		return this.action.continuesAtOuterLabel();
 	}
 }

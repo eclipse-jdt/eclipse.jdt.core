@@ -430,11 +430,16 @@ public class ForStatement extends Statement {
 
 	@Override
 	public boolean doesNotCompleteNormally() {
-		Constant cst = this.condition.constant;
-		boolean isConditionTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
-		cst = this.condition.optimizedBooleanConstant();
-		boolean isConditionOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
+		Constant cst = this.condition == null ? null : this.condition.constant;
+		boolean isConditionTrue = cst == null || cst != Constant.NotAConstant && cst.booleanValue() == true;
+		cst = this.condition == null ? null : this.condition.optimizedBooleanConstant();
+		boolean isConditionOptimizedTrue = cst == null ? true : cst != Constant.NotAConstant && cst.booleanValue() == true;
 		
-		return (isConditionTrue || isConditionOptimizedTrue) && (this.action == null || !this.action.breaksOut());
+		return (isConditionTrue || isConditionOptimizedTrue) && (this.action == null || !this.action.breaksOut(null));
+	}
+	
+	@Override
+	public boolean completesByContinue() {
+		return this.action.continuesAtOuterLabel();
 	}
 }

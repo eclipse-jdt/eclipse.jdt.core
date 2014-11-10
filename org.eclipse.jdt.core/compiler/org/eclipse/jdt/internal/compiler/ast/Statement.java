@@ -36,6 +36,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
@@ -79,7 +80,21 @@ public abstract class Statement extends ASTNode {
 	}
 public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo);
 
+/** Lambda shape analysis: *Assuming* this is reachable, analyze if this completes normally i.e control flow can reach the textually next statement.
+   For blocks, we don't perform intra-reachability analysis. We assume the lambda body is free of intrinsic control flow errors (if such errors
+   exist they will not be flagged by this analysis, but are guaranteed to surface later on.) 
+   
+   @see Block#doesNotCompleteNormally
+*/
 public boolean doesNotCompleteNormally() {
+	return false;
+}
+
+/** Lambda shape analysis: *Assuming* this is reachable, analyze if this completes by continuing i.e control flow cannot reach the textually next statement.
+    This is necessitated by the fact that continue claims to not complete normally. So this is necessary to discriminate between do { continue; } while (false); 
+    which completes normally and do { throw new Exception(); } while (false); which does not complete normally.
+*/
+public boolean completesByContinue() {
 	return false;
 }
 
@@ -208,48 +223,50 @@ public void branchChainTo(BranchLabel label) {
 	// do nothing by default
 }
 
-public boolean breaksOut() {
-	class ControlStructureVisitor extends ASTVisitor {
-		Statement body;
+// Inspect AST nodes looking for a break statement, descending into nested control structures only when necessary (looking for a break with a specific label.)
+public boolean breaksOut(final char[] label) {
+	return new ASTVisitor() {
+		
 		boolean breaksOut;
-		public ControlStructureVisitor(Statement statement) {
-			this.body = statement;
-			this.breaksOut = false;
-		}
-		public boolean visit(TypeDeclaration type, BlockScope skope) {
-			return false;
-		}
-		public boolean visit(TypeDeclaration type, ClassScope skope) {
-			return false;
-		}
-		public boolean visit(LambdaExpression lambda, BlockScope skope) {
-			return false;
-		}
-		public boolean visit(WhileStatement whileStatement, BlockScope skope) {
-			return false;
-		}
-		public boolean visit(DoStatement doStatement, BlockScope skope) {
-			return false;
-		}
-		public boolean visit(ForeachStatement foreachStatement, BlockScope skope) {
-			return false;
-		}
-		public boolean visit(ForStatement forStatement, BlockScope skope) {
-			return false;
-		}
-		public boolean visit(SwitchStatement switchStatement, BlockScope skope) {
-			return false;
-		}
+		public boolean visit(TypeDeclaration type, BlockScope skope) { return label != null; }
+		public boolean visit(TypeDeclaration type, ClassScope skope) { return label != null; }
+		public boolean visit(LambdaExpression lambda, BlockScope skope) { return label != null;}
+		public boolean visit(WhileStatement whileStatement, BlockScope skope) { return label != null; }
+		public boolean visit(DoStatement doStatement, BlockScope skope) { return label != null; }
+		public boolean visit(ForeachStatement foreachStatement, BlockScope skope) { return label != null; }
+		public boolean visit(ForStatement forStatement, BlockScope skope) { return label != null; }
+		public boolean visit(SwitchStatement switchStatement, BlockScope skope) { return label != null; }
+		
 		public boolean visit(BreakStatement breakStatement, BlockScope skope) {
-	    	this.breaksOut = true;
+			if (label == null || CharOperation.equals(label,  breakStatement.label))
+				this.breaksOut = true;
 	    	return false;
 	    }
+		
 		public boolean breaksOut() {
-			this.body.traverse(this, null);
+			Statement.this.traverse(this, null);
 			return this.breaksOut;
 		}
-	}
-	return new ControlStructureVisitor(this).breaksOut();
+	}.breaksOut();
+}
+
+/* Inspect AST nodes looking for a continue statement with a label, descending into nested control structures.
+   The label is presumed to be NOT attached to this. This condition is certainly true for lambda shape analysis
+   where this analysis triggers only from do {} while (false); situations. See LabeledStatement.continuesAtOuterLabel
+*/
+public boolean continuesAtOuterLabel() {
+	return new ASTVisitor() {
+		boolean continuesToLabel;
+		public boolean visit(ContinueStatement continueStatement, BlockScope skope) {
+			if (continueStatement.label != null)
+				this.continuesToLabel = true;
+	    	return false;
+	    }
+		public boolean continuesAtOuterLabel() {
+			Statement.this.traverse(this, null);
+			return this.continuesToLabel;
+		}
+	}.continuesAtOuterLabel();
 }
 
 // Report an error if necessary (if even more unreachable than previously reported

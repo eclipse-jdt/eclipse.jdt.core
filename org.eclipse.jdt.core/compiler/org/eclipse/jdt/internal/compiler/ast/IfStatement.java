@@ -289,4 +289,8 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 public boolean doesNotCompleteNormally() {
 	return this.thenStatement != null && this.thenStatement.doesNotCompleteNormally() && this.elseStatement != null && this.elseStatement.doesNotCompleteNormally();
 }
+@Override
+public boolean completesByContinue() {
+	return this.thenStatement != null && this.thenStatement.completesByContinue() || this.elseStatement != null && this.elseStatement.completesByContinue();
+}
 }

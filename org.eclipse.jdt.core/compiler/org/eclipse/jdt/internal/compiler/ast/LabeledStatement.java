@@ -143,6 +143,13 @@ public class LabeledStatement extends Statement {
 
 	@Override
 	public boolean doesNotCompleteNormally() {
+		if (this.statement.breaksOut(this.label))
+			return false;
 		return this.statement.doesNotCompleteNormally();
+	}
+	
+	@Override
+	public boolean completesByContinue() {
+		return this.statement instanceof ContinueStatement; // NOT this.statement.continuesAtOuterLabel
 	}
 }
