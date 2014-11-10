@@ -1495,11 +1495,11 @@ ClassInstanceCreationExpression ::= Primary '.' 'new' ClassType EnterInstanceCre
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
 
 --1.1 feature
-ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' QualifiedClassBodyopt
+ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' QualifiedClassBodyopt
 /.$putCase consumeClassInstanceCreationExpressionQualified() ; $break ./
 /:$readableName ClassInstanceCreationExpression:/
 
-ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' OnlyTypeArguments ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' QualifiedClassBodyopt
+ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName OnlyTypeArguments ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' QualifiedClassBodyopt
 /.$putCase consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() ; $break ./
 /:$readableName ClassInstanceCreationExpression:/
 
@@ -1507,7 +1507,7 @@ EnterInstanceCreationArgumentList ::= $empty
 /.$putCase consumeEnterInstanceCreationArgumentList(); $break ./
 /:$readableName EnterInstanceCreationArgumentList:/
 
-ClassInstanceCreationExpressionName ::= Name '.'
+ClassInstanceCreationExpressionName ::= Name '.' 'new'
 /.$putCase consumeClassInstanceCreationExpressionName() ; $break ./
 /:$readableName ClassInstanceCreationExpressionName:/
 

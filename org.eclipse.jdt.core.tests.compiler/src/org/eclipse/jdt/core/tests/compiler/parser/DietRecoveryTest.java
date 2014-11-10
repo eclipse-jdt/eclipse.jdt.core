@@ -6574,7 +6574,7 @@ public void test109() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
-public void _test110() {
+public void test110() {
 	String s =
 		"public class X {\n" +
 		"	void bar(){\n" +
@@ -8034,6 +8034,157 @@ public void test128() {
 		"  public Try() {\n" + 
 		"  }\n" + 
 		"  void main(Shell shell) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String testName = "test";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=405778 - [1.8][dom ast] method body recovery broken (empty body)
+public void test405778() {
+		String s =
+			"import java.util.Collection;\n" + 
+			"public class E {\n" + 
+			"    public void __test1() {\n" + 
+			"        Object o = new Object();\n" + 
+			"        if (o.hashCode() != 0) {\n" + 
+			"           o.\n" + 
+			"         \n" + 
+			"        }\n" + 
+			"     }\n" + 
+			"}" + 
+			"\n";
+
+		String expectedDietUnitToString =
+			"import java.util.Collection;\n" + 
+			"public class E {\n" + 
+			"  public E() {\n" + 
+			"  }\n" + 
+			"  public void __test1() {\n" + 
+			"  }\n" + 
+			"}\n";
+
+		String expectedDietPlusBodyUnitToString =
+			"import java.util.Collection;\n" + 
+			"public class E {\n" + 
+			"  public E() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"  public void __test1() {\n" + 
+			"  }\n" + 
+			"}\n";
+
+		String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+			"import java.util.Collection;\n" + 
+			"public class E {\n" + 
+			"  public E() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"  public void __test1() {\n" +
+			"    Object o = new Object();\n" +
+			"    if ((o.hashCode() != 0))\n" + 
+			"        {\n" + 
+			"          o = $missing$;\n" + 
+			"        }\n" + 
+			"  }\n" + 
+			"}\n";
+
+		String expectedFullUnitToString =
+			"import java.util.Collection;\n" + 
+			"public class E {\n" + 
+			"  public E() {\n" + 
+			"  }\n" + 
+			"  public void __test1() {\n" + 
+			"  }\n" + 
+			"}\n";
+
+		String expectedCompletionDietUnitToString =
+			"import java.util.Collection;\n" + 
+			"public class E {\n" + 
+			"  public E() {\n" + 
+			"  }\n" + 
+			"  public void __test1() {\n" + 
+			"  }\n" + 
+			"}\n";
+
+		String testName = "test";
+		checkParse(
+			s.toCharArray(),
+			expectedDietUnitToString,
+			expectedDietPlusBodyUnitToString,
+			expectedDietPlusBodyPlusStatementsRecoveryUnitToString,
+			expectedFullUnitToString,
+			expectedCompletionDietUnitToString, testName);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=405778 - [1.8][dom ast] method body recovery broken (empty body)
+public void test405778a() {
+	String s =
+		"import java.util.Collection;\n" +
+		"public class E {\n" + 
+		"    void m(String[] names) {\n"
+			+ "/*[*/\n"
+			+ "for (String string : names) {\n"
+			+ "System.out.println(string.);\n"
+			+ "}\n"
+			+ "/*]*/\n"
+			+ "}\n"
+			+ "}\n" + 
+		"\n";
+
+	String expectedDietUnitToString =
+		"import java.util.Collection;\n" + 
+		"public class E {\n" + 
+		"  public E() {\n" + 
+		"  }\n" + 
+		"  void m(String[] names) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString =
+		"import java.util.Collection;\n" + 
+		"public class E {\n" + 
+		"  public E() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void m(String[] names) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		"import java.util.Collection;\n" + 
+		"public class E {\n" + 
+		"  public E() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void m(String[] names) {\n" +
+		"    for (String string : names) \n" + 
+		"      {\n" + 
+		"        System.out.println(string.class);\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString =
+		"import java.util.Collection;\n" + 
+		"public class E {\n" + 
+		"  public E() {\n" + 
+		"  }\n" + 
+		"  void m(String[] names) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedCompletionDietUnitToString =
+		"import java.util.Collection;\n" + 
+		"public class E {\n" + 
+		"  public E() {\n" + 
+		"  }\n" + 
+		"  void m(String[] names) {\n" + 
 		"  }\n" + 
 		"}\n";
 

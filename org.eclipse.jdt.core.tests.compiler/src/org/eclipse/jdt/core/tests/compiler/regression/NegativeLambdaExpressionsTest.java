@@ -7751,21 +7751,16 @@ public void test423129() {
 					"	}\n" +
 					"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 11)\n" + 
-			"	System.out.println(xyz);\n" + 
-			"	                   ^^^\n" + 
-			"xyz cannot be resolved to a variable\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	return xyz.\n" + 
+			"	       ^^^\n" + 
+			"Type mismatch: cannot convert from Integer to String\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 12)\n" + 
 			"	return xyz.\n" + 
 			"	          ^\n" + 
-			"Syntax error, insert \"new ClassType ( )\" to complete ClassInstanceCreationExpression\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 12)\n" + 
-			"	return xyz.\n" + 
-			"	          ^\n" + 
-			"Syntax error, insert \";\" to complete ReturnStatement\n" + 
+			"Syntax error on token \".\", ; expected\n" + 
 			"----------\n",
 			true);
 }

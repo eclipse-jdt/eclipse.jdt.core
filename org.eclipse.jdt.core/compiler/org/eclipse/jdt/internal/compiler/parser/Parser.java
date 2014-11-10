@@ -6941,7 +6941,7 @@ protected void consumeRule(int act) {
 		    consumeEnterInstanceCreationArgumentList();  
 			break;
  
-    case 436 : if (DEBUG) { System.out.println("ClassInstanceCreationExpressionName ::= Name DOT"); }  //$NON-NLS-1$
+    case 436 : if (DEBUG) { System.out.println("ClassInstanceCreationExpressionName ::= Name DOT new"); }  //$NON-NLS-1$
 		    consumeClassInstanceCreationExpressionName() ;  
 			break;
  

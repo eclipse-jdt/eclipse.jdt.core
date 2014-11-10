@@ -2318,6 +2318,11 @@ protected void consumeClassHeaderImplements() {
 		}
 	}
 }
+protected void consumeClassInstanceCreationExpressionName() {
+	super.consumeClassInstanceCreationExpressionName();
+	this.invocationType = QUALIFIED_ALLOCATION;
+	this.qualifier = this.expressionPtr;
+}
 protected void consumeClassTypeElt() {
 	pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
 	super.consumeClassTypeElt();
