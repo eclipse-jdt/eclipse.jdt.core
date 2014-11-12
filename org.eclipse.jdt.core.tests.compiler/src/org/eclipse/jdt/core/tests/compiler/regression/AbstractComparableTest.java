@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								bug 376590 - Private fields with @Inject are ignored by unused field validation
+ *     Ulrich Grave <ulrich.grave@gmx.de> - Contributions for
+ *                              bug 386692 - Missing "unused" warning on "autowired" fields
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -43,6 +45,23 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 		"@Target({ METHOD, CONSTRUCTOR, FIELD })\n" + 
 		"@Retention(RUNTIME)\n" + 
 		"public @interface Inject {}\n";
+
+	protected static final String SPRINGFRAMEWORK_AUTOWIRED_NAME = "org/springframework/beans/factory/annotation/Autowired.java";
+	protected static final String SPRINGFRAMEWORK_AUTOWIRED_CONTENT =
+		"package org.springframework.beans.factory.annotation;\n" +
+		"import java.lang.annotation.Documented;\n" +
+		"import java.lang.annotation.ElementType;\n" +
+		"import java.lang.annotation.Retention;\n" +
+		"import java.lang.annotation.RetentionPolicy;\n" +
+		"import java.lang.annotation.Target;\n" +
+		"@Target({ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD})\n" +
+		"@Retention(RetentionPolicy.RUNTIME)\n" +
+		"@Documented\n" +
+		"public @interface Autowired {\n" +
+		"\n" +
+		"	boolean required() default true;\n" +
+		"\n" +
+		"}";
 
 	public static Test buildComparableTestSuite(Class evaluationTestClass) {
 		Test suite = buildMinimalComplianceTestSuite(evaluationTestClass, F_1_5);

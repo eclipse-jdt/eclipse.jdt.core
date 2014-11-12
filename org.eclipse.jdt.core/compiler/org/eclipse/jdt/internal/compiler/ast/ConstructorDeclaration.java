@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,8 @@
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 415399 - [1.8][compiler] Type annotations on constructor results dropped by the code generator
+ *     Ulrich Grave <ulrich.grave@gmx.de> - Contributions for
+ *                              bug 386692 - Missing "unused" warning on "autowired" fields
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -243,6 +245,14 @@ boolean isValueProvidedUsingAnnotation(FieldDeclaration fieldDecl) {
 					// if "optional=false" is specified, don't rely on initialization by the injector:
 					if (CharOperation.equals(memberValuePairs[j].name, TypeConstants.OPTIONAL))
 						return memberValuePairs[j].value instanceof FalseLiteral;
+				}
+			} else if (annotation.resolvedType.id == TypeIds.T_OrgSpringframeworkBeansFactoryAnnotationAutowired) {
+				MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
+				if (memberValuePairs == Annotation.NoValuePairs)
+					return true;
+				for (int j = 0; j < memberValuePairs.length; j++) {
+					if (CharOperation.equals(memberValuePairs[j].name, TypeConstants.REQUIRED))
+						return memberValuePairs[j].value instanceof TrueLiteral;
 				}
 			}
 		}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,8 @@
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
+ *     Ulrich Grave <ulrich.grave@gmx.de> - Contributions for
+ *                              bug 386692 - Missing "unused" warning on "autowired" fields
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -850,10 +852,20 @@ public void computeId() {
 			}
 			break;
 		case 6:
-			if (!CharOperation.equals(TypeConstants.JDT, this.compoundName[2]) || !CharOperation.equals(TypeConstants.ITYPEBINDING, this.compoundName[5]))
-				return;
-			if (CharOperation.equals(TypeConstants.ORG_ECLIPSE_JDT_CORE_DOM_ITYPEBINDING, this.compoundName))
-				this.typeBits |= TypeIds.BitUninternedType;
+			if (CharOperation.equals(TypeConstants.ORG, this.compoundName[0])) {
+				if (CharOperation.equals(TypeConstants.SPRING, this.compoundName[1])) {
+					if (CharOperation.equals(TypeConstants.AUTOWIRED, this.compoundName[5])) {
+						if (CharOperation.equals(TypeConstants.ORG_SPRING_AUTOWIRED, this.compoundName)) {
+							this.id = TypeIds.T_OrgSpringframeworkBeansFactoryAnnotationAutowired;
+						}
+					}
+					return;
+				}
+				if (!CharOperation.equals(TypeConstants.JDT, this.compoundName[2]) || !CharOperation.equals(TypeConstants.ITYPEBINDING, this.compoundName[5]))
+					return;
+				if (CharOperation.equals(TypeConstants.ORG_ECLIPSE_JDT_CORE_DOM_ITYPEBINDING, this.compoundName))
+					this.typeBits |= TypeIds.BitUninternedType;
+			}
 			break;
 		case 7 :
 			if (!CharOperation.equals(TypeConstants.JDT, this.compoundName[2]) || !CharOperation.equals(TypeConstants.TYPEBINDING, this.compoundName[6]))

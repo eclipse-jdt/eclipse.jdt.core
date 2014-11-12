@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,8 @@
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *    Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                              Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
+ *    Ulrich Grave <ulrich.grave@gmx.de> - Contributions for
+ *                              bug 386692 - Missing "unused" warning on "autowired" fields
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -119,6 +121,7 @@ public interface TypeConstants {
     char[] TYPEBINDING = "TypeBinding".toCharArray(); //$NON-NLS-1$
     char[] DOM = "dom".toCharArray(); //$NON-NLS-1$
     char[] ITYPEBINDING = "ITypeBinding".toCharArray(); //$NON-NLS-1$
+    char[] SPRING = "springframework".toCharArray(); //$NON-NLS-1$
     
 	// Constant compound names
 	char[][] JAVA_LANG = {JAVA, LANG};
@@ -329,6 +332,13 @@ public interface TypeConstants {
 	char[][] COM_GOOGLE_INJECT_INJECT = new char[][] {COM, GOOGLE, INJECT_PACKAGE, INJECT_TYPE };
 	//    detail for the above:
 	char[] OPTIONAL = "optional".toCharArray(); //$NON-NLS-1$
+
+	// Spring @Autowired annotation
+	char [] AUTOWIRED = "Autowired".toCharArray();  //$NON-NLS-1$
+	char [] BEANS = "beans".toCharArray();  //$NON-NLS-1$
+	char [] FACTORY = "factory".toCharArray(); //$NON-NLS-1$
+	char[][] ORG_SPRING_AUTOWIRED = new char[][] {ORG, SPRING, BEANS, FACTORY, ANNOTATION, AUTOWIRED};
+	char[] REQUIRED = "required".toCharArray(); //$NON-NLS-1$
 
 	// Constraints for generic type argument inference
 	int CONSTRAINT_EQUAL = 0;		// Actual = Formal

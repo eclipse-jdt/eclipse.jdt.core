@@ -66,6 +66,8 @@
  *								bug 419209 - [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
  *								Bug 429384 - [1.8][null] implement conformance rules for null-annotated lower / upper type bounds
  *								Bug 416182 - [1.8][compiler][null] Contradictory null annotations not rejected
+ *     Ulrich Grave <ulrich.grave@gmx.de> - Contributions for
+ *                              bug 386692 - Missing "unused" warning on "autowired" fields
  ********************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -8770,6 +8772,7 @@ private boolean excludeDueToAnnotation(Annotation[] annotations, int problemId) 
 					break;
 				case TypeIds.T_JavaxInjectInject:
 				case TypeIds.T_ComGoogleInjectInject:
+				case TypeIds.T_OrgSpringframeworkBeansFactoryAnnotationAutowired:
 					if (problemId != IProblem.UnusedPrivateField)
 						return true; // @Inject on method/ctor does constitute a relevant use, just on fields it doesn't
 					break;

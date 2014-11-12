@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,8 @@
  *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
+ *     Ulrich Grave <ulrich.grave@gmx.de> - Contributions for
+ *                              bug 386692 - Missing "unused" warning on "autowired" fields
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -127,11 +129,16 @@ public interface TypeIds {
 	// new in 3.9 to identify known @Inject annotations
 	final int T_JavaxInjectInject = 80;
 	final int T_ComGoogleInjectInject = 81;
+
+	// @Autowired
+	final int T_OrgSpringframeworkBeansFactoryAnnotationAutowired = 82;
+
 	// Java 8 - JEP 120
 	final int T_JavaLangAnnotationRepeatable = 90;
 	// If you add new type id, make sure to bump up T_LastWellKnownTypeId if there is a cross over.
 	final int T_LastWellKnownTypeId = 128;
 	
+
 	final int NoId = Integer.MAX_VALUE;
 
 	public static final int IMPLICIT_CONVERSION_MASK = 0xFF;
