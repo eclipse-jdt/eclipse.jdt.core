@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IImportDeclaration;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -407,35 +406,6 @@ public final class ImportRewrite {
 							|| fMainTypeName.equals(Util.concatenateName(qualifier, name, '.'))))
 				return ImportRewriteContext.RES_NAME_FOUND;
 		}
-
-		int nTypes = 0;
-		if (this.astRoot != null) {
-			List types = this.astRoot.types();
-			nTypes = types != null ? types.size() : 0;
-			for (int i = 0; i < nTypes; i++) {
-				AbstractTypeDeclaration type = (AbstractTypeDeclaration) types.get(i);
-				SimpleName simpleName;
-				if (type != null && (simpleName = type.getName()) != null && simpleName.toString().equals(name)) { 
-					return ImportRewriteContext.RES_NAME_CONFLICT;
-				}
-			}
-		}
-		if (nTypes <= 0 && this.compilationUnit != null) {
-			try {
-				IType[] types = this.compilationUnit.getTypes();
-				nTypes = types.length;
-				for (int i = 0; i < nTypes; i++) {
-					IType type = types[i];
-					String typeName = type.getElementName();
-					if (typeName != null && typeName.equals(name)) 
-						return ImportRewriteContext.RES_NAME_CONFLICT;
-				}
-			} catch (JavaModelException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
 		return ImportRewriteContext.RES_NAME_UNKNOWN;
 	}
 
