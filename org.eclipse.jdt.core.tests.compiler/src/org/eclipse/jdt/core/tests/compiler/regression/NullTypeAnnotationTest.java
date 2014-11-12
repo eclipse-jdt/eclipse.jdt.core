@@ -5886,4 +5886,48 @@ public void testBug440764() {
 		"Contradictory null annotations: method was inferred as \'int compare(@NonNull @Nullable Integer, @NonNull @Nullable Integer)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=445669, java.lang.IllegalStateException at org.eclipse.jdt.internal.compiler.lookup.UnresolvedReferenceBinding.clone
+public void test445669() {
+	Map options = getCompilerOptions();
+	runConformTestWithLibs(
+		new String[] {
+			"Y.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault(DefaultLocation.FIELD)\n" +
+			"public class Y {\n" +
+			"	public Z.ZI zzi = new Z().new ZI();\n" +
+			"	public Z z = new Z();\n" +
+			"}\n",
+			"Z.java",
+			"public class Z {\n" +
+			"	public class ZI {\n" +
+			"	}\n" +
+			"}\n"
+		},
+		options,
+		"");
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Y y = new Y();\n" +
+			"		y.zzi = null;\n" +
+			"       y.z = null;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	y.zzi = null;\n" + 
+		"	        ^^^^\n" + 
+		"Null type mismatch: required \'Z.@NonNull ZI\' but the provided value is null\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	y.z = null;\n" + 
+		"	      ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Z\' but the provided value is null\n" + 
+		"----------\n");
+}
 }

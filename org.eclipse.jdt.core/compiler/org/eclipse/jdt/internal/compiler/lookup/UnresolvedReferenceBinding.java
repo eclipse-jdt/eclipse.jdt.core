@@ -39,8 +39,8 @@ public UnresolvedReferenceBinding(UnresolvedReferenceBinding prototype) {
 }
 
 public TypeBinding clone(TypeBinding outerType) {
-	if (this.resolvedType != null || this.depth() > 0)
-		throw new IllegalStateException();
+	if (this.resolvedType != null)
+		return this.resolvedType.clone(outerType);
 	UnresolvedReferenceBinding copy = new UnresolvedReferenceBinding(this);
 	this.addWrapper(copy, null);
 	return copy;
