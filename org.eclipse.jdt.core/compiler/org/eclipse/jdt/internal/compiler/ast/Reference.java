@@ -167,7 +167,6 @@ void reportOnlyUselesslyReadPrivateField(BlockScope currentScope, FieldBinding f
 			{
 				// compoundAssignment/postIncrement is the only usage of this field
 				currentScope.problemReporter().unusedPrivateField(fieldBinding.sourceField());
-				fieldBinding.modifiers |= ExtraCompilerModifiers.AccLocallyUsed; // don't report again
 			}
 		}
 	}
@@ -215,6 +214,5 @@ static void reportOnlyUselesslyReadLocal(BlockScope currentScope, LocalVariableB
 		// report the case of a local variable that is unread except for a special operator
 		currentScope.problemReporter().unusedLocalVariable(localBinding.declaration);
 	}
-	localBinding.useFlag = LocalVariableBinding.USED; // don't report again
 }
 }

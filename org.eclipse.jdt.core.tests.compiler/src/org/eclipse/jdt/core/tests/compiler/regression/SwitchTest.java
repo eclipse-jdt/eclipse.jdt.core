@@ -2647,6 +2647,213 @@ public void test393537() {
 		this.runConformTest(sourceFiles, "");
 	}
 }
+//JDK7: Strings in Switch.
+public void test410892() {
+	String errorMsg = 		
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	switch (s) {\n" + 
+			"	        ^\n" + 
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+			"----------\n";
+	
+	String [] sourceFiles = 
+		new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"   public void testFunction(String s) {\n" + 
+		"        int var1 = 0;\n" + 
+		"        int var2 = 0;\n" + 
+		"        switch (s) {\n" + 
+		"        case \"test\": \n" + 
+		"            var2 = ++var1 % 2;\n" + 
+		"            break;\n" + 
+		"        }\n" + 
+		"   }\n" + 
+		"}",
+	};
+	if (this.complianceLevel < JDKLevelSupportingStringSwitch) {
+		this.runNegativeTest(sourceFiles, errorMsg);
+	} else {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+		this.runConformTest(sourceFiles, options);
+	}
+}
+//JDK7: Strings in Switch.
+public void test410892_2() {
+	String errorMsg = 		
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	switch (s) {\n" + 
+			"	        ^\n" + 
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+			"----------\n";
+
+	String [] sourceFiles = 
+		new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"   public X(String s) {\n" + 
+		"        int var1 = 0;\n" + 
+		"        int var2 = 0;\n" + 
+		"        switch (s) {\n" + 
+		"        case \"test\": \n" + 
+		"            var2 = ++var1 % 2;\n" + 
+		"            break;\n" + 
+		"        }\n" + 
+		"   }\n" + 
+		"}",
+	};
+	if (this.complianceLevel < JDKLevelSupportingStringSwitch) {
+		this.runNegativeTest(sourceFiles, errorMsg);
+	} else {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+		this.runConformTest(sourceFiles, options);
+	}
+}
+//JDK7: Strings in Switch.
+public void test410892_3() {
+	String errorMsg = 		
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	switch (s) {\n" + 
+			"	        ^\n" + 
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+			"----------\n";
+	
+	String [] sourceFiles = 
+		new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"   static {\n" + 
+		"        int var1 = 0;\n" + 
+		"        int var2 = 0;\n" +
+		"        String s = \"test2\";\n" +
+		"        switch (s) {\n" + 
+		"        case \"test\": \n" + 
+		"            var2 = ++var1 % 2;\n" + 
+		"            break;\n" + 
+		"        }\n" + 
+		"   }\n" + 
+		"}",
+	};
+	if (this.complianceLevel < JDKLevelSupportingStringSwitch) {
+		this.runNegativeTest(sourceFiles, errorMsg);
+	} else {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+		this.runConformTest(sourceFiles, options);
+	}
+}
+//JDK7: Strings in Switch.
+public void test410892_4() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	String errorMsg = 		
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	int var2 = 0;\n" + 
+			"	    ^^^^\n" + 
+			"The value of the local variable var2 is not used\n" + 
+			"----------\n";
+	String [] sourceFiles = 
+		new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"   public void testFunction(String s) {\n" + 
+		"        int var1 = 0;\n" + 
+		"        int var2 = 0;\n" + 
+		"        switch (s) {\n" + 
+		"        case \"test\": \n" + 
+		"            var2 = ++var1 % 2;\n" + 
+		"            break;\n" + 
+		"        }\n" + 
+		"   }\n" + 
+		"}",
+	};
+	if (this.complianceLevel >= JDKLevelSupportingStringSwitch) {
+		this.runNegativeTest(sourceFiles,
+			errorMsg,
+			null,
+			true,
+			options);
+	}
+}
+//JDK7: Strings in Switch.
+public void test410892_5() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	String errorMsg = 		
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	int var2 = 0;\n" + 
+			"	    ^^^^\n" + 
+			"The value of the local variable var2 is not used\n" + 
+			"----------\n";
+	String [] sourceFiles = 
+		new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"   public X(String s) {\n" + 
+		"        int var1 = 0;\n" + 
+		"        int var2 = 0;\n" + 
+		"        switch (s) {\n" + 
+		"        case \"test\": \n" + 
+		"            var2 = ++var1 % 2;\n" + 
+		"            break;\n" + 
+		"        }\n" + 
+		"   }\n" + 
+		"}",
+	};
+	if (this.complianceLevel >= JDKLevelSupportingStringSwitch) {
+		this.runNegativeTest(sourceFiles,
+			errorMsg,
+			null,
+			true,
+			options);
+	}
+}
+//JDK7: Strings in Switch.
+public void test410892_6() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	String errorMsg = 		
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	int var2 = 0;\n" + 
+			"	    ^^^^\n" + 
+			"The value of the local variable var2 is not used\n" + 
+			"----------\n";
+	String [] sourceFiles = 
+		new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"   static {\n" + 
+		"        int var1 = 0;\n" + 
+		"        int var2 = 0;\n" + 
+		"        String s = \"Test2\";\n" + 
+		"        switch (s) {\n" + 
+		"        case \"test\": \n" + 
+		"            var2 = ++var1 % 2;\n" + 
+		"            break;\n" + 
+		"        }\n" + 
+		"   }\n" + 
+		"}",
+	};
+	if (this.complianceLevel >= JDKLevelSupportingStringSwitch) {
+		this.runNegativeTest(sourceFiles,
+			errorMsg,
+			null,
+			true,
+			options);
+	}
+}
+
 public static Class testClass() {
 	return SwitchTest.class;
 }

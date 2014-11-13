@@ -110,6 +110,15 @@ public class Clinit extends AbstractMethodDeclaration {
 			// should never have to add any <clinit> problem method
 			return;
 		}
+		CompilationResult unitResult = null;
+		int problemCount = 0;
+		if (classScope != null) {
+			TypeDeclaration referenceContext = classScope.referenceContext;
+			if (referenceContext != null) {
+				unitResult = referenceContext.compilationResult();
+				problemCount = unitResult.problemCount;
+			}
+		}
 		boolean restart = false;
 		do {
 			try {
@@ -129,12 +138,20 @@ public class Clinit extends AbstractMethodDeclaration {
 					classFile.contentsOffset = clinitOffset;
 					classFile.methodCount--;
 					classFile.codeStream.resetInWideMode(); // request wide mode
+					// reset the problem count to prevent reporting the same warning twice
+					if (unitResult != null) {
+						unitResult.problemCount = problemCount;
+					}
 					// restart method generation
 					restart = true;
 				} else if (e.compilationResult == CodeStream.RESTART_CODE_GEN_FOR_UNUSED_LOCALS_MODE) {
 					classFile.contentsOffset = clinitOffset;
 					classFile.methodCount--;
 					classFile.codeStream.resetForCodeGenUnusedLocals();
+					// reset the problem count to prevent reporting the same warning twice
+					if (unitResult != null) {
+						unitResult.problemCount = problemCount;
+					}
 					// restart method generation
 					restart = true;
 				} else {
