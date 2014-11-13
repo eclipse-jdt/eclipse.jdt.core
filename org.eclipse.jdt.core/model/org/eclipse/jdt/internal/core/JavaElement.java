@@ -831,17 +831,17 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	protected String getURLContents(URL baseLoc, String docUrlValue) throws JavaModelException {
 		InputStream stream = null;
 		JarURLConnection connection2 = null;
+		URL docUrl = null;
+		URLConnection connection = null;
 		try {
-			URL docUrl = null;
-			URLConnection connection = null;
 			redirect: for (int i= 0; i < 5; i++) { // avoid endless redirects...
 				docUrl = new URL(docUrlValue);
 				connection = docUrl.openConnection();
-				
+
 				int timeoutVal = 10000;
 				connection.setConnectTimeout(timeoutVal);
 				connection.setReadTimeout(timeoutVal);
-				
+
 				if (connection instanceof HttpURLConnection) {
 					// HttpURLConnection doesn't redirect from http to https, see https://bugs.eclipse.org/450684
 					HttpURLConnection httpCon = (HttpURLConnection) connection;
@@ -858,16 +858,9 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 				}
 				break;
 			}
-			
-			try {
-				stream = new BufferedInputStream(connection.getInputStream());
-			} catch (IllegalArgumentException e) {
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304316
-				return null;
-			} catch (NullPointerException e) {
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304316
-				return null;
-			}
+
+			stream = new BufferedInputStream(connection.getInputStream());
+
 			String encoding = connection.getContentEncoding();
 			byte[] contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream, connection.getContentLength());
 			if (encoding == null) {
@@ -906,6 +899,12 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 					return new String(contents);
 				}
 			}
+		} catch (IllegalArgumentException e) {
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304316
+			return null;
+		} catch (NullPointerException e) {
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304316
+			return null;
 		} catch (SocketTimeoutException e) {
 			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC_TIMEOUT, this));
 		} catch (MalformedURLException e) {
@@ -927,6 +926,9 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			throw new JavaModelException(e, IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC);
 		} catch (IOException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+		} catch(Exception e) {
+			if (e.getCause() instanceof IllegalArgumentException) return null;
+			throw new JavaModelException(e, IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC);
 		} finally {
 			if (stream != null) {
 				try {
