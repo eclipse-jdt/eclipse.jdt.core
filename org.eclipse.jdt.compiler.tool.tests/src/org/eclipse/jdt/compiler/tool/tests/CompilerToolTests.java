@@ -141,6 +141,7 @@ public class CompilerToolTests extends TestCase {
 		"-proc:none",
 		"-proc:only",
 		"-parameters",
+		"-genericsignature"
 	};
 static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] { 
 	// a series of fake options to test the behavior upon ignored and 

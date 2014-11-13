@@ -337,6 +337,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				}
 			}
 		}
+		boolean genericSignatureNeeded = this.requiresGenericSignature || blockScope.compilerOptions().generateGenericSignatureForLambdaExpressions;
 		for (int i = 0; i < argumentsLength; i++) {
 			Argument argument = this.arguments[i];
 			TypeBinding argumentType;
@@ -349,7 +350,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 						this.resolvedType = null; // continue to type check.
 					}
 				}
-				if (this.requiresGenericSignature) {
+				if (genericSignatureNeeded) {
 					TypeBinding leafType = argumentType.leafComponentType();
 					if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
 						this.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
@@ -389,7 +390,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			if ((exception.tagBits & TagBits.HasMissingType) != 0) {
 				this.binding.tagBits |= TagBits.HasMissingType;
 			}
-			if (this.requiresGenericSignature)
+			if (genericSignatureNeeded)
 				this.binding.modifiers |= (exception.modifiers & ExtraCompilerModifiers.AccGenericSignature);
 		}
 		
@@ -398,7 +399,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			if ((returnType.tagBits & TagBits.HasMissingType) != 0) {
 				this.binding.tagBits |= TagBits.HasMissingType;
 			}
-			if (this.requiresGenericSignature) {
+			if (genericSignatureNeeded) {
 				TypeBinding leafType = returnType.leafComponentType();
 				if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
 					this.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;

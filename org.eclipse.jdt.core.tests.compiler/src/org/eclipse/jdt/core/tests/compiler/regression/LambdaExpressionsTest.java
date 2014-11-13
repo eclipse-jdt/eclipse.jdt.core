@@ -5144,6 +5144,358 @@ public void test448802() throws Exception {
 		},
 		"true");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions 
+public void test449063() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.GENERATE);
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.io.Serializable;\n" + 
+			"import java.lang.invoke.SerializedLambda;\n" + 
+			"import java.lang.reflect.Method;\n" + 
+			"import java.lang.reflect.Type;\n" + 
+			"public class Test {\n" + 
+			"    public static interface Map<IN, OUT> {\n" + 
+			"        public OUT map(IN in);\n" + 
+			"    }\n" + 
+			"    public static class Tuple<T1, T2> {\n" + 
+			"        private T1 field1;\n" + 
+			"        private T2 field2;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] strings) throws Exception {\n" + 
+			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();\n" + 
+			"        for(Method m : Test.class.getDeclaredMethods()) {\n" + 
+			"        // Use the type information stored in signature\n" + 
+			"            if (m.getName().contains(\"lambda\")) {\n" +
+			"              System.out.println(m.getGenericReturnType());\n" + 
+			"              for (Type t : m.getGenericParameterTypes()) {\n" + 
+			"                  System.out.println(t);\n" + 
+			"              }\n" +
+			"            }\n" +
+			"        }\n" +
+			"    }\n" + 
+			"}"
+			},
+			"Test.Test$Tuple<java.lang.Integer, java.lang.String>\n" +
+			"Test.Test$Tuple<java.lang.String, java.lang.Double>",
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions 
+public void test449063a() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.GENERATE);
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.io.Serializable;\n" + 
+			"import java.lang.invoke.SerializedLambda;\n" + 
+			"import java.lang.reflect.Method;\n" + 
+			"import java.lang.reflect.Type;\n" + 
+			"public class Test {\n" + 
+			"    public static interface Map<IN, OUT> extends Serializable {\n" + 
+			"        public OUT map(IN in);\n" + 
+			"    }\n" + 
+			"    public static class Tuple<T1, T2> {\n" + 
+			"        private T1 field1;\n" + 
+			"        private T2 field2;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] strings) throws Exception {\n" + 
+			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();\n" + 
+			"        SerializedLambda sl = getSerializedLambda(map);      \n" + 
+			"        Method m = getLambdaMethod(sl);\n" + 
+			"        // Use the type information stored in signature\n" + 
+			"        System.out.println(m.getGenericReturnType());\n" + 
+			"        for (Type t : m.getGenericParameterTypes()) {\n" + 
+			"            System.out.println(t);\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    public static Method getLambdaMethod(SerializedLambda lambda) throws Exception {\n" + 
+			"        String implClassName = lambda.getImplClass().replace(\'/\', \'.\');\n" + 
+			"        Class<?> implClass = Class.forName(implClassName);\n" + 
+			"        String lambdaName = lambda.getImplMethodName();\n" + 
+			"        for (Method m : implClass.getDeclaredMethods()) {\n" + 
+			"            if (m.getName().equals(lambdaName)) {\n" + 
+			"                return m;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"        throw new Exception(\"Lambda Method not found\");\n" + 
+			"    }\n" + 
+			"    public static SerializedLambda getSerializedLambda(Object function) throws Exception {\n" + 
+			"        if (function == null || !(function instanceof java.io.Serializable)) {\n" + 
+			"            throw new IllegalArgumentException();\n" + 
+			"        }\n" + 
+			"        for (Class<?> clazz = function.getClass(); clazz != null; clazz = clazz.getSuperclass()) {\n" + 
+			"            try {\n" + 
+			"                Method replaceMethod = clazz.getDeclaredMethod(\"writeReplace\");\n" + 
+			"                replaceMethod.setAccessible(true);\n" + 
+			"                Object serializedForm = replaceMethod.invoke(function);\n" + 
+			"                if (serializedForm instanceof SerializedLambda) {\n" + 
+			"                    return (SerializedLambda) serializedForm;\n" + 
+			"                }\n" + 
+			"            }\n" + 
+			"            catch (NoSuchMethodError e) {\n" + 
+			"                // fall through the loop and try the next class\n" + 
+			"            }\n" + 
+			"            catch (Throwable t) {\n" + 
+			"                throw new RuntimeException(\"Error while extracting serialized lambda\", t);\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"        throw new Exception(\"writeReplace method not found\");\n" + 
+			"    }\n" + 
+			"}"
+			},
+			"Test.Test$Tuple<java.lang.Integer, java.lang.String>\n" +
+			"Test.Test$Tuple<java.lang.String, java.lang.Double>",
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions 
+public void test449063b() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.DO_NOT_GENERATE);
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.io.Serializable;\n" + 
+			"import java.lang.invoke.SerializedLambda;\n" + 
+			"import java.lang.reflect.Method;\n" + 
+			"import java.lang.reflect.Type;\n" + 
+			"public class Test {\n" + 
+			"    public static interface Map<IN, OUT> {\n" + 
+			"        public OUT map(IN in);\n" + 
+			"    }\n" + 
+			"    public static class Tuple<T1, T2> {\n" + 
+			"        private T1 field1;\n" + 
+			"        private T2 field2;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] strings) throws Exception {\n" + 
+			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();\n" + 
+			"        for(Method m : Test.class.getDeclaredMethods()) {\n" + 
+			"        // Use the type information stored in signature\n" + 
+			"            if (m.getName().contains(\"lambda\")) {\n" +
+			"              System.out.println(m.getGenericReturnType());\n" + 
+			"              for (Type t : m.getGenericParameterTypes()) {\n" + 
+			"                  System.out.println(t);\n" + 
+			"              }\n" +
+			"            }\n" +
+			"        }\n" +
+			"    }\n" + 
+			"}"
+			},
+			"class Test$Tuple\n" +
+			"class Test$Tuple",
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions 
+public void test449063c() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.DO_NOT_GENERATE);
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.io.Serializable;\n" + 
+			"import java.lang.invoke.SerializedLambda;\n" + 
+			"import java.lang.reflect.Method;\n" + 
+			"import java.lang.reflect.Type;\n" + 
+			"public class Test {\n" + 
+			"    public static interface Map<IN, OUT> extends Serializable {\n" + 
+			"        public OUT map(IN in);\n" + 
+			"    }\n" + 
+			"    public static class Tuple<T1, T2> {\n" + 
+			"        private T1 field1;\n" + 
+			"        private T2 field2;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] strings) throws Exception {\n" + 
+			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();\n" + 
+			"        SerializedLambda sl = getSerializedLambda(map);      \n" + 
+			"        Method m = getLambdaMethod(sl);\n" + 
+			"        // Use the type information stored in signature\n" + 
+			"        System.out.println(m.getGenericReturnType());\n" + 
+			"        for (Type t : m.getGenericParameterTypes()) {\n" + 
+			"            System.out.println(t);\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    public static Method getLambdaMethod(SerializedLambda lambda) throws Exception {\n" + 
+			"        String implClassName = lambda.getImplClass().replace(\'/\', \'.\');\n" + 
+			"        Class<?> implClass = Class.forName(implClassName);\n" + 
+			"        String lambdaName = lambda.getImplMethodName();\n" + 
+			"        for (Method m : implClass.getDeclaredMethods()) {\n" + 
+			"            if (m.getName().equals(lambdaName)) {\n" + 
+			"                return m;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"        throw new Exception(\"Lambda Method not found\");\n" + 
+			"    }\n" + 
+			"    public static SerializedLambda getSerializedLambda(Object function) throws Exception {\n" + 
+			"        if (function == null || !(function instanceof java.io.Serializable)) {\n" + 
+			"            throw new IllegalArgumentException();\n" + 
+			"        }\n" + 
+			"        for (Class<?> clazz = function.getClass(); clazz != null; clazz = clazz.getSuperclass()) {\n" + 
+			"            try {\n" + 
+			"                Method replaceMethod = clazz.getDeclaredMethod(\"writeReplace\");\n" + 
+			"                replaceMethod.setAccessible(true);\n" + 
+			"                Object serializedForm = replaceMethod.invoke(function);\n" + 
+			"                if (serializedForm instanceof SerializedLambda) {\n" + 
+			"                    return (SerializedLambda) serializedForm;\n" + 
+			"                }\n" + 
+			"            }\n" + 
+			"            catch (NoSuchMethodError e) {\n" + 
+			"                // fall through the loop and try the next class\n" + 
+			"            }\n" + 
+			"            catch (Throwable t) {\n" + 
+			"                throw new RuntimeException(\"Error while extracting serialized lambda\", t);\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"        throw new Exception(\"writeReplace method not found\");\n" + 
+			"    }\n" + 
+			"}"
+			},
+			"class Test$Tuple\n" +
+			"class Test$Tuple",
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions 
+public void test449063d() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.GENERATE);
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.io.Serializable;\n" + 
+			"import java.lang.invoke.SerializedLambda;\n" + 
+			"import java.lang.reflect.Method;\n" + 
+			"import java.lang.reflect.Type;\n" + 
+			"public class Test {\n" + 
+			"    public static interface Map<IN, OUT> {\n" + 
+			"        public OUT map(IN in);\n" + 
+			"    }\n" + 
+			"    public static Tuple<Integer, String> noop(Tuple<String, Double> t){return null;}\n" +
+			"    public static class Tuple<T1, T2> {\n" + 
+			"        private T1 field1;\n" + 
+			"        private T2 field2;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] strings) throws Exception {\n" + 
+			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = Test::noop;\n" + 
+			"        for(Method m : Test.class.getDeclaredMethods()) {\n" + 
+			"        // Use the type information stored in signature\n" + 
+			"            if (m.getName().contains(\"lambda\")) {\n" +
+			"              System.out.println(m.getGenericReturnType());\n" + 
+			"              for (Type t : m.getGenericParameterTypes()) {\n" + 
+			"                  System.out.println(t);\n" + 
+			"              }\n" +
+			"            }\n" +
+			"        }\n" +
+			"    }\n" + 
+			"}"
+			},
+			"",
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions 
+public void test449063e() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.DO_NOT_GENERATE);
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.io.Serializable;\n" + 
+			"import java.lang.invoke.SerializedLambda;\n" + 
+			"import java.lang.reflect.Method;\n" + 
+			"import java.lang.reflect.Type;\n" + 
+			"public class Test {\n" + 
+			"    public static interface Map<IN, OUT> extends Serializable {\n" + 
+			"        public OUT map(IN in);\n" + 
+			"    }\n" + 
+			"    public static Tuple<Integer, String> noop(Tuple<String, Double> t){return null;}\n" +
+			"    public static class Tuple<T1, T2> {\n" + 
+			"        private T1 field1;\n" + 
+			"        private T2 field2;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] strings) throws Exception {\n" + 
+			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = Test::noop;\n" + 
+			"        SerializedLambda sl = getSerializedLambda(map);      \n" + 
+			"        Method m = getLambdaMethod(sl);\n" + 
+			"        // Use the type information stored in signature\n" + 
+			"        System.out.println(m.getGenericReturnType());\n" + 
+			"        for (Type t : m.getGenericParameterTypes()) {\n" + 
+			"            System.out.println(t);\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    public static Method getLambdaMethod(SerializedLambda lambda) throws Exception {\n" + 
+			"        String implClassName = lambda.getImplClass().replace(\'/\', \'.\');\n" + 
+			"        Class<?> implClass = Class.forName(implClassName);\n" + 
+			"        String lambdaName = lambda.getImplMethodName();\n" + 
+			"        for (Method m : implClass.getDeclaredMethods()) {\n" + 
+			"            if (m.getName().equals(lambdaName)) {\n" + 
+			"                return m;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"        throw new Exception(\"Lambda Method not found\");\n" + 
+			"    }\n" + 
+			"    public static SerializedLambda getSerializedLambda(Object function) throws Exception {\n" + 
+			"        if (function == null || !(function instanceof java.io.Serializable)) {\n" + 
+			"            throw new IllegalArgumentException();\n" + 
+			"        }\n" + 
+			"        for (Class<?> clazz = function.getClass(); clazz != null; clazz = clazz.getSuperclass()) {\n" + 
+			"            try {\n" + 
+			"                Method replaceMethod = clazz.getDeclaredMethod(\"writeReplace\");\n" + 
+			"                replaceMethod.setAccessible(true);\n" + 
+			"                Object serializedForm = replaceMethod.invoke(function);\n" + 
+			"                if (serializedForm instanceof SerializedLambda) {\n" + 
+			"                    return (SerializedLambda) serializedForm;\n" + 
+			"                }\n" + 
+			"            }\n" + 
+			"            catch (NoSuchMethodError e) {\n" + 
+			"                // fall through the loop and try the next class\n" + 
+			"            }\n" + 
+			"            catch (Throwable t) {\n" + 
+			"                throw new RuntimeException(\"Error while extracting serialized lambda\", t);\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"        throw new Exception(\"writeReplace method not found\");\n" + 
+			"    }\n" + 
+			"}"
+			},
+			"Test.Test$Tuple<java.lang.Integer, java.lang.String>\n" +
+			"Test.Test$Tuple<java.lang.String, java.lang.Double>",
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions 
+public void test449063f() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.GENERATE);
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.io.Serializable;\n" + 
+			"import java.lang.reflect.Method;\n" + 
+			"import java.lang.reflect.Type;\n" + 
+			"public class Test implements Serializable{\n" + 
+			"    public static interface Map<IN, OUT> {\n" + 
+			"        public OUT map(IN in);\n" + 
+			"    }\n" + 
+			"    public static Tuple<Integer, String> noop(Tuple<String, Double> t){return null;}\n" +
+			"    public static class Tuple<T1, T2> {\n" + 
+			"        private T1 field1;\n" + 
+			"        private T2 field2;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] strings) throws Exception {\n" + 
+			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = Test::noop;\n" + 
+			"        for(Method m : Test.class.getDeclaredMethods()) {\n" + 
+			"        // Use the type information stored in signature\n" + 
+			"            if (m.getName().contains(\"lambda\")) {\n" +
+			"              System.out.println(m.getGenericReturnType());\n" + 
+			"              for (Type t : m.getGenericParameterTypes()) {\n" + 
+			"                  System.out.println(t);\n" + 
+			"              }\n" +
+			"            }\n" +
+			"        }\n" +
+			"    }\n" + 
+			"}"
+			},
+			"",
+			customOptions);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
