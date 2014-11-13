@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,6 @@ package org.eclipse.jdt.core.tests.rewrite.describing;
 import java.io.IOException;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.BindingKey;
@@ -29,6 +28,9 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
@@ -57,12 +59,6 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	public static Test allTests() {
 		return new Suite(THIS);
-	}
-
-	public static Test setUpTest(Test someTest) {
-		TestSuite suite= new Suite("one test");
-		suite.addTest(someTest);
-		return suite;
 	}
 
 	public static Test suite() {
@@ -3565,6 +3561,57 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
+
+	public void testBug430108_001() throws Exception {
+		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
+		String contents = "package pack1;\n" +
+				"public class X {\n" +
+				"}\n";
+		ICompilationUnit cu = pack1.createCompilationUnit("X.java", contents, false, null);
+
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setSource(cu);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(true);
+		CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) astRoot.types().get(0);
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		contents = "package pack2;\n" +
+				"public class X {\n" +
+				"}\n";
+		IPackageFragment pack2 = this.sourceFolder.createPackageFragment("pack2", false, null);
+		cu = pack2.createCompilationUnit("X.java", contents, false, null);
+		ImportRewrite rewrite = newImportsRewrite(cu, new String[0], 99, 99, true);
+		rewrite.setUseContextToFilterImplicitImports(true);
+		Type actualType = rewrite.addImport(typeBinding, astRoot.getAST());
+		assertEquals("pack1.X", actualType.toString());
+	}
+
+	public void testBug430108_002() throws Exception {
+		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
+		String contents = "package pack1;\n" +
+				"public class X {\n" +
+				"}\n";
+		ICompilationUnit cu = pack1.createCompilationUnit("X.java", contents, false, null);
+
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setSource(cu);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(true);
+		CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) astRoot.types().get(0);
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		contents = "package pack2;\n" +
+				"public class X {\n" +
+				"}\n";
+		IPackageFragment pack2 = this.sourceFolder.createPackageFragment("pack2", false, null);
+		parser.setSource(pack2.createCompilationUnit("X.java", contents, false, null));
+		CompilationUnit astRoot2 = (CompilationUnit) parser.createAST(null);
+		ImportRewrite rewrite = ImportRewrite.create(astRoot2, true);
+		rewrite.setUseContextToFilterImplicitImports(true);
+		Type actualType = rewrite.addImport(typeBinding, astRoot2.getAST());
+		assertEquals("pack1.X", actualType.toString());
+	}
 
 	private void assertAddedAndRemoved(ImportRewrite imports, String[] expectedAdded, String[] expectedRemoved, String[] expectedAddedStatic, String[] expectedRemovedStatic) {
 		assertEqualStringsIgnoreOrder(imports.getAddedImports(), expectedAdded);

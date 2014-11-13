@@ -23,12 +23,45 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IImportDeclaration;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotatableType;
+import org.eclipse.jdt.core.dom.Annotation;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
+import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.CharacterLiteral;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Dimension;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMemberValuePairBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
+import org.eclipse.jdt.core.dom.MemberValuePair;
+import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.ParameterizedType;
+import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
+import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeLiteral;
+import org.eclipse.jdt.core.dom.WildcardType;
 import org.eclipse.jdt.internal.core.dom.rewrite.ImportRewriteAnalyzer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -397,15 +430,49 @@ public final class ImportRewrite {
 				}
 			}
 		}
-		if (this.filterImplicitImports && this.useContextToFilterImplicitImports) {
-			String fPackageName= this.compilationUnit.getParent().getElementName();
-			String mainTypeSimpleName= JavaCore.removeJavaLikeExtension(this.compilationUnit.getElementName());
-			String fMainTypeName= Util.concatenateName(fPackageName, mainTypeSimpleName, '.');
-			if (kind == ImportRewriteContext.KIND_TYPE
-					&& (qualifier.equals(fPackageName)
-							|| fMainTypeName.equals(Util.concatenateName(qualifier, name, '.'))))
-				return ImportRewriteContext.RES_NAME_FOUND;
+
+		String packageName= this.compilationUnit.getParent().getElementName();
+		if (kind == ImportRewriteContext.KIND_TYPE) {
+			if (this.filterImplicitImports && this.useContextToFilterImplicitImports) {
+				String mainTypeSimpleName= JavaCore.removeJavaLikeExtension(this.compilationUnit.getElementName());
+				String mainTypeName= Util.concatenateName(packageName, mainTypeSimpleName, '.');
+				if (qualifier.equals(packageName)
+						|| mainTypeName.equals(Util.concatenateName(qualifier, name, '.'))) {
+					return ImportRewriteContext.RES_NAME_FOUND;
+				}
+				
+				if (this.astRoot != null) {
+					List<AbstractTypeDeclaration> types = this.astRoot.types();
+					int nTypes = types.size();
+					for (int i = 0; i < nTypes; i++) {
+						AbstractTypeDeclaration type = types.get(i);
+						SimpleName simpleName = type.getName();
+						if (simpleName.getIdentifier().equals(name)) { 
+							return qualifier.equals(packageName)
+									? ImportRewriteContext.RES_NAME_FOUND
+									: ImportRewriteContext.RES_NAME_CONFLICT;
+						}
+					}
+				} else {
+					try {
+						IType[] types = this.compilationUnit.getTypes();
+						int nTypes = types.length;
+						for (int i = 0; i < nTypes; i++) {
+							IType type = types[i];
+							String typeName = type.getElementName();
+							if (typeName.equals(name)) {
+								return qualifier.equals(packageName)
+										? ImportRewriteContext.RES_NAME_FOUND
+										: ImportRewriteContext.RES_NAME_CONFLICT;
+							}
+						}
+					} catch (JavaModelException e) {
+						// don't want to throw an exception here
+					}
+				}
+			}
 		}
+
 		return ImportRewriteContext.RES_NAME_UNKNOWN;
 	}
 
