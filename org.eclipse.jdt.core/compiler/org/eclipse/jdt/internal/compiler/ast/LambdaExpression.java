@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 IBM Corporation and others.
+ * Copyright (c) 2012, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -330,6 +330,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 				// TODO: in which cases do we have to assign this.resolvedType & this.descriptor (with problem bindings) to prevent NPE downstream??
 			}
 		}
+		boolean genericSignatureNeeded = this.requiresGenericSignature || blockScope.compilerOptions().generateGenericSignatureForLambdaExpressions;
 		for (int i = 0; i < length; i++) {
 			Argument argument = this.arguments[i];
 			TypeBinding parameterType;
@@ -382,7 +383,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			if ((exception.tagBits & TagBits.HasMissingType) != 0) {
 				this.binding.tagBits |= TagBits.HasMissingType;
 			}
-			if (this.requiresGenericSignature)
+			if (genericSignatureNeeded)
 				this.binding.modifiers |= (exception.modifiers & ExtraCompilerModifiers.AccGenericSignature);
 		}
 		
@@ -391,7 +392,7 @@ public class LambdaExpression extends FunctionalExpression implements ReferenceC
 			if ((returnType.tagBits & TagBits.HasMissingType) != 0) {
 				this.binding.tagBits |= TagBits.HasMissingType;
 			}
-			if (this.requiresGenericSignature) {
+			if (genericSignatureNeeded) {
 				TypeBinding leafType = returnType.leafComponentType();
 				if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
 					this.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;

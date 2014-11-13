@@ -2200,6 +2200,13 @@ public void configure(String[] argv) {
 							CompilerOptions.GENERATE);
 					continue;
 				}
+				if (currentArg.equals("-genericsignature")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					this.options.put(
+							CompilerOptions.OPTION_LambdaGenericSignature,
+							CompilerOptions.GENERATE);
+					continue;
+				}
 				if (currentArg.startsWith("-g")) { //$NON-NLS-1$
 					mode = DEFAULT;
 					String debugOption = currentArg;
