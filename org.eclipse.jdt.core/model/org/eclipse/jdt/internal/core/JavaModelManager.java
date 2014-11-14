@@ -71,6 +71,10 @@ import org.eclipse.jdt.internal.core.util.WeakHashSet;
 import org.eclipse.jdt.internal.core.util.WeakHashSetOfCharArray;
 import org.eclipse.jdt.internal.core.util.LRUCache.Stats;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
+import org.eclipse.osgi.service.debug.DebugOptions;
+import org.eclipse.osgi.service.debug.DebugOptionsListener;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.prefs.BackingStoreException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -88,7 +92,7 @@ import org.xml.sax.SAXException;
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class JavaModelManager implements ISaveParticipant, IContentTypeChangeListener {
-
+	private static ServiceRegistration<DebugOptionsListener> DEBUG_REGISTRATION;
 	private static final String NON_CHAINING_JARS_CACHE = "nonChainingJarsCache"; //$NON-NLS-1$
 	private static final String INVALID_ARCHIVES_CACHE = "invalidArchivesCache";  //$NON-NLS-1$
 	private static final String EXTERNAL_FILES_CACHE = "externalFilesCache";  //$NON-NLS-1$
@@ -246,6 +250,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		public String toString() { return getDescription(); }
 	};
 
+	private static final String DEBUG = JavaCore.PLUGIN_ID + "/debug"; //$NON-NLS-1$
 	private static final String BUFFER_MANAGER_DEBUG = JavaCore.PLUGIN_ID + "/debug/buffermanager" ; //$NON-NLS-1$
 	private static final String INDEX_MANAGER_DEBUG = JavaCore.PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
 	private static final String INDEX_MANAGER_ADVANCED_DEBUG = JavaCore.PLUGIN_ID + "/debug/indexmanager/advanced" ; //$NON-NLS-1$
@@ -1668,99 +1673,58 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 	}
 
-	/**
-	 * Configure the plugin with respect to option settings defined in ".options" file
-	 */
-	public void configurePluginDebugOptions(){
-		if(JavaCore.getPlugin().isDebugging()){
-			String option = Platform.getDebugOption(BUFFER_MANAGER_DEBUG);
-			if(option != null) BufferManager.VERBOSE = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(BUILDER_DEBUG);
-			if(option != null) JavaBuilder.DEBUG = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(COMPILER_DEBUG);
-			if(option != null) Compiler.DEBUG = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(BUILDER_STATS_DEBUG);
-			if(option != null) JavaBuilder.SHOW_STATS = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(COMPLETION_DEBUG);
-			if(option != null) CompletionEngine.DEBUG = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(CP_RESOLVE_DEBUG);
-			if(option != null) JavaModelManager.CP_RESOLVE_VERBOSE = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(CP_RESOLVE_ADVANCED_DEBUG);
-			if(option != null) JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(CP_RESOLVE_FAILURE_DEBUG);
-			if(option != null) JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(DELTA_DEBUG);
-			if(option != null) DeltaProcessor.DEBUG = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(DELTA_DEBUG_VERBOSE);
-			if(option != null) DeltaProcessor.VERBOSE = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(DOM_AST_DEBUG);
-			if(option != null) SourceRangeVerifier.DEBUG = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(DOM_AST_DEBUG_THROW);
-			if(option != null) {
-				SourceRangeVerifier.DEBUG_THROW = option.equalsIgnoreCase(TRUE) ;
+	public static void registerDebugOptionsListener(BundleContext context) {
+		// register debug options listener
+		Hashtable<String, String> properties = new Hashtable<String, String>(2);
+		properties.put(DebugOptions.LISTENER_SYMBOLICNAME, JavaCore.PLUGIN_ID);
+		DEBUG_REGISTRATION = context.registerService(DebugOptionsListener.class, new DebugOptionsListener() {
+			@Override
+			public void optionsChanged(DebugOptions options) {
+				boolean debug = options.getBooleanOption(DEBUG, false);
+				BufferManager.VERBOSE = debug && options.getBooleanOption(BUFFER_MANAGER_DEBUG, false);
+				JavaBuilder.DEBUG = debug && options.getBooleanOption(BUILDER_DEBUG, false);
+				Compiler.DEBUG = debug && options.getBooleanOption(COMPILER_DEBUG, false);
+				JavaBuilder.SHOW_STATS = debug && options.getBooleanOption(BUILDER_STATS_DEBUG, false);
+				CompletionEngine.DEBUG = debug && options.getBooleanOption(COMPLETION_DEBUG, false);
+				JavaModelManager.CP_RESOLVE_VERBOSE = debug && options.getBooleanOption(CP_RESOLVE_DEBUG, false);
+				JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED = debug && options.getBooleanOption(CP_RESOLVE_ADVANCED_DEBUG, false);
+				JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE = debug && options.getBooleanOption(CP_RESOLVE_FAILURE_DEBUG, false);
+				DeltaProcessor.DEBUG = debug && options.getBooleanOption(DELTA_DEBUG, false);
+				DeltaProcessor.VERBOSE = debug && options.getBooleanOption(DELTA_DEBUG_VERBOSE, false);
+				SourceRangeVerifier.DEBUG = debug && options.getBooleanOption(DOM_AST_DEBUG, false);
+				SourceRangeVerifier.DEBUG_THROW = debug && options.getBooleanOption(DOM_AST_DEBUG_THROW, false);
 				SourceRangeVerifier.DEBUG |= SourceRangeVerifier.DEBUG_THROW;
+				RewriteEventStore.DEBUG = debug && options.getBooleanOption(DOM_REWRITE_DEBUG, false);
+				TypeHierarchy.DEBUG = debug && options.getBooleanOption(HIERARCHY_DEBUG, false);
+				JobManager.VERBOSE = debug && options.getBooleanOption(INDEX_MANAGER_DEBUG, false);
+				IndexManager.DEBUG = debug && options.getBooleanOption(INDEX_MANAGER_ADVANCED_DEBUG, false);
+				JavaModelManager.VERBOSE = debug && options.getBooleanOption(JAVAMODEL_DEBUG, false);
+				JavaModelCache.VERBOSE = debug && options.getBooleanOption(JAVAMODELCACHE_DEBUG, false);
+				JavaModelOperation.POST_ACTION_VERBOSE = debug && options.getBooleanOption(POST_ACTION_DEBUG, false);
+				NameLookup.VERBOSE = debug && options.getBooleanOption(RESOLUTION_DEBUG, false);
+				BasicSearchEngine.VERBOSE = debug && options.getBooleanOption(SEARCH_DEBUG, false);
+				SelectionEngine.DEBUG = debug && options.getBooleanOption(SELECTION_DEBUG, false);
+				JavaModelManager.ZIP_ACCESS_VERBOSE = debug && options.getBooleanOption(ZIP_ACCESS_DEBUG, false);
+				SourceMapper.VERBOSE = debug && options.getBooleanOption(SOURCE_MAPPER_DEBUG_VERBOSE, false);
+				DefaultCodeFormatter.DEBUG = debug && options.getBooleanOption(FORMATTER_DEBUG, false);
+		
+				// configure performance options
+				if(PerformanceStats.ENABLED) {
+					CompletionEngine.PERF = PerformanceStats.isEnabled(COMPLETION_PERF);
+					SelectionEngine.PERF = PerformanceStats.isEnabled(SELECTION_PERF);
+					DeltaProcessor.PERF = PerformanceStats.isEnabled(DELTA_LISTENER_PERF);
+					JavaModelManager.PERF_VARIABLE_INITIALIZER = PerformanceStats.isEnabled(VARIABLE_INITIALIZER_PERF);
+					JavaModelManager.PERF_CONTAINER_INITIALIZER = PerformanceStats.isEnabled(CONTAINER_INITIALIZER_PERF);
+					ReconcileWorkingCopyOperation.PERF = PerformanceStats.isEnabled(RECONCILE_PERF);
+				}
 			}
-			
-			option = Platform.getDebugOption(DOM_REWRITE_DEBUG);
-			if(option != null) RewriteEventStore.DEBUG = option.equalsIgnoreCase(TRUE) ;
-			
-			option = Platform.getDebugOption(HIERARCHY_DEBUG);
-			if(option != null) TypeHierarchy.DEBUG = option.equalsIgnoreCase(TRUE) ;
+		}, properties);
+	}
 
-			option = Platform.getDebugOption(INDEX_MANAGER_DEBUG);
-			if(option != null) JobManager.VERBOSE = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(INDEX_MANAGER_ADVANCED_DEBUG);
-			if(option != null) IndexManager.DEBUG = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(JAVAMODEL_DEBUG);
-			if(option != null) JavaModelManager.VERBOSE = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(JAVAMODELCACHE_DEBUG);
-			if(option != null) JavaModelCache.VERBOSE = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(POST_ACTION_DEBUG);
-			if(option != null) JavaModelOperation.POST_ACTION_VERBOSE = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(RESOLUTION_DEBUG);
-			if(option != null) NameLookup.VERBOSE = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(SEARCH_DEBUG);
-			if(option != null) BasicSearchEngine.VERBOSE = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(SELECTION_DEBUG);
-			if(option != null) SelectionEngine.DEBUG = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(ZIP_ACCESS_DEBUG);
-			if(option != null) JavaModelManager.ZIP_ACCESS_VERBOSE = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(SOURCE_MAPPER_DEBUG_VERBOSE);
-			if(option != null) SourceMapper.VERBOSE = option.equalsIgnoreCase(TRUE) ;
-
-			option = Platform.getDebugOption(FORMATTER_DEBUG);
-			if(option != null) DefaultCodeFormatter.DEBUG = option.equalsIgnoreCase(TRUE) ;
-		}
-
-		// configure performance options
-		if(PerformanceStats.ENABLED) {
-			CompletionEngine.PERF = PerformanceStats.isEnabled(COMPLETION_PERF);
-			SelectionEngine.PERF = PerformanceStats.isEnabled(SELECTION_PERF);
-			DeltaProcessor.PERF = PerformanceStats.isEnabled(DELTA_LISTENER_PERF);
-			JavaModelManager.PERF_VARIABLE_INITIALIZER = PerformanceStats.isEnabled(VARIABLE_INITIALIZER_PERF);
-			JavaModelManager.PERF_CONTAINER_INITIALIZER = PerformanceStats.isEnabled(CONTAINER_INITIALIZER_PERF);
-			ReconcileWorkingCopyOperation.PERF = PerformanceStats.isEnabled(RECONCILE_PERF);
-		}
+	public static void unregisterDebugOptionsListener() {
+		// unregister debug options listener
+		DEBUG_REGISTRATION.unregister();
+		DEBUG_REGISTRATION = null;
 	}
 
 	/*
@@ -4989,8 +4953,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public void startup() throws CoreException {
 		try {
-			configurePluginDebugOptions();
-
 			// initialize Java model cache
 			this.cache = new JavaModelCache();
 

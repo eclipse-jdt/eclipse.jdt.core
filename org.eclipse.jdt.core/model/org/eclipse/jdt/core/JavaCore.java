@@ -5637,6 +5637,7 @@ public final class JavaCore extends Plugin {
 	 */
 	public void stop(BundleContext context) throws Exception {
 		try {
+			JavaModelManager.unregisterDebugOptionsListener();
 			JavaModelManager.getJavaModelManager().shutdown();
 		} finally {
 			// ensure we call super.stop as the last thing
@@ -5655,6 +5656,7 @@ public final class JavaCore extends Plugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		JavaModelManager.registerDebugOptionsListener(context);
 		JavaModelManager.getJavaModelManager().startup();
 	}
 }
