@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JavadocTestForField extends JavadocTest {
@@ -1027,5 +1028,29 @@ public class JavadocTestForField extends JavadocTest {
 					+ "	 */\n"
 					+ "	public int x;\n"
 					+ "}\n" });
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=451418, [1.8][compiler] NPE at ParameterizedGenericMethodBinding.computeCompatibleMethod18
+	public void test451418() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_5)
+			return;
+		
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class Repro {\n" +
+				"  public static <T> FieldSet<T> emptySet() { return null; }\n" +
+				"  /**\n" +
+				"   * {@link #emptySet} \n" +
+				"   */\n" +
+				"  public int i;\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	public static <T> FieldSet<T> emptySet() { return null; }\n" + 
+			"	                  ^^^^^^^^\n" + 
+			"FieldSet cannot be resolved to a type\n" + 
+			"----------\n");
 	}
 }

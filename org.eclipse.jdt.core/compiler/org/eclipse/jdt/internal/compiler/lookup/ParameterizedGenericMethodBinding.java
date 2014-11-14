@@ -166,6 +166,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		
 		ParameterizedGenericMethodBinding methodSubstitute = null;
 		InferenceContext18 infCtx18 = invocationSite.freshInferenceContext(scope);
+		if (infCtx18 == null)
+			return originalMethod;  // per parity with old F & G integration.
 		TypeBinding[] parameters = originalMethod.parameters;
 		CompilerOptions compilerOptions = scope.compilerOptions();
 		boolean invocationTypeInferred = false;
