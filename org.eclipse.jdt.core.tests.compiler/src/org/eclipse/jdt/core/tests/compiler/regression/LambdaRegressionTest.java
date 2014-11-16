@@ -489,6 +489,26 @@ public void test450604a() {
 			"}\n"
 	});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=451677, [1.8][compiler] missing type inference 
+public void _test451677() {
+	this.runConformTest(
+		new String[] {
+			"X.java", 
+			"import java.util.ArrayList;\n" +
+			"import java.util.function.Function;\n" +
+			"public class X {\n" +
+			"	public static void test() {\n" +
+			"		operationOnCreated(create(123, size -> new ArrayList<Integer>(size)), l -> l.size()); // works with: (ArrayList<Integer> l) -> l.size()\n" +
+			"	}\n" +
+			"	public static <R, A> R create(A arg, Function<A, R> factory) {\n" +
+			"		return factory.apply(arg);\n" +
+			"	}\n" +
+			"	public static <R, A> R operationOnCreated(A created, Function<A, R> function) {\n" +
+			"		return function.apply(created);\n" +
+			"	}\n" +
+			"}\n"
+	});
+}
 public static Class testClass() {
 	return LambdaRegressionTest.class;
 }
