@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc.
+ * Copyright (c) 2005, 2014 BEA Systems, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package org.eclipse.jdt.apt.core.internal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -25,9 +26,12 @@ import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedResourceChangeLi
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.osgi.service.debug.DebugOptions;
+import org.eclipse.osgi.service.debug.DebugOptionsListener;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
-public class AptPlugin extends Plugin {
+public class AptPlugin extends Plugin implements DebugOptionsListener {
 	public static final String PLUGIN_ID = "org.eclipse.jdt.apt.core"; //$NON-NLS-1$
 	
 	// Tracing options
@@ -67,6 +71,8 @@ public class AptPlugin extends Plugin {
 	
 	private static AptPlugin thePlugin = null; // singleton object
 	
+	private ServiceRegistration<DebugOptionsListener> debugRegistration;
+	
 	/**
 	 * The javax.annotation.processing.Processor class, which is only available on Java 6 and higher.
 	 */
@@ -84,7 +90,12 @@ public class AptPlugin extends Plugin {
 	public void start(BundleContext context) throws Exception {
 		thePlugin = this;
 		super.start(context);
-		initDebugTracing();
+
+		// register debug options listener
+		Hashtable<String, String> properties = new Hashtable<String, String>(2);
+		properties.put(DebugOptions.LISTENER_SYMBOLICNAME, PLUGIN_ID);
+		debugRegistration = context.registerService(DebugOptionsListener.class, this, properties);
+
 		// Do we have access to 
 		
 		try {
@@ -112,6 +123,10 @@ public class AptPlugin extends Plugin {
 
 	public void stop(BundleContext context) throws Exception {
 		super.stop(context);
+
+		// unregister debug options listener
+		debugRegistration.unregister();
+		debugRegistration = null;
 	}
 	
 	public static AptPlugin getPlugin() {
@@ -166,13 +181,11 @@ public class AptPlugin extends Plugin {
 		return new Status(IStatus.INFO, PLUGIN_ID, STATUS_EXCEPTION, message, e);
 	}
 	
-	private void initDebugTracing() {		
-		String option = Platform.getDebugOption(APT_DEBUG_OPTION);
-		if(option != null) DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$		
-		option = Platform.getDebugOption(APT_DEBUG_GFM_OPTION);
-		if(option != null) DEBUG_GFM = option.equalsIgnoreCase("true") ; //$NON-NLS-1$		
-		option = Platform.getDebugOption(APT_DEBUG_GFM_MAPS_OPTION);
-		if(option != null) DEBUG_GFM_MAPS = option.equalsIgnoreCase("true") ; //$NON-NLS-1$		
+	public void optionsChanged(DebugOptions options) {
+		DEBUG = options.getBooleanOption(APT_DEBUG_OPTION, false);
+		DEBUG_GFM = options.getBooleanOption(APT_DEBUG_GFM_OPTION, false);
+		DEBUG_GFM_MAPS = options.getBooleanOption(APT_DEBUG_GFM_MAPS_OPTION, false);
+		DEBUG_COMPILATION_ENV = options.getBooleanOption(APT_COMPILATION_ENV_OPTION, false);
 	}
 	
 	public static void trace(final String msg){
