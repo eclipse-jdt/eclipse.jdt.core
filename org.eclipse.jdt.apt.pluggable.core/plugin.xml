@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <!--
-    Copyright (c) 2005, 2010 IBM Corporation and others.
+    Copyright (c) 2005, 2014 IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -44,5 +44,15 @@
             value="true">
       </persistent>
    </extension>
-
+   <extension
+         point="org.eclipse.ui.trace.traceComponents">
+      <component
+            id="org.eclipse.jdt.apt.pluggable.core.trace"
+            label="%traceComponentLabel">
+         <bundle
+               consumed="false"
+               name="org.eclipse.jdt.apt.pluggable.core">
+         </bundle>
+      </component>
+   </extension>
 </plugin>

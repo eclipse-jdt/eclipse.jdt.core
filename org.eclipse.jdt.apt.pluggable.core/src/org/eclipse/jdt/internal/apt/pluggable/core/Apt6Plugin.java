@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc.
+ * Copyright (c) 2007, 2014 BEA Systems, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,12 +12,15 @@ package org.eclipse.jdt.internal.apt.pluggable.core;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Hashtable;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.osgi.service.debug.DebugOptions;
+import org.eclipse.osgi.service.debug.DebugOptionsListener;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * The plug-in responsible for dispatch of Java 6 (JSR269 Pluggable Annotation
@@ -25,7 +28,7 @@ import org.osgi.framework.BundleContext;
  * This is named Apt6Plugin to distinguish it from AptPlugin, which is responsible
  * for Java 5 (com.sun.mirror) processors.
  */
-public class Apt6Plugin extends Plugin {
+public class Apt6Plugin extends Plugin implements DebugOptionsListener {
 
 	private static final SimpleDateFormat TRACE_DATE_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS"); //$NON-NLS-1$
 
@@ -42,6 +45,8 @@ public class Apt6Plugin extends Plugin {
 
 	private static Apt6Plugin thePlugin = null; // singleton object
 	
+	private ServiceRegistration<DebugOptionsListener> debugRegistration;
+
 	public Apt6Plugin() {
 	}
 
@@ -49,16 +54,25 @@ public class Apt6Plugin extends Plugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		thePlugin = this;
-		initDebugTracing();
+
+		// register debug options listener
+		Hashtable<String, String> properties = new Hashtable<String, String>(2);
+		properties.put(DebugOptions.LISTENER_SYMBOLICNAME, PLUGIN_ID);
+		debugRegistration = context.registerService(DebugOptionsListener.class, this, properties);
 	}
-	
-	private void initDebugTracing() {		
-		String option = Platform.getDebugOption(APT_DEBUG_OPTION);
-		if (option != null) {
-			DEBUG = option.equalsIgnoreCase("true"); //$NON-NLS-1$
-		}
+
+	public void stop(BundleContext context) throws Exception {
+		super.stop(context);
+
+		// unregister debug options listener
+		debugRegistration.unregister();
+		debugRegistration = null;
 	}
-	
+
+	public void optionsChanged(DebugOptions options) {
+		DEBUG = options.getBooleanOption(APT_DEBUG_OPTION, false);
+	}
+
 	public static Apt6Plugin getPlugin() {
 		return thePlugin;
 	}
