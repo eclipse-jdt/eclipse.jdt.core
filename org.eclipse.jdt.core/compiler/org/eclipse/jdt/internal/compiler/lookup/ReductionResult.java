@@ -26,7 +26,6 @@ public abstract class ReductionResult {
 		public Object reduce(InferenceContext18 context) { return this; }
 		public String toString() { return "FALSE"; } //$NON-NLS-1$
 	};
-	/** Used to accept unchecked conversion to make ecj conform with javac bug https://bugs.openjdk.java.net/browse/JDK-8026527 */
 	
 	// Relation kinds, mimic an enum:
 	protected static final int COMPATIBLE = 1;
