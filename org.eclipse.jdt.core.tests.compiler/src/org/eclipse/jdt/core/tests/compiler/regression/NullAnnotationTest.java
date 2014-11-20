@@ -7666,5 +7666,183 @@ public void testBug445147() {
 		},
 		getCompilerOptions(),
 		"");
-	}
+}
+public void testBug445708() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses switch on string.
+	runNegativeTestWithLibs(
+		new String[] {
+			"SwitchTest.java",
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"public class SwitchTest\n" + 
+			"{\n" + 
+			"   private enum EnumValue\n" + 
+			"   {\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public static void main(String[] args)\n" + 
+			"   {\n" + 
+			"      // Should be flagged as \"Potential null pointer access,\" but is not.\n" + 
+			"      switch (computeStringValue())\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"      \n" + 
+			"      @Nullable String stringValue = null;\n" + 
+			"      \n" + 
+			"      // Properly flagged as \"Null pointer access.\"\n" + 
+			"      switch (stringValue)\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"      \n" + 
+			"      stringValue = computeStringValue();\n" + 
+			"      \n" + 
+			"      // Should be flagged as \"Potential null pointer access,\" but is not.\n" + 
+			"      switch (stringValue)\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"      \n" + 
+			"      // Should also be flagged, but is not.\n" + 
+			"      switch (computeEnumValue())\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"      \n" + 
+			"      @Nullable EnumValue enumValue = null;\n" + 
+			"      \n" + 
+			"      // Fixed in bug #403674.\n" + 
+			"      switch (enumValue)\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   private static @Nullable String computeStringValue()\n" + 
+			"   {\n" + 
+			"      return null;\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   private static @Nullable EnumValue computeEnumValue()\n" + 
+			"   {\n" + 
+			"      return null;\n" + 
+			"   }\n" + 
+			"}\n"
+		}, 
+		"----------\n" + 
+		"1. ERROR in SwitchTest.java (at line 12)\n" + 
+		"	switch (computeStringValue())\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: The method computeStringValue() may return null\n" + 
+		"----------\n" + 
+		"2. ERROR in SwitchTest.java (at line 19)\n" + 
+		"	switch (stringValue)\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"Null pointer access: The variable stringValue can only be null at this location\n" + 
+		"----------\n" + 
+		"3. ERROR in SwitchTest.java (at line 26)\n" + 
+		"	switch (stringValue)\n" + 
+		"	        ^^^^^^^^^^^\n" +
+		(this.complianceLevel < ClassFileConstants.JDK1_8
+		? "Potential null pointer access: The variable stringValue may be null at this location\n"
+		: "Potential null pointer access: this expression has a \'@Nullable\' type\n" ) +
+		"----------\n" + 
+		"4. ERROR in SwitchTest.java (at line 31)\n" + 
+		"	switch (computeEnumValue())\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: The method computeEnumValue() may return null\n" + 
+		"----------\n" + 
+		"5. ERROR in SwitchTest.java (at line 38)\n" + 
+		"	switch (enumValue)\n" + 
+		"	        ^^^^^^^^^\n" + 
+		"Null pointer access: The variable enumValue can only be null at this location\n" + 
+		"----------\n");
+}
+// same as above but 1.8 with declaration annotations
+public void testBug445708b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // only one combination tested
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+	runNegativeTestWithLibs(
+		new String[] {
+			CUSTOM_NULLABLE_NAME,
+			CUSTOM_NULLABLE_CONTENT,
+			"SwitchTest.java",
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"public class SwitchTest\n" + 
+			"{\n" + 
+			"   private enum EnumValue\n" + 
+			"   {\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public static void main(String[] args)\n" + 
+			"   {\n" + 
+			"      // Should be flagged as \"Potential null pointer access,\" but is not.\n" + 
+			"      switch (computeStringValue())\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"      \n" + 
+			"      @Nullable String stringValue = null;\n" + 
+			"      \n" + 
+			"      // Properly flagged as \"Null pointer access.\"\n" + 
+			"      switch (stringValue)\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"      \n" + 
+			"      stringValue = computeStringValue();\n" + 
+			"      \n" + 
+			"      // Should be flagged as \"Potential null pointer access,\" but is not.\n" + 
+			"      switch (stringValue)\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"      \n" + 
+			"      // Should also be flagged, but is not.\n" + 
+			"      switch (computeEnumValue())\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"      \n" + 
+			"      @Nullable EnumValue enumValue = null;\n" + 
+			"      \n" + 
+			"      // Fixed in bug #403674.\n" + 
+			"      switch (enumValue)\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   private static @Nullable String computeStringValue()\n" + 
+			"   {\n" + 
+			"      return null;\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   private static @Nullable EnumValue computeEnumValue()\n" + 
+			"   {\n" + 
+			"      return null;\n" + 
+			"   }\n" + 
+			"}\n"
+		}, 
+		"----------\n" + 
+		"1. ERROR in SwitchTest.java (at line 12)\n" + 
+		"	switch (computeStringValue())\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: The method computeStringValue() may return null\n" + 
+		"----------\n" + 
+		"2. ERROR in SwitchTest.java (at line 19)\n" + 
+		"	switch (stringValue)\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"Null pointer access: The variable stringValue can only be null at this location\n" + 
+		"----------\n" + 
+		"3. ERROR in SwitchTest.java (at line 26)\n" + 
+		"	switch (stringValue)\n" + 
+		"	        ^^^^^^^^^^^\n" +
+		"Potential null pointer access: this expression has a \'@Nullable\' type\n" +
+		"----------\n" + 
+		"4. ERROR in SwitchTest.java (at line 31)\n" + 
+		"	switch (computeEnumValue())\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: The method computeEnumValue() may return null\n" + 
+		"----------\n" + 
+		"5. ERROR in SwitchTest.java (at line 38)\n" + 
+		"	switch (enumValue)\n" + 
+		"	        ^^^^^^^^^\n" + 
+		"Null pointer access: The variable enumValue can only be null at this location\n" + 
+		"----------\n");
+}
 }
