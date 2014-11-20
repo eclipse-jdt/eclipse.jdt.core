@@ -54,6 +54,7 @@
  *								Bug 438467 - [compiler][null] Better error position for "The method _ cannot implement the corresponding method _ due to incompatible nullness constraints"
  *								Bug 439298 - [null] "Missing code implementation in the compiler" when using @NonNullByDefault in package-info.java
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
+ *								Bug 446442 - [1.8] merge null annotations from super methods
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -406,6 +407,10 @@ public static int getIrritant(int problemID) {
 		case IProblem.UninitializedNonNullFieldHintMissingDefault:
 		case IProblem.ReferenceExpressionParameterNullityMismatch:
 		case IProblem.ReferenceExpressionReturnNullRedef:
+		case IProblem.ContradictoryNullAnnotations:
+		case IProblem.ContradictoryNullAnnotationsOnBound:
+		case IProblem.ContradictoryNullAnnotationsInferred:
+		case IProblem.ContradictoryNullAnnotationsInferredFunctionType:
 			return CompilerOptions.NullSpecViolation;
 
 		case IProblem.ParameterLackingNonNullAnnotation:
@@ -4295,7 +4300,7 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method, Scope s
 			return;
 		case ProblemReasons.ContradictoryNullAnnotations:
 			problemMethod = (ProblemMethodBinding) method;
-			contradictoryNullAnnotationsInferred(problemMethod.closestMatch, (ASTNode)messageSend);
+			contradictoryNullAnnotationsInferred(problemMethod.closestMatch, messageSend);
 			return;
 		case ProblemReasons.NoError : // 0
 		default :
@@ -9566,12 +9571,9 @@ public void contradictoryNullAnnotations(int sourceStart, int sourceEnd) {
 }
 
 public void contradictoryNullAnnotationsInferred(MethodBinding inferredMethod, ASTNode location) {
-	contradictoryNullAnnotationsInferred(inferredMethod, location.sourceStart, location.sourceEnd);
+	contradictoryNullAnnotationsInferred(inferredMethod, location.sourceStart, location.sourceEnd, false);
 }
-public void contradictoryNullAnnotationsInferred(MethodBinding inferredMethod, InvocationSite location) {
-	contradictoryNullAnnotationsInferred(inferredMethod, location.sourceStart(), location.sourceEnd());
-}
-public void contradictoryNullAnnotationsInferred(MethodBinding inferredMethod, int sourceStart, int sourceEnd) {
+public void contradictoryNullAnnotationsInferred(MethodBinding inferredMethod, int sourceStart, int sourceEnd, boolean isFunctionalExpression) {
 	// when this error is triggered we can safely assume that both annotations have been configured
 	char[][] nonNullAnnotationName = this.options.nonNullAnnotationName;
 	char[][] nullableAnnotationName = this.options.nullableAnnotationName;
@@ -9589,7 +9591,9 @@ public void contradictoryNullAnnotationsInferred(MethodBinding inferredMethod, i
 			new String(inferredMethod.selector),
 			typesAsString(inferredMethod, true, true)
 		};
-	this.handle(IProblem.ContradictoryNullAnnotationsInferred, arguments, shortArguments, sourceStart, sourceEnd);
+	this.handle(
+			isFunctionalExpression ? IProblem.ContradictoryNullAnnotationsInferredFunctionType : IProblem.ContradictoryNullAnnotationsInferred, 
+			arguments, shortArguments, sourceStart, sourceEnd);
 }
 
 public void contradictoryNullAnnotationsOnBounds(Annotation annotation, long previousTagBit) {

@@ -21,6 +21,7 @@
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
  *								Bug 434602 - Possible error with inferred null annotations leading to contradictory null annotations
  *								Bug 434483 - [1.8][compiler][inference] Type inference not picked up with method reference
+ *								Bug 446442 - [1.8] merge null annotations from super methods
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -239,7 +240,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					}
 					if (invocationTypeInferred) {
 						if (compilerOptions.isAnnotationBasedNullAnalysisEnabled)
-							NullAnnotationMatching.checkForContraditions(methodSubstitute, invocationSite, scope);
+							NullAnnotationMatching.checkForContradictions(methodSubstitute, invocationSite, scope);
 						MethodBinding problemMethod = methodSubstitute.boundCheck18(scope, arguments);
 						if (problemMethod != null) {
 							return problemMethod;

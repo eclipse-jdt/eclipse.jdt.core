@@ -112,7 +112,7 @@ public class ImplicitNullAnnotationVerifier {
 						// recurse to prepare currentSuper
 						checkImplicitNullAnnotations(currentSuper, null, false, scope); // TODO (stephan) complain=true if currentSuper is source method??
 					}
-					checkNullSpecInheritance(currentMethod, srcMethod, needToApplyReturnNonNullDefault, needToApplyParameterNonNullDefault, complain, currentSuper, scope, inheritedNonNullnessInfos);
+					checkNullSpecInheritance(currentMethod, srcMethod, needToApplyReturnNonNullDefault, needToApplyParameterNonNullDefault, complain, currentSuper, null, scope, inheritedNonNullnessInfos);
 					needToApplyNonNullDefault = false;
 				}
 				
@@ -192,16 +192,18 @@ public class ImplicitNullAnnotationVerifier {
 	{
 		MethodBinding [] ifcMethods = superType.getMethods(selector, suggestedParameterLength);
 		int length = ifcMethods.length;
+		boolean added = false;
 		for  (int i=0; i<length; i++) {
 			MethodBinding currentMethod = ifcMethods[i];
 			if (currentMethod.isStatic())
 				continue;
 			if (MethodVerifier.doesMethodOverride(original, currentMethod, this.environment)) {
 				result.add(currentMethod);
-				return; // at most one method is overridden from any supertype
+				added = true; // when overriding one or more methods from superType don't traverse to transitive superTypes
 			}
 		}
-		findAllOverriddenMethods(original, selector, suggestedParameterLength, superType, ifcsSeen, result);
+		if (!added)
+			findAllOverriddenMethods(original, selector, suggestedParameterLength, superType, ifcsSeen, result);
 	}
 
 	/**
@@ -213,6 +215,7 @@ public class ImplicitNullAnnotationVerifier {
 	 * @param shouldComplain should we report any errors found? 
 	 *   (see also comment about flows into this method, below).
 	 * @param inheritedMethod one overridden method from a super type
+	 * @param allInheritedMethods look here to see if nonnull-unannotated conflict already exists in one super type
 	 * @param scope provides context for error reporting etc.
 	 * @param inheritedNonNullnessInfos if non-null, this array of non-null elements is used for
 	 * 	 interim recording of nullness information from inheritedMethod rather than prematurely updating currentMethod.
@@ -220,7 +223,7 @@ public class ImplicitNullAnnotationVerifier {
 	 */
 	void checkNullSpecInheritance(MethodBinding currentMethod, AbstractMethodDeclaration srcMethod, 
 			boolean hasReturnNonNullDefault, boolean hasParameterNonNullDefault, boolean shouldComplain,
-			MethodBinding inheritedMethod, Scope scope, InheritedNonNullnessInfo[] inheritedNonNullnessInfos) 
+			MethodBinding inheritedMethod, MethodBinding[] allInheritedMethods, Scope scope, InheritedNonNullnessInfo[] inheritedNonNullnessInfos) 
 	{
 		// Note that basically two different flows lead into this method:
 		// (1) during MethodVerifyer15.checkMethods() we want to report errors (against srcMethod or against the current type)
@@ -324,6 +327,7 @@ public class ImplicitNullAnnotationVerifier {
 		else if (currentMethod.parameterNonNullness != null)
 			length = currentMethod.parameterNonNullness.length;
 
+		parameterLoop:
 		for (int i = 0; i < length; i++) {
 			if (currentMethod.parameters[i].isBaseType()) continue;
 
@@ -404,6 +408,12 @@ public class ImplicitNullAnnotationVerifier {
 						continue;
 					} else if (inheritedNonNullNess == Boolean.TRUE) {
 						// not strictly a conflict, but a configurable warning is given anyway:
+						if (allInheritedMethods != null) {
+							// avoid this optional warning if the conflict already existed in one supertype (merging of two methods into one?)
+							for (MethodBinding one : allInheritedMethods)
+								if (TypeBinding.equalsEquals(inheritedMethod.declaringClass, one.declaringClass) && getParameterNonNullness(one, i, useTypeAnnotations) != Boolean.TRUE)
+									continue parameterLoop;
+						}
 						scope.problemReporter().parameterLackingNonnullAnnotation(
 								currentArgument,
 								inheritedMethod.declaringClass,

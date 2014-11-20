@@ -19,6 +19,7 @@
  *							Bug 424403 - [1.8][compiler] Generic method call with method reference argument fails to resolve properly.
  *							Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
  *							Bug 428352 - [1.8][compiler] Resolution errors don't always surface
+ *							Bug 446442 - [1.8] merge null annotations from super methods
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -179,6 +180,8 @@ public abstract class FunctionalExpression extends Expression {
 		
 		this.descriptor = sam;
 		if (kosherDescriptor(blockScope, sam, true)) {
+			if (blockScope.environment().globalOptions.isAnnotationBasedNullAnalysisEnabled)
+				NullAnnotationMatching.checkForContradictions(sam, this, blockScope);
 			return this.resolvedType = this.expectedType;		
 		}
 		

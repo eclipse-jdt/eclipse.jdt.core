@@ -33,6 +33,7 @@
  *								Bug 431581 - Eclipse compiles what it should not
  *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
  *								Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
+ *								Bug 446442 - [1.8] merge null annotations from super methods
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -46,6 +47,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
@@ -1984,11 +1986,14 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 	final LookupEnvironment environment = scope.environment();
 	boolean genericMethodSeen = false;
 	int length = methods.length;
+	boolean analyseNullAnnotations = environment.globalOptions.isAnnotationBasedNullAnalysisEnabled;
 	
 	next:for (int i = length - 1; i >= 0; --i) {
 		MethodBinding method = methods[i], otherMethod = null;
 		if (method.typeVariables != Binding.NO_TYPE_VARIABLES)
 			genericMethodSeen = true;
+		TypeBinding returnType = method.returnType;
+		TypeBinding[] parameters = method.parameters;
 		for (int j = 0; j < length; j++) {
 			if (i == j) continue;
 			otherMethod = methods[j];
@@ -2001,7 +2006,11 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 					continue next;
 			}
 			if (!MethodVerifier.isSubstituteParameterSubsignature(method, otherMethod, environment) || !MethodVerifier.areReturnTypesCompatible(method, otherMethod, environment)) 
-				continue next; 
+				continue next;
+			if (analyseNullAnnotations) {
+				returnType = NullAnnotationMatching.strongerType(returnType, otherMethod.returnType, environment);
+				parameters = NullAnnotationMatching.weakerTypes(parameters, otherMethod.parameters, environment);
+			}
 		}
 		// If we reach here, we found a method that is override equivalent with every other method and is also return type substitutable. Compute kosher exceptions now ...
 		ReferenceBinding [] exceptions = new ReferenceBinding[0];
@@ -2067,8 +2076,8 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 		}
 		this.singleAbstractMethod[index] = new MethodBinding(theAbstractMethod.modifiers | ClassFileConstants.AccSynthetic, 
 				theAbstractMethod.selector, 
-				theAbstractMethod.returnType, 
-				theAbstractMethod.parameters, 
+				returnType, 
+				parameters, 
 				exceptions, 
 				theAbstractMethod.declaringClass);
 	    this.singleAbstractMethod[index].typeVariables = theAbstractMethod.typeVariables;

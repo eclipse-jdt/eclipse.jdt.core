@@ -28,6 +28,7 @@
  *								Bug 390889 - [1.8][compiler] Evaluate options to support 1.7- projects against 1.8 JRE.
  *								Bug 440773 - [1.8][null]DefaultLocation.RETURN_TYPE erroneously affects method parameters in @NonNullByDefault
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
+ *								Bug 446442 - [1.8] merge null annotations from super methods
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -103,7 +104,7 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 					this.type.addSyntheticBridgeMethod(originalInherited, concreteMethod.original());
 		}
 		if (analyseNullAnnotations && !concreteMethod.isStatic() && !abstractMethod.isStatic()) {
-			checkNullSpecInheritance(concreteMethod, srcMethod, hasReturnNonNullDefault, hasParameterNonNullDefault, true, abstractMethod, this.type.scope, null);
+			checkNullSpecInheritance(concreteMethod, srcMethod, hasReturnNonNullDefault, hasParameterNonNullDefault, true, abstractMethod, abstractMethods, this.type.scope, null);
 		}
 	}
 }
@@ -400,12 +401,12 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 		boolean hasParameterNonNullDefault = currentMethod.hasNonNullDefaultFor(Binding.DefaultLocationParameter, useTypeAnnotations);
 		for (int i = length; --i >= 0;)
 			if (!currentMethod.isStatic() && !methods[i].isStatic())
-				checkNullSpecInheritance(currentMethod, srcMethod, hasReturnNonNullDefault, hasParameterNonNullDefault, true, methods[i], this.type.scope, null);
+				checkNullSpecInheritance(currentMethod, srcMethod, hasReturnNonNullDefault, hasParameterNonNullDefault, true, methods[i], methods, this.type.scope, null);
 	}
 }
 
 void checkNullSpecInheritance(MethodBinding currentMethod, AbstractMethodDeclaration srcMethod, 
-		boolean hasReturnNonNullDefault, boolean hasParameterNonNullDefault, boolean complain, MethodBinding inheritedMethod, Scope scope, InheritedNonNullnessInfo[] inheritedNonNullnessInfos)
+		boolean hasReturnNonNullDefault, boolean hasParameterNonNullDefault, boolean complain, MethodBinding inheritedMethod, MethodBinding[] allInherited, Scope scope, InheritedNonNullnessInfo[] inheritedNonNullnessInfos)
 {
 	complain &= !currentMethod.isConstructor();
 	if (!hasReturnNonNullDefault && !hasParameterNonNullDefault && !complain && !this.environment.globalOptions.inheritNullAnnotations) {
@@ -419,7 +420,7 @@ void checkNullSpecInheritance(MethodBinding currentMethod, AbstractMethodDeclara
 	{
 		this.buddyImplicitNullAnnotationsVerifier.checkImplicitNullAnnotations(currentMethod, srcMethod, complain, scope);
 	}
-	super.checkNullSpecInheritance(currentMethod, srcMethod, hasReturnNonNullDefault, hasParameterNonNullDefault, complain, inheritedMethod, scope, inheritedNonNullnessInfos);
+	super.checkNullSpecInheritance(currentMethod, srcMethod, hasReturnNonNullDefault, hasParameterNonNullDefault, complain, inheritedMethod, allInherited, scope, inheritedNonNullnessInfos);
 }
 
 void reportRawReferences() {

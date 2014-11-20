@@ -35,6 +35,7 @@
  *								Bug 430150 - [1.8][null] stricter checking against type variables
  *								Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
  *								Bug 438467 - [compiler][null] Better error position for "The method _ cannot implement the corresponding method _ due to incompatible nullness constraints"
+ *								Bug 446442 - [1.8] merge null annotations from super methods
  *     Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -432,9 +433,10 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ContainerAnnotationTypeHasShorterRetention", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ContainerAnnotationTypeHasWrongValueType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ContainerAnnotationTypeMustHaveValue", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
-		expectedProblemAttributes.put("ContradictoryNullAnnotations", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
-		expectedProblemAttributes.put("ContradictoryNullAnnotationsOnBound", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
-		expectedProblemAttributes.put("ContradictoryNullAnnotationsInferred", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("ContradictoryNullAnnotations", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("ContradictoryNullAnnotationsOnBound", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("ContradictoryNullAnnotationsInferred", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("ContradictoryNullAnnotationsInferredFunctionType", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ComparingIdentical", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ConflictingImport", new ProblemAttributes(CategorizedProblem.CAT_IMPORT));
 		expectedProblemAttributes.put("ConflictingNullAnnotations", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -1264,9 +1266,10 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ContainerAnnotationTypeHasShorterRetention", SKIP);
 		expectedProblemAttributes.put("ContainerAnnotationTypeHasWrongValueType", SKIP);
 		expectedProblemAttributes.put("ContainerAnnotationTypeMustHaveValue", SKIP);
-		expectedProblemAttributes.put("ContradictoryNullAnnotations", SKIP);
-		expectedProblemAttributes.put("ContradictoryNullAnnotationsOnBound", SKIP);
-		expectedProblemAttributes.put("ContradictoryNullAnnotationsInferred", SKIP);
+		expectedProblemAttributes.put("ContradictoryNullAnnotations", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
+		expectedProblemAttributes.put("ContradictoryNullAnnotationsOnBound", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
+		expectedProblemAttributes.put("ContradictoryNullAnnotationsInferred", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
+		expectedProblemAttributes.put("ContradictoryNullAnnotationsInferredFunctionType", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
 		expectedProblemAttributes.put("ConstructorVarargsArgumentNeedCast", new ProblemAttributes(JavaCore.COMPILER_PB_VARARGS_ARGUMENT_NEED_CAST));
 		expectedProblemAttributes.put("CorruptedSignature", SKIP);
 		expectedProblemAttributes.put("DanglingReference", SKIP);

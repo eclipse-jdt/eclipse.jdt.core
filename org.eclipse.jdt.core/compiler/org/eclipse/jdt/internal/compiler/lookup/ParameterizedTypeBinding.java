@@ -686,7 +686,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    	// substitute methods, so as to get updated declaring class at least
 	            parameterizedMethods[i] = createParameterizedMethod(originalMethods[i]);
 	            if (useNullTypeAnnotations)
-	            	parameterizedMethods[i] = NullAnnotationMatching.checkForContraditions(parameterizedMethods[i], null, null);
+	            	parameterizedMethods[i] = NullAnnotationMatching.checkForContradictions(parameterizedMethods[i], null, null);
 		    }
 		    if (this.methods == null) {
 				MethodBinding[] temp = new MethodBinding[length];
@@ -967,7 +967,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    	// substitute all methods, so as to get updated declaring class at least
 	            parameterizedMethods[i] = createParameterizedMethod(originalMethods[i]);
 	            if (useNullTypeAnnotations)
-	            	parameterizedMethods[i] = NullAnnotationMatching.checkForContraditions(parameterizedMethods[i], null, null);
+	            	parameterizedMethods[i] = NullAnnotationMatching.checkForContradictions(parameterizedMethods[i], null, null);
 		    }
 
 		    this.methods = parameterizedMethods;

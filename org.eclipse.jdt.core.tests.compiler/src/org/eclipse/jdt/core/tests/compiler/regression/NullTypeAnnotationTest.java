@@ -6960,4 +6960,342 @@ public void testBug448777() {
 		"Contradictory null annotations: method was inferred as \'@NonNull @Nullable String a(@NonNull @Nullable String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 		"----------\n");
 }
+public void testBug446442_comment2a() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface Foo<T, N extends Number> {\n" + 
+			"	void m(@NonNull N arg2);\n" + 
+			"\n" + 
+			"	void m(@Nullable T arg1);\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Baz extends Foo<Integer, Integer> {}\n" + 
+			"\n" +
+			"class Impl implements Baz {\n" + 
+			"  public void m(@NonNull Integer i) {}\n" + 
+			"}\n" +
+			"\n" + 
+			"public class Test {\n" + 
+			"	Baz baz= x -> {\n" + 
+			"		x= null;\n" + 
+			"	}; \n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 11)\n" + 
+		"	public void m(@NonNull Integer i) {}\n" + 
+		"	              ^^^^^^^^^^^^^^^^\n" + 
+		"Illegal redefinition of parameter i, inherited method from Foo<Integer,Integer> declares this parameter as @Nullable\n" + 
+		"----------\n");
+}
+// swapped order of method declarations
+public void testBug446442_comment2b() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface Foo<T, N extends Number> {\n" + 
+			"	void m(@Nullable T arg1);\n" + 
+			"\n" + 
+			"	void m(@NonNull N arg2);\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Baz extends Foo<Integer, Integer> {}\n" + 
+			"\n" +
+			"class Impl implements Baz {\n" + 
+			"  public void m(@NonNull Integer i) {}\n" + 
+			"}\n" +
+			"\n" + 
+			"public class Test {\n" + 
+			"	Baz baz= x -> {\n" + 
+			"		x= null;\n" + 
+			"	}; \n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 11)\n" + 
+		"	public void m(@NonNull Integer i) {}\n" + 
+		"	              ^^^^^^^^^^^^^^^^\n" + 
+		"Illegal redefinition of parameter i, inherited method from Foo<Integer,Integer> declares this parameter as @Nullable\n" + 
+		"----------\n");
+}
+// inherit from two different supers
+public void testBug446442_comment2c() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface Foo0<T, N extends Number> {\n" + 
+			"	void m(@Nullable T arg1);\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Foo1<T, N extends Number> {\n" + 
+			"	void m(@NonNull N arg2);\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Baz extends Foo1<Integer, Integer>,  Foo0<Integer, Integer> {}\n" + 
+			"\n" +
+			"class Impl implements Baz {\n" + 
+			"  public void m(@NonNull Integer i) {}\n" + 
+			"}\n" +
+			"\n" + 
+			"public class Test {\n" + 
+			"	Baz baz= x -> {\n" + 
+			"		x= null;\n" + 
+			"	}; \n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 13)\n" + 
+		"	public void m(@NonNull Integer i) {}\n" + 
+		"	              ^^^^^^^^^^^^^^^^\n" + 
+		"Illegal redefinition of parameter i, inherited method from Foo0<Integer,Integer> declares this parameter as @Nullable\n" + 
+		"----------\n");
+}
+// merging @NonNull & unannotated in arg-position must answer unannotated
+public void testBug446442_2a() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface Foo<T, N extends Number> {\n" + 
+			"	void m(@NonNull N arg2);\n" + 
+			"\n" + 
+			"	void m(T arg1);\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Baz extends Foo<Integer, Integer> {}\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"	Baz baz= x -> {\n" + 
+			"		@NonNull Object o = x;\n" + 
+			"	}; \n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in Test.java (at line 12)\n" + 
+		"	@NonNull Object o = x;\n" + 
+		"	                    ^\n" + 
+		"Null type safety (type annotations): The expression of type \'Integer\' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
+		"----------\n");
+}
+// merging @NonNull & unannotated in arg-position must answer unannotated - swapped order
+public void testBug446442_2b() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface Foo<T, N extends Number> {\n" + 
+			"	void m(T arg1);\n" + 
+			"\n" + 
+			"	void m(@NonNull N arg2);\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Baz extends Foo<Integer, Integer> {}\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"	Baz baz= x -> {\n" + 
+			"		@NonNull Object o = x;\n" + 
+			"	}; \n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in Test.java (at line 12)\n" + 
+		"	@NonNull Object o = x;\n" + 
+		"	                    ^\n" + 
+		"Null type safety (type annotations): The expression of type \'Integer\' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
+		"----------\n");
+}
+// using inherited implementation to fulfill both contracts
+public void testBug446442_3() {
+	runConformTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"interface Foo<T, N extends Number> {\n" + 
+			"	void m(@NonNull N arg2);\n" + 
+			"\n" + 
+			"	void m(T arg1);\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Baz extends Foo<Integer, Integer> {}\n" + 
+			"class Impl {\n" + 
+			"  public void m(Integer a) {}\n" + 
+			"}\n" + 
+			"class BazImpl extends Impl implements Baz {}\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"	void test(BazImpl b) {\n" + 
+			"		b.m(null);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+// unsuccessful attempt to trigger use of MostSpecificExceptionMethodBinding
+public void testBug446442_4() {
+	runConformTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"interface Foo<T, N extends Number> {\n" + 
+			"	abstract void m(@NonNull N arg2) throws Exception;\n" + 
+			"\n" + 
+			"	default void m(T arg1) throws java.io.IOException {}\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Baz extends Foo<Integer, Integer> {}\n" + 
+			"abstract class Impl {\n" + 
+			"  public void m(Integer a) throws java.io.IOException {}\n" + 
+			"}\n" + 
+			"class BazImpl extends Impl implements Baz {}\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"	void test(BazImpl b) throws java.io.IOException {\n" + 
+			"		b.m(null);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+// annotated return types
+public void testBug446442_5() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface Foo<T, N extends Number> {\n" + 
+			"	T m(T t);\n" + 
+			"\n" + 
+			"	@NonNull N m(N n);\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Baz extends Foo<Integer, Integer> {}\n" + 
+			"\n" +
+			"class Impl implements Baz {\n" + 
+			"  public Integer m(Integer i) { return new Integer(0); }\n" + 
+			"}\n" +
+			"\n" + 
+			"public class Test {\n" + 
+			"	Baz baz= x -> null;\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 11)\n" + 
+		"	public Integer m(Integer i) { return new Integer(0); }\n" + 
+		"	       ^^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Integer\' returned from Foo<Integer,Integer>.m(Integer) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"2. ERROR in Test.java (at line 15)\n" + 
+		"	Baz baz= x -> null;\n" + 
+		"	              ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Integer\' but the provided value is null\n" + 
+		"----------\n");
+}
+// conflicting annotations on type arguments
+public void testBug446442_6a() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import java.util.*;\n" +
+			"interface Foo<T,C1 extends Collection<T>, C2 extends List<T>> {\n" + 
+			"	void m(C1 a1);\n" + 
+			"\n" + 
+			"	void m(C2 a2);\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Baz extends Foo<Integer, ArrayList<@NonNull Integer>, ArrayList<@Nullable Integer>> {}\n" + 
+			"\n" +
+			"class Impl implements Baz {\n" + 
+			"  public void m(ArrayList<@NonNull Integer> i) {} // contradictory type cannot be implemented\n" +
+			"}\n" +
+			"\n" + 
+			"public class Test {\n" + 
+			"	Baz baz= x -> { // contradictory type cannot be used as SAM\n" +
+			"		x.add(null); // contradictory type cause errors at call sites\n" +
+			"	}; \n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 12)\n" + 
+		"	public void m(ArrayList<@NonNull Integer> i) {} // contradictory type cannot be implemented\n" + 
+		"	              ^^^^^^^^^\n" + 
+		"Illegal redefinition of parameter i, inherited method from Foo<Integer,ArrayList<Integer>,ArrayList<Integer>> declares this parameter as \'ArrayList<@Nullable Integer>\' (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"2. ERROR in Test.java (at line 16)\n" + 
+		"	Baz baz= x -> { // contradictory type cannot be used as SAM\n" + 
+		"		x.add(null); // contradictory type cause errors at call sites\n" + 
+		"	}; \n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Contradictory null annotations: function type was inferred as \'void (ArrayList<@NonNull @Nullable Integer>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"----------\n" + 
+		"3. ERROR in Test.java (at line 17)\n" + 
+		"	x.add(null); // contradictory type cause errors at call sites\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Contradictory null annotations: method was inferred as \'boolean add(@NonNull @Nullable Integer)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"----------\n");
+}
+// swapped order of method declarations + added return type
+public void testBug446442_6b() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import java.util.*;\n" +
+			"interface Foo<T,C1 extends Collection<T>, C2 extends List<T>> {\n" + 
+			"	C2 m(C2 a2);\n" + 
+			"\n" + 
+			"	C1 m(C1 a1);\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Baz extends Foo<Integer, ArrayList<@NonNull Integer>, ArrayList<@Nullable Integer>> {}\n" + 
+			"\n" +
+			"class Impl implements Baz {\n" + 
+			"  public ArrayList<@NonNull Integer> m(ArrayList<@Nullable Integer> i) { return i; }\n" + 
+			"}\n" +
+			"\n" + 
+			"public class Test {\n" + 
+			"	Baz baz= x -> {\n" + 
+			"		x.add(null);\n" +
+			"		x.get(0);\n" +
+			"		return x;\n" + 
+			"	};\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 12)\n" + 
+		"	public ArrayList<@NonNull Integer> m(ArrayList<@Nullable Integer> i) { return i; }\n" + 
+		"	       ^^^^^^^^^\n" + 
+		"The return type is incompatible with \'ArrayList<@Nullable Integer>\' returned from Foo<Integer,ArrayList<Integer>,ArrayList<Integer>>.m(ArrayList<Integer>) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"2. ERROR in Test.java (at line 12)\n" + 
+		"	public ArrayList<@NonNull Integer> m(ArrayList<@Nullable Integer> i) { return i; }\n" + 
+		"	                                     ^^^^^^^^^\n" + 
+		"Illegal redefinition of parameter i, inherited method from Foo<Integer,ArrayList<Integer>,ArrayList<Integer>> declares this parameter as \'ArrayList<@NonNull Integer>\' (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"3. ERROR in Test.java (at line 16)\n" + 
+		"	Baz baz= x -> {\n" + 
+		"		x.add(null);\n" + 
+		"		x.get(0);\n" + 
+		"		return x;\n" + 
+		"	};\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Contradictory null annotations: function type was inferred as \'ArrayList<@NonNull @Nullable Integer> (ArrayList<@NonNull @Nullable Integer>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"----------\n" + 
+		"4. ERROR in Test.java (at line 17)\n" + 
+		"	x.add(null);\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Contradictory null annotations: method was inferred as \'boolean add(@NonNull @Nullable Integer)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"----------\n" + 
+		"5. ERROR in Test.java (at line 18)\n" + 
+		"	x.get(0);\n" + 
+		"	^^^^^^^^\n" + 
+		"Contradictory null annotations: method was inferred as \'@NonNull @Nullable Integer get(int)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"----------\n");
+}
 }
