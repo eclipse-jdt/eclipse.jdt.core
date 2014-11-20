@@ -7468,4 +7468,19 @@ public void testBug452780() {
 		getCompilerOptions(),
 		"");
 }
+public void testBug445147() {
+	runConformTestWithLibs(
+		new String[] {
+			"foobar/Bar.java",
+			"package foobar;\n" + 
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"interface Bar<B extends Bar<B, F>, F extends Foo<F, B>> {}",
+			"foobar/Foo.java",
+			"package foobar;\n" + 
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"interface Foo<F extends Foo<F, B>, B extends Bar<B, F>> {}"
+		},
+		getCompilerOptions(),
+		"");
+	}
 }

@@ -137,9 +137,9 @@ public class NullAnnotationMatching {
 	 * @return a status object representing the severity of mismatching plus optionally a supertype hint
 	 */
 	public static NullAnnotationMatching analyse(TypeBinding requiredType, TypeBinding providedType, TypeBinding providedSubstitute, int nullStatus, CheckMode mode) {
+		if (!requiredType.enterRecursiveFunction())
+			return NullAnnotationMatching.NULL_ANNOTATIONS_OK;
 		try {
-			if (!requiredType.enterRecursiveFunction())
-				return NullAnnotationMatching.NULL_ANNOTATIONS_OK;
 			int severity = 0;
 			TypeBinding superTypeHint = null;
 			NullAnnotationMatching okStatus = NullAnnotationMatching.NULL_ANNOTATIONS_OK;
